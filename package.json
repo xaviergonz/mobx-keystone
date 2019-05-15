@@ -1,0 +1,46 @@
+{
+  "name": "mobx-state-tree-next",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "umd:main": "dist/mobx-state-tree-2.umd.production.js",
+  "module": "dist/mobx-state-tree-2.es.production.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test"
+  },
+  "peerDependencies": {
+    "mobx": "^5.9.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "prettier": {
+    "printWidth": 100,
+    "semi": false,
+    "singleQuote": false,
+    "trailingComma": "es5"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.12",
+    "husky": "^2.2.0",
+    "mobx": "^5.9.4",
+    "prettier": "^1.17.0",
+    "pretty-quick": "^1.10.0",
+    "tsdx": "^0.5.6",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "fast-json-patch": "^2.1.0",
+    "immer": "^3.1.1",
+    "reflect-metadata": "^0.1.13",
+    "ts-essentials": "^2.0.7"
+  }
+}
