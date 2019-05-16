@@ -17,10 +17,12 @@ import {
   observable,
   observe,
 } from "mobx"
-import { getActionProtection, getCurrentActionContext } from "./action"
+import { getCurrentActionContext } from "./action"
 import { getModelInfoForObject } from "./model"
-import { ParentPath, setParent } from "./parent"
-import { getInternalSnapshot, setInternalSnapshot } from "./snapshots"
+import { ParentPath } from "./parent"
+import { getInternalSnapshot, setInternalSnapshot } from "./snapshot/_internal"
+import { setParent } from "./parent/_setParent"
+import { getActionProtection } from "./action/protection"
 
 const tweakedObjects = new WeakSet<Object>()
 

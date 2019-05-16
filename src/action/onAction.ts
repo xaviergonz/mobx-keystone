@@ -1,9 +1,9 @@
 import { isObservable, toJS } from "mobx"
-import { ActionContext, addActionMiddleware } from "./action"
-import { getSnapshot } from "./getSnapshot"
-import { getRootPath, isChildOfParent } from "./parent"
-import { isTweakedObject, tweak } from "./tweaker"
-import { isObject, isPlainObject } from "./utils"
+import { ActionContext, addActionMiddleware } from "."
+import { getSnapshot } from "../snapshot"
+import { getRootPath, isChildOfParent } from "../parent"
+import { isTweakedObject, tweak } from "../tweaker"
+import { isObject, isPlainObject } from "../_utils"
 
 export interface SerializableAction {
   readonly name: string

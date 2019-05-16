@@ -1,5 +1,5 @@
 import * as fsp from "fast-json-patch"
-import { onSnapshot } from "./onSnapshot"
+import { onSnapshot } from "../snapshot"
 
 export function onPatch(
   obj: object,
