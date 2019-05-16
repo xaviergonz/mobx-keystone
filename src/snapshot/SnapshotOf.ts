@@ -1,4 +1,4 @@
-import { Model } from "./model"
+import { Model } from "../model"
 
 export interface SnapshotOfArray<T> extends Array<SnapshotOf<T>> {}
 export interface SnapshotOfReadonlyArray<T> extends ReadonlyArray<SnapshotOf<T>> {}

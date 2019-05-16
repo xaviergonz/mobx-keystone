@@ -1,7 +1,7 @@
 import { SnapshotOf } from "./SnapshotOf"
-import { getInternalSnapshot, reportInternalSnapshotObserved } from "./snapshots"
-import { isTweakedObject, tweak } from "./tweaker"
-import { isObject } from "./utils"
+import { getInternalSnapshot, reportInternalSnapshotObserved } from "./_internal"
+import { isTweakedObject, tweak } from "../tweaker"
+import { isObject } from "../_utils"
 
 export function getSnapshot<T>(
   value: T,

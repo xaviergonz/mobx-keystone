@@ -6,9 +6,9 @@ import {
   linkInternalSnapshot,
   setInternalSnapshot,
   unlinkInternalSnapshot,
-} from "./snapshots"
+} from "./snapshot/_internal"
 import { tweak } from "./tweaker"
-import { fail, isObject } from "./utils"
+import { fail, isObject } from "./_utils"
 
 export abstract class Model {
   readonly [typeofKey]: string
