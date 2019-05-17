@@ -1,14 +1,13 @@
-import { produce } from "immer"
-import "reflect-metadata"
-import { typeofKey } from "./metadata"
+import { typeofKey } from "../snapshot/metadata"
+import { modelInfoByClass } from "./modelInfo"
+import { tweak } from "../tweaker/tweak"
 import {
   getInternalSnapshot,
-  linkInternalSnapshot,
   setInternalSnapshot,
   unlinkInternalSnapshot,
-} from "./snapshot/_internal"
-import { tweak } from "./tweaker"
-import { fail, isObject } from "./_utils"
+  linkInternalSnapshot,
+} from "../snapshot/internal"
+import produce from "immer"
 
 export abstract class Model {
   readonly [typeofKey]: string
@@ -73,45 +72,3 @@ export abstract class Model {
 }
 
 export type ModelClass = typeof Model
-
-interface ModelInfo {
-  name: string
-  class: ModelClass
-}
-const modelInfoByName: {
-  [name: string]: ModelInfo
-} = {}
-const modelInfoByClass = new Map<any, ModelInfo>()
-
-export function getModelInfoForName(name: string): ModelInfo | undefined {
-  return modelInfoByName[name]
-}
-
-export function getModelInfoForObject(obj: any): ModelInfo | undefined {
-  if (!isObject(obj) || !obj[typeofKey]) {
-    return undefined
-  }
-  return getModelInfoForName(obj[typeofKey])
-}
-
-export const model = (name: string) => (clazz: ModelClass) => {
-  if (typeof clazz !== "function") {
-    throw fail("class expected")
-  }
-
-  if (!(clazz.prototype instanceof Model)) {
-    throw fail(`a model class must extend Model`)
-  }
-
-  if (modelInfoByName[name]) {
-    throw fail(`a model with name "${name}" already exists`)
-  }
-
-  const modelInfo = {
-    name,
-    class: clazz,
-  }
-
-  modelInfoByName[name] = modelInfo
-  modelInfoByClass.set(clazz, modelInfo)
-}

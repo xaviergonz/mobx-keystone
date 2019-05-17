@@ -17,18 +17,13 @@ import {
   observable,
   observe,
 } from "mobx"
-import { getCurrentActionContext } from "./action"
-import { getModelInfoForObject } from "./model"
-import { ParentPath } from "./parent"
-import { getInternalSnapshot, setInternalSnapshot } from "./snapshot/_internal"
-import { setParent } from "./parent/_setParent"
-import { getActionProtection } from "./action/protection"
-
-const tweakedObjects = new WeakSet<Object>()
-
-export function isTweakedObject(value: any): value is Object {
-  return tweakedObjects.has(value)
-}
+import { getCurrentActionContext } from "../action/context"
+import { getModelInfoForObject } from "../model/modelInfo"
+import { ParentPath } from "../parent"
+import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
+import { setParent } from "../parent/setParent"
+import { getActionProtection } from "../action/protection"
+import { isTweakedObject, tweakedObjects } from "./core"
 
 export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (typeof value !== "object" || value === null) {

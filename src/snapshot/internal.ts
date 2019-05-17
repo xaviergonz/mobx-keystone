@@ -1,7 +1,7 @@
 import produce from "immer"
 import { createAtom, IAtom, transaction } from "mobx"
 import { getParentPath, ParentPath } from "../parent"
-import { debugFreeze } from "../_utils"
+import { debugFreeze } from "../utils"
 
 interface SnapshotData<T extends object> {
   standard: T

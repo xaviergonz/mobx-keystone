@@ -1,7 +1,7 @@
-import { isTweakedObject } from "../tweaker"
-import { isObject } from "../_utils"
-import { getParentPath, ParentPath } from "./core"
-import { parentPathEquals, getObjectParents } from "./_internal"
+import { isObject } from "../utils"
+import { getParentPath, ParentPath } from "./path"
+import { parentPathEquals, objectParents } from "./core"
+import { isTweakedObject } from "../tweaker/core"
 
 export type SetParentResult =
   | {
@@ -40,7 +40,7 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
     throw fail("an object cannot be assigned a new parent when it already has one")
   }
 
-  getObjectParents().set(value, parentPath)
+  objectParents.set(value, parentPath)
   return {
     newParentPath: parentPath,
     oldParentPath,

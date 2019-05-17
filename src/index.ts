@@ -1,8 +1,7 @@
 export * from "./action"
-export { typeofKey } from "./metadata"
-export { model, Model } from "./model"
-export * from "./patch"
+export * from "./model"
 export * from "./parent"
+export * from "./patch"
 export * from "./snapshot"
 
 // TODO: patch emitting thanks to immer? although fastjson patch is cool and already has apply patches and all that

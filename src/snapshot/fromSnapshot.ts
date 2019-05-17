@@ -1,9 +1,9 @@
 import { isObservableArray, isObservableMap, isObservableSet } from "mobx"
 import { DeepPartial } from "ts-essentials"
-import { typeofKey } from "../metadata"
-import { getModelInfoForName } from "../model"
+import { typeofKey } from "./metadata"
+import { getModelInfoForName } from "../model/modelInfo"
 import { SnapshotOf } from "./SnapshotOf"
-import { isPlainObject, isObject } from "../_utils"
+import { isPlainObject, isObject } from "../utils"
 import { runUnprotected } from "../action"
 
 export function fromSnapshot<T = any>(sn: T extends object ? DeepPartial<SnapshotOf<T>> : T): T {

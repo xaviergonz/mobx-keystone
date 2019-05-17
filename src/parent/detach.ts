@@ -1,5 +1,5 @@
-import { isObject } from "../_utils"
-import { getParentPath } from "./core"
+import { isObject } from "../utils"
+import { getParentPath } from "./path"
 import { isObservableArray, isObservableObject } from "mobx"
 
 export function detach(value: object) {
