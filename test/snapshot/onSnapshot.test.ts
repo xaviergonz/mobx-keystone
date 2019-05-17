@@ -1,6 +1,6 @@
-import { createP, P } from "./testbed"
-import { SnapshotOf, onSnapshot, runUnprotected } from "../src"
-import { autoDispose } from "./withDisposers"
+import { createP, P } from "../testbed"
+import { SnapshotOf, onSnapshot, runUnprotected } from "../../src"
+import { autoDispose } from "../withDisposers"
 
 test("onSnapshot", () => {
   const p = createP()

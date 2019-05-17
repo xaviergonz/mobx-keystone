@@ -1,6 +1,6 @@
 import { isObservable } from "mobx"
-import { fromSnapshot, typeofKey } from "../src"
-import { P, P2 } from "./testbed"
+import { fromSnapshot, typeofKey } from "../../src"
+import { P, P2 } from "../testbed"
 
 test("fromSnapshot", () => {
   const p = fromSnapshot<P>({

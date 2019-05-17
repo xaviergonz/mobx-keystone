@@ -1,5 +1,5 @@
-import { autoDispose } from "./withDisposers"
-import { model, Model, modelAction, onAction, SerializableAction, ActionContext } from "../src"
+import { autoDispose } from "../withDisposers"
+import { model, Model, modelAction, onAction, SerializableAction, ActionContext } from "../../src"
 import { observable } from "mobx"
 
 @model("P2")

@@ -1,7 +1,7 @@
 import { autorun, observable, reaction } from "mobx"
-import { getSnapshot, runUnprotected } from "../src"
-import { createP } from "./testbed"
-import { autoDispose } from "./withDisposers"
+import { getSnapshot, runUnprotected } from "../../src"
+import { createP } from "../testbed"
+import { autoDispose } from "../withDisposers"
 
 test("basic types", () => {
   expect(getSnapshot(undefined)).toBe(undefined)

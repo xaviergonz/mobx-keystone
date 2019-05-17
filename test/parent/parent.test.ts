@@ -9,7 +9,7 @@ import {
   runUnprotected,
   isChildOfParent,
   isParentOfChild,
-} from "../src"
+} from "../../src"
 
 @model("P2")
 export class P2 extends Model {

@@ -1,5 +1,5 @@
-import { createP } from "./testbed"
-import { clone, getSnapshot, getRootPath } from "../src"
+import { createP } from "../testbed"
+import { clone, getSnapshot, getRootPath } from "../../src"
 
 test("clone", () => {
   const p = createP()

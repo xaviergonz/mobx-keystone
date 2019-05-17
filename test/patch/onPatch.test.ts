@@ -1,7 +1,7 @@
-import { createP } from "./testbed"
+import { createP } from "../testbed"
 import { Operation } from "fast-json-patch"
-import { onPatch, runUnprotected } from "../src"
-import { autoDispose } from "./withDisposers"
+import { onPatch, runUnprotected } from "../../src"
+import { autoDispose } from "../withDisposers"
 
 test("onPatch", () => {
   const p = createP()

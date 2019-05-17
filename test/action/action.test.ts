@@ -1,5 +1,5 @@
-import { model, modelAction, Model, addActionMiddleware } from "../src"
-import { autoDispose } from "./withDisposers"
+import { model, modelAction, Model, addActionMiddleware } from "../../src"
+import { autoDispose } from "../withDisposers"
 
 @model("P2")
 export class P2 extends Model {
