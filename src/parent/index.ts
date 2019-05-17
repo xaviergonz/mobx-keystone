@@ -7,5 +7,5 @@ export {
   isParentOfChild,
   ParentPath,
   RootPath,
-} from "./core"
+} from "./path"
 export { detach } from "./detach"

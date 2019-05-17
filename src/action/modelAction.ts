@@ -1,7 +1,7 @@
 import { isAction, action } from "mobx"
 import { ActionContext, getCurrentActionContext, setCurrentActionContext } from "./context"
 import { getActionMiddlewares } from "./middleware"
-import { addHiddenProp } from "../_utils"
+import { addHiddenProp } from "../utils"
 
 const modelActionSymbol = Symbol("modelAction")
 
