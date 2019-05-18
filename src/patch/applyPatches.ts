@@ -5,13 +5,18 @@ import { getActionProtection } from "../action/protection"
 import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { PatchOperation } from "./PatchOperation"
+import { isObject } from "../utils"
 
 export function applyPatches(obj: object, patches: PatchOperation[]): void {
-  if (patches.length <= 0) return
-
   if (getActionProtection() && !getCurrentActionContext()) {
     throw fail("applyPatch must be run inside an action")
   }
+
+  if (!isObject(obj)) {
+    throw fail("applyPatches target must be an object")
+  }
+
+  if (patches.length <= 0) return
 
   patches.forEach(patch => applySinglePatch(obj, patch))
 }
