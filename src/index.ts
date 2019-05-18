@@ -5,8 +5,8 @@ export * from "./patch"
 export * from "./snapshot"
 
 // TODO: patch emitting thanks to immer? although fastjson patch is cool
-// TODO: apply actions (care with apply patch actions)
-// TODO: apply snapshots (reconciliation?)
+// TODO: make applySnapshot not use fastjson patch?
+// TODO: apply actions
 
 // TODO: walkTree
 // TODO: construct works like oncreated, need onparentchange, how to attach stuf like effects? (or rather, dispose)
@@ -19,4 +19,4 @@ export * from "./snapshot"
 // TODO: refs?
 // TODO: readme, new name
 
-// TODO: object/array backed map, array backed set?
+// TODO: future: object/array backed map, array backed set?
