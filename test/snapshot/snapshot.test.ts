@@ -7,6 +7,7 @@ import {
   applySnapshot,
   PatchOperation,
   onPatches,
+  Model,
 } from "../../src"
 import { autoDispose } from "../withDisposers"
 
@@ -136,6 +137,7 @@ test("applySnapshot can create a new submodel", () => {
     applySnapshot(p, originalSn)
   })
   expect(getSnapshot(p)).toStrictEqual(originalSn)
+  expect(p.data.p2 instanceof Model).toBe(true)
 
   expect(patches).toMatchInlineSnapshot(`
     Array [

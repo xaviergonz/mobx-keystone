@@ -19,3 +19,4 @@ export * from "./snapshot"
 // TODO: readme, new name
 
 // TODO: future: object/array backed map, array backed set?
+// TODO: some kind of validation or rely on ts?
