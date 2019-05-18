@@ -43,11 +43,14 @@ export class P extends Model {
   boundAction: () => void = () => {}
 }
 
-export function createP() {
+export function createP(withArray = false) {
   const p = new P()
   runUnprotected(() => {
     p.data.p2 = new P2()
     p.data.p2.data.y = 12
+    if (withArray) {
+      p.data.arr = [1, 2, 3]
+    }
   })
   return p
 }
