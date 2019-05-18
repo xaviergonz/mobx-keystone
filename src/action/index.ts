@@ -7,4 +7,5 @@ export {
   ActionMiddlewareDisposer,
   ActionMiddlewareFilter,
 } from "./middleware"
-export { onAction, SerializableAction } from "./onAction"
+export { onAction, SerializableActionCall } from "./onAction"
+export { applyAction } from "./applyAction"

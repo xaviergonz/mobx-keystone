@@ -1,5 +1,12 @@
 import { autoDispose } from "../withDisposers"
-import { model, Model, modelAction, onAction, SerializableAction, ActionContext } from "../../src"
+import {
+  model,
+  Model,
+  modelAction,
+  onAction,
+  SerializableActionCall,
+  ActionContext,
+} from "../../src"
 import { observable } from "mobx"
 
 @model("P2")
@@ -43,7 +50,7 @@ test("onAction", () => {
   const p1 = new P()
   const p2 = new P()
 
-  const events: [SerializableAction, ActionContext][] = []
+  const events: [SerializableActionCall, ActionContext][] = []
   function reset() {
     events.length = 0
   }

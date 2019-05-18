@@ -1,4 +1,4 @@
-import { model, modelAction, Model, addActionMiddleware } from "../../src"
+import { model, modelAction, Model, addActionMiddleware, applyAction } from "../../src"
 import { autoDispose } from "../withDisposers"
 
 @model("P2")
@@ -403,4 +403,42 @@ test("action cancel with new return value", () => {
   const x = p.data.x
   expect(p.addX(1)).toBe(val)
   expect(p.data.x).toBe(x)
+})
+
+test("applyAction", () => {
+  const pa = new P()
+  const pb = new P()
+
+  {
+    const ra = pa.addX(10)
+    const rb = applyAction(pb, {
+      path: [],
+      name: "addX",
+      args: [10],
+    })
+    expect(ra).toBe(rb)
+    expect(pa).toStrictEqual(pb)
+  }
+
+  {
+    const ra = pa.addXY(1, 2)
+    const rb = applyAction(pb, {
+      path: [],
+      name: "addXY",
+      args: [1, 2],
+    })
+    expect(ra).toBe(rb)
+    expect(pa).toStrictEqual(pb)
+  }
+
+  {
+    const ra = pa.data.p2.addY(15)
+    const rb = applyAction(pb, {
+      path: ["data", "p2"],
+      name: "addY",
+      args: [15],
+    })
+    expect(ra).toBe(rb)
+    expect(pa).toStrictEqual(pb)
+  }
 })

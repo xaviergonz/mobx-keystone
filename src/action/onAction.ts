@@ -7,7 +7,7 @@ import { isObject, isPlainObject } from "../utils"
 import { tweak } from "../tweaker/tweak"
 import { isTweakedObject } from "../tweaker/core"
 
-export interface SerializableAction {
+export interface SerializableActionCall {
   readonly name: string
   readonly args: readonly any[]
   readonly path: readonly string[]
@@ -15,11 +15,15 @@ export interface SerializableAction {
 
 export function onAction<T extends object>(
   target: T,
-  listener: (serializableAction: SerializableAction, actionContext: ActionContext) => void,
+  listener: (serializableActionCall: SerializableActionCall, actionContext: ActionContext) => void,
   options?: {
     attach?: "before" | "after"
   }
 ): () => void {
+  if (!isObject(target)) {
+    throw fail("onAction target must be an object")
+  }
+
   const opts = {
     attach: "before",
     ...options,
@@ -39,16 +43,16 @@ export function onAction<T extends object>(
         return next()
       }
 
-      const serializableAction = actionContextToSerializableAction(ctx)
+      const serializableActionCall = actionContextToSerializableActionCall(ctx)
 
       if (!attachAfter) {
-        listener(serializableAction, ctx)
+        listener(serializableActionCall, ctx)
       }
 
       const ret = next()
 
       if (attachAfter) {
-        listener(serializableAction, ctx)
+        listener(serializableActionCall, ctx)
       }
 
       return ret
@@ -83,7 +87,7 @@ function serializeArgument(a: any): any {
   }
 }
 
-function actionContextToSerializableAction(ctx: ActionContext): SerializableAction {
+function actionContextToSerializableActionCall(ctx: ActionContext): SerializableActionCall {
   const rootPath = getRootPath(ctx.target)
 
   return {
