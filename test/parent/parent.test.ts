@@ -1,14 +1,14 @@
 import {
+  detach,
   fromSnapshot,
   getParentPath,
-  typeofKey,
-  model,
-  Model,
   getRootPath,
-  detach,
-  runUnprotected,
   isChildOfParent,
   isParentOfChild,
+  model,
+  Model,
+  runUnprotected,
+  typeofKey,
 } from "../../src"
 
 @model("P2")
