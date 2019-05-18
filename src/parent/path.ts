@@ -1,4 +1,5 @@
 import { objectParents } from "./core"
+import { isObject } from "../utils"
 
 export interface ParentPath<T extends object> {
   parent: T
@@ -39,10 +40,10 @@ export function getRoot<T extends object = any>(value: object): T {
 }
 
 export function isChildOfParent(child: object, parent: object): boolean {
-  if (typeof parent !== "object") {
+  if (!isObject(parent)) {
     throw fail("parent must be an object")
   }
-  if (typeof child !== "object") {
+  if (!isObject(child)) {
     throw fail("child must be an object")
   }
 
@@ -59,4 +60,23 @@ export function isChildOfParent(child: object, parent: object): boolean {
 
 export function isParentOfChild(parent: object, child: object): boolean {
   return isChildOfParent(child, parent)
+}
+
+export function findParent<T extends object = any>(
+  child: object,
+  predicate: (parent: any) => boolean
+): T | undefined {
+  if (!isObject(parent)) {
+    throw fail("child must be an object")
+  }
+
+  let current: any = child
+  let parentPath
+  while ((parentPath = getParentPath(current))) {
+    current = parentPath.parent
+    if (predicate(current)) {
+      return current
+    }
+  }
+  return undefined
 }
