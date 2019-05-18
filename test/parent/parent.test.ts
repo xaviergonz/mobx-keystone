@@ -9,6 +9,7 @@ import {
   Model,
   runUnprotected,
   typeofKey,
+  findParent,
 } from "../../src"
 
 @model("P2")
@@ -73,6 +74,9 @@ test("parent", () => {
 
   expect(isChildOfParent(p, p.data.p2!)).toBeFalsy()
   expect(isParentOfChild(p.data.p2!, p)).toBeFalsy()
+
+  expect(findParent(p.data.p2!, parent => parent instanceof P)).toBe(p)
+  expect(findParent(p.data.p2!, parent => parent instanceof P2)).toBe(undefined)
 
   expect(getParentPath(p)).toBeUndefined()
   expect(getParentPath(p.data)).toEqual({ parent: p, path: "data" })
