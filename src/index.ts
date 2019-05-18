@@ -6,7 +6,6 @@ export * from "./snapshot"
 
 // TODO: patch emitting thanks to immer? although fastjson patch is cool
 // TODO: make applySnapshot not use fastjson patch?
-// TODO: apply actions
 
 // TODO: walkTree
 // TODO: construct works like oncreated, need onparentchange, how to attach stuf like effects? (or rather, dispose)
