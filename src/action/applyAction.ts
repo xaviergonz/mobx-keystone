@@ -1,9 +1,9 @@
 import { SerializableActionCall } from "./onAction"
-import { isObject } from "../utils"
+import { isObject, failure } from "../utils"
 
 export function applyAction(target: object, call: SerializableActionCall): any {
   if (!isObject(target)) {
-    throw fail("applyAction target must be an object")
+    throw failure("applyAction target must be an object")
   }
 
   // resolve path

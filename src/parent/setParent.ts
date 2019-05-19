@@ -1,49 +1,64 @@
-import { isObject } from "../utils"
+import { isObject, failure } from "../utils"
 import { getParentPath, ParentPath } from "./path"
-import { parentPathEquals, objectParents } from "./core"
+import { parentPathEquals, objectParents, objectChildren } from "./core"
 import { isTweakedObject } from "../tweaker/core"
+import { isRootStore, getRootStore } from "../rootStore/rootStore"
+import { detachFromRootStore, attachToRootStore } from "../rootStore/attachDetach"
 
-export type SetParentResult =
-  | {
-      oldParentPath: ParentPath<any> | undefined
-      newParentPath: ParentPath<any> | undefined
-      changed: boolean
-    }
-  | "primitive"
-
-export function setParent(value: any, parentPath: ParentPath<any> | undefined): SetParentResult {
+export function setParent(value: any, parentPath: ParentPath<any> | undefined): void {
   if (!isObject(value)) {
-    return "primitive"
+    return
   }
 
   if (process.env.NODE_ENV !== "production") {
     if (!isTweakedObject(value)) {
-      throw fail(`assertion failed: value is not ready to take a parent`)
+      throw failure(`assertion failed: value is not ready to take a parent`)
     }
     if (parentPath) {
       if (!isTweakedObject(parentPath.parent)) {
-        throw fail(`assertion failed: parent is not ready to take children`)
+        throw failure(`assertion failed: parent is not ready to take children`)
       }
     }
   }
 
+  if (!objectChildren.has(value)) {
+    objectChildren.set(value, new Set())
+  }
+
   const oldParentPath = getParentPath(value)
   if (parentPathEquals(oldParentPath, parentPath)) {
-    return {
-      newParentPath: parentPath,
-      oldParentPath,
-      changed: false,
-    }
+    return
+  }
+
+  if (isRootStore(value)) {
+    throw failure("root stores cannot be attached to any parents")
   }
 
   if (oldParentPath && parentPath) {
-    throw fail("an object cannot be assigned a new parent when it already has one")
+    throw failure("an object cannot be assigned a new parent when it already has one")
   }
 
+  // remove from old parent
+  const oldRootStore = getRootStore(value)
+  if (oldParentPath && oldParentPath.parent) {
+    const children = objectChildren.get(oldParentPath.parent)!
+    children.delete(value)
+  }
+
+  // attach to new parent
+  if (parentPath && parentPath.parent) {
+    const children = objectChildren.get(parentPath.parent)!
+    children.add(value)
+  }
   objectParents.set(value, parentPath)
-  return {
-    newParentPath: parentPath,
-    oldParentPath,
-    changed: true,
+  const newRootStore = getRootStore(value)
+
+  if (oldRootStore !== newRootStore) {
+    if (oldRootStore) {
+      detachFromRootStore(value)
+    }
+    if (newRootStore) {
+      attachToRootStore(newRootStore, value)
+    }
   }
 }

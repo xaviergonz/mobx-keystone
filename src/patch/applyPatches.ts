@@ -5,16 +5,15 @@ import { getActionProtection } from "../action/protection"
 import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { PatchOperation } from "./PatchOperation"
-import { isObject } from "../utils"
+import { assertTweakedObject } from "../tweaker/core"
+import { failure } from "../utils"
 
 export function applyPatches(obj: object, patches: PatchOperation[]): void {
   if (getActionProtection() && !getCurrentActionContext()) {
-    throw fail("applyPatch must be run inside an action")
+    throw failure("applyPatches must be run inside an action")
   }
 
-  if (!isObject(obj)) {
-    throw fail("applyPatches target must be an object")
-  }
+  assertTweakedObject(obj, "applyPatches")
 
   if (patches.length <= 0) return
 
@@ -47,7 +46,7 @@ function applySinglePatch(obj: object, patch: PatchOperation): void {
       }
 
       default:
-        throw fail(`unsupported patch operation: ${(patch as any).op}`)
+        throw failure(`unsupported patch operation: ${(patch as any).op}`)
     }
   } else {
     switch (patch.op) {
@@ -70,7 +69,7 @@ function applySinglePatch(obj: object, patch: PatchOperation): void {
       }
 
       default:
-        throw fail(`unsupported patch operation: ${(patch as any).op}`)
+        throw failure(`unsupported patch operation: ${(patch as any).op}`)
     }
   }
 }
@@ -78,7 +77,7 @@ function applySinglePatch(obj: object, patch: PatchOperation): void {
 function jsonPathToObjectAndProp(obj: object, jsonPath: string): { target: any; prop?: string } {
   if (process.env.NODE_ENV !== "production") {
     if (typeof jsonPath !== "string") {
-      throw fail(`invalid json path: ${jsonPath}`)
+      throw failure(`invalid json path: ${jsonPath}`)
     }
   }
 
@@ -90,7 +89,7 @@ function jsonPathToObjectAndProp(obj: object, jsonPath: string): { target: any; 
 
   if (process.env.NODE_ENV !== "production") {
     if (!jsonPath.startsWith("/")) {
-      throw fail(`invalid json path: ${jsonPath}`)
+      throw failure(`invalid json path: ${jsonPath}`)
     }
   }
 

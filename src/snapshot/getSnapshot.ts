@@ -1,8 +1,7 @@
-import { SnapshotOf } from "./SnapshotOf"
+import { assertTweakedObject } from "../tweaker/core"
 import { getInternalSnapshot, reportInternalSnapshotObserved } from "./internal"
-import { tweak } from "../tweaker/tweak"
-import { isTweakedObject } from "../tweaker/core"
-import { isObject } from "../utils"
+import { SnapshotOf } from "./SnapshotOf"
+import { isObject, failure } from "../utils"
 
 export function getSnapshot<T>(
   value: T,
@@ -14,13 +13,11 @@ export function getSnapshot<T>(
     return value as any
   }
 
-  // make sure the value is a tweaked value first
-  if (!isTweakedObject(value)) {
-    value = tweak(value, undefined)
-  }
+  assertTweakedObject(value, "getSnapshot")
+
   const snapshot = getInternalSnapshot(value as any)
   if (!snapshot) {
-    throw fail("getSnapshot is not supported for this kind of object")
+    throw failure("getSnapshot is not supported for this kind of object")
   }
 
   reportInternalSnapshotObserved(snapshot)

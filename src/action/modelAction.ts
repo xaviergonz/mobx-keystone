@@ -1,7 +1,7 @@
 import { isAction, action } from "mobx"
 import { ActionContext, getCurrentActionContext, setCurrentActionContext } from "./context"
 import { getActionMiddlewares } from "./middleware"
-import { addHiddenProp } from "../utils"
+import { addHiddenProp, failure } from "../utils"
 
 const modelActionSymbol = Symbol("modelAction")
 
@@ -46,7 +46,7 @@ export function isModelAction(fn: any) {
 
 function checkModelActionArgs(propertyKey: string) {
   if (typeof propertyKey !== "string") {
-    throw fail("modelAction cannot be used over symbol properties")
+    throw failure("modelAction cannot be used over symbol properties")
   }
   // TODO: check target is a model object or prototype
 }

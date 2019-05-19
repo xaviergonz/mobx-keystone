@@ -1,15 +1,13 @@
 import * as fsp from "fast-json-patch"
 import { onSnapshot } from "../snapshot"
+import { assertTweakedObject } from "../tweaker/core"
 import { PatchOperation } from "./PatchOperation"
-import { isObject } from "../utils"
 
 export function onPatches(
   obj: object,
   fn: (patches: PatchOperation[], inversePatches: PatchOperation[]) => void
 ): () => void {
-  if (!isObject(obj)) {
-    throw fail("onPatches target must be an object")
-  }
+  assertTweakedObject(obj, "onPatches")
 
   // TODO: use immer ops instead to generate patches?
 
