@@ -24,6 +24,7 @@ import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { setParent } from "../parent/setParent"
 import { getActionProtection } from "../action/protection"
 import { isTweakedObject, tweakedObjects } from "./core"
+import { failure } from "../utils"
 
 export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (typeof value !== "object" || value === null) {
@@ -32,11 +33,11 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
 
   // unsupported
   if (value instanceof Map || isObservableMap(value)) {
-    throw fail("maps are not supported")
+    throw failure("maps are not supported")
   }
 
   if (value instanceof Set || isObservableSet(value)) {
-    throw fail("sets are not supported")
+    throw failure("sets are not supported")
   }
 
   if (isTweakedObject(value)) {
@@ -129,7 +130,7 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
     return value
   }
 
-  throw fail(
+  throw failure(
     `proxify can only work over models, observable objects/arrays, or primitives, but got ${value} instead`
   )
 }
@@ -296,6 +297,6 @@ function canWrite(): boolean {
 
 function assertCanWrite() {
   if (!canWrite()) {
-    throw fail("data changes must be performed inside model actions")
+    throw failure("data changes must be performed inside model actions")
   }
 }

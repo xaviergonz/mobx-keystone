@@ -11,7 +11,7 @@ export function mapGetOrDefault<K extends object, V>(
   return newValue
 }
 
-export function fail(msg: string) {
+export function failure(msg: string) {
   // TODO: use own error class
   return new Error(msg)
 }

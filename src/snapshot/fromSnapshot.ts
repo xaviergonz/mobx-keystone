@@ -3,20 +3,20 @@ import { DeepPartial } from "ts-essentials"
 import { typeofKey } from "./metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { SnapshotOf } from "./SnapshotOf"
-import { isPlainObject, isObject } from "../utils"
+import { isPlainObject, isObject, failure } from "../utils"
 import { runUnprotected } from "../action"
 
-export function fromSnapshot<T = any>(sn: T extends object ? DeepPartial<SnapshotOf<T>> : T): T {
+export function fromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotOf<T>> : T): T {
   if (!isObject(sn)) {
     return sn as any
   }
 
   if (sn instanceof Map || isObservableMap(sn)) {
-    throw fail("a snapshot might not contain maps")
+    throw failure("a snapshot might not contain maps")
   }
 
   if (sn instanceof Set || isObservableSet(sn)) {
-    throw fail("a snapshot might not contain sets")
+    throw failure("a snapshot might not contain sets")
   }
 
   if (Array.isArray(sn) || isObservableArray(sn)) {
@@ -28,7 +28,7 @@ export function fromSnapshot<T = any>(sn: T extends object ? DeepPartial<Snapsho
     // a model
     const modelInfo = getModelInfoForName(type)
     if (!modelInfo) {
-      throw fail(`model with name "${type}" not found in the registry`)
+      throw failure(`model with name "${type}" not found in the registry`)
     }
 
     const modelObj = new (modelInfo.class as any)()
@@ -53,5 +53,5 @@ export function fromSnapshot<T = any>(sn: T extends object ? DeepPartial<Snapsho
     return plainObj
   }
 
-  throw fail(`unsupported snapshot - ${sn}`)
+  throw failure(`unsupported snapshot - ${sn}`)
 }

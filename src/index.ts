@@ -3,16 +3,16 @@ export * from "./model"
 export * from "./parent"
 export * from "./patch"
 export * from "./snapshot"
+export * from "./rootStore"
 
 // TODO: patch emitting thanks to immer? although fastjson patch is cool
 // TODO: make applySnapshot not use fastjson patch?
 
-// TODO: walkTree
-// TODO: construct works like oncreated, need onparentchange, how to attach stuf like effects? (or rather, dispose)
+// TODO: reactive getParentPath and friends?
+
 // TODO: flows
 
 // TODO: middlewares? (we have addActionMiddleware though)
-// TODO: env? (maybe we can just use a WeakMap?)
 // TODO: pre/post processors
 
 // TODO: refs?

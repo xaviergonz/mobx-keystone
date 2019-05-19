@@ -1,11 +1,10 @@
-import { isObject } from "../utils"
 import { getParentPath } from "./path"
 import { isObservableArray, isObservableObject } from "mobx"
+import { assertTweakedObject } from "../tweaker/core"
+import { failure } from "../utils"
 
 export function detach(value: object) {
-  if (!isObject(value)) {
-    throw fail("only objects can be detached")
-  }
+  assertTweakedObject(value, "detach")
 
   const parentPath = getParentPath(value)
   if (!parentPath) return
@@ -16,6 +15,6 @@ export function detach(value: object) {
   } else if (isObservableObject(parent)) {
     ;(parent as any)[path] = undefined
   } else {
-    throw fail("parent must be an observable object or an observable array")
+    throw failure("parent must be an observable object or an observable array")
   }
 }

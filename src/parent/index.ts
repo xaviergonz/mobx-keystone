@@ -7,6 +7,8 @@ export {
   isParentOfChild,
   ParentPath,
   RootPath,
-  findParent,
 } from "./path"
+export { findParent } from "./findParent"
+export { walkTree } from "./walkTree"
+export { getChildrenObjects } from "./getChildrenObjects"
 export { detach } from "./detach"
