@@ -228,12 +228,12 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
             const addedStandardSn = addedSn.map(([valueSn, val]) =>
               valueSn ? valueSn.standard : val
             )
-            draftStandard.splice(change.index, change.removedCount, addedStandardSn)
+            draftStandard.splice(change.index, change.removedCount, ...addedStandardSn)
 
             const addedPureJsonSn = addedSn.map(([valueSn, val]) =>
               valueSn ? valueSn.pureJson : val
             )
-            draftStandard.splice(change.index, change.removedCount, addedPureJsonSn)
+            draftPureJson.splice(change.index, change.removedCount, ...addedPureJsonSn)
           }
           break
 
@@ -259,6 +259,9 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
   setInternalSnapshot(change.object, standardSn, pureJsonSn)
 }
 
+const undefinedInsideArrayErrorMsg =
+  "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
+
 function interceptArrayMutation(
   array: IObservableArray,
   change: IArrayWillChange | IArrayWillSplice
@@ -269,6 +272,12 @@ function interceptArrayMutation(
   switch (change.type) {
     case "splice":
       {
+        change.added.forEach(v => {
+          if (v === undefined) {
+            throw failure(undefinedInsideArrayErrorMsg)
+          }
+        })
+
         change.object
           .slice(change.index, change.index + change.removedCount)
           .forEach(removedValue => {
@@ -282,6 +291,10 @@ function interceptArrayMutation(
 
     case "update":
       {
+        if (change.newValue === undefined) {
+          throw failure(undefinedInsideArrayErrorMsg)
+        }
+
         tweak(change.object[change.index], undefined) // set old prop obj parent to undefined
         // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
         change.newValue = tweak(change.newValue, { parent: array, path: "" + change.index })
