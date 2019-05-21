@@ -4,6 +4,7 @@ export * from "./parent"
 export * from "./patch"
 export * from "./snapshot"
 export * from "./rootStore"
+export { MobxStateTreeNextError } from "./utils"
 
 // TODO: patch emitting thanks to immer? although fastjson patch is cool
 // TODO: make applySnapshot NOT use fastjson patch?

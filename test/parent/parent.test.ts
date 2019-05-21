@@ -198,5 +198,20 @@ test("parent", () => {
   expect(getParentPath(p2arr[2])).toBeUndefined()
   expect(Array.from(getChildrenObjects(p.data).values())).toEqual([p.data.arr])
 
-  // TODO: test failures (trying to move an object to another parent path when not detached from the first one)
+  // adding to the array something that is already attached should fail
+  const oldArrayLength = p.data.arr.length
+  expect(() => {
+    runUnprotected(() => {
+      p.data.arr.push(p.data.arr[0])
+    })
+  }).toThrow("an object cannot be assigned a new parent when it already has one")
+  expect(p.data.arr.length).toBe(oldArrayLength)
+
+  expect(() => {
+    runUnprotected(() => {
+      ;(p.data as any).z = p.data.arr[0]
+    })
+  }).toThrow("an object cannot be assigned a new parent when it already has one")
+  expect((p.data as any).z).toBe(undefined)
+  expect("z" in p.data).toBeFalsy()
 })
