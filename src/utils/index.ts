@@ -11,9 +11,17 @@ export function mapGetOrDefault<K extends object, V>(
   return newValue
 }
 
+export class MobxStateTreeNextError extends Error {
+  constructor(msg: string) {
+    super(msg)
+
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, MobxStateTreeNextError.prototype)
+  }
+}
+
 export function failure(msg: string) {
-  // TODO: use own error class
-  return new Error(msg)
+  return new MobxStateTreeNextError(msg)
 }
 
 export function addHiddenProp(object: any, propName: PropertyKey, value: any) {
