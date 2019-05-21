@@ -6,7 +6,7 @@ export * from "./snapshot"
 export * from "./rootStore"
 
 // TODO: patch emitting thanks to immer? although fastjson patch is cool
-// TODO: make applySnapshot not use fastjson patch?
+// TODO: make applySnapshot NOT use fastjson patch?
 
 // TODO: reactive getParentPath and friends?
 

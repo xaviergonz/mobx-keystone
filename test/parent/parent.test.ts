@@ -164,7 +164,7 @@ test("parent", () => {
 
   // assign index
   runUnprotected(() => {
-    p.data.arr[2] = undefined as any
+    p.data.arr[2] = null as any
   })
   expect(getParentPath(p2arr[0])).toBeDefined()
   expect(getParentPath(p2arr[1])).toBeDefined()
