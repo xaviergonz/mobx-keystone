@@ -1,6 +1,6 @@
 import { createP, P } from "../testbed"
 import {
-  SnapshotOf,
+  SnapshotOutOf,
   onSnapshot,
   runUnprotected,
   getSnapshot,
@@ -14,7 +14,7 @@ import { autoDispose } from "../withDisposers"
 test("onSnapshot and applySnapshot", () => {
   const p = createP()
 
-  const sn: [SnapshotOf<P>, SnapshotOf<P>][] = []
+  const sn: [SnapshotOutOf<P>, SnapshotOutOf<P>][] = []
   const patches: [PatchOperation[], PatchOperation[]][] = []
 
   function reset() {

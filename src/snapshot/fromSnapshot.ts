@@ -2,11 +2,12 @@ import { isObservableArray, isObservableMap, isObservableSet } from "mobx"
 import { DeepPartial } from "ts-essentials"
 import { typeofKey } from "./metadata"
 import { getModelInfoForName } from "../model/modelInfo"
-import { SnapshotOf } from "./SnapshotOf"
+import { SnapshotInOf } from "./SnapshotOf"
 import { isPlainObject, isObject, failure } from "../utils"
 import { runUnprotected } from "../action"
+import { Model } from "../model/Model"
 
-export function fromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotOf<T>> : T): T {
+export function fromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T): T {
   if (!isObject(sn)) {
     return sn as any
   }
@@ -31,17 +32,22 @@ export function fromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotOf<T>
       throw failure(`model with name "${type}" not found in the registry`)
     }
 
-    const modelObj = new (modelInfo.class as any)()
+    const modelObj: Model = new (modelInfo.class as any)()
+    let processedSn = sn
+    if (modelObj.fromSnapshot) {
+      processedSn = modelObj.fromSnapshot(sn) as any
+    }
 
+    const data = modelObj.data as any
     runUnprotected(() => {
-      for (const [k, v] of Object.entries(sn)) {
+      for (const [k, v] of Object.entries(processedSn)) {
         if (k !== typeofKey) {
-          modelObj.data[k] = fromSnapshot(v)
+          data[k] = fromSnapshot(v)
         }
       }
     })
 
-    return modelObj
+    return modelObj as any
   }
 
   if (isPlainObject(sn)) {

@@ -1,4 +1,4 @@
-import { SnapshotOf } from "./SnapshotOf"
+import { SnapshotOutOf } from "./SnapshotOf"
 import { getSnapshot } from "./getSnapshot"
 import * as fsp from "fast-json-patch"
 import { applyPatches } from "../patch/applyPatches"
@@ -7,7 +7,7 @@ import { getCurrentActionContext } from "../action/context"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 
-export function applySnapshot<T extends object>(obj: T, snapshot: SnapshotOf<T>): void {
+export function applySnapshot<T extends object>(obj: T, snapshot: SnapshotOutOf<T>): void {
   if (getActionProtection() && !getCurrentActionContext()) {
     throw failure("applySnapshot must be run inside an action")
   }
