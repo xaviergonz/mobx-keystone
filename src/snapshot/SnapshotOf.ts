@@ -1,16 +1,43 @@
 import { Model } from "../model"
 
-export interface SnapshotOfArray<T> extends Array<SnapshotOf<T>> {}
-export interface SnapshotOfReadonlyArray<T> extends ReadonlyArray<SnapshotOf<T>> {}
+// snapshot out
 
-export type SnapshotOfObject<T extends object> = { [k in keyof T]: SnapshotOf<T[k]> }
+export interface SnapshotOutOfArray<T> extends Array<SnapshotOutOf<T>> {}
+export interface SnapshotOutOfReadonlyArray<T> extends ReadonlyArray<SnapshotOutOf<T>> {}
 
-export type SnapshotOf<T> = T extends Array<infer U>
-  ? SnapshotOfArray<U>
+export type SnapshotOutOfObject<T extends object> = { [k in keyof T]: SnapshotOutOf<T[k]> }
+
+export type SnapshotOutOfModel<M extends Model> = SnapshotInOfObject<M["data"]> & {
+  $$typeof: M["$$typeof"]
+}
+
+export type SnapshotOutOf<T> = T extends Array<infer U>
+  ? SnapshotOutOfArray<U>
   : T extends ReadonlyArray<infer U>
-  ? SnapshotOfReadonlyArray<U>
+  ? SnapshotOutOfReadonlyArray<U>
   : T extends Model
-  ? SnapshotOfObject<T["data"]> & { $$typeof: string }
+  ? SnapshotOutOfModel<T>
   : T extends object
-  ? SnapshotOfObject<T>
+  ? SnapshotOutOfObject<T>
+  : T
+
+// snapshot in
+
+export interface SnapshotInOfArray<T> extends Array<SnapshotInOf<T>> {}
+export interface SnapshotInOfReadonlyArray<T> extends ReadonlyArray<SnapshotInOf<T>> {}
+
+export type SnapshotInOfObject<T extends object> = { [k in keyof T]: SnapshotInOf<T[k]> }
+
+export type SnapshotInOfModel<M extends Model> = SnapshotOutOfObject<
+  M extends { fromSnapshot(sn: infer S): any } ? S : M["data"]
+> & { $$typeof: M["$$typeof"] }
+
+export type SnapshotInOf<T> = T extends Array<infer U>
+  ? SnapshotInOfArray<U>
+  : T extends ReadonlyArray<infer U>
+  ? SnapshotInOfReadonlyArray<U>
+  : T extends Model
+  ? SnapshotInOfModel<T>
+  : T extends object
+  ? SnapshotInOfObject<T>
   : T

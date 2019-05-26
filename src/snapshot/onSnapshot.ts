@@ -1,11 +1,11 @@
 import { reaction } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { getSnapshot } from "./getSnapshot"
-import { SnapshotOf } from "./SnapshotOf"
+import { SnapshotOutOf } from "./SnapshotOf"
 
 export function onSnapshot<T extends object>(
   obj: T,
-  fn: (sn: SnapshotOf<T>, prevSn: SnapshotOf<T>) => void
+  fn: (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void
 ): () => void {
   assertTweakedObject(obj, "onSnapshot")
 

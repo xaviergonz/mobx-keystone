@@ -16,6 +16,8 @@ export abstract class Model {
 
   attachedToRootStore?(rootStore: object): (() => void) | void
 
+  fromSnapshot?(snapshot: any): this["data"]
+
   constructor() {
     const modelInfo = modelInfoByClass.get(this.constructor)!
     this[typeofKey] = modelInfo.name

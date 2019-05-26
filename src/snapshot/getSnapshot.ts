@@ -1,6 +1,6 @@
 import { assertTweakedObject } from "../tweaker/core"
 import { getInternalSnapshot, reportInternalSnapshotObserved } from "./internal"
-import { SnapshotOf } from "./SnapshotOf"
+import { SnapshotOutOf } from "./SnapshotOf"
 import { isObject, failure } from "../utils"
 
 export function getSnapshot<T>(
@@ -8,7 +8,7 @@ export function getSnapshot<T>(
   options?: {
     pureJson?: boolean
   }
-): SnapshotOf<T> {
+): SnapshotOutOf<T> {
   if (!isObject(value)) {
     return value as any
   }
