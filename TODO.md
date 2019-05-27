@@ -3,8 +3,6 @@
 - patch emitting thanks to immer? although fastjson patch is cool
 - make applySnapshot NOT use fastjson patch?
 
-- reactive getParentPath and friends?
-
 - flows
 
 - middlewares? (we have addActionMiddleware though)

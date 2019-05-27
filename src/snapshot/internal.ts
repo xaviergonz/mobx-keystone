@@ -32,7 +32,7 @@ function getInternalSnapshotParent(
 
   if (sn === parentSn) {
     // linked snapshot, skip
-    return getInternalSnapshotParent(parentSn, getParentPath(parentPath.parent))
+    return getInternalSnapshotParent(parentSn, getParentPath(parentPath.parent, false))
   }
 
   return sn
@@ -73,7 +73,7 @@ export function setInternalSnapshot<T extends object>(value: any, standard: T, p
     sn.atom.reportChanged()
 
     // also update parent(s) snapshot(s) if needed
-    const parent = getInternalSnapshotParent(oldSn, getParentPath(value))
+    const parent = getInternalSnapshotParent(oldSn, getParentPath(value, false))
     if (parent) {
       const { parentSnapshot, parentPath } = parent
       // might be false in the cases where the parent has not yet been created

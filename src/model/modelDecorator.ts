@@ -1,8 +1,8 @@
-import { ModelClass, Model } from "./Model"
+import { Model } from "./Model"
 import { modelInfoByName, modelInfoByClass } from "./modelInfo"
 import { failure } from "../utils"
 
-export const model = (name: string) => (clazz: ModelClass) => {
+export const model = (name: string) => (clazz: new (...args: any[]) => Model) => {
   if (typeof clazz !== "function") {
     throw failure("class expected")
   }

@@ -30,7 +30,7 @@ export function registerRootStore<T extends Model>(
     throw failure("model already marked as root store")
   }
 
-  if (getParent(model)) {
+  if (getParent(model, false)) {
     throw failure("a root store must not have a parent")
   }
 
@@ -61,17 +61,23 @@ export function isRootStore(model: Model): boolean {
   return rootStores.has(model as any)
 }
 
-export function getRootStore<T extends Model = Model>(target: object): T | undefined {
+export function getRootStore<T extends Model = Model>(
+  target: object,
+  reactive = true
+): T | undefined {
   assertTweakedObject(target, "getRootStore")
 
-  const root = getRoot(target)
+  const root = getRoot(target, reactive)
   return isRootStore(root) ? root : undefined
 }
 
-export function getRootStoreEnv<T extends object = any>(target: object): T | undefined {
+export function getRootStoreEnv<T extends object = any>(
+  target: object,
+  reactive = true
+): T | undefined {
   assertTweakedObject(target, "getRootStoreEnv")
 
-  const root = getRoot(target)
+  const root = getRoot(target, reactive)
   const rootStoreData = rootStores.get(root)
   return rootStoreData ? rootStoreData.env : undefined
 }

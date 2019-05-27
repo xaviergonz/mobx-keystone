@@ -6,7 +6,7 @@ import { failure } from "../utils"
 export function detach(value: object) {
   assertTweakedObject(value, "detach")
 
-  const parentPath = getParentPath(value)
+  const parentPath = getParentPath(value, false)
   if (!parentPath) return
 
   const { parent, path } = parentPath
