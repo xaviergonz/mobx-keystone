@@ -1,6 +1,6 @@
 import { isObject, failure } from "../utils"
 import { getParentPath, ParentPath } from "./path"
-import { parentPathEquals, objectParents, objectChildren } from "./core"
+import { parentPathEquals, objectParents, objectChildren, reportParentPathChanged } from "./core"
 import { isTweakedObject } from "../tweaker/core"
 import { isRootStore, getRootStore } from "../rootStore/rootStore"
 import { detachFromRootStore, attachToRootStore } from "../rootStore/attachDetach"
@@ -25,7 +25,7 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
     objectChildren.set(value, new Set())
   }
 
-  const oldParentPath = getParentPath(value)
+  const oldParentPath = getParentPath(value, false)
   if (parentPathEquals(oldParentPath, parentPath)) {
     return
   }
@@ -39,7 +39,7 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
   }
 
   // remove from old parent
-  const oldRootStore = getRootStore(value)
+  const oldRootStore = getRootStore(value, false)
   if (oldParentPath && oldParentPath.parent) {
     const children = objectChildren.get(oldParentPath.parent)!
     children.delete(value)
@@ -51,7 +51,7 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
     children.add(value)
   }
   objectParents.set(value, parentPath)
-  const newRootStore = getRootStore(value)
+  const newRootStore = getRootStore(value, false)
 
   if (oldRootStore !== newRootStore) {
     if (oldRootStore) {
@@ -61,4 +61,6 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
       attachToRootStore(newRootStore, value)
     }
   }
+
+  reportParentPathChanged(value)
 }

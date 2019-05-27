@@ -1,4 +1,4 @@
-import { objectParents } from "./core"
+import { objectParents, reportParentPathObserved } from "./core"
 import { assertTweakedObject } from "../tweaker/core"
 
 export interface ParentPath<T extends object> {
@@ -11,20 +11,26 @@ export interface RootPath<T extends object> {
   path: string[]
 }
 
-export function getParentPath<T extends object = any>(value: object): ParentPath<T> | undefined {
+export function getParentPath<T extends object = any>(
+  value: object,
+  reactive = true
+): ParentPath<T> | undefined {
   assertTweakedObject(value, "getParentPath")
 
+  if (reactive) {
+    reportParentPathObserved(value)
+  }
   return objectParents.get(value) as any
 }
 
-export function getParent<T extends object = any>(value: object): T | undefined {
+export function getParent<T extends object = any>(value: object, reactive = true): T | undefined {
   assertTweakedObject(value, "getParent")
 
-  const parentPath = getParentPath(value)
+  const parentPath = getParentPath(value, reactive)
   return parentPath ? parentPath.parent : undefined
 }
 
-export function getRootPath<T extends object = any>(value: object): RootPath<T> {
+export function getRootPath<T extends object = any>(value: object, reactive = true): RootPath<T> {
   assertTweakedObject(value, "getRootPath")
 
   const rootPath: RootPath<any> = {
@@ -33,7 +39,7 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
   }
 
   let parentPath
-  while ((parentPath = getParentPath(rootPath.root))) {
+  while ((parentPath = getParentPath(rootPath.root, reactive))) {
     rootPath.root = parentPath.parent
     rootPath.path.unshift(parentPath.path)
   }
@@ -41,19 +47,19 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
   return rootPath
 }
 
-export function getRoot<T extends object = any>(value: object): T {
+export function getRoot<T extends object = any>(value: object, reactive = true): T {
   assertTweakedObject(value, "getRoot")
 
-  return getRootPath(value).root
+  return getRootPath(value, reactive).root
 }
 
-export function isChildOfParent(child: object, parent: object): boolean {
+export function isChildOfParent(child: object, parent: object, reactive = true): boolean {
   assertTweakedObject(child, "isChildOfParent")
   assertTweakedObject(parent, "isChildOfParent")
 
   let current = child
   let parentPath
-  while ((parentPath = getParentPath(current))) {
+  while ((parentPath = getParentPath(current, reactive))) {
     current = parentPath.parent
     if (current === parent) {
       return true
@@ -62,9 +68,9 @@ export function isChildOfParent(child: object, parent: object): boolean {
   return false
 }
 
-export function isParentOfChild(parent: object, child: object): boolean {
+export function isParentOfChild(parent: object, child: object, reactive = true): boolean {
   assertTweakedObject(parent, "isParentOfChild")
   assertTweakedObject(child, "isParentOfChild")
 
-  return isChildOfParent(child, parent)
+  return isChildOfParent(child, parent, reactive)
 }
