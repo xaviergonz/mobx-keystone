@@ -1,3 +1,13 @@
+import {
+  IObservableArray,
+  isObservableArray,
+  isObservableMap,
+  isObservableSet,
+  ObservableMap,
+  ObservableSet,
+} from "mobx"
+import { typeofKey } from "../snapshot/metadata"
+
 export function mapGetOrDefault<K extends object, V>(
   map: WeakMap<K, V> | Map<K, V>,
   key: K,
@@ -48,4 +58,29 @@ export function debugFreeze(value: object) {
   if (process.env.NODE_ENV !== "production") {
     Object.freeze(value)
   }
+}
+
+export function deleteFromArray<T>(array: T[], value: T): boolean {
+  let index = array.indexOf(value)
+  if (index >= 0) {
+    array.splice(index, 1)
+    return true
+  }
+  return false
+}
+
+export function isModelSnapshot(sn: any): boolean {
+  return isPlainObject(sn) && !!sn[typeofKey]
+}
+
+export function isMap(val: any): val is Map<any, any> | ObservableMap {
+  return val instanceof Map || isObservableMap(val)
+}
+
+export function isSet(val: any): val is Set<any> | ObservableSet {
+  return val instanceof Set || isObservableSet(val)
+}
+
+export function isArray(val: any): val is any[] | IObservableArray {
+  return Array.isArray(val) || isObservableArray(val)
 }

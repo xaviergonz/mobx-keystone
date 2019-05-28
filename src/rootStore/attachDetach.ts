@@ -1,5 +1,5 @@
 import { Model } from "../model/Model"
-import { walkTree } from "../parent"
+import { walkTree, WalkTreeMode } from "../parent"
 
 const attachDisposers = new WeakMap<object, () => void>()
 
@@ -14,7 +14,7 @@ export function attachToRootStore(rootStore: object, child: Model): void {
         }
       }
     },
-    "parentFirst"
+    WalkTreeMode.ParentFirst
   )
 }
 
@@ -28,6 +28,6 @@ export function detachFromRootStore(child: Model): void {
         disposer()
       }
     },
-    "childrenFirst"
+    WalkTreeMode.ChildrenFirst
   )
 }

@@ -1,63 +1,78 @@
-import { isObservableArray, isObservableMap, isObservableSet } from "mobx"
 import { DeepPartial } from "ts-essentials"
-import { typeofKey } from "./metadata"
-import { getModelInfoForName } from "../model/modelInfo"
-import { SnapshotInOf } from "./SnapshotOf"
-import { isPlainObject, isObject, failure } from "../utils"
 import { runUnprotected } from "../action"
-import { Model } from "../model/Model"
+import { createModelWithUuid, Model } from "../model/Model"
+import { getModelInfoForName } from "../model/modelInfo"
+import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
+import { isInternalKey, modelIdKey, typeofKey } from "./metadata"
+import { SnapshotInOf } from "./SnapshotOf"
 
 export function fromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T): T {
   if (!isObject(sn)) {
     return sn as any
   }
 
-  if (sn instanceof Map || isObservableMap(sn)) {
+  if (isMap(sn)) {
     throw failure("a snapshot might not contain maps")
   }
 
-  if (sn instanceof Set || isObservableSet(sn)) {
+  if (isSet(sn)) {
     throw failure("a snapshot might not contain sets")
   }
 
-  if (Array.isArray(sn) || isObservableArray(sn)) {
-    return sn.map(v => fromSnapshot(v)) as any
+  if (isArray(sn)) {
+    return fromArraySnapshot(sn) as any
   }
 
-  const type = (sn as any)[typeofKey]
-  if (type) {
-    // a model
-    const modelInfo = getModelInfoForName(type)
-    if (!modelInfo) {
-      throw failure(`model with name "${type}" not found in the registry`)
-    }
-
-    const modelObj: Model = new (modelInfo.class as any)()
-    let processedSn = sn
-    if (modelObj.fromSnapshot) {
-      processedSn = modelObj.fromSnapshot(sn) as any
-    }
-
-    const data = modelObj.data as any
-    runUnprotected(() => {
-      for (const [k, v] of Object.entries(processedSn)) {
-        if (k !== typeofKey) {
-          data[k] = fromSnapshot(v)
-        }
-      }
-    })
-
-    return modelObj as any
+  if (isModelSnapshot(sn)) {
+    return fromModelSnapshot(sn) as any
   }
 
   if (isPlainObject(sn)) {
-    // plain obj
-    const plainObj: any = {}
-    for (const [k, v] of Object.entries(sn)) {
-      plainObj[k] = fromSnapshot(v)
-    }
-    return plainObj
+    return fromPlainObjectSnapshot(sn) as any
   }
 
   throw failure(`unsupported snapshot - ${sn}`)
+}
+
+function fromArraySnapshot(sn: any[]): any[] {
+  return sn.map(v => fromSnapshot(v))
+}
+
+function fromModelSnapshot(sn: any): Model {
+  const type = sn[typeofKey]
+  const id = sn[modelIdKey]
+
+  if (!id) {
+    throw failure(`a model a snapshot must contain an id (${modelIdKey}) key, but none was found`)
+  }
+
+  const modelInfo = getModelInfoForName(type)
+  if (!modelInfo) {
+    throw failure(`model with name "${type}" not found in the registry`)
+  }
+
+  const modelObj: Model = createModelWithUuid(modelInfo.class as any, id)
+  let processedSn = sn
+  if (modelObj.fromSnapshot) {
+    processedSn = modelObj.fromSnapshot(sn) as any
+  }
+
+  const data = modelObj.data as any
+  runUnprotected(() => {
+    for (const [k, v] of Object.entries(processedSn)) {
+      if (!isInternalKey(k)) {
+        data[k] = fromSnapshot(v)
+      }
+    }
+  })
+
+  return modelObj
+}
+
+function fromPlainObjectSnapshot(sn: any): object {
+  const plainObj: any = {}
+  for (const [k, v] of Object.entries(sn)) {
+    plainObj[k] = fromSnapshot(v)
+  }
+  return plainObj
 }

@@ -1,21 +1,22 @@
-import { createP, P } from "../testbed"
 import {
-  SnapshotOutOf,
-  onSnapshot,
-  runUnprotected,
-  getSnapshot,
   applySnapshot,
-  PatchOperation,
-  onPatches,
+  clone,
+  getSnapshot,
   Model,
+  onPatches,
+  onSnapshot,
+  Patch,
+  runUnprotected,
+  SnapshotOutOf,
 } from "../../src"
+import { createP, P } from "../testbed"
 import { autoDispose } from "../withDisposers"
 
 test("onSnapshot and applySnapshot", () => {
   const p = createP()
 
   const sn: [SnapshotOutOf<P>, SnapshotOutOf<P>][] = []
-  const patches: [PatchOperation[], PatchOperation[]][] = []
+  const patches: [Patch[], Patch[]][] = []
 
   function reset() {
     sn.length = 0
@@ -33,33 +34,37 @@ test("onSnapshot and applySnapshot", () => {
   })
 
   expect(sn).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
-          "$$typeof": "P",
-          "arr": Array [
-            1,
-            2,
-            3,
+        Array [
+          Array [
+            Object {
+              "$$id": "mockedUuid-1",
+              "$$typeof": "P",
+              "arr": Array [
+                1,
+                2,
+                3,
+              ],
+              "p2": Object {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
+                "y": 13,
+              },
+              "x": 6,
+            },
+            Object {
+              "$$id": "mockedUuid-1",
+              "$$typeof": "P",
+              "arr": Array [],
+              "p2": Object {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
+                "y": 12,
+              },
+              "x": 5,
+            },
           ],
-          "p2": Object {
-            "$$typeof": "P2",
-            "y": 13,
-          },
-          "x": 6,
-        },
-        Object {
-          "$$typeof": "P",
-          "arr": Array [],
-          "p2": Object {
-            "$$typeof": "P2",
-            "y": 12,
-          },
-          "x": 5,
-        },
-      ],
-    ]
-  `)
+        ]
+    `)
 
   reset()
   autoDispose(
@@ -73,91 +78,122 @@ test("onSnapshot and applySnapshot", () => {
   expect(getSnapshot(p)).toStrictEqual(originalSn)
 
   expect(sn).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
-          "$$typeof": "P",
-          "arr": Array [],
-          "p2": Object {
-            "$$typeof": "P2",
-            "y": 12,
-          },
-          "x": 5,
-        },
-        Object {
-          "$$typeof": "P",
-          "arr": Array [
-            1,
-            2,
-            3,
+        Array [
+          Array [
+            Object {
+              "$$id": "mockedUuid-1",
+              "$$typeof": "P",
+              "arr": Array [],
+              "p2": Object {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
+                "y": 12,
+              },
+              "x": 5,
+            },
+            Object {
+              "$$id": "mockedUuid-1",
+              "$$typeof": "P",
+              "arr": Array [
+                1,
+                2,
+                3,
+              ],
+              "p2": Object {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
+                "y": 13,
+              },
+              "x": 6,
+            },
           ],
-          "p2": Object {
-            "$$typeof": "P2",
-            "y": 13,
-          },
-          "x": 6,
-        },
-      ],
-    ]
-  `)
+        ]
+    `)
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Array [
-          Object {
-            "op": "replace",
-            "path": "/p2/y",
-            "value": 12,
-          },
-          Object {
-            "op": "remove",
-            "path": "/arr/2",
-          },
-          Object {
-            "op": "remove",
-            "path": "/arr/1",
-          },
-          Object {
-            "op": "remove",
-            "path": "/arr/0",
-          },
-          Object {
-            "op": "replace",
-            "path": "/x",
-            "value": 5,
-          },
-        ],
-        Array [
-          Object {
-            "op": "replace",
-            "path": "/p2/y",
-            "value": 13,
-          },
-          Object {
-            "op": "add",
-            "path": "/arr/0",
-            "value": 1,
-          },
-          Object {
-            "op": "add",
-            "path": "/arr/1",
-            "value": 2,
-          },
-          Object {
-            "op": "add",
-            "path": "/arr/2",
-            "value": 3,
-          },
-          Object {
-            "op": "replace",
-            "path": "/x",
-            "value": 6,
-          },
-        ],
-      ],
-    ]
-  `)
+            Array [
+              Array [
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "x",
+                    ],
+                    "value": 5,
+                  },
+                ],
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "x",
+                    ],
+                    "value": 6,
+                  },
+                ],
+              ],
+              Array [
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "arr",
+                      "length",
+                    ],
+                    "value": 0,
+                  },
+                ],
+                Array [
+                  Object {
+                    "op": "add",
+                    "path": Array [
+                      "arr",
+                      0,
+                    ],
+                    "value": 1,
+                  },
+                  Object {
+                    "op": "add",
+                    "path": Array [
+                      "arr",
+                      1,
+                    ],
+                    "value": 2,
+                  },
+                  Object {
+                    "op": "add",
+                    "path": Array [
+                      "arr",
+                      2,
+                    ],
+                    "value": 3,
+                  },
+                ],
+              ],
+              Array [
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p2",
+                      "y",
+                    ],
+                    "value": 12,
+                  },
+                ],
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p2",
+                      "y",
+                    ],
+                    "value": 13,
+                  },
+                ],
+              ],
+            ]
+      `)
 })
 
 test("applySnapshot can create a new submodel", () => {
@@ -169,12 +205,23 @@ test("applySnapshot can create a new submodel", () => {
     p.data.p2 = undefined
   })
 
-  const patches: [PatchOperation[], PatchOperation[]][] = []
+  const sn: [SnapshotOutOf<P>, SnapshotOutOf<P>][] = []
+  const patches: [Patch[], Patch[]][] = []
+
+  function reset() {
+    sn.length = 0
+    patches.length = 0
+  }
+
+  autoDispose(onSnapshot(p, (sn1, prevSn1) => sn.push([sn1, prevSn1])))
+
   autoDispose(
     onPatches(p, (pa, invPa) => {
       patches.push([pa, invPa])
     })
   )
+
+  reset()
   runUnprotected(() => {
     applySnapshot(p, originalSn)
   })
@@ -182,37 +229,126 @@ test("applySnapshot can create a new submodel", () => {
   expect(p.data.p2 instanceof Model).toBe(true)
 
   expect(patches).toMatchInlineSnapshot(`
-                Array [
-                  Array [
-                    Array [
-                      Object {
-                        "op": "replace",
-                        "path": "/p2",
-                        "value": Object {
-                          "$$typeof": "P2",
-                          "y": 12,
-                        },
-                      },
-                      Object {
-                        "op": "replace",
-                        "path": "/x",
-                        "value": 5,
-                      },
-                    ],
-                    Array [
-                      Object {
-                        "op": "remove",
-                        "path": "/p2",
-                      },
-                      Object {
-                        "op": "replace",
-                        "path": "/x",
-                        "value": 6,
-                      },
-                    ],
-                  ],
-                ]
-        `)
+        Array [
+          Array [
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "x",
+                ],
+                "value": 5,
+              },
+            ],
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+          ],
+          Array [
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p2",
+                ],
+                "value": Object {
+                  "$$id": "mockedUuid-4",
+                  "$$typeof": "P2",
+                  "y": 12,
+                },
+              },
+            ],
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p2",
+                ],
+                "value": undefined,
+              },
+            ],
+          ],
+        ]
+    `)
+
+  // swap the model for a clone, it should still be patched and create a snapshot,
+  // but it should have a different id
+  reset()
+  const oldP2 = p.data.p2!
+  runUnprotected(() => {
+    p.data.p2 = clone(oldP2)
+  })
+  expect(p.data.p2).not.toBe(oldP2)
+  expect(p.data.p2 instanceof Model).toBe(true)
+  expect(getSnapshot(p.data.p2)).not.toBe(getSnapshot(oldP2))
+
+  expect(patches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
+            ],
+            "value": Object {
+              "$$id": "mockedUuid-5",
+              "$$typeof": "P2",
+              "y": 12,
+            },
+          },
+        ],
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
+            ],
+            "value": Object {
+              "$$id": "mockedUuid-4",
+              "$$typeof": "P2",
+              "y": 12,
+            },
+          },
+        ],
+      ],
+    ]
+  `)
+
+  expect(sn).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "$$id": "mockedUuid-3",
+          "$$typeof": "P",
+          "arr": Array [],
+          "p2": Object {
+            "$$id": "mockedUuid-5",
+            "$$typeof": "P2",
+            "y": 12,
+          },
+          "x": 5,
+        },
+        Object {
+          "$$id": "mockedUuid-3",
+          "$$typeof": "P",
+          "arr": Array [],
+          "p2": Object {
+            "$$id": "mockedUuid-4",
+            "$$typeof": "P2",
+            "y": 12,
+          },
+          "x": 5,
+        },
+      ],
+    ]
+  `)
 })
 
 test("undefined should not be allowed in arrays, but null should", () => {

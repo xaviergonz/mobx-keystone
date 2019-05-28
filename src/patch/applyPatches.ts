@@ -1,14 +1,13 @@
-import * as fsp from "fast-json-patch"
-import { isObservableArray } from "mobx"
+import { Patch } from "immer"
 import { getCurrentActionContext } from "../action/context"
 import { getActionProtection } from "../action/protection"
 import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
-import { PatchOperation } from "./PatchOperation"
+import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure } from "../utils"
+import { failure, isArray } from "../utils"
 
-export function applyPatches(obj: object, patches: PatchOperation[]): void {
+export function applyPatches(obj: object, patches: Patch[]): void {
   if (getActionProtection() && !getCurrentActionContext()) {
     throw failure("applyPatches must be run inside an action")
   }
@@ -20,10 +19,10 @@ export function applyPatches(obj: object, patches: PatchOperation[]): void {
   patches.forEach(patch => applySinglePatch(obj, patch))
 }
 
-function applySinglePatch(obj: object, patch: PatchOperation): void {
-  const { target, prop } = jsonPathToObjectAndProp(obj, patch.path)
+function applySinglePatch(obj: object, patch: Patch): void {
+  const { target, prop } = pathArrayToObjectAndProp(obj, patch.path)
 
-  if (Array.isArray(target) || isObservableArray(target)) {
+  if (isArray(target)) {
     let index = +prop!
 
     switch (patch.op) {
@@ -40,8 +39,8 @@ function applySinglePatch(obj: object, patch: PatchOperation): void {
       }
 
       case "replace": {
-        // TODO: should this be reconciliated?
-        target[index] = fromSnapshot(patch.value)
+        // try to reconcile
+        target[index] = reconcileSnapshot(target[index], patch.value)
         break
       }
 
@@ -63,8 +62,8 @@ function applySinglePatch(obj: object, patch: PatchOperation): void {
       }
 
       case "replace": {
-        // TODO: should this be reconciliated?
-        target[prop!] = fromSnapshot(patch.value)
+        // try to reconcile
+        target[prop!] = reconcileSnapshot(target[prop!], patch.value)
         break
       }
 
@@ -74,29 +73,21 @@ function applySinglePatch(obj: object, patch: PatchOperation): void {
   }
 }
 
-function jsonPathToObjectAndProp(obj: object, jsonPath: string): { target: any; prop?: string } {
+function pathArrayToObjectAndProp(
+  obj: object,
+  path: Patch["path"]
+): { target: any; prop?: string } {
   if (process.env.NODE_ENV !== "production") {
-    if (typeof jsonPath !== "string") {
-      throw failure(`invalid json path: ${jsonPath}`)
+    if (!Array.isArray(path)) {
+      throw failure(`invalid path: ${path}`)
     }
   }
 
-  if (jsonPath === "") {
+  if (path.length === 0) {
     return {
       target: obj,
     }
   }
-
-  if (process.env.NODE_ENV !== "production") {
-    if (!jsonPath.startsWith("/")) {
-      throw failure(`invalid json path: ${jsonPath}`)
-    }
-  }
-
-  const path: string[] = jsonPath
-    .split("/")
-    .slice(1)
-    .map(fsp.unescapePathComponent)
 
   let target: any = obj
   if (target instanceof Model) {
@@ -111,6 +102,6 @@ function jsonPathToObjectAndProp(obj: object, jsonPath: string): { target: any; 
 
   return {
     target,
-    prop: path[path.length - 1],
+    prop: "" + path[path.length - 1],
   }
 }

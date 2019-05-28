@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { model, modelAction, Model, runUnprotected } from "../src"
+import { model, Model, modelAction, runUnprotected } from "../src"
 
 @model("P2")
 export class P2 extends Model {

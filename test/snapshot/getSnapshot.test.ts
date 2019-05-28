@@ -24,16 +24,18 @@ test("model class", () => {
 
   // initial state
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
-            Object {
-              "$$typeof": "P",
-              "arr": Array [],
-              "p2": Object {
-                "$$typeof": "P2",
-                "y": 12,
-              },
-              "x": 8,
-            }
-      `)
+    Object {
+      "$$id": "mockedUuid-1",
+      "$$typeof": "P",
+      "arr": Array [],
+      "p2": Object {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "y": 12,
+      },
+      "x": 8,
+    }
+  `)
 
   // detach submodel
   const oldP2 = p.data.p2!
@@ -42,20 +44,22 @@ test("model class", () => {
   })
 
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
-        Object {
-          "$$typeof": "P",
-          "arr": Array [],
-          "p2": undefined,
-          "x": 8,
-        }
-    `)
+    Object {
+      "$$id": "mockedUuid-1",
+      "$$typeof": "P",
+      "arr": Array [],
+      "p2": undefined,
+      "x": 8,
+    }
+  `)
 
   expect(getSnapshot(oldP2)).toMatchInlineSnapshot(`
-        Object {
-          "$$typeof": "P2",
-          "y": 12,
-        }
-    `)
+    Object {
+      "$$id": "mockedUuid-2",
+      "$$typeof": "P2",
+      "y": 12,
+    }
+  `)
 
   // mutate and reattach submodel
   runUnprotected(() => {
@@ -65,9 +69,11 @@ test("model class", () => {
 
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
     Object {
+      "$$id": "mockedUuid-1",
       "$$typeof": "P",
       "arr": Array [],
       "p2": Object {
+        "$$id": "mockedUuid-2",
         "$$typeof": "P2",
         "y": 13,
       },

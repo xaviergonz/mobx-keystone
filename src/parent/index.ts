@@ -1,3 +1,6 @@
+export { detach } from "./detach"
+export { findParent } from "./findParent"
+export { getChildrenObjects } from "./getChildrenObjects"
 export {
   getParent,
   getParentPath,
@@ -8,7 +11,4 @@ export {
   ParentPath,
   RootPath,
 } from "./path"
-export { findParent } from "./findParent"
-export { walkTree } from "./walkTree"
-export { getChildrenObjects } from "./getChildrenObjects"
-export { detach } from "./detach"
+export { walkTree, WalkTreeMode } from "./walkTree"

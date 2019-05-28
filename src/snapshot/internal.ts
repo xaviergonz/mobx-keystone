@@ -1,11 +1,11 @@
 import produce from "immer"
 import { createAtom, IAtom, transaction } from "mobx"
 import { getParentPath, ParentPath } from "../parent"
-import { debugFreeze } from "../utils"
+import { PatchRecorder } from "../patch/emitPatch"
+import { debugFreeze, failure } from "../utils"
 
 interface SnapshotData<T extends object> {
   standard: T
-  pureJson: T
   readonly atom: IAtom
 }
 
@@ -43,26 +43,37 @@ function getInternalSnapshotParent(
     : undefined
 }
 
-export function setInternalSnapshot<T extends object>(value: any, standard: T, pureJson: T) {
+export function setInternalSnapshot<T extends object>(
+  value: any,
+  standard: T,
+  patchRecorder: PatchRecorder | undefined
+) {
   const oldSn = getInternalSnapshot(value) as SnapshotData<any>
 
   // do not actually update if not needed
-  if (oldSn && oldSn.standard === standard && oldSn.pureJson === pureJson) {
+  if (oldSn && oldSn.standard === standard) {
+    if (process.env.NODE_ENV !== "production") {
+      if (
+        patchRecorder &&
+        (patchRecorder.patches.length > 0 || patchRecorder.invPatches.length > 0)
+      ) {
+        throw failure(
+          "assertion error: the snapshot did not change yet there were patches generated"
+        )
+      }
+    }
     return
   }
 
   debugFreeze(standard)
-  debugFreeze(pureJson)
 
   let sn: SnapshotData<any>
   if (oldSn) {
     sn = oldSn
     sn.standard = standard
-    sn.pureJson = pureJson
   } else {
     sn = {
       standard,
-      pureJson,
       atom: createAtom("snapshot"),
     }
 
@@ -72,6 +83,10 @@ export function setInternalSnapshot<T extends object>(value: any, standard: T, p
   transaction(() => {
     sn.atom.reportChanged()
 
+    if (patchRecorder) {
+      patchRecorder.emit(value)
+    }
+
     // also update parent(s) snapshot(s) if needed
     const parent = getInternalSnapshotParent(oldSn, getParentPath(value, false))
     if (parent) {
@@ -80,15 +95,12 @@ export function setInternalSnapshot<T extends object>(value: any, standard: T, p
       if (parentSnapshot) {
         const path = parentPath.path
 
-        let parentStandard: any, parentPureJson: any
-        parentStandard = produce(parentSnapshot.standard, (draftStandard: any) => {
-          parentPureJson = produce(parentSnapshot.pureJson, (draftPureJson: any) => {
-            draftStandard[path] = sn.standard
-            draftPureJson[path] = sn.pureJson
-          })
+        const parentStandard = produce(parentSnapshot.standard, (draftStandard: any) => {
+          draftStandard[path] = sn.standard
         })
 
-        setInternalSnapshot(parentPath.parent, parentStandard, parentPureJson)
+        // patches for parent changes should not be emitted
+        setInternalSnapshot(parentPath.parent, parentStandard, undefined)
       }
     }
   })
