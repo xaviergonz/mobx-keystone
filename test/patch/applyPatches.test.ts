@@ -1,4 +1,4 @@
-import { applyPatches, getSnapshot, runUnprotected } from "../../src"
+import { applyPatches, getSnapshot, modelIdKey, runUnprotected } from "../../src"
 import { createP } from "../testbed"
 
 let p = createP(true)
@@ -17,7 +17,7 @@ describe("object property", () => {
       applyPatches(p, [
         {
           op: "add",
-          path: "/p2/z",
+          path: ["p2", "z"],
           value: 10,
         },
       ])
@@ -30,7 +30,7 @@ describe("object property", () => {
       applyPatches(p, [
         {
           op: "remove",
-          path: "/p2/y",
+          path: ["p2", "y"],
         },
       ])
     })
@@ -42,7 +42,7 @@ describe("object property", () => {
       applyPatches(p, [
         {
           op: "replace",
-          path: "/p2/y",
+          path: ["p2", "y"],
           value: 10,
         },
       ])
@@ -57,7 +57,7 @@ describe("array", () => {
       applyPatches(p, [
         {
           op: "add",
-          path: "/arr/1",
+          path: ["arr", "1"],
           value: 10,
         },
       ])
@@ -70,7 +70,7 @@ describe("array", () => {
       applyPatches(p, [
         {
           op: "remove",
-          path: "/arr/1",
+          path: ["arr", "1"],
         },
       ])
     })
@@ -82,7 +82,7 @@ describe("array", () => {
       applyPatches(p, [
         {
           op: "replace",
-          path: "/arr/1",
+          path: ["arr", "1"],
           value: 10,
         },
       ])
@@ -97,7 +97,7 @@ describe("whole object", () => {
       applyPatches(p, [
         {
           op: "add",
-          path: "/p3",
+          path: ["p3"],
           value: getSnapshot(p.data.p2),
         },
       ])
@@ -110,25 +110,40 @@ describe("whole object", () => {
       applyPatches(p, [
         {
           op: "remove",
-          path: "/p2",
+          path: ["p2"],
         },
       ])
     })
     expect(p.data.p2).toBeUndefined()
   })
 
-  test("replace", () => {
+  test("replace (same id)", () => {
     const oldP2 = p.data.p2!
     runUnprotected(() => {
       applyPatches(p, [
         {
           op: "replace",
-          path: "/p2",
+          path: ["p2"],
           value: { ...getSnapshot(oldP2), y: 20 },
         },
       ])
     })
-    expect(p.data.p2).not.toBe(oldP2)
+    expect(p.data.p2).toBe(oldP2)
     expect(p.data.p2!.data.y).toBe(20)
+  })
+
+  test("replace (different id)", () => {
+    const oldP2 = p.data.p2!
+    runUnprotected(() => {
+      applyPatches(p, [
+        {
+          op: "replace",
+          path: ["p2"],
+          value: { ...getSnapshot(oldP2), y: 30, [modelIdKey]: "someOtherId" },
+        },
+      ])
+    })
+    expect(p.data.p2).not.toBe(oldP2)
+    expect(p.data.p2!.data.y).toBe(30)
   })
 })

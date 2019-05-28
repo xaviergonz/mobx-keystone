@@ -1,4 +1,4 @@
-import { model, modelAction, Model, addActionMiddleware, applyAction } from "../../src"
+import { addActionMiddleware, applyAction, model, Model, modelAction } from "../../src"
 import { autoDispose } from "../withDisposers"
 
 @model("P2")
@@ -70,9 +70,11 @@ test("action tracking", () => {
           "name": "addX",
           "parentContext": undefined,
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 0,
@@ -93,9 +95,11 @@ test("action tracking", () => {
           "name": "addX",
           "parentContext": undefined,
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 0,
@@ -125,6 +129,7 @@ test("action tracking", () => {
           "name": "addY",
           "parentContext": undefined,
           "target": P2 {
+            "$$id": "mockedUuid-2",
             "$$typeof": "P2",
             "data": Object {
               "y": 2,
@@ -142,6 +147,7 @@ test("action tracking", () => {
           "name": "addY",
           "parentContext": undefined,
           "target": P2 {
+            "$$id": "mockedUuid-2",
             "$$typeof": "P2",
             "data": Object {
               "y": 2,
@@ -169,9 +175,11 @@ test("action tracking", () => {
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 4,
@@ -199,9 +207,11 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
+              "$$id": "mockedUuid-1",
               "$$typeof": "P",
               "data": Object {
                 "p2": P2 {
+                  "$$id": "mockedUuid-2",
                   "$$typeof": "P2",
                   "data": Object {
                     "y": 4,
@@ -212,9 +222,11 @@ test("action tracking", () => {
             },
           },
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 4,
@@ -242,9 +254,11 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
+              "$$id": "mockedUuid-1",
               "$$typeof": "P",
               "data": Object {
                 "p2": P2 {
+                  "$$id": "mockedUuid-2",
                   "$$typeof": "P2",
                   "data": Object {
                     "y": 4,
@@ -255,9 +269,11 @@ test("action tracking", () => {
             },
           },
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 4,
@@ -286,9 +302,11 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
+              "$$id": "mockedUuid-1",
               "$$typeof": "P",
               "data": Object {
                 "p2": P2 {
+                  "$$id": "mockedUuid-2",
                   "$$typeof": "P2",
                   "data": Object {
                     "y": 4,
@@ -299,6 +317,7 @@ test("action tracking", () => {
             },
           },
           "target": P2 {
+            "$$id": "mockedUuid-2",
             "$$typeof": "P2",
             "data": Object {
               "y": 4,
@@ -323,9 +342,11 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
+              "$$id": "mockedUuid-1",
               "$$typeof": "P",
               "data": Object {
                 "p2": P2 {
+                  "$$id": "mockedUuid-2",
                   "$$typeof": "P2",
                   "data": Object {
                     "y": 4,
@@ -336,6 +357,7 @@ test("action tracking", () => {
             },
           },
           "target": P2 {
+            "$$id": "mockedUuid-2",
             "$$typeof": "P2",
             "data": Object {
               "y": 4,
@@ -355,9 +377,11 @@ test("action tracking", () => {
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 4,
@@ -417,7 +441,8 @@ test("applyAction", () => {
       args: [10],
     })
     expect(ra).toBe(rb)
-    expect(pa).toStrictEqual(pb)
+    expect(pa.data.x).toStrictEqual(pb.data.x)
+    expect(pa.data.p2.data.y).toStrictEqual(pb.data.p2.data.y)
   }
 
   {
@@ -428,7 +453,8 @@ test("applyAction", () => {
       args: [1, 2],
     })
     expect(ra).toBe(rb)
-    expect(pa).toStrictEqual(pb)
+    expect(pa.data.x).toStrictEqual(pb.data.x)
+    expect(pa.data.p2.data.y).toStrictEqual(pb.data.p2.data.y)
   }
 
   {
@@ -439,6 +465,7 @@ test("applyAction", () => {
       args: [15],
     })
     expect(ra).toBe(rb)
-    expect(pa).toStrictEqual(pb)
+    expect(pa.data.x).toStrictEqual(pb.data.x)
+    expect(pa.data.p2.data.y).toStrictEqual(pb.data.p2.data.y)
   }
 })

@@ -1,4 +1,4 @@
-import { model, Model, fromSnapshot, typeofKey } from "../../src"
+import { fromSnapshot, model, Model, modelIdKey, typeofKey } from "../../src"
 
 @model("P3")
 export class P3 extends Model {
@@ -18,8 +18,10 @@ export class P3 extends Model {
 test("snapshot processor", () => {
   const p = fromSnapshot<P3>({
     [typeofKey]: "P3",
+    [modelIdKey]: "P3-id",
     y: "30,40,50",
   })
 
   expect(p.data.arr).toStrictEqual([30, 40, 50])
+  expect(p.modelId).toBe("P3-id")
 })

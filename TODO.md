@@ -1,8 +1,5 @@
 # TODO
 
-- patch emitting thanks to immer? although fastjson patch is cool
-- make applySnapshot NOT use fastjson patch?
-
 - flows
 
 - middlewares? (we have addActionMiddleware though)
@@ -39,6 +36,8 @@ if (invalid) {
 detach(this.data.r)
 }
 }, {fireImm})
+
+new Ref((data) => obj, obj => data)
 
 - readme, new name
 

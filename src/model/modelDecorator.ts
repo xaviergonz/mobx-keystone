@@ -1,6 +1,6 @@
-import { Model } from "./Model"
-import { modelInfoByName, modelInfoByClass } from "./modelInfo"
 import { failure } from "../utils"
+import { Model } from "./Model"
+import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 
 export const model = (name: string) => (clazz: new (...args: any[]) => Model) => {
   if (typeof clazz !== "function") {

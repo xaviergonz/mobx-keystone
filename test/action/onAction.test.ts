@@ -1,13 +1,13 @@
-import { autoDispose } from "../withDisposers"
+import { observable } from "mobx"
 import {
+  ActionContext,
   model,
   Model,
   modelAction,
   onAction,
   SerializableActionCall,
-  ActionContext,
 } from "../../src"
-import { observable } from "mobx"
+import { autoDispose } from "../withDisposers"
 
 @model("P2")
 export class P2 extends Model {
@@ -64,113 +64,118 @@ test("onAction", () => {
   p1.addX(1)
   p2.addX(1)
   expect(events).toMatchInlineSnapshot(`
-                        Array [
-                          Array [
-                            Object {
-                              "args": Array [
-                                1,
-                              ],
-                              "name": "addX",
-                              "path": Array [],
-                            },
-                            Object {
-                              "args": Array [
-                                1,
-                              ],
-                              "data": Object {},
-                              "name": "addX",
-                              "parentContext": undefined,
-                              "target": P {
-                                "$$typeof": "P",
-                                "data": Object {
-                                  "p2": P2 {
-                                    "$$typeof": "P2",
-                                    "data": Object {
-                                      "y": 0,
-                                    },
-                                  },
-                                  "x": 1,
-                                },
-                              },
-                            },
-                          ],
-                        ]
-            `)
+    Array [
+      Array [
+        Object {
+          "args": Array [
+            1,
+          ],
+          "name": "addX",
+          "path": Array [],
+        },
+        Object {
+          "args": Array [
+            1,
+          ],
+          "data": Object {},
+          "name": "addX",
+          "parentContext": undefined,
+          "target": P {
+            "$$id": "mockedUuid-1",
+            "$$typeof": "P",
+            "data": Object {
+              "p2": P2 {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
+                "data": Object {
+                  "y": 0,
+                },
+              },
+              "x": 1,
+            },
+          },
+        },
+      ],
+    ]
+  `)
 
   // action on the child
   reset()
   p1.data.p2.addY(2)
   p2.data.p2.addY(2)
   expect(events).toMatchInlineSnapshot(`
-                    Array [
-                      Array [
-                        Object {
-                          "args": Array [
-                            2,
-                          ],
-                          "name": "addY",
-                          "path": Array [
-                            "data",
-                            "p2",
-                          ],
-                        },
-                        Object {
-                          "args": Array [
-                            2,
-                          ],
-                          "data": Object {},
-                          "name": "addY",
-                          "parentContext": undefined,
-                          "target": P2 {
-                            "$$typeof": "P2",
-                            "data": Object {
-                              "y": 2,
-                            },
-                          },
-                        },
-                      ],
-                    ]
-          `)
+    Array [
+      Array [
+        Object {
+          "args": Array [
+            2,
+          ],
+          "name": "addY",
+          "path": Array [
+            "data",
+            "p2",
+          ],
+        },
+        Object {
+          "args": Array [
+            2,
+          ],
+          "data": Object {},
+          "name": "addY",
+          "parentContext": undefined,
+          "target": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 2,
+            },
+          },
+        },
+      ],
+    ]
+  `)
 
   // action on the root with sub-action on the child
   reset()
   p1.addXY(3, 4)
   p2.addXY(3, 4)
   expect(events).toMatchInlineSnapshot(`
-                    Array [
-                      Array [
-                        Object {
-                          "args": Array [
-                            3,
-                            4,
-                          ],
-                          "name": "addXY",
-                          "path": Array [],
-                        },
-                        Object {
-                          "args": Array [
-                            3,
-                            4,
-                          ],
-                          "data": Object {},
-                          "name": "addXY",
-                          "parentContext": undefined,
-                          "target": P {
-                            "$$typeof": "P",
-                            "data": Object {
-                              "p2": P2 {
-                                "$$typeof": "P2",
-                                "data": Object {
-                                  "y": 6,
-                                },
-                              },
-                              "x": 4,
-                            },
-                          },
-                        },
-                      ],
-                    ]
-          `)
+    Array [
+      Array [
+        Object {
+          "args": Array [
+            3,
+            4,
+          ],
+          "name": "addXY",
+          "path": Array [],
+        },
+        Object {
+          "args": Array [
+            3,
+            4,
+          ],
+          "data": Object {},
+          "name": "addXY",
+          "parentContext": undefined,
+          "target": P {
+            "$$id": "mockedUuid-1",
+            "$$typeof": "P",
+            "data": Object {
+              "p2": P2 {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
+                "data": Object {
+                  "y": 6,
+                },
+              },
+              "x": 4,
+            },
+          },
+        },
+      ],
+    ]
+  `)
 
   // unserializable args
   reset()
@@ -179,41 +184,43 @@ test("onAction", () => {
   p1.other(rc)
   p2.other(rc)
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          Array [
+    Array [
+      Array [
+        Object {
+          "args": Array [
             Object {
-              "args": Array [
-                Object {
-                  "$unserializable": true,
-                  "value": RandomClass {},
-                },
-              ],
-              "name": "other",
-              "path": Array [],
-            },
-            Object {
-              "args": Array [
-                RandomClass {},
-              ],
-              "data": Object {},
-              "name": "other",
-              "parentContext": undefined,
-              "target": P {
-                "$$typeof": "P",
-                "data": Object {
-                  "p2": P2 {
-                    "$$typeof": "P2",
-                    "data": Object {
-                      "y": 6,
-                    },
-                  },
-                  "x": 4,
-                },
-              },
+              "$unserializable": true,
+              "value": RandomClass {},
             },
           ],
-        ]
-    `)
+          "name": "other",
+          "path": Array [],
+        },
+        Object {
+          "args": Array [
+            RandomClass {},
+          ],
+          "data": Object {},
+          "name": "other",
+          "parentContext": undefined,
+          "target": P {
+            "$$id": "mockedUuid-1",
+            "$$typeof": "P",
+            "data": Object {
+              "p2": P2 {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
+                "data": Object {
+                  "y": 6,
+                },
+              },
+              "x": 4,
+            },
+          },
+        },
+      ],
+    ]
+  `)
 
   // array, obs array
   reset()
@@ -255,9 +262,11 @@ test("onAction", () => {
           "name": "other",
           "parentContext": undefined,
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 6,
@@ -303,9 +312,11 @@ test("onAction", () => {
           "name": "other",
           "parentContext": undefined,
           "target": P {
+            "$$id": "mockedUuid-1",
             "$$typeof": "P",
             "data": Object {
               "p2": P2 {
+                "$$id": "mockedUuid-2",
                 "$$typeof": "P2",
                 "data": Object {
                   "y": 6,

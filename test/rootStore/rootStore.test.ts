@@ -1,11 +1,11 @@
 import {
+  getRootStore,
+  getRootStoreEnv,
+  isRootStore,
   model,
   Model,
-  getRootStore,
-  isRootStore,
   registerRootStore,
   runUnprotected,
-  getRootStoreEnv,
   unregisterRootStore,
 } from "../../src"
 

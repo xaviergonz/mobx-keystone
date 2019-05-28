@@ -11,20 +11,19 @@ import {
   IObservableArray,
   isObservable,
   isObservableArray,
-  isObservableMap,
   isObservableObject,
-  isObservableSet,
   observable,
   observe,
 } from "mobx"
 import { getCurrentActionContext } from "../action/context"
+import { getActionProtection } from "../action/protection"
 import { getModelInfoForObject } from "../model/modelInfo"
 import { ParentPath } from "../parent"
-import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { setParent } from "../parent/setParent"
-import { getActionProtection } from "../action/protection"
+import { PatchRecorder } from "../patch/emitPatch"
+import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
+import { failure, isMap, isSet } from "../utils"
 import { isTweakedObject, tweakedObjects } from "./core"
-import { failure } from "../utils"
 
 export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (typeof value !== "object" || value === null) {
@@ -32,11 +31,11 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   }
 
   // unsupported
-  if (value instanceof Map || isObservableMap(value)) {
+  if (isMap(value)) {
     throw failure("maps are not supported")
   }
 
-  if (value instanceof Set || isObservableSet(value)) {
+  if (isSet(value)) {
     throw failure("sets are not supported")
   }
 
@@ -66,7 +65,6 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
     setParent(value, parentPath)
 
     const standardSn: any[] = []
-    const pureJsonSn: any[] = []
 
     // substitute initial values by proxied values
     const arr = value as IObservableArray
@@ -80,15 +78,13 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
       const valueSn = getInternalSnapshot(tweakedValue)
       if (valueSn) {
         standardSn.push(valueSn.standard)
-        pureJsonSn.push(valueSn.pureJson)
       } else {
         // must be a primitive
         standardSn.push(tweakedValue)
-        pureJsonSn.push(tweakedValue)
       }
     }
 
-    setInternalSnapshot(value, standardSn, pureJsonSn)
+    setInternalSnapshot(value, standardSn, undefined)
 
     intercept(value, interceptArrayMutation.bind(undefined, value))
     observe(value, arrayDidChange)
@@ -102,7 +98,6 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
     setParent(value, parentPath)
 
     const standardSn: any = {}
-    const pureJsonSn: any = {}
 
     // substitute initial values by tweaked values
     for (const [k, v] of entries(value)) {
@@ -114,15 +109,13 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
       const valueSn = getInternalSnapshot(tweakedValue)
       if (valueSn) {
         standardSn[k] = valueSn.standard
-        pureJsonSn[k] = valueSn.pureJson
       } else {
         // must be a primitive
         standardSn[k] = tweakedValue
-        pureJsonSn[k] = tweakedValue
       }
     }
 
-    setInternalSnapshot(value, standardSn, pureJsonSn)
+    setInternalSnapshot(value, standardSn, undefined)
 
     intercept(value, interceptObjectMutation)
     observe(value, objectDidChange)
@@ -136,10 +129,13 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
 }
 
 function objectDidChange(change: IObjectDidChange): void {
-  let { standard: standardSn, pureJson: pureJsonSn } = getInternalSnapshot(change.object)!
+  let { standard: standardSn } = getInternalSnapshot(change.object)!
 
-  standardSn = produce(standardSn, (draftStandard: any) => {
-    pureJsonSn = produce(pureJsonSn, (draftPureJson: any) => {
+  const patchRecorder = new PatchRecorder()
+
+  standardSn = produce(
+    standardSn,
+    (draftStandard: any) => {
       switch (change.type) {
         case "add":
           {
@@ -148,11 +144,9 @@ function objectDidChange(change: IObjectDidChange): void {
             const valueSn = getInternalSnapshot(val)
             if (valueSn) {
               draftStandard[k] = valueSn.standard
-              draftPureJson[k] = valueSn.pureJson
             } else {
               // must be a primitive
               draftStandard[k] = val
-              draftPureJson[k] = val
             }
           }
           break
@@ -164,11 +158,9 @@ function objectDidChange(change: IObjectDidChange): void {
             const valueSn = getInternalSnapshot(val)
             if (valueSn) {
               draftStandard[k] = valueSn.standard
-              draftPureJson[k] = valueSn.pureJson
             } else {
               // must be a primitive
               draftStandard[k] = val
-              draftPureJson[k] = val
             }
           }
           break
@@ -177,14 +169,14 @@ function objectDidChange(change: IObjectDidChange): void {
           {
             const k = change.name
             delete draftStandard[k]
-            delete draftPureJson[k]
           }
           break
       }
-    })
-  })
+    },
+    patchRecorder.record
+  )
 
-  setInternalSnapshot(change.object, standardSn, pureJsonSn)
+  setInternalSnapshot(change.object, standardSn, patchRecorder)
 }
 
 function interceptObjectMutation(change: IObjectWillChange) {
@@ -213,10 +205,13 @@ function interceptObjectMutation(change: IObjectWillChange) {
 }
 
 function arrayDidChange(change: IArrayChange | IArraySplice) {
-  let { standard: standardSn, pureJson: pureJsonSn } = getInternalSnapshot(change.object)!
+  let { standard: standardSn } = getInternalSnapshot(change.object)!
 
-  standardSn = produce(standardSn, (draftStandard: any[]) => {
-    pureJsonSn = produce(pureJsonSn, (draftPureJson: any[]) => {
+  const patchRecorder = new PatchRecorder()
+
+  standardSn = produce(
+    standardSn,
+    (draftStandard: any[]) => {
       switch (change.type) {
         case "splice":
           {
@@ -229,11 +224,6 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
               valueSn ? valueSn.standard : val
             )
             draftStandard.splice(change.index, change.removedCount, ...addedStandardSn)
-
-            const addedPureJsonSn = addedSn.map(([valueSn, val]) =>
-              valueSn ? valueSn.pureJson : val
-            )
-            draftPureJson.splice(change.index, change.removedCount, ...addedPureJsonSn)
           }
           break
 
@@ -244,19 +234,18 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
             const valueSn = getInternalSnapshot(val)
             if (valueSn) {
               draftStandard[k] = valueSn.standard
-              draftPureJson[k] = valueSn.pureJson
             } else {
               // must be a primitive
               draftStandard[k] = val
-              draftPureJson[k] = val
             }
           }
           break
       }
-    })
-  })
+    },
+    patchRecorder.record
+  )
 
-  setInternalSnapshot(change.object, standardSn, pureJsonSn)
+  setInternalSnapshot(change.object, standardSn, patchRecorder)
 }
 
 const undefinedInsideArrayErrorMsg =

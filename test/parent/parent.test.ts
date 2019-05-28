@@ -1,16 +1,17 @@
 import {
   detach,
+  findParent,
   fromSnapshot,
+  getChildrenObjects,
   getParentPath,
   getRootPath,
   isChildOfParent,
   isParentOfChild,
   model,
   Model,
+  modelIdKey,
   runUnprotected,
   typeofKey,
-  findParent,
-  getChildrenObjects,
 } from "../../src"
 
 @model("P2")
@@ -32,22 +33,27 @@ export class P extends Model {
 test("parent", () => {
   const p = fromSnapshot<P>({
     [typeofKey]: "P",
+    [modelIdKey]: "P-id",
     arr: [
       {
         [typeofKey]: "P2",
+        [modelIdKey]: "P2-id1",
         y: 1,
       },
       {
         [typeofKey]: "P2",
+        [modelIdKey]: "P2-id2",
         y: 2,
       },
       {
         [typeofKey]: "P2",
+        [modelIdKey]: "P2-id3",
         y: 3,
       },
     ],
     p2: {
       [typeofKey]: "P2",
+      [modelIdKey]: "P2-idout",
       y: 12,
     },
   })
