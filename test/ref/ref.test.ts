@@ -7,6 +7,7 @@ import {
   modelIdKey,
   Ref,
   ref,
+  registerRootStore,
   typeofKey,
 } from "../../src"
 
@@ -26,8 +27,8 @@ class P extends Model {
   } = {}
 
   @modelAction
-  setR(r: P2 | undefined) {
-    this.data.r = r ? ref(r) : undefined
+  setR(r: P2 | undefined, autoDetach = false) {
+    this.data.r = r ? ref(r, { autoDetach }) : undefined
   }
 
   @modelAction
@@ -54,12 +55,12 @@ test("ref", () => {
   expect(p.data.r!.maybeCurrent).toBe(p2)
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
-    Object {
-      "$$id": "mockedUuid-3",
-      "$$typeof": "$$Ref",
-      "id": "mockedUuid-2",
-    }
-  `)
+            Object {
+              "$$id": "mockedUuid-3",
+              "$$typeof": "$$Ref",
+              "id": "mockedUuid-2",
+            }
+      `)
 
   // not under the same root now
   p.setP2(undefined)
@@ -70,12 +71,12 @@ test("ref", () => {
   )
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
-    Object {
-      "$$id": "mockedUuid-3",
-      "$$typeof": "$$Ref",
-      "id": "mockedUuid-2",
-    }
-  `)
+            Object {
+              "$$id": "mockedUuid-3",
+              "$$typeof": "$$Ref",
+              "id": "mockedUuid-2",
+            }
+      `)
 
   // change the path, the ref should still be ok
   p.setP3(p2)
@@ -84,12 +85,12 @@ test("ref", () => {
   expect(p.data.r!.current).toBe(p2)
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
-    Object {
-      "$$id": "mockedUuid-3",
-      "$$typeof": "$$Ref",
-      "id": "mockedUuid-2",
-    }
-  `)
+            Object {
+              "$$id": "mockedUuid-3",
+              "$$typeof": "$$Ref",
+              "id": "mockedUuid-2",
+            }
+      `)
 
   // not under the same root now
   const r = p.data.r!
@@ -169,5 +170,40 @@ test("ref loaded from a broken snapshot", () => {
   expect(r.maybeCurrent).toBe(undefined)
   expect(() => r.current).toThrow(
     "a model with id 'P2-2' could not be found in the same tree as the reference"
+  )
+})
+
+test("autoDetach ref", () => {
+  const p = new P()
+  registerRootStore(p)
+
+  const p2 = new P2()
+
+  p.setP2(p2)
+  p.setR(p2, true)
+  expect(p.data.r).toBeDefined()
+
+  expect(p.data.r!.isValid).toBe(true)
+  expect(p.data.r!.maybeCurrent).toBe(p2)
+  expect(p.data.r!.current).toBe(p2)
+
+  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
+    Object {
+      "$$id": "mockedUuid-6",
+      "$$typeof": "$$Ref",
+      "autoDetach": true,
+      "id": "mockedUuid-5",
+    }
+  `)
+
+  // not under the same root now
+  const r = p.data.r!
+  p.setP2(undefined)
+  expect(p.data.r).toBe(undefined)
+  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`undefined`)
+  expect(r.isValid).toBe(false)
+  expect(r.maybeCurrent).toBe(undefined)
+  expect(() => r.current).toThrow(
+    "a model with id 'mockedUuid-5' could not be found in the same tree as the reference"
   )
 })

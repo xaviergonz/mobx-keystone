@@ -7,37 +7,10 @@
 
 - refs?
 
-x: new Ref(obj, { autoDetach: true/false }) -> Ref<T>
-stores: ref to a (tweaked) object
-serializes: absolute path of such object (both must be under the same root at that time)
-deserializes: absolute path to an object, that after fromSnapshot is done will be actually resolved (ref)
+need to document that saferefs only work properly when the ref is under a rootstore
+and the typing gotchas
 
-.isValid // valid if both ref and target are under the same root, reactive
-.current // get/set, does not throw
-readonly .path // the actual thing that is / will be stored, throws if not valid
-
-not serializable in pure json mode (or rather it won't work), stored as
-{
-$typeof: "$Ref", // a model
-path: "path",
-autoDetach?: true/false
-}
-
-since ref will be a kind of "Model", we will do once attached to a root store (or after the constructor is done / some init func called?):
-if (this.data.autoDetach) {
-reaction to this.isValid
-when it gets to true detach this
-}
-also detach when dismounted from root store? guess not in case we want to move it to another root store?
-
-on the model constructor we can do:
-reaction(() => this.data.r && !this.data.r.isValid, (invalid) => {
-if (invalid) {
-detach(this.data.r)
-}
-}, {fireImm})
-
-new Ref((data) => obj, obj => data)
+- does subclassing work?
 
 - readme, new name
 
