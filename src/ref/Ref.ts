@@ -1,13 +1,16 @@
-import { computed } from "mobx"
+import { computed, when } from "mobx"
+import { Writable } from "ts-essentials"
 import { model, Model } from "../model"
-import { getRoot } from "../parent"
 import { getRootIdCache } from "../parent/core"
+import { detach } from "../parent/detach"
+import { getRoot } from "../parent/path"
 import { failure } from "../utils"
 
 @model("$$Ref")
 export class Ref<T extends Model> extends Model {
   readonly data: {
     readonly id: string
+    readonly autoDetach?: boolean
   } = { id: "" }
 
   @computed
@@ -37,14 +40,33 @@ export class Ref<T extends Model> extends Model {
 
     return current
   }
+
+  attachedToRootStore() {
+    if (!this.data.autoDetach) {
+      return undefined
+    }
+
+    const whenDisposer = when(
+      () => !this.isValid,
+      () => {
+        detach(this)
+      }
+    )
+
+    return whenDisposer
+  }
 }
 
-export function ref<T extends Model>(current: T): Ref<T> {
+export function ref<T extends Model>(current: T, opts?: { autoDetach: boolean }): Ref<T> {
   if (!(current instanceof Model)) {
     throw failure("a reference can only point to a model instance")
   }
 
   const r = new Ref<T>()
-  ;(r.data as any).id = current.modelId
+  const data: Writable<typeof r.data> = r.data
+  data.id = current.modelId
+  if (opts && opts.autoDetach) {
+    data.autoDetach = true
+  }
   return r
 }

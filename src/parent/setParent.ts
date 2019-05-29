@@ -1,3 +1,4 @@
+import { observable } from "mobx"
 import { Model } from "../model/Model"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
@@ -29,7 +30,7 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
   }
 
   if (!objectChildren.has(value)) {
-    objectChildren.set(value, new Set())
+    objectChildren.set(value, observable.set())
   }
 
   const oldParentPath = getParentPath(value, false)
