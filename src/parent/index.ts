@@ -8,6 +8,7 @@ export {
   getRootPath,
   isChildOfParent,
   isParentOfChild,
+  isRoot,
   ParentPath,
   RootPath,
 } from "./path"

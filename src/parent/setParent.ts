@@ -1,9 +1,16 @@
-import { isObject, failure } from "../utils"
-import { getParentPath, ParentPath } from "./path"
-import { parentPathEquals, objectParents, objectChildren, reportParentPathChanged } from "./core"
+import { Model } from "../model/Model"
+import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
+import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
-import { isRootStore, getRootStore } from "../rootStore/rootStore"
-import { detachFromRootStore, attachToRootStore } from "../rootStore/attachDetach"
+import { failure, isObject } from "../utils"
+import {
+  getRootIdCache,
+  objectChildren,
+  objectParents,
+  parentPathEquals,
+  reportParentPathChanged,
+} from "./core"
+import { getParentPath, getRoot, ParentPath } from "./path"
 
 export function setParent(value: any, parentPath: ParentPath<any> | undefined): void {
   if (!isObject(value)) {
@@ -38,28 +45,49 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
     throw failure("an object cannot be assigned a new parent when it already has one")
   }
 
-  // remove from old parent
-  const oldRootStore = getRootStore(value, false)
-  if (oldParentPath && oldParentPath.parent) {
-    const children = objectChildren.get(oldParentPath.parent)!
-    children.delete(value)
+  const removeFromOldParent = () => {
+    if (oldParentPath && oldParentPath.parent) {
+      const children = objectChildren.get(oldParentPath.parent)!
+      children.delete(value)
+    }
   }
 
-  // attach to new parent
-  if (parentPath && parentPath.parent) {
-    const children = objectChildren.get(parentPath.parent)!
-    children.add(value)
+  const attachToNewParent = () => {
+    if (parentPath && parentPath.parent) {
+      const children = objectChildren.get(parentPath.parent)!
+      children.add(value)
+    }
+    objectParents.set(value, parentPath)
   }
-  objectParents.set(value, parentPath)
-  const newRootStore = getRootStore(value, false)
 
-  if (oldRootStore !== newRootStore) {
-    if (oldRootStore) {
-      detachFromRootStore(value)
+  if (value instanceof Model) {
+    const oldRoot = getRoot(value, false)
+    const oldRootStore = isRootStore(oldRoot) ? oldRoot : undefined
+    removeFromOldParent()
+
+    attachToNewParent()
+    const newRoot = getRoot(value, false)
+    const newRootStore = isRootStore(newRoot) ? newRoot : undefined
+
+    // update id caches
+    const modelId = value.modelId
+    if (oldRoot !== newRoot) {
+      getRootIdCache(oldRoot).delete(modelId)
     }
-    if (newRootStore) {
-      attachToRootStore(newRootStore, value)
+    getRootIdCache(newRoot).set(modelId, value)
+
+    // invoke model root store events
+    if (oldRootStore !== newRootStore) {
+      if (oldRootStore) {
+        detachFromRootStore(value)
+      }
+      if (newRootStore) {
+        attachToRootStore(newRootStore, value)
+      }
     }
+  } else {
+    removeFromOldParent()
+    attachToNewParent()
   }
 
   reportParentPathChanged(value)

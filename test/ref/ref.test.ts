@@ -49,8 +49,9 @@ test("ref", () => {
   p.setR(p2)
   expect(p.data.r).toBeDefined()
 
-  expect(p.data.r!.current).toBe(p2)
   expect(p.data.r!.isValid).toBe(true)
+  expect(p.data.r!.current).toBe(p2)
+  expect(p.data.r!.maybeCurrent).toBe(p2)
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
     Object {
@@ -62,8 +63,11 @@ test("ref", () => {
 
   // not under the same root now
   p.setP2(undefined)
-  expect(p.data.r!.current).toBe(p2)
   expect(p.data.r!.isValid).toBe(false)
+  expect(p.data.r!.maybeCurrent).toBe(undefined)
+  expect(() => p.data.r!.current).toThrow(
+    "a model with id 'mockedUuid-2' could not be found in the same tree as the reference"
+  )
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
     Object {
@@ -75,8 +79,9 @@ test("ref", () => {
 
   // change the path, the ref should still be ok
   p.setP3(p2)
-  expect(p.data.r!.current).toBe(p2)
   expect(p.data.r!.isValid).toBe(true)
+  expect(p.data.r!.maybeCurrent).toBe(p2)
+  expect(p.data.r!.current).toBe(p2)
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
     Object {
@@ -90,8 +95,11 @@ test("ref", () => {
   const r = p.data.r!
   p.setR(undefined)
   expect(p.data.r).toBeUndefined()
-  expect(r.current).toBe(p2)
   expect(r.isValid).toBe(false)
+  expect(r.maybeCurrent).toBe(undefined)
+  expect(() => r.current).toThrow(
+    "a model with id 'mockedUuid-2' could not be found in the same tree as the reference"
+  )
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`undefined`)
 })
@@ -130,11 +138,13 @@ test("ref loaded from a snapshot", () => {
   const r = p.data.r!
   expect(r).toBeDefined()
   expect(r.isValid).toBe(true)
+  expect(r.maybeCurrent).toBe(p.data.p2)
   expect(r.current).toBe(p.data.p2)
 
   const rr = pp.data.r!
   expect(rr).toBeDefined()
   expect(rr.isValid).toBe(true)
+  expect(rr.maybeCurrent).toBe(pp.data.p2)
   expect(rr.current).toBe(pp.data.p2)
 })
 
@@ -156,6 +166,7 @@ test("ref loaded from a broken snapshot", () => {
   const r = p.data.r!
   expect(r).toBeDefined()
   expect(r.isValid).toBe(false)
+  expect(r.maybeCurrent).toBe(undefined)
   expect(() => r.current).toThrow(
     "a model with id 'P2-2' could not be found in the same tree as the reference"
   )
