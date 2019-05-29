@@ -1,5 +1,5 @@
-import { objectParents, reportParentPathObserved } from "./core"
 import { assertTweakedObject } from "../tweaker/core"
+import { objectParents, reportParentPathObserved } from "./core"
 
 export interface ParentPath<T extends object> {
   parent: T
@@ -51,6 +51,12 @@ export function getRoot<T extends object = any>(value: object, reactive = true):
   assertTweakedObject(value, "getRoot")
 
   return getRootPath(value, reactive).root
+}
+
+export function isRoot(value: object, reactive = true): boolean {
+  assertTweakedObject(value, "isRoot")
+
+  return !getParent(value, reactive)
 }
 
 export function isChildOfParent(child: object, parent: object, reactive = true): boolean {
