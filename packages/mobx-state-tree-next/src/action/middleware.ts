@@ -1,3 +1,4 @@
+import { action, isAction } from "mobx"
 import { failure } from "../utils"
 import { ActionContext } from "./context"
 
@@ -39,9 +40,13 @@ export function addActionMiddleware(
   if (typeof mware !== "function") {
     throw failure("a middleware must be a function")
   }
+  if (filter && typeof filter !== "function") {
+    throw failure("a filter must be a function")
+  }
 
-  if (actionMiddlewares.findIndex(m => m.fn === mware) >= 0) {
-    throw failure("middleware already present")
+  mware = !isAction(mware) ? action(mware.name || "actionMiddleware", mware) : mware
+  if (filter) {
+    filter = !isAction(filter) ? action(filter.name || "actionMiddlewareFilter", filter) : filter
   }
 
   actionMiddlewares.push({ fn: mware, filter })

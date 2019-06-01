@@ -1,4 +1,5 @@
 import { Patch } from "immer"
+import { action } from "mobx"
 import { Model } from "../model/Model"
 import { getParentPath } from "../parent"
 import { assertTweakedObject } from "../tweaker/core"
@@ -12,11 +13,13 @@ export class PatchRecorder {
     this.record = this.record.bind(this)
   }
 
+  @action
   record(patches: Patch[], invPatches: Patch[]) {
     this.patches = patches
     this.invPatches = invPatches
   }
 
+  @action
   emit(obj: object) {
     emitPatch(obj, this.patches, this.invPatches)
   }
@@ -62,7 +65,7 @@ function emitPatch(obj: object, patches: Patch[], inversePatches: Patch[]): void
     listenersForObject.forEach(listener => listener(patches, inversePatches))
   }
 
-  const parentPath = getParentPath(obj, false)
+  const parentPath = getParentPath(obj)
   if (parentPath) {
     // tweak patches so they include the child path
     const childPath = parentPath.path

@@ -69,7 +69,7 @@ export function onAction(
       return listener(serializableActionCall, ctx, next)
     },
     ctx => {
-      return ctx.target === target || isChildOfParent(ctx.target, target, false)
+      return ctx.target === target || isChildOfParent(ctx.target, target)
     }
   )
 
@@ -99,7 +99,7 @@ function serializeArgument(a: any): any {
 }
 
 function actionContextToSerializableActionCall(ctx: ActionContext): SerializableActionCall {
-  const rootPath = getRootPath(ctx.target, false)
+  const rootPath = getRootPath(ctx.target)
 
   return {
     name: ctx.name,
