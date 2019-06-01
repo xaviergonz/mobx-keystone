@@ -1,4 +1,4 @@
-import { isObservableArray, isObservableObject } from "mobx"
+import { isObservableArray, isObservableObject, untracked } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { getParentPath } from "./path"
@@ -13,17 +13,21 @@ import { getParentPath } from "./path"
  * @param value Object to be detached.
  */
 export function detach(value: object) {
-  assertTweakedObject(value, "detach")
+  // untracked because it shouldn't track, but it should be inside
+  // an action
+  return untracked(() => {
+    assertTweakedObject(value, "detach")
 
-  const parentPath = getParentPath(value, false)
-  if (!parentPath) return
+    const parentPath = getParentPath(value)
+    if (!parentPath) return
 
-  const { parent, path } = parentPath
-  if (isObservableArray(parent)) {
-    parent.splice(+path, 1)
-  } else if (isObservableObject(parent)) {
-    ;(parent as any)[path] = undefined
-  } else {
-    throw failure("parent must be an observable object or an observable array")
-  }
+    const { parent, path } = parentPath
+    if (isObservableArray(parent)) {
+      parent.splice(+path, 1)
+    } else if (isObservableObject(parent)) {
+      ;(parent as any)[path] = undefined
+    } else {
+      throw failure("parent must be an observable object or an observable array")
+    }
+  })
 }

@@ -45,18 +45,12 @@ export interface RootPath<T extends object> {
  * @export
  * @template T
  * @param value Target object.
- * @param [reactive=true] Use true (the default) to make this call reactive to changes, or false not to.
  * @returns
  */
-export function getParentPath<T extends object = any>(
-  value: object,
-  reactive = true
-): ParentPath<T> | undefined {
+export function getParentPath<T extends object = any>(value: object): ParentPath<T> | undefined {
   assertTweakedObject(value, "getParentPath")
 
-  if (reactive) {
-    reportParentPathObserved(value)
-  }
+  reportParentPathObserved(value)
   return objectParents.get(value) as any
 }
 
@@ -66,13 +60,12 @@ export function getParentPath<T extends object = any>(
  * @export
  * @template T
  * @param value Target object.
- * @param [reactive=true] Use true (the default) to make this call reactive to changes, or false not to.
  * @returns
  */
-export function getParent<T extends object = any>(value: object, reactive = true): T | undefined {
+export function getParent<T extends object = any>(value: object): T | undefined {
   assertTweakedObject(value, "getParent")
 
-  const parentPath = getParentPath(value, reactive)
+  const parentPath = getParentPath(value)
   return parentPath ? parentPath.parent : undefined
 }
 
@@ -82,10 +75,9 @@ export function getParent<T extends object = any>(value: object, reactive = true
  * @export
  * @template T
  * @param value Target object.
- * @param [reactive=true] Use true (the default) to make this call reactive to changes, or false not to.
  * @returns
  */
-export function getRootPath<T extends object = any>(value: object, reactive = true): RootPath<T> {
+export function getRootPath<T extends object = any>(value: object): RootPath<T> {
   assertTweakedObject(value, "getRootPath")
 
   const rootPath: RootPath<any> = {
@@ -94,7 +86,7 @@ export function getRootPath<T extends object = any>(value: object, reactive = tr
   }
 
   let parentPath
-  while ((parentPath = getParentPath(rootPath.root, reactive))) {
+  while ((parentPath = getParentPath(rootPath.root))) {
     rootPath.root = parentPath.parent
     rootPath.path.unshift(parentPath.path)
   }
@@ -108,13 +100,12 @@ export function getRootPath<T extends object = any>(value: object, reactive = tr
  * @export
  * @template T
  * @param value Target object.
- * @param [reactive=true] Use true (the default) to make this call reactive to changes, or false not to.
  * @returns
  */
-export function getRoot<T extends object = any>(value: object, reactive = true): T {
+export function getRoot<T extends object = any>(value: object): T {
   assertTweakedObject(value, "getRoot")
 
-  return getRootPath(value, reactive).root
+  return getRootPath(value).root
 }
 
 /**
@@ -122,13 +113,12 @@ export function getRoot<T extends object = any>(value: object, reactive = true):
  *
  * @export
  * @param value Target object.
- * @param [reactive=true] Use true (the default) to make this call reactive to changes, or false not to.
  * @returns
  */
-export function isRoot(value: object, reactive = true): boolean {
+export function isRoot(value: object): boolean {
   assertTweakedObject(value, "isRoot")
 
-  return !getParent(value, reactive)
+  return !getParent(value)
 }
 
 /**
@@ -137,16 +127,15 @@ export function isRoot(value: object, reactive = true): boolean {
  * @export
  * @param child Target object.
  * @param parent Parent object.
- * @param [reactive=true] Use true (the default) to make this call reactive to changes, or false not to.
  * @returns
  */
-export function isChildOfParent(child: object, parent: object, reactive = true): boolean {
+export function isChildOfParent(child: object, parent: object): boolean {
   assertTweakedObject(child, "isChildOfParent")
   assertTweakedObject(parent, "isChildOfParent")
 
   let current = child
   let parentPath
-  while ((parentPath = getParentPath(current, reactive))) {
+  while ((parentPath = getParentPath(current))) {
     current = parentPath.parent
     if (current === parent) {
       return true
@@ -161,12 +150,11 @@ export function isChildOfParent(child: object, parent: object, reactive = true):
  * @export
  * @param parent Target object.
  * @param child Child object.
- * @param [reactive=true] Use true (the default) to make this call reactive to changes, or false not to.
  * @returns
  */
-export function isParentOfChild(parent: object, child: object, reactive = true): boolean {
+export function isParentOfChild(parent: object, child: object): boolean {
   assertTweakedObject(parent, "isParentOfChild")
   assertTweakedObject(child, "isParentOfChild")
 
-  return isChildOfParent(child, parent, reactive)
+  return isChildOfParent(child, parent)
 }
