@@ -7,14 +7,19 @@ import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isArray } from "../utils"
 
+/**
+ * Applies the given patches to the given target object.
+ *
+ * @export
+ * @param obj Target object.
+ * @param patches List of patches to apply.
+ */
 export function applyPatches(obj: object, patches: Patch[]): void {
   if (getActionProtection() && !getCurrentActionContext()) {
     throw failure("applyPatches must be run inside an action")
   }
 
   assertTweakedObject(obj, "applyPatches")
-
-  if (patches.length <= 0) return
 
   patches.forEach(patch => applySinglePatch(obj, patch))
 }

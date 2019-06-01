@@ -1,8 +1,17 @@
-import { getParentPath } from "./path"
 import { isObservableArray, isObservableObject } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
+import { getParentPath } from "./path"
 
+/**
+ * Detaches a given object from a tree.
+ * If the parent is an object / model, detaching will set the property to undefined.
+ * If the parent is an array detaching will remove the node by spicing it.
+ * If there's no parent it will throw.
+ *
+ * @export
+ * @param value Object to be detached.
+ */
 export function detach(value: object) {
   assertTweakedObject(value, "detach")
 

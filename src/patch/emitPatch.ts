@@ -1,8 +1,8 @@
 import { Patch } from "immer"
+import { Model } from "../model/Model"
 import { getParentPath } from "../parent"
 import { assertTweakedObject } from "../tweaker/core"
 import { deleteFromArray } from "../utils"
-import { Model } from "../model/Model"
 
 export class PatchRecorder {
   patches!: Patch[]
@@ -22,7 +22,14 @@ export class PatchRecorder {
   }
 }
 
+/**
+ * A function that gets called when a patch is emitted.
+ */
 export type OnPatchesListener = (patches: Patch[], inversePatches: Patch[]) => void
+
+/**
+ * Disposer function to stop listening to patches.
+ */
 export type OnPatchesListenerDisposer = () => void
 
 const patchListeners = new WeakMap<object, OnPatchesListener[]>()
