@@ -1,7 +1,7 @@
-import { isAction, action } from "mobx"
+import { action, isAction } from "mobx"
+import { addHiddenProp, failure } from "../utils"
 import { ActionContext, getCurrentActionContext, setCurrentActionContext } from "./context"
 import { getActionMiddlewares } from "./middleware"
-import { addHiddenProp, failure } from "../utils"
 
 const modelActionSymbol = Symbol("modelAction")
 
@@ -40,6 +40,13 @@ function wrapInAction<T extends Function>(name: string, fn: T): T {
   return wrappedAction as any
 }
 
+/**
+ * Returns if the given function is a model action or not.
+ *
+ * @export
+ * @param fn Function to check.
+ * @returns
+ */
 export function isModelAction(fn: any) {
   return typeof fn === "function" && fn[modelActionSymbol]
 }
@@ -51,6 +58,15 @@ function checkModelActionArgs(propertyKey: string) {
   // TODO: check target is a model object or prototype
 }
 
+/**
+ * Decorator that turns a function into a model action.
+ *
+ * @export
+ * @param target
+ * @param propertyKey
+ * @param [baseDescriptor]
+ * @returns
+ */
 export function modelAction(
   target: any,
   propertyKey: string,

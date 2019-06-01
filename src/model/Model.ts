@@ -29,18 +29,50 @@ export function createModelWithUuid<T extends Model>(modelClass: new () => T, uu
   }
 }
 
+/**
+ * Base abtract class for models.
+ *
+ * @export
+ * @abstract
+ * @class Model
+ */
 export abstract class Model {
   readonly [typeofKey]: string;
   readonly [modelIdKey]: string
 
+  /**
+   * Gets the unique model ID of this model instance.
+   *
+   * @readonly
+   */
   get modelId() {
     return this[modelIdKey]
   }
 
+  /**
+   * Data part of the model, which is observable and will be serialized in snapshots.
+   *
+   * @abstract
+   */
   abstract data: object
 
+  /**
+   * Optional hook that will run once this model instance is attached to the tree of a model marked as
+   * root store via `registerRootStore`.
+   * It can return a disposer that will be run once this model instance is detached from such tree.
+   *
+   * @param rootStore
+   * @returns
+   */
   attachedToRootStore?(rootStore: object): (() => void) | void
 
+  /**
+   * Optional transformation that will be run when converting from a snapshot to the data part of the model.
+   * Useful for example to do versioning and keep the data part up to date with the latest version of the model.
+   *
+   * @param snapshot
+   * @returns
+   */
   fromSnapshot?(snapshot: any): this["data"]
 
   constructor() {

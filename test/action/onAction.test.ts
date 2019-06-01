@@ -55,8 +55,9 @@ test("onAction", () => {
     events.length = 0
   }
 
-  const disposer = onAction(p1, (serAct, ctx) => {
+  const disposer = onAction(p1, (serAct, ctx, next) => {
     events.push([serAct, ctx])
+    return next()
   })
   autoDispose(disposer)
 
