@@ -7,7 +7,7 @@ export function attachToRootStore(rootStore: object, child: Model): void {
   walkTree(
     child,
     ch => {
-      if (ch.attachedToRootStore) {
+      if (ch instanceof Model && ch.attachedToRootStore) {
         const disposer = ch.attachedToRootStore(rootStore)
         if (disposer) {
           attachDisposers.set(ch, disposer)
