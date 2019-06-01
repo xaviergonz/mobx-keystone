@@ -16,7 +16,10 @@
       "windows": {
         "program": "${workspaceFolder}/node_modules/tsdx/dist/index.js"
       },
-      "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
+      "skipFiles": [
+        "${workspaceFolder}/node_modules/**/*.js",
+        "<node_internals>/**/*.js"
+      ]
     }
   ]
 }
