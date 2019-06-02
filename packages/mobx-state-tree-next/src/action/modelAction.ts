@@ -11,11 +11,13 @@ export function wrapInAction<T extends Function>(name: string, fn: T): T {
   }
 
   function wrappedAction(this: any) {
+    const parentContext = getCurrentActionContext()
+
     const context: ActionContext = {
       name,
       target: this,
       args: Array.from(arguments),
-      parentContext: getCurrentActionContext(),
+      parentContext,
       data: {},
     }
 

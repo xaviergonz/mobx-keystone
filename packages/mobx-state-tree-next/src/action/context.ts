@@ -21,7 +21,7 @@ export interface ActionContext {
    */
   readonly parentContext?: ActionContext
   /**
-   * Tag data for the action context to be set by middlewares, an object.
+   * Custom data for the action context to be set by middlewares, an object.
    */
   readonly data: unknown
 }
