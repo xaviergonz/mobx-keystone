@@ -10,6 +10,7 @@ export {
   isParentOfChild,
   isRoot,
   ParentPath,
+  resolvePath,
   RootPath,
 } from "./path"
 export { walkTree, WalkTreeMode } from "./walkTree"

@@ -1,11 +1,11 @@
+export { applyAction } from "./applyAction"
 export { ActionContext, getCurrentActionContext } from "./context"
-export { isModelAction, modelAction } from "./modelAction"
-export { runUnprotected } from "./protection"
 export {
-  addActionMiddleware,
   ActionMiddleware,
   ActionMiddlewareDisposer,
   ActionMiddlewareFilter,
+  addActionMiddleware,
 } from "./middleware"
+export { isModelAction, modelAction } from "./modelAction"
 export { onAction, SerializableActionCall } from "./onAction"
-export { applyAction } from "./applyAction"
+export { runUnprotected } from "./protection"

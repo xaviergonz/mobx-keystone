@@ -147,3 +147,19 @@ export function isParentOfChild(parent: object, child: object): boolean {
 
   return isChildOfParent(child, parent)
 }
+
+/**
+ * Resolves a path from an object.
+ *
+ * @typeparam T Returned value type.
+ * @param pathRootObject Object that serves as path root.
+ * @param path Path as an string array.
+ * @returns The resolved path value.
+ */
+export function resolvePath<T = any>(pathRootObject: object, path: readonly string[]): T {
+  let current: any = pathRootObject
+  path.forEach(p => {
+    current = current[p]
+  })
+  return current
+}
