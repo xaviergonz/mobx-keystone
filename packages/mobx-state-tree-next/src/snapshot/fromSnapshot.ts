@@ -106,7 +106,7 @@ function fromModelSnapshot(
     for (const [k, v] of Object.entries(processedSn)) {
       if (!isInternalKey(k)) {
         if (options.generateNewIds && modelObj instanceof Ref && k === "id") {
-          data.id = context.idMap.get(v as string)
+          data.id = context.idMap.get(v as string) || v
         } else {
           data[k] = internalFromSnapshot(v, options, context)
         }
