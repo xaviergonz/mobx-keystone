@@ -1,4 +1,5 @@
 import { action, isAction } from "mobx"
+import { assertTweakedObject } from "../tweaker/core"
 import { addHiddenProp, failure } from "../utils"
 import { ActionContext, getCurrentActionContext, setCurrentActionContext } from "./context"
 import { getActionMiddlewares } from "./middleware"
@@ -11,6 +12,10 @@ export function wrapInAction<T extends Function>(name: string, fn: T): T {
   }
 
   function wrappedAction(this: any) {
+    if (process.env.NODE_ENV !== "production") {
+      assertTweakedObject(this, "wrappedAction")
+    }
+
     const parentContext = getCurrentActionContext()
 
     const context: ActionContext = {

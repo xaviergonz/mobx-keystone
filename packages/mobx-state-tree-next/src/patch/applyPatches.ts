@@ -1,11 +1,12 @@
 import { Patch } from "immer"
-import { getCurrentActionContext } from "../action/context"
-import { getActionProtection } from "../action/protection"
+import { wrapInAction } from "../action/modelAction"
 import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isArray } from "../utils"
+
+export const applyPatchesName = "$$applyPatches"
 
 /**
  * Applies the given patches to the given target object.
@@ -14,14 +15,18 @@ import { failure, isArray } from "../utils"
  * @param patches List of patches to apply.
  */
 export function applyPatches(obj: object, patches: Patch[]): void {
-  if (getActionProtection() && !getCurrentActionContext()) {
-    throw failure("applyPatches must be run inside an action")
-  }
-
   assertTweakedObject(obj, "applyPatches")
+
+  wrappedInternalApplyPatches.call(obj, patches)
+}
+
+function internalApplyPatches(this: object, patches: Patch[]): void {
+  const obj = this
 
   patches.forEach(patch => applySinglePatch(obj, patch))
 }
+
+const wrappedInternalApplyPatches = wrapInAction(applyPatchesName, internalApplyPatches)
 
 function applySinglePatch(obj: object, patch: Patch): void {
   const { target, prop } = pathArrayToObjectAndProp(obj, patch.path)

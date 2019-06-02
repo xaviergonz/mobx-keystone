@@ -2,9 +2,7 @@
 
 - set the tests to use mobx strict mode
 
-- maybe make applyPatches a serializable action?
-- should we add something to distinguish actions run as apply from those who are not in mwares?
-- (applySnapshot, applyAction, applyPatches)
+- should we add something to distinguish actions run as apply from those who are not in mwares? (applySnapshot, applyAction, applyPatches)
 
 - flows
 
