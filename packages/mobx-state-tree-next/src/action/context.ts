@@ -1,7 +1,6 @@
 /**
  * An action context.
  *
- * @export
  * @interface ActionContext
  */
 export interface ActionContext {
@@ -32,13 +31,19 @@ let currentActionContext: ActionContext | undefined
 /**
  * Gets the currently running action context, or undefined if none.
  *
- * @export
  * @returns
  */
 export function getCurrentActionContext() {
   return currentActionContext
 }
 
+/**
+ * @ignore
+ *
+ * Sets the current action context.
+ *
+ * @param ctx Current action context.
+ */
 export function setCurrentActionContext(ctx: ActionContext | undefined) {
   currentActionContext = ctx
 }

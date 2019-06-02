@@ -4,7 +4,6 @@ import { objectChildren } from "./core"
 /**
  * Returns all the children objects (this is, excluding primitives) of an object.
  *
- * @export
  * @param target Object to get the list of children from.
  * @returns
  */

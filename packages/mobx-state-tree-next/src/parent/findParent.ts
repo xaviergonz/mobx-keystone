@@ -7,8 +7,7 @@ import { getParentPath } from "./path"
  * If the predicate is matched it will return the found node.
  * If none is found it will return undefined.
  *
- * @export
- * @template T
+ * @typeparam T Parent object type.
  * @param child Target object.
  * @param predicate Function that will be run for every parent of the target object, from immediate parent to the root.
  * @returns

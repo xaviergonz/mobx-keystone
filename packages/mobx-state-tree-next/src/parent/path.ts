@@ -4,9 +4,7 @@ import { objectParents, reportParentPathObserved } from "./core"
 /**
  * Path from an object to its immediate parent.
  *
- * @export
- * @interface ParentPath
- * @template T
+ * @typeparam T Parent object type.
  */
 export interface ParentPath<T extends object> {
   /**
@@ -23,9 +21,7 @@ export interface ParentPath<T extends object> {
 /**
  * Path from an object to its root.
  *
- * @export
- * @interface RootPath
- * @template T
+ * @typeparam T Root object type.
  */
 export interface RootPath<T extends object> {
   /**
@@ -42,8 +38,7 @@ export interface RootPath<T extends object> {
 /**
  * Returns the path to the parent of the target, or undefined if it has no parent.
  *
- * @export
- * @template T
+ * @typeparam T Parent object type.
  * @param value Target object.
  * @returns
  */
@@ -57,8 +52,7 @@ export function getParentPath<T extends object = any>(value: object): ParentPath
 /**
  * Returns the parent object of the target object, or undefined if there's no parent.
  *
- * @export
- * @template T
+ * @typeparam T Parent object type.
  * @param value Target object.
  * @returns
  */
@@ -72,8 +66,7 @@ export function getParent<T extends object = any>(value: object): T | undefined 
 /**
  * Returns the path to the root of the target.
  *
- * @export
- * @template T
+ * @typeparam T Root object type.
  * @param value Target object.
  * @returns
  */
@@ -97,8 +90,7 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
 /**
  * Returns the root of the target object, or itself if the target is a root.
  *
- * @export
- * @template T
+ * @typeparam T Root object type.
  * @param value Target object.
  * @returns
  */
@@ -111,7 +103,6 @@ export function getRoot<T extends object = any>(value: object): T {
 /**
  * Returns if a given object is a root object.
  *
- * @export
  * @param value Target object.
  * @returns
  */
@@ -124,7 +115,6 @@ export function isRoot(value: object): boolean {
 /**
  * Returns if the target is a "child" of the tree of the given "parent" object.
  *
- * @export
  * @param child Target object.
  * @param parent Parent object.
  * @returns
@@ -147,7 +137,6 @@ export function isChildOfParent(child: object, parent: object): boolean {
 /**
  * Returns if the target is a "parent" that has in its tree the given "child" object.
  *
- * @export
  * @param parent Target object.
  * @param child Child object.
  * @returns

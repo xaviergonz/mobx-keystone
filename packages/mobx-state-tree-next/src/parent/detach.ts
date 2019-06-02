@@ -9,7 +9,6 @@ import { getParentPath } from "./path"
  * If the parent is an array detaching will remove the node by spicing it.
  * If there's no parent it will throw.
  *
- * @export
  * @param value Object to be detached.
  */
 export function detach(value: object) {

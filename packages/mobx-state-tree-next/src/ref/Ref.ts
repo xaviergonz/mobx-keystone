@@ -9,9 +9,7 @@ import { failure } from "../utils"
 /**
  * A reference to the unique ID of a given model object.
  *
- * @export
- * @class Ref
- * @template T
+ * @typeparam T Referenced object type.
  */
 @model("$$Ref")
 export class Ref<T extends Model> extends Model {
@@ -89,8 +87,7 @@ export class Ref<T extends Model> extends Model {
  * Creates a ref to a model object, which in its snapshot form points to the unique ID of the model instance.
  * TODO: explain autoDetach option
  *
- * @export
- * @template T
+ * @typeparam T Referenced object type.
  * @param current Target model instance.
  * @param [opts] Reference options.
  * @returns
