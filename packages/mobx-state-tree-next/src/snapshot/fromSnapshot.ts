@@ -1,12 +1,42 @@
 import { DeepPartial } from "ts-essentials"
+import { v4 as uuidV4 } from "uuid"
 import { runUnprotected } from "../action"
 import { createModelWithUuid, Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
+import { Ref } from "../ref/Ref"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
 import { isInternalKey, modelIdKey, typeofKey } from "./metadata"
 import { SnapshotInOf } from "./SnapshotOf"
 
-export function fromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T): T {
+export interface FromSnapshotOptions {
+  generateNewIds?: boolean
+}
+
+export function fromSnapshot<T>(
+  sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T,
+  options?: FromSnapshotOptions
+): T {
+  return internalFromSnapshot(
+    sn,
+    {
+      generateNewIds: false,
+      ...options,
+    },
+    {
+      idMap: new Map(),
+    }
+  )
+}
+
+interface FromSnapshotContext {
+  idMap: Map<string, string>
+}
+
+function internalFromSnapshot<T>(
+  sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T,
+  options: FromSnapshotOptions,
+  context: FromSnapshotContext
+): T {
   if (!isObject(sn)) {
     return sn as any
   }
@@ -20,29 +50,37 @@ export function fromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotInOf<
   }
 
   if (isArray(sn)) {
-    return fromArraySnapshot(sn) as any
+    return fromArraySnapshot(sn, options, context) as any
   }
 
   if (isModelSnapshot(sn)) {
-    return fromModelSnapshot(sn) as any
+    return fromModelSnapshot(sn, options, context) as any
   }
 
   if (isPlainObject(sn)) {
-    return fromPlainObjectSnapshot(sn) as any
+    return fromPlainObjectSnapshot(sn, options, context) as any
   }
 
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-function fromArraySnapshot(sn: any[]): any[] {
-  return sn.map(v => fromSnapshot(v))
+function fromArraySnapshot(
+  sn: any[],
+  options: FromSnapshotOptions,
+  context: FromSnapshotContext
+): any[] {
+  return sn.map(v => internalFromSnapshot(v, options, context))
 }
 
-function fromModelSnapshot(sn: any): Model {
+function fromModelSnapshot(
+  sn: any,
+  options: FromSnapshotOptions,
+  context: FromSnapshotContext
+): Model {
   const type = sn[typeofKey]
-  const id = sn[modelIdKey]
+  const oldId = sn[modelIdKey]
 
-  if (!id) {
+  if (!oldId) {
     throw failure(`a model a snapshot must contain an id (${modelIdKey}) key, but none was found`)
   }
 
@@ -51,8 +89,14 @@ function fromModelSnapshot(sn: any): Model {
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
+  let id = oldId
+  if (options.generateNewIds) {
+    id = uuidV4()
+    context.idMap.set(oldId, id)
+  }
+
   const modelObj: Model = createModelWithUuid(modelInfo.class as any, id)
-  let processedSn = sn
+  let processedSn = oldId === id ? sn : { ...sn, [modelIdKey]: id }
   if (modelObj.fromSnapshot) {
     processedSn = modelObj.fromSnapshot(sn) as any
   }
@@ -61,7 +105,11 @@ function fromModelSnapshot(sn: any): Model {
   runUnprotected(() => {
     for (const [k, v] of Object.entries(processedSn)) {
       if (!isInternalKey(k)) {
-        data[k] = fromSnapshot(v)
+        if (options.generateNewIds && modelObj instanceof Ref && k === "id") {
+          data.id = context.idMap.get(v as string)
+        } else {
+          data[k] = internalFromSnapshot(v, options, context)
+        }
       }
     }
   })
@@ -69,10 +117,14 @@ function fromModelSnapshot(sn: any): Model {
   return modelObj
 }
 
-function fromPlainObjectSnapshot(sn: any): object {
+function fromPlainObjectSnapshot(
+  sn: any,
+  options: FromSnapshotOptions,
+  context: FromSnapshotContext
+): object {
   const plainObj: any = {}
   for (const [k, v] of Object.entries(sn)) {
-    plainObj[k] = fromSnapshot(v)
+    plainObj[k] = internalFromSnapshot(v, options, context)
   }
   return plainObj
 }

@@ -1,4 +1,6 @@
 import { Model } from "../model/Model"
+import { applySnapshot } from "../snapshot"
+import { applySnapshotName } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
 import { SerializableActionCall } from "./onAction"
 
@@ -20,5 +22,9 @@ export function applyAction<TRet = any>(rootTarget: Model, call: SerializableAct
     current = current[p]
   })
 
-  return current[call.name].apply(current, call.args)
+  if (call.name === applySnapshotName) {
+    return applySnapshot.apply(current, [current, ...call.args] as any) as any
+  } else {
+    return current[call.name].apply(current, call.args)
+  }
 }

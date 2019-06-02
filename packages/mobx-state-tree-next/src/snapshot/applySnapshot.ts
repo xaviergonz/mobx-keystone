@@ -1,6 +1,5 @@
 import { isObservableObject } from "mobx"
-import { getCurrentActionContext } from "../action/context"
-import { getActionProtection } from "../action/protection"
+import { wrapInAction } from "../action/modelAction"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isArray, isModelSnapshot, isObject, isPlainObject } from "../utils"
@@ -8,16 +7,27 @@ import { modelIdKey, typeofKey } from "./metadata"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
 
-export function applySnapshot<T extends object>(obj: T, sn: SnapshotOutOf<T>): void {
-  if (getActionProtection() && !getCurrentActionContext()) {
-    throw failure("applySnapshot must be run inside an action")
-  }
+export const applySnapshotName = "$$applySnapshot"
 
+/**
+ * Applies a full snapshot over an object, reconciling it with the current contents of the object.
+ *
+ * @typeparam T Object type.
+ * @param obj Target object (model object, object or array).
+ * @param sn Snapshot to apply.
+ */
+export function applySnapshot<T extends object>(obj: T, sn: SnapshotOutOf<T>): void {
   assertTweakedObject(obj, "applySnapshot")
 
   if (!isObject(sn)) {
     throw failure("snapshot must be an array or object")
   }
+
+  wrappedInternalApplySnapshot.call(obj, sn)
+}
+
+function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>): void {
+  const obj = this
 
   const reconcile = () => {
     const ret = reconcileSnapshot(obj, sn)
@@ -67,3 +77,5 @@ export function applySnapshot<T extends object>(obj: T, sn: SnapshotOutOf<T>): v
 
   throw failure(`unsupported snapshot - ${sn}`)
 }
+
+const wrappedInternalApplySnapshot = wrapInAction(applySnapshotName, internalApplySnapshot)

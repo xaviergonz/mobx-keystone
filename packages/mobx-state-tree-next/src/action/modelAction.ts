@@ -5,7 +5,7 @@ import { getActionMiddlewares } from "./middleware"
 
 const modelActionSymbol = Symbol("modelAction")
 
-function wrapInAction<T extends Function>(name: string, fn: T): T {
+export function wrapInAction<T extends Function>(name: string, fn: T): T {
   if (!isAction(fn)) {
     fn = action(name, fn)
   }
