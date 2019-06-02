@@ -12,6 +12,19 @@ const rootStores = new WeakMap<
   }
 >()
 
+/**
+ * Registers a model object as a root store tree.
+ * Marking a model object as a root store tree serves several purposes:
+ * - It allows the `attachedToRootStore` hook (plus disposer) to be invoked on models once they become part of this tree.
+ *   These hooks can be used for example to attach effects and serve as some sort of initialization.
+ * - It gives nodes part of this tree access to a shared environment object.
+ * - It allows auto detachable references to work properly.
+ *
+ * @typeparam T Model type.
+ * @param model Model object.
+ * @param [options] Options that might include an environment for this root store tree.
+ * @returns The same model object that was passed.
+ */
 export const registerRootStore = action(
   "registerRootStore",
   <T extends Model>(
@@ -51,6 +64,11 @@ export const registerRootStore = action(
   }
 )
 
+/**
+ * Unregisters a model object to mark it as no longer a root store.
+ *
+ * @param model Model object.
+ */
 export const unregisterRootStore = action(
   "unregisterRootStore",
   (model: Model): void => {
@@ -64,10 +82,23 @@ export const unregisterRootStore = action(
   }
 )
 
+/**
+ * Checks if a given model object is marked as a root store.
+ *
+ * @param model Model object.
+ * @returns
+ */
 export function isRootStore(model: Model): boolean {
   return rootStores.has(model as any)
 }
 
+/**
+ * Gets the root store of a given tree child, or undefined if none.
+ *
+ * @typeparam T Root store type.
+ * @param target Target to find the root store for.
+ * @returns
+ */
 export function getRootStore<T extends Model = Model>(target: object): T | undefined {
   assertTweakedObject(target, "getRootStore")
 
@@ -75,6 +106,13 @@ export function getRootStore<T extends Model = Model>(target: object): T | undef
   return isRootStore(root) ? root : undefined
 }
 
+/**
+ * Returns the root store environment associated to a given tree child, or undefined if none.
+ *
+ * @typeparam T Root store environemnt type.
+ * @param target Target to find the root store environment for.
+ * @returns
+ */
 export function getRootStoreEnv<T extends object = any>(target: object): T | undefined {
   assertTweakedObject(target, "getRootStoreEnv")
 

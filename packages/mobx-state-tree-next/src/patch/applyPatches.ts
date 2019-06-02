@@ -10,7 +10,6 @@ import { failure, isArray } from "../utils"
 /**
  * Applies the given patches to the given target object.
  *
- * @export
  * @param obj Target object.
  * @param patches List of patches to apply.
  */

@@ -3,9 +3,6 @@ import { getChildrenObjects } from "./getChildrenObjects"
 
 /**
  * Mode for the `walkTree` method.
- *
- * @export
- * @enum {string}
  */
 export enum WalkTreeMode {
   /**
@@ -23,8 +20,7 @@ export enum WalkTreeMode {
  * If the predicate function returns something other than undefined,
  * then the walk will be stopped and the function will return the returned value.
  *
- * @export
- * @template T
+ * @typeparam T Returned object type, defaults to void.
  * @param target Tree root object.
  * @param predicate Function that will be run for each node of the tree.
  * @param mode Mode to walk the tree, as defined in `WalkTreeMode`.

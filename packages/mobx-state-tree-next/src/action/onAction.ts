@@ -9,9 +9,6 @@ import { addActionMiddleware } from "./middleware"
 
 /**
  * A serializable action call.
- *
- * @export
- * @interface SerializableActionCall
  */
 export interface SerializableActionCall {
   /**
@@ -40,7 +37,6 @@ export interface SerializableActionCall {
  * Remember to `return next()` if you want to continue the action or throw if you want to cancel it.
  * Note that `onAction` will only run for the topmost level actions, so it won't run for child actions.
  *
- * @export
  * @param target Root target model object.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
  * @returns

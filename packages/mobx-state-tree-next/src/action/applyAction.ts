@@ -5,7 +5,6 @@ import { SerializableActionCall } from "./onAction"
 /**
  * Applies (runs) a serialized action over a target model object.
  *
- * @export
  * @param rootTarget Root target model object to run the action over.
  * @param call The serialized action, usually as coming from onAction.
  * @returns The return value of the action, if any.

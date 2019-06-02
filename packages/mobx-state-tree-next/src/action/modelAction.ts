@@ -43,7 +43,6 @@ function wrapInAction<T extends Function>(name: string, fn: T): T {
 /**
  * Returns if the given function is a model action or not.
  *
- * @export
  * @param fn Function to check.
  * @returns
  */
@@ -61,7 +60,6 @@ function checkModelActionArgs(propertyKey: string) {
 /**
  * Decorator that turns a function into a model action.
  *
- * @export
  * @param target
  * @param propertyKey
  * @param [baseDescriptor]

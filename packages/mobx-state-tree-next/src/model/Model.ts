@@ -31,10 +31,6 @@ export function createModelWithUuid<T extends Model>(modelClass: new () => T, uu
 
 /**
  * Base abtract class for models.
- *
- * @export
- * @abstract
- * @class Model
  */
 export abstract class Model {
   readonly [typeofKey]: string;

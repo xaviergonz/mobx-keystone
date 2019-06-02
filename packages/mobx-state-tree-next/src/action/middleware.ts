@@ -20,6 +20,13 @@ export type ActionMiddlewareFilter = (ctx: ActionContext) => boolean
 
 const actionMiddlewares: { fn: ActionMiddleware; filter?: ActionMiddlewareFilter }[] = []
 
+/**
+ * @ignore
+ *
+ * Gets the current action middlewares.
+ *
+ * @returns
+ */
 export function getActionMiddlewares() {
   return actionMiddlewares
 }
@@ -28,7 +35,6 @@ export function getActionMiddlewares() {
  * Adds a global action middleware to be run when an action is performed.
  * It is usually preferable to use `onAction` instead to limit it to a given tree and only to topmost level actions.
  *
- * @export
  * @param mware Action middleware function to be run.
  * @param [filter] A filter function to decide if this action middleware function should be run or not.
  * @returns
