@@ -1,4 +1,12 @@
-import { addActionMiddleware, applyAction, model, Model, modelAction } from "../../src"
+import {
+  addActionMiddleware,
+  applyAction,
+  applySnapshot,
+  getSnapshot,
+  model,
+  Model,
+  modelAction,
+} from "../../src"
 import { autoDispose } from "../withDisposers"
 
 @model("P2")
@@ -466,6 +474,19 @@ test("applyAction", () => {
     })
     expect(ra).toBe(rb)
     expect(pa.data.x).toStrictEqual(pb.data.x)
+    expect(pa.data.p2.data.y).toStrictEqual(pb.data.p2.data.y)
+  }
+
+  {
+    applySnapshot(pa.data.p2, {
+      ...getSnapshot(pa.data.p2),
+      y: 100,
+    })
+    applyAction(pb, {
+      path: ["data", "p2"],
+      name: "$$applySnapshot",
+      args: [{ ...getSnapshot(pb.data.p2), y: 100 }],
+    })
     expect(pa.data.p2.data.y).toStrictEqual(pb.data.p2.data.y)
   }
 })

@@ -1,6 +1,6 @@
 export { applySnapshot } from "./applySnapshot"
-export { clone } from "./clone"
-export { fromSnapshot } from "./fromSnapshot"
+export { clone, CloneOptions } from "./clone"
+export { fromSnapshot, FromSnapshotOptions } from "./fromSnapshot"
 export { getSnapshot } from "./getSnapshot"
 export { modelIdKey, typeofKey } from "./metadata"
 export { onSnapshot } from "./onSnapshot"
