@@ -1,4 +1,4 @@
-import { DeepPartial } from "ts-essentials"
+import { DeepPartial, Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
 import { runUnprotected } from "../action"
 import { createModelWithUuid, Model } from "../model/Model"
@@ -16,20 +16,40 @@ export function fromSnapshot<T>(
   sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T,
   options?: FromSnapshotOptions
 ): T {
-  return internalFromSnapshot(
+  const context: FromSnapshotContext = {
+    idMap: new Map(),
+    refs: [],
+  }
+
+  const obj = internalFromSnapshot(
     sn,
     {
       generateNewIds: false,
       ...options,
     },
-    {
-      idMap: new Map(),
-    }
+    context
   )
+
+  // fix reference ids if needed
+  if (options && options.generateNewIds) {
+    runUnprotected(() => {
+      context.refs.forEach(ref => {
+        const oldId = ref.data.id
+        const newId = context.idMap.get(oldId)
+        if (newId) {
+          const data: Writable<typeof ref.data> = ref.data
+          data.id = newId
+        }
+      })
+    })
+  }
+
+  return obj
 }
 
 interface FromSnapshotContext {
   idMap: Map<string, string>
+  refs: Ref<any>[]
 }
 
 function internalFromSnapshot<T>(
@@ -105,14 +125,14 @@ function fromModelSnapshot(
   runUnprotected(() => {
     for (const [k, v] of Object.entries(processedSn)) {
       if (!isInternalKey(k)) {
-        if (options.generateNewIds && modelObj instanceof Ref && k === "id") {
-          data.id = context.idMap.get(v as string) || v
-        } else {
-          data[k] = internalFromSnapshot(v, options, context)
-        }
+        data[k] = internalFromSnapshot(v, options, context)
       }
     }
   })
+
+  if (modelObj instanceof Ref) {
+    context.refs.push(modelObj)
+  }
 
   return modelObj
 }
