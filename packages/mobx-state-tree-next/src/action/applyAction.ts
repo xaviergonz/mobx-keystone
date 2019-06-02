@@ -1,5 +1,6 @@
 import { Model } from "../model/Model"
 import { resolvePath } from "../parent"
+import { applyPatches, applyPatchesName } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot"
 import { applySnapshotName } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
@@ -27,10 +28,18 @@ function internalApplyAction(this: Model, call: SerializableActionCall) {
   // resolve path
   const current = resolvePath(this, call.path)
 
-  if (call.name === applySnapshotName) {
-    return applySnapshot.apply(current, [current, ...call.args] as any)
-  } else {
-    return current[call.name].apply(current, call.args)
+  switch (call.name) {
+    case applySnapshotName:
+      return applySnapshot.apply(current, [current, ...call.args] as any)
+
+    case applyPatchesName:
+      return applyPatches.apply(current, [current, ...call.args] as any)
+
+    case applyActionName:
+      return applyAction.apply(current, [current, ...call.args] as any)
+
+    default:
+      return current[call.name].apply(current, call.args)
   }
 }
 
