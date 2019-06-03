@@ -50,7 +50,7 @@ export abstract class Model {
    *
    * @abstract
    */
-  abstract data: object
+  abstract data: { [k: string]: any }
 
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as
@@ -60,7 +60,7 @@ export abstract class Model {
    * @param rootStore
    * @returns
    */
-  attachedToRootStore?(rootStore: object): (() => void) | void
+  attachedToRootStore?(rootStore: Model): (() => void) | void
 
   /**
    * Optional transformation that will be run when converting from a snapshot to the data part of the model.
