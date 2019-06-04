@@ -17,13 +17,6 @@ export interface SerializableActionCall {
   readonly name: string
   /**
    * Action arguments in a serializable form.
-   * If a value is not serializable it will be turned into an object like this:
-   * ```
-   * {
-   *   $unserializable: true,
-   *   value: originalValue,
-   * }
-   * ```
    */
   readonly args: readonly any[]
   /**
@@ -32,6 +25,18 @@ export interface SerializableActionCall {
   readonly path: readonly string[]
 }
 
+export type OnActionListener = (
+  serializableActionCall: SerializableActionCall,
+  actionContext: ActionContext,
+  next: () => any
+) => void
+
+export type OnActionUnserializableArgument = (
+  actionContext: ActionContext,
+  value: any,
+  index: number
+) => any
+
 /**
  * Adds an action middleware that only applies to a given tree.
  * Remember to `return next()` if you want to continue the action or throw if you want to cancel it.
@@ -39,15 +44,16 @@ export interface SerializableActionCall {
  *
  * @param target Root target model object.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
- * @returns
+ * @param [options] `onUnserializableArgument` is an optional function that will be invoked when an unserializable argument is found. The default is to
+ * throw an error that cancels the action, but it can be changed to return your own serializable value, print a warning, etc.
+ * @returns A disposer to cancel `onAction`.
  */
 export function onAction(
   target: Model,
-  listener: (
-    serializableActionCall: SerializableActionCall,
-    actionContext: ActionContext,
-    next: () => any
-  ) => void
+  listener: OnActionListener,
+  options?: {
+    onUnserializableArgument?: OnActionUnserializableArgument
+  }
 ): () => void {
   if (!(target instanceof Model)) {
     throw failure("onAction target must be a model")
@@ -60,7 +66,10 @@ export function onAction(
         return next()
       }
 
-      const serializableActionCall = actionContextToSerializableActionCall(ctx)
+      const serializableActionCall = actionContextToSerializableActionCall(
+        ctx,
+        options && options.onUnserializableArgument
+      )
 
       return listener(serializableActionCall, ctx, next)
     },
@@ -72,34 +81,46 @@ export function onAction(
   return middleware
 }
 
-function serializeArgument(a: any): any {
-  if (!isObject(a)) {
-    return a
+function serializeArgument(
+  ctx: ActionContext,
+  value: any,
+  index: number,
+  onUnserializableArgument: OnActionUnserializableArgument | undefined
+): any {
+  if (!isObject(value)) {
+    return value
   }
-  if (isTweakedObject(a)) {
-    return getSnapshot(a)
-  }
-
-  const originalA = a
-  if (isObservable(a)) {
-    a = toJS(a, { exportMapsAsObjects: false, detectCycles: false })
-  }
-  if (isPlainObject(a) || Array.isArray(a)) {
-    return a
+  if (isTweakedObject(value)) {
+    return getSnapshot(value)
   }
 
-  return {
-    $unserializable: true,
-    value: originalA,
+  const originalValue = value
+  if (isObservable(value)) {
+    value = toJS(value, { exportMapsAsObjects: false, detectCycles: false })
+  }
+  if (isPlainObject(value) || Array.isArray(value)) {
+    return value
+  }
+
+  if (onUnserializableArgument) {
+    return onUnserializableArgument(ctx, originalValue, index)
+  } else {
+    const actionStr = getRootPath(ctx.target).path.join("/") + "." + ctx.name
+    throw failure(
+      `onAction found argument #${index} is unserializable while running ${actionStr}() - consider using 'onUnserializableArgument'`
+    )
   }
 }
 
-function actionContextToSerializableActionCall(ctx: ActionContext): SerializableActionCall {
+function actionContextToSerializableActionCall(
+  ctx: ActionContext,
+  onUnserializableArgument: OnActionUnserializableArgument | undefined
+): SerializableActionCall {
   const rootPath = getRootPath(ctx.target)
 
   return {
     name: ctx.name,
-    args: ctx.args.map(serializeArgument),
+    args: ctx.args.map((arg, i) => serializeArgument(ctx, arg, i, onUnserializableArgument)),
     path: rootPath.path,
   }
 }
