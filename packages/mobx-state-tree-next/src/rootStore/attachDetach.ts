@@ -3,7 +3,7 @@ import { walkTree, WalkTreeMode } from "../parent"
 
 const attachDisposers = new WeakMap<object, () => void>()
 
-export function attachToRootStore(rootStore: object, child: Model): void {
+export function attachToRootStore(rootStore: Model, child: Model): void {
   walkTree(
     child,
     ch => {
