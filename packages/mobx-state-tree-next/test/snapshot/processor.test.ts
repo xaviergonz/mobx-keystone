@@ -1,4 +1,5 @@
 import { fromSnapshot, model, Model, modelIdKey, typeofKey } from "../../src"
+import "../commonSetup"
 
 @model("P3")
 export class P3 extends Model {

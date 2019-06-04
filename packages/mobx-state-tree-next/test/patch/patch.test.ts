@@ -1,4 +1,5 @@
 import { applyPatches, getSnapshot, onPatches, Patch, runUnprotected } from "../../src"
+import "../commonSetup"
 import { createP } from "../testbed"
 import { autoDispose } from "../withDisposers"
 

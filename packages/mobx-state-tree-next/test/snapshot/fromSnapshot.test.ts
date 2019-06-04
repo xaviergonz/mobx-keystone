@@ -1,5 +1,6 @@
 import { isObservable } from "mobx"
 import { fromSnapshot, modelIdKey, typeofKey } from "../../src"
+import "../commonSetup"
 import { P, P2 } from "../testbed"
 
 test("fromSnapshot", () => {

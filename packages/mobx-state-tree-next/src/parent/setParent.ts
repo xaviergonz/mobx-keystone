@@ -1,4 +1,4 @@
-import { observable, untracked } from "mobx"
+import { action, observable } from "mobx"
 import { Model } from "../model/Model"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
@@ -13,10 +13,9 @@ import {
 } from "./core"
 import { getParentPath, getRoot, ParentPath } from "./path"
 
-export function setParent(value: any, parentPath: ParentPath<any> | undefined): void {
-  // untracked because it shouldn't track, but it should be inside
-  // an action
-  return untracked(() => {
+export const setParent = action(
+  "setParent",
+  (value: any, parentPath: ParentPath<any> | undefined): void => {
     if (!isObject(value)) {
       return
     }
@@ -95,5 +94,5 @@ export function setParent(value: any, parentPath: ParentPath<any> | undefined): 
     }
 
     reportParentPathChanged(value)
-  })
-}
+  }
+)

@@ -1,5 +1,6 @@
 import { autorun, observable, reaction } from "mobx"
 import { getSnapshot, runUnprotected } from "../../src"
+import "../commonSetup"
 import { createP } from "../testbed"
 import { autoDispose } from "../withDisposers"
 

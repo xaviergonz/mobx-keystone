@@ -1,4 +1,5 @@
 import { applyPatches, getSnapshot, modelIdKey, runUnprotected } from "../../src"
+import "../commonSetup"
 import { createP } from "../testbed"
 
 let p = createP(true)

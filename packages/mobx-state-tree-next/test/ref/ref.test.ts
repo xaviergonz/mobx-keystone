@@ -10,6 +10,7 @@ import {
   registerRootStore,
   typeofKey,
 } from "../../src"
+import "../commonSetup"
 
 @model("P2")
 class P2 extends Model {

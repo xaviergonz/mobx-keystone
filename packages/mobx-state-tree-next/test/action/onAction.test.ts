@@ -9,6 +9,7 @@ import {
   onAction,
   SerializableActionCall,
 } from "../../src"
+import "../commonSetup"
 import { autoDispose } from "../withDisposers"
 
 @model("P2")
