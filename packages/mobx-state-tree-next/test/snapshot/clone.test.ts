@@ -1,4 +1,5 @@
 import { clone, getRootPath, getSnapshot, modelIdKey, ref, runUnprotected } from "../../src"
+import "../commonSetup"
 import { createP } from "../testbed"
 
 test("clone with same ids", () => {

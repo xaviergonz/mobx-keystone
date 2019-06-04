@@ -13,6 +13,7 @@ import {
   runUnprotected,
   typeofKey,
 } from "../../src"
+import "../commonSetup"
 
 @model("P2")
 export class P2 extends Model {

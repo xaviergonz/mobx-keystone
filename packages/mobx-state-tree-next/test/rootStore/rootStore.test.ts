@@ -8,6 +8,7 @@ import {
   runUnprotected,
   unregisterRootStore,
 } from "../../src"
+import "../commonSetup"
 
 const events: string[] = []
 

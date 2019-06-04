@@ -9,6 +9,7 @@ import {
   runUnprotected,
   SnapshotOutOf,
 } from "../../src"
+import "../commonSetup"
 import { createP, P } from "../testbed"
 import { autoDispose } from "../withDisposers"
 

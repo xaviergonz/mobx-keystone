@@ -1,7 +1,5 @@
 # TODO
 
-- set the tests to use mobx strict mode
-
 - should we add something to distinguish actions run as apply from those who are not in mwares? (applySnapshot, applyAction, applyPatches)
 
 - flows
