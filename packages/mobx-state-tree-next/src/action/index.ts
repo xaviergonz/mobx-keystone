@@ -7,5 +7,10 @@ export {
   addActionMiddleware,
 } from "./middleware"
 export { isModelAction, modelAction } from "./modelAction"
-export { onAction, SerializableActionCall } from "./onAction"
+export {
+  onAction,
+  OnActionListener,
+  OnActionUnserializableArgument,
+  SerializableActionCall,
+} from "./onAction"
 export { runUnprotected } from "./protection"
