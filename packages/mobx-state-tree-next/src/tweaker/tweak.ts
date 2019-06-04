@@ -182,10 +182,17 @@ function objectDidChange(change: IObjectDidChange): void {
 function interceptObjectMutation(change: IObjectWillChange) {
   assertCanWrite()
 
+  if ((change.name as any) instanceof Symbol) {
+    throw failure("symbol properties are not supported.")
+  }
+
   switch (change.type) {
     case "add":
       {
-        change.newValue = tweak(change.newValue, { parent: change.object, path: change.name })
+        change.newValue = tweak(change.newValue, {
+          parent: change.object,
+          path: "" + (change.name as any),
+        })
       }
       break
     case "remove":
@@ -196,7 +203,10 @@ function interceptObjectMutation(change: IObjectWillChange) {
     case "update":
       {
         tweak(change.object[change.name], undefined)
-        change.newValue = tweak(change.newValue, { parent: change.object, path: change.name })
+        change.newValue = tweak(change.newValue, {
+          parent: change.object,
+          path: "" + (change.name as any),
+        })
       }
       break
   }
@@ -251,13 +261,13 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
 const undefinedInsideArrayErrorMsg =
   "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
 
+// TODO: remove array parameter and just use change.object once mobx update event is fixed
 function interceptArrayMutation(
   array: IObservableArray,
   change: IArrayWillChange | IArrayWillSplice
 ) {
   assertCanWrite()
 
-  // TODO: remove array and just use change.object once mobx update event is fixed
   switch (change.type) {
     case "splice":
       {
@@ -284,8 +294,8 @@ function interceptArrayMutation(
           throw failure(undefinedInsideArrayErrorMsg)
         }
 
-        tweak(change.object[change.index], undefined) // set old prop obj parent to undefined
         // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
+        tweak(array[change.index], undefined) // set old prop obj parent to undefined
         change.newValue = tweak(change.newValue, { parent: array, path: "" + change.index })
       }
       break
