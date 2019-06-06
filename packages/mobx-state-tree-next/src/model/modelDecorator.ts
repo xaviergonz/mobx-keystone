@@ -14,7 +14,7 @@ export const model = (name: string) => (clazz: new (...args: any[]) => Model) =>
     throw failure("class expected")
   }
 
-  if (!(clazz.prototype instanceof Model)) {
+  if (clazz !== Model && !(clazz.prototype instanceof Model)) {
     throw failure(`a model class must extend Model`)
   }
 
