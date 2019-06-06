@@ -51,9 +51,6 @@ export function addActionMiddleware(
   }
 
   mware = !isAction(mware) ? action(mware.name || "actionMiddleware", mware) : mware
-  if (filter) {
-    filter = !isAction(filter) ? action(filter.name || "actionMiddlewareFilter", filter) : filter
-  }
 
   actionMiddlewares.push({ fn: mware, filter })
   return () => {

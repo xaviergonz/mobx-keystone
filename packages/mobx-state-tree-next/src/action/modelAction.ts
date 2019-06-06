@@ -1,4 +1,5 @@
 import { action, isAction } from "mobx"
+import { Model } from "../model/Model"
 import { assertTweakedObject } from "../tweaker/core"
 import { addHiddenProp, failure } from "../utils"
 import { ActionContext, getCurrentActionContext, setCurrentActionContext } from "./context"
@@ -57,11 +58,21 @@ export function isModelAction(fn: any) {
   return typeof fn === "function" && fn[modelActionSymbol]
 }
 
-function checkModelActionArgs(propertyKey: string) {
+function checkModelActionArgs(target: any, propertyKey: string) {
   if (typeof propertyKey !== "string") {
     throw failure("modelAction cannot be used over symbol properties")
   }
-  // TODO: check target is a model object or prototype
+
+  const errMessage = "modelAction must be used over model classes or instances"
+
+  if (!target) {
+    throw failure(errMessage)
+  }
+
+  // check target is a model object or extended class
+  if (!(target instanceof Model) && target !== Model && !(target.prototype instanceof Model)) {
+    throw failure(errMessage)
+  }
 }
 
 /**
@@ -79,7 +90,7 @@ export function modelAction(
 ): void {
   if (baseDescriptor) {
     // method decorator
-    checkModelActionArgs(propertyKey)
+    checkModelActionArgs(target, propertyKey)
 
     return {
       enumerable: false,
@@ -96,7 +107,7 @@ export function modelAction(
         return undefined
       },
       set(value) {
-        checkModelActionArgs(propertyKey)
+        checkModelActionArgs(this, propertyKey)
 
         addHiddenProp(this, propertyKey, wrapInAction(propertyKey, value))
       },
