@@ -1,5 +1,5 @@
 export { applyAction } from "./applyAction"
-export { ActionContext, getCurrentActionContext } from "./context"
+export { ActionContext, asyncToSyncActionContext, getCurrentActionContext } from "./context"
 export {
   ActionMiddleware,
   ActionMiddlewareDisposer,
@@ -7,6 +7,7 @@ export {
   addActionMiddleware,
 } from "./middleware"
 export { isModelAction, modelAction } from "./modelAction"
+export { FlowRet, isModelFlow, modelFlow } from "./modelFlow"
 export {
   onAction,
   OnActionListener,

@@ -21,6 +21,10 @@ export interface ActionContext {
    */
   readonly parentContext?: ActionContext
   /**
+   * Previous async step context, undefined for sync actions or the first action of a flow.
+   */
+  readonly previousAsyncStepContext?: ActionContext
+  /**
    * Custom data for the action context to be set by middlewares, an object.
    */
   readonly data: unknown
@@ -46,4 +50,21 @@ export function getCurrentActionContext() {
  */
 export function setCurrentActionContext(ctx: ActionContext | undefined) {
   currentActionContext = ctx
+}
+
+/**
+ * Simplifies an action context by turning an async call hierarchy into a similar sync one.
+ *
+ * @param ctx
+ * @returns
+ */
+export function asyncToSyncActionContext(ctx: ActionContext): ActionContext {
+  while (ctx.previousAsyncStepContext) {
+    ctx = ctx.previousAsyncStepContext
+  }
+
+  return {
+    ...ctx,
+    parentContext: ctx.parentContext ? asyncToSyncActionContext(ctx.parentContext) : undefined,
+  }
 }

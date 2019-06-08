@@ -1,4 +1,5 @@
 import { action, isAction } from "mobx"
+import { Writable } from "ts-essentials"
 import { Model } from "../model/Model"
 import { assertTweakedObject } from "../tweaker/core"
 import { addHiddenProp, failure } from "../utils"
@@ -7,7 +8,11 @@ import { getActionMiddlewares } from "./middleware"
 
 const modelActionSymbol = Symbol("modelAction")
 
-export function wrapInAction<T extends Function>(name: string, fn: T): T {
+export function wrapInAction<T extends Function>(
+  name: string,
+  fn: T,
+  overrideContext?: (ctx: Writable<ActionContext>) => void
+): T {
   if (!isAction(fn)) {
     fn = action(name, fn)
   }
@@ -25,6 +30,9 @@ export function wrapInAction<T extends Function>(name: string, fn: T): T {
       args: Array.from(arguments),
       parentContext,
       data: {},
+    }
+    if (overrideContext) {
+      overrideContext(context)
     }
 
     setCurrentActionContext(context)
@@ -58,7 +66,10 @@ export function isModelAction(fn: any) {
   return typeof fn === "function" && fn[modelActionSymbol]
 }
 
-function checkModelActionArgs(target: any, propertyKey: string) {
+function checkModelActionArgs(target: any, propertyKey: string, value: any) {
+  if (typeof value !== "function") {
+    throw failure("modelAction has to be used over functions")
+  }
   if (typeof propertyKey !== "string") {
     throw failure("modelAction cannot be used over symbol properties")
   }
@@ -90,13 +101,14 @@ export function modelAction(
 ): void {
   if (baseDescriptor) {
     // method decorator
-    checkModelActionArgs(target, propertyKey)
+    const fn = baseDescriptor.value
+    checkModelActionArgs(target, propertyKey, fn)
 
     return {
       enumerable: false,
       writable: true,
       configurable: true,
-      value: wrapInAction(propertyKey, baseDescriptor.value),
+      value: wrapInAction(propertyKey, fn),
     } as any
   } else {
     // field decorator
@@ -107,9 +119,10 @@ export function modelAction(
         return undefined
       },
       set(value) {
-        checkModelActionArgs(this, propertyKey)
+        const fn = value
+        checkModelActionArgs(this, propertyKey, fn)
 
-        addHiddenProp(this, propertyKey, wrapInAction(propertyKey, value))
+        addHiddenProp(this, propertyKey, wrapInAction(propertyKey, fn))
       },
     })
   }

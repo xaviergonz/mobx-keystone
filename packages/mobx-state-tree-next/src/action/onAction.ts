@@ -40,7 +40,7 @@ export type OnActionUnserializableArgument = (
 /**
  * Adds an action middleware that only applies to a given tree.
  * Remember to `return next()` if you want to continue the action or throw if you want to cancel it.
- * Note that `onAction` will only run for the topmost level actions, so it won't run for child actions.
+ * Note that `onAction` will only run for the topmost level actions, so it won't run for child actions or intermediary flow steps.
  *
  * @param target Root target model object.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
@@ -61,8 +61,8 @@ export function onAction(
 
   const middleware = addActionMiddleware(
     (ctx, next) => {
-      if (ctx.parentContext) {
-        // sub-action, do nothing
+      if (ctx.parentContext || ctx.previousAsyncStepContext) {
+        // sub-action or async step, do nothing
         return next()
       }
 
