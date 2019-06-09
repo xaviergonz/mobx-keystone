@@ -98,6 +98,7 @@ test("onAction", () => {
               "x": 1,
             },
           },
+          "type": "sync",
         },
       ],
     ]
@@ -134,6 +135,7 @@ test("onAction", () => {
               "y": 2,
             },
           },
+          "type": "sync",
         },
       ],
     ]
@@ -176,6 +178,7 @@ test("onAction", () => {
               "x": 4,
             },
           },
+          "type": "sync",
         },
       ],
     ]
@@ -244,6 +247,7 @@ test("onAction", () => {
               "x": 4,
             },
           },
+          "type": "sync",
         },
       ],
     ]
@@ -294,6 +298,7 @@ test("onAction", () => {
               "x": 4,
             },
           },
+          "type": "sync",
         },
       ],
     ]
@@ -344,6 +349,7 @@ test("onAction", () => {
               "y": 100,
             },
           },
+          "type": "sync",
         },
       ],
     ]

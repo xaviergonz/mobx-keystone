@@ -1,7 +1,7 @@
 import { Writable } from "ts-essentials"
 import { Model } from "../model/Model"
 import { addHiddenProp, failure } from "../utils"
-import { ActionContext, ActionContextAsyncStepType } from "./context"
+import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
 import { wrapInAction } from "./modelAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
@@ -26,24 +26,33 @@ function flow<R, Args extends any[]>(
       }
     }
 
-    const gen = wrapInAction(name, generator, ctxOverride(ActionContextAsyncStepType.Spawn)).apply(
-      self,
-      args as Args
-    )
+    const gen = wrapInAction(
+      name,
+      generator,
+      ActionContextActionType.Async,
+      ctxOverride(ActionContextAsyncStepType.Spawn)
+    ).apply(self, args as Args)
 
     const promise = new Promise<R>(function(resolve, reject) {
       function onFulfilled(res: any) {
         let ret
         try {
-          ret = wrapInAction(name, gen.next, ctxOverride(ActionContextAsyncStepType.Resume)).call(
-            self,
-            res
-          )
+          ret = wrapInAction(
+            name,
+            gen.next,
+            ActionContextActionType.Async,
+            ctxOverride(ActionContextAsyncStepType.Resume)
+          ).call(self, res)
         } catch (e) {
-          return wrapInAction(name, reject, ctxOverride(ActionContextAsyncStepType.Throw)).call(
-            self,
-            e
-          )
+          return wrapInAction(
+            name,
+            (err: any) => {
+              reject(err)
+              return err // so it is available to middlewares
+            },
+            ActionContextActionType.Async,
+            ctxOverride(ActionContextAsyncStepType.Throw)
+          ).call(self, e)
         }
 
         next(ret)
@@ -55,13 +64,19 @@ function flow<R, Args extends any[]>(
           ret = wrapInAction(
             name,
             gen.throw!,
+            ActionContextActionType.Async,
             ctxOverride(ActionContextAsyncStepType.ResumeError)
           ).call(self, err)
         } catch (e) {
-          return wrapInAction(name, reject, ctxOverride(ActionContextAsyncStepType.Throw)).call(
-            self,
-            e
-          )
+          return wrapInAction(
+            name,
+            (err: any) => {
+              reject(err)
+              return err // so it is available to middlewares
+            },
+            ActionContextActionType.Async,
+            ctxOverride(ActionContextAsyncStepType.Throw)
+          ).call(self, e)
         }
 
         next(ret)
@@ -75,10 +90,15 @@ function flow<R, Args extends any[]>(
         }
         if (ret.done) {
           // done
-          return wrapInAction(name, resolve, ctxOverride(ActionContextAsyncStepType.Return)).call(
-            self,
-            ret.value
-          )
+          return wrapInAction(
+            name,
+            (val: any) => {
+              resolve(val)
+              return val // so it is available to middlewares
+            },
+            ActionContextActionType.Async,
+            ctxOverride(ActionContextAsyncStepType.Return)
+          ).call(self, ret.value)
         } else {
           // continue
           return Promise.resolve(ret.value).then(onFulfilled, onRejected)

@@ -1,13 +1,15 @@
 /**
  * An action context.
- *
- * @interface ActionContext
  */
 export interface ActionContext {
   /**
    * Action name
    */
   readonly name: string
+  /**
+   * Action type, sync or async.
+   */
+  readonly type: ActionContextActionType
   /**
    * Action target object.
    */
@@ -32,6 +34,14 @@ export interface ActionContext {
    * Custom data for the action context to be set by middlewares, an object.
    */
   readonly data: unknown
+}
+
+/**
+ * Action type, sync or async.
+ */
+export enum ActionContextActionType {
+  Sync = "sync",
+  Async = "async",
 }
 
 /**
@@ -80,21 +90,4 @@ export function getCurrentActionContext() {
  */
 export function setCurrentActionContext(ctx: ActionContext | undefined) {
   currentActionContext = ctx
-}
-
-/**
- * Simplifies an action context by turning an async call hierarchy into a similar sync one.
- *
- * @param ctx
- * @returns
- */
-export function asyncToSyncActionContext(ctx: ActionContext): ActionContext {
-  while (ctx.previousAsyncStepContext) {
-    ctx = ctx.previousAsyncStepContext
-  }
-
-  return {
-    ...ctx,
-    parentContext: ctx.parentContext ? asyncToSyncActionContext(ctx.parentContext) : undefined,
-  }
 }
