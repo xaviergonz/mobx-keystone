@@ -4,6 +4,7 @@ import { applyPatches, applyPatchesName } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot"
 import { applySnapshotName } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
+import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./modelAction"
 import { SerializableActionCall } from "./onAction"
 
@@ -43,4 +44,8 @@ function internalApplyAction(this: Model, call: SerializableActionCall) {
   }
 }
 
-const wrappedInternalApplyAction = wrapInAction(applyActionName, internalApplyAction)
+const wrappedInternalApplyAction = wrapInAction(
+  applyActionName,
+  internalApplyAction,
+  ActionContextActionType.Sync
+)

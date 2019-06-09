@@ -1,8 +1,16 @@
+export {
+  ActionTrackingMiddleware,
+  ActionTrackingMiddlewareDisposer,
+  ActionTrackingMiddlewareResult,
+  addActionTrackingMiddleware,
+  SimpleActionContext,
+  simplifyActionContext,
+} from "./actionTrackingMiddleware"
 export { applyAction } from "./applyAction"
 export {
   ActionContext,
+  ActionContextActionType,
   ActionContextAsyncStepType,
-  asyncToSyncActionContext,
   getCurrentActionContext,
 } from "./context"
 export {

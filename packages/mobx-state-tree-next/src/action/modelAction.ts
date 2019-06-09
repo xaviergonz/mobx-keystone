@@ -3,7 +3,12 @@ import { Writable } from "ts-essentials"
 import { Model } from "../model/Model"
 import { assertTweakedObject } from "../tweaker/core"
 import { addHiddenProp, failure } from "../utils"
-import { ActionContext, getCurrentActionContext, setCurrentActionContext } from "./context"
+import {
+  ActionContext,
+  ActionContextActionType,
+  getCurrentActionContext,
+  setCurrentActionContext,
+} from "./context"
 import { getActionMiddlewares } from "./middleware"
 
 const modelActionSymbol = Symbol("modelAction")
@@ -11,6 +16,7 @@ const modelActionSymbol = Symbol("modelAction")
 export function wrapInAction<T extends Function>(
   name: string,
   fn: T,
+  actionType: ActionContextActionType,
   overrideContext?: (ctx: Writable<ActionContext>) => void
 ): T {
   if (!isAction(fn)) {
@@ -26,6 +32,7 @@ export function wrapInAction<T extends Function>(
 
     const context: ActionContext = {
       name,
+      type: actionType,
       target: this,
       args: Array.from(arguments),
       parentContext,
@@ -108,7 +115,7 @@ export function modelAction(
       enumerable: false,
       writable: true,
       configurable: true,
-      value: wrapInAction(propertyKey, fn),
+      value: wrapInAction(propertyKey, fn, ActionContextActionType.Sync),
     } as any
   } else {
     // field decorator
@@ -122,7 +129,11 @@ export function modelAction(
         const fn = value
         checkModelActionArgs(this, propertyKey, fn)
 
-        addHiddenProp(this, propertyKey, wrapInAction(propertyKey, fn))
+        addHiddenProp(
+          this,
+          propertyKey,
+          wrapInAction(propertyKey, fn, ActionContextActionType.Sync)
+        )
       },
     })
   }

@@ -1,4 +1,5 @@
 import { Patch } from "immer"
+import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/modelAction"
 import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
@@ -26,7 +27,11 @@ function internalApplyPatches(this: object, patches: Patch[]): void {
   patches.forEach(patch => applySinglePatch(obj, patch))
 }
 
-const wrappedInternalApplyPatches = wrapInAction(applyPatchesName, internalApplyPatches)
+const wrappedInternalApplyPatches = wrapInAction(
+  applyPatchesName,
+  internalApplyPatches,
+  ActionContextActionType.Sync
+)
 
 function applySinglePatch(obj: object, patch: Patch): void {
   const { target, prop } = pathArrayToObjectAndProp(obj, patch.path)

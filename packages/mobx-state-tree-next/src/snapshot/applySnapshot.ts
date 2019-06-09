@@ -1,4 +1,5 @@
 import { isObservableObject } from "mobx"
+import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/modelAction"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
@@ -78,4 +79,8 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-const wrappedInternalApplySnapshot = wrapInAction(applySnapshotName, internalApplySnapshot)
+const wrappedInternalApplySnapshot = wrapInAction(
+  applySnapshotName,
+  internalApplySnapshot,
+  ActionContextActionType.Sync
+)

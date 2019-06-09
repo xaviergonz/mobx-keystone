@@ -127,6 +127,7 @@ test("flow", async () => {
               "x": 2,
             },
           },
+          "type": "async",
         },
         "serializableActionCall": Object {
           "args": Array [
@@ -172,6 +173,7 @@ test("flow", async () => {
               "x": 6,
             },
           },
+          "type": "async",
         },
         "serializableActionCall": Object {
           "args": Array [
@@ -222,6 +224,7 @@ test("flow", async () => {
               "x": 16,
             },
           },
+          "type": "async",
         },
         "serializableActionCall": Object {
           "args": Array [
