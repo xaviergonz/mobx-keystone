@@ -102,41 +102,42 @@ test("flow", async () => {
   expect(getSnapshot(p).x).toBe(2)
 
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "actionContext": Object {
-              "args": Array [
-                2,
-              ],
-              "data": Object {},
-              "name": "addX",
-              "parentContext": undefined,
-              "previousAsyncStepContext": undefined,
-              "target": P {
-                "$$id": "mockedUuid-1",
-                "$$typeof": "P",
+    Array [
+      Object {
+        "actionContext": Object {
+          "args": Array [
+            2,
+          ],
+          "asyncStepType": "spawn",
+          "data": Object {},
+          "name": "addX",
+          "parentContext": undefined,
+          "previousAsyncStepContext": undefined,
+          "target": P {
+            "$$id": "mockedUuid-1",
+            "$$typeof": "P",
+            "data": Object {
+              "p2": P2 {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
                 "data": Object {
-                  "p2": P2 {
-                    "$$id": "mockedUuid-2",
-                    "$$typeof": "P2",
-                    "data": Object {
-                      "y": 0,
-                    },
-                  },
-                  "x": 2,
+                  "y": 0,
                 },
               },
-            },
-            "serializableActionCall": Object {
-              "args": Array [
-                2,
-              ],
-              "name": "addX",
-              "path": Array [],
+              "x": 2,
             },
           },
-        ]
-    `)
+        },
+        "serializableActionCall": Object {
+          "args": Array [
+            2,
+          ],
+          "name": "addX",
+          "path": Array [],
+        },
+      },
+    ]
+  `)
 
   reset()
   const ret2: FlowRet<typeof p.addXY> = (await p.addXY(4, 4)) as any
@@ -145,43 +146,44 @@ test("flow", async () => {
   expect(p.data.p2.data.y).toBe(4)
 
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "actionContext": Object {
-              "args": Array [
-                4,
-                4,
-              ],
-              "data": Object {},
-              "name": "addXY",
-              "parentContext": undefined,
-              "previousAsyncStepContext": undefined,
-              "target": P {
-                "$$id": "mockedUuid-1",
-                "$$typeof": "P",
+    Array [
+      Object {
+        "actionContext": Object {
+          "args": Array [
+            4,
+            4,
+          ],
+          "asyncStepType": "spawn",
+          "data": Object {},
+          "name": "addXY",
+          "parentContext": undefined,
+          "previousAsyncStepContext": undefined,
+          "target": P {
+            "$$id": "mockedUuid-1",
+            "$$typeof": "P",
+            "data": Object {
+              "p2": P2 {
+                "$$id": "mockedUuid-2",
+                "$$typeof": "P2",
                 "data": Object {
-                  "p2": P2 {
-                    "$$id": "mockedUuid-2",
-                    "$$typeof": "P2",
-                    "data": Object {
-                      "y": 4,
-                    },
-                  },
-                  "x": 6,
+                  "y": 4,
                 },
               },
-            },
-            "serializableActionCall": Object {
-              "args": Array [
-                4,
-                4,
-              ],
-              "name": "addXY",
-              "path": Array [],
+              "x": 6,
             },
           },
-        ]
-    `)
+        },
+        "serializableActionCall": Object {
+          "args": Array [
+            4,
+            4,
+          ],
+          "name": "addXY",
+          "path": Array [],
+        },
+      },
+    ]
+  `)
 
   // check rejection
   reset()
@@ -201,6 +203,7 @@ test("flow", async () => {
           "args": Array [
             10,
           ],
+          "asyncStepType": "spawn",
           "data": Object {},
           "name": "throwFlow",
           "parentContext": undefined,
