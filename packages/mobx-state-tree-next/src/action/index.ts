@@ -1,5 +1,10 @@
 export { applyAction } from "./applyAction"
-export { ActionContext, asyncToSyncActionContext, getCurrentActionContext } from "./context"
+export {
+  ActionContext,
+  ActionContextAsyncStepType,
+  asyncToSyncActionContext,
+  getCurrentActionContext,
+} from "./context"
 export {
   ActionMiddleware,
   ActionMiddlewareDisposer,

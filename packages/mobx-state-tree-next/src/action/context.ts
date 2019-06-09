@@ -25,9 +25,39 @@ export interface ActionContext {
    */
   readonly previousAsyncStepContext?: ActionContext
   /**
+   * Async step type, or undefined for sync actions.
+   */
+  readonly asyncStepType?: ActionContextAsyncStepType
+  /**
    * Custom data for the action context to be set by middlewares, an object.
    */
   readonly data: unknown
+}
+
+/**
+ * An async step type.
+ */
+export enum ActionContextAsyncStepType {
+  /**
+   * The flow is about to start.
+   */
+  Spawn = "spawn",
+  /**
+   * The flow is about to return (finish).
+   */
+  Return = "return",
+  /**
+   * The flow is about to continue.
+   */
+  Resume = "resume",
+  /**
+   * The flow yield just threw, which might be recovered (caught) or not.
+   */
+  ResumeError = "resumeError",
+  /**
+   * The flow is about to throw an error to the flow caller.
+   */
+  Throw = "throw",
 }
 
 let currentActionContext: ActionContext | undefined

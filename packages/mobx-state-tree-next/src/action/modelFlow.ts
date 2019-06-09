@@ -1,7 +1,7 @@
 import { Writable } from "ts-essentials"
 import { Model } from "../model/Model"
 import { addHiddenProp, failure } from "../utils"
-import { ActionContext } from "./context"
+import { ActionContext, ActionContextAsyncStepType } from "./context"
 import { wrapInAction } from "./modelAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
@@ -16,22 +16,34 @@ function flow<R, Args extends any[]>(
 
     let previousAsyncStepContext: ActionContext | undefined
 
-    const ctxOverride = (ctx: Writable<ActionContext>) => {
-      ctx.previousAsyncStepContext = previousAsyncStepContext
-      ctx.args = args
+    const ctxOverride = (stepType: ActionContextAsyncStepType) => {
+      return (ctx: Writable<ActionContext>) => {
+        ctx.previousAsyncStepContext = previousAsyncStepContext
+        ctx.asyncStepType = stepType
+        ctx.args = args
 
-      previousAsyncStepContext = ctx
+        previousAsyncStepContext = ctx
+      }
     }
 
-    const gen = wrapInAction(name, generator, ctxOverride).apply(self, args as Args)
+    const gen = wrapInAction(name, generator, ctxOverride(ActionContextAsyncStepType.Spawn)).apply(
+      self,
+      args as Args
+    )
 
     const promise = new Promise<R>(function(resolve, reject) {
       function onFulfilled(res: any) {
         let ret
         try {
-          ret = wrapInAction(name, gen.next, ctxOverride).call(self, res)
+          ret = wrapInAction(name, gen.next, ctxOverride(ActionContextAsyncStepType.Resume)).call(
+            self,
+            res
+          )
         } catch (e) {
-          return reject(e)
+          return wrapInAction(name, reject, ctxOverride(ActionContextAsyncStepType.Throw)).call(
+            self,
+            e
+          )
         }
 
         next(ret)
@@ -40,9 +52,16 @@ function flow<R, Args extends any[]>(
       function onRejected(err: any) {
         let ret
         try {
-          ret = wrapInAction(name, gen.throw!, ctxOverride).call(self, err)
+          ret = wrapInAction(
+            name,
+            gen.throw!,
+            ctxOverride(ActionContextAsyncStepType.ResumeError)
+          ).call(self, err)
         } catch (e) {
-          return reject(e)
+          return wrapInAction(name, reject, ctxOverride(ActionContextAsyncStepType.Throw)).call(
+            self,
+            e
+          )
         }
 
         next(ret)
@@ -54,8 +73,16 @@ function flow<R, Args extends any[]>(
           ret.then(next, reject)
           return
         }
-        if (ret.done) return resolve(ret.value)
-        return Promise.resolve(ret.value).then(onFulfilled, onRejected)
+        if (ret.done) {
+          // done
+          return wrapInAction(name, resolve, ctxOverride(ActionContextAsyncStepType.Return)).call(
+            self,
+            ret.value
+          )
+        } else {
+          // continue
+          return Promise.resolve(ret.value).then(onFulfilled, onRejected)
+        }
       }
 
       onFulfilled(undefined) // kick off the process
