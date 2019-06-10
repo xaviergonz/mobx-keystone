@@ -1,4 +1,6 @@
 import { action, isAction } from "mobx"
+import { Model } from "../model"
+import { isChildOfParent } from "../parent/path"
 import { failure, isObject } from "../utils"
 import { ActionContext } from "./context"
 
@@ -6,6 +8,12 @@ import { ActionContext } from "./context"
  * An action middleware.
  */
 export interface ActionMiddleware {
+  /**
+   * Subtree (object and child objects) this middleware will run for, or undefined for any object.
+   * This target 'filter' will be run before the custom filter.
+   */
+  target?: Model
+
   /**
    * A filter function to decide if an action middleware function should be run or not.
    */
@@ -49,7 +57,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
     throw failure("middleware must be an object")
   }
 
-  let { middleware, filter } = mware
+  let { middleware, filter, target } = mware
 
   if (typeof middleware !== "function") {
     throw failure("middleware.middleware must be a function")
@@ -60,6 +68,17 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   if (!isAction(middleware)) {
     middleware = action(middleware.name || "actionMiddleware", middleware)
+  }
+
+  if (target) {
+    const targetFilter = (ctx: ActionContext) =>
+      ctx.target === target || isChildOfParent(ctx.target, target!)
+    if (!filter) {
+      filter = targetFilter
+    } else {
+      const customFilter = filter
+      filter = ctx => targetFilter(ctx) && customFilter(ctx)
+    }
   }
 
   actionMiddlewares.push({ middleware, filter })

@@ -1,6 +1,6 @@
 import { isObservable, toJS } from "mobx"
 import { Model } from "../model/Model"
-import { getRootPath, isChildOfParent } from "../parent"
+import { getRootPath } from "../parent"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, isObject, isPlainObject } from "../utils"
@@ -73,9 +73,7 @@ export function onAction(
 
       return listener(serializableActionCall, ctx, next)
     },
-    filter(ctx) {
-      return ctx.target === target || isChildOfParent(ctx.target, target)
-    },
+    target,
   })
 
   return disposer

@@ -1,5 +1,4 @@
 import { Model } from "../model"
-import { isChildOfParent } from "../parent"
 import { failure } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
 import { ActionMiddleware, addActionMiddleware } from "./middleware"
@@ -82,10 +81,6 @@ export function addActionTrackingMiddleware(
   }
 
   const filter: ActionMiddleware["filter"] = ctx => {
-    if (ctx.target !== target && !isChildOfParent(ctx.target, target)) {
-      return false
-    }
-
     if (ctx.type === ActionContextActionType.Sync) {
       // start and finish is on the same context
       const accepted = userFilter(ctx)
@@ -155,7 +150,7 @@ export function addActionTrackingMiddleware(
     }
   }
 
-  return addActionMiddleware({ middleware: mware, filter })
+  return addActionMiddleware({ middleware: mware, filter, target })
 }
 
 /**
