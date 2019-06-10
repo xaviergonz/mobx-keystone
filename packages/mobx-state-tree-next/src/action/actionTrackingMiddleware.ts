@@ -31,7 +31,7 @@ export interface SimpleActionContext {
   /**
    * Custom data for the action context to be set by middlewares, an object.
    */
-  readonly data: unknown
+  readonly data: any
 }
 
 /**
@@ -59,6 +59,9 @@ export interface ActionTrackingMiddleware {
 /**
  * Attaches an action tracking middleware, which is a simplified version
  * of the standard action middleware.
+ * Note that filtering is only called for the start of the actions. If the
+ * action is accepted then both onStart and onFinish for that particular action will
+ * be called.
  *
  * @param target Root target model object.
  * @param hooks Middleware hooks.
@@ -68,35 +71,50 @@ export function addActionTrackingMiddleware(
   target: Model,
   hooks: ActionTrackingMiddleware
 ): ActionTrackingMiddlewareDisposer {
-  const basicFilter: ActionMiddlewareFilter = ctx => {
-    if (ctx.target !== target && !isChildOfParent(ctx.target, target)) {
-      return false
-    }
+  const startAcceptedSymbol = Symbol("actionTrackingMiddlewareFilterAccepted")
 
-    if (ctx.type === ActionContextActionType.Sync) {
-      return true
-    } else {
-      switch (ctx.asyncStepType) {
-        case ActionContextAsyncStepType.Spawn:
-        case ActionContextAsyncStepType.Return:
-        case ActionContextAsyncStepType.Throw:
-          return true
-        default:
-          return false
-      }
-    }
-  }
-
-  const filter: ActionMiddlewareFilter = ctx => {
-    if (!basicFilter(ctx)) {
-      return false
-    }
-
+  const userFilter: ActionMiddlewareFilter = ctx => {
     if (hooks.filter) {
       return hooks.filter(simplifyActionContext(ctx))
     }
 
     return true
+  }
+
+  const filter: ActionMiddlewareFilter = ctx => {
+    if (ctx.target !== target && !isChildOfParent(ctx.target, target)) {
+      return false
+    }
+
+    if (ctx.type === ActionContextActionType.Sync) {
+      // start and finish is on the same context
+      const accepted = userFilter(ctx)
+      if (accepted) {
+        ctx.data[startAcceptedSymbol] = true
+      }
+      return accepted
+    } else {
+      switch (ctx.asyncStepType) {
+        case ActionContextAsyncStepType.Spawn:
+          const accepted = userFilter(ctx)
+          if (accepted) {
+            ctx.data[startAcceptedSymbol] = true
+          }
+          return accepted
+
+        case ActionContextAsyncStepType.Return:
+        case ActionContextAsyncStepType.Throw:
+          // depends if the spawn one was accepted or not
+          let previousCtx = ctx
+          while (previousCtx.previousAsyncStepContext) {
+            previousCtx = previousCtx.previousAsyncStepContext!
+          }
+          return !!previousCtx.data[startAcceptedSymbol]
+
+        default:
+          return false
+      }
+    }
   }
 
   const mware: ActionMiddleware = (ctx, next) => {

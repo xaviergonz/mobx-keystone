@@ -100,7 +100,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             1,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": undefined,
           "target": P {
@@ -126,7 +128,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             1,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": undefined,
           "target": P {
@@ -152,7 +156,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             1,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": undefined,
           "target": P {
@@ -189,7 +195,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             2,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": undefined,
           "target": P2 {
@@ -208,7 +216,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             2,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": undefined,
           "target": P2 {
@@ -227,7 +237,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             2,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": undefined,
           "target": P2 {
@@ -258,7 +270,9 @@ test("addActionTrackingMiddleware - sync", () => {
             3,
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
@@ -285,7 +299,9 @@ test("addActionTrackingMiddleware - sync", () => {
             3,
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
@@ -311,14 +327,18 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             3,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": Object {
             "args": Array [
               3,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -360,14 +380,18 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             3,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": Object {
             "args": Array [
               3,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -409,14 +433,18 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             3,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": Object {
             "args": Array [
               3,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -460,14 +488,18 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": Object {
             "args": Array [
               3,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -502,14 +534,18 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": Object {
             "args": Array [
               3,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -544,14 +580,18 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": Object {
             "args": Array [
               3,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -589,7 +629,9 @@ test("addActionTrackingMiddleware - sync", () => {
             3,
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
@@ -625,7 +667,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             "some error",
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "throw",
           "parentContext": undefined,
           "target": P {
@@ -651,7 +695,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             "some error",
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "throw",
           "parentContext": undefined,
           "target": P {
@@ -677,7 +723,9 @@ test("addActionTrackingMiddleware - sync", () => {
           "args": Array [
             "some error",
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "throw",
           "parentContext": undefined,
           "target": P {
