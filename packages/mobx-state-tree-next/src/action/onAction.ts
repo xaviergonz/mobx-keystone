@@ -5,7 +5,7 @@ import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, isObject, isPlainObject } from "../utils"
 import { ActionContext } from "./context"
-import { addActionMiddleware } from "./middleware"
+import { ActionMiddlewareDisposer, addActionMiddleware } from "./middleware"
 
 /**
  * A serializable action call.
@@ -54,13 +54,13 @@ export function onAction(
   options?: {
     onUnserializableArgument?: OnActionUnserializableArgument
   }
-): () => void {
+): ActionMiddlewareDisposer {
   if (!(target instanceof Model)) {
     throw failure("onAction target must be a model")
   }
 
-  const middleware = addActionMiddleware(
-    (ctx, next) => {
+  const disposer = addActionMiddleware({
+    middleware(ctx, next) {
       if (ctx.parentContext || ctx.previousAsyncStepContext) {
         // sub-action or async step, do nothing
         return next()
@@ -73,12 +73,12 @@ export function onAction(
 
       return listener(serializableActionCall, ctx, next)
     },
-    ctx => {
+    filter(ctx) {
       return ctx.target === target || isChildOfParent(ctx.target, target)
-    }
-  )
+    },
+  })
 
-  return middleware
+  return disposer
 }
 
 function serializeArgument(

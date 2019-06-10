@@ -48,18 +48,20 @@ test("action tracking", () => {
   const events: any = []
 
   autoDispose(
-    addActionMiddleware((ctx, next) => {
-      events.push({
-        event: "action started",
-        ctx,
-      })
-      const result = next()
-      events.push({
-        event: "action finished",
-        ctx,
-        result,
-      })
-      return result
+    addActionMiddleware({
+      middleware(ctx, next) {
+        events.push({
+          event: "action started",
+          ctx,
+        })
+        const result = next()
+        events.push({
+          event: "action finished",
+          ctx,
+          result,
+        })
+        return result
+      },
     })
   )
 
@@ -426,8 +428,10 @@ test("action cancel with error", () => {
   const err = new Error("someError")
 
   autoDispose(
-    addActionMiddleware((_ctx, _next) => {
-      throw err
+    addActionMiddleware({
+      middleware(_ctx, _next) {
+        throw err
+      },
     })
   )
 
@@ -441,8 +445,10 @@ test("action cancel with new return value", () => {
   const val = 999
 
   autoDispose(
-    addActionMiddleware(_ctx => {
-      return val
+    addActionMiddleware({
+      middleware(_ctx) {
+        return val
+      },
     })
   )
 
