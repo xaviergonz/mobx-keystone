@@ -33,7 +33,7 @@ export interface ActionContext {
   /**
    * Custom data for the action context to be set by middlewares, an object.
    */
-  readonly data: unknown
+  readonly data: any
 }
 
 /**

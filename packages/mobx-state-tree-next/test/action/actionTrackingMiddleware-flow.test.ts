@@ -125,7 +125,9 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             2,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": undefined,
           "target": P {
@@ -151,7 +153,9 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             2,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": undefined,
           "target": P {
@@ -177,13 +181,17 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             0.5,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXSync",
           "parentContext": Object {
             "args": Array [
               2,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addX",
             "parentContext": undefined,
             "target": P {
@@ -225,13 +233,17 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             0.5,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXSync",
           "parentContext": Object {
             "args": Array [
               2,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addX",
             "parentContext": undefined,
             "target": P {
@@ -273,13 +285,17 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             0.5,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXSync",
           "parentContext": Object {
             "args": Array [
               2,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addX",
             "parentContext": undefined,
             "target": P {
@@ -323,33 +339,9 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             2,
           ],
-          "data": Object {},
-          "name": "addX",
-          "parentContext": undefined,
-          "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
-            "data": Object {
-              "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
-                "data": Object {
-                  "y": 0,
-                },
-              },
-              "x": 2,
-            },
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
           },
-          "type": "async",
-        },
-        "type": "filter",
-      },
-      Object {
-        "context": Object {
-          "args": Array [
-            2,
-          ],
-          "data": Object {},
           "name": "addX",
           "parentContext": undefined,
           "target": P {
@@ -389,7 +381,9 @@ test("addActionTrackingMiddleware - flow", async () => {
             4,
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
@@ -416,7 +410,9 @@ test("addActionTrackingMiddleware - flow", async () => {
             4,
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
@@ -442,14 +438,18 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": Object {
             "args": Array [
               4,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -491,14 +491,18 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": Object {
             "args": Array [
               4,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -540,20 +544,26 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             1,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXSync",
           "parentContext": Object {
             "args": Array [
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addX",
             "parentContext": Object {
               "args": Array [
                 4,
                 4,
               ],
-              "data": Object {},
+              "data": Object {
+                Symbol(actionTrackingMiddlewareFilterAccepted): true,
+              },
               "name": "addXY",
               "parentContext": undefined,
               "target": P {
@@ -611,20 +621,26 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             1,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXSync",
           "parentContext": Object {
             "args": Array [
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addX",
             "parentContext": Object {
               "args": Array [
                 4,
                 4,
               ],
-              "data": Object {},
+              "data": Object {
+                Symbol(actionTrackingMiddlewareFilterAccepted): true,
+              },
               "name": "addXY",
               "parentContext": undefined,
               "target": P {
@@ -682,20 +698,26 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             1,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addXSync",
           "parentContext": Object {
             "args": Array [
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addX",
             "parentContext": Object {
               "args": Array [
                 4,
                 4,
               ],
-              "data": Object {},
+              "data": Object {
+                Symbol(actionTrackingMiddlewareFilterAccepted): true,
+              },
               "name": "addXY",
               "parentContext": undefined,
               "target": P {
@@ -755,63 +777,18 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addX",
           "parentContext": Object {
             "args": Array [
               4,
               4,
             ],
-            "data": Object {},
-            "name": "addXY",
-            "parentContext": undefined,
-            "target": P {
-              "$$id": "mockedUuid-1",
-              "$$typeof": "P",
-              "data": Object {
-                "p2": P2 {
-                  "$$id": "mockedUuid-2",
-                  "$$typeof": "P2",
-                  "data": Object {
-                    "y": 4,
-                  },
-                },
-                "x": 6,
-              },
-            },
-            "type": "async",
-          },
-          "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
             "data": Object {
-              "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
-                "data": Object {
-                  "y": 4,
-                },
-              },
-              "x": 6,
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
             },
-          },
-          "type": "async",
-        },
-        "type": "filter",
-      },
-      Object {
-        "context": Object {
-          "args": Array [
-            4,
-          ],
-          "data": Object {},
-          "name": "addX",
-          "parentContext": Object {
-            "args": Array [
-              4,
-              4,
-            ],
-            "data": Object {},
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -855,14 +832,18 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": Object {
             "args": Array [
               4,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -897,14 +878,18 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": Object {
             "args": Array [
               4,
               4,
             ],
-            "data": Object {},
+            "data": Object {
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
+            },
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -939,56 +924,18 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "addY",
           "parentContext": Object {
             "args": Array [
               4,
               4,
             ],
-            "data": Object {},
-            "name": "addXY",
-            "parentContext": undefined,
-            "target": P {
-              "$$id": "mockedUuid-1",
-              "$$typeof": "P",
-              "data": Object {
-                "p2": P2 {
-                  "$$id": "mockedUuid-2",
-                  "$$typeof": "P2",
-                  "data": Object {
-                    "y": 4,
-                  },
-                },
-                "x": 6,
-              },
-            },
-            "type": "async",
-          },
-          "target": P2 {
-            "$$id": "mockedUuid-2",
-            "$$typeof": "P2",
             "data": Object {
-              "y": 4,
+              Symbol(actionTrackingMiddlewareFilterAccepted): true,
             },
-          },
-          "type": "async",
-        },
-        "type": "filter",
-      },
-      Object {
-        "context": Object {
-          "args": Array [
-            4,
-          ],
-          "data": Object {},
-          "name": "addY",
-          "parentContext": Object {
-            "args": Array [
-              4,
-              4,
-            ],
-            "data": Object {},
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
@@ -1026,34 +973,9 @@ test("addActionTrackingMiddleware - flow", async () => {
             4,
             4,
           ],
-          "data": Object {},
-          "name": "addXY",
-          "parentContext": undefined,
-          "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
-            "data": Object {
-              "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
-                "data": Object {
-                  "y": 4,
-                },
-              },
-              "x": 6,
-            },
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
           },
-          "type": "async",
-        },
-        "type": "filter",
-      },
-      Object {
-        "context": Object {
-          "args": Array [
-            4,
-            4,
-          ],
-          "data": Object {},
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
@@ -1097,7 +1019,9 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             10,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "throwFlow",
           "parentContext": undefined,
           "target": P {
@@ -1123,7 +1047,9 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             10,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
+          },
           "name": "throwFlow",
           "parentContext": undefined,
           "target": P {
@@ -1149,33 +1075,9 @@ test("addActionTrackingMiddleware - flow", async () => {
           "args": Array [
             10,
           ],
-          "data": Object {},
-          "name": "throwFlow",
-          "parentContext": undefined,
-          "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
-            "data": Object {
-              "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
-                "data": Object {
-                  "y": 4,
-                },
-              },
-              "x": 16,
-            },
+          "data": Object {
+            Symbol(actionTrackingMiddlewareFilterAccepted): true,
           },
-          "type": "async",
-        },
-        "type": "filter",
-      },
-      Object {
-        "context": Object {
-          "args": Array [
-            10,
-          ],
-          "data": Object {},
           "name": "throwFlow",
           "parentContext": undefined,
           "target": P {
