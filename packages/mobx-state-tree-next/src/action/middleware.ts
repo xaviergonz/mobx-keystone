@@ -1,24 +1,29 @@
 import { action, isAction } from "mobx"
-import { failure } from "../utils"
+import { failure, isObject } from "../utils"
 import { ActionContext } from "./context"
 
 /**
- * An action middleware function.
- * Rember to `return next()` if you want to continue the action or throw if you want to cancel it.
+ * An action middleware.
  */
-export type ActionMiddleware = (ctx: ActionContext, next: () => any) => any
+export interface ActionMiddleware {
+  /**
+   * A filter function to decide if an action middleware function should be run or not.
+   */
+  filter?(ctx: ActionContext): boolean
+
+  /**
+   * An action middleware function.
+   * Rember to `return next()` if you want to continue the action or throw if you want to cancel it.
+   */
+  middleware(ctx: ActionContext, next: () => any): any
+}
 
 /**
  * The disposer of an action middleware.
  */
 export type ActionMiddlewareDisposer = () => void
 
-/**
- * A filter function to decide if an action middleware function should be run or not.
- */
-export type ActionMiddlewareFilter = (ctx: ActionContext) => boolean
-
-const actionMiddlewares: { fn: ActionMiddleware; filter?: ActionMiddlewareFilter }[] = []
+const actionMiddlewares: ActionMiddleware[] = []
 
 /**
  * @ignore
@@ -33,28 +38,33 @@ export function getActionMiddlewares() {
 
 /**
  * Adds a global action middleware to be run when an action is performed.
- * It is usually preferable to use `onAction` instead to limit it to a given tree and only to topmost level actions.
+ * It is usually preferable to use `onAction` instead to limit it to a given tree and only to topmost level actions
+ * or `actionTrackingMiddleware` for a simplified middleware.
  *
- * @param mware Action middleware function to be run.
- * @param [filter] A filter function to decide if this action middleware function should be run or not.
+ * @param mware Action middleware to be run.
  * @returns
  */
-export function addActionMiddleware(
-  mware: ActionMiddleware,
-  filter?: ActionMiddlewareFilter
-): ActionMiddlewareDisposer {
-  if (typeof mware !== "function") {
-    throw failure("a middleware must be a function")
+export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDisposer {
+  if (!isObject(mware)) {
+    throw failure("middleware must be an object")
+  }
+
+  let { middleware, filter } = mware
+
+  if (typeof middleware !== "function") {
+    throw failure("middleware.middleware must be a function")
   }
   if (filter && typeof filter !== "function") {
-    throw failure("a filter must be a function")
+    throw failure("middleware.filter must be a function if present")
   }
 
-  mware = !isAction(mware) ? action(mware.name || "actionMiddleware", mware) : mware
+  if (!isAction(middleware)) {
+    middleware = action(middleware.name || "actionMiddleware", middleware)
+  }
 
-  actionMiddlewares.push({ fn: mware, filter })
+  actionMiddlewares.push({ middleware, filter })
   return () => {
-    const index = actionMiddlewares.findIndex(m => m.fn === mware)
+    const index = actionMiddlewares.findIndex(m => m.middleware === middleware)
     actionMiddlewares.splice(index, 1)
   }
 }

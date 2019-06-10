@@ -2,7 +2,7 @@ import { Model } from "../model"
 import { isChildOfParent } from "../parent"
 import { failure } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { ActionMiddleware, ActionMiddlewareFilter, addActionMiddleware } from "./middleware"
+import { ActionMiddleware, addActionMiddleware } from "./middleware"
 
 /**
  * Simplified version of action context.
@@ -73,7 +73,7 @@ export function addActionTrackingMiddleware(
 ): ActionTrackingMiddlewareDisposer {
   const startAcceptedSymbol = Symbol("actionTrackingMiddlewareFilterAccepted")
 
-  const userFilter: ActionMiddlewareFilter = ctx => {
+  const userFilter: ActionMiddleware["filter"] = ctx => {
     if (hooks.filter) {
       return hooks.filter(simplifyActionContext(ctx))
     }
@@ -81,7 +81,7 @@ export function addActionTrackingMiddleware(
     return true
   }
 
-  const filter: ActionMiddlewareFilter = ctx => {
+  const filter: ActionMiddleware["filter"] = ctx => {
     if (ctx.target !== target && !isChildOfParent(ctx.target, target)) {
       return false
     }
@@ -117,7 +117,7 @@ export function addActionTrackingMiddleware(
     }
   }
 
-  const mware: ActionMiddleware = (ctx, next) => {
+  const mware: ActionMiddleware["middleware"] = (ctx, next) => {
     const simpleCtx = simplifyActionContext(ctx)
 
     if (ctx.type === ActionContextActionType.Sync) {
@@ -155,7 +155,7 @@ export function addActionTrackingMiddleware(
     }
   }
 
-  return addActionMiddleware(mware, filter)
+  return addActionMiddleware({ middleware: mware, filter })
 }
 
 /**
