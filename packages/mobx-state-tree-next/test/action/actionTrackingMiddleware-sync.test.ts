@@ -1,6 +1,6 @@
 import {
   actionTrackingMiddleware,
-  ActionTrackingMiddlewareResult,
+  ActionTrackingResult,
   addActionMiddleware,
   model,
   Model,
@@ -58,7 +58,7 @@ test("actionTrackingMiddleware - sync", () => {
 
   const events: {
     type: "filter" | "start" | "finish"
-    result?: ActionTrackingMiddlewareResult
+    result?: ActionTrackingResult
     value?: any
     context: SimpleActionContext
   }[] = []
