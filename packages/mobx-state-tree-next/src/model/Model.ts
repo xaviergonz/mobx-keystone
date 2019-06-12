@@ -55,7 +55,11 @@ export abstract class Model {
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as
    * root store via `registerRootStore`.
-   * It can return a disposer that will be run once this model instance is detached from such tree.
+   * Basically this is the place where you know the full root store is complete and where things such as
+   * middlewares, effects (reactions, etc), and other side effects should be registered, since it means
+   * that the model is now part of the active application state.
+   *
+   * It can return a disposer that will be run once this model instance is detached from such root store tree.
    *
    * @param rootStore
    * @returns

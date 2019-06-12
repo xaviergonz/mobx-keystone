@@ -45,7 +45,7 @@ export function wrapInAction<T extends Function>(
     setCurrentActionContext(context)
 
     let mwareFn: () => any = fn.bind(this, ...arguments)
-    getActionMiddlewares().forEach(mware => {
+    getActionMiddlewares(this).forEach(mware => {
       const filterPassed = mware.filter ? mware.filter(context) : true
       if (filterPassed) {
         mwareFn = mware.middleware.bind(undefined, context, mwareFn)

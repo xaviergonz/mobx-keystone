@@ -5,7 +5,7 @@ import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, isObject, isPlainObject } from "../utils"
 import { ActionContext } from "./context"
-import { ActionMiddlewareDisposer, addActionMiddleware } from "./middleware"
+import { ActionMiddleware } from "./middleware"
 
 /**
  * A serializable action call.
@@ -25,41 +25,67 @@ export interface SerializableActionCall {
   readonly path: readonly string[]
 }
 
-export type OnActionListener = (
+export type ActionSerializerListener = (
   serializableActionCall: SerializableActionCall,
   actionContext: ActionContext,
   next: () => any
 ) => void
 
-export type OnActionUnserializableArgument = (
+export type ActionSerializerUnserializableArgument = (
   actionContext: ActionContext,
   value: any,
   index: number
 ) => any
 
 /**
- * Adds an action middleware that only applies to a given tree.
+ * Creates an action middleware that serializes a given action / all actions of a given tree.
  * Remember to `return next()` if you want to continue the action or throw if you want to cancel it.
- * Note that `onAction` will only run for the topmost level actions, so it won't run for child actions or intermediary flow steps.
+ * Note that `actionSerializerMiddleware` will only run for the topmost level actions, so it won't run for child actions or intermediary flow steps.
  *
- * @param target Root target model object.
+ * @param target Root target model object, including action name if it should run for only a given action rather than all actions of the tree.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
  * @param [options] `onUnserializableArgument` is an optional function that will be invoked when an unserializable argument is found. The default is to
  * throw an error that cancels the action, but it can be changed to return your own serializable value, print a warning, etc.
- * @returns A disposer to cancel `onAction`.
+ * @returns The actual middleware to be passed to `addActionMiddleware`.
  */
-export function onAction(
-  target: Model,
-  listener: OnActionListener,
+export function actionSerializerMiddleware<M extends Model>(
+  target: {
+    model: M
+    actionName?: keyof M
+  },
+  listener: ActionSerializerListener,
   options?: {
-    onUnserializableArgument?: OnActionUnserializableArgument
+    onUnserializableArgument?: ActionSerializerUnserializableArgument
   }
-): ActionMiddlewareDisposer {
-  if (!(target instanceof Model)) {
-    throw failure("onAction target must be a model")
+): ActionMiddleware {
+  if (!isObject(target)) {
+    throw failure("target must be an object")
   }
 
-  const disposer = addActionMiddleware({
+  const { model, actionName } = target
+
+  if (!(model instanceof Model)) {
+    throw failure("target must be a model")
+  }
+
+  if (actionName && typeof model[actionName] !== "function") {
+    throw failure("action must be a function or undefined")
+  }
+
+  const filter: ActionMiddleware["filter"] = ctx => {
+    if (ctx.parentContext || ctx.previousAsyncStepContext) {
+      // sub-action or async step, do nothing
+      return false
+    }
+
+    if (actionName && ctx.name !== actionName) {
+      return false
+    }
+
+    return true
+  }
+
+  return {
     middleware(ctx, next) {
       if (ctx.parentContext || ctx.previousAsyncStepContext) {
         // sub-action or async step, do nothing
@@ -73,17 +99,16 @@ export function onAction(
 
       return listener(serializableActionCall, ctx, next)
     },
-    target,
-  })
-
-  return disposer
+    target: model,
+    filter,
+  }
 }
 
 function serializeArgument(
   ctx: ActionContext,
   value: any,
   index: number,
-  onUnserializableArgument: OnActionUnserializableArgument | undefined
+  onUnserializableArgument: ActionSerializerUnserializableArgument | undefined
 ): any {
   if (!isObject(value)) {
     return value
@@ -112,7 +137,7 @@ function serializeArgument(
 
 function actionContextToSerializableActionCall(
   ctx: ActionContext,
-  onUnserializableArgument: OnActionUnserializableArgument | undefined
+  onUnserializableArgument: ActionSerializerUnserializableArgument | undefined
 ): SerializableActionCall {
   const rootPath = getRootPath(ctx.target)
 

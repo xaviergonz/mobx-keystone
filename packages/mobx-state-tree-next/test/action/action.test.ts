@@ -47,8 +47,11 @@ export class P extends Model {
 test("action tracking", () => {
   const events: any = []
 
+  const p = new P()
+
   autoDispose(
     addActionMiddleware({
+      target: p,
       middleware(ctx, next) {
         events.push({
           event: "action started",
@@ -64,8 +67,6 @@ test("action tracking", () => {
       },
     })
   )
-
-  const p = new P()
   expect(events.length).toBe(0)
 
   const resultX = p.addX(1)
@@ -427,15 +428,16 @@ test("action tracking", () => {
 test("action cancel with error", () => {
   const err = new Error("someError")
 
+  const p = new P()
   autoDispose(
     addActionMiddleware({
+      target: p,
       middleware(_ctx, _next) {
         throw err
       },
     })
   )
 
-  const p = new P()
   const x = p.data.x
   expect(() => p.addX(1)).toThrow(err)
   expect(p.data.x).toBe(x)
@@ -444,15 +446,16 @@ test("action cancel with error", () => {
 test("action cancel with new return value", () => {
   const val = 999
 
+  const p = new P()
   autoDispose(
     addActionMiddleware({
+      target: p,
       middleware(_ctx) {
         return val
       },
     })
   )
 
-  const p = new P()
   const x = p.data.x
   expect(p.addX(1)).toBe(val)
   expect(p.data.x).toBe(x)

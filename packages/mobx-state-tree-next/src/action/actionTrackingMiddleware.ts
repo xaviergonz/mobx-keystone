@@ -1,7 +1,7 @@
 import { Model } from "../model"
-import { failure } from "../utils"
+import { failure, isObject } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { ActionMiddleware, addActionMiddleware } from "./middleware"
+import { ActionMiddleware } from "./middleware"
 
 /**
  * Simplified version of action context.
@@ -34,14 +34,9 @@ export interface SimpleActionContext {
 }
 
 /**
- * The disposer of an action tracking middleware.
- */
-export type ActionTrackingMiddlewareDisposer = () => void
-
-/**
  * Action tracking middleware finish result.
  */
-export enum ActionTrackingMiddlewareResult {
+export enum ActionTrackingResult {
   Return = "return",
   Throw = "throw",
 }
@@ -52,11 +47,11 @@ export enum ActionTrackingMiddlewareResult {
 export interface ActionTrackingMiddleware {
   filter?(ctx: SimpleActionContext): boolean
   onStart(ctx: SimpleActionContext): void
-  onFinish(ctx: SimpleActionContext, result: ActionTrackingMiddlewareResult, value: any): void
+  onFinish(ctx: SimpleActionContext, result: ActionTrackingResult, value: any): void
 }
 
 /**
- * Attaches an action tracking middleware, which is a simplified version
+ * Creates an action tracking middleware, which is a simplified version
  * of the standard action middleware.
  * Note that filtering is only called for the start of the actions. If the
  * action is accepted then both onStart and onFinish for that particular action will
@@ -64,12 +59,29 @@ export interface ActionTrackingMiddleware {
  *
  * @param target Root target model object.
  * @param hooks Middleware hooks.
- * @returns A disposer to cancel the middleware.
+ * @returns The actual middleware to passed to `addActionMiddleware`.
  */
-export function addActionTrackingMiddleware(
-  target: Model,
+export function actionTrackingMiddleware<M extends Model>(
+  target: {
+    model: M
+    actionName?: keyof M
+  },
   hooks: ActionTrackingMiddleware
-): ActionTrackingMiddlewareDisposer {
+): ActionMiddleware {
+  if (!isObject(target)) {
+    throw failure("target must be an object")
+  }
+
+  const { model, actionName } = target
+
+  if (!(model instanceof Model)) {
+    throw failure("target must be a model")
+  }
+
+  if (actionName && typeof model[actionName] !== "function") {
+    throw failure("action must be a function or undefined")
+  }
+
   const startAcceptedSymbol = Symbol("actionTrackingMiddlewareFilterAccepted")
 
   const userFilter: ActionMiddleware["filter"] = ctx => {
@@ -81,6 +93,10 @@ export function addActionTrackingMiddleware(
   }
 
   const filter: ActionMiddleware["filter"] = ctx => {
+    if (actionName && ctx.name !== actionName) {
+      return false
+    }
+
     if (ctx.type === ActionContextActionType.Sync) {
       // start and finish is on the same context
       const accepted = userFilter(ctx)
@@ -122,11 +138,11 @@ export function addActionTrackingMiddleware(
       try {
         ret = next()
       } catch (err) {
-        hooks.onFinish(simpleCtx, ActionTrackingMiddlewareResult.Throw, err)
+        hooks.onFinish(simpleCtx, ActionTrackingResult.Throw, err)
         throw err
       }
 
-      hooks.onFinish(simpleCtx, ActionTrackingMiddlewareResult.Return, ret)
+      hooks.onFinish(simpleCtx, ActionTrackingResult.Return, ret)
       return ret
     } else {
       // async
@@ -136,11 +152,11 @@ export function addActionTrackingMiddleware(
         return next()
       } else if (ctx.asyncStepType === ActionContextAsyncStepType.Return) {
         const ret = next()
-        hooks.onFinish(simpleCtx, ActionTrackingMiddlewareResult.Return, ret)
+        hooks.onFinish(simpleCtx, ActionTrackingResult.Return, ret)
         return ret
       } else if (ctx.asyncStepType === ActionContextAsyncStepType.Throw) {
         const ret = next()
-        hooks.onFinish(simpleCtx, ActionTrackingMiddlewareResult.Throw, ret)
+        hooks.onFinish(simpleCtx, ActionTrackingResult.Throw, ret)
         return ret
       } else {
         throw failure(
@@ -150,7 +166,7 @@ export function addActionTrackingMiddleware(
     }
   }
 
-  return addActionMiddleware({ middleware: mware, filter, target })
+  return { middleware: mware, filter, target: model }
 }
 
 /**

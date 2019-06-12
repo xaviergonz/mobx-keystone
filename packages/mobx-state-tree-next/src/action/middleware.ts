@@ -1,7 +1,7 @@
 import { action, isAction } from "mobx"
 import { Model } from "../model"
-import { isChildOfParent } from "../parent/path"
-import { failure, isObject } from "../utils"
+import { getParent, isChildOfParent } from "../parent/path"
+import { deleteFromArray, failure, isObject } from "../utils"
 import { ActionContext } from "./context"
 
 /**
@@ -9,10 +9,10 @@ import { ActionContext } from "./context"
  */
 export interface ActionMiddleware {
   /**
-   * Subtree (object and child objects) this middleware will run for, or undefined for any object.
-   * This target 'filter' will be run before the custom filter.
+   * Subtree (object and child objects) this middleware will run for.
+   * This target "filter" will be run before the custom filter.
    */
-  target?: Model
+  target: Model
 
   /**
    * A filter function to decide if an action middleware function should be run or not.
@@ -31,17 +31,37 @@ export interface ActionMiddleware {
  */
 export type ActionMiddlewareDisposer = () => void
 
-const actionMiddlewares: ActionMiddleware[] = []
+type PartialActionMiddleware = Pick<ActionMiddleware, "filter" | "middleware">
+const perModelActionMiddlewares = new WeakMap<Model, PartialActionMiddleware[]>()
 
 /**
  * @ignore
  *
- * Gets the current action middlewares.
+ * Gets the current action middlewares to be run over a given model.
  *
  * @returns
  */
-export function getActionMiddlewares() {
-  return actionMiddlewares
+export function getActionMiddlewares(model: Model): PartialActionMiddleware[] {
+  const mwares = []
+
+  // when we call a middleware we will call the middlewares of that model plus all parent models
+  // the parent model middlewares are run last
+
+  // since an array like [a, b, c] will be called like c(b(a())) this means that we need to put
+  // the parent model ones at the end of the array
+
+  let current: any = model
+  while (current) {
+    if (current instanceof Model) {
+      const modelMwares = perModelActionMiddlewares.get(current)
+      if (modelMwares) {
+        mwares.push(...modelMwares)
+      }
+    }
+    current = getParent(current)
+  }
+
+  return mwares
 }
 
 /**
@@ -50,7 +70,8 @@ export function getActionMiddlewares() {
  * or `actionTrackingMiddleware` for a simplified middleware.
  *
  * @param mware Action middleware to be run.
- * @returns
+ * @returns A disposer to cancel the middleware. Note that if you don't plan to do an early disposal of the middleware
+ * calling this function becomes optional.
  */
 export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDisposer {
   if (!isObject(mware)) {
@@ -59,6 +80,9 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   let { middleware, filter, target } = mware
 
+  if (!(target instanceof Model)) {
+    throw failure("middleware.target must be a model")
+  }
   if (typeof middleware !== "function") {
     throw failure("middleware.middleware must be a function")
   }
@@ -81,9 +105,17 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
     }
   }
 
-  actionMiddlewares.push({ middleware, filter })
+  const actualMware = { middleware, filter }
+
+  let modelMwares = perModelActionMiddlewares.get(target)!
+  if (!modelMwares) {
+    modelMwares = [actualMware]
+    perModelActionMiddlewares.set(target, modelMwares)
+  } else {
+    modelMwares.push(actualMware)
+  }
+
   return () => {
-    const index = actionMiddlewares.findIndex(m => m.middleware === middleware)
-    actionMiddlewares.splice(index, 1)
+    deleteFromArray(modelMwares, actualMware)
   }
 }
