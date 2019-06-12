@@ -1,12 +1,13 @@
 import { observable } from "mobx"
 import {
   ActionContext,
+  actionSerializerMiddleware,
+  addActionMiddleware,
   applySnapshot,
   getSnapshot,
   model,
   Model,
   modelAction,
-  onAction,
   SerializableActionCall,
 } from "../../src"
 import "../commonSetup"
@@ -58,10 +59,12 @@ test("onAction", () => {
     events.length = 0
   }
 
-  const disposer = onAction(p1, (serAct, ctx, next) => {
+  const serializer = actionSerializerMiddleware({ model: p1 }, (serAct, ctx, next) => {
     events.push([serAct, ctx])
     return next()
   })
+
+  const disposer = addActionMiddleware(serializer)
   autoDispose(disposer)
 
   // action on the root

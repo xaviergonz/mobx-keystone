@@ -1,6 +1,7 @@
 import {
-  ActionTrackingMiddlewareResult,
-  addActionTrackingMiddleware,
+  actionTrackingMiddleware,
+  ActionTrackingResult,
+  addActionMiddleware,
   FlowRet,
   getSnapshot,
   model,
@@ -74,12 +75,12 @@ export class P extends Model {
   }
 }
 
-test("addActionTrackingMiddleware - flow", async () => {
+test("actionTrackingMiddleware - flow", async () => {
   const p = new P()
 
   const events: {
     type: "filter" | "start" | "finish"
-    result?: ActionTrackingMiddlewareResult
+    result?: ActionTrackingResult
     value?: any
     context: SimpleActionContext
   }[] = []
@@ -87,29 +88,33 @@ test("addActionTrackingMiddleware - flow", async () => {
     events.length = 0
   }
 
-  const disposer = addActionTrackingMiddleware(p, {
-    filter(ctx) {
-      events.push({
-        type: "filter",
-        context: ctx,
-      })
-      return true
-    },
-    onStart(ctx) {
-      events.push({
-        type: "start",
-        context: ctx,
-      })
-    },
-    onFinish(ctx, result, value) {
-      events.push({
-        type: "finish",
-        result,
-        value,
-        context: ctx,
-      })
-    },
-  })
+  const actTracker = actionTrackingMiddleware(
+    { model: p },
+    {
+      filter(ctx) {
+        events.push({
+          type: "filter",
+          context: ctx,
+        })
+        return true
+      },
+      onStart(ctx) {
+        events.push({
+          type: "start",
+          context: ctx,
+        })
+      },
+      onFinish(ctx, result, value) {
+        events.push({
+          type: "finish",
+          result,
+          value,
+          context: ctx,
+        })
+      },
+    }
+  )
+  const disposer = addActionMiddleware(actTracker)
   autoDispose(disposer)
 
   reset()

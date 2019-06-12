@@ -4,9 +4,9 @@ import { applyPatches, applyPatchesName } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot"
 import { applySnapshotName } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
+import { SerializableActionCall } from "./actionSerializerMiddleware"
 import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./modelAction"
-import { SerializableActionCall } from "./onAction"
 
 export const applyActionName = "$$applyAction"
 

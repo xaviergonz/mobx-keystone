@@ -1,6 +1,7 @@
 import {
+  actionTrackingMiddleware,
   ActionTrackingMiddlewareResult,
-  addActionTrackingMiddleware,
+  addActionMiddleware,
   model,
   Model,
   modelAction,
@@ -51,7 +52,7 @@ export class P extends Model {
   }
 }
 
-test("addActionTrackingMiddleware - sync", () => {
+test("actionTrackingMiddleware - sync", () => {
   const p1 = new P()
   const p2 = new P()
 
@@ -65,29 +66,33 @@ test("addActionTrackingMiddleware - sync", () => {
     events.length = 0
   }
 
-  const disposer = addActionTrackingMiddleware(p1, {
-    filter(ctx) {
-      events.push({
-        type: "filter",
-        context: ctx,
-      })
-      return true
-    },
-    onStart(ctx) {
-      events.push({
-        type: "start",
-        context: ctx,
-      })
-    },
-    onFinish(ctx, result, value) {
-      events.push({
-        type: "finish",
-        result,
-        value,
-        context: ctx,
-      })
-    },
-  })
+  const actTracker = actionTrackingMiddleware(
+    { model: p1 },
+    {
+      filter(ctx) {
+        events.push({
+          type: "filter",
+          context: ctx,
+        })
+        return true
+      },
+      onStart(ctx) {
+        events.push({
+          type: "start",
+          context: ctx,
+        })
+      },
+      onFinish(ctx, result, value) {
+        events.push({
+          type: "finish",
+          result,
+          value,
+          context: ctx,
+        })
+      },
+    }
+  )
+  const disposer = addActionMiddleware(actTracker)
   autoDispose(disposer)
 
   // action on the root
