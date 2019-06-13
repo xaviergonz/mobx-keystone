@@ -4,7 +4,7 @@ import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
 import { ActionContextActionType } from "./context"
-import { SpecialAction } from "./SpecialAction"
+import { SpecialAction } from "./specialActions"
 import { wrapInAction } from "./wrapInAction"
 
 /**
