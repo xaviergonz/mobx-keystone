@@ -1,6 +1,6 @@
 import produce from "immer"
 import { action, createAtom, IAtom, untracked } from "mobx"
-import { getParentPath, ParentPath } from "../parent"
+import { getParentPath, ParentPath } from "../parent/path"
 import { PatchRecorder } from "../patch/emitPatch"
 import { debugFreeze, failure } from "../utils"
 

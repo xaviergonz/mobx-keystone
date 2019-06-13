@@ -18,7 +18,7 @@ export class P3 extends Model {
     z: 20,
   }
 
-  attachedToRootStore(rootStore: any) {
+  onAttachedToRootStore(rootStore: any) {
     expect(isRootStore(rootStore)).toBeTruthy()
     expect(getRootStoreEnv(this)).toBeTruthy()
     events.push("p3Attached")
@@ -39,7 +39,7 @@ export class P2 extends Model {
     p3: new P3(),
   }
 
-  attachedToRootStore(rootStore: any) {
+  onAttachedToRootStore(rootStore: any) {
     expect(isRootStore(rootStore)).toBeTruthy()
     expect(getRootStoreEnv(this)).toBeTruthy()
     events.push("p2Attached")
@@ -61,7 +61,7 @@ export class P extends Model {
     p2: undefined as P2 | undefined,
   }
 
-  attachedToRootStore(rootStore: any) {
+  onAttachedToRootStore(rootStore: any) {
     expect(isRootStore(rootStore)).toBeTruthy()
     expect(getRootStoreEnv(this)).toBeTruthy()
     events.push("p1Attached")

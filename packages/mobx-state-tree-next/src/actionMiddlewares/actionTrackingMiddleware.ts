@@ -1,7 +1,11 @@
-import { Model } from "../model"
+import {
+  ActionContext,
+  ActionContextActionType,
+  ActionContextAsyncStepType,
+} from "../action/context"
+import { ActionMiddleware } from "../action/middleware"
+import { Model } from "../model/Model"
 import { failure, isObject } from "../utils"
-import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { ActionMiddleware } from "./middleware"
 
 /**
  * Simplified version of action context.

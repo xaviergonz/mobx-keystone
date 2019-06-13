@@ -1,14 +1,13 @@
 import { isObservableObject } from "mobx"
 import { ActionContextActionType } from "../action/context"
-import { wrapInAction } from "../action/modelAction"
+import { SpecialAction } from "../action/SpecialAction"
+import { wrapInAction } from "../action/wrapInAction"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isArray, isModelSnapshot, isObject, isPlainObject } from "../utils"
 import { modelIdKey, typeofKey } from "./metadata"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
-
-export const applySnapshotName = "$$applySnapshot"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -80,7 +79,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
 }
 
 const wrappedInternalApplySnapshot = wrapInAction(
-  applySnapshotName,
+  SpecialAction.ApplySnapshot,
   internalApplySnapshot,
   ActionContextActionType.Sync
 )

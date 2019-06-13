@@ -1,13 +1,12 @@
 import { Patch } from "immer"
 import { ActionContextActionType } from "../action/context"
-import { wrapInAction } from "../action/modelAction"
+import { SpecialAction } from "../action/SpecialAction"
+import { wrapInAction } from "../action/wrapInAction"
 import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isArray } from "../utils"
-
-export const applyPatchesName = "$$applyPatches"
 
 /**
  * Applies the given patches to the given target object.
@@ -28,7 +27,7 @@ function internalApplyPatches(this: object, patches: Patch[]): void {
 }
 
 const wrappedInternalApplyPatches = wrapInAction(
-  applyPatchesName,
+  SpecialAction.ApplyPatches,
   internalApplyPatches,
   ActionContextActionType.Sync
 )

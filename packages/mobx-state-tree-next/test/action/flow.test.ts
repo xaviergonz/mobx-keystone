@@ -1,6 +1,6 @@
 import {
+  ActionCall,
   ActionContext,
-  actionSerializerMiddleware,
   addActionMiddleware,
   FlowRet,
   getSnapshot,
@@ -8,7 +8,7 @@ import {
   Model,
   modelAction,
   modelFlow,
-  SerializableActionCall,
+  onActionMiddleware,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../withDisposers"
@@ -79,22 +79,22 @@ test("flow", async () => {
   const p = new P()
 
   const events: {
-    serializableActionCall: SerializableActionCall
+    serializableActionCall: ActionCall
     actionContext: ActionContext
   }[] = []
   function reset() {
     events.length = 0
   }
 
-  const serializer = actionSerializerMiddleware({ model: p }, (serAct, ctx, next) => {
+  const recorder = onActionMiddleware({ model: p }, (actionCall, ctx, next) => {
     events.push({
-      serializableActionCall: serAct,
+      serializableActionCall: actionCall,
       actionContext: ctx,
     })
     let ret = next()
     return ret
   })
-  const disposer = addActionMiddleware(serializer)
+  const disposer = addActionMiddleware(recorder)
   autoDispose(disposer)
 
   reset()

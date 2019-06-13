@@ -1,14 +1,29 @@
 import { Model } from "../model/Model"
-import { resolvePath } from "../parent"
-import { applyPatches, applyPatchesName } from "../patch/applyPatches"
-import { applySnapshot } from "../snapshot"
-import { applySnapshotName } from "../snapshot/applySnapshot"
+import { resolvePath } from "../parent/path"
+import { applyPatches } from "../patch/applyPatches"
+import { applySnapshot } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
-import { SerializableActionCall } from "./actionSerializerMiddleware"
 import { ActionContextActionType } from "./context"
-import { wrapInAction } from "./modelAction"
+import { SpecialAction } from "./SpecialAction"
+import { wrapInAction } from "./wrapInAction"
 
-export const applyActionName = "$$applyAction"
+/**
+ * An action call.
+ */
+export interface ActionCall {
+  /**
+   * Action name (name of the function).
+   */
+  readonly name: string
+  /**
+   * Action arguments.
+   */
+  readonly args: readonly any[]
+  /**
+   * Path to the subobject where the action will be run, as an array of strings.
+   */
+  readonly path: readonly string[]
+}
 
 /**
  * Applies (runs) a serialized action over a target model object.
@@ -17,7 +32,7 @@ export const applyActionName = "$$applyAction"
  * @param call The serialized action, usually as coming from onAction.
  * @returns The return value of the action, if any.
  */
-export function applyAction<TRet = any>(rootTarget: Model, call: SerializableActionCall): TRet {
+export function applyAction<TRet = any>(rootTarget: Model, call: ActionCall): TRet {
   if (!(rootTarget instanceof Model)) {
     throw failure("applyAction target must be a model object")
   }
@@ -25,19 +40,25 @@ export function applyAction<TRet = any>(rootTarget: Model, call: SerializableAct
   return wrappedInternalApplyAction.call(rootTarget, call)
 }
 
-function internalApplyAction(this: Model, call: SerializableActionCall) {
+function internalApplyAction(this: Model, call: ActionCall) {
   // resolve path
   const current = resolvePath(this, call.path)
 
   switch (call.name) {
-    case applySnapshotName:
+    case SpecialAction.ApplySnapshot:
       return applySnapshot.apply(current, [current, ...call.args] as any)
 
-    case applyPatchesName:
+    case SpecialAction.ApplyPatches:
       return applyPatches.apply(current, [current, ...call.args] as any)
 
-    case applyActionName:
+    case SpecialAction.ApplyAction:
       return applyAction.apply(current, [current, ...call.args] as any)
+
+    case SpecialAction.OnAttachedToRootStore:
+      throw failure('calls to "onAttachedToRootStore" cannot be applied')
+
+    case SpecialAction.OnAttachedToRootStoreDisposer:
+      throw failure('calls to "onAttachedToRootStore" disposer cannot be applied')
 
     default:
       return current[call.name].apply(current, call.args)
@@ -45,7 +66,7 @@ function internalApplyAction(this: Model, call: SerializableActionCall) {
 }
 
 const wrappedInternalApplyAction = wrapInAction(
-  applyActionName,
+  SpecialAction.ApplyAction,
   internalApplyAction,
   ActionContextActionType.Sync
 )
