@@ -1,7 +1,9 @@
 # TODO
 
 - while ts output snapshot typings are ok, input snapshots still are not quite ok (they take a deep partial) for cases
-such as { x: 10 }, where it doesn't know if x has to be there for sure or not but will be present on the object for sure
+  such as { x: 10 }, where it doesn't know if x has to be there for sure or not but will be present on the object for sure
+
+- action recorder and patch recorder abstractions
 
 - action tracking middleware, how to pass data down, using the data obj of the context?
 
@@ -13,7 +15,7 @@ such as { x: 10 }, where it doesn't know if x has to be there for sure or not bu
 - something like frozen that allows us to opt out from the tweaker for some parts of the tree
 
 data = {
-  whatever: frozen(x) // array, object, anything serializable (freezed the object, adds it to some frozen objs weakset)
+whatever: frozen(x) // array, object, anything serializable (freezed the object, adds it to some frozen objs weakset)
 }
 
 - middlewares: redux mware, atomic, undo manager...

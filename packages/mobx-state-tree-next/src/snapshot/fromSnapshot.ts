@@ -1,5 +1,5 @@
 import { DeepPartial } from "ts-essentials"
-import { runUnprotected } from "../action"
+import { runUnprotected } from "../action/protection"
 import { createModelWithUuid, Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"

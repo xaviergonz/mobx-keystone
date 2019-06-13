@@ -1,5 +1,5 @@
 import { action, isAction } from "mobx"
-import { Model } from "../model"
+import { Model } from "../model/Model"
 import { getParent, isChildOfParent } from "../parent/path"
 import { deleteFromArray, failure, isObject } from "../utils"
 import { ActionContext } from "./context"

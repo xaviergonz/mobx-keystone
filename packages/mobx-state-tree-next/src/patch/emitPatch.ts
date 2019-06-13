@@ -1,7 +1,7 @@
 import { Patch } from "immer"
 import { action } from "mobx"
 import { Model } from "../model/Model"
-import { getParentPath } from "../parent"
+import { getParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { deleteFromArray } from "../utils"
 

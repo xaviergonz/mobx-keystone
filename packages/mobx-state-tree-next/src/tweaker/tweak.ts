@@ -18,7 +18,7 @@ import {
 import { getCurrentActionContext } from "../action/context"
 import { getActionProtection } from "../action/protection"
 import { getModelInfoForObject } from "../model/modelInfo"
-import { ParentPath } from "../parent"
+import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { PatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"

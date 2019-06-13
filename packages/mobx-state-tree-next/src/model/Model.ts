@@ -64,7 +64,7 @@ export abstract class Model {
    * @param rootStore
    * @returns
    */
-  attachedToRootStore?(rootStore: Model): (() => void) | void
+  onAttachedToRootStore?(rootStore: Model): (() => void) | void
 
   /**
    * Optional transformation that will be run when converting from a snapshot to the data part of the model.

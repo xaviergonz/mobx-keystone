@@ -2,7 +2,7 @@ import { Writable } from "ts-essentials"
 import { Model } from "../model/Model"
 import { addHiddenProp, failure } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { wrapInAction } from "./modelAction"
+import { wrapInAction } from "./wrapInAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
 

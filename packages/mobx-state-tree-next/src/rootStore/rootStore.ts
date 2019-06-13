@@ -15,7 +15,7 @@ const rootStores = new WeakMap<
 /**
  * Registers a model object as a root store tree.
  * Marking a model object as a root store tree serves several purposes:
- * - It allows the `attachedToRootStore` hook (plus disposer) to be invoked on models once they become part of this tree.
+ * - It allows the `onAttachedToRootStore` hook (plus disposer) to be invoked on models once they become part of this tree.
  *   These hooks can be used for example to attach effects and serve as some sort of initialization.
  * - It gives nodes part of this tree access to a shared environment object.
  * - It allows auto detachable references to work properly.
@@ -69,18 +69,15 @@ export const registerRootStore = action(
  *
  * @param model Model object.
  */
-export const unregisterRootStore = action(
-  "unregisterRootStore",
-  (model: Model): void => {
-    if (!isRootStore(model)) {
-      throw failure("not a root store")
-    }
-
-    rootStores.delete(model)
-
-    detachFromRootStore(model)
+export const unregisterRootStore = action("unregisterRootStore", (model: Model): void => {
+  if (!isRootStore(model)) {
+    throw failure("not a root store")
   }
-)
+
+  rootStores.delete(model)
+
+  detachFromRootStore(model)
+})
 
 /**
  * Checks if a given model object is marked as a root store.

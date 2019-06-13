@@ -1,6 +1,7 @@
 import { computed, when } from "mobx"
 import { Writable } from "ts-essentials"
-import { model, Model } from "../model"
+import { Model } from "../model/Model"
+import { model } from "../model/modelDecorator"
 import { getRootIdCache } from "../parent/core"
 import { detach } from "../parent/detach"
 import { getRoot } from "../parent/path"
@@ -67,7 +68,7 @@ export class Ref<T extends Model> extends Model {
     return current
   }
 
-  attachedToRootStore() {
+  onAttachedToRootStore() {
     if (!this.data.autoDetach) {
       return undefined
     }
