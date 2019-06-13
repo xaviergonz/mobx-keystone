@@ -1,6 +1,6 @@
 import { isObservableObject } from "mobx"
 import { ActionContextActionType } from "../action/context"
-import { SpecialAction } from "../action/SpecialAction"
+import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"

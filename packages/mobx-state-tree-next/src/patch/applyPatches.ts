@@ -1,6 +1,6 @@
 import { Patch } from "immer"
 import { ActionContextActionType } from "../action/context"
-import { SpecialAction } from "../action/SpecialAction"
+import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
 import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"

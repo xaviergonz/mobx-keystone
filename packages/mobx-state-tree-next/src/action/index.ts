@@ -9,4 +9,4 @@ export { ActionMiddleware, ActionMiddlewareDisposer, addActionMiddleware } from 
 export { isModelAction, modelAction } from "./modelAction"
 export { FlowRet, isModelFlow, modelFlow } from "./modelFlow"
 export { runUnprotected } from "./protection"
-export { SpecialAction } from "./SpecialAction"
+export { isSpecialAction, SpecialAction } from "./specialActions"
