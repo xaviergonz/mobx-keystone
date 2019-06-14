@@ -1,0 +1,1180 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`actionTrackingMiddleware - sync 2`] = `
+Array [
+  Object {
+    "context": Object {
+      "args": Array [
+        1,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 0,
+            },
+          },
+          "x": 1,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        1,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 0,
+            },
+          },
+          "x": 1,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        1,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 0,
+            },
+          },
+          "x": 1,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        1,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 0,
+            },
+          },
+          "x": 1,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        1,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 0,
+            },
+          },
+          "x": 1,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": 1,
+  },
+]
+`;
+
+exports[`actionTrackingMiddleware - sync 4`] = `
+Array [
+  Object {
+    "context": Object {
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": undefined,
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": undefined,
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": undefined,
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": undefined,
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": undefined,
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": 2,
+  },
+]
+`;
+
+exports[`actionTrackingMiddleware - sync 6`] = `
+Array [
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addXY",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addXY",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addXY",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addX",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": 4,
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 6,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 6,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 6,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 6,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addY",
+      "parentContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "target": P {
+          "$$id": "mockedUuid-1",
+          "$$typeof": "P",
+          "data": Object {
+            "p2": P2 {
+              "$$id": "mockedUuid-2",
+              "$$typeof": "P2",
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "target": P2 {
+        "$$id": "mockedUuid-2",
+        "$$typeof": "P2",
+        "data": Object {
+          "y": 6,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": 6,
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addXY",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "addXY",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": 7,
+  },
+]
+`;
+
+exports[`actionTrackingMiddleware - sync 8`] = `
+Array [
+  Object {
+    "context": Object {
+      "args": Array [
+        "some error",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "throw",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        "some error",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "throw",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        "some error",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "throw",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        "some error",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "throw",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "args": Array [
+        "some error",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "name": "throw",
+      "parentContext": undefined,
+      "target": P {
+        "$$id": "mockedUuid-1",
+        "$$typeof": "P",
+        "data": Object {
+          "p2": P2 {
+            "$$id": "mockedUuid-2",
+            "$$typeof": "P2",
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "throw",
+    "type": "finish",
+    "value": [Error: some error],
+  },
+]
+`;
+
+exports[`actionTrackingMiddleware - sync 10`] = `Array []`;

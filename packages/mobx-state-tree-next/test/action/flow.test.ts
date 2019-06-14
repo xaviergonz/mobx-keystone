@@ -78,18 +78,20 @@ export class P extends Model {
 test("flow", async () => {
   const p = new P()
 
-  const events: {
-    serializableActionCall: ActionCall
-    actionContext: ActionContext
-  }[] = []
+  interface Event {
+    actionCall: ActionCall
+    context: ActionContext
+  }
+
+  const events: Event[] = []
   function reset() {
     events.length = 0
   }
 
-  const recorder = onActionMiddleware({ model: p }, (actionCall, ctx, next) => {
+  const recorder = onActionMiddleware({ model: p }, (actionCall, context, next) => {
     events.push({
-      serializableActionCall: actionCall,
-      actionContext: ctx,
+      actionCall,
+      context,
     })
     let ret = next()
     return ret
@@ -106,7 +108,14 @@ test("flow", async () => {
   expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
-        "actionContext": Object {
+        "actionCall": Object {
+          "args": Array [
+            2,
+          ],
+          "name": "addX",
+          "path": Array [],
+        },
+        "context": Object {
           "args": Array [
             2,
           ],
@@ -131,13 +140,6 @@ test("flow", async () => {
           },
           "type": "async",
         },
-        "serializableActionCall": Object {
-          "args": Array [
-            2,
-          ],
-          "name": "addX",
-          "path": Array [],
-        },
       },
     ]
   `)
@@ -151,7 +153,15 @@ test("flow", async () => {
   expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
-        "actionContext": Object {
+        "actionCall": Object {
+          "args": Array [
+            4,
+            4,
+          ],
+          "name": "addXY",
+          "path": Array [],
+        },
+        "context": Object {
           "args": Array [
             4,
             4,
@@ -177,14 +187,6 @@ test("flow", async () => {
           },
           "type": "async",
         },
-        "serializableActionCall": Object {
-          "args": Array [
-            4,
-            4,
-          ],
-          "name": "addXY",
-          "path": Array [],
-        },
       },
     ]
   `)
@@ -203,7 +205,14 @@ test("flow", async () => {
   expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
-        "actionContext": Object {
+        "actionCall": Object {
+          "args": Array [
+            10,
+          ],
+          "name": "throwFlow",
+          "path": Array [],
+        },
+        "context": Object {
           "args": Array [
             10,
           ],
@@ -227,13 +236,6 @@ test("flow", async () => {
             },
           },
           "type": "async",
-        },
-        "serializableActionCall": Object {
-          "args": Array [
-            10,
-          ],
-          "name": "throwFlow",
-          "path": Array [],
         },
       },
     ]
