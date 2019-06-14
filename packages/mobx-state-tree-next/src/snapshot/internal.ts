@@ -2,7 +2,7 @@ import produce from "immer"
 import { action, createAtom, IAtom, untracked } from "mobx"
 import { getParentPath, ParentPath } from "../parent/path"
 import { PatchRecorder } from "../patch/emitPatch"
-import { debugFreeze, failure } from "../utils"
+import { debugFreeze, failure, inDevMode } from "../utils"
 
 interface SnapshotData<T extends object> {
   standard: T
@@ -52,7 +52,7 @@ export const setInternalSnapshot = action(
 
     // do not actually update if not needed
     if (oldSn && oldSn.standard === standard) {
-      if (process.env.NODE_ENV !== "production") {
+      if (inDevMode()) {
         if (
           patchRecorder &&
           (patchRecorder.patches.length > 0 || patchRecorder.invPatches.length > 0)

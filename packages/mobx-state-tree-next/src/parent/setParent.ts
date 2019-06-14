@@ -3,7 +3,7 @@ import { Model } from "../model/Model"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
-import { failure, isObject } from "../utils"
+import { failure, inDevMode, isObject } from "../utils"
 import {
   getRootIdCache,
   objectChildren,
@@ -20,7 +20,7 @@ export const setParent = action(
       return
     }
 
-    if (process.env.NODE_ENV !== "production") {
+    if (inDevMode()) {
       if (!isTweakedObject(value)) {
         throw failure(`assertion failed: value is not ready to take a parent`)
       }

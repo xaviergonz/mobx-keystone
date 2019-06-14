@@ -6,7 +6,7 @@ import { Model } from "../model/Model"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, isArray } from "../utils"
+import { failure, inDevMode, isArray } from "../utils"
 
 /**
  * Applies the given patches to the given target object.
@@ -90,7 +90,7 @@ function pathArrayToObjectAndProp(
   obj: object,
   path: Patch["path"]
 ): { target: any; prop?: string } {
-  if (process.env.NODE_ENV !== "production") {
+  if (inDevMode()) {
     if (!Array.isArray(path)) {
       throw failure(`invalid path: ${path}`)
     }

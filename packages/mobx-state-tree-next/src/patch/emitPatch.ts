@@ -1,9 +1,9 @@
 import { Patch } from "immer"
-import { action } from "mobx"
+import { action, isAction } from "mobx"
 import { Model } from "../model/Model"
 import { getParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
-import { deleteFromArray } from "../utils"
+import { deleteFromArray, failure } from "../utils"
 
 export class PatchRecorder {
   patches!: Patch[]
@@ -13,13 +13,11 @@ export class PatchRecorder {
     this.record = this.record.bind(this)
   }
 
-  @action
   record(patches: Patch[], invPatches: Patch[]) {
     this.patches = patches
     this.invPatches = invPatches
   }
 
-  @action
   emit(obj: object) {
     emitPatch(obj, this.patches, this.invPatches)
   }
@@ -37,16 +35,28 @@ export type OnPatchesListenerDisposer = () => void
 
 const patchListeners = new WeakMap<object, OnPatchesListener[]>()
 
-export function addPatchListener(
-  obj: object,
-  listener: OnPatchesListener
-): OnPatchesListenerDisposer {
-  assertTweakedObject(obj, "addPatchListener")
+/**
+ * Adds a listener that will be called every time a patch is generated for the tree of the given target object.
+ *
+ * @param target Root object of the patch listener.
+ * @param listener The listener function that will be called everytime a patch is generated for the object or its children.
+ * @returns A disposer to stop listening to patches.
+ */
+export function onPatches(target: object, listener: OnPatchesListener): OnPatchesListenerDisposer {
+  assertTweakedObject(target, "onPatches")
 
-  let listenersForObject = patchListeners.get(obj)
+  if (typeof listener !== "function") {
+    throw failure("listener must be a function")
+  }
+
+  let listenersForObject = patchListeners.get(target)
   if (!listenersForObject) {
     listenersForObject = []
-    patchListeners.set(obj, listenersForObject)
+    patchListeners.set(target, listenersForObject)
+  }
+
+  if (!isAction(listener)) {
+    listener = action(listener.name || "onPatchesListener", listener)
   }
 
   listenersForObject.push(listener)

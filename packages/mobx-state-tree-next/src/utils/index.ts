@@ -55,7 +55,7 @@ export function isObject(value: any): value is Object {
 }
 
 export function debugFreeze(value: object) {
-  if (process.env.NODE_ENV !== "production") {
+  if (inDevMode()) {
     Object.freeze(value)
   }
 }
@@ -83,4 +83,8 @@ export function isSet(val: any): val is Set<any> | ObservableSet {
 
 export function isArray(val: any): val is any[] | IObservableArray {
   return Array.isArray(val) || isObservableArray(val)
+}
+
+export function inDevMode(): boolean {
+  return process.env.NODE_ENV !== "production"
 }

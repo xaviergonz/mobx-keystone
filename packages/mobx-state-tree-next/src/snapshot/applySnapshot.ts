@@ -4,7 +4,7 @@ import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, isArray, isModelSnapshot, isObject, isPlainObject } from "../utils"
+import { failure, inDevMode, isArray, isModelSnapshot, isObject, isPlainObject } from "../utils"
 import { modelIdKey, typeofKey } from "./metadata"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
@@ -32,9 +32,9 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   const reconcile = () => {
     const ret = reconcileSnapshot(obj, sn)
 
-    if (process.env.NODE_ENV !== "production") {
+    if (inDevMode()) {
       if (ret !== obj) {
-        throw failure("assertion error: reconciled object have been the same")
+        throw failure("assertion error: reconciled object has to be the same")
       }
     }
   }

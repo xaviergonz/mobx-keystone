@@ -1,6 +1,7 @@
 import { action, isAction } from "mobx"
 import { Writable } from "ts-essentials"
 import { assertTweakedObject } from "../tweaker/core"
+import { inDevMode } from "../utils"
 import {
   ActionContext,
   ActionContextActionType,
@@ -22,7 +23,7 @@ export function wrapInAction<T extends Function>(
   }
 
   function wrappedAction(this: any) {
-    if (process.env.NODE_ENV !== "production") {
+    if (inDevMode()) {
       assertTweakedObject(this, "wrappedAction")
     }
 
