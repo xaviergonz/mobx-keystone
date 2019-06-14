@@ -4,7 +4,7 @@ import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { Ref } from "../ref/Ref"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
-import { modelIdKey, typeofKey } from "./metadata"
+import { isInternalKey, ModelMetadata, modelMetadataKey } from "./metadata"
 import { SnapshotInOf } from "./SnapshotOf"
 
 interface FixSnapshotIdsContext {
@@ -60,11 +60,12 @@ function fixArraySnapshotIds(sn: any[], ctx: FixSnapshotIdsContext): any[] {
 }
 
 function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): Model {
-  const type = sn[typeofKey]
-  const id = sn[modelIdKey]
+  const { type, id } = sn[modelMetadataKey] as ModelMetadata
 
   if (!id) {
-    throw failure(`a model a snapshot must contain an id (${modelIdKey}) key, but none was found`)
+    throw failure(
+      `a model a snapshot must contain an id (${modelMetadataKey}.id) key, but none was found`
+    )
   }
 
   const modelInfo = getModelInfoForName(type)
@@ -75,11 +76,17 @@ function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): Model {
   const newId = uuidV4()
   ctx.idMap.set(id, newId)
 
-  const modelSn: any = {}
-  for (const [k, v] of Object.entries(sn)) {
-    modelSn[k] = internalFixSnapshotIds(v, ctx)
+  const modelSn: any = {
+    [modelMetadataKey]: {
+      id: newId,
+      type,
+    },
   }
-  modelSn[modelIdKey] = newId
+  for (const [k, v] of Object.entries(sn)) {
+    if (!isInternalKey(k)) {
+      modelSn[k] = internalFixSnapshotIds(v, ctx)
+    }
+  }
 
   if (modelInfo.class === Ref) {
     ctx.refs.push(modelSn)

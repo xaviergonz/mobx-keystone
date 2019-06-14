@@ -3,7 +3,7 @@ import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
 import { fromSnapshot } from "./fromSnapshot"
-import { isInternalKey, modelIdKey, typeofKey } from "./metadata"
+import { isInternalKey, ModelMetadata, modelMetadataKey } from "./metadata"
 
 export function reconcileSnapshot(value: any, sn: any): any {
   if (!isObject(sn)) {
@@ -58,19 +58,14 @@ function reconcileArraySnapshot(value: any, sn: any[]): any[] {
 }
 
 function reconcileModelSnapshot(value: any, sn: any): Model {
-  const type = sn[typeofKey]
-  const id = sn[modelIdKey]
+  const { type, id } = sn[modelMetadataKey] as ModelMetadata
 
   const modelInfo = getModelInfoForName(type)
   if (!modelInfo) {
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  if (
-    !(value instanceof modelInfo.class) ||
-    value[typeofKey] !== type ||
-    value[modelIdKey] !== id
-  ) {
+  if (!(value instanceof modelInfo.class) || value.modelType !== type || value.modelId !== id) {
     // different kind of model / model instance, no reconciliation possible
     return fromSnapshot(sn)
   }

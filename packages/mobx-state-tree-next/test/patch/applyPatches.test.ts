@@ -1,4 +1,4 @@
-import { applyPatches, getSnapshot, modelIdKey, runUnprotected } from "../../src"
+import { applyPatches, getSnapshot, modelMetadataKey, runUnprotected } from "../../src"
 import "../commonSetup"
 import { createP } from "../testbed"
 
@@ -135,12 +135,20 @@ describe("whole object", () => {
 
   test("replace (different id)", () => {
     const oldP2 = p.data.p2!
+    const oldP2Snapshot = getSnapshot(oldP2)
     runUnprotected(() => {
       applyPatches(p, [
         {
           op: "replace",
           path: ["p2"],
-          value: { ...getSnapshot(oldP2), y: 30, [modelIdKey]: "someOtherId" },
+          value: {
+            ...oldP2Snapshot,
+            y: 30,
+            [modelMetadataKey]: {
+              ...oldP2Snapshot[modelMetadataKey],
+              id: "someOtherId",
+            },
+          },
         },
       ])
     })

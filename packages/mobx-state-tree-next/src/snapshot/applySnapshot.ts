@@ -5,7 +5,7 @@ import { wrapInAction } from "../action/wrapInAction"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isArray, isModelSnapshot, isObject, isPlainObject } from "../utils"
-import { modelIdKey, typeofKey } from "./metadata"
+import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
 
@@ -49,15 +49,14 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
 
   if (isModelSnapshot(sn)) {
     // a model
-    const type = (sn as any)[typeofKey]
-    const id = (sn as any)[modelIdKey]
+    const { type, id } = (sn as any)[modelMetadataKey] as ModelMetadata
 
     const modelInfo = getModelInfoForName(type)
     if (!modelInfo) {
       throw failure(`model with name "${type}" not found in the registry`)
     }
 
-    if (!(obj instanceof modelInfo.class) || obj[typeofKey] !== type || obj[modelIdKey] !== id) {
+    if (!(obj instanceof modelInfo.class) || obj.modelType !== type || obj.modelId !== id) {
       // different kind of model, no reconciliation possible
       throw failure("snapshot model type does not match target model type")
     }

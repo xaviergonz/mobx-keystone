@@ -1,24 +1,30 @@
 import { isObservable } from "mobx"
-import { fromSnapshot, modelIdKey, typeofKey } from "../../src"
+import { fromSnapshot, modelMetadataKey } from "../../src"
 import "../commonSetup"
 import { P, P2 } from "../testbed"
 
 test("fromSnapshot", () => {
   const p = fromSnapshot<P>({
-    [typeofKey]: "P",
-    [modelIdKey]: "P-id",
+    [modelMetadataKey]: {
+      type: "P",
+      id: "P-id",
+    },
     arr: [1, 2, 3],
     p2: {
-      [typeofKey]: "P2",
-      [modelIdKey]: "P2-id",
+      [modelMetadataKey]: {
+        type: "P2",
+        id: "P2-id",
+      },
       y: 12,
     },
   })
 
   expect(p).toMatchInlineSnapshot(`
     P {
-      "$$id": "P-id",
-      "$$typeof": "P",
+      "$$metadata": Object {
+        "id": "P-id",
+        "type": "P",
+      },
       "IAMPRIVATE": -2,
       "IAMPROTECTED": 2,
       "IAMPUBLIC": 5,
@@ -30,8 +36,10 @@ test("fromSnapshot", () => {
           3,
         ],
         "p2": P2 {
-          "$$id": "P2-id",
-          "$$typeof": "P2",
+          "$$metadata": Object {
+            "id": "P2-id",
+            "type": "P2",
+          },
           "data": Object {
             "y": 12,
           },
