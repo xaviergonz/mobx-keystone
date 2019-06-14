@@ -51,15 +51,17 @@ export enum ActionTrackingResult {
 export interface ActionTrackingMiddleware {
   filter?(ctx: SimpleActionContext): boolean
   onStart(ctx: SimpleActionContext): void
+  onResume?(ctx: SimpleActionContext): void
+  onSuspend?(ctx: SimpleActionContext): void
   onFinish(ctx: SimpleActionContext, result: ActionTrackingResult, value: any): void
 }
 
 /**
  * Creates an action tracking middleware, which is a simplified version
  * of the standard action middleware.
- * Note that filtering is only called for the start of the actions. If the
- * action is accepted then both onStart and onFinish for that particular action will
- * be called.
+ * Note that `filter` is only called for the start of the actions. If the
+ * action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish`
+ * for that particular action will be called.
  *
  * @param target Root target model object.
  * @param hooks Middleware hooks.
@@ -86,7 +88,22 @@ export function actionTrackingMiddleware<M extends Model>(
     throw failure("action must be a function or undefined")
   }
 
-  const startAcceptedSymbol = Symbol("actionTrackingMiddlewareFilterAccepted")
+  const dataSymbol = Symbol("actionTrackingMiddlewareData")
+  interface Data {
+    startAccepted: boolean
+    state: "idle" | "started" | "realResumed" | "fakeResumed" | "suspended" | "finished"
+  }
+  function getCtxData(ctx: ActionContext | SimpleActionContext): Data | undefined {
+    return ctx.data[dataSymbol]
+  }
+  function setCtxData(ctx: ActionContext | SimpleActionContext, partialData: Partial<Data>) {
+    let currentData = ctx.data[dataSymbol]
+    if (!currentData) {
+      ctx.data[dataSymbol] = partialData
+    } else {
+      Object.assign(currentData, partialData)
+    }
+  }
 
   const userFilter: ActionMiddleware["filter"] = ctx => {
     if (hooks.filter) {
@@ -95,6 +112,8 @@ export function actionTrackingMiddleware<M extends Model>(
 
     return true
   }
+
+  const resumeSuspendSupport = !!hooks.onResume || !!hooks.onSuspend
 
   const filter: ActionMiddleware["filter"] = ctx => {
     if (actionName && ctx.name !== actionName) {
@@ -105,7 +124,10 @@ export function actionTrackingMiddleware<M extends Model>(
       // start and finish is on the same context
       const accepted = userFilter(ctx)
       if (accepted) {
-        ctx.data[startAcceptedSymbol] = true
+        setCtxData(ctx, {
+          startAccepted: true,
+          state: "idle",
+        })
       }
       return accepted
     } else {
@@ -113,7 +135,10 @@ export function actionTrackingMiddleware<M extends Model>(
         case ActionContextAsyncStepType.Spawn:
           const accepted = userFilter(ctx)
           if (accepted) {
-            ctx.data[startAcceptedSymbol] = true
+            setCtxData(ctx, {
+              startAccepted: true,
+              state: "idle",
+            })
           }
           return accepted
 
@@ -124,7 +149,12 @@ export function actionTrackingMiddleware<M extends Model>(
           while (previousCtx.previousAsyncStepContext) {
             previousCtx = previousCtx.previousAsyncStepContext!
           }
-          return !!previousCtx.data[startAcceptedSymbol]
+          const data = getCtxData(previousCtx)
+          return data ? data.startAccepted : false
+
+        case ActionContextAsyncStepType.Resume:
+        case ActionContextAsyncStepType.ResumeError:
+          return resumeSuspendSupport
 
         default:
           return false
@@ -132,40 +162,132 @@ export function actionTrackingMiddleware<M extends Model>(
     }
   }
 
+  const start = (simpleCtx: SimpleActionContext) => {
+    setCtxData(simpleCtx, {
+      state: "started",
+    })
+    hooks.onStart(simpleCtx)
+  }
+
+  const finish = (simpleCtx: SimpleActionContext, result: ActionTrackingResult, value: any) => {
+    // fakely resume and suspend the parent if needed
+    const parentCtx = simpleCtx.parentContext
+    let parentResumed = false
+    if (parentCtx) {
+      const parentData = getCtxData(parentCtx)
+      if (parentData && parentData.startAccepted && parentData.state === "suspended") {
+        parentResumed = true
+        resume(parentCtx, false)
+      }
+    }
+
+    setCtxData(simpleCtx, {
+      state: "finished",
+    })
+    hooks.onFinish(simpleCtx, result, value)
+
+    if (parentResumed) {
+      suspend(parentCtx!)
+    }
+  }
+
+  const resume = (simpleCtx: SimpleActionContext, real: boolean) => {
+    // ensure parents are resumed
+    const parentCtx = simpleCtx.parentContext
+    if (parentCtx) {
+      const parentData = getCtxData(parentCtx)
+      if (parentData && parentData.startAccepted && parentData.state === "suspended") {
+        resume(parentCtx, false)
+      }
+    }
+
+    setCtxData(simpleCtx, {
+      state: real ? "realResumed" : "fakeResumed",
+    })
+    if (hooks.onResume) {
+      hooks.onResume(simpleCtx)
+    }
+  }
+
+  const suspend = (simpleCtx: SimpleActionContext) => {
+    setCtxData(simpleCtx, {
+      state: "suspended",
+    })
+    if (hooks.onSuspend) {
+      hooks.onSuspend(simpleCtx)
+    }
+
+    // ensure parents are suspended if they were fakely resumed
+    const parentCtx = simpleCtx.parentContext
+    if (parentCtx) {
+      const parentData = getCtxData(parentCtx)
+      if (parentData && parentData.startAccepted && parentData.state === "fakeResumed") {
+        suspend(parentCtx)
+      }
+    }
+  }
+
   const mware: ActionMiddleware["middleware"] = (ctx, next) => {
     const simpleCtx = simplifyActionContext(ctx)
 
+    const origNext = next
+    next = () => {
+      resume(simpleCtx, true)
+      try {
+        return origNext()
+      } finally {
+        suspend(simpleCtx)
+      }
+    }
+
     if (ctx.type === ActionContextActionType.Sync) {
-      hooks.onStart(simpleCtx)
+      start(simpleCtx)
 
       let ret
       try {
         ret = next()
       } catch (err) {
-        hooks.onFinish(simpleCtx, ActionTrackingResult.Throw, err)
+        finish(simpleCtx, ActionTrackingResult.Throw, err)
         throw err
       }
 
-      hooks.onFinish(simpleCtx, ActionTrackingResult.Return, ret)
+      finish(simpleCtx, ActionTrackingResult.Return, ret)
       return ret
     } else {
       // async
 
-      if (ctx.asyncStepType === ActionContextAsyncStepType.Spawn) {
-        hooks.onStart(simpleCtx)
-        return next()
-      } else if (ctx.asyncStepType === ActionContextAsyncStepType.Return) {
-        const ret = next()
-        hooks.onFinish(simpleCtx, ActionTrackingResult.Return, ret)
-        return ret
-      } else if (ctx.asyncStepType === ActionContextAsyncStepType.Throw) {
-        const ret = next()
-        hooks.onFinish(simpleCtx, ActionTrackingResult.Throw, ret)
-        return ret
-      } else {
-        throw failure(
-          `asssertion error: async step should have been filtered out - ${ctx.asyncStepType}`
-        )
+      switch (ctx.asyncStepType) {
+        case ActionContextAsyncStepType.Spawn: {
+          start(simpleCtx)
+          return next()
+        }
+
+        case ActionContextAsyncStepType.Return: {
+          const ret = next()
+          finish(simpleCtx, ActionTrackingResult.Return, ret)
+          return ret
+        }
+
+        case ActionContextAsyncStepType.Throw: {
+          const ret = next()
+          finish(simpleCtx, ActionTrackingResult.Throw, ret)
+          return ret
+        }
+
+        case ActionContextAsyncStepType.Resume:
+        case ActionContextAsyncStepType.ResumeError:
+          if (resumeSuspendSupport) {
+            return next()
+          } else {
+            throw failure(
+              `asssertion error: async step should have been filtered out - ${ctx.asyncStepType}`
+            )
+          }
+
+        default:
+          throw failure(
+            `asssertion error: async step should have been filtered out - ${ctx.asyncStepType}`
+          )
       }
     }
   }
