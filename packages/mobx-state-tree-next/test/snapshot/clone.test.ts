@@ -1,4 +1,4 @@
-import { clone, getRootPath, getSnapshot, modelIdKey, ref, runUnprotected } from "../../src"
+import { clone, getRootPath, getSnapshot, modelMetadataKey, ref, runUnprotected } from "../../src"
 import "../commonSetup"
 import { createP } from "../testbed"
 
@@ -32,12 +32,12 @@ test("clone with different ids", () => {
 
   // clone should generate different ids for models
   expect(p.modelId).not.toBe(cloneP.modelId)
-  expect(origSn[modelIdKey]).toBe(p.modelId)
-  expect(cloneSn[modelIdKey]).toBe(cloneP.modelId)
+  expect(origSn[modelMetadataKey].id).toBe(p.modelId)
+  expect(cloneSn[modelMetadataKey].id).toBe(cloneP.modelId)
 
   expect(p.data.p2!.modelId).not.toBe(cloneP.data.p2!.modelId)
-  expect(origSn.p2![modelIdKey]).toBe(p.data.p2!.modelId)
-  expect(cloneSn.p2![modelIdKey]).toBe(cloneP.data.p2!.modelId)
+  expect(origSn.p2![modelMetadataKey].id).toBe(p.data.p2!.modelId)
+  expect(cloneSn.p2![modelMetadataKey].id).toBe(cloneP.data.p2!.modelId)
 
   // ref ids should be auto fixed
   expect((p.data as any).p2r.id).toBe(p.data.p2!.modelId)

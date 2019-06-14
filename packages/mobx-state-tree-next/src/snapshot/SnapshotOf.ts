@@ -8,8 +8,7 @@ export interface SnapshotOutOfReadonlyArray<T> extends ReadonlyArray<SnapshotOut
 export type SnapshotOutOfObject<T extends object> = { [k in keyof T]: SnapshotOutOf<T[k]> }
 
 export type SnapshotOutOfModel<M extends Model> = SnapshotInOfObject<M["data"]> & {
-  $$typeof: M["$$typeof"]
-  $$id: M["$$id"]
+  $$metadata: M["$$metadata"]
 }
 
 export type SnapshotOutOf<T> = T extends Array<infer U>
@@ -32,8 +31,7 @@ export type SnapshotInOfObject<T extends object> = { [k in keyof T]: SnapshotInO
 export type SnapshotInOfModel<M extends Model> = SnapshotOutOfObject<
   M extends { fromSnapshot(sn: infer S): any } ? S : M["data"]
 > & {
-  $$typeof: M["$$typeof"]
-  $$id: M["$$id"]
+  $$metadata: M["$$metadata"]
 }
 
 export type SnapshotInOf<T> = T extends Array<infer U>

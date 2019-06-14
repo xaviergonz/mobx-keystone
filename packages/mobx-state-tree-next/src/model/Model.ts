@@ -7,7 +7,7 @@ import {
   setInternalSnapshot,
   unlinkInternalSnapshot,
 } from "../snapshot/internal"
-import { modelIdKey, typeofKey } from "../snapshot/metadata"
+import { ModelMetadata, modelMetadataKey } from "../snapshot/metadata"
 import { tweak } from "../tweaker/tweak"
 import { modelInfoByClass } from "./modelInfo"
 
@@ -33,16 +33,20 @@ export function createModelWithUuid<T extends Model>(modelClass: new () => T, uu
  * Base abtract class for models.
  */
 export abstract class Model {
-  readonly [typeofKey]: string;
-  readonly [modelIdKey]: string
+  readonly [modelMetadataKey]: Readonly<ModelMetadata>
 
   /**
    * Gets the unique model ID of this model instance.
-   *
-   * @readonly
    */
   get modelId() {
-    return this[modelIdKey]
+    return this[modelMetadataKey].id
+  }
+
+  /**
+   * Gets the unique model type name.
+   */
+  get modelType() {
+    return this[modelMetadataKey].type
   }
 
   /**
@@ -77,12 +81,16 @@ export abstract class Model {
 
   constructor() {
     const modelInfo = modelInfoByClass.get(this.constructor)!
-    this[typeofKey] = modelInfo.name
+    let id
     if (modelInitData) {
-      this[modelIdKey] = modelInitData.uuid
+      id = modelInitData.uuid
       modelInitData = undefined
     } else {
-      this[modelIdKey] = uuidV4()
+      id = uuidV4()
+    }
+    this[modelMetadataKey] = {
+      type: modelInfo.name,
+      id,
     }
 
     tweak(this, undefined)
@@ -109,8 +117,7 @@ export abstract class Model {
               const standard = produce(
                 oldSn.standard,
                 (draftStandard: any) => {
-                  delete draftStandard[typeofKey]
-                  delete draftStandard[modelIdKey]
+                  delete draftStandard[modelMetadataKey]
                 },
                 patchRecorder.record
               )
@@ -128,8 +135,7 @@ export abstract class Model {
               const standard = produce(
                 newSn.standard,
                 (draftStandard: any) => {
-                  draftStandard[typeofKey] = this[typeofKey]
-                  draftStandard[modelIdKey] = this[modelIdKey]
+                  draftStandard[modelMetadataKey] = this[modelMetadataKey]
                 },
                 patchRecorder.record
               )

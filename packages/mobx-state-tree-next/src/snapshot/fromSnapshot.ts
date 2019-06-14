@@ -4,7 +4,7 @@ import { createModelWithUuid, Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
 import { fixSnapshotIds } from "./fixSnapshotIds"
-import { isInternalKey, modelIdKey, typeofKey } from "./metadata"
+import { isInternalKey, ModelMetadata, modelMetadataKey } from "./metadata"
 import { SnapshotInOf } from "./SnapshotOf"
 
 export interface FromSnapshotOptions {
@@ -55,11 +55,12 @@ function fromArraySnapshot(sn: any[]): any[] {
 }
 
 function fromModelSnapshot(sn: any): Model {
-  const type = sn[typeofKey]
-  const id = sn[modelIdKey]
+  const { type, id } = sn[modelMetadataKey] as ModelMetadata
 
   if (!id) {
-    throw failure(`a model a snapshot must contain an id (${modelIdKey}) key, but none was found`)
+    throw failure(
+      `a model a snapshot must contain an id (${modelMetadataKey}.id) key, but none was found`
+    )
   }
 
   const modelInfo = getModelInfoForName(type)

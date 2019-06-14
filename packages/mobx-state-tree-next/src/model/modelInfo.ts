@@ -1,6 +1,6 @@
-import { ModelClass } from "./Model"
-import { typeofKey } from "../snapshot/metadata"
+import { ModelMetadata, modelMetadataKey } from "../snapshot/metadata"
 import { isObject } from "../utils"
+import { ModelClass } from "./Model"
 
 interface ModelInfo {
   name: string
@@ -18,8 +18,8 @@ export function getModelInfoForName(name: string): ModelInfo | undefined {
 }
 
 export function getModelInfoForObject(obj: any): ModelInfo | undefined {
-  if (!isObject(obj) || !obj[typeofKey]) {
+  if (!isObject(obj) || !obj[modelMetadataKey]) {
     return undefined
   }
-  return getModelInfoForName(obj[typeofKey])
+  return getModelInfoForName((obj[modelMetadataKey] as ModelMetadata).type)
 }

@@ -1,6 +1,10 @@
-export const typeofKey = "$$typeof"
-export const modelIdKey = "$$id"
+export const modelMetadataKey = "$$metadata"
+
+export interface ModelMetadata {
+  type: string
+  id: string
+}
 
 export function isInternalKey(key: string) {
-  return key === typeofKey || key === modelIdKey
+  return key === modelMetadataKey
 }

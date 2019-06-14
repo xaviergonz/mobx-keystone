@@ -82,12 +82,16 @@ test("action tracking", () => {
           "name": "addX",
           "parentContext": undefined,
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 0,
                 },
@@ -108,12 +112,16 @@ test("action tracking", () => {
           "name": "addX",
           "parentContext": undefined,
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 0,
                 },
@@ -143,8 +151,10 @@ test("action tracking", () => {
           "name": "addY",
           "parentContext": undefined,
           "target": P2 {
-            "$$id": "mockedUuid-2",
-            "$$typeof": "P2",
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
             "data": Object {
               "y": 2,
             },
@@ -162,8 +172,10 @@ test("action tracking", () => {
           "name": "addY",
           "parentContext": undefined,
           "target": P2 {
-            "$$id": "mockedUuid-2",
-            "$$typeof": "P2",
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
             "data": Object {
               "y": 2,
             },
@@ -191,12 +203,16 @@ test("action tracking", () => {
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 4,
                 },
@@ -224,12 +240,16 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
-              "$$id": "mockedUuid-1",
-              "$$typeof": "P",
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
               "data": Object {
                 "p2": P2 {
-                  "$$id": "mockedUuid-2",
-                  "$$typeof": "P2",
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
                   "data": Object {
                     "y": 4,
                   },
@@ -240,12 +260,16 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 4,
                 },
@@ -273,12 +297,16 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
-              "$$id": "mockedUuid-1",
-              "$$typeof": "P",
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
               "data": Object {
                 "p2": P2 {
-                  "$$id": "mockedUuid-2",
-                  "$$typeof": "P2",
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
                   "data": Object {
                     "y": 4,
                   },
@@ -289,12 +317,16 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 4,
                 },
@@ -323,12 +355,16 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
-              "$$id": "mockedUuid-1",
-              "$$typeof": "P",
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
               "data": Object {
                 "p2": P2 {
-                  "$$id": "mockedUuid-2",
-                  "$$typeof": "P2",
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
                   "data": Object {
                     "y": 4,
                   },
@@ -339,8 +375,10 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P2 {
-            "$$id": "mockedUuid-2",
-            "$$typeof": "P2",
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
             "data": Object {
               "y": 4,
             },
@@ -365,12 +403,16 @@ test("action tracking", () => {
             "name": "addXY",
             "parentContext": undefined,
             "target": P {
-              "$$id": "mockedUuid-1",
-              "$$typeof": "P",
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
               "data": Object {
                 "p2": P2 {
-                  "$$id": "mockedUuid-2",
-                  "$$typeof": "P2",
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
                   "data": Object {
                     "y": 4,
                   },
@@ -381,8 +423,10 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P2 {
-            "$$id": "mockedUuid-2",
-            "$$typeof": "P2",
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
             "data": Object {
               "y": 4,
             },
@@ -402,12 +446,16 @@ test("action tracking", () => {
           "name": "addXY",
           "parentContext": undefined,
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 4,
                 },

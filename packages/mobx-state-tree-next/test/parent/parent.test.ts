@@ -9,9 +9,8 @@ import {
   isParentOfChild,
   model,
   Model,
-  modelIdKey,
+  modelMetadataKey,
   runUnprotected,
-  typeofKey,
 } from "../../src"
 import "../commonSetup"
 
@@ -33,28 +32,38 @@ export class P extends Model {
 
 test("parent", () => {
   const p = fromSnapshot<P>({
-    [typeofKey]: "P",
-    [modelIdKey]: "P-id",
+    [modelMetadataKey]: {
+      type: "P",
+      id: "P-id",
+    },
     arr: [
       {
-        [typeofKey]: "P2",
-        [modelIdKey]: "P2-id1",
+        [modelMetadataKey]: {
+          type: "P2",
+          id: "P2-id1",
+        },
         y: 1,
       },
       {
-        [typeofKey]: "P2",
-        [modelIdKey]: "P2-id2",
+        [modelMetadataKey]: {
+          type: "P2",
+          id: "P2-id2",
+        },
         y: 2,
       },
       {
-        [typeofKey]: "P2",
-        [modelIdKey]: "P2-id3",
+        [modelMetadataKey]: {
+          type: "P2",
+          id: "P2-id3",
+        },
         y: 3,
       },
     ],
     p2: {
-      [typeofKey]: "P2",
-      [modelIdKey]: "P2-idout",
+      [modelMetadataKey]: {
+        type: "P2",
+        id: "P-idout",
+      },
       y: 12,
     },
   })

@@ -1,4 +1,4 @@
-import { fromSnapshot, model, Model, modelIdKey, typeofKey } from "../../src"
+import { fromSnapshot, model, Model, modelMetadataKey } from "../../src"
 import "../commonSetup"
 
 @model("P3")
@@ -18,8 +18,10 @@ export class P3 extends Model {
 
 test("snapshot processor", () => {
   const p = fromSnapshot<P3>({
-    [typeofKey]: "P3",
-    [modelIdKey]: "P3-id",
+    [modelMetadataKey]: {
+      type: "P3",
+      id: "P3-id",
+    },
     y: "30,40,50",
   })
 

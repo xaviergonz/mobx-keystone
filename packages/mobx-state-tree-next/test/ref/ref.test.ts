@@ -4,11 +4,10 @@ import {
   model,
   Model,
   modelAction,
-  modelIdKey,
+  modelMetadataKey,
   Ref,
   ref,
   registerRootStore,
-  typeofKey,
 } from "../../src"
 import "../commonSetup"
 
@@ -56,12 +55,14 @@ test("ref", () => {
   expect(p.data.r!.maybeCurrent).toBe(p2)
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
-            Object {
-              "$$id": "mockedUuid-3",
-              "$$typeof": "$$Ref",
-              "id": "mockedUuid-2",
-            }
-      `)
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-3",
+        "type": "$$Ref",
+      },
+      "id": "mockedUuid-2",
+    }
+  `)
 
   // not under the same root now
   p.setP2(undefined)
@@ -72,12 +73,14 @@ test("ref", () => {
   )
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
-            Object {
-              "$$id": "mockedUuid-3",
-              "$$typeof": "$$Ref",
-              "id": "mockedUuid-2",
-            }
-      `)
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-3",
+        "type": "$$Ref",
+      },
+      "id": "mockedUuid-2",
+    }
+  `)
 
   // change the path, the ref should still be ok
   p.setP3(p2)
@@ -86,12 +89,14 @@ test("ref", () => {
   expect(p.data.r!.current).toBe(p2)
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
-            Object {
-              "$$id": "mockedUuid-3",
-              "$$typeof": "$$Ref",
-              "id": "mockedUuid-2",
-            }
-      `)
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-3",
+        "type": "$$Ref",
+      },
+      "id": "mockedUuid-2",
+    }
+  `)
 
   // not under the same root now
   const r = p.data.r!
@@ -110,29 +115,41 @@ test("ref loaded from a snapshot", () => {
   // we use two snapshots to ensure duplicated ids work when they are on different trees
 
   const p = fromSnapshot<P>({
-    [typeofKey]: "P",
-    [modelIdKey]: "P-1",
+    [modelMetadataKey]: {
+      type: "P",
+      id: "P-1",
+    },
     p2: {
-      [typeofKey]: "P2",
-      [modelIdKey]: "P2-1",
+      [modelMetadataKey]: {
+        type: "P2",
+        id: "P2-1",
+      },
     },
     r: {
-      [typeofKey]: "$$Ref",
-      [modelIdKey]: "Ref-1",
+      [modelMetadataKey]: {
+        type: "$$Ref",
+        id: "Ref-1",
+      },
       id: "P2-1",
     },
   })
 
   const pp = fromSnapshot<P>({
-    [typeofKey]: "P",
-    [modelIdKey]: "P-1",
+    [modelMetadataKey]: {
+      type: "P",
+      id: "P-1",
+    },
     p2: {
-      [typeofKey]: "P2",
-      [modelIdKey]: "P2-1",
+      [modelMetadataKey]: {
+        type: "P2",
+        id: "P2-1",
+      },
     },
     r: {
-      [typeofKey]: "$$Ref",
-      [modelIdKey]: "Ref-1",
+      [modelMetadataKey]: {
+        type: "$$Ref",
+        id: "Ref-1",
+      },
       id: "P2-1",
     },
   })
@@ -152,15 +169,21 @@ test("ref loaded from a snapshot", () => {
 
 test("ref loaded from a broken snapshot", () => {
   const p = fromSnapshot<P>({
-    [typeofKey]: "P",
-    [modelIdKey]: "P-1",
+    [modelMetadataKey]: {
+      type: "P",
+      id: "P-1",
+    },
     p2: {
-      [typeofKey]: "P2",
-      [modelIdKey]: "P2-1",
+      [modelMetadataKey]: {
+        type: "P2",
+        id: "P2-1",
+      },
     },
     r: {
-      [typeofKey]: "$$Ref",
-      [modelIdKey]: "Ref-1",
+      [modelMetadataKey]: {
+        type: "$$Ref",
+        id: "Ref-1",
+      },
       id: "P2-2",
     },
   })
@@ -190,8 +213,10 @@ test("autoDetach ref", () => {
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
     Object {
-      "$$id": "mockedUuid-6",
-      "$$typeof": "$$Ref",
+      "$$metadata": Object {
+        "id": "mockedUuid-6",
+        "type": "$$Ref",
+      },
       "autoDetach": true,
       "id": "mockedUuid-5",
     }

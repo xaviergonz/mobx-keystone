@@ -125,12 +125,16 @@ test("flow", async () => {
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 0,
                 },
@@ -172,12 +176,16 @@ test("flow", async () => {
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 4,
                 },
@@ -222,12 +230,16 @@ test("flow", async () => {
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "target": P {
-            "$$id": "mockedUuid-1",
-            "$$typeof": "P",
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P",
+            },
             "data": Object {
               "p2": P2 {
-                "$$id": "mockedUuid-2",
-                "$$typeof": "P2",
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P2",
+                },
                 "data": Object {
                   "y": 4,
                 },

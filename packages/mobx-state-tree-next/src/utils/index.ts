@@ -6,7 +6,7 @@ import {
   ObservableMap,
   ObservableSet,
 } from "mobx"
-import { typeofKey } from "../snapshot/metadata"
+import { modelMetadataKey } from "../snapshot/metadata"
 
 export function mapGetOrDefault<K extends object, V>(
   map: WeakMap<K, V> | Map<K, V>,
@@ -70,7 +70,7 @@ export function deleteFromArray<T>(array: T[], value: T): boolean {
 }
 
 export function isModelSnapshot(sn: any): boolean {
-  return isPlainObject(sn) && !!sn[typeofKey]
+  return isPlainObject(sn) && !!sn[modelMetadataKey]
 }
 
 export function isMap(val: any): val is Map<any, any> | ObservableMap {
