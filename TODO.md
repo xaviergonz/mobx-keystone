@@ -12,7 +12,7 @@
 
 - (6) it is not possible to change the result of flow actions through middlewares (well, maybe it is if we return next().then(res => ...) from the spawn?)
 
-- (8) middlewares: redux mware, atomic, undo manager...
+- middlewares: (5) redux mware, (8) atomic, (7) undo manager...
 
 - refs? done, but need to document that saferefs only work properly when the ref is under a rootstore and the typing gotchas
 
@@ -23,5 +23,5 @@
 - (6) readme, docs, new name
 
 - (3) future: object/array backed map, array backed set? the mapping of those types to pure json is not apparent though
-- (3) some kind of validation or rely on ts? maybe allow them to use yup or some other validation library via some validation callback?
+- (4) some kind of validation or rely on ts? maybe allow them to use yup or some other validation library via some validation callback?
   - Model.validateSnapshotIn(sn),Model.validateSnapshotOut(sn)

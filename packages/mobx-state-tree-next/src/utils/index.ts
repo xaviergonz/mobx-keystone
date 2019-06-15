@@ -101,3 +101,9 @@ export function isArray(val: any): val is any[] | IObservableArray {
 export function inDevMode(): boolean {
   return process.env.NODE_ENV !== "production"
 }
+
+export function assertIsObject(value: any, argName: string): void {
+  if (!isObject(value)) {
+    throw failure(`${argName} must be an object`)
+  }
+}

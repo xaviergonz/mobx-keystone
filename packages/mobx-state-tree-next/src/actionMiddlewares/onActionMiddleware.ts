@@ -7,7 +7,7 @@ import { Model } from "../model/Model"
 import { getRootPath } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
-import { failure, isObject, isPlainObject, isPrimitive } from "../utils"
+import { assertIsObject, failure, isPlainObject, isPrimitive } from "../utils"
 
 export type OnActionListener = (
   actionCall: ActionCall,
@@ -35,9 +35,7 @@ export function onActionMiddleware<M extends Model>(
   },
   listener: OnActionListener
 ): ActionMiddleware {
-  if (!isObject(target)) {
-    throw failure("target must be an object")
-  }
+  assertIsObject(target, "target")
 
   const { model, actionName } = target
 
