@@ -43,7 +43,7 @@ export abstract class Model {
   }
 
   /**
-   * Gets the unique model type name.
+   * Gets the model type name.
    */
   get modelType() {
     return this[modelMetadataKey].type
@@ -51,6 +51,7 @@ export abstract class Model {
 
   /**
    * Data part of the model, which is observable and will be serialized in snapshots.
+   * It must be an object.
    *
    * @abstract
    */

@@ -62,7 +62,7 @@ test("subclassing works", () => {
     }
   `)
 
-  const newP2 = fromSnapshot(p2sn)
+  const newP2 = fromSnapshot<P2>(p2sn)
   expect(newP2 instanceof P2).toBe(true)
   expect(newP2).not.toBe(p2)
 })
