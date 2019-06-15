@@ -5,7 +5,7 @@ import {
 } from "../action/context"
 import { ActionMiddleware } from "../action/middleware"
 import { Model } from "../model/Model"
-import { failure, isObject } from "../utils"
+import { assertIsObject, failure } from "../utils"
 
 /**
  * Simplified version of action context.
@@ -74,9 +74,7 @@ export function actionTrackingMiddleware<M extends Model>(
   },
   hooks: ActionTrackingMiddleware
 ): ActionMiddleware {
-  if (!isObject(target)) {
-    throw failure("target must be an object")
-  }
+  assertIsObject(target, "target")
 
   const { model, actionName } = target
 

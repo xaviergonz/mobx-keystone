@@ -6,7 +6,14 @@ import { isFrozenSnapshot } from "../frozen/Frozen"
 import { ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, inDevMode, isArray, isModelSnapshot, isObject, isPlainObject } from "../utils"
+import {
+  assertIsObject,
+  failure,
+  inDevMode,
+  isArray,
+  isModelSnapshot,
+  isPlainObject,
+} from "../utils"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
 
@@ -19,10 +26,7 @@ import { SnapshotOutOf } from "./SnapshotOf"
  */
 export function applySnapshot<T extends object>(obj: T, sn: SnapshotOutOf<T>): void {
   assertTweakedObject(obj, "applySnapshot")
-
-  if (!isObject(sn)) {
-    throw failure("snapshot must be an array or object")
-  }
+  assertIsObject(sn, "snapshot")
 
   wrappedInternalApplySnapshot.call(obj, sn)
 }

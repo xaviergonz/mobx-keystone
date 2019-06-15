@@ -1,7 +1,7 @@
 import { action, isAction } from "mobx"
 import { Model } from "../model/Model"
 import { getParent, isChildOfParent } from "../parent/path"
-import { deleteFromArray, failure, isObject } from "../utils"
+import { assertIsObject, deleteFromArray, failure } from "../utils"
 import { ActionContext } from "./context"
 
 /**
@@ -74,9 +74,7 @@ export function getActionMiddlewares(model: Model): PartialActionMiddleware[] {
  * calling this function becomes optional.
  */
 export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDisposer {
-  if (!isObject(mware)) {
-    throw failure("middleware must be an object")
-  }
+  assertIsObject(mware, "middleware")
 
   let { middleware, filter, target } = mware
 
