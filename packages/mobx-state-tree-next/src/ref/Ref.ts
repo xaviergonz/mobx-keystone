@@ -9,6 +9,7 @@ import { failure } from "../utils"
 
 /**
  * A reference to the unique ID of a given model object.
+ * Use `ref` to create an instance of this class.
  *
  * @typeparam T Referenced object type.
  */

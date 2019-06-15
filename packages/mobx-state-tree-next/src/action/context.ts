@@ -1,3 +1,5 @@
+import { Model } from "../model/Model"
+
 /**
  * An action context.
  */
@@ -13,7 +15,7 @@ export interface ActionContext {
   /**
    * Action target object.
    */
-  readonly target: object
+  readonly target: Model
   /**
    * Array of action arguments.
    */

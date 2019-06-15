@@ -22,7 +22,7 @@ export interface SimpleActionContext {
   /**
    * Action target object.
    */
-  readonly target: object
+  readonly target: Model
   /**
    * Array of action arguments.
    */
