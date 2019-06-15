@@ -1,9 +1,9 @@
 import { isObservableObject } from "mobx"
+import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
 import { fromSnapshot } from "./fromSnapshot"
-import { isInternalKey, ModelMetadata, modelMetadataKey } from "./metadata"
 
 export function reconcileSnapshot(value: any, sn: any): any {
   if (!isObject(sn)) {
@@ -89,7 +89,7 @@ function reconcileModelSnapshot(value: any, sn: any): Model {
 
   // reconcile the rest
   for (const [k, v] of Object.entries(processedSn)) {
-    if (!isInternalKey(k)) {
+    if (!isModelInternalKey(k)) {
       data[k] = reconcileSnapshot(data[k], v)
     }
   }

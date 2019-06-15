@@ -1,10 +1,10 @@
 import { Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
+import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { Ref } from "../ref/Ref"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
-import { isInternalKey, ModelMetadata, modelMetadataKey } from "./metadata"
 import { SnapshotInOf } from "./SnapshotOf"
 
 interface FixSnapshotIdsContext {
@@ -83,7 +83,7 @@ function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): Model {
     },
   }
   for (const [k, v] of Object.entries(sn)) {
-    if (!isInternalKey(k)) {
+    if (!isModelInternalKey(k)) {
       modelSn[k] = internalFixSnapshotIds(v, ctx)
     }
   }

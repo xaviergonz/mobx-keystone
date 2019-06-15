@@ -1,5 +1,5 @@
-import { ModelMetadata, modelMetadataKey } from "../snapshot/metadata"
 import { isObject } from "../utils"
+import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { ModelClass } from "./Model"
 
 interface ModelInfo {

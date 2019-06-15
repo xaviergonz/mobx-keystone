@@ -7,8 +7,8 @@ import {
   setInternalSnapshot,
   unlinkInternalSnapshot,
 } from "../snapshot/internal"
-import { ModelMetadata, modelMetadataKey } from "../snapshot/metadata"
 import { tweak } from "../tweaker/tweak"
+import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 
 export interface ModelInitData {
