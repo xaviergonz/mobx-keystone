@@ -1,5 +1,6 @@
 export * from "./action"
 export * from "./actionMiddlewares"
+export * from "./frozen"
 export * from "./model"
 export * from "./parent"
 export * from "./patch"

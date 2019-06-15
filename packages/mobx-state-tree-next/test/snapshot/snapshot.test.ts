@@ -11,7 +11,7 @@ import {
 } from "../../src"
 import "../commonSetup"
 import { createP, P } from "../testbed"
-import { autoDispose } from "../withDisposers"
+import { autoDispose } from "../utils"
 
 test("onSnapshot and applySnapshot", () => {
   const p = createP()

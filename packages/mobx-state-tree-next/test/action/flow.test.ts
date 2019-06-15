@@ -11,7 +11,7 @@ import {
   onActionMiddleware,
 } from "../../src"
 import "../commonSetup"
-import { autoDispose } from "../withDisposers"
+import { autoDispose } from "../utils"
 
 async function delay(x: number) {
   return new Promise<number>(r => setTimeout(() => r(x), x))

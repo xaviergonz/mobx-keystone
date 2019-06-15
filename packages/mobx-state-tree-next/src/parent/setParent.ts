@@ -3,7 +3,7 @@ import { Model } from "../model/Model"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
-import { failure, inDevMode, isObject } from "../utils"
+import { failure, inDevMode, isPrimitive } from "../utils"
 import {
   getRootIdCache,
   objectChildren,
@@ -16,11 +16,14 @@ import { getParentPath, getRoot, ParentPath } from "./path"
 export const setParent = action(
   "setParent",
   (value: any, parentPath: ParentPath<any> | undefined): void => {
-    if (!isObject(value)) {
+    if (isPrimitive(value)) {
       return
     }
 
     if (inDevMode()) {
+      if (typeof value === "function" || typeof value === "symbol") {
+        throw failure(`assertion failed: value cannot be a function or a symbol`)
+      }
       if (!isTweakedObject(value)) {
         throw failure(`assertion failed: value is not ready to take a parent`)
       }

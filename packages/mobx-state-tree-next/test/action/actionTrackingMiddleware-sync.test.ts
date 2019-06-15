@@ -8,7 +8,7 @@ import {
   SimpleActionContext,
 } from "../../src"
 import "../commonSetup"
-import { autoDispose } from "../withDisposers"
+import { autoDispose } from "../utils"
 
 @model("P2")
 export class P2 extends Model {

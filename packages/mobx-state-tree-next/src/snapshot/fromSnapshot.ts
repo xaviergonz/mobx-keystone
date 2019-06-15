@@ -1,9 +1,18 @@
 import { DeepPartial } from "ts-essentials"
 import { runUnprotected } from "../action/protection"
+import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { createModelWithUuid, Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
-import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
+import {
+  failure,
+  isArray,
+  isMap,
+  isModelSnapshot,
+  isPlainObject,
+  isPrimitive,
+  isSet,
+} from "../utils"
 import { fixSnapshotIds } from "./fixSnapshotIds"
 import { SnapshotInOf } from "./SnapshotOf"
 
@@ -23,7 +32,7 @@ export function fromSnapshot<T>(
 }
 
 function internalFromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T): T {
-  if (!isObject(sn)) {
+  if (isPrimitive(sn)) {
     return sn as any
   }
 
@@ -37,6 +46,10 @@ function internalFromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotInOf
 
   if (isArray(sn)) {
     return fromArraySnapshot(sn) as any
+  }
+
+  if (isFrozenSnapshot(sn)) {
+    return frozen(sn.data) as any
   }
 
   if (isModelSnapshot(sn)) {

@@ -1,7 +1,7 @@
 import { applyPatches, getSnapshot, onPatches, Patch, runUnprotected } from "../../src"
 import "../commonSetup"
 import { createP } from "../testbed"
-import { autoDispose } from "../withDisposers"
+import { autoDispose } from "../utils"
 
 test("onPatches and applyPatches", () => {
   const p = createP(true)
