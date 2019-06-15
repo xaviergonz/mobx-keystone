@@ -1,10 +1,10 @@
 import { DeepPartial } from "ts-essentials"
 import { runUnprotected } from "../action/protection"
+import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { createModelWithUuid, Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
 import { fixSnapshotIds } from "./fixSnapshotIds"
-import { isInternalKey, ModelMetadata, modelMetadataKey } from "./metadata"
 import { SnapshotInOf } from "./SnapshotOf"
 
 export interface FromSnapshotOptions {
@@ -77,7 +77,7 @@ function fromModelSnapshot(sn: any): Model {
   const data = modelObj.data as any
   runUnprotected(() => {
     for (const [k, v] of Object.entries(processedSn)) {
-      if (!isInternalKey(k)) {
+      if (!isModelInternalKey(k)) {
         data[k] = internalFromSnapshot(v)
       }
     }

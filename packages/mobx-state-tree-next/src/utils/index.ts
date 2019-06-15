@@ -6,7 +6,7 @@ import {
   ObservableMap,
   ObservableSet,
 } from "mobx"
-import { modelMetadataKey } from "../snapshot/metadata"
+import { modelMetadataKey } from "../model/metadata"
 
 export function mapGetOrDefault<K extends object, V>(
   map: WeakMap<K, V> | Map<K, V>,

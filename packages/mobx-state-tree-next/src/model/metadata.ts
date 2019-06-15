@@ -5,6 +5,6 @@ export interface ModelMetadata {
   id: string
 }
 
-export function isInternalKey(key: string) {
+export function isModelInternalKey(key: string) {
   return key === modelMetadataKey
 }
