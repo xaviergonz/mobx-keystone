@@ -1,10 +1,19 @@
 import { Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
+import { isFrozenSnapshot } from "../frozen/Frozen"
 import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { Ref } from "../ref/Ref"
-import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
+import {
+  failure,
+  isArray,
+  isMap,
+  isModelSnapshot,
+  isPlainObject,
+  isPrimitive,
+  isSet,
+} from "../utils"
 import { SnapshotInOf } from "./SnapshotOf"
 
 interface FixSnapshotIdsContext {
@@ -28,7 +37,7 @@ export function fixSnapshotIds<T>(sn: T): T {
 }
 
 function internalFixSnapshotIds<T>(sn: T, ctx: FixSnapshotIdsContext): T {
-  if (!isObject(sn)) {
+  if (isPrimitive(sn)) {
     return sn as any
   }
 
@@ -42,6 +51,11 @@ function internalFixSnapshotIds<T>(sn: T, ctx: FixSnapshotIdsContext): T {
 
   if (isArray(sn)) {
     return fixArraySnapshotIds(sn, ctx) as any
+  }
+
+  if (isFrozenSnapshot(sn)) {
+    // nothing to do, since frozen cannot contain models
+    return sn
   }
 
   if (isModelSnapshot(sn)) {

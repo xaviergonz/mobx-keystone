@@ -17,16 +17,17 @@ import {
 } from "mobx"
 import { getCurrentActionContext } from "../action/context"
 import { getActionProtection } from "../action/protection"
+import { Frozen, frozenKey } from "../frozen/Frozen"
 import { getModelInfoForObject } from "../model/modelInfo"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { PatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
-import { failure, isMap, isSet } from "../utils"
+import { failure, isMap, isPrimitive, isSet } from "../utils"
 import { isTweakedObject, tweakedObjects } from "./core"
 
 export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
-  if (typeof value !== "object" || value === null) {
+  if (isPrimitive(value)) {
     return value
   }
 
@@ -42,6 +43,17 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (isTweakedObject(value)) {
     setParent(value, parentPath)
     return value
+  }
+
+  if ((value as any) instanceof Frozen) {
+    const frozenObj = value as Frozen<any>
+    tweakedObjects.add(frozenObj)
+    setParent(frozenObj, parentPath)
+
+    // we DON'T want data proxified, but the snapshot is the data itself
+    setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined)
+
+    return frozenObj as any
   }
 
   const modelInfo = getModelInfoForObject(value)
@@ -124,7 +136,7 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   }
 
   throw failure(
-    `proxify can only work over models, observable objects/arrays, or primitives, but got ${value} instead`
+    `tweak can only work over models, observable objects/arrays, or primitives, but got ${value} instead`
   )
 }
 
@@ -182,7 +194,7 @@ function objectDidChange(change: IObjectDidChange): void {
 function interceptObjectMutation(change: IObjectWillChange) {
   assertCanWrite()
 
-  if ((change.name as any) instanceof Symbol) {
+  if (typeof change.name === "symbol") {
     throw failure("symbol properties are not supported.")
   }
 

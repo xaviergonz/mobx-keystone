@@ -7,7 +7,7 @@ import { Model } from "../model/Model"
 import { getRootPath } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
-import { failure, isObject, isPlainObject } from "../utils"
+import { failure, isObject, isPlainObject, isPrimitive } from "../utils"
 
 export type OnActionListener = (
   actionCall: ActionCall,
@@ -106,7 +106,7 @@ function actionContextToActionCall(ctx: ActionContext): ActionCall {
  * @returns The serializable form of the passed value.
  */
 export function serializeActionCallArgument(value: any): any {
-  if (!isObject(value)) {
+  if (isPrimitive(value)) {
     return value
   }
   if (isTweakedObject(value)) {

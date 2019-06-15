@@ -1,12 +1,22 @@
 import { isObservableObject } from "mobx"
+import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
-import { failure, isArray, isMap, isModelSnapshot, isObject, isPlainObject, isSet } from "../utils"
+import {
+  failure,
+  isArray,
+  isMap,
+  isModelSnapshot,
+  isPlainObject,
+  isPrimitive,
+  isSet,
+} from "../utils"
 import { fromSnapshot } from "./fromSnapshot"
+import { SnapshotInOfFrozen, SnapshotInOfModel } from "./SnapshotOf"
 
 export function reconcileSnapshot(value: any, sn: any): any {
-  if (!isObject(sn)) {
+  if (isPrimitive(sn)) {
     return sn
   }
 
@@ -20,6 +30,10 @@ export function reconcileSnapshot(value: any, sn: any): any {
 
   if (isArray(sn)) {
     return reconcileArraySnapshot(value, sn)
+  }
+
+  if (isFrozenSnapshot(sn)) {
+    return reconcileFrozenSnapshot(value, sn)
   }
 
   if (isModelSnapshot(sn)) {
@@ -57,7 +71,16 @@ function reconcileArraySnapshot(value: any, sn: any[]): any[] {
   return value
 }
 
-function reconcileModelSnapshot(value: any, sn: any): Model {
+function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>): Frozen<any> {
+  // reconciliation is only possible if the target is a Frozen instance with the same data (by ref)
+  // in theory we could compare the JSON representation of both datas or do a deep comparison, but that'd be too slow
+  if (value instanceof Frozen && value.data === sn.data) {
+    return value
+  }
+  return frozen(sn.data)
+}
+
+function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<Model>): Model {
   const { type, id } = sn[modelMetadataKey] as ModelMetadata
 
   const modelInfo = getModelInfoForName(type)
@@ -67,11 +90,11 @@ function reconcileModelSnapshot(value: any, sn: any): Model {
 
   if (!(value instanceof modelInfo.class) || value.modelType !== type || value.modelId !== id) {
     // different kind of model / model instance, no reconciliation possible
-    return fromSnapshot(sn)
+    return fromSnapshot<Model>(sn)
   }
 
   const modelObj: Model = value
-  let processedSn = sn
+  let processedSn: any = sn
   if (modelObj.fromSnapshot) {
     processedSn = modelObj.fromSnapshot(sn)
   }
@@ -79,7 +102,7 @@ function reconcileModelSnapshot(value: any, sn: any): Model {
   if (!modelObj.data) {
     modelObj.data = {}
   }
-  const data = modelObj.data as any
+  const data = modelObj.data
 
   // remove excess props
   const propsToRemove = Object.keys(data).filter(k => !(k in processedSn))

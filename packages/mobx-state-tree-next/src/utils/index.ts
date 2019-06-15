@@ -7,6 +7,8 @@ import {
   ObservableSet,
 } from "mobx"
 import { modelMetadataKey } from "../model/metadata"
+import { Model } from "../model/Model"
+import { SnapshotInOfModel } from "../snapshot"
 
 export function mapGetOrDefault<K extends object, V>(
   map: WeakMap<K, V> | Map<K, V>,
@@ -50,8 +52,19 @@ export function isPlainObject(value: any): value is Object {
 }
 
 export function isObject(value: any): value is Object {
-  if (value === null || typeof value !== "object") return false
-  return true
+  return value !== null && typeof value === "object"
+}
+
+export function isPrimitive(value: any): value is number | string | boolean | undefined | null {
+  switch (typeof value) {
+    case "object":
+      return value === null
+    case "function":
+    case "symbol":
+      return false
+    default:
+      return true
+  }
 }
 
 export function debugFreeze(value: object) {
@@ -69,7 +82,7 @@ export function deleteFromArray<T>(array: T[], value: T): boolean {
   return false
 }
 
-export function isModelSnapshot(sn: any): boolean {
+export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<Model> {
   return isPlainObject(sn) && !!sn[modelMetadataKey]
 }
 

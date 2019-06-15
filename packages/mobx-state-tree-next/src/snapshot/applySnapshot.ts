@@ -2,6 +2,7 @@ import { isObservableObject } from "mobx"
 import { ActionContextActionType } from "../action/context"
 import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
+import { isFrozenSnapshot } from "../frozen/Frozen"
 import { ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
@@ -47,8 +48,11 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
     return reconcile()
   }
 
+  if (isFrozenSnapshot(sn)) {
+    throw failure("applySnapshot can not be used over frozen objects")
+  }
+
   if (isModelSnapshot(sn)) {
-    // a model
     const { type, id } = (sn as any)[modelMetadataKey] as ModelMetadata
 
     const modelInfo = getModelInfoForName(type)
@@ -65,7 +69,6 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   }
 
   if (isPlainObject(sn)) {
-    // plain obj
     if (!isPlainObject(obj) && !isObservableObject(obj)) {
       // no reconciliation possible
       throw failure("if the snapshot is an object the target must be an object too")
