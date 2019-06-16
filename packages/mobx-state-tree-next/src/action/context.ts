@@ -25,6 +25,10 @@ export interface ActionContext {
    */
   readonly parentContext?: ActionContext
   /**
+   * Root action context.
+   */
+  readonly rootContext: ActionContext
+  /**
    * Previous async step context, undefined for sync actions or the first action of a flow.
    */
   readonly previousAsyncStepContext?: ActionContext

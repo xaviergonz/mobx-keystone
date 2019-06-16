@@ -85,7 +85,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
     throw failure("middleware.middleware must be a function")
   }
   if (filter && typeof filter !== "function") {
-    throw failure("middleware.filter must be a function if present")
+    throw failure("middleware.filter must be a function or undefined")
   }
 
   if (!isAction(middleware)) {

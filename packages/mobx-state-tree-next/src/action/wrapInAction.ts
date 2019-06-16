@@ -29,16 +29,26 @@ export function wrapInAction<T extends Function>(
 
     const parentContext = getCurrentActionContext()
 
-    const context: ActionContext = {
+    const context: Writable<ActionContext> = {
       name,
       type: actionType,
       target: this,
       args: Array.from(arguments),
       parentContext,
       data: {},
+      rootContext: undefined as any, // will be set after the override
     }
     if (overrideContext) {
       overrideContext(context)
+    }
+    if (!context.rootContext) {
+      if (context.previousAsyncStepContext) {
+        context.rootContext = context.previousAsyncStepContext.rootContext
+      } else if (context.parentContext) {
+        context.rootContext = context.parentContext.rootContext
+      } else {
+        context.rootContext = context
+      }
     }
 
     setCurrentActionContext(context)

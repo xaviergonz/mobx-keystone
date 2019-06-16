@@ -24,7 +24,7 @@ export type OnActionListener = (
  * If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments before
  * sending the action call over the wire / storing them or `serializeActionCall`.
  *
- * @param target Root target model object, including action name if it should run for only a given action rather than all actions of the tree.
+ * @param target Root target model object. If `actionName` is provided it will only run for that particular action.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
  * @returns The actual middleware to be passed to `addActionMiddleware`.
  */
@@ -40,11 +40,11 @@ export function onActionMiddleware<M extends Model>(
   const { model, actionName } = target
 
   if (!(model instanceof Model)) {
-    throw failure("target must be a model")
+    throw failure("target.model must be a model")
   }
 
-  if (actionName && typeof model[actionName] !== "function") {
-    throw failure("action must be a function or undefined")
+  if (actionName && typeof model[actionName] !== "string") {
+    throw failure("target.actionName must be a string or undefined")
   }
 
   const filter: ActionMiddleware["filter"] = ctx => {

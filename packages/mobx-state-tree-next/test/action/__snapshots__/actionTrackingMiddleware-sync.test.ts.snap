@@ -8,6 +8,7 @@ Array [
         1,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -15,6 +16,7 @@ Array [
       },
       "name": "addX",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -43,6 +45,7 @@ Array [
         1,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -50,6 +53,7 @@ Array [
       },
       "name": "addX",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -78,6 +82,7 @@ Array [
         1,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -85,6 +90,7 @@ Array [
       },
       "name": "addX",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -113,6 +119,7 @@ Array [
         1,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -120,6 +127,7 @@ Array [
       },
       "name": "addX",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -148,6 +156,7 @@ Array [
         1,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -155,6 +164,7 @@ Array [
       },
       "name": "addX",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -190,6 +200,7 @@ Array [
         2,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -197,6 +208,7 @@ Array [
       },
       "name": "addY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P2 {
         "$$metadata": Object {
           "id": "mockedUuid-2",
@@ -216,6 +228,7 @@ Array [
         2,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -223,6 +236,7 @@ Array [
       },
       "name": "addY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P2 {
         "$$metadata": Object {
           "id": "mockedUuid-2",
@@ -242,6 +256,7 @@ Array [
         2,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -249,6 +264,7 @@ Array [
       },
       "name": "addY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P2 {
         "$$metadata": Object {
           "id": "mockedUuid-2",
@@ -268,6 +284,7 @@ Array [
         2,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -275,6 +292,7 @@ Array [
       },
       "name": "addY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P2 {
         "$$metadata": Object {
           "id": "mockedUuid-2",
@@ -294,6 +312,7 @@ Array [
         2,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -301,6 +320,7 @@ Array [
       },
       "name": "addY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P2 {
         "$$metadata": Object {
           "id": "mockedUuid-2",
@@ -328,6 +348,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -335,6 +356,7 @@ Array [
       },
       "name": "addXY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -364,6 +386,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -371,6 +394,7 @@ Array [
       },
       "name": "addXY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -400,6 +424,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -407,6 +432,7 @@ Array [
       },
       "name": "addXY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -435,6 +461,7 @@ Array [
         3,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -447,6 +474,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -454,6 +482,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -502,6 +566,7 @@ Array [
         3,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -514,6 +579,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -521,6 +587,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -569,6 +671,7 @@ Array [
         3,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -581,6 +684,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -588,6 +692,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -636,6 +776,7 @@ Array [
         3,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -648,6 +789,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -655,6 +797,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -703,6 +881,7 @@ Array [
         3,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -715,6 +894,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -722,6 +902,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -772,6 +988,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -784,6 +1001,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -791,6 +1009,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -830,6 +1084,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -842,6 +1097,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -849,6 +1105,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -888,6 +1180,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -900,6 +1193,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -907,6 +1201,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -946,6 +1276,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -958,6 +1289,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -965,6 +1297,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -1004,6 +1372,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1016,6 +1385,7 @@ Array [
           4,
         ],
         "data": Object {
+          Symbol(simpleDataContext): [Circular],
           Symbol(actionTrackingMiddlewareData): Object {
             "startAccepted": true,
             "state": "finished",
@@ -1023,6 +1393,42 @@ Array [
         },
         "name": "addXY",
         "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 6,
+              },
+            },
+            "x": 4,
+          },
+        },
+        "type": "sync",
+      },
+      "rootContext": Object {
+        "args": Array [
+          3,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
         "target": P {
           "$$metadata": Object {
             "id": "mockedUuid-1",
@@ -1065,6 +1471,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1072,6 +1479,7 @@ Array [
       },
       "name": "addXY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -1101,6 +1509,7 @@ Array [
         4,
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1108,6 +1517,7 @@ Array [
       },
       "name": "addXY",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -1143,6 +1553,7 @@ Array [
         "some error",
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1150,6 +1561,7 @@ Array [
       },
       "name": "throw",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -1178,6 +1590,7 @@ Array [
         "some error",
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1185,6 +1598,7 @@ Array [
       },
       "name": "throw",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -1213,6 +1627,7 @@ Array [
         "some error",
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1220,6 +1635,7 @@ Array [
       },
       "name": "throw",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -1248,6 +1664,7 @@ Array [
         "some error",
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1255,6 +1672,7 @@ Array [
       },
       "name": "throw",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",
@@ -1283,6 +1701,7 @@ Array [
         "some error",
       ],
       "data": Object {
+        Symbol(simpleDataContext): [Circular],
         Symbol(actionTrackingMiddlewareData): Object {
           "startAccepted": true,
           "state": "finished",
@@ -1290,6 +1709,7 @@ Array [
       },
       "name": "throw",
       "parentContext": undefined,
+      "rootContext": [Circular],
       "target": P {
         "$$metadata": Object {
           "id": "mockedUuid-1",

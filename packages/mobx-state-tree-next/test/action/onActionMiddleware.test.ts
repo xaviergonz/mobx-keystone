@@ -88,6 +88,7 @@ test("onActionMiddleware", () => {
           "data": Object {},
           "name": "addX",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -136,6 +137,7 @@ test("onActionMiddleware", () => {
           "data": Object {},
           "name": "addY",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P2 {
             "$$metadata": Object {
               "id": "mockedUuid-2",
@@ -174,6 +176,7 @@ test("onActionMiddleware", () => {
           "data": Object {},
           "name": "addXY",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -222,6 +225,7 @@ test("onActionMiddleware", () => {
           "data": Object {},
           "name": "other",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -285,6 +289,7 @@ test("onActionMiddleware", () => {
           "data": Object {},
           "name": "other",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -340,6 +345,7 @@ test("onActionMiddleware", () => {
           "data": Object {},
           "name": "other",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -406,6 +412,7 @@ test("onActionMiddleware", () => {
           "data": Object {},
           "name": "$$applySnapshot",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P2 {
             "$$metadata": Object {
               "id": "mockedUuid-2",
