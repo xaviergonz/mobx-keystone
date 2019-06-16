@@ -81,6 +81,7 @@ test("action tracking", () => {
           "data": Object {},
           "name": "addX",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -111,6 +112,7 @@ test("action tracking", () => {
           "data": Object {},
           "name": "addX",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -150,6 +152,7 @@ test("action tracking", () => {
           "data": Object {},
           "name": "addY",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P2 {
             "$$metadata": Object {
               "id": "mockedUuid-2",
@@ -171,6 +174,7 @@ test("action tracking", () => {
           "data": Object {},
           "name": "addY",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P2 {
             "$$metadata": Object {
               "id": "mockedUuid-2",
@@ -202,6 +206,7 @@ test("action tracking", () => {
           "data": Object {},
           "name": "addXY",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -239,6 +244,36 @@ test("action tracking", () => {
             "data": Object {},
             "name": "addXY",
             "parentContext": undefined,
+            "rootContext": [Circular],
+            "target": P {
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
+              "data": Object {
+                "p2": P2 {
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
+                  "data": Object {
+                    "y": 4,
+                  },
+                },
+                "x": 2,
+              },
+            },
+            "type": "sync",
+          },
+          "rootContext": Object {
+            "args": Array [
+              1,
+              2,
+            ],
+            "data": Object {},
+            "name": "addXY",
+            "parentContext": undefined,
+            "rootContext": [Circular],
             "target": P {
               "$$metadata": Object {
                 "id": "mockedUuid-1",
@@ -296,6 +331,36 @@ test("action tracking", () => {
             "data": Object {},
             "name": "addXY",
             "parentContext": undefined,
+            "rootContext": [Circular],
+            "target": P {
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
+              "data": Object {
+                "p2": P2 {
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
+                  "data": Object {
+                    "y": 4,
+                  },
+                },
+                "x": 2,
+              },
+            },
+            "type": "sync",
+          },
+          "rootContext": Object {
+            "args": Array [
+              1,
+              2,
+            ],
+            "data": Object {},
+            "name": "addXY",
+            "parentContext": undefined,
+            "rootContext": [Circular],
             "target": P {
               "$$metadata": Object {
                 "id": "mockedUuid-1",
@@ -354,6 +419,36 @@ test("action tracking", () => {
             "data": Object {},
             "name": "addXY",
             "parentContext": undefined,
+            "rootContext": [Circular],
+            "target": P {
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
+              "data": Object {
+                "p2": P2 {
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
+                  "data": Object {
+                    "y": 4,
+                  },
+                },
+                "x": 2,
+              },
+            },
+            "type": "sync",
+          },
+          "rootContext": Object {
+            "args": Array [
+              1,
+              2,
+            ],
+            "data": Object {},
+            "name": "addXY",
+            "parentContext": undefined,
+            "rootContext": [Circular],
             "target": P {
               "$$metadata": Object {
                 "id": "mockedUuid-1",
@@ -402,6 +497,36 @@ test("action tracking", () => {
             "data": Object {},
             "name": "addXY",
             "parentContext": undefined,
+            "rootContext": [Circular],
+            "target": P {
+              "$$metadata": Object {
+                "id": "mockedUuid-1",
+                "type": "P",
+              },
+              "data": Object {
+                "p2": P2 {
+                  "$$metadata": Object {
+                    "id": "mockedUuid-2",
+                    "type": "P2",
+                  },
+                  "data": Object {
+                    "y": 4,
+                  },
+                },
+                "x": 2,
+              },
+            },
+            "type": "sync",
+          },
+          "rootContext": Object {
+            "args": Array [
+              1,
+              2,
+            ],
+            "data": Object {},
+            "name": "addXY",
+            "parentContext": undefined,
+            "rootContext": [Circular],
             "target": P {
               "$$metadata": Object {
                 "id": "mockedUuid-1",
@@ -445,6 +570,7 @@ test("action tracking", () => {
           "data": Object {},
           "name": "addXY",
           "parentContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",

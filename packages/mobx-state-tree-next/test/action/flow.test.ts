@@ -124,6 +124,7 @@ test("flow", async () => {
           "name": "addX",
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -175,6 +176,7 @@ test("flow", async () => {
           "name": "addXY",
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",
@@ -229,6 +231,7 @@ test("flow", async () => {
           "name": "throwFlow",
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
+          "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-1",

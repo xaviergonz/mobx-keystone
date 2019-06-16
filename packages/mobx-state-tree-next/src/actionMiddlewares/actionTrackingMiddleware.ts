@@ -32,6 +32,10 @@ export interface SimpleActionContext {
    */
   readonly parentContext?: SimpleActionContext
   /**
+   * Root action context.
+   */
+  readonly rootContext: SimpleActionContext
+  /**
    * Custom data for the action context to be set by middlewares, an object.
    */
   readonly data: any
@@ -63,7 +67,8 @@ export interface ActionTrackingMiddleware {
  * action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish`
  * for that particular action will be called.
  *
- * @param target Root target model object.
+ * @param target Root target model object. If an `actionName` is provided then
+ * the tracking middleware will only be called for that particular action and its sub-actions.
  * @param hooks Middleware hooks.
  * @returns The actual middleware to passed to `addActionMiddleware`.
  */
@@ -79,11 +84,11 @@ export function actionTrackingMiddleware<M extends Model>(
   const { model, actionName } = target
 
   if (!(model instanceof Model)) {
-    throw failure("target must be a model")
+    throw failure("target.model must be a model")
   }
 
-  if (actionName && typeof model[actionName] !== "function") {
-    throw failure("action must be a function or undefined")
+  if (actionName && typeof model[actionName] !== "string") {
+    throw failure("target.actionName must be a string or undefined")
   }
 
   const dataSymbol = Symbol("actionTrackingMiddlewareData")
@@ -114,8 +119,11 @@ export function actionTrackingMiddleware<M extends Model>(
   const resumeSuspendSupport = !!hooks.onResume || !!hooks.onSuspend
 
   const filter: ActionMiddleware["filter"] = ctx => {
-    if (actionName && ctx.name !== actionName) {
-      return false
+    // if we are given an action name ensure it is the root action
+    if (actionName) {
+      if (ctx.rootContext.name !== actionName) {
+        return false
+      }
     }
 
     if (ctx.type === ActionContextActionType.Sync) {
@@ -293,8 +301,10 @@ export function actionTrackingMiddleware<M extends Model>(
   return { middleware: mware, filter, target: model }
 }
 
+const simpleDataContextSymbol = Symbol("simpleDataContext")
+
 /**
- * Simplifies an action context by turning an async call hierarchy into a similar sync one.
+ * Simplifies an action context by turning an async call hierarchy into a simpler one.
  *
  * @param ctx
  * @returns
@@ -304,12 +314,21 @@ export function simplifyActionContext(ctx: ActionContext): SimpleActionContext {
     ctx = ctx.previousAsyncStepContext
   }
 
-  return {
-    name: ctx.name,
-    type: ctx.type,
-    target: ctx.target,
-    args: ctx.args,
-    data: ctx.data,
-    parentContext: ctx.parentContext ? simplifyActionContext(ctx.parentContext) : undefined,
+  let simpleCtx = ctx.data[simpleDataContextSymbol]
+  if (!simpleCtx) {
+    const parentContext = ctx.parentContext ? simplifyActionContext(ctx.parentContext) : undefined
+
+    simpleCtx = {
+      name: ctx.name,
+      type: ctx.type,
+      target: ctx.target,
+      args: ctx.args,
+      data: ctx.data,
+      parentContext,
+    }
+    simpleCtx.rootContext = parentContext ? parentContext.rootContext : simpleCtx
+
+    ctx.data[simpleDataContextSymbol] = simpleCtx
   }
+  return simpleCtx
 }
