@@ -1,6 +1,6 @@
 import { Writable } from "ts-essentials"
-import { Model } from "../model/Model"
-import { addHiddenProp, failure } from "../utils"
+import { checkModelDecoratorArgs } from "../model/Model"
+import { decorateWrapMethodOrField, failure } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
 import { wrapInAction } from "./wrapInAction"
 
@@ -138,63 +138,31 @@ export function modelFlow(
   propertyKey: string,
   baseDescriptor?: PropertyDescriptor
 ): void {
-  if (baseDescriptor) {
-    // method decorator
-    const fn = baseDescriptor.value
-    checkModelFlowArgs(target, propertyKey, fn)
-
-    return {
-      enumerable: false,
-      writable: true,
-      configurable: true,
-      value: flow(
-        propertyKey,
-        fn as any
-      ),
-    } as any
-  } else {
-    // field decorator
-    Object.defineProperty(target, propertyKey, {
-      configurable: true,
-      enumerable: false,
-      get() {
-        return undefined
-      },
-      set(value) {
-        const fn = value
-        checkModelFlowArgs(this, propertyKey, fn)
-
-        addHiddenProp(
-          this,
-          propertyKey,
-          flow(
-            propertyKey,
-            fn as any
-          )
+  return decorateWrapMethodOrField(
+    {
+      target,
+      propertyKey,
+      baseDescriptor,
+    },
+    (data, fn) => {
+      if (isModelFlow(fn)) {
+        return fn
+      } else {
+        checkModelFlowArgs(data.target, data.propertyKey, fn)
+        return flow(
+          data.propertyKey,
+          fn
         )
-      },
-    })
-  }
+      }
+    }
+  )
 }
 
 export function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
   if (typeof value !== "function") {
     throw failure("modelFlow has to be used over functions")
   }
-  if (typeof propertyKey !== "string") {
-    throw failure("modelFlow cannot be used over symbol properties")
-  }
-
-  const errMessage = "modelFlow must be used over model classes or instances"
-
-  if (!target) {
-    throw failure(errMessage)
-  }
-
-  // check target is a model object or extended class
-  if (!(target instanceof Model) && target !== Model && !(target.prototype instanceof Model)) {
-    throw failure(errMessage)
-  }
+  checkModelDecoratorArgs("modelFlow", target, propertyKey)
 }
 
 /**

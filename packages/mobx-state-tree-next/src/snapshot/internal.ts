@@ -1,7 +1,7 @@
 import produce from "immer"
 import { action, createAtom, IAtom, untracked } from "mobx"
 import { getParentPath, ParentPath } from "../parent/path"
-import { PatchRecorder } from "../patch/emitPatch"
+import { InternalPatchRecorder } from "../patch/emitPatch"
 import { debugFreeze, failure, inDevMode } from "../utils"
 
 interface SnapshotData<T extends object> {
@@ -47,7 +47,11 @@ function getInternalSnapshotParent(
 
 export const setInternalSnapshot = action(
   "setInternalSnapshot",
-  <T extends object>(value: any, standard: T, patchRecorder: PatchRecorder | undefined): void => {
+  <T extends object>(
+    value: any,
+    standard: T,
+    patchRecorder: InternalPatchRecorder | undefined
+  ): void => {
     const oldSn = getInternalSnapshot(value) as SnapshotData<any>
 
     // do not actually update if not needed
