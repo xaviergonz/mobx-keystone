@@ -12,6 +12,17 @@ import "../commonSetup"
 
 @model("P2")
 class P2 extends Model {
+  constructor() {
+    super()
+
+    addActionMiddleware(
+      atomicMiddleware({
+        model: this,
+        actionName: "addParentX",
+      })
+    )
+  }
+
   data = {
     y: 0,
   }
@@ -61,7 +72,6 @@ describe("atomicMiddleware - sync", () => {
   let p: P
   beforeEach(() => {
     p = new P()
-    addActionMiddleware(atomicMiddleware({ model: p.data.p2, actionName: "addParentX" }))
   })
 
   test("simple root action", () => {
@@ -105,6 +115,17 @@ async function delay(x: number) {
 
 @model("P2Flow")
 class P2Flow extends Model {
+  constructor() {
+    super()
+
+    addActionMiddleware(
+      atomicMiddleware({
+        model: this,
+        actionName: "addParentX",
+      })
+    )
+  }
+
   data = {
     y: 0,
     z: 0,
@@ -166,9 +187,6 @@ describe("atomicMiddleware - async", () => {
   let p: PFlow
   beforeEach(() => {
     p = new PFlow()
-    addActionMiddleware(atomicMiddleware({ model: p, actionName: "addX" }))
-    addActionMiddleware(atomicMiddleware({ model: p, actionName: "addY" }))
-    addActionMiddleware(atomicMiddleware({ model: p.data.p2, actionName: "addParentX" }))
   })
 
   test("simple root action", async () => {
