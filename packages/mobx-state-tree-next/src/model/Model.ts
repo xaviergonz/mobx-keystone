@@ -1,6 +1,6 @@
 import produce from "immer"
 import { v4 as uuidV4 } from "uuid"
-import { PatchRecorder } from "../patch/emitPatch"
+import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
   getInternalSnapshot,
   linkInternalSnapshot,
@@ -8,6 +8,7 @@ import {
   unlinkInternalSnapshot,
 } from "../snapshot/internal"
 import { tweak } from "../tweaker/tweak"
+import { failure } from "../utils"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 
@@ -113,7 +114,7 @@ export abstract class Model {
           const newSn = getInternalSnapshot(obsData)
           if (oldSn !== newSn) {
             if (oldSn) {
-              const patchRecorder = new PatchRecorder()
+              const patchRecorder = new InternalPatchRecorder()
 
               const standard = produce(
                 oldSn.standard,
@@ -131,7 +132,7 @@ export abstract class Model {
             }
 
             if (newSn) {
-              const patchRecorder = new PatchRecorder()
+              const patchRecorder = new InternalPatchRecorder()
 
               const standard = produce(
                 newSn.standard,
@@ -149,7 +150,41 @@ export abstract class Model {
         }
       },
     })
+
+    const initializers = modelClassInitializers.get(this.constructor as any)
+    if (initializers) {
+      initializers.forEach(init => init(this))
+    }
   }
 }
 
 export type ModelClass = typeof Model
+
+type ModelClassInitializer = (modelInstance: Model) => void
+export const modelClassInitializers = new WeakMap<ModelClass, ModelClassInitializer[]>()
+
+export function addModelClassInitializer(modelClass: ModelClass, init: ModelClassInitializer) {
+  let initializers = modelClassInitializers.get(modelClass)
+  if (!initializers) {
+    initializers = []
+    modelClassInitializers.set(modelClass, initializers)
+  }
+  initializers.push(init)
+}
+
+export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey: string) {
+  if (typeof propertyKey !== "string") {
+    throw failure(fnName + " cannot be used over symbol properties")
+  }
+
+  const errMessage = fnName + " must be used over model classes or instances"
+
+  if (!target) {
+    throw failure(errMessage)
+  }
+
+  // check target is a model object or extended class
+  if (!(target instanceof Model) && target !== Model && !(target.prototype instanceof Model)) {
+    throw failure(errMessage)
+  }
+}

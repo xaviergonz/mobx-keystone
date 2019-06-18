@@ -5,6 +5,7 @@ export {
   SimpleActionContext,
   simplifyActionContext,
 } from "./actionTrackingMiddleware"
+export { atomic, atomicMiddleware } from "./atomicMiddleware"
 export {
   OnActionListener,
   onActionMiddleware,

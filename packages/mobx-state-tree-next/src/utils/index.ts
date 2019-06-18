@@ -107,3 +107,48 @@ export function assertIsObject(value: any, argName: string): void {
     throw failure(`${argName} must be an object`)
   }
 }
+
+export interface DecorateMethodOrFieldData {
+  target: any
+  propertyKey: string
+  baseDescriptor?: PropertyDescriptor
+}
+
+export function decorateWrapMethodOrField(
+  data: DecorateMethodOrFieldData,
+  wrap: (data: DecorateMethodOrFieldData, fn: any) => any
+) {
+  const { target, propertyKey, baseDescriptor } = data
+
+  if (baseDescriptor) {
+    // method decorator
+    return {
+      enumerable: false,
+      writable: true,
+      configurable: true,
+      value: wrap(data, baseDescriptor.value),
+    } as any
+  } else {
+    // field decorator
+    Object.defineProperty(target, propertyKey, {
+      configurable: true,
+      enumerable: false,
+      get() {
+        return undefined
+      },
+      set(fn) {
+        addHiddenProp(
+          this,
+          propertyKey,
+          wrap(
+            {
+              ...data,
+              target: this,
+            },
+            fn
+          )
+        )
+      },
+    })
+  }
+}

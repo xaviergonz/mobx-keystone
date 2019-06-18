@@ -21,7 +21,7 @@ import { Frozen, frozenKey } from "../frozen/Frozen"
 import { getModelInfoForObject } from "../model/modelInfo"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
-import { PatchRecorder } from "../patch/emitPatch"
+import { InternalPatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
 import { isTweakedObject, tweakedObjects } from "./core"
@@ -143,7 +143,7 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
 function objectDidChange(change: IObjectDidChange): void {
   let { standard: standardSn } = getInternalSnapshot(change.object)!
 
-  const patchRecorder = new PatchRecorder()
+  const patchRecorder = new InternalPatchRecorder()
 
   standardSn = produce(
     standardSn,
@@ -229,7 +229,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
 function arrayDidChange(change: IArrayChange | IArraySplice) {
   let { standard: standardSn } = getInternalSnapshot(change.object)!
 
-  const patchRecorder = new PatchRecorder()
+  const patchRecorder = new InternalPatchRecorder()
 
   standardSn = produce(
     standardSn,

@@ -1,5 +1,5 @@
-import { Model } from "../model/Model"
-import { addHiddenProp, failure } from "../utils"
+import { checkModelDecoratorArgs } from "../model/Model"
+import { decorateWrapMethodOrField, failure } from "../utils"
 import { ActionContextActionType } from "./context"
 import { modelActionSymbol, wrapInAction } from "./wrapInAction"
 
@@ -17,20 +17,7 @@ function checkModelActionArgs(target: any, propertyKey: string, value: any) {
   if (typeof value !== "function") {
     throw failure("modelAction has to be used over functions")
   }
-  if (typeof propertyKey !== "string") {
-    throw failure("modelAction cannot be used over symbol properties")
-  }
-
-  const errMessage = "modelAction must be used over model classes or instances"
-
-  if (!target) {
-    throw failure(errMessage)
-  }
-
-  // check target is a model object or extended class
-  if (!(target instanceof Model) && target !== Model && !(target.prototype instanceof Model)) {
-    throw failure(errMessage)
-  }
+  checkModelDecoratorArgs("modelAction", target, propertyKey)
 }
 
 /**
@@ -46,35 +33,19 @@ export function modelAction(
   propertyKey: string,
   baseDescriptor?: PropertyDescriptor
 ): void {
-  if (baseDescriptor) {
-    // method decorator
-    const fn = baseDescriptor.value
-    checkModelActionArgs(target, propertyKey, fn)
-
-    return {
-      enumerable: false,
-      writable: true,
-      configurable: true,
-      value: wrapInAction(propertyKey, fn, ActionContextActionType.Sync),
-    } as any
-  } else {
-    // field decorator
-    Object.defineProperty(target, propertyKey, {
-      configurable: true,
-      enumerable: false,
-      get() {
-        return undefined
-      },
-      set(value) {
-        const fn = value
-        checkModelActionArgs(this, propertyKey, fn)
-
-        addHiddenProp(
-          this,
-          propertyKey,
-          wrapInAction(propertyKey, fn, ActionContextActionType.Sync)
-        )
-      },
-    })
-  }
+  return decorateWrapMethodOrField(
+    {
+      target,
+      propertyKey,
+      baseDescriptor,
+    },
+    (data, fn) => {
+      if (isModelAction(fn)) {
+        return fn
+      } else {
+        checkModelActionArgs(data.target, data.propertyKey, fn)
+        return wrapInAction(data.propertyKey, fn, ActionContextActionType.Sync)
+      }
+    }
+  )
 }

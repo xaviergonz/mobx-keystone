@@ -95,11 +95,14 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
   if (target) {
     const targetFilter = (ctx: ActionContext) =>
       ctx.target === target || isChildOfParent(ctx.target, target!)
+
     if (!filter) {
       filter = targetFilter
     } else {
       const customFilter = filter
-      filter = ctx => targetFilter(ctx) && customFilter(ctx)
+      filter = ctx => {
+        return targetFilter(ctx) && customFilter(ctx)
+      }
     }
   }
 

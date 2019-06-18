@@ -67,10 +67,11 @@ export interface ActionTrackingMiddleware {
  * action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish`
  * for that particular action will be called.
  *
+ * @typeparam M Model
  * @param target Root target model object. If an `actionName` is provided then
  * the tracking middleware will only be called for that particular action and its sub-actions.
  * @param hooks Middleware hooks.
- * @returns The actual middleware to passed to `addActionMiddleware`.
+ * @returns The actual middleware to pass to `addActionMiddleware`.
  */
 export function actionTrackingMiddleware<M extends Model>(
   target: {
@@ -87,7 +88,7 @@ export function actionTrackingMiddleware<M extends Model>(
     throw failure("target.model must be a model")
   }
 
-  if (actionName && typeof model[actionName] !== "string") {
+  if (actionName && typeof actionName !== "string") {
     throw failure("target.actionName must be a string or undefined")
   }
 
@@ -121,7 +122,7 @@ export function actionTrackingMiddleware<M extends Model>(
   const filter: ActionMiddleware["filter"] = ctx => {
     // if we are given an action name ensure it is the root action
     if (actionName) {
-      if (ctx.rootContext.name !== actionName) {
+      if (ctx.rootContext.target !== model || ctx.rootContext.name !== actionName) {
         return false
       }
     }
