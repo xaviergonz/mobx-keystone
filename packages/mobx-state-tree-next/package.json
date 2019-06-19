@@ -40,7 +40,7 @@
     "mobx": "^5.9.4",
     "prettier": "^1.17.0",
     "pretty-quick": "^1.10.0",
-    "tsdx": "^0.6.1",
+    "tsdx": "^0.7.1",
     "typescript": "^3.5.1"
   },
   "dependencies": {
