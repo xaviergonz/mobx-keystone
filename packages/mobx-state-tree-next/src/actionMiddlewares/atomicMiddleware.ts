@@ -1,7 +1,7 @@
 import { ActionMiddleware, addActionMiddleware } from "../action/middleware"
 import { addModelClassInitializer, checkModelDecoratorArgs, Model } from "../model/Model"
 import { applyPatches } from "../patch"
-import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
+import { globalPatchRecorder, GlobalPatchRecorder } from "../patch/globalPatchRecorder"
 import { assertIsObject, failure } from "../utils"
 import {
   actionTrackingMiddleware,
@@ -12,9 +12,6 @@ import {
 /**
  * Creates an atomic middleware, which revert changes made by an action / child
  * actions when the root action throws an exception by applying inverse patches.
- *
- * Note that the middleware currently can only undo changes to the model
- * or children of the model, but not to any parents.
  *
  * @typeparam M Model
  * @param target Root target model object and root action name.
@@ -37,14 +34,17 @@ export function atomicMiddleware<M extends Model>(target: {
   }
 
   const patchRecorderSymbol = Symbol("patchRecorder")
-  function getPatchRecorder(ctx: SimpleActionContext): PatchRecorder {
+  function initPatchRecorder(ctx: SimpleActionContext) {
+    ctx.rootContext.data[patchRecorderSymbol] = globalPatchRecorder({ recording: false })
+  }
+  function getPatchRecorder(ctx: SimpleActionContext): GlobalPatchRecorder {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
 
   return actionTrackingMiddleware(target, {
     onStart(ctx) {
       if (ctx === ctx.rootContext) {
-        ctx.data[patchRecorderSymbol] = patchRecorder(target.model, { recording: false })
+        initPatchRecorder(ctx)
       }
     },
     onResume(ctx) {
@@ -54,12 +54,21 @@ export function atomicMiddleware<M extends Model>(target: {
       getPatchRecorder(ctx).recording = false
     },
     onFinish(ctx, result) {
-      if (ctx === ctx.rootContext && result === ActionTrackingResult.Throw) {
-        // undo changes
-        const pr = getPatchRecorder(ctx)
-        const { inversePatches } = pr
-        pr.dispose()
-        applyPatches(target.model, inversePatches)
+      if (ctx === ctx.rootContext) {
+        const patchRecorder = getPatchRecorder(ctx)
+
+        try {
+          if (result === ActionTrackingResult.Throw) {
+            // undo changes (backwards for inverse patches)
+            const { events } = patchRecorder
+            for (let i = events.length - 1; i >= 0; i--) {
+              const event = events[i]
+              applyPatches(event.target, event.inversePatches)
+            }
+          }
+        } finally {
+          patchRecorder.dispose()
+        }
       }
     },
   })

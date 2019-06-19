@@ -3,6 +3,7 @@ import {
   atomic,
   atomicMiddleware,
   findParent,
+  FlowRet,
   model,
   Model,
   modelAction,
@@ -99,13 +100,11 @@ describe("atomicMiddleware - sync", () => {
     expect(p.data.p2.data.y).toBe(10 + 20)
   })
 
-  // TODO: maybe this should be revisited and changes should actually be reverted
-  // but if the root changes it is hard to know where to apply the patches
-  test("it cannot revert changes made to a parent", () => {
+  test("it can revert changes made to a parent", () => {
     expect(p.data.p2.addParentX(10, false)).toBe(10)
 
     expect(() => p.data.p2.addParentX(20, true)).toThrow("addX")
-    expect(p.data.x).toBe(10 + 20)
+    expect(p.data.x).toBe(10)
   })
 })
 
@@ -143,9 +142,10 @@ class P2Flow extends Model {
 
   @modelFlow
   *addParentX(n: number, error: boolean) {
-    const parent = findParent<P>(this, p => p instanceof PFlow)!
+    const parent = findParent<PFlow>(this, p => p instanceof PFlow)!
     yield delay(5)
-    return parent.addX(n, error)
+    const ret: FlowRet<typeof parent.addX> = yield parent.addX(n, error)
+    return ret
   }
 
   @modelAction
@@ -236,9 +236,7 @@ describe("atomicMiddleware - async", () => {
     expect(p.data.p2.data.y).toBe(10 + 20)
   })
 
-  // TODO: maybe this should be revisited and changes should actually be reverted
-  // but if the root changes it is hard to know where to apply the patches
-  test("it cannot revert changes made to a parent", async () => {
+  test("it can revert changes made to a parent", async () => {
     expect(await p.data.p2.addParentX(10, false)).toBe(10)
 
     try {
@@ -248,6 +246,6 @@ describe("atomicMiddleware - async", () => {
       expect(e.message).toBe("addX - Error")
     }
 
-    expect(p.data.x).toBe(10 + 20)
+    expect(p.data.x).toBe(10)
   })
 })

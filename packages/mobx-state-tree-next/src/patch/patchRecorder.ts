@@ -6,6 +6,11 @@ import { onPatches } from "./emitPatch"
  */
 export interface PatchRecorder {
   /**
+   * Target object.
+   */
+  readonly target: object
+
+  /**
    * Gets/sets if the patch recorder is currently recording.
    */
   recording: boolean
@@ -30,7 +35,7 @@ export interface PatchRecorder {
  * Creates a patch recorder.
  *
  * @param target
- * @param recording
+ * @param [opts]
  * @returns The patch recorder.
  */
 export function patchRecorder(target: object, opts?: { recording?: boolean }): PatchRecorder {
@@ -53,6 +58,9 @@ export function patchRecorder(target: object, opts?: { recording?: boolean }): P
   })
 
   return {
+    get target() {
+      return target
+    },
     get recording() {
       return recording
     },
