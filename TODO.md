@@ -3,16 +3,14 @@
 - (5) while ts output snapshot typings are ok, input snapshots still are not quite ok (they take a deep partial) for cases
   such as { x: 10 }, where it doesn't know if x has to be there for sure or not but will be present on the object for sure
 
-- (6) action recorder and patch recorder abstractions
-
-- (7) action tracking middleware, how to pass data down, using the data obj of the context?
+- (5) action recorder abstraction?
 
 - (6) should we add something to distinguish actions run as apply from those who are not in mwares? (applySnapshot, applyAction, applyPatches)
 - in theory the user could use the filter function + isSpecialAction
 
 - (6) it is not possible to change the result of flow actions through middlewares (well, maybe it is if we return next().then(res => ...) from the spawn?)
 
-- middlewares: (5) redux mware, (8) atomic, (7) undo manager...
+- middlewares: (5) redux mware, (7) undo manager...
 
 - refs? done, but need to document that saferefs only work properly when the ref is under a rootstore and the typing gotchas
 
