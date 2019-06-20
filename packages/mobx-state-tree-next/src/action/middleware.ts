@@ -1,5 +1,5 @@
 import { action, isAction } from "mobx"
-import { Model } from "../model/Model"
+import { assertIsModel, Model } from "../model/Model"
 import { getParent, isChildOfParent } from "../parent/path"
 import { assertIsObject, deleteFromArray, failure } from "../utils"
 import { ActionContext } from "./context"
@@ -78,9 +78,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   let { middleware, filter, target } = mware
 
-  if (!(target instanceof Model)) {
-    throw failure("middleware.target must be a model")
-  }
+  assertIsModel(target, "middleware.target")
   if (typeof middleware !== "function") {
     throw failure("middleware.middleware must be a function")
   }

@@ -1,5 +1,10 @@
 import { ActionMiddleware, addActionMiddleware } from "../action/middleware"
-import { addModelClassInitializer, checkModelDecoratorArgs, Model } from "../model/Model"
+import {
+  addModelClassInitializer,
+  assertIsModel,
+  checkModelDecoratorArgs,
+  Model,
+} from "../model/Model"
 import { applyPatches } from "../patch"
 import { globalPatchRecorder, GlobalPatchRecorder } from "../patch/globalPatchRecorder"
 import { assertIsObject, failure } from "../utils"
@@ -10,7 +15,7 @@ import {
 } from "./actionTrackingMiddleware"
 
 /**
- * Creates a transaction middleware, which revert changes made by an action / child
+ * Creates a transaction middleware, which reverts changes made by an action / child
  * actions when the root action throws an exception by applying inverse patches.
  *
  * @typeparam M Model
@@ -25,9 +30,7 @@ export function transactionMiddleware<M extends Model>(target: {
 
   const { model, actionName } = target
 
-  if (!(model instanceof Model)) {
-    throw failure("target.model must be a model")
-  }
+  assertIsModel(model, "target.model")
 
   if (typeof actionName !== "string") {
     throw failure("target.actionName must be a string")

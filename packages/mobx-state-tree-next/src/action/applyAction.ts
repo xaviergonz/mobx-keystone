@@ -1,4 +1,4 @@
-import { Model } from "../model/Model"
+import { assertIsModel, Model } from "../model/Model"
 import { resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
@@ -33,9 +33,7 @@ export interface ActionCall {
  * @returns The return value of the action, if any.
  */
 export function applyAction<TRet = any>(rootTarget: Model, call: ActionCall): TRet {
-  if (!(rootTarget instanceof Model)) {
-    throw failure("applyAction target must be a model object")
-  }
+  assertIsModel(rootTarget, "applyAction target")
 
   return wrappedInternalApplyAction.call(rootTarget, call)
 }
