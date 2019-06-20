@@ -10,14 +10,14 @@ import {
 } from "./actionTrackingMiddleware"
 
 /**
- * Creates an atomic middleware, which revert changes made by an action / child
+ * Creates a transaction middleware, which revert changes made by an action / child
  * actions when the root action throws an exception by applying inverse patches.
  *
  * @typeparam M Model
  * @param target Root target model object and root action name.
  * @returns The actual middleware to pass to `addActionMiddleware`.
  */
-export function atomicMiddleware<M extends Model>(target: {
+export function transactionMiddleware<M extends Model>(target: {
   model: M
   actionName: keyof M
 }): ActionMiddleware {
@@ -75,17 +75,17 @@ export function atomicMiddleware<M extends Model>(target: {
 }
 
 /**
- * Atomic middleware as a decorator.
+ * Transaction middleware as a decorator.
  *
  * @param target
  * @param propertyKey
  */
-export function atomic(target: any, propertyKey: string): void {
-  checkModelDecoratorArgs("atomic", target, propertyKey)
+export function transaction(target: any, propertyKey: string): void {
+  checkModelDecoratorArgs("transaction", target, propertyKey)
 
   addModelClassInitializer(target.constructor, modelInstance => {
     addActionMiddleware(
-      atomicMiddleware({
+      transactionMiddleware({
         model: modelInstance,
         actionName: propertyKey as any,
       })
