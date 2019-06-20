@@ -1,13 +1,13 @@
 import {
   addActionMiddleware,
-  atomic,
-  atomicMiddleware,
   findParent,
   FlowRet,
   model,
   Model,
   modelAction,
   modelFlow,
+  transaction,
+  transactionMiddleware,
 } from "../../src"
 import "../commonSetup"
 
@@ -17,7 +17,7 @@ class P2 extends Model {
     super()
 
     addActionMiddleware(
-      atomicMiddleware({
+      transactionMiddleware({
         model: this,
         actionName: "addParentX",
       })
@@ -50,7 +50,7 @@ class P extends Model {
     p2: new P2(),
   }
 
-  @atomic
+  @transaction
   @modelAction
   addX = (n: number, error: boolean): number => {
     this.data.x += n
@@ -60,7 +60,7 @@ class P extends Model {
     return this.data.x
   }
 
-  @atomic
+  @transaction
   @modelAction
   addY(a: number, b: number, error: boolean): number {
     this.data.p2.data.y += a
@@ -69,7 +69,7 @@ class P extends Model {
   }
 }
 
-describe("atomicMiddleware - sync", () => {
+describe("transactionMiddleware - sync", () => {
   let p: P
   beforeEach(() => {
     p = new P()
@@ -93,7 +93,7 @@ describe("atomicMiddleware - sync", () => {
     expect(p.addY(12, 8, false)).toBe(10 + 12 + 8)
   })
 
-  test("non atomic action should still be non atomic", () => {
+  test("non transaction action should still be non transaction", () => {
     expect(p.data.p2.addY(10, false)).toBe(10)
 
     expect(() => p.data.p2.addY(20, true)).toThrow("addY")
@@ -118,7 +118,7 @@ class P2Flow extends Model {
     super()
 
     addActionMiddleware(
-      atomicMiddleware({
+      transactionMiddleware({
         model: this,
         actionName: "addParentX",
       })
@@ -162,7 +162,7 @@ class PFlow extends Model {
     p2: new P2Flow(),
   }
 
-  @atomic
+  @transaction
   @modelFlow
   addX = function*(this: PFlow, n: number, error: boolean) {
     this.data.x += n
@@ -173,7 +173,7 @@ class PFlow extends Model {
     return this.data.x
   };
 
-  @atomic
+  @transaction
   @modelFlow
   *addY(a: number, b: number, error: boolean) {
     this.data.p2.data.y += a
@@ -183,7 +183,7 @@ class PFlow extends Model {
   }
 }
 
-describe("atomicMiddleware - async", () => {
+describe("transactionMiddleware - async", () => {
   let p: PFlow
   beforeEach(() => {
     p = new PFlow()
@@ -224,7 +224,7 @@ describe("atomicMiddleware - async", () => {
     expect(await p.addY(12, 8, false)).toBe(10 + 12 + 8)
   })
 
-  test("non atomic action should still be non atomic", async () => {
+  test("non transaction action should still be non transaction", async () => {
     expect(await p.data.p2.addY(10, false)).toBe(10)
 
     try {
