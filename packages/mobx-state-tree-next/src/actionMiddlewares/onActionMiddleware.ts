@@ -3,7 +3,7 @@ import { ActionCall } from "../action/applyAction"
 import { ActionContext } from "../action/context"
 import { ActionMiddleware } from "../action/middleware"
 import { SpecialAction } from "../action/specialActions"
-import { Model } from "../model/Model"
+import { assertIsModel, Model } from "../model/Model"
 import { getRootPath } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
@@ -40,9 +40,7 @@ export function onActionMiddleware<M extends Model>(
 
   const { model, actionName } = target
 
-  if (!(model instanceof Model)) {
-    throw failure("target.model must be a model")
-  }
+  assertIsModel(model, "target.model")
 
   if (actionName && typeof actionName !== "string") {
     throw failure("target.actionName must be a string or undefined")

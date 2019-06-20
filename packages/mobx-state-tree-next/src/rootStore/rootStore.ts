@@ -1,5 +1,5 @@
 import { action } from "mobx"
-import { Model } from "../model/Model"
+import { assertIsModel, Model } from "../model/Model"
 import { getParent, getRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isPlainObject } from "../utils"
@@ -38,9 +38,7 @@ export const registerRootStore = action(
       ...options,
     }
 
-    if (!(model instanceof Model)) {
-      throw failure("a root store must be a model")
-    }
+    assertIsModel(model, "a root store")
 
     if (rootStores.has(model)) {
       throw failure("model already marked as root store")

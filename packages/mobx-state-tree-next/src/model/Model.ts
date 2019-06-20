@@ -188,3 +188,9 @@ export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey
     throw failure(errMessage)
   }
 }
+
+export function assertIsModel(m: Model, argName: string) {
+  if (!(m instanceof Model)) {
+    throw failure(`${argName} must be a model instance`)
+  }
+}
