@@ -7,6 +7,9 @@ import { walkTree, WalkTreeMode } from "../parent/walkTree"
 const onAttachedAsModelAction = new WeakMap<Function, Model["onAttachedToRootStore"]>()
 const onAttachedDisposers = new WeakMap<object, () => void>()
 
+/**
+ * @ignore
+ */
 export function attachToRootStore(rootStore: Model, child: Model): void {
   walkTree(
     child,
@@ -39,6 +42,9 @@ export function attachToRootStore(rootStore: Model, child: Model): void {
   )
 }
 
+/**
+ * @ignore
+ */
 export function detachFromRootStore(child: Model): void {
   walkTree(
     child,

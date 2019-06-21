@@ -19,7 +19,7 @@ import {
  * actions when the root action throws an exception by applying inverse patches.
  *
  * @typeparam M Model
- * @param target Root target model object and root action name.
+ * @param target Object with the root target model object (`model`) and root action name (`actionName`).
  * @returns The middleware disposer.
  */
 export function transactionMiddleware<M extends Model>(target: {

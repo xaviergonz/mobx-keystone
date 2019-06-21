@@ -2,12 +2,26 @@ import { createAtom, IAtom, observable, ObservableMap, ObservableSet } from "mob
 import { Model } from "../model/Model"
 import { ParentPath } from "./path"
 
+/**
+ * @ignore
+ */
 export const objectParents = new WeakMap<object, ParentPath<any> | undefined>()
+
+/**
+ * @ignore
+ */
 export const objectParentsAtoms = new WeakMap<object, IAtom>()
 
+/**
+ * @ignore
+ */
 export const objectChildren = new WeakMap<object, ObservableSet<any>>()
 
 const rootIdCaches = new WeakMap<object, ObservableMap<string, Model>>()
+
+/**
+ * @ignore
+ */
 export function getRootIdCache(root: object): ObservableMap<string, Model> {
   let cache = rootIdCaches.get(root)
   if (!cache) {
@@ -38,10 +52,16 @@ function createParentPathAtom(obj: object) {
   return atom
 }
 
+/**
+ * @ignore
+ */
 export function reportParentPathObserved(obj: object) {
   createParentPathAtom(obj).reportObserved()
 }
 
+/**
+ * @ignore
+ */
 export function reportParentPathChanged(obj: object) {
   createParentPathAtom(obj).reportChanged()
 }

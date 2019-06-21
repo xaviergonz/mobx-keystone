@@ -34,6 +34,7 @@ export function runUnprotected<T>(name: string, fn: () => T): T
  */
 export function runUnprotected<T>(fn: () => T): T
 
+// base case
 export function runUnprotected<T>(arg1: any, arg2?: any): T {
   const name = typeof arg1 === "string" ? arg1 : undefined
   const fn: () => T = typeof arg1 === "string" ? arg2 : arg1

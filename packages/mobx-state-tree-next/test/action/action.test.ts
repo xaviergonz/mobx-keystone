@@ -75,11 +75,11 @@ test("action tracking", () => {
     Array [
       Object {
         "ctx": Object {
+          "actionName": "addX",
           "args": Array [
             1,
           ],
           "data": Object {},
-          "name": "addX",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -106,11 +106,11 @@ test("action tracking", () => {
       },
       Object {
         "ctx": Object {
+          "actionName": "addX",
           "args": Array [
             1,
           ],
           "data": Object {},
-          "name": "addX",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -146,11 +146,11 @@ test("action tracking", () => {
     Array [
       Object {
         "ctx": Object {
+          "actionName": "addY",
           "args": Array [
             2,
           ],
           "data": Object {},
-          "name": "addY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
@@ -168,11 +168,11 @@ test("action tracking", () => {
       },
       Object {
         "ctx": Object {
+          "actionName": "addY",
           "args": Array [
             2,
           ],
           "data": Object {},
-          "name": "addY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
@@ -199,12 +199,12 @@ test("action tracking", () => {
     Array [
       Object {
         "ctx": Object {
+          "actionName": "addXY",
           "args": Array [
             1,
             2,
           ],
           "data": Object {},
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -231,18 +231,18 @@ test("action tracking", () => {
       },
       Object {
         "ctx": Object {
+          "actionName": "addX",
           "args": Array [
             1,
           ],
           "data": Object {},
-          "name": "addX",
           "parentContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -266,12 +266,12 @@ test("action tracking", () => {
             "type": "sync",
           },
           "rootContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -318,18 +318,18 @@ test("action tracking", () => {
       },
       Object {
         "ctx": Object {
+          "actionName": "addX",
           "args": Array [
             1,
           ],
           "data": Object {},
-          "name": "addX",
           "parentContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -353,12 +353,12 @@ test("action tracking", () => {
             "type": "sync",
           },
           "rootContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -406,18 +406,18 @@ test("action tracking", () => {
       },
       Object {
         "ctx": Object {
+          "actionName": "addY",
           "args": Array [
             2,
           ],
           "data": Object {},
-          "name": "addY",
           "parentContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -441,12 +441,12 @@ test("action tracking", () => {
             "type": "sync",
           },
           "rootContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -484,18 +484,18 @@ test("action tracking", () => {
       },
       Object {
         "ctx": Object {
+          "actionName": "addY",
           "args": Array [
             2,
           ],
           "data": Object {},
-          "name": "addY",
           "parentContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -519,12 +519,12 @@ test("action tracking", () => {
             "type": "sync",
           },
           "rootContext": Object {
+            "actionName": "addXY",
             "args": Array [
               1,
               2,
             ],
             "data": Object {},
-            "name": "addXY",
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
@@ -563,12 +563,12 @@ test("action tracking", () => {
       },
       Object {
         "ctx": Object {
+          "actionName": "addXY",
           "args": Array [
             1,
             2,
           ],
           "data": Object {},
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -642,8 +642,8 @@ test("applyAction", () => {
   {
     const ra = pa.addX(10)
     const rb = applyAction(pb, {
-      path: [],
-      name: "addX",
+      targetPath: [],
+      actionName: "addX",
       args: [10],
     })
     expect(ra).toBe(rb)
@@ -654,8 +654,8 @@ test("applyAction", () => {
   {
     const ra = pa.addXY(1, 2)
     const rb = applyAction(pb, {
-      path: [],
-      name: "addXY",
+      targetPath: [],
+      actionName: "addXY",
       args: [1, 2],
     })
     expect(ra).toBe(rb)
@@ -666,8 +666,8 @@ test("applyAction", () => {
   {
     const ra = pa.data.p2.addY(15)
     const rb = applyAction(pb, {
-      path: ["data", "p2"],
-      name: "addY",
+      targetPath: ["data", "p2"],
+      actionName: "addY",
       args: [15],
     })
     expect(ra).toBe(rb)
@@ -681,8 +681,8 @@ test("applyAction", () => {
       y: 100,
     })
     applyAction(pb, {
-      path: ["data", "p2"],
-      name: "$$applySnapshot",
+      targetPath: ["data", "p2"],
+      actionName: "$$applySnapshot",
       args: [{ ...getSnapshot(pb.data.p2), y: 100 }],
     })
     expect(pa.data.p2.data.y).toStrictEqual(pb.data.p2.data.y)

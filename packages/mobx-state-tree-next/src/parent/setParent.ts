@@ -13,6 +13,9 @@ import {
 } from "./core"
 import { getParentPath, getRoot, ParentPath } from "./path"
 
+/**
+ * @ignore
+ */
 export const setParent = action(
   "setParent",
   (value: any, parentPath: ParentPath<any> | undefined): void => {

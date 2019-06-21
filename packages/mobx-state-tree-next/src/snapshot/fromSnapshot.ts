@@ -1,7 +1,7 @@
 import { DeepPartial } from "ts-essentials"
 import { runUnprotected } from "../action/protection"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
-import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { createModelWithUuid, Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import {
@@ -16,10 +16,27 @@ import {
 import { fixSnapshotIds } from "./fixSnapshotIds"
 import { SnapshotInOf } from "./SnapshotOf"
 
+/**
+ * Options for `fromSnapshot`.
+ */
 export interface FromSnapshotOptions {
+  /**
+   * If set to true (the default) then Models will have brand new IDs, and
+   * references will fix their target IDs accordingly.
+   */
   generateNewIds?: boolean
 }
 
+/**
+ * Deserializers a data structure from its snapshot form.
+ * If options has `generateNewIds` set to true (the default) then Models will have brand new IDs, and
+ * references will fix their target IDs accordingly.
+ *
+ * @typeparam T Object type.
+ * @param sn Snapshot, including primitives.
+ * @param [options] Options.
+ * @returns The deserialized object.
+ */
 export function fromSnapshot<T>(
   sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T,
   options?: FromSnapshotOptions
@@ -90,7 +107,7 @@ function fromModelSnapshot(sn: any): Model {
   const data = modelObj.data as any
   runUnprotected(() => {
     for (const [k, v] of Object.entries(processedSn)) {
-      if (!isModelInternalKey(k)) {
+      if (!isReservedModelKey(k)) {
         data[k] = internalFromSnapshot(v)
       }
     }

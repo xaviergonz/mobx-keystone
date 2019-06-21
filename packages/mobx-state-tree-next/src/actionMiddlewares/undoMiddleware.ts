@@ -22,10 +22,12 @@ export interface UndoEvent {
   readonly actionName: string
   /**
    * Patches with changes done inside the action.
+   * Use `redo()` in the `UndoManager` to apply them.
    */
   readonly patches: Patch[]
   /**
    * Patches to undo the changes done inside the action.
+   * Use `undo()` in the `UndoManager` to apply them.
    */
   readonly inversePathes: Patch[]
 }
@@ -36,13 +38,16 @@ export interface UndoEvent {
  */
 @model("mobx-state-tree-next/UndoStore")
 export class UndoStore extends Model {
+  /**
+   * @ignore
+   */
   data = {
     undoEvents: [] as UndoEvent[],
     redoEvents: [] as UndoEvent[],
   }
 
   /**
-   * @internal
+   * @ignore
    */
   @modelAction
   _clearUndo() {
@@ -52,7 +57,7 @@ export class UndoStore extends Model {
   }
 
   /**
-   * @internal
+   * @ignore
    */
   @modelAction
   _clearRedo() {
@@ -62,7 +67,7 @@ export class UndoStore extends Model {
   }
 
   /**
-   * @internal
+   * @ignore
    */
   @modelAction
   _undo() {
@@ -73,7 +78,7 @@ export class UndoStore extends Model {
   }
 
   /**
-   * @internal
+   * @ignore
    */
   @modelAction
   _redo() {
@@ -84,7 +89,7 @@ export class UndoStore extends Model {
   }
 
   /**
-   * @internal
+   * @ignore
    */
   @modelAction
   _addUndo(event: UndoEvent) {
@@ -207,10 +212,21 @@ export class UndoManager {
     this.store._redo()
   }
 
+  /**
+   * Dispose the undo middleware.
+   */
   dispose() {
     this.disposer()
   }
 
+  /**
+   * Creates an instance of `UndoManager`.
+   * Do not use directly, use `undoMiddleware` instead.
+   *
+   * @param disposer
+   * @param target
+   * @param [store]
+   */
   constructor(
     private readonly disposer: ActionMiddlewareDisposer,
     private readonly target: Model,
@@ -267,7 +283,7 @@ export function undoMiddleware(model: Model, store?: UndoStore): UndoManager {
           if (patchRecorder.patches.length > 0 || patchRecorder.inversePatches.length > 0) {
             manager.store._addUndo({
               targetPath: getRootPath(ctx.target).path,
-              actionName: ctx.name,
+              actionName: ctx.actionName,
               patches: patchRecorder.patches,
               inversePathes: patchRecorder.inversePatches,
             })

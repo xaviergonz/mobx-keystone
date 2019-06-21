@@ -19,7 +19,7 @@ export interface SimpleActionContext {
   /**
    * Action name
    */
-  readonly name: string
+  readonly actionName: string
   /**
    * Action type, sync or async.
    */
@@ -50,7 +50,13 @@ export interface SimpleActionContext {
  * Action tracking middleware finish result.
  */
 export enum ActionTrackingResult {
+  /**
+   * The action returned normally (without throwing).
+   */
   Return = "return",
+  /**
+   * The action threw an error.
+   */
   Throw = "throw",
 }
 
@@ -58,10 +64,47 @@ export enum ActionTrackingResult {
  * Action tracking middleware hooks.
  */
 export interface ActionTrackingMiddleware {
+  /**
+   * Filter function called before each action starts.
+   * If the action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish`
+   * for that particular action will be called.
+   * All actions are accepted by default if no filter function is present.
+   *
+   * @param ctx Simplified action context.
+   * @returns true to accept the action, false to skip it.
+   */
   filter?(ctx: SimpleActionContext): boolean
+
+  /**
+   * An action just started.
+   *
+   * @param ctx Simplified action context.
+   */
   onStart?(ctx: SimpleActionContext): void
+
+  /**
+   * An action just resumed a synchronous piece of code execution.
+   *
+   * @param ctx Simplified action context.
+   */
   onResume?(ctx: SimpleActionContext): void
+
+  /**
+   * An action just finished a synchronous pice of code execution.
+   * Note that this doesn't necessarily mean the action is finished.
+   *
+   * @param ctx Simplified action context.
+   */
   onSuspend?(ctx: SimpleActionContext): void
+
+  /**
+   * The action just finished, either by returning normally or by throwing an error.
+   *
+   * @param ctx Simplified action context.
+   * @param result If the action finished normally or due to a thrown error.
+   * @param value The return value / error thrown.
+   * @param overrideValue Use this method to override the returned value / error thrown.
+   */
   onFinish?(
     ctx: SimpleActionContext,
     result: ActionTrackingResult,
@@ -78,7 +121,7 @@ export interface ActionTrackingMiddleware {
  * for that particular action will be called.
  *
  * @typeparam M Model
- * @param target Root target model object. If an `actionName` is provided then
+ * @param target Object with root target model object (`model`). If an `actionName` is provided then
  * the tracking middleware will only be called for that particular action and its sub-actions.
  * @param hooks Middleware hooks.
  * @returns The middleware disposer.
@@ -130,7 +173,7 @@ export function actionTrackingMiddleware<M extends Model>(
   const filter: ActionMiddleware["filter"] = ctx => {
     // if we are given an action name ensure it is the root action
     if (actionName) {
-      if (ctx.rootContext.target !== model || ctx.rootContext.name !== actionName) {
+      if (ctx.rootContext.target !== model || ctx.rootContext.actionName !== actionName) {
         return false
       }
     }
@@ -330,10 +373,10 @@ export function actionTrackingMiddleware<M extends Model>(
 const simpleDataContextSymbol = Symbol("simpleDataContext")
 
 /**
- * Simplifies an action context by turning an async call hierarchy into a simpler one.
+ * Simplifies an action context by converting an async call hierarchy into a simpler one.
  *
- * @param ctx
- * @returns
+ * @param ctx Action context to convert.
+ * @returns Simplified action context.
  */
 export function simplifyActionContext(ctx: ActionContext): SimpleActionContext {
   while (ctx.previousAsyncStepContext) {
@@ -345,7 +388,7 @@ export function simplifyActionContext(ctx: ActionContext): SimpleActionContext {
     const parentContext = ctx.parentContext ? simplifyActionContext(ctx.parentContext) : undefined
 
     simpleCtx = {
-      name: ctx.name,
+      name: ctx.actionName,
       type: ctx.type,
       target: ctx.target,
       args: ctx.args,

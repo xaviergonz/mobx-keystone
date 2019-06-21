@@ -12,12 +12,18 @@ import { failure } from "../utils"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 
+/**
+ * @ignore
+ */
 export interface ModelInitData {
   uuid: string
 }
 
 let modelInitData: ModelInitData | undefined
 
+/**
+ * @ignore
+ */
 export function createModelWithUuid<T extends Model>(modelClass: new () => T, uuid: string): T {
   modelInitData = {
     uuid,
@@ -158,11 +164,18 @@ export abstract class Model {
   }
 }
 
+/**
+ * Type of the model class.
+ */
 export type ModelClass = typeof Model
 
 type ModelClassInitializer = (modelInstance: Model) => void
-export const modelClassInitializers = new WeakMap<ModelClass, ModelClassInitializer[]>()
 
+const modelClassInitializers = new WeakMap<ModelClass, ModelClassInitializer[]>()
+
+/**
+ * @ignore
+ */
 export function addModelClassInitializer(modelClass: ModelClass, init: ModelClassInitializer) {
   let initializers = modelClassInitializers.get(modelClass)
   if (!initializers) {
@@ -189,8 +202,16 @@ export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey
   }
 }
 
-export function assertIsModel(m: Model, argName: string) {
-  if (!(m instanceof Model)) {
+/**
+ * @ignore
+ *
+ * Asserts something is actually a model.
+ *
+ * @param model
+ * @param argName
+ */
+export function assertIsModel(model: Model, argName: string) {
+  if (!(model instanceof Model)) {
     throw failure(`${argName} must be a model instance`)
   }
 }

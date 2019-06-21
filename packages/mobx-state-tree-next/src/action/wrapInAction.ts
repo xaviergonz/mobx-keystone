@@ -11,8 +11,14 @@ import {
 import { getActionMiddlewares } from "./middleware"
 import { FlowFinisher } from "./modelFlow"
 
+/**
+ * @ignore
+ */
 export const modelActionSymbol = Symbol("modelAction")
 
+/**
+ * @ignore
+ */
 export function wrapInAction<T extends Function>(
   name: string,
   fn: T,
@@ -32,7 +38,7 @@ export function wrapInAction<T extends Function>(
     const parentContext = getCurrentActionContext()
 
     const context: Writable<ActionContext> = {
-      name,
+      actionName: name,
       type: actionType,
       target: this,
       args: Array.from(arguments),

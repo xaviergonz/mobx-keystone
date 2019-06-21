@@ -14,7 +14,7 @@ export interface ActionCall {
   /**
    * Action name (name of the function).
    */
-  readonly name: string
+  readonly actionName: string
   /**
    * Action arguments.
    */
@@ -22,14 +22,14 @@ export interface ActionCall {
   /**
    * Path to the subobject where the action will be run, as an array of strings.
    */
-  readonly path: readonly string[]
+  readonly targetPath: readonly string[]
 }
 
 /**
  * Applies (runs) a serialized action over a target model object.
  *
  * @param rootTarget Root target model object to run the action over.
- * @param call The serialized action, usually as coming from onAction.
+ * @param call The serialized action, usually as coming from `onActionMiddleware`.
  * @returns The return value of the action, if any.
  */
 export function applyAction<TRet = any>(rootTarget: Model, call: ActionCall): TRet {
@@ -40,9 +40,9 @@ export function applyAction<TRet = any>(rootTarget: Model, call: ActionCall): TR
 
 function internalApplyAction(this: Model, call: ActionCall) {
   // resolve path
-  const current = resolvePath(this, call.path)
+  const current = resolvePath(this, call.targetPath)
 
-  switch (call.name) {
+  switch (call.actionName) {
     case SpecialAction.ApplySnapshot:
       return applySnapshot.apply(current, [current, ...call.args] as any)
 
@@ -59,7 +59,7 @@ function internalApplyAction(this: Model, call: ActionCall) {
       throw failure('calls to "onAttachedToRootStore" disposer cannot be applied')
 
     default:
-      return current[call.name].apply(current, call.args)
+      return current[call.actionName].apply(current, call.args)
   }
 }
 
