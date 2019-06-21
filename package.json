@@ -1,16 +1,17 @@
 {
   "private": true,
   "name": "root",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "license": "MIT",
   "scripts": {
     "build": "lerna run build --stream",
     "test": "lerna run test --stream"
   },
   "workspaces": [
-    "packages/lib"
+    "packages/lib",
+    "packages/site"
   ],
   "devDependencies": {
-    "lerna": "^3.0.5"
+    "lerna": "^3.15.0"
   }
 }
