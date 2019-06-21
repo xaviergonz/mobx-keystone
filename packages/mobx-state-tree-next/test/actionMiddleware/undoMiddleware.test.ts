@@ -6,6 +6,7 @@ import {
   UndoEvent,
   UndoManager,
   undoMiddleware,
+  UndoStore,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -41,10 +42,19 @@ class P extends Model {
   }
 }
 
-test("undoMiddleware", () => {
-  const p = new P()
+@model("R")
+class R extends Model {
+  data = {
+    undoData: new UndoStore(),
+    p: new P(),
+  }
+}
 
-  const manager = undoMiddleware(p)
+test("undoMiddleware", () => {
+  const r = new R()
+  const p = r.data.p
+
+  const manager = undoMiddleware(r, r.data.undoData)
   expect(manager instanceof UndoManager).toBeTruthy()
   autoDispose(() => manager.dispose())
 
@@ -104,6 +114,7 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "x",
               ],
               "value": 0,
@@ -113,12 +124,16 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "x",
               ],
               "value": 1,
             },
           ],
-          "targetPath": Array [],
+          "targetPath": Array [
+            "data",
+            "p",
+          ],
         },
         Object {
           "actionName": "incX",
@@ -126,6 +141,7 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "x",
               ],
               "value": 1,
@@ -135,12 +151,16 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "x",
               ],
               "value": 3,
             },
           ],
-          "targetPath": Array [],
+          "targetPath": Array [
+            "data",
+            "p",
+          ],
         },
         Object {
           "actionName": "incY",
@@ -148,6 +168,7 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "p2",
                 "y",
               ],
@@ -158,6 +179,7 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "p2",
                 "y",
               ],
@@ -165,6 +187,8 @@ test("undoMiddleware", () => {
             },
           ],
           "targetPath": Array [
+            "data",
+            "p",
             "data",
             "p2",
           ],
@@ -175,6 +199,7 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "p2",
                 "y",
               ],
@@ -183,6 +208,7 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "x",
               ],
               "value": 3,
@@ -192,6 +218,7 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "x",
               ],
               "value": 6,
@@ -199,13 +226,17 @@ test("undoMiddleware", () => {
             Object {
               "op": "replace",
               "path": Array [
+                "p",
                 "p2",
                 "y",
               ],
               "value": 30,
             },
           ],
-          "targetPath": Array [],
+          "targetPath": Array [
+            "data",
+            "p",
+          ],
         },
       ],
     }

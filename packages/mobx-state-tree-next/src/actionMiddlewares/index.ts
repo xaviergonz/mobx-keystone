@@ -12,4 +12,4 @@ export {
   serializeActionCallArgument,
 } from "./onActionMiddleware"
 export { transaction, transactionMiddleware } from "./transactionMiddleware"
-export { UndoEvent, UndoManager, undoMiddleware, UndoStore } from "./undoMiddleware"
+export { UndoEvent, UndoManager, undoMiddleware, UndoStore, withoutUndo } from "./undoMiddleware"

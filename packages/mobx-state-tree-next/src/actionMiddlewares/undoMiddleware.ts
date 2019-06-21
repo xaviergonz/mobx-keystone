@@ -44,50 +44,55 @@ export class UndoStore extends Model {
   /**
    * @internal
    */
-  // TODO: @noUndo
   @modelAction
   _clearUndo() {
-    this.data.undoEvents.length = 0
+    withoutUndo(() => {
+      this.data.undoEvents.length = 0
+    })
   }
 
   /**
    * @internal
    */
-  // TODO: @noUndo
   @modelAction
   _clearRedo() {
-    this.data.redoEvents.length = 0
+    withoutUndo(() => {
+      this.data.redoEvents.length = 0
+    })
   }
 
   /**
    * @internal
    */
-  // TODO: @noUndo
   @modelAction
   _undo() {
-    const event = this.data.undoEvents.pop()!
-    this.data.redoEvents.push(event)
+    withoutUndo(() => {
+      const event = this.data.undoEvents.pop()!
+      this.data.redoEvents.push(event)
+    })
   }
 
   /**
    * @internal
    */
-  // TODO: @noUndo
   @modelAction
   _redo() {
-    const event = this.data.redoEvents.pop()!
-    this.data.undoEvents.push(event)
+    withoutUndo(() => {
+      const event = this.data.redoEvents.pop()!
+      this.data.undoEvents.push(event)
+    })
   }
 
   /**
    * @internal
    */
-  // TODO: @noUndo
   @modelAction
   _addUndo(event: UndoEvent) {
-    this.data.undoEvents.push(event)
-    // once an undo event is added redo queue is no longer valid
-    this.data.redoEvents.length = 0
+    withoutUndo(() => {
+      this.data.undoEvents.push(event)
+      // once an undo event is added redo queue is no longer valid
+      this.data.redoEvents.length = 0
+    })
   }
 }
 
@@ -177,7 +182,7 @@ export class UndoManager {
     }
     const event = this.undoQueue[this.undoQueue.length - 1]
 
-    skipUndo(() => {
+    withoutUndo(() => {
       applyPatches(this.target, event.inversePathes)
     })
 
@@ -195,7 +200,7 @@ export class UndoManager {
     }
     const event = this.redoQueue[this.redoQueue.length - 1]
 
-    skipUndo(() => {
+    withoutUndo(() => {
       applyPatches(this.target, event.patches)
     })
 
@@ -228,9 +233,12 @@ export function undoMiddleware(model: Model, store?: UndoStore): UndoManager {
 
   const patchRecorderSymbol = Symbol("patchRecorder")
   function initPatchRecorder(ctx: SimpleActionContext) {
-    ctx.rootContext.data[patchRecorderSymbol] = patchRecorder(model, { recording: false })
+    ctx.rootContext.data[patchRecorderSymbol] = patchRecorder(model, {
+      recording: false,
+      filter: undoDisabledFilter,
+    })
   }
-  function getPatchRecorder(ctx: SimpleActionContext): PatchRecorder | undefined {
+  function getPatchRecorder(ctx: SimpleActionContext): PatchRecorder {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
 
@@ -240,35 +248,32 @@ export function undoMiddleware(model: Model, store?: UndoStore): UndoManager {
     { model },
     {
       onStart(ctx) {
-        if (!undoDisabled && ctx === ctx.rootContext) {
+        if (ctx === ctx.rootContext) {
           initPatchRecorder(ctx)
         }
       },
       onResume(ctx) {
         const patchRecorder = getPatchRecorder(ctx)
-        if (patchRecorder) {
-          patchRecorder.recording = true
-        }
+        patchRecorder.recording = true
       },
       onSuspend(ctx) {
         const patchRecorder = getPatchRecorder(ctx)
-        if (patchRecorder) {
-          patchRecorder.recording = false
-        }
+        patchRecorder.recording = false
       },
       onFinish(ctx) {
         if (ctx === ctx.rootContext) {
           const patchRecorder = getPatchRecorder(ctx)
-          if (patchRecorder) {
+
+          if (patchRecorder.patches.length > 0 || patchRecorder.inversePatches.length > 0) {
             manager.store._addUndo({
               targetPath: getRootPath(ctx.target).path,
               actionName: ctx.name,
               patches: patchRecorder.patches,
               inversePathes: patchRecorder.inversePatches,
             })
-
-            patchRecorder.dispose()
           }
+
+          patchRecorder.dispose()
         }
       },
     }
@@ -280,6 +285,10 @@ export function undoMiddleware(model: Model, store?: UndoStore): UndoManager {
 
 let undoDisabled = false
 
+const undoDisabledFilter = () => {
+  return !undoDisabled
+}
+
 /**
  * Skips the undo recording mechanism for the code block that gets run synchronously inside.
  *
@@ -287,7 +296,7 @@ let undoDisabled = false
  * @param fn
  * @returns
  */
-function skipUndo<T>(fn: () => T): T {
+export function withoutUndo<T>(fn: () => T): T {
   const savedUndoDisabled = undoDisabled
   undoDisabled = true
   try {
