@@ -34,7 +34,7 @@ function flow<R, Args extends any[]>(
     ).apply(self, args as Args)
 
     const promise = new Promise<R>(function(resolve, reject) {
-      function onFulfilled(res: any) {
+      function onFulfilled(res: any): void {
         let ret
         try {
           ret = wrapInAction(
@@ -44,21 +44,26 @@ function flow<R, Args extends any[]>(
             ctxOverride(ActionContextAsyncStepType.Resume)
           ).call(self, res)
         } catch (e) {
-          return wrapInAction(
+          wrapInAction(
             name,
             (err: any) => {
-              reject(err)
-              return err // so it is available to middlewares
+              // we use a flow finisher to allow middlewares to tweak the return value before resolution
+              return {
+                value: err,
+                resolver: reject,
+              } as FlowFinisher
             },
             ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.Throw)
+            ctxOverride(ActionContextAsyncStepType.Throw),
+            true
           ).call(self, e)
+          return
         }
 
         next(ret)
       }
 
-      function onRejected(err: any) {
+      function onRejected(err: any): void {
         let ret
         try {
           ret = wrapInAction(
@@ -68,40 +73,47 @@ function flow<R, Args extends any[]>(
             ctxOverride(ActionContextAsyncStepType.ResumeError)
           ).call(self, err)
         } catch (e) {
-          return wrapInAction(
+          wrapInAction(
             name,
             (err: any) => {
-              reject(err)
-              return err // so it is available to middlewares
+              // we use a flow finisher to allow middlewares to tweak the return value before resolution
+              return {
+                value: err,
+                resolver: reject,
+              } as FlowFinisher
             },
             ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.Throw)
+            ctxOverride(ActionContextAsyncStepType.Throw),
+            true
           ).call(self, e)
+          return
         }
 
         next(ret)
       }
 
-      function next(ret: any) {
+      function next(ret: any): void {
         if (ret && typeof ret.then === "function") {
           // an async iterator
           ret.then(next, reject)
-          return
-        }
-        if (ret.done) {
+        } else if (ret.done) {
           // done
-          return wrapInAction(
+          wrapInAction(
             name,
             (val: any) => {
-              resolve(val)
-              return val // so it is available to middlewares
+              // we use a flow finisher to allow middlewares to tweak the return value before resolution
+              return {
+                value: val,
+                resolver: resolve,
+              } as FlowFinisher
             },
             ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.Return)
+            ctxOverride(ActionContextAsyncStepType.Return),
+            true
           ).call(self, ret.value)
         } else {
           // continue
-          return Promise.resolve(ret.value).then(onFulfilled, onRejected)
+          Promise.resolve(ret.value).then(onFulfilled, onRejected)
         }
       }
 
@@ -113,6 +125,14 @@ function flow<R, Args extends any[]>(
   ;(flowFn as any)[modelFlowSymbol] = true
 
   return flowFn
+}
+
+/**
+ * @internal
+ */
+export interface FlowFinisher {
+  value: any
+  resolver(value: any): void
 }
 
 /**

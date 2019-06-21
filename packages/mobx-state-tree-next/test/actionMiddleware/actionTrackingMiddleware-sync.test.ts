@@ -105,13 +105,17 @@ test("actionTrackingMiddleware - sync", () => {
           context: ctx,
         })
       },
-      onFinish(ctx, result, value) {
+      onFinish(ctx, result, value, overrideValue) {
         events.push({
           type: "finish",
           result,
           value,
           context: ctx,
         })
+
+        if (ctx.name === "addXY") {
+          overrideValue(value + 1000)
+        }
       },
     }
   )
@@ -148,8 +152,8 @@ test("actionTrackingMiddleware - sync", () => {
 
   // action on the root with sub-action on the child
   reset()
-  p1.addXY(3, 4)
-  p2.addXY(3, 4)
+  expect(p1.addXY(3, 4) > 1000).toBeTruthy() // because of the return value override
+  expect(p2.addXY(3, 4) < 1000).toBeTruthy()
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
     Array [
       "addXY (filter)",
@@ -188,8 +192,8 @@ test("actionTrackingMiddleware - sync", () => {
   // disposing
   reset()
   disposer()
-  p1.addXY(5, 6)
-  p2.addXY(5, 6)
+  expect(p1.addXY(5, 6) < 1000).toBeTruthy() // the value override should be gone by now
+  expect(p2.addXY(5, 6) < 1000).toBeTruthy()
   expect(events.map(eventToString)).toMatchInlineSnapshot(`Array []`)
   expect(events).toMatchSnapshot()
 })

@@ -8,6 +8,7 @@ import {
   ActionMiddlewareDisposer,
   addActionMiddleware,
 } from "../action/middleware"
+import { FlowFinisher } from "../action/modelFlow"
 import { assertIsModel, Model } from "../model/Model"
 import { assertIsObject, failure } from "../utils"
 
@@ -58,10 +59,15 @@ export enum ActionTrackingResult {
  */
 export interface ActionTrackingMiddleware {
   filter?(ctx: SimpleActionContext): boolean
-  onStart(ctx: SimpleActionContext): void
+  onStart?(ctx: SimpleActionContext): void
   onResume?(ctx: SimpleActionContext): void
   onSuspend?(ctx: SimpleActionContext): void
-  onFinish(ctx: SimpleActionContext, result: ActionTrackingResult, value: any): void
+  onFinish?(
+    ctx: SimpleActionContext,
+    result: ActionTrackingResult,
+    value: any,
+    overrideValue: (newValue: any) => void
+  ): void
 }
 
 /**
@@ -171,14 +177,21 @@ export function actionTrackingMiddleware<M extends Model>(
     }
   }
 
-  const start = (simpleCtx: SimpleActionContext) => {
+  const start: ActionTrackingMiddleware["onStart"] = simpleCtx => {
     setCtxData(simpleCtx, {
       state: "started",
     })
-    hooks.onStart(simpleCtx)
+    if (hooks.onStart) {
+      hooks.onStart(simpleCtx)
+    }
   }
 
-  const finish = (simpleCtx: SimpleActionContext, result: ActionTrackingResult, value: any) => {
+  const finish: ActionTrackingMiddleware["onFinish"] = (
+    simpleCtx,
+    result,
+    value,
+    overrideValue
+  ) => {
     // fakely resume and suspend the parent if needed
     const parentCtx = simpleCtx.parentContext
     let parentResumed = false
@@ -193,7 +206,9 @@ export function actionTrackingMiddleware<M extends Model>(
     setCtxData(simpleCtx, {
       state: "finished",
     })
-    hooks.onFinish(simpleCtx, result, value)
+    if (hooks.onFinish) {
+      hooks.onFinish(simpleCtx, result, value, overrideValue)
+    }
 
     if (parentResumed) {
       suspend(parentCtx!)
@@ -256,11 +271,15 @@ export function actionTrackingMiddleware<M extends Model>(
       try {
         ret = next()
       } catch (err) {
-        finish(simpleCtx, ActionTrackingResult.Throw, err)
+        finish(simpleCtx, ActionTrackingResult.Throw, err, newValue => {
+          err = newValue
+        })
         throw err
       }
 
-      finish(simpleCtx, ActionTrackingResult.Return, ret)
+      finish(simpleCtx, ActionTrackingResult.Return, ret, newValue => {
+        ret = newValue
+      })
       return ret
     } else {
       // async
@@ -272,14 +291,18 @@ export function actionTrackingMiddleware<M extends Model>(
         }
 
         case ActionContextAsyncStepType.Return: {
-          const ret = next()
-          finish(simpleCtx, ActionTrackingResult.Return, ret)
+          const ret: FlowFinisher = next()
+          finish(simpleCtx, ActionTrackingResult.Return, ret.value, newValue => {
+            ret.value = newValue
+          })
           return ret
         }
 
         case ActionContextAsyncStepType.Throw: {
-          const ret = next()
-          finish(simpleCtx, ActionTrackingResult.Throw, ret)
+          const ret: FlowFinisher = next()
+          finish(simpleCtx, ActionTrackingResult.Throw, ret.value, newValue => {
+            ret.value = newValue
+          })
           return ret
         }
 
