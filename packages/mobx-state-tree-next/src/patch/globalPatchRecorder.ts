@@ -35,18 +35,20 @@ export interface GlobalPatchRecorder {
  * @param [opts]
  * @returns The global patch recorder.
  */
-export function globalPatchRecorder(opts?: { recording?: boolean }): GlobalPatchRecorder {
-  const realOpts = {
+export function globalPatchRecorder(opts?: {
+  recording?: boolean
+  filter?(patches: Patch[], inversePatches: Patch[]): boolean
+}): GlobalPatchRecorder {
+  let { recording, filter } = {
     recording: true,
+    filter: alwaysAcceptFilter,
     ...opts,
   }
-
-  let recording = realOpts.recording
 
   const events: GlobalPatchRecorder["events"] = []
 
   const onPatchesDisposer = onGlobalPatches((target, p, invP) => {
-    if (recording) {
+    if (recording && filter(p, invP)) {
       events.push({
         target,
         patches: p,
@@ -70,3 +72,5 @@ export function globalPatchRecorder(opts?: { recording?: boolean }): GlobalPatch
     },
   }
 }
+
+const alwaysAcceptFilter = () => true

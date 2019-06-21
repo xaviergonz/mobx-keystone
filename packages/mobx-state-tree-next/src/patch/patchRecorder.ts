@@ -38,19 +38,21 @@ export interface PatchRecorder {
  * @param [opts]
  * @returns The patch recorder.
  */
-export function patchRecorder(target: object, opts?: { recording?: boolean }): PatchRecorder {
-  const realOpts = {
+export function patchRecorder(
+  target: object,
+  opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }
+): PatchRecorder {
+  let { recording, filter } = {
     recording: true,
+    filter: alwaysAcceptFilter,
     ...opts,
   }
-
-  let recording = realOpts.recording
 
   const patches: Patch[] = []
   const invPatches: Patch[] = []
 
   const onPatchesDisposer = onPatches(target, (p, invP) => {
-    if (recording) {
+    if (recording && filter(p, invP)) {
       patches.push(...p)
       // inversed since inverse patches have to be applied in inverse order
       invPatches.unshift(...invP)
@@ -78,3 +80,5 @@ export function patchRecorder(target: object, opts?: { recording?: boolean }): P
     },
   }
 }
+
+const alwaysAcceptFilter = () => true
