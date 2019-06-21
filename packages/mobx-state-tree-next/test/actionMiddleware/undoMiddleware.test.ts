@@ -1,5 +1,4 @@
 import {
-  addActionMiddleware,
   getSnapshot,
   model,
   Model,
@@ -45,11 +44,9 @@ class P extends Model {
 test("undoMiddleware", () => {
   const p = new P()
 
-  const { manager, middleware } = undoMiddleware(p)
+  const manager = undoMiddleware(p)
   expect(manager instanceof UndoManager).toBeTruthy()
-  expect(middleware).toBeTruthy()
-  const disposer = addActionMiddleware(middleware)
-  autoDispose(disposer)
+  autoDispose(() => manager.dispose())
 
   function getEvents(): { undo: ReadonlyArray<UndoEvent>; redo: ReadonlyArray<UndoEvent> } {
     return {
@@ -246,7 +243,7 @@ test("undoMiddleware", () => {
   expectUndoRedoToBe(0, 0)
 
   // doesn't record after disposing
-  disposer()
+  manager.dispose()
   p.incX(200)
   expectUndoRedoToBe(0, 0)
 })

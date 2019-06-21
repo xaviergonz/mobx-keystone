@@ -2,7 +2,6 @@ import { observable } from "mobx"
 import {
   ActionCall,
   ActionContext,
-  addActionMiddleware,
   applySnapshot,
   getSnapshot,
   model,
@@ -60,12 +59,10 @@ test("onActionMiddleware", () => {
     events.length = 0
   }
 
-  const recorder = onActionMiddleware({ model: p1 }, (actionCall, ctx, next) => {
+  const disposer = onActionMiddleware({ model: p1 }, (actionCall, ctx, next) => {
     events.push([actionCall, ctx])
     return next()
   })
-
-  const disposer = addActionMiddleware(recorder)
   autoDispose(disposer)
 
   // action on the root

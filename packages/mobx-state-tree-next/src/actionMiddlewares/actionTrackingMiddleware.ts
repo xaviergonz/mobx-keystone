@@ -3,7 +3,11 @@ import {
   ActionContextActionType,
   ActionContextAsyncStepType,
 } from "../action/context"
-import { ActionMiddleware } from "../action/middleware"
+import {
+  ActionMiddleware,
+  ActionMiddlewareDisposer,
+  addActionMiddleware,
+} from "../action/middleware"
 import { assertIsModel, Model } from "../model/Model"
 import { assertIsObject, failure } from "../utils"
 
@@ -71,7 +75,7 @@ export interface ActionTrackingMiddleware {
  * @param target Root target model object. If an `actionName` is provided then
  * the tracking middleware will only be called for that particular action and its sub-actions.
  * @param hooks Middleware hooks.
- * @returns The actual middleware to pass to `addActionMiddleware`.
+ * @returns The middleware disposer.
  */
 export function actionTrackingMiddleware<M extends Model>(
   target: {
@@ -79,7 +83,7 @@ export function actionTrackingMiddleware<M extends Model>(
     actionName?: keyof M
   },
   hooks: ActionTrackingMiddleware
-): ActionMiddleware {
+): ActionMiddlewareDisposer {
   assertIsObject(target, "target")
 
   const { model, actionName } = target
@@ -297,7 +301,7 @@ export function actionTrackingMiddleware<M extends Model>(
     }
   }
 
-  return { middleware: mware, filter, target: model }
+  return addActionMiddleware({ middleware: mware, filter, target: model })
 }
 
 const simpleDataContextSymbol = Symbol("simpleDataContext")

@@ -1,7 +1,6 @@
 import {
   ActionCall,
   ActionContext,
-  addActionMiddleware,
   FlowRet,
   getSnapshot,
   model,
@@ -88,7 +87,7 @@ test("flow", async () => {
     events.length = 0
   }
 
-  const recorder = onActionMiddleware({ model: p }, (actionCall, context, next) => {
+  const disposer = onActionMiddleware({ model: p }, (actionCall, context, next) => {
     events.push({
       actionCall,
       context,
@@ -96,7 +95,6 @@ test("flow", async () => {
     let ret = next()
     return ret
   })
-  const disposer = addActionMiddleware(recorder)
   autoDispose(disposer)
 
   reset()
