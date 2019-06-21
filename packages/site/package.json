@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "name": "site",
+  "version": "0.0.0",
+  "description": "Documentation site source for mobx-state-tree-next",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "docz dev",
+    "build": "docz build"
+  },
+  "dependencies": {
+    "mobx": "^5.10.1",
+    "mobx-react": "^6.1.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.22",
+    "@types/react-dom": "^16.8.4",
+    "docz": "^1.2.0",
+    "docz-theme-default": "^1.2.0",
+    "prettier": "^1.18.2"
+  }
+}

@@ -1,9 +1,15 @@
 {
   "name": "mobx-state-tree-next",
   "version": "0.1.0",
-  "description": "TODO",
+  "description": "Opinionated, transactional, MobX powered state container",
   "keywords": [
-    "TODO"
+    "mobx",
+    "mobx-state-tree-next",
+    "mobx-state-tree",
+    "reactive",
+    "frp",
+    "functional-reactive-programming",
+    "state management"
   ],
   "license": "MIT",
   "main": "dist/index.js",
