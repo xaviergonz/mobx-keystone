@@ -63,10 +63,10 @@ test("actionTrackingMiddleware - sync", () => {
   }
 
   function eventToString(ev: Event) {
-    let str = `${ev.context.name} (${ev.type}${ev.result ? " - " + ev.result : ""})`
+    let str = `${ev.context.actionName} (${ev.type}${ev.result ? " - " + ev.result : ""})`
     let current = ev.context.parentContext
     while (current) {
-      str = `${current.name}` + " > " + str
+      str = `${current.actionName}` + " > " + str
       current = current.parentContext
     }
     return str
@@ -113,7 +113,7 @@ test("actionTrackingMiddleware - sync", () => {
           context: ctx,
         })
 
-        if (ctx.name === "addXY") {
+        if (ctx.actionName === "addXY") {
           overrideValue(value + 1000)
         }
       },

@@ -388,7 +388,7 @@ export function simplifyActionContext(ctx: ActionContext): SimpleActionContext {
     const parentContext = ctx.parentContext ? simplifyActionContext(ctx.parentContext) : undefined
 
     simpleCtx = {
-      name: ctx.actionName,
+      actionName: ctx.actionName,
       type: ctx.type,
       target: ctx.target,
       args: ctx.args,
