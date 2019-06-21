@@ -4,6 +4,7 @@ exports[`actionTrackingMiddleware - flow 2`] = `
 Array [
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -14,7 +15,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -41,6 +41,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -51,7 +52,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -78,6 +78,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -88,7 +89,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -115,6 +115,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -125,7 +126,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -152,6 +152,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -162,7 +163,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -189,6 +189,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -199,7 +200,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -226,6 +226,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -236,7 +237,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -263,6 +263,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         0.5,
       ],
@@ -273,8 +274,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -285,7 +286,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -309,6 +309,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -319,7 +320,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -366,6 +366,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         0.5,
       ],
@@ -376,8 +377,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -388,7 +389,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -412,6 +412,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -422,7 +423,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -469,6 +469,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         0.5,
       ],
@@ -479,8 +480,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -491,7 +492,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -515,6 +515,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -525,7 +526,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -572,6 +572,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         0.5,
       ],
@@ -582,8 +583,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -594,7 +595,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -618,6 +618,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -628,7 +629,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -675,6 +675,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         0.5,
       ],
@@ -685,8 +686,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -697,7 +698,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -721,6 +721,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addX",
         "args": Array [
           2,
         ],
@@ -731,7 +732,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -780,6 +780,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -790,7 +791,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -817,6 +817,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -827,7 +828,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -854,6 +854,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -864,7 +865,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -891,6 +891,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -901,7 +902,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -928,6 +928,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -938,7 +939,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -965,6 +965,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         2,
       ],
@@ -975,7 +976,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1009,6 +1009,7 @@ exports[`actionTrackingMiddleware - flow 4`] = `
 Array [
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -1020,7 +1021,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1047,6 +1047,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -1058,7 +1059,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1085,6 +1085,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -1096,7 +1097,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1123,6 +1123,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -1134,7 +1135,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1161,6 +1161,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -1172,7 +1173,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1199,6 +1199,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -1209,8 +1210,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1222,7 +1223,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1246,6 +1246,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1257,7 +1258,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1304,6 +1304,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -1314,8 +1315,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1327,7 +1328,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1351,6 +1351,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1362,7 +1363,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1409,6 +1409,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -1419,8 +1420,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1432,7 +1433,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1456,6 +1456,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1467,7 +1468,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1514,6 +1514,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -1524,8 +1525,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1537,7 +1538,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1561,6 +1561,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1572,7 +1573,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1619,6 +1619,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -1629,8 +1630,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1642,7 +1643,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1666,6 +1666,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1677,7 +1678,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1724,6 +1724,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -1734,8 +1735,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1747,7 +1748,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1771,6 +1771,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1782,7 +1783,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1829,6 +1829,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -1840,7 +1841,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1867,6 +1867,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -1878,7 +1879,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -1905,6 +1905,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -1915,8 +1916,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1928,7 +1929,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -1952,6 +1952,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -1963,7 +1964,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2010,6 +2010,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         1,
       ],
@@ -2020,8 +2021,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           4,
         ],
@@ -2032,8 +2033,8 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2045,7 +2046,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2069,6 +2069,7 @@ Array [
           "type": "async",
         },
         "rootContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2080,7 +2081,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2124,6 +2124,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -2135,7 +2136,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2182,6 +2182,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         1,
       ],
@@ -2192,8 +2193,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           4,
         ],
@@ -2204,8 +2205,8 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2217,7 +2218,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2241,6 +2241,7 @@ Array [
           "type": "async",
         },
         "rootContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2252,7 +2253,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2296,6 +2296,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -2307,7 +2308,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2354,6 +2354,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         1,
       ],
@@ -2364,8 +2365,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           4,
         ],
@@ -2376,8 +2377,8 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2389,7 +2390,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2413,6 +2413,7 @@ Array [
           "type": "async",
         },
         "rootContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2424,7 +2425,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2468,6 +2468,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -2479,7 +2480,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2526,6 +2526,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         1,
       ],
@@ -2536,8 +2537,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           4,
         ],
@@ -2548,8 +2549,8 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2561,7 +2562,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2585,6 +2585,7 @@ Array [
           "type": "async",
         },
         "rootContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2596,7 +2597,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2640,6 +2640,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -2651,7 +2652,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2698,6 +2698,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXSync",
       "args": Array [
         1,
       ],
@@ -2708,8 +2709,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXSync",
       "parentContext": Object {
+        "actionName": "addX",
         "args": Array [
           4,
         ],
@@ -2720,8 +2721,8 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addX",
         "parentContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2733,7 +2734,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2757,6 +2757,7 @@ Array [
           "type": "async",
         },
         "rootContext": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
@@ -2768,7 +2769,6 @@ Array [
               "state": "finished",
             },
           },
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -2812,6 +2812,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -2823,7 +2824,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2872,6 +2872,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -2882,8 +2883,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -2895,7 +2896,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2919,6 +2919,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -2930,7 +2931,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -2977,6 +2977,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -2988,7 +2989,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3015,6 +3015,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -3026,293 +3027,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
-      "parentContext": undefined,
-      "rootContext": [Circular],
-      "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P",
-        },
-        "data": Object {
-          "p2": P2 {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P2",
-            },
-            "data": Object {
-              "y": 4,
-            },
-          },
-          "x": 6,
-        },
-      },
-      "type": "async",
-    },
-    "type": "resume",
-  },
-  Object {
-    "context": Object {
-      "args": Array [
-        4,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "name": "addX",
-      "parentContext": Object {
-        "args": Array [
-          4,
-          4,
-        ],
-        "data": Object {
-          Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
-            "startAccepted": true,
-            "state": "finished",
-          },
-        },
-        "name": "addXY",
-        "parentContext": undefined,
-        "rootContext": [Circular],
-        "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-1",
-            "type": "P",
-          },
-          "data": Object {
-            "p2": P2 {
-              "$$metadata": Object {
-                "id": "mockedUuid-2",
-                "type": "P2",
-              },
-              "data": Object {
-                "y": 4,
-              },
-            },
-            "x": 6,
-          },
-        },
-        "type": "async",
-      },
-      "rootContext": Object {
-        "args": Array [
-          4,
-          4,
-        ],
-        "data": Object {
-          Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
-            "startAccepted": true,
-            "state": "finished",
-          },
-        },
-        "name": "addXY",
-        "parentContext": undefined,
-        "rootContext": [Circular],
-        "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-1",
-            "type": "P",
-          },
-          "data": Object {
-            "p2": P2 {
-              "$$metadata": Object {
-                "id": "mockedUuid-2",
-                "type": "P2",
-              },
-              "data": Object {
-                "y": 4,
-              },
-            },
-            "x": 6,
-          },
-        },
-        "type": "async",
-      },
-      "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P",
-        },
-        "data": Object {
-          "p2": P2 {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P2",
-            },
-            "data": Object {
-              "y": 4,
-            },
-          },
-          "x": 6,
-        },
-      },
-      "type": "async",
-    },
-    "type": "resume",
-  },
-  Object {
-    "context": Object {
-      "args": Array [
-        4,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "name": "addX",
-      "parentContext": Object {
-        "args": Array [
-          4,
-          4,
-        ],
-        "data": Object {
-          Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
-            "startAccepted": true,
-            "state": "finished",
-          },
-        },
-        "name": "addXY",
-        "parentContext": undefined,
-        "rootContext": [Circular],
-        "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-1",
-            "type": "P",
-          },
-          "data": Object {
-            "p2": P2 {
-              "$$metadata": Object {
-                "id": "mockedUuid-2",
-                "type": "P2",
-              },
-              "data": Object {
-                "y": 4,
-              },
-            },
-            "x": 6,
-          },
-        },
-        "type": "async",
-      },
-      "rootContext": Object {
-        "args": Array [
-          4,
-          4,
-        ],
-        "data": Object {
-          Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
-            "startAccepted": true,
-            "state": "finished",
-          },
-        },
-        "name": "addXY",
-        "parentContext": undefined,
-        "rootContext": [Circular],
-        "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-1",
-            "type": "P",
-          },
-          "data": Object {
-            "p2": P2 {
-              "$$metadata": Object {
-                "id": "mockedUuid-2",
-                "type": "P2",
-              },
-              "data": Object {
-                "y": 4,
-              },
-            },
-            "x": 6,
-          },
-        },
-        "type": "async",
-      },
-      "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P",
-        },
-        "data": Object {
-          "p2": P2 {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P2",
-            },
-            "data": Object {
-              "y": 4,
-            },
-          },
-          "x": 6,
-        },
-      },
-      "type": "async",
-    },
-    "type": "suspend",
-  },
-  Object {
-    "context": Object {
-      "args": Array [
-        4,
-        4,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "name": "addXY",
-      "parentContext": undefined,
-      "rootContext": [Circular],
-      "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P",
-        },
-        "data": Object {
-          "p2": P2 {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P2",
-            },
-            "data": Object {
-              "y": 4,
-            },
-          },
-          "x": 6,
-        },
-      },
-      "type": "async",
-    },
-    "type": "suspend",
-  },
-  Object {
-    "context": Object {
-      "args": Array [
-        4,
-        4,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3339,6 +3053,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -3349,8 +3064,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3362,7 +3077,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3386,6 +3100,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3397,7 +3112,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3444,6 +3158,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -3454,8 +3169,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3467,7 +3182,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3491,6 +3205,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3502,7 +3217,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3549,6 +3263,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -3560,7 +3275,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3587,6 +3301,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -3598,7 +3313,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3625,6 +3339,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addX",
       "args": Array [
         4,
       ],
@@ -3635,8 +3350,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addX",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3648,7 +3363,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3672,6 +3386,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3683,7 +3398,292 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
+        "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 4,
+              },
+            },
+            "x": 6,
+          },
+        },
+        "type": "async",
+      },
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 4,
+            },
+          },
+          "x": 6,
+        },
+      },
+      "type": "async",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addX",
+      "args": Array [
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": Object {
+        "actionName": "addXY",
+        "args": Array [
+          4,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 4,
+              },
+            },
+            "x": 6,
+          },
+        },
+        "type": "async",
+      },
+      "rootContext": Object {
+        "actionName": "addXY",
+        "args": Array [
+          4,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 4,
+              },
+            },
+            "x": 6,
+          },
+        },
+        "type": "async",
+      },
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 4,
+            },
+          },
+          "x": 6,
+        },
+      },
+      "type": "async",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addXY",
+      "args": Array [
+        4,
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 4,
+            },
+          },
+          "x": 6,
+        },
+      },
+      "type": "async",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addXY",
+      "args": Array [
+        4,
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 4,
+            },
+          },
+          "x": 6,
+        },
+      },
+      "type": "async",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addX",
+      "args": Array [
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": Object {
+        "actionName": "addXY",
+        "args": Array [
+          4,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
+        "parentContext": undefined,
+        "rootContext": [Circular],
+        "target": P {
+          "$$metadata": Object {
+            "id": "mockedUuid-1",
+            "type": "P",
+          },
+          "data": Object {
+            "p2": P2 {
+              "$$metadata": Object {
+                "id": "mockedUuid-2",
+                "type": "P2",
+              },
+              "data": Object {
+                "y": 4,
+              },
+            },
+            "x": 6,
+          },
+        },
+        "type": "async",
+      },
+      "rootContext": Object {
+        "actionName": "addXY",
+        "args": Array [
+          4,
+          4,
+        ],
+        "data": Object {
+          Symbol(simpleDataContext): [Circular],
+          Symbol(actionTrackingMiddlewareData): Object {
+            "startAccepted": true,
+            "state": "finished",
+          },
+        },
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3732,6 +3732,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -3743,7 +3744,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3770,6 +3770,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -3781,7 +3782,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3808,6 +3808,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -3819,7 +3820,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3846,6 +3846,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -3857,7 +3858,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -3884,6 +3884,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -3894,8 +3895,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3907,7 +3908,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3931,6 +3931,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -3942,7 +3943,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -3980,6 +3980,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -3990,8 +3991,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4003,7 +4004,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4027,6 +4027,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4038,7 +4039,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4076,6 +4076,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4086,8 +4087,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4099,7 +4100,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4123,6 +4123,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4134,7 +4135,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4172,6 +4172,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4182,8 +4183,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4195,7 +4196,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4219,6 +4219,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4230,7 +4231,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4268,6 +4268,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4278,8 +4279,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4291,7 +4292,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4315,6 +4315,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4326,7 +4327,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4364,6 +4364,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4374,8 +4375,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4387,7 +4388,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4411,6 +4411,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4422,7 +4423,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4460,6 +4460,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -4471,7 +4472,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -4498,6 +4498,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -4509,7 +4510,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -4536,6 +4536,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4546,8 +4547,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4559,7 +4560,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4583,6 +4583,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4594,7 +4595,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4632,6 +4632,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4642,8 +4643,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4655,7 +4656,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4679,6 +4679,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4690,7 +4691,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4728,6 +4728,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -4739,7 +4740,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -4766,6 +4766,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -4777,7 +4778,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -4804,6 +4804,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4814,8 +4815,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4827,7 +4828,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4851,6 +4851,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4862,7 +4863,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4900,6 +4900,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -4910,8 +4911,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4923,7 +4924,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4947,6 +4947,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -4958,7 +4959,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -4996,6 +4996,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5007,7 +5008,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5034,6 +5034,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5045,7 +5046,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5072,6 +5072,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addY",
       "args": Array [
         4,
       ],
@@ -5082,8 +5083,8 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addY",
       "parentContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -5095,7 +5096,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -5119,6 +5119,7 @@ Array [
         "type": "async",
       },
       "rootContext": Object {
+        "actionName": "addXY",
         "args": Array [
           4,
           4,
@@ -5130,7 +5131,6 @@ Array [
             "state": "finished",
           },
         },
-        "name": "addXY",
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
@@ -5170,6 +5170,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5181,7 +5182,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5208,6 +5208,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5219,7 +5220,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5246,6 +5246,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5257,7 +5258,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5284,6 +5284,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5295,7 +5296,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5322,6 +5322,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5333,7 +5334,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5360,6 +5360,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "addXY",
       "args": Array [
         4,
         4,
@@ -5371,7 +5372,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "addXY",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5405,6 +5405,7 @@ exports[`actionTrackingMiddleware - flow 6`] = `
 Array [
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5415,7 +5416,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5442,6 +5442,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5452,7 +5453,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5479,6 +5479,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5489,7 +5490,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5516,6 +5516,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5526,7 +5527,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5553,6 +5553,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5563,7 +5564,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5590,6 +5590,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5600,7 +5601,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5627,6 +5627,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5637,7 +5638,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5664,6 +5664,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5674,7 +5675,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5701,6 +5701,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5711,7 +5712,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5738,6 +5738,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5748,7 +5749,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
@@ -5775,6 +5775,7 @@ Array [
   },
   Object {
     "context": Object {
+      "actionName": "throwFlow",
       "args": Array [
         10,
       ],
@@ -5785,7 +5786,6 @@ Array [
           "state": "finished",
         },
       },
-      "name": "throwFlow",
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {

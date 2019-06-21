@@ -111,7 +111,7 @@ test("undoMiddleware - sync", () => {
       "redo": Array [],
       "undo": Array [
         Object {
-          "actionName": undefined,
+          "actionName": "incX",
           "inversePathes": Array [
             Object {
               "op": "replace",
@@ -138,7 +138,7 @@ test("undoMiddleware - sync", () => {
           ],
         },
         Object {
-          "actionName": undefined,
+          "actionName": "incX",
           "inversePathes": Array [
             Object {
               "op": "replace",
@@ -165,7 +165,7 @@ test("undoMiddleware - sync", () => {
           ],
         },
         Object {
-          "actionName": undefined,
+          "actionName": "incY",
           "inversePathes": Array [
             Object {
               "op": "replace",
@@ -196,7 +196,7 @@ test("undoMiddleware - sync", () => {
           ],
         },
         Object {
-          "actionName": undefined,
+          "actionName": "incXY",
           "inversePathes": Array [
             Object {
               "op": "replace",
@@ -392,7 +392,7 @@ test("undoMiddleware - async", async () => {
       "redo": Array [],
       "undo": Array [
         Object {
-          "actionName": undefined,
+          "actionName": "incX",
           "inversePathes": Array [
             Object {
               "op": "replace",
@@ -419,7 +419,7 @@ test("undoMiddleware - async", async () => {
           ],
         },
         Object {
-          "actionName": undefined,
+          "actionName": "incX",
           "inversePathes": Array [
             Object {
               "op": "replace",
@@ -446,7 +446,7 @@ test("undoMiddleware - async", async () => {
           ],
         },
         Object {
-          "actionName": undefined,
+          "actionName": "incY",
           "inversePathes": Array [
             Object {
               "op": "replace",
@@ -477,7 +477,7 @@ test("undoMiddleware - async", async () => {
           ],
         },
         Object {
-          "actionName": undefined,
+          "actionName": "incXY",
           "inversePathes": Array [
             Object {
               "op": "replace",
