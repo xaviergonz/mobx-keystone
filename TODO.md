@@ -10,7 +10,7 @@
 
 - (6) it is not possible to change the result of flow actions through middlewares (well, maybe it is if we return next().then(res => ...) from the spawn?)
 
-- middlewares: (5) redux mware, (7) undo manager...
+- middlewares: (5) redux mware...
 
 - refs? done, but need to document that saferefs only work properly when the ref is under a rootstore and the typing gotchas
 
