@@ -127,13 +127,16 @@ test("actionTrackingMiddleware - flow", async () => {
           context: ctx,
         })
       },
-      onFinish(ctx, result, value) {
+      onFinish(ctx, result, value, overrideValue) {
         events.push({
           type: "finish",
           result,
           value,
           context: ctx,
         })
+        if (ctx.name === "addXY") {
+          overrideValue(value + 1000)
+        }
       },
     }
   )
@@ -171,7 +174,7 @@ test("actionTrackingMiddleware - flow", async () => {
 
   reset()
   const ret2: FlowRet<typeof p.addXY> = (await p.addXY(4, 4)) as any
-  expect(ret2).toBe(8)
+  expect(ret2).toBe(8 + 1000) // +1000 because of the return value override
   expect(p.data.x).toBe(6)
   expect(p.data.p2.data.y).toBe(4)
 
@@ -270,7 +273,8 @@ test("actionTrackingMiddleware - flow", async () => {
   // disposing
   reset()
   disposer()
-  p.addXY(5, 6)
+  const ret3: FlowRet<typeof p.addXY> = (await p.addXY(5, 6)) as any
+  expect(ret3 < 1000).toBeTruthy() // the return value override should be gone by now
   expect(events.map(eventToString)).toMatchInlineSnapshot(`Array []`)
   expect(events).toMatchSnapshot()
 })

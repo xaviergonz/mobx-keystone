@@ -9,6 +9,7 @@ import {
   setCurrentActionContext,
 } from "./context"
 import { getActionMiddlewares } from "./middleware"
+import { FlowFinisher } from "./modelFlow"
 
 export const modelActionSymbol = Symbol("modelAction")
 
@@ -16,7 +17,8 @@ export function wrapInAction<T extends Function>(
   name: string,
   fn: T,
   actionType: ActionContextActionType,
-  overrideContext?: (ctx: Writable<ActionContext>) => void
+  overrideContext?: (ctx: Writable<ActionContext>) => void,
+  isFlowFinsher = false
 ): T {
   if (!isAction(fn)) {
     fn = action(name, fn)
@@ -62,7 +64,14 @@ export function wrapInAction<T extends Function>(
     })
 
     try {
-      return mwareFn()
+      const ret = mwareFn()
+      if (isFlowFinsher) {
+        const flowFinisher = ret as FlowFinisher
+        flowFinisher.resolver(flowFinisher.value)
+        return flowFinisher.value // not sure if this is even needed
+      } else {
+        return ret
+      }
     } finally {
       setCurrentActionContext(context.parentContext)
     }
