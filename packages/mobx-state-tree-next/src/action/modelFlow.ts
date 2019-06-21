@@ -128,7 +128,7 @@ function flow<R, Args extends any[]>(
 }
 
 /**
- * @internal
+ * @ignore
  */
 export interface FlowFinisher {
   value: any
@@ -178,7 +178,7 @@ export function modelFlow(
   )
 }
 
-export function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
+function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
   if (typeof value !== "function") {
     throw failure("modelFlow has to be used over functions")
   }

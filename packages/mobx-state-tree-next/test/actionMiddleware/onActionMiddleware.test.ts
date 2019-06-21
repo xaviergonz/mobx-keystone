@@ -72,18 +72,18 @@ test("onActionMiddleware", () => {
     Array [
       Array [
         Object {
+          "actionName": "addX",
           "args": Array [
             1,
           ],
-          "name": "addX",
-          "path": Array [],
+          "targetPath": Array [],
         },
         Object {
+          "actionName": "addX",
           "args": Array [
             1,
           ],
           "data": Object {},
-          "name": "addX",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -118,21 +118,21 @@ test("onActionMiddleware", () => {
     Array [
       Array [
         Object {
+          "actionName": "addY",
           "args": Array [
             2,
           ],
-          "name": "addY",
-          "path": Array [
+          "targetPath": Array [
             "data",
             "p2",
           ],
         },
         Object {
+          "actionName": "addY",
           "args": Array [
             2,
           ],
           "data": Object {},
-          "name": "addY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
@@ -158,20 +158,20 @@ test("onActionMiddleware", () => {
     Array [
       Array [
         Object {
+          "actionName": "addXY",
           "args": Array [
             3,
             4,
           ],
-          "name": "addXY",
-          "path": Array [],
+          "targetPath": Array [],
         },
         Object {
+          "actionName": "addXY",
           "args": Array [
             3,
             4,
           ],
           "data": Object {},
-          "name": "addXY",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -209,18 +209,18 @@ test("onActionMiddleware", () => {
     Array [
       Array [
         Object {
+          "actionName": "other",
           "args": Array [
             RandomClass {},
           ],
-          "name": "other",
-          "path": Array [],
+          "targetPath": Array [],
         },
         Object {
+          "actionName": "other",
           "args": Array [
             RandomClass {},
           ],
           "data": Object {},
-          "name": "other",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -255,6 +255,7 @@ test("onActionMiddleware", () => {
     Array [
       Array [
         Object {
+          "actionName": "other",
           "args": Array [
             Array [
               1,
@@ -267,10 +268,10 @@ test("onActionMiddleware", () => {
               6,
             ],
           ],
-          "name": "other",
-          "path": Array [],
+          "targetPath": Array [],
         },
         Object {
+          "actionName": "other",
           "args": Array [
             Array [
               1,
@@ -284,7 +285,6 @@ test("onActionMiddleware", () => {
             ],
           ],
           "data": Object {},
-          "name": "other",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -319,6 +319,7 @@ test("onActionMiddleware", () => {
     Array [
       Array [
         Object {
+          "actionName": "other",
           "args": Array [
             Object {
               "a": 5,
@@ -327,10 +328,10 @@ test("onActionMiddleware", () => {
               "a": 5,
             },
           ],
-          "name": "other",
-          "path": Array [],
+          "targetPath": Array [],
         },
         Object {
+          "actionName": "other",
           "args": Array [
             Object {
               "a": 5,
@@ -340,7 +341,6 @@ test("onActionMiddleware", () => {
             },
           ],
           "data": Object {},
-          "name": "other",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -381,6 +381,7 @@ test("onActionMiddleware", () => {
     Array [
       Array [
         Object {
+          "actionName": "$$applySnapshot",
           "args": Array [
             Object {
               "$$metadata": Object {
@@ -390,13 +391,13 @@ test("onActionMiddleware", () => {
               "y": 100,
             },
           ],
-          "name": "$$applySnapshot",
-          "path": Array [
+          "targetPath": Array [
             "data",
             "p2",
           ],
         },
         Object {
+          "actionName": "$$applySnapshot",
           "args": Array [
             Object {
               "$$metadata": Object {
@@ -407,7 +408,6 @@ test("onActionMiddleware", () => {
             },
           ],
           "data": Object {},
-          "name": "$$applySnapshot",
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {

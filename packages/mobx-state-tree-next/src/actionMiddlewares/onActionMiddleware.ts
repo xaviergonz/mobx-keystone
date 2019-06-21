@@ -13,6 +13,9 @@ import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, isPlainObject, isPrimitive } from "../utils"
 
+/**
+ * A listener for `onActionMiddleware`.
+ */
 export type OnActionListener = (
   actionCall: ActionCall,
   actionContext: ActionContext,
@@ -29,7 +32,7 @@ export type OnActionListener = (
  * sending the action call over the wire / storing them or `serializeActionCall`.
  *
  * @typeparam M Model
- * @param target Root target model object. If `actionName` is provided it will only run for that particular action.
+ * @param target Object with the root target model object (`model`). If `actionName` is provided it will only run for that particular action.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
  * @returns The middleware disposer.
  */
@@ -56,14 +59,14 @@ export function onActionMiddleware<M extends Model>(
       return false
     }
 
-    if (actionName && ctx.name !== actionName) {
+    if (actionName && ctx.actionName !== actionName) {
       return false
     }
 
     // skip hooks
     if (
-      ctx.name === SpecialAction.OnAttachedToRootStore ||
-      ctx.name === SpecialAction.OnAttachedToRootStoreDisposer
+      ctx.actionName === SpecialAction.OnAttachedToRootStore ||
+      ctx.actionName === SpecialAction.OnAttachedToRootStoreDisposer
     ) {
       return false
     }
@@ -91,9 +94,9 @@ function actionContextToActionCall(ctx: ActionContext): ActionCall {
   const rootPath = getRootPath(ctx.target)
 
   return {
-    name: ctx.name,
+    actionName: ctx.actionName,
     args: ctx.args,
-    path: rootPath.path,
+    targetPath: rootPath.path,
   }
 }
 

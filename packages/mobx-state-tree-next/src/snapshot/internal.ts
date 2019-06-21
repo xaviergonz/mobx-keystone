@@ -11,6 +11,9 @@ interface SnapshotData<T extends object> {
 
 const snapshots = new WeakMap<Object, SnapshotData<any>>()
 
+/**
+ * @ignore
+ */
 export function getInternalSnapshot<T extends object>(
   value: T
 ): Readonly<SnapshotData<T>> | undefined {
@@ -45,6 +48,9 @@ function getInternalSnapshotParent(
   })
 }
 
+/**
+ * @ignore
+ */
 export const setInternalSnapshot = action(
   "setInternalSnapshot",
   <T extends object>(
@@ -109,14 +115,23 @@ export const setInternalSnapshot = action(
   }
 )
 
+/**
+ * @ignore
+ */
 export function linkInternalSnapshot(value: object, snapshot: Readonly<SnapshotData<any>>) {
   snapshots.set(value, snapshot)
 }
 
+/**
+ * @ignore
+ */
 export function unlinkInternalSnapshot(value: object) {
   return snapshots.delete(value)
 }
 
+/**
+ * @ignore
+ */
 export function reportInternalSnapshotObserved(sn: Readonly<SnapshotData<any>>) {
   sn.atom.reportObserved()
 }

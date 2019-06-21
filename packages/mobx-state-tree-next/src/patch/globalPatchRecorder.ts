@@ -2,7 +2,7 @@ import { Patch } from "immer"
 import { onGlobalPatches } from "./emitPatch"
 
 /**
- * @internal
+ * @ignore
  *
  * Global patch recorder interface.
  */
@@ -28,7 +28,7 @@ export interface GlobalPatchRecorder {
 }
 
 /**
- * @internal
+ * @ignore
  *
  * Creates a global patch recorder.
  *

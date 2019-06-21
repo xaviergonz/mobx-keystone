@@ -3,6 +3,9 @@ import { SnapshotInOfFrozen } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
 
+/**
+ * @ignore
+ */
 export const frozenKey = "$$frozen"
 
 /**
@@ -17,6 +20,12 @@ export class Frozen<T> {
    */
   readonly data: DeepReadonly<T>
 
+  /**
+   * Creates an instance of Frozen.
+   * Do not use directly, use `frozen` instead.
+   *
+   * @param dataToFreeze
+   */
   constructor(dataToFreeze: T) {
     if (inDevMode()) {
       checkDataIsSerializableAndFreeze(dataToFreeze)

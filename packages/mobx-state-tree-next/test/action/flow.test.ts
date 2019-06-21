@@ -107,19 +107,19 @@ test("flow", async () => {
     Array [
       Object {
         "actionCall": Object {
+          "actionName": "addX",
           "args": Array [
             2,
           ],
-          "name": "addX",
-          "path": Array [],
+          "targetPath": Array [],
         },
         "context": Object {
+          "actionName": "addX",
           "args": Array [
             2,
           ],
           "asyncStepType": "spawn",
           "data": Object {},
-          "name": "addX",
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
@@ -157,21 +157,21 @@ test("flow", async () => {
     Array [
       Object {
         "actionCall": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
           ],
-          "name": "addXY",
-          "path": Array [],
+          "targetPath": Array [],
         },
         "context": Object {
+          "actionName": "addXY",
           "args": Array [
             4,
             4,
           ],
           "asyncStepType": "spawn",
           "data": Object {},
-          "name": "addXY",
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
@@ -214,19 +214,19 @@ test("flow", async () => {
     Array [
       Object {
         "actionCall": Object {
+          "actionName": "throwFlow",
           "args": Array [
             10,
           ],
-          "name": "throwFlow",
-          "path": Array [],
+          "targetPath": Array [],
         },
         "context": Object {
+          "actionName": "throwFlow",
           "args": Array [
             10,
           ],
           "asyncStepType": "spawn",
           "data": Object {},
-          "name": "throwFlow",
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "rootContext": [Circular],

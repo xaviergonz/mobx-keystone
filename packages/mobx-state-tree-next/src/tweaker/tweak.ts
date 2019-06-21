@@ -26,6 +26,9 @@ import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
 import { isTweakedObject, tweakedObjects } from "./core"
 
+/**
+ * @ignore
+ */
 export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (isPrimitive(value)) {
     return value

@@ -1,8 +1,26 @@
+/**
+ * An special action, an action which is built-in.
+ */
 export enum SpecialAction {
+  /**
+   * applyPatches
+   */
   ApplyPatches = "$$applyPatches",
+  /**
+   * applyAction
+   */
   ApplyAction = "$$applyAction",
+  /**
+   * applySnapshot
+   */
   ApplySnapshot = "$$applySnapshot",
+  /**
+   * onAttachedToRootStore hook
+   */
   OnAttachedToRootStore = "$$onAttachedToRootStore",
+  /**
+   * disposer for onAttachedToRootStore hook
+   */
   OnAttachedToRootStoreDisposer = "$$onAttachedToRootStoreDisposer",
 }
 

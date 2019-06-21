@@ -7,7 +7,7 @@ export interface ActionContext {
   /**
    * Action name
    */
-  readonly name: string
+  readonly actionName: string
   /**
    * Action type, sync or async.
    */

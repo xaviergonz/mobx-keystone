@@ -1,7 +1,7 @@
 import { Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
 import { isFrozenSnapshot } from "../frozen/Frozen"
-import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { Ref } from "../ref/Ref"
@@ -21,6 +21,9 @@ interface FixSnapshotIdsContext {
   refs: Writable<SnapshotInOf<Ref<any>>>[]
 }
 
+/**
+ * @ignore
+ */
 export function fixSnapshotIds<T>(sn: T): T {
   const ctx: FixSnapshotIdsContext = {
     idMap: new Map(),
@@ -97,7 +100,7 @@ function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): Model {
     },
   }
   for (const [k, v] of Object.entries(sn)) {
-    if (!isModelInternalKey(k)) {
+    if (!isReservedModelKey(k)) {
       modelSn[k] = internalFixSnapshotIds(v, ctx)
     }
   }

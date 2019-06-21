@@ -5,6 +5,9 @@ import { getParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { deleteFromArray, failure } from "../utils"
 
+/**
+ * @ignore
+ */
 export class InternalPatchRecorder {
   patches!: Patch[]
   invPatches!: Patch[]

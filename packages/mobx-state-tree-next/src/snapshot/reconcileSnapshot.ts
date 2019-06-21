@@ -1,6 +1,6 @@
 import { isObservableObject } from "mobx"
 import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
-import { isModelInternalKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import {
@@ -15,6 +15,9 @@ import {
 import { fromSnapshot } from "./fromSnapshot"
 import { SnapshotInOfFrozen, SnapshotInOfModel } from "./SnapshotOf"
 
+/**
+ * @ignore
+ */
 export function reconcileSnapshot(value: any, sn: any): any {
   if (isPrimitive(sn)) {
     return sn
@@ -112,7 +115,7 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<Model>): Model
 
   // reconcile the rest
   for (const [k, v] of Object.entries(processedSn)) {
-    if (!isModelInternalKey(k)) {
+    if (!isReservedModelKey(k)) {
       data[k] = reconcileSnapshot(data[k], v)
     }
   }
