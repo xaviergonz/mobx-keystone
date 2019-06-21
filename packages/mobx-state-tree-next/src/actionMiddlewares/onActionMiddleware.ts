@@ -1,7 +1,11 @@
 import { isObservable, toJS } from "mobx"
 import { ActionCall } from "../action/applyAction"
 import { ActionContext } from "../action/context"
-import { ActionMiddleware } from "../action/middleware"
+import {
+  ActionMiddleware,
+  ActionMiddlewareDisposer,
+  addActionMiddleware,
+} from "../action/middleware"
 import { SpecialAction } from "../action/specialActions"
 import { assertIsModel, Model } from "../model/Model"
 import { getRootPath } from "../parent/path"
@@ -27,7 +31,7 @@ export type OnActionListener = (
  * @typeparam M Model
  * @param target Root target model object. If `actionName` is provided it will only run for that particular action.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
- * @returns The actual middleware to pass to `addActionMiddleware`.
+ * @returns The middleware disposer.
  */
 export function onActionMiddleware<M extends Model>(
   target: {
@@ -35,7 +39,7 @@ export function onActionMiddleware<M extends Model>(
     actionName?: keyof M
   },
   listener: OnActionListener
-): ActionMiddleware {
+): ActionMiddlewareDisposer {
   assertIsObject(target, "target")
 
   const { model, actionName } = target
@@ -67,7 +71,7 @@ export function onActionMiddleware<M extends Model>(
     return true
   }
 
-  return {
+  return addActionMiddleware({
     middleware(ctx, next) {
       if (ctx.parentContext || ctx.previousAsyncStepContext) {
         // sub-action or async step, do nothing
@@ -80,7 +84,7 @@ export function onActionMiddleware<M extends Model>(
     },
     target: model,
     filter,
-  }
+  })
 }
 
 function actionContextToActionCall(ctx: ActionContext): ActionCall {

@@ -1,5 +1,5 @@
 import { action, computed } from "mobx"
-import { ActionMiddleware } from "../action/middleware"
+import { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
 import { model } from "../model"
 import { assertIsModel, Model } from "../model/Model"
@@ -202,7 +202,15 @@ export class UndoManager {
     this.store._redo()
   }
 
-  constructor(private readonly target: Model, store?: UndoStore) {
+  dispose() {
+    this.disposer()
+  }
+
+  constructor(
+    private readonly disposer: ActionMiddlewareDisposer,
+    private readonly target: Model,
+    store?: UndoStore
+  ) {
     this.store = store || new UndoStore()
   }
 }
@@ -213,13 +221,9 @@ export class UndoManager {
  * @param model Root target model object.
  * @param [store] Optional `UndoStore` where to store the undo/redo queues. Use this if you want to
  * store such queues somewhere in your models. If none is provided it will reside in memory.
- * @returns An object with `middleware`, which is the actual middleware to pass to `addActionMiddleware`
- * and `manager`, and `UndoManager` which allows you to do the manage the undo/redo operations.
+ * @returns An `UndoManager` which allows you to do the manage the undo/redo operations and dispose of the middleware.
  */
-export function undoMiddleware(
-  model: Model,
-  store?: UndoStore
-): { middleware: ActionMiddleware; manager: UndoManager } {
+export function undoMiddleware(model: Model, store?: UndoStore): UndoManager {
   assertIsModel(model, "model")
 
   const patchRecorderSymbol = Symbol("patchRecorder")
@@ -230,9 +234,9 @@ export function undoMiddleware(
     return ctx.rootContext.data[patchRecorderSymbol]
   }
 
-  const manager = new UndoManager(model, store)
+  let manager: UndoManager
 
-  const middleware = actionTrackingMiddleware(
+  const middlewareDisposer = actionTrackingMiddleware(
     { model },
     {
       onStart(ctx) {
@@ -270,10 +274,8 @@ export function undoMiddleware(
     }
   )
 
-  return {
-    manager,
-    middleware,
-  }
+  manager = new UndoManager(middlewareDisposer, model, store)
+  return manager
 }
 
 let undoDisabled = false

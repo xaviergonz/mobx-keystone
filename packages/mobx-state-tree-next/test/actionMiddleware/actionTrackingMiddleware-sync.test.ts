@@ -1,7 +1,6 @@
 import {
   actionTrackingMiddleware,
   ActionTrackingResult,
-  addActionMiddleware,
   model,
   Model,
   modelAction,
@@ -78,7 +77,7 @@ test("actionTrackingMiddleware - sync", () => {
     events.length = 0
   }
 
-  const actTracker = actionTrackingMiddleware(
+  const disposer = actionTrackingMiddleware(
     { model: p1 },
     {
       filter(ctx) {
@@ -116,7 +115,6 @@ test("actionTrackingMiddleware - sync", () => {
       },
     }
   )
-  const disposer = addActionMiddleware(actTracker)
   autoDispose(disposer)
 
   // action on the root

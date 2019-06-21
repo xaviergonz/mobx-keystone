@@ -1,5 +1,4 @@
 import {
-  addActionMiddleware,
   findParent,
   FlowRet,
   model,
@@ -16,12 +15,10 @@ class P2 extends Model {
   constructor() {
     super()
 
-    addActionMiddleware(
-      transactionMiddleware({
-        model: this,
-        actionName: "addParentX",
-      })
-    )
+    transactionMiddleware({
+      model: this,
+      actionName: "addParentX",
+    })
   }
 
   data = {
@@ -117,12 +114,10 @@ class P2Flow extends Model {
   constructor() {
     super()
 
-    addActionMiddleware(
-      transactionMiddleware({
-        model: this,
-        actionName: "addParentX",
-      })
-    )
+    transactionMiddleware({
+      model: this,
+      actionName: "addParentX",
+    })
   }
 
   data = {

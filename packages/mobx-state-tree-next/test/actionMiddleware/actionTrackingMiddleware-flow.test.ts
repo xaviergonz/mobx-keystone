@@ -1,7 +1,6 @@
 import {
   actionTrackingMiddleware,
   ActionTrackingResult,
-  addActionMiddleware,
   FlowRet,
   getSnapshot,
   model,
@@ -100,7 +99,7 @@ test("actionTrackingMiddleware - flow", async () => {
     events.length = 0
   }
 
-  const actTracker = actionTrackingMiddleware(
+  const disposer = actionTrackingMiddleware(
     { model: p },
     {
       filter(ctx) {
@@ -138,7 +137,6 @@ test("actionTrackingMiddleware - flow", async () => {
       },
     }
   )
-  const disposer = addActionMiddleware(actTracker)
   autoDispose(disposer)
 
   reset()

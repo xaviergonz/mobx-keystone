@@ -1,4 +1,4 @@
-import { ActionMiddleware, addActionMiddleware } from "../action/middleware"
+import { ActionMiddlewareDisposer } from "../action/middleware"
 import {
   addModelClassInitializer,
   assertIsModel,
@@ -20,12 +20,12 @@ import {
  *
  * @typeparam M Model
  * @param target Root target model object and root action name.
- * @returns The actual middleware to pass to `addActionMiddleware`.
+ * @returns The middleware disposer.
  */
 export function transactionMiddleware<M extends Model>(target: {
   model: M
   actionName: keyof M
-}): ActionMiddleware {
+}): ActionMiddlewareDisposer {
   assertIsObject(target, "target")
 
   const { model, actionName } = target
@@ -87,11 +87,9 @@ export function transaction(target: any, propertyKey: string): void {
   checkModelDecoratorArgs("transaction", target, propertyKey)
 
   addModelClassInitializer(target.constructor, modelInstance => {
-    addActionMiddleware(
-      transactionMiddleware({
-        model: modelInstance,
-        actionName: propertyKey as any,
-      })
-    )
+    transactionMiddleware({
+      model: modelInstance,
+      actionName: propertyKey as any,
+    })
   })
 }
