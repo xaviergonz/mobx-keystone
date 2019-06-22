@@ -20,6 +20,7 @@
     "@types/react-dom": "^16.8.4",
     "docz": "^1.2.0",
     "docz-theme-default": "^1.2.0",
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "raw-loader": "^3.0.0"
   }
 }
