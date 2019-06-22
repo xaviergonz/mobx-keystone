@@ -7,6 +7,7 @@ import {
   getSnapshot,
   model,
   Model,
+  newModel,
   runUnprotected,
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
@@ -14,11 +15,7 @@ import "../commonSetup"
 import { emulateProdMode } from "../utils"
 
 @model("P")
-class P extends Model<{ frozenStuff?: Frozen<any> }, {}> {
-  getDefaultData() {
-    return {}
-  }
-}
+class P extends Model<{ frozenStuff?: Frozen<any> }> {}
 
 describe("frozen", () => {
   function basicTest(name: string, data: any) {
@@ -37,7 +34,7 @@ describe("frozen", () => {
       expect(frBack).not.toBe(fr)
       expect(frBack.data).toBe(sn.data)
 
-      const p = new P({ frozenStuff: fr })
+      const p = newModel(P, { frozenStuff: fr })
 
       expect(getSnapshot(p).frozenStuff).toBe(sn)
       expect(getParent(fr)).toBe(p.data)

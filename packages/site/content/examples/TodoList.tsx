@@ -4,6 +4,7 @@ import {
   model,
   Model,
   modelAction,
+  newModel,
   registerRootStore
 } from "mobx-state-tree-next"
 import React from "react"
@@ -11,9 +12,8 @@ import React from "react"
 // store stuff
 
 @model("todoSample/Todo")
-class Todo extends Model {
-  data = {
-    text: "",
+class Todo extends Model<{ text: string; done: boolean }> {
+  defaultData = {
     done: false
   }
 
@@ -29,9 +29,9 @@ class Todo extends Model {
 }
 
 @model("todoSample/TodoList")
-class TodoList extends Model {
-  data = {
-    todos: [] as Todo[]
+class TodoList extends Model<{ todos: Todo[] }> {
+  defaultData = {
+    todos: []
   }
 
   @computed
@@ -45,9 +45,7 @@ class TodoList extends Model {
   }
 
   @modelAction
-  add(text: string) {
-    const todo = new Todo()
-    todo.setText(text)
+  add(todo: Todo) {
     this.data.todos.push(todo)
   }
 
@@ -61,9 +59,10 @@ class TodoList extends Model {
   }
 }
 
-const rootStore = new TodoList()
-rootStore.add("make mobx-state-tree-next awesome!")
-rootStore.add("buy some milk")
+const rootStore = newModel(TodoList, {})
+rootStore.add(newModel(Todo, { text: "make mobx-state-tree-next awesome!" }))
+rootStore.add(newModel(Todo, { text: "spread the word" }))
+rootStore.add(newModel(Todo, { text: "buy some milk", done: true }))
 registerRootStore(rootStore)
 
 // react stuff
@@ -104,7 +103,7 @@ const TodoListView = observer(({ list }: { list: TodoList }) => {
       <input ref={todoRef} placeholder="I will..." />
       <button
         onClick={() => {
-          list.add(todoRef.current!.value)
+          list.add(newModel(Todo, { text: todoRef.current!.value }))
         }}
       >
         Add todo

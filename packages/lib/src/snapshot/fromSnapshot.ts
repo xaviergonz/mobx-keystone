@@ -1,17 +1,9 @@
-import { runUnprotected } from "../action/protection"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
-import { AnyModel, createModelWithUuid } from "../model/Model"
+import { AnyModel, internalNewModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
-import {
-  failure,
-  isArray,
-  isMap,
-  isModelSnapshot,
-  isPlainObject,
-  isPrimitive,
-  isSet,
-} from "../utils"
+import { isModelSnapshot } from "../model/utils"
+import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { fixSnapshotIds } from "./fixSnapshotIds"
 import { SnapshotInOf } from "./SnapshotOf"
 
@@ -97,26 +89,21 @@ function fromModelSnapshot(sn: any): AnyModel {
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const modelObj: AnyModel = createModelWithUuid(modelInfo.class as any, {}, id)
-  let processedSn = sn
-  if (modelObj.fromSnapshot) {
-    processedSn = modelObj.fromSnapshot(sn) as any
-  }
-
-  const data = modelObj.data as any
-  runUnprotected(() => {
-    for (const [k, v] of Object.entries(processedSn)) {
-      if (!isReservedModelKey(k)) {
-        data[k] = internalFromSnapshot(v)
-      }
-    }
+  return internalNewModel(modelInfo.class as any, undefined, {
+    id,
+    unprocessedSnapshot: sn,
+    snapshotToInitialData,
   })
+}
 
-  if (modelObj.onInit) {
-    modelObj.onInit()
+function snapshotToInitialData(processedSn: any): any {
+  const initialData: any = {}
+  for (const [k, v] of Object.entries(processedSn)) {
+    if (!isReservedModelKey(k)) {
+      initialData[k] = internalFromSnapshot(v)
+    }
   }
-
-  return modelObj
+  return initialData
 }
 
 function fromPlainObjectSnapshot(sn: any): object {

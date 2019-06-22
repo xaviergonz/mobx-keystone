@@ -9,7 +9,8 @@ import {
   addActionMiddleware,
 } from "../action/middleware"
 import { FlowFinisher } from "../action/modelFlow"
-import { AnyModel, assertIsModel } from "../model/Model"
+import { AnyModel } from "../model/Model"
+import { assertIsModel } from "../model/utils"
 import { assertIsObject, failure } from "../utils"
 
 /**

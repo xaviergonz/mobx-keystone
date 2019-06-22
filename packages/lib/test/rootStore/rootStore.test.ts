@@ -4,6 +4,7 @@ import {
   isRootStore,
   model,
   Model,
+  newModel,
   registerRootStore,
   runUnprotected,
   unregisterRootStore,
@@ -13,11 +14,9 @@ import "../commonSetup"
 const events: string[] = []
 
 @model("P3")
-export class P3 extends Model<{}, { z: number }> {
-  getDefaultData() {
-    return {
-      z: 20,
-    }
+export class P3 extends Model<{ z: number }> {
+  defaultData = {
+    z: 20,
   }
 
   onAttachedToRootStore(rootStore: any) {
@@ -35,12 +34,10 @@ export class P3 extends Model<{}, { z: number }> {
 }
 
 @model("P2")
-export class P2 extends Model<{}, { y: number; p3: P3 }> {
-  getDefaultData() {
-    return {
-      y: 10,
-      p3: new P3({}),
-    }
+export class P2 extends Model<{ y: number; p3: P3 }> {
+  defaultData = {
+    y: 10,
+    p3: newModel(P3, {}),
   }
 
   onAttachedToRootStore(rootStore: any) {
@@ -58,13 +55,11 @@ export class P2 extends Model<{}, { y: number; p3: P3 }> {
 }
 
 @model("P")
-export class P extends Model<{}, { x: number; arr: P2[]; p2?: P2 }> {
-  getDefaultData() {
-    return {
-      x: 5,
-      arr: [],
-      p2: undefined,
-    }
+export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }> {
+  defaultData = {
+    x: 5,
+    arr: [],
+    p2: undefined,
   }
 
   onAttachedToRootStore(rootStore: any) {
@@ -82,8 +77,8 @@ export class P extends Model<{}, { x: number; arr: P2[]; p2?: P2 }> {
 }
 
 export function createP() {
-  return new P({
-    p2: new P2({
+  return newModel(P, {
+    p2: newModel(P2, {
       y: 12,
     }),
   })

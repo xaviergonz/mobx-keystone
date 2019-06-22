@@ -5,15 +5,9 @@ import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
 import { ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
+import { isModelSnapshot } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
-import {
-  assertIsObject,
-  failure,
-  inDevMode,
-  isArray,
-  isModelSnapshot,
-  isPlainObject,
-} from "../utils"
+import { assertIsObject, failure, inDevMode, isArray, isPlainObject } from "../utils"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
 

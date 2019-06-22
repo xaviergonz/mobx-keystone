@@ -7,7 +7,8 @@ import {
   addActionMiddleware,
 } from "../action/middleware"
 import { SpecialAction } from "../action/specialActions"
-import { AnyModel, assertIsModel } from "../model/Model"
+import { AnyModel } from "../model/Model"
+import { assertIsModel } from "../model/utils"
 import { getRootPath } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"

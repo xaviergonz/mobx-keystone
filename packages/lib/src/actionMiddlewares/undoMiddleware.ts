@@ -2,7 +2,8 @@ import { action, computed } from "mobx"
 import { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
 import { model } from "../model"
-import { AnyModel, assertIsModel, Model } from "../model/Model"
+import { AnyModel, Model, newModel } from "../model/Model"
+import { assertIsModel } from "../model/utils"
 import { getRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { failure } from "../utils"
@@ -37,15 +38,13 @@ export interface UndoEvent {
  * Do not manipulate directly, other that creating it.
  */
 @model("mobx-state-tree-next/UndoStore")
-export class UndoStore extends Model<{}, { undoEvents: UndoEvent[]; redoEvents: UndoEvent[] }> {
+export class UndoStore extends Model<{ undoEvents: UndoEvent[]; redoEvents: UndoEvent[] }> {
   /**
    * @ignore
    */
-  getDefaultData() {
-    return {
-      undoEvents: [],
-      redoEvents: [],
-    }
+  defaultData = {
+    undoEvents: [],
+    redoEvents: [],
   }
 
   /**
@@ -234,7 +233,7 @@ export class UndoManager {
     private readonly target: AnyModel,
     store?: UndoStore
   ) {
-    this.store = store || new UndoStore({})
+    this.store = store || newModel(UndoStore, {})
   }
 }
 

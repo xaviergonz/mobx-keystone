@@ -1,6 +1,7 @@
-import { failure } from "../utils"
-import { AnyModel, Model } from "./Model"
+import { logWarning } from "../utils"
+import { AnyModel } from "./Model"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
+import { assertIsModelClass } from "./utils"
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
@@ -10,16 +11,13 @@ import { modelInfoByClass, modelInfoByName } from "./modelInfo"
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
 export const model = (name: string) => (clazz: new (...args: any[]) => AnyModel) => {
-  if (typeof clazz !== "function") {
-    throw failure("class expected")
-  }
-
-  if (clazz !== Model && !(clazz.prototype instanceof Model)) {
-    throw failure(`a model class must extend Model`)
-  }
+  assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
-    throw failure(`a model with name "${name}" already exists`)
+    logWarning(
+      "error",
+      `a model with name "${name}" already exists (if you are using hot-reloading this might be the cause)`
+    )
   }
 
   const modelInfo = {

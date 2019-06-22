@@ -1,5 +1,5 @@
 import { Writable } from "ts-essentials"
-import { checkModelDecoratorArgs } from "../model/Model"
+import { checkModelDecoratorArgs } from "../model/utils"
 import { decorateWrapMethodOrField, failure } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
 import { wrapInAction } from "./wrapInAction"

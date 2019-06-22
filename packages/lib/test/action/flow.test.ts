@@ -7,6 +7,7 @@ import {
   Model,
   modelAction,
   modelFlow,
+  newModel,
   onActionMiddleware,
 } from "../../src"
 import "../commonSetup"
@@ -17,12 +18,10 @@ async function delay(x: number) {
 }
 
 @model("P2")
-export class P2 extends Model<{}, { y: number }> {
-  getDefaultData() {
-    return {
-      y: 0,
-    }
-  }
+export class P2 extends Model<{ y: number }> {
+  defaultData = {
+    y: 0,
+  };
 
   @modelFlow
   *addY(n: number) {
@@ -34,13 +33,11 @@ export class P2 extends Model<{}, { y: number }> {
 }
 
 @model("P")
-export class P extends Model<{}, { p2: P2; x: number }> {
-  getDefaultData() {
-    return {
-      p2: new P2({}),
-      x: 0,
-    }
-  }
+export class P extends Model<{ p2: P2; x: number }> {
+  defaultData = {
+    p2: newModel(P2, {}),
+    x: 0,
+  };
 
   @modelFlow
   *addX(n: number) {
@@ -79,7 +76,7 @@ export class P extends Model<{}, { p2: P2; x: number }> {
 }
 
 test("flow", async () => {
-  const p = new P({})
+  const p = newModel(P, {})
 
   interface Event {
     actionCall: ActionCall
@@ -129,13 +126,13 @@ test("flow", async () => {
           "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
-              "id": "mockedUuid-1",
+              "id": "mockedUuid-2",
               "type": "P",
             },
             "data": Object {
               "p2": P2 {
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
+                  "id": "mockedUuid-1",
                   "type": "P2",
                 },
                 "data": Object {
@@ -181,13 +178,13 @@ test("flow", async () => {
           "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
-              "id": "mockedUuid-1",
+              "id": "mockedUuid-2",
               "type": "P",
             },
             "data": Object {
               "p2": P2 {
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
+                  "id": "mockedUuid-1",
                   "type": "P2",
                 },
                 "data": Object {
@@ -236,13 +233,13 @@ test("flow", async () => {
           "rootContext": [Circular],
           "target": P {
             "$$metadata": Object {
-              "id": "mockedUuid-1",
+              "id": "mockedUuid-2",
               "type": "P",
             },
             "data": Object {
               "p2": P2 {
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
+                  "id": "mockedUuid-1",
                   "type": "P2",
                 },
                 "data": Object {

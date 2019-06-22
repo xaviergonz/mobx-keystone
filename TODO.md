@@ -1,7 +1,6 @@
 # TODO
 
-- (5) while ts output snapshot typings are ok, input snapshots still are not quite ok (they take a deep partial) for cases
-  such as { x: 10 }, where it doesn't know if x has to be there for sure or not but will be present on the object for sure
+- (3) defaultData can take extra data which is not on the model data type definition
 
 - (5) action recorder abstraction?
 

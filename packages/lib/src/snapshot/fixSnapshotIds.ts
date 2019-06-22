@@ -4,16 +4,9 @@ import { isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
+import { isModelSnapshot } from "../model/utils"
 import { Ref } from "../ref/Ref"
-import {
-  failure,
-  isArray,
-  isMap,
-  isModelSnapshot,
-  isPlainObject,
-  isPrimitive,
-  isSet,
-} from "../utils"
+import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { SnapshotInOf } from "./SnapshotOf"
 
 interface FixSnapshotIdsContext {
