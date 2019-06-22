@@ -1,5 +1,6 @@
 import { action } from "mobx"
-import { AnyModel, assertIsModel } from "../model/Model"
+import { AnyModel } from "../model/Model"
+import { assertIsModel } from "../model/utils"
 import { getParent, getRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isPlainObject } from "../utils"

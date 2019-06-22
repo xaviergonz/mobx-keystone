@@ -1,10 +1,6 @@
 import { ActionMiddlewareDisposer } from "../action/middleware"
-import {
-  addModelClassInitializer,
-  AnyModel,
-  assertIsModel,
-  checkModelDecoratorArgs,
-} from "../model/Model"
+import { addModelClassInitializer, AnyModel } from "../model/Model"
+import { assertIsModel, checkModelDecoratorArgs } from "../model/utils"
 import { applyPatches } from "../patch"
 import { globalPatchRecorder, GlobalPatchRecorder } from "../patch/globalPatchRecorder"
 import { assertIsObject, failure } from "../utils"

@@ -6,9 +6,6 @@ import {
   ObservableMap,
   ObservableSet,
 } from "mobx"
-import { modelMetadataKey } from "../model/metadata"
-import { AnyModel } from "../model/Model"
-import { SnapshotInOfModel } from "../snapshot"
 
 /**
  * @ignore
@@ -55,6 +52,22 @@ export function addHiddenProp(object: any, propName: PropertyKey, value: any) {
     configurable: true,
     value,
   })
+}
+
+/**
+ * @ignore
+ */
+export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: boolean) {
+  const propDesc = Object.getOwnPropertyDescriptor(object, propName)
+  if (propDesc) {
+    propDesc.enumerable = enumerable
+    if (propDesc.get) {
+      delete propDesc.set
+    } else {
+      propDesc.writable = false
+    }
+    Object.defineProperty(object, propName, propDesc)
+  }
 }
 
 /**
@@ -107,13 +120,6 @@ export function deleteFromArray<T>(array: T[], value: T): boolean {
     return true
   }
   return false
-}
-
-/**
- * @ignore
- */
-export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
-  return isPlainObject(sn) && !!sn[modelMetadataKey]
 }
 
 /**
@@ -201,5 +207,19 @@ export function decorateWrapMethodOrField(
         )
       },
     })
+  }
+}
+
+export function logWarning(type: "warn" | "error", msg: string): void {
+  msg = "[mobx-state-tree-next] " + msg
+  switch (type) {
+    case "warn":
+      console.warn(msg)
+      break
+    case "error":
+      console.error(msg)
+      break
+    default:
+      throw failure(`unknown log type - ${type}`)
   }
 }

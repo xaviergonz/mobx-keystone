@@ -4,6 +4,7 @@ import {
   Model,
   modelAction,
   modelFlow,
+  newModel,
   UndoEvent,
   UndoManager,
   undoMiddleware,
@@ -13,11 +14,9 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-class P2 extends Model<{}, { y: number }> {
-  getDefaultData() {
-    return {
-      y: 0,
-    }
+class P2 extends Model<{ y: number }> {
+  defaultData = {
+    y: 0,
   }
 
   @modelAction
@@ -27,12 +26,10 @@ class P2 extends Model<{}, { y: number }> {
 }
 
 @model("P")
-class P extends Model<{}, { p2: P2; x: number }> {
-  getDefaultData() {
-    return {
-      x: 0,
-      p2: new P2({}),
-    }
+class P extends Model<{ p2: P2; x: number }> {
+  defaultData = {
+    x: 0,
+    p2: newModel(P2, {}),
   }
 
   @modelAction
@@ -49,17 +46,15 @@ class P extends Model<{}, { p2: P2; x: number }> {
 }
 
 @model("R")
-class R extends Model<{}, { undoData: UndoStore; p: P }> {
-  getDefaultData() {
-    return {
-      undoData: new UndoStore({}),
-      p: new P({}),
-    }
+class R extends Model<{ undoData: UndoStore; p: P }> {
+  defaultData = {
+    undoData: newModel(UndoStore, {}),
+    p: newModel(P, {}),
   }
 }
 
 test("undoMiddleware - sync", () => {
-  const r = new R({})
+  const r = newModel(R, {})
   const p = r.data.p
 
   const manager = undoMiddleware(r, r.data.undoData)
@@ -288,10 +283,10 @@ test("undoMiddleware - sync", () => {
 })
 
 @model("P2Flow")
-class P2Flow extends Model<{}, { y: number }> {
-  getDefaultData() {
-    return { y: 0 }
-  }
+class P2Flow extends Model<{ y: number }> {
+  defaultData = {
+    y: 0,
+  };
 
   @modelFlow
   *incY(n: number) {
@@ -302,13 +297,11 @@ class P2Flow extends Model<{}, { y: number }> {
 }
 
 @model("PFlow")
-class PFlow extends Model<{}, { x: number; p2: P2Flow }> {
-  getDefaultData() {
-    return {
-      x: 0,
-      p2: new P2Flow({}),
-    }
-  }
+class PFlow extends Model<{ x: number; p2: P2Flow }> {
+  defaultData = {
+    x: 0,
+    p2: newModel(P2Flow, {}),
+  };
 
   @modelFlow
   *incX(n: number) {
@@ -329,17 +322,15 @@ class PFlow extends Model<{}, { x: number; p2: P2Flow }> {
 }
 
 @model("RFlow")
-class RFlow extends Model<{}, { undoData: UndoStore; p: PFlow }> {
-  getDefaultData() {
-    return {
-      undoData: new UndoStore({}),
-      p: new PFlow({}),
-    }
+class RFlow extends Model<{ undoData: UndoStore; p: PFlow }> {
+  defaultData = {
+    undoData: newModel(UndoStore, {}),
+    p: newModel(PFlow, {}),
   }
 }
 
 test("undoMiddleware - async", async () => {
-  const r = new RFlow({})
+  const r = newModel(RFlow, {})
   const p = r.data.p
 
   const manager = undoMiddleware(r, r.data.undoData)

@@ -1,5 +1,6 @@
 import { action, isAction } from "mobx"
-import { AnyModel, assertIsModel, Model } from "../model/Model"
+import { AnyModel, Model } from "../model/Model"
+import { assertIsModel } from "../model/utils"
 import { getParent, isChildOfParent } from "../parent/path"
 import { assertIsObject, deleteFromArray, failure } from "../utils"
 import { ActionContext } from "./context"

@@ -3,15 +3,8 @@ import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
-import {
-  failure,
-  isArray,
-  isMap,
-  isModelSnapshot,
-  isPlainObject,
-  isPrimitive,
-  isSet,
-} from "../utils"
+import { isModelSnapshot } from "../model/utils"
+import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { fromSnapshot } from "./fromSnapshot"
 import { SnapshotInOfFrozen, SnapshotInOfModel } from "./SnapshotOf"
 

@@ -1,5 +1,5 @@
 import { computed, when } from "mobx"
-import { AnyModel, Model, ModelCreationData } from "../model/Model"
+import { AnyModel, Model, ModelCreationData, newModel } from "../model/Model"
 import { model } from "../model/modelDecorator"
 import { getRootIdCache } from "../parent/core"
 import { detach } from "../parent/detach"
@@ -13,11 +13,9 @@ import { failure } from "../utils"
  * @typeparam T Referenced object type.
  */
 @model("$$Ref")
-export class Ref<T extends AnyModel> extends Model<{ id: string }, { autoDetach: boolean }> {
-  getDefaultData() {
-    return {
-      autoDetach: false,
-    }
+export class Ref<T extends AnyModel> extends Model<{ id: string; autoDetach: boolean }> {
+  defaultData = {
+    autoDetach: false,
   }
 
   /**
@@ -106,5 +104,5 @@ export function ref<T extends AnyModel>(current: T, opts?: { autoDetach: boolean
     creationData.autoDetach = true
   }
 
-  return new Ref<T>(creationData)
+  return newModel<Ref<T>>(Ref, creationData)
 }

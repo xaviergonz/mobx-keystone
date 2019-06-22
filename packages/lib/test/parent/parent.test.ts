@@ -15,21 +15,17 @@ import {
 import "../commonSetup"
 
 @model("P2")
-export class P2 extends Model<{}, { y: number }> {
-  getDefaultData() {
-    return {
-      y: 10,
-    }
+export class P2 extends Model<{ y: number }> {
+  defaultData = {
+    y: 10,
   }
 }
 
 @model("P")
-export class P extends Model<{}, { x: number; arr: P2[]; p2?: P2 }> {
-  getDefaultData() {
-    return {
-      x: 5,
-      arr: [],
-    }
+export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }> {
+  defaultData = {
+    x: 5,
+    arr: [],
   }
 }
 

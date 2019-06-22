@@ -5,13 +5,14 @@ import {
   Model,
   modelAction,
   modelFlow,
+  newModel,
   transaction,
   transactionMiddleware,
 } from "../../src"
 import "../commonSetup"
 
 @model("P2")
-class P2 extends Model<{}, { y: number }> {
+class P2 extends Model<{ y: number }> {
   onInit() {
     transactionMiddleware({
       model: this,
@@ -19,10 +20,8 @@ class P2 extends Model<{}, { y: number }> {
     })
   }
 
-  getDefaultData() {
-    return {
-      y: 0,
-    }
+  defaultData = {
+    y: 0,
   }
 
   @modelAction
@@ -41,12 +40,10 @@ class P2 extends Model<{}, { y: number }> {
 }
 
 @model("P")
-class P extends Model<{}, { x: number; p2: P2 }> {
-  getDefaultData() {
-    return {
-      x: 0,
-      p2: new P2({}),
-    }
+class P extends Model<{ x: number; p2: P2 }> {
+  defaultData = {
+    x: 0,
+    p2: newModel(P2, {}),
   }
 
   @transaction
@@ -71,7 +68,7 @@ class P extends Model<{}, { x: number; p2: P2 }> {
 describe("transactionMiddleware - sync", () => {
   let p: P
   beforeEach(() => {
-    p = new P({})
+    p = newModel(P, {})
   })
 
   test("simple root action", () => {
@@ -112,7 +109,7 @@ async function delay(x: number) {
 }
 
 @model("P2Flow")
-class P2Flow extends Model<{}, { y: number; z: number }> {
+class P2Flow extends Model<{ y: number; z: number }> {
   onInit() {
     transactionMiddleware({
       model: this,
@@ -120,12 +117,10 @@ class P2Flow extends Model<{}, { y: number; z: number }> {
     })
   }
 
-  getDefaultData() {
-    return {
-      y: 0,
-      z: 0,
-    }
-  }
+  defaultData = {
+    y: 0,
+    z: 0,
+  };
 
   @modelFlow
   *addY(n: number, error: boolean) {
@@ -153,12 +148,10 @@ class P2Flow extends Model<{}, { y: number; z: number }> {
 }
 
 @model("PFlow")
-class PFlow extends Model<{}, { x: number; p2: P2Flow }> {
-  getDefaultData() {
-    return {
-      x: 0,
-      p2: new P2Flow({}),
-    }
+class PFlow extends Model<{ x: number; p2: P2Flow }> {
+  defaultData = {
+    x: 0,
+    p2: newModel(P2Flow, {}),
   }
 
   @transaction
@@ -185,7 +178,7 @@ class PFlow extends Model<{}, { x: number; p2: P2Flow }> {
 describe("transactionMiddleware - async", () => {
   let p: PFlow
   beforeEach(() => {
-    p = new PFlow({})
+    p = newModel(PFlow, {})
   })
 
   test("simple root action", async () => {

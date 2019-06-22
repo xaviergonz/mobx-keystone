@@ -2,11 +2,9 @@ import { fromSnapshot, model, Model, modelMetadataKey } from "../../src"
 import "../commonSetup"
 
 @model("P3")
-export class P3 extends Model<{}, { arr: number[] }> {
-  getDefaultData() {
-    return {
-      arr: [],
-    }
+export class P3 extends Model<{ arr: number[] }> {
+  defaultData = {
+    arr: [],
   }
 
   fromSnapshot(sn: { y: string }) {

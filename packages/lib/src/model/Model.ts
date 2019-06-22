@@ -1,61 +1,35 @@
 import produce from "immer"
+import { Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
-import { runUnprotected } from "../action"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
   getInternalSnapshot,
   linkInternalSnapshot,
   setInternalSnapshot,
-  unlinkInternalSnapshot,
 } from "../snapshot/internal"
 import { tweak } from "../tweaker/tweak"
-import { failure } from "../utils"
+import { assertIsObject, failure, makePropReadonly } from "../utils"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
-
-/**
- * @ignore
- */
-export interface ModelInitData {
-  uuid: string
-}
-
-let modelInitData: ModelInitData | undefined
-
-/**
- * @ignore
- */
-export function createModelWithUuid<T extends AnyModel>(
-  modelClass: new (initialData: ModelCreationData<T>) => T,
-  initialData: ModelCreationData<T>,
-  uuid: string
-): T {
-  modelInitData = {
-    uuid,
-  }
-
-  try {
-    return new modelClass(initialData)
-  } finally {
-    modelInitData = undefined
-  }
-}
+import { assertIsModelClass } from "./utils"
 
 declare const typeSymbol: unique symbol
 
+const modelConstructorSymbol = Symbol("modelConstructor")
+
 /**
  * Base abstract class for models.
- * Never override the derived constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
- * @typeparam RequiredData Required data type.
- * @typeparam OptionalData Optional data type.
+ * Never use new directly over models, use `newModel` function instead.
+ * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
+ * If you want to make certain data properties as optional then declare their default values in
+ * `defaultData`.
+ *
+ * @typeparam Data Data type.
  */
-export abstract class Model<
-  RequiredData extends { [k: string]: any },
-  OptionalData extends { [k: string]: any }
-> {
+export abstract class Model<Data extends { [k: string]: any }> {
   // just to make typing work properly
-  [typeSymbol]: [RequiredData, OptionalData];
+  [typeSymbol]: Data;
 
   readonly [modelMetadataKey]: Readonly<ModelMetadata>
 
@@ -83,13 +57,13 @@ export abstract class Model<
    *
    * @abstract
    */
-  abstract getDefaultData(): Readonly<OptionalData>
+  readonly defaultData?: Partial<Readonly<Data>>
 
   /**
    * Data part of the model, which is observable and will be serialized in snapshots.
-   * It must be an object.
+   * Use this to read/modify model data.
    */
-  readonly data!: RequiredData & OptionalData
+  readonly data!: Data
 
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as
@@ -114,106 +88,25 @@ export abstract class Model<
    */
   fromSnapshot?(snapshot: any): any
 
-  constructor(initialData: RequiredData & Partial<OptionalData>) {
-    const modelInfo = modelInfoByClass.get(this.constructor)!
-    let id
-    if (modelInitData) {
-      id = modelInitData.uuid
-      modelInitData = undefined
-    } else {
-      id = uuidV4()
-    }
-    this[modelMetadataKey] = {
-      type: modelInfo.name,
-      id,
+  /**
+   * Creates an instance of Model.
+   * Never use this directly, use the `newModel` function instead.
+   *
+   * @param initialData
+   */
+  constructor(privateSymbol: typeof modelConstructorSymbol) {
+    if (privateSymbol !== modelConstructorSymbol) {
+      throw failure("models must be constructed using 'newModel'")
     }
 
-    tweak(this, undefined)
-
-    let obsData: any
-
-    Object.defineProperty(this, "data", {
-      configurable: true,
-      enumerable: true,
-      get() {
-        return obsData
-      },
-      set(value: any) {
-        const oldObsData = obsData
-        obsData = tweak(value, { parent: this, path: "data" })
-
-        if (oldObsData !== obsData) {
-          const oldSn = getInternalSnapshot(oldObsData)
-          const newSn = getInternalSnapshot(obsData)
-          if (oldSn !== newSn) {
-            if (oldSn) {
-              const patchRecorder = new InternalPatchRecorder()
-
-              const standard = produce(
-                oldSn.standard,
-                (draftStandard: any) => {
-                  delete draftStandard[modelMetadataKey]
-                },
-                patchRecorder.record
-              )
-
-              // detach old (should be detached already though)
-              tweak(oldObsData, undefined)
-
-              unlinkInternalSnapshot(this)
-              setInternalSnapshot(oldObsData, standard, patchRecorder)
-            }
-
-            if (newSn) {
-              const patchRecorder = new InternalPatchRecorder()
-
-              const standard = produce(
-                newSn.standard,
-                (draftStandard: any) => {
-                  draftStandard[modelMetadataKey] = this[modelMetadataKey]
-                },
-                patchRecorder.record
-              )
-
-              // make the model use the inner data field snapshot
-              linkInternalSnapshot(this, newSn)
-              setInternalSnapshot(obsData, standard, patchRecorder)
-            }
-          }
-        }
-      },
-    })
-
-    const initializers = modelClassInitializers.get(this.constructor as any)
-    if (initializers) {
-      initializers.forEach(init => init(this))
-    }
-
-    runUnprotected(() => {
-      // set initial data
-      ;(this.data as any) = initialData
-
-      // fill in defaults if not in initial data
-      if (this.getDefaultData) {
-        const defaultData = this.getDefaultData()
-        for (const [k, v] of Object.entries(defaultData)) {
-          if (!(k in initialData)) {
-            ;(this.data as any)[k] = v
-          }
-        }
-      }
-    })
-
-    if (!modelInitData && this.onInit) {
-      this.onInit()
-    }
+    // rest of construction is done in internalNewModel
   }
 }
 
 /**
  * Any kind of model instance.
  */
-export type AnyModel = Model<any, any>
+export type AnyModel = Model<any>
 
 /**
  * Type of the model class.
@@ -223,14 +116,118 @@ export type ModelClass = typeof Model
 /**
  * The creation data of a model.
  */
-export type ModelCreationData<M extends AnyModel> = M extends Model<infer R, infer O>
-  ? R & Partial<O>
-  : never
+export type ModelCreationData<M extends AnyModel> = Omit<M["data"], keyof M["defaultData"]> &
+  Partial<M["data"]>
 
 /**
  * The data type of a model.
  */
 export type ModelData<M extends AnyModel> = M["data"]
+
+/**
+ * Creates a new model of a given class.
+ * Use this instead of the new operator.
+ *
+ * @typeparam M Model class.
+ * @param modelClass Model class.
+ * @param initialData Initial data.
+ * @returns The model instance.
+ */
+export function newModel<M extends AnyModel>(
+  modelClass: new (...args: any[]) => M,
+  initialData: ModelCreationData<M>
+): M {
+  assertIsObject(initialData, "initialData")
+
+  // we clone the initial data since it will be modified and we don't want to change the original
+  return internalNewModel(modelClass, { ...initialData }, undefined)
+}
+
+/**
+ * @ignore
+ */
+export function internalNewModel<M extends AnyModel>(
+  modelClass: new (...args: any[]) => M,
+  initialData: ModelCreationData<M> | undefined,
+  snapshotInitialData:
+    | {
+        unprocessedSnapshot: any
+        id: string
+        snapshotToInitialData(processedSnapshot: any): any
+      }
+    | undefined
+): M {
+  assertIsModelClass(modelClass, "modelClass")
+
+  const modelObj = new modelClass(modelConstructorSymbol) as Writable<M>
+
+  // make defaultData non enumerable and readonly
+  makePropReadonly(modelObj, "defaultData", false)
+
+  const modelInfo = modelInfoByClass.get(modelClass)!
+  let id
+  if (snapshotInitialData) {
+    id = snapshotInitialData.id
+    let sn = snapshotInitialData.unprocessedSnapshot
+    if (modelObj.fromSnapshot) {
+      sn = modelObj.fromSnapshot(sn)
+    }
+    initialData = snapshotInitialData.snapshotToInitialData(sn)
+  } else {
+    id = uuidV4()
+  }
+
+  modelObj[modelMetadataKey] = {
+    type: modelInfo.name,
+    id,
+  }
+
+  // fill in defaults in initial data
+  const { defaultData } = modelObj
+  if (defaultData) {
+    for (const [k, v] of Object.entries(defaultData as any)) {
+      if (!(k in initialData!)) {
+        ;(initialData as any)[k] = v
+      }
+    }
+  }
+
+  tweak(modelObj, undefined)
+
+  // create observable data object with initial data
+  let obsData = tweak(initialData, { parent: modelObj, path: "data" })
+  const newSn = getInternalSnapshot(obsData as any)!
+  const patchRecorder = new InternalPatchRecorder()
+
+  const standard = produce(
+    newSn.standard,
+    (draftStandard: any) => {
+      draftStandard[modelMetadataKey] = modelObj[modelMetadataKey]
+    },
+    patchRecorder.record
+  )
+
+  // make the model use the inner data field snapshot
+  linkInternalSnapshot(modelObj, newSn)
+  setInternalSnapshot(obsData, standard, patchRecorder)
+
+  // link it, and make it readonly
+  modelObj.data = obsData
+  makePropReadonly(modelObj, "data", true)
+
+  // run any extra initializers for the class as needed
+  const initializers = modelClassInitializers.get(modelClass)
+  if (initializers) {
+    initializers.forEach(init => init(modelObj))
+  }
+
+  // the object is ready
+  if (modelObj.onInit) {
+    modelObj.onInit()
+  }
+
+  return modelObj
+}
 
 type ModelClassInitializer = (modelInstance: AnyModel) => void
 
@@ -246,35 +243,4 @@ export function addModelClassInitializer(modelClass: ModelClass, init: ModelClas
     modelClassInitializers.set(modelClass, initializers)
   }
   initializers.push(init)
-}
-
-export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey: string) {
-  if (typeof propertyKey !== "string") {
-    throw failure(fnName + " cannot be used over symbol properties")
-  }
-
-  const errMessage = fnName + " must be used over model classes or instances"
-
-  if (!target) {
-    throw failure(errMessage)
-  }
-
-  // check target is a model object or extended class
-  if (!(target instanceof Model) && target !== Model && !(target.prototype instanceof Model)) {
-    throw failure(errMessage)
-  }
-}
-
-/**
- * @ignore
- *
- * Asserts something is actually a model.
- *
- * @param model
- * @param argName
- */
-export function assertIsModel(model: AnyModel, argName: string) {
-  if (!(model instanceof Model)) {
-    throw failure(`${argName} must be a model instance`)
-  }
 }

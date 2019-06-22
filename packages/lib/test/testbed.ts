@@ -1,27 +1,19 @@
 import { computed } from "mobx"
-import { model, Model, modelAction } from "../src"
+import { model, Model, modelAction, newModel } from "../src"
 
 @model("P2")
-export class P2 extends Model<{}, { y: number }> {
-  getDefaultData() {
-    return {
-      y: 10,
-    }
+export class P2 extends Model<{ y: number }> {
+  defaultData = {
+    y: 10,
   }
 }
 
 @model("P")
-export class P extends Model<{}, { x: number; arr: number[]; p2?: P2 }> {
-  // these should get serialized
-  getDefaultData() {
-    return {
-      x: 5,
-      arr: [],
-      p2: undefined,
-    }
+export class P extends Model<{ x: number; arr: number[]; p2?: P2 }> {
+  defaultData = {
+    x: 5,
+    arr: [],
   }
-
-  // these should not get serialized
 
   @computed
   get xx() {
@@ -43,8 +35,8 @@ export class P extends Model<{}, { x: number; arr: number[]; p2?: P2 }> {
 }
 
 export function createP(withArray = false) {
-  return new P({
-    p2: new P2({
+  return newModel(P, {
+    p2: newModel(P2, {
       y: 12,
     }),
     arr: withArray ? [1, 2, 3] : [],

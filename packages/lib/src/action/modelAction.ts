@@ -1,4 +1,4 @@
-import { checkModelDecoratorArgs } from "../model/Model"
+import { checkModelDecoratorArgs } from "../model/utils"
 import { decorateWrapMethodOrField, failure } from "../utils"
 import { ActionContextActionType } from "./context"
 import { modelActionSymbol, wrapInAction } from "./wrapInAction"

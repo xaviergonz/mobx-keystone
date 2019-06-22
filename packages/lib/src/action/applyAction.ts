@@ -1,4 +1,5 @@
-import { AnyModel, assertIsModel } from "../model/Model"
+import { AnyModel } from "../model/Model"
+import { assertIsModel } from "../model/utils"
 import { resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
