@@ -1,5 +1,6 @@
 import produce from "immer"
 import { v4 as uuidV4 } from "uuid"
+import { runUnprotected } from "../action"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
   getInternalSnapshot,
@@ -24,22 +25,38 @@ let modelInitData: ModelInitData | undefined
 /**
  * @ignore
  */
-export function createModelWithUuid<T extends Model>(modelClass: new () => T, uuid: string): T {
+export function createModelWithUuid<T extends AnyModel>(
+  modelClass: new (initialData: ModelCreationData<T>) => T,
+  initialData: ModelCreationData<T>,
+  uuid: string
+): T {
   modelInitData = {
     uuid,
   }
 
   try {
-    return new modelClass()
+    return new modelClass(initialData)
   } finally {
     modelInitData = undefined
   }
 }
 
+declare const typeSymbol: unique symbol
+
 /**
- * Base abtract class for models.
+ * Base abstract class for models.
+ * Never override the derived constructor, use `onInit` or `onAttachedToRootStore` instead.
+ *
+ * @typeparam RequiredData Required data type.
+ * @typeparam OptionalData Optional data type.
  */
-export abstract class Model {
+export abstract class Model<
+  RequiredData extends { [k: string]: any },
+  OptionalData extends { [k: string]: any }
+> {
+  // just to make typing work properly
+  [typeSymbol]: [RequiredData, OptionalData];
+
   readonly [modelMetadataKey]: Readonly<ModelMetadata>
 
   /**
@@ -57,12 +74,22 @@ export abstract class Model {
   }
 
   /**
-   * Data part of the model, which is observable and will be serialized in snapshots.
-   * It must be an object.
+   * Called after the model has been created.
+   */
+  onInit?(): void
+
+  /**
+   * Default data for optional data when not provided.
    *
    * @abstract
    */
-  abstract data: { [k: string]: any }
+  abstract getDefaultData(): Readonly<OptionalData>
+
+  /**
+   * Data part of the model, which is observable and will be serialized in snapshots.
+   * It must be an object.
+   */
+  readonly data!: RequiredData & OptionalData
 
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as
@@ -76,7 +103,7 @@ export abstract class Model {
    * @param rootStore
    * @returns
    */
-  onAttachedToRootStore?(rootStore: Model): (() => void) | void
+  onAttachedToRootStore?(rootStore: AnyModel): (() => void) | void
 
   /**
    * Optional transformation that will be run when converting from a snapshot to the data part of the model.
@@ -85,9 +112,9 @@ export abstract class Model {
    * @param snapshot
    * @returns
    */
-  fromSnapshot?(snapshot: any): this["data"]
+  fromSnapshot?(snapshot: any): any
 
-  constructor() {
+  constructor(initialData: RequiredData & Partial<OptionalData>) {
     const modelInfo = modelInfoByClass.get(this.constructor)!
     let id
     if (modelInitData) {
@@ -161,15 +188,51 @@ export abstract class Model {
     if (initializers) {
       initializers.forEach(init => init(this))
     }
+
+    runUnprotected(() => {
+      // set initial data
+      ;(this.data as any) = initialData
+
+      // fill in defaults if not in initial data
+      if (this.getDefaultData) {
+        const defaultData = this.getDefaultData()
+        for (const [k, v] of Object.entries(defaultData)) {
+          if (!(k in initialData)) {
+            ;(this.data as any)[k] = v
+          }
+        }
+      }
+    })
+
+    if (!modelInitData && this.onInit) {
+      this.onInit()
+    }
   }
 }
+
+/**
+ * Any kind of model instance.
+ */
+export type AnyModel = Model<any, any>
 
 /**
  * Type of the model class.
  */
 export type ModelClass = typeof Model
 
-type ModelClassInitializer = (modelInstance: Model) => void
+/**
+ * The creation data of a model.
+ */
+export type ModelCreationData<M extends AnyModel> = M extends Model<infer R, infer O>
+  ? R & Partial<O>
+  : never
+
+/**
+ * The data type of a model.
+ */
+export type ModelData<M extends AnyModel> = M["data"]
+
+type ModelClassInitializer = (modelInstance: AnyModel) => void
 
 const modelClassInitializers = new WeakMap<ModelClass, ModelClassInitializer[]>()
 
@@ -210,7 +273,7 @@ export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey
  * @param model
  * @param argName
  */
-export function assertIsModel(model: Model, argName: string) {
+export function assertIsModel(model: AnyModel, argName: string) {
   if (!(model instanceof Model)) {
     throw failure(`${argName} must be a model instance`)
   }

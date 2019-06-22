@@ -13,9 +13,11 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-class P2 extends Model {
-  data = {
-    y: 0,
+class P2 extends Model<{}, { y: number }> {
+  getDefaultData() {
+    return {
+      y: 0,
+    }
   }
 
   @modelAction
@@ -25,10 +27,12 @@ class P2 extends Model {
 }
 
 @model("P")
-class P extends Model {
-  data = {
-    x: 0,
-    p2: new P2(),
+class P extends Model<{}, { p2: P2; x: number }> {
+  getDefaultData() {
+    return {
+      x: 0,
+      p2: new P2({}),
+    }
   }
 
   @modelAction
@@ -45,15 +49,17 @@ class P extends Model {
 }
 
 @model("R")
-class R extends Model {
-  data = {
-    undoData: new UndoStore(),
-    p: new P(),
+class R extends Model<{}, { undoData: UndoStore; p: P }> {
+  getDefaultData() {
+    return {
+      undoData: new UndoStore({}),
+      p: new P({}),
+    }
   }
 }
 
 test("undoMiddleware - sync", () => {
-  const r = new R()
+  const r = new R({})
   const p = r.data.p
 
   const manager = undoMiddleware(r, r.data.undoData)
@@ -282,10 +288,10 @@ test("undoMiddleware - sync", () => {
 })
 
 @model("P2Flow")
-class P2Flow extends Model {
-  data = {
-    y: 0,
-  };
+class P2Flow extends Model<{}, { y: number }> {
+  getDefaultData() {
+    return { y: 0 }
+  }
 
   @modelFlow
   *incY(n: number) {
@@ -296,11 +302,13 @@ class P2Flow extends Model {
 }
 
 @model("PFlow")
-class PFlow extends Model {
-  data = {
-    x: 0,
-    p2: new P2Flow(),
-  };
+class PFlow extends Model<{}, { x: number; p2: P2Flow }> {
+  getDefaultData() {
+    return {
+      x: 0,
+      p2: new P2Flow({}),
+    }
+  }
 
   @modelFlow
   *incX(n: number) {
@@ -321,15 +329,17 @@ class PFlow extends Model {
 }
 
 @model("RFlow")
-class RFlow extends Model {
-  data = {
-    undoData: new UndoStore(),
-    p: new PFlow(),
+class RFlow extends Model<{}, { undoData: UndoStore; p: PFlow }> {
+  getDefaultData() {
+    return {
+      undoData: new UndoStore({}),
+      p: new PFlow({}),
+    }
   }
 }
 
 test("undoMiddleware - async", async () => {
-  const r = new RFlow()
+  const r = new RFlow({})
   const p = r.data.p
 
   const manager = undoMiddleware(r, r.data.undoData)

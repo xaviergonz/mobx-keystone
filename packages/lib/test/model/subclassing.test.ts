@@ -2,11 +2,13 @@ import { fromSnapshot, getSnapshot, model, Model } from "../../src"
 import "../commonSetup"
 
 @model("P")
-class P extends Model {
-  data = {
-    x: 15,
-    y: 10,
-    z: 30,
+class P extends Model<{}, { x: number; y: number; z: number }> {
+  getDefaultData() {
+    return {
+      x: 15,
+      y: 10,
+      z: 30,
+    }
   }
 
   getData() {
@@ -39,7 +41,7 @@ class P2 extends P {
 }
 
 test("subclassing works", () => {
-  const p2 = new P2()
+  const p2 = new P2({})
 
   expect(p2.data.x).toBe(15)
   expect(p2.data.y).toBe(20)

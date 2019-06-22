@@ -11,9 +11,11 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-export class P2 extends Model {
-  data = {
-    y: 0,
+export class P2 extends Model<{}, { y: number }> {
+  getDefaultData() {
+    return {
+      y: 0,
+    }
   }
 
   @modelAction
@@ -24,10 +26,12 @@ export class P2 extends Model {
 }
 
 @model("P")
-export class P extends Model {
-  data = {
-    p2: new P2(),
-    x: 0,
+export class P extends Model<{}, { p2: P2; x: number }> {
+  getDefaultData() {
+    return {
+      p2: new P2({}),
+      x: 0,
+    }
   }
 
   @modelAction
@@ -47,7 +51,7 @@ export class P extends Model {
 test("action tracking", () => {
   const events: any = []
 
-  const p = new P()
+  const p = new P({})
 
   autoDispose(
     addActionMiddleware({
@@ -602,7 +606,7 @@ test("action tracking", () => {
 test("action cancel with error", () => {
   const err = new Error("someError")
 
-  const p = new P()
+  const p = new P({})
   autoDispose(
     addActionMiddleware({
       target: p,
@@ -620,7 +624,7 @@ test("action cancel with error", () => {
 test("action cancel with new return value", () => {
   const val = 999
 
-  const p = new P()
+  const p = new P({})
   autoDispose(
     addActionMiddleware({
       target: p,
@@ -636,8 +640,8 @@ test("action cancel with new return value", () => {
 })
 
 test("applyAction", () => {
-  const pa = new P()
-  const pb = new P()
+  const pa = new P({})
+  const pb = new P({})
 
   {
     const ra = pa.addX(10)

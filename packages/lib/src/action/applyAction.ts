@@ -1,4 +1,4 @@
-import { assertIsModel, Model } from "../model/Model"
+import { AnyModel, assertIsModel } from "../model/Model"
 import { resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
@@ -32,13 +32,13 @@ export interface ActionCall {
  * @param call The serialized action, usually as coming from `onActionMiddleware`.
  * @returns The return value of the action, if any.
  */
-export function applyAction<TRet = any>(rootTarget: Model, call: ActionCall): TRet {
+export function applyAction<TRet = any>(rootTarget: AnyModel, call: ActionCall): TRet {
   assertIsModel(rootTarget, "applyAction target")
 
   return wrappedInternalApplyAction.call(rootTarget, call)
 }
 
-function internalApplyAction(this: Model, call: ActionCall) {
+function internalApplyAction(this: AnyModel, call: ActionCall) {
   // resolve path
   const current = resolvePath(this, call.targetPath)
 

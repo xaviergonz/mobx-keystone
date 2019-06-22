@@ -13,9 +13,11 @@ import "../commonSetup"
 const events: string[] = []
 
 @model("P3")
-export class P3 extends Model {
-  data = {
-    z: 20,
+export class P3 extends Model<{}, { z: number }> {
+  getDefaultData() {
+    return {
+      z: 20,
+    }
   }
 
   onAttachedToRootStore(rootStore: any) {
@@ -33,10 +35,12 @@ export class P3 extends Model {
 }
 
 @model("P2")
-export class P2 extends Model {
-  data = {
-    y: 10,
-    p3: new P3(),
+export class P2 extends Model<{}, { y: number; p3: P3 }> {
+  getDefaultData() {
+    return {
+      y: 10,
+      p3: new P3({}),
+    }
   }
 
   onAttachedToRootStore(rootStore: any) {
@@ -54,11 +58,13 @@ export class P2 extends Model {
 }
 
 @model("P")
-export class P extends Model {
-  data = {
-    x: 5,
-    arr: [] as P2[],
-    p2: undefined as P2 | undefined,
+export class P extends Model<{}, { x: number; arr: P2[]; p2?: P2 }> {
+  getDefaultData() {
+    return {
+      x: 5,
+      arr: [],
+      p2: undefined,
+    }
   }
 
   onAttachedToRootStore(rootStore: any) {
@@ -76,12 +82,11 @@ export class P extends Model {
 }
 
 export function createP() {
-  const p = new P()
-  runUnprotected(() => {
-    p.data.p2 = new P2()
-    p.data.p2.data.y = 12
+  return new P({
+    p2: new P2({
+      y: 12,
+    }),
   })
-  return p
 }
 
 function resetEvents() {

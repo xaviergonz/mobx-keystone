@@ -11,18 +11,18 @@ import {
 import "../commonSetup"
 
 @model("P2")
-class P2 extends Model {
-  constructor() {
-    super()
-
+class P2 extends Model<{}, { y: number }> {
+  onInit() {
     transactionMiddleware({
       model: this,
       actionName: "addParentX",
     })
   }
 
-  data = {
-    y: 0,
+  getDefaultData() {
+    return {
+      y: 0,
+    }
   }
 
   @modelAction
@@ -41,10 +41,12 @@ class P2 extends Model {
 }
 
 @model("P")
-class P extends Model {
-  data = {
-    x: 0,
-    p2: new P2(),
+class P extends Model<{}, { x: number; p2: P2 }> {
+  getDefaultData() {
+    return {
+      x: 0,
+      p2: new P2({}),
+    }
   }
 
   @transaction
@@ -69,7 +71,7 @@ class P extends Model {
 describe("transactionMiddleware - sync", () => {
   let p: P
   beforeEach(() => {
-    p = new P()
+    p = new P({})
   })
 
   test("simple root action", () => {
@@ -110,20 +112,20 @@ async function delay(x: number) {
 }
 
 @model("P2Flow")
-class P2Flow extends Model {
-  constructor() {
-    super()
-
+class P2Flow extends Model<{}, { y: number; z: number }> {
+  onInit() {
     transactionMiddleware({
       model: this,
       actionName: "addParentX",
     })
   }
 
-  data = {
-    y: 0,
-    z: 0,
-  };
+  getDefaultData() {
+    return {
+      y: 0,
+      z: 0,
+    }
+  }
 
   @modelFlow
   *addY(n: number, error: boolean) {
@@ -151,10 +153,12 @@ class P2Flow extends Model {
 }
 
 @model("PFlow")
-class PFlow extends Model {
-  data = {
-    x: 0,
-    p2: new P2Flow(),
+class PFlow extends Model<{}, { x: number; p2: P2Flow }> {
+  getDefaultData() {
+    return {
+      x: 0,
+      p2: new P2Flow({}),
+    }
   }
 
   @transaction
@@ -181,7 +185,7 @@ class PFlow extends Model {
 describe("transactionMiddleware - async", () => {
   let p: PFlow
   beforeEach(() => {
-    p = new PFlow()
+    p = new PFlow({})
   })
 
   test("simple root action", async () => {

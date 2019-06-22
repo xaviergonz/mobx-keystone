@@ -1,5 +1,5 @@
 import { action, isAction } from "mobx"
-import { assertIsModel, Model } from "../model/Model"
+import { AnyModel, assertIsModel, Model } from "../model/Model"
 import { getParent, isChildOfParent } from "../parent/path"
 import { assertIsObject, deleteFromArray, failure } from "../utils"
 import { ActionContext } from "./context"
@@ -12,7 +12,7 @@ export interface ActionMiddleware {
    * Subtree (object and child objects) this middleware will run for.
    * This target "filter" will be run before the custom filter.
    */
-  target: Model
+  target: AnyModel
 
   /**
    * A filter function to decide if an action middleware function should be run or not.
@@ -32,7 +32,7 @@ export interface ActionMiddleware {
 export type ActionMiddlewareDisposer = () => void
 
 type PartialActionMiddleware = Pick<ActionMiddleware, "filter" | "middleware">
-const perModelActionMiddlewares = new WeakMap<Model, PartialActionMiddleware[]>()
+const perModelActionMiddlewares = new WeakMap<AnyModel, PartialActionMiddleware[]>()
 
 /**
  * @ignore
@@ -41,7 +41,7 @@ const perModelActionMiddlewares = new WeakMap<Model, PartialActionMiddleware[]>(
  *
  * @returns
  */
-export function getActionMiddlewares(model: Model): PartialActionMiddleware[] {
+export function getActionMiddlewares(model: AnyModel): PartialActionMiddleware[] {
   const mwares = []
 
   // when we call a middleware we will call the middlewares of that model plus all parent models

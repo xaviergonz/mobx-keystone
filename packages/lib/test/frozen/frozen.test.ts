@@ -14,10 +14,10 @@ import "../commonSetup"
 import { emulateProdMode } from "../utils"
 
 @model("P")
-class P extends Model {
-  data: {
-    frozenStuff?: Frozen<any>
-  } = {}
+class P extends Model<{ frozenStuff?: Frozen<any> }, {}> {
+  getDefaultData() {
+    return {}
+  }
 }
 
 describe("frozen", () => {
@@ -37,10 +37,7 @@ describe("frozen", () => {
       expect(frBack).not.toBe(fr)
       expect(frBack.data).toBe(sn.data)
 
-      const p = new P()
-      runUnprotected(() => {
-        p.data.frozenStuff = fr
-      })
+      const p = new P({ frozenStuff: fr })
 
       expect(getSnapshot(p).frozenStuff).toBe(sn)
       expect(getParent(fr)).toBe(p.data)

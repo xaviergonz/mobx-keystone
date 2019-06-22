@@ -7,7 +7,7 @@ import {
   ObservableSet,
 } from "mobx"
 import { modelMetadataKey } from "../model/metadata"
-import { Model } from "../model/Model"
+import { AnyModel } from "../model/Model"
 import { SnapshotInOfModel } from "../snapshot"
 
 /**
@@ -112,7 +112,7 @@ export function deleteFromArray<T>(array: T[], value: T): boolean {
 /**
  * @ignore
  */
-export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<Model> {
+export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
   return isPlainObject(sn) && !!sn[modelMetadataKey]
 }
 

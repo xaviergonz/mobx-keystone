@@ -1,3 +1,3 @@
 export { ModelMetadata, modelMetadataKey } from "./metadata"
-export { Model } from "./Model"
+export { AnyModel, Model, ModelCreationData, ModelData } from "./Model"
 export { model } from "./modelDecorator"
