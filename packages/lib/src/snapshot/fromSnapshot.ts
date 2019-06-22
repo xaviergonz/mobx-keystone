@@ -1,8 +1,7 @@
-import { DeepPartial } from "ts-essentials"
 import { runUnprotected } from "../action/protection"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
-import { createModelWithUuid, Model } from "../model/Model"
+import { AnyModel, createModelWithUuid } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import {
   failure,
@@ -38,7 +37,7 @@ export interface FromSnapshotOptions {
  * @returns The deserialized object.
  */
 export function fromSnapshot<T>(
-  sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T,
+  sn: T extends object ? SnapshotInOf<T> : T,
   options?: FromSnapshotOptions
 ): T {
   if (options && options.generateNewIds) {
@@ -48,7 +47,7 @@ export function fromSnapshot<T>(
   return internalFromSnapshot(sn)
 }
 
-function internalFromSnapshot<T>(sn: T extends object ? DeepPartial<SnapshotInOf<T>> : T): T {
+function internalFromSnapshot<T>(sn: T extends object ? SnapshotInOf<T> : T): T {
   if (isPrimitive(sn)) {
     return sn as any
   }
@@ -84,7 +83,7 @@ function fromArraySnapshot(sn: any[]): any[] {
   return sn.map(v => internalFromSnapshot(v))
 }
 
-function fromModelSnapshot(sn: any): Model {
+function fromModelSnapshot(sn: any): AnyModel {
   const { type, id } = sn[modelMetadataKey] as ModelMetadata
 
   if (!id) {
@@ -98,7 +97,7 @@ function fromModelSnapshot(sn: any): Model {
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const modelObj: Model = createModelWithUuid(modelInfo.class as any, id)
+  const modelObj: AnyModel = createModelWithUuid(modelInfo.class as any, {}, id)
   let processedSn = sn
   if (modelObj.fromSnapshot) {
     processedSn = modelObj.fromSnapshot(sn) as any
@@ -112,6 +111,10 @@ function fromModelSnapshot(sn: any): Model {
       }
     }
   })
+
+  if (modelObj.onInit) {
+    modelObj.onInit()
+  }
 
   return modelObj
 }

@@ -1,12 +1,12 @@
 import { action } from "mobx"
-import { assertIsModel, Model } from "../model/Model"
+import { AnyModel, assertIsModel } from "../model/Model"
 import { getParent, getRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isPlainObject } from "../utils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
 const rootStores = new WeakMap<
-  Model,
+  AnyModel,
   {
     env: any
   }
@@ -27,7 +27,7 @@ const rootStores = new WeakMap<
  */
 export const registerRootStore = action(
   "registerRootStore",
-  <T extends Model>(
+  <T extends AnyModel>(
     model: T,
     options?: {
       env?: any
@@ -67,7 +67,7 @@ export const registerRootStore = action(
  *
  * @param model Model object.
  */
-export const unregisterRootStore = action("unregisterRootStore", (model: Model): void => {
+export const unregisterRootStore = action("unregisterRootStore", (model: AnyModel): void => {
   if (!isRootStore(model)) {
     throw failure("not a root store")
   }
@@ -83,7 +83,7 @@ export const unregisterRootStore = action("unregisterRootStore", (model: Model):
  * @param model Model object.
  * @returns
  */
-export function isRootStore(model: Model): boolean {
+export function isRootStore(model: AnyModel): boolean {
   return rootStores.has(model as any)
 }
 
@@ -94,7 +94,7 @@ export function isRootStore(model: Model): boolean {
  * @param target Target to find the root store for.
  * @returns
  */
-export function getRootStore<T extends Model = Model>(target: object): T | undefined {
+export function getRootStore<T extends AnyModel>(target: object): T | undefined {
   assertTweakedObject(target, "getRootStore")
 
   const root = getRoot(target)
@@ -108,7 +108,7 @@ export function getRootStore<T extends Model = Model>(target: object): T | undef
  * @param target Target to find the root store environment for.
  * @returns
  */
-export function getRootStoreEnv<T extends object = any>(target: object): T | undefined {
+export function getRootStoreEnv<T extends object>(target: object): T | undefined {
   assertTweakedObject(target, "getRootStoreEnv")
 
   const root = getRoot(target)

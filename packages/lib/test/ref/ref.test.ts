@@ -12,19 +12,19 @@ import {
 import "../commonSetup"
 
 @model("P2")
-class P2 extends Model {
-  data = {
-    y: 10,
+class P2 extends Model<{}, { y: number }> {
+  getDefaultData() {
+    return {
+      y: 10,
+    }
   }
 }
 
 @model("P")
-class P extends Model {
-  data: {
-    p2?: P2
-    p3?: P2
-    r?: Ref<P2>
-  } = {}
+class P extends Model<{ p2?: P2; p3?: P2; r?: Ref<P2> }, {}> {
+  getDefaultData() {
+    return {}
+  }
 
   @modelAction
   setR(r: P2 | undefined, autoDetach = false) {
@@ -43,8 +43,8 @@ class P extends Model {
 }
 
 test("ref", () => {
-  const p = new P()
-  const p2 = new P2()
+  const p = new P({})
+  const p2 = new P2({})
 
   p.setP2(p2)
   p.setR(p2)
@@ -60,6 +60,7 @@ test("ref", () => {
         "id": "mockedUuid-3",
         "type": "$$Ref",
       },
+      "autoDetach": false,
       "id": "mockedUuid-2",
     }
   `)
@@ -78,6 +79,7 @@ test("ref", () => {
         "id": "mockedUuid-3",
         "type": "$$Ref",
       },
+      "autoDetach": false,
       "id": "mockedUuid-2",
     }
   `)
@@ -94,6 +96,7 @@ test("ref", () => {
         "id": "mockedUuid-3",
         "type": "$$Ref",
       },
+      "autoDetach": false,
       "id": "mockedUuid-2",
     }
   `)
@@ -198,10 +201,10 @@ test("ref loaded from a broken snapshot", () => {
 })
 
 test("autoDetach ref", () => {
-  const p = new P()
+  const p = new P({})
   registerRootStore(p)
 
-  const p2 = new P2()
+  const p2 = new P2({})
 
   p.setP2(p2)
   p.setR(p2, true)
@@ -212,15 +215,15 @@ test("autoDetach ref", () => {
   expect(p.data.r!.current).toBe(p2)
 
   expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
-    Object {
-      "$$metadata": Object {
-        "id": "mockedUuid-6",
-        "type": "$$Ref",
-      },
-      "autoDetach": true,
-      "id": "mockedUuid-5",
-    }
-  `)
+        Object {
+          "$$metadata": Object {
+            "id": "mockedUuid-6",
+            "type": "$$Ref",
+          },
+          "autoDetach": true,
+          "id": "mockedUuid-5",
+        }
+    `)
 
   // not under the same root now
   const r = p.data.r!

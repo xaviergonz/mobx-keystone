@@ -25,9 +25,6 @@ test("fromSnapshot", () => {
         "id": "P-id",
         "type": "P",
       },
-      "IAMPRIVATE": -2,
-      "IAMPROTECTED": 2,
-      "IAMPUBLIC": 5,
       "boundNonAction": [Function],
       "data": Object {
         "arr": Array [

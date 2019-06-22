@@ -1,6 +1,5 @@
 import { computed, when } from "mobx"
-import { Writable } from "ts-essentials"
-import { Model } from "../model/Model"
+import { AnyModel, Model, ModelCreationData } from "../model/Model"
 import { model } from "../model/modelDecorator"
 import { getRootIdCache } from "../parent/core"
 import { detach } from "../parent/detach"
@@ -14,11 +13,12 @@ import { failure } from "../utils"
  * @typeparam T Referenced object type.
  */
 @model("$$Ref")
-export class Ref<T extends Model> extends Model {
-  readonly data: {
-    readonly id: string
-    readonly autoDetach?: boolean
-  } = { id: "" }
+export class Ref<T extends AnyModel> extends Model<{ id: string }, { autoDetach: boolean }> {
+  getDefaultData() {
+    return {
+      autoDetach: false,
+    }
+  }
 
   /**
    * Unique model ID this reference points to.
@@ -94,16 +94,17 @@ export class Ref<T extends Model> extends Model {
  * @param [opts] Reference options.
  * @returns
  */
-export function ref<T extends Model>(current: T, opts?: { autoDetach: boolean }): Ref<T> {
+export function ref<T extends AnyModel>(current: T, opts?: { autoDetach: boolean }): Ref<T> {
   if (!(current instanceof Model)) {
     throw failure("a reference can only point to a model instance")
   }
 
-  const r = new Ref<T>()
-  const data: Writable<typeof r.data> = r.data
-  data.id = current.modelId
-  if (opts && opts.autoDetach) {
-    data.autoDetach = true
+  const creationData: ModelCreationData<Ref<T>> = {
+    id: current.modelId,
   }
-  return r
+  if (opts && opts.autoDetach) {
+    creationData.autoDetach = true
+  }
+
+  return new Ref<T>(creationData)
 }

@@ -15,18 +15,21 @@ import {
 import "../commonSetup"
 
 @model("P2")
-export class P2 extends Model {
-  data = {
-    y: 10,
+export class P2 extends Model<{}, { y: number }> {
+  getDefaultData() {
+    return {
+      y: 10,
+    }
   }
 }
 
 @model("P")
-export class P extends Model {
-  data = {
-    x: 5,
-    arr: [] as P2[],
-    p2: undefined as P2 | undefined,
+export class P extends Model<{}, { x: number; arr: P2[]; p2?: P2 }> {
+  getDefaultData() {
+    return {
+      x: 5,
+      arr: [],
+    }
   }
 }
 

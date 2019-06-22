@@ -27,13 +27,13 @@ test("model class", () => {
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
     Object {
       "$$metadata": Object {
-        "id": "mockedUuid-1",
+        "id": "mockedUuid-2",
         "type": "P",
       },
       "arr": Array [],
       "p2": Object {
         "$$metadata": Object {
-          "id": "mockedUuid-2",
+          "id": "mockedUuid-1",
           "type": "P2",
         },
         "y": 12,
@@ -51,7 +51,7 @@ test("model class", () => {
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
     Object {
       "$$metadata": Object {
-        "id": "mockedUuid-1",
+        "id": "mockedUuid-2",
         "type": "P",
       },
       "arr": Array [],
@@ -63,7 +63,7 @@ test("model class", () => {
   expect(getSnapshot(oldP2)).toMatchInlineSnapshot(`
     Object {
       "$$metadata": Object {
-        "id": "mockedUuid-2",
+        "id": "mockedUuid-1",
         "type": "P2",
       },
       "y": 12,
@@ -79,13 +79,13 @@ test("model class", () => {
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
     Object {
       "$$metadata": Object {
-        "id": "mockedUuid-1",
+        "id": "mockedUuid-2",
         "type": "P",
       },
       "arr": Array [],
       "p2": Object {
         "$$metadata": Object {
-          "id": "mockedUuid-2",
+          "id": "mockedUuid-1",
           "type": "P2",
         },
         "y": 13,

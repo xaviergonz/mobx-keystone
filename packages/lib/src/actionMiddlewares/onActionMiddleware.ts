@@ -7,7 +7,7 @@ import {
   addActionMiddleware,
 } from "../action/middleware"
 import { SpecialAction } from "../action/specialActions"
-import { assertIsModel, Model } from "../model/Model"
+import { AnyModel, assertIsModel } from "../model/Model"
 import { getRootPath } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
@@ -36,7 +36,7 @@ export type OnActionListener = (
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
  * @returns The middleware disposer.
  */
-export function onActionMiddleware<M extends Model>(
+export function onActionMiddleware<M extends AnyModel>(
   target: {
     model: M
     actionName?: keyof M

@@ -2,7 +2,7 @@ import { action, computed } from "mobx"
 import { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
 import { model } from "../model"
-import { assertIsModel, Model } from "../model/Model"
+import { AnyModel, assertIsModel, Model } from "../model/Model"
 import { getRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { failure } from "../utils"
@@ -37,13 +37,15 @@ export interface UndoEvent {
  * Do not manipulate directly, other that creating it.
  */
 @model("mobx-state-tree-next/UndoStore")
-export class UndoStore extends Model {
+export class UndoStore extends Model<{}, { undoEvents: UndoEvent[]; redoEvents: UndoEvent[] }> {
   /**
    * @ignore
    */
-  data = {
-    undoEvents: [] as UndoEvent[],
-    redoEvents: [] as UndoEvent[],
+  getDefaultData() {
+    return {
+      undoEvents: [],
+      redoEvents: [],
+    }
   }
 
   /**
@@ -229,10 +231,10 @@ export class UndoManager {
    */
   constructor(
     private readonly disposer: ActionMiddlewareDisposer,
-    private readonly target: Model,
+    private readonly target: AnyModel,
     store?: UndoStore
   ) {
-    this.store = store || new UndoStore()
+    this.store = store || new UndoStore({})
   }
 }
 
@@ -244,7 +246,7 @@ export class UndoManager {
  * store such queues somewhere in your models. If none is provided it will reside in memory.
  * @returns An `UndoManager` which allows you to do the manage the undo/redo operations and dispose of the middleware.
  */
-export function undoMiddleware(model: Model, store?: UndoStore): UndoManager {
+export function undoMiddleware(model: AnyModel, store?: UndoStore): UndoManager {
   assertIsModel(model, "model")
 
   const patchRecorderSymbol = Symbol("patchRecorder")

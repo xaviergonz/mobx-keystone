@@ -1,9 +1,9 @@
 import { ActionMiddlewareDisposer } from "../action/middleware"
 import {
   addModelClassInitializer,
+  AnyModel,
   assertIsModel,
   checkModelDecoratorArgs,
-  Model,
 } from "../model/Model"
 import { applyPatches } from "../patch"
 import { globalPatchRecorder, GlobalPatchRecorder } from "../patch/globalPatchRecorder"
@@ -22,7 +22,7 @@ import {
  * @param target Object with the root target model object (`model`) and root action name (`actionName`).
  * @returns The middleware disposer.
  */
-export function transactionMiddleware<M extends Model>(target: {
+export function transactionMiddleware<M extends AnyModel>(target: {
   model: M
   actionName: keyof M
 }): ActionMiddlewareDisposer {

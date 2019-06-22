@@ -9,7 +9,7 @@ import {
   addActionMiddleware,
 } from "../action/middleware"
 import { FlowFinisher } from "../action/modelFlow"
-import { assertIsModel, Model } from "../model/Model"
+import { AnyModel, assertIsModel } from "../model/Model"
 import { assertIsObject, failure } from "../utils"
 
 /**
@@ -27,7 +27,7 @@ export interface SimpleActionContext {
   /**
    * Action target object.
    */
-  readonly target: Model
+  readonly target: AnyModel
   /**
    * Array of action arguments.
    */
@@ -126,7 +126,7 @@ export interface ActionTrackingMiddleware {
  * @param hooks Middleware hooks.
  * @returns The middleware disposer.
  */
-export function actionTrackingMiddleware<M extends Model>(
+export function actionTrackingMiddleware<M extends AnyModel>(
   target: {
     model: M
     actionName?: keyof M

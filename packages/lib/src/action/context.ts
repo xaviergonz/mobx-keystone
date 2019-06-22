@@ -1,4 +1,4 @@
-import { Model } from "../model/Model"
+import { AnyModel } from "../model/Model"
 
 /**
  * An action context.
@@ -15,7 +15,7 @@ export interface ActionContext {
   /**
    * Action target object.
    */
-  readonly target: Model
+  readonly target: AnyModel
   /**
    * Array of action arguments.
    */

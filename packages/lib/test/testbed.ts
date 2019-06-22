@@ -1,25 +1,24 @@
 import { computed } from "mobx"
-import { model, Model, modelAction, runUnprotected } from "../src"
+import { model, Model, modelAction } from "../src"
 
 @model("P2")
-export class P2 extends Model {
-  data = {
-    y: 10,
+export class P2 extends Model<{}, { y: number }> {
+  getDefaultData() {
+    return {
+      y: 10,
+    }
   }
 }
 
 @model("P")
-export class P extends Model {
-  // these should not get serialized
-  protected IAMPROTECTED = 2
-  private IAMPRIVATE = -2
-  IAMPUBLIC = 5
-
+export class P extends Model<{}, { x: number; arr: number[]; p2?: P2 }> {
   // these should get serialized
-  data = {
-    x: this.IAMPRIVATE + this.IAMPROTECTED + this.IAMPUBLIC,
-    arr: [] as number[],
-    p2: undefined as P2 | undefined,
+  getDefaultData() {
+    return {
+      x: 5,
+      arr: [],
+      p2: undefined,
+    }
   }
 
   // these should not get serialized
@@ -44,13 +43,10 @@ export class P extends Model {
 }
 
 export function createP(withArray = false) {
-  const p = new P()
-  runUnprotected(() => {
-    p.data.p2 = new P2()
-    p.data.p2.data.y = 12
-    if (withArray) {
-      p.data.arr = [1, 2, 3]
-    }
+  return new P({
+    p2: new P2({
+      y: 12,
+    }),
+    arr: withArray ? [1, 2, 3] : [],
   })
-  return p
 }

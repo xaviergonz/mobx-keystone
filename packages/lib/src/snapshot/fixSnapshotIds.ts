@@ -2,7 +2,7 @@ import { Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
 import { isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
-import { Model } from "../model/Model"
+import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { Ref } from "../ref/Ref"
 import {
@@ -76,7 +76,7 @@ function fixArraySnapshotIds(sn: any[], ctx: FixSnapshotIdsContext): any[] {
   return sn.map(v => internalFixSnapshotIds(v, ctx))
 }
 
-function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): Model {
+function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): AnyModel {
   const { type, id } = sn[modelMetadataKey] as ModelMetadata
 
   if (!id) {

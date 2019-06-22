@@ -14,9 +14,11 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-export class P2 extends Model {
-  data = {
-    y: 0,
+export class P2 extends Model<{}, { y: number }> {
+  getDefaultData() {
+    return {
+      y: 0,
+    }
   }
 
   @modelAction
@@ -27,10 +29,12 @@ export class P2 extends Model {
 }
 
 @model("P")
-export class P extends Model {
-  data = {
-    p2: new P2(),
-    x: 0,
+export class P extends Model<{}, { p2: P2; x: number }> {
+  getDefaultData() {
+    return {
+      p2: new P2({}),
+      x: 0,
+    }
   }
 
   @modelAction
@@ -51,8 +55,8 @@ export class P extends Model {
 }
 
 test("onActionMiddleware", () => {
-  const p1 = new P()
-  const p2 = new P()
+  const p1 = new P({})
+  const p2 = new P({})
 
   const events: [ActionCall, ActionContext][] = []
   function reset() {

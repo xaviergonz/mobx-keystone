@@ -1,7 +1,7 @@
 import { isObservableObject } from "mobx"
 import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
-import { Model } from "../model/Model"
+import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import {
   failure,
@@ -83,7 +83,7 @@ function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>
   return frozen(sn.data)
 }
 
-function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<Model>): Model {
+function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): AnyModel {
   const { type, id } = sn[modelMetadataKey] as ModelMetadata
 
   const modelInfo = getModelInfoForName(type)
@@ -93,18 +93,15 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<Model>): Model
 
   if (!(value instanceof modelInfo.class) || value.modelType !== type || value.modelId !== id) {
     // different kind of model / model instance, no reconciliation possible
-    return fromSnapshot<Model>(sn)
+    return fromSnapshot<AnyModel>(sn)
   }
 
-  const modelObj: Model = value
+  const modelObj: AnyModel = value
   let processedSn: any = sn
   if (modelObj.fromSnapshot) {
     processedSn = modelObj.fromSnapshot(sn)
   }
 
-  if (!modelObj.data) {
-    modelObj.data = {}
-  }
   const data = modelObj.data
 
   // remove excess props

@@ -1,5 +1,5 @@
 import { createAtom, IAtom, observable, ObservableMap, ObservableSet } from "mobx"
-import { Model } from "../model/Model"
+import { AnyModel } from "../model/Model"
 import { ParentPath } from "./path"
 
 /**
@@ -17,12 +17,12 @@ export const objectParentsAtoms = new WeakMap<object, IAtom>()
  */
 export const objectChildren = new WeakMap<object, ObservableSet<any>>()
 
-const rootIdCaches = new WeakMap<object, ObservableMap<string, Model>>()
+const rootIdCaches = new WeakMap<object, ObservableMap<string, AnyModel>>()
 
 /**
  * @ignore
  */
-export function getRootIdCache(root: object): ObservableMap<string, Model> {
+export function getRootIdCache(root: object): ObservableMap<string, AnyModel> {
   let cache = rootIdCaches.get(root)
   if (!cache) {
     cache = observable.map()
