@@ -1,0 +1,24 @@
+---
+name: 01. Todo List
+route: /examples/todoList
+menu: A1. Examples
+---
+
+import { Playground } from "docz"
+import storeSource from "!!raw-loader!./store.ts.txt"
+import appSource from "!!raw-loader!./app.tsx.txt"
+import { App } from "./app.tsx"
+
+# Examples / Todo List
+
+<Playground>
+  <App />
+</Playground>
+
+### examples/todoList/store.ts
+
+<editor>{storeSource}</editor>
+
+### examples/todoList/app.tsx
+
+<editor>{appSource}</editor>
