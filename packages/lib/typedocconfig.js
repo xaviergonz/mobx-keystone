@@ -7,8 +7,6 @@ module.exports = {
   mode: "file",
   readme: "none",
   out: "../site/public/api",
-  // theme: "markdown",
   tsconfig: "tsconfig.json",
   listInvalidSymbolLinks: true,
-  // mdHideSources: true,
 }
