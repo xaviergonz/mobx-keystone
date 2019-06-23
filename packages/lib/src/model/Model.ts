@@ -1,5 +1,5 @@
 import produce from "immer"
-import { Writable } from "ts-essentials"
+import { Omit, Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
@@ -111,7 +111,7 @@ export type AnyModel = Model<any>
 /**
  * Type of the model class.
  */
-export type ModelClass = typeof Model
+export type ModelClass<M extends AnyModel> = new (privateSymbol: typeof modelConstructorSymbol) => M
 
 /**
  * The creation data of a model.
@@ -134,7 +134,7 @@ export type ModelData<M extends AnyModel> = M["data"]
  * @returns The model instance.
  */
 export function newModel<M extends AnyModel>(
-  modelClass: new (...args: any[]) => M,
+  modelClass: ModelClass<M>,
   initialData: ModelCreationData<M>
 ): M {
   assertIsObject(initialData, "initialData")
@@ -147,7 +147,7 @@ export function newModel<M extends AnyModel>(
  * @ignore
  */
 export function internalNewModel<M extends AnyModel>(
-  modelClass: new (...args: any[]) => M,
+  modelClass: ModelClass<M>,
   initialData: ModelCreationData<M> | undefined,
   snapshotInitialData:
     | {
@@ -231,12 +231,15 @@ export function internalNewModel<M extends AnyModel>(
 
 type ModelClassInitializer = (modelInstance: AnyModel) => void
 
-const modelClassInitializers = new WeakMap<ModelClass, ModelClassInitializer[]>()
+const modelClassInitializers = new WeakMap<ModelClass<AnyModel>, ModelClassInitializer[]>()
 
 /**
  * @ignore
  */
-export function addModelClassInitializer(modelClass: ModelClass, init: ModelClassInitializer) {
+export function addModelClassInitializer(
+  modelClass: ModelClass<AnyModel>,
+  init: ModelClassInitializer
+) {
   let initializers = modelClassInitializers.get(modelClass)
   if (!initializers) {
     initializers = []

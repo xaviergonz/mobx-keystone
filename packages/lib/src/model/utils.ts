@@ -1,7 +1,7 @@
 import { SnapshotInOfModel } from "../snapshot/SnapshotOf"
 import { failure, isPlainObject } from "../utils"
 import { modelMetadataKey } from "./metadata"
-import { AnyModel, Model } from "./Model"
+import { AnyModel, Model, ModelClass } from "./Model"
 
 /**
  * @ignore
@@ -24,10 +24,7 @@ export function assertIsModel(
 /**
  * @ignore
  */
-export function assertIsModelClass(
-  modelClass: new (...args: any[]) => AnyModel,
-  argName: string
-): void {
+export function assertIsModelClass(modelClass: ModelClass<AnyModel>, argName: string): void {
   if (typeof modelClass !== "function") {
     throw failure(`${argName} must be a class`)
   }

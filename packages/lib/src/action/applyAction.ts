@@ -19,11 +19,11 @@ export interface ActionCall {
   /**
    * Action arguments.
    */
-  readonly args: readonly any[]
+  readonly args: ReadonlyArray<any>
   /**
    * Path to the subobject where the action will be run, as an array of strings.
    */
-  readonly targetPath: readonly string[]
+  readonly targetPath: ReadonlyArray<string>
 }
 
 /**

@@ -22,7 +22,8 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "test": "tsdx test"
+    "test": "tsdx test",
+    "build-docs": "shx rm -rf ../site/public/api && typedoc --options ./typedocconfig.js"
   },
   "peerDependencies": {
     "mobx": "^5.9.4"
@@ -46,7 +47,9 @@
     "mobx": "^5.9.4",
     "prettier": "^1.17.0",
     "pretty-quick": "^1.10.0",
+    "shx": "^0.3.2",
     "tsdx": "^0.7.1",
+    "typedoc": "^0.14.2",
     "typescript": "^3.5.1"
   },
   "dependencies": {

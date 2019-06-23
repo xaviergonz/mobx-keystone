@@ -156,7 +156,7 @@ export function isParentOfChild(parent: object, child: object): boolean {
  * @param path Path as an string array.
  * @returns The resolved path value.
  */
-export function resolvePath<T = any>(pathRootObject: object, path: readonly string[]): T {
+export function resolvePath<T = any>(pathRootObject: object, path: ReadonlyArray<string>): T {
   let current: any = pathRootObject
   path.forEach(p => {
     current = current[p]

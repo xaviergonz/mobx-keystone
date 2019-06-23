@@ -32,7 +32,7 @@ export interface SimpleActionContext {
   /**
    * Array of action arguments.
    */
-  readonly args: readonly any[]
+  readonly args: ReadonlyArray<any[]>
   /**
    * Parent action context.
    */

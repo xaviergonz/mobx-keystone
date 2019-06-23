@@ -1,11 +1,20 @@
 export default {
   title: "mobx-state-tree-next",
   description: "Opinionated, transactional, MobX powered state container",
-  src: "content",
-  files: "content/**/*.mdx",
   typescript: true,
   propsParser: false,
   codeSandbox: false,
+  menu: [
+    "Introduction",
+    { name: "Models", menu: ["Basics", "Root Stores"] },
+    "Snapshots",
+    "Patches",
+    { name: "Action Middlewares", menu: ["Basics"] },
+    "References",
+    "Frozen Data",
+    "API",
+    { name: "Examples", menu: ["Todo List", "Client/Server"] }
+  ],
   htmlContext: {
     head: {
       links: [

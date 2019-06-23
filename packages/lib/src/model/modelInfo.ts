@@ -1,10 +1,10 @@
 import { isObject } from "../utils"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
-import { ModelClass } from "./Model"
+import { AnyModel, ModelClass } from "./Model"
 
 interface ModelInfo {
   name: string
-  class: ModelClass
+  class: ModelClass<AnyModel>
 }
 
 /**
