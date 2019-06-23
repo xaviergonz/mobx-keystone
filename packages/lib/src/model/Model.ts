@@ -33,7 +33,7 @@ export abstract class Model<Data extends { [k: string]: any }> {
   // just to make typing work properly
   [typeSymbol]: Data;
 
-  readonly [modelMetadataKey]: Readonly<ModelMetadata>
+  readonly [modelMetadataKey]: ModelMetadata
 
   /**
    * Gets the unique model ID of this model instance.

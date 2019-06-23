@@ -1,13 +1,18 @@
 import { Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
 import { isFrozenSnapshot } from "../frozen/Frozen"
-import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
 import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { Ref } from "../ref/Ref"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
-import { SnapshotInOf } from "./SnapshotOf"
+import {
+  SnapshotInOf,
+  SnapshotInOfArray,
+  SnapshotInOfModel,
+  SnapshotInOfObject,
+} from "./SnapshotOf"
 
 interface FixSnapshotIdsContext {
   idMap: Map<string, string>
@@ -65,12 +70,15 @@ function internalFixSnapshotIds<T>(sn: T, ctx: FixSnapshotIdsContext): T {
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-function fixArraySnapshotIds(sn: any[], ctx: FixSnapshotIdsContext): any[] {
+function fixArraySnapshotIds(sn: SnapshotInOfArray<any>, ctx: FixSnapshotIdsContext): any[] {
   return sn.map(v => internalFixSnapshotIds(v, ctx))
 }
 
-function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): AnyModel {
-  const { type, id } = sn[modelMetadataKey] as ModelMetadata
+function fixModelSnapshotIds(
+  sn: SnapshotInOfModel<AnyModel>,
+  ctx: FixSnapshotIdsContext
+): AnyModel {
+  const { type, id } = sn[modelMetadataKey]
 
   if (!id) {
     throw failure(
@@ -105,7 +113,10 @@ function fixModelSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): AnyModel {
   return modelSn
 }
 
-function fixPlainObjectSnapshotIds(sn: any, ctx: FixSnapshotIdsContext): object {
+function fixPlainObjectSnapshotIds(
+  sn: SnapshotInOfObject<any>,
+  ctx: FixSnapshotIdsContext
+): object {
   const plainObj: any = {}
   for (const [k, v] of Object.entries(sn)) {
     plainObj[k] = internalFixSnapshotIds(v, ctx)

@@ -1,12 +1,17 @@
 import { isObservableObject } from "mobx"
 import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
-import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
 import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { fromSnapshot } from "./fromSnapshot"
-import { SnapshotInOfFrozen, SnapshotInOfModel } from "./SnapshotOf"
+import {
+  SnapshotInOfArray,
+  SnapshotInOfFrozen,
+  SnapshotInOfModel,
+  SnapshotInOfObject,
+} from "./SnapshotOf"
 
 /**
  * @ignore
@@ -43,7 +48,7 @@ export function reconcileSnapshot(value: any, sn: any): any {
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-function reconcileArraySnapshot(value: any, sn: any[]): any[] {
+function reconcileArraySnapshot(value: any, sn: SnapshotInOfArray<any>): any[] {
   if (!isArray(value)) {
     // no reconciliation possible
     return fromSnapshot(sn)
@@ -77,7 +82,7 @@ function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>
 }
 
 function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): AnyModel {
-  const { type, id } = sn[modelMetadataKey] as ModelMetadata
+  const { type, id } = sn[modelMetadataKey]
 
   const modelInfo = getModelInfoForName(type)
   if (!modelInfo) {
@@ -113,7 +118,7 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
   return modelObj
 }
 
-function reconcilePlainObjectSnapshot(value: any, sn: any): object {
+function reconcilePlainObjectSnapshot(value: any, sn: SnapshotInOfObject<any>): object {
   // plain obj
   if (!isPlainObject(value) && !isObservableObject(value)) {
     // no reconciliation possible

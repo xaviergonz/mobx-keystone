@@ -1,11 +1,16 @@
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
-import { isReservedModelKey, ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
 import { AnyModel, internalNewModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { fixSnapshotIds } from "./fixSnapshotIds"
-import { SnapshotInOf } from "./SnapshotOf"
+import {
+  SnapshotInOf,
+  SnapshotInOfArray,
+  SnapshotInOfModel,
+  SnapshotInOfObject,
+} from "./SnapshotOf"
 
 /**
  * Options for `fromSnapshot`.
@@ -71,12 +76,12 @@ function internalFromSnapshot<T>(sn: T extends object ? SnapshotInOf<T> : T): T 
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-function fromArraySnapshot(sn: any[]): any[] {
+function fromArraySnapshot(sn: SnapshotInOfArray<any>): any[] {
   return sn.map(v => internalFromSnapshot(v))
 }
 
-function fromModelSnapshot(sn: any): AnyModel {
-  const { type, id } = sn[modelMetadataKey] as ModelMetadata
+function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
+  const { type, id } = sn[modelMetadataKey]
 
   if (!id) {
     throw failure(
@@ -96,7 +101,7 @@ function fromModelSnapshot(sn: any): AnyModel {
   })
 }
 
-function snapshotToInitialData(processedSn: any): any {
+function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
   const initialData: any = {}
   for (const [k, v] of Object.entries(processedSn)) {
     if (!isReservedModelKey(k)) {
@@ -106,7 +111,7 @@ function snapshotToInitialData(processedSn: any): any {
   return initialData
 }
 
-function fromPlainObjectSnapshot(sn: any): object {
+function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
   const plainObj: any = {}
   for (const [k, v] of Object.entries(sn)) {
     plainObj[k] = internalFromSnapshot(v)
