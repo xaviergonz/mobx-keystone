@@ -1,10 +1,9 @@
 import { ActionContextActionType } from "../action/context"
 import { SpecialAction } from "../action/specialActions"
-import { wrapInAction } from "../action/wrapInAction"
+import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { AnyModel, Model } from "../model/Model"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
 
-const onAttachedAsModelAction = new WeakMap<Function, AnyModel["onAttachedToRootStore"]>()
 const onAttachedDisposers = new WeakMap<object, () => void>()
 
 /**
@@ -15,18 +14,13 @@ export function attachToRootStore(rootStore: AnyModel, child: AnyModel): void {
     child,
     ch => {
       if (ch instanceof Model && ch.onAttachedToRootStore) {
-        // wrap method in action or reuse from cache
-        let attachedAction = onAttachedAsModelAction.get(ch.onAttachedToRootStore)
-        if (!attachedAction) {
-          attachedAction = wrapInAction(
-            SpecialAction.OnAttachedToRootStore,
-            ch.onAttachedToRootStore,
-            ActionContextActionType.Sync
-          )
-          onAttachedAsModelAction.set(ch.onAttachedToRootStore, attachedAction)
-        }
+        wrapModelMethodInActionIfNeeded(
+          ch,
+          "onAttachedToRootStore",
+          SpecialAction.OnAttachedToRootStore
+        )
 
-        const disposer = attachedAction.call(ch, rootStore)
+        const disposer = ch.onAttachedToRootStore(rootStore)
         if (disposer) {
           // wrap disposer in action
           const disposerAction = wrapInAction(

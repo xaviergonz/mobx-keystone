@@ -6,7 +6,7 @@ import {
   ActionMiddlewareDisposer,
   addActionMiddleware,
 } from "../action/middleware"
-import { SpecialAction } from "../action/specialActions"
+import { isHookAction } from "../action/specialActions"
 import { AnyModel } from "../model/Model"
 import { assertIsModel } from "../model/utils"
 import { getRootPath } from "../parent/path"
@@ -65,10 +65,7 @@ export function onActionMiddleware<M extends AnyModel>(
     }
 
     // skip hooks
-    if (
-      ctx.actionName === SpecialAction.OnAttachedToRootStore ||
-      ctx.actionName === SpecialAction.OnAttachedToRootStoreDisposer
-    ) {
+    if (isHookAction(ctx.actionName)) {
       return false
     }
 

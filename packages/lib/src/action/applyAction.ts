@@ -5,7 +5,7 @@ import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
 import { ActionContextActionType } from "./context"
-import { SpecialAction } from "./specialActions"
+import { isHookAction, SpecialAction } from "./specialActions"
 import { wrapInAction } from "./wrapInAction"
 
 /**
@@ -53,15 +53,15 @@ function internalApplyAction(this: AnyModel, call: ActionCall) {
     case SpecialAction.ApplyAction:
       return applyAction.apply(current, [current, ...call.args] as any)
 
-    case SpecialAction.OnAttachedToRootStore:
-      throw failure('calls to "onAttachedToRootStore" cannot be applied')
-
-    case SpecialAction.OnAttachedToRootStoreDisposer:
-      throw failure('calls to "onAttachedToRootStore" disposer cannot be applied')
-
     default:
-      return current[call.actionName].apply(current, call.args)
+      break
   }
+
+  if (isHookAction(call.actionName)) {
+    throw failure(`calls to hooks (${call.actionName}) cannot be applied`)
+  }
+
+  return current[call.actionName].apply(current, call.args)
 }
 
 const wrappedInternalApplyAction = wrapInAction(
