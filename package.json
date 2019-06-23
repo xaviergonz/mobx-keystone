@@ -4,12 +4,12 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "lib:build": "lerna run build --stream --scope lib",
-    "lib:build-docs": "lerna run build --stream --scope lib",
-    "lib:test": "lerna run test --stream --scope lib",
-    "site:start": "lerna run start --stream --scope site",
-    "site:build": "yarn lerna run start --stream --scope site",
-    "build-netlify": "yarn lib:build && yarn lib:build-docs && yarn site:bild"
+    "lib:build": "cd packages && cd lib && yarn build",
+    "lib:build-docs": "cd packages && cd lib && yarn build-docs",
+    "lib:test": "cd packages && cd lib && yarn test",
+    "site:start": "cd packages && cd site && yarn start",
+    "site:build": "cd packages && cd site && yarn build",
+    "build-netlify": "yarn lib:build && yarn lib:build-docs && yarn site:build"
   },
   "workspaces": [
     "packages/lib",
