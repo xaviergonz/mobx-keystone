@@ -1,4 +1,4 @@
 redirects = [
-  {from = "/static/api/*", to = "/public/api/:splat"},
+  {from = "/public/api/*", to = "/public/api/:splat"},
   {from = "/*", to = "/", status = 200}
 ]
