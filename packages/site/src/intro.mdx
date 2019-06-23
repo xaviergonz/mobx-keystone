@@ -7,22 +7,53 @@ route: /
 
 TODO: Write intro
 
-To see some code and a a glimpse of what it can do check the [Todo List Example](./examples/todoList)
+To see some code and a a glimpse of how it works check the [Todo List Example](./examples/todoList)
 
-## Principles
+## Comparison with `mobx-state-tree`
 
-TODO
+This library is very much like `mobx-state-tree` and takes lots of ideas from it, so the transition
+should be fairly simple. There are some trade-offs though, as shown in the following chart.
 
-## Comparison with mobx-state-tree
+| Feature                                          | `mobx-state-tree-next` | `mobx-state-tree` |
+| ------------------------------------------------ | ---------------------- | ----------------- |
+| Tree-like structure                              | ✔️                     | ✔️                |
+| Immutable snapshot generation                    | ✔️                     | ✔️                |
+| Patch generation                                 | ✔️                     | ✔️                |
+| Action serialization / applying                  | ✔️                     | ✔️                |
+| Action middleware support (1)                    | ✔️✔️                   | ✔️                |
+| - Atomic/Transaction middleware                  | ✔️                     | ✔️                |
+| - Undo manager middleware                        | ✔️                     | ✔️                |
+| - Redux dev tools middleware                     | ❌ (in development)    | ✔️                |
+| Flow action support                              | ✔️                     | ✔️                |
+| References                                       | ✔️                     | ✔️                |
+| Frozen data                                      | ✔️                     | ✔️                |
+| Typescript support (2)                           | ✔️✔️✔️                 | ✔️                |
+| No confusion between instance and snapshot types | ✔️                     | ❌                |
+| Less confusing model life-cycle                  | ✔️                     | ❌                |
+| Runtime type validation                          | ❌                     | ✔️                |
+| No metadata inside snapshots                     | ❌                     | ✔️                |
+| Improved speed / memory usage (3)                | ✔️                     | ❌                |
+| Lazy node initialization (4)                     | ➖                     | ✔️                |
 
-TODO
+1. Includes an improved action tracking middleware that makes it easier to create
+   middlewares for flow (async) actions.
+2. Support for self-model references / cross-model references / no need for late types, etc.
+3. Actions, views, etc. are stored in the prototype rather than in each model object.
+4. In theory this shouldn't be as important since the initialization speed is faster and this
+   lack of lazy initialization leads to less confusing life-cycles.
 
 ## Requirements
 
-This library requires a more or less modern Javascript environment to work, namely one with support for Proxies and Symbols (in other words,
-it should work on mostly anything but _it won't work in Internet Explorer_).
+This library requires a more or less modern Javascript environment to work, namely one with support for:
 
-If you are using Typescript, then version >= 3.2.4 is recommended, but it _might_ work with older versions.
+- Proxies
+- Symbols
+- WeakMap/WeakSet
+- Object.entries (this one can be polyfilled)
+
+In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
+
+If you are using Typescript, then version >= 3.2.4 is recommended, though it _might_ work with older versions.
 
 ## Installation
 
