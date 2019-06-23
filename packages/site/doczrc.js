@@ -12,8 +12,10 @@ export default {
     { name: "Action Middlewares", menu: ["Basics"] },
     "References",
     "Frozen Data",
-    "API",
-    { name: "Examples", menu: ["Todo List", "Client/Server"] }
+    { name: "Examples", menu: ["Todo List", "Client/Server"] },
+    "API Reference 🔗",
+    "GitHub Repo 🔗",
+    "NPM Project Page 🔗"
   ],
   htmlContext: {
     head: {
