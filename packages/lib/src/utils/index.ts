@@ -210,6 +210,9 @@ export function decorateWrapMethodOrField(
   }
 }
 
+/**
+ * @ignore
+ */
 export function logWarning(type: "warn" | "error", msg: string): void {
   msg = "[mobx-state-tree-next] " + msg
   switch (type) {
