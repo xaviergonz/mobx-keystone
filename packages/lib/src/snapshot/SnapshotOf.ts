@@ -6,7 +6,9 @@ import { AnyModel, ModelCreationData, ModelData } from "../model/Model"
 export interface SnapshotOutOfArray<T> extends Array<SnapshotOutOf<T>> {}
 export interface SnapshotOutOfReadonlyArray<T> extends ReadonlyArray<SnapshotOutOf<T>> {}
 
-export type SnapshotOutOfObject<T extends object> = { [k in keyof T]: SnapshotOutOf<T[k]> }
+export type SnapshotOutOfObject<T extends { [k: string]: any }> = {
+  [k in keyof T]: SnapshotOutOf<T[k]>
+}
 
 export type SnapshotOutOfModel<M extends AnyModel> = SnapshotOutOfObject<ModelData<M>> & {
   $$metadata: M["$$metadata"]
@@ -34,7 +36,9 @@ export type SnapshotOutOf<T> = T extends Array<infer U>
 export interface SnapshotInOfArray<T> extends Array<SnapshotInOf<T>> {}
 export interface SnapshotInOfReadonlyArray<T> extends ReadonlyArray<SnapshotInOf<T>> {}
 
-export type SnapshotInOfObject<T extends object> = { [k in keyof T]: SnapshotInOf<T[k]> }
+export type SnapshotInOfObject<T extends { [k: string]: any }> = {
+  [k in keyof T]: SnapshotInOf<T[k]>
+}
 
 export type SnapshotInOfModel<M extends AnyModel> = SnapshotInOfObject<
   M extends { fromSnapshot(sn: infer S): any } ? S : ModelCreationData<M>

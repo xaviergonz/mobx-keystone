@@ -1,5 +1,5 @@
 import { isObject } from "../utils"
-import { ModelMetadata, modelMetadataKey } from "./metadata"
+import { modelMetadataKey } from "./metadata"
 import { AnyModel, ModelClass } from "./Model"
 
 interface ModelInfo {
@@ -33,5 +33,5 @@ export function getModelInfoForObject(obj: any): ModelInfo | undefined {
   if (!isObject(obj) || !obj[modelMetadataKey]) {
     return undefined
   }
-  return getModelInfoForName((obj[modelMetadataKey] as ModelMetadata).type)
+  return getModelInfoForName((obj as AnyModel)[modelMetadataKey].type)
 }

@@ -3,7 +3,7 @@ import { ActionContextActionType } from "../action/context"
 import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
-import { ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { modelMetadataKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
@@ -51,7 +51,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   }
 
   if (isModelSnapshot(sn)) {
-    const { type, id } = (sn as any)[modelMetadataKey] as ModelMetadata
+    const { type, id } = sn[modelMetadataKey]
 
     const modelInfo = getModelInfoForName(type)
     if (!modelInfo) {
