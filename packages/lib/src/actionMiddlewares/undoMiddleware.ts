@@ -37,7 +37,7 @@ export interface UndoEvent {
  * Store model instance for undo/redo actions.
  * Do not manipulate directly, other that creating it.
  */
-@model("mobx-state-tree-next/UndoStore")
+@model("mobx-data-model/UndoStore")
 export class UndoStore extends Model<{ undoEvents: UndoEvent[]; redoEvents: UndoEvent[] }> {
   /**
    * @ignore

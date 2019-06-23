@@ -2,7 +2,7 @@
   "private": true,
   "name": "site",
   "version": "0.0.0",
-  "description": "Documentation site source for mobx-state-tree-next",
+  "description": "Documentation site for mobx-data-model",
   "main": "index.js",
   "license": "MIT",
   "scripts": {

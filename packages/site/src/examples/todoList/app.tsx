@@ -1,4 +1,3 @@
-import { observer } from "mobx-react"
 import {
   ActionCall,
   getSnapshot,
@@ -6,7 +5,8 @@ import {
   onActionMiddleware,
   onPatches,
   Patch
-} from "mobx-state-tree-next"
+} from "mobx-data-model"
+import { observer } from "mobx-react"
 import React, { useEffect, useState } from "react"
 import { rootStore, Todo, TodoList } from "./store"
 

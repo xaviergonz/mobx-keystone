@@ -1,10 +1,10 @@
 {
-  "name": "mobx-state-tree-next",
+  "name": "mobx-data-model",
   "version": "0.1.0",
   "description": "Opinionated, transactional, MobX powered state container",
   "keywords": [
     "mobx",
-    "mobx-state-tree-next",
+    "mobx-data-model",
     "mobx-state-tree",
     "reactive",
     "frp",
@@ -13,8 +13,8 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  "umd:main": "dist/mobx-state-tree-next.umd.production.js",
-  "module": "dist/mobx-state-tree-next.es.production.js",
+  "umd:main": "dist/mobx-data-model.umd.production.js",
+  "module": "dist/mobx-data-model.es.production.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
