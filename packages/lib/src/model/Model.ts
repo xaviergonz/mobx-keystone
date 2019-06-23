@@ -1,6 +1,8 @@
 import produce from "immer"
 import { Omit, Writable } from "ts-essentials"
 import { v4 as uuidV4 } from "uuid"
+import { SpecialAction } from "../action"
+import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
   getInternalSnapshot,
@@ -223,6 +225,8 @@ export function internalNewModel<M extends AnyModel>(
 
   // the object is ready
   if (modelObj.onInit) {
+    wrapModelMethodInActionIfNeeded(modelObj, "onInit", SpecialAction.OnInit)
+
     modelObj.onInit()
   }
 

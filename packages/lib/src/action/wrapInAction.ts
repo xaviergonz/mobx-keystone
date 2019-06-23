@@ -1,5 +1,6 @@
 import { action, isAction } from "mobx"
 import { Writable } from "ts-essentials"
+import { AnyModel } from "../model"
 import { assertTweakedObject } from "../tweaker/core"
 import { inDevMode } from "../utils"
 import {
@@ -9,6 +10,7 @@ import {
   setCurrentActionContext,
 } from "./context"
 import { getActionMiddlewares } from "./middleware"
+import { isModelAction } from "./modelAction"
 import { FlowFinisher } from "./modelFlow"
 
 /**
@@ -85,4 +87,27 @@ export function wrapInAction<T extends Function>(
   ;(wrappedAction as any)[modelActionSymbol] = true
 
   return wrappedAction as any
+}
+
+/**
+ * @ignore
+ */
+export function wrapModelMethodInActionIfNeeded<M extends AnyModel>(
+  model: M,
+  propertyKey: keyof M,
+  name: string
+): void {
+  const fn = model[propertyKey] as any
+  if (isModelAction(fn)) {
+    return
+  }
+
+  const wrappedFn = wrapInAction(name, fn, ActionContextActionType.Sync)
+  const proto = Object.getPrototypeOf(model)
+  const protoFn = proto[propertyKey]
+  if (protoFn === fn) {
+    proto[propertyKey] = wrappedFn
+  } else {
+    model[propertyKey] = wrappedFn
+  }
 }
