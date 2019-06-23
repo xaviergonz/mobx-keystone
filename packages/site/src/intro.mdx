@@ -14,26 +14,26 @@ To see some code and a a glimpse of how it works check the [Todo List Example](.
 This library is very much like `mobx-state-tree` and takes lots of ideas from it, so the transition
 should be fairly simple. There are some trade-offs though, as shown in the following chart.
 
-| Feature                                          | `mobx-state-tree-next` | `mobx-state-tree` |
-| ------------------------------------------------ | ---------------------- | ----------------- |
-| Tree-like structure                              | ✔️                     | ✔️                |
-| Immutable snapshot generation                    | ✔️                     | ✔️                |
-| Patch generation                                 | ✔️                     | ✔️                |
-| Action serialization / applying                  | ✔️                     | ✔️                |
-| Action middleware support (1)                    | ✔️✔️                   | ✔️                |
-| - Atomic/Transaction middleware                  | ✔️                     | ✔️                |
-| - Undo manager middleware                        | ✔️                     | ✔️                |
-| - Redux dev tools middleware                     | ❌ (in development)    | ✔️                |
-| Flow action support                              | ✔️                     | ✔️                |
-| References                                       | ✔️                     | ✔️                |
-| Frozen data                                      | ✔️                     | ✔️                |
-| Typescript support (2)                           | ✔️✔️✔️                 | ✔️                |
-| No confusion between instance and snapshot types | ✔️                     | ❌                |
-| Less confusing model life-cycle                  | ✔️                     | ❌                |
-| Runtime type validation                          | ❌                     | ✔️                |
-| No metadata inside snapshots                     | ❌                     | ✔️                |
-| Improved speed / memory usage (3)                | ✔️                     | ❌                |
-| Lazy node initialization (4)                     | ➖                     | ✔️                |
+| Feature                                          | `mobx-data-model`   | `mobx-state-tree` |
+| ------------------------------------------------ | ------------------- | ----------------- |
+| Tree-like structure                              | ✔️                  | ✔️                |
+| Immutable snapshot generation                    | ✔️                  | ✔️                |
+| Patch generation                                 | ✔️                  | ✔️                |
+| Action serialization / applying                  | ✔️                  | ✔️                |
+| Action middleware support (1)                    | ✔️✔️                | ✔️                |
+| - Atomic/Transaction middleware                  | ✔️                  | ✔️                |
+| - Undo manager middleware                        | ✔️                  | ✔️                |
+| - Redux dev tools middleware                     | ❌ (in development) | ✔️                |
+| Flow action support                              | ✔️                  | ✔️                |
+| References                                       | ✔️                  | ✔️                |
+| Frozen data                                      | ✔️                  | ✔️                |
+| Typescript support (2)                           | ✔️✔️✔️              | ✔️                |
+| No confusion between instance and snapshot types | ✔️                  | ❌                |
+| Less confusing model life-cycle                  | ✔️                  | ❌                |
+| Runtime type validation                          | ❌                  | ✔️                |
+| No metadata inside snapshots                     | ❌                  | ✔️                |
+| Improved speed / memory usage (3)                | ✔️                  | ❌                |
+| Lazy node initialization (4)                     | ➖                  | ✔️                |
 
 1. Includes an improved action tracking middleware that makes it easier to create
    middlewares for flow (async) actions.
@@ -57,6 +57,6 @@ If you are using Typescript, then version >= 3.2.4 is recommended, though it _mi
 
 ## Installation
 
-> `npm install mobx-state-tree-next`
+> `npm install mobx-data-model`
 
-> `yarn add mobx-state-tree-next`
+> `yarn add mobx-data-model`

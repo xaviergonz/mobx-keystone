@@ -5,7 +5,7 @@ import {
   modelAction,
   newModel,
   registerRootStore
-} from "mobx-state-tree-next"
+} from "mobx-data-model"
 
 // the model decorator marks this class as a model, an object with actions, etc.
 // the string identifies this model type and must be unique across your whole application
@@ -67,7 +67,7 @@ export class TodoList extends Model<{ todos: Todo[] }> {
 // `new X()`. the second parameter is the initial data for the model
 export const rootStore = newModel(TodoList, {
   todos: [
-    newModel(Todo, { text: "make mobx-state-tree-next awesome!" }),
+    newModel(Todo, { text: "make mobx-data-model awesome!" }),
     newModel(Todo, { text: "spread the word" }),
     newModel(Todo, { text: "buy some milk", done: true })
   ]

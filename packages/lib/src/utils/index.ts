@@ -24,14 +24,14 @@ export function mapGetOrDefault<K extends object, V>(
 }
 
 /**
- * A mobx-state-tree-next error.
+ * A mobx-data-model error.
  */
-export class MobxStateTreeNextError extends Error {
+export class MobxDataModelError extends Error {
   constructor(msg: string) {
     super(msg)
 
     // Set the prototype explicitly.
-    Object.setPrototypeOf(this, MobxStateTreeNextError.prototype)
+    Object.setPrototypeOf(this, MobxDataModelError.prototype)
   }
 }
 
@@ -39,7 +39,7 @@ export class MobxStateTreeNextError extends Error {
  * @ignore
  */
 export function failure(msg: string) {
-  return new MobxStateTreeNextError(msg)
+  return new MobxDataModelError(msg)
 }
 
 /**
@@ -214,7 +214,7 @@ export function decorateWrapMethodOrField(
  * @ignore
  */
 export function logWarning(type: "warn" | "error", msg: string): void {
-  msg = "[mobx-state-tree-next] " + msg
+  msg = "[mobx-data-model] " + msg
   switch (type) {
     case "warn":
       console.warn(msg)

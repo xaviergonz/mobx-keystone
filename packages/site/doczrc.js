@@ -1,5 +1,5 @@
 export default {
-  title: "mobx-state-tree-next",
+  title: "mobx-data-model",
   description: "Opinionated, transactional, MobX powered state container",
   typescript: true,
   propsParser: false,
