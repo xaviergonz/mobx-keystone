@@ -1,17 +1,18 @@
----
-name: Introduction
-route: /
----
-
-# Introduction
+# mobx-data-model
 
 [![npm version](https://badge.fury.io/js/mobx-data-model.svg)](https://badge.fury.io/js/mobx-data-model)
 [![CircleCI](https://circleci.com/gh/xaviergonz/mobx-data-model.svg?style=svg)](https://circleci.com/gh/xaviergonz/mobx-data-model)
 [![Coverage Status](https://coveralls.io/repos/github/xaviergonz/mobx-data-model/badge.svg?branch=master&t=Lwl2z5)](https://coveralls.io/github/xaviergonz/mobx-data-model?branch=master)
 
+> ### Full documentation can be found on the site:
+>
+> ## [mobx-data-model.netlify.com](https://mobx-data-model.netlify.com)
+
+## Introduction
+
 TODO: Write intro
 
-To see some code and a a glimpse of how it works check the [Todo List Example](./examples/todoList)
+To see some code and a a glimpse of how it works check the [Todo List Example](https://mobx-data-model.netlify.com/examples/todoList)
 
 ## Comparison with `mobx-state-tree`
 
