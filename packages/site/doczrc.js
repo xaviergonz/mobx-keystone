@@ -1,6 +1,7 @@
 export default {
   title: "mobx-data-model",
-  description: "Opinionated, transactional, MobX powered state container",
+  description:
+    "A MobX powered state management solution based on data trees with first class support for Typescript, support for snapshots, patches and much more",
   typescript: true,
   propsParser: false,
   codeSandbox: false,
