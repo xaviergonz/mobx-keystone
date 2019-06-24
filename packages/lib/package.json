@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build",
+    "build": "shx cp ../../README.md . && tsdx build",
     "test": "tsdx test",
     "build-docs": "shx rm -rf ../site/public/api && typedoc --options ./typedocconfig.js"
   },
