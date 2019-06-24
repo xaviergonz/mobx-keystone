@@ -49,6 +49,10 @@ jobs:
             - attach_workspace:
                   at: .
             - run: yarn lib:build
+            - persist_to_workspace:
+                  root: .
+                  paths:
+                      - ./*
 
     lib-test:
         executor: my-executor
@@ -66,7 +70,7 @@ jobs:
         steps:
             - attach_workspace:
                   at: .
-            - run: yarn build-netlify
+            - run: yarn lib:build-docs && yarn site:build
 
     # upload coverage
     upload-coveralls:
@@ -99,7 +103,7 @@ workflows:
                       - install
             - site-build:
                   requires:
-                      - install
+                      - lib-build
             - upload-coveralls:
                   requires:
                       - lib-test
