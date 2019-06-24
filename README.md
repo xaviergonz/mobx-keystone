@@ -50,7 +50,7 @@ should be fairly simple. There are some trade-offs though, as shown in the follo
 | Tree-like structure                    | ✔️                  | ✔️                |
 | Immutable snapshot generation          | ✔️                  | ✔️                |
 | Patch generation                       | ✔️                  | ✔️                |
-| Action serialization / replaying        | ✔️                  | ✔️                |
+| Action serialization / replaying       | ✔️                  | ✔️                |
 | Action middleware support (1)          | ✔️✔️                | ✔️                |
 | - Atomic/Transaction middleware        | ✔️                  | ✔️                |
 | - Undo manager middleware              | ✔️                  | ✔️                |
@@ -92,3 +92,7 @@ If you are using Typescript, then version >= 3.2.4 is recommended, though it _mi
 > `npm install mobx-data-model`
 
 > `yarn add mobx-data-model`
+
+## Full documentation
+
+Full documentation can be found on [mobx-data-model.netlify.com](https://mobx-data-model.netlify.com)

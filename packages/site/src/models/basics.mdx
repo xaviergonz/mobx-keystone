@@ -6,4 +6,85 @@ menu: Models
 
 # Models / Basics
 
-TODO
+## Data types
+
+MDM supports the following kinds of data:
+
+- Models, which are like objects but enhanced with local behaviours (actions) and life-cycle events (hooks).
+- Objects, which serve as basic storages of data (kind of like models, except without actions and life-cycle events), as well as key-value maps of other data.
+- Arrays.
+- Primitives (`string`, `boolean`, `number`, `null`, `undefined`).
+
+## Your first model
+
+A model for a todo can be defined as follows:
+
+```ts
+// the model decorator marks this class as a model, an object with actions, etc.
+// the string identifies this model type and must be unique across your whole application
+@model("myCoolApp/Todo")
+export class Todo extends Model<{ text: string; done: boolean }> {
+  // the stuff between <> above is the type of the (observable and snapshottable) data
+  // your model will hold. it is also part of the required initialization data of the model
+
+  // you can optionally use this to mark some data properties as optional and give them a
+  // default value when not present
+  defaultData = {
+    done: false
+  }
+
+  // the modelAction decorator marks the function as a model action, giving it access
+  // to modify any model data (inside `this.data`) and other superpowers such as action
+  // middlewares, replication, etc.
+  @modelAction
+  setDone(done: boolean) {
+    this.data.done = done
+  }
+
+  @modelAction
+  setText(text: string) {
+    this.data.text = text
+  }
+}
+```
+
+## Model rules
+
+The rules that need to be followed to declare a model are:
+
+- Models have to be decorated with `@model` and require a unique across-application ID for the class type.
+- They have to extend `Model`, which in Typescript require the type of the data that will become observable / snapshottable / patcheable.
+- This data (that is observable and part of the snapshot) can be accessed / changed through `this.data`.
+- Model actions need to be used in order to be able to change such data.
+- Never ever declare your own constructor, there are life-cycle events for that (more on that later).
+
+Of course primitives is not the only kind of data that a model can hold. Arrays, plain objects and other objects can be used as well.
+
+## Creating a model
+
+An instance of the todo model above can be created like this:
+
+```ts
+// note how we use newModel rather than new
+const myTodo1 = newModel(Todo, { done: true, text: "buy some milk" })
+// note how done can be skipped since it was declared as part of defaultData
+const myTodo2 = newModel(Todo, { text: "buy some coffee" })
+```
+
+## Life-cycle event hooks
+
+Models can optionally include two kinds of hooks:
+
+- `onInit()`, which serves as a replacement for the constructor and will fire as soon as the model is created.
+- `onAttachedToRootStore(rootStore)`, which will be explained in the [root stores](./rootStores.mdx) section.
+
+## Accesing the unique id and type of a model
+
+It is interesting to observe that models include some useful properties:
+
+```ts
+myTodo1.modelId // an automatically generated uuid unique to this model instance
+myTodo1.modelType // "myCoolApp/Todo"
+```
+
+These two properties will end up in the snapshot representation of the model in a key named `$$metadata` and it will serve to be able to properly reconstruct the proper model class from the snapshot.
