@@ -9,7 +9,7 @@
     "lib:test": "cd packages && cd lib && yarn test",
     "site:start": "cd packages && cd site && yarn start",
     "site:build": "cd packages && cd site && yarn build",
-    "build-netlify": "yarn lib:build && yarn lib:build-docs && yarn site:build"
+    "build-netlify": "yarn lib:build-docs && yarn site:build"
   },
   "workspaces": [
     "packages/lib",
