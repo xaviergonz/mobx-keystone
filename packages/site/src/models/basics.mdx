@@ -60,7 +60,7 @@ The rules that need to be followed to declare a model are:
 
 Of course primitives is not the only kind of data that a model can hold. Arrays, plain objects and other objects can be used as well.
 
-## Creating a model
+## Creating a model instance
 
 An instance of the todo model above can be created like this:
 
@@ -73,10 +73,10 @@ const myTodo2 = newModel(Todo, { text: "buy some coffee" })
 
 ## Life-cycle event hooks
 
-Models can optionally include two kinds of hooks:
+Models can optionally include an implementation for each of the life-cycle hooks:
 
 - `onInit()`, which serves as a replacement for the constructor and will fire as soon as the model is created.
-- `onAttachedToRootStore(rootStore)`, which will be explained in the [root stores](./rootStores.mdx) section.
+- `onAttachedToRootStore(rootStore)`, which will be explained in the [root stores](./rootStores) section.
 
 ## Accesing the unique id and type of a model
 
