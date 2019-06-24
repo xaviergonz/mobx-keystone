@@ -94,9 +94,6 @@ workflows:
             - lib-test:
                   requires:
                       - install
-            - site-build:
-                  requires:
-                      - lib-build
             - upload-coveralls:
                   requires:
                       - lib-test
