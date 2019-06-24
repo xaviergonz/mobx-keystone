@@ -43,12 +43,12 @@ jobs:
                   paths:
                       - ./*
 
-    lib-build:
+    lib-site-build:
         executor: my-executor
         steps:
             - attach_workspace:
                   at: .
-            - run: yarn lib:build
+            - run: yarn lib:build && yarn lib:build-docs && yarn site:build
             - persist_to_workspace:
                   root: .
                   paths:
@@ -64,13 +64,6 @@ jobs:
                   root: .
                   paths:
                       - packages/lib/coverage/*
-
-    site-build:
-        executor: my-executor
-        steps:
-            - attach_workspace:
-                  at: .
-            - run: yarn lib:build-docs && yarn site:build
 
     # upload coverage
     upload-coveralls:
@@ -95,7 +88,7 @@ workflows:
     full-workflow:
         jobs:
             - install
-            - lib-build:
+            - lib-site-build:
                   requires:
                       - install
             - lib-test:
