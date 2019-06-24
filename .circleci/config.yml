@@ -78,7 +78,7 @@ jobs:
                   command: |
                       if [[ -v COVERALLS_REPO_TOKEN ]]
                       then
-                          cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+                          cat ./packages/lib/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
                           echo "Coveralls info uploaded"
                       else
                           echo "Warning - Coveralls info could NOT be uploaded since the COVERALLS_REPO_TOKEN was not available"
