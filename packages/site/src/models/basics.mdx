@@ -115,3 +115,37 @@ myTodo1.modelType // "myCoolApp/Todo"
 ```
 
 These two properties will end up in the snapshot representation of the model in a key named `$$metadata` and it will serve to be able to properly reconstruct the proper model class from the snapshot.
+
+## Flows (async actions)
+
+While `@modelAction` defines sync model actions, async model actions are possible as well with the use of `@modelFlow`:
+
+```ts
+interface Book {
+  title: string
+  price: number
+}
+
+@model("myApp/Auth")
+class BookStore extends Model<{ books: Book[] }> {
+  defaultData = {
+    books: []
+  };
+
+  @modelFlow
+  // we use * (a function generator) where we would use`async`
+  *fetchMyBooksAsync(token: string) {
+    // we use `yield` where we would use `await`
+    // however since Typescript doesn't get along well with typed generators (yet)
+    // we can optionally use FlowRet to cast the return value to the proper type
+    const myBooks: FlowRet<
+      typeof myBackendClient.getBooks
+    > = yield myBackendClient.getBooks(token)
+
+    this.data.books = myBooks
+  }
+}
+
+const myBookStore = newModel(BookStore, {})
+await myBookStore.fetchMyBooksAsync("someToken")
+```
