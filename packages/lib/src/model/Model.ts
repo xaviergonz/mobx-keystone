@@ -1,6 +1,6 @@
 import produce from "immer"
+import nanoid from "nanoid/non-secure"
 import { Omit, Writable } from "ts-essentials"
-import { v4 as uuidV4 } from "uuid"
 import { SpecialAction } from "../action"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { InternalPatchRecorder } from "../patch/emitPatch"
@@ -176,7 +176,7 @@ export function internalNewModel<M extends AnyModel>(
     }
     initialData = snapshotInitialData.snapshotToInitialData(sn)
   } else {
-    id = uuidV4()
+    id = nanoid()
   }
 
   modelObj[modelMetadataKey] = {

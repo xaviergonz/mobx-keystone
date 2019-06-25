@@ -1,5 +1,5 @@
+import nanoid from "nanoid/non-secure"
 import { Writable } from "ts-essentials"
-import { v4 as uuidV4 } from "uuid"
 import { isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
 import { AnyModel } from "../model/Model"
@@ -91,7 +91,7 @@ function fixModelSnapshotIds(
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const newId = uuidV4()
+  const newId = nanoid()
   ctx.idMap.set(id, newId)
 
   const modelSn: any = {
