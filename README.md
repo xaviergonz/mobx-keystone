@@ -37,7 +37,7 @@ Furthermore, actions are replayable and can be used to distribute changes.
 Moreover, because changes can be detected on a fine grained level, JSON patches are supported out of the box.
 Simply subscribing to the patch stream of a tree is another way to sync diffs with, for example, back-end servers or other clients.
 
-Since MST uses MobX behind the scenes, it integrates seamlessly with [mobx](https://mobx.js.org) and [mobx-react](https://github.com/mobxjs/mobx-react).
+Since MDM uses MobX behind the scenes, it integrates seamlessly with [mobx](https://mobx.js.org) and [mobx-react](https://github.com/mobxjs/mobx-react).
 Even cooler, because it supports snapshots, action middlewares and replayable actions out of the box, it is possible to replace a Redux store and reducer with a MobX data model.
 This makes it possible to connect the Redux devtools to MDM.
 
