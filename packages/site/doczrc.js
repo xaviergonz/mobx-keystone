@@ -14,7 +14,7 @@ export default {
     "References",
     "Frozen Data",
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
-    "API Reference 🔗",
+    "API Reference",
     "GitHub Repo 🔗",
     "NPM Project Page 🔗"
   ],
