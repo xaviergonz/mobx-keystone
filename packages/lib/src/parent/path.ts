@@ -36,7 +36,7 @@ export interface RootPath<T extends object> {
 }
 
 /**
- * Returns the path to the parent of the target, or undefined if it has no parent.
+ * Returns the parent of the target plus the path from the parent to the target, or undefined if it has no parent.
  *
  * @typeparam T Parent object type.
  * @param value Target object.
@@ -64,7 +64,7 @@ export function getParent<T extends object = any>(value: object): T | undefined 
 }
 
 /**
- * Returns the path to the root of the target.
+ * Returns the root of the target plus the path from the root to get to the target.
  *
  * @typeparam T Root object type.
  * @param value Target object.
@@ -153,11 +153,19 @@ export function isParentOfChild(parent: object, child: object): boolean {
  *
  * @typeparam T Returned value type.
  * @param pathRootObject Object that serves as path root.
- * @param path Path as an string array.
+ * @param path Path as an string array or string.
  * @returns The resolved path value.
  */
-export function resolvePath<T = any>(pathRootObject: object, path: ReadonlyArray<string>): T {
+export function resolvePath<T = any>(
+  pathRootObject: object,
+  path: ReadonlyArray<string> | string
+): T {
   let current: any = pathRootObject
+
+  if (typeof path === "string") {
+    return current[path]
+  }
+
   path.forEach(p => {
     current = current[p]
   })

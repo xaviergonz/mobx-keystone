@@ -13,6 +13,16 @@ export function isTweakedObject(value: any): value is Object {
 }
 
 /**
+ * Checks if a given object is now a tree node.
+ *
+ * @param value Value to check.
+ * @returns ture if it is a tree node, false otherwise.
+ */
+export function isTreeNode(value: object): boolean {
+  return isTweakedObject(value)
+}
+
+/**
  * @ignore
  */
 export function assertTweakedObject(value: any, fnName: string): value is Object {
