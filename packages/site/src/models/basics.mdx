@@ -6,7 +6,7 @@ menu: Models
 
 # Models / Basics
 
-## Data types
+## Data types overview
 
 MDM supports the following kinds of data:
 
@@ -76,7 +76,9 @@ const myTodo2 = newModel(Todo, { text: "buy some coffee" })
 Models can optionally include an implementation for each of the life-cycle hooks:
 
 - `onInit()`, which serves as a replacement for the constructor and will fire as soon as the model is created.
-- `onAttachedToRootStore(rootStore)`, which will be explained in the [root stores](./rootStores) section.
+  In most occasions it is better to use the next hook.
+- `onAttachedToRootStore(rootStore)`, which first once a model is becomes part of a root store tree and which can optionally return a disposer which will run once the model detachs from such root store tree.
+  It will be explained in detail in the [root stores](./rootStores) section.
 
 ## Accesing the unique id and type of a model
 

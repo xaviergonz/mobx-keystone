@@ -2,9 +2,12 @@
 
 _A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more_
 
-[![npm version](https://badge.fury.io/js/mobx-data-model.svg)](https://badge.fury.io/js/mobx-data-model)
-[![CircleCI](https://circleci.com/gh/xaviergonz/mobx-data-model.svg?style=svg)](https://circleci.com/gh/xaviergonz/mobx-data-model)
-[![Coverage Status](https://coveralls.io/repos/github/xaviergonz/mobx-data-model/badge.svg?branch=master&t=Lwl2z5)](https://coveralls.io/github/xaviergonz/mobx-data-model?branch=master)
+![npm](https://img.shields.io/npm/v/mobx-data-model.svg?style=flat-square&logo=npm)
+![license](https://img.shields.io/npm/l/mobx-data-store.svg?style=flat-square)
+![types](https://img.shields.io/npm/types/mobx-data-store.svg?style=flat-square&logo=typescript)
+
+![CircleCI](https://img.shields.io/circleci/build/github/xaviergonz/mobx-data-model.svg?style=flat-square&logo=circleci)
+![Coveralls github](https://img.shields.io/coveralls/github/xaviergonz/mobx-data-model.svg?style=flat-square&logo=coveralls)
 
 > ### Full documentation can be found on the site:
 >
