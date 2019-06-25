@@ -43,7 +43,8 @@ export class Frozen<T> {
 
 /**
  * Marks some data as frozen. Frozen data becomes immutable (at least in dev mode), and is not enhanced
- * with capabilities such as getting the parent of the objects, it is not made deeply observable, etc.
+ * with capabilities such as getting the parent of the objects (except for the root object), it is not
+ * made deeply observable (though the root object is observable by reference), etc.
  * On the other hand, this means it will be much faster to create/access. Use this for big data pieces
  * that are unlikely to change unless all of them change (for example lists of points for a polygon, etc).
  *
