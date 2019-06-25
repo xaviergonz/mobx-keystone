@@ -35,9 +35,9 @@ This life-cycle hook also supports optionally returning a disposer function, whi
 
 This hook is a great place to actually register effects (e.g. mobx reactions, when, etc.), and its disposer a great place to dispose of them.
 
-### Practial example
+### Practical example
 
-As a practial example, say that you have some kind of application user preferences that has to be saved to / loaded from local storage, but we also want to use the same model in a form to edit them.
+As a practical example, say that you have some kind of application user preferences that has to be saved to / loaded from local storage, but we also want to use the same model in a form to edit them.
 
 First we need to define a model for the user preferences, as well as its desired side effects when it is part of the actual application state (when it is part of a root store tree)...
 
