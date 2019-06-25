@@ -10,7 +10,15 @@ export default {
     { name: "Models", menu: ["Basics", "Root Stores"] },
     "Snapshots",
     "Patches",
-    { name: "Action Middlewares", menu: ["Basics"] },
+    {
+      name: "Action Middlewares",
+      menu: [
+        "Basics",
+        "Transaction Middleware",
+        "Undo Middleware",
+        "Redux DevTools Middleware"
+      ]
+    },
     "References",
     "Frozen Data",
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
