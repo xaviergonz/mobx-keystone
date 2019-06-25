@@ -3,42 +3,25 @@ import { AnyModel } from "../model/Model"
 import { assertIsModel } from "../model/utils"
 import { getParent, getRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, isPlainObject } from "../utils"
+import { failure } from "../utils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
-const rootStores = new WeakMap<
-  AnyModel,
-  {
-    env: any
-  }
->()
+const rootStores = new WeakSet<AnyModel>()
 
 /**
  * Registers a model object as a root store tree.
  * Marking a model object as a root store tree serves several purposes:
  * - It allows the `onAttachedToRootStore` hook (plus disposer) to be invoked on models once they become part of this tree.
  *   These hooks can be used for example to attach effects and serve as some sort of initialization.
- * - It gives nodes part of this tree access to a shared environment object.
  * - It allows auto detachable references to work properly.
  *
  * @typeparam T Model type.
  * @param model Model object.
- * @param [options] Options that might include an environment for this root store tree.
  * @returns The same model object that was passed.
  */
 export const registerRootStore = action(
   "registerRootStore",
-  <T extends AnyModel>(
-    model: T,
-    options?: {
-      env?: any
-    }
-  ): T => {
-    const opts = {
-      env: {},
-      ...options,
-    }
-
+  <T extends AnyModel>(model: T): T => {
     assertIsModel(model, "a root store")
 
     if (rootStores.has(model)) {
@@ -49,13 +32,7 @@ export const registerRootStore = action(
       throw failure("a root store must not have a parent")
     }
 
-    if (!isPlainObject(opts.env)) {
-      throw failure("env must be a plain object or undefined")
-    }
-
-    rootStores.set(model, {
-      env: opts.env,
-    })
+    rootStores.add(model)
 
     attachToRootStore(model, model)
 
@@ -100,19 +77,4 @@ export function getRootStore<T extends AnyModel>(target: object): T | undefined 
 
   const root = getRoot(target)
   return isRootStore(root) ? root : undefined
-}
-
-/**
- * Returns the root store environment associated to a given tree child, or undefined if none.
- *
- * @typeparam T Root store environemnt type.
- * @param target Target to find the root store environment for.
- * @returns
- */
-export function getRootStoreEnv<T extends object>(target: object): T | undefined {
-  assertTweakedObject(target, "getRootStoreEnv")
-
-  const root = getRoot(target)
-  const rootStoreData = rootStores.get(root)
-  return rootStoreData ? rootStoreData.env : undefined
 }

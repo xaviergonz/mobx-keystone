@@ -80,6 +80,31 @@ Models can optionally include an implementation for each of the life-cycle hooks
 - `onAttachedToRootStore(rootStore)`, which first once a model is becomes part of a root store tree and which can optionally return a disposer which will run once the model detachs from such root store tree.
   It will be explained in detail in the [root stores](./rootStores) section.
 
+## Volatile data
+
+Volatile data (data that doesn't need to be snapshottable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
+
+```ts
+@model("myApp/SomeModel")
+class SomeModel extends Model<{...}> {
+  // non observable volatile data
+  x = 10;
+
+  setX(x: number) {
+    this.x = x
+  }
+
+  // or observable in the usual mobx way
+  @observable
+  y = 20;
+
+  @action
+  setY(y: number) {
+    this.y = y
+  }
+}
+```
+
 ## Accesing the unique id and type of a model
 
 It is interesting to observe that models include some useful properties:
