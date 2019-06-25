@@ -14,7 +14,7 @@ import { getParentPath } from "./path"
  */
 export function findParent<T extends object = any>(
   child: object,
-  predicate: (parent: any) => boolean
+  predicate: (parent: object) => boolean
 ): T | undefined {
   assertTweakedObject(child, "findParent")
 

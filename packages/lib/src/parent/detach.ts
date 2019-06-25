@@ -11,10 +11,10 @@ import { getParentPath } from "./path"
  *
  * @param value Object to be detached.
  */
-export function detach(value: object) {
+export function detach(value: object): void {
   // untracked because it shouldn't track, but it should be inside
   // an action
-  return untracked(() => {
+  untracked(() => {
     assertTweakedObject(value, "detach")
 
     const parentPath = getParentPath(value)
