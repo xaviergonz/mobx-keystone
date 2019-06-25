@@ -1,5 +1,5 @@
 let n = 1
 
-export function v4() {
+export default function nanoid() {
   return "mockedUuid-" + n++
 }
