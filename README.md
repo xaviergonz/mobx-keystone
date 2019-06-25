@@ -41,7 +41,7 @@ Since MST uses MobX behind the scenes, it integrates seamlessly with [mobx](http
 Even cooler, because it supports snapshots, action middlewares and replayable actions out of the box, it is possible to replace a Redux store and reducer with a MobX data model.
 This makes it possible to connect the Redux devtools to MDM.
 
-Like React, MDM consists of composable components, called _models_, which captures a small piece of state. They are instantiated from props and after that manage and protect their own internal state (using actions). Moreover, when applying snapshots, tree nodes are reconciled as much as possible. There is even a context-like mechanism, called environments, to pass information to deep descendants.
+Like React, MDM consists of composable components, called _models_, which captures a small piece of state. They are instantiated from props and after that manage and protect their own internal state (using actions). Moreover, when applying snapshots, tree nodes are reconciled as much as possible.
 
 ## Comparison with `mobx-state-tree`
 

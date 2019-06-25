@@ -13,9 +13,8 @@ Usually an application has one or more store objects which are meant to represen
 In the case of MDM, root stores are model instances from where the rest of the application state will be stored in a tree-like structure.
 While it is not strictly necessary to mark these instances as root stores, doing so opens up some benefits:
 
-1. Root stores allow the usage of the `onAttachedToRootStore(rootStore)` hook inside models.
-2. Root stores can have an attached "environment", which can be shared with its whole subtree.
-3. Safe referenes (more on that on the [references](../references) section) only work when used alongside root stores.
+- Root stores allow the usage of the `onAttachedToRootStore(rootStore)` hook inside models.
+- Safe references (more on that on the [references](../references) section) only work when used alongside root stores.
 
 You can think of a model instance marked as a root store as the "live tree" of your application state, meaning that any nodes attached to a root store are actually part of your running application, rather than a transient instance that might or might not end up as part of your actual application state or not.
 
@@ -127,13 +126,25 @@ formPreferences.setTheme("dark")
 
 ```ts
 myRootStore.setUserPreferenes = formPreferences
-// the old preferences object will become detached from the root store
-// and therefore will stop saving changes
-// at the same time the new preferences will become part of the root
-// store tree, save its data and start saving any future changes
 ```
 
 After that last line, the old preferences object (`myPreferences`) will become detached from the root store and therefore will stop saving changes (by running the disposer).
 At the same time the new preferences object (`formPreferences`) will become part of the root store tree, running the hook and therefore saving its data and reacting to changes by saving any future changes.
 
 As you can see, such hook is really a great place to manage side effects.
+
+## Sharing contextual data
+
+Root stores are also a good place to store contextual/environmental volatile data that doesn't really need to be serialized anywhere.
+For this we would just need to follow a pattern like this one:
+
+```ts
+@model("myApp/RootStore")
+class RootStore extends Model<{...}> {
+  myEnvData?: { ... }
+}
+
+// somewhere else (probably some action or on the `onAttachedToRootStore` hook)
+const rootStore = getRootStore<RootStore>(someModel)
+const myEnvData = rootStore && rootStore.myEnvData
+```
