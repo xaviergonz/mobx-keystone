@@ -7,7 +7,7 @@ export default {
   codeSandbox: false,
   menu: [
     "Introduction",
-    { name: "Models", menu: ["Basics", "Traversing the Tree", "Root Stores"] },
+    { name: "Models", menu: ["Basics", "Tree-Like Structure", "Root Stores"] },
     "Snapshots",
     "Patches",
     {
