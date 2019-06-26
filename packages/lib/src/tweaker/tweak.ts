@@ -23,8 +23,27 @@ import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
-import { failure, isMap, isPrimitive, isSet } from "../utils"
-import { isTweakedObject, tweakedObjects } from "./core"
+import { failure, isMap, isObject, isPrimitive, isSet } from "../utils"
+import { isTreeNode, isTweakedObject, tweakedObjects } from "./core"
+
+/**
+ * Turns an object (array, plain object) into a tree node,
+ * which then can accept calls to `getParent`, `getSnapshot`, etc.
+ * If a tree node is passed it will return the passed argument directly.
+ *
+ * @param value Object to turn into a tree node.
+ * @returns The object as a tree node.
+ */
+export function toTreeNode<T extends object>(value: T): T {
+  if (!isObject(value)) {
+    throw failure("only objects can be turned into tree nodes")
+  }
+
+  if (!isTreeNode(value)) {
+    return tweak(value, undefined)
+  }
+  return value
+}
 
 /**
  * @ignore
@@ -70,7 +89,7 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
     return value
   }
 
-  // make sure if is an observable first (if not a model)
+  // make sure it is an observable first (if not a model)
   if (!isObservable(value)) {
     value = observable(value)
   }

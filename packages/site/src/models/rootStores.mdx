@@ -6,17 +6,17 @@ menu: Models
 
 # Models / Root Stores
 
-## What, why and how
+## Overview
 
 Usually an application has one or more store objects which are meant to represent the actual current state of such application. These objects are usually known as "root stores".
 
-In the case of `mobx-data-model`, root stores are model instances from where the rest of the application state will be stored in a tree-like structure.
+In the case of `mobx-data-model`, root stores are tree nodes (model instances or arrays / plain objects turned into tree nodes with `toTreeNode`) from where the rest of the application state will be stored in a tree-like structure.
 While it is not strictly necessary to mark these instances as root stores, doing so opens up some benefits:
 
 - Root stores allow the usage of the `onAttachedToRootStore(rootStore)` hook inside models.
 - Safe references (more on that on the [references](../references) section) only work when used alongside root stores.
 
-You can think of a model instance marked as a root store as the "live tree" of your application state, meaning that any nodes attached to a root store are actually part of your running application, rather than a transient instance that might or might not end up as part of your actual application state or not.
+You can think of a tree node marked as a root store as the "live tree" of your application state, meaning that any nodes attached to a root store are actually part of your running application, rather than a transient instance that might or might not end up as part of your actual application state or not.
 
 Registering/unregistering a model instance as a root store is as simple as:
 

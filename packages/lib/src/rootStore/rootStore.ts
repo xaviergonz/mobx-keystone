@@ -1,68 +1,66 @@
 import { action } from "mobx"
-import { AnyModel } from "../model/Model"
-import { assertIsModel } from "../model/utils"
 import { getParent, getRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
-const rootStores = new WeakSet<AnyModel>()
+const rootStores = new WeakSet<object>()
 
 /**
- * Registers a model object as a root store tree.
+ * Registers a model / tree node object as a root store tree.
  * Marking a model object as a root store tree serves several purposes:
  * - It allows the `onAttachedToRootStore` hook (plus disposer) to be invoked on models once they become part of this tree.
  *   These hooks can be used for example to attach effects and serve as some sort of initialization.
  * - It allows auto detachable references to work properly.
  *
- * @typeparam T Model type.
+ * @typeparam T Object type.
  * @param model Model object.
  * @returns The same model object that was passed.
  */
 export const registerRootStore = action(
   "registerRootStore",
-  <T extends AnyModel>(model: T): T => {
-    assertIsModel(model, "a root store")
+  <T extends object>(object: T): T => {
+    assertTweakedObject(object, "a root store")
 
-    if (rootStores.has(model)) {
-      throw failure("model already marked as root store")
+    if (rootStores.has(object)) {
+      throw failure("object already marked as root store")
     }
 
-    if (getParent(model)) {
+    if (getParent(object)) {
       throw failure("a root store must not have a parent")
     }
 
-    rootStores.add(model)
+    rootStores.add(object)
 
-    attachToRootStore(model, model)
+    attachToRootStore(object, object)
 
-    return model
+    return object
   }
 )
 
 /**
- * Unregisters a model object to mark it as no longer a root store.
+ * Unregisters an object to mark it as no longer a root store.
  *
  * @param model Model object.
  */
-export const unregisterRootStore = action("unregisterRootStore", (model: AnyModel): void => {
-  if (!isRootStore(model)) {
+export const unregisterRootStore = action("unregisterRootStore", (object: object): void => {
+  if (!isRootStore(object)) {
     throw failure("not a root store")
   }
 
-  rootStores.delete(model)
+  rootStores.delete(object)
 
-  detachFromRootStore(model)
+  detachFromRootStore(object)
 })
 
 /**
- * Checks if a given model object is marked as a root store.
+ * Checks if a given object is marked as a root store.
  *
- * @param model Model object.
+ * @param object Object.
  * @returns
  */
-export function isRootStore(model: AnyModel): boolean {
-  return rootStores.has(model as any)
+export function isRootStore(object: object): boolean {
+  return rootStores.has(object)
 }
 
 /**
@@ -72,7 +70,7 @@ export function isRootStore(model: AnyModel): boolean {
  * @param target Target to find the root store for.
  * @returns
  */
-export function getRootStore<T extends AnyModel>(target: object): T | undefined {
+export function getRootStore<T extends object>(target: object): T | undefined {
   assertTweakedObject(target, "getRootStore")
 
   const root = getRoot(target)

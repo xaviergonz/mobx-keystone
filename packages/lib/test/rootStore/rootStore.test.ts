@@ -6,6 +6,7 @@ import {
   newModel,
   registerRootStore,
   runUnprotected,
+  toTreeNode,
   unregisterRootStore,
 } from "../../src"
 import "../commonSetup"
@@ -85,7 +86,7 @@ beforeEach(() => {
   resetEvents()
 })
 
-test("rootStore", () => {
+test("model as rootStore", () => {
   const p = createP()
   expect(getRootStore(p)).toBeUndefined()
   expect(isRootStore(p)).toBeFalsy()
@@ -154,6 +155,73 @@ test("rootStore", () => {
       "p3Detached",
       "p2Detached",
       "p1Detached",
+    ]
+  `)
+})
+
+test("array as rootStore", () => {
+  const arr = toTreeNode<P3[]>([newModel(P3, {})])
+  expect(getRootStore(arr)).toBeUndefined()
+  expect(isRootStore(arr)).toBeFalsy()
+
+  expect(events).toStrictEqual([])
+
+  // register arr as root store
+  expect(registerRootStore(arr)).toBe(arr)
+
+  expect(isRootStore(arr)).toBeTruthy()
+  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(getRootStore(arr)).toBe(arr)
+  expect(getRootStore(arr[0]!)).toBe(arr)
+  expect(events).toMatchInlineSnapshot(`
+        Array [
+          "p3Attached",
+        ]
+    `)
+
+  // detach p3 from root store
+  resetEvents()
+  const oldP3 = arr[0]!
+  runUnprotected(() => {
+    arr.splice(0, 1)
+  })
+
+  expect(isRootStore(arr)).toBeTruthy()
+  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(getRootStore(arr)).toBe(arr)
+  expect(getRootStore(oldP3)).toBeUndefined()
+  expect(events).toMatchInlineSnapshot(`
+        Array [
+          "p3Detached",
+        ]
+    `)
+
+  // reattach
+  resetEvents()
+  runUnprotected(() => {
+    arr.push(oldP3)
+  })
+
+  expect(isRootStore(arr)).toBeTruthy()
+  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(getRootStore(arr)).toBe(arr)
+  expect(getRootStore(arr[0]!)).toBe(arr)
+  expect(events).toMatchInlineSnapshot(`
+        Array [
+          "p3Attached",
+        ]
+    `)
+
+  // unregister root store
+  resetEvents()
+  unregisterRootStore(arr)
+  expect(isRootStore(arr)).toBeFalsy()
+  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(getRootStore(arr)).toBeUndefined()
+  expect(getRootStore(arr[0]!)).toBeUndefined()
+  expect(events).toMatchInlineSnapshot(`
+    Array [
+      "p3Detached",
     ]
   `)
 })

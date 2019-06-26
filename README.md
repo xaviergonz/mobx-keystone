@@ -8,6 +8,7 @@ _A MobX powered state management solution based on data trees with first class s
 
 ![CircleCI](https://img.shields.io/circleci/build/github/xaviergonz/mobx-data-model.svg?style=flat-square&logo=circleci)
 ![Coveralls github](https://img.shields.io/coveralls/github/xaviergonz/mobx-data-model.svg?style=flat-square&logo=coveralls)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429/deploy-status)](https://app.netlify.com/sites/mobx-data-model/deploys)
 
 > ### Full documentation can be found on the site:
 >

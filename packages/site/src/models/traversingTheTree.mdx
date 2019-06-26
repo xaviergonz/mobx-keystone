@@ -6,7 +6,7 @@ menu: Models
 
 # Models / Traversing the Tree
 
-## Tree-like structure
+## Overview
 
 `mobx-data-model` structure is based on a tree like structure, where each node can be one of:
 
@@ -59,6 +59,8 @@ An model/object/array is turned into a tree node under the following circumstanc
 - Plain objects / arrays are turned into tree nodes as soon as they become children of another tree node.
 
 To check if an non-primitive has been turned into a tree node you can use `isTreeNode(value: object): boolean`.
+
+To turn a non-primitive into a tree node you can use `toTreeNode<T>(value: T): T`. If the object is already a tree node then the same object will be returned.
 
 ## Traversal methods
 
