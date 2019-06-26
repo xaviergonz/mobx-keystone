@@ -32,11 +32,11 @@ A -> sA[1] = getSnapshot(A)
 - C -> sC[0] = getSnapshot(C)
 ```
 
-This means, as mentioned beofre, that snapshots generation is automatically optimized to only change their reference when the object they represent (and their children) actually change.
+This means, as mentioned before, that snapshots generation is automatically optimized to only change their reference when the object they represent (and their children) actually change.
 
 ## Getting the snapshot of an instance
 
-Getting the snapshot out of a model or any of its children is as easy as this:
+Getting the snapshot out of any tree node is as easy as this:
 
 ```ts
 @model("myApp/Todo")
@@ -55,8 +55,8 @@ const todoSnapshot = getSnapshot(todo)
   done: false,
   text: "buy some milk",
   "$$metadata": {
-    "type": "myApp/Todo",
-    "id": "_SvYKK1zWYpBj7ST_fVV2"
+    type: "myApp/Todo",
+    id: "_SvYKK1zWYpBj7ST_fVV2"
   }
 }
 ```
