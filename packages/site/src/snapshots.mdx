@@ -67,7 +67,7 @@ The additional `$$metadata` sub-object is used to:
 - Improve snapshot reconciliation.
 - Allow references to work (more on this on the [references](./references) section).
 
-This metadata is only required for models, this is, arrays, plain objects and primitives don't have this extra field.
+This metadata is only required for models, in other words, arrays, plain objects and primitives don't have this extra field.
 
 The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
 
