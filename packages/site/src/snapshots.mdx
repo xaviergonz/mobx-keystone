@@ -71,13 +71,13 @@ This metadata is only required for models, in other words, arrays, plain objects
 
 The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
 
-```ts
+```
 type SnapshotOutOf<Todo> = {
-  done: boolean
-  type: string
+  done: boolean;
+  type: string;
   $$metadata: {
-    type: string
-    id: string
+    type: string;
+    id: string;
   }
 }
 ```
@@ -100,13 +100,13 @@ const todo = fromSnapshot<Todo>(todoSnapshot, { generateNewIds: false })
 
 The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:
 
-```ts
+```
 type SnapshotInOf<Todo> = {
-  done?: boolean
-  type: string
+  done?: boolean;
+  type: string;
   $$metadata: {
-    type: string
-    id: string
+    type: string;
+    id: string;
   }
 }
 ```
