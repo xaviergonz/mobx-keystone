@@ -5,6 +5,8 @@ route: /frozen
 
 # Frozen Data
 
+## Overview
+
 When performance is key and there are big chunks of data that don't change at all we can use `frozen`.
 
 `frozen` basically wraps a plain chunk of data (composed of plain objects, arrays, primitives, or a mix of them) inside a model-like structure, turns such data into immutable (in dev mode) and therefore keeps it still observable (by reference), snapshottable, patcheable and reactive, but skipping the overhead of turning every single object inside the frozen data into separate tree nodes.

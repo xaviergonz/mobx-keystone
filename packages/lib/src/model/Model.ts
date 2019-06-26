@@ -79,7 +79,7 @@ export abstract class Model<Data extends { [k: string]: any }> {
    * @param rootStore
    * @returns
    */
-  onAttachedToRootStore?(rootStore: AnyModel): (() => void) | void
+  onAttachedToRootStore?(rootStore: object): (() => void) | void
 
   /**
    * Optional transformation that will be run when converting from a snapshot to the data part of the model.

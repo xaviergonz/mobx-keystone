@@ -1,7 +1,7 @@
 import { ActionContextActionType } from "../action/context"
 import { SpecialAction } from "../action/specialActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { AnyModel, Model } from "../model/Model"
+import { Model } from "../model/Model"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
@@ -9,7 +9,7 @@ const onAttachedDisposers = new WeakMap<object, () => void>()
 /**
  * @ignore
  */
-export function attachToRootStore(rootStore: AnyModel, child: AnyModel): void {
+export function attachToRootStore(rootStore: object, child: object): void {
   walkTree(
     child,
     ch => {
@@ -39,7 +39,7 @@ export function attachToRootStore(rootStore: AnyModel, child: AnyModel): void {
 /**
  * @ignore
  */
-export function detachFromRootStore(child: AnyModel): void {
+export function detachFromRootStore(child: object): void {
   walkTree(
     child,
     ch => {

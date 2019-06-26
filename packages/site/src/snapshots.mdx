@@ -5,4 +5,135 @@ route: /snapshots
 
 # Snapshots
 
-TODO
+## Overview
+
+Snapshots are the immutable, structurally shared, representation of tree nodes (models and their children).
+
+Snapshots in `mobx-data-model` mainly serve these two purposes:
+
+- As a serialization / deserialization mechanism (be it to store it or send it over the wire)
+- As a way to bridge data to non mobx-react enabled React components.
+
+Basically, when a change is performed over a tree node then a new immutable snapshot of it will be generated. Additionally, immutable snapshots for all parents will be generated as well. Any unchanged objects however will keep its snapshot unmodified.
+
+For example, imagine a model `A` with two children (`B` and `C`), and let's call their initial snapshots `sA[0]`, `sB[0]` and `sC[0]`.
+
+```
+A -> sA[0] = getSnapshot(A)
+- B -> sB[0] = getSnapshot(B)
+- C -> sC[0] = getSnapshot(C)
+```
+
+If we change a property in `B` then a new snapshot will be generated for it, as well as for all its parents (`A`), but not for unaffected objects (`C` in this case), thus resulting in:
+
+```
+A -> sA[1] = getSnapshot(A)
+- B -> sB[1] = getSnapshot(B)
+- C -> sC[0] = getSnapshot(C)
+```
+
+This means, as mentioned beofre, that snapshots generation is automatically optimized to only change their reference when the object they represent (and their children) actually change.
+
+## Getting the snapshot of an instance
+
+Getting the snapshot out of a model or any of its children is as easy as this:
+
+```ts
+@model("myApp/Todo")
+class Todo extends Model<{ done: boolean; text: string; }> {
+  defaultData = {
+    done: false
+  }
+}
+
+const todo = newModel(Todo, { text: "buy some milk" })
+
+const todoSnapshot = getSnapshot(todo)
+
+// this returns an object like
+{
+  done: false,
+  text: "buy some milk",
+  "$$metadata": {
+    "type": "myApp/Todo",
+    "id": "_SvYKK1zWYpBj7ST_fVV2"
+  }
+}
+```
+
+The additional `$$metadata` sub-object is used to:
+
+- Allow `fromSnapshot` to recognize the original class and faithfully recreate it, rather than assume it is a plain object.
+- Improve snapshot reconciliation.
+- Allow references to work (more on this on the [references](./references) section).
+
+This metadata is only required for models, this is, arrays, plain objects and primitives don't have this extra field.
+
+The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
+
+```ts
+type SnapshotOutOf<Todo> = {
+  done: boolean
+  type: string
+  $$metadata: {
+    type: string
+    id: string
+  }
+}
+```
+
+Note that `getSnapshot` can actually be used over any tree nodes (any model, or any plain object or array as long as at any point in time they became attached to a model or they are manually transformed into one via `toTreeNode`), as well as primitives (though in the case of primitives the primitive will be returned directly).
+
+## Turning an snapshot back into an instance
+
+Restoring an snapshot is pretty easy as well:
+
+```ts
+const todo = fromSnapshot<Todo>(todoSnapshot)
+```
+
+`fromSnapshot` by default will generate new ids for each model, as well as fix any references automatically as long as they are inside the same snapshot. If you wish to keep the same ids you can pass an extra option object as shown:
+
+```ts
+const todo = fromSnapshot<Todo>(todoSnapshot, { generateNewIds: false })
+```
+
+The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:
+
+```ts
+type SnapshotInOf<Todo> = {
+  done?: boolean
+  type: string
+  $$metadata: {
+    type: string
+    id: string
+  }
+}
+```
+
+Compared to the output snapshot note how `done` is now marked as optional since we declared a default value for it.
+
+Note that `fromSnapshot` can actually be used over any snapshot that represents a valid tree node (any model snapshot, or a plain object, array or primitive).
+
+## Reacting to snapshot changes
+
+Snapshots are observable values in themselves, which means standard mobx reactions such as this one work:
+
+```ts
+const disposer = reaction(
+  () => getSnapshot(todo),
+  todoSnapshot => {
+    // do something
+  }
+)
+```
+
+Since that is a very common pattern, `mobx-data-model` offers an `onSnapshot` function that will call a listener with the new snapshot and the previous snapshot everytime it changes.
+
+```ts
+const disposer = onSnapshot(todo, (newSnapshot, previousSnapshot) => {
+  // do something
+})
+```
+
+In both cases the returned disposer function can be called to cancel the effect.

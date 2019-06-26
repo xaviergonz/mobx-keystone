@@ -33,10 +33,7 @@ export interface FromSnapshotOptions {
  * @param [options] Options.
  * @returns The deserialized object.
  */
-export function fromSnapshot<T>(
-  sn: T extends object ? SnapshotInOf<T> : T,
-  options?: FromSnapshotOptions
-): T {
+export function fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T {
   if (options && options.generateNewIds) {
     sn = fixSnapshotIds(sn)
   }
@@ -44,7 +41,7 @@ export function fromSnapshot<T>(
   return internalFromSnapshot(sn)
 }
 
-function internalFromSnapshot<T>(sn: T extends object ? SnapshotInOf<T> : T): T {
+function internalFromSnapshot<T>(sn: SnapshotInOf<T>): T {
   if (isPrimitive(sn)) {
     return sn as any
   }
