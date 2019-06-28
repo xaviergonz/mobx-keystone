@@ -1,4 +1,3 @@
-export { Patch } from "immer"
 export { applyPatches } from "./applyPatches"
 export {
   onGlobalPatches,
@@ -7,4 +6,5 @@ export {
   OnPatchesDisposer,
   OnPatchesListener,
 } from "./emitPatch"
-export { patchRecorder, PatchRecorder } from "./patchRecorder"
+export { Patch } from "./Patch"
+export { patchRecorder, PatchRecorder, PatchRecorderEvent } from "./patchRecorder"

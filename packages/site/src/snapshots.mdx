@@ -36,6 +36,8 @@ This means, as mentioned before, that snapshots generation is automatically opti
 
 ## Getting the snapshot of an instance
 
+### `getSnapshot<T>(value: T): SnapshotOutOf<T>`
+
 Getting the snapshot out of any tree node is as easy as this:
 
 ```ts
@@ -86,6 +88,8 @@ Note that `getSnapshot` can actually be used over any tree nodes (any model, or 
 
 ## Turning an snapshot back into an instance
 
+### `fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T`
+
 Restoring an snapshot is pretty easy as well:
 
 ```ts
@@ -128,6 +132,8 @@ const disposer = reaction(
 )
 ```
 
+### `onSnapshot<T extends object>(obj: T, listener: (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void): () => void`
+
 Since that is a very common pattern, `mobx-data-model` offers an `onSnapshot` function that will call a listener with the new snapshot and the previous snapshot everytime it changes.
 
 ```ts
@@ -137,3 +143,24 @@ const disposer = onSnapshot(todo, (newSnapshot, previousSnapshot) => {
 ```
 
 In both cases the returned disposer function can be called to cancel the effect.
+
+## Applying snapshots
+
+### `applySnapshot<T extends object>(obj: T, sn: SnapshotOutOf<T>): void`
+
+It is also possible to apply an snapshot over an object, reconciling the contents of the object and therefore ensuring that only the minimal set of snapshot changes / patches are triggered:
+
+```ts
+// given todo is a todo with { done: false, text: "buy some milk" }
+
+applySnapshot(todo, {
+  done: true,
+  text: "buy some milk",
+  $$metadata: {
+    type: "myApp/Todo",
+    id: "_SvYKK1zWYpBj7ST_fVV2"
+  }
+})
+```
+
+In the case above, only a single patch will be generated (for the done property), and the same todo instance will be reused.
