@@ -15,10 +15,11 @@ export default {
     {
       name: "Action Middlewares",
       menu: [
-        "Basics",
-        "Transaction Middleware",
-        "Undo Middleware",
-        "Redux DevTools Middleware"
+        "onActionMiddleware",
+        "transactionMiddleware",
+        "undoMiddleware",
+        "reduxDevToolsMiddleware",
+        "Custom Middlewares"
       ]
     },
     "References",
