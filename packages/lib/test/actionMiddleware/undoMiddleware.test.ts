@@ -113,7 +113,7 @@ test("undoMiddleware - sync", () => {
       "undo": Array [
         Object {
           "actionName": "incX",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [
@@ -140,7 +140,7 @@ test("undoMiddleware - sync", () => {
         },
         Object {
           "actionName": "incX",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [
@@ -167,7 +167,7 @@ test("undoMiddleware - sync", () => {
         },
         Object {
           "actionName": "incY",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [
@@ -198,7 +198,7 @@ test("undoMiddleware - sync", () => {
         },
         Object {
           "actionName": "incXY",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [
@@ -394,7 +394,7 @@ test("undoMiddleware - async", async () => {
       "undo": Array [
         Object {
           "actionName": "incX",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [
@@ -421,7 +421,7 @@ test("undoMiddleware - async", async () => {
         },
         Object {
           "actionName": "incX",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [
@@ -448,7 +448,7 @@ test("undoMiddleware - async", async () => {
         },
         Object {
           "actionName": "incY",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [
@@ -479,7 +479,7 @@ test("undoMiddleware - async", async () => {
         },
         Object {
           "actionName": "incXY",
-          "inversePathes": Array [
+          "inversePatches": Array [
             Object {
               "op": "replace",
               "path": Array [

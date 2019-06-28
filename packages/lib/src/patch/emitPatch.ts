@@ -1,9 +1,9 @@
-import { Patch } from "immer"
 import { action, isAction } from "mobx"
 import { Model } from "../model/Model"
 import { getParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { deleteFromArray, failure } from "../utils"
+import { Patch } from "./Patch"
 
 /**
  * @ignore

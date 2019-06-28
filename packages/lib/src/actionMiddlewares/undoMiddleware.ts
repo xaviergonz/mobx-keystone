@@ -30,7 +30,7 @@ export interface UndoEvent {
    * Patches to undo the changes done inside the action.
    * Use `undo()` in the `UndoManager` to apply them.
    */
-  readonly inversePathes: Patch[]
+  readonly inversePatches: Patch[]
 }
 
 /**
@@ -189,7 +189,7 @@ export class UndoManager {
     const event = this.undoQueue[this.undoQueue.length - 1]
 
     withoutUndo(() => {
-      applyPatches(this.target, event.inversePathes)
+      applyPatches(this.target, event.inversePatches)
     })
 
     this.store._undo()
@@ -281,12 +281,20 @@ export function undoMiddleware(model: AnyModel, store?: UndoStore): UndoManager 
         if (ctx === ctx.rootContext) {
           const patchRecorder = getPatchRecorder(ctx)
 
-          if (patchRecorder.patches.length > 0 || patchRecorder.inversePatches.length > 0) {
+          if (patchRecorder.events.length > 0) {
+            const patches: Patch[] = []
+            const inversePatches: Patch[] = []
+
+            for (const event of patchRecorder.events) {
+              patches.push(...event.patches)
+              inversePatches.unshift(...event.inversePatches)
+            }
+
             manager.store._addUndo({
               targetPath: getRootPath(ctx.target).path,
               actionName: ctx.actionName,
-              patches: patchRecorder.patches,
-              inversePathes: patchRecorder.inversePatches,
+              patches,
+              inversePatches,
             })
           }
 

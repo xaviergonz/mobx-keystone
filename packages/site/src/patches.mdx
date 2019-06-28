@@ -5,4 +5,88 @@ route: /patches
 
 # Patches
 
-TODO
+## Overview
+
+As seen in the previous [snapshots](../snapshots) section, any change made to a tree node will generate a new snapshot, but this is only one of the three possible ways `mobx-data-model` offers to detect changes. The second way are patches.
+
+Basically, every change will generate two kind of patches, patches from the previous to the new value (simply known as "patches") and patches from the new to the previous value (known as "inverse patches"). A patch object has this structure:
+
+```ts
+export interface Patch {
+  op: "replace" | "remove" | "add"
+  path: (string | number)[]
+  value?: any // value is not available for remove operations
+}
+```
+
+The difference with JSON patches is that the path is an array of strings / numbers rather than a simple string. This makes it faster to parse and use since there is no parsing / splitting involved.
+
+## Getting patches
+
+### `onPatches(target: object, listener: OnPatchesListener): OnPatchesDisposer`
+
+`onPatches` allows you to access the patches generated for a tree node and all its children like this:
+
+```ts
+const disposer = onPatches(todo, (patches, inversePatches) => {
+  // ...
+})
+```
+
+### `patchRecorder(target: object, opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }): PatchRecorder`
+
+`patchRecorder` is an abstraction over `onPatches` that can be used like this:
+
+```ts
+const recorder = patchRecorder(todo)
+```
+
+It will return an interface implementation that allow you to handle patch recording via the following properties:
+
+```ts
+interface PatchRecorder {
+  /**
+   * Gets/sets if the patch recorder is currently recording.
+   */
+  recording: boolean
+
+  /**
+   * Patching events.
+   */
+  readonly events: PatchRecorderEvent[]
+
+  /**
+   * Dispose of the patch recorder.
+   */
+  dispose(): void
+}
+```
+
+The `PatchRecorderEvent` definition is:
+
+```ts
+interface PatchRecorderEvent {
+  /**
+   * Target object.
+   */
+  readonly target: object
+  /**
+   * Recorded patches.
+   */
+  readonly patches: Patch[]
+  /**
+   * Recorded inverse patches.
+   */
+  readonly inversePatches: Patch[]
+}
+```
+
+## Applying patches
+
+### `applyPatches(obj: object, patches: Patch[]): void`
+
+It is also possible to apply patches / inverse patches doing this:
+
+```ts
+applyPatches(todo, patches)
+```

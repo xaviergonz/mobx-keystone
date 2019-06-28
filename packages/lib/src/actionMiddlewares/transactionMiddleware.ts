@@ -2,7 +2,7 @@ import { ActionMiddlewareDisposer } from "../action/middleware"
 import { addModelClassInitializer, AnyModel } from "../model/Model"
 import { assertIsModel, checkModelDecoratorArgs } from "../model/utils"
 import { applyPatches } from "../patch"
-import { globalPatchRecorder, GlobalPatchRecorder } from "../patch/globalPatchRecorder"
+import { internalPatchRecorder, PatchRecorder } from "../patch/patchRecorder"
 import { assertIsObject, failure } from "../utils"
 import {
   actionTrackingMiddleware,
@@ -34,9 +34,11 @@ export function transactionMiddleware<M extends AnyModel>(target: {
 
   const patchRecorderSymbol = Symbol("patchRecorder")
   function initPatchRecorder(ctx: SimpleActionContext) {
-    ctx.rootContext.data[patchRecorderSymbol] = globalPatchRecorder({ recording: false })
+    ctx.rootContext.data[patchRecorderSymbol] = internalPatchRecorder(undefined, {
+      recording: false,
+    })
   }
-  function getPatchRecorder(ctx: SimpleActionContext): GlobalPatchRecorder {
+  function getPatchRecorder(ctx: SimpleActionContext): PatchRecorder {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
 
