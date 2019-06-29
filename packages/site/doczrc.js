@@ -40,6 +40,10 @@ export default {
     }
   },
   themeConfig: {
+    logo: {
+      src: "/public/images/mdm-logo.svg",
+      width: 100
+    },
     mode: "dark",
     codemirrorTheme: "blackboard",
     showPlaygroundEditor: false,
@@ -51,5 +55,7 @@ export default {
       blockquoteBg: "#0C1021"
     }
   },
+  src: "./src",
+  public: "./src/public",
   plugins: []
 }

@@ -23,7 +23,7 @@
     "start": "tsdx watch",
     "build": "shx cp ../../README.md . && tsdx build",
     "test": "tsdx test",
-    "build-docs": "shx rm -rf ../site/public/api && typedoc --options ./typedocconfig.js"
+    "build-docs": "shx rm -rf ../site/src/public/api && typedoc --options ./typedocconfig.js"
   },
   "peerDependencies": {
     "mobx": "^5.9.4"

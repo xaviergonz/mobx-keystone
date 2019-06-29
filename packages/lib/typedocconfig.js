@@ -6,7 +6,7 @@ module.exports = {
   excludeProtected: true,
   mode: "file",
   readme: "none",
-  out: "../site/public/api",
+  out: "../site/src/public/api",
   tsconfig: "tsconfig.json",
   listInvalidSymbolLinks: true,
 }
