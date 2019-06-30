@@ -7,7 +7,7 @@ import { getSnapshot } from "./getSnapshot"
  */
 export interface CloneOptions {
   /**
-   * If set to true (the default) then Models will have brand new IDs, and
+   * If set to true (the default is true) then Models will have brand new IDs, and
    * references will fix their target IDs accordingly.
    */
   generateNewIds?: boolean
