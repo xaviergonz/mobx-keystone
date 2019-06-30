@@ -5,8 +5,9 @@ import { resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { failure } from "../utils"
+import { BuiltInAction, isBuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
-import { isHookAction, SpecialAction } from "./specialActions"
+import { isHookAction } from "./hookActions"
 import { wrapInAction } from "./wrapInAction"
 
 /**
@@ -44,32 +45,32 @@ function internalApplyAction(this: AnyModel, call: ActionCall) {
   // resolve path
   const current = resolvePath(this, call.targetPath)
 
-  switch (call.actionName) {
-    case SpecialAction.ApplySnapshot:
-      return applySnapshot.apply(current, [current, ...call.args] as any)
+  if (isBuiltInAction(call.actionName)) {
+    switch (call.actionName) {
+      case BuiltInAction.ApplySnapshot:
+        return applySnapshot.apply(current, [current, ...call.args] as any)
 
-    case SpecialAction.ApplyPatches:
-      return applyPatches.apply(current, [current, ...call.args] as any)
+      case BuiltInAction.ApplyPatches:
+        return applyPatches.apply(current, [current, ...call.args] as any)
 
-    case SpecialAction.ApplyAction:
-      return applyAction.apply(current, [current, ...call.args] as any)
+      case BuiltInAction.ApplyAction:
+        return applyAction.apply(current, [current, ...call.args] as any)
 
-    case SpecialAction.Detach:
-      return detach.apply(current, [current, ...call.args] as any)
+      case BuiltInAction.Detach:
+        return detach.apply(current, [current, ...call.args] as any)
 
-    default:
-      break
-  }
-
-  if (isHookAction(call.actionName)) {
+      default:
+        throw failure(`assertion error: unknown built-in action - ${call.actionName}`)
+    }
+  } else if (isHookAction(call.actionName)) {
     throw failure(`calls to hooks (${call.actionName}) cannot be applied`)
+  } else {
+    return current[call.actionName].apply(current, call.args)
   }
-
-  return current[call.actionName].apply(current, call.args)
 }
 
 const wrappedInternalApplyAction = wrapInAction(
-  SpecialAction.ApplyAction,
+  BuiltInAction.ApplyAction,
   internalApplyAction,
   ActionContextActionType.Sync
 )

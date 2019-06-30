@@ -1,5 +1,5 @@
 import { ActionContextActionType } from "../action/context"
-import { SpecialAction } from "../action/specialActions"
+import { HookAction } from "../action/hookActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { Model } from "../model/Model"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
@@ -17,14 +17,14 @@ export function attachToRootStore(rootStore: object, child: object): void {
         wrapModelMethodInActionIfNeeded(
           ch,
           "onAttachedToRootStore",
-          SpecialAction.OnAttachedToRootStore
+          HookAction.OnAttachedToRootStore
         )
 
         const disposer = ch.onAttachedToRootStore(rootStore)
         if (disposer) {
           // wrap disposer in action
           const disposerAction = wrapInAction(
-            SpecialAction.OnAttachedToRootStoreDisposer,
+            HookAction.OnAttachedToRootStoreDisposer,
             disposer,
             ActionContextActionType.Sync
           )

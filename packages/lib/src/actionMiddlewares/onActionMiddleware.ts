@@ -1,12 +1,12 @@
 import { isObservable, toJS } from "mobx"
 import { ActionCall } from "../action/applyAction"
 import { ActionContext } from "../action/context"
+import { isHookAction } from "../action/hookActions"
 import {
   ActionMiddleware,
   ActionMiddlewareDisposer,
   addActionMiddleware,
 } from "../action/middleware"
-import { isHookAction } from "../action/specialActions"
 import { AnyModel } from "../model/Model"
 import { assertIsModel } from "../model/utils"
 import { getRootPath } from "../parent/path"

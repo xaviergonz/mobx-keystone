@@ -1,7 +1,7 @@
 import produce from "immer"
 import nanoid from "nanoid/non-secure"
 import { Omit, Writable } from "ts-essentials"
-import { SpecialAction } from "../action"
+import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
@@ -225,7 +225,7 @@ export function internalNewModel<M extends AnyModel>(
 
   // the object is ready
   if (modelObj.onInit) {
-    wrapModelMethodInActionIfNeeded(modelObj, "onInit", SpecialAction.OnInit)
+    wrapModelMethodInActionIfNeeded(modelObj, "onInit", HookAction.OnInit)
 
     modelObj.onInit()
   }
