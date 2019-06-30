@@ -1,7 +1,7 @@
 import { computed, when } from "mobx"
 import { AnyModel, Model, ModelCreationData, newModel } from "../model/Model"
 import { model } from "../model/modelDecorator"
-import { getRootIdCache } from "../parent/core"
+import { resolveReferenceId } from "../parent/core"
 import { detach } from "../parent/detach"
 import { getRoot } from "../parent/path"
 import { failure } from "../utils"
@@ -35,7 +35,7 @@ export class Ref<T extends AnyModel> extends Model<{ id: string; autoDetach: boo
    */
   @computed
   get maybeCurrent(): T | undefined {
-    return getRootIdCache(getRoot(this)).get(this.id) as T | undefined
+    return resolveReferenceId(getRoot(this), this.id)
   }
 
   /**
@@ -85,7 +85,10 @@ export class Ref<T extends AnyModel> extends Model<{ id: string; autoDetach: boo
 
 /**
  * Creates a ref to a model object, which in its snapshot form points to the unique ID of the model instance.
- * TODO: explain autoDetach option
+ *
+ * The `autoDetach` option, when set to true (default is false), allows the reference to auto-detach itself
+ * from its parent (using `detach`) as soon as it becomes invalid while being attached to a root store.
+ * Note that for the option to work the root object must be registered as a root store using `registerAsRootStore`.
  *
  * @typeparam T Referenced object type.
  * @param current Target model instance.

@@ -1,4 +1,7 @@
-import { isObservableArray, isObservableObject, untracked } from "mobx"
+import { isObservableArray, isObservableObject } from "mobx"
+import { ActionContextActionType } from "../action/context"
+import { SpecialAction } from "../action/specialActions"
+import { wrapInAction } from "../action/wrapInAction"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { getParentPath } from "./path"
@@ -12,21 +15,29 @@ import { getParentPath } from "./path"
  * @param value Object to be detached.
  */
 export function detach(value: object): void {
-  // untracked because it shouldn't track, but it should be inside
-  // an action
-  untracked(() => {
-    assertTweakedObject(value, "detach")
+  assertTweakedObject(value, "detach")
 
-    const parentPath = getParentPath(value)
-    if (!parentPath) return
+  wrappedInternalDetach.call(value)
+}
 
-    const { parent, path } = parentPath
-    if (isObservableArray(parent)) {
-      parent.splice(+path, 1)
-    } else if (isObservableObject(parent)) {
-      ;(parent as any)[path] = undefined
-    } else {
-      throw failure("parent must be an observable object or an observable array")
-    }
-  })
+const wrappedInternalDetach = wrapInAction(
+  SpecialAction.Detach,
+  internalDetach,
+  ActionContextActionType.Sync
+)
+
+function internalDetach(this: object): void {
+  const value = this
+
+  const parentPath = getParentPath(value)
+  if (!parentPath) return
+
+  const { parent, path } = parentPath
+  if (isObservableArray(parent)) {
+    parent.splice(+path, 1)
+  } else if (isObservableObject(parent)) {
+    ;(parent as any)[path] = undefined
+  } else {
+    throw failure("parent must be an observable object or an observable array")
+  }
 }

@@ -1,5 +1,6 @@
 import { AnyModel } from "../model/Model"
 import { assertIsModel } from "../model/utils"
+import { detach } from "../parent/detach"
 import { resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
@@ -52,6 +53,9 @@ function internalApplyAction(this: AnyModel, call: ActionCall) {
 
     case SpecialAction.ApplyAction:
       return applyAction.apply(current, [current, ...call.args] as any)
+
+    case SpecialAction.Detach:
+      return detach.apply(current, [current, ...call.args] as any)
 
     default:
       break

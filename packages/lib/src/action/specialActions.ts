@@ -15,6 +15,10 @@ export enum SpecialAction {
    */
   ApplySnapshot = "$$applySnapshot",
   /**
+   * detach
+   */
+  Detach = "$$detach",
+  /**
    * onInit hook
    */
   OnInit = "$$onInit",
@@ -33,6 +37,7 @@ export enum SpecialAction {
  * - applyPatches()
  * - applyAction()
  * - applySnapshot()
+ * - detach()
  * - onInit() hook
  * - onAttachedToRootStore() hook
  * - disposer returned by a onAttachedToRootStore() hook
