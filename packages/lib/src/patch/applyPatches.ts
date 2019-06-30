@@ -1,5 +1,5 @@
+import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
-import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
 import { Model } from "../model/Model"
 import { Patch } from "../patch/Patch"
@@ -27,7 +27,7 @@ function internalApplyPatches(this: object, patches: Patch[]): void {
 }
 
 const wrappedInternalApplyPatches = wrapInAction(
-  SpecialAction.ApplyPatches,
+  BuiltInAction.ApplyPatches,
   internalApplyPatches,
   ActionContextActionType.Sync
 )

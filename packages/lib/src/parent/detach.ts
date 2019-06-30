@@ -1,6 +1,6 @@
 import { isObservableArray, isObservableObject } from "mobx"
+import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
-import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
@@ -21,7 +21,7 @@ export function detach(value: object): void {
 }
 
 const wrappedInternalDetach = wrapInAction(
-  SpecialAction.Detach,
+  BuiltInAction.Detach,
   internalDetach,
   ActionContextActionType.Sync
 )

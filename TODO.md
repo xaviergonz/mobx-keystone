@@ -4,14 +4,14 @@
 
 - (5) action recorder abstraction?
 
-- (8) clear place to put effects and the like
+- (8) clear place to put effects and the like?
 
 - (6) should we add something to distinguish actions run as apply (from those who are not) in mwares? (applySnapshot, applyAction, applyPatches)
 - in theory the user could use the filter function + isSpecialAction
 
 - middlewares: (5) redux mware...
 
-- refs? done, but need to document that saferefs only work properly when the ref is under a rootstore and the typing gotchas
+- (4) custom refs? cross tree refs?
 
 - (4) does subclassing work? apparently it does with small gotchas
 

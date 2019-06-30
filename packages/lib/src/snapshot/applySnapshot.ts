@@ -1,6 +1,6 @@
 import { isObservableObject } from "mobx"
+import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
-import { SpecialAction } from "../action/specialActions"
 import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
 import { modelMetadataKey } from "../model/metadata"
@@ -79,7 +79,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
 }
 
 const wrappedInternalApplySnapshot = wrapInAction(
-  SpecialAction.ApplySnapshot,
+  BuiltInAction.ApplySnapshot,
   internalApplySnapshot,
   ActionContextActionType.Sync
 )
