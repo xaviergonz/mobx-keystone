@@ -20,7 +20,8 @@ Since the structure is a tree, this means these tree rules apply:
 
 1. A non-primitive (object) node can have zero or one parent.
 2. A non-primitive (object) node can have zero to infinite children.
-3. Primitive nodes are always copied by value (as usual in Javascript), so none of the rules above apply.
+3. From rule 1 and 2 we can extract that a same non-primitve node can only be in a single tree and only once.
+4. Primitive nodes are always copied by value (as usual in Javascript), so none of the rules above apply.
 
 As an example of rule 1, this would not be allowed:
 
@@ -34,7 +35,7 @@ someModel.setArray(someArray)
 someOtherModel.setArray(someArray)
 ```
 
-But as rule 3 states, this would be ok:
+But as rule 4 states, this would be ok:
 
 ```ts
 const someModel,
