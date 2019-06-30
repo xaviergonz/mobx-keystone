@@ -66,5 +66,5 @@ registerRootStore(todoList)
 
 `autoDetach` will work differently depending on the reference container:
 
-- Model/object property: the property will become undefined.
-- Array item: the array item will be removed.
+- Model/object property: the property will become undefined (therefore remember to type the property as optional in Typescript).
+- Array item: the array item will be removed (therefore no need to type the array items as possibly undefined in Typescript).
