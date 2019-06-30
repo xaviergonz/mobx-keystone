@@ -29,7 +29,7 @@ export class Ref<T extends AnyModel> extends Model<{ id: string; autoDetach: boo
   }
 
   /**
-   * Returns the model this reference points to, or undefined if it could not be found in the same tree.
+   * The model this reference points to, or undefined if it could not be found in the same tree.
    *
    * @readonly
    */
@@ -39,7 +39,7 @@ export class Ref<T extends AnyModel> extends Model<{ id: string; autoDetach: boo
   }
 
   /**
-   * Returns if the reference is valid, this is, if the referenced model object is not part of the same
+   * If the reference is valid, this is, if the referenced model object is not part of the same
    * tree than the reference.
    *
    * @readonly
@@ -50,7 +50,7 @@ export class Ref<T extends AnyModel> extends Model<{ id: string; autoDetach: boo
   }
 
   /**
-   * Returns the model this reference points to, or throws if it could not be found in the same tree.
+   * The model this reference points to, or throws if it could not be found in the same tree.
    *
    * @readonly
    */
