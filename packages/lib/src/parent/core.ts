@@ -31,6 +31,26 @@ export function getRootIdCache(root: object): ObservableMap<string, AnyModel> {
   return cache
 }
 
+/**
+ * Resolves a reference id of a model inside a given tree.
+ *
+ * @typename M Model type.
+ * @param root Root node object.
+ * @param id Id to resolve.
+ * @returns The resolved model or undefined if not found.
+ */
+export function resolveReferenceId<M extends AnyModel>(root: object, id: string): M | undefined {
+  let cache = rootIdCaches.get(root)
+  if (!cache) {
+    return undefined
+  }
+  const model = cache.get(id)
+  return model as M | undefined
+}
+
+/**
+ * @ignore
+ */
 export function parentPathEquals(
   p1: ParentPath<any> | undefined,
   p2: ParentPath<any> | undefined,

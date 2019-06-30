@@ -1,3 +1,4 @@
+import { action } from "mobx"
 import {
   addActionMiddleware,
   applyAction,
@@ -25,10 +26,12 @@ export class P2 extends Model<{ y: number }> {
 }
 
 @model("P")
-export class P extends Model<{ p2: P2; x: number }> {
+export class P extends Model<{ p2: P2; x: number; arr: number[]; obj: { [k: string]: number } }> {
   defaultData = {
     p2: newModel(P2, {}),
     x: 0,
+    arr: [],
+    obj: {},
   }
 
   @modelAction
@@ -42,6 +45,12 @@ export class P extends Model<{ p2: P2; x: number }> {
     this.addX(n1)
     this.data.p2.addY(n2)
     return n1 + n2
+  }
+
+  @modelAction
+  addNumberToArrAndObj(n: number) {
+    this.data.arr.push(n)
+    this.data.obj["" + n] = n
   }
 }
 
@@ -89,6 +98,8 @@ test("action tracking", () => {
               "type": "P",
             },
             "data": Object {
+              "arr": Array [],
+              "obj": Object {},
               "p2": P2 {
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
@@ -120,6 +131,8 @@ test("action tracking", () => {
               "type": "P",
             },
             "data": Object {
+              "arr": Array [],
+              "obj": Object {},
               "p2": P2 {
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
@@ -144,54 +157,54 @@ test("action tracking", () => {
   const resultY = p.data.p2.addY(2)
   expect(resultY).toBe(2)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
-          "actionName": "addY",
-          "args": Array [
-            2,
-          ],
-          "data": Object {},
-          "parentContext": undefined,
-          "rootContext": [Circular],
-          "target": P2 {
-            "$$metadata": Object {
-              "id": "mockedUuid-1",
-              "type": "P2",
+        Array [
+          Object {
+            "ctx": Object {
+              "actionName": "addY",
+              "args": Array [
+                2,
+              ],
+              "data": Object {},
+              "parentContext": undefined,
+              "rootContext": [Circular],
+              "target": P2 {
+                "$$metadata": Object {
+                  "id": "mockedUuid-1",
+                  "type": "P2",
+                },
+                "data": Object {
+                  "y": 2,
+                },
+              },
+              "type": "sync",
             },
-            "data": Object {
-              "y": 2,
-            },
+            "event": "action started",
           },
-          "type": "sync",
-        },
-        "event": "action started",
-      },
-      Object {
-        "ctx": Object {
-          "actionName": "addY",
-          "args": Array [
-            2,
-          ],
-          "data": Object {},
-          "parentContext": undefined,
-          "rootContext": [Circular],
-          "target": P2 {
-            "$$metadata": Object {
-              "id": "mockedUuid-1",
-              "type": "P2",
+          Object {
+            "ctx": Object {
+              "actionName": "addY",
+              "args": Array [
+                2,
+              ],
+              "data": Object {},
+              "parentContext": undefined,
+              "rootContext": [Circular],
+              "target": P2 {
+                "$$metadata": Object {
+                  "id": "mockedUuid-1",
+                  "type": "P2",
+                },
+                "data": Object {
+                  "y": 2,
+                },
+              },
+              "type": "sync",
             },
-            "data": Object {
-              "y": 2,
-            },
+            "event": "action finished",
+            "result": 2,
           },
-          "type": "sync",
-        },
-        "event": "action finished",
-        "result": 2,
-      },
-    ]
-  `)
+        ]
+    `)
   events.length = 0
 
   const resultXY = p.addXY(1, 2)
@@ -214,6 +227,8 @@ test("action tracking", () => {
               "type": "P",
             },
             "data": Object {
+              "arr": Array [],
+              "obj": Object {},
               "p2": P2 {
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
@@ -252,6 +267,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -281,6 +298,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -301,6 +320,8 @@ test("action tracking", () => {
               "type": "P",
             },
             "data": Object {
+              "arr": Array [],
+              "obj": Object {},
               "p2": P2 {
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
@@ -339,6 +360,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -368,6 +391,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -388,6 +413,8 @@ test("action tracking", () => {
               "type": "P",
             },
             "data": Object {
+              "arr": Array [],
+              "obj": Object {},
               "p2": P2 {
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
@@ -427,6 +454,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -456,6 +485,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -505,6 +536,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -534,6 +567,8 @@ test("action tracking", () => {
                 "type": "P",
               },
               "data": Object {
+                "arr": Array [],
+                "obj": Object {},
                 "p2": P2 {
                   "$$metadata": Object {
                     "id": "mockedUuid-1",
@@ -578,6 +613,8 @@ test("action tracking", () => {
               "type": "P",
             },
             "data": Object {
+              "arr": Array [],
+              "obj": Object {},
               "p2": P2 {
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
@@ -688,4 +725,44 @@ test("applyAction", () => {
     })
     expect(pa.data.p2.data.y).toStrictEqual(pb.data.p2.data.y)
   }
+})
+
+test("action protection", () => {
+  const p = newModel(P, {})
+
+  const err = "data changes must be performed inside model actions"
+
+  expect(() => {
+    p.data.x = 100
+  }).toThrow(err)
+
+  expect(() => {
+    p.data.p2.data.y = 100
+  }).toThrow(err)
+
+  expect(
+    action(() => {
+      p.data.arr.push(100)
+    })
+  ).toThrow(err)
+
+  expect(
+    action(() => {
+      p.data.obj["a"] = 100
+    })
+  ).toThrow(err)
+
+  p.addNumberToArrAndObj(200)
+
+  expect(
+    action(() => {
+      p.data.arr.splice(0, 1)
+    })
+  ).toThrow(err)
+
+  expect(
+    action(() => {
+      delete p.data.obj["200"]
+    })
+  ).toThrow(err)
 })
