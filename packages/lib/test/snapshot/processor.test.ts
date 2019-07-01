@@ -1,4 +1,4 @@
-import { fromSnapshot, model, Model, modelMetadataKey } from "../../src"
+import { fromSnapshot, model, Model, modelSnapshotWithMetadata } from "../../src"
 import "../commonSetup"
 
 @model("P3")
@@ -15,13 +15,15 @@ export class P3 extends Model<{ arr: number[] }> {
 }
 
 test("snapshot processor", () => {
-  const p = fromSnapshot<P3>({
-    [modelMetadataKey]: {
-      type: "P3",
-      id: "P3-id",
-    },
-    y: "30,40,50",
-  })
+  const p = fromSnapshot<P3>(
+    modelSnapshotWithMetadata(
+      P3,
+      {
+        y: "30,40,50",
+      },
+      "P3-id"
+    )
+  )
 
   expect(p.data.arr).toStrictEqual([30, 40, 50])
   expect(p.modelId).toBe("P3-id")

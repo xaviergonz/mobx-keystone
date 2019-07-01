@@ -1,6 +1,6 @@
-import { applyPatches, getSnapshot, modelMetadataKey, runUnprotected } from "../../src"
+import { applyPatches, getSnapshot, modelSnapshotWithMetadata, runUnprotected } from "../../src"
 import "../commonSetup"
-import { createP } from "../testbed"
+import { createP, P2 } from "../testbed"
 
 let p = createP(true)
 beforeEach(() => {
@@ -141,14 +141,7 @@ describe("whole object", () => {
         {
           op: "replace",
           path: ["p2"],
-          value: {
-            ...oldP2Snapshot,
-            y: 30,
-            [modelMetadataKey]: {
-              ...oldP2Snapshot[modelMetadataKey],
-              id: "someOtherId",
-            },
-          },
+          value: modelSnapshotWithMetadata(P2, { ...oldP2Snapshot, y: 30 }, "someOtherId"),
         },
       ])
     })
