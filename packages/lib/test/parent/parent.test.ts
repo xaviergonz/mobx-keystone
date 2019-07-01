@@ -9,7 +9,7 @@ import {
   isParentOfChild,
   model,
   Model,
-  modelMetadataKey,
+  modelSnapshotWithMetadata,
   runUnprotected,
 } from "../../src"
 import "../commonSetup"
@@ -30,42 +30,20 @@ export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }> {
 }
 
 test("parent", () => {
-  const p = fromSnapshot<P>({
-    [modelMetadataKey]: {
-      type: "P",
-      id: "P-id",
-    },
-    arr: [
+  const p = fromSnapshot<P>(
+    modelSnapshotWithMetadata(
+      P,
       {
-        [modelMetadataKey]: {
-          type: "P2",
-          id: "P2-id1",
-        },
-        y: 1,
+        arr: [
+          modelSnapshotWithMetadata(P2, { y: 1 }, "P2-id1"),
+          modelSnapshotWithMetadata(P2, { y: 2 }, "P2-id2"),
+          modelSnapshotWithMetadata(P2, { y: 3 }, "P2-id3"),
+        ],
+        p2: modelSnapshotWithMetadata(P2, { y: 12 }, "P2-idout"),
       },
-      {
-        [modelMetadataKey]: {
-          type: "P2",
-          id: "P2-id2",
-        },
-        y: 2,
-      },
-      {
-        [modelMetadataKey]: {
-          type: "P2",
-          id: "P2-id3",
-        },
-        y: 3,
-      },
-    ],
-    p2: {
-      [modelMetadataKey]: {
-        type: "P2",
-        id: "P-idout",
-      },
-      y: 12,
-    },
-  })
+      "P-id"
+    )
+  )
 
   expect(p instanceof P).toBeTruthy()
 

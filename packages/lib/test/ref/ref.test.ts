@@ -4,7 +4,7 @@ import {
   model,
   Model,
   modelAction,
-  modelMetadataKey,
+  modelSnapshotWithMetadata,
   newModel,
   Ref,
   ref,
@@ -112,45 +112,39 @@ test("ref", () => {
 test("ref loaded from a snapshot", () => {
   // we use two snapshots to ensure duplicated ids work when they are on different trees
 
-  const p = fromSnapshot<P>({
-    [modelMetadataKey]: {
-      type: "P",
-      id: "P-1",
-    },
-    p2: {
-      [modelMetadataKey]: {
-        type: "P2",
-        id: "P2-1",
+  const p = fromSnapshot<P>(
+    modelSnapshotWithMetadata(
+      P,
+      {
+        p2: modelSnapshotWithMetadata(P2, {}, "P2-1"),
+        r: modelSnapshotWithMetadata(
+          Ref,
+          {
+            id: "P2-1",
+          },
+          "Ref-1"
+        ),
       },
-    },
-    r: {
-      [modelMetadataKey]: {
-        type: "$$Ref",
-        id: "Ref-1",
-      },
-      id: "P2-1",
-    },
-  })
+      "P-1"
+    )
+  )
 
-  const pp = fromSnapshot<P>({
-    [modelMetadataKey]: {
-      type: "P",
-      id: "P-1",
-    },
-    p2: {
-      [modelMetadataKey]: {
-        type: "P2",
-        id: "P2-1",
+  const pp = fromSnapshot<P>(
+    modelSnapshotWithMetadata(
+      P,
+      {
+        p2: modelSnapshotWithMetadata(P2, {}, "P2-1"),
+        r: modelSnapshotWithMetadata(
+          Ref,
+          {
+            id: "P2-1",
+          },
+          "Ref-1"
+        ),
       },
-    },
-    r: {
-      [modelMetadataKey]: {
-        type: "$$Ref",
-        id: "Ref-1",
-      },
-      id: "P2-1",
-    },
-  })
+      "P-1"
+    )
+  )
 
   const r = p.data.r!
   expect(r).toBeDefined()
@@ -166,25 +160,22 @@ test("ref loaded from a snapshot", () => {
 })
 
 test("ref loaded from a broken snapshot", () => {
-  const p = fromSnapshot<P>({
-    [modelMetadataKey]: {
-      type: "P",
-      id: "P-1",
-    },
-    p2: {
-      [modelMetadataKey]: {
-        type: "P2",
-        id: "P2-1",
+  const p = fromSnapshot<P>(
+    modelSnapshotWithMetadata(
+      P,
+      {
+        p2: modelSnapshotWithMetadata(P2, {}, "P2-1"),
+        r: modelSnapshotWithMetadata(
+          Ref,
+          {
+            id: "P2-2",
+          },
+          "Ref-1"
+        ),
       },
-    },
-    r: {
-      [modelMetadataKey]: {
-        type: "$$Ref",
-        id: "Ref-1",
-      },
-      id: "P2-2",
-    },
-  })
+      "P-1"
+    )
+  )
 
   const r = p.data.r!
   expect(r).toBeDefined()

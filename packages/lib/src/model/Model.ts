@@ -4,6 +4,7 @@ import { Omit, Writable } from "ts-essentials"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { InternalPatchRecorder } from "../patch/emitPatch"
+import { SnapshotInOfModel } from "../snapshot"
 import {
   getInternalSnapshot,
   linkInternalSnapshot,
@@ -250,4 +251,32 @@ export function addModelClassInitializer(
     modelClassInitializers.set(modelClass, initializers)
   }
   initializers.push(init)
+}
+
+/**
+ * Add missing model metadata to a model creation snapshot to generate a proper model snapshot.
+ *
+ * @typeparam M Model type.
+ * @param modelClass Model class.
+ * @param snapshot Model creation snapshot without metadata.
+ * @param [id] Optional model id, if not provided a new one will be generated.
+ * @returns The model snapshot (including metadata).
+ */
+export function modelSnapshotWithMetadata<M extends AnyModel>(
+  modelClass: ModelClass<M>,
+  snapshot: Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
+  id?: string
+): SnapshotInOfModel<M> {
+  assertIsModelClass(modelClass, "modelClass")
+  assertIsObject(snapshot, "initialData")
+
+  const modelInfo = modelInfoByClass.get(modelClass)!
+
+  return {
+    ...snapshot,
+    [modelMetadataKey]: {
+      id: id || nanoid(),
+      type: modelInfo.name,
+    },
+  } as any
 }

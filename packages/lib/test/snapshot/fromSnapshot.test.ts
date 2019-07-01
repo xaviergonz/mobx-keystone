@@ -1,23 +1,25 @@
 import { isObservable } from "mobx"
-import { fromSnapshot, modelMetadataKey } from "../../src"
+import { fromSnapshot, modelSnapshotWithMetadata } from "../../src"
 import "../commonSetup"
 import { P, P2 } from "../testbed"
 
 test("fromSnapshot", () => {
-  const p = fromSnapshot<P>({
-    [modelMetadataKey]: {
-      type: "P",
-      id: "P-id",
-    },
-    arr: [1, 2, 3],
-    p2: {
-      [modelMetadataKey]: {
-        type: "P2",
-        id: "P2-id",
+  const p = fromSnapshot<P>(
+    modelSnapshotWithMetadata(
+      P,
+      {
+        arr: [1, 2, 3],
+        p2: modelSnapshotWithMetadata(
+          P2,
+          {
+            y: 12,
+          },
+          "P2-id"
+        ),
       },
-      y: 12,
-    },
-  })
+      "P-id"
+    )
+  )
 
   expect(p).toMatchInlineSnapshot(`
     P {
