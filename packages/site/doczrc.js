@@ -7,6 +7,7 @@ export default {
   codeSandbox: false,
   menu: [
     "Introduction",
+    "Comparison with mobx-state-tree",
     "Models",
     "Tree-Like Structure",
     "Root Stores",
