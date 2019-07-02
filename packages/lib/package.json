@@ -23,31 +23,18 @@
     "start": "tsdx watch",
     "build": "shx cp ../../README.md . && tsdx build",
     "test": "tsdx test",
+    "test:perf": "yarn build && cd perf_test && /usr/bin/time ts-node ./report.ts",
     "build-docs": "shx rm -rf ../site/src/public/api && typedoc --options ./typedocconfig.js"
   },
   "peerDependencies": {
     "mobx": "^5.9.4"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
-    }
-  },
-  "prettier": {
-    "printWidth": 100,
-    "semi": false,
-    "singleQuote": false,
-    "trailingComma": "es5"
-  },
   "devDependencies": {
     "@types/jest": "^24.0.12",
     "@types/nanoid": "^2.0.0",
-    "husky": "^2.2.0",
-    "lerna": "^3.0.5",
     "mobx": "^5.9.4",
-    "prettier": "^1.17.0",
-    "pretty-quick": "^1.10.0",
     "shx": "^0.3.2",
+    "ts-node": "^8.3.0",
     "tsdx": "^0.7.1",
     "typedoc": "^0.14.2",
     "typescript": "^3.5.1"
