@@ -1,6 +1,6 @@
 import { produce } from "immer"
 import {
-  entries,
+  action,
   IArrayChange,
   IArraySplice,
   IArrayWillChange,
@@ -9,11 +9,11 @@ import {
   IObjectDidChange,
   IObjectWillChange,
   IObservableArray,
-  isObservable,
   isObservableArray,
   isObservableObject,
   observable,
   observe,
+  set,
 } from "mobx"
 import { getCurrentActionContext } from "../action/context"
 import { getActionProtection } from "../action/protection"
@@ -23,7 +23,7 @@ import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
-import { failure, isMap, isObject, isPrimitive, isSet } from "../utils"
+import { failure, isMap, isObject, isPlainObject, isPrimitive, isSet } from "../utils"
 import { isTreeNode, isTweakedObject, tweakedObjects } from "./core"
 
 /**
@@ -48,8 +48,13 @@ export function toTreeNode<T extends object>(value: T): T {
 /**
  * @ignore
  */
-export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
+function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (isPrimitive(value)) {
+    return value
+  }
+
+  if (isTweakedObject(value)) {
+    setParent(value, parentPath)
     return value
   }
 
@@ -58,13 +63,9 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
     throw failure("maps are not supported")
   }
 
+  // unsupported
   if (isSet(value)) {
     throw failure("sets are not supported")
-  }
-
-  if (isTweakedObject(value)) {
-    setParent(value, parentPath)
-    return value
   }
 
   if ((value as any) instanceof Frozen) {
@@ -89,56 +90,57 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
     return value
   }
 
-  // make sure it is an observable first (if not a model)
-  if (!isObservable(value)) {
-    value = observable(value)
-  }
+  if (Array.isArray(value) || isObservableArray(value)) {
+    const originalArr: ReadonlyArray<any> = value
+    const arrLn = originalArr.length
+    const tweakedArr = isObservableArray(originalArr) ? originalArr : observable.array()
+    if (tweakedArr !== originalArr) {
+      tweakedArr.length = originalArr.length
+    }
 
-  if (isObservableArray(value)) {
-    tweakedObjects.add(value)
-    setParent(value, parentPath)
+    tweakedObjects.add(tweakedArr)
+    setParent(tweakedArr, parentPath)
 
     const standardSn: any[] = []
+    standardSn.length = arrLn
 
     // substitute initial values by proxied values
-    const arr = value as IObservableArray
-    for (let i = 0; i < arr.length; i++) {
-      const currentValue = arr[i]
-      const tweakedValue = tweak(currentValue, { parent: arr, path: "" + i })
-      if (currentValue !== tweakedValue) {
-        arr[i] = tweakedValue
-      }
+    for (let i = 0; i < arrLn; i++) {
+      const currentValue = originalArr[i]
+      const tweakedValue = tweak(currentValue, { parent: tweakedArr, path: "" + i })
+      set(tweakedArr, i, tweakedValue)
 
       const valueSn = getInternalSnapshot(tweakedValue)
       if (valueSn) {
-        standardSn.push(valueSn.standard)
+        standardSn[i] = valueSn.standard
       } else {
         // must be a primitive
-        standardSn.push(tweakedValue)
+        standardSn[i] = tweakedValue
       }
     }
 
-    setInternalSnapshot(value, standardSn, undefined)
+    setInternalSnapshot(tweakedArr, standardSn, undefined)
 
-    intercept(value, interceptArrayMutation.bind(undefined, value))
-    observe(value, arrayDidChange)
+    intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
+    observe(tweakedArr, arrayDidChange)
 
-    return value
+    return tweakedArr as any
   }
 
   // plain object
-  if (isObservableObject(value)) {
-    tweakedObjects.add(value)
-    setParent(value, parentPath)
+  if (isObservableObject(value) || isPlainObject(value)) {
+    const originalObj: { [k: string]: any } = value
+    const tweakedObj = isObservableObject(originalObj) ? originalObj : observable.object({})
+
+    tweakedObjects.add(tweakedObj)
+    setParent(tweakedObj, parentPath)
 
     const standardSn: any = {}
 
     // substitute initial values by tweaked values
-    for (const [k, v] of entries(value)) {
-      const tweakedValue = tweak(v, { parent: value, path: k })
-      if (v !== tweakedValue) {
-        ;(value as any)[k] = tweakedValue
-      }
+    for (const [k, v] of Object.entries(originalObj)) {
+      const tweakedValue = tweak(v, { parent: tweakedObj, path: k })
+      set(tweakedObj, k, tweakedValue)
 
       const valueSn = getInternalSnapshot(tweakedValue)
       if (valueSn) {
@@ -149,18 +151,23 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
       }
     }
 
-    setInternalSnapshot(value, standardSn, undefined)
+    setInternalSnapshot(tweakedObj, standardSn, undefined)
 
-    intercept(value, interceptObjectMutation)
-    observe(value, objectDidChange)
+    intercept(tweakedObj, interceptObjectMutation)
+    observe(tweakedObj, objectDidChange)
 
-    return value
+    return tweakedObj as any
   }
 
   throw failure(
     `tweak can only work over models, observable objects/arrays, or primitives, but got ${value} instead`
   )
 }
+
+/***
+ * @ignore
+ */
+export const tweak = action("tweak", internalTweak)
 
 function objectDidChange(change: IObjectDidChange): void {
   let { standard: standardSn } = getInternalSnapshot(change.object)!

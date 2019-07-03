@@ -23,7 +23,7 @@
     "jsx": "react",
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": false,
     "downlevelIteration": true
   }
 }
