@@ -74,7 +74,13 @@ function internalFromSnapshot<T>(sn: SnapshotInOf<T>): T {
 }
 
 function fromArraySnapshot(sn: SnapshotInOfArray<any>): any[] {
-  return sn.map(v => internalFromSnapshot(v))
+  const ln = sn.length
+  const arr = []
+  arr.length = ln
+  for (let i = 0; i < ln; i++) {
+    arr[i] = internalFromSnapshot(sn[i])
+  }
+  return arr
 }
 
 function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
