@@ -181,11 +181,7 @@ function internalTweak<T>(
 /***
  * @ignore
  */
-export const tweak: <T>(
-  value: T,
-  parentPath: ParentPath<any> | undefined,
-  snapshotModelMetadata?: ModelMetadata
-) => T = action("tweak", internalTweak)
+export const tweak = action("tweak", internalTweak)
 
 function objectDidChange(change: IObjectDidChange): void {
   let { standard: standardSn } = getInternalSnapshot(change.object)!

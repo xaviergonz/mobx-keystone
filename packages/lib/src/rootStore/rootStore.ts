@@ -17,7 +17,7 @@ const rootStores = new WeakSet<object>()
  * @param model Model object.
  * @returns The same model object that was passed.
  */
-export const registerRootStore: <T extends object>(object: T) => T = action(
+export const registerRootStore = action(
   "registerRootStore",
   <T extends object>(object: T): T => {
     assertTweakedObject(object, "a root store")
@@ -43,18 +43,15 @@ export const registerRootStore: <T extends object>(object: T) => T = action(
  *
  * @param model Model object.
  */
-export const unregisterRootStore: (object: object) => void = action(
-  "unregisterRootStore",
-  (object: object): void => {
-    if (!isRootStore(object)) {
-      throw failure("not a root store")
-    }
-
-    rootStores.delete(object)
-
-    detachFromRootStore(object)
+export const unregisterRootStore = action("unregisterRootStore", (object: object): void => {
+  if (!isRootStore(object)) {
+    throw failure("not a root store")
   }
-)
+
+  rootStores.delete(object)
+
+  detachFromRootStore(object)
+})
 
 /**
  * Checks if a given object is marked as a root store.
