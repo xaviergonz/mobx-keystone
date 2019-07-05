@@ -1,15 +1,9 @@
-import produce from "immer"
 import nanoid from "nanoid/non-secure"
 import { Omit, Writable } from "ts-essentials"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { InternalPatchRecorder } from "../patch/emitPatch"
 import { SnapshotInOfModel } from "../snapshot"
-import {
-  getInternalSnapshot,
-  linkInternalSnapshot,
-  setInternalSnapshot,
-} from "../snapshot/internal"
+import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
 import { tweak } from "../tweaker/tweak"
 import { assertIsObject, failure, makePropReadonly } from "../utils"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
@@ -201,21 +195,11 @@ export function internalNewModel<M extends AnyModel>(
   tweak(modelObj, undefined)
 
   // create observable data object with initial data
-  let obsData = tweak(initialData, { parent: modelObj, path: "data" })
+  let obsData = tweak(initialData, { parent: modelObj, path: "data" }, modelObj[modelMetadataKey])
   const newSn = getInternalSnapshot(obsData as any)!
-  const patchRecorder = new InternalPatchRecorder()
-
-  const standard = produce(
-    newSn.standard,
-    (draftStandard: any) => {
-      draftStandard[modelMetadataKey] = modelObj[modelMetadataKey]
-    },
-    patchRecorder.record
-  )
 
   // make the model use the inner data field snapshot
   linkInternalSnapshot(modelObj, newSn)
-  setInternalSnapshot(obsData, standard, patchRecorder)
 
   // link it, and make it readonly
   modelObj.data = obsData

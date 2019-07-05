@@ -16,7 +16,7 @@ import { getParentPath, getRoot, ParentPath } from "./path"
 /**
  * @ignore
  */
-export const setParent = action(
+export const setParent: (value: any, parentPath: ParentPath<any> | undefined) => void = action(
   "setParent",
   (value: any, parentPath: ParentPath<any> | undefined): void => {
     if (isPrimitive(value)) {
