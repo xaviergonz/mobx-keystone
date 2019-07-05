@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "esnext"],
     "importHelpers": false,
@@ -19,7 +19,6 @@
     "jsx": "react",
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": false,
-    "downlevelIteration": true
+    "emitDecoratorMetadata": false
   }
 }

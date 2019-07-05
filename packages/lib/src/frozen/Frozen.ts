@@ -67,21 +67,27 @@ function checkDataIsSerializableAndFreeze(data: any) {
   }
 
   if (Array.isArray(data)) {
-    for (const i of data) {
-      if (i === undefined) {
+    const arrLen = data.length
+    for (let i = 0; i < arrLen; i++) {
+      const v = data[i]
+      if (v === undefined) {
         throw failure(
           "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
         )
       }
-      checkDataIsSerializableAndFreeze(i)
+      checkDataIsSerializableAndFreeze(v)
     }
     Object.freeze(data)
     return
   }
 
   if (isPlainObject(data)) {
-    const entries = Object.entries(data)
-    for (const [k, v] of entries) {
+    const dataKeys = Object.keys(data)
+    const dataKeysLen = dataKeys.length
+    for (let i = 0; i < dataKeysLen; i++) {
+      const k = dataKeys[i]
+      const v = data[k]
+
       checkDataIsSerializableAndFreeze(k)
       checkDataIsSerializableAndFreeze(v)
     }

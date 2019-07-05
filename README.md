@@ -51,7 +51,6 @@ This library requires a more or less modern Javascript environment to work, name
 - Proxies
 - Symbols
 - WeakMap/WeakSet
-- Object.entries (this one can be polyfilled)
 
 In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
 

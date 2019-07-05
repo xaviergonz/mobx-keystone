@@ -187,7 +187,7 @@ test("array as rootStore", () => {
   })
 
   expect(isRootStore(arr)).toBeTruthy()
-  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(arr.length).toBe(0)
   expect(getRootStore(arr)).toBe(arr)
   expect(getRootStore(oldP3)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`

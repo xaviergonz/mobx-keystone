@@ -100,8 +100,13 @@ function fixModelSnapshotIds(
       type,
     },
   }
-  for (const [k, v] of Object.entries(sn)) {
+
+  const snKeys = Object.keys(sn)
+  const snKeysLen = snKeys.length
+  for (let i = 0; i < snKeysLen; i++) {
+    const k = snKeys[i]
     if (!isReservedModelKey(k)) {
+      const v = sn[k]
       modelSn[k] = internalFixSnapshotIds(v, ctx)
     }
   }
@@ -118,7 +123,13 @@ function fixPlainObjectSnapshotIds(
   ctx: FixSnapshotIdsContext
 ): object {
   const plainObj: any = {}
-  for (const [k, v] of Object.entries(sn)) {
+
+  const snKeys = Object.keys(sn)
+  const snKeysLen = snKeys.length
+  for (let i = 0; i < snKeysLen; i++) {
+    const k = snKeys[i]
+    const v = sn[k]
+
     plainObj[k] = internalFixSnapshotIds(v, ctx)
   }
   return plainObj

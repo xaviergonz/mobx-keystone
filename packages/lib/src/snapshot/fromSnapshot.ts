@@ -106,8 +106,13 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
 
 function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
   const initialData: any = {}
-  for (const [k, v] of Object.entries(processedSn)) {
+
+  const processedSnKeys = Object.keys(processedSn)
+  const processedSnKeysLen = processedSnKeys.length
+  for (let i = 0; i < processedSnKeysLen; i++) {
+    const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
+      const v = processedSn[k]
       initialData[k] = internalFromSnapshot(v)
     }
   }
@@ -116,7 +121,12 @@ function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
 
 function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
   const plainObj: any = {}
-  for (const [k, v] of Object.entries(sn)) {
+
+  const snKeys = Object.keys(sn)
+  const snKeysLen = snKeys.length
+  for (let i = 0; i < snKeysLen; i++) {
+    const k = snKeys[i]
+    const v = sn[k]
     plainObj[k] = internalFromSnapshot(v)
   }
   return plainObj
