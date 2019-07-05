@@ -188,9 +188,12 @@ export function internalNewModel<M extends AnyModel>(
   // fill in defaults in initial data
   const { defaultData } = modelObj
   if (defaultData) {
-    for (const [k, v] of Object.entries(defaultData as any)) {
-      if (!(k in initialData!)) {
-        ;(initialData as any)[k] = v
+    const defaultDataKeys = Object.keys(defaultData as any)
+    const defaultDataKeysLen = defaultDataKeys.length
+    for (let i = 0; i < defaultDataKeysLen; i++) {
+      const k = defaultDataKeys[i]
+      if ((initialData as any)[k] === undefined) {
+        ;(initialData as any)[k] = defaultData[k]
       }
     }
   }

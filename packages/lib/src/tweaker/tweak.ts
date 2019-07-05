@@ -138,7 +138,12 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
     const standardSn: any = {}
 
     // substitute initial values by tweaked values
-    for (const [k, v] of Object.entries(originalObj)) {
+    const originalObjKeys = Object.keys(originalObj)
+    const originalObjKeysLen = originalObjKeys.length
+    for (let i = 0; i < originalObjKeysLen; i++) {
+      const k = originalObjKeys[i]
+      const v = originalObj[k]
+
       const tweakedValue = tweak(v, { parent: tweakedObj, path: k })
       set(tweakedObj, k, tweakedValue)
 

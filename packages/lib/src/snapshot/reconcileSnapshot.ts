@@ -103,14 +103,23 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
   const data = modelObj.data
 
   // remove excess props
-  const propsToRemove = Object.keys(data).filter(k => !(k in processedSn))
-  propsToRemove.forEach(p => {
-    delete data[p]
-  })
+  const dataKeys = Object.keys(data)
+  const dataKeysLen = dataKeys.length
+  for (let i = 0; i < dataKeysLen; i++) {
+    const k = dataKeys[i]
+    if (!(k in processedSn)) {
+      delete data[k]
+    }
+  }
 
   // reconcile the rest
-  for (const [k, v] of Object.entries(processedSn)) {
+  const processedSnKeys = Object.keys(processedSn)
+  const processedSnKeysLen = processedSnKeys.length
+  for (let i = 0; i < processedSnKeysLen; i++) {
+    const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
+      const v = processedSn[k]
+
       data[k] = reconcileSnapshot(data[k], v)
     }
   }
@@ -128,13 +137,22 @@ function reconcilePlainObjectSnapshot(value: any, sn: SnapshotInOfObject<any>): 
   const plainObj = value
 
   // remove excess props
-  const propsToRemove = Object.keys(plainObj).filter(k => !(k in sn))
-  propsToRemove.forEach(p => {
-    delete plainObj[p]
-  })
+  const plainObjKeys = Object.keys(plainObj)
+  const plainObjKeysLen = plainObjKeys.length
+  for (let i = 0; i < plainObjKeysLen; i++) {
+    const k = plainObjKeys[i]
+    if (!(k in sn)) {
+      delete plainObj[k]
+    }
+  }
 
   // reconcile the rest
-  for (const [k, v] of Object.entries(sn)) {
+  const snKeys = Object.keys(sn)
+  const snKeysLen = snKeys.length
+  for (let i = 0; i < snKeysLen; i++) {
+    const k = snKeys[i]
+    const v = sn[k]
+
     plainObj[k] = reconcileSnapshot(plainObj[k], v)
   }
 

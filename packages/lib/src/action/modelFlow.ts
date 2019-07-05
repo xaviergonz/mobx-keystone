@@ -33,13 +33,17 @@ function flow<R, Args extends any[]>(
       ctxOverride(ActionContextAsyncStepType.Spawn)
     ).apply(self, args as Args)
 
+    // use bound functions to fix es6 compilation
+    const genNext = gen.next.bind(gen)
+    const genThrow = gen.throw!.bind(gen)
+
     const promise = new Promise<R>(function(resolve, reject) {
       function onFulfilled(res: any): void {
         let ret
         try {
           ret = wrapInAction(
             name,
-            gen.next,
+            genNext,
             ActionContextActionType.Async,
             ctxOverride(ActionContextAsyncStepType.Resume)
           ).call(self, res)
@@ -68,7 +72,7 @@ function flow<R, Args extends any[]>(
         try {
           ret = wrapInAction(
             name,
-            gen.throw!,
+            genThrow,
             ActionContextActionType.Async,
             ctxOverride(ActionContextAsyncStepType.ResumeError)
           ).call(self, err)
