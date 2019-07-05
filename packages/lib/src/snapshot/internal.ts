@@ -51,7 +51,11 @@ function getInternalSnapshotParent(
 /**
  * @ignore
  */
-export const setInternalSnapshot = action(
+export const setInternalSnapshot: <T extends object>(
+  value: any,
+  standard: T,
+  patchRecorder: InternalPatchRecorder | undefined
+) => void = action(
   "setInternalSnapshot",
   <T extends object>(
     value: any,

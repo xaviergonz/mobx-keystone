@@ -18,6 +18,7 @@ import {
 import { getCurrentActionContext } from "../action/context"
 import { getActionProtection } from "../action/protection"
 import { Frozen, frozenKey } from "../frozen/Frozen"
+import { ModelMetadata, modelMetadataKey } from "../model/metadata"
 import { getModelInfoForObject } from "../model/modelInfo"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
@@ -48,7 +49,11 @@ export function toTreeNode<T extends object>(value: T): T {
 /**
  * @ignore
  */
-function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
+function internalTweak<T>(
+  value: T,
+  parentPath: ParentPath<any> | undefined,
+  snapshotModelMetadata?: ModelMetadata
+): T {
   if (isPrimitive(value)) {
     return value
   }
@@ -156,6 +161,10 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
       }
     }
 
+    if (snapshotModelMetadata) {
+      standardSn[modelMetadataKey] = snapshotModelMetadata
+    }
+
     setInternalSnapshot(tweakedObj, standardSn, undefined)
 
     intercept(tweakedObj, interceptObjectMutation)
@@ -172,7 +181,11 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 /***
  * @ignore
  */
-export const tweak = action("tweak", internalTweak)
+export const tweak: <T>(
+  value: T,
+  parentPath: ParentPath<any> | undefined,
+  snapshotModelMetadata?: ModelMetadata
+) => T = action("tweak", internalTweak)
 
 function objectDidChange(change: IObjectDidChange): void {
   let { standard: standardSn } = getInternalSnapshot(change.object)!
