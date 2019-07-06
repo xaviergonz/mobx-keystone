@@ -1,8 +1,10 @@
+import { action, observable } from "mobx"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
 import { AnyModel, internalNewModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
+import { tweakArray, tweakPlainObject } from "../tweaker/tweak"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { fixSnapshotIds } from "./fixSnapshotIds"
 import {
@@ -33,13 +35,14 @@ export interface FromSnapshotOptions {
  * @param [options] Options.
  * @returns The deserialized object.
  */
-export function fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T {
+export let fromSnapshot = <T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T => {
   if (options && options.generateNewIds) {
     sn = fixSnapshotIds(sn)
   }
 
   return internalFromSnapshot(sn)
 }
+fromSnapshot = action("fromSnapshot", fromSnapshot) as any
 
 function internalFromSnapshot<T>(sn: SnapshotInOf<T>): T {
   if (isPrimitive(sn)) {
@@ -74,13 +77,12 @@ function internalFromSnapshot<T>(sn: SnapshotInOf<T>): T {
 }
 
 function fromArraySnapshot(sn: SnapshotInOfArray<any>): any[] {
+  const arr = observable.array([] as any[])
   const ln = sn.length
-  const arr = []
-  arr.length = ln
   for (let i = 0; i < ln; i++) {
-    arr[i] = internalFromSnapshot(sn[i])
+    arr.push(internalFromSnapshot(sn[i]))
   }
-  return arr
+  return tweakArray(arr, undefined, true)
 }
 
 function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
@@ -105,7 +107,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
 }
 
 function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
-  const initialData: any = {}
+  const initialData = observable.object({} as any)
 
   const processedSnKeys = Object.keys(processedSn)
   const processedSnKeysLen = processedSnKeys.length
@@ -120,7 +122,7 @@ function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
 }
 
 function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
-  const plainObj: any = {}
+  const plainObj = observable.object({} as any)
 
   const snKeys = Object.keys(sn)
   const snKeysLen = snKeys.length
@@ -129,5 +131,5 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
     const v = sn[k]
     plainObj[k] = internalFromSnapshot(v)
   }
-  return plainObj
+  return tweakPlainObject(plainObj, undefined, undefined, true)
 }

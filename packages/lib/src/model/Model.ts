@@ -1,10 +1,11 @@
+import { action, observable } from "mobx"
 import nanoid from "nanoid/non-secure"
 import { Omit, Writable } from "ts-essentials"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { SnapshotInOfModel } from "../snapshot"
 import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
-import { tweak } from "../tweaker/tweak"
+import { tweakModel, tweakPlainObject } from "../tweaker/tweak"
 import { assertIsObject, failure, makePropReadonly } from "../utils"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
@@ -136,90 +137,98 @@ export function newModel<M extends AnyModel>(
 ): M {
   assertIsObject(initialData, "initialData")
 
-  // we clone the initial data since it will be modified and we don't want to change the original
-  return internalNewModel(modelClass, { ...initialData }, undefined)
+  return internalNewModel(modelClass, observable.object(initialData), undefined)
 }
 
 /**
  * @ignore
  */
-export function internalNewModel<M extends AnyModel>(
-  modelClass: ModelClass<M>,
-  initialData: ModelCreationData<M> | undefined,
-  snapshotInitialData:
-    | {
-        unprocessedSnapshot: any
-        id: string
-        snapshotToInitialData(processedSnapshot: any): any
+export const internalNewModel = action(
+  "newModel",
+  <M extends AnyModel>(
+    modelClass: ModelClass<M>,
+    initialData: ModelCreationData<M> | undefined,
+    snapshotInitialData:
+      | {
+          unprocessedSnapshot: any
+          id: string
+          snapshotToInitialData(processedSnapshot: any): any
+        }
+      | undefined
+  ): M => {
+    assertIsModelClass(modelClass, "modelClass")
+
+    const modelObj = new modelClass(modelConstructorSymbol) as Writable<M>
+
+    // make defaultData non enumerable and readonly
+    makePropReadonly(modelObj, "defaultData", false)
+
+    const modelInfo = modelInfoByClass.get(modelClass)!
+    let id
+    if (snapshotInitialData) {
+      id = snapshotInitialData.id
+      let sn = snapshotInitialData.unprocessedSnapshot
+      if (modelObj.fromSnapshot) {
+        sn = modelObj.fromSnapshot(sn)
       }
-    | undefined
-): M {
-  assertIsModelClass(modelClass, "modelClass")
-
-  const modelObj = new modelClass(modelConstructorSymbol) as Writable<M>
-
-  // make defaultData non enumerable and readonly
-  makePropReadonly(modelObj, "defaultData", false)
-
-  const modelInfo = modelInfoByClass.get(modelClass)!
-  let id
-  if (snapshotInitialData) {
-    id = snapshotInitialData.id
-    let sn = snapshotInitialData.unprocessedSnapshot
-    if (modelObj.fromSnapshot) {
-      sn = modelObj.fromSnapshot(sn)
+      initialData = snapshotInitialData.snapshotToInitialData(sn)
+    } else {
+      id = nanoid()
     }
-    initialData = snapshotInitialData.snapshotToInitialData(sn)
-  } else {
-    id = nanoid()
-  }
 
-  modelObj[modelMetadataKey] = {
-    type: modelInfo.name,
-    id,
-  }
+    modelObj[modelMetadataKey] = {
+      type: modelInfo.name,
+      id,
+    }
 
-  // fill in defaults in initial data
-  const { defaultData } = modelObj
-  if (defaultData) {
-    const defaultDataKeys = Object.keys(defaultData as any)
-    const defaultDataKeysLen = defaultDataKeys.length
-    for (let i = 0; i < defaultDataKeysLen; i++) {
-      const k = defaultDataKeys[i]
-      if ((initialData as any)[k] === undefined) {
-        ;(initialData as any)[k] = defaultData[k]
+    // fill in defaults in initial data
+    const { defaultData } = modelObj
+    if (defaultData) {
+      const defaultDataKeys = Object.keys(defaultData as any)
+      const defaultDataKeysLen = defaultDataKeys.length
+      for (let i = 0; i < defaultDataKeysLen; i++) {
+        const k = defaultDataKeys[i]
+        if ((initialData as any)[k] === undefined) {
+          ;(initialData as any)[k] = defaultData[k]
+        }
       }
     }
+
+    tweakModel(modelObj, undefined)
+
+    // create observable data object with initial data
+
+    let obsData = tweakPlainObject(
+      initialData,
+      { parent: modelObj, path: "data" },
+      modelObj[modelMetadataKey],
+      false
+    )
+    const newSn = getInternalSnapshot(obsData as any)!
+
+    // make the model use the inner data field snapshot
+    linkInternalSnapshot(modelObj, newSn)
+
+    // link it, and make it readonly
+    modelObj.data = obsData
+    makePropReadonly(modelObj, "data", true)
+
+    // run any extra initializers for the class as needed
+    const initializers = modelClassInitializers.get(modelClass)
+    if (initializers) {
+      initializers.forEach(init => init(modelObj))
+    }
+
+    // the object is ready
+    if (modelObj.onInit) {
+      wrapModelMethodInActionIfNeeded(modelObj, "onInit", HookAction.OnInit)
+
+      modelObj.onInit()
+    }
+
+    return modelObj
   }
-
-  tweak(modelObj, undefined)
-
-  // create observable data object with initial data
-  let obsData = tweak(initialData, { parent: modelObj, path: "data" }, modelObj[modelMetadataKey])
-  const newSn = getInternalSnapshot(obsData as any)!
-
-  // make the model use the inner data field snapshot
-  linkInternalSnapshot(modelObj, newSn)
-
-  // link it, and make it readonly
-  modelObj.data = obsData
-  makePropReadonly(modelObj, "data", true)
-
-  // run any extra initializers for the class as needed
-  const initializers = modelClassInitializers.get(modelClass)
-  if (initializers) {
-    initializers.forEach(init => init(modelObj))
-  }
-
-  // the object is ready
-  if (modelObj.onInit) {
-    wrapModelMethodInActionIfNeeded(modelObj, "onInit", HookAction.OnInit)
-
-    modelObj.onInit()
-  }
-
-  return modelObj
-}
+)
 
 type ModelClassInitializer = (modelInstance: AnyModel) => void
 
