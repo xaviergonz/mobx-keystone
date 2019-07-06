@@ -24,7 +24,7 @@
     "build": "shx cp ../../README.md . && tsdx build",
     "test": "tsdx test",
     "test:perf": "yarn build && yarn test:perf:run",
-    "test:perf:run": "cd perf_test && /usr/bin/time ts-node ./report.ts",
+    "test:perf:run": "cd perf_test && export NODE_ENV=production && /usr/bin/time ts-node ./report.ts",
     "build-docs": "shx rm -rf ../site/src/public/api && typedoc --options ./typedocconfig.js"
   },
   "peerDependencies": {

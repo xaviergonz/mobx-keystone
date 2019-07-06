@@ -24,7 +24,7 @@ import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
-import { failure, isMap, isObject, isPlainObject, isPrimitive, isSet } from "../utils"
+import { failure, inDevMode, isMap, isObject, isPlainObject, isPrimitive, isSet } from "../utils"
 import { isTreeNode, isTweakedObject, tweakedObjects } from "./core"
 
 /**
@@ -49,11 +49,7 @@ export function toTreeNode<T extends object>(value: T): T {
 /**
  * @ignore
  */
-function internalTweak<T>(
-  value: T,
-  parentPath: ParentPath<any> | undefined,
-  snapshotModelMetadata?: ModelMetadata
-): T {
+function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (isPrimitive(value)) {
     return value
   }
@@ -61,6 +57,24 @@ function internalTweak<T>(
   if (isTweakedObject(value)) {
     setParent(value, parentPath)
     return value
+  }
+
+  if ((value as any) instanceof Frozen) {
+    return tweakFrozen(value, parentPath)
+  }
+
+  const modelInfo = getModelInfoForObject(value)
+  if (modelInfo) {
+    return tweakModel(value, parentPath)
+  }
+
+  if (Array.isArray(value) || isObservableArray(value)) {
+    return tweakArray(value, parentPath, false)
+  }
+
+  // plain object
+  if (isObservableObject(value) || isPlainObject(value)) {
+    return tweakPlainObject(value, parentPath, undefined, false)
   }
 
   // unsupported
@@ -73,109 +87,134 @@ function internalTweak<T>(
     throw failure("sets are not supported")
   }
 
-  if ((value as any) instanceof Frozen) {
-    const frozenObj = value as Frozen<any>
-    tweakedObjects.add(frozenObj)
-    setParent(frozenObj, parentPath)
-
-    // we DON'T want data proxified, but the snapshot is the data itself
-    setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined)
-
-    return frozenObj as any
-  }
-
-  const modelInfo = getModelInfoForObject(value)
-  if (modelInfo) {
-    tweakedObjects.add(value)
-    setParent(value, parentPath)
-
-    // nothing to do for models, data is already proxified and its parent is set
-    // for snapshots we will use its "data" object snapshot directly
-
-    return value
-  }
-
-  if (Array.isArray(value) || isObservableArray(value)) {
-    const originalArr: ReadonlyArray<any> = value
-    const arrLn = originalArr.length
-    const tweakedArr = isObservableArray(originalArr) ? originalArr : observable.array()
-    if (tweakedArr !== originalArr) {
-      tweakedArr.length = originalArr.length
-    }
-
-    tweakedObjects.add(tweakedArr)
-    setParent(tweakedArr, parentPath)
-
-    const standardSn: any[] = []
-    standardSn.length = arrLn
-
-    // substitute initial values by proxied values
-    for (let i = 0; i < arrLn; i++) {
-      const currentValue = originalArr[i]
-      const tweakedValue = tweak(currentValue, { parent: tweakedArr, path: "" + i })
-      set(tweakedArr, i, tweakedValue)
-
-      const valueSn = getInternalSnapshot(tweakedValue)
-      if (valueSn) {
-        standardSn[i] = valueSn.standard
-      } else {
-        // must be a primitive
-        standardSn[i] = tweakedValue
-      }
-    }
-
-    setInternalSnapshot(tweakedArr, standardSn, undefined)
-
-    intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
-    observe(tweakedArr, arrayDidChange)
-
-    return tweakedArr as any
-  }
-
-  // plain object
-  if (isObservableObject(value) || isPlainObject(value)) {
-    const originalObj: { [k: string]: any } = value
-    const tweakedObj = isObservableObject(originalObj) ? originalObj : observable.object({})
-
-    tweakedObjects.add(tweakedObj)
-    setParent(tweakedObj, parentPath)
-
-    const standardSn: any = {}
-
-    // substitute initial values by tweaked values
-    const originalObjKeys = Object.keys(originalObj)
-    const originalObjKeysLen = originalObjKeys.length
-    for (let i = 0; i < originalObjKeysLen; i++) {
-      const k = originalObjKeys[i]
-      const v = originalObj[k]
-
-      const tweakedValue = tweak(v, { parent: tweakedObj, path: k })
-      set(tweakedObj, k, tweakedValue)
-
-      const valueSn = getInternalSnapshot(tweakedValue)
-      if (valueSn) {
-        standardSn[k] = valueSn.standard
-      } else {
-        // must be a primitive
-        standardSn[k] = tweakedValue
-      }
-    }
-
-    if (snapshotModelMetadata) {
-      standardSn[modelMetadataKey] = snapshotModelMetadata
-    }
-
-    setInternalSnapshot(tweakedObj, standardSn, undefined)
-
-    intercept(tweakedObj, interceptObjectMutation)
-    observe(tweakedObj, objectDidChange)
-
-    return tweakedObj as any
-  }
-
   throw failure(
     `tweak can only work over models, observable objects/arrays, or primitives, but got ${value} instead`
   )
+}
+
+export function tweakFrozen<T extends Frozen<any>>(
+  frozenObj: T,
+  parentPath: ParentPath<any> | undefined
+): T {
+  tweakedObjects.add(frozenObj)
+  setParent(frozenObj, parentPath)
+
+  // we DON'T want data proxified, but the snapshot is the data itself
+  setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined)
+
+  return frozenObj as any
+}
+
+export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined): T {
+  tweakedObjects.add(value)
+  setParent(value, parentPath)
+
+  // nothing to do for models, data is already proxified and its parent is set
+  // for snapshots we will use its "data" object snapshot directly
+
+  return value
+}
+
+export function tweakArray<T extends any[]>(
+  value: T,
+  parentPath: ParentPath<any> | undefined,
+  doNotTweakChildren: boolean
+): T {
+  const originalArr: ReadonlyArray<any> = value
+  const arrLn = originalArr.length
+  const tweakedArr = isObservableArray(originalArr) ? originalArr : observable.array()
+  if (tweakedArr !== originalArr) {
+    tweakedArr.length = originalArr.length
+  }
+
+  tweakedObjects.add(tweakedArr)
+  setParent(tweakedArr, parentPath)
+
+  const standardSn: any[] = []
+  standardSn.length = arrLn
+
+  // substitute initial values by proxied values
+  for (let i = 0; i < arrLn; i++) {
+    const currentValue = originalArr[i]
+    const path = { parent: tweakedArr, path: "" + i }
+
+    let tweakedValue
+    if (doNotTweakChildren) {
+      tweakedValue = currentValue
+      setParent(tweakedValue, path)
+    } else {
+      tweakedValue = tweak(currentValue, path)
+      set(tweakedArr, i, tweakedValue)
+    }
+
+    const valueSn = getInternalSnapshot(tweakedValue)
+    if (valueSn) {
+      standardSn[i] = valueSn.standard
+    } else {
+      // must be a primitive
+      standardSn[i] = tweakedValue
+    }
+  }
+
+  setInternalSnapshot(tweakedArr, standardSn, undefined)
+
+  intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
+  observe(tweakedArr, arrayDidChange)
+
+  return tweakedArr as any
+}
+
+export function tweakPlainObject<T>(
+  value: T,
+  parentPath: ParentPath<any> | undefined,
+  snapshotModelMetadata: ModelMetadata | undefined,
+  doNotTweakChildren: boolean
+): T {
+  const originalObj: { [k: string]: any } = value
+  const tweakedObj = isObservableObject(originalObj) ? originalObj : observable.object({})
+
+  tweakedObjects.add(tweakedObj)
+  setParent(tweakedObj, parentPath)
+
+  const standardSn: any = {}
+
+  // substitute initial values by tweaked values
+  const originalObjKeys = Object.keys(originalObj)
+  const originalObjKeysLen = originalObjKeys.length
+  for (let i = 0; i < originalObjKeysLen; i++) {
+    const k = originalObjKeys[i]
+    const v = originalObj[k]
+
+    const path = { parent: tweakedObj, path: k }
+
+    let tweakedValue
+    if (doNotTweakChildren) {
+      tweakedValue = v
+      setParent(tweakedValue, path)
+    } else {
+      tweakedValue = tweak(v, path)
+      set(tweakedObj, k, tweakedValue)
+    }
+
+    const valueSn = getInternalSnapshot(tweakedValue)
+    if (valueSn) {
+      standardSn[k] = valueSn.standard
+    } else {
+      // must be a primitive
+      standardSn[k] = tweakedValue
+    }
+  }
+
+  if (snapshotModelMetadata) {
+    standardSn[modelMetadataKey] = snapshotModelMetadata
+  }
+
+  setInternalSnapshot(tweakedObj, standardSn, undefined)
+
+  intercept(tweakedObj, interceptObjectMutation)
+  observe(tweakedObj, objectDidChange)
+
+  return tweakedObj as any
 }
 
 /***
@@ -326,11 +365,13 @@ function interceptArrayMutation(
   switch (change.type) {
     case "splice":
       {
-        change.added.forEach(v => {
-          if (v === undefined) {
-            throw failure(undefinedInsideArrayErrorMsg)
-          }
-        })
+        if (inDevMode()) {
+          change.added.forEach(v => {
+            if (v === undefined) {
+              throw failure(undefinedInsideArrayErrorMsg)
+            }
+          })
+        }
 
         change.object
           .slice(change.index, change.index + change.removedCount)
@@ -345,7 +386,7 @@ function interceptArrayMutation(
 
     case "update":
       {
-        if (change.newValue === undefined) {
+        if (inDevMode() && change.newValue === undefined) {
           throw failure(undefinedInsideArrayErrorMsg)
         }
 
