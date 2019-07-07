@@ -27,7 +27,7 @@ export interface FromSnapshotOptions {
 
 /**
  * Deserializers a data structure from its snapshot form.
- * If options has `generateNewIds` set to true (the default) then Models will have brand new IDs, and
+ * If options has `generateNewIds` set to true (the default is false) then Models will have brand new IDs, and
  * references will fix their target IDs accordingly.
  *
  * @typeparam T Object type.
@@ -77,7 +77,7 @@ function internalFromSnapshot<T>(sn: SnapshotInOf<T>): T {
 }
 
 function fromArraySnapshot(sn: SnapshotInOfArray<any>): any[] {
-  const arr = observable.array([] as any[])
+  const arr = observable.array([] as any[], observableOptions)
   const ln = sn.length
   for (let i = 0; i < ln; i++) {
     arr.push(internalFromSnapshot(sn[i]))
@@ -107,7 +107,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
 }
 
 function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
-  const initialData = observable.object({} as any)
+  const initialData = observable.object({} as any, undefined, observableOptions)
 
   const processedSnKeys = Object.keys(processedSn)
   const processedSnKeysLen = processedSnKeys.length
@@ -122,7 +122,7 @@ function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
 }
 
 function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
-  const plainObj = observable.object({} as any)
+  const plainObj = observable.object({} as any, undefined, observableOptions)
 
   const snKeys = Object.keys(sn)
   const snKeysLen = snKeys.length
@@ -132,4 +132,8 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
     plainObj[k] = internalFromSnapshot(v)
   }
   return tweakPlainObject(plainObj, undefined, undefined, true)
+}
+
+const observableOptions = {
+  deep: false,
 }

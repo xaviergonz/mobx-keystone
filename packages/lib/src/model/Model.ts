@@ -137,7 +137,11 @@ export function newModel<M extends AnyModel>(
 ): M {
   assertIsObject(initialData, "initialData")
 
-  return internalNewModel(modelClass, observable.object(initialData), undefined)
+  return internalNewModel(
+    modelClass,
+    observable.object(initialData, undefined, { deep: false }),
+    undefined
+  )
 }
 
 /**
