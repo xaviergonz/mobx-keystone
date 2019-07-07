@@ -19,6 +19,9 @@ function flow<R, Args extends any[]>(
     const ctxOverride = (stepType: ActionContextAsyncStepType) => {
       return (ctx: Writable<ActionContext>) => {
         ctx.previousAsyncStepContext = previousAsyncStepContext
+        ctx.spawnAsyncStepContext = previousAsyncStepContext
+          ? previousAsyncStepContext.spawnAsyncStepContext
+          : ctx
         ctx.asyncStepType = stepType
         ctx.args = args
 

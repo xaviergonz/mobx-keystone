@@ -1,7 +1,6 @@
 import { action, isAction } from "mobx"
-import { AnyModel, Model } from "../model/Model"
-import { assertIsModel } from "../model/utils"
 import { getParent, isChildOfParent } from "../parent/path"
+import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, deleteFromArray, failure } from "../utils"
 import { ActionContext } from "./context"
 
@@ -13,7 +12,7 @@ export interface ActionMiddleware {
    * Subtree (object and child objects) this middleware will run for.
    * This target "filter" will be run before the custom filter.
    */
-  target: AnyModel
+  target: object
 
   /**
    * A filter function to decide if an action middleware function should be run or not.
@@ -33,31 +32,29 @@ export interface ActionMiddleware {
 export type ActionMiddlewareDisposer = () => void
 
 type PartialActionMiddleware = Pick<ActionMiddleware, "filter" | "middleware">
-const perModelActionMiddlewares = new WeakMap<AnyModel, PartialActionMiddleware[]>()
+const perObjectActionMiddlewares = new WeakMap<object, PartialActionMiddleware[]>()
 
 /**
  * @ignore
  *
- * Gets the current action middlewares to be run over a given model.
+ * Gets the current action middlewares to be run over a given object.
  *
  * @returns
  */
-export function getActionMiddlewares(model: AnyModel): PartialActionMiddleware[] {
-  const mwares = []
+export function getActionMiddlewares(obj: object): PartialActionMiddleware[][] {
+  const mwares: PartialActionMiddleware[][] = []
 
-  // when we call a middleware we will call the middlewares of that model plus all parent models
-  // the parent model middlewares are run last
+  // when we call a middleware we will call the middlewares of that object plus all parent objects
+  // the parent object middlewares are run last
 
   // since an array like [a, b, c] will be called like c(b(a())) this means that we need to put
-  // the parent model ones at the end of the array
+  // the parent object ones at the end of the array
 
-  let current: any = model
+  let current: any = obj
   while (current) {
-    if (current instanceof Model) {
-      const modelMwares = perModelActionMiddlewares.get(current)
-      if (modelMwares) {
-        mwares.push(...modelMwares)
-      }
+    const objMwares = perObjectActionMiddlewares.get(current)
+    if (objMwares && objMwares.length > 0) {
+      mwares.push(objMwares)
     }
     current = getParent(current)
   }
@@ -67,7 +64,7 @@ export function getActionMiddlewares(model: AnyModel): PartialActionMiddleware[]
 
 /**
  * Adds a global action middleware to be run when an action is performed.
- * It is usually preferable to use `onAction` instead to limit it to a given tree and only to topmost level actions
+ * It is usually preferable to use `onActionMiddleware` instead to limit it to a given tree and only to topmost level actions
  * or `actionTrackingMiddleware` for a simplified middleware.
  *
  * @param mware Action middleware to be run.
@@ -79,7 +76,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   let { middleware, filter, target } = mware
 
-  assertIsModel(target, "middleware.target")
+  assertTweakedObject(target, "middleware.target")
   if (typeof middleware !== "function") {
     throw failure("middleware.middleware must be a function")
   }
@@ -107,15 +104,15 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   const actualMware = { middleware, filter }
 
-  let modelMwares = perModelActionMiddlewares.get(target)!
-  if (!modelMwares) {
-    modelMwares = [actualMware]
-    perModelActionMiddlewares.set(target, modelMwares)
+  let objMwares = perObjectActionMiddlewares.get(target)!
+  if (!objMwares) {
+    objMwares = [actualMware]
+    perObjectActionMiddlewares.set(target, objMwares)
   } else {
-    modelMwares.push(actualMware)
+    objMwares.push(actualMware)
   }
 
   return () => {
-    deleteFromArray(modelMwares, actualMware)
+    deleteFromArray(objMwares, actualMware)
   }
 }

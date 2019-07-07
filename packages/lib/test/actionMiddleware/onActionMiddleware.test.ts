@@ -60,7 +60,7 @@ test("onActionMiddleware", () => {
     events.length = 0
   }
 
-  const disposer = onActionMiddleware({ model: p1 }, (actionCall, ctx, next) => {
+  const disposer = onActionMiddleware(p1, (actionCall, ctx, next) => {
     events.push([actionCall, ctx])
     return next()
   })

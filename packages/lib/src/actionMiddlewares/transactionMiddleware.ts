@@ -42,7 +42,12 @@ export function transactionMiddleware<M extends AnyModel>(target: {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
 
-  return actionTrackingMiddleware(target, {
+  return actionTrackingMiddleware(model, {
+    filter(ctx) {
+      // the primary action must be on the root object
+      const rootContext = ctx.rootContext
+      return rootContext.target === model && rootContext.actionName === actionName
+    },
     onStart(ctx) {
       if (ctx === ctx.rootContext) {
         initPatchRecorder(ctx)

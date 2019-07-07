@@ -2,10 +2,10 @@ import { action, computed } from "mobx"
 import { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
 import { model } from "../model"
-import { AnyModel, Model, newModel } from "../model/Model"
-import { assertIsModel } from "../model/utils"
+import { Model, newModel } from "../model/Model"
 import { getRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
+import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
 
@@ -230,7 +230,7 @@ export class UndoManager {
    */
   constructor(
     private readonly disposer: ActionMiddlewareDisposer,
-    private readonly target: AnyModel,
+    private readonly target: object,
     store?: UndoStore
   ) {
     this.store = store || newModel(UndoStore, {})
@@ -240,17 +240,17 @@ export class UndoManager {
 /**
  * Creates an undo middleware.
  *
- * @param model Root target model object.
+ * @param target Root target object.
  * @param [store] Optional `UndoStore` where to store the undo/redo queues. Use this if you want to
  * store such queues somewhere in your models. If none is provided it will reside in memory.
  * @returns An `UndoManager` which allows you to do the manage the undo/redo operations and dispose of the middleware.
  */
-export function undoMiddleware(model: AnyModel, store?: UndoStore): UndoManager {
-  assertIsModel(model, "model")
+export function undoMiddleware(target: object, store?: UndoStore): UndoManager {
+  assertTweakedObject(target, "target")
 
   const patchRecorderSymbol = Symbol("patchRecorder")
   function initPatchRecorder(ctx: SimpleActionContext) {
-    ctx.rootContext.data[patchRecorderSymbol] = patchRecorder(model, {
+    ctx.rootContext.data[patchRecorderSymbol] = patchRecorder(target, {
       recording: false,
       filter: undoDisabledFilter,
     })
@@ -261,50 +261,47 @@ export function undoMiddleware(model: AnyModel, store?: UndoStore): UndoManager 
 
   let manager: UndoManager
 
-  const middlewareDisposer = actionTrackingMiddleware(
-    { model },
-    {
-      onStart(ctx) {
-        if (ctx === ctx.rootContext) {
-          initPatchRecorder(ctx)
-        }
-      },
-      onResume(ctx) {
+  const middlewareDisposer = actionTrackingMiddleware(target, {
+    onStart(ctx) {
+      if (ctx === ctx.rootContext) {
+        initPatchRecorder(ctx)
+      }
+    },
+    onResume(ctx) {
+      const patchRecorder = getPatchRecorder(ctx)
+      patchRecorder.recording = true
+    },
+    onSuspend(ctx) {
+      const patchRecorder = getPatchRecorder(ctx)
+      patchRecorder.recording = false
+    },
+    onFinish(ctx) {
+      if (ctx === ctx.rootContext) {
         const patchRecorder = getPatchRecorder(ctx)
-        patchRecorder.recording = true
-      },
-      onSuspend(ctx) {
-        const patchRecorder = getPatchRecorder(ctx)
-        patchRecorder.recording = false
-      },
-      onFinish(ctx) {
-        if (ctx === ctx.rootContext) {
-          const patchRecorder = getPatchRecorder(ctx)
 
-          if (patchRecorder.events.length > 0) {
-            const patches: Patch[] = []
-            const inversePatches: Patch[] = []
+        if (patchRecorder.events.length > 0) {
+          const patches: Patch[] = []
+          const inversePatches: Patch[] = []
 
-            for (const event of patchRecorder.events) {
-              patches.push(...event.patches)
-              inversePatches.unshift(...event.inversePatches)
-            }
-
-            manager.store._addUndo({
-              targetPath: getRootPath(ctx.target).path,
-              actionName: ctx.actionName,
-              patches,
-              inversePatches,
-            })
+          for (const event of patchRecorder.events) {
+            patches.push(...event.patches)
+            inversePatches.unshift(...event.inversePatches)
           }
 
-          patchRecorder.dispose()
+          manager.store._addUndo({
+            targetPath: getRootPath(ctx.target).path,
+            actionName: ctx.actionName,
+            patches,
+            inversePatches,
+          })
         }
-      },
-    }
-  )
 
-  manager = new UndoManager(middlewareDisposer, model, store)
+        patchRecorder.dispose()
+      }
+    },
+  })
+
+  manager = new UndoManager(middlewareDisposer, target, store)
   return manager
 }
 
