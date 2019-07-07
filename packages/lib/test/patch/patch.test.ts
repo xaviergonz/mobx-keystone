@@ -39,6 +39,19 @@ test("onPatches and applyPatches", () => {
     expect(getSnapshot(p)).toStrictEqual(sn)
   }
 
+  // no changes should result in no patches
+  reset()
+  runUnprotected(() => {
+    p.data.x = p.data.x
+    p.data.arr[0] = p.data.arr[0]
+    p.data.p2!.data.y = p.data.p2!.data.y
+  })
+
+  expect(pPatches).toMatchInlineSnapshot(`Array []`)
+  expect(pInvPatches).toMatchInlineSnapshot(`Array []`)
+  expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+  expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
   reset()
   runUnprotected(() => {
     p.data.x++
@@ -46,80 +59,80 @@ test("onPatches and applyPatches", () => {
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
-                Array [
-                  Array [
-                    Object {
-                      "op": "replace",
-                      "path": Array [
-                        "x",
-                      ],
-                      "value": 6,
-                    },
-                  ],
-                  Array [
-                    Object {
-                      "op": "replace",
-                      "path": Array [
-                        "p2",
-                        "y",
-                      ],
-                      "value": 13,
-                    },
-                  ],
-                ]
-        `)
+                                            Array [
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "x",
+                                                  ],
+                                                  "value": 6,
+                                                },
+                                              ],
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "p2",
+                                                    "y",
+                                                  ],
+                                                  "value": 13,
+                                                },
+                                              ],
+                                            ]
+                      `)
 
   expect(pInvPatches).toMatchInlineSnapshot(`
-                Array [
-                  Array [
-                    Object {
-                      "op": "replace",
-                      "path": Array [
-                        "x",
-                      ],
-                      "value": 5,
-                    },
-                  ],
-                  Array [
-                    Object {
-                      "op": "replace",
-                      "path": Array [
-                        "p2",
-                        "y",
-                      ],
-                      "value": 12,
-                    },
-                  ],
-                ]
-        `)
+                                            Array [
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "x",
+                                                  ],
+                                                  "value": 5,
+                                                },
+                                              ],
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "p2",
+                                                    "y",
+                                                  ],
+                                                  "value": 12,
+                                                },
+                                              ],
+                                            ]
+                      `)
 
   expect(p2Patches).toMatchInlineSnapshot(`
-                Array [
-                  Array [
-                    Object {
-                      "op": "replace",
-                      "path": Array [
-                        "y",
-                      ],
-                      "value": 13,
-                    },
-                  ],
-                ]
-        `)
+                                            Array [
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "y",
+                                                  ],
+                                                  "value": 13,
+                                                },
+                                              ],
+                                            ]
+                      `)
 
   expect(p2InvPatches).toMatchInlineSnapshot(`
-                Array [
-                  Array [
-                    Object {
-                      "op": "replace",
-                      "path": Array [
-                        "y",
-                      ],
-                      "value": 12,
-                    },
-                  ],
-                ]
-        `)
+                                            Array [
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "y",
+                                                  ],
+                                                  "value": 12,
+                                                },
+                                              ],
+                                            ]
+                      `)
 
   expectSameSnapshotOnceReverted()
 
@@ -130,38 +143,38 @@ test("onPatches and applyPatches", () => {
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
-                Array [
-                  Array [
-                    Object {
-                      "op": "replace",
-                      "path": Array [
-                        "p2",
-                      ],
-                      "value": undefined,
-                    },
-                  ],
-                ]
-        `)
+                                            Array [
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "p2",
+                                                  ],
+                                                  "value": undefined,
+                                                },
+                                              ],
+                                            ]
+                      `)
 
   expect(pInvPatches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
-          "op": "replace",
-          "path": Array [
-            "p2",
-          ],
-          "value": Object {
-            "$$metadata": Object {
-              "id": "mockedUuid-1",
-              "type": "P2",
-            },
-            "y": 12,
-          },
-        },
-      ],
-    ]
-  `)
+                                Array [
+                                  Array [
+                                    Object {
+                                      "op": "replace",
+                                      "path": Array [
+                                        "p2",
+                                      ],
+                                      "value": Object {
+                                        "$$metadata": Object {
+                                          "id": "mockedUuid-1",
+                                          "type": "P2",
+                                        },
+                                        "y": 12,
+                                      },
+                                    },
+                                  ],
+                                ]
+                `)
 
   expect(p2Patches).toMatchInlineSnapshot(`Array []`)
 
@@ -176,18 +189,137 @@ test("onPatches and applyPatches", () => {
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
+                                            Array [
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "arr",
+                                                  ],
+                                                  "value": Array [
+                                                    3,
+                                                    2,
+                                                    1,
+                                                  ],
+                                                },
+                                              ],
+                                            ]
+                      `)
+
+  expect(pInvPatches).toMatchInlineSnapshot(`
+                                            Array [
+                                              Array [
+                                                Object {
+                                                  "op": "replace",
+                                                  "path": Array [
+                                                    "arr",
+                                                  ],
+                                                  "value": Array [
+                                                    1,
+                                                    2,
+                                                    3,
+                                                  ],
+                                                },
+                                              ],
+                                            ]
+                      `)
+
+  expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+
+  expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
+  expectSameSnapshotOnceReverted()
+
+  // splice items (less items)
+  reset()
+  runUnprotected(() => {
+    p.data.arr.splice(1, 2, 5) // [1, 5]
+  })
+
+  expect(pPatches).toMatchInlineSnapshot(`
+                    Array [
+                      Array [
+                        Object {
+                          "op": "replace",
+                          "path": Array [
+                            "arr",
+                            1,
+                          ],
+                          "value": 5,
+                        },
+                        Object {
+                          "op": "replace",
+                          "path": Array [
+                            "arr",
+                            "length",
+                          ],
+                          "value": 2,
+                        },
+                      ],
+                    ]
+          `)
+
+  expect(pInvPatches).toMatchInlineSnapshot(`
+                    Array [
+                      Array [
+                        Object {
+                          "op": "replace",
+                          "path": Array [
+                            "arr",
+                            1,
+                          ],
+                          "value": 2,
+                        },
+                        Object {
+                          "op": "add",
+                          "path": Array [
+                            "arr",
+                            2,
+                          ],
+                          "value": 3,
+                        },
+                      ],
+                    ]
+          `)
+
+  expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+
+  expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
+  expectSameSnapshotOnceReverted()
+
+  // splice items (more items)
+  reset()
+  runUnprotected(() => {
+    p.data.arr.splice(1, 2, 5, 6, 7) // [1, 5, 6, 7]
+  })
+
+  expect(pPatches).toMatchInlineSnapshot(`
                 Array [
                   Array [
                     Object {
                       "op": "replace",
                       "path": Array [
                         "arr",
-                      ],
-                      "value": Array [
-                        3,
-                        2,
                         1,
                       ],
+                      "value": 5,
+                    },
+                    Object {
+                      "op": "replace",
+                      "path": Array [
+                        "arr",
+                        2,
+                      ],
+                      "value": 6,
+                    },
+                    Object {
+                      "op": "add",
+                      "path": Array [
+                        "arr",
+                        3,
+                      ],
+                      "value": 7,
                     },
                   ],
                 ]
@@ -200,16 +332,71 @@ test("onPatches and applyPatches", () => {
                       "op": "replace",
                       "path": Array [
                         "arr",
-                      ],
-                      "value": Array [
                         1,
-                        2,
-                        3,
                       ],
+                      "value": 2,
+                    },
+                    Object {
+                      "op": "replace",
+                      "path": Array [
+                        "arr",
+                        2,
+                      ],
+                      "value": 3,
+                    },
+                    Object {
+                      "op": "replace",
+                      "path": Array [
+                        "arr",
+                        "length",
+                      ],
+                      "value": 3,
                     },
                   ],
                 ]
         `)
+
+  expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+
+  expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
+  expectSameSnapshotOnceReverted()
+
+  // splice items (same items)
+  reset()
+  runUnprotected(() => {
+    p.data.arr.splice(1, 2, 5, 3) // [1, 5, 3]
+  })
+
+  expect(pPatches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            1,
+          ],
+          "value": 5,
+        },
+      ],
+    ]
+  `)
+
+  expect(pInvPatches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            1,
+          ],
+          "value": 2,
+        },
+      ],
+    ]
+  `)
 
   expect(p2Patches).toMatchInlineSnapshot(`Array []`)
 

@@ -1,4 +1,3 @@
-import { produce } from "immer"
 import {
   action,
   IArrayChange,
@@ -15,6 +14,7 @@ import {
   observe,
   set,
 } from "mobx"
+import { Patch } from ".."
 import { getCurrentActionContext } from "../action/context"
 import { getActionProtection } from "../action/protection"
 import { Frozen, frozenKey } from "../frozen/Frozen"
@@ -237,34 +237,86 @@ function objectDidChange(change: IObjectDidChange): void {
 
   const patchRecorder = new InternalPatchRecorder()
 
-  standardSn = produce(
-    standardSn,
-    (draftStandard: any) => {
-      switch (change.type) {
-        case "add":
-        case "update":
-          {
-            const k = change.name
-            const val = change.newValue
-            if (isPrimitive(val)) {
-              draftStandard[k] = val
-            } else {
-              const valueSn = getInternalSnapshot(val)!
-              draftStandard[k] = valueSn.standard
-            }
-          }
-          break
+  standardSn = Object.assign({}, standardSn)
 
-        case "remove":
-          {
-            const k = change.name
-            delete draftStandard[k]
-          }
-          break
+  switch (change.type) {
+    case "add":
+    case "update":
+      {
+        const k = change.name
+        const val = change.newValue
+        const oldVal = standardSn[k]
+        if (isPrimitive(val)) {
+          standardSn[k] = val
+        } else {
+          const valueSn = getInternalSnapshot(val)!
+          standardSn[k] = valueSn.standard
+        }
+
+        const path = [k as string]
+        if (change.type === "add") {
+          patchRecorder.record(
+            [
+              {
+                op: "add",
+                path,
+                value: standardSn[k],
+              },
+            ],
+            [
+              {
+                op: "remove",
+                path,
+              },
+            ]
+          )
+        } else {
+          patchRecorder.record(
+            [
+              {
+                op: "replace",
+                path,
+                value: standardSn[k],
+              },
+            ],
+            [
+              {
+                op: "replace",
+                path,
+                value: oldVal,
+              },
+            ]
+          )
+        }
       }
-    },
-    patchRecorder.record
-  )
+      break
+
+    case "remove":
+      {
+        const k = change.name
+        const oldVal = standardSn[k]
+        delete standardSn[k]
+
+        const path = [k as string]
+
+        patchRecorder.record(
+          [
+            {
+              op: "remove",
+              path,
+            },
+          ],
+          [
+            {
+              op: "add",
+              path,
+              value: oldVal,
+            },
+          ]
+        )
+      }
+      break
+  }
 
   setInternalSnapshot(change.object, standardSn, patchRecorder)
 }
@@ -309,44 +361,119 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
 
   const patchRecorder = new InternalPatchRecorder()
 
-  standardSn = produce(
-    standardSn,
-    (draftStandard: any[]) => {
-      switch (change.type) {
-        case "splice":
-          {
-            let addedStandardSn = []
-            const addedLen = change.added.length
-            addedStandardSn.length = addedLen
-            for (let i = 0; i < addedLen; i++) {
-              const v = change.added[i]
-              if (isPrimitive(v)) {
-                addedStandardSn[i] = v
-              } else {
-                addedStandardSn[i] = getInternalSnapshot(v)!.standard
-              }
-            }
+  standardSn = standardSn.slice()
 
-            draftStandard.splice(change.index, change.removedCount, ...addedStandardSn)
+  switch (change.type) {
+    case "splice":
+      {
+        let addedItems = []
+        const addedCount = change.addedCount
+        addedItems.length = addedCount
+        for (let i = 0; i < addedCount; i++) {
+          const v = change.added[i]
+          if (isPrimitive(v)) {
+            addedItems[i] = v
+          } else {
+            addedItems[i] = getInternalSnapshot(v)!.standard
           }
-          break
+        }
 
-        case "update":
-          {
-            const k = change.index
-            const val = change.newValue
-            if (isPrimitive(val)) {
-              draftStandard[k] = val
-            } else {
-              const valueSn = getInternalSnapshot(val)!
-              draftStandard[k] = valueSn.standard
-            }
+        const oldLen = standardSn.length
+        const removedCount = change.removedCount
+        const removedItems = standardSn.splice(change.index, removedCount, ...addedItems)
+
+        // generate patches
+        const patches: Patch[] = []
+        const invPatches: Patch[] = []
+
+        const replacedCount = Math.min(removedCount, addedCount)
+        for (let i = 0; i < replacedCount; i++) {
+          const oldVal = removedItems[i]
+          const newVal = addedItems[i]
+          if (oldVal !== newVal) {
+            const path = [change.index + i]
+            patches.push({
+              op: "replace",
+              path,
+              value: newVal,
+            })
+            invPatches.push({
+              op: "replace",
+              path,
+              value: oldVal,
+            })
           }
-          break
+        }
+
+        if (removedCount > addedCount) {
+          patches.push({
+            op: "replace",
+            path: ["length"],
+            value: standardSn.length,
+          })
+
+          for (let i = replacedCount; i < removedCount; i++) {
+            const path = [change.index + i]
+            invPatches.push({
+              op: "add",
+              path,
+              value: removedItems[i],
+            })
+          }
+        } else if (addedCount > removedCount) {
+          for (let i = replacedCount; i < addedCount; i++) {
+            const path = [change.index + i]
+            patches.push({
+              op: "add",
+              path,
+              value: addedItems[i],
+            })
+          }
+
+          invPatches.push({
+            op: "replace",
+            path: ["length"],
+            value: oldLen,
+          })
+        }
+
+        patchRecorder.record(patches, invPatches)
       }
-    },
-    patchRecorder.record
-  )
+      break
+
+    case "update":
+      {
+        const k = change.index
+        const val = change.newValue
+        const oldVal = standardSn[k]
+        if (isPrimitive(val)) {
+          standardSn[k] = val
+        } else {
+          const valueSn = getInternalSnapshot(val)!
+          standardSn[k] = valueSn.standard
+        }
+
+        const path = [k]
+
+        patchRecorder.record(
+          [
+            {
+              op: "replace",
+              path,
+              value: standardSn[k],
+            },
+          ],
+          [
+            {
+              op: "replace",
+              path,
+              value: oldVal,
+            },
+          ]
+        )
+      }
+      break
+  }
 
   setInternalSnapshot(change.object, standardSn, patchRecorder)
 }
@@ -372,14 +499,17 @@ function interceptArrayMutation(
           })
         }
 
-        change.object
-          .slice(change.index, change.index + change.removedCount)
-          .forEach(removedValue => {
-            tweak(removedValue, undefined)
+        for (let i = 0; i < change.removedCount; i++) {
+          const removedValue = change.object[change.index + i]
+          tweak(removedValue, undefined)
+        }
+
+        for (let i = 0; i < change.added.length; i++) {
+          change.added[i] = tweak(change.added[i], {
+            parent: change.object,
+            path: "" + (change.index + i),
           })
-        change.added = change.added.map((newValue, addedIndex) =>
-          tweak(newValue, { parent: change.object, path: "" + (change.index + addedIndex) })
-        )
+        }
       }
       break
 
