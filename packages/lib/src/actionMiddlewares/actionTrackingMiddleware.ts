@@ -10,8 +10,8 @@ import {
 } from "../action/middleware"
 import { FlowFinisher } from "../action/modelFlow"
 import { AnyModel } from "../model/Model"
-import { assertIsModel } from "../model/utils"
-import { assertIsObject, failure } from "../utils"
+import { assertTweakedObject } from "../tweaker/core"
+import { failure } from "../utils"
 
 /**
  * Simplified version of action context.
@@ -121,28 +121,15 @@ export interface ActionTrackingMiddleware {
  * action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish`
  * for that particular action will be called.
  *
- * @typeparam M Model
- * @param target Object with root target model object (`model`). If an `actionName` is provided then
- * the tracking middleware will only be called for that particular action and its sub-actions.
+ * @param target Root target model object.
  * @param hooks Middleware hooks.
  * @returns The middleware disposer.
  */
-export function actionTrackingMiddleware<M extends AnyModel>(
-  target: {
-    model: M
-    actionName?: keyof M
-  },
+export function actionTrackingMiddleware(
+  target: object,
   hooks: ActionTrackingMiddleware
 ): ActionMiddlewareDisposer {
-  assertIsObject(target, "target")
-
-  const { model, actionName } = target
-
-  assertIsModel(model, "target.model")
-
-  if (actionName && typeof actionName !== "string") {
-    throw failure("target.actionName must be a string or undefined")
-  }
+  assertTweakedObject(target, "target")
 
   const dataSymbol = Symbol("actionTrackingMiddlewareData")
   interface Data {
@@ -172,13 +159,6 @@ export function actionTrackingMiddleware<M extends AnyModel>(
   const resumeSuspendSupport = !!hooks.onResume || !!hooks.onSuspend
 
   const filter: ActionMiddleware["filter"] = ctx => {
-    // if we are given an action name ensure it is the root action
-    if (actionName) {
-      if (ctx.rootContext.target !== model || ctx.rootContext.actionName !== actionName) {
-        return false
-      }
-    }
-
     if (ctx.type === ActionContextActionType.Sync) {
       // start and finish is on the same context
       const accepted = userFilter(ctx)
@@ -204,16 +184,18 @@ export function actionTrackingMiddleware<M extends AnyModel>(
         case ActionContextAsyncStepType.Return:
         case ActionContextAsyncStepType.Throw:
           // depends if the spawn one was accepted or not
-          let previousCtx = ctx
-          while (previousCtx.previousAsyncStepContext) {
-            previousCtx = previousCtx.previousAsyncStepContext!
-          }
-          const data = getCtxData(previousCtx)
+          const data = getCtxData(ctx.spawnAsyncStepContext!)
           return data ? data.startAccepted : false
 
         case ActionContextAsyncStepType.Resume:
         case ActionContextAsyncStepType.ResumeError:
-          return resumeSuspendSupport
+          if (!resumeSuspendSupport) {
+            return false
+          } else {
+            // depends if the spawn one was accepted or not
+            const data = getCtxData(ctx.spawnAsyncStepContext!)
+            return data ? data.startAccepted : false
+          }
 
         default:
           return false
@@ -368,7 +350,7 @@ export function actionTrackingMiddleware<M extends AnyModel>(
     }
   }
 
-  return addActionMiddleware({ middleware: mware, filter, target: model })
+  return addActionMiddleware({ middleware: mware, filter, target })
 }
 
 const simpleDataContextSymbol = Symbol("simpleDataContext")

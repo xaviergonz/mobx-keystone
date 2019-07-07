@@ -33,6 +33,10 @@ export interface ActionContext {
    */
   readonly previousAsyncStepContext?: ActionContext
   /**
+   * Spawn async step context, undefined for sync actions.
+   */
+  readonly spawnAsyncStepContext?: ActionContext
+  /**
    * Async step type, or undefined for sync actions.
    */
   readonly asyncStepType?: ActionContextAsyncStepType

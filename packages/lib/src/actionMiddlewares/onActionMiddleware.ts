@@ -7,12 +7,10 @@ import {
   ActionMiddlewareDisposer,
   addActionMiddleware,
 } from "../action/middleware"
-import { AnyModel } from "../model/Model"
-import { assertIsModel } from "../model/utils"
 import { getRootPath } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
-import { isTweakedObject } from "../tweaker/core"
-import { assertIsObject, failure, isPlainObject, isPrimitive } from "../utils"
+import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
+import { failure, isPlainObject, isPrimitive } from "../utils"
 
 /**
  * A listener for `onActionMiddleware`.
@@ -24,43 +22,28 @@ export type OnActionListener = (
 ) => void
 
 /**
- * Creates an action middleware that invokes a listener for a given action / all actions of a given tree.
- * Remember to `return next()` if you want to continue the action or throw if you want to cancel it.
- * Note that `onActionMiddleware` will only run for the topmost level actions, so it won't run for child actions or intermediary flow steps.
+ * Creates an action middleware that invokes a listener for all actions of a given tree.
+ * Note that the listener will only be invoked for the topmost level actions, so it won't run for child actions or intermediary flow steps.
  * Also it won't trigger the listener for calls to hooks such as `onAttachedToRootStore` or its returned disposer.
+ * Remember to `return next()` if you want to continue the action, return something else if you want to change the return value
+ * or throw if you want to cancel it.
  *
- * If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments before
- * sending the action call over the wire / storing them or `serializeActionCall`.
+ * If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments
+ * or `serializeActionCall` over the whole action before sending the action call over the wire / storing them .
  *
- * @typeparam M Model
- * @param target Object with the root target model object (`model`). If `actionName` is provided it will only run for that particular action.
+ * @param target Object with the root target object.
  * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
  * @returns The middleware disposer.
  */
-export function onActionMiddleware<M extends AnyModel>(
-  target: {
-    model: M
-    actionName?: keyof M
-  },
+export function onActionMiddleware(
+  target: object,
   listener: OnActionListener
 ): ActionMiddlewareDisposer {
-  assertIsObject(target, "target")
-
-  const { model, actionName } = target
-
-  assertIsModel(model, "target.model")
-
-  if (actionName && typeof actionName !== "string") {
-    throw failure("target.actionName must be a string or undefined")
-  }
+  assertTweakedObject(target, "target")
 
   const filter: ActionMiddleware["filter"] = ctx => {
     if (ctx.parentContext || ctx.previousAsyncStepContext) {
       // sub-action or async step, do nothing
-      return false
-    }
-
-    if (actionName && ctx.actionName !== actionName) {
       return false
     }
 
@@ -83,7 +66,7 @@ export function onActionMiddleware<M extends AnyModel>(
 
       return listener(actionCall, ctx, next)
     },
-    target: model,
+    target,
     filter,
   })
 }

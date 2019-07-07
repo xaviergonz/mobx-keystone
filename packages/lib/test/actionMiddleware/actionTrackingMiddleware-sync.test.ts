@@ -78,48 +78,45 @@ test("actionTrackingMiddleware - sync", () => {
     events.length = 0
   }
 
-  const disposer = actionTrackingMiddleware(
-    { model: p1 },
-    {
-      filter(ctx) {
-        events.push({
-          type: "filter",
-          context: ctx,
-        })
-        return true
-      },
-      onStart(ctx) {
-        events.push({
-          type: "start",
-          context: ctx,
-        })
-      },
-      onResume(ctx) {
-        events.push({
-          type: "resume",
-          context: ctx,
-        })
-      },
-      onSuspend(ctx) {
-        events.push({
-          type: "suspend",
-          context: ctx,
-        })
-      },
-      onFinish(ctx, result, value, overrideValue) {
-        events.push({
-          type: "finish",
-          result,
-          value,
-          context: ctx,
-        })
+  const disposer = actionTrackingMiddleware(p1, {
+    filter(ctx) {
+      events.push({
+        type: "filter",
+        context: ctx,
+      })
+      return true
+    },
+    onStart(ctx) {
+      events.push({
+        type: "start",
+        context: ctx,
+      })
+    },
+    onResume(ctx) {
+      events.push({
+        type: "resume",
+        context: ctx,
+      })
+    },
+    onSuspend(ctx) {
+      events.push({
+        type: "suspend",
+        context: ctx,
+      })
+    },
+    onFinish(ctx, result, value, overrideValue) {
+      events.push({
+        type: "finish",
+        result,
+        value,
+        context: ctx,
+      })
 
-        if (ctx.actionName === "addXY") {
-          overrideValue(value + 1000)
-        }
-      },
-    }
-  )
+      if (ctx.actionName === "addXY") {
+        overrideValue(value + 1000)
+      }
+    },
+  })
   autoDispose(disposer)
 
   // action on the root

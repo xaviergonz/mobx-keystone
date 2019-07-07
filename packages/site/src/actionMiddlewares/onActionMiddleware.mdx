@@ -4,6 +4,23 @@ route: /actionMiddlewares/onActionMiddleware
 menu: Action Middlewares
 ---
 
-# Action Middlewares / onActionMiddleware
+# Action Middlewares / `onActionMiddleware`
 
-TODO
+This action middleware invokes a listener for all actions of a given tree.
+Note that the listener will only be invoked for the topmost level actions, so it won't run for child actions or intermediary flow steps.
+Also it won't trigger the listener for calls to hooks such as `onAttachedToRootStore` or its returned disposer.
+
+Remember to `return next()` if you want to continue the action, return something else if you want to return something else or throw if you want to cancel it.
+
+The actions passed as arguments to the listener are not in a serializable format. If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments or `serializeActionCall` over the whole action before sending the action call over the wire / storing them.
+
+It will return a disposer, which only needs to be called if you plan to early dispose of the middleware.
+
+```ts
+const disposer = onActionMiddleware(myTodoList, (actionCall, actionContext, next) => {
+  // we could serialize the action call and do something with it
+  const serializableActionCall = serializeActionCall(actionCall)
+
+  return next()
+})
+```

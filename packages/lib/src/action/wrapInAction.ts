@@ -64,12 +64,19 @@ export function wrapInAction<T extends Function>(
     setCurrentActionContext(context)
 
     let mwareFn: () => any = fn.bind(this, ...arguments)
-    getActionMiddlewares(this).forEach(mware => {
-      const filterPassed = mware.filter ? mware.filter(context) : true
-      if (filterPassed) {
-        mwareFn = mware.middleware.bind(undefined, context, mwareFn)
+    const mwaresListList = getActionMiddlewares(this)
+    for (let i = 0; i < mwaresListList.length; i++) {
+      const mwareList = mwaresListList[i]
+
+      for (let j = 0; j < mwareList.length; j++) {
+        const mware = mwareList[j]
+
+        const filterPassed = mware.filter ? mware.filter(context) : true
+        if (filterPassed) {
+          mwareFn = mware.middleware.bind(undefined, context, mwareFn)
+        }
       }
-    })
+    }
 
     try {
       const ret = mwareFn()

@@ -88,7 +88,7 @@ test("flow", async () => {
     events.length = 0
   }
 
-  const disposer = onActionMiddleware({ model: p }, (actionCall, context, next) => {
+  const disposer = onActionMiddleware(p, (actionCall, context, next) => {
     events.push({
       actionCall,
       context,
@@ -124,6 +124,7 @@ test("flow", async () => {
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
+          "spawnAsyncStepContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-2",
@@ -176,6 +177,7 @@ test("flow", async () => {
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
+          "spawnAsyncStepContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-2",
@@ -231,6 +233,7 @@ test("flow", async () => {
           "parentContext": undefined,
           "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
+          "spawnAsyncStepContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-2",
