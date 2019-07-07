@@ -36,24 +36,29 @@ function applySinglePatch(obj: object, patch: Patch): void {
   const { target, prop } = pathArrayToObjectAndProp(obj, patch.path)
 
   if (isArray(target)) {
-    let index = +prop!
-
     switch (patch.op) {
       case "add": {
+        const index = +prop!
         // no reconciliation, new value
         target.splice(index, 0, fromSnapshot(patch.value))
         break
       }
 
       case "remove": {
+        const index = +prop!
         // no reconciliation, removing
         target.splice(index, 1)
         break
       }
 
       case "replace": {
-        // try to reconcile
-        target[index] = reconcileSnapshot(target[index], patch.value)
+        if (prop === "length") {
+          target.length = patch.value
+        } else {
+          const index = +prop!
+          // try to reconcile
+          target[index] = reconcileSnapshot(target[index], patch.value)
+        }
         break
       }
 

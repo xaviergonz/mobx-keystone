@@ -1,11 +1,11 @@
-import produce from "immer"
 import { action, createAtom, IAtom, untracked } from "mobx"
 import { getParentPath, ParentPath } from "../parent/path"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { debugFreeze, failure, inDevMode } from "../utils"
+import { SnapshotOutOf } from "./SnapshotOf"
 
 interface SnapshotData<T extends object> {
-  standard: T
+  standard: SnapshotOutOf<T>
   readonly atom: IAtom
 }
 
@@ -104,12 +104,14 @@ export const setInternalSnapshot = action(
       if (parentSnapshot) {
         const path = parentPath.path
 
-        const parentStandard = produce(parentSnapshot.standard, (draftStandard: any) => {
-          draftStandard[path] = sn.standard
-        })
-
         // patches for parent changes should not be emitted
-        setInternalSnapshot(parentPath.parent, parentStandard, undefined)
+        let parentStandardSn = parentSnapshot.standard
+        if (parentStandardSn[path] !== sn.standard) {
+          parentStandardSn = Object.assign({}, parentStandardSn)
+          parentStandardSn[path] = sn.standard
+
+          setInternalSnapshot(parentPath.parent, parentStandardSn, undefined)
+        }
       }
     }
   }
