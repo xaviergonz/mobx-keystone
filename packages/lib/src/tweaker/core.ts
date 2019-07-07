@@ -1,4 +1,4 @@
-import { failure } from "../utils"
+import { failure, isPrimitive } from "../utils"
 
 /**
  * @ignore
@@ -9,7 +9,7 @@ export const tweakedObjects = new WeakSet<Object>()
  * @ignore
  */
 export function isTweakedObject(value: any): value is Object {
-  return tweakedObjects.has(value)
+  return !isPrimitive(value) && tweakedObjects.has(value)
 }
 
 /**

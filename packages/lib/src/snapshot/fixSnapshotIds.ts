@@ -30,9 +30,12 @@ export function fixSnapshotIds<T>(sn: T): T {
   const newSn = internalFixSnapshotIds(sn, ctx)
 
   // update ref ids
-  ctx.refs.forEach(ref => {
-    ref.id = ctx.idMap.get(ref.id) || ref.id
-  })
+  const { refs, idMap } = ctx
+  const refsLen = refs.length
+  for (let i = 0; i < refsLen; i++) {
+    const ref = refs[i]
+    ref.id = idMap.get(ref.id) || ref.id
+  }
 
   return newSn
 }
@@ -40,14 +43,6 @@ export function fixSnapshotIds<T>(sn: T): T {
 function internalFixSnapshotIds<T>(sn: T, ctx: FixSnapshotIdsContext): T {
   if (isPrimitive(sn)) {
     return sn as any
-  }
-
-  if (isMap(sn)) {
-    throw failure("a snapshot might not contain maps")
-  }
-
-  if (isSet(sn)) {
-    throw failure("a snapshot might not contain sets")
   }
 
   if (isArray(sn)) {
@@ -67,11 +62,28 @@ function internalFixSnapshotIds<T>(sn: T, ctx: FixSnapshotIdsContext): T {
     return fixPlainObjectSnapshotIds(sn, ctx) as any
   }
 
+  if (isMap(sn)) {
+    throw failure("a snapshot might not contain maps")
+  }
+
+  if (isSet(sn)) {
+    throw failure("a snapshot might not contain sets")
+  }
+
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
 function fixArraySnapshotIds(sn: SnapshotInOfArray<any>, ctx: FixSnapshotIdsContext): any[] {
-  return sn.map(v => internalFixSnapshotIds(v, ctx))
+  const snLen = sn.length
+
+  const newSn = []
+  newSn.length = snLen
+
+  for (let i = 0; i < snLen; i++) {
+    newSn[i] = internalFixSnapshotIds(sn[i], ctx)
+  }
+
+  return newSn
 }
 
 function fixModelSnapshotIds(

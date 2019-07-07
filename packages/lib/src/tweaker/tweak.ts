@@ -122,7 +122,9 @@ export function tweakArray<T extends any[]>(
 ): T {
   const originalArr: ReadonlyArray<any> = value
   const arrLn = originalArr.length
-  const tweakedArr = isObservableArray(originalArr) ? originalArr : observable.array()
+  const tweakedArr = isObservableArray(originalArr)
+    ? originalArr
+    : observable.array([], observableOptions)
   if (tweakedArr !== originalArr) {
     tweakedArr.length = originalArr.length
   }
@@ -135,24 +137,28 @@ export function tweakArray<T extends any[]>(
 
   // substitute initial values by proxied values
   for (let i = 0; i < arrLn; i++) {
-    const currentValue = originalArr[i]
-    const path = { parent: tweakedArr, path: "" + i }
+    const v = originalArr[i]
 
-    let tweakedValue
-    if (doNotTweakChildren) {
-      tweakedValue = currentValue
-      setParent(tweakedValue, path)
+    if (isPrimitive(v)) {
+      if (!doNotTweakChildren) {
+        set(tweakedArr, i, v)
+      }
+
+      standardSn[i] = v
     } else {
-      tweakedValue = tweak(currentValue, path)
-      set(tweakedArr, i, tweakedValue)
-    }
+      const path = { parent: tweakedArr, path: "" + i }
 
-    const valueSn = getInternalSnapshot(tweakedValue)
-    if (valueSn) {
+      let tweakedValue
+      if (doNotTweakChildren) {
+        tweakedValue = v
+        setParent(tweakedValue, path)
+      } else {
+        tweakedValue = tweak(v, path)
+        set(tweakedArr, i, tweakedValue)
+      }
+
+      const valueSn = getInternalSnapshot(tweakedValue)!
       standardSn[i] = valueSn.standard
-    } else {
-      // must be a primitive
-      standardSn[i] = tweakedValue
     }
   }
 
@@ -171,7 +177,9 @@ export function tweakPlainObject<T>(
   doNotTweakChildren: boolean
 ): T {
   const originalObj: { [k: string]: any } = value
-  const tweakedObj = isObservableObject(originalObj) ? originalObj : observable.object({})
+  const tweakedObj = isObservableObject(originalObj)
+    ? originalObj
+    : observable.object({}, undefined, observableOptions)
 
   tweakedObjects.add(tweakedObj)
   setParent(tweakedObj, parentPath)
@@ -185,23 +193,25 @@ export function tweakPlainObject<T>(
     const k = originalObjKeys[i]
     const v = originalObj[k]
 
-    const path = { parent: tweakedObj, path: k }
-
-    let tweakedValue
-    if (doNotTweakChildren) {
-      tweakedValue = v
-      setParent(tweakedValue, path)
+    if (isPrimitive(v)) {
+      if (!doNotTweakChildren) {
+        set(tweakedObj, k, v)
+      }
+      standardSn[k] = v
     } else {
-      tweakedValue = tweak(v, path)
-      set(tweakedObj, k, tweakedValue)
-    }
+      const path = { parent: tweakedObj, path: k }
 
-    const valueSn = getInternalSnapshot(tweakedValue)
-    if (valueSn) {
+      let tweakedValue
+      if (doNotTweakChildren) {
+        tweakedValue = v
+        setParent(tweakedValue, path)
+      } else {
+        tweakedValue = tweak(v, path)
+        set(tweakedObj, k, tweakedValue)
+      }
+
+      const valueSn = getInternalSnapshot(tweakedValue)!
       standardSn[k] = valueSn.standard
-    } else {
-      // must be a primitive
-      standardSn[k] = tweakedValue
     }
   }
 
@@ -232,29 +242,15 @@ function objectDidChange(change: IObjectDidChange): void {
     (draftStandard: any) => {
       switch (change.type) {
         case "add":
-          {
-            const k = change.name
-            const val = change.newValue
-            const valueSn = getInternalSnapshot(val)
-            if (valueSn) {
-              draftStandard[k] = valueSn.standard
-            } else {
-              // must be a primitive
-              draftStandard[k] = val
-            }
-          }
-          break
-
         case "update":
           {
             const k = change.name
             const val = change.newValue
-            const valueSn = getInternalSnapshot(val)
-            if (valueSn) {
-              draftStandard[k] = valueSn.standard
-            } else {
-              // must be a primitive
+            if (isPrimitive(val)) {
               draftStandard[k] = val
+            } else {
+              const valueSn = getInternalSnapshot(val)!
+              draftStandard[k] = valueSn.standard
             }
           }
           break
@@ -319,14 +315,18 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
       switch (change.type) {
         case "splice":
           {
-            const addedSn = change.added.map(val => {
-              const valueSn = getInternalSnapshot(val)
-              return [valueSn, val]
-            })
+            let addedStandardSn = []
+            const addedLen = change.added.length
+            addedStandardSn.length = addedLen
+            for (let i = 0; i < addedLen; i++) {
+              const v = change.added[i]
+              if (isPrimitive(v)) {
+                addedStandardSn[i] = v
+              } else {
+                addedStandardSn[i] = getInternalSnapshot(v)!.standard
+              }
+            }
 
-            const addedStandardSn = addedSn.map(([valueSn, val]) =>
-              valueSn ? valueSn.standard : val
-            )
             draftStandard.splice(change.index, change.removedCount, ...addedStandardSn)
           }
           break
@@ -335,12 +335,11 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
           {
             const k = change.index
             const val = change.newValue
-            const valueSn = getInternalSnapshot(val)
-            if (valueSn) {
-              draftStandard[k] = valueSn.standard
-            } else {
-              // must be a primitive
+            if (isPrimitive(val)) {
               draftStandard[k] = val
+            } else {
+              const valueSn = getInternalSnapshot(val)!
+              draftStandard[k] = valueSn.standard
             }
           }
           break
@@ -407,4 +406,8 @@ function assertCanWrite() {
   if (!canWrite()) {
     throw failure("data changes must be performed inside model actions")
   }
+}
+
+const observableOptions = {
+  deep: false,
 }
