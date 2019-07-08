@@ -16,7 +16,7 @@ Given the example above we could model it like this:
 
 ```ts
 @model("myApp/TodoList")
-class TodoList extends Model<list: Todo[]; selected?: Ref<Todo>;> {
+class TodoList extends Model<{ list: Todo[]; selected?: Ref<Todo> }> {
   // ...
 
   @modelAction
@@ -44,7 +44,7 @@ The `autoDetach` option, when set to true (default is false), allows the referen
 
 ```ts
 @model("myApp/TodoList")
-class TodoList extends Model<list: Todo[]; selected?: Ref<Todo>;> {
+class TodoList extends Model<{ list: Todo[]; selected?: Ref<Todo> }> {
   // ...
 
   @modelAction

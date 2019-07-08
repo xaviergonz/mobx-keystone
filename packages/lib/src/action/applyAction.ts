@@ -1,9 +1,8 @@
-import { AnyModel } from "../model/Model"
-import { assertIsModel } from "../model/utils"
 import { detach } from "../parent/detach"
 import { resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
+import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { BuiltInAction, isBuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
@@ -29,19 +28,19 @@ export interface ActionCall {
 }
 
 /**
- * Applies (runs) a serialized action over a target model object.
+ * Applies (runs) a serialized action over a target object.
  *
- * @param rootTarget Root target model object to run the action over.
+ * @param rootTarget Root target object to run the action over.
  * @param call The serialized action, usually as coming from `onActionMiddleware`.
  * @returns The return value of the action, if any.
  */
-export function applyAction<TRet = any>(rootTarget: AnyModel, call: ActionCall): TRet {
-  assertIsModel(rootTarget, "applyAction target")
+export function applyAction<TRet = any>(rootTarget: object, call: ActionCall): TRet {
+  assertTweakedObject(rootTarget, "rootTarget")
 
   return wrappedInternalApplyAction.call(rootTarget, call)
 }
 
-function internalApplyAction(this: AnyModel, call: ActionCall) {
+function internalApplyAction(this: object, call: ActionCall) {
   // resolve path
   const current = resolvePath(this, call.targetPath)
 

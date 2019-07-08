@@ -25,6 +25,7 @@ export default {
     },
     "References",
     "Frozen Data",
+    "Redux Compatibility",
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
     "API Reference",
     "GitHub Repo 🔗",

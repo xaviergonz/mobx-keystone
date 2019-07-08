@@ -1,0 +1,21 @@
+---
+name: Redux Compatibility
+route: /reduxCompatibility
+---
+
+# Redux Compatibility
+
+It is possible to transform a `mobx-data-model` tree node into a redux compatible store.
+
+```ts
+const todoListReduxStore = asReduxStore(todoList)
+
+// or with redux middlewares
+const todoListReduxStore = asReduxStore(todoList, middleware1, middleware2)
+```
+
+Such store will have most of the usual redux store methods:
+
+- `getState()` is a thin wrapper over `getSnapshot(storeTarget)`.
+- `dispatch(action)` accepts an action in the form `{ type: "applyAction"; payload: ActionCall }`, which can be constructed by using `actionCallToReduxAction(actionCall)` and will call `applyAction` with the store target and the action call from the payload.
+- `subscribe(listener)` will use `onSnapshot(storeTarget, listener)` and return a disposer.

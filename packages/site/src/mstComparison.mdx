@@ -26,6 +26,7 @@ should be fairly simple. There are some trade-offs though, as shown in the follo
 | Simplified model life-cycle               | ✔️                  | ❌                |
 | Runtime type validation                   | ❌                  | ✔️                |
 | No metadata inside snapshots              | ❌                  | ✔️                |
+| Redux compatibility layer                 | ✔️                  | ✔️                |
 
 1. Includes an improved action tracking middleware that makes it easier to create
    middlewares for flow (async) actions.
@@ -47,18 +48,18 @@ Self-recursive or cross-referenced models are impossible (or at least very hard)
 ```ts
 // self recursive model
 @model("myApp/TreeNode")
-class TreeNode extends Model<children: TreeNode[]> {
+class TreeNode extends Model<{ children: TreeNode[] }> {
   defaultData = {
-    children: []
+    children: [],
   }
 }
 
 // cross-referenced models
 @model("myApp/A")
-class A extends Model<b?: B> {}
+class A extends Model<{ b?: B }> {}
 
 @model("myApp/B")
-class B extends Model<a?: A> {}
+class B extends Model<{ a?: A }> {}
 ```
 
 ### Simpler instance / snapshot type usage
@@ -100,7 +101,7 @@ In `mobx-data-model` snapshots are usually only expected when dealing with `getS
 @model("myApp/Todo")
 class Todo extends Model<{ done: boolean; text: string }> {
   defaultData = {
-    done: false
+    done: false,
   }
 
   @modelAction
@@ -115,7 +116,7 @@ class Todo extends Model<{ done: boolean; text: string }> {
 }
 
 @model("myApp/RootStore")
-class RootStore extends Model<selected?: Todo> {
+class RootStore extends Model<{ selected?: Todo }> {
   @modelAction
   setSelected(todo: Todo) {
     this.data.selected = todo

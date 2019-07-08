@@ -4,6 +4,16 @@ import { getSnapshot } from "./getSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
 
 /**
+ * Listener function for onSnapshot.
+ */
+export type OnSnapshotListener<T> = (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void
+
+/**
+ * Disposer function for onSnapshot.
+ */
+export type OnSnapshotDisposer = () => void
+
+/**
  * Adds a reaction that will trigger every time an snapshot changes.
  *
  * @typeparam T Object type.
@@ -13,8 +23,8 @@ import { SnapshotOutOf } from "./SnapshotOf"
  */
 export function onSnapshot<T extends object>(
   obj: T,
-  listener: (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void
-): () => void {
+  listener: OnSnapshotListener<T>
+): OnSnapshotDisposer {
   assertTweakedObject(obj, "onSnapshot")
 
   let currentSnapshot = getSnapshot(obj)
