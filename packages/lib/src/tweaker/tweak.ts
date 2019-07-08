@@ -227,7 +227,7 @@ export function tweakPlainObject<T>(
   return tweakedObj as any
 }
 
-/***
+/**
  * @ignore
  */
 export const tweak = action("tweak", internalTweak)
