@@ -32,34 +32,48 @@ export interface ActionMiddleware {
 export type ActionMiddlewareDisposer = () => void
 
 type PartialActionMiddleware = Pick<ActionMiddleware, "filter" | "middleware">
+
 const perObjectActionMiddlewares = new WeakMap<object, PartialActionMiddleware[]>()
+
+interface ActionMiddlewaresIterator {
+  [Symbol.iterator](): IterableIterator<PartialActionMiddleware>
+}
+
+const perObjectActionMiddlewaresIterator = new WeakMap<object, ActionMiddlewaresIterator>()
 
 /**
  * @ignore
  *
- * Gets the current action middlewares to be run over a given object.
+ * Gets the current action middlewares to be run over a given object as an iterable object.
  *
  * @returns
  */
-export function getActionMiddlewares(obj: object): PartialActionMiddleware[][] {
-  const mwares: PartialActionMiddleware[][] = []
-
+export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
   // when we call a middleware we will call the middlewares of that object plus all parent objects
   // the parent object middlewares are run last
 
   // since an array like [a, b, c] will be called like c(b(a())) this means that we need to put
   // the parent object ones at the end of the array
 
-  let current: any = obj
-  while (current) {
-    const objMwares = perObjectActionMiddlewares.get(current)
-    if (objMwares && objMwares.length > 0) {
-      mwares.push(objMwares)
+  let iterator = perObjectActionMiddlewaresIterator.get(obj)
+  if (!iterator) {
+    iterator = {
+      *[Symbol.iterator]() {
+        let current: any = obj
+        while (current) {
+          const objMwares = perObjectActionMiddlewares.get(current)
+          if (objMwares) {
+            for (let i = 0; i < objMwares.length; i++) {
+              yield objMwares[i]
+            }
+          }
+          current = getParent(current)
+        }
+      },
     }
-    current = getParent(current)
+    perObjectActionMiddlewaresIterator.set(obj, iterator)
   }
-
-  return mwares
+  return iterator
 }
 
 /**
