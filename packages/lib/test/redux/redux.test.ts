@@ -26,34 +26,35 @@ export class P extends Model<{ x: number }> {
   }
 }
 
-test("asReduxStore - no middlewares", () => {
-  const p = newModel(P, {})
-  const store = asReduxStore(p)
+describe("asReduxStore", () => {
+  test("no middlewares", () => {
+    const p = newModel(P, {})
+    const store = asReduxStore(p)
 
-  expect(store.getState()).toBe(getSnapshot(p))
+    expect(store.getState()).toBe(getSnapshot(p))
 
-  const events: { sn: SnapshotOutOfModel<P>; prevSn: SnapshotOutOfModel<P> }[] = []
-  const disposer = store.subscribe((sn, prevSn) => {
-    events.push({
-      sn,
-      prevSn,
+    const events: { sn: SnapshotOutOfModel<P>; prevSn: SnapshotOutOfModel<P> }[] = []
+    const disposer = store.subscribe((sn, prevSn) => {
+      events.push({
+        sn,
+        prevSn,
+      })
     })
-  })
-  autoDispose(disposer)
+    autoDispose(disposer)
 
-  const action = actionCallToReduxAction({
-    actionName: "addX",
-    args: [5],
-    targetPath: [],
-  })
+    const action = actionCallToReduxAction({
+      actionName: "addX",
+      args: [5],
+      targetPath: [],
+    })
 
-  const dispatched = store.dispatch(action)
-  expect(dispatched).toBe(action)
+    const dispatched = store.dispatch(action)
+    expect(dispatched).toBe(action)
 
-  expect(p.data.x).toBe(5)
-  expect(store.getState()).toBe(getSnapshot(p))
+    expect(p.data.x).toBe(5)
+    expect(store.getState()).toBe(getSnapshot(p))
 
-  expect(events).toMatchInlineSnapshot(`
+    expect(events).toMatchInlineSnapshot(`
         Array [
           Object {
             "prevSn": Object {
@@ -73,56 +74,56 @@ test("asReduxStore - no middlewares", () => {
           },
         ]
     `)
-})
+  })
 
-test("asReduxStore - with middlewares", () => {
-  const p = newModel(P, {})
+  test("with middlewares", () => {
+    const p = newModel(P, {})
 
-  const tweakAction = (action: ReduxAction, fn: (val: number) => number) => {
-    return {
-      ...action,
-      payload: {
-        ...action.payload,
-        args: [fn(action.payload.args[0])],
-      },
+    const tweakAction = (action: ReduxAction, fn: (val: number) => number) => {
+      return {
+        ...action,
+        payload: {
+          ...action.payload,
+          args: [fn(action.payload.args[0])],
+        },
+      }
     }
-  }
 
-  const mware1: ReduxMiddleware<P> = () => next => action => {
-    return tweakAction(next(tweakAction(action, x => x * 2)), x => x * 100)
-  }
+    const mware1: ReduxMiddleware<P> = () => next => action => {
+      return tweakAction(next(tweakAction(action, x => x * 2)), x => x * 100)
+    }
 
-  const mware2: ReduxMiddleware<P> = () => next => action => {
-    return tweakAction(next(tweakAction(action, x => x + 2)), x => x + 100)
-  }
+    const mware2: ReduxMiddleware<P> = () => next => action => {
+      return tweakAction(next(tweakAction(action, x => x + 2)), x => x + 100)
+    }
 
-  const store = asReduxStore(p, mware1, mware2)
+    const store = asReduxStore(p, mware1, mware2)
 
-  expect(store.getState()).toBe(getSnapshot(p))
+    expect(store.getState()).toBe(getSnapshot(p))
 
-  const events: { sn: SnapshotOutOfModel<P>; prevSn: SnapshotOutOfModel<P> }[] = []
-  const disposer = store.subscribe((sn, prevSn) => {
-    events.push({
-      sn,
-      prevSn,
+    const events: { sn: SnapshotOutOfModel<P>; prevSn: SnapshotOutOfModel<P> }[] = []
+    const disposer = store.subscribe((sn, prevSn) => {
+      events.push({
+        sn,
+        prevSn,
+      })
     })
-  })
-  autoDispose(disposer)
+    autoDispose(disposer)
 
-  const action = actionCallToReduxAction({
-    actionName: "addX",
-    args: [5],
-    targetPath: [],
-  })
+    const action = actionCallToReduxAction({
+      actionName: "addX",
+      args: [5],
+      targetPath: [],
+    })
 
-  const dispatched = store.dispatch(action)
-  expect(dispatched).not.toBe(action)
+    const dispatched = store.dispatch(action)
+    expect(dispatched).not.toBe(action)
 
-  // first mware multiplies, second adds
-  expect(p.data.x).toBe(5 * 2 + 2)
+    // first mware multiplies, second adds
+    expect(p.data.x).toBe(5 * 2 + 2)
 
-  // 11200 because 12 -> 12 + 100 = 112 -> 112 * 100 = 11200
-  expect(dispatched).toMatchInlineSnapshot(`
+    // 11200 because 12 -> 12 + 100 = 112 -> 112 * 100 = 11200
+    expect(dispatched).toMatchInlineSnapshot(`
     Object {
       "payload": Object {
         "actionName": "addX",
@@ -135,9 +136,9 @@ test("asReduxStore - with middlewares", () => {
     }
   `)
 
-  expect(store.getState()).toBe(getSnapshot(p))
+    expect(store.getState()).toBe(getSnapshot(p))
 
-  expect(events).toMatchInlineSnapshot(`
+    expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
         "prevSn": Object {
@@ -157,4 +158,5 @@ test("asReduxStore - with middlewares", () => {
       },
     ]
   `)
+  })
 })
