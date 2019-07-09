@@ -1,4 +1,4 @@
-import { applyPatches, getSnapshot, modelSnapshotWithMetadata, runUnprotected } from "../../src"
+import { applyPatches, getSnapshot, modelSnapshotInWithMetadata, runUnprotected } from "../../src"
 import "../commonSetup"
 import { createP, P2 } from "../testbed"
 
@@ -141,7 +141,7 @@ describe("whole object", () => {
         {
           op: "replace",
           path: ["p2"],
-          value: modelSnapshotWithMetadata(P2, { ...oldP2Snapshot, y: 30 }, "someOtherId"),
+          value: modelSnapshotInWithMetadata(P2, { ...oldP2Snapshot, y: 30 }, "someOtherId"),
         },
       ])
     })

@@ -1,4 +1,4 @@
-import { fromSnapshot, model, Model, modelSnapshotWithMetadata } from "../../src"
+import { fromSnapshot, model, Model, modelSnapshotInWithMetadata } from "../../src"
 import "../commonSetup"
 
 @model("P3")
@@ -16,7 +16,7 @@ export class P3 extends Model<{ arr: number[] }> {
 
 test("snapshot processor", () => {
   const p = fromSnapshot<P3>(
-    modelSnapshotWithMetadata(
+    modelSnapshotInWithMetadata(
       P3,
       {
         y: "30,40,50",

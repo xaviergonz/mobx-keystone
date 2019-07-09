@@ -1,10 +1,11 @@
 import { computed } from "mobx"
 import {
+  connectReduxDevTools,
   model,
   Model,
   modelAction,
   newModel,
-  registerRootStore
+  registerRootStore,
 } from "mobx-data-model"
 
 // the model decorator marks this class as a model, an object with actions, etc.
@@ -17,7 +18,7 @@ export class Todo extends Model<{ text: string; done: boolean }> {
   // you can optionally use this to mark some data properties as optional and give them a
   // default value when not present
   defaultData = {
-    done: false
+    done: false,
   }
 
   // the modelAction decorator marks the function as a model action, giving it access
@@ -69,10 +70,18 @@ export const rootStore = newModel(TodoList, {
   todos: [
     newModel(Todo, { text: "make mobx-data-model awesome!" }),
     newModel(Todo, { text: "spread the word" }),
-    newModel(Todo, { text: "buy some milk", done: true })
-  ]
+    newModel(Todo, { text: "buy some milk", done: true }),
+  ],
 })
 
 // although not strictly required, it is always a good idea to register your root stores
 // as such, since this allows the model hook `onAttachedToRootStore` to work and other goodies
 registerRootStore(rootStore)
+
+// we can also connect the store to the redux dev tools
+const remotedev = require("remotedev")
+const connection = remotedev.connectViaExtension({
+  name: "Todo List Example",
+})
+
+connectReduxDevTools(remotedev, connection, rootStore)

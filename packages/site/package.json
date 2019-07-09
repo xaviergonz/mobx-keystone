@@ -13,7 +13,8 @@
     "mobx": "^5.10.1",
     "mobx-react": "^6.1.1",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "remotedev": "^0.2.9"
   },
   "devDependencies": {
     "@types/react": "^16.8.22",

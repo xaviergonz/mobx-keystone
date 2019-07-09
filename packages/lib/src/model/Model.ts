@@ -3,7 +3,7 @@ import nanoid from "nanoid/non-secure"
 import { Omit, Writable } from "ts-essentials"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { SnapshotInOfModel } from "../snapshot"
+import { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot"
 import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
 import { tweakModel, tweakPlainObject } from "../tweaker/tweak"
 import { assertIsObject, failure, makePropReadonly } from "../utils"
@@ -255,6 +255,7 @@ export function addModelClassInitializer(
 
 /**
  * Add missing model metadata to a model creation snapshot to generate a proper model snapshot.
+ * Usually used alongside `fromSnapshot`.
  *
  * @typeparam M Model type.
  * @param modelClass Model class.
@@ -262,11 +263,40 @@ export function addModelClassInitializer(
  * @param [id] Optional model id, if not provided a new one will be generated.
  * @returns The model snapshot (including metadata).
  */
-export function modelSnapshotWithMetadata<M extends AnyModel>(
+export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
   snapshot: Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
   id?: string
 ): SnapshotInOfModel<M> {
+  assertIsModelClass(modelClass, "modelClass")
+  assertIsObject(snapshot, "initialData")
+
+  const modelInfo = modelInfoByClass.get(modelClass)!
+
+  return {
+    ...snapshot,
+    [modelMetadataKey]: {
+      id: id || nanoid(),
+      type: modelInfo.name,
+    },
+  } as any
+}
+
+/**
+ * Add missing model metadata to a model output snapshot to generate a proper model snapshot.
+ * Usually used alongside `applySnapshot`.
+ *
+ * @typeparam M Model type.
+ * @param modelClass Model class.
+ * @param snapshot Model output snapshot without metadata.
+ * @param [id] Optional model id, if not provided a new one will be generated.
+ * @returns The model snapshot (including metadata).
+ */
+export function modelSnapshotOutWithMetadata<M extends AnyModel>(
+  modelClass: ModelClass<M>,
+  snapshot: Omit<SnapshotOutOfModel<M>, typeof modelMetadataKey>,
+  id?: string
+): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
 

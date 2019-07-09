@@ -8,25 +8,24 @@ route: /mstComparison
 This library is very much like `mobx-state-tree` and takes lots of ideas from it, so the transition
 should be fairly simple. There are some trade-offs though, as shown in the following chart:
 
-| Feature                                   | `mobx-data-model`   | `mobx-state-tree` |
-| ----------------------------------------- | ------------------- | ----------------- |
-| Tree-like structure                       | ✔️                  | ✔️                |
-| Immutable snapshot generation             | ✔️                  | ✔️                |
-| Patch generation                          | ✔️                  | ✔️                |
-| Action serialization / replaying          | ✔️                  | ✔️                |
-| Action middleware support (1)             | ✔️✔️                | ✔️                |
-| - Atomic/Transaction middleware           | ✔️                  | ✔️                |
-| - Undo manager middleware                 | ✔️                  | ✔️                |
-| - Redux dev tools middleware              | ❌ (in development) | ✔️                |
-| Flow action support                       | ✔️                  | ✔️                |
-| References                                | ✔️                  | ✔️                |
-| Frozen data                               | ✔️                  | ✔️                |
-| Typescript support (2)                    | ✔️✔️✔️              | ✔️                |
-| Simplified instance / snapshot type usage | ✔️                  | ❌                |
-| Simplified model life-cycle               | ✔️                  | ❌                |
-| Runtime type validation                   | ❌                  | ✔️                |
-| No metadata inside snapshots              | ❌                  | ✔️                |
-| Redux compatibility layer                 | ✔️                  | ✔️                |
+| Feature                                   | `mobx-data-model` | `mobx-state-tree` |
+| ----------------------------------------- | ----------------- | ----------------- |
+| Tree-like structure                       | ✔️                | ✔️                |
+| Immutable snapshot generation             | ✔️                | ✔️                |
+| Patch generation                          | ✔️                | ✔️                |
+| Action serialization / replaying          | ✔️                | ✔️                |
+| Action middleware support (1)             | ✔️✔️              | ✔️                |
+| - Atomic/Transaction middleware           | ✔️                | ✔️                |
+| - Undo manager middleware                 | ✔️                | ✔️                |
+| Flow action support                       | ✔️                | ✔️                |
+| References                                | ✔️                | ✔️                |
+| Frozen data                               | ✔️                | ✔️                |
+| Typescript support (2)                    | ✔️✔️✔️            | ✔️                |
+| Simplified instance / snapshot type usage | ✔️                | ❌                |
+| Simplified model life-cycle               | ✔️                | ❌                |
+| Runtime type validation                   | ❌                | ✔️                |
+| No metadata inside snapshots              | ❌                | ✔️                |
+| Redux compatibility layer                 | ✔️                | ✔️                |
 
 1. Includes an improved action tracking middleware that makes it easier to create
    middlewares for flow (async) actions.

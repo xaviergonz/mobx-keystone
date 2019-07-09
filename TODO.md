@@ -9,8 +9,6 @@
 - (6) should we add something to distinguish actions run as apply (from those who are not) in mwares? (applySnapshot, applyAction, applyPatches)
 - in theory the user could use the filter function + isSpecialAction
 
-- middlewares: (5) redux mware...
-
 - (4) custom refs? cross tree refs?
 
 - (4) does subclassing work? apparently it does with small gotchas

@@ -4,7 +4,7 @@ import {
   newModel,
   onActionMiddleware,
   onPatches,
-  Patch
+  Patch,
 } from "mobx-data-model"
 import { observer } from "mobx-react"
 import React, { useEffect, useState } from "react"
@@ -19,13 +19,10 @@ export const App = observer(() => {
   useEffect(() => {
     // we can use action middlewares for several things
     // in this case we will keep a log of the actions done over the todo list
-    const disposer = onActionMiddleware(
-      { model: rootStore },
-      (actionCall, _actionContext, next) => {
-        actions.push(actionCall)
-        return next()
-      }
-    )
+    const disposer = onActionMiddleware(rootStore, (actionCall, _actionContext, next) => {
+      actions.push(actionCall)
+      return next()
+    })
     return disposer
   }, [rootStore])
 
@@ -53,13 +50,9 @@ export const App = observer(() => {
 
       <br />
 
-      <PreSection title="Action log">
-        {actions.map(actionCallToText)}
-      </PreSection>
+      <PreSection title="Action log">{actions.map(actionCallToText)}</PreSection>
 
-      <PreSection title="Patch log">
-        {patchesList.map(patchesToText)}
-      </PreSection>
+      <PreSection title="Patch log">{patchesList.map(patchesToText)}</PreSection>
 
       <PreSection title="Generated immutable snapshot">
         {JSON.stringify(rootStoreSnapshot, null, 2)}
@@ -113,7 +106,7 @@ function TodoView({
   done,
   text,
   onClick,
-  onRemove
+  onRemove,
 }: {
   done: boolean
   text: string
@@ -125,7 +118,7 @@ function TodoView({
       <span
         onClick={onClick}
         style={{
-          textDecoration: done ? "line-through" : "inherit"
+          textDecoration: done ? "line-through" : "inherit",
         }}
       >
         <span
@@ -133,7 +126,7 @@ function TodoView({
             display: "inline-block",
             width: "1.5rem",
             textAlign: "center",
-            marginRight: 8
+            marginRight: 8,
           }}
         >
           {done ? "✔️" : "👀"}
@@ -171,7 +164,7 @@ function PreSection(props: { title: string; children: React.ReactNode }) {
   return (
     <>
       <h5>{props.title}</h5>
-      <pre style={{ fontSize: 10 }}>{props.children}</pre>
+      <pre style={{ fontSize: 10, whiteSpace: "pre-wrap" }}>{props.children}</pre>
     </>
   )
 }

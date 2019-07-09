@@ -4,7 +4,7 @@ import {
   model,
   Model,
   modelAction,
-  modelSnapshotWithMetadata,
+  modelSnapshotInWithMetadata,
   newModel,
   Ref,
   ref,
@@ -113,11 +113,11 @@ test("ref loaded from a snapshot", () => {
   // we use two snapshots to ensure duplicated ids work when they are on different trees
 
   const p = fromSnapshot<P>(
-    modelSnapshotWithMetadata(
+    modelSnapshotInWithMetadata(
       P,
       {
-        p2: modelSnapshotWithMetadata(P2, {}, "P2-1"),
-        r: modelSnapshotWithMetadata(
+        p2: modelSnapshotInWithMetadata(P2, {}, "P2-1"),
+        r: modelSnapshotInWithMetadata(
           Ref,
           {
             id: "P2-1",
@@ -130,11 +130,11 @@ test("ref loaded from a snapshot", () => {
   )
 
   const pp = fromSnapshot<P>(
-    modelSnapshotWithMetadata(
+    modelSnapshotInWithMetadata(
       P,
       {
-        p2: modelSnapshotWithMetadata(P2, {}, "P2-1"),
-        r: modelSnapshotWithMetadata(
+        p2: modelSnapshotInWithMetadata(P2, {}, "P2-1"),
+        r: modelSnapshotInWithMetadata(
           Ref,
           {
             id: "P2-1",
@@ -161,11 +161,11 @@ test("ref loaded from a snapshot", () => {
 
 test("ref loaded from a broken snapshot", () => {
   const p = fromSnapshot<P>(
-    modelSnapshotWithMetadata(
+    modelSnapshotInWithMetadata(
       P,
       {
-        p2: modelSnapshotWithMetadata(P2, {}, "P2-1"),
-        r: modelSnapshotWithMetadata(
+        p2: modelSnapshotInWithMetadata(P2, {}, "P2-1"),
+        r: modelSnapshotInWithMetadata(
           Ref,
           {
             id: "P2-2",

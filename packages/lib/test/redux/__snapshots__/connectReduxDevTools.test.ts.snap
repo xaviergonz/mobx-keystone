@@ -1,0 +1,634 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`applySnapshot(m, { x: "snapshotX", y: "snapshotY", array: [] }) 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [
+        Object {
+          "$$metadata": Object {
+            "id": "mockedUuid-17",
+            "type": "TestModel",
+          },
+          "array": Array [],
+          "x": "snapshotX",
+          "y": "snapshotY",
+        },
+      ],
+      "path": Array [],
+      "type": "[/] $$applySnapshot({\\"x\\":\\"snapshotX\\",\\"y\\":\\"snapshotY\\",\\"array\\":[],\\"$$metadata\\":{\\"id\\":\\"...) (id 0)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-17",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "snapshotX",
+      "y": "snapshotY",
+    },
+  ],
+]
+`;
+
+exports[`concurrent [m.setYAsync() / m.setXAsync()] 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setYAsync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-9",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "",
+      "y": "setYAsync +0",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsync() (id 1, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-9",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +0",
+      "y": "setYAsync +0",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsync() (id 1, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-9",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +20",
+      "y": "setYAsync +0",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setYAsync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-9",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +20",
+      "y": "setYAsync +50",
+    },
+  ],
+]
+`;
+
+exports[`m.addtoArray({ a: "otherA" }), m.array[0].setA() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [
+        M2 {
+          "$$metadata": Object {
+            "id": "mockedUuid-16",
+            "type": "SubModel",
+          },
+          "data": Object {
+            "a": "setA",
+          },
+        },
+      ],
+      "path": Array [],
+      "type": "[/] addToArray({\\"$$metadata\\":{\\"type\\":\\"SubModel\\",\\"id\\":\\"mockedUuid-16\\"},\\"data\\":{\\"...) (id 0)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-15",
+        "type": "TestModel",
+      },
+      "array": Array [
+        Object {
+          "$$metadata": Object {
+            "id": "mockedUuid-16",
+            "type": "SubModel",
+          },
+          "a": "otherA",
+        },
+      ],
+      "x": "",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [
+        "data",
+        "array",
+        "0",
+      ],
+      "type": "[/data/array/0] setA() (id 1)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-15",
+        "type": "TestModel",
+      },
+      "array": Array [
+        Object {
+          "$$metadata": Object {
+            "id": "mockedUuid-16",
+            "type": "SubModel",
+          },
+          "a": "setA",
+        },
+      ],
+      "x": "",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setX() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setX() (id 0)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-4",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setX",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setXAsync() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-6",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-6",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +20",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setXAsyncThrowAsync() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsyncThrowAsync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-8",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowAsync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsyncThrowAsync() (id 0, async) -error thrown-",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-8",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowAsync +0",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setXAsyncThrowSync() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsyncThrowSync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-7",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowSync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsyncThrowSync() (id 0, async) -error thrown-",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-7",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowSync +0",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setXAsyncWithEmptyFirstPart() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXAsyncWithEmptyFirstPart() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-14",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncWithEmptyFirstPart +20",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setXThrow() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXThrow() (id 0)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-5",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXThrow",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXThrow() (id 0) -error thrown-",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-5",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXThrow",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setXY() -> m.setX(), m.setY() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXY() (id 0)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-10",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXY starts",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXY() (id 0) >>> [/] setX() (id 1)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-10",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setX",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXY() (id 0) >>> [/] setY() (id 2)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-10",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setX",
+      "y": "setY",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXY() (id 0)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-10",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXY ends",
+      "y": "setY",
+    },
+  ],
+]
+`;
+
+exports[`m.setXYAsync() -> m.setXAsync(), m.setYAsync() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-11",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXYAsync starts",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsync() (id 0, async) >>> [/] setXAsync() (id 1, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-11",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsync() (id 0, async) >>> [/] setXAsync() (id 1, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-11",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +20",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsync() (id 0, async) >>> [/] setYAsync() (id 2, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-11",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +20",
+      "y": "setYAsync +0",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsync() (id 0, async) >>> [/] setYAsync() (id 2, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-11",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsync +20",
+      "y": "setYAsync +50",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsync() (id 0, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-11",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXYAsync ends",
+      "y": "setYAsync +50",
+    },
+  ],
+]
+`;
+
+exports[`m.setXYAsyncThrowAsync() -> m.setXYAsyncThrowAsync() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsyncThrowAsync() (id 0, async) >>> [/] setXAsyncThrowAsync() (id 1, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-13",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowAsync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsyncThrowAsync() (id 0, async) >>> [/] setXAsyncThrowAsync() (id 1, async) -error thrown-",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-13",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowAsync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsyncThrowAsync() (id 0, async) -error thrown-",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-13",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowAsync +0",
+      "y": "",
+    },
+  ],
+]
+`;
+
+exports[`m.setXYAsyncThrowSync() -> m.setXAsyncThrowSync() 1`] = `
+Array [
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsyncThrowSync() (id 0, async) >>> [/] setXAsyncThrowSync() (id 1, async)",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-12",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowSync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsyncThrowSync() (id 0, async) >>> [/] setXAsyncThrowSync() (id 1, async) -error thrown-",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-12",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowSync +0",
+      "y": "",
+    },
+  ],
+  Array [
+    Object {
+      "args": Array [],
+      "path": Array [],
+      "type": "[/] setXYAsyncThrowSync() (id 0, async) -error thrown-",
+    },
+    Object {
+      "$$metadata": Object {
+        "id": "mockedUuid-12",
+        "type": "TestModel",
+      },
+      "array": Array [],
+      "x": "setXAsyncThrowSync +0",
+      "y": "",
+    },
+  ],
+]
+`;

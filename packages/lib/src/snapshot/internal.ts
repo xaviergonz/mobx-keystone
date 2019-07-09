@@ -107,7 +107,11 @@ export const setInternalSnapshot = action(
         // patches for parent changes should not be emitted
         let parentStandardSn = parentSnapshot.standard
         if (parentStandardSn[path] !== sn.standard) {
-          parentStandardSn = Object.assign({}, parentStandardSn)
+          if (Array.isArray(parentStandardSn)) {
+            parentStandardSn = parentStandardSn.slice()
+          } else {
+            parentStandardSn = Object.assign({}, parentStandardSn)
+          }
           parentStandardSn[path] = sn.standard
 
           setInternalSnapshot(parentPath.parent, parentStandardSn, undefined)

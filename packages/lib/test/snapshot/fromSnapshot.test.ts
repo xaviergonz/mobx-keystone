@@ -1,15 +1,15 @@
 import { isObservable } from "mobx"
-import { fromSnapshot, modelSnapshotWithMetadata } from "../../src"
+import { fromSnapshot, modelSnapshotInWithMetadata } from "../../src"
 import "../commonSetup"
 import { P, P2 } from "../testbed"
 
 test("fromSnapshot", () => {
   const p = fromSnapshot<P>(
-    modelSnapshotWithMetadata(
+    modelSnapshotInWithMetadata(
       P,
       {
         arr: [1, 2, 3],
-        p2: modelSnapshotWithMetadata(
+        p2: modelSnapshotInWithMetadata(
           P2,
           {
             y: 12,

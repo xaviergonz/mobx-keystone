@@ -1,3 +1,4 @@
+export { connectReduxDevTools } from "./connectReduxDevTools"
 export {
   actionCallToReduxAction,
   asReduxStore,
