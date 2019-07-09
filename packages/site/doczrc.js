@@ -15,13 +15,7 @@ export default {
     "Patches",
     {
       name: "Action Middlewares",
-      menu: [
-        "onActionMiddleware",
-        "transactionMiddleware",
-        "undoMiddleware",
-        "reduxDevToolsMiddleware",
-        "Custom Middlewares"
-      ]
+      menu: ["onActionMiddleware", "transactionMiddleware", "undoMiddleware", "Custom Middlewares"],
     },
     "References",
     "Frozen Data",
@@ -29,22 +23,22 @@ export default {
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
     "API Reference",
     "GitHub Repo 🔗",
-    "NPM Project Page 🔗"
+    "NPM Project Page 🔗",
   ],
   htmlContext: {
     head: {
       links: [
         {
           rel: "stylesheet",
-          href: "https://codemirror.net/theme/blackboard.css"
-        }
-      ]
-    }
+          href: "https://codemirror.net/theme/blackboard.css",
+        },
+      ],
+    },
   },
   themeConfig: {
     logo: {
       src: "/public/images/mdm-logo.svg",
-      width: 100
+      width: 100,
     },
     mode: "dark",
     codemirrorTheme: "blackboard",
@@ -54,10 +48,10 @@ export default {
       codeColor: "#8DB6DE",
       codeBg: "#0C1021",
       blockquoteColor: "#8DB6DE",
-      blockquoteBg: "#0C1021"
-    }
+      blockquoteBg: "#0C1021",
+    },
   },
   src: "./src",
   public: "./src/public",
-  plugins: []
+  plugins: [],
 }

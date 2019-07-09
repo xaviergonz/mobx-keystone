@@ -1,4 +1,4 @@
-import { modelSnapshotWithMetadata, SnapshotInOf } from "../../dist"
+import { modelSnapshotInWithMetadata, SnapshotInOf } from "../../dist"
 import { Hero, HeroRoles, Monster, Treasure } from "./fixture-models"
 
 /**
@@ -11,7 +11,7 @@ export function createTreasure(count: number) {
   let i = 0
   do {
     data.push(
-      modelSnapshotWithMetadata(Treasure, {
+      modelSnapshotInWithMetadata(Treasure, {
         trapped: i % 2 === 0,
         gold: ((count % 10) + 1) * 10,
       })
@@ -47,7 +47,7 @@ export function createHeros(count: number) {
     n2 = givenNames[i % givenNames.length]
     n3 = epicNames[i % epicNames.length]
     data.push(
-      modelSnapshotWithMetadata(
+      modelSnapshotInWithMetadata(
         Hero,
         {
           id: i,
@@ -80,7 +80,7 @@ export function createMonsters(count: number, treasureCount: number, heroCount: 
     const treasures = createTreasure(treasureCount)
     const eatenHeroes = createHeros(heroCount)
     data.push(
-      modelSnapshotWithMetadata(
+      modelSnapshotInWithMetadata(
         Monster,
         {
           id: `omg-${i}-run!`,

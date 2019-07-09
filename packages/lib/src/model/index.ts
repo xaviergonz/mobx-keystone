@@ -4,7 +4,8 @@ export {
   Model,
   ModelCreationData,
   ModelData,
-  modelSnapshotWithMetadata,
+  modelSnapshotInWithMetadata,
+  modelSnapshotOutWithMetadata,
   newModel,
 } from "./Model"
 export { model } from "./modelDecorator"

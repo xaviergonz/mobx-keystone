@@ -9,7 +9,7 @@ import {
   isParentOfChild,
   model,
   Model,
-  modelSnapshotWithMetadata,
+  modelSnapshotInWithMetadata,
   runUnprotected,
 } from "../../src"
 import "../commonSetup"
@@ -31,15 +31,15 @@ export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }> {
 
 test("parent", () => {
   const p = fromSnapshot<P>(
-    modelSnapshotWithMetadata(
+    modelSnapshotInWithMetadata(
       P,
       {
         arr: [
-          modelSnapshotWithMetadata(P2, { y: 1 }, "P2-id1"),
-          modelSnapshotWithMetadata(P2, { y: 2 }, "P2-id2"),
-          modelSnapshotWithMetadata(P2, { y: 3 }, "P2-id3"),
+          modelSnapshotInWithMetadata(P2, { y: 1 }, "P2-id1"),
+          modelSnapshotInWithMetadata(P2, { y: 2 }, "P2-id2"),
+          modelSnapshotInWithMetadata(P2, { y: 3 }, "P2-id3"),
         ],
-        p2: modelSnapshotWithMetadata(P2, { y: 12 }, "P2-idout"),
+        p2: modelSnapshotInWithMetadata(P2, { y: 12 }, "P2-idout"),
       },
       "P-id"
     )

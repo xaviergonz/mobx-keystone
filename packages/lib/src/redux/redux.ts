@@ -40,14 +40,16 @@ export interface ReduxStore<T> {
 /**
  * A redux runner for mobx-data-model.
  */
-export type ReduxRunner<T> = (
-  next: ReduxStore<T>["dispatch"]
-) => (action: ReduxAction) => ReduxAction
+export interface ReduxRunner<T> {
+  (next: ReduxStore<T>["dispatch"]): (action: ReduxAction) => ReduxAction
+}
 
 /**
  * A redux middleware for mobx-data-model.
  */
-export type ReduxMiddleware<T> = (store: ReduxStore<T>) => ReduxRunner<T>
+export interface ReduxMiddleware<T> {
+  (store: ReduxStore<T>): ReduxRunner<T>
+}
 
 /**
  * Generates a redux compatible store out of a mobx-data-model object.
