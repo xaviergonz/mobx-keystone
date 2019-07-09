@@ -95,7 +95,7 @@ function runMiddlewares<T>(
   initialAction: ReduxAction,
   runners: ReadonlyArray<ReduxRunner<T>>,
   next: ReduxStore<T>["dispatch"]
-) {
+): ReduxAction {
   let i = 0
 
   function runNextMiddleware(action: ReduxAction) {
