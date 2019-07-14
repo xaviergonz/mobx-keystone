@@ -5,6 +5,13 @@ import { AnyModel, Model, ModelClass } from "./Model"
 
 /**
  * @ignore
+ */
+export function isModel(model: any): model is AnyModel {
+  return model instanceof Model
+}
+
+/**
+ * @ignore
  *
  * Asserts something is actually a model.
  *
@@ -16,9 +23,24 @@ export function assertIsModel(
   argName: string,
   customErrMsg = "must be a model instance"
 ) {
-  if (!(model instanceof Model)) {
+  if (!isModel(model)) {
     throw failure(`${argName} ${customErrMsg}`)
   }
+}
+
+/**
+ * @ignore
+ */
+export function isModelClass(modelClass: any): modelClass is ModelClass<AnyModel> {
+  if (typeof modelClass !== "function") {
+    return false
+  }
+
+  if (modelClass !== Model && !(modelClass.prototype instanceof Model)) {
+    return false
+  }
+
+  return true
 }
 
 /**

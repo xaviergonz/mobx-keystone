@@ -142,7 +142,7 @@ Array [
       "path": Array [
         "data",
         "array",
-        "0",
+        0,
       ],
       "type": "[/data/array/0] setA() (id 1)",
     },

@@ -2,7 +2,7 @@ import { action, isAction } from "mobx"
 import { Model } from "../model/Model"
 import { getParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
-import { deleteFromArray, failure } from "../utils"
+import { assertIsFunction, deleteFromArray } from "../utils"
 import { Patch } from "./Patch"
 
 /**
@@ -57,10 +57,7 @@ const globalPatchListeners: OnGlobalPatchesListener[] = []
  */
 export function onPatches(target: object, listener: OnPatchesListener): OnPatchesDisposer {
   assertTweakedObject(target, "onPatches")
-
-  if (typeof listener !== "function") {
-    throw failure("listener must be a function")
-  }
+  assertIsFunction(listener, "listener")
 
   if (!isAction(listener)) {
     listener = action(listener.name || "onPatchesListener", listener)
@@ -86,9 +83,7 @@ export function onPatches(target: object, listener: OnPatchesListener): OnPatche
  * @returns A disposer to stop listening to patches.
  */
 export function onGlobalPatches(listener: OnGlobalPatchesListener): OnPatchesDisposer {
-  if (typeof listener !== "function") {
-    throw failure("listener must be a function")
-  }
+  assertIsFunction(listener, "listener")
 
   if (!isAction(listener)) {
     listener = action(listener.name || "onGlobalPatchesListener", listener)
@@ -137,7 +132,7 @@ function emitPatch(
   }
 }
 
-function addPathToPatch(patch: Patch, path: string): Patch {
+function addPathToPatch(patch: Patch, path: string | number): Patch {
   return {
     ...patch,
     path: [path, ...patch.path],

@@ -162,6 +162,24 @@ export function assertIsObject(value: any, argName: string): void {
 /**
  * @ignore
  */
+export function assertIsFunction(value: any, argName: string): void {
+  if (typeof value !== "function") {
+    throw failure(`${argName} must be a function`)
+  }
+}
+
+/**
+ * @ignore
+ */
+export function assertIsPrimitive(value: any, argName: string): void {
+  if (!isPrimitive(value)) {
+    throw failure(`${argName} must be a primitive`)
+  }
+}
+
+/**
+ * @ignore
+ */
 export interface DecorateMethodOrFieldData {
   target: any
   propertyKey: string

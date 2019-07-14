@@ -22,9 +22,9 @@ export interface ActionCall {
    */
   readonly args: ReadonlyArray<any>
   /**
-   * Path to the subobject where the action will be run, as an array of strings.
+   * Path to the subobject where the action will be run, as an array of string | number.
    */
-  readonly targetPath: ReadonlyArray<string>
+  readonly targetPath: ReadonlyArray<string | number>
 }
 
 /**

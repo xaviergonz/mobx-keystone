@@ -94,7 +94,7 @@ function applySinglePatch(obj: object, patch: Patch): void {
 function pathArrayToObjectAndProp(
   obj: object,
   path: Patch["path"]
-): { target: any; prop?: string } {
+): { target: any; prop?: string | number } {
   if (inDevMode()) {
     if (!Array.isArray(path)) {
       throw failure(`invalid path: ${path}`)
@@ -120,6 +120,6 @@ function pathArrayToObjectAndProp(
 
   return {
     target,
-    prop: "" + path[path.length - 1],
+    prop: path[path.length - 1],
   }
 }

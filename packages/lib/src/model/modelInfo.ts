@@ -1,10 +1,12 @@
+import { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
 import { isObject } from "../utils"
-import { modelMetadataKey } from "./metadata"
+import { ModelMetadata, modelMetadataKey } from "./metadata"
 import { AnyModel, ModelClass } from "./Model"
 
 interface ModelInfo {
   name: string
   class: ModelClass<AnyModel>
+  dataTypeChecker?: TypeChecker | LateTypeChecker
 }
 
 /**
@@ -17,7 +19,7 @@ export const modelInfoByName: {
 /**
  * @ignore
  */
-export const modelInfoByClass = new Map<any, ModelInfo>()
+export const modelInfoByClass = new Map<ModelClass<AnyModel>, ModelInfo>()
 
 /**
  * @ignore
@@ -29,9 +31,11 @@ export function getModelInfoForName(name: string): ModelInfo | undefined {
 /**
  * @ignore
  */
-export function getModelInfoForObject(obj: any): ModelInfo | undefined {
+export function getModelInfoForObject(obj: {
+  [modelMetadataKey]: ModelMetadata
+}): ModelInfo | undefined {
   if (!isObject(obj) || !obj[modelMetadataKey]) {
     return undefined
   }
-  return getModelInfoForName((obj as AnyModel)[modelMetadataKey].type)
+  return getModelInfoForName(obj[modelMetadataKey].type)
 }

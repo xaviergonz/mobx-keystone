@@ -20,5 +20,5 @@
 - (5) check out mst api for missing features
 
 - (3) future: object/array backed map, array backed set? the mapping of those types to pure json is not apparent though
-- (4) some kind of validation or rely on ts? maybe allow them to use yup or some other validation library via some validation callback?
-  - Model.validateSnapshotIn(sn),Model.validateSnapshotOut(sn)?
+
+- runtype checking: when to auto check? add refinement function?

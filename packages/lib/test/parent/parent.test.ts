@@ -72,12 +72,12 @@ test("parent", () => {
   expect(getParentPath(p.data.p2!)).toEqual({ parent: p.data, path: "p2" })
   expect(getParentPath(p.data.p2!.data)).toEqual({ parent: p.data.p2, path: "data" })
   p.data.arr.forEach((p2, i) => {
-    expect(getParentPath(p2)).toEqual({ parent: p.data.arr, path: "" + i })
+    expect(getParentPath(p2)).toStrictEqual({ parent: p.data.arr, path: i })
   })
 
   expect(getRootPath(p.data.arr[0].data)).toEqual({
     root: p,
-    path: ["data", "arr", "0", "data"],
+    path: ["data", "arr", 0, "data"],
   })
 
   expect(Array.from(getChildrenObjects(p).values())).toEqual([p.data])

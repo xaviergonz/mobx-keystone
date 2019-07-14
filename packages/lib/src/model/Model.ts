@@ -1,15 +1,19 @@
 import { action, observable } from "mobx"
 import nanoid from "nanoid/non-secure"
-import { Omit, Writable } from "ts-essentials"
+import { StrictOmit, Writable } from "ts-essentials"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot"
 import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
 import { tweakModel, tweakPlainObject } from "../tweaker/tweak"
+import { typesModel } from "../typeChecking/model"
+import { AnyType } from "../typeChecking/schemas"
+import { typeCheck } from "../typeChecking/typeCheck"
+import { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject, failure, makePropReadonly } from "../utils"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
-import { modelInfoByClass } from "./modelInfo"
-import { assertIsModelClass } from "./utils"
+import { getModelInfoForObject, modelInfoByClass } from "./modelInfo"
+import { assertIsModelClass, isModel, isModelClass } from "./utils"
 
 declare const typeSymbol: unique symbol
 
@@ -87,6 +91,17 @@ export abstract class Model<Data extends { [k: string]: any }> {
   fromSnapshot?(snapshot: any): any
 
   /**
+   * Performs a type check over the model instance.
+   * For this to work a data type has to be declared in the model decorator.
+   *
+   * @returns A `TypeCheckError` or `null` if there is no error.
+   */
+  typeCheck(): TypeCheckError | null {
+    const type = typesModel(this.constructor as any)
+    return typeCheck(type, this)
+  }
+
+  /**
    * Creates an instance of Model.
    * Never use this directly, use the `newModel` function instead.
    *
@@ -114,7 +129,7 @@ export type ModelClass<M extends AnyModel> = new (privateSymbol: typeof modelCon
 /**
  * The creation data of a model.
  */
-export type ModelCreationData<M extends AnyModel> = Omit<M["data"], keyof M["defaultData"]> &
+export type ModelCreationData<M extends AnyModel> = StrictOmit<M["data"], keyof M["defaultData"]> &
   Partial<M["data"]>
 
 /**
@@ -265,7 +280,7 @@ export function addModelClassInitializer(
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
+  snapshot: StrictOmit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
   id?: string
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
@@ -294,7 +309,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: Omit<SnapshotOutOfModel<M>, typeof modelMetadataKey>,
+  snapshot: StrictOmit<SnapshotOutOfModel<M>, typeof modelMetadataKey>,
   id?: string
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
@@ -309,4 +324,22 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
       type: modelInfo.name,
     },
   } as any
+}
+
+/**
+ * Returns the associated data type for run-time checking (if any) to a model instance or class.
+ *
+ * @param modelClassOrInstance Model class or instance.
+ * @returns The associated data type, or undefined if none.
+ */
+export function getModelDataType(
+  modelClassOrInstance: AnyModel | ModelClass<AnyModel>
+): AnyType | undefined {
+  if (isModel(modelClassOrInstance)) {
+    return getModelInfoForObject(modelClassOrInstance)!.dataTypeChecker as any
+  } else if (isModelClass(modelClassOrInstance)) {
+    return modelInfoByClass.get(modelClassOrInstance)!.dataTypeChecker as any
+  } else {
+    throw failure(`modelClassOrInstance must be a model class or instance`)
+  }
 }

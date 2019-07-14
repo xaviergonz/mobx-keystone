@@ -146,7 +146,7 @@ export function tweakArray<T extends any[]>(
 
       standardSn[i] = v
     } else {
-      const path = { parent: tweakedArr, path: "" + i }
+      const path = { parent: tweakedArr, path: i }
 
       let tweakedValue
       if (doNotTweakChildren) {
@@ -507,7 +507,7 @@ function interceptArrayMutation(
         for (let i = 0; i < change.added.length; i++) {
           change.added[i] = tweak(change.added[i], {
             parent: change.object,
-            path: "" + (change.index + i),
+            path: change.index + i,
           })
         }
       }
@@ -521,7 +521,7 @@ function interceptArrayMutation(
 
         // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
         tweak(array[change.index], undefined) // set old prop obj parent to undefined
-        change.newValue = tweak(change.newValue, { parent: array, path: "" + change.index })
+        change.newValue = tweak(change.newValue, { parent: array, path: change.index })
       }
       break
   }

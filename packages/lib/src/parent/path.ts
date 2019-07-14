@@ -10,12 +10,11 @@ export interface ParentPath<T extends object> {
   /**
    * Parent object.
    */
-  parent: T
+  readonly parent: T
   /**
-   * Property name (if the parent is an object) or index number (if the parent is an array),
-   * both in string format.
+   * Property name (if the parent is an object) or index number (if the parent is an array).
    */
-  path: string
+  readonly path: string | number
 }
 
 /**
@@ -27,12 +26,12 @@ export interface RootPath<T extends object> {
   /**
    * Root object.
    */
-  root: T
+  readonly root: T
   /**
    * Path from the root to the given target, as a string array.
    * If the target is a root itself then the array will be empty.
    */
-  path: string[]
+  readonly path: ReadonlyArray<string | number>
 }
 
 /**
@@ -73,9 +72,9 @@ export function getParent<T extends object = any>(value: object): T | undefined 
 export function getRootPath<T extends object = any>(value: object): RootPath<T> {
   assertTweakedObject(value, "getRootPath")
 
-  const rootPath: RootPath<any> = {
+  const rootPath = {
     root: value,
-    path: [],
+    path: [] as (string | number)[],
   }
 
   let parentPath
@@ -84,7 +83,7 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
     rootPath.path.unshift(parentPath.path)
   }
 
-  return rootPath
+  return rootPath as RootPath<any>
 }
 
 /**
@@ -158,16 +157,18 @@ export function isParentOfChild(parent: object, child: object): boolean {
  */
 export function resolvePath<T = any>(
   pathRootObject: object,
-  path: ReadonlyArray<string> | string
+  path: ReadonlyArray<string | number> | string | number
 ): T {
   let current: any = pathRootObject
 
-  if (typeof path === "string") {
+  if (typeof path === "string" || typeof path === "number") {
     return current[path]
   }
 
-  path.forEach(p => {
-    current = current[p]
-  })
+  let len = path.length
+  for (let i = 0; i < len; i++) {
+    current = current[path[i]]
+  }
+
   return current
 }
