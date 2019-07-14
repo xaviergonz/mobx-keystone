@@ -4,7 +4,14 @@ import { model } from "../model/modelDecorator"
 import { resolveReferenceId } from "../parent/core"
 import { detach } from "../parent/detach"
 import { getRoot } from "../parent/path"
+import { TypeToData } from "../typeChecking/schemas"
+import { types } from "../typeChecking/types"
 import { failure } from "../utils"
+
+const refDataType = types.object(() => ({
+  id: types.string,
+  autoDetach: types.boolean,
+}))
 
 /**
  * A reference to the unique ID of a given model object.
@@ -12,8 +19,8 @@ import { failure } from "../utils"
  *
  * @typeparam T Referenced object type.
  */
-@model("$$Ref")
-export class Ref<T extends AnyModel> extends Model<{ id: string; autoDetach: boolean }> {
+@model("$$Ref", { dataType: refDataType })
+export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType>> {
   defaultData = {
     autoDetach: false,
   }

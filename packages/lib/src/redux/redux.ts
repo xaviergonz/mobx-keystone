@@ -100,7 +100,7 @@ function runMiddlewares<T>(
 ): ReduxAction {
   let i = 0
 
-  function runNextMiddleware(action: ReduxAction) {
+  function runNextMiddleware(action: ReduxAction): ReduxAction {
     const runner = runners[i]
     i++
     if (runner) {

@@ -1,7 +1,7 @@
 import { action, isAction } from "mobx"
 import { getParent, isChildOfParent } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsObject, deleteFromArray, failure } from "../utils"
+import { assertIsFunction, assertIsObject, deleteFromArray, failure } from "../utils"
 import { ActionContext } from "./context"
 
 /**
@@ -91,9 +91,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
   let { middleware, filter, target } = mware
 
   assertTweakedObject(target, "middleware.target")
-  if (typeof middleware !== "function") {
-    throw failure("middleware.middleware must be a function")
-  }
+  assertIsFunction(middleware, "middleware.middleware")
   if (filter && typeof filter !== "function") {
     throw failure("middleware.filter must be a function or undefined")
   }

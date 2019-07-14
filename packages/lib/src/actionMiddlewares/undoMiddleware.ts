@@ -16,7 +16,7 @@ export interface UndoEvent {
   /**
    * Path to the object that invoked the action from its root.
    */
-  readonly targetPath: string[]
+  readonly targetPath: ReadonlyArray<string | number>
   /**
    * Name of the action that was invoked.
    */
