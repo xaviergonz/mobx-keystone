@@ -1,6 +1,7 @@
 import { computed, when } from "mobx"
-import { AnyModel, Model, ModelCreationData, newModel } from "../model/Model"
+import { AnyModel, Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
+import { ModelCreationData, newModel } from "../model/newModel"
 import { resolveReferenceId } from "../parent/core"
 import { detach } from "../parent/detach"
 import { getRoot } from "../parent/path"

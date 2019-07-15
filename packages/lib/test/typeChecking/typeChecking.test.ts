@@ -1,18 +1,75 @@
+import { reaction } from "mobx"
 import {
+  AnyModel,
   AnyType,
   frozen,
   model,
   Model,
   modelAction,
+  ModelAutoTypeCheckingMode,
   newModel,
+  onActionMiddleware,
+  onPatches,
+  onSnapshot,
   ref,
   resolvePath,
+  setGlobalConfig,
   typeCheck,
   TypeCheckError,
   types,
   TypeToData,
 } from "../../src"
 import "../commonSetup"
+
+beforeEach(() => {
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+  })
+})
+
+function expectTypeCheckError(m: AnyModel, fn: () => void) {
+  const snapshots: any[] = []
+  const disposer1 = onSnapshot(m, sn => {
+    snapshots.push(sn)
+  })
+  const patches: any[] = []
+  const disposer2 = onPatches(m, p => {
+    patches.push(p)
+  })
+  const actions: any[] = []
+  const disposer3 = onActionMiddleware(m, (ac, _ctx, next) => {
+    actions.push(ac)
+    return next()
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+
+  expect(fn).toThrow("TypeCheckError")
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+  })
+
+  disposer1()
+  disposer2()
+  disposer3()
+
+  expect(actions).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "setX",
+        "args": Array [
+          "10",
+        ],
+        "targetPath": Array [],
+      },
+    ]
+  `)
+  expect(snapshots).toEqual([])
+  expect(patches).toEqual([])
+}
 
 // just used to check the value conforms to the type
 function tsCheck<T>(_val: T): void {}
@@ -184,6 +241,35 @@ test("model", () => {
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["data", "x"], "number")
   expect(m.typeCheck()).toEqual(new TypeCheckError(["data", "x"], "number", "10"))
+
+  m.setX(20)
+  expectTypeCheckOk(type, m)
+
+  // make sure reaction doesn't run if we revert the change
+  let reactionRun = 0
+  reaction(
+    () => m.data.x,
+    () => {
+      reactionRun++
+    }
+  )
+
+  expectTypeCheckError(m, () => {
+    m.setX("10" as any)
+  })
+  expect(reactionRun).toBe(0)
+  expect(m.data.x).toBe(20)
+  expectTypeCheckOk(type, m)
+})
+
+test("newModel with typechecking enabled", () => {
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+
+  expect(() => newModel(M, { x: 10, y: 20 as any })).toThrow(
+    "TypeCheckError: [data/y] Expected: string"
+  )
 })
 
 test("typedModel", () => {

@@ -1,4 +1,4 @@
-import { onPatches } from "../patch/emitPatch"
+import { getParent } from "../parent/path"
 import { isTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { TypeCheckError } from "./TypeCheckError"
@@ -7,13 +7,67 @@ type CheckFunction = (value: any, path: ReadonlyArray<string | number>) => TypeC
 
 const emptyPath: ReadonlyArray<string | number> = []
 
+type CheckResult = TypeCheckError | null
+type CheckResultCache = WeakMap<object, CheckResult>
+
+const typeCheckersWithCachedResultsOfObject = new WeakMap<object, Set<TypeChecker>>()
+
+/**
+ * @ignore
+ */
+export function invalidateCachedTypeCheckerResult(obj: object) {
+  // we need to invalidate it for the object and all its parents
+  let current: any = obj
+  while (current) {
+    const set = typeCheckersWithCachedResultsOfObject.get(current)
+    if (set) {
+      for (const typeChecker of set) {
+        typeChecker.invalidateCachedResult(current)
+      }
+      typeCheckersWithCachedResultsOfObject.delete(current)
+    }
+
+    current = getParent(current)
+  }
+}
+
 /**
  * @ignore
  */
 export class TypeChecker {
-  private checkResultCache?: WeakMap<object, TypeCheckError | null | "outdated">
+  private checkResultCache?: CheckResultCache
 
   unchecked: boolean
+
+  private createCacheIfNeeded(): CheckResultCache {
+    if (!this.checkResultCache) {
+      this.checkResultCache = new WeakMap()
+    }
+    return this.checkResultCache
+  }
+
+  setCachedResult(obj: object, newCacheValue: CheckResult) {
+    this.createCacheIfNeeded().set(obj, newCacheValue)
+
+    // register this type checker as listener of that object changes
+    let typeCheckerSet = typeCheckersWithCachedResultsOfObject.get(obj)
+    if (!typeCheckerSet) {
+      typeCheckerSet = new Set()
+      typeCheckersWithCachedResultsOfObject.set(obj, typeCheckerSet)
+    }
+
+    typeCheckerSet.add(this)
+  }
+
+  invalidateCachedResult(obj: object) {
+    if (this.checkResultCache) {
+      this.checkResultCache.delete(obj)
+    }
+  }
+
+  private getCachedResult(obj: object): CheckResult | undefined {
+    return this.checkResultCache ? this.checkResultCache.get(obj) : undefined
+  }
 
   check(value: any, path: ReadonlyArray<string | number>): TypeCheckError | null {
     if (this.unchecked) {
@@ -26,25 +80,12 @@ export class TypeChecker {
 
     // optimized checking with cached values
 
-    if (!this.checkResultCache) {
-      this.checkResultCache = new WeakMap()
-    }
-    const checkResultCache = this.checkResultCache!
-
-    let cachedResult = checkResultCache.get(value)
+    let cachedResult = this.getCachedResult(value)
 
     if (cachedResult === undefined) {
-      // not yet set up, set up type checking invalidation
-      onPatches(value, () => {
-        checkResultCache.set(value, "outdated")
-      })
-      cachedResult = "outdated"
-    }
-
-    if (cachedResult === "outdated") {
       // we set the path empty since the resoult could be used for another paths other than this base
       cachedResult = this._check!(value, emptyPath)
-      checkResultCache.set(value, cachedResult)
+      this.setCachedResult(value, cachedResult)
     }
 
     if (cachedResult) {
