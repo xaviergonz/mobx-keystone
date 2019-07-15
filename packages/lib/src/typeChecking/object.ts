@@ -38,7 +38,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean): S {
         const tc = resolveTypeChecker(unresolvedTc)
         const objVal = obj[k]
 
-        const valueError = tc.check ? tc.check(objVal, [...path, k]) : null
+        const valueError = !tc.unchecked ? tc.check(objVal, [...path, k]) : null
         if (valueError) {
           return valueError
         }

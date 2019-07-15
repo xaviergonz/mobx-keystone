@@ -22,7 +22,7 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T> {
         return new TypeCheckError(path, getTypeName(thisTc), array)
       }
 
-      if (itemChecker.check) {
+      if (!itemChecker.unchecked) {
         for (let i = 0; i < array.length; i++) {
           const itemError = itemChecker.check(array[i], [...path, i])
           if (itemError) {

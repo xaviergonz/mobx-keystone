@@ -107,13 +107,19 @@ function emitPatch(
 
   // first emit global listeners
   if (emitGlobally) {
-    globalPatchListeners.forEach(listener => listener(obj, patches, inversePatches))
+    for (let i = 0; i < globalPatchListeners.length; i++) {
+      const listener = globalPatchListeners[i]
+      listener(obj, patches, inversePatches)
+    }
   }
 
   // then per subtree listeners
   const listenersForObject = patchListeners.get(obj)
   if (listenersForObject) {
-    listenersForObject.forEach(listener => listener(patches, inversePatches))
+    for (let i = 0; i < listenersForObject.length; i++) {
+      const listener = listenersForObject[i]
+      listener(patches, inversePatches)
+    }
   }
 
   // and also emit subtree listeners all the way to the root
