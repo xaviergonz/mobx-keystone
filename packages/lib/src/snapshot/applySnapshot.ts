@@ -51,7 +51,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   }
 
   if (isModelSnapshot(sn)) {
-    const { type, id } = sn[modelMetadataKey]
+    const { type, id } = (sn as any)[modelMetadataKey]
 
     const modelInfo = getModelInfoForName(type)
     if (!modelInfo) {

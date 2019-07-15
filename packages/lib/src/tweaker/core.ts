@@ -1,3 +1,6 @@
+import { runInAction } from "mobx"
+import { getCurrentActionContext } from "../action/context"
+import { getActionProtection } from "../action/protection"
 import { failure, isPrimitive } from "../utils"
 
 /**
@@ -32,4 +35,40 @@ export function assertTweakedObject(value: any, fnName: string): value is Object
     )
   }
   return true
+}
+
+/**
+ * @ignore
+ */
+export function canWrite(): boolean {
+  return !getActionProtection() || !!getCurrentActionContext()
+}
+
+/**
+ * @ignore
+ */
+export function assertCanWrite() {
+  if (!canWrite()) {
+    throw failure("data changes must be performed inside model actions")
+  }
+}
+
+/**
+ * @ignore
+ */
+export let runningWithoutSnapshotOrPatches = false
+
+/**
+ * @ignore
+ */
+export function runWithoutSnapshotOrPatches(fn: () => void) {
+  const old = runningWithoutSnapshotOrPatches
+  runningWithoutSnapshotOrPatches = true
+  try {
+    runInAction(() => {
+      fn()
+    })
+  } finally {
+    runningWithoutSnapshotOrPatches = old
+  }
 }

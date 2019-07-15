@@ -1,3 +1,7 @@
+import { getRootPath } from "../parent/path"
+import { isTweakedObject } from "../tweaker/core"
+import { failure } from "../utils"
+
 /**
  * A type checking error.
  */
@@ -13,4 +17,21 @@ export class TypeCheckError {
     readonly expectedTypeName: string,
     readonly actualValue: any
   ) {}
+
+  /**
+   * Throws the type check error as an actual error.
+   */
+  throw(root: object): never {
+    let msg = "TypeCheckError: "
+    let rootPath: ReadonlyArray<string | number> = []
+    if (root && isTweakedObject(root)) {
+      rootPath = getRootPath(root).path
+    }
+
+    msg += "[" + [...rootPath, ...this.path].join("/") + "] "
+
+    msg += "Expected: " + this.expectedTypeName
+
+    throw failure(msg)
+  }
 }

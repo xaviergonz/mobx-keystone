@@ -20,7 +20,10 @@ export function applyPatches(obj: object, patches: Patch[]): void {
   wrappedInternalApplyPatches.call(obj, patches)
 }
 
-function internalApplyPatches(this: object, patches: Patch[]): void {
+/**
+ * @ignore
+ */
+export function internalApplyPatches(this: object, patches: Patch[]): void {
   const obj = this
 
   patches.forEach(patch => applySinglePatch(obj, patch))

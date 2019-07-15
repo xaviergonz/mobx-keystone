@@ -1,4 +1,5 @@
-import { AnyModel, getModelDataType, ModelClass } from "../model/Model"
+import { getModelDataType } from "../model/getModelDataType"
+import { AnyModel, ModelClass } from "../model/Model"
 import { modelInfoByClass } from "../model/modelInfo"
 import { assertIsModelClass } from "../model/utils"
 import { failure } from "../utils"
