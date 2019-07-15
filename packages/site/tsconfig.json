@@ -19,6 +19,7 @@
     "jsx": "react",
     "esModuleInterop": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": false
+    "emitDecoratorMetadata": false,
+    "skipLibCheck": true
   }
 }
