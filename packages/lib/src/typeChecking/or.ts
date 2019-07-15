@@ -15,7 +15,7 @@ export function typesOr<T extends AnyType[]>(...options: T): OrType<T> {
     const checkers = options.map(resolveTypeChecker)
 
     // if the or includes unchecked then it is unchecked
-    if (checkers.some(tc => !tc.check)) {
+    if (checkers.some(tc => tc.unchecked)) {
       return typesUnchecked() as any
     }
 
@@ -31,7 +31,7 @@ export function typesOr<T extends AnyType[]>(...options: T): OrType<T> {
     }
 
     const thisTc: TypeChecker = new TypeChecker((value, path) => {
-      const noMatchingType = checkers.every(tc => !!tc.check!(value, path))
+      const noMatchingType = checkers.every(tc => !!tc.check(value, path))
       if (noMatchingType) {
         return new TypeCheckError(path, getTypeName(thisTc), value)
       } else {

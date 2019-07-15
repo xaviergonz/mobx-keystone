@@ -100,7 +100,7 @@ export function tweakFrozen<T extends Frozen<any>>(
   setParent(frozenObj, parentPath)
 
   // we DON'T want data proxified, but the snapshot is the data itself
-  setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined)
+  setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data })
 
   return frozenObj as any
 }
@@ -162,7 +162,7 @@ export function tweakArray<T extends any[]>(
     }
   }
 
-  setInternalSnapshot(tweakedArr, standardSn, undefined)
+  setInternalSnapshot(tweakedArr, standardSn)
 
   intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
   observe(tweakedArr, arrayDidChange)
@@ -219,7 +219,7 @@ export function tweakPlainObject<T>(
     standardSn[modelMetadataKey] = snapshotModelMetadata
   }
 
-  setInternalSnapshot(tweakedObj, standardSn, undefined)
+  setInternalSnapshot(tweakedObj, standardSn)
 
   intercept(tweakedObj, interceptObjectMutation)
   observe(tweakedObj, objectDidChange)
@@ -318,7 +318,8 @@ function objectDidChange(change: IObjectDidChange): void {
       break
   }
 
-  setInternalSnapshot(change.object, standardSn, patchRecorder)
+  setInternalSnapshot(change.object, standardSn)
+  patchRecorder.emit(change.object)
 }
 
 function interceptObjectMutation(change: IObjectWillChange) {
@@ -475,7 +476,8 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
       break
   }
 
-  setInternalSnapshot(change.object, standardSn, patchRecorder)
+  setInternalSnapshot(change.object, standardSn)
+  patchRecorder.emit(change.object)
 }
 
 const undefinedInsideArrayErrorMsg =

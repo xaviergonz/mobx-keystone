@@ -17,7 +17,7 @@ export function typeCheck<T extends AnyType>(type: T, value: TypeToData<T>): Typ
   }
   const typeChecker = resolveTypeChecker(type)
 
-  if (!typeChecker.check) {
+  if (typeChecker.unchecked) {
     return null
   } else {
     return typeChecker.check(value, [])

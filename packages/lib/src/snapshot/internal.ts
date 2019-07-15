@@ -1,7 +1,6 @@
 import { action, createAtom, IAtom, untracked } from "mobx"
 import { getParentPath, ParentPath } from "../parent/path"
-import { InternalPatchRecorder } from "../patch/emitPatch"
-import { debugFreeze, failure, inDevMode } from "../utils"
+import { debugFreeze } from "../utils"
 import { SnapshotOutOf } from "./SnapshotOf"
 
 interface SnapshotData<T extends object> {
@@ -53,25 +52,11 @@ function getInternalSnapshotParent(
  */
 export const setInternalSnapshot = action(
   "setInternalSnapshot",
-  <T extends object>(
-    value: any,
-    standard: T,
-    patchRecorder: InternalPatchRecorder | undefined
-  ): void => {
+  <T extends object>(value: any, standard: T): void => {
     const oldSn = getInternalSnapshot(value) as SnapshotData<any>
 
     // do not actually update if not needed
     if (oldSn && oldSn.standard === standard) {
-      if (inDevMode()) {
-        if (
-          patchRecorder &&
-          (patchRecorder.patches.length > 0 || patchRecorder.invPatches.length > 0)
-        ) {
-          throw failure(
-            "assertion error: the snapshot did not change yet there were patches generated"
-          )
-        }
-      }
       return
     }
 
@@ -92,10 +77,6 @@ export const setInternalSnapshot = action(
 
     sn.atom.reportChanged()
 
-    if (patchRecorder) {
-      patchRecorder.emit(value)
-    }
-
     // also update parent(s) snapshot(s) if needed
     const parent = getInternalSnapshotParent(oldSn, getParentPath(value))
     if (parent) {
@@ -114,7 +95,7 @@ export const setInternalSnapshot = action(
           }
           parentStandardSn[path] = sn.standard
 
-          setInternalSnapshot(parentPath.parent, parentStandardSn, undefined)
+          setInternalSnapshot(parentPath.parent, parentStandardSn)
         }
       }
     }
