@@ -4,7 +4,13 @@ import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
- * A type that represents an object-like map, an object with string keys and values of the same type.
+ * A type that represents an object-like map, an object with string keys and values all of a same given type.
+ *
+ * Example:
+ * ```ts
+ * // { [k: string]: number }
+ * const numberMapType = types.objectMap(types.number)
+ * ```
  *
  * @typeparam T Type.
  * @param values Type of the values of the object-like map.

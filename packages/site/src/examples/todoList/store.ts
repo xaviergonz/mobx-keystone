@@ -4,16 +4,34 @@ import {
   model,
   Model,
   modelAction,
+  ModelAutoTypeCheckingMode,
   newModel,
   registerRootStore,
+  setGlobalConfig,
+  types,
+  TypeToData,
 } from "mobx-data-model"
+
+// for this example we will enable runtime data checking even in production mode
+setGlobalConfig({
+  modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+})
+
+// here we define the type of the model data to have runtime checking
+// this is only required if runtime type checking is needed
+const todoDataType = types.object(() => ({
+  text: types.string,
+  done: types.boolean,
+}))
 
 // the model decorator marks this class as a model, an object with actions, etc.
 // the string identifies this model type and must be unique across your whole application
 @model("todoSample/Todo")
-export class Todo extends Model<{ text: string; done: boolean }> {
+export class Todo extends Model<TypeToData<typeof todoDataType>> {
   // the stuff between <> above is the type of the (observable and snapshottable) data
   // your model will hold. it is also part of the required initialization data of the model
+  // while we could just have used <{ text: string; done: boolean }> we use that construct
+  // to inherit the proper type from the runtime type definition
 
   // you can optionally use this to mark some data properties as optional and give them a
   // default value when not present
@@ -35,8 +53,14 @@ export class Todo extends Model<{ text: string; done: boolean }> {
   }
 }
 
+const todoListDataType = types.object(() => ({
+  todos: types.array(types.model<Todo>(Todo)),
+}))
+
 @model("todoSample/TodoList")
-export class TodoList extends Model<{ todos: Todo[] }> {
+export class TodoList extends Model<TypeToData<typeof todoListDataType>> {
+  // again, we could have just used <{ todos: Todo[] }> if runtime type checking was not needed
+
   // standard mobx decorators (such as computed) can be used as usual, since anything inside
   // `this.data` is observable
   @computed

@@ -8,7 +8,7 @@ import { failure } from "../utils"
 export class TypeCheckError {
   /**
    * Creates an instance of TypeError.
-   * @param path Path where the error occured.
+   * @param path Sub-path where the error occured.
    * @param expectedTypeName Name of the expected type.
    * @param actualValue Actual value.
    */
@@ -20,12 +20,14 @@ export class TypeCheckError {
 
   /**
    * Throws the type check error as an actual error.
+   *
+   * @param typeCheckedValue Usually the value where the type check was invoked.
    */
-  throw(root: object): never {
+  throw(typeCheckedValue: any): never {
     let msg = "TypeCheckError: "
     let rootPath: ReadonlyArray<string | number> = []
-    if (root && isTweakedObject(root)) {
-      rootPath = getRootPath(root).path
+    if (typeCheckedValue && isTweakedObject(typeCheckedValue)) {
+      rootPath = getRootPath(typeCheckedValue).path
     }
 
     msg += "[" + [...rootPath, ...this.path].join("/") + "] "

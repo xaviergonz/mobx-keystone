@@ -6,6 +6,11 @@ import { typesUnchecked } from "./unchecked"
 /**
  * A type that represents the union of several other types (a | b | c | ...).
  *
+ * Example:
+ * ```ts
+ * const booleanOrNumberType = types.or(types.boolean, types.number)
+ * ```
+ *
  * @typeparam T Type.
  * @param options Possible types.
  * @returns

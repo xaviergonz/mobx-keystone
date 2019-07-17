@@ -59,10 +59,11 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean): S {
 
 /**
  * A type that represents a plain object.
- * Note how the parameter must be a function that returns an object. This is done so objects can support self / cross types.
+ * Note that the parameter must be a function that returns an object. This is done so objects can support self / cross types.
  *
  * Example:
  * ```ts
+ * // notice the ({ ... }), not just { ... }
  * types.object(() => ({
  *   x: types.number,
  *   y: types.number
@@ -79,10 +80,15 @@ export function typesObject<T>(objectFunction: T): T {
 }
 
 /**
- * @ignore
- */
-/**
  * A type that represents frozen data.
+ *
+ * Example:
+ * ```ts
+ * const frozenNumberType = types.frozen(types.number)
+ * const frozenAnyType = types.frozen(types.unchecked<any>())
+ * const frozenNumberArrayType = types.frozen(types.array(types.number))
+ * const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
+ * ```
  *
  * @typeParam T Type.
  * @param dataType Type of the frozen data.

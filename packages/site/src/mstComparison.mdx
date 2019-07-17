@@ -23,7 +23,7 @@ should be fairly simple. There are some trade-offs though, as shown in the follo
 | Typescript support (2)                    | ✔️✔️✔️            | ✔️                |
 | Simplified instance / snapshot type usage | ✔️                | ❌                |
 | Simplified model life-cycle               | ✔️                | ❌                |
-| Runtime type validation                   | ❌                | ✔️                |
+| Runtime type validation (3)               | ✔️                | ✔️                |
 | No metadata inside snapshots              | ❌                | ✔️                |
 | Redux compatibility layer                 | ✔️                | ✔️                |
 
@@ -31,6 +31,7 @@ should be fairly simple. There are some trade-offs though, as shown in the follo
    middlewares for flow (async) actions.
 2. Support for self-model references / cross-model references / no need for late types, no need for casting,
    etc.
+3. Runtime type checking / type definitions are completely optional in `mobx-data-model`
 
 ## Typescript improvements
 
@@ -39,6 +40,7 @@ should be fairly simple. There are some trade-offs though, as shown in the follo
 ### If you know Typescript you already know how to type models
 
 `mobx-data-model` uses standard Typescript type annotations to declare the data of models, therefore lowering the learning curve a notch.
+However, if you need runtime type checking, `mobx-data-model` includes a completely optional type definition / runtime type checking system.
 
 ### Self-recursive and cross-referenced models
 
