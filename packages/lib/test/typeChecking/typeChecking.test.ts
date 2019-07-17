@@ -1,5 +1,6 @@
 import { reaction } from "mobx"
 import {
+  actionTrackingMiddleware,
   AnyModel,
   AnyType,
   frozen,
@@ -8,7 +9,6 @@ import {
   modelAction,
   ModelAutoTypeCheckingMode,
   newModel,
-  onActionMiddleware,
   onPatches,
   onSnapshot,
   ref,
@@ -20,6 +20,7 @@ import {
   TypeToData,
 } from "../../src"
 import "../commonSetup"
+import { autoDispose } from "../utils"
 
 beforeEach(() => {
   setGlobalConfig({
@@ -37,9 +38,13 @@ function expectTypeCheckError(m: AnyModel, fn: () => void) {
     patches.push(p)
   })
   const actions: any[] = []
-  const disposer3 = onActionMiddleware(m, (ac, _ctx, next) => {
-    actions.push(ac)
-    return next()
+  const disposer3 = actionTrackingMiddleware(m, {
+    onStart(ctx) {
+      actions.push({ type: "start", ctx })
+    },
+    onFinish(ctx, result) {
+      actions.push({ type: "finish", result, ctx })
+    },
   })
 
   setGlobalConfig({
@@ -56,17 +61,8 @@ function expectTypeCheckError(m: AnyModel, fn: () => void) {
   disposer2()
   disposer3()
 
-  expect(actions).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionName": "setX",
-        "args": Array [
-          "10",
-        ],
-        "targetPath": Array [],
-      },
-    ]
-  `)
+  expect(actions).toHaveLength(2)
+  expect(actions).toMatchSnapshot()
   expect(snapshots).toEqual([])
   expect(patches).toEqual([])
 }
@@ -241,24 +237,31 @@ test("model", () => {
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["data", "x"], "number")
   expect(m.typeCheck()).toEqual(new TypeCheckError(["data", "x"], "number", "10"))
+})
 
-  m.setX(20)
+test("model typechecking", () => {
+  const m = newModel(M, { y: "6" })
+  const type = types.model(M)
+  tsCheck<TypeToData<typeof type>>(m)
+
   expectTypeCheckOk(type, m)
 
-  // make sure reaction doesn't run if we revert the change
+  // make sure reaction doesn't run when we revert the change
   let reactionRun = 0
-  reaction(
-    () => m.data.x,
-    () => {
-      reactionRun++
-    }
+  autoDispose(
+    reaction(
+      () => m.data.x,
+      () => {
+        reactionRun++
+      }
+    )
   )
 
   expectTypeCheckError(m, () => {
-    m.setX("10" as any)
+    m.setX("5" as any)
   })
   expect(reactionRun).toBe(0)
-  expect(m.data.x).toBe(20)
+  expect(m.data.x).toBe(10)
   expectTypeCheckOk(type, m)
 })
 
