@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`model typechecking 1`] = `
+Array [
+  Object {
+    "ctx": Object {
+      "actionName": "setX",
+      "args": Array [
+        "5",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": M {
+        "$$metadata": Object {
+          "id": "mockedUuid-3",
+          "type": "M",
+        },
+        "data": Object {
+          "x": 10,
+          "y": "6",
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "ctx": Object {
+      "actionName": "setX",
+      "args": Array [
+        "5",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": M {
+        "$$metadata": Object {
+          "id": "mockedUuid-3",
+          "type": "M",
+        },
+        "data": Object {
+          "x": 10,
+          "y": "6",
+        },
+      },
+      "type": "sync",
+    },
+    "result": "throw",
+    "type": "finish",
+  },
+]
+`;
