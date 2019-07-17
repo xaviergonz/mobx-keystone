@@ -1,6 +1,7 @@
 import { typesArray } from "./array"
+import { typesEnum } from "./enum"
 import { typesMaybe, typesMaybeNull } from "./maybe"
-import { typesModel, typesTypedModel } from "./model"
+import { typesModel } from "./model"
 import { typesFrozen, typesObject } from "./object"
 import { typesObjectMap } from "./objectMap"
 import { typesOr } from "./or"
@@ -28,9 +29,9 @@ export const types = {
   array: typesArray,
   objectMap: typesObjectMap,
   unchecked: typesUnchecked,
-  typedModel: typesTypedModel,
   model: typesModel,
   object: typesObject,
   ref: typesRef,
   frozen: typesFrozen,
+  enum: typesEnum,
 }

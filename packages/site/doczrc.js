@@ -19,6 +19,7 @@ export default {
     },
     "References",
     "Frozen Data",
+    "Runtime Type Checking",
     "Redux Compatibility",
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
     "API Reference",

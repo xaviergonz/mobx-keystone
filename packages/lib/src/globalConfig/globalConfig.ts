@@ -4,8 +4,17 @@ import { failure, inDevMode } from "../utils"
  * Model auto type-checking mode.
  */
 export enum ModelAutoTypeCheckingMode {
+  /**
+   * Auto type check models only in dev mode
+   */
   DevModeOnly = "devModeOnly",
+  /**
+   * Auto type check models no matter the current environment
+   */
   AlwaysOn = "alwaysOn",
+  /**
+   * Do not auto type check models no matter the current environment
+   */
   AlwaysOff = "alwaysOff",
 }
 

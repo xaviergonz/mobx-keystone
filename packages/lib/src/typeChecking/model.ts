@@ -11,32 +11,33 @@ const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
 
 /**
  * A type that represents a model. The type referenced in the model decorator will be used for type checking.
- * Use this instead of `types.model` when the model is self-referencing / cross-referencing in typescript.
  *
  * Example:
  * ```ts
- * types.typedModel<SomeModel>(SomeModel)
+ * const someModelType = types.model<SomeModel>(SomeModel)
  * ```
  *
  * @typeparam M Model type.
  * @param modelClass Model class.
  * @returns
  */
-export function typesTypedModel<M>(modelClass: any): IdentityType<M> {
-  assertIsModelClass(modelClass, "modelClass")
+export function typesModel<M = never>(modelClass: object): IdentityType<M> {
+  // if we type it any stronger then recursive defs and so on stop working
+  const modelClazz = modelClass as ModelClass<AnyModel>
+  assertIsModelClass(modelClazz, "modelClass")
 
-  const cachedTypeChecker = cachedModelTypeChecker.get(modelClass)
+  const cachedTypeChecker = cachedModelTypeChecker.get(modelClazz)
   if (cachedTypeChecker) {
     return cachedTypeChecker as any
   }
 
   const tc = lateTypeChecker(() => {
-    const modelInfo = modelInfoByClass.get(modelClass)!
+    const modelInfo = modelInfoByClass.get(modelClazz)!
     const typeName = `Model(${modelInfo.name})`
 
     return new TypeChecker(
       (value, path) => {
-        if (!(value instanceof modelClass)) {
+        if (!(value instanceof modelClazz)) {
           return new TypeCheckError(path, typeName, value)
         }
 
@@ -62,24 +63,7 @@ export function typesTypedModel<M>(modelClass: any): IdentityType<M> {
     )
   }) as any
 
-  cachedModelTypeChecker.set(modelClass, tc)
+  cachedModelTypeChecker.set(modelClazz, tc)
 
   return tc as any
-}
-
-/**
- * A type that represents a model. The type referenced in the model decorator will be used for type checking.
- * Use `types.typedModel` instead when the model is self-referencing / cross-referencing in typescript.
- *
- * Example:
- * ```ts
- * types.model(SomeModel)
- * ```
- *
- * @typeparam M Model type.
- * @param modelClass Model class.
- * @returns
- */
-export function typesModel<M extends AnyModel>(modelClass: ModelClass<M>) {
-  return typesTypedModel<M>(modelClass)
 }

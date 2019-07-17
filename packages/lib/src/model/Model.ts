@@ -89,7 +89,7 @@ export abstract class Model<Data extends { [k: string]: any }> {
    * @returns A `TypeCheckError` or `null` if there is no error.
    */
   typeCheck(): TypeCheckError | null {
-    const type = typesModel(this.constructor as any)
+    const type = typesModel<this>(this.constructor as any)
     return typeCheck(type, this)
   }
 

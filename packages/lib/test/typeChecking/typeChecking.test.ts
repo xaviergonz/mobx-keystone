@@ -226,7 +226,7 @@ class M extends Model<TypeToData<typeof mType>> {
 
 test("model", () => {
   const m = newModel(M, { y: "6" })
-  const type = types.model(M)
+  const type = types.model<M>(M)
   tsCheck<TypeToData<typeof type>>(m)
 
   expectTypeCheckOk(type, m)
@@ -241,7 +241,7 @@ test("model", () => {
 
 test("model typechecking", () => {
   const m = newModel(M, { y: "6" })
-  const type = types.model(M)
+  const type = types.model<M>(M)
   tsCheck<TypeToData<typeof type>>(m)
 
   expectTypeCheckOk(type, m)
@@ -275,9 +275,9 @@ test("newModel with typechecking enabled", () => {
   )
 })
 
-test("typedModel", () => {
+test("model", () => {
   const m = newModel(M, { y: "6" })
-  const type = types.typedModel<M>(M)
+  const type = types.model<M>(M)
   tsCheck<TypeToData<typeof type>>(m)
 
   expectTypeCheckOk(type, m)
@@ -432,7 +432,7 @@ test("cross referenced object", () => {
 
 const mrType = types.object(() => ({
   x: types.number,
-  rec: types.maybe(types.typedModel<MR>(MR)),
+  rec: types.maybe(types.model<MR>(MR)),
 }))
 
 @model("MR", { dataType: mrType })
@@ -449,7 +449,7 @@ class MR extends Model<TypeToData<typeof mrType>> {
 }
 
 test("recursive model", () => {
-  const type = types.model(MR)
+  const type = types.model<MR>(MR)
 
   const mr = newModel(MR, { rec: newModel(MR, {}) })
   tsCheck<TypeToData<typeof type>>(mr)
@@ -462,7 +462,7 @@ test("recursive model", () => {
 
 const maType = types.object(() => ({
   x: types.number,
-  b: types.maybe(types.typedModel<MB>(MB)),
+  b: types.maybe(types.model<MB>(MB)),
 }))
 
 @model("MA", { dataType: maType })
@@ -480,7 +480,7 @@ class MA extends Model<TypeToData<typeof maType>> {
 
 const mbType = types.object(() => ({
   y: types.number,
-  a: types.maybe(types.typedModel<MA>(MA)),
+  a: types.maybe(types.model<MA>(MA)),
 }))
 
 @model("MB", { dataType: mbType })
@@ -497,7 +497,7 @@ class MB extends Model<TypeToData<typeof mbType>> {
 }
 
 test("cross referenced model", () => {
-  const type = types.model(MA)
+  const type = types.model<MA>(MA)
 
   const ma = newModel(MA, { b: newModel(MB, { a: newModel(MA, {}) }) })
   tsCheck<TypeToData<typeof type>>(ma)
@@ -543,11 +543,52 @@ test("frozen - complex type", () => {
   expectTypeCheckFail(type, 5, [], "{ data: { x: number; }; }")
 })
 
+test("enum (string)", () => {
+  enum A {
+    X1 = "x1",
+    X2 = "x2",
+  }
+
+  const type = types.enum<A>(A)
+  tsCheck<TypeToData<typeof type>>(A.X1)
+
+  expectTypeCheckOk(type, A.X2)
+  expectTypeCheckFail(type, "X1", [], `"x1" | "x2"`)
+})
+
+test("enum (number)", () => {
+  enum A {
+    X1,
+    X2,
+  }
+
+  const type = types.enum<A>(A)
+  tsCheck<TypeToData<typeof type>>(A.X1)
+
+  expectTypeCheckOk(type, A.X2)
+  expectTypeCheckFail(type, "X1", [], `0 | 1`)
+})
+
+test("enum (mixed)", () => {
+  enum A {
+    X1,
+    X15 = "x15",
+    X2 = 6,
+  }
+
+  const type = types.enum<A>(A)
+  tsCheck<TypeToData<typeof type>>(A.X1)
+
+  expectTypeCheckOk(type, A.X15)
+  expectTypeCheckOk(type, A.X2)
+  expectTypeCheckFail(type, "X1", [], `0 | "x15" | 6`)
+})
+
 // just to see TS typing is ok
 /*
 const mdata = types.object(() => ({
   x: types.number,
-  recursive: types.maybe(types.typedModel<M>(M)),
+  recursive: types.maybe(types.model<M>(M)),
 }))
 
 class M extends Model<SchemaToType<typeof mdata>> {}
@@ -567,7 +608,7 @@ const nodeType = types.object(() => ({
   hiLiteral: types.literal("hi"),
   hiOrBye: types.or(types.literal("hi"), types.literal("bye")),
   nodeOrOther: types.or(nodeType, otherType),
-  mod: types.maybe(types.model(M2)),
+  mod: types.maybe(types.model<M2>(M2)),
 }))
 
 const otherType = () => ({

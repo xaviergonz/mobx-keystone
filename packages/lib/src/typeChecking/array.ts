@@ -6,6 +6,11 @@ import { TypeCheckError } from "./TypeCheckError"
 /**
  * A type that represents an array of values of a given type.
  *
+ * Example:
+ * ```ts
+ * const numberArrayType = types.array(types.number)
+ * ```
+ *
  * @typeparam S Item type.
  * @param itemType Type of inner items.
  * @returns

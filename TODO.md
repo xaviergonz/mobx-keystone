@@ -21,4 +21,4 @@
 
 - (3) future: object/array backed map, array backed set? the mapping of those types to pure json is not apparent though
 
-- runtype checking: when to auto check? add refinement function?
+- runtype checking: add refinement function? custom type checker?

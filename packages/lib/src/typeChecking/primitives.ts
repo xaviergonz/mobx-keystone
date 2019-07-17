@@ -9,7 +9,13 @@ import { TypeCheckError } from "./TypeCheckError"
 export type PrimitiveValue = undefined | null | boolean | number | string
 
 /**
- * A type that represents a certain value of a primitive (for example an exact number or string).
+ * A type that represents a certain value of a primitive (for example an *exact* number or string).
+ *
+ * Example
+ * ```ts
+ * const hiType = types.literal("hi") // the string with value "hi"
+ * const number5Type = types.literal(5) // the number with value 5
+ * ```
  *
  * @typeparam T Literal value type.
  * @param literal Literal value.
@@ -38,16 +44,28 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
 
 /**
  * A type that represents the value undefined.
+ *
+ * ```ts
+ * types.undefined
+ * ```
  */
 export const typesUndefined = typesLiteral(undefined)
 
 /**
  * A type that represents the value null.
+ *
+ * ```ts
+ * types.null
+ * ```
  */
 export const typesNull = typesLiteral(null)
 
 /**
- * A type that represents a boolean value.
+ * A type that represents any boolean value.
+ *
+ * ```ts
+ * types.boolean
+ * ```
  */
 export const typesBoolean = (new TypeChecker(
   (value, path) => (typeof value === "boolean" ? null : new TypeCheckError(path, "boolean", value)),
@@ -55,7 +73,11 @@ export const typesBoolean = (new TypeChecker(
 ) as any) as IdentityType<boolean>
 
 /**
- * A type that represents a number value.
+ * A type that represents any number value.
+ *
+ * ```ts
+ * types.number
+ * ```
  */
 export const typesNumber = (new TypeChecker(
   (value, path) => (typeof value === "number" ? null : new TypeCheckError(path, "number", value)),
@@ -63,7 +85,11 @@ export const typesNumber = (new TypeChecker(
 ) as any) as IdentityType<number>
 
 /**
- * A type that represents a string value.
+ * A type that represents any string value.
+ *
+ * ```ts
+ * types.string
+ * ```
  */
 export const typesString = (new TypeChecker(
   (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
