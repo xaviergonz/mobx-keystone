@@ -6,4 +6,94 @@ menu: Action Middlewares
 
 # Action Middlewares / `undoMiddleware`
 
-TODO
+## Overview
+
+The undo middleware allows you to keep a history of the changes performed to your data and travel back (undo) and forth (redo) between those changes.
+
+For example, given this simple model:
+
+```ts
+@model("MyApp/Counter")
+class Counter extends Model<{ count: number }> {
+  defaultData = {
+    count: 0,
+  }
+
+  add(n: number) {
+    this.count += n
+  }
+}
+
+const counter = newModel(Counter, {})
+```
+
+We can create an undo manager for it:
+
+```ts
+const undoManager = undoMiddleware(counter)
+```
+
+## `UndoManager`
+
+The returned `undoManager` offers the following data:
+
+- `store: UndoStore` - The store currently being used to store undo/redo action events.
+- `undoQueue: ReadonlyArray<UndoEvent>` - The undo stack, where the first operation to undo will be the last of the array.
+- `redoQueue: ReadonlyArray<UndoEvent>` - The redo stack, where the first operation to redo will be the last of the array.
+- `undoLevels: number` - The number of undo actions available.
+- `canUndo: boolean` - If undo can be performed (if there is at least one undo action available).
+- `redoLevels: number` - The number of redo actions available.
+- `canRedo: boolean` - If redo can be performed (if there is at least one redo action available).
+
+And the following actions:
+
+- `clearUndo()` - Clears the undo queue.
+- `clearRedo()` - Clears the redo queue.
+- `undo()` - Undoes the last action. Will throw if there is no action to undo.
+- `redo()` - Redoes the previous action. Will throw if there is no action to redo.
+- `dispose()` - Disposes of the undo middleware.
+
+## `UndoEvent`
+
+Each change is stored as an `UndoEvent`, which is a readonly structure like:
+
+- `targetPath: ReadonlyArray<string | number>` - Path to the object that invoked the action from its root.
+- `actionName: string` - Name of the action that was invoked.
+- `patches: ReadonlyArray<Patch>` - Patches with changes done inside the action. Use `redo()` in the `UndoManager` to apply them.
+- `inversePatches: ReadonlyArray<Patch>` - Patches to undo the changes done inside the action. Use `undo()` in the `UndoManager` to apply them.
+
+## Storing the undo store inside your models
+
+`undoMiddleware` accepts a second optional parameter. When this parameter is omitted the event store will be just stored on some random model in memory, but if you want it to be stored inside one of your models (for example to persist it), you can do so by passing as second argument where it should be located.
+
+```ts
+@model("MyApp/MyRootStore")
+class MyRootStore extends Model<{ undoData: UndoStore; counter: Counter }> {
+  defaultData = {
+    undoData: newModel(UndoStore, {}),
+    counter: newModel(Counter, {}),
+  }
+}
+
+const myRootStore = newModel(MyRootStore, {})
+
+const undoManager = undoMiddleware(myRootStore, myRootStore.data.undoData)
+```
+
+## Making some changes skip undo/redo
+
+Sometimes you might want some changes / part of changes skip the undo/redo mechanism. To do so you can use the `withoutUndo` function like this:
+
+```ts
+@modelAction
+someAction() {
+  // this change be done/undone when the action is done/undone
+  this.data.x++
+  withoutUndo(() => {
+    // this won't
+    this.data.y++
+  })
+  // this will
+  this.data.z++
+}
+```

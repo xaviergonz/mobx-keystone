@@ -14,7 +14,7 @@ import { failure, inDevMode, isArray } from "../utils"
  * @param obj Target object.
  * @param patches List of patches to apply.
  */
-export function applyPatches(obj: object, patches: Patch[]): void {
+export function applyPatches(obj: object, patches: ReadonlyArray<Patch>): void {
   assertTweakedObject(obj, "applyPatches")
 
   wrappedInternalApplyPatches.call(obj, patches)
@@ -23,7 +23,7 @@ export function applyPatches(obj: object, patches: Patch[]): void {
 /**
  * @ignore
  */
-export function internalApplyPatches(this: object, patches: Patch[]): void {
+export function internalApplyPatches(this: object, patches: ReadonlyArray<Patch>): void {
   const obj = this
 
   patches.forEach(patch => applySinglePatch(obj, patch))
