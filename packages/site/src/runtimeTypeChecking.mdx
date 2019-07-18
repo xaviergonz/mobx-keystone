@@ -120,12 +120,28 @@ A type that represents any number value.
 types.number
 ```
 
+### `types.integer`
+
+A type that represents any integer number value.
+
+```ts
+types.integer
+```
+
 ### `types.string`
 
 A type that represents any string value.
 
 ```ts
 types.string
+```
+
+### `types.nonEmptyString`
+
+A type that represents any string value other than "".
+
+```ts
+types.nonEmptyString
 ```
 
 ### `types.enum`
@@ -231,6 +247,34 @@ const frozenNumberType = types.frozen(types.number)
 const frozenAnyType = types.frozen(types.unchecked<any>())
 const frozenNumberArrayType = types.frozen(types.array(types.number))
 const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
+```
+
+### `types.refinement`
+
+A refinement over a given type. This allows you to do extra checks
+over models, ensure numbers are integers, etc.
+
+```ts
+const integerType = types.refinement(
+  types.number,
+  n => {
+    return Number.isInteger(n)
+  },
+  "integer"
+)
+
+const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
+  // imagine that for some reason sum includes a number 'a', a number 'b'
+  // and the result
+
+  const rightResult = sum.data.a + sum.data.b === sum.data.result
+
+  // simple mode that will just return that the whole model is incorrect
+  return rightResult
+
+  // this will return that the result field is wrong
+  return rightResult ? null : new TypeCheckError(["data", "result"], "a+b", sum.data.result)
+})
 ```
 
 # Notes for `mobx-state-tree` users

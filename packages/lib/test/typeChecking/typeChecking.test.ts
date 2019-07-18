@@ -584,6 +584,58 @@ test("enum (mixed)", () => {
   expectTypeCheckFail(type, "X1", [], `0 | "x15" | 6`)
 })
 
+test("integer", () => {
+  const type = types.integer
+
+  tsCheck<TypeToData<typeof type>>(4)
+
+  expectTypeCheckOk(type, 5)
+  expectTypeCheckFail(type, 5.5, [], "integer<number>")
+})
+
+test("nonEmptyString", () => {
+  const type = types.nonEmptyString
+
+  tsCheck<TypeToData<typeof type>>(" ")
+
+  expectTypeCheckOk(type, " ")
+  expectTypeCheckFail(type, "", [], "nonEmpty<string>")
+})
+
+test("refinement (simple)", () => {
+  const type = types.refinement(
+    types.number,
+    n => {
+      return Number.isInteger(n)
+    },
+    "integer"
+  )
+
+  tsCheck<TypeToData<typeof type>>(4)
+
+  expectTypeCheckOk(type, 5)
+  expectTypeCheckFail(type, 5.5, [], "integer<number>")
+})
+
+test("refinement (complex)", () => {
+  const sumObjType = types.object(() => ({
+    a: types.number,
+    b: types.number,
+    result: types.number,
+  }))
+
+  const type = types.refinement(sumObjType, sum => {
+    const rightResult = sum.a + sum.b === sum.result
+
+    return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
+  })
+
+  tsCheck<TypeToData<typeof type>>({ a: 2, b: 3, result: 5 })
+
+  expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
+  expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")
+})
+
 // just to see TS typing is ok
 /*
 const mdata = types.object(() => ({

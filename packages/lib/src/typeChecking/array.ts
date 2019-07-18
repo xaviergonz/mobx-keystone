@@ -11,7 +11,7 @@ import { TypeCheckError } from "./TypeCheckError"
  * const numberArrayType = types.array(types.number)
  * ```
  *
- * @typeparam S Item type.
+ * @typeparam T Item type.
  * @param itemType Type of inner items.
  * @returns
  */
