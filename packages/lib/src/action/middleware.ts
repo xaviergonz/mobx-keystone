@@ -12,7 +12,7 @@ export interface ActionMiddleware {
    * Subtree (object and child objects) this middleware will run for.
    * This target "filter" will be run before the custom filter.
    */
-  target: object
+  readonly target: object
 
   /**
    * A filter function to decide if an action middleware function should be run or not.

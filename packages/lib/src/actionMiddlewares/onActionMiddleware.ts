@@ -25,6 +25,9 @@ export type OnActionListener = (
  * Creates an action middleware that invokes a listener for all actions of a given tree.
  * Note that the listener will only be invoked for the topmost level actions, so it won't run for child actions or intermediary flow steps.
  * Also it won't trigger the listener for calls to hooks such as `onAttachedToRootStore` or its returned disposer.
+ *
+ * Its main use is to keep track of top level actions that can be later replicated via `applyAction` somewhere else (another machine, etc.).
+ *
  * Remember to `return next()` if you want to continue the action, return something else if you want to change the return value
  * or throw if you want to cancel it.
  *

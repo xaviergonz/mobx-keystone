@@ -6,4 +6,104 @@ menu: Action Middlewares
 
 # Action Middlewares / Custom Middlewares
 
-TODO
+# Overview
+
+Besides the very specific `onActionMiddleware` (which only tracks top level actions and is usually used to record actions to be later replicated via `applyAction`), there are two additinal ways to create your own custom middleware, the low level `addActionMiddleware`, which should be rarely needed, and the more high-level but friendlier `actionTrackingMiddleware`.
+
+## `actionTrackingMiddleware`
+
+Creates an action tracking middleware, which is a simplified version of the standard action middleware.
+
+It takes two parameters, being the first one the root target model object and the second one the hooks in the form of a `ActionTrackingMiddleware` object.
+
+It returns a disposer function.
+
+The `ActionTrackingMiddleware` object has the following structure:
+
+- `filter?(ctx: SimpleActionContext): boolean`
+
+  Filter function called whenever each action starts, and only then.
+
+  If the action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish` for that particular action will be called.
+
+  All actions are accepted by default if no filter function is present.
+
+  The param is a simplified action context (more on that later) and it returns true to accept the action, false to skip it.
+
+- `onStart?(ctx: SimpleActionContext): void`
+
+  Called when an action just started.
+  Takes as parameter a simplified action context.
+
+- `onResume?(ctx: SimpleActionContext): void`
+
+  Called when an action just resumed a synchronous piece of code execution.
+  Gets called once for sync actions and multiple times for flows.
+  Takes as parameter a simplified action context.
+
+- `onSuspend?(ctx: SimpleActionContext): void`
+
+  Called when an action just finished a synchronous pice of code execution.
+  Note that this doesn't necessarily mean the action is finished.
+  Gets called once for sync actions and multiple times for flows.
+  Takes as parameter a simplified action context.
+
+- `onFinish?(ctx: SimpleActionContext, result: ActionTrackingResult value: any, overrideValue: (newValue: any, throwIt?: boolean) => void): void`
+
+  Called when an action just finished, either by returning normally or by throwing an error.
+
+  Takes as parameters:
+
+  - `ctx` - Simplified action context.
+  - `result` - If the action finished normally or due to a thrown error.
+  - `value` - The return value / error thrown.
+  - `overrideValue` - Use this method to override the returned value / error thrown.
+
+### `SimpleActionContext`
+
+Simplified version of action context, which includes the following readonly data:
+
+- `actionName: string` - Action name.
+- `type: ActionContextActionType` - Action type, sync or async.
+- `target: AnyModel` - Action target model instance.
+- `args: ReadonlyArray<any>` - Array of action arguments.
+- `parentContext?: SimpleActionContext` - Parent action context, if any.
+- `rootContext: SimpleActionContext` - Root action context, or itself if the root.
+- `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.
+
+It is simplified as in it treats all single synchronous steps of asynchronous actions as if they were same context, therefore eliminating the differences between the action contexts of sync actions and flows.
+
+## `addActionMiddleware`
+
+`addActionMiddleware` adds a global action middleware to be run when an action is performed.
+
+It takes a single parameter, an `ActionMiddleware` object and returns a disposer function.
+
+The `ActionMiddleware` object has the following structure:
+
+- `target: object`
+
+  Subtree (object and child objects) this middleware will run for. This target "filter" will be run before the custom filter.
+
+- `filter?(ctx: ActionContext): boolean`
+
+  A filter function to decide if an action middleware function should be run or not.
+
+- `middleware(ctx: ActionContext, next: () => any): any`
+
+  An action middleware function. Rember to `return next()` if you want to continue the action or throw if you want to cancel it.
+
+### `ActionContext`
+
+Low level action context, which includes the following readonly data:
+
+- `actionName: string` - Action name.
+- `type: ActionContextActionType` - Action type, sync or async.
+- `target: AnyModel` - Action target model instance.
+- `args: ReadonlyArray<any>` - Array of action arguments.
+- `parentContext?: SimpleActionContext` - Parent action context, if any.
+- `rootContext: SimpleActionContext` - Root action context, or itself if the root.
+- `previousAsyncStepContext?: ActionContext` - Previous async step context, undefined for sync actions or the first action of a flow.
+- `spawnAsyncStepContext?: ActionContext` - Spawn async step context, undefined for sync actions.
+- `asyncStepType?: ActionContextAsyncStepType` - Async step type, or undefined for sync actions.
+- `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.
