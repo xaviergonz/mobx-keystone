@@ -7,13 +7,16 @@ import { typesObjectMap } from "./objectMap"
 import { typesOr } from "./or"
 import {
   typesBoolean,
+  typesInteger,
   typesLiteral,
+  typesNonEmptyString,
   typesNull,
   typesNumber,
   typesString,
   typesUndefined,
 } from "./primitives"
 import { typesRef } from "./ref"
+import { typesRefinement } from "./refinement"
 import { typesUnchecked } from "./unchecked"
 
 export const types = {
@@ -34,4 +37,7 @@ export const types = {
   ref: typesRef,
   frozen: typesFrozen,
   enum: typesEnum,
+  refinement: typesRefinement,
+  integer: typesInteger,
+  nonEmptyString: typesNonEmptyString,
 }

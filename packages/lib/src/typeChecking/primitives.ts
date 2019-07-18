@@ -1,4 +1,5 @@
 import { assertIsPrimitive } from "../utils"
+import { typesRefinement } from "./refinement"
 import { IdentityType } from "./schemas"
 import { TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
@@ -95,3 +96,21 @@ export const typesString = (new TypeChecker(
   (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
   () => "string"
 ) as any) as IdentityType<string>
+
+/**
+ * A type that represents any integer number value.
+ *
+ * ```ts
+ * types.integer
+ * ```
+ */
+export const typesInteger = typesRefinement(typesNumber, n => Number.isInteger(n), "integer")
+
+/**
+ * A type that represents any string value other than "".
+ *
+ * ```ts
+ * types.nonEmptyString
+ * ```
+ */
+export const typesNonEmptyString = typesRefinement(typesString, s => s !== "", "nonEmpty")

@@ -1,0 +1,69 @@
+import { AnyType, TypeToData } from "./schemas"
+import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { TypeCheckError } from "./TypeCheckError"
+
+/**
+ * A refinement over a given type. This allows you to do extra checks
+ * over models, ensure numbers are integers, etc.
+ *
+ * Example:
+ * ```ts
+ * const integerType = types.refinement(types.number, (n) => {
+ *   return Number.isInteger(n)
+ * }, "integer")
+ *
+ * const sumModelType = types.refinement(types.model<Sum>(Sum), (sum) => {
+ *   // imagine that for some reason sum includes a number 'a', a number 'b'
+ *   // and the result
+ *
+ *   const rightResult = sum.data.a + sum.data.b === sum.data.result
+ *
+ *   // simple mode that will just return that the whole model is incorrect
+ *   return rightResult
+ *
+ *   // this will return that the result field is wrong
+ *   return rightResult ? null : new TypeCheckError(["data", "result"], "a+b", sum.data.result)
+ * })
+ * ```
+ *
+ * @template T Base type.
+ * @param baseType Base type.
+ * @param checkFn Function that will receive the data (if it passes the base type
+ * check) and return null or false if there were no errors or either a TypeCheckError instance or
+ * true if there were.
+ * @returns
+ */
+export function typesRefinement<T extends AnyType>(
+  baseType: T,
+  checkFn: (data: TypeToData<T>) => TypeCheckError | null | boolean,
+  typeName?: string
+): T {
+  return lateTypeChecker(() => {
+    const baseChecker = resolveTypeChecker(baseType)
+
+    const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
+      const baseTypeName = baseChecker.getTypeName(...recursiveTypeCheckers, baseChecker)
+      const refinementName = typeName || "refinementOf"
+      return `${refinementName}<${baseTypeName}>`
+    }
+
+    const thisTc: TypeChecker = new TypeChecker((data, path) => {
+      const baseErr = baseChecker.check(data, path)
+      if (baseErr) {
+        return baseErr
+      }
+
+      const refinementErr = checkFn(data)
+
+      if (refinementErr === true) {
+        return null
+      } else if (refinementErr === false) {
+        return new TypeCheckError([], getTypeName(thisTc), data)
+      } else {
+        return refinementErr || null
+      }
+    }, getTypeName)
+
+    return thisTc
+  }) as any
+}
