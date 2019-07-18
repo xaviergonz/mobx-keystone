@@ -7,6 +7,10 @@ import { newModel } from "../model/newModel"
 import { getRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
+import { TypeToData } from "../typeChecking"
+import { typesArray } from "../typeChecking/array"
+import { typesObject } from "../typeChecking/object"
+import { typesUnchecked } from "../typeChecking/unchecked"
 import { failure } from "../utils"
 import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
 
@@ -26,20 +30,26 @@ export interface UndoEvent {
    * Patches with changes done inside the action.
    * Use `redo()` in the `UndoManager` to apply them.
    */
-  readonly patches: Patch[]
+  readonly patches: ReadonlyArray<Patch>
   /**
    * Patches to undo the changes done inside the action.
    * Use `undo()` in the `UndoManager` to apply them.
    */
-  readonly inversePatches: Patch[]
+  readonly inversePatches: ReadonlyArray<Patch>
 }
+
+// TODO: add proper type checking to undo store
+const undoStoreDataType = typesObject(() => ({
+  undoEvents: typesArray(typesUnchecked<UndoEvent>()),
+  redoEvents: typesArray(typesUnchecked<UndoEvent>()),
+}))
 
 /**
  * Store model instance for undo/redo actions.
  * Do not manipulate directly, other that creating it.
  */
-@model("mobx-data-model/UndoStore")
-export class UndoStore extends Model<{ undoEvents: UndoEvent[]; redoEvents: UndoEvent[] }> {
+@model("mobx-data-model/UndoStore", { dataType: undoStoreDataType })
+export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   /**
    * @ignore
    */
@@ -113,7 +123,7 @@ export class UndoManager {
   readonly store: UndoStore
 
   /**
-   * Returns the undo stack, where the first operation to undo will be the last of the array.
+   * The undo stack, where the first operation to undo will be the last of the array.
    * Do not manipulate this array directly.
    */
   @computed
@@ -122,7 +132,7 @@ export class UndoManager {
   }
 
   /**
-   * Returns the redo stack, where the first operation to redo will be the last of the array.
+   * The redo stack, where the first operation to redo will be the last of the array.
    * Do not manipulate this array directly.
    */
   @computed
@@ -131,7 +141,7 @@ export class UndoManager {
   }
 
   /**
-   * Returns the number of undo actions available.
+   * The number of undo actions available.
    */
   @computed
   get undoLevels() {
@@ -139,7 +149,7 @@ export class UndoManager {
   }
 
   /**
-   * Returns if undo can be performed (if there is at least one undo action available)
+   * If undo can be performed (if there is at least one undo action available).
    */
   @computed
   get canUndo() {
@@ -155,7 +165,7 @@ export class UndoManager {
   }
 
   /**
-   * Returns the number of redo actions available.
+   * The number of redo actions available.
    */
   @computed
   get redoLevels() {
@@ -163,7 +173,7 @@ export class UndoManager {
   }
 
   /**
-   * Returns if redo can be performed (if there is at least one redo action available)
+   * If redo can be performed (if there is at least one redo action available)
    */
   @computed
   get canRedo() {
@@ -179,7 +189,7 @@ export class UndoManager {
   }
 
   /**
-   * Undos the last action.
+   * Undoes the last action.
    * Will throw if there is no action to undo.
    */
   @action
@@ -197,7 +207,7 @@ export class UndoManager {
   }
 
   /**
-   * Redos the last action.
+   * Redoes the previous action.
    * Will throw if there is no action to redo.
    */
   @action
@@ -215,7 +225,7 @@ export class UndoManager {
   }
 
   /**
-   * Dispose the undo middleware.
+   * Disposes the undo middleware.
    */
   dispose() {
     this.disposer()

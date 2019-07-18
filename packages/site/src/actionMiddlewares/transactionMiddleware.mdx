@@ -6,4 +6,56 @@ menu: Action Middlewares
 
 # Action Middlewares / `transactionMiddleware`
 
-TODO
+## Overview
+
+The transaction middleware allows you to mark model actions/flows as transactions, this is, if such action/flow throws then any changes performed during such will be reverted before the exception is actually thrown.
+
+There are two ways to mark an action/flow as a transaction. As a decorator and programatically.
+
+As a decorator:
+
+```ts
+@model("MyApp/MyBalance")
+class MyBalance extends Model<{ balance: number }> {
+  @transaction
+  @modelAction
+  addMoney(cents: number) {
+    this.data.balance += cents
+    // imagine that something else goes wrong
+    // in this case balance will be reverted to the value that
+    // was there before the action started
+    throw new Error("...")
+  }
+}
+```
+
+Programatically:
+
+```ts
+@model("MyApp/MyModel")
+class MyBalance extends Model<{ balance: number }> {
+  @modelAction
+  addMoney(cents: number) {
+    this.data.balance += cents
+    // imagine that something else goes wrong
+    // in this case balance will be reverted to the value that
+    // was there before the action started
+    throw new Error("...")
+  }
+
+  // we could for example add it on init (for all instances)
+  onInit() {
+    transactionMiddleware({
+      model: this,
+      actionName: "addMoney",
+    })
+  }
+}
+
+// or for a particular instance
+const myBalance = newModel(MyBalance, { balance: 100 })
+transactionMiddleware({
+  model: myBalance,
+  actionName: "addMoney",
+})
+```
