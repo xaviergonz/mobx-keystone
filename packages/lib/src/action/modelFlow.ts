@@ -57,7 +57,10 @@ function flow<R, Args extends any[]>(
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
                 value: err,
-                resolver: reject,
+                resolution: "reject",
+
+                accepter: resolve,
+                rejecter: reject,
               } as FlowFinisher
             },
             ActionContextActionType.Async,
@@ -86,7 +89,10 @@ function flow<R, Args extends any[]>(
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
                 value: err,
-                resolver: reject,
+                resolution: "reject",
+
+                accepter: resolve,
+                rejecter: reject,
               } as FlowFinisher
             },
             ActionContextActionType.Async,
@@ -111,7 +117,10 @@ function flow<R, Args extends any[]>(
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
                 value: val,
-                resolver: resolve,
+                resolution: "accept",
+
+                accepter: resolve,
+                rejecter: reject,
               } as FlowFinisher
             },
             ActionContextActionType.Async,
@@ -139,7 +148,10 @@ function flow<R, Args extends any[]>(
  */
 export interface FlowFinisher {
   value: any
-  resolver(value: any): void
+  resolution: "accept" | "reject"
+
+  accepter(value: any): void
+  rejecter(value: any): void
 }
 
 /**

@@ -66,9 +66,11 @@ export enum ActionTrackingResult {
  */
 export interface ActionTrackingMiddleware {
   /**
-   * Filter function called before each action starts.
+   * Filter function called whenever each action starts, and only then.
+   *
    * If the action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish`
    * for that particular action will be called.
+   *
    * All actions are accepted by default if no filter function is present.
    *
    * @param ctx Simplified action context.
@@ -77,29 +79,31 @@ export interface ActionTrackingMiddleware {
   filter?(ctx: SimpleActionContext): boolean
 
   /**
-   * An action just started.
+   * Called when an action just started.
    *
    * @param ctx Simplified action context.
    */
   onStart?(ctx: SimpleActionContext): void
 
   /**
-   * An action just resumed a synchronous piece of code execution.
+   * Called when an action just resumed a synchronous piece of code execution.
+   * Gets called once for sync actions and multiple times for flows.
    *
    * @param ctx Simplified action context.
    */
   onResume?(ctx: SimpleActionContext): void
 
   /**
-   * An action just finished a synchronous pice of code execution.
+   * Called when an action just finished a synchronous pice of code execution.
    * Note that this doesn't necessarily mean the action is finished.
+   * Gets called once for sync actions and multiple times for flows.
    *
    * @param ctx Simplified action context.
    */
   onSuspend?(ctx: SimpleActionContext): void
 
   /**
-   * The action just finished, either by returning normally or by throwing an error.
+   * Called when an action just finished, either by returning normally or by throwing an error.
    *
    * @param ctx Simplified action context.
    * @param result If the action finished normally or due to a thrown error.
@@ -110,16 +114,13 @@ export interface ActionTrackingMiddleware {
     ctx: SimpleActionContext,
     result: ActionTrackingResult,
     value: any,
-    overrideValue: (newValue: any) => void
+    overrideValue: (newValue: any, throwIt?: boolean) => void
   ): void
 }
 
 /**
  * Creates an action tracking middleware, which is a simplified version
  * of the standard action middleware.
- * Note that `filter` is only called for the start of the actions. If the
- * action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish`
- * for that particular action will be called.
  *
  * @param target Root target model object.
  * @param hooks Middleware hooks.
@@ -294,19 +295,31 @@ export function actionTrackingMiddleware(
       start(simpleCtx)
 
       let ret
+      let throwIt = false
       try {
         ret = next()
       } catch (err) {
-        finish(simpleCtx, ActionTrackingResult.Throw, err, newValue => {
+        throwIt = true
+        finish(simpleCtx, ActionTrackingResult.Throw, err, (newValue, isError) => {
           err = newValue
+          throwIt = isError || false
         })
-        throw err
+        if (throwIt) {
+          throw err
+        } else {
+          return err
+        }
       }
 
-      finish(simpleCtx, ActionTrackingResult.Return, ret, newValue => {
+      finish(simpleCtx, ActionTrackingResult.Return, ret, (newValue, isError) => {
         ret = newValue
+        throwIt = isError || false
       })
-      return ret
+      if (throwIt) {
+        throw ret
+      } else {
+        return ret
+      }
     } else {
       // async
 
@@ -318,16 +331,18 @@ export function actionTrackingMiddleware(
 
         case ActionContextAsyncStepType.Return: {
           const ret: FlowFinisher = next()
-          finish(simpleCtx, ActionTrackingResult.Return, ret.value, newValue => {
+          finish(simpleCtx, ActionTrackingResult.Return, ret.value, (newValue, throwIt) => {
             ret.value = newValue
+            ret.resolution = throwIt ? "reject" : "accept"
           })
           return ret
         }
 
         case ActionContextAsyncStepType.Throw: {
           const ret: FlowFinisher = next()
-          finish(simpleCtx, ActionTrackingResult.Throw, ret.value, newValue => {
+          finish(simpleCtx, ActionTrackingResult.Throw, ret.value, (newValue, throwIt) => {
             ret.value = newValue
+            ret.resolution = throwIt ? "reject" : "accept"
           })
           return ret
         }

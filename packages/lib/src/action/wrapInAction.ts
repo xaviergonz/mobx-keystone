@@ -75,8 +75,13 @@ export function wrapInAction<T extends Function>(
       const ret = mwareFn()
       if (isFlowFinsher) {
         const flowFinisher = ret as FlowFinisher
-        flowFinisher.resolver(flowFinisher.value)
-        return flowFinisher.value // not sure if this is even needed
+        const value = flowFinisher.value
+        if (flowFinisher.resolution === "accept") {
+          flowFinisher.accepter(value)
+        } else {
+          flowFinisher.rejecter(value)
+        }
+        return value // not sure if this is even needed
       } else {
         return ret
       }

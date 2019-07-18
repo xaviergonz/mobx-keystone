@@ -1,7 +1,7 @@
 import { AnyModel } from "../model/Model"
 
 /**
- * An action context.
+ * Low level action context.
  */
 export interface ActionContext {
   /**
@@ -21,11 +21,11 @@ export interface ActionContext {
    */
   readonly args: ReadonlyArray<any>
   /**
-   * Parent action context.
+   * Parent action context, if any.
    */
   readonly parentContext?: ActionContext
   /**
-   * Root action context.
+   * Root action context, or itself if the root.
    */
   readonly rootContext: ActionContext
   /**
@@ -42,6 +42,8 @@ export interface ActionContext {
   readonly asyncStepType?: ActionContextAsyncStepType
   /**
    * Custom data for the action context to be set by middlewares, an object.
+   * It is advised to use symbols as keys whenever possible to avoid name
+   * clashing between middlewares.
    */
   readonly data: any
 }
