@@ -26,23 +26,25 @@ export interface SimpleActionContext {
    */
   readonly type: ActionContextActionType
   /**
-   * Action target object.
+   * Action target model instance.
    */
   readonly target: AnyModel
   /**
    * Array of action arguments.
    */
-  readonly args: ReadonlyArray<any[]>
+  readonly args: ReadonlyArray<any>
   /**
-   * Parent action context.
+   * Parent action context, if any.
    */
   readonly parentContext?: SimpleActionContext
   /**
-   * Root action context.
+   * Root action context, or itself if the root.
    */
   readonly rootContext: SimpleActionContext
   /**
    * Custom data for the action context to be set by middlewares, an object.
+   * It is advised to use symbols as keys whenever possible to avoid name
+   * clashing between middlewares.
    */
   readonly data: any
 }
