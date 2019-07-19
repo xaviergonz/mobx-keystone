@@ -104,17 +104,21 @@ test("actionTrackingMiddleware - sync", () => {
         context: ctx,
       })
     },
-    onFinish(ctx, result, value, overrideValue) {
+    onFinish(ctx, ret) {
       events.push({
         type: "finish",
-        result,
-        value,
+        result: ret.result,
+        value: ret.value,
         context: ctx,
       })
 
       if (ctx.actionName === "addXY") {
-        overrideValue(value + 1000)
+        return {
+          result: ActionTrackingResult.Return,
+          value: ret.value + 1000,
+        }
       }
+      return undefined
     },
   })
   autoDispose(disposer)

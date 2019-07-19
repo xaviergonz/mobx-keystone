@@ -59,8 +59,8 @@ export function connectReduxDevTools(
     onSuspend(ctx) {
       log(ctx, undefined)
     },
-    onFinish(ctx, result) {
-      log(ctx, result)
+    onFinish(ctx, ret) {
+      log(ctx, ret.result)
     },
   })
 
