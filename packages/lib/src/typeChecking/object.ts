@@ -64,7 +64,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean): S {
  * Example:
  * ```ts
  * // notice the ({ ... }), not just { ... }
- * types.object(() => ({
+ * const pointType = types.object(() => ({
  *   x: types.number,
  *   y: types.number
  * }))

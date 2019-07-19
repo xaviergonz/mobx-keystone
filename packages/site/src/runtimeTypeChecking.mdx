@@ -10,7 +10,7 @@ route: /runtimeTypeChecking
 While `mobx-data-model` was built with first class Typescript support in mind, it is also possible to enforce runtime type checking.
 This feature is, however, **completely optional**. This is, if you are happy with the type safety that Typescript offers at compilation time you are free to stick to it exclusively.
 
-# Type definitions
+## Type definitions
 
 Type definitions are like the schemas for your data. They are usually associated with models like this:
 
@@ -92,59 +92,31 @@ const number5Type = types.literal(5) // the number with value 5
 
 A type that represents the value undefined.
 
-```ts
-types.undefined
-```
-
 ### `types.null`
 
 A type that represents the value null.
-
-```ts
-types.undefined
-```
 
 ### `types.boolean`
 
 A type that represents any boolean value.
 
-```ts
-types.boolean
-```
-
 ### `types.number`
 
 A type that represents any number value.
-
-```ts
-types.number
-```
 
 ### `types.integer`
 
 A type that represents any integer number value.
 
-```ts
-types.integer
-```
-
 ### `types.string`
 
 A type that represents any string value.
-
-```ts
-types.string
-```
 
 ### `types.nonEmptyString`
 
 A type that represents any string value other than "".
 
-```ts
-types.nonEmptyString
-```
-
-### `types.enum`
+### `types.enum<E>(enumObject)`
 
 An enum type, based on a Typescript alike enum object.
 
@@ -157,7 +129,7 @@ enum Color {
 const colorType = types.enum<Color>(Color)
 ```
 
-### `types.or` (AKA union)
+### `types.or(...types)` (AKA union)
 
 A type that represents the union of several other types (a | b | c | ...).
 
@@ -165,7 +137,7 @@ A type that represents the union of several other types (a | b | c | ...).
 const booleanOrNumberType = types.or(types.boolean, types.number)
 ```
 
-### `types.maybe`
+### `types.maybe(type)`
 
 A type that represents either a type or undefined.
 
@@ -173,7 +145,7 @@ A type that represents either a type or undefined.
 const numberOrUndefinedType = types.maybe(types.number)
 ```
 
-### `types.maybeNull`
+### `types.maybeNull(type)`
 
 A type that represents either a type or null.
 
@@ -181,20 +153,20 @@ A type that represents either a type or null.
 const numberOrNullType = types.maybeNull(types.number)
 ```
 
-### `types.object`
+### `types.object(() => ({ ... })`
 
 A type that represents a plain object.
 Note that the parameter must be a function that returns an object. This is done so objects can support self / cross types.
 
 ```ts
 // notice the ({ ... }), not just { ... }
-types.object(() => ({
+const pointType = types.object(() => ({
   x: types.number,
   y: types.number,
 }))
 ```
 
-### `types.array`
+### `types.array(itemsType)`
 
 A type that represents an array of values of a given type.
 
@@ -202,7 +174,7 @@ A type that represents an array of values of a given type.
 const numberArrayType = types.array(types.number)
 ```
 
-### `types.objectMap`
+### `types.objectMap(valuesType)`
 
 A type that represents an object-like map, an object with string keys and values all of a same given type.
 
@@ -211,7 +183,7 @@ A type that represents an object-like map, an object with string keys and values
 const numberMapType = types.objectMap(types.number)
 ```
 
-### `types.model`
+### `types.model<M>(modelClass)`
 
 A type that represents a model. The type referenced in the model decorator will be used for type checking.
 
@@ -219,7 +191,7 @@ A type that represents a model. The type referenced in the model decorator will 
 const someModelType = types.model<SomeModel>(SomeModel)
 ```
 
-### `types.unchecked`
+### `types.unchecked<T>()`
 
 A type that represents a given value that won't be type checked.
 This is basically a way to bail out of the runtime type checking system.
@@ -230,7 +202,7 @@ const anyType = types.unchecked<any>()
 const customUncheckedType = types.unchecked<(A & B) | C>()
 ```
 
-### `types.ref`
+### `types.ref<M>()`
 
 A type that represents a reference to a model.
 
@@ -238,7 +210,7 @@ A type that represents a reference to a model.
 const refToSomeModelType = types.ref<SomeModel>()
 ```
 
-### `types.frozen`
+### `types.frozen(type)`
 
 A type that represents frozen data.
 
@@ -249,7 +221,7 @@ const frozenNumberArrayType = types.frozen(types.array(types.number))
 const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
 ```
 
-### `types.refinement`
+### `types.refinement(baseType, checkFn: (data) => boolean | TypeCheckError | null)`
 
 A refinement over a given type. This allows you to do extra checks
 over models, ensure numbers are integers, etc.
@@ -277,7 +249,7 @@ const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
 })
 ```
 
-# Notes for `mobx-state-tree` users
+## Notes for `mobx-state-tree` users
 
 - Typechecking in `mobx-data-model` is performed over instances once they have been created, not over snapshots, so the type definitions should be based on that fact.
 - There is no `types.optional` since setting default values is already covered by the `defaultData` field of models.
