@@ -30,10 +30,11 @@ The `ActionTrackingMiddleware` object has the following structure:
 
   The param is a simplified action context (more on that later) and it returns true to accept the action, false to skip it.
 
-- `onStart?(ctx: SimpleActionContext): void`
+- `onStart?(ctx: SimpleActionContext): void | ActionTrackingReturn`
 
   Called when an action just started.
   Takes as parameter a simplified action context.
+  Can optionally return a result that will cancel the original action and finish it with the returned value / error to be thrown. In either case case resume / suspend / finish will still be called normally.
 
 - `onResume?(ctx: SimpleActionContext): void`
 

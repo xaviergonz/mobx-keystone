@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`actionTrackingMiddleware - flow 2`] = `
+exports[`actionTrackingMiddleware - flow: addX 1`] = `
 Array [
   Object {
     "context": Object {
@@ -1005,7 +1005,7 @@ Array [
 ]
 `;
 
-exports[`actionTrackingMiddleware - flow 4`] = `
+exports[`actionTrackingMiddleware - flow: addXY 1`] = `
 Array [
   Object {
     "context": Object {
@@ -5401,7 +5401,156 @@ Array [
 ]
 `;
 
-exports[`actionTrackingMiddleware - flow 6`] = `
+exports[`actionTrackingMiddleware - flow: disposing 1`] = `Array []`;
+
+exports[`actionTrackingMiddleware - flow: overriding flow start 1`] = `
+Array [
+  Object {
+    "context": Object {
+      "actionName": "addY2",
+      "args": Array [
+        10,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 4,
+        },
+      },
+      "type": "async",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY2",
+      "args": Array [
+        10,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 4,
+        },
+      },
+      "type": "async",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY2",
+      "args": Array [
+        10,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 4,
+        },
+      },
+      "type": "async",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY2",
+      "args": Array [
+        10,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 4,
+        },
+      },
+      "type": "async",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY2",
+      "args": Array [
+        10,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 4,
+        },
+      },
+      "type": "async",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": -1000,
+  },
+]
+`;
+
+exports[`actionTrackingMiddleware - flow: throwFlow 1`] = `
 Array [
   Object {
     "context": Object {
@@ -5814,5 +5963,3 @@ Array [
   },
 ]
 `;
-
-exports[`actionTrackingMiddleware - flow 8`] = `Array []`;

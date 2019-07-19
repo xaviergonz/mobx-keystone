@@ -29,12 +29,22 @@ function flow<R, Args extends any[]>(
       }
     }
 
+    let generatorRun = false
     const gen = wrapInAction(
       name,
-      generator,
+      () => {
+        generatorRun = true
+        return generator.apply(self, args as Args)
+      },
       ActionContextActionType.Async,
       ctxOverride(ActionContextAsyncStepType.Spawn)
-    ).apply(self, args as Args)
+    ).apply(self)
+
+    if (!generatorRun) {
+      // maybe it got overridden into a sync action
+
+      return gen instanceof Promise ? gen : Promise.resolve(gen)
+    }
 
     // use bound functions to fix es6 compilation
     const genNext = gen.next.bind(gen)
