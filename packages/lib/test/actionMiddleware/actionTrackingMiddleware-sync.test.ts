@@ -47,6 +47,13 @@ export class P extends Model<{ p2: P2; x: number }> {
   }
 
   @modelAction
+  addXY2(n1: number, n2: number) {
+    this.addX(n1)
+    this.data.p2.addY(n2)
+    return n1 + n2
+  }
+
+  @modelAction
   throw(msg: string) {
     throw new Error(msg)
   }
@@ -91,6 +98,14 @@ test("actionTrackingMiddleware - sync", () => {
         type: "start",
         context: ctx,
       })
+
+      if (ctx.actionName === "addXY2") {
+        return {
+          result: ActionTrackingResult.Return,
+          value: -1000,
+        }
+      }
+      return undefined
     },
     onResume(ctx) {
       events.push({
@@ -135,7 +150,7 @@ test("actionTrackingMiddleware - sync", () => {
       "addX (finish - return)",
     ]
   `)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("action on the root")
 
   // action on the child
   reset()
@@ -150,7 +165,7 @@ test("actionTrackingMiddleware - sync", () => {
       "addY (finish - return)",
     ]
   `)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("action on the child")
 
   // action on the root with sub-action on the child
   reset()
@@ -175,7 +190,7 @@ test("actionTrackingMiddleware - sync", () => {
       "addXY (finish - return)",
     ]
   `)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("action on the root with sub-action on the child")
 
   // throwing
   reset()
@@ -189,7 +204,24 @@ test("actionTrackingMiddleware - sync", () => {
       "throw (finish - throw)",
     ]
   `)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("throwing")
+
+  // override action on start
+  reset()
+  const oldX = p1.data.x
+  expect(p1.addXY2(3, 4) === -1000).toBeTruthy() // because of the override on start
+  expect(p2.addXY2(3, 4) > 0).toBeTruthy()
+  expect(p1.data.x).toBe(oldX)
+  expect(events.map(eventToString)).toMatchInlineSnapshot(`
+    Array [
+      "addXY2 (filter)",
+      "addXY2 (start)",
+      "addXY2 (resume)",
+      "addXY2 (suspend)",
+      "addXY2 (finish - return)",
+    ]
+  `)
+  expect(events).toMatchSnapshot("override action on start")
 
   // disposing
   reset()
@@ -197,5 +229,5 @@ test("actionTrackingMiddleware - sync", () => {
   expect(p1.addXY(5, 6) < 1000).toBeTruthy() // the value override should be gone by now
   expect(p2.addXY(5, 6) < 1000).toBeTruthy()
   expect(events.map(eventToString)).toMatchInlineSnapshot(`Array []`)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("disposing")
 })

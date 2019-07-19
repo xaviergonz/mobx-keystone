@@ -30,6 +30,14 @@ export class P2 extends Model<{ y: number }> {
     this.data.y += n / 2
     return this.data.y
   }
+
+  @modelFlow
+  *addY2(n: number) {
+    this.data.y += n / 2
+    yield delay(50)
+    this.data.y += n / 2
+    return this.data.y
+  }
 }
 
 @model("P")
@@ -113,6 +121,14 @@ test("actionTrackingMiddleware - flow", async () => {
         type: "start",
         context: ctx,
       })
+
+      if (ctx.actionName === "addY2") {
+        return {
+          result: ActionTrackingResult.Return,
+          value: -1000,
+        }
+      }
+      return undefined
     },
     onResume(ctx) {
       events.push({
@@ -172,7 +188,7 @@ test("actionTrackingMiddleware - flow", async () => {
               "addX (finish - return)",
             ]
       `)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("addX")
 
   reset()
   const ret2: FlowRet<typeof p.addXY> = (await p.addXY(4, 4)) as any
@@ -242,7 +258,7 @@ test("actionTrackingMiddleware - flow", async () => {
       "addXY (finish - return)",
     ]
   `)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("addXY")
 
   // check rejection
   reset()
@@ -270,7 +286,25 @@ test("actionTrackingMiddleware - flow", async () => {
               "throwFlow (finish - throw)",
             ]
       `)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("throwFlow")
+
+  // overriding flow start
+  reset()
+  const oldY = p.data.p2.data.y
+  const retOverrideStart = await p.data.p2.addY2(10)
+  await delay(100) // just to make sure the promise didn't change data on its own
+  expect(p.data.p2.data.y).toBe(oldY)
+  expect(retOverrideStart).toBe(-1000)
+  expect(events.map(eventToString)).toMatchInlineSnapshot(`
+            Array [
+              "addY2 (filter)",
+              "addY2 (start)",
+              "addY2 (resume)",
+              "addY2 (suspend)",
+              "addY2 (finish - return)",
+            ]
+      `)
+  expect(events).toMatchSnapshot("overriding flow start")
 
   // disposing
   reset()
@@ -278,5 +312,5 @@ test("actionTrackingMiddleware - flow", async () => {
   const ret3: FlowRet<typeof p.addXY> = (await p.addXY(5, 6)) as any
   expect(ret3 < 1000).toBeTruthy() // the return value override should be gone by now
   expect(events.map(eventToString)).toMatchInlineSnapshot(`Array []`)
-  expect(events).toMatchSnapshot()
+  expect(events).toMatchSnapshot("disposing")
 })

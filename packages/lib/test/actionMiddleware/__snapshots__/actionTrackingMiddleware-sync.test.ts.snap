@@ -1,6 +1,153 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`actionTrackingMiddleware - sync 2`] = `
+exports[`actionTrackingMiddleware - sync: action on the child 1`] = `
+Array [
+  Object {
+    "context": Object {
+      "actionName": "addY",
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY",
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY",
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY",
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addY",
+      "args": Array [
+        2,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P2 {
+        "$$metadata": Object {
+          "id": "mockedUuid-1",
+          "type": "P2",
+        },
+        "data": Object {
+          "y": 2,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": 2,
+  },
+]
+`;
+
+exports[`actionTrackingMiddleware - sync: action on the root 1`] = `
 Array [
   Object {
     "context": Object {
@@ -192,154 +339,7 @@ Array [
 ]
 `;
 
-exports[`actionTrackingMiddleware - sync 4`] = `
-Array [
-  Object {
-    "context": Object {
-      "actionName": "addY",
-      "args": Array [
-        2,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "parentContext": undefined,
-      "rootContext": [Circular],
-      "target": P2 {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
-        },
-      },
-      "type": "sync",
-    },
-    "type": "filter",
-  },
-  Object {
-    "context": Object {
-      "actionName": "addY",
-      "args": Array [
-        2,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "parentContext": undefined,
-      "rootContext": [Circular],
-      "target": P2 {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
-        },
-      },
-      "type": "sync",
-    },
-    "type": "start",
-  },
-  Object {
-    "context": Object {
-      "actionName": "addY",
-      "args": Array [
-        2,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "parentContext": undefined,
-      "rootContext": [Circular],
-      "target": P2 {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
-        },
-      },
-      "type": "sync",
-    },
-    "type": "resume",
-  },
-  Object {
-    "context": Object {
-      "actionName": "addY",
-      "args": Array [
-        2,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "parentContext": undefined,
-      "rootContext": [Circular],
-      "target": P2 {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
-        },
-      },
-      "type": "sync",
-    },
-    "type": "suspend",
-  },
-  Object {
-    "context": Object {
-      "actionName": "addY",
-      "args": Array [
-        2,
-      ],
-      "data": Object {
-        Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
-          "startAccepted": true,
-          "state": "finished",
-        },
-      },
-      "parentContext": undefined,
-      "rootContext": [Circular],
-      "target": P2 {
-        "$$metadata": Object {
-          "id": "mockedUuid-1",
-          "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
-        },
-      },
-      "type": "sync",
-    },
-    "result": "return",
-    "type": "finish",
-    "value": 2,
-  },
-]
-`;
-
-exports[`actionTrackingMiddleware - sync 6`] = `
+exports[`actionTrackingMiddleware - sync: action on the root with sub-action on the child 1`] = `
 Array [
   Object {
     "context": Object {
@@ -1545,7 +1545,206 @@ Array [
 ]
 `;
 
-exports[`actionTrackingMiddleware - sync 8`] = `
+exports[`actionTrackingMiddleware - sync: disposing 1`] = `Array []`;
+
+exports[`actionTrackingMiddleware - sync: override action on start 1`] = `
+Array [
+  Object {
+    "context": Object {
+      "actionName": "addXY2",
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "filter",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addXY2",
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addXY2",
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "resume",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addXY2",
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "type": "suspend",
+  },
+  Object {
+    "context": Object {
+      "actionName": "addXY2",
+      "args": Array [
+        3,
+        4,
+      ],
+      "data": Object {
+        Symbol(simpleDataContext): [Circular],
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": P {
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
+        },
+        "data": Object {
+          "p2": P2 {
+            "$$metadata": Object {
+              "id": "mockedUuid-1",
+              "type": "P2",
+            },
+            "data": Object {
+              "y": 6,
+            },
+          },
+          "x": 4,
+        },
+      },
+      "type": "sync",
+    },
+    "result": "return",
+    "type": "finish",
+    "value": -1000,
+  },
+]
+`;
+
+exports[`actionTrackingMiddleware - sync: throwing 1`] = `
 Array [
   Object {
     "context": Object {
@@ -1736,5 +1935,3 @@ Array [
   },
 ]
 `;
-
-exports[`actionTrackingMiddleware - sync 10`] = `Array []`;

@@ -84,8 +84,11 @@ export interface ActionTrackingMiddleware {
    * Called when an action just started.
    *
    * @param ctx Simplified action context.
+   * @returns Can optionally return a result that will cancel the original action and finish it
+   * with the returned value / error to be thrown. In either case case resume / suspend / finish will
+   * still be called normally.
    */
-  onStart?(ctx: SimpleActionContext): void
+  onStart?(ctx: SimpleActionContext): void | ActionTrackingReturn
 
   /**
    * Called when an action just resumed a synchronous piece of code execution.
@@ -109,8 +112,7 @@ export interface ActionTrackingMiddleware {
    *
    * @param ctx Simplified action context.
    * @param ret Action return result.
-   *
-   * @returns Can optionally return a new result that will override the original one..
+   * @returns Can optionally return a new result that will override the original one.
    */
   onFinish?(ctx: SimpleActionContext, ret: ActionTrackingReturn): void | ActionTrackingReturn
 }
@@ -209,13 +211,14 @@ export function actionTrackingMiddleware(
     }
   }
 
-  const start: ActionTrackingMiddleware["onStart"] = simpleCtx => {
+  const start = (simpleCtx: SimpleActionContext): ActionTrackingReturn | undefined => {
     setCtxData(simpleCtx, {
       state: "started",
     })
     if (hooks.onStart) {
-      hooks.onStart(simpleCtx)
+      return hooks.onStart(simpleCtx) || undefined
     }
+    return undefined
   }
 
   const finish = (
@@ -298,28 +301,37 @@ export function actionTrackingMiddleware(
     }
 
     if (ctx.type === ActionContextActionType.Sync) {
-      start(simpleCtx)
+      let retObj = start(simpleCtx)
 
-      let retObj: ActionTrackingReturn | undefined
-
-      try {
-        retObj = finish(simpleCtx, { result: ActionTrackingResult.Return, value: next() })
-      } catch (err) {
-        retObj = finish(simpleCtx, { result: ActionTrackingResult.Throw, value: err })
-      }
-
-      if (retObj.result === ActionTrackingResult.Return) {
-        return retObj.value
+      if (retObj) {
+        // action cancelled / overriden by onStart
+        resume(simpleCtx, true)
+        suspend(simpleCtx)
+        retObj = finish(simpleCtx, retObj)
       } else {
-        throw retObj.value
+        try {
+          retObj = finish(simpleCtx, { result: ActionTrackingResult.Return, value: next() })
+        } catch (err) {
+          retObj = finish(simpleCtx, { result: ActionTrackingResult.Throw, value: err })
+        }
       }
+
+      return returnOrThrowActionTrackingReturn(retObj)
     } else {
       // async
 
       switch (ctx.asyncStepType) {
         case ActionContextAsyncStepType.Spawn: {
-          start(simpleCtx)
-          return next()
+          let retObj = start(simpleCtx)
+          if (retObj) {
+            // action cancelled / overriden by onStart
+            resume(simpleCtx, true)
+            suspend(simpleCtx)
+            retObj = finish(simpleCtx, retObj)
+            return returnOrThrowActionTrackingReturn(retObj)
+          } else {
+            return next()
+          }
         }
 
         case ActionContextAsyncStepType.Return: {
@@ -365,6 +377,14 @@ export function actionTrackingMiddleware(
   }
 
   return addActionMiddleware({ middleware: mware, filter, target })
+}
+
+function returnOrThrowActionTrackingReturn(retObj: ActionTrackingReturn) {
+  if (retObj.result === ActionTrackingResult.Return) {
+    return retObj.value
+  } else {
+    throw retObj.value
+  }
 }
 
 const simpleDataContextSymbol = Symbol("simpleDataContext")
