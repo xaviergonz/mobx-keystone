@@ -48,16 +48,16 @@ The `ActionTrackingMiddleware` object has the following structure:
   Gets called once for sync actions and multiple times for flows.
   Takes as parameter a simplified action context.
 
-- `onFinish?(ctx: SimpleActionContext, result: ActionTrackingResult value: any, overrideValue: (newValue: any, throwIt?: boolean) => void): void`
+- `onFinish?(ctx: SimpleActionContext, ret: ActionTrackingReturn): void | ActionTrackingReturn`
 
   Called when an action just finished, either by returning normally or by throwing an error.
 
   Takes as parameters:
 
   - `ctx` - Simplified action context.
-  - `result` - If the action finished normally or due to a thrown error.
-  - `value` - The return value / error thrown.
-  - `overrideValue` - Use this method to override the returned value / error thrown.
+  - `ret: { result: ActionTackingResult; value: any; }` - If the action finished normally or due to a thrown error and the return / thrown value.
+
+  Can optionally return a new return / error value to override the result of the action.
 
 ### `SimpleActionContext`
 

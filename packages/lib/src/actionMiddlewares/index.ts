@@ -2,6 +2,7 @@ export {
   ActionTrackingMiddleware,
   actionTrackingMiddleware,
   ActionTrackingResult,
+  ActionTrackingReturn,
   SimpleActionContext,
   simplifyActionContext,
 } from "./actionTrackingMiddleware"

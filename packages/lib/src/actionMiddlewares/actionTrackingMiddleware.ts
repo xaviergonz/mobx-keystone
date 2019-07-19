@@ -108,16 +108,19 @@ export interface ActionTrackingMiddleware {
    * Called when an action just finished, either by returning normally or by throwing an error.
    *
    * @param ctx Simplified action context.
-   * @param result If the action finished normally or due to a thrown error.
-   * @param value The return value / error thrown.
-   * @param overrideValue Use this method to override the returned value / error thrown.
+   * @param ret Action return result.
+   *
+   * @returns Can optionally return a new result that will override the original one..
    */
-  onFinish?(
-    ctx: SimpleActionContext,
-    result: ActionTrackingResult,
-    value: any,
-    overrideValue: (newValue: any, throwIt?: boolean) => void
-  ): void
+  onFinish?(ctx: SimpleActionContext, ret: ActionTrackingReturn): void | ActionTrackingReturn
+}
+
+/**
+ * Return result of an action.
+ */
+export interface ActionTrackingReturn {
+  result: ActionTrackingResult
+  value: any
 }
 
 /**
@@ -215,12 +218,10 @@ export function actionTrackingMiddleware(
     }
   }
 
-  const finish: ActionTrackingMiddleware["onFinish"] = (
-    simpleCtx,
-    result,
-    value,
-    overrideValue
-  ) => {
+  const finish = (
+    simpleCtx: SimpleActionContext,
+    ret: ActionTrackingReturn
+  ): ActionTrackingReturn => {
     // fakely resume and suspend the parent if needed
     const parentCtx = simpleCtx.parentContext
     let parentResumed = false
@@ -235,13 +236,16 @@ export function actionTrackingMiddleware(
     setCtxData(simpleCtx, {
       state: "finished",
     })
+
     if (hooks.onFinish) {
-      hooks.onFinish(simpleCtx, result, value, overrideValue)
+      ret = hooks.onFinish(simpleCtx, ret) || ret
     }
 
     if (parentResumed) {
       suspend(parentCtx!)
     }
+
+    return ret
   }
 
   const resume = (simpleCtx: SimpleActionContext, real: boolean) => {
@@ -296,31 +300,18 @@ export function actionTrackingMiddleware(
     if (ctx.type === ActionContextActionType.Sync) {
       start(simpleCtx)
 
-      let ret
-      let throwIt = false
+      let retObj: ActionTrackingReturn | undefined
+
       try {
-        ret = next()
+        retObj = finish(simpleCtx, { result: ActionTrackingResult.Return, value: next() })
       } catch (err) {
-        throwIt = true
-        finish(simpleCtx, ActionTrackingResult.Throw, err, (newValue, isError) => {
-          err = newValue
-          throwIt = isError || false
-        })
-        if (throwIt) {
-          throw err
-        } else {
-          return err
-        }
+        retObj = finish(simpleCtx, { result: ActionTrackingResult.Throw, value: err })
       }
 
-      finish(simpleCtx, ActionTrackingResult.Return, ret, (newValue, isError) => {
-        ret = newValue
-        throwIt = isError || false
-      })
-      if (throwIt) {
-        throw ret
+      if (retObj.result === ActionTrackingResult.Return) {
+        return retObj.value
       } else {
-        return ret
+        throw retObj.value
       }
     } else {
       // async
@@ -332,21 +323,27 @@ export function actionTrackingMiddleware(
         }
 
         case ActionContextAsyncStepType.Return: {
-          const ret: FlowFinisher = next()
-          finish(simpleCtx, ActionTrackingResult.Return, ret.value, (newValue, throwIt) => {
-            ret.value = newValue
-            ret.resolution = throwIt ? "reject" : "accept"
+          const flowFinisher: FlowFinisher = next()
+          const retObj = finish(simpleCtx, {
+            result: ActionTrackingResult.Return,
+            value: flowFinisher.value,
           })
-          return ret
+          flowFinisher.resolution =
+            retObj.result === ActionTrackingResult.Return ? "accept" : "reject"
+          flowFinisher.value = retObj.value
+          return flowFinisher
         }
 
         case ActionContextAsyncStepType.Throw: {
-          const ret: FlowFinisher = next()
-          finish(simpleCtx, ActionTrackingResult.Throw, ret.value, (newValue, throwIt) => {
-            ret.value = newValue
-            ret.resolution = throwIt ? "reject" : "accept"
+          const flowFinisher: FlowFinisher = next()
+          const retObj = finish(simpleCtx, {
+            result: ActionTrackingResult.Throw,
+            value: flowFinisher.value,
           })
-          return ret
+          flowFinisher.resolution =
+            retObj.result === ActionTrackingResult.Return ? "accept" : "reject"
+          flowFinisher.value = retObj.value
+          return flowFinisher
         }
 
         case ActionContextAsyncStepType.Resume:

@@ -42,8 +42,8 @@ function expectTypeCheckError(m: AnyModel, fn: () => void) {
     onStart(ctx) {
       actions.push({ type: "start", ctx })
     },
-    onFinish(ctx, result) {
-      actions.push({ type: "finish", result, ctx })
+    onFinish(ctx, ret) {
+      actions.push({ type: "finish", result: ret.result, ctx })
     },
   })
 

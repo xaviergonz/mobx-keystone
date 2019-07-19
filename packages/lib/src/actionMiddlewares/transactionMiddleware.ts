@@ -60,12 +60,12 @@ export function transactionMiddleware<M extends AnyModel>(target: {
     onSuspend(ctx) {
       getPatchRecorder(ctx).recording = false
     },
-    onFinish(ctx, result) {
+    onFinish(ctx, ret) {
       if (ctx === ctx.rootContext) {
         const patchRecorder = getPatchRecorder(ctx)
 
         try {
-          if (result === ActionTrackingResult.Throw) {
+          if (ret.result === ActionTrackingResult.Throw) {
             // undo changes (backwards for inverse patches)
             const { events } = patchRecorder
             for (let i = events.length - 1; i >= 0; i--) {
