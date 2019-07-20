@@ -17,6 +17,6 @@ const unchecked: IdentityType<any> = new TypeChecker(null, () => "any") as any
  * @typeparam T Type of the value, or unkown if not given.
  * @returns
  */
-export function typesUnchecked<T = unknown>(): IdentityType<T> {
+export function typesUnchecked<T = never>(): IdentityType<T> {
   return unchecked
 }

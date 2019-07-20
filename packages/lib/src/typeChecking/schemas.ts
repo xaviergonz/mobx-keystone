@@ -50,6 +50,12 @@ export interface ObjectTypeFunction<S extends ObjectOfTypes> {
   (): S
 }
 
+export interface ObjectMapType<S extends AnyType> {
+  $$objectMapType: {
+    [k: string]: TypeToData<S>
+  }
+}
+
 export interface OrType<S extends AnyType[]> {
   $$orType: TypeToData<S[number]>
 }
@@ -59,6 +65,7 @@ export type AnyType =
   | ArrayType<any>
   | OrType<any>
   | ObjectType<any>
+  | ObjectMapType<any>
   | ObjectTypeFunction<any>
 
 // type schemas to actual types
@@ -71,6 +78,8 @@ export type TypeToData<S extends AnyType> = S extends IdentityType<any>
   ? S["$$orType"]
   : S extends ObjectType<any>
   ? S["$$objectType"]
+  : S extends ObjectMapType<any>
+  ? S["$$objectMapType"]
   : S extends ObjectTypeFunction<infer S2>
   ? ObjectType<S2>["$$objectType"]
   : never

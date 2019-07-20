@@ -1,5 +1,5 @@
 import { isObject } from "../utils"
-import { AnyType, ObjectType } from "./schemas"
+import { AnyType, ObjectMapType } from "./schemas"
 import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
@@ -16,7 +16,7 @@ import { TypeCheckError } from "./TypeCheckError"
  * @param values Type of the values of the object-like map.
  * @returns
  */
-export function typesObjectMap<T extends AnyType>(values: T): ObjectType<{ [k: string]: T }> {
+export function typesObjectMap<T extends AnyType>(values: T): ObjectMapType<T> {
   return lateTypeChecker(() => {
     const valueChecker = resolveTypeChecker(values)
 
