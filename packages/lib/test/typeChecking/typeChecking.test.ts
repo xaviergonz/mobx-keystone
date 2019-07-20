@@ -1,4 +1,5 @@
 import { reaction } from "mobx"
+import { assert, _ } from "spec.ts"
 import {
   actionTrackingMiddleware,
   AnyModel,
@@ -12,6 +13,7 @@ import {
   onPatches,
   onSnapshot,
   ref,
+  Ref,
   resolvePath,
   setGlobalConfig,
   typeCheck,
@@ -88,7 +90,7 @@ function expectTypeCheckFail<T extends AnyType>(
 
 test("literal", () => {
   const type = types.literal("hi")
-  tsCheck<TypeToData<typeof type>>("hi")
+  assert(_ as TypeToData<typeof type>, "hi")
 
   expectTypeCheckOk(type, "hi")
   expectTypeCheckFail(type, "ho", [], JSON.stringify("hi"))
@@ -96,7 +98,7 @@ test("literal", () => {
 
 test("undefined", () => {
   const type = types.undefined
-  tsCheck<TypeToData<typeof type>>(undefined)
+  assert(_ as TypeToData<typeof type>, undefined)
 
   expectTypeCheckOk(type, undefined)
   expectTypeCheckFail(type, "ho", [], "undefined")
@@ -104,7 +106,7 @@ test("undefined", () => {
 
 test("null", () => {
   const type = types.null
-  tsCheck<TypeToData<typeof type>>(null)
+  assert(_ as TypeToData<typeof type>, null)
 
   expectTypeCheckOk(type, null)
   expectTypeCheckFail(type, "ho", [], "null")
@@ -112,7 +114,7 @@ test("null", () => {
 
 test("boolean", () => {
   const type = types.boolean
-  tsCheck<TypeToData<typeof type>>(true)
+  assert(_ as TypeToData<typeof type>, _ as boolean)
 
   expectTypeCheckOk(type, false)
   expectTypeCheckFail(type, "ho", [], "boolean")
@@ -120,7 +122,7 @@ test("boolean", () => {
 
 test("number", () => {
   const type = types.number
-  tsCheck<TypeToData<typeof type>>(5)
+  assert(_ as TypeToData<typeof type>, _ as number)
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckFail(type, "ho", [], "number")
@@ -128,7 +130,7 @@ test("number", () => {
 
 test("string", () => {
   const type = types.string
-  tsCheck<TypeToData<typeof type>>("hi")
+  assert(_ as TypeToData<typeof type>, _ as string)
 
   expectTypeCheckOk(type, "hello")
   expectTypeCheckFail(type, 5, [], "string")
@@ -136,8 +138,7 @@ test("string", () => {
 
 test("or - simple types", () => {
   const type = types.or(types.number, types.boolean)
-  tsCheck<TypeToData<typeof type>>(5)
-  tsCheck<TypeToData<typeof type>>(true)
+  assert(_ as TypeToData<typeof type>, _ as number | boolean)
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
@@ -146,8 +147,7 @@ test("or - simple types", () => {
 
 test("maybe", () => {
   const type = types.maybe(types.number)
-  tsCheck<TypeToData<typeof type>>(5)
-  tsCheck<TypeToData<typeof type>>(undefined)
+  assert(_ as TypeToData<typeof type>, _ as number | undefined)
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, undefined)
@@ -156,8 +156,7 @@ test("maybe", () => {
 
 test("maybeNull", () => {
   const type = types.maybeNull(types.number)
-  tsCheck<TypeToData<typeof type>>(5)
-  tsCheck<TypeToData<typeof type>>(null)
+  assert(_ as TypeToData<typeof type>, _ as number | null)
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, null)
@@ -166,7 +165,7 @@ test("maybeNull", () => {
 
 test("array - simple types", () => {
   const type = types.array(types.number)
-  tsCheck<TypeToData<typeof type>>([5])
+  assert(_ as TypeToData<typeof type>, _ as number[])
 
   expectTypeCheckOk(type, [])
   expectTypeCheckOk(type, [1, 2, 3])
@@ -176,7 +175,7 @@ test("array - simple types", () => {
 
 test("objectMap - simple types", () => {
   const type = types.objectMap(types.number)
-  tsCheck<TypeToData<typeof type>>({ x: 5, y: 6 })
+  assert(_ as TypeToData<typeof type>, _ as { [k: string]: number })
 
   expectTypeCheckOk(type, {})
   expectTypeCheckOk(type, { x: 5, y: 6 })
@@ -187,7 +186,7 @@ test("objectMap - simple types", () => {
 
 test("unchecked", () => {
   const type = types.unchecked<number>()
-  tsCheck<TypeToData<typeof type>>(5)
+  assert(_ as TypeToData<typeof type>, _ as number)
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, { x: 5, y: 6 } as any)
@@ -199,13 +198,42 @@ test("object - simple types", () => {
     x: types.number,
     y: types.string,
   }))
-  tsCheck<TypeToData<typeof type>>({ x: 5, y: "6" })
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as Pick<{ x: number; y: string }, "x" | "y"> & {
+      x?: number | undefined
+      y?: string | undefined
+    }
+  )
 
   expectTypeCheckOk(type, { x: 5, y: "6" })
 
   const expected = "{ x: number; y: string; }"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { x: 5, y: 6 }, ["y"], "string")
+  expectTypeCheckFail(type, { x: 5, y: "6", z: 10 }, [], expected)
+})
+
+test("object - all optional simple types", () => {
+  const type = types.object(() => ({
+    x: types.maybe(types.number),
+    y: types.maybe(types.string),
+  }))
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as Pick<{ x: never; y: never }, never> & { x?: number | undefined; y?: string | undefined }
+  )
+
+  expectTypeCheckOk(type, { x: 5, y: "6" })
+  expectTypeCheckOk(type, { x: undefined })
+  expectTypeCheckOk(type, { y: undefined })
+  expectTypeCheckOk(type, { x: 5 })
+  expectTypeCheckOk(type, { y: "6" })
+  expectTypeCheckOk(type, {})
+
+  const expected = "{ x: number | undefined; y: string | undefined; }"
+  expectTypeCheckFail(type, "ho", [], expected)
+  expectTypeCheckFail(type, { x: 5, y: 6 }, ["y"], "string | undefined")
   expectTypeCheckFail(type, { x: 5, y: "6", z: 10 }, [], expected)
 })
 
@@ -227,7 +255,7 @@ class M extends Model<TypeToData<typeof mType>> {
 test("model", () => {
   const m = newModel(M, { y: "6" })
   const type = types.model<M>(M)
-  tsCheck<TypeToData<typeof type>>(m)
+  assert(_ as TypeToData<typeof type>, _ as M)
 
   expectTypeCheckOk(type, m)
   expect(m.typeCheck()).toBeNull()
@@ -242,7 +270,7 @@ test("model", () => {
 test("model typechecking", () => {
   const m = newModel(M, { y: "6" })
   const type = types.model<M>(M)
-  tsCheck<TypeToData<typeof type>>(m)
+  assert(_ as TypeToData<typeof type>, _ as M)
 
   expectTypeCheckOk(type, m)
 
@@ -278,7 +306,7 @@ test("newModel with typechecking enabled", () => {
 test("model", () => {
   const m = newModel(M, { y: "6" })
   const type = types.model<M>(M)
-  tsCheck<TypeToData<typeof type>>(m)
+  assert(_ as TypeToData<typeof type>, _ as M)
 
   expectTypeCheckOk(type, m)
 
@@ -293,7 +321,10 @@ test("array - complex types", () => {
       x: types.number,
     }))
   )
-  tsCheck<TypeToData<typeof type>>([{ x: 5 }])
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as (Pick<{ x: number }, "x"> & { x?: number | undefined })[]
+  )
 
   expectTypeCheckOk(type, [{ x: 5 }])
 
@@ -305,7 +336,7 @@ test("array - complex types", () => {
 
 test("array - unchecked", () => {
   const type = types.array(types.unchecked<number>())
-  tsCheck<TypeToData<typeof type>>([1, 2, 3])
+  assert(_ as TypeToData<typeof type>, _ as number[])
 
   expectTypeCheckOk(type, [1, 2, 3])
 
@@ -316,16 +347,22 @@ test("array - unchecked", () => {
 
 test("object - complex types", () => {
   const type = types.object(() => ({
-    x: types.number,
+    x: types.maybe(types.number),
     o: types.object(() => ({
       y: types.string,
     })),
   }))
-  tsCheck<TypeToData<typeof type>>({ x: 5, o: { y: "6" } })
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as Pick<{ x: never; o: Pick<{ y: string }, "y"> & { y?: string | undefined } }, "o"> & {
+      x?: number | undefined
+      o?: (Pick<{ y: string }, "y"> & { y?: string | undefined }) | undefined
+    }
+  )
 
   expectTypeCheckOk(type, { x: 5, o: { y: "6" } })
 
-  const expected = "{ x: number; o: { y: string; }; }"
+  const expected = "{ x: number | undefined; o: { y: string; }; }"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { x: 5, o: 6 }, ["o"], "{ y: string; }")
   expectTypeCheckFail(type, { x: 5, o: { y: "6" }, z: 10 }, [], expected)
@@ -338,7 +375,10 @@ test("objectMap - complex types", () => {
       y: types.string,
     }))
   )
-  tsCheck<TypeToData<typeof type>>({ o: { y: "6" } })
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as { [k: string]: Pick<{ y: string }, "y"> & { y?: string | undefined } }
+  )
 
   expectTypeCheckOk(type, { o: { y: "6" } })
 
@@ -355,8 +395,10 @@ test("or - complex types", () => {
     })),
     types.number
   )
-  tsCheck<TypeToData<typeof type>>({ y: "6" })
-  tsCheck<TypeToData<typeof type>>(6)
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as number | (Pick<{ y: string }, "y"> & { y?: string | undefined })
+  )
 
   expectTypeCheckOk(type, { y: "6" })
   expectTypeCheckOk(type, 6)
@@ -367,10 +409,8 @@ test("or - complex types", () => {
 })
 
 test("or - one type unchecked", () => {
-  const type = types.or(types.number, types.boolean, types.unchecked())
-  tsCheck<TypeToData<typeof type>>(5)
-  tsCheck<TypeToData<typeof type>>(true)
-  tsCheck<TypeToData<typeof type>>("hi")
+  const type = types.or(types.number, types.boolean, types.unchecked<string>())
+  assert(_ as TypeToData<typeof type>, _ as string | number | boolean)
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
@@ -452,7 +492,7 @@ test("recursive model", () => {
   const type = types.model<MR>(MR)
 
   const mr = newModel(MR, { rec: newModel(MR, {}) })
-  tsCheck<TypeToData<typeof type>>(mr)
+  assert(_ as TypeToData<typeof type>, _ as MR)
 
   expectTypeCheckOk(type, mr)
 
@@ -500,7 +540,7 @@ test("cross referenced model", () => {
   const type = types.model<MA>(MA)
 
   const ma = newModel(MA, { b: newModel(MB, { a: newModel(MA, {}) }) })
-  tsCheck<TypeToData<typeof type>>(ma)
+  assert(_ as TypeToData<typeof type>, _ as MA)
 
   expectTypeCheckOk(type, ma)
 
@@ -513,7 +553,7 @@ test("ref", () => {
 
   const m = newModel(M, { y: "6" })
   const r = ref(m)
-  tsCheck<TypeToData<typeof type>>(r)
+  assert(_ as TypeToData<typeof type>, _ as Ref<M>)
 
   expectTypeCheckOk(type, r)
   expectTypeCheckFail(type, m, [], "Model($$Ref)")
@@ -521,9 +561,12 @@ test("ref", () => {
 
 test("frozen - simple type", () => {
   const type = types.frozen(types.number)
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as Pick<{ data: number }, "data"> & { data?: number | undefined }
+  )
 
   const fr = frozen<number>(5)
-  tsCheck<TypeToData<typeof type>>(fr)
 
   expectTypeCheckOk(type, fr)
   expectTypeCheckFail(type, 5, [], "{ data: number; }")
@@ -535,9 +578,14 @@ test("frozen - complex type", () => {
       x: types.number,
     }))
   )
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as Pick<{ data: Pick<{ x: number }, "x"> & { x?: number | undefined } }, "data"> & {
+      data?: (Pick<{ x: number }, "x"> & { x?: number | undefined }) | undefined
+    }
+  )
 
   const fr = frozen<{ x: number }>({ x: 5 })
-  tsCheck<TypeToData<typeof type>>(fr)
 
   expectTypeCheckOk(type, fr)
   expectTypeCheckFail(type, 5, [], "{ data: { x: number; }; }")
@@ -548,9 +596,9 @@ test("enum (string)", () => {
     X1 = "x1",
     X2 = "x2",
   }
+  assert(_ as TypeToData<typeof type>, _ as A)
 
   const type = types.enum<A>(A)
-  tsCheck<TypeToData<typeof type>>(A.X1)
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `"x1" | "x2"`)
@@ -561,9 +609,9 @@ test("enum (number)", () => {
     X1,
     X2,
   }
+  assert(_ as TypeToData<typeof type>, _ as A)
 
   const type = types.enum<A>(A)
-  tsCheck<TypeToData<typeof type>>(A.X1)
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `0 | 1`)
@@ -575,9 +623,9 @@ test("enum (mixed)", () => {
     X15 = "x15",
     X2 = 6,
   }
+  assert(_ as TypeToData<typeof type>, _ as A)
 
   const type = types.enum<A>(A)
-  tsCheck<TypeToData<typeof type>>(A.X1)
 
   expectTypeCheckOk(type, A.X15)
   expectTypeCheckOk(type, A.X2)
@@ -586,8 +634,7 @@ test("enum (mixed)", () => {
 
 test("integer", () => {
   const type = types.integer
-
-  tsCheck<TypeToData<typeof type>>(4)
+  assert(_ as TypeToData<typeof type>, _ as number)
 
   expectTypeCheckOk(type, 5)
   expectTypeCheckFail(type, 5.5, [], "integer<number>")
@@ -595,8 +642,7 @@ test("integer", () => {
 
 test("nonEmptyString", () => {
   const type = types.nonEmptyString
-
-  tsCheck<TypeToData<typeof type>>(" ")
+  assert(_ as TypeToData<typeof type>, _ as string)
 
   expectTypeCheckOk(type, " ")
   expectTypeCheckFail(type, "", [], "nonEmpty<string>")
@@ -610,8 +656,7 @@ test("refinement (simple)", () => {
     },
     "integer"
   )
-
-  tsCheck<TypeToData<typeof type>>(4)
+  assert(_ as TypeToData<typeof type>, _ as number)
 
   expectTypeCheckOk(type, 5)
   expectTypeCheckFail(type, 5.5, [], "integer<number>")
@@ -629,53 +674,15 @@ test("refinement (complex)", () => {
 
     return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
   })
-
-  tsCheck<TypeToData<typeof type>>({ a: 2, b: 3, result: 5 })
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as Pick<{ a: number; b: number; result: number }, "b" | "a" | "result"> & {
+      a?: number | undefined
+      b?: number | undefined
+      result?: number | undefined
+    }
+  )
 
   expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
   expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")
 })
-
-// just to see TS typing is ok
-/*
-const mdata = types.object(() => ({
-  x: types.number,
-  recursive: types.maybe(types.model<M>(M)),
-}))
-
-class M extends Model<SchemaToType<typeof mdata>> {}
-
-const m = newModel(M, { x: 6, recursive: undefined })
-m.data.x
-m.data.recursive!.data.x
-
-class M2 extends Model<{ yyy: number }> {}
-
-const nodeType = types.object(() => ({
-  x: types.number,
-  self: nodeType,
-  other: otherType,
-  arr: types.array(nodeType),
-  objMap: types.objectMap(nodeType),
-  hiLiteral: types.literal("hi"),
-  hiOrBye: types.or(types.literal("hi"), types.literal("bye")),
-  nodeOrOther: types.or(nodeType, otherType),
-  mod: types.maybe(types.model<M2>(M2)),
-}))
-
-const otherType = () => ({
-  x: types.number,
-  y: types.string,
-  cross: nodeType,
-})
-
-type ntt = SchemaToType<typeof nodeType>
-const a: ntt = undefined as any
-a.self.self.other.cross.self.x
-a.self.other.cross.other.y
-a.arr[0].x
-a.objMap["a"].hiLiteral
-a.hiOrBye
-a.nodeOrOther.x // number
-a.mod!.data.yyy
-*/
