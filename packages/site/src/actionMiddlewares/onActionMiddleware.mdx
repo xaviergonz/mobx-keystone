@@ -12,17 +12,45 @@ Also it won't trigger the listener for calls to hooks such as `onAttachedToRootS
 
 Its main use is to keep track of top level actions that can be later replicated via `applyAction` somewhere else (another machine, etc.).
 
-Remember to `return next()` if you want to continue the action, return something else if you want to return something else or throw if you want to cancel it.
+There are two kind of possible listeners, `onStart` and `onFinish` listeners.
+
+- `onStart` listeners are called before the action executes and allow cancellation by returning a new return value (which might be a return or a throw).
+- `onFinish` listeners are called after the action executes, have access to the action actual return value and allow overriding by returning a new return value (which might be a return or a throw).
 
 The actions passed as arguments to the listener are not in a serializable format. If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments or `serializeActionCall` over the whole action before sending the action call over the wire / storing them.
 
 It will return a disposer, which only needs to be called if you plan to early dispose of the middleware.
 
 ```ts
-const disposer = onActionMiddleware(myTodoList, (actionCall, actionContext, next) => {
-  // we could serialize the action call and do something with it
-  const serializableActionCall = serializeActionCall(actionCall)
+const disposer = onActionMiddleware(myTodoList, {
+  onStart(actionCall, actionContext) {
+    // we could serialize the action call and do something with it
+    const serializableActionCall = serializeActionCall(actionCall)
 
-  return next()
+    // optionally cancel the action by throwing something
+    return {
+      result: ActionTrackingResult.Throw,
+      value: new Error("whatever"),
+    }
+
+    // or by returning a different value
+    return {
+      result: ActionTrackingResult.Return,
+      value: 42,
+    }
+
+    // or do nothing / return undefined to continue it
+  },
+
+  onFinish(actionCall, actionContext, ret) {
+    if (ret.result === ActionTrackingResult.Return) {
+      // the action succeeded and ret.value has the return value
+    } else if (ret.result === ActionTrackingResult.Throw) {
+      // the action threw and ret.value has the thrown value
+    }
+
+    // as in above, we can either return an object with what to return / throw
+    // or do nothing / return undefined to continue the action
+  },
 })
 ```

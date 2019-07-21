@@ -19,9 +19,10 @@ export const App = observer(() => {
   useEffect(() => {
     // we can use action middlewares for several things
     // in this case we will keep a log of the actions done over the todo list
-    const disposer = onActionMiddleware(rootStore, (actionCall, _actionContext, next) => {
-      actions.push(actionCall)
-      return next()
+    const disposer = onActionMiddleware(rootStore, {
+      onStart(actionCall) {
+        actions.push(actionCall)
+      },
     })
     return disposer
   }, [rootStore])
