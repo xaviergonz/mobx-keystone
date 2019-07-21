@@ -8,7 +8,7 @@ import { failure } from "../utils"
 export const reduxActionType = "applyAction"
 
 /**
- * A redux action for mobx-data-model.
+ * A redux action for mobx-keystone.
  */
 export interface ReduxAction {
   readonly type: typeof reduxActionType
@@ -29,7 +29,7 @@ export function actionCallToReduxAction(actionCall: ActionCall): ReduxAction {
 }
 
 /**
- * A redux store for mobx-data-model.
+ * A redux store for mobx-keystone.
  */
 export interface ReduxStore<T> {
   getState(): SnapshotOutOf<T>
@@ -38,21 +38,21 @@ export interface ReduxStore<T> {
 }
 
 /**
- * A redux runner for mobx-data-model.
+ * A redux runner for mobx-keystone.
  */
 export interface ReduxRunner<T> {
   (next: ReduxStore<T>["dispatch"]): (action: ReduxAction) => ReduxAction
 }
 
 /**
- * A redux middleware for mobx-data-model.
+ * A redux middleware for mobx-keystone.
  */
 export interface ReduxMiddleware<T> {
   (store: ReduxStore<T>): ReduxRunner<T>
 }
 
 /**
- * Generates a redux compatible store out of a mobx-data-model object.
+ * Generates a redux compatible store out of a mobx-keystone object.
  *
  * @template T Object type.
  * @param target Root object.

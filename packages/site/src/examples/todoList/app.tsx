@@ -5,7 +5,7 @@ import {
   onActionMiddleware,
   onPatches,
   Patch,
-} from "mobx-data-model"
+} from "mobx-keystone"
 import { observer } from "mobx-react"
 import React, { useEffect, useState } from "react"
 import { rootStore, Todo, TodoList } from "./store"

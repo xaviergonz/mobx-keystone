@@ -9,7 +9,7 @@ route: /snapshots
 
 Snapshots are the immutable, structurally shared, representation of tree nodes (models and their children).
 
-Snapshots in `mobx-data-model` mainly serve these two purposes:
+Snapshots in `mobx-keystone` mainly serve these two purposes:
 
 - As a serialization / deserialization mechanism (be it to store it or send it over the wire)
 - As a way to bridge data to non mobx-react enabled React components.
@@ -135,7 +135,7 @@ const disposer = reaction(
 
 ### `onSnapshot<T extends object>(obj: T, listener: (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void): () => void`
 
-Since that is a very common pattern, `mobx-data-model` offers an `onSnapshot` function that will call a listener with the new snapshot and the previous snapshot everytime it changes.
+Since that is a very common pattern, `mobx-keystone` offers an `onSnapshot` function that will call a listener with the new snapshot and the previous snapshot everytime it changes.
 
 ```ts
 const disposer = onSnapshot(todo, (newSnapshot, previousSnapshot) => {
@@ -159,8 +159,8 @@ applySnapshot(todo, {
   text: "buy some milk",
   $$metadata: {
     type: "myApp/Todo",
-    id: "_SvYKK1zWYpBj7ST_fVV2"
-  }
+    id: "_SvYKK1zWYpBj7ST_fVV2",
+  },
 })
 ```
 

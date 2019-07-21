@@ -6,7 +6,7 @@ executors:
             - image: circleci/node:12
               environment:
                   CI: true
-        working_directory: ~/mobx-data-model
+        working_directory: ~/workdir
 
 jobs:
     install:

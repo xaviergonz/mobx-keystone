@@ -9,7 +9,7 @@ route: /rootStores
 
 Usually an application has one or more store objects which are meant to represent the actual current state of such application. These objects are usually known as "root stores".
 
-In the case of `mobx-data-model`, root stores are tree nodes (model instances or arrays / plain objects turned into tree nodes with `toTreeNode`) from where the rest of the application state will be stored in a tree-like structure.
+In the case of `mobx-keystone`, root stores are tree nodes (model instances or arrays / plain objects turned into tree nodes with `toTreeNode`) from where the rest of the application state will be stored in a tree-like structure.
 While it is not strictly necessary to mark these instances as root stores, doing so opens up some benefits:
 
 - Root stores allow the usage of the `onAttachedToRootStore(rootStore)` hook inside models.
@@ -56,7 +56,7 @@ class UserPreferences extends Model<{ theme: Theme }> {
       },
       {
         // also run the reaction the first time
-        fireImmediately: true
+        fireImmediately: true,
       }
     )
 

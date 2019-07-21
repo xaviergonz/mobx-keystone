@@ -10,7 +10,7 @@ import {
   setGlobalConfig,
   types,
   TypeToData,
-} from "mobx-data-model"
+} from "mobx-keystone"
 
 // for this example we will enable runtime data checking even in production mode
 setGlobalConfig({
@@ -92,7 +92,7 @@ export class TodoList extends Model<TypeToData<typeof todoListDataType>> {
 // `new X()`. the second parameter is the initial data for the model
 export const rootStore = newModel(TodoList, {
   todos: [
-    newModel(Todo, { text: "make mobx-data-model awesome!" }),
+    newModel(Todo, { text: "make mobx-keystone awesome!" }),
     newModel(Todo, { text: "spread the word" }),
     newModel(Todo, { text: "buy some milk", done: true }),
   ],

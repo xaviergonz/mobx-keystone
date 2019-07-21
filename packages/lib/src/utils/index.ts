@@ -24,7 +24,7 @@ export function mapGetOrDefault<K extends object, V>(
 }
 
 /**
- * A mobx-data-model error.
+ * A mobx-keystone error.
  */
 export class MobxDataModelError extends Error {
   constructor(msg: string) {
@@ -232,7 +232,7 @@ export function decorateWrapMethodOrField(
  * @ignore
  */
 export function logWarning(type: "warn" | "error", msg: string): void {
-  msg = "[mobx-data-model] " + msg
+  msg = "[mobx-keystone] " + msg
   switch (type) {
     case "warn":
       console.warn(msg)
