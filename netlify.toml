@@ -2,3 +2,11 @@ redirects = [
   {from = "/public/api/*", to = "/public/api/:splat"},
   {from = "/*", to = "/", status = 200}
 ]
+
+[build]
+  command = "yarn build-netlify"
+  publish = "packages/site/.docz/dist"
+
+[dev]
+  publish = "packages/site/.docz/dist"
+  port = 3000
