@@ -60,9 +60,10 @@ test("onActionMiddleware", () => {
     events.length = 0
   }
 
-  const disposer = onActionMiddleware(p1, (actionCall, ctx, next) => {
-    events.push([actionCall, ctx])
-    return next()
+  const disposer = onActionMiddleware(p1, {
+    onStart(actionCall, ctx) {
+      events.push([actionCall, ctx])
+    },
   })
   autoDispose(disposer)
 
@@ -84,7 +85,13 @@ test("onActionMiddleware", () => {
           "args": Array [
             1,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -133,7 +140,13 @@ test("onActionMiddleware", () => {
           "args": Array [
             2,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
@@ -172,7 +185,13 @@ test("onActionMiddleware", () => {
             3,
             4,
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -221,7 +240,13 @@ test("onActionMiddleware", () => {
           "args": Array [
             RandomClass {},
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -285,7 +310,13 @@ test("onActionMiddleware", () => {
               6,
             ],
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -341,7 +372,13 @@ test("onActionMiddleware", () => {
               "a": 5,
             },
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
@@ -408,7 +445,13 @@ test("onActionMiddleware", () => {
               "y": 100,
             },
           ],
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {

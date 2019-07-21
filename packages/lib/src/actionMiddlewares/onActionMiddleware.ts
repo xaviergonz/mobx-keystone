@@ -1,25 +1,16 @@
 import { isObservable, toJS } from "mobx"
 import { ActionCall } from "../action/applyAction"
-import { ActionContext } from "../action/context"
 import { isHookAction } from "../action/hookActions"
-import {
-  ActionMiddleware,
-  ActionMiddlewareDisposer,
-  addActionMiddleware,
-} from "../action/middleware"
+import { ActionMiddlewareDisposer } from "../action/middleware"
 import { getRootPath } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
-import { failure, isPlainObject, isPrimitive } from "../utils"
-
-/**
- * A listener for `onActionMiddleware`.
- */
-export type OnActionListener = (
-  actionCall: ActionCall,
-  actionContext: ActionContext,
-  next: () => any
-) => void
+import { assertIsObject, failure, isPlainObject, isPrimitive } from "../utils"
+import {
+  actionTrackingMiddleware,
+  ActionTrackingReturn,
+  SimpleActionContext,
+} from "./actionTrackingMiddleware"
 
 /**
  * Creates an action middleware that invokes a listener for all actions of a given tree.
@@ -28,53 +19,67 @@ export type OnActionListener = (
  *
  * Its main use is to keep track of top level actions that can be later replicated via `applyAction` somewhere else (another machine, etc.).
  *
- * Remember to `return next()` if you want to continue the action, return something else if you want to change the return value
- * or throw if you want to cancel it.
+ * There are two kind of possible listeners, `onStart` and `onFinish` listeners.
+ * `onStart` listeners are called before the action executes and allow cancellation by returning a new return value (which might be a return or a throw).
+ * `onFinish` listeners are called after the action executes, have access to the action actual return value and allow overriding by returning a
+ * new return value (which might be a return or a throw).
  *
  * If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments
  * or `serializeActionCall` over the whole action before sending the action call over the wire / storing them .
  *
  * @param target Object with the root target object.
- * @param listener Listener function that will be invoked everytime a topmost action is invoked on the model or any children.
+ * @param listeners Listener functions that will be invoked everytime a topmost action is invoked on the model or any children.
  * @returns The middleware disposer.
  */
 export function onActionMiddleware(
   target: object,
-  listener: OnActionListener
+  listeners: {
+    onStart?: (
+      actionCall: ActionCall,
+      actionContext: SimpleActionContext
+    ) => void | ActionTrackingReturn
+    onFinish?: (
+      actionCall: ActionCall,
+      actionContext: SimpleActionContext,
+      ret: ActionTrackingReturn
+    ) => void | ActionTrackingReturn
+  }
 ): ActionMiddlewareDisposer {
   assertTweakedObject(target, "target")
+  assertIsObject(listeners, "listeners")
 
-  const filter: ActionMiddleware["filter"] = ctx => {
-    if (ctx.parentContext || ctx.previousAsyncStepContext) {
-      // sub-action or async step, do nothing
-      return false
-    }
-
-    // skip hooks
-    if (isHookAction(ctx.actionName)) {
-      return false
-    }
-
-    return true
-  }
-
-  return addActionMiddleware({
-    middleware(ctx, next) {
-      if (ctx.parentContext || ctx.previousAsyncStepContext) {
-        // sub-action or async step, do nothing
-        return next()
+  return actionTrackingMiddleware(target, {
+    filter(ctx) {
+      if (ctx.parentContext) {
+        // sub-action, do nothing
+        return false
       }
 
-      const actionCall = actionContextToActionCall(ctx)
+      // skip hooks
+      if (isHookAction(ctx.actionName)) {
+        return false
+      }
 
-      return listener(actionCall, ctx, next)
+      return true
     },
-    target,
-    filter,
+
+    onStart(ctx) {
+      if (listeners.onStart) {
+        const actionCall = actionContextToActionCall(ctx)
+        return listeners.onStart(actionCall, ctx)
+      }
+    },
+
+    onFinish(ctx, ret) {
+      if (listeners.onFinish) {
+        const actionCall = actionContextToActionCall(ctx)
+        return listeners.onFinish(actionCall, ctx, ret)
+      }
+    },
   })
 }
 
-function actionContextToActionCall(ctx: ActionContext): ActionCall {
+function actionContextToActionCall(ctx: SimpleActionContext): ActionCall {
   const rootPath = getRootPath(ctx.target)
 
   return {

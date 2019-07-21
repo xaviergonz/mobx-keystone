@@ -88,13 +88,13 @@ test("flow", async () => {
     events.length = 0
   }
 
-  const disposer = onActionMiddleware(p, (actionCall, context, next) => {
-    events.push({
-      actionCall,
-      context,
-    })
-    let ret = next()
-    return ret
+  const disposer = onActionMiddleware(p, {
+    onStart(actionCall, context) {
+      events.push({
+        actionCall,
+        context,
+      })
+    },
   })
   autoDispose(disposer)
 
@@ -119,12 +119,15 @@ test("flow", async () => {
           "args": Array [
             2,
           ],
-          "asyncStepType": "spawn",
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
-          "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
-          "spawnAsyncStepContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-2",
@@ -172,12 +175,15 @@ test("flow", async () => {
             4,
             4,
           ],
-          "asyncStepType": "spawn",
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
-          "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
-          "spawnAsyncStepContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-2",
@@ -228,12 +234,15 @@ test("flow", async () => {
           "args": Array [
             10,
           ],
-          "asyncStepType": "spawn",
-          "data": Object {},
+          "data": Object {
+            Symbol(simpleDataContext): [Circular],
+            Symbol(actionTrackingMiddlewareData): Object {
+              "startAccepted": true,
+              "state": "finished",
+            },
+          },
           "parentContext": undefined,
-          "previousAsyncStepContext": undefined,
           "rootContext": [Circular],
-          "spawnAsyncStepContext": [Circular],
           "target": P {
             "$$metadata": Object {
               "id": "mockedUuid-2",

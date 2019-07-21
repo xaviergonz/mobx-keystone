@@ -1,7 +1,5 @@
 # TODO
 
-- rethink on action middleware a bit so it uses action tracking mid?
-
 - (8) clear place to put effects and the like?
 - in theory that would be afterAttachToRootModel
 
