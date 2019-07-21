@@ -2,7 +2,7 @@
   "private": true,
   "name": "site",
   "version": "0.0.0",
-  "description": "Documentation site for mobx-data-model",
+  "description": "Documentation site for mobx-keystone",
   "main": "index.js",
   "license": "MIT",
   "scripts": {

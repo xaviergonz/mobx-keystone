@@ -1,10 +1,10 @@
 {
-  "name": "mobx-data-model",
+  "name": "mobx-keystone",
   "version": "0.1.0",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
-    "mobx-data-model",
+    "mobx-keystone",
     "mobx-state-tree",
     "reactive",
     "frp",
@@ -13,8 +13,8 @@
   ],
   "license": "MIT",
   "main": "dist/index.js",
-  "umd:main": "dist/mobx-data-model.umd.production.js",
-  "module": "dist/mobx-data-model.es.production.js",
+  "umd:main": "dist/mobx-keystone.umd.production.js",
+  "module": "dist/mobx-keystone.es.production.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"

@@ -7,7 +7,7 @@ route: /runtimeTypeChecking
 
 ## Overview
 
-While `mobx-data-model` was built with first class Typescript support in mind, it is also possible to enforce runtime type checking.
+While `mobx-keystone` was built with first class Typescript support in mind, it is also possible to enforce runtime type checking.
 This feature is, however, **completely optional**. This is, if you are happy with the type safety that Typescript offers at compilation time you are free to stick to it exclusively.
 
 ## Type definitions
@@ -251,6 +251,6 @@ const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
 
 ## Notes for `mobx-state-tree` users
 
-- Typechecking in `mobx-data-model` is performed over instances once they have been created, not over snapshots, so the type definitions should be based on that fact.
+- Typechecking in `mobx-keystone` is performed over instances once they have been created, not over snapshots, so the type definitions should be based on that fact.
 - There is no `types.optional` since setting default values is already covered by the `defaultData` field of models.
 - While models will automatically typecheck themselves upon changes, other types will be only type checked when they get attached to nodes. If for some reason you need to type check them before then manually use the `typeCheck` method.

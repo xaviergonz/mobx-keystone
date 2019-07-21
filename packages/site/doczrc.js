@@ -1,5 +1,5 @@
 export default {
-  title: "mobx-data-model",
+  title: "mobx-keystone",
   description:
     "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   typescript: true,

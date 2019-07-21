@@ -48,7 +48,7 @@ const undoStoreDataType = typesObject(() => ({
  * Store model instance for undo/redo actions.
  * Do not manipulate directly, other that creating it.
  */
-@model("mobx-data-model/UndoStore", { dataType: undoStoreDataType })
+@model("mobx-keystone/UndoStore", { dataType: undoStoreDataType })
 export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   /**
    * @ignore

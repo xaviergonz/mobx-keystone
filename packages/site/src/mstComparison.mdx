@@ -8,43 +8,43 @@ route: /mstComparison
 This library is very much like `mobx-state-tree` and takes lots of ideas from it, so the transition
 should be fairly simple. There are some trade-offs though, as shown in the following chart:
 
-| Feature                                   | `mobx-data-model` | `mobx-state-tree` |
-| ----------------------------------------- | ----------------- | ----------------- |
-| Tree-like structure                       | ✔️                | ✔️                |
-| Immutable snapshot generation             | ✔️                | ✔️                |
-| Patch generation                          | ✔️                | ✔️                |
-| Action serialization / replaying          | ✔️                | ✔️                |
-| Action middleware support (1)             | ✔️✔️              | ✔️                |
-| - Atomic/Transaction middleware           | ✔️                | ✔️                |
-| - Undo manager middleware                 | ✔️                | ✔️                |
-| Flow action support                       | ✔️                | ✔️                |
-| References                                | ✔️                | ✔️                |
-| Frozen data                               | ✔️                | ✔️                |
-| Typescript support (2)                    | ✔️✔️✔️            | ✔️                |
-| Simplified instance / snapshot type usage | ✔️                | ❌                |
-| Simplified model life-cycle               | ✔️                | ❌                |
-| Runtime type validation (3)               | ✔️                | ✔️                |
-| No metadata inside snapshots              | ❌                | ✔️                |
-| Redux compatibility layer                 | ✔️                | ✔️                |
+| Feature                                   | `mobx-keystone` | `mobx-state-tree` |
+| ----------------------------------------- | --------------- | ----------------- |
+| Tree-like structure                       | ✔️              | ✔️                |
+| Immutable snapshot generation             | ✔️              | ✔️                |
+| Patch generation                          | ✔️              | ✔️                |
+| Action serialization / replaying          | ✔️              | ✔️                |
+| Action middleware support (1)             | ✔️✔️            | ✔️                |
+| - Atomic/Transaction middleware           | ✔️              | ✔️                |
+| - Undo manager middleware                 | ✔️              | ✔️                |
+| Flow action support                       | ✔️              | ✔️                |
+| References                                | ✔️              | ✔️                |
+| Frozen data                               | ✔️              | ✔️                |
+| Typescript support (2)                    | ✔️✔️✔️          | ✔️                |
+| Simplified instance / snapshot type usage | ✔️              | ❌                |
+| Simplified model life-cycle               | ✔️              | ❌                |
+| Runtime type validation (3)               | ✔️              | ✔️                |
+| No metadata inside snapshots              | ❌              | ✔️                |
+| Redux compatibility layer                 | ✔️              | ✔️                |
 
 1. Includes an improved action tracking middleware that makes it easier to create
    middlewares for flow (async) actions.
 2. Support for self-model references / cross-model references / no need for late types, no need for casting,
    etc.
-3. Runtime type checking / type definitions are completely optional in `mobx-data-model`
+3. Runtime type checking / type definitions are completely optional in `mobx-keystone`
 
 ## Typescript improvements
 
-`mobx-state-tree` has some limitations when it comes to Typescript typings, which `mobx-data-model` tries to overcome.
+`mobx-state-tree` has some limitations when it comes to Typescript typings, which `mobx-keystone` tries to overcome.
 
 ### If you know Typescript you already know how to type models
 
-`mobx-data-model` uses standard Typescript type annotations to declare the data of models, therefore lowering the learning curve a notch.
-However, if you need runtime type checking, `mobx-data-model` includes a completely optional type definition / runtime type checking system.
+`mobx-keystone` uses standard Typescript type annotations to declare the data of models, therefore lowering the learning curve a notch.
+However, if you need runtime type checking, `mobx-keystone` includes a completely optional type definition / runtime type checking system.
 
 ### Self-recursive and cross-referenced models
 
-Self-recursive or cross-referenced models are impossible (or at least very hard) to properly type in `mobx-state-tree`, but they become trivial with `mobx-data-model`.
+Self-recursive or cross-referenced models are impossible (or at least very hard) to properly type in `mobx-state-tree`, but they become trivial with `mobx-keystone`.
 
 ```ts
 // self recursive model
@@ -96,7 +96,7 @@ const RootStore = types.model({
 }))
 ```
 
-In `mobx-data-model` snapshots are usually only expected when dealing with `getSnapshot` and `fromSnapshot`, so it leads to a simpler usage:
+In `mobx-keystone` snapshots are usually only expected when dealing with `getSnapshot` and `fromSnapshot`, so it leads to a simpler usage:
 
 ```ts
 @model("myApp/Todo")
@@ -179,4 +179,4 @@ For example, you might create a submodel with an `afterCreate` hook, but it migh
 Maybe you might want to set-up an effect (`reaction` or the like), but you only want that effect to work after it actually becomes part of your application state.
 Likewise you might want to access `getRoot` to access the root model, but they might actually not give the value you expect until they are attached to a parent which is eventually (or not) attached to the proper root.
 
-`mobx-data-model` solves this by only offering two life-cycle hooks, `onInit`, which is _always_ called once the model has been created (and since there's no lazy-initialization they will always be), and `onAttachedToRootStore` (plus an optional disposer that gets executed when it is detached), which gets called once the model gets attached to the proper root node (a root store), thus ensuring that at that point `getRoot` will return the expected value and makes it a perfect place to set up effects (more info on the [models](./models) section).
+`mobx-keystone` solves this by only offering two life-cycle hooks, `onInit`, which is _always_ called once the model has been created (and since there's no lazy-initialization they will always be), and `onAttachedToRootStore` (plus an optional disposer that gets executed when it is detached), which gets called once the model gets attached to the proper root node (a root store), thus ensuring that at that point `getRoot` will return the expected value and makes it a perfect place to set up effects (more info on the [models](./models) section).
