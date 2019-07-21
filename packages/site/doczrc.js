@@ -38,7 +38,7 @@ export default {
   },
   themeConfig: {
     logo: {
-      src: "/public/images/mdm-logo.svg",
+      src: "/public/images/lib-logo.png",
       width: 100,
     },
     mode: "dark",
