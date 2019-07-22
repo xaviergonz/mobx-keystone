@@ -19,17 +19,17 @@ export interface CloneOptions {
  * references will fix their target IDs accordingly.
  *
  * @typeparam T Object type.
- * @param value Object to clone.
+ * @param node Object to clone.
  * @param [options] Clone options.
  * @returns The cloned object.
  */
-export function clone<T extends object>(value: T, options?: CloneOptions): T {
-  assertTweakedObject(value, "clone")
+export function clone<T extends object>(node: T, options?: CloneOptions): T {
+  assertTweakedObject(node, "node")
   const opts = {
     generateNewIds: true,
     ...options,
   }
 
-  const sn = getSnapshot(value)
+  const sn = getSnapshot(node)
   return fromSnapshot(sn as any, opts)
 }

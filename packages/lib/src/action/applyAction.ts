@@ -30,14 +30,14 @@ export interface ActionCall {
 /**
  * Applies (runs) a serialized action over a target object.
  *
- * @param rootTarget Root target object to run the action over.
+ * @param subtreeRoot Subtree root target object to run the action over.
  * @param call The serialized action, usually as coming from `onActionMiddleware`.
  * @returns The return value of the action, if any.
  */
-export function applyAction<TRet = any>(rootTarget: object, call: ActionCall): TRet {
-  assertTweakedObject(rootTarget, "rootTarget")
+export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): TRet {
+  assertTweakedObject(subtreeRoot, "subtreeRoot")
 
-  return wrappedInternalApplyAction.call(rootTarget, call)
+  return wrappedInternalApplyAction.call(subtreeRoot, call)
 }
 
 function internalApplyAction(this: object, call: ActionCall) {

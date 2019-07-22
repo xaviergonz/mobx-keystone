@@ -27,12 +27,12 @@ import {
  * If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments
  * or `serializeActionCall` over the whole action before sending the action call over the wire / storing them .
  *
- * @param target Object with the root target object.
+ * @param subtreeRoot Subtree root target object.
  * @param listeners Listener functions that will be invoked everytime a topmost action is invoked on the model or any children.
  * @returns The middleware disposer.
  */
 export function onActionMiddleware(
-  target: object,
+  subtreeRoot: object,
   listeners: {
     onStart?: (
       actionCall: ActionCall,
@@ -45,10 +45,10 @@ export function onActionMiddleware(
     ) => void | ActionTrackingReturn
   }
 ): ActionMiddlewareDisposer {
-  assertTweakedObject(target, "target")
+  assertTweakedObject(subtreeRoot, "subtreeRoot")
   assertIsObject(listeners, "listeners")
 
-  return actionTrackingMiddleware(target, {
+  return actionTrackingMiddleware(subtreeRoot, {
     filter(ctx) {
       if (ctx.parentContext) {
         // sub-action, do nothing
@@ -95,23 +95,23 @@ function actionContextToActionCall(ctx: SimpleActionContext): ActionCall {
  * or if it is a primitive then the primitive itself.
  * If the value cannot be serialized it will throw an exception.
  *
- * @param value Argument value to be transformed into its serializable form.
+ * @param argValue Argument value to be transformed into its serializable form.
  * @returns The serializable form of the passed value.
  */
-export function serializeActionCallArgument(value: any): any {
-  if (isPrimitive(value)) {
-    return value
+export function serializeActionCallArgument(argValue: any): any {
+  if (isPrimitive(argValue)) {
+    return argValue
   }
-  if (isTweakedObject(value)) {
-    return getSnapshot(value)
+  if (isTweakedObject(argValue)) {
+    return getSnapshot(argValue)
   }
 
-  const origValue = value
-  if (isObservable(value)) {
-    value = toJS(value, { exportMapsAsObjects: false, detectCycles: false })
+  const origValue = argValue
+  if (isObservable(argValue)) {
+    argValue = toJS(argValue, { exportMapsAsObjects: false, detectCycles: false })
   }
-  if (isPlainObject(value) || Array.isArray(value)) {
-    return value
+  if (isPlainObject(argValue) || Array.isArray(argValue)) {
+    return argValue
   }
 
   throw failure(`serializeActionCallArgument could not serialize the given value: ${origValue}`)

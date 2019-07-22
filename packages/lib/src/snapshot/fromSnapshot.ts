@@ -33,16 +33,16 @@ export interface FromSnapshotOptions {
  * references will fix their target IDs accordingly.
  *
  * @typeparam T Object type.
- * @param sn Snapshot, including primitives.
+ * @param snapshot Snapshot, including primitives.
  * @param [options] Options.
  * @returns The deserialized object.
  */
-export let fromSnapshot = <T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T => {
+export let fromSnapshot = <T>(snapshot: SnapshotInOf<T>, options?: FromSnapshotOptions): T => {
   if (options && options.generateNewIds) {
-    sn = fixSnapshotIds(sn)
+    snapshot = fixSnapshotIds(snapshot)
   }
 
-  return internalFromSnapshot(sn)
+  return internalFromSnapshot(snapshot)
 }
 fromSnapshot = action("fromSnapshot", fromSnapshot) as any
 

@@ -9,17 +9,17 @@ import { SnapshotOutOf } from "./SnapshotOf"
  * if no changes are made then the snapshot will be kept the same.
  *
  * @typeparam T Object type.
- * @param value Data structure, including primtives.
+ * @param nodeOrPrimitive Data structure, including primtives.
  * @returns The snapshot.
  */
-export function getSnapshot<T>(value: T): SnapshotOutOf<T> {
-  if (isPrimitive(value)) {
-    return value as any
+export function getSnapshot<T>(nodeOrPrimitive: T): SnapshotOutOf<T> {
+  if (isPrimitive(nodeOrPrimitive)) {
+    return nodeOrPrimitive as any
   }
 
-  assertTweakedObject(value, "getSnapshot")
+  assertTweakedObject(nodeOrPrimitive, "nodeOrPrimitive")
 
-  const snapshot = getInternalSnapshot(value as any)
+  const snapshot = getInternalSnapshot(nodeOrPrimitive as any)
   if (!snapshot) {
     throw failure("getSnapshot is not supported for this kind of object")
   }

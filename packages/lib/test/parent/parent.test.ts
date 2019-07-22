@@ -67,7 +67,7 @@ test("parent", () => {
 
   expect(getParentPath(p)).toBeUndefined()
   expect(getParentPath(p.data)).toEqual({ parent: p, path: "data" })
-  expect(() => getParentPath(p.data.x as any)).toThrow("getParentPath") // not an object
+  expect(() => getParentPath(p.data.x as any)).toThrow("must be a tree node") // not an object
   expect(getParentPath(p.data.arr)).toEqual({ parent: p.data, path: "arr" })
   expect(getParentPath(p.data.p2!)).toEqual({ parent: p.data, path: "p2" })
   expect(getParentPath(p.data.p2!.data)).toEqual({ parent: p.data.p2, path: "data" })

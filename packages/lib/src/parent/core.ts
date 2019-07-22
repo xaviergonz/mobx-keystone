@@ -1,6 +1,8 @@
 import { createAtom, IAtom, observable, ObservableMap, ObservableSet } from "mobx"
 import { AnyModel } from "../model/Model"
-import { ParentPath } from "./path"
+import { assertTweakedObject } from "../tweaker/core"
+import { failure } from "../utils"
+import { isRoot, ParentPath } from "./path"
 
 /**
  * @ignore
@@ -32,15 +34,20 @@ export function getRootIdCache(root: object): ObservableMap<string, AnyModel> {
 }
 
 /**
- * Resolves a reference id of a model inside a given tree.
+ * Resolves a model inside a given subtree by its id.
  *
  * @typename M Model type.
- * @param root Root node object.
+ * @param treeRoot Root node object.
  * @param id Id to resolve.
  * @returns The resolved model or undefined if not found.
  */
-export function resolveReferenceId<M extends AnyModel>(root: object, id: string): M | undefined {
-  let cache = rootIdCaches.get(root)
+export function resolveModelId<M extends AnyModel>(treeRoot: object, id: string): M | undefined {
+  assertTweakedObject(treeRoot, "treeRoot")
+  if (!isRoot(treeRoot)) {
+    throw failure("a root node was expected")
+  }
+
+  let cache = rootIdCaches.get(treeRoot)
   if (!cache) {
     return undefined
   }
@@ -52,15 +59,15 @@ export function resolveReferenceId<M extends AnyModel>(root: object, id: string)
  * @ignore
  */
 export function parentPathEquals(
-  p1: ParentPath<any> | undefined,
-  p2: ParentPath<any> | undefined,
+  parentPath1: ParentPath<any> | undefined,
+  parentPath2: ParentPath<any> | undefined,
   comparePath = true
 ) {
-  if (!p1 && !p2) return true
-  if (!p1 || !p2) return false
-  const parentEquals = p1.parent === p2.parent
+  if (!parentPath1 && !parentPath2) return true
+  if (!parentPath1 || !parentPath2) return false
+  const parentEquals = parentPath1.parent === parentPath2.parent
   if (!parentEquals) return false
-  return comparePath ? p1.path === p2.path : true
+  return comparePath ? parentPath1.path === parentPath2.path : true
 }
 
 function createParentPathAtom(obj: object) {
@@ -75,13 +82,13 @@ function createParentPathAtom(obj: object) {
 /**
  * @ignore
  */
-export function reportParentPathObserved(obj: object) {
-  createParentPathAtom(obj).reportObserved()
+export function reportParentPathObserved(node: object) {
+  createParentPathAtom(node).reportObserved()
 }
 
 /**
  * @ignore
  */
-export function reportParentPathChanged(obj: object) {
-  createParentPathAtom(obj).reportChanged()
+export function reportParentPathChanged(node: object) {
+  createParentPathAtom(node).reportChanged()
 }

@@ -11,10 +11,10 @@ test("basic types", () => {
   expect(getSnapshot("str")).toBe("str")
 
   const obj = { a: 5 }
-  expect(() => getSnapshot(observable(obj))).toThrow("getSnapshot") // not part of a tree
+  expect(() => getSnapshot(observable(obj))).toThrow("must be a tree node") // not part of a tree
 
   const arr = [1, 2, 3]
-  expect(() => getSnapshot(observable(arr))).toThrow("getSnapshot") // not part of a tree
+  expect(() => getSnapshot(observable(arr))).toThrow("must be a tree node") // not part of a tree
 })
 
 test("model class", () => {

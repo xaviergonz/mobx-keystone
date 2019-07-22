@@ -1,7 +1,5 @@
 # TODO
 
-- maybe we could reduce the model passed in actions to just the type/id if it is anywhere?
-
 - (8) clear place to put effects and the like?
 - in theory that would be afterAttachToRootModel
 

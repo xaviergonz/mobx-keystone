@@ -1,5 +1,5 @@
 import { action } from "mobx"
-import { getParent, getRoot } from "../parent/path"
+import { getRoot, isRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
@@ -14,65 +14,65 @@ const rootStores = new WeakSet<object>()
  * - It allows auto detachable references to work properly.
  *
  * @typeparam T Object type.
- * @param model Model object.
+ * @param node Node object to register as root store.
  * @returns The same model object that was passed.
  */
 export const registerRootStore = action(
   "registerRootStore",
-  <T extends object>(object: T): T => {
-    assertTweakedObject(object, "a root store")
+  <T extends object>(node: T): T => {
+    assertTweakedObject(node, "node")
 
-    if (rootStores.has(object)) {
+    if (rootStores.has(node)) {
       throw failure("object already marked as root store")
     }
 
-    if (getParent(object)) {
+    if (!isRoot(node)) {
       throw failure("a root store must not have a parent")
     }
 
-    rootStores.add(object)
+    rootStores.add(node)
 
-    attachToRootStore(object, object)
+    attachToRootStore(node, node)
 
-    return object
+    return node
   }
 )
 
 /**
  * Unregisters an object to mark it as no longer a root store.
  *
- * @param model Model object.
+ * @param node Node object to unregister as root store.
  */
-export const unregisterRootStore = action("unregisterRootStore", (object: object): void => {
-  if (!isRootStore(object)) {
+export const unregisterRootStore = action("unregisterRootStore", (node: object): void => {
+  if (!isRootStore(node)) {
     throw failure("not a root store")
   }
 
-  rootStores.delete(object)
+  rootStores.delete(node)
 
-  detachFromRootStore(object)
+  detachFromRootStore(node)
 })
 
 /**
  * Checks if a given object is marked as a root store.
  *
- * @param object Object.
+ * @param node Object.
  * @returns
  */
-export function isRootStore(object: object): boolean {
-  return rootStores.has(object)
+export function isRootStore(node: object): boolean {
+  return rootStores.has(node)
 }
 
 /**
  * Gets the root store of a given tree child, or undefined if none.
  *
  * @typeparam T Root store type.
- * @param target Target to find the root store for.
+ * @param node Target to find the root store for.
  * @returns
  */
-export function getRootStore<T extends object>(target: object): T | undefined {
-  assertTweakedObject(target, "getRootStore")
+export function getRootStore<T extends object>(node: object): T | undefined {
+  assertTweakedObject(node, "node")
 
-  const root = getRoot(target)
+  const root = getRoot(node)
   return isRootStore(root) ? root : undefined
 }

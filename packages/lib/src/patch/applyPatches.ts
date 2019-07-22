@@ -11,13 +11,13 @@ import { failure, inDevMode, isArray } from "../utils"
 /**
  * Applies the given patches to the given target object.
  *
- * @param obj Target object.
+ * @param node Target object.
  * @param patches List of patches to apply.
  */
-export function applyPatches(obj: object, patches: ReadonlyArray<Patch>): void {
-  assertTweakedObject(obj, "applyPatches")
+export function applyPatches(node: object, patches: ReadonlyArray<Patch>): void {
+  assertTweakedObject(node, "node")
 
-  wrappedInternalApplyPatches.call(obj, patches)
+  wrappedInternalApplyPatches.call(node, patches)
 }
 
 /**

@@ -129,15 +129,15 @@ export interface ActionTrackingReturn {
  * Creates an action tracking middleware, which is a simplified version
  * of the standard action middleware.
  *
- * @param target Root target model object.
+ * @param subtreeRoot Subtree root target object.
  * @param hooks Middleware hooks.
  * @returns The middleware disposer.
  */
 export function actionTrackingMiddleware(
-  target: object,
+  subtreeRoot: object,
   hooks: ActionTrackingMiddleware
 ): ActionMiddlewareDisposer {
-  assertTweakedObject(target, "target")
+  assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   const dataSymbol = Symbol("actionTrackingMiddlewareData")
   interface Data {
@@ -376,7 +376,7 @@ export function actionTrackingMiddleware(
     }
   }
 
-  return addActionMiddleware({ middleware: mware, filter, target })
+  return addActionMiddleware({ middleware: mware, filter, subtreeRoot: subtreeRoot })
 }
 
 function returnOrThrowActionTrackingReturn(retObj: ActionTrackingReturn) {

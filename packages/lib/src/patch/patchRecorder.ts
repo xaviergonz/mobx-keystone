@@ -42,15 +42,15 @@ export interface PatchRecorder {
 /**
  * Creates a patch recorder.
  *
- * @param target
+ * @param subtreeRoot
  * @param [opts]
  * @returns The patch recorder.
  */
 export function patchRecorder(
-  target: object,
+  subtreeRoot: object,
   opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }
 ): PatchRecorder {
-  return internalPatchRecorder(target, opts)
+  return internalPatchRecorder(subtreeRoot, opts)
 }
 
 /**
@@ -58,12 +58,12 @@ export function patchRecorder(
  *
  * Creates a global or local patch recorder.
  *
- * @param target
+ * @param subtreeRoot
  * @param [opts]
  * @returns The patch recorder.
  */
 export function internalPatchRecorder(
-  target: object | undefined,
+  subtreeRoot: object | undefined,
   opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }
 ): PatchRecorder {
   let { recording, filter } = {
@@ -76,11 +76,11 @@ export function internalPatchRecorder(
 
   let onPatchesDisposer: OnPatchesDisposer
 
-  if (target) {
-    onPatchesDisposer = onPatches(target, (p, invP) => {
+  if (subtreeRoot) {
+    onPatchesDisposer = onPatches(subtreeRoot, (p, invP) => {
       if (recording && filter(p, invP)) {
         events.push({
-          target,
+          target: subtreeRoot,
           patches: p,
           inversePatches: invP,
         })
