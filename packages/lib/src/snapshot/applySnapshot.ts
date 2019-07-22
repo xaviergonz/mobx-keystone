@@ -15,14 +15,14 @@ import { SnapshotOutOf } from "./SnapshotOf"
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
  *
  * @typeparam T Object type.
- * @param obj Target object (model object, object or array).
- * @param sn Snapshot to apply.
+ * @param node Target object (model object, object or array).
+ * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(obj: T, sn: SnapshotOutOf<T>): void {
-  assertTweakedObject(obj, "applySnapshot")
-  assertIsObject(sn, "snapshot")
+export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf<T>): void {
+  assertTweakedObject(node, "node")
+  assertIsObject(snapshot, "snapshot")
 
-  wrappedInternalApplySnapshot.call(obj, sn)
+  wrappedInternalApplySnapshot.call(node, snapshot)
 }
 
 function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>): void {

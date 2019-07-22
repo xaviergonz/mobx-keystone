@@ -200,7 +200,7 @@ export class UndoManager {
     const event = this.undoQueue[this.undoQueue.length - 1]
 
     withoutUndo(() => {
-      applyPatches(this.target, event.inversePatches)
+      applyPatches(this.subtreeRoot, event.inversePatches)
     })
 
     this.store._undo()
@@ -218,7 +218,7 @@ export class UndoManager {
     const event = this.redoQueue[this.redoQueue.length - 1]
 
     withoutUndo(() => {
-      applyPatches(this.target, event.patches)
+      applyPatches(this.subtreeRoot, event.patches)
     })
 
     this.store._redo()
@@ -236,12 +236,12 @@ export class UndoManager {
    * Do not use directly, use `undoMiddleware` instead.
    *
    * @param disposer
-   * @param target
+   * @param subtreeRoot
    * @param [store]
    */
   constructor(
     private readonly disposer: ActionMiddlewareDisposer,
-    private readonly target: object,
+    private readonly subtreeRoot: object,
     store?: UndoStore
   ) {
     this.store = store || newModel(UndoStore, {})
@@ -251,17 +251,17 @@ export class UndoManager {
 /**
  * Creates an undo middleware.
  *
- * @param target Root target object.
+ * @param subtreeRoot Subtree root target object.
  * @param [store] Optional `UndoStore` where to store the undo/redo queues. Use this if you want to
  * store such queues somewhere in your models. If none is provided it will reside in memory.
  * @returns An `UndoManager` which allows you to do the manage the undo/redo operations and dispose of the middleware.
  */
-export function undoMiddleware(target: object, store?: UndoStore): UndoManager {
-  assertTweakedObject(target, "target")
+export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoManager {
+  assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   const patchRecorderSymbol = Symbol("patchRecorder")
   function initPatchRecorder(ctx: SimpleActionContext) {
-    ctx.rootContext.data[patchRecorderSymbol] = patchRecorder(target, {
+    ctx.rootContext.data[patchRecorderSymbol] = patchRecorder(subtreeRoot, {
       recording: false,
       filter: undoDisabledFilter,
     })
@@ -272,7 +272,7 @@ export function undoMiddleware(target: object, store?: UndoStore): UndoManager {
 
   let manager: UndoManager
 
-  const middlewareDisposer = actionTrackingMiddleware(target, {
+  const middlewareDisposer = actionTrackingMiddleware(subtreeRoot, {
     onStart(ctx) {
       if (ctx === ctx.rootContext) {
         initPatchRecorder(ctx)
@@ -312,7 +312,7 @@ export function undoMiddleware(target: object, store?: UndoStore): UndoManager {
     },
   })
 
-  manager = new UndoManager(middlewareDisposer, target, store)
+  manager = new UndoManager(middlewareDisposer, subtreeRoot, store)
   return manager
 }
 

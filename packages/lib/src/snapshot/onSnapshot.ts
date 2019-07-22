@@ -17,19 +17,19 @@ export type OnSnapshotDisposer = () => void
  * Adds a reaction that will trigger every time an snapshot changes.
  *
  * @typeparam T Object type.
- * @param obj Object to get the snapshot from.
+ * @param node Object to get the snapshot from.
  * @param listener Function that will be triggered when the snapshot changes.
  * @returns A disposer.
  */
 export function onSnapshot<T extends object>(
-  obj: T,
+  node: T,
   listener: OnSnapshotListener<T>
 ): OnSnapshotDisposer {
-  assertTweakedObject(obj, "onSnapshot")
+  assertTweakedObject(node, "node")
 
-  let currentSnapshot = getSnapshot(obj)
+  let currentSnapshot = getSnapshot(node)
   return reaction(
-    () => getSnapshot(obj),
+    () => getSnapshot(node),
     newSnapshot => {
       const prevSn = currentSnapshot
       currentSnapshot = newSnapshot

@@ -9,10 +9,10 @@ import { ActionContext } from "./context"
  */
 export interface ActionMiddleware {
   /**
-   * Subtree (object and child objects) this middleware will run for.
+   * Subtree root object (object and child objects) this middleware will run for.
    * This target "filter" will be run before the custom filter.
    */
-  readonly target: object
+  readonly subtreeRoot: object
 
   /**
    * A filter function to decide if an action middleware function should be run or not.
@@ -88,9 +88,9 @@ export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
 export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDisposer {
   assertIsObject(mware, "middleware")
 
-  let { middleware, filter, target } = mware
+  let { middleware, filter, subtreeRoot } = mware
 
-  assertTweakedObject(target, "middleware.target")
+  assertTweakedObject(subtreeRoot, "middleware.subtreeRoot")
   assertIsFunction(middleware, "middleware.middleware")
   if (filter && typeof filter !== "function") {
     throw failure("middleware.filter must be a function or undefined")
@@ -100,9 +100,9 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
     middleware = action(middleware.name || "actionMiddleware", middleware)
   }
 
-  if (target) {
+  if (subtreeRoot) {
     const targetFilter = (ctx: ActionContext) =>
-      ctx.target === target || isChildOfParent(ctx.target, target!)
+      ctx.target === subtreeRoot || isChildOfParent(ctx.target, subtreeRoot!)
 
     if (!filter) {
       filter = targetFilter
@@ -116,10 +116,10 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   const actualMware = { middleware, filter }
 
-  let objMwares = perObjectActionMiddlewares.get(target)!
+  let objMwares = perObjectActionMiddlewares.get(subtreeRoot)!
   if (!objMwares) {
     objMwares = [actualMware]
-    perObjectActionMiddlewares.set(target, objMwares)
+    perObjectActionMiddlewares.set(subtreeRoot, objMwares)
   } else {
     objMwares.push(actualMware)
   }

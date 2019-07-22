@@ -61,7 +61,7 @@ test("action tracking", () => {
 
   autoDispose(
     addActionMiddleware({
-      target: p,
+      subtreeRoot: p,
       middleware(ctx, next) {
         events.push({
           event: "action started",
@@ -643,7 +643,7 @@ test("action cancel with error", () => {
   const p = newModel(P, {})
   autoDispose(
     addActionMiddleware({
-      target: p,
+      subtreeRoot: p,
       middleware(_ctx, _next) {
         throw err
       },
@@ -661,7 +661,7 @@ test("action cancel with new return value", () => {
   const p = newModel(P, {})
   autoDispose(
     addActionMiddleware({
-      target: p,
+      subtreeRoot: p,
       middleware(_ctx) {
         return val
       },

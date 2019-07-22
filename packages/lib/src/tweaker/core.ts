@@ -28,10 +28,10 @@ export function isTreeNode(value: object): boolean {
 /**
  * @ignore
  */
-export function assertTweakedObject(value: any, fnName: string): value is Object {
-  if (!isTweakedObject(value)) {
+export function assertTweakedObject(treeNode: any, argName: string): treeNode is Object {
+  if (!isTweakedObject(treeNode)) {
     throw failure(
-      `${fnName} only works over a model or a shallow / deep child part of a model 'data' object`
+      `${argName} must be a tree node (usually a model or a shallow / deep child part of a model 'data' object)`
     )
   }
   return true

@@ -2,7 +2,7 @@ import { computed, when } from "mobx"
 import { AnyModel, Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
 import { ModelCreationData, newModel } from "../model/newModel"
-import { resolveReferenceId } from "../parent/core"
+import { resolveModelId } from "../parent/core"
 import { detach } from "../parent/detach"
 import { getRoot } from "../parent/path"
 import { TypeToData } from "../typeChecking/schemas"
@@ -43,7 +43,7 @@ export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType
    */
   @computed
   get maybeCurrent(): T | undefined {
-    return resolveReferenceId(getRoot(this), this.id)
+    return resolveModelId(getRoot(this), this.id)
   }
 
   /**

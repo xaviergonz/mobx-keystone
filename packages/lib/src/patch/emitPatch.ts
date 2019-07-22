@@ -51,22 +51,22 @@ const globalPatchListeners: OnGlobalPatchesListener[] = []
 /**
  * Adds a listener that will be called every time a patch is generated for the tree of the given target object.
  *
- * @param target Root object of the patch listener.
+ * @param subtreeRoot Subtree root object of the patch listener.
  * @param listener The listener function that will be called everytime a patch is generated for the object or its children.
  * @returns A disposer to stop listening to patches.
  */
-export function onPatches(target: object, listener: OnPatchesListener): OnPatchesDisposer {
-  assertTweakedObject(target, "onPatches")
+export function onPatches(subtreeRoot: object, listener: OnPatchesListener): OnPatchesDisposer {
+  assertTweakedObject(subtreeRoot, "subtreeRoot")
   assertIsFunction(listener, "listener")
 
   if (!isAction(listener)) {
     listener = action(listener.name || "onPatchesListener", listener)
   }
 
-  let listenersForObject = patchListeners.get(target)
+  let listenersForObject = patchListeners.get(subtreeRoot)
   if (!listenersForObject) {
     listenersForObject = []
-    patchListeners.set(target, listenersForObject)
+    patchListeners.set(subtreeRoot, listenersForObject)
   }
 
   listenersForObject.push(listener)

@@ -8,17 +8,17 @@ import { getParentPath } from "./path"
  * If none is found it will return undefined.
  *
  * @typeparam T Parent object type.
- * @param child Target object.
+ * @param node Target object.
  * @param predicate Function that will be run for every parent of the target object, from immediate parent to the root.
  * @returns
  */
 export function findParent<T extends object = any>(
-  child: object,
-  predicate: (parent: object) => boolean
+  node: object,
+  predicate: (parentNode: object) => boolean
 ): T | undefined {
-  assertTweakedObject(child, "findParent")
+  assertTweakedObject(node, "node")
 
-  let current: any = child
+  let current: any = node
   let parentPath
   while ((parentPath = getParentPath(current))) {
     current = parentPath.parent

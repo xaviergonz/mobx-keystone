@@ -89,7 +89,7 @@ let currentActionContext: ActionContext | undefined
  *
  * @returns
  */
-export function getCurrentActionContext() {
+export function getCurrentActionContext(): ActionContext | undefined {
   return currentActionContext
 }
 
@@ -100,6 +100,6 @@ export function getCurrentActionContext() {
  *
  * @param ctx Current action context.
  */
-export function setCurrentActionContext(ctx: ActionContext | undefined) {
+export function setCurrentActionContext(ctx: ActionContext | undefined): void {
   currentActionContext = ctx
 }

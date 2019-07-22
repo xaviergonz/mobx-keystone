@@ -12,12 +12,12 @@ import { getParentPath } from "./path"
  * If the parent is an array detaching will remove the node by spicing it.
  * If there's no parent it will throw.
  *
- * @param value Object to be detached.
+ * @param node Object to be detached.
  */
-export function detach(value: object): void {
-  assertTweakedObject(value, "detach")
+export function detach(node: object): void {
+  assertTweakedObject(node, "node")
 
-  wrappedInternalDetach.call(value)
+  wrappedInternalDetach.call(node)
 }
 
 const wrappedInternalDetach = wrapInAction(

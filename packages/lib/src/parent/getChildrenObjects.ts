@@ -4,11 +4,11 @@ import { objectChildren } from "./core"
 /**
  * Returns all the children objects (this is, excluding primitives) of an object.
  *
- * @param target Object to get the list of children from.
+ * @param node Object to get the list of children from.
  * @returns
  */
-export function getChildrenObjects(target: object): Set<any> {
-  assertTweakedObject(target, "getChildrenObjects")
+export function getChildrenObjects(node: object): Set<any> {
+  assertTweakedObject(node, "node")
 
-  return objectChildren.get(target)!
+  return objectChildren.get(node)!
 }

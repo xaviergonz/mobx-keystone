@@ -21,26 +21,26 @@ export enum WalkTreeMode {
  * then the walk will be stopped and the function will return the returned value.
  *
  * @typeparam T Returned object type, defaults to void.
- * @param target Tree root object.
+ * @param subtreeRoot Subtree root object.
  * @param predicate Function that will be run for each node of the tree.
  * @param mode Mode to walk the tree, as defined in `WalkTreeMode`.
  * @returns
  */
 export function walkTree<T = void>(
-  target: object,
+  subtreeRoot: object,
   predicate: (node: any) => T | undefined,
   mode: WalkTreeMode
 ): T | undefined {
-  assertTweakedObject(target, "walkTree")
+  assertTweakedObject(subtreeRoot, "target")
 
   if (mode === WalkTreeMode.ParentFirst) {
-    const ret = predicate(target)
+    const ret = predicate(subtreeRoot)
     if (ret !== undefined) {
       return ret
     }
   }
 
-  const children = getChildrenObjects(target)
+  const children = getChildrenObjects(subtreeRoot)
   for (const ch of children) {
     const ret = walkTree(ch, predicate, mode)
     if (ret !== undefined) {
@@ -49,7 +49,7 @@ export function walkTree<T = void>(
   }
 
   if (mode === WalkTreeMode.ChildrenFirst) {
-    const ret = predicate(target)
+    const ret = predicate(subtreeRoot)
     if (ret !== undefined) {
       return ret
     }
