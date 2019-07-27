@@ -19,13 +19,25 @@ class Server {
     // the timeouts are just to simulate network delays
     setTimeout(() => {
       const deserializedActionCall = deserializeActionCall(actionCall)
-      // apply the action over the server root store
-      applyAction(this.serverRootStore, deserializedActionCall)
 
-      setTimeout(() => {
-        // and distribute message
-        this.msgListeners.forEach(listener => listener(actionCall))
-      }, 500)
+      // apply the action over the server root store
+      // sometimes applying actions might fail (for example on invalid operations
+      // such as when one client asks to delete a model from an array and other asks to mutate it)
+      // so we try / catch it
+      let applyActionSucceeded = false
+      try {
+        applyAction(this.serverRootStore, deserializedActionCall)
+        applyActionSucceeded = true
+      } catch (err) {
+        console.error("error applying action to server:", err)
+      }
+
+      if (applyActionSucceeded) {
+        setTimeout(() => {
+          // and distribute message
+          this.msgListeners.forEach(listener => listener(actionCall))
+        }, 500)
+      }
     }, 500)
   }
 }

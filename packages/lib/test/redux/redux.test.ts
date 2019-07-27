@@ -46,6 +46,7 @@ describe("asReduxStore", () => {
       actionName: "addX",
       args: [5],
       targetPath: [],
+      targetId: p.modelId,
     })
 
     const dispatched = store.dispatch(action)
@@ -55,25 +56,25 @@ describe("asReduxStore", () => {
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "prevSn": Object {
-              "$$metadata": Object {
-                "id": "mockedUuid-1",
-                "type": "P",
-              },
-              "x": 0,
-            },
-            "sn": Object {
-              "$$metadata": Object {
-                "id": "mockedUuid-1",
-                "type": "P",
-              },
-              "x": 5,
-            },
-          },
-        ]
-    `)
+              Array [
+                Object {
+                  "prevSn": Object {
+                    "$$metadata": Object {
+                      "id": "mockedUuid-1",
+                      "type": "P",
+                    },
+                    "x": 0,
+                  },
+                  "sn": Object {
+                    "$$metadata": Object {
+                      "id": "mockedUuid-1",
+                      "type": "P",
+                    },
+                    "x": 5,
+                  },
+                },
+              ]
+        `)
   })
 
   test("with middlewares", () => {
@@ -114,6 +115,7 @@ describe("asReduxStore", () => {
       actionName: "addX",
       args: [5],
       targetPath: [],
+      targetId: p.modelId,
     })
 
     const dispatched = store.dispatch(action)
@@ -124,39 +126,40 @@ describe("asReduxStore", () => {
 
     // 11200 because 12 -> 12 + 100 = 112 -> 112 * 100 = 11200
     expect(dispatched).toMatchInlineSnapshot(`
-    Object {
-      "payload": Object {
-        "actionName": "addX",
-        "args": Array [
-          11200,
-        ],
-        "targetPath": Array [],
-      },
-      "type": "applyAction",
-    }
-  `)
+      Object {
+        "payload": Object {
+          "actionName": "addX",
+          "args": Array [
+            11200,
+          ],
+          "targetId": "mockedUuid-2",
+          "targetPath": Array [],
+        },
+        "type": "applyAction",
+      }
+    `)
 
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "prevSn": Object {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "x": 0,
-        },
-        "sn": Object {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "x": 12,
-        },
-      },
-    ]
-  `)
+          Array [
+            Object {
+              "prevSn": Object {
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P",
+                },
+                "x": 0,
+              },
+              "sn": Object {
+                "$$metadata": Object {
+                  "id": "mockedUuid-2",
+                  "type": "P",
+                },
+                "x": 12,
+              },
+            },
+          ]
+      `)
   })
 })

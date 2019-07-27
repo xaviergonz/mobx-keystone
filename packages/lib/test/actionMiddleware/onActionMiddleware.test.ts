@@ -78,6 +78,7 @@ test("onActionMiddleware", () => {
           "args": Array [
             1,
           ],
+          "targetId": "mockedUuid-2",
           "targetPath": Array [],
         },
         Object {
@@ -130,6 +131,7 @@ test("onActionMiddleware", () => {
           "args": Array [
             2,
           ],
+          "targetId": "mockedUuid-1",
           "targetPath": Array [
             "data",
             "p2",
@@ -177,6 +179,7 @@ test("onActionMiddleware", () => {
             3,
             4,
           ],
+          "targetId": "mockedUuid-2",
           "targetPath": Array [],
         },
         Object {
@@ -233,6 +236,7 @@ test("onActionMiddleware", () => {
           "args": Array [
             RandomClass {},
           ],
+          "targetId": "mockedUuid-2",
           "targetPath": Array [],
         },
         Object {
@@ -294,6 +298,7 @@ test("onActionMiddleware", () => {
               6,
             ],
           ],
+          "targetId": "mockedUuid-2",
           "targetPath": Array [],
         },
         Object {
@@ -360,6 +365,7 @@ test("onActionMiddleware", () => {
               "a": 5,
             },
           ],
+          "targetId": "mockedUuid-2",
           "targetPath": Array [],
         },
         Object {
@@ -429,6 +435,7 @@ test("onActionMiddleware", () => {
               "y": 100,
             },
           ],
+          "targetId": "mockedUuid-1",
           "targetPath": Array [
             "data",
             "p2",
