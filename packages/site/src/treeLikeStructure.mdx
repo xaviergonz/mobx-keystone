@@ -118,6 +118,6 @@ The mode can be one of:
 
 Besides the aforementioned `isTreeNode` and `toTreeNode` methods, there's also the `detach(value: object)` method, which allows a node to get detached from its parent following this logic:
 
-- If the parent is an object / model, detaching will set the property to undefined.
-- If the parent is an array detaching will remove the node by spicing it.
+- If the parent is an object / model, detaching will delete the property.
+- If the parent is an array detaching will remove the node by splicing it.
 - If there's no parent it will throw.

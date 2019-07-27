@@ -70,7 +70,10 @@ test("parent", () => {
   expect(() => getParentPath(p.data.x as any)).toThrow("must be a tree node") // not an object
   expect(getParentPath(p.data.arr)).toEqual({ parent: p.data, path: "arr" })
   expect(getParentPath(p.data.p2!)).toEqual({ parent: p.data, path: "p2" })
-  expect(getParentPath(p.data.p2!.data)).toEqual({ parent: p.data.p2, path: "data" })
+  expect(getParentPath(p.data.p2!.data)).toEqual({
+    parent: p.data.p2,
+    path: "data",
+  })
   p.data.arr.forEach((p2, i) => {
     expect(getParentPath(p2)).toStrictEqual({ parent: p.data.arr, path: i })
   })
@@ -124,6 +127,18 @@ test("parent", () => {
   expect(getParentPath(p2)).toBeUndefined()
   expect(p.data.p2).toBeUndefined()
   expect(Array.from(getChildrenObjects(p.data).values())).toEqual([p.data.arr])
+
+  // readd prop
+  runUnprotected(() => {
+    p.data.p2 = p2
+  })
+  expect(getParentPath(p2)).toEqual({ parent: p.data, path: "p2" })
+  expect(Array.from(getChildrenObjects(p.data).values())).toEqual([p.data.arr, p.data.p2])
+
+  // detach once more
+  runUnprotected(() => {
+    detach(p2)
+  })
 
   const p2arr = [p.data.arr[0], p.data.arr[1], p.data.arr[2]]
 

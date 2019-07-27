@@ -8,8 +8,8 @@ import { getParentPath } from "./path"
 
 /**
  * Detaches a given object from a tree.
- * If the parent is an object / model, detaching will set the property to undefined.
- * If the parent is an array detaching will remove the node by spicing it.
+ * If the parent is an object / model, detaching will delete the property.
+ * If the parent is an array detaching will remove the node by splicing it.
  * If there's no parent it will throw.
  *
  * @param node Object to be detached.
@@ -36,7 +36,7 @@ function internalDetach(this: object): void {
   if (isObservableArray(parent)) {
     parent.splice(+path, 1)
   } else if (isObservableObject(parent)) {
-    ;(parent as any)[path] = undefined
+    delete (parent as any)[path]
   } else {
     throw failure("parent must be an observable object or an observable array")
   }
