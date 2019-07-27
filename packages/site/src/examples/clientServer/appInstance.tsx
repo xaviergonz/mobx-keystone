@@ -50,7 +50,7 @@ function initAppInstance() {
 
         ctx.data[cancelledActionSymbol] = true // just for logging purposes
 
-        // cancel the action by returning undefined
+        // "cancel" the action by returning undefined
         return {
           result: ActionTrackingResult.Return,
           value: undefined,
