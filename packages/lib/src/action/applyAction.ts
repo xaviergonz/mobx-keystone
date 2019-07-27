@@ -5,9 +5,7 @@ import { applySnapshot } from "../snapshot/applySnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { BuiltInAction, isBuiltInAction } from "./builtInActions"
-import { ActionContextActionType } from "./context"
 import { isHookAction } from "./hookActions"
-import { wrapInAction } from "./wrapInAction"
 
 /**
  * An action call.
@@ -37,26 +35,19 @@ export interface ActionCall {
 export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): TRet {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
-  return wrappedInternalApplyAction.call(subtreeRoot, call)
-}
-
-function internalApplyAction(this: object, call: ActionCall) {
   // resolve path
-  const current = resolvePath(this, call.targetPath)
+  const current = resolvePath(subtreeRoot, call.targetPath)
 
   if (isBuiltInAction(call.actionName)) {
     switch (call.actionName) {
       case BuiltInAction.ApplySnapshot:
-        return applySnapshot.apply(current, [current, ...call.args] as any)
+        return applySnapshot.apply(current, [current, ...call.args] as any) as any
 
       case BuiltInAction.ApplyPatches:
-        return applyPatches.apply(current, [current, ...call.args] as any)
-
-      case BuiltInAction.ApplyAction:
-        return applyAction.apply(current, [current, ...call.args] as any)
+        return applyPatches.apply(current, [current, ...call.args] as any) as any
 
       case BuiltInAction.Detach:
-        return detach.apply(current, [current, ...call.args] as any)
+        return detach.apply(current, [current, ...call.args] as any) as any
 
       default:
         throw failure(`assertion error: unknown built-in action - ${call.actionName}`)
@@ -67,9 +58,3 @@ function internalApplyAction(this: object, call: ActionCall) {
     return current[call.actionName].apply(current, call.args)
   }
 }
-
-const wrappedInternalApplyAction = wrapInAction(
-  BuiltInAction.ApplyAction,
-  internalApplyAction,
-  ActionContextActionType.Sync
-)

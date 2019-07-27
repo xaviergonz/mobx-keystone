@@ -7,6 +7,8 @@ export {
   simplifyActionContext,
 } from "./actionTrackingMiddleware"
 export {
+  deserializeActionCall,
+  deserializeActionCallArgument,
   onActionMiddleware,
   serializeActionCall,
   serializeActionCallArgument,

@@ -27,9 +27,9 @@ const wrappedInternalDetach = wrapInAction(
 )
 
 function internalDetach(this: object): void {
-  const value = this
+  const node = this
 
-  const parentPath = getParentPath(value)
+  const parentPath = getParentPath(node)
   if (!parentPath) return
 
   const { parent, path } = parentPath

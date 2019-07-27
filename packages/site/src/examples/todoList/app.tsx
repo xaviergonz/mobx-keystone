@@ -6,33 +6,59 @@ import {
   onPatches,
   Patch,
 } from "mobx-keystone"
-import { observer } from "mobx-react"
+import { observer, useLocalStore } from "mobx-react"
 import React, { useEffect, useState } from "react"
-import { rootStore, Todo, TodoList } from "./store"
+import { createRootStore, Todo, TodoList } from "./store"
 
 // we use mobx-react to connect to the data, as it is usual in mobx
 // this library is framework agnostic, so it can work anywhere mobx can work
 // (even outside of a UI)
 
 export const App = observer(() => {
-  const [actions] = useState<ActionCall[]>([])
+  const [rootStore] = useState(() => createRootStore())
+
+  return <MainView rootStore={rootStore} />
+})
+
+// this is just for the client/server demo
+export const cancelledActionSymbol = Symbol("cancelledAction")
+interface ExtendedActionCall extends ActionCall {
+  cancelled: boolean
+}
+
+export const MainView = observer((props: { rootStore: TodoList }) => {
+  const data = useLocalStore(() => ({
+    actions: [] as ExtendedActionCall[],
+    patchesList: [] as Patch[][],
+
+    addAction(actionCall: ExtendedActionCall) {
+      this.actions.push(actionCall)
+    },
+    addPatches(patches: Patch[]) {
+      this.patchesList.push(patches)
+    },
+  }))
+
   useEffect(() => {
     // we can use action middlewares for several things
     // in this case we will keep a log of the actions done over the todo list
-    const disposer = onActionMiddleware(rootStore, {
-      onStart(actionCall) {
-        actions.push(actionCall)
+    const disposer = onActionMiddleware(props.rootStore, {
+      onFinish(actionCall, ctx) {
+        const extendedActionCall: ExtendedActionCall = {
+          ...actionCall,
+          cancelled: !!ctx.data[cancelledActionSymbol],
+        }
+        data.addAction(extendedActionCall)
       },
     })
     return disposer
-  }, [rootStore])
+  }, [props.rootStore])
 
-  const [patchesList] = useState<Patch[][]>([])
   useEffect(() => {
     // also it is possible to get a list of changes in the form of patches,
     // even with inverse patches to undo the changes
-    const disposer = onPatches(rootStore, (patches, _inversePatches) => {
-      patchesList.push(patches)
+    const disposer = onPatches(props.rootStore, (patches, _inversePatches) => {
+      data.addPatches(patches)
     })
     return disposer
   })
@@ -43,17 +69,21 @@ export const App = observer(() => {
   // - pass it to non mobx-friendly components
   // snapshots respect immutability, so if a subobject is changed
   // its refrence will be kept
-  const rootStoreSnapshot = getSnapshot(rootStore)
+  const rootStoreSnapshot = getSnapshot(props.rootStore)
 
   return (
     <>
-      <TodoListView list={rootStore} />
+      <TodoListView list={props.rootStore} />
 
       <br />
 
-      <PreSection title="Action log">{actions.map(actionCallToText)}</PreSection>
+      <PreSection title="Action log">
+        {data.actions.map((action, index) => (
+          <ActionCallToText actionCall={action} key={index} />
+        ))}
+      </PreSection>
 
-      <PreSection title="Patch log">{patchesList.map(patchesToText)}</PreSection>
+      <PreSection title="Patch log">{data.patchesList.map(patchesToText)}</PreSection>
 
       <PreSection title="Generated immutable snapshot">
         {JSON.stringify(rootStoreSnapshot, null, 2)}
@@ -63,7 +93,7 @@ export const App = observer(() => {
 })
 
 const TodoListView = observer(({ list }: { list: TodoList }) => {
-  const todoRef = React.useRef<HTMLInputElement>(null)
+  const [newTodo, setNewTodo] = React.useState("")
 
   const renderTodo = (todo: Todo) => (
     <TodoView
@@ -71,7 +101,7 @@ const TodoListView = observer(({ list }: { list: TodoList }) => {
       done={todo.data.done}
       text={todo.data.text}
       onClick={() => todo.setDone(!todo.data.done)}
-      onRemove={() => list.remove(todo)}
+      onRemove={() => list.remove(todo.modelId)}
     />
   )
 
@@ -91,10 +121,17 @@ const TodoListView = observer(({ list }: { list: TodoList }) => {
         </>
       )}
       <br />
-      <input ref={todoRef} placeholder="I will..." />
+      <input
+        value={newTodo}
+        onChange={ev => {
+          setNewTodo(ev.target.value || "")
+        }}
+        placeholder="I will..."
+      />
       <button
         onClick={() => {
-          list.add(newModel(Todo, { text: todoRef.current!.value }))
+          list.add(newModel(Todo, { text: newTodo }))
+          setNewTodo("")
         }}
       >
         Add todo
@@ -142,10 +179,27 @@ function TodoView({
   )
 }
 
-function actionCallToText(actionCall: ActionCall) {
+function ActionCallToText(props: { actionCall: ExtendedActionCall }) {
+  const actionCall = props.actionCall
+
   const args = actionCall.args.map(arg => JSON.stringify(arg)).join(", ")
   const path = actionCall.targetPath.join("/")
-  return `[${path}] ${actionCall.actionName}(${args})\n`
+  let text = `[${path}] ${actionCall.actionName}(${args})`
+  if (actionCall.cancelled) {
+    return (
+      <>
+        <span style={{ textDecoration: "line-through" }}>{text}</span>{" "}
+        <span>(cancelled and sent to server)</span>
+        <br />
+      </>
+    )
+  }
+  return (
+    <>
+      <span>{text}</span>
+      <br />
+    </>
+  )
 }
 
 function patchToText(patch: Patch) {

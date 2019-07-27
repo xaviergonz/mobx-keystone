@@ -134,6 +134,9 @@ test("parent", () => {
   expect(p.data.arr.length).toBe(2)
   expect(popped).toBe(p2arr[2])
   expect(getParentPath(popped)).toBeUndefined()
+  for (let i = 0; i < p.data.arr.length; i++) {
+    expect(getParentPath(p.data.arr[i])!.path).toBe(i)
+  }
 
   // push back
   runUnprotected(() => {
@@ -142,6 +145,30 @@ test("parent", () => {
   expect(p.data.arr.length).toBe(3)
   expect(getParentPath(popped)).toBeDefined()
   expect(Array.from(getChildrenObjects(p.data).values())).toEqual([p.data.arr])
+  for (let i = 0; i < p.data.arr.length; i++) {
+    expect(getParentPath(p.data.arr[i])!.path).toBe(i)
+  }
+
+  // splice
+  const spliced = runUnprotected(() => {
+    return p.data.arr.splice(1, 1)
+  })[0]
+  expect(p.data.arr.length).toBe(2)
+  expect(spliced).toBe(p2arr[1])
+  expect(getParentPath(spliced)).toBeUndefined()
+  for (let i = 0; i < p.data.arr.length; i++) {
+    expect(getParentPath(p.data.arr[i])!.path).toBe(i)
+  }
+
+  // splice back
+  runUnprotected(() => {
+    return p.data.arr.splice(1, 0, spliced)
+  })
+  expect(p.data.arr.length).toBe(3)
+  expect(getParentPath(spliced)).toBeDefined()
+  for (let i = 0; i < p.data.arr.length; i++) {
+    expect(getParentPath(p.data.arr[i])!.path).toBe(i)
+  }
 
   // delete array prop
   // TODO: support this? mobx array interceptor/update is not emitted

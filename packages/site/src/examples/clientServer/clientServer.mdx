@@ -4,6 +4,16 @@ route: /examples/clientServer
 menu: Examples
 ---
 
+import { Playground } from "docz"
+import appSource from "!!raw-loader!./app.tsx.txt"
+import { App } from "./app.tsx"
+
 # Examples / Client Server
 
-TODO
+<Playground>
+  <App />
+</Playground>
+
+### examples/clientServer/app.tsx
+
+<editor>{appSource}</editor>

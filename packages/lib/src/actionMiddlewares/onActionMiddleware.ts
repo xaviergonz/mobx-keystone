@@ -2,7 +2,9 @@ import { isObservable, toJS } from "mobx"
 import { ActionCall } from "../action/applyAction"
 import { isHookAction } from "../action/hookActions"
 import { ActionMiddlewareDisposer } from "../action/middleware"
+import { isModelSnapshot } from "../model/utils"
 import { getRootPath } from "../parent/path"
+import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, isPlainObject, isPrimitive } from "../utils"
@@ -128,5 +130,35 @@ export function serializeActionCall(actionCall: ActionCall): ActionCall {
   return {
     ...actionCall,
     args: actionCall.args.map(serializeActionCallArgument),
+  }
+}
+
+/**
+ * Transforms an action call argument by returning its deserialized equivalent.
+ * In more detail, this will transform back the snapshot of models, and keep everything else as is.
+ * If the value cannot be deserialized it will throw an exception.
+ *
+ * @param argValue Argument value to be transformed into its deserialized form.
+ * @returns The deserialized form of the passed value.
+ */
+export function deserializeActionCallArgument(argValue: any): any {
+  if (isModelSnapshot(argValue)) {
+    return fromSnapshot(argValue)
+  }
+
+  return argValue
+}
+
+/**
+ * Ensures that an action call is deserialized by mapping the action arguments into its
+ * deserialized version by using `deserializeActionCallArgument`.
+ *
+ * @param actionCall Action call to convert.
+ * @returns The deserialized action call.
+ */
+export function deserializeActionCall(actionCall: ActionCall): ActionCall {
+  return {
+    ...actionCall,
+    args: actionCall.args.map(deserializeActionCallArgument),
   }
 }

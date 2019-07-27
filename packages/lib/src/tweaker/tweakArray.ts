@@ -238,6 +238,23 @@ function interceptArrayMutation(
             path: change.index + i,
           })
         }
+
+        if (change.removedCount !== change.added.length) {
+          // we also need to update the parent of the next indexes
+          const originalIndex = change.index + change.removedCount
+          const newIndex = change.index + change.added.length
+
+          for (let i = originalIndex, j = newIndex; i < change.object.length; i++, j++) {
+            setParent(
+              change.object[i],
+              {
+                parent: change.object,
+                path: j,
+              },
+              true
+            )
+          }
+        }
       }
       break
 
