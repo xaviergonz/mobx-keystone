@@ -17,7 +17,7 @@ There are two kind of possible listeners, `onStart` and `onFinish` listeners.
 - `onStart` listeners are called before the action executes and allow cancellation by returning a new return value (which might be a return or a throw).
 - `onFinish` listeners are called after the action executes, have access to the action actual return value and allow overriding by returning a new return value (which might be a return or a throw).
 
-The actions passed as arguments to the listener are not in a serializable format. If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments or `serializeActionCall` over the whole action before sending the action call over the wire / storing them.
+The actions passed as arguments to the listener are not in a serializable format. If you want to ensure that the actual action calls are serializable you should use either `serializeActionCallArgument` over the arguments or `serializeActionCall` over the whole action before sending the action call over the wire / storing them and likewise use `deserializeActionCallArgument` / `deserializeActionCall` before applying it (as seen in the [Client/Server Example](../examples/clientServer)).
 
 It will return a disposer, which only needs to be called if you plan to early dispose of the middleware.
 
