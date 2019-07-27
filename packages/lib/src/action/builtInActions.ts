@@ -7,10 +7,6 @@ export enum BuiltInAction {
    */
   ApplyPatches = "$$applyPatches",
   /**
-   * applyAction
-   */
-  ApplyAction = "$$applyAction",
-  /**
    * applySnapshot
    */
   ApplySnapshot = "$$applySnapshot",
@@ -25,7 +21,6 @@ const builtInActionValues = new Set(Object.values(BuiltInAction))
 /**
  * Returns if a given action name is a built-in action, this is, one of:
  * - applyPatches()
- * - applyAction()
  * - applySnapshot()
  * - detach()
  *

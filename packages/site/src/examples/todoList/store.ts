@@ -79,33 +79,42 @@ export class TodoList extends Model<TypeToData<typeof todoListDataType>> {
   }
 
   @modelAction
-  remove(todo: Todo) {
+  remove(todoId: string) {
+    // how here we just use as argument the ID instead of the whole object for these reasons:
+    // - in the case of action serialization, we will only need to send the id rather than the whole object
+    // - also in the case of action serialization, the todo object (although a clone) will have a different
+    //   reference, so a plain indexOf won't work
+
     const list = this.data.todos
-    const todoIndex = list.indexOf(todo)
+    const todoIndex = list.findIndex(todo => todo.modelId === todoId)
     if (todoIndex >= 0) {
       list.splice(todoIndex, 1)
     }
   }
 }
 
-// important: to create new instances of models use `newModel` rather than the usual
-// `new X()`. the second parameter is the initial data for the model
-export const rootStore = newModel(TodoList, {
-  todos: [
-    newModel(Todo, { text: "make mobx-keystone awesome!" }),
-    newModel(Todo, { text: "spread the word" }),
-    newModel(Todo, { text: "buy some milk", done: true }),
-  ],
-})
+export function createRootStore(): TodoList {
+  // important: to create new instances of models use `newModel` rather than the usual
+  // `new X()`. the second parameter is the initial data for the model
+  const rootStore = newModel(TodoList, {
+    todos: [
+      newModel(Todo, { text: "make mobx-keystone awesome!" }),
+      newModel(Todo, { text: "spread the word" }),
+      newModel(Todo, { text: "buy some milk", done: true }),
+    ],
+  })
 
-// although not strictly required, it is always a good idea to register your root stores
-// as such, since this allows the model hook `onAttachedToRootStore` to work and other goodies
-registerRootStore(rootStore)
+  // although not strictly required, it is always a good idea to register your root stores
+  // as such, since this allows the model hook `onAttachedToRootStore` to work and other goodies
+  registerRootStore(rootStore)
 
-// we can also connect the store to the redux dev tools
-const remotedev = require("remotedev")
-const connection = remotedev.connectViaExtension({
-  name: "Todo List Example",
-})
+  // we can also connect the store to the redux dev tools
+  const remotedev = require("remotedev")
+  const connection = remotedev.connectViaExtension({
+    name: "Todo List Example",
+  })
 
-connectReduxDevTools(remotedev, connection, rootStore)
+  connectReduxDevTools(remotedev, connection, rootStore)
+
+  return rootStore
+}

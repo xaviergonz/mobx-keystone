@@ -18,7 +18,11 @@ import { getParentPath, getRoot, ParentPath } from "./path"
  */
 export const setParent = action(
   "setParent",
-  (value: any, parentPath: ParentPath<any> | undefined): void => {
+  (
+    value: any,
+    parentPath: ParentPath<any> | undefined,
+    indexChangeAllowed: boolean = false
+  ): void => {
     if (isPrimitive(value)) {
       return
     }
@@ -51,7 +55,14 @@ export const setParent = action(
     }
 
     if (oldParentPath && parentPath) {
-      throw failure("an object cannot be assigned a new parent when it already has one")
+      if (oldParentPath.parent === parentPath.parent && indexChangeAllowed) {
+        // just changing the index
+        objectParents.set(value, parentPath)
+        reportParentPathChanged(value)
+        return
+      } else {
+        throw failure("an object cannot be assigned a new parent when it already has one")
+      }
     }
 
     const removeFromOldParent = () => {
