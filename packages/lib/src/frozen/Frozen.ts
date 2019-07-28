@@ -34,7 +34,7 @@ export class Frozen<T> {
     this.data = dataToFreeze as DeepReadonly<T>
 
     if (inDevMode()) {
-      Object.freeze(this)
+      Object.freeze(this.data)
     }
 
     tweak(this, undefined)
