@@ -8,22 +8,6 @@ import {
 } from "mobx"
 
 /**
- * @ignore
- */
-export function mapGetOrDefault<K extends object, V>(
-  map: WeakMap<K, V> | Map<K, V>,
-  key: K,
-  def: () => V
-) {
-  if (map.has(key)) {
-    return map.get(key)!
-  }
-  const newValue = def()!
-  map.set(key, newValue)
-  return newValue
-}
-
-/**
  * A mobx-keystone error.
  */
 export class MobxDataModelError extends Error {
