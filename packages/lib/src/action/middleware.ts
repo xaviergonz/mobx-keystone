@@ -35,9 +35,7 @@ type PartialActionMiddleware = Pick<ActionMiddleware, "filter" | "middleware">
 
 const perObjectActionMiddlewares = new WeakMap<object, PartialActionMiddleware[]>()
 
-interface ActionMiddlewaresIterator {
-  [Symbol.iterator](): IterableIterator<PartialActionMiddleware>
-}
+interface ActionMiddlewaresIterator extends Iterable<PartialActionMiddleware> {}
 
 const perObjectActionMiddlewaresIterator = new WeakMap<object, ActionMiddlewaresIterator>()
 
@@ -55,25 +53,56 @@ export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
   // since an array like [a, b, c] will be called like c(b(a())) this means that we need to put
   // the parent object ones at the end of the array
 
-  let iterator = perObjectActionMiddlewaresIterator.get(obj)
-  if (!iterator) {
-    iterator = {
-      *[Symbol.iterator]() {
+  let iterable = perObjectActionMiddlewaresIterator.get(obj)
+  if (!iterable) {
+    iterable = {
+      [Symbol.iterator]() {
         let current: any = obj
-        while (current) {
-          const objMwares = perObjectActionMiddlewares.get(current)
-          if (objMwares) {
-            for (let i = 0; i < objMwares.length; i++) {
-              yield objMwares[i]
-            }
+
+        function getCurrentIterator() {
+          const objMwares = current ? perObjectActionMiddlewares.get(current) : undefined
+          if (!objMwares || objMwares.length <= 0) {
+            return undefined
           }
-          current = getParent(current)
+          return objMwares[Symbol.iterator]()
         }
+
+        function findNextIterator() {
+          let nextIter
+          while (current && !nextIter) {
+            current = getParent(current)
+            nextIter = getCurrentIterator()
+          }
+          return nextIter
+        }
+
+        let iter = getCurrentIterator()
+        if (!iter) {
+          iter = findNextIterator()
+        }
+
+        const iterator: Iterator<PartialActionMiddleware> = {
+          next() {
+            if (!iter) {
+              return { value: undefined, done: true } as any
+            }
+
+            let result = iter.next()
+            if (!result.done) {
+              return result
+            }
+
+            iter = findNextIterator()
+            return this.next()
+          },
+        }
+
+        return iterator
       },
     }
-    perObjectActionMiddlewaresIterator.set(obj, iterator)
+    perObjectActionMiddlewaresIterator.set(obj, iterable)
   }
-  return iterator
+  return iterable
 }
 
 /**
