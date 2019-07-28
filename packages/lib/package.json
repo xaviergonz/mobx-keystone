@@ -43,7 +43,6 @@
   },
   "dependencies": {
     "nanoid": "^2.0.3",
-    "regenerator-runtime": "^0.13.3",
     "ts-essentials": "^3.0.0"
   },
   "directories": {

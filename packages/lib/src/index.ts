@@ -1,5 +1,3 @@
-import "regenerator-runtime/runtime"
-
 export * from "./action"
 export * from "./actionMiddlewares"
 export * from "./frozen"
