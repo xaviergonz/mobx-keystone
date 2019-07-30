@@ -20,3 +20,7 @@ export function emulateProdMode(fn: () => void) {
     process.env.NODE_ENV = oldEnv
   }
 }
+
+export async function delay(x: number) {
+  return new Promise<number>(r => setTimeout(() => r(x), x))
+}

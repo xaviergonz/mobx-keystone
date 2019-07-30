@@ -15,7 +15,7 @@ import {
 } from "./actionTrackingMiddleware"
 
 /**
- * Creates an action middleware that invokes a listener for all actions of a given tree.
+ * Attaches an action middleware that invokes a listener for all actions of a given tree.
  * Note that the listener will only be invoked for the topmost level actions, so it won't run for child actions or intermediary flow steps.
  * Also it won't trigger the listener for calls to hooks such as `onAttachedToRootStore` or its returned disposer.
  *
