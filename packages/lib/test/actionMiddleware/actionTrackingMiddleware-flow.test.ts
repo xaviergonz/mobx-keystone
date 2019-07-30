@@ -11,11 +11,7 @@ import {
   SimpleActionContext,
 } from "../../src"
 import "../commonSetup"
-import { autoDispose } from "../utils"
-
-async function delay(x: number) {
-  return new Promise<number>(r => setTimeout(() => r(x), x))
-}
+import { autoDispose, delay } from "../utils"
 
 @model("P2")
 export class P2 extends Model<{ y: number }> {

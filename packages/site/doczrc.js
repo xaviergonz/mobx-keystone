@@ -15,7 +15,13 @@ export default {
     "Patches",
     {
       name: "Action Middlewares",
-      menu: ["onActionMiddleware", "transactionMiddleware", "undoMiddleware", "Custom Middlewares"],
+      menu: [
+        "onActionMiddleware",
+        "transactionMiddleware",
+        "undoMiddleware",
+        "readonlyMiddleware",
+        "Custom Middlewares",
+      ],
     },
     "References",
     "Frozen Data",
