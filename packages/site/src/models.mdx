@@ -148,3 +148,39 @@ class BookStore extends Model<{ books: Book[] }> {
 const myBookStore = newModel(BookStore, {})
 await myBookStore.fetchMyBooksAsync("someToken")
 ```
+
+## Factory pattern
+
+It is possible to use a factory pattern with models. For example:
+
+```ts
+function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
+  @model(`myApp/${modelName}`)
+  class MyModel extends Model<{ x: TX; y: TY }> {
+    defaultData = {
+      x: initialX,
+      y: initialY,
+    }
+
+    @modelAction
+    setXY(x: TX, y: TY) {
+      this.data.x = x
+      this.data.y = y
+    }
+  }
+
+  return MyModel
+}
+
+const NumberMyModel = createModelClass("NumberMyModel", 10, 20)
+type NumberMyModel = InstanceType<typeof NumberMyModel>
+
+const numberMyModelInstance = newModel(NumberMyModel, {}) // this will be of type NumberMyModel
+numberMyModelInstance.setXY(50, 60)
+
+const StringMyModel = createModelClass("StringMyModel", "10", "20")
+type StringMyModel = InstanceType<typeof StringMyModel>
+
+const stringMyModelInstance = newModel(StringMyModel, {}) // this will be of type StringMyModel
+stringMyModelInstance.setXY("50", "60")
+```
