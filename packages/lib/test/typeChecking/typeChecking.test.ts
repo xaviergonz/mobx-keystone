@@ -198,13 +198,7 @@ test("object - simple types", () => {
     x: types.number,
     y: types.string,
   }))
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as Pick<{ x: number; y: string }, "x" | "y"> & {
-      x?: number | undefined
-      y?: string | undefined
-    }
-  )
+  assert(_ as TypeToData<typeof type>, _ as { x: number; y: string })
 
   expectTypeCheckOk(type, { x: 5, y: "6" })
 
@@ -219,10 +213,7 @@ test("object - all optional simple types", () => {
     x: types.maybe(types.number),
     y: types.maybe(types.string),
   }))
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as Pick<{ x: never; y: never }, never> & { x?: number | undefined; y?: string | undefined }
-  )
+  assert(_ as TypeToData<typeof type>, _ as { x?: number; y?: string })
 
   expectTypeCheckOk(type, { x: 5, y: "6" })
   expectTypeCheckOk(type, { x: undefined })
@@ -321,10 +312,7 @@ test("array - complex types", () => {
       x: types.number,
     }))
   )
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as (Pick<{ x: number }, "x"> & { x?: number | undefined })[]
-  )
+  assert(_ as TypeToData<typeof type>, _ as { x: number }[])
 
   expectTypeCheckOk(type, [{ x: 5 }])
 
@@ -352,13 +340,7 @@ test("object - complex types", () => {
       y: types.string,
     })),
   }))
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as Pick<{ x: never; o: Pick<{ y: string }, "y"> & { y?: string | undefined } }, "o"> & {
-      x?: number | undefined
-      o?: (Pick<{ y: string }, "y"> & { y?: string | undefined }) | undefined
-    }
-  )
+  assert(_ as TypeToData<typeof type>, _ as { x?: number; o: { y: string } })
 
   expectTypeCheckOk(type, { x: 5, o: { y: "6" } })
 
@@ -375,10 +357,7 @@ test("objectMap - complex types", () => {
       y: types.string,
     }))
   )
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as { [k: string]: Pick<{ y: string }, "y"> & { y?: string | undefined } }
-  )
+  assert(_ as TypeToData<typeof type>, _ as { [k: string]: { y: string } })
 
   expectTypeCheckOk(type, { o: { y: "6" } })
 
@@ -395,10 +374,7 @@ test("or - complex types", () => {
     })),
     types.number
   )
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as number | (Pick<{ y: string }, "y"> & { y?: string | undefined })
-  )
+  assert(_ as TypeToData<typeof type>, _ as number | { y: string })
 
   expectTypeCheckOk(type, { y: "6" })
   expectTypeCheckOk(type, 6)
@@ -561,10 +537,7 @@ test("ref", () => {
 
 test("frozen - simple type", () => {
   const type = types.frozen(types.number)
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as Pick<{ data: number }, "data"> & { data?: number | undefined }
-  )
+  assert(_ as TypeToData<typeof type>, _ as { data: number })
 
   const fr = frozen<number>(5)
 
@@ -578,12 +551,7 @@ test("frozen - complex type", () => {
       x: types.number,
     }))
   )
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as Pick<{ data: Pick<{ x: number }, "x"> & { x?: number | undefined } }, "data"> & {
-      data?: (Pick<{ x: number }, "x"> & { x?: number | undefined }) | undefined
-    }
-  )
+  assert(_ as TypeToData<typeof type>, _ as { data: { x: number } })
 
   const fr = frozen<{ x: number }>({ x: 5 })
 
@@ -674,14 +642,7 @@ test("refinement (complex)", () => {
 
     return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
   })
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as Pick<{ a: number; b: number; result: number }, "b" | "a" | "result"> & {
-      a?: number | undefined
-      b?: number | undefined
-      result?: number | undefined
-    }
-  )
+  assert(_ as TypeToData<typeof type>, _ as { a: number; b: number; result: number })
 
   expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
   expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")

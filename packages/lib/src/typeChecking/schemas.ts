@@ -35,15 +35,23 @@ type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
 // type _E = IsOptionalValue<any, true, false> // true
 // type _F = IsOptionalValue<unknown, true, false> // true
 
+// cleans up types somehow by simplfiying stuff such as
+// Pick<{x: number}, "x"> & { x?: number } into {x: number}
+type CleanType<T> = {
+  [P in keyof T]: T[P]
+}
+
 export interface ObjectType<S extends ObjectOfTypes> {
-  $$objectType: NonNever<
-    {
-      [k in keyof S]: IsOptionalValue<TypeToData<S[k]>, never, TypeToData<S[k]>>
-    }
-  > &
-    {
-      [k in keyof S]?: TypeToData<S[k]>
-    }
+  $$objectType: CleanType<
+    NonNever<
+      {
+        [k in keyof S]: IsOptionalValue<TypeToData<S[k]>, never, TypeToData<S[k]>>
+      }
+    > &
+      {
+        [k in keyof S]?: TypeToData<S[k]>
+      }
+  >
 }
 
 export interface ObjectTypeFunction<S extends ObjectOfTypes> {
