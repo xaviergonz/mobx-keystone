@@ -4,11 +4,13 @@ import { ModelCreationData } from "../model/newModel"
 
 // snapshot out
 
+// infer is there just to cache type generation
+
 export interface SnapshotOutOfArray<T> extends Array<SnapshotOutOf<T>> {}
 export interface SnapshotOutOfReadonlyArray<T> extends ReadonlyArray<SnapshotOutOf<T>> {}
 
 export type SnapshotOutOfObject<T extends { [k: string]: any }> = {
-  [k in keyof T]: SnapshotOutOf<T[k]>
+  [k in keyof T]: SnapshotOutOf<T[k]> extends infer R ? R : never
 }
 
 export type SnapshotOutOfModel<M extends AnyModel> = SnapshotOutOfObject<ModelData<M>> & {
@@ -17,19 +19,29 @@ export type SnapshotOutOfModel<M extends AnyModel> = SnapshotOutOfObject<ModelDa
 
 export type SnapshotOutOfFrozen<F extends Frozen<any>> = {
   $$frozen: true
-  data: F["data"]
+  data: F["$"]
 }
 
 export type SnapshotOutOf<T> = T extends Array<infer U>
-  ? SnapshotOutOfArray<U>
+  ? SnapshotOutOfArray<U> extends infer R
+    ? R
+    : never
   : T extends ReadonlyArray<infer U>
-  ? SnapshotOutOfReadonlyArray<U>
+  ? SnapshotOutOfReadonlyArray<U> extends infer R
+    ? R
+    : never
   : T extends AnyModel
-  ? SnapshotOutOfModel<T>
+  ? SnapshotOutOfModel<T> extends infer R
+    ? R
+    : never
   : T extends Frozen<any>
-  ? SnapshotOutOfFrozen<T>
+  ? SnapshotOutOfFrozen<T> extends infer R
+    ? R
+    : never
   : T extends object
-  ? SnapshotOutOfObject<T>
+  ? SnapshotOutOfObject<T> extends infer R
+    ? R
+    : never
   : T
 
 // snapshot in
@@ -38,7 +50,7 @@ export interface SnapshotInOfArray<T> extends Array<SnapshotInOf<T>> {}
 export interface SnapshotInOfReadonlyArray<T> extends ReadonlyArray<SnapshotInOf<T>> {}
 
 export type SnapshotInOfObject<T extends { [k: string]: any }> = {
-  [k in keyof T]: SnapshotInOf<T[k]>
+  [k in keyof T]: SnapshotInOf<T[k]> extends infer R ? R : never
 }
 
 export type SnapshotInOfModel<M extends AnyModel> = SnapshotInOfObject<
@@ -49,17 +61,27 @@ export type SnapshotInOfModel<M extends AnyModel> = SnapshotInOfObject<
 
 export type SnapshotInOfFrozen<F extends Frozen<any>> = {
   $$frozen: true
-  data: F["data"]
+  data: F["$"]
 }
 
 export type SnapshotInOf<T> = T extends Array<infer U>
-  ? SnapshotInOfArray<U>
+  ? SnapshotInOfArray<U> extends infer R
+    ? R
+    : never
   : T extends ReadonlyArray<infer U>
-  ? SnapshotInOfReadonlyArray<U>
+  ? SnapshotInOfReadonlyArray<U> extends infer R
+    ? R
+    : never
   : T extends AnyModel
-  ? SnapshotInOfModel<T>
+  ? SnapshotInOfModel<T> extends infer R
+    ? R
+    : never
   : T extends Frozen<any>
-  ? SnapshotInOfFrozen<T>
+  ? SnapshotInOfFrozen<T> extends infer R
+    ? R
+    : never
   : T extends object
-  ? SnapshotInOfObject<T>
+  ? SnapshotInOfObject<T> extends infer R
+    ? R
+    : never
   : T

@@ -77,7 +77,7 @@ class MyRootStore extends Model<{ undoData: UndoStore; counter: Counter }> {
 
 const myRootStore = newModel(MyRootStore, {})
 
-const undoManager = undoMiddleware(myRootStore, myRootStore.data.undoData)
+const undoManager = undoMiddleware(myRootStore, myRootStore.$.undoData)
 ```
 
 ## Making some changes skip undo/redo
@@ -88,12 +88,12 @@ Sometimes you might want some changes / part of changes skip the undo/redo mecha
 @modelAction
 someAction() {
   // this change be done/undone when the action is done/undone
-  this.data.x++
+  this.$.x++
   withoutUndo(() => {
     // this won't
-    this.data.y++
+    this.$.y++
   })
   // this will
-  this.data.z++
+  this.$.z++
 }
 ```

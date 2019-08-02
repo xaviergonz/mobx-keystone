@@ -94,10 +94,10 @@ export function typesObject<T>(objectFunction: T): T {
  * @param dataType Type of the frozen data.
  * @returns
  */
-export function typesFrozen<T extends AnyType>(dataType: T): ObjectType<{ data: T }> {
+export function typesFrozen<T extends AnyType>(dataType: T): ObjectType<{ $: T }> {
   return typesObjectHelper(
     () => ({
-      data: dataType,
+      $: dataType,
     }),
     true
   ) as any

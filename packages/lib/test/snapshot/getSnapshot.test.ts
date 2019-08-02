@@ -20,7 +20,7 @@ test("basic types", () => {
 test("model class", () => {
   const p = createP()
   runUnprotected(() => {
-    p.data.x = 8
+    p.$.x = 8
   })
 
   // initial state
@@ -43,9 +43,9 @@ test("model class", () => {
   `)
 
   // detach submodel
-  const oldP2 = p.data.p2!
+  const oldP2 = p.$.p2!
   runUnprotected(() => {
-    p.data.p2 = undefined
+    p.$.p2 = undefined
   })
 
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
@@ -72,8 +72,8 @@ test("model class", () => {
 
   // mutate and reattach submodel
   runUnprotected(() => {
-    oldP2.data.y++
-    p.data.p2 = oldP2
+    oldP2.$.y++
+    p.$.p2 = oldP2
   })
 
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
@@ -116,7 +116,7 @@ test("when observed they should be the same", () => {
     expect(sna.arr).toBe(snb.arr)
 
     runUnprotected(() => {
-      p.data.p2!.data.y++
+      p.$.p2!.$.y++
     })
 
     const snc = getSnapshot(p)
@@ -143,7 +143,7 @@ test("reactive snapshots", () => {
   const p2Result: any[] = []
   autoDispose(
     reaction(
-      () => getSnapshot(p.data.p2),
+      () => getSnapshot(p.$.p2),
       newSn => {
         p2Result.push(newSn)
       }
@@ -154,28 +154,28 @@ test("reactive snapshots", () => {
   expect(p2Result.length).toBe(0)
 
   runUnprotected(() => {
-    p.data.x++
+    p.$.x++
   })
   expect(pResult.length).toBe(1)
   expect(p2Result.length).toBe(0)
 
   runUnprotected(() => {
-    p.data.x++
+    p.$.x++
   })
   expect(pResult.length).toBe(2)
   expect(p2Result.length).toBe(0)
 
   // changing children should also change the parent snapshot
   runUnprotected(() => {
-    p.data.p2!.data.y++
+    p.$.p2!.$.y++
   })
   expect(pResult.length).toBe(3)
   expect(p2Result.length).toBe(1)
 
   // no op
   runUnprotected(() => {
-    p.data.x = p.data.x
-    p.data.p2!.data.y = p.data.p2!.data.y
+    p.$.x = p.$.x
+    p.$.p2!.$.y = p.$.p2!.$.y
   })
   expect(pResult.length).toBe(3)
   expect(p2Result.length).toBe(1)

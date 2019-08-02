@@ -112,12 +112,12 @@ function pathArrayToObjectAndProp(
 
   let target: any = obj
   if (target instanceof Model) {
-    target = target.data
+    target = target.$
   }
   for (let i = 0; i <= path.length - 2; i++) {
     target = target[path[i]]
     if (target instanceof Model) {
-      target = target.data
+      target = target.$
     }
   }
 

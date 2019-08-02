@@ -1,16 +1,19 @@
+import { assert, _ } from "spec.ts"
 import {
   applySnapshot,
   clone,
   getSnapshot,
   Model,
+  ModelMetadata,
   onPatches,
   onSnapshot,
   Patch,
   runUnprotected,
+  SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
 import "../commonSetup"
-import { createP, P } from "../testbed"
+import { createP, P, P2 } from "../testbed"
 import { autoDispose } from "../utils"
 
 test("onSnapshot and applySnapshot", () => {
@@ -29,9 +32,9 @@ test("onSnapshot and applySnapshot", () => {
   const originalSn = getSnapshot(p)
 
   runUnprotected(() => {
-    p.data.arr.push(1, 2, 3)
-    p.data.x++
-    p.data.p2!.data.y++
+    p.$.arr.push(1, 2, 3)
+    p.$.x++
+    p.$.p2!.$.y++
   })
 
   expect(sn).toMatchInlineSnapshot(`
@@ -218,8 +221,8 @@ test("applySnapshot can create a new submodel", () => {
   const originalSn = getSnapshot(p)
 
   runUnprotected(() => {
-    p.data.x++
-    p.data.p2 = undefined
+    p.$.x++
+    p.$.p2 = undefined
   })
 
   const sn: [SnapshotOutOf<P>, SnapshotOutOf<P>][] = []
@@ -243,7 +246,7 @@ test("applySnapshot can create a new submodel", () => {
     applySnapshot(p, originalSn)
   })
   expect(getSnapshot(p)).toStrictEqual(originalSn)
-  expect(p.data.p2 instanceof Model).toBe(true)
+  expect(p.$.p2 instanceof Model).toBe(true)
 
   expect(patches).toMatchInlineSnapshot(`
     Array [
@@ -299,13 +302,13 @@ test("applySnapshot can create a new submodel", () => {
   // swap the model for a clone, it should still be patched and create a snapshot,
   // but it should have a different id
   reset()
-  const oldP2 = p.data.p2!
+  const oldP2 = p.$.p2!
   runUnprotected(() => {
-    p.data.p2 = clone(oldP2)
+    p.$.p2 = clone(oldP2)
   })
-  expect(p.data.p2).not.toBe(oldP2)
-  expect(p.data.p2 instanceof Model).toBe(true)
-  expect(getSnapshot(p.data.p2)).not.toBe(getSnapshot(oldP2))
+  expect(p.$.p2).not.toBe(oldP2)
+  expect(p.$.p2 instanceof Model).toBe(true)
+  expect(getSnapshot(p.$.p2)).not.toBe(getSnapshot(oldP2))
 
   expect(patches).toMatchInlineSnapshot(`
     Array [
@@ -387,13 +390,55 @@ test("undefined should not be allowed in arrays, but null should", () => {
 
   expect(() =>
     runUnprotected(() => {
-      p.data.arr.push(undefined as any)
+      p.$.arr.push(undefined as any)
     })
   ).toThrow("undefined is not supported inside arrays")
-  expect(p.data.arr.length).toBe(0)
+  expect(p.$.arr.length).toBe(0)
 
   runUnprotected(() => {
-    p.data.arr.push(null as any)
+    p.$.arr.push(null as any)
   })
-  expect(p.data.arr).toEqual([null])
+  expect(p.$.arr).toEqual([null])
+})
+
+test("types", () => {
+  assert(
+    _ as SnapshotInOf<P2>,
+    _ as ({
+      y?: number
+    } & {
+      $$metadata: ModelMetadata
+    })
+  )
+
+  assert(
+    _ as SnapshotOutOf<P2>,
+    _ as ({
+      y: number
+    } & {
+      $$metadata: ModelMetadata
+    })
+  )
+
+  assert(
+    _ as SnapshotInOf<P>,
+    _ as ({
+      x?: number
+      arr?: number[]
+      p2?: SnapshotInOf<P2>
+    } & {
+      $$metadata: ModelMetadata
+    })
+  )
+
+  assert(
+    _ as SnapshotOutOf<P>,
+    _ as ({
+      x: number
+      arr: number[]
+      p2?: SnapshotOutOf<P2>
+    } & {
+      $$metadata: ModelMetadata
+    })
+  )
 })

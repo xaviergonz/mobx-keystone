@@ -107,12 +107,12 @@ class Todo extends Model<{ done: boolean; text: string }> {
 
   @modelAction
   setText(text: string) {
-    this.data.text = text
+    this.$.text = text
   }
 
   @modelAction
   setDone(done: boolean) {
-    this.data.done = done
+    this.$.done = done
   }
 }
 
@@ -120,7 +120,7 @@ class Todo extends Model<{ done: boolean; text: string }> {
 class RootStore extends Model<{ selected?: Todo }> {
   @modelAction
   setSelected(todo: Todo) {
-    this.data.selected = todo
+    this.$.selected = todo
   }
 }
 ```
@@ -150,7 +150,7 @@ const Todo = types
   }))
 ```
 
-In `mobx-data-tree` `this` can always be used, plus the standard `computed` mobx decorator (including extra options):
+In `mobx-keystone` `this` can always be used, plus the standard `computed` mobx decorator (including extra options):
 
 ```ts
 @model("myApp/Todo")
@@ -161,12 +161,12 @@ class Todo extends Model<{ done: boolean; text: string; title: string }> {
 
   @computed
   get asStr() {
-    return `${this.data.text} is done? ${this.data.done}`
+    return `${this.$.text} is done? ${this.$.done}`
   }
 
   @computed
   get asStrWithTitle() {
-    return `${this.data.title} - ${this.asStr}`
+    return `${this.$.title} - ${this.asStr}`
   }
 }
 ```

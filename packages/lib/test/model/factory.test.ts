@@ -12,8 +12,8 @@ test("factory pattern", () => {
 
       @modelAction
       setXY(x: TX, y: TY) {
-        this.data.x = x
-        this.data.y = y
+        this.$.x = x
+        this.$.y = y
       }
     }
 
@@ -25,20 +25,20 @@ test("factory pattern", () => {
 
   const numberMyModelInstance = newModel(NumberMyModel, {}) // this will be of type NumberMyModel
   expect(numberMyModelInstance.modelType).toBe("myApp/NumberMyModel")
-  expect(numberMyModelInstance.data.x).toBe(10)
-  expect(numberMyModelInstance.data.y).toBe(20)
+  expect(numberMyModelInstance.$.x).toBe(10)
+  expect(numberMyModelInstance.$.y).toBe(20)
   numberMyModelInstance.setXY(50, 60)
-  expect(numberMyModelInstance.data.x).toBe(50)
-  expect(numberMyModelInstance.data.y).toBe(60)
+  expect(numberMyModelInstance.$.x).toBe(50)
+  expect(numberMyModelInstance.$.y).toBe(60)
 
   const StringMyModel = createModelClass("StringMyModel", "10", "20")
   type StringMyModel = InstanceType<typeof StringMyModel>
 
   const stringMyModelInstance = newModel(StringMyModel, {}) // this will be of type StringMyModel
   expect(stringMyModelInstance.modelType).toBe("myApp/StringMyModel")
-  expect(stringMyModelInstance.data.x).toBe("10")
-  expect(stringMyModelInstance.data.y).toBe("20")
+  expect(stringMyModelInstance.$.x).toBe("10")
+  expect(stringMyModelInstance.$.y).toBe("20")
   stringMyModelInstance.setXY("50", "60")
-  expect(stringMyModelInstance.data.x).toBe("50")
-  expect(stringMyModelInstance.data.y).toBe("60")
+  expect(stringMyModelInstance.$.x).toBe("50")
+  expect(stringMyModelInstance.$.y).toBe("60")
 })

@@ -97,9 +97,9 @@ test("model as rootStore", () => {
   expect(registerRootStore(p)).toBe(p)
 
   expect(isRootStore(p)).toBeTruthy()
-  expect(isRootStore(p.data.p2!)).toBeFalsy()
+  expect(isRootStore(p.$.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBe(p)
-  expect(getRootStore(p.data.p2!)).toBe(p)
+  expect(getRootStore(p.$.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
         Array [
           "p1Attached",
@@ -110,13 +110,13 @@ test("model as rootStore", () => {
 
   // detach p2 from root store
   resetEvents()
-  const oldP2 = p.data.p2!
+  const oldP2 = p.$.p2!
   runUnprotected(() => {
-    p.data.p2 = undefined
+    p.$.p2 = undefined
   })
 
   expect(isRootStore(p)).toBeTruthy()
-  expect(isRootStore(p.data.p2!)).toBeFalsy()
+  expect(isRootStore(p.$.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(oldP2)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
@@ -129,13 +129,13 @@ test("model as rootStore", () => {
   // reattach
   resetEvents()
   runUnprotected(() => {
-    p.data.p2 = oldP2
+    p.$.p2 = oldP2
   })
 
   expect(isRootStore(p)).toBeTruthy()
-  expect(isRootStore(p.data.p2!)).toBeFalsy()
+  expect(isRootStore(p.$.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBe(p)
-  expect(getRootStore(p.data.p2!)).toBe(p)
+  expect(getRootStore(p.$.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
         Array [
           "p2Attached",
@@ -147,9 +147,9 @@ test("model as rootStore", () => {
   resetEvents()
   unregisterRootStore(p)
   expect(isRootStore(p)).toBeFalsy()
-  expect(isRootStore(p.data.p2!)).toBeFalsy()
+  expect(isRootStore(p.$.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBeUndefined()
-  expect(getRootStore(p.data.p2!)).toBeUndefined()
+  expect(getRootStore(p.$.p2!)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
     Array [
       "p3Detached",

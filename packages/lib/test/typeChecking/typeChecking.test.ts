@@ -239,7 +239,7 @@ class M extends Model<TypeToData<typeof mType>> {
 
   @modelAction
   setX(v: number) {
-    this.data.x = v
+    this.$.x = v
   }
 }
 
@@ -254,8 +254,8 @@ test("model", () => {
   expectTypeCheckFail(type, "ho", [], `Model(${m.modelType})`)
   expectTypeCheckFail(type, newModel(MR, {}), [], `Model(${m.modelType})`)
   m.setX("10" as any)
-  expectTypeCheckFail(type, m, ["data", "x"], "number")
-  expect(m.typeCheck()).toEqual(new TypeCheckError(["data", "x"], "number", "10"))
+  expectTypeCheckFail(type, m, ["$", "x"], "number")
+  expect(m.typeCheck()).toEqual(new TypeCheckError(["$", "x"], "number", "10"))
 })
 
 test("model typechecking", () => {
@@ -269,7 +269,7 @@ test("model typechecking", () => {
   let reactionRun = 0
   autoDispose(
     reaction(
-      () => m.data.x,
+      () => m.$.x,
       () => {
         reactionRun++
       }
@@ -280,7 +280,7 @@ test("model typechecking", () => {
     m.setX("5" as any)
   })
   expect(reactionRun).toBe(0)
-  expect(m.data.x).toBe(10)
+  expect(m.$.x).toBe(10)
   expectTypeCheckOk(type, m)
 })
 
@@ -290,7 +290,7 @@ test("newModel with typechecking enabled", () => {
   })
 
   expect(() => newModel(M, { x: 10, y: 20 as any })).toThrow(
-    "TypeCheckError: [data/y] Expected: string"
+    "TypeCheckError: [$/y] Expected: string"
   )
 })
 
@@ -303,7 +303,7 @@ test("model", () => {
 
   expectTypeCheckFail(type, "ho", [], `Model(${m.modelType})`)
   m.setX("10" as any)
-  expectTypeCheckFail(type, m, ["data", "x"], "number")
+  expectTypeCheckFail(type, m, ["$", "x"], "number")
 })
 
 test("array - complex types", () => {
@@ -312,7 +312,7 @@ test("array - complex types", () => {
       x: types.number,
     }))
   )
-  assert(_ as TypeToData<typeof type>, _ as { x: number }[])
+  assert(_ as TypeToData<typeof type>, _ as ({ x: number })[])
 
   expectTypeCheckOk(type, [{ x: 5 }])
 
@@ -340,7 +340,15 @@ test("object - complex types", () => {
       y: types.string,
     })),
   }))
-  assert(_ as TypeToData<typeof type>, _ as { x?: number; o: { y: string } })
+  assert(
+    _ as TypeToData<typeof type>,
+    _ as {
+      x?: number
+      o: {
+        y: string
+      }
+    }
+  )
 
   expectTypeCheckOk(type, { x: 5, o: { y: "6" } })
 
@@ -374,7 +382,7 @@ test("or - complex types", () => {
     })),
     types.number
   )
-  assert(_ as TypeToData<typeof type>, _ as number | { y: string })
+  assert(_ as TypeToData<typeof type>, _ as number | ({ y: string }))
 
   expectTypeCheckOk(type, { y: "6" })
   expectTypeCheckOk(type, 6)
@@ -460,7 +468,7 @@ class MR extends Model<TypeToData<typeof mrType>> {
 
   @modelAction
   setRec(r: MR | undefined) {
-    this.data.rec = r
+    this.$.rec = r
   }
 }
 
@@ -473,7 +481,7 @@ test("recursive model", () => {
   expectTypeCheckOk(type, mr)
 
   mr.setRec("5" as any)
-  expectTypeCheckFail(type, mr, ["data", "rec"], "Model(MR) | undefined")
+  expectTypeCheckFail(type, mr, ["$", "rec"], "Model(MR) | undefined")
 })
 
 const maType = types.object(() => ({
@@ -490,7 +498,7 @@ class MA extends Model<TypeToData<typeof maType>> {
 
   @modelAction
   setB(r: MB | undefined) {
-    this.data.b = r
+    this.$.b = r
   }
 }
 
@@ -508,7 +516,7 @@ class MB extends Model<TypeToData<typeof mbType>> {
 
   @modelAction
   setA(r: MA | undefined) {
-    this.data.a = r
+    this.$.a = r
   }
 }
 
@@ -520,8 +528,8 @@ test("cross referenced model", () => {
 
   expectTypeCheckOk(type, ma)
 
-  ma.data.b!.setA("5" as any)
-  expectTypeCheckFail(type, ma, ["data", "b"], "Model(MB) | undefined")
+  ma.$.b!.setA("5" as any)
+  expectTypeCheckFail(type, ma, ["$", "b"], "Model(MB) | undefined")
 })
 
 test("ref", () => {
@@ -537,12 +545,12 @@ test("ref", () => {
 
 test("frozen - simple type", () => {
   const type = types.frozen(types.number)
-  assert(_ as TypeToData<typeof type>, _ as { data: number })
+  assert(_ as TypeToData<typeof type>, _ as { $: number })
 
   const fr = frozen<number>(5)
 
   expectTypeCheckOk(type, fr)
-  expectTypeCheckFail(type, 5, [], "{ data: number; }")
+  expectTypeCheckFail(type, 5, [], "{ $: number; }")
 })
 
 test("frozen - complex type", () => {
@@ -551,12 +559,12 @@ test("frozen - complex type", () => {
       x: types.number,
     }))
   )
-  assert(_ as TypeToData<typeof type>, _ as { data: { x: number } })
+  assert(_ as TypeToData<typeof type>, _ as { $: { x: number } })
 
   const fr = frozen<{ x: number }>({ x: 5 })
 
   expectTypeCheckOk(type, fr)
-  expectTypeCheckFail(type, 5, [], "{ data: { x: number; }; }")
+  expectTypeCheckFail(type, 5, [], "{ $: { x: number; }; }")
 })
 
 test("enum (string)", () => {
@@ -642,7 +650,7 @@ test("refinement (complex)", () => {
 
     return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
   })
-  assert(_ as TypeToData<typeof type>, _ as { a: number; b: number; result: number })
+  assert(_ as TypeToData<typeof type>, _ as { b: number; a: number; result: number })
 
   expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
   expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")

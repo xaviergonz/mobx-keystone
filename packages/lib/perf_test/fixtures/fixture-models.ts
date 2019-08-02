@@ -27,7 +27,7 @@ export class Hero extends Model<{
 
   @computed
   get descriptionLength() {
-    return this.data.description.length
+    return this.$.description.length
   }
 }
 
@@ -75,19 +75,19 @@ export class Monster extends Model<{
 
   @computed
   get isAlive() {
-    return this.data.hp > 0
+    return this.$.hp > 0
   }
 
   @computed
   get isFlashingRed() {
-    return this.data.hp > 0 && this.data.hp < this.data.maxHp && this.data.hp === 1
+    return this.$.hp > 0 && this.$.hp < this.$.maxHp && this.$.hp === 1
   }
 
   @computed
   get weight() {
-    const victimWeight = this.data.eatenHeroes ? this.data.eatenHeroes.length : 0
-    const fangWeight = this.data.hasFangs ? 10 : 5
-    const wingWeight = this.data.hasWings ? 12 : 4
-    return (victimWeight + fangWeight + wingWeight) * this.data.level > 5 ? 2 : 1
+    const victimWeight = this.$.eatenHeroes ? this.$.eatenHeroes.length : 0
+    const fangWeight = this.$.hasFangs ? 10 : 5
+    const wingWeight = this.$.hasWings ? 12 : 4
+    return (victimWeight + fangWeight + wingWeight) * this.$.level > 5 ? 2 : 1
   }
 }

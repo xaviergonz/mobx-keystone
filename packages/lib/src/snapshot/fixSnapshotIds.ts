@@ -1,5 +1,5 @@
 import nanoid from "nanoid/non-secure"
-import { Writable } from "ts-essentials"
+import { O } from "ts-toolbelt"
 import { isFrozenSnapshot } from "../frozen/Frozen"
 import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
 import { AnyModel } from "../model/Model"
@@ -16,7 +16,7 @@ import {
 
 interface FixSnapshotIdsContext {
   idMap: Map<string, string>
-  refs: Writable<SnapshotInOf<Ref<any>>>[]
+  refs: O.Writable<SnapshotInOf<Ref<any>>>[]
 }
 
 /**

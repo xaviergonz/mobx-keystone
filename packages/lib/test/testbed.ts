@@ -17,11 +17,11 @@ export class P extends Model<{ x: number; arr: number[]; p2?: P2 }> {
 
   @computed
   get xx() {
-    return this.data.x
+    return this.$.x
   }
 
   get xx2() {
-    return this.data.x
+    return this.$.x
   }
 
   unboundNonAction(): void {}

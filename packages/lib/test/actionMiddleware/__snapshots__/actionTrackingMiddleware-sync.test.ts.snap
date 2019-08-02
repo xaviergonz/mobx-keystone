@@ -18,12 +18,12 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
+        "$": Object {
+          "y": 2,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
         },
       },
       "type": "sync",
@@ -46,12 +46,12 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
+        "$": Object {
+          "y": 2,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
         },
       },
       "type": "sync",
@@ -74,12 +74,12 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
+        "$": Object {
+          "y": 2,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
         },
       },
       "type": "sync",
@@ -102,12 +102,12 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
+        "$": Object {
+          "y": 2,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
         },
       },
       "type": "sync",
@@ -130,12 +130,12 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
+        "$": Object {
+          "y": 2,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 2,
         },
       },
       "type": "sync",
@@ -165,21 +165,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 0,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 0,
-            },
           },
           "x": 1,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -202,21 +202,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 0,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 0,
-            },
           },
           "x": 1,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -239,21 +239,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 0,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 0,
-            },
           },
           "x": 1,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -276,21 +276,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 0,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 0,
-            },
           },
           "x": 1,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -313,21 +313,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 0,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 0,
-            },
           },
           "x": 1,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -358,21 +358,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -396,21 +396,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -434,21 +434,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -484,21 +484,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -519,41 +519,41 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -589,21 +589,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -624,41 +624,41 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -694,21 +694,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -729,41 +729,41 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -799,21 +799,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -834,41 +834,41 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -904,21 +904,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -939,41 +939,41 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1011,21 +1011,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -1046,32 +1046,32 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P2 {
+        "$": Object {
+          "y": 6,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 6,
         },
       },
       "type": "sync",
@@ -1107,21 +1107,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -1142,32 +1142,32 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P2 {
+        "$": Object {
+          "y": 6,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 6,
         },
       },
       "type": "sync",
@@ -1203,21 +1203,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -1238,32 +1238,32 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P2 {
+        "$": Object {
+          "y": 6,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 6,
         },
       },
       "type": "sync",
@@ -1299,21 +1299,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -1334,32 +1334,32 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P2 {
+        "$": Object {
+          "y": 6,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 6,
         },
       },
       "type": "sync",
@@ -1395,21 +1395,21 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
@@ -1430,32 +1430,32 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$$metadata": Object {
-            "id": "mockedUuid-2",
-            "type": "P",
-          },
-          "data": Object {
+          "$": Object {
             "p2": P2 {
+              "$": Object {
+                "y": 6,
+              },
               "$$metadata": Object {
                 "id": "mockedUuid-1",
                 "type": "P2",
               },
-              "data": Object {
-                "y": 6,
-              },
             },
             "x": 4,
+          },
+          "$$metadata": Object {
+            "id": "mockedUuid-2",
+            "type": "P",
           },
         },
         "type": "sync",
       },
       "target": P2 {
+        "$": Object {
+          "y": 6,
+        },
         "$$metadata": Object {
           "id": "mockedUuid-1",
           "type": "P2",
-        },
-        "data": Object {
-          "y": 6,
         },
       },
       "type": "sync",
@@ -1481,21 +1481,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1519,21 +1519,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1566,21 +1566,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1604,21 +1604,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1642,21 +1642,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1680,21 +1680,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1718,21 +1718,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1762,21 +1762,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1799,21 +1799,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1836,21 +1836,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1873,21 +1873,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",
@@ -1910,21 +1910,21 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$$metadata": Object {
-          "id": "mockedUuid-2",
-          "type": "P",
-        },
-        "data": Object {
+        "$": Object {
           "p2": P2 {
+            "$": Object {
+              "y": 6,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
             },
-            "data": Object {
-              "y": 6,
-            },
           },
           "x": 4,
+        },
+        "$$metadata": Object {
+          "id": "mockedUuid-2",
+          "type": "P",
         },
       },
       "type": "sync",

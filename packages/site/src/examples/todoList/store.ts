@@ -40,16 +40,16 @@ export class Todo extends Model<TypeToData<typeof todoDataType>> {
   }
 
   // the modelAction decorator marks the function as a model action, giving it access
-  // to modify any model data (inside `this.data`) and other superpowers such as action
+  // to modify any model data (inside `this.$`) and other superpowers such as action
   // middlewares, replication, etc.
   @modelAction
   setDone(done: boolean) {
-    this.data.done = done
+    this.$.done = done
   }
 
   @modelAction
   setText(text: string) {
-    this.data.text = text
+    this.$.text = text
   }
 }
 
@@ -62,20 +62,20 @@ export class TodoList extends Model<TypeToData<typeof todoListDataType>> {
   // again, we could have just used <{ todos: Todo[] }> if runtime type checking was not needed
 
   // standard mobx decorators (such as computed) can be used as usual, since anything inside
-  // `this.data` is observable
+  // `this.$` is observable
   @computed
   get pending() {
-    return this.data.todos.filter(t => !t.data.done)
+    return this.$.todos.filter(t => !t.$.done)
   }
 
   @computed
   get done() {
-    return this.data.todos.filter(t => t.data.done)
+    return this.$.todos.filter(t => t.$.done)
   }
 
   @modelAction
   add(todo: Todo) {
-    this.data.todos.push(todo)
+    this.$.todos.push(todo)
   }
 
   @modelAction
@@ -85,7 +85,7 @@ export class TodoList extends Model<TypeToData<typeof todoListDataType>> {
     // - also in the case of action serialization, the todo object (although a clone) will have a different
     //   reference, so a plain indexOf won't work
 
-    const list = this.data.todos
+    const list = this.$.todos
     const todoIndex = list.findIndex(todo => todo.modelId === todoId)
     if (todoIndex >= 0) {
       list.splice(todoIndex, 1)

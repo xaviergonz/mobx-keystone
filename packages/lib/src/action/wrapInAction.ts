@@ -1,5 +1,5 @@
 import { action, isAction } from "mobx"
-import { Writable } from "ts-essentials"
+import { O } from "ts-toolbelt"
 import { AnyModel } from "../model"
 import { assertTweakedObject } from "../tweaker/core"
 import { inDevMode } from "../utils"
@@ -25,7 +25,7 @@ export function wrapInAction<T extends Function>(
   name: string,
   fn: T,
   actionType: ActionContextActionType,
-  overrideContext?: (ctx: Writable<ActionContext>) => void,
+  overrideContext?: (ctx: O.Writable<ActionContext>) => void,
   isFlowFinsher = false
 ): T {
   if (!isAction(fn)) {
@@ -39,7 +39,7 @@ export function wrapInAction<T extends Function>(
 
     const parentContext = getCurrentActionContext()
 
-    const context: Writable<ActionContext> = {
+    const context: O.Writable<ActionContext> = {
       actionName: name,
       type: actionType,
       target: this,

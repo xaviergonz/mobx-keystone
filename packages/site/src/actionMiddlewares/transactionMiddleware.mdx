@@ -20,7 +20,7 @@ class MyBalance extends Model<{ balance: number }> {
   @transaction
   @modelAction
   addMoney(cents: number) {
-    this.data.balance += cents
+    this.$.balance += cents
     // imagine that something else goes wrong
     // in this case balance will be reverted to the value that
     // was there before the action started
@@ -36,7 +36,7 @@ Programatically:
 class MyBalance extends Model<{ balance: number }> {
   @modelAction
   addMoney(cents: number) {
-    this.data.balance += cents
+    this.$.balance += cents
     // imagine that something else goes wrong
     // in this case balance will be reverted to the value that
     // was there before the action started

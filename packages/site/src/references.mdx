@@ -21,10 +21,10 @@ class TodoList extends Model<{ list: Todo[]; selected?: Ref<Todo> }> {
 
   @modelAction
   selectTodo(todo: Todo | undefined) {
-    if (!this.data.list.includes(todo)) {
+    if (!this.$.list.includes(todo)) {
       throw new Error("cannot select a todo that is not in the list")
     }
-    this.data.selected = todo ? ref(todo) : undefined
+    this.$.selected = todo ? ref(todo) : undefined
   }
 }
 ```
@@ -49,10 +49,10 @@ class TodoList extends Model<{ list: Todo[]; selected?: Ref<Todo> }> {
 
   @modelAction
   selectTodo(todo: Todo | undefined) {
-    if (!this.data.list.includes(todo)) {
+    if (!this.$.list.includes(todo)) {
       throw new Error("cannot select a todo that is not in the list")
     }
-    this.data.selected = todo ? ref(todo, { autoDetach: true }) : undefined
+    this.$.selected = todo ? ref(todo, { autoDetach: true }) : undefined
   }
 }
 

@@ -75,7 +75,7 @@ function reconcileArraySnapshot(value: any, sn: SnapshotInOfArray<any>): any[] {
 function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>): Frozen<any> {
   // reconciliation is only possible if the target is a Frozen instance with the same data (by ref)
   // in theory we could compare the JSON representation of both datas or do a deep comparison, but that'd be too slow
-  if (value instanceof Frozen && value.data === sn.data) {
+  if (value instanceof Frozen && value.$ === sn.data) {
     return value
   }
   return frozen(sn.data)
@@ -100,7 +100,7 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
     processedSn = modelObj.fromSnapshot(sn)
   }
 
-  const data = modelObj.data
+  const data = modelObj.$
 
   // remove excess props
   const dataKeys = Object.keys(data)

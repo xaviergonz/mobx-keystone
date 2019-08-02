@@ -25,6 +25,6 @@ test("snapshot processor", () => {
     )
   )
 
-  expect(p.data.arr).toStrictEqual([30, 40, 50])
+  expect(p.$.arr).toStrictEqual([30, 40, 50])
   expect(p.modelId).toBe("P3-id")
 })

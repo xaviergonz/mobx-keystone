@@ -1,13 +1,15 @@
-import { NonNever } from "ts-essentials"
+import { O } from "ts-toolbelt"
 
 // type schemas
+
+// infer is there just to cache type generation
 
 export interface IdentityType<T> {
   $$identityType: T
 }
 
 export interface ArrayType<S extends AnyType> {
-  $$arrayType: TypeToData<S>[]
+  $$arrayType: TypeToData<S>[] extends infer R ? R : never
 }
 
 export interface ObjectOfTypes {
@@ -25,6 +27,9 @@ export interface ObjectOfTypes {
  * - string & undefined = false, but we don't care
  * - any = true
  * - unknown = true
+ * - null = false
+ * - string | null = false
+ * - string & null = false
  */
 type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
 
@@ -35,23 +40,16 @@ type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
 // type _E = IsOptionalValue<any, true, false> // true
 // type _F = IsOptionalValue<unknown, true, false> // true
 
-// cleans up types somehow by simplfiying stuff such as
-// Pick<{x: number}, "x"> & { x?: number } into {x: number}
-type CleanType<T> = {
-  [P in keyof T]: T[P]
-}
+/**
+ * Name of the properties of an object that can be set to undefined, any or unknown
+ * @hidden
+ */
+type UndefinablePropsNames<T> = { [K in keyof T]: IsOptionalValue<T[K], K, never> }[keyof T]
 
 export interface ObjectType<S extends ObjectOfTypes> {
-  $$objectType: CleanType<
-    NonNever<
-      {
-        [k in keyof S]: IsOptionalValue<TypeToData<S[k]>, never, TypeToData<S[k]>>
-      }
-    > &
-      {
-        [k in keyof S]?: TypeToData<S[k]>
-      }
-  >
+  $$objectTypeData: { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never }
+  $$objectUndefinablePropNames: UndefinablePropsNames<this["$$objectTypeData"]>
+  $$objectType: O.Optional<this["$$objectTypeData"], this["$$objectUndefinablePropNames"]>
 }
 
 export interface ObjectTypeFunction<S extends ObjectOfTypes> {
@@ -60,12 +58,12 @@ export interface ObjectTypeFunction<S extends ObjectOfTypes> {
 
 export interface ObjectMapType<S extends AnyType> {
   $$objectMapType: {
-    [k: string]: TypeToData<S>
+    [k: string]: TypeToData<S> extends infer R ? R : never
   }
 }
 
 export interface OrType<S extends AnyType[]> {
-  $$orType: TypeToData<S[number]>
+  $$orType: TypeToData<S[number]> extends infer R ? R : never
 }
 
 export type AnyType =
@@ -78,16 +76,28 @@ export type AnyType =
 
 // type schemas to actual types
 
-export type TypeToData<S extends AnyType> = S extends IdentityType<any>
-  ? S["$$identityType"]
-  : S extends ArrayType<any>
-  ? S["$$arrayType"]
-  : S extends OrType<any>
-  ? S["$$orType"]
+export type TypeToData<S extends AnyType> = S extends ObjectTypeFunction<infer S2>
+  ? ObjectType<S2>["$$objectType"] extends infer R
+    ? R
+    : never
   : S extends ObjectType<any>
-  ? S["$$objectType"]
+  ? S["$$objectType"] extends infer R
+    ? R
+    : never
   : S extends ObjectMapType<any>
-  ? S["$$objectMapType"]
-  : S extends ObjectTypeFunction<infer S2>
-  ? ObjectType<S2>["$$objectType"]
+  ? S["$$objectMapType"] extends infer R
+    ? R
+    : never
+  : S extends ArrayType<any>
+  ? S["$$arrayType"] extends infer R
+    ? R
+    : never
+  : S extends OrType<any>
+  ? S["$$orType"] extends infer R
+    ? R
+    : never
+  : S extends IdentityType<any>
+  ? S["$$identityType"] extends infer R
+    ? R
+    : never
   : never

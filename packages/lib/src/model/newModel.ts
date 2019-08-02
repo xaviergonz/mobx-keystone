@@ -1,6 +1,6 @@
 import { action, observable } from "mobx"
 import nanoid from "nanoid/non-secure"
-import { StrictOmit, Writable } from "ts-essentials"
+import { O } from "ts-toolbelt"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
@@ -17,8 +17,7 @@ import { assertIsModelClass } from "./utils"
 /**
  * The creation data of a model.
  */
-export type ModelCreationData<M extends AnyModel> = StrictOmit<M["data"], keyof M["defaultData"]> &
-  Partial<M["data"]>
+export type ModelCreationData<M extends AnyModel> = O.Optional<M["$"], keyof M["defaultData"]>
 
 /**
  * Creates a new model of a given class.
@@ -60,7 +59,7 @@ export const internalNewModel = action(
   ): M => {
     assertIsModelClass(modelClass, "modelClass")
 
-    const modelObj = new modelClass(modelConstructorSymbol) as Writable<M>
+    const modelObj = new modelClass(modelConstructorSymbol) as O.Writable<M>
 
     // make defaultData non enumerable and readonly
     makePropReadonly(modelObj, "defaultData", false)
@@ -102,7 +101,7 @@ export const internalNewModel = action(
 
     let obsData = tweakPlainObject(
       initialData,
-      { parent: modelObj, path: "data" },
+      { parent: modelObj, path: "$" },
       modelObj[modelMetadataKey],
       false
     )
@@ -112,8 +111,8 @@ export const internalNewModel = action(
     linkInternalSnapshot(modelObj, newSn)
 
     // link it, and make it readonly
-    modelObj.data = obsData
-    makePropReadonly(modelObj, "data", true)
+    modelObj.$ = obsData
+    makePropReadonly(modelObj, "$", true)
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled() && getModelDataType(modelClass)) {

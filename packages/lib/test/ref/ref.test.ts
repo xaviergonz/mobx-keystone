@@ -1,16 +1,5 @@
-import {
-  fromSnapshot,
-  getSnapshot,
-  model,
-  Model,
-  modelAction,
-  modelSnapshotInWithMetadata,
-  newModel,
-  Ref,
-  ref,
-  registerRootStore,
-} from "../../src"
-import "../commonSetup"
+import { fromSnapshot, getSnapshot, model, Model, modelAction, modelSnapshotInWithMetadata, newModel, Ref, ref, registerRootStore } from "../../src";
+import "../commonSetup";
 
 @model("P2")
 class P2 extends Model<{ y: number }> {
@@ -23,17 +12,17 @@ class P2 extends Model<{ y: number }> {
 class P extends Model<{ p2?: P2; p3?: P2; r?: Ref<P2> }> {
   @modelAction
   setR(r: P2 | undefined, autoDetach = false) {
-    this.data.r = r ? ref(r, { autoDetach }) : undefined
+    this.$.r = r ? ref(r, { autoDetach }) : undefined
   }
 
   @modelAction
   setP2(p2: P2 | undefined) {
-    this.data.p2 = p2
+    this.$.p2 = p2
   }
 
   @modelAction
   setP3(p2: P2 | undefined) {
-    this.data.p3 = p2
+    this.$.p3 = p2
   }
 }
 
@@ -43,13 +32,13 @@ test("ref", () => {
 
   p.setP2(p2)
   p.setR(p2)
-  expect(p.data.r).toBeDefined()
+  expect(p.$.r).toBeDefined()
 
-  expect(p.data.r!.isValid).toBe(true)
-  expect(p.data.r!.current).toBe(p2)
-  expect(p.data.r!.maybeCurrent).toBe(p2)
+  expect(p.$.r!.isValid).toBe(true)
+  expect(p.$.r!.current).toBe(p2)
+  expect(p.$.r!.maybeCurrent).toBe(p2)
 
-  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
+  expect(getSnapshot(p.$.r)).toMatchInlineSnapshot(`
             Object {
               "$$metadata": Object {
                 "id": "mockedUuid-3",
@@ -62,13 +51,13 @@ test("ref", () => {
 
   // not under the same root now
   p.setP2(undefined)
-  expect(p.data.r!.isValid).toBe(false)
-  expect(p.data.r!.maybeCurrent).toBe(undefined)
-  expect(() => p.data.r!.current).toThrow(
+  expect(p.$.r!.isValid).toBe(false)
+  expect(p.$.r!.maybeCurrent).toBe(undefined)
+  expect(() => p.$.r!.current).toThrow(
     "a model with id 'mockedUuid-2' could not be found in the same tree as the reference"
   )
 
-  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
+  expect(getSnapshot(p.$.r)).toMatchInlineSnapshot(`
             Object {
               "$$metadata": Object {
                 "id": "mockedUuid-3",
@@ -81,11 +70,11 @@ test("ref", () => {
 
   // change the path, the ref should still be ok
   p.setP3(p2)
-  expect(p.data.r!.isValid).toBe(true)
-  expect(p.data.r!.maybeCurrent).toBe(p2)
-  expect(p.data.r!.current).toBe(p2)
+  expect(p.$.r!.isValid).toBe(true)
+  expect(p.$.r!.maybeCurrent).toBe(p2)
+  expect(p.$.r!.current).toBe(p2)
 
-  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
+  expect(getSnapshot(p.$.r)).toMatchInlineSnapshot(`
             Object {
               "$$metadata": Object {
                 "id": "mockedUuid-3",
@@ -97,16 +86,16 @@ test("ref", () => {
       `)
 
   // not under the same root now
-  const r = p.data.r!
+  const r = p.$.r!
   p.setR(undefined)
-  expect(p.data.r).toBeUndefined()
+  expect(p.$.r).toBeUndefined()
   expect(r.isValid).toBe(false)
   expect(r.maybeCurrent).toBe(undefined)
   expect(() => r.current).toThrow(
     "a model with id 'mockedUuid-2' could not be found in the same tree as the reference"
   )
 
-  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`undefined`)
+  expect(getSnapshot(p.$.r)).toMatchInlineSnapshot(`undefined`)
 })
 
 test("ref loaded from a snapshot", () => {
@@ -146,17 +135,17 @@ test("ref loaded from a snapshot", () => {
     )
   )
 
-  const r = p.data.r!
+  const r = p.$.r!
   expect(r).toBeDefined()
   expect(r.isValid).toBe(true)
-  expect(r.maybeCurrent).toBe(p.data.p2)
-  expect(r.current).toBe(p.data.p2)
+  expect(r.maybeCurrent).toBe(p.$.p2)
+  expect(r.current).toBe(p.$.p2)
 
-  const rr = pp.data.r!
+  const rr = pp.$.r!
   expect(rr).toBeDefined()
   expect(rr.isValid).toBe(true)
-  expect(rr.maybeCurrent).toBe(pp.data.p2)
-  expect(rr.current).toBe(pp.data.p2)
+  expect(rr.maybeCurrent).toBe(pp.$.p2)
+  expect(rr.current).toBe(pp.$.p2)
 })
 
 test("ref loaded from a broken snapshot", () => {
@@ -177,7 +166,7 @@ test("ref loaded from a broken snapshot", () => {
     )
   )
 
-  const r = p.data.r!
+  const r = p.$.r!
   expect(r).toBeDefined()
   expect(r.isValid).toBe(false)
   expect(r.maybeCurrent).toBe(undefined)
@@ -194,13 +183,13 @@ test("autoDetach ref", () => {
 
   p.setP2(p2)
   p.setR(p2, true)
-  expect(p.data.r).toBeDefined()
+  expect(p.$.r).toBeDefined()
 
-  expect(p.data.r!.isValid).toBe(true)
-  expect(p.data.r!.maybeCurrent).toBe(p2)
-  expect(p.data.r!.current).toBe(p2)
+  expect(p.$.r!.isValid).toBe(true)
+  expect(p.$.r!.maybeCurrent).toBe(p2)
+  expect(p.$.r!.current).toBe(p2)
 
-  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`
+  expect(getSnapshot(p.$.r)).toMatchInlineSnapshot(`
     Object {
       "$$metadata": Object {
         "id": "mockedUuid-6",
@@ -212,10 +201,10 @@ test("autoDetach ref", () => {
   `)
 
   // not under the same root now
-  const r = p.data.r!
+  const r = p.$.r!
   p.setP2(undefined)
-  expect(p.data.r).toBe(undefined)
-  expect(getSnapshot(p.data.r)).toMatchInlineSnapshot(`undefined`)
+  expect(p.$.r).toBe(undefined)
+  expect(getSnapshot(p.$.r)).toMatchInlineSnapshot(`undefined`)
   expect(r.isValid).toBe(false)
   expect(r.maybeCurrent).toBe(undefined)
   expect(() => r.current).toThrow(

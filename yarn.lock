@@ -13820,11 +13820,6 @@ tryer@^1.0.1:
   resolved "https://registry.yarnpkg.com/tryer/-/tryer-1.0.1.tgz#f2c85406800b9b0f74c9f7465b81eaad241252f8"
   integrity sha512-c3zayb8/kWWpycWYg87P71E1S1ZL6b6IJxfb5fvsUgsf0S2MVGaDhDXXjDMpdCpfWXqptc+4mXwmiy1ypXqRAA==
 
-ts-essentials@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-3.0.0.tgz#301890fd7011dd19611aa54f4b9efc2d7ecbd955"
-  integrity sha512-9fOlNAH2MbPbSNaCKEj4K/SQcWaeQpn+3DWE20q642c1bieUGLY0uEZnh9xcMkfnzV5AW+/b2aw+Jq3ABTAOkA==
-
 ts-jest@^24.0.2:
   version "24.0.2"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-24.0.2.tgz#8dde6cece97c31c03e80e474c749753ffd27194d"
@@ -13850,6 +13845,11 @@ ts-node@^8.3.0:
     make-error "^1.1.1"
     source-map-support "^0.5.6"
     yn "^3.0.0"
+
+ts-toolbelt@^3.2.14:
+  version "3.2.14"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.2.14.tgz#7ecbfd07bbc7cd2be2643e8d9828ff67d577a61b"
+  integrity sha512-/PS1x8L3elhi7KYETYPbyQOkK4krTXuqb290tE2F2KVAJNdzl7Ix22/aGQ8/VSPumPHiRUsYcvCsnqD1PDPrLg==
 
 tsdx@^0.7.1:
   version "0.7.2"

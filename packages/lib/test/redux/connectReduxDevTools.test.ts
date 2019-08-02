@@ -38,7 +38,7 @@ class M2 extends Model<{ a: string }> {
 
   @modelAction
   setA() {
-    this.data.a = "setA"
+    this.$.a = "setA"
   }
 }
 
@@ -51,96 +51,96 @@ class M extends Model<{ x: string; y: string; array: M2[] }> {
   }
 
   onInit() {
-    this.data.x = ""
+    this.$.x = ""
   }
 
   @modelAction
   addToArray(val: M2) {
-    this.data.array.push(val)
+    this.$.array.push(val)
   }
 
   @modelAction
   setX() {
-    this.data.x = "setX"
+    this.$.x = "setX"
   }
 
   @modelAction
   setXThrow() {
-    this.data.x = "setXThrow"
+    this.$.x = "setXThrow"
     throw new Error("bye")
   }
 
   @modelFlow
   *setXAsync() {
-    this.data.x = "setXAsync +0"
+    this.$.x = "setXAsync +0"
     yield waitAsync(20)
-    this.data.x = "setXAsync +20"
+    this.$.x = "setXAsync +20"
   }
 
   @modelFlow
   *setXAsyncWithEmptyFirstPart() {
     yield waitAsync(20)
-    this.data.x = "setXAsyncWithEmptyFirstPart +20"
+    this.$.x = "setXAsyncWithEmptyFirstPart +20"
   }
 
   @modelFlow
   *setXAsyncThrowSync() {
-    this.data.x = "setXAsyncThrowSync +0"
+    this.$.x = "setXAsyncThrowSync +0"
     yield waitAsync(20)
     throw new Error("setXAsyncThrowSync +20")
   }
 
   @modelFlow
   *setXAsyncThrowAsync() {
-    this.data.x = "setXAsyncThrowAsync +0"
+    this.$.x = "setXAsyncThrowAsync +0"
     yield waitAsyncReject(20)
   }
 
   @modelAction
   setY() {
-    this.data.y = "setY"
+    this.$.y = "setY"
   }
 
   @modelAction
   setYThrow() {
-    this.data.y = "setYThrow"
+    this.$.y = "setYThrow"
     throw new Error("bye2")
   }
 
   @modelFlow
   *setYAsync() {
-    this.data.y = "setYAsync +0"
+    this.$.y = "setYAsync +0"
     yield waitAsync(50)
-    this.data.y = "setYAsync +50"
+    this.$.y = "setYAsync +50"
   }
 
   @modelFlow
   *setYAsyncThrowSync() {
-    this.data.y = "setYAsyncThrowSync +0"
+    this.$.y = "setYAsyncThrowSync +0"
     yield waitAsync(50)
     throw new Error("setYAsyncThrowSync +50")
   }
 
   @modelFlow
   *setYAsyncThrowAsync() {
-    this.data.y = "setYAsyncThrowAsync +0"
+    this.$.y = "setYAsyncThrowAsync +0"
     yield waitAsyncReject(50)
   }
 
   @modelAction
   setXY() {
-    this.data.x = "setXY starts"
+    this.$.x = "setXY starts"
     this.setX()
     this.setY()
-    this.data.x = "setXY ends"
+    this.$.x = "setXY ends"
   }
 
   @modelFlow
   *setXYAsync() {
-    this.data.x = "setXYAsync starts"
+    this.$.x = "setXYAsync starts"
     yield this.setXAsync()
     yield this.setYAsync()
-    this.data.x = "setXYAsync ends"
+    this.$.x = "setXYAsync ends"
   }
 
   @modelFlow
@@ -244,7 +244,7 @@ function addStandardTests() {
 
   test('m.addtoArray({ a: "otherA" }), m.array[0].setA()', () => {
     m.addToArray(newModel(M2, { a: "otherA" }))
-    m.data.array[0]!.setA()
+    m.$.array[0]!.setA()
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 
