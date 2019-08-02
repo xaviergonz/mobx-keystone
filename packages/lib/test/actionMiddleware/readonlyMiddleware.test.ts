@@ -43,14 +43,14 @@ beforeEach(() => {
 })
 
 test("subnode", () => {
-  const { dispose, writable } = readonlyMiddleware(p.data.p2)
+  const { dispose, allowWrite } = readonlyMiddleware(p.data.p2)
   autoDispose(dispose)
 
   const oldY1 = p.data.p2.data.y
   expect(() => p.data.p2.setY(300)).toThrow("tried to invoke action 'setY' over a readonly node")
   expect(p.data.p2.data.y).toBe(oldY1)
 
-  writable(() => p.data.p2.setY(300))
+  allowWrite(() => p.data.p2.setY(300))
   expect(p.data.p2.data.y).toBe(300)
 
   p.setXY(50, 400)
@@ -64,14 +64,14 @@ test("subnode", () => {
 })
 
 test("root node", () => {
-  const { dispose, writable } = readonlyMiddleware(p)
+  const { dispose, allowWrite } = readonlyMiddleware(p)
   autoDispose(dispose)
 
   const oldY1 = p.data.p2.data.y
   expect(() => p.data.p2.setY(300)).toThrow("tried to invoke action 'setY' over a readonly node")
   expect(p.data.p2.data.y).toBe(oldY1)
 
-  writable(() => p.data.p2.setY(300))
+  allowWrite(() => p.data.p2.setY(300))
   expect(p.data.p2.data.y).toBe(300)
 
   const oldX2 = p.data.x
@@ -80,7 +80,7 @@ test("root node", () => {
   expect(p.data.x).toBe(oldX2)
   expect(p.data.p2.data.y).toBe(oldY2)
 
-  expect(writable(() => p.setXY(500, 600))).toBe(500 + 600)
+  expect(allowWrite(() => p.setXY(500, 600))).toBe(500 + 600)
   expect(p.data.x).toBe(500)
   expect(p.data.p2.data.y).toBe(600)
 
@@ -92,7 +92,7 @@ test("root node", () => {
 })
 
 test("root node (async)", async () => {
-  const { dispose, writable } = readonlyMiddleware(p)
+  const { dispose, allowWrite } = readonlyMiddleware(p)
   autoDispose(dispose)
 
   const oldX1 = p.data.x
@@ -107,7 +107,7 @@ test("root node (async)", async () => {
   expect(p.data.x).toBe(oldX1)
   expect(p.data.p2.data.y).toBe(oldY1)
 
-  const ret = await writable(() => p.setXYAsync(5, 10))
+  const ret = await allowWrite(() => p.setXYAsync(5, 10))
   expect(ret).toBe(5 + 10)
 
   await delay(100) // just to make sure it didn't mutate later
