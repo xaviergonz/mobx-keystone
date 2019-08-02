@@ -8,7 +8,7 @@ import { actionTrackingMiddleware, ActionTrackingResult } from "./actionTracking
  * Return type for readonly middleware.
  */
 export interface ReadonlyMiddlewareReturn {
-  writable<FN extends () => R, R>(fn: FN): R
+  allowWrite<FN extends () => R, R>(fn: FN): R
 
   dispose: ActionMiddlewareDisposer
 }
@@ -18,26 +18,26 @@ export interface ReadonlyMiddlewareReturn {
  * over the node or any of the child nodes, thus effectively making the subtree
  * readonly.
  *
- * It will return an object with a `dispose` function to remove the middleware and a `writable` function
+ * It will return an object with a `dispose` function to remove the middleware and a `allowWrite` function
  * that will allow actions to be started inside the provided code block.
  *
  * Example:
  * ```ts
  * // given a model instance named todo
- * const { dispose, writable } = readonlyMiddleware(todo)
+ * const { dispose, allowWrite } = readonlyMiddleware(todo)
  *
  * // this will throw
  * todo.setDone(false)
  * await todo.setDoneAsync(false)
  *
  * // this will work
- * writable(() => todo.setDone(false))
- * // note: for async always use one action invocation per writable!
- * await writable(() => todo.setDoneAsync(false))
+ * allowWrite(() => todo.setDone(false))
+ * // note: for async always use one action invocation per allowWrite!
+ * await allowWrite(() => todo.setDoneAsync(false))
  * ```
  *
  * @param subtreeRoot Subtree root target object.
- * @returns An object with the middleware disposer (`dispose`) and a `writable` function.
+ * @returns An object with the middleware disposer (`dispose`) and a `allowWrite` function.
  */
 export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareReturn {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
@@ -73,7 +73,7 @@ export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareRetur
 
   return {
     dispose: disposer,
-    writable(fn) {
+    allowWrite(fn) {
       const oldWritable = writable
       writable = true
       try {
