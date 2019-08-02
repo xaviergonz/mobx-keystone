@@ -21,7 +21,7 @@ class P2 extends Model<{ y: number }> {
 
   @modelAction
   incY(n: number) {
-    this.data.y += n
+    this.$.y += n
   }
 }
 
@@ -34,13 +34,13 @@ class P extends Model<{ p2: P2; x: number }> {
 
   @modelAction
   incX(n: number) {
-    this.data.x += n
+    this.$.x += n
   }
 
   @modelAction
   incXY(x: number, y: number) {
     this.incX(x)
-    this.data.p2.incY(y)
+    this.$.p2.incY(y)
     throw new Error("incXY")
   }
 }
@@ -55,9 +55,9 @@ class R extends Model<{ undoData: UndoStore; p: P }> {
 
 test("undoMiddleware - sync", () => {
   const r = newModel(R, {})
-  const p = r.data.p
+  const p = r.$.p
 
-  const manager = undoMiddleware(r, r.data.undoData)
+  const manager = undoMiddleware(r, r.$.undoData)
   expect(manager instanceof UndoManager).toBeTruthy()
   autoDispose(() => manager.dispose())
 
@@ -97,14 +97,14 @@ test("undoMiddleware - sync", () => {
   p.incX(2)
   snapshots.push(getSnapshot(p))
 
-  p.data.p2.incY(10)
+  p.$.p2.incY(10)
   snapshots.push(getSnapshot(p))
 
   expect(() => p.incXY(3, 20)).toThrow("incXY")
   snapshots.push(getSnapshot(p))
 
-  expect(p.data.x).toBe(1 + 2 + 3)
-  expect(p.data.p2.data.y).toBe(10 + 20)
+  expect(p.$.x).toBe(1 + 2 + 3)
+  expect(p.$.p2.$.y).toBe(10 + 20)
 
   expectUndoRedoToBe(4, 0)
   expect(getEvents()).toMatchInlineSnapshot(`
@@ -134,7 +134,7 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
           ],
         },
@@ -161,7 +161,7 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
           ],
         },
@@ -190,9 +190,9 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
-            "data",
+            "$",
             "p2",
           ],
         },
@@ -237,7 +237,7 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
           ],
         },
@@ -291,7 +291,7 @@ class P2Flow extends Model<{ y: number }> {
   @modelFlow
   *incY(n: number) {
     yield Promise.resolve()
-    this.data.y += n
+    this.$.y += n
     yield Promise.resolve()
   }
 }
@@ -306,7 +306,7 @@ class PFlow extends Model<{ x: number; p2: P2Flow }> {
   @modelFlow
   *incX(n: number) {
     yield Promise.resolve()
-    this.data.x += n
+    this.$.x += n
     yield Promise.resolve()
   }
 
@@ -315,7 +315,7 @@ class PFlow extends Model<{ x: number; p2: P2Flow }> {
     yield Promise.resolve()
     yield this.incX(x)
     yield Promise.resolve()
-    yield this.data.p2.incY(y)
+    yield this.$.p2.incY(y)
     yield Promise.resolve()
     throw new Error("incXY")
   }
@@ -331,9 +331,9 @@ class RFlow extends Model<{ undoData: UndoStore; p: PFlow }> {
 
 test("undoMiddleware - async", async () => {
   const r = newModel(RFlow, {})
-  const p = r.data.p
+  const p = r.$.p
 
-  const manager = undoMiddleware(r, r.data.undoData)
+  const manager = undoMiddleware(r, r.$.undoData)
   expect(manager instanceof UndoManager).toBeTruthy()
   autoDispose(() => manager.dispose())
 
@@ -373,7 +373,7 @@ test("undoMiddleware - async", async () => {
   await p.incX(2)
   snapshots.push(getSnapshot(p))
 
-  await p.data.p2.incY(10)
+  await p.$.p2.incY(10)
   snapshots.push(getSnapshot(p))
 
   try {
@@ -384,8 +384,8 @@ test("undoMiddleware - async", async () => {
   }
   snapshots.push(getSnapshot(p))
 
-  expect(p.data.x).toBe(1 + 2 + 3)
-  expect(p.data.p2.data.y).toBe(10 + 20)
+  expect(p.$.x).toBe(1 + 2 + 3)
+  expect(p.$.p2.$.y).toBe(10 + 20)
 
   expectUndoRedoToBe(4, 0)
   expect(getEvents()).toMatchInlineSnapshot(`
@@ -415,7 +415,7 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
           ],
         },
@@ -442,7 +442,7 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
           ],
         },
@@ -471,9 +471,9 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
-            "data",
+            "$",
             "p2",
           ],
         },
@@ -518,7 +518,7 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "data",
+            "$",
             "p",
           ],
         },

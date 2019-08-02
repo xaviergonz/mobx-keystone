@@ -18,13 +18,13 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
+        "$": Object {
+          "x": 10,
+          "y": "6",
+        },
         "$$metadata": Object {
           "id": "mockedUuid-3",
           "type": "M",
-        },
-        "data": Object {
-          "x": 10,
-          "y": "6",
         },
       },
       "type": "sync",
@@ -47,13 +47,13 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
+        "$": Object {
+          "x": 10,
+          "y": "6",
+        },
         "$$metadata": Object {
           "id": "mockedUuid-3",
           "type": "M",
-        },
-        "data": Object {
-          "x": 10,
-          "y": "6",
         },
       },
       "type": "sync",

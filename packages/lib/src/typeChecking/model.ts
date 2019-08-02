@@ -54,7 +54,7 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
 
         const resolvedTc = resolveTypeChecker(dataTypeChecker)
         if (!resolvedTc.unchecked) {
-          return resolvedTc.check(value.data, [...path, "data"])
+          return resolvedTc.check(value.$, [...path, "$"])
         }
 
         return null

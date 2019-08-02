@@ -33,7 +33,7 @@ export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType
    */
   @computed
   get id() {
-    return this.data.id
+    return this.$.id
   }
 
   /**
@@ -68,7 +68,7 @@ export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType
 
     if (!current) {
       throw failure(
-        `a model with id '${this.data.id}' could not be found in the same tree as the reference`
+        `a model with id '${this.$.id}' could not be found in the same tree as the reference`
       )
     }
 
@@ -76,7 +76,7 @@ export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType
   }
 
   onAttachedToRootStore() {
-    if (!this.data.autoDetach) {
+    if (!this.$.autoDetach) {
       return undefined
     }
 

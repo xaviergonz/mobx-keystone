@@ -1,5 +1,5 @@
 import nanoid from "nanoid/non-secure"
-import { StrictOmit } from "ts-essentials"
+import { O } from "ts-toolbelt"
 import { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
@@ -57,7 +57,7 @@ export abstract class Model<Data extends { [k: string]: any }> {
    * Data part of the model, which is observable and will be serialized in snapshots.
    * Use this to read/modify model data.
    */
-  readonly data!: Data
+  readonly $!: Data
 
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as
@@ -90,7 +90,7 @@ export abstract class Model<Data extends { [k: string]: any }> {
    */
   typeCheck(): TypeCheckError | null {
     const type = typesModel<this>(this.constructor as any)
-    return typeCheck(type, this)
+    return typeCheck(type, this as any)
   }
 
   /**
@@ -121,7 +121,7 @@ export type ModelClass<M extends AnyModel> = new (privateSymbol: typeof modelCon
 /**
  * The data type of a model.
  */
-export type ModelData<M extends AnyModel> = M["data"]
+export type ModelData<M extends AnyModel> = M["$"]
 
 /**
  * Add missing model metadata to a model creation snapshot to generate a proper model snapshot.
@@ -135,7 +135,7 @@ export type ModelData<M extends AnyModel> = M["data"]
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: StrictOmit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
+  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
   id?: string
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
@@ -164,7 +164,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: StrictOmit<SnapshotOutOfModel<M>, typeof modelMetadataKey>,
+  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelMetadataKey>,
   id?: string
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")

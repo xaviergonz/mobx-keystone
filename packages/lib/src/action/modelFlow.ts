@@ -1,4 +1,4 @@
-import { Writable } from "ts-essentials"
+import { O } from "ts-toolbelt"
 import { checkModelDecoratorArgs } from "../model/utils"
 import { decorateWrapMethodOrField, failure } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
@@ -17,7 +17,7 @@ function flow<R, Args extends any[]>(
     let previousAsyncStepContext: ActionContext | undefined
 
     const ctxOverride = (stepType: ActionContextAsyncStepType) => {
-      return (ctx: Writable<ActionContext>) => {
+      return (ctx: O.Writable<ActionContext>) => {
         ctx.previousAsyncStepContext = previousAsyncStepContext
         ctx.spawnAsyncStepContext = previousAsyncStepContext
           ? previousAsyncStepContext.spawnAsyncStepContext

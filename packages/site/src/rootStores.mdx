@@ -68,7 +68,7 @@ class UserPreferences extends Model<{ theme: Theme }> {
 
   @modelAction
   setTheme(theme: Theme) {
-    this.data.thee = theme
+    this.$.thee = theme
   }
 }
 ```
@@ -80,7 +80,7 @@ class UserPreferences extends Model<{ theme: Theme }> {
 class RootStore extends Model<{ userPreferences: UserPreferences }> {
   @modelAction
   setUserPreferenes(userPreferences: UserPreferences) {
-    this.data.userPreferences = userPreferences
+    this.$.userPreferences = userPreferences
   }
 }
 ```
@@ -112,7 +112,7 @@ Now we would like to have a form which will be able to edit a copy of the curren
 
 ```ts
 // we make a clone of the current preferences
-const formPreferences = clone(myRootStore.data.userPreferences)
+const formPreferences = clone(myRootStore.$.userPreferences)
 // since the clone is outside the root store it WON'T be auto saved
 
 // the form eventually makes changes...

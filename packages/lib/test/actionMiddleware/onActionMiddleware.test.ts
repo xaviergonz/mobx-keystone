@@ -22,8 +22,8 @@ export class P2 extends Model<{ y: number }> {
 
   @modelAction
   addY = (n: number) => {
-    this.data.y += n
-    return this.data.y
+    this.$.y += n
+    return this.$.y
   }
 }
 
@@ -36,8 +36,8 @@ export class P extends Model<{ p2: P2; x: number }> {
 
   @modelAction
   addX(n: number, _unserializable?: any) {
-    this.data.x += n
-    return this.data.x
+    this.$.x += n
+    return this.$.x
   }
 
   @modelAction
@@ -46,7 +46,7 @@ export class P extends Model<{ p2: P2; x: number }> {
   @modelAction
   addXY(n1: number, n2: number) {
     this.addX(n1)
-    this.data.p2.addY(n2)
+    this.$.p2.addY(n2)
     return n1 + n2
   }
 }
@@ -96,21 +96,21 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P",
-            },
-            "data": Object {
+            "$": Object {
               "p2": P2 {
+                "$": Object {
+                  "y": 0,
+                },
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
                   "type": "P2",
                 },
-                "data": Object {
-                  "y": 0,
-                },
               },
               "x": 1,
+            },
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P",
             },
           },
           "type": "sync",
@@ -121,8 +121,8 @@ test("onActionMiddleware", () => {
 
   // action on the child
   reset()
-  p1.data.p2.addY(2)
-  p2.data.p2.addY(2)
+  p1.$.p2.addY(2)
+  p2.$.p2.addY(2)
   expect(events).toMatchInlineSnapshot(`
     Array [
       Array [
@@ -133,7 +133,7 @@ test("onActionMiddleware", () => {
           ],
           "targetId": "mockedUuid-1",
           "targetPath": Array [
-            "data",
+            "$",
             "p2",
           ],
         },
@@ -152,12 +152,12 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
+            "$": Object {
+              "y": 2,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
-            },
-            "data": Object {
-              "y": 2,
             },
           },
           "type": "sync",
@@ -198,21 +198,21 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P",
-            },
-            "data": Object {
+            "$": Object {
               "p2": P2 {
+                "$": Object {
+                  "y": 6,
+                },
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
                   "type": "P2",
                 },
-                "data": Object {
-                  "y": 6,
-                },
               },
               "x": 4,
+            },
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P",
             },
           },
           "type": "sync",
@@ -254,21 +254,21 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P",
-            },
-            "data": Object {
+            "$": Object {
               "p2": P2 {
+                "$": Object {
+                  "y": 6,
+                },
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
                   "type": "P2",
                 },
-                "data": Object {
-                  "y": 6,
-                },
               },
               "x": 4,
+            },
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P",
             },
           },
           "type": "sync",
@@ -325,21 +325,21 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P",
-            },
-            "data": Object {
+            "$": Object {
               "p2": P2 {
+                "$": Object {
+                  "y": 6,
+                },
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
                   "type": "P2",
                 },
-                "data": Object {
-                  "y": 6,
-                },
               },
               "x": 4,
+            },
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P",
             },
           },
           "type": "sync",
@@ -388,21 +388,21 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$$metadata": Object {
-              "id": "mockedUuid-2",
-              "type": "P",
-            },
-            "data": Object {
+            "$": Object {
               "p2": P2 {
+                "$": Object {
+                  "y": 6,
+                },
                 "$$metadata": Object {
                   "id": "mockedUuid-1",
                   "type": "P2",
                 },
-                "data": Object {
-                  "y": 6,
-                },
               },
               "x": 4,
+            },
+            "$$metadata": Object {
+              "id": "mockedUuid-2",
+              "type": "P",
             },
           },
           "type": "sync",
@@ -413,12 +413,12 @@ test("onActionMiddleware", () => {
 
   // applySnapshot
   reset()
-  applySnapshot(p1.data.p2, {
-    ...getSnapshot(p1.data.p2),
+  applySnapshot(p1.$.p2, {
+    ...getSnapshot(p1.$.p2),
     y: 100,
   })
-  applySnapshot(p2.data.p2, {
-    ...getSnapshot(p2.data.p2),
+  applySnapshot(p2.$.p2, {
+    ...getSnapshot(p2.$.p2),
     y: 100,
   })
   expect(events).toMatchInlineSnapshot(`
@@ -437,7 +437,7 @@ test("onActionMiddleware", () => {
           ],
           "targetId": "mockedUuid-1",
           "targetPath": Array [
-            "data",
+            "$",
             "p2",
           ],
         },
@@ -462,12 +462,12 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
+            "$": Object {
+              "y": 100,
+            },
             "$$metadata": Object {
               "id": "mockedUuid-1",
               "type": "P2",
-            },
-            "data": Object {
-              "y": 100,
             },
           },
           "type": "sync",

@@ -21,18 +21,18 @@ export class P2 extends Model<{ y: number }> {
 
   @modelFlow
   *addY(n: number) {
-    this.data.y += n / 2
+    this.$.y += n / 2
     yield delay(50)
-    this.data.y += n / 2
-    return this.data.y
+    this.$.y += n / 2
+    return this.$.y
   }
 
   @modelFlow
   *addY2(n: number) {
-    this.data.y += n / 2
+    this.$.y += n / 2
     yield delay(50)
-    this.data.y += n / 2
-    return this.data.y
+    this.$.y += n / 2
+    return this.$.y
   }
 }
 
@@ -45,19 +45,19 @@ export class P extends Model<{ p2: P2; x: number }> {
 
   @modelFlow
   *addX(n: number) {
-    this.data.x += n / 2
+    this.$.x += n / 2
     const r: FlowRet<typeof delay> = yield delay(50)
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
     const r2: FlowRet<typeof delay> = yield delay(40)
     expect(r2).toBe(40) // just to see yields return the right result
-    this.data.x += n / 4
-    return this.data.x
+    this.$.x += n / 4
+    return this.$.x
   }
 
   @modelAction
   addXSync(n: number) {
-    this.data.x += n
+    this.$.x += n
     return n
   }
 
@@ -67,13 +67,13 @@ export class P extends Model<{ p2: P2; x: number }> {
     const r: FlowRet<typeof this.addX> = yield this.addX(n1)
     expect(typeof r).toBe("number")
     yield delay(50)
-    yield this.data.p2.addY(n2)
+    yield this.$.p2.addY(n2)
     return n1 + n2
   };
 
   @modelFlow
   *throwFlow(n: number) {
-    this.data.x += n
+    this.$.x += n
     yield delay(50)
     throw new Error("flow failed")
   }
@@ -159,7 +159,7 @@ test("actionTrackingMiddleware - flow", async () => {
   reset()
   const ret: FlowRet<typeof p.addX> = (await p.addX(2)) as any
   expect(ret).toBe(2)
-  expect(p.data.x).toBe(2)
+  expect(p.$.x).toBe(2)
   expect(getSnapshot(p).x).toBe(2)
 
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
@@ -189,8 +189,8 @@ test("actionTrackingMiddleware - flow", async () => {
   reset()
   const ret2: FlowRet<typeof p.addXY> = (await p.addXY(4, 4)) as any
   expect(ret2).toBe(8 + 1000) // +1000 because of the return value override
-  expect(p.data.x).toBe(6)
-  expect(p.data.p2.data.y).toBe(4)
+  expect(p.$.x).toBe(6)
+  expect(p.$.p2.$.y).toBe(4)
 
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
     Array [
@@ -258,14 +258,14 @@ test("actionTrackingMiddleware - flow", async () => {
 
   // check rejection
   reset()
-  const oldX = p.data.x
+  const oldX = p.$.x
   try {
     await p.throwFlow(10)
     fail("flow must throw")
   } catch (err) {
     expect(err.message).toBe("flow failed")
   } finally {
-    expect(p.data.x).toBe(oldX + 10)
+    expect(p.$.x).toBe(oldX + 10)
   }
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
             Array [
@@ -286,10 +286,10 @@ test("actionTrackingMiddleware - flow", async () => {
 
   // overriding flow start
   reset()
-  const oldY = p.data.p2.data.y
-  const retOverrideStart = await p.data.p2.addY2(10)
+  const oldY = p.$.p2.$.y
+  const retOverrideStart = await p.$.p2.addY2(10)
   await delay(100) // just to make sure the promise didn't change data on its own
-  expect(p.data.p2.data.y).toBe(oldY)
+  expect(p.$.p2.$.y).toBe(oldY)
   expect(retOverrideStart).toBe(-1000)
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
             Array [

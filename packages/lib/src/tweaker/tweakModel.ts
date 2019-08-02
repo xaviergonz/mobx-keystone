@@ -10,7 +10,7 @@ export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined)
   setParent(value, parentPath)
 
   // nothing to do for models, data is already proxified and its parent is set
-  // for snapshots we will use its "data" object snapshot directly
+  // for snapshots we will use its "$" object snapshot directly
 
   return value
 }

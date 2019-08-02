@@ -1,7 +1,13 @@
-import { DeepReadonly } from "ts-essentials"
+import { O } from "ts-toolbelt"
 import { SnapshotInOfFrozen } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
+
+type DeepReadonly<T> = T extends object
+  ? O.Readonly<T, keyof T, "deep"> extends infer R
+    ? R
+    : never
+  : T
 
 /**
  * @ignore
@@ -18,7 +24,7 @@ export class Frozen<T> {
   /**
    * Frozen data, deeply immutable.
    */
-  readonly data: DeepReadonly<T>
+  readonly $: DeepReadonly<T>
 
   /**
    * Creates an instance of Frozen.
@@ -31,10 +37,10 @@ export class Frozen<T> {
       checkDataIsSerializableAndFreeze(dataToFreeze)
     }
 
-    this.data = dataToFreeze as DeepReadonly<T>
+    this.$ = dataToFreeze as DeepReadonly<T>
 
     if (inDevMode()) {
-      Object.freeze(this.data)
+      Object.freeze(this.$)
     }
 
     tweak(this, undefined)

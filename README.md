@@ -3,8 +3,8 @@
 _A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more_
 
 ![npm](https://img.shields.io/npm/v/mobx-keystone.svg?style=flat-square&logo=npm)
-![license](https://img.shields.io/npm/l/mobx-data-store.svg?style=flat-square)
-![types](https://img.shields.io/npm/types/mobx-data-store.svg?style=flat-square&logo=typescript)
+![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=flat-square)
+![types](https://img.shields.io/npm/types/mobx-keystone.svg?style=flat-square&logo=typescript)
 
 ![CircleCI](https://img.shields.io/circleci/build/github/xaviergonz/mobx-keystone.svg?style=flat-square&logo=circleci)
 ![Coveralls github](https://img.shields.io/coveralls/github/xaviergonz/mobx-keystone.svg?style=flat-square&logo=coveralls)
@@ -54,7 +54,7 @@ This library requires a more or less modern Javascript environment to work, name
 
 In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
 
-If you are using Typescript, then version >= 3.2.4 is recommended, though it _might_ work with older versions.
+If you are using Typescript, then version >= 3.5.3 is recommended, though it _might_ work with older versions.
 
 ## Installation
 

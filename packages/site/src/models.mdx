@@ -35,16 +35,16 @@ export class Todo extends Model<{ text: string; done: boolean }> {
   }
 
   // the modelAction decorator marks the function as a model action, giving it access
-  // to modify any model data (inside `this.data`) and other superpowers such as action
+  // to modify any model data (inside `this.$`) and other superpowers such as action
   // middlewares, replication, etc.
   @modelAction
   setDone(done: boolean) {
-    this.data.done = done
+    this.$.done = done
   }
 
   @modelAction
   setText(text: string) {
-    this.data.text = text
+    this.$.text = text
   }
 }
 ```
@@ -55,7 +55,7 @@ The rules that need to be followed to declare a model are:
 
 - Models have to be decorated with `@model` and require a unique across-application ID for the class type.
 - They have to extend `Model`, which in Typescript require the type of the data that will become observable / snapshottable / patcheable.
-- This data (that is observable and part of the snapshot) can be accessed / changed through `this.data`.
+- This data (that is observable and part of the snapshot) can be accessed / changed through `this.$`.
 - Model actions need to be used in order to be able to change such data.
 - Never ever declare your own constructor, there are life-cycle events for that (more on that later).
 
@@ -141,7 +141,7 @@ class BookStore extends Model<{ books: Book[] }> {
     // we can optionally use FlowRet to cast the return value to the proper type
     const myBooks: FlowRet<typeof myBackendClient.getBooks> = yield myBackendClient.getBooks(token)
 
-    this.data.books = myBooks
+    this.$.books = myBooks
   }
 }
 
@@ -164,8 +164,8 @@ function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY)
 
     @modelAction
     setXY(x: TX, y: TY) {
-      this.data.x = x
-      this.data.y = y
+      this.$.x = x
+      this.$.y = y
     }
   }
 

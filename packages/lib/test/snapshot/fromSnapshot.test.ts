@@ -23,33 +23,33 @@ test("fromSnapshot", () => {
 
   expect(p).toMatchInlineSnapshot(`
     P {
-      "$$metadata": Object {
-        "id": "P-id",
-        "type": "P",
-      },
-      "boundNonAction": [Function],
-      "data": Object {
+      "$": Object {
         "arr": Array [
           1,
           2,
           3,
         ],
         "p2": P2 {
+          "$": Object {
+            "y": 12,
+          },
           "$$metadata": Object {
             "id": "P2-id",
             "type": "P2",
           },
-          "data": Object {
-            "y": 12,
-          },
         },
         "x": 5,
       },
+      "$$metadata": Object {
+        "id": "P-id",
+        "type": "P",
+      },
+      "boundNonAction": [Function],
     }
   `)
 
   expect(isObservable(p)).toBeTruthy()
-  expect(isObservable(p.data.p2!.data)).toBeTruthy()
-  expect(p.data.p2 instanceof P2).toBeTruthy()
-  expect(isObservable(p.data.arr)).toBeTruthy()
+  expect(isObservable(p.$.p2!.$)).toBeTruthy()
+  expect(p.$.p2 instanceof P2).toBeTruthy()
+  expect(isObservable(p.$.arr)).toBeTruthy()
 })

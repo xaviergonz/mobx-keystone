@@ -106,17 +106,17 @@ Array [
     Object {
       "args": Array [
         M2 {
+          "$": Object {
+            "a": "setA",
+          },
           "$$metadata": Object {
             "id": "mockedUuid-16",
             "type": "SubModel",
           },
-          "data": Object {
-            "a": "setA",
-          },
         },
       ],
       "path": Array [],
-      "type": "[/] addToArray({\\"$$metadata\\":{\\"type\\":\\"SubModel\\",\\"id\\":\\"mockedUuid-16\\"},\\"data\\":{\\"...) (id 0)",
+      "type": "[/] addToArray({\\"$$metadata\\":{\\"type\\":\\"SubModel\\",\\"id\\":\\"mockedUuid-16\\"},\\"$\\":{\\"a\\":...) (id 0)",
     },
     Object {
       "$$metadata": Object {
@@ -140,11 +140,11 @@ Array [
     Object {
       "args": Array [],
       "path": Array [
-        "data",
+        "$",
         "array",
         0,
       ],
-      "type": "[/data/array/0] setA() (id 1)",
+      "type": "[/$/array/0] setA() (id 1)",
     },
     Object {
       "$$metadata": Object {

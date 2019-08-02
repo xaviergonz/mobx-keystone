@@ -64,7 +64,7 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _clearUndo() {
     withoutUndo(() => {
-      this.data.undoEvents.length = 0
+      this.$.undoEvents.length = 0
     })
   }
 
@@ -74,7 +74,7 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _clearRedo() {
     withoutUndo(() => {
-      this.data.redoEvents.length = 0
+      this.$.redoEvents.length = 0
     })
   }
 
@@ -84,8 +84,8 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _undo() {
     withoutUndo(() => {
-      const event = this.data.undoEvents.pop()!
-      this.data.redoEvents.push(event)
+      const event = this.$.undoEvents.pop()!
+      this.$.redoEvents.push(event)
     })
   }
 
@@ -95,8 +95,8 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _redo() {
     withoutUndo(() => {
-      const event = this.data.redoEvents.pop()!
-      this.data.undoEvents.push(event)
+      const event = this.$.redoEvents.pop()!
+      this.$.undoEvents.push(event)
     })
   }
 
@@ -106,9 +106,9 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _addUndo(event: UndoEvent) {
     withoutUndo(() => {
-      this.data.undoEvents.push(event)
+      this.$.undoEvents.push(event)
       // once an undo event is added redo queue is no longer valid
-      this.data.redoEvents.length = 0
+      this.$.redoEvents.length = 0
     })
   }
 }
@@ -128,7 +128,7 @@ export class UndoManager {
    */
   @computed
   get undoQueue(): ReadonlyArray<UndoEvent> {
-    return this.store.data.undoEvents
+    return this.store.$.undoEvents
   }
 
   /**
@@ -137,7 +137,7 @@ export class UndoManager {
    */
   @computed
   get redoQueue(): ReadonlyArray<UndoEvent> {
-    return this.store.data.redoEvents
+    return this.store.$.redoEvents
   }
 
   /**

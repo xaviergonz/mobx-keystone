@@ -41,9 +41,9 @@ class P2 extends P {
 test("subclassing works", () => {
   const p2 = newModel(P2, {})
 
-  expect(p2.data.x).toBe(15)
-  expect(p2.data.y).toBe(20)
-  expect(p2.data.z).toBe(30)
+  expect(p2.$.x).toBe(15)
+  expect(p2.$.y).toBe(20)
+  expect(p2.$.z).toBe(30)
 
   expect(p2.pMethod()).toBe("p")
   expect(p2.p2Method()).toBe("p2")
