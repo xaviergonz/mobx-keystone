@@ -1,13 +1,16 @@
 import { SnapshotInOfModel } from "../snapshot/SnapshotOf"
 import { failure, isPlainObject } from "../utils"
 import { modelMetadataKey } from "./metadata"
-import { AnyModel, Model, ModelClass } from "./Model"
+import { AnyModel, BaseModel, ModelClass } from "./Model"
 
 /**
- * @ignore
+ * Checks if an object is a model instance.
+ *
+ * @param model
+ * @returns
  */
 export function isModel(model: any): model is AnyModel {
-  return model instanceof Model
+  return model instanceof BaseModel
 }
 
 /**
@@ -36,7 +39,7 @@ export function isModelClass(modelClass: any): modelClass is ModelClass<AnyModel
     return false
   }
 
-  if (modelClass !== Model && !(modelClass.prototype instanceof Model)) {
+  if (modelClass !== BaseModel && !(modelClass.prototype instanceof BaseModel)) {
     return false
   }
 
@@ -51,7 +54,7 @@ export function assertIsModelClass(modelClass: ModelClass<AnyModel>, argName: st
     throw failure(`${argName} must be a class`)
   }
 
-  if (modelClass !== Model && !(modelClass.prototype instanceof Model)) {
+  if (modelClass !== BaseModel && !(modelClass.prototype instanceof BaseModel)) {
     throw failure(`${argName} must extend Model`)
   }
 }
@@ -78,7 +81,11 @@ export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey
   }
 
   // check target is a model object or extended class
-  if (!(target instanceof Model) && target !== Model && !(target.prototype instanceof Model)) {
+  if (
+    !(target instanceof BaseModel) &&
+    target !== BaseModel &&
+    !(target.prototype instanceof BaseModel)
+  ) {
     throw failure(errMessage)
   }
 }

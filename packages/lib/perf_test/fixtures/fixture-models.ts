@@ -3,7 +3,7 @@ import { Frozen, Model, model } from "../../dist"
 
 // tiny
 @model("Treasure")
-export class Treasure extends Model<{ trapped: boolean; gold: number }> {
+export class Treasure extends Model<{ trapped: boolean; gold: number }>() {
   defaultData = {
     gold: 0,
   }
@@ -20,7 +20,7 @@ export class Hero extends Model<{
   description: string
   level: number
   role: HeroRolesType
-}> {
+}>() {
   defaultData = {
     level: 1,
   }
@@ -55,7 +55,7 @@ export class Monster extends Model<{
   fearsMages: boolean
   fearsThieves: boolean
   fearsProgrammers: boolean
-}> {
+}>() {
   defaultData = {
     treasures: [],
     eatenHeroes: [],

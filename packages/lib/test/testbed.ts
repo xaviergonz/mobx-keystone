@@ -2,14 +2,14 @@ import { computed } from "mobx"
 import { model, Model, modelAction, newModel } from "../src"
 
 @model("P2")
-export class P2 extends Model<{ y: number }> {
+export class P2 extends Model<{ y: number }>() {
   defaultData = {
     y: 10,
   }
 }
 
 @model("P")
-export class P extends Model<{ x: number; arr: number[]; p2?: P2 }> {
+export class P extends Model<{ x: number; arr: number[]; p2?: P2 }>() {
   defaultData = {
     x: 5,
     arr: [],
@@ -17,11 +17,11 @@ export class P extends Model<{ x: number; arr: number[]; p2?: P2 }> {
 
   @computed
   get xx() {
-    return this.$.x
+    return this.x
   }
 
   get xx2() {
-    return this.$.x
+    return this.x
   }
 
   unboundNonAction(): void {}

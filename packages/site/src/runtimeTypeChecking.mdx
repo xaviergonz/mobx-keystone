@@ -186,9 +186,12 @@ const numberMapType = types.objectMap(types.number)
 ### `types.model<M>(modelClass)`
 
 A type that represents a model. The type referenced in the model decorator will be used for type checking.
+If you use recursive / cross referencing models and get typescript errors then consider using the lambda parameter instead.
 
 ```ts
 const someModelType = types.model<SomeModel>(SomeModel)
+// or for recursive models
+const someModelType = types.model<SomeModel>(() => SomeModel)
 ```
 
 ### `types.unchecked<T>()`

@@ -1,4 +1,4 @@
-import { fromSnapshot } from "../../dist"
+import { fromSnapshot } from "../dist"
 import { createHeros, createMonsters, createTreasure, rando } from "./fixtures/fixture-data"
 import { Hero, Monster, Treasure } from "./fixtures/fixture-models"
 

@@ -31,7 +31,7 @@ test("waitAsyncReject helper works", async () => {
 })
 
 @model("SubModel")
-class M2 extends Model<{ a: string }> {
+class M2 extends Model<{ a: string }>() {
   defaultData = {
     a: "",
   }
@@ -43,7 +43,7 @@ class M2 extends Model<{ a: string }> {
 }
 
 @model("TestModel")
-class M extends Model<{ x: string; y: string; array: M2[] }> {
+class M extends Model<{ x: string; y: string; array: M2[] }>() {
   defaultData = {
     x: "uninitializedX",
     y: "",
@@ -56,7 +56,7 @@ class M extends Model<{ x: string; y: string; array: M2[] }> {
 
   @modelAction
   addToArray(val: M2) {
-    this.$.array.push(val)
+    this.array.push(val)
   }
 
   @modelAction
@@ -244,7 +244,7 @@ function addStandardTests() {
 
   test('m.addtoArray({ a: "otherA" }), m.array[0].setA()', () => {
     m.addToArray(newModel(M2, { a: "otherA" }))
-    m.$.array[0]!.setA()
+    m.array[0]!.setA()
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 

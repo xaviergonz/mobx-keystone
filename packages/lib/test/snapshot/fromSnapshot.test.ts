@@ -49,7 +49,7 @@ test("fromSnapshot", () => {
   `)
 
   expect(isObservable(p)).toBeTruthy()
-  expect(isObservable(p.$.p2!.$)).toBeTruthy()
-  expect(p.$.p2 instanceof P2).toBeTruthy()
-  expect(isObservable(p.$.arr)).toBeTruthy()
+  expect(isObservable(p.p2!.$)).toBeTruthy()
+  expect(p.p2 instanceof P2).toBeTruthy()
+  expect(isObservable(p.arr)).toBeTruthy()
 })

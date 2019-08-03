@@ -1,9 +1,20 @@
-import { actionCallToReduxAction, asReduxStore, getSnapshot, model, Model, modelAction, newModel, ReduxAction, ReduxMiddleware, SnapshotOutOfModel } from "../../src";
-import "../commonSetup";
-import { autoDispose } from "../utils";
+import {
+  actionCallToReduxAction,
+  asReduxStore,
+  getSnapshot,
+  model,
+  Model,
+  modelAction,
+  newModel,
+  ReduxAction,
+  ReduxMiddleware,
+  SnapshotOutOfModel,
+} from "../../src"
+import "../commonSetup"
+import { autoDispose } from "../utils"
 
 @model("P")
-export class P extends Model<{ x: number }> {
+export class P extends Model<{ x: number }>() {
   defaultData = {
     x: 0,
   }
@@ -11,7 +22,7 @@ export class P extends Model<{ x: number }> {
   @modelAction
   addX(n: number) {
     this.$.x += n
-    return this.$.x
+    return this.x
   }
 }
 
@@ -41,7 +52,7 @@ describe("asReduxStore", () => {
     const dispatched = store.dispatch(action)
     expect(dispatched).toBe(action)
 
-    expect(p.$.x).toBe(5)
+    expect(p.x).toBe(5)
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
@@ -111,7 +122,7 @@ describe("asReduxStore", () => {
     expect(dispatched).not.toBe(action)
 
     // first mware multiplies, second adds
-    expect(p.$.x).toBe(5 * 2 + 2)
+    expect(p.x).toBe(5 * 2 + 2)
 
     // 11200 because 12 -> 12 + 100 = 112 -> 112 * 100 = 11200
     expect(dispatched).toMatchInlineSnapshot(`

@@ -19,7 +19,7 @@ test("onPatches and applyPatches", () => {
   const p2Patches: Patch[][] = []
   const p2InvPatches: Patch[][] = []
   autoDispose(
-    onPatches(p.$.p2!, (ptchs, iptchs) => {
+    onPatches(p.p2!, (ptchs, iptchs) => {
       p2Patches.push(ptchs)
       p2InvPatches.push(iptchs)
     })
@@ -42,9 +42,9 @@ test("onPatches and applyPatches", () => {
   // no changes should result in no patches
   reset()
   runUnprotected(() => {
-    p.$.x = p.$.x
-    p.$.arr[0] = p.$.arr[0]
-    p.$.p2!.$.y = p.$.p2!.$.y
+    p.$.x = p.x
+    p.arr[0] = p.arr[0]
+    p.p2!.$.y = p.p2!.y
   })
 
   expect(pPatches).toMatchInlineSnapshot(`Array []`)
@@ -55,7 +55,7 @@ test("onPatches and applyPatches", () => {
   reset()
   runUnprotected(() => {
     p.$.x++
-    p.$.p2!.$.y++
+    p.p2!.$.y++
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
@@ -233,7 +233,7 @@ test("onPatches and applyPatches", () => {
   // splice items (less items)
   reset()
   runUnprotected(() => {
-    p.$.arr.splice(1, 2, 5) // [1, 5]
+    p.arr.splice(1, 2, 5) // [1, 5]
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
@@ -291,7 +291,7 @@ test("onPatches and applyPatches", () => {
   // splice items (more items)
   reset()
   runUnprotected(() => {
-    p.$.arr.splice(1, 2, 5, 6, 7) // [1, 5, 6, 7]
+    p.arr.splice(1, 2, 5, 6, 7) // [1, 5, 6, 7]
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
@@ -365,7 +365,7 @@ test("onPatches and applyPatches", () => {
   // splice items (same items)
   reset()
   runUnprotected(() => {
-    p.$.arr.splice(1, 2, 5, 3) // [1, 5, 3]
+    p.arr.splice(1, 2, 5, 3) // [1, 5, 3]
   })
 
   expect(pPatches).toMatchInlineSnapshot(`

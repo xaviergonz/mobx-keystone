@@ -15,14 +15,14 @@ import {
 import "../commonSetup"
 
 @model("P2")
-export class P2 extends Model<{ y: number }> {
+export class P2 extends Model<{ y: number }>() {
   defaultData = {
     y: 10,
   }
 }
 
 @model("P")
-export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }> {
+export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }>() {
   defaultData = {
     x: 5,
     arr: [],
@@ -56,133 +56,133 @@ test("parent", () => {
   expect(isChildOfParent(p, p.$)).toBeFalsy()
   expect(isParentOfChild(p.$, p)).toBeFalsy()
 
-  expect(isChildOfParent(p.$.p2!, p)).toBeTruthy()
-  expect(isParentOfChild(p, p.$.p2!)).toBeTruthy()
+  expect(isChildOfParent(p.p2!, p)).toBeTruthy()
+  expect(isParentOfChild(p, p.p2!)).toBeTruthy()
 
-  expect(isChildOfParent(p, p.$.p2!)).toBeFalsy()
-  expect(isParentOfChild(p.$.p2!, p)).toBeFalsy()
+  expect(isChildOfParent(p, p.p2!)).toBeFalsy()
+  expect(isParentOfChild(p.p2!, p)).toBeFalsy()
 
-  expect(findParent(p.$.p2!, parent => parent instanceof P)).toBe(p)
-  expect(findParent(p.$.p2!, parent => parent instanceof P2)).toBe(undefined)
+  expect(findParent(p.p2!, parent => parent instanceof P)).toBe(p)
+  expect(findParent(p.p2!, parent => parent instanceof P2)).toBe(undefined)
 
   expect(getParentPath(p)).toBeUndefined()
   expect(getParentPath(p.$)).toEqual({ parent: p, path: "$" })
-  expect(() => getParentPath(p.$.x as any)).toThrow("must be a tree node") // not an object
-  expect(getParentPath(p.$.arr)).toEqual({ parent: p.$, path: "arr" })
-  expect(getParentPath(p.$.p2!)).toEqual({ parent: p.$, path: "p2" })
-  expect(getParentPath(p.$.p2!.$)).toEqual({
-    parent: p.$.p2,
+  expect(() => getParentPath(p.x as any)).toThrow("must be a tree node") // not an object
+  expect(getParentPath(p.arr)).toEqual({ parent: p.$, path: "arr" })
+  expect(getParentPath(p.p2!)).toEqual({ parent: p.$, path: "p2" })
+  expect(getParentPath(p.p2!.$)).toEqual({
+    parent: p.p2,
     path: "$",
   })
-  p.$.arr.forEach((p2, i) => {
-    expect(getParentPath(p2)).toStrictEqual({ parent: p.$.arr, path: i })
+  p.arr.forEach((p2, i) => {
+    expect(getParentPath(p2)).toStrictEqual({ parent: p.arr, path: i })
   })
 
-  expect(getRootPath(p.$.arr[0].$)).toEqual({
+  expect(getRootPath(p.arr[0].$)).toEqual({
     root: p,
     path: ["$", "arr", 0, "$"],
   })
 
   expect(Array.from(getChildrenObjects(p).values())).toEqual([p.$])
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr, p.$.p2])
-  expect(Array.from(getChildrenObjects(p.$.arr).values())).toEqual(p.$.arr)
-  expect(Array.from(getChildrenObjects(p.$.p2!).values())).toEqual([p.$.p2!.$])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
+  expect(Array.from(getChildrenObjects(p.arr).values())).toEqual(p.arr)
+  expect(Array.from(getChildrenObjects(p.p2!).values())).toEqual([p.p2!.$])
 
-  const p2 = p.$.p2!
+  const p2 = p.p2!
 
   // delete prop
   runUnprotected(() => {
     delete p.$.p2
   })
-  expect(p.$.p2).toBeUndefined()
+  expect(p.p2).toBeUndefined()
   expect("p2" in p.$).toBeFalsy()
   expect(getParentPath(p2)).toBeUndefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   // readd prop
   runUnprotected(() => {
     p.$.p2 = p2
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr, p.$.p2])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
 
   // reassign prop
   runUnprotected(() => {
     p.$.p2 = undefined
   })
   expect(getParentPath(p2)).toBeUndefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   // readd prop
   runUnprotected(() => {
     p.$.p2 = p2
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr, p.$.p2])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
 
   // detach
   runUnprotected(() => {
     detach(p2)
   })
   expect(getParentPath(p2)).toBeUndefined()
-  expect(p.$.p2).toBeUndefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
+  expect(p.p2).toBeUndefined()
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   // readd prop
   runUnprotected(() => {
     p.$.p2 = p2
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr, p.$.p2])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
 
   // detach once more
   runUnprotected(() => {
     detach(p2)
   })
 
-  const p2arr = [p.$.arr[0], p.$.arr[1], p.$.arr[2]]
+  const p2arr = [p.arr[0], p.arr[1], p.arr[2]]
 
   // pop
   const popped = runUnprotected(() => {
-    return p.$.arr.pop()!
+    return p.arr.pop()!
   })
-  expect(p.$.arr.length).toBe(2)
+  expect(p.arr.length).toBe(2)
   expect(popped).toBe(p2arr[2])
   expect(getParentPath(popped)).toBeUndefined()
-  for (let i = 0; i < p.$.arr.length; i++) {
-    expect(getParentPath(p.$.arr[i])!.path).toBe(i)
+  for (let i = 0; i < p.arr.length; i++) {
+    expect(getParentPath(p.arr[i])!.path).toBe(i)
   }
 
   // push back
   runUnprotected(() => {
-    p.$.arr.push(popped)
+    p.arr.push(popped)
   })
-  expect(p.$.arr.length).toBe(3)
+  expect(p.arr.length).toBe(3)
   expect(getParentPath(popped)).toBeDefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
-  for (let i = 0; i < p.$.arr.length; i++) {
-    expect(getParentPath(p.$.arr[i])!.path).toBe(i)
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
+  for (let i = 0; i < p.arr.length; i++) {
+    expect(getParentPath(p.arr[i])!.path).toBe(i)
   }
 
   // splice
   const spliced = runUnprotected(() => {
-    return p.$.arr.splice(1, 1)
+    return p.arr.splice(1, 1)
   })[0]
-  expect(p.$.arr.length).toBe(2)
+  expect(p.arr.length).toBe(2)
   expect(spliced).toBe(p2arr[1])
   expect(getParentPath(spliced)).toBeUndefined()
-  for (let i = 0; i < p.$.arr.length; i++) {
-    expect(getParentPath(p.$.arr[i])!.path).toBe(i)
+  for (let i = 0; i < p.arr.length; i++) {
+    expect(getParentPath(p.arr[i])!.path).toBe(i)
   }
 
   // splice back
   runUnprotected(() => {
-    return p.$.arr.splice(1, 0, spliced)
+    return p.arr.splice(1, 0, spliced)
   })
-  expect(p.$.arr.length).toBe(3)
+  expect(p.arr.length).toBe(3)
   expect(getParentPath(spliced)).toBeDefined()
-  for (let i = 0; i < p.$.arr.length; i++) {
-    expect(getParentPath(p.$.arr[i])!.path).toBe(i)
+  for (let i = 0; i < p.arr.length; i++) {
+    expect(getParentPath(p.arr[i])!.path).toBe(i)
   }
 
   // delete array prop
@@ -199,52 +199,52 @@ test("parent", () => {
 
   // assign index
   runUnprotected(() => {
-    p.$.arr[2] = null as any
+    p.arr[2] = null as any
   })
   expect(getParentPath(p2arr[0])).toBeDefined()
   expect(getParentPath(p2arr[1])).toBeDefined()
   expect(getParentPath(p2arr[2])).toBeUndefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   runUnprotected(() => {
-    p.$.arr[2] = p2arr[2]
+    p.arr[2] = p2arr[2]
   })
   expect(getParentPath(p2arr[0])).toBeDefined()
   expect(getParentPath(p2arr[1])).toBeDefined()
   expect(getParentPath(p2arr[2])).toBeDefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   // detach
   runUnprotected(() => {
     detach(p2arr[1])
   })
-  expect(p.$.arr).toEqual([p2arr[0], p2arr[2]])
+  expect(p.arr).toEqual([p2arr[0], p2arr[2]])
   expect(getParentPath(p2arr[0])).toBeDefined()
   expect(getParentPath(p2arr[1])).toBeUndefined()
   expect(getParentPath(p2arr[2])).toBeDefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   // set length
   runUnprotected(() => {
-    p.$.arr.length = 1
+    p.arr.length = 1
   })
   expect(getParentPath(p2arr[0])).toBeDefined()
   expect(getParentPath(p2arr[1])).toBeUndefined()
   expect(getParentPath(p2arr[2])).toBeUndefined()
-  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.$.arr])
+  expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   // adding to the array something that is already attached should fail
-  const oldArrayLength = p.$.arr.length
+  const oldArrayLength = p.arr.length
   expect(() => {
     runUnprotected(() => {
-      p.$.arr.push(p.$.arr[0])
+      p.arr.push(p.arr[0])
     })
   }).toThrow("an object cannot be assigned a new parent when it already has one")
-  expect(p.$.arr.length).toBe(oldArrayLength)
+  expect(p.arr.length).toBe(oldArrayLength)
 
   expect(() => {
     runUnprotected(() => {
-      ;(p.$ as any).z = p.$.arr[0]
+      ;(p.$ as any).z = p.arr[0]
     })
   }).toThrow("an object cannot be assigned a new parent when it already has one")
   expect((p.$ as any).z).toBe(undefined)

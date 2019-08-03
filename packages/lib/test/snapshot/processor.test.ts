@@ -2,7 +2,7 @@ import { fromSnapshot, model, Model, modelSnapshotInWithMetadata } from "../../s
 import "../commonSetup"
 
 @model("P3")
-export class P3 extends Model<{ arr: number[] }> {
+export class P3 extends Model<{ arr: number[] }>() {
   defaultData = {
     arr: [],
   }
@@ -25,6 +25,6 @@ test("snapshot processor", () => {
     )
   )
 
-  expect(p.$.arr).toStrictEqual([30, 40, 50])
+  expect(p.arr).toStrictEqual([30, 40, 50])
   expect(p.modelId).toBe("P3-id")
 })

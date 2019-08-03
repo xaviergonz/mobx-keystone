@@ -13,7 +13,7 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-export class P2 extends Model<{ y: number }> {
+export class P2 extends Model<{ y: number }>() {
   defaultData = {
     y: 0,
   }
@@ -21,12 +21,12 @@ export class P2 extends Model<{ y: number }> {
   @modelAction
   addY = (n: number) => {
     this.$.y += n
-    return this.$.y
+    return this.y
   }
 }
 
 @model("P")
-export class P extends Model<{ p2: P2; x: number; arr: number[]; obj: { [k: string]: number } }> {
+export class P extends Model<{ p2: P2; x: number; arr: number[]; obj: { [k: string]: number } }>() {
   defaultData = {
     p2: newModel(P2, {}),
     x: 0,
@@ -37,20 +37,20 @@ export class P extends Model<{ p2: P2; x: number; arr: number[]; obj: { [k: stri
   @modelAction
   addX(n: number) {
     this.$.x += n
-    return this.$.x
+    return this.x
   }
 
   @modelAction
   addXY(n1: number, n2: number) {
     this.addX(n1)
-    this.$.p2.addY(n2)
+    this.p2.addY(n2)
     return n1 + n2
   }
 
   @modelAction
   addNumberToArrAndObj(n: number) {
-    this.$.arr.push(n)
-    this.$.obj["" + n] = n
+    this.arr.push(n)
+    this.obj["" + n] = n
   }
 }
 
@@ -154,7 +154,7 @@ test("action tracking", () => {
   `)
   events.length = 0
 
-  const resultY = p.$.p2.addY(2)
+  const resultY = p.p2.addY(2)
   expect(resultY).toBe(2)
   expect(events).toMatchInlineSnapshot(`
     Array [
@@ -650,9 +650,9 @@ test("action cancel with error", () => {
     })
   )
 
-  const x = p.$.x
+  const x = p.x
   expect(() => p.addX(1)).toThrow(err)
-  expect(p.$.x).toBe(x)
+  expect(p.x).toBe(x)
 })
 
 test("action cancel with new return value", () => {
@@ -668,9 +668,9 @@ test("action cancel with new return value", () => {
     })
   )
 
-  const x = p.$.x
+  const x = p.x
   expect(p.addX(1)).toBe(val)
-  expect(p.$.x).toBe(x)
+  expect(p.x).toBe(x)
 })
 
 test("applyAction", () => {
@@ -686,8 +686,8 @@ test("applyAction", () => {
       args: [10],
     })
     expect(ra).toBe(rb)
-    expect(pa.$.x).toStrictEqual(pb.$.x)
-    expect(pa.$.p2.$.y).toStrictEqual(pb.$.p2.$.y)
+    expect(pa.x).toStrictEqual(pb.x)
+    expect(pa.p2.y).toStrictEqual(pb.p2.y)
   }
 
   {
@@ -699,35 +699,35 @@ test("applyAction", () => {
       args: [1, 2],
     })
     expect(ra).toBe(rb)
-    expect(pa.$.x).toStrictEqual(pb.$.x)
-    expect(pa.$.p2.$.y).toStrictEqual(pb.$.p2.$.y)
+    expect(pa.x).toStrictEqual(pb.x)
+    expect(pa.p2.y).toStrictEqual(pb.p2.y)
   }
 
   {
-    const ra = pa.$.p2.addY(15)
+    const ra = pa.p2.addY(15)
     const rb = applyAction(pb, {
       targetPath: ["$", "p2"],
-      targetId: pb.$.p2.modelId,
+      targetId: pb.p2.modelId,
       actionName: "addY",
       args: [15],
     })
     expect(ra).toBe(rb)
-    expect(pa.$.x).toStrictEqual(pb.$.x)
-    expect(pa.$.p2.$.y).toStrictEqual(pb.$.p2.$.y)
+    expect(pa.x).toStrictEqual(pb.x)
+    expect(pa.p2.y).toStrictEqual(pb.p2.y)
   }
 
   {
-    applySnapshot(pa.$.p2, {
-      ...getSnapshot(pa.$.p2),
+    applySnapshot(pa.p2, {
+      ...getSnapshot(pa.p2),
       y: 100,
     })
     applyAction(pb, {
       targetPath: ["$", "p2"],
-      targetId: pb.$.p2.modelId,
+      targetId: pb.p2.modelId,
       actionName: "$$applySnapshot",
-      args: [{ ...getSnapshot(pb.$.p2), y: 100 }],
+      args: [{ ...getSnapshot(pb.p2), y: 100 }],
     })
-    expect(pa.$.p2.$.y).toStrictEqual(pb.$.p2.$.y)
+    expect(pa.p2.y).toStrictEqual(pb.p2.y)
   }
 })
 
@@ -741,18 +741,18 @@ test("action protection", () => {
   }).toThrow(err)
 
   expect(() => {
-    p.$.p2.$.y = 100
+    p.p2.$.y = 100
   }).toThrow(err)
 
   expect(
     action(() => {
-      p.$.arr.push(100)
+      p.arr.push(100)
     })
   ).toThrow(err)
 
   expect(
     action(() => {
-      p.$.obj["a"] = 100
+      p.obj["a"] = 100
     })
   ).toThrow(err)
 
@@ -760,13 +760,13 @@ test("action protection", () => {
 
   expect(
     action(() => {
-      p.$.arr.splice(0, 1)
+      p.arr.splice(0, 1)
     })
   ).toThrow(err)
 
   expect(
     action(() => {
-      delete p.$.obj["200"]
+      delete p.obj["200"]
     })
   ).toThrow(err)
 })
