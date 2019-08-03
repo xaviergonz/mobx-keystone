@@ -49,7 +49,7 @@ const undoStoreDataType = typesObject(() => ({
  * Do not manipulate directly, other that creating it.
  */
 @model("mobx-keystone/UndoStore", { dataType: undoStoreDataType })
-export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
+export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>>() {
   /**
    * @ignore
    */
@@ -64,7 +64,7 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _clearUndo() {
     withoutUndo(() => {
-      this.$.undoEvents.length = 0
+      this.undoEvents.length = 0
     })
   }
 
@@ -74,7 +74,7 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _clearRedo() {
     withoutUndo(() => {
-      this.$.redoEvents.length = 0
+      this.redoEvents.length = 0
     })
   }
 
@@ -84,8 +84,8 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _undo() {
     withoutUndo(() => {
-      const event = this.$.undoEvents.pop()!
-      this.$.redoEvents.push(event)
+      const event = this.undoEvents.pop()!
+      this.redoEvents.push(event)
     })
   }
 
@@ -95,8 +95,8 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _redo() {
     withoutUndo(() => {
-      const event = this.$.redoEvents.pop()!
-      this.$.undoEvents.push(event)
+      const event = this.redoEvents.pop()!
+      this.undoEvents.push(event)
     })
   }
 
@@ -106,9 +106,9 @@ export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>> {
   @modelAction
   _addUndo(event: UndoEvent) {
     withoutUndo(() => {
-      this.$.undoEvents.push(event)
+      this.undoEvents.push(event)
       // once an undo event is added redo queue is no longer valid
-      this.$.redoEvents.length = 0
+      this.redoEvents.length = 0
     })
   }
 }

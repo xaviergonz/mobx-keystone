@@ -234,7 +234,7 @@ const mType = types.object(() => ({
 }))
 
 @model("M", { dataType: mType })
-class M extends Model<TypeToData<typeof mType>> {
+class M extends Model<TypeToData<typeof mType>>() {
   defaultData = { x: 10 }
 
   @modelAction
@@ -456,11 +456,11 @@ test("cross referenced object", () => {
 
 const mrType = types.object(() => ({
   x: types.number,
-  rec: types.maybe(types.model<MR>(MR)),
+  rec: types.maybe(types.model<MR>(() => MR)),
 }))
 
 @model("MR", { dataType: mrType })
-class MR extends Model<TypeToData<typeof mrType>> {
+class MR extends Model<TypeToData<typeof mrType>>() {
   defaultData = {
     x: 10,
     rec: undefined,
@@ -486,11 +486,11 @@ test("recursive model", () => {
 
 const maType = types.object(() => ({
   x: types.number,
-  b: types.maybe(types.model<MB>(MB)),
+  b: types.maybe(types.model<MB>(() => MB)),
 }))
 
 @model("MA", { dataType: maType })
-class MA extends Model<TypeToData<typeof maType>> {
+class MA extends Model<TypeToData<typeof maType>>() {
   defaultData = {
     x: 10,
     b: undefined,
@@ -508,7 +508,7 @@ const mbType = types.object(() => ({
 }))
 
 @model("MB", { dataType: mbType })
-class MB extends Model<TypeToData<typeof mbType>> {
+class MB extends Model<TypeToData<typeof mbType>>() {
   defaultData = {
     y: 20,
     a: undefined,

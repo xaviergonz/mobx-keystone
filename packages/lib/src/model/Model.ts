@@ -21,7 +21,7 @@ declare const typeSymbol: unique symbol
  *
  * @typeparam Data Data type.
  */
-export abstract class Model<Data extends { [k: string]: any }> {
+export abstract class BaseModel<Data extends { [k: string]: any }> {
   // just to make typing work properly
   [typeSymbol]: Data;
 
@@ -108,10 +108,26 @@ export abstract class Model<Data extends { [k: string]: any }> {
   }
 }
 
+// proxy returned object so data can be accessed through this
+;(BaseModel as any) = new Proxy(BaseModel, {
+  construct(target, args, newTarget) {
+    const obj = Reflect.construct(target, args, newTarget)
+    return new Proxy(obj, {
+      get(target, p, receiver) {
+        if (p === "$" || Reflect.has(target, p)) {
+          return Reflect.get(target, p, receiver)
+        } else {
+          return target.$ ? target.$[p] : undefined
+        }
+      },
+    })
+  },
+})
+
 /**
  * Any kind of model instance.
  */
-export type AnyModel = Model<any>
+export type AnyModel = BaseModel<any>
 
 /**
  * Type of the model class.
@@ -179,4 +195,20 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
       type: modelInfo.name,
     },
   } as any
+}
+
+/**
+ * Base abstract class for models.
+ *
+ * Never use new directly over models, use `newModel` function instead.
+ * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
+ * If you want to make certain data properties as optional then declare their default values in
+ * `defaultData`.
+ *
+ * @typeparam Data Data type.
+ */
+export function Model<Data extends { [k: string]: any }>(): {
+  new (privateSymbol: typeof modelConstructorSymbol): BaseModel<Data> & Readonly<Data>
+} {
+  return BaseModel as any
 }

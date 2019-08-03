@@ -15,7 +15,7 @@ import "../commonSetup"
 import { emulateProdMode } from "../utils"
 
 @model("P")
-class P extends Model<{ frozenStuff?: Frozen<any> }> {}
+class P extends Model<{ frozenStuff?: Frozen<any> }>() {}
 
 describe("frozen", () => {
   function basicTest<T>(name: string, data: T) {

@@ -10,7 +10,7 @@ beforeEach(() => {
 describe("object property", () => {
   let p2data: any
   beforeEach(() => {
-    p2data = p.$.p2!.$
+    p2data = p.p2!.$
   })
 
   test("add", () => {
@@ -63,7 +63,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.$.arr).toStrictEqual([1, 10, 2, 3])
+    expect(p.arr).toStrictEqual([1, 10, 2, 3])
   })
 
   test("remove", () => {
@@ -75,7 +75,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.$.arr).toStrictEqual([1, 3])
+    expect(p.arr).toStrictEqual([1, 3])
   })
 
   test("replace", () => {
@@ -88,7 +88,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.$.arr).toStrictEqual([1, 10, 3])
+    expect(p.arr).toStrictEqual([1, 10, 3])
   })
 })
 
@@ -99,11 +99,11 @@ describe("whole object", () => {
         {
           op: "add",
           path: ["p3"],
-          value: getSnapshot(p.$.p2),
+          value: getSnapshot(p.p2),
         },
       ])
     })
-    expect((p.$ as any).p3).toStrictEqual(p.$.p2!)
+    expect((p.$ as any).p3).toStrictEqual(p.p2!)
   })
 
   test("remove", () => {
@@ -115,11 +115,11 @@ describe("whole object", () => {
         },
       ])
     })
-    expect(p.$.p2).toBeUndefined()
+    expect(p.p2).toBeUndefined()
   })
 
   test("replace (same id)", () => {
-    const oldP2 = p.$.p2!
+    const oldP2 = p.p2!
     runUnprotected(() => {
       applyPatches(p, [
         {
@@ -129,12 +129,12 @@ describe("whole object", () => {
         },
       ])
     })
-    expect(p.$.p2).toBe(oldP2)
-    expect(p.$.p2!.$.y).toBe(20)
+    expect(p.p2).toBe(oldP2)
+    expect(p.p2!.y).toBe(20)
   })
 
   test("replace (different id)", () => {
-    const oldP2 = p.$.p2!
+    const oldP2 = p.p2!
     const oldP2Snapshot = getSnapshot(oldP2)
     runUnprotected(() => {
       applyPatches(p, [
@@ -145,7 +145,7 @@ describe("whole object", () => {
         },
       ])
     })
-    expect(p.$.p2).not.toBe(oldP2)
-    expect(p.$.p2!.$.y).toBe(30)
+    expect(p.p2).not.toBe(oldP2)
+    expect(p.p2!.y).toBe(30)
   })
 })

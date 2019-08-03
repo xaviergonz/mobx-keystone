@@ -1,7 +1,7 @@
 import { getModelDataType } from "../model/getModelDataType"
 import { AnyModel, ModelClass } from "../model/Model"
 import { modelInfoByClass } from "../model/modelInfo"
-import { assertIsModelClass } from "../model/utils"
+import { assertIsModelClass, isModelClass } from "../model/utils"
 import { failure } from "../utils"
 import { IdentityType } from "./schemas"
 import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
@@ -15,6 +15,8 @@ const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
  * Example:
  * ```ts
  * const someModelType = types.model<SomeModel>(SomeModel)
+ * // or for recursive models
+ * const someModelType = types.model<SomeModel>(() => SomeModel)
  * ```
  *
  * @typeparam M Model type.
@@ -23,7 +25,13 @@ const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
  */
 export function typesModel<M = never>(modelClass: object): IdentityType<M> {
   // if we type it any stronger then recursive defs and so on stop working
-  const modelClazz = modelClass as ModelClass<AnyModel>
+  let modelClazz: ModelClass<AnyModel>
+  if (typeof modelClass === "function" && !isModelClass(modelClass)) {
+    modelClazz = modelClass()
+  } else {
+    modelClazz = modelClass as ModelClass<AnyModel>
+  }
+
   assertIsModelClass(modelClazz, "modelClass")
 
   const cachedTypeChecker = cachedModelTypeChecker.get(modelClazz)

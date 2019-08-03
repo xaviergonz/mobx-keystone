@@ -43,7 +43,7 @@ test("model class", () => {
   `)
 
   // detach submodel
-  const oldP2 = p.$.p2!
+  const oldP2 = p.p2!
   runUnprotected(() => {
     p.$.p2 = undefined
   })
@@ -116,7 +116,7 @@ test("when observed they should be the same", () => {
     expect(sna.arr).toBe(snb.arr)
 
     runUnprotected(() => {
-      p.$.p2!.$.y++
+      p.p2!.$.y++
     })
 
     const snc = getSnapshot(p)
@@ -143,7 +143,7 @@ test("reactive snapshots", () => {
   const p2Result: any[] = []
   autoDispose(
     reaction(
-      () => getSnapshot(p.$.p2),
+      () => getSnapshot(p.p2),
       newSn => {
         p2Result.push(newSn)
       }
@@ -167,15 +167,15 @@ test("reactive snapshots", () => {
 
   // changing children should also change the parent snapshot
   runUnprotected(() => {
-    p.$.p2!.$.y++
+    p.p2!.$.y++
   })
   expect(pResult.length).toBe(3)
   expect(p2Result.length).toBe(1)
 
   // no op
   runUnprotected(() => {
-    p.$.x = p.$.x
-    p.$.p2!.$.y = p.$.p2!.$.y
+    p.$.x = p.x
+    p.p2!.$.y = p.p2!.y
   })
   expect(pResult.length).toBe(3)
   expect(p2Result.length).toBe(1)

@@ -11,7 +11,7 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-export class P2 extends Model<{ y: number }> {
+export class P2 extends Model<{ y: number }>() {
   defaultData = {
     y: 0,
   }
@@ -19,12 +19,12 @@ export class P2 extends Model<{ y: number }> {
   @modelAction
   addY = (n: number) => {
     this.$.y += n
-    return this.$.y
+    return this.y
   }
 }
 
 @model("P")
-export class P extends Model<{ p2: P2; x: number }> {
+export class P extends Model<{ p2: P2; x: number }>() {
   defaultData = {
     p2: newModel(P2, {}),
     x: 0,
@@ -33,7 +33,7 @@ export class P extends Model<{ p2: P2; x: number }> {
   @modelAction
   addX(n: number, _unserializable?: any) {
     this.$.x += n
-    return this.$.x
+    return this.x
   }
 
   @modelAction
@@ -42,14 +42,14 @@ export class P extends Model<{ p2: P2; x: number }> {
   @modelAction
   addXY(n1: number, n2: number) {
     this.addX(n1)
-    this.$.p2.addY(n2)
+    this.p2.addY(n2)
     return n1 + n2
   }
 
   @modelAction
   addXY2(n1: number, n2: number) {
     this.addX(n1)
-    this.$.p2.addY(n2)
+    this.p2.addY(n2)
     return n1 + n2
   }
 
@@ -154,8 +154,8 @@ test("actionTrackingMiddleware - sync", () => {
 
   // action on the child
   reset()
-  p1.$.p2.addY(2)
-  p2.$.p2.addY(2)
+  p1.p2.addY(2)
+  p2.p2.addY(2)
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
     Array [
       "addY (filter)",
@@ -208,10 +208,10 @@ test("actionTrackingMiddleware - sync", () => {
 
   // override action on start
   reset()
-  const oldX = p1.$.x
+  const oldX = p1.x
   expect(p1.addXY2(3, 4) === -1000).toBeTruthy() // because of the override on start
   expect(p2.addXY2(3, 4) > 0).toBeTruthy()
-  expect(p1.$.x).toBe(oldX)
+  expect(p1.x).toBe(oldX)
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
     Array [
       "addXY2 (filter)",

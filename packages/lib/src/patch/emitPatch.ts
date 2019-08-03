@@ -1,5 +1,5 @@
 import { action, isAction } from "mobx"
-import { Model } from "../model/Model"
+import { BaseModel } from "../model/Model"
 import { getParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray } from "../utils"
@@ -127,7 +127,7 @@ function emitPatch(
   if (parentPath) {
     // tweak patches so they include the child path
     const childPath = parentPath.path
-    const parentIsModel = parentPath.parent instanceof Model
+    const parentIsModel = parentPath.parent instanceof BaseModel
     const newPatches = parentIsModel ? patches : patches.map(p => addPathToPatch(p, childPath))
     const newInversePatches = parentIsModel
       ? inversePatches

@@ -1,9 +1,9 @@
 import { assert, _ } from "spec.ts"
 import {
   applySnapshot,
+  BaseModel,
   clone,
   getSnapshot,
-  Model,
   ModelMetadata,
   onPatches,
   onSnapshot,
@@ -32,9 +32,9 @@ test("onSnapshot and applySnapshot", () => {
   const originalSn = getSnapshot(p)
 
   runUnprotected(() => {
-    p.$.arr.push(1, 2, 3)
+    p.arr.push(1, 2, 3)
     p.$.x++
-    p.$.p2!.$.y++
+    p.p2!.$.y++
   })
 
   expect(sn).toMatchInlineSnapshot(`
@@ -246,7 +246,7 @@ test("applySnapshot can create a new submodel", () => {
     applySnapshot(p, originalSn)
   })
   expect(getSnapshot(p)).toStrictEqual(originalSn)
-  expect(p.$.p2 instanceof Model).toBe(true)
+  expect(p.p2 instanceof BaseModel).toBe(true)
 
   expect(patches).toMatchInlineSnapshot(`
     Array [
@@ -302,13 +302,13 @@ test("applySnapshot can create a new submodel", () => {
   // swap the model for a clone, it should still be patched and create a snapshot,
   // but it should have a different id
   reset()
-  const oldP2 = p.$.p2!
+  const oldP2 = p.p2!
   runUnprotected(() => {
     p.$.p2 = clone(oldP2)
   })
-  expect(p.$.p2).not.toBe(oldP2)
-  expect(p.$.p2 instanceof Model).toBe(true)
-  expect(getSnapshot(p.$.p2)).not.toBe(getSnapshot(oldP2))
+  expect(p.p2).not.toBe(oldP2)
+  expect(p.p2 instanceof BaseModel).toBe(true)
+  expect(getSnapshot(p.p2)).not.toBe(getSnapshot(oldP2))
 
   expect(patches).toMatchInlineSnapshot(`
     Array [
@@ -390,15 +390,15 @@ test("undefined should not be allowed in arrays, but null should", () => {
 
   expect(() =>
     runUnprotected(() => {
-      p.$.arr.push(undefined as any)
+      p.arr.push(undefined as any)
     })
   ).toThrow("undefined is not supported inside arrays")
-  expect(p.$.arr.length).toBe(0)
+  expect(p.arr.length).toBe(0)
 
   runUnprotected(() => {
-    p.$.arr.push(null as any)
+    p.arr.push(null as any)
   })
-  expect(p.$.arr).toEqual([null])
+  expect(p.arr).toEqual([null])
 })
 
 test("types", () => {

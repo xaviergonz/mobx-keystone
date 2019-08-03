@@ -14,7 +14,7 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-class P2 extends Model<{ y: number }> {
+class P2 extends Model<{ y: number }>() {
   defaultData = {
     y: 0,
   }
@@ -26,7 +26,7 @@ class P2 extends Model<{ y: number }> {
 }
 
 @model("P")
-class P extends Model<{ p2: P2; x: number }> {
+class P extends Model<{ p2: P2; x: number }>() {
   defaultData = {
     x: 0,
     p2: newModel(P2, {}),
@@ -40,13 +40,13 @@ class P extends Model<{ p2: P2; x: number }> {
   @modelAction
   incXY(x: number, y: number) {
     this.incX(x)
-    this.$.p2.incY(y)
+    this.p2.incY(y)
     throw new Error("incXY")
   }
 }
 
 @model("R")
-class R extends Model<{ undoData: UndoStore; p: P }> {
+class R extends Model<{ undoData: UndoStore; p: P }>() {
   defaultData = {
     undoData: newModel(UndoStore, {}),
     p: newModel(P, {}),
@@ -55,9 +55,9 @@ class R extends Model<{ undoData: UndoStore; p: P }> {
 
 test("undoMiddleware - sync", () => {
   const r = newModel(R, {})
-  const p = r.$.p
+  const p = r.p
 
-  const manager = undoMiddleware(r, r.$.undoData)
+  const manager = undoMiddleware(r, r.undoData)
   expect(manager instanceof UndoManager).toBeTruthy()
   autoDispose(() => manager.dispose())
 
@@ -97,14 +97,14 @@ test("undoMiddleware - sync", () => {
   p.incX(2)
   snapshots.push(getSnapshot(p))
 
-  p.$.p2.incY(10)
+  p.p2.incY(10)
   snapshots.push(getSnapshot(p))
 
   expect(() => p.incXY(3, 20)).toThrow("incXY")
   snapshots.push(getSnapshot(p))
 
-  expect(p.$.x).toBe(1 + 2 + 3)
-  expect(p.$.p2.$.y).toBe(10 + 20)
+  expect(p.x).toBe(1 + 2 + 3)
+  expect(p.p2.y).toBe(10 + 20)
 
   expectUndoRedoToBe(4, 0)
   expect(getEvents()).toMatchInlineSnapshot(`
@@ -283,7 +283,7 @@ test("undoMiddleware - sync", () => {
 })
 
 @model("P2Flow")
-class P2Flow extends Model<{ y: number }> {
+class P2Flow extends Model<{ y: number }>() {
   defaultData = {
     y: 0,
   };
@@ -297,7 +297,7 @@ class P2Flow extends Model<{ y: number }> {
 }
 
 @model("PFlow")
-class PFlow extends Model<{ x: number; p2: P2Flow }> {
+class PFlow extends Model<{ x: number; p2: P2Flow }>() {
   defaultData = {
     x: 0,
     p2: newModel(P2Flow, {}),
@@ -315,14 +315,14 @@ class PFlow extends Model<{ x: number; p2: P2Flow }> {
     yield Promise.resolve()
     yield this.incX(x)
     yield Promise.resolve()
-    yield this.$.p2.incY(y)
+    yield this.p2.incY(y)
     yield Promise.resolve()
     throw new Error("incXY")
   }
 }
 
 @model("RFlow")
-class RFlow extends Model<{ undoData: UndoStore; p: PFlow }> {
+class RFlow extends Model<{ undoData: UndoStore; p: PFlow }>() {
   defaultData = {
     undoData: newModel(UndoStore, {}),
     p: newModel(PFlow, {}),
@@ -331,9 +331,9 @@ class RFlow extends Model<{ undoData: UndoStore; p: PFlow }> {
 
 test("undoMiddleware - async", async () => {
   const r = newModel(RFlow, {})
-  const p = r.$.p
+  const p = r.p
 
-  const manager = undoMiddleware(r, r.$.undoData)
+  const manager = undoMiddleware(r, r.undoData)
   expect(manager instanceof UndoManager).toBeTruthy()
   autoDispose(() => manager.dispose())
 
@@ -373,7 +373,7 @@ test("undoMiddleware - async", async () => {
   await p.incX(2)
   snapshots.push(getSnapshot(p))
 
-  await p.$.p2.incY(10)
+  await p.p2.incY(10)
   snapshots.push(getSnapshot(p))
 
   try {
@@ -384,8 +384,8 @@ test("undoMiddleware - async", async () => {
   }
   snapshots.push(getSnapshot(p))
 
-  expect(p.$.x).toBe(1 + 2 + 3)
-  expect(p.$.p2.$.y).toBe(10 + 20)
+  expect(p.x).toBe(1 + 2 + 3)
+  expect(p.p2.y).toBe(10 + 20)
 
   expectUndoRedoToBe(4, 0)
   expect(getEvents()).toMatchInlineSnapshot(`

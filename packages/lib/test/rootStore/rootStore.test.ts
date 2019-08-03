@@ -14,7 +14,7 @@ import "../commonSetup"
 const events: string[] = []
 
 @model("P3")
-export class P3 extends Model<{ z: number }> {
+export class P3 extends Model<{ z: number }>() {
   defaultData = {
     z: 20,
   }
@@ -32,7 +32,7 @@ export class P3 extends Model<{ z: number }> {
 }
 
 @model("P2")
-export class P2 extends Model<{ y: number; p3: P3 }> {
+export class P2 extends Model<{ y: number; p3: P3 }>() {
   defaultData = {
     y: 10,
     p3: newModel(P3, {}),
@@ -51,7 +51,7 @@ export class P2 extends Model<{ y: number; p3: P3 }> {
 }
 
 @model("P")
-export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }> {
+export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }>() {
   defaultData = {
     x: 5,
     arr: [],
@@ -97,9 +97,9 @@ test("model as rootStore", () => {
   expect(registerRootStore(p)).toBe(p)
 
   expect(isRootStore(p)).toBeTruthy()
-  expect(isRootStore(p.$.p2!)).toBeFalsy()
+  expect(isRootStore(p.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBe(p)
-  expect(getRootStore(p.$.p2!)).toBe(p)
+  expect(getRootStore(p.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
         Array [
           "p1Attached",
@@ -110,13 +110,13 @@ test("model as rootStore", () => {
 
   // detach p2 from root store
   resetEvents()
-  const oldP2 = p.$.p2!
+  const oldP2 = p.p2!
   runUnprotected(() => {
     p.$.p2 = undefined
   })
 
   expect(isRootStore(p)).toBeTruthy()
-  expect(isRootStore(p.$.p2!)).toBeFalsy()
+  expect(isRootStore(p.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(oldP2)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
@@ -133,9 +133,9 @@ test("model as rootStore", () => {
   })
 
   expect(isRootStore(p)).toBeTruthy()
-  expect(isRootStore(p.$.p2!)).toBeFalsy()
+  expect(isRootStore(p.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBe(p)
-  expect(getRootStore(p.$.p2!)).toBe(p)
+  expect(getRootStore(p.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
         Array [
           "p2Attached",
@@ -147,9 +147,9 @@ test("model as rootStore", () => {
   resetEvents()
   unregisterRootStore(p)
   expect(isRootStore(p)).toBeFalsy()
-  expect(isRootStore(p.$.p2!)).toBeFalsy()
+  expect(isRootStore(p.p2!)).toBeFalsy()
   expect(getRootStore(p)).toBeUndefined()
-  expect(getRootStore(p.$.p2!)).toBeUndefined()
+  expect(getRootStore(p.p2!)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
     Array [
       "p3Detached",

@@ -1,5 +1,5 @@
 import { action, observable } from "mobx"
-import { Model } from "../model/Model"
+import { BaseModel } from "../model/Model"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
@@ -80,7 +80,7 @@ export const setParent = action(
       objectParents.set(value, parentPath)
     }
 
-    if (value instanceof Model) {
+    if (value instanceof BaseModel) {
       const oldRoot = getRoot(value)
       const oldRootStore = isRootStore(oldRoot) ? oldRoot : undefined
       removeFromOldParent()

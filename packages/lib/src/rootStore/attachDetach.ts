@@ -1,7 +1,7 @@
 import { ActionContextActionType } from "../action/context"
 import { HookAction } from "../action/hookActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { Model } from "../model/Model"
+import { BaseModel } from "../model/Model"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
@@ -13,7 +13,7 @@ export function attachToRootStore(rootStore: object, child: object): void {
   walkTree(
     child,
     ch => {
-      if (ch instanceof Model && ch.onAttachedToRootStore) {
+      if (ch instanceof BaseModel && ch.onAttachedToRootStore) {
         wrapModelMethodInActionIfNeeded(
           ch,
           "onAttachedToRootStore",

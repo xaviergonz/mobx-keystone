@@ -1,5 +1,5 @@
 import { computed, when } from "mobx"
-import { AnyModel, Model } from "../model/Model"
+import { AnyModel, BaseModel, Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
 import { ModelCreationData, newModel } from "../model/newModel"
 import { resolveModelId } from "../parent/core"
@@ -10,7 +10,13 @@ import { types } from "../typeChecking/types"
 import { failure } from "../utils"
 
 const refDataType = types.object(() => ({
+  /**
+   * Unique model ID this reference points to.
+   *
+   * @readonly
+   */
   id: types.string,
+
   autoDetach: types.boolean,
 }))
 
@@ -21,19 +27,9 @@ const refDataType = types.object(() => ({
  * @typeparam T Referenced object type.
  */
 @model("$$Ref", { dataType: refDataType })
-export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType>> {
+export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType>>() {
   defaultData = {
     autoDetach: false,
-  }
-
-  /**
-   * Unique model ID this reference points to.
-   *
-   * @readonly
-   */
-  @computed
-  get id() {
-    return this.$.id
   }
 
   /**
@@ -68,7 +64,7 @@ export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType
 
     if (!current) {
       throw failure(
-        `a model with id '${this.$.id}' could not be found in the same tree as the reference`
+        `a model with id '${this.id}' could not be found in the same tree as the reference`
       )
     }
 
@@ -76,7 +72,7 @@ export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType
   }
 
   onAttachedToRootStore() {
-    if (!this.$.autoDetach) {
+    if (!this.autoDetach) {
       return undefined
     }
 
@@ -104,7 +100,7 @@ export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType
  * @returns
  */
 export function ref<T extends AnyModel>(current: T, opts?: { autoDetach: boolean }): Ref<T> {
-  if (!(current instanceof Model)) {
+  if (!(current instanceof BaseModel)) {
     throw failure("a reference can only point to a model instance")
   }
 
