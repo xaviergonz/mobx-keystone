@@ -86,7 +86,7 @@ An instance of the todo model above can be created like this:
 ```ts
 // note how we use newModel rather than new
 const myTodo1 = newModel(Todo, { done: true, text: "buy some milk" })
-// note how done can be skipped since it was declared as part of defaultData
+// note how done can be skipped since it was declared with a default value
 const myTodo2 = newModel(Todo, { text: "buy some coffee" })
 ```
 
@@ -146,11 +146,9 @@ interface Book {
 }
 
 @model("myApp/Auth")
-class BookStore extends Model<{ books: Book[] }> {
-  defaultData = {
-    books: [],
-  };
-
+class BookStore extends Model({
+  books: prop<Book[]>(() => []),
+}) {
   @modelFlow
   // we use * (a function generator) where we would use`async`
   *fetchMyBooksAsync(token: string) {

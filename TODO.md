@@ -21,5 +21,3 @@
 - (3) does subclassing work? apparently it does with small gotchas
 
 - (3) future: object/array backed map, array backed set? the mapping of those types to pure json is not apparent though
-
-- (2) defaultData can take extra data which is not on the model data type definition

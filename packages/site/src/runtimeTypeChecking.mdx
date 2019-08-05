@@ -266,5 +266,5 @@ const t = types.object(() => {
 ## Notes for `mobx-state-tree` users
 
 - Typechecking in `mobx-keystone` is performed over instances once they have been created, not over snapshots, so the type definitions should be based on that fact.
-- There is no `types.optional` since setting default values is already covered by the `defaultData` field of models.
+- There is no `types.optional` since setting default values is already covered by the `prop` default values.
 - While models will automatically typecheck themselves upon changes, other types will be only type checked when they get attached to nodes. If for some reason you need to type check them before then manually use the `typeCheck` method.
