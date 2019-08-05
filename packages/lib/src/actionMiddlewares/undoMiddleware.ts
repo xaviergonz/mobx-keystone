@@ -8,7 +8,7 @@ import { getRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../typeChecking/array"
-import { tcProp } from "../typeChecking/tcProp"
+import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { failure } from "../utils"
 import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
@@ -44,8 +44,8 @@ export interface UndoEvent {
 @model("mobx-keystone/UndoStore")
 export class UndoStore extends Model({
   // TODO: add proper type checking to undo store
-  undoEvents: tcProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
-  redoEvents: tcProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
+  undoEvents: tProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
+  redoEvents: tProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
 }) {
   /**
    * @ignore

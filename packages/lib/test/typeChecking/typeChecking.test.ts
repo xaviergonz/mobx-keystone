@@ -16,7 +16,7 @@ import {
   Ref,
   resolvePath,
   setGlobalConfig,
-  tcProp,
+  tProp,
   typeCheck,
   TypeCheckError,
   types,
@@ -231,8 +231,8 @@ test("object - all optional simple types", () => {
 
 @model("M")
 class M extends Model({
-  x: tcProp(types.number, 10),
-  y: tcProp(types.string),
+  x: tProp(types.number, 10),
+  y: tProp(types.string),
 }) {
   @modelAction
   setX(v: number) {
@@ -453,8 +453,8 @@ test("cross referenced object", () => {
 
 @model("MR")
 class MR extends Model({
-  x: tcProp(types.number, 10),
-  rec: tcProp(types.maybe(types.model<MR>(() => MR))),
+  x: tProp(types.number, 10),
+  rec: tProp(types.maybe(types.model<MR>(() => MR))),
 }) {
   @modelAction
   setRec(r: MR | undefined) {
@@ -476,8 +476,8 @@ test("recursive model", () => {
 
 @model("MA")
 class MA extends Model({
-  x: tcProp(types.number, 10),
-  b: tcProp(types.maybe(types.model<MB>(() => MB))),
+  x: tProp(types.number, 10),
+  b: tProp(types.maybe(types.model<MB>(() => MB))),
 }) {
   @modelAction
   setB(r: MB | undefined) {
@@ -487,8 +487,8 @@ class MA extends Model({
 
 @model("MB")
 class MB extends Model({
-  y: tcProp(types.number, 20),
-  a: tcProp(types.maybe(types.model<MA>(MA))),
+  y: tProp(types.number, 20),
+  a: tProp(types.maybe(types.model<MA>(MA))),
 }) {
   @modelAction
   setA(r: MA | undefined) {

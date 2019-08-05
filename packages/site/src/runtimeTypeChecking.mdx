@@ -17,8 +17,8 @@ Type definitions are like the schemas for your data. They are usually associated
 ```ts
 @model("TodoApp/Todo")
 class Todo extends Model({
-  text: tcProp(types.string),
-  done: tcProp(types.boolean, false)
+  text: tProp(types.string),
+  done: tProp(types.boolean, false)
 }) {
   // ...
 }

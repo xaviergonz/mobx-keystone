@@ -8,7 +8,7 @@ import {
   newModel,
   registerRootStore,
   setGlobalConfig,
-  tcProp,
+  tProp,
   types,
 } from "mobx-keystone"
 
@@ -24,9 +24,9 @@ export class Todo extends Model({
   // here we define the type of the model data, which is observable and snapshottable
   // and also part of the required initialization data of the model
 
-  // in this case we use runtime type checking (tc = type checked),
-  text: tcProp(types.string), // a required string
-  done: tcProp(types.boolean, false), // an optional boolean that will default to false
+  // in this case we use runtime type checking,
+  text: tProp(types.string), // a required string
+  done: tProp(types.boolean, false), // an optional boolean that will default to false
 
   // if we didn't require runtime type checking we could do this
   // text: prop<string>(),
@@ -50,7 +50,7 @@ export class Todo extends Model({
 export class TodoList extends Model({
   // in this case the default uses an arrow function to create the object since it is not a primitive
   // and we need a different array for each model instane
-  todos: tcProp(types.array(types.model<Todo>(Todo)), () => []),
+  todos: tProp(types.array(types.model<Todo>(Todo)), () => []),
 
   // if we didn't require runtime type checking
   // todos: prop<Todo[]>(() => [])
