@@ -88,7 +88,7 @@ Note that `getSnapshot` can actually be used over any tree nodes (any model, or 
 
 ## Turning an snapshot back into an instance
 
-### `fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T`
+### `fromSnapshot<T>(sn: SnapshotInOf<T> | SnapshotOutOf<T>, options?: FromSnapshotOptions): T`
 
 Restoring an snapshot is pretty easy as well:
 
@@ -103,7 +103,7 @@ If you want to generate new ids as well as fix any references automatically (as 
 const todo = fromSnapshot<Todo>(todoSnapshot, { generateNewIds: true })
 ```
 
-The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:
+The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo> | SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
 
 ```
 type SnapshotInOf<Todo> = {
