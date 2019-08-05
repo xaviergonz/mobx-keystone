@@ -248,8 +248,8 @@ test("model", () => {
   expectTypeCheckOk(type, m)
   expect(m.typeCheck()).toBeNull()
 
-  expectTypeCheckFail(type, "ho", [], `Model(${m.modelType})`)
-  expectTypeCheckFail(type, newModel(MR, {}), [], `Model(${m.modelType})`)
+  expectTypeCheckFail(type, "ho", [], `Model(${m.$modelType})`)
+  expectTypeCheckFail(type, newModel(MR, {}), [], `Model(${m.$modelType})`)
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["$", "x"], "number")
   expect(m.typeCheck()).toEqual(new TypeCheckError(["$", "x"], "number", "10"))
@@ -298,7 +298,7 @@ test("model", () => {
 
   expectTypeCheckOk(type, m)
 
-  expectTypeCheckFail(type, "ho", [], `Model(${m.modelType})`)
+  expectTypeCheckFail(type, "ho", [], `Model(${m.$modelType})`)
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["$", "x"], "number")
 })

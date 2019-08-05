@@ -79,7 +79,7 @@ export class TodoList extends Model({
     //   reference, so a plain indexOf won't work
 
     const list = this.todos
-    const todoIndex = list.findIndex(todo => todo.modelId === todoId)
+    const todoIndex = list.findIndex(todo => todo.$modelId === todoId)
     if (todoIndex >= 0) {
       list.splice(todoIndex, 1)
     }

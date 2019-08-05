@@ -100,7 +100,7 @@ export function ref<T extends AnyModel>(current: T, opts?: { autoDetach: boolean
   }
 
   const creationData: ModelCreationData<Ref<T>> = {
-    id: current.modelId,
+    id: current.$modelId,
   }
   if (opts && opts.autoDetach) {
     creationData.autoDetach = true

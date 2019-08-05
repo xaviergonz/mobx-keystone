@@ -31,17 +31,17 @@ test("clone with different ids", () => {
   const cloneSn = getSnapshot(cloneP)
 
   // clone should generate different ids for models
-  expect(p.modelId).not.toBe(cloneP.modelId)
-  expect(origSn[modelMetadataKey].id).toBe(p.modelId)
-  expect(cloneSn[modelMetadataKey].id).toBe(cloneP.modelId)
+  expect(p.$modelId).not.toBe(cloneP.$modelId)
+  expect(origSn[modelMetadataKey].id).toBe(p.$modelId)
+  expect(cloneSn[modelMetadataKey].id).toBe(cloneP.$modelId)
 
-  expect(p.p2!.modelId).not.toBe(cloneP.p2!.modelId)
-  expect(origSn.p2![modelMetadataKey].id).toBe(p.p2!.modelId)
-  expect(cloneSn.p2![modelMetadataKey].id).toBe(cloneP.p2!.modelId)
+  expect(p.p2!.$modelId).not.toBe(cloneP.p2!.$modelId)
+  expect(origSn.p2![modelMetadataKey].id).toBe(p.p2!.$modelId)
+  expect(cloneSn.p2![modelMetadataKey].id).toBe(cloneP.p2!.$modelId)
 
   // ref ids should be auto fixed
-  expect((p.$ as any).p2r.id).toBe(p.p2!.modelId)
-  expect((cloneP.$ as any).p2r.id).toBe(cloneP.p2!.modelId)
+  expect((p.$ as any).p2r.id).toBe(p.p2!.$modelId)
+  expect((cloneP.$ as any).p2r.id).toBe(cloneP.p2!.$modelId)
 
   expect(getRootPath(p.p2!).root).toBe(p)
   expect(getRootPath(cloneP.p2!).root).toBe(cloneP)

@@ -249,7 +249,7 @@ function addStandardTests() {
     const snapshot = modelSnapshotOutWithMetadata(
       M,
       { x: "snapshotX", y: "snapshotY", array: [] },
-      m.modelId
+      m.$modelId
     )
     applySnapshot(m, snapshot)
     expect(devTools.send.mock.calls).toMatchSnapshot()

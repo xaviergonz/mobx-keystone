@@ -32,14 +32,14 @@ export abstract class BaseModel<
   /**
    * Gets the unique model ID of this model instance.
    */
-  get modelId() {
+  get $modelId() {
     return this[modelMetadataKey].id
   }
 
   /**
    * Gets the model type name.
    */
-  get modelType() {
+  get $modelType() {
     return this[modelMetadataKey].type
   }
 
@@ -106,8 +106,8 @@ export abstract class BaseModel<
 // these props will never be hoisted to this
 export const baseModelPropNames = new Set<keyof AnyModel>([
   modelMetadataKey,
-  "modelId",
-  "modelType",
+  "$modelId",
+  "$modelType",
   "onInit",
   "$",
   "onAttachedToRootStore",
