@@ -6,7 +6,7 @@ import {
   newModel,
   prop,
   setGlobalConfig,
-  tcProp,
+  tProp,
   types,
   TypeToData,
 } from "../../src"
@@ -37,8 +37,8 @@ test("self recursive", () => {
 test("self recursive type checked", () => {
   @model("myAppTC/TreeNode")
   class TreeNode extends Model({
-    children: tcProp(types.array(types.model<TreeNode>(() => TreeNode)), () => []),
-    x: tcProp(types.number, 0),
+    children: tProp(types.array(types.model<TreeNode>(() => TreeNode)), () => []),
+    x: tProp(types.number, 0),
   }) {}
 
   const tn = newModel(TreeNode, { children: [newModel(TreeNode, {})] })
@@ -79,14 +79,14 @@ test("cross-referenced", () => {
 test("cross-referenced type checked", () => {
   @model("myAppTC/A")
   class A extends Model({
-    b: tcProp(types.maybe(types.model<B>(() => B))),
-    x: tcProp(types.number, 0),
+    b: tProp(types.maybe(types.model<B>(() => B))),
+    x: tProp(types.number, 0),
   }) {}
 
   @model("myAppTC/B")
   class B extends Model({
-    a: tcProp(types.maybe(types.model<A>(() => A))),
-    y: tcProp(types.string, ""),
+    a: tProp(types.maybe(types.model<A>(() => A))),
+    y: tProp(types.string, ""),
   }) {}
 
   const a = newModel(A, {
@@ -143,7 +143,7 @@ test("recursive with object type checked", () => {
 
   @model("myAppTC/AA")
   class AA extends Model({
-    obj: tcProp(types.maybe(typeObj)),
+    obj: tProp(types.maybe(typeObj)),
   }) {}
 
   const aa = newModel(AA, {

@@ -15,7 +15,7 @@ import { AnyType, TypeToData } from "./schemas"
  * @param type Type checker.
  * @returns
  */
-export function tcProp<TType extends AnyType>(
+export function tProp<TType extends AnyType>(
   type: TType
 ): ModelProp<TypeToData<TType>, never, never>
 
@@ -35,7 +35,7 @@ export function tcProp<TType extends AnyType>(
  * @param defaultFn Default value generator function.
  * @returns
  */
-export function tcProp<TType extends AnyType>(
+export function tProp<TType extends AnyType>(
   type: TType,
   defaultFn: () => TypeToData<TType>
 ): ModelProp<TypeToData<TType>, typeof defaultFn, never>
@@ -57,12 +57,12 @@ export function tcProp<TType extends AnyType>(
  * @param defaultValue Default value generator function.
  * @returns
  */
-export function tcProp<TType extends AnyType>(
+export function tProp<TType extends AnyType>(
   type: TType,
   defaultValue: TypeToData<TType>
 ): ModelProp<TypeToData<TType>, never, TypeToData<TType>>
 
-export function tcProp<TType extends AnyType>(
+export function tProp<TType extends AnyType>(
   type: TType,
   def?: any
 ): ModelProp<TypeToData<TType>, any, any> {

@@ -6,7 +6,7 @@ import { newModel } from "../model/newModel"
 import { resolveModelId } from "../parent/core"
 import { detach } from "../parent/detach"
 import { getRoot } from "../parent/path"
-import { tcProp } from "../typeChecking/tcProp"
+import { tProp } from "../typeChecking/tProp"
 import { types } from "../typeChecking/types"
 import { failure } from "../utils"
 
@@ -23,9 +23,9 @@ export class Ref<T extends AnyModel> extends Model({
    *
    * @readonly
    */
-  id: tcProp(types.string),
+  id: tProp(types.string),
 
-  autoDetach: tcProp(types.boolean, () => false),
+  autoDetach: tProp(types.boolean, () => false),
 }) {
   /**
    * The model this reference points to, or undefined if it could not be found in the same tree.

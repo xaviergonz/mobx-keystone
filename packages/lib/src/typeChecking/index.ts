@@ -1,5 +1,5 @@
 export * from "./schemas"
-export { tcProp } from "./tcProp"
+export { tProp } from "./tProp"
 export { typeCheck } from "./typeCheck"
 export { TypeCheckError } from "./TypeCheckError"
 export { types } from "./types"

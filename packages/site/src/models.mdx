@@ -34,9 +34,9 @@ export class Todo extends Model({
   // if you want to make a property truly optional then use x: prop<TYPE | undefined()
 
   // if we required runtime type checking we could do this
-  // text: tcProp(types.string),
-  // done: tcProp(types.boolean, false),
-  // if you want to make a property truly optional then use x: tcProp(types.maybe(TYPE))
+  // text: tProp(types.string),
+  // done: tProp(types.boolean, false),
+  // if you want to make a property truly optional then use x: tProp(types.maybe(TYPE))
 }) {
   // the modelAction decorator marks the function as a model action, giving it access
   // to modify any model data and other superpowers such as action
@@ -63,9 +63,9 @@ Without runtime type checking:
 
 With runtime type checking (check the relevant section for more info):
 
-- `tcProp(type)` - A property of a given runtime checked type, with no default set if it is undefined in the initial data.
-- `tcProp<T>(type, defaultValue: T)` - A property of a given runtime checked type, with a default set if it is undefined in the initial data. Use this only for default primitives.
-- `tcProp<T>(type, defaultFn: () => T)` - A property of a given runtime checked type, with a default value generator if it is undefined in the initial data. Usually used for default objects / arrays / models.
+- `tProp(type)` - A property of a given runtime checked type, with no default set if it is undefined in the initial data.
+- `tProp<T>(type, defaultValue: T)` - A property of a given runtime checked type, with a default set if it is undefined in the initial data. Use this only for default primitives.
+- `tProp<T>(type, defaultFn: () => T)` - A property of a given runtime checked type, with a default value generator if it is undefined in the initial data. Usually used for default objects / arrays / models.
 
 ## Model rules
 
