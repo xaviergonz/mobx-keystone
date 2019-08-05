@@ -42,10 +42,10 @@ Getting the snapshot out of any tree node is as easy as this:
 
 ```ts
 @model("myApp/Todo")
-class Todo extends Model<{ done: boolean; text: string; }> {
-  defaultData = {
-    done: false
-  }
+class Todo extends Model({
+  done: prop(false),
+  text: prop<string>()
+}) {
 }
 
 const todo = newModel(Todo, { text: "buy some milk" })

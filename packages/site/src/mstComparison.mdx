@@ -96,11 +96,10 @@ In `mobx-keystone` snapshots are usually only expected when dealing with `getSna
 
 ```ts
 @model("myApp/Todo")
-class Todo extends Model<{ done: boolean; text: string }> {
-  defaultData = {
-    done: false,
-  }
-
+class Todo extends Model({
+  done: prop(false),
+  text: prop<string>(),
+}) {
   @modelAction
   setText(text: string) {
     this.text = text
@@ -150,11 +149,11 @@ In `mobx-keystone` `this` can always be used, plus the standard `computed` mobx 
 
 ```ts
 @model("myApp/Todo")
-class Todo extends Model<{ done: boolean; text: string; title: string }> {
-  defaultData = {
-    done: false,
-  }
-
+class Todo extends Model({
+  done: prop(false),
+  text: prop<string>(),
+  title: prop<string>(),
+}) {
   @computed
   get asStr() {
     return `${this.text} is done? ${this.done}`
