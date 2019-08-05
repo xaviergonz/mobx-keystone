@@ -52,9 +52,9 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   assertIsModel(current, "resolved call.targetPath")
 
   const model = current as AnyModel
-  if (model.modelId !== call.targetId) {
+  if (model.$modelId !== call.targetId) {
     throw failure(
-      `target model was expected to have '${call.targetId}' as id but had '${model.modelId}' instead`
+      `target model was expected to have '${call.targetId}' as id but had '${model.$modelId}' instead`
     )
   }
 

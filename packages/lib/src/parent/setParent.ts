@@ -90,7 +90,7 @@ export const setParent = action(
       const newRootStore = isRootStore(newRoot) ? newRoot : undefined
 
       // update id caches
-      const modelId = value.modelId
+      const modelId = value.$modelId
       if (oldRoot !== newRoot) {
         getRootIdCache(oldRoot).delete(modelId)
       }

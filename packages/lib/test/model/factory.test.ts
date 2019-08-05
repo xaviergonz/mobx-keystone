@@ -22,7 +22,7 @@ test("factory pattern", () => {
   type NumberMyModel = InstanceType<typeof NumberMyModel>
 
   const numberMyModelInstance = newModel(NumberMyModel, {}) // this will be of type NumberMyModel
-  expect(numberMyModelInstance.modelType).toBe("myApp/NumberMyModel")
+  expect(numberMyModelInstance.$modelType).toBe("myApp/NumberMyModel")
   expect(numberMyModelInstance.x).toBe(10)
   expect(numberMyModelInstance.y).toBe(20)
   numberMyModelInstance.setXY(50, 60)
@@ -33,7 +33,7 @@ test("factory pattern", () => {
   type StringMyModel = InstanceType<typeof StringMyModel>
 
   const stringMyModelInstance = newModel(StringMyModel, {}) // this will be of type StringMyModel
-  expect(stringMyModelInstance.modelType).toBe("myApp/StringMyModel")
+  expect(stringMyModelInstance.$modelType).toBe("myApp/StringMyModel")
   expect(stringMyModelInstance.x).toBe("10")
   expect(stringMyModelInstance.y).toBe("20")
   stringMyModelInstance.setXY("50", "60")

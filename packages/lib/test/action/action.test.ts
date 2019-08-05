@@ -678,7 +678,7 @@ test("applyAction", () => {
     const ra = pa.addX(10)
     const rb = applyAction(pb, {
       targetPath: [],
-      targetId: pb.modelId,
+      targetId: pb.$modelId,
       actionName: "addX",
       args: [10],
     })
@@ -691,7 +691,7 @@ test("applyAction", () => {
     const ra = pa.addXY(1, 2)
     const rb = applyAction(pb, {
       targetPath: [],
-      targetId: pb.modelId,
+      targetId: pb.$modelId,
       actionName: "addXY",
       args: [1, 2],
     })
@@ -704,7 +704,7 @@ test("applyAction", () => {
     const ra = pa.p2.addY(15)
     const rb = applyAction(pb, {
       targetPath: ["$", "p2"],
-      targetId: pb.p2.modelId,
+      targetId: pb.p2.$modelId,
       actionName: "addY",
       args: [15],
     })
@@ -720,7 +720,7 @@ test("applyAction", () => {
     })
     applyAction(pb, {
       targetPath: ["$", "p2"],
-      targetId: pb.p2.modelId,
+      targetId: pb.p2.$modelId,
       actionName: "$$applySnapshot",
       args: [{ ...getSnapshot(pb.p2), y: 100 }],
     })

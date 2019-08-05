@@ -45,7 +45,7 @@ describe("asReduxStore", () => {
       actionName: "addX",
       args: [5],
       targetPath: [],
-      targetId: p.modelId,
+      targetId: p.$modelId,
     })
 
     const dispatched = store.dispatch(action)
@@ -114,7 +114,7 @@ describe("asReduxStore", () => {
       actionName: "addX",
       args: [5],
       targetPath: [],
-      targetId: p.modelId,
+      targetId: p.$modelId,
     })
 
     const dispatched = store.dispatch(action)
