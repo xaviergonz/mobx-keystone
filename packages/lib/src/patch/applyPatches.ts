@@ -1,7 +1,7 @@
 import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
-import { BaseModel } from "../model/Model"
+import { BaseModel } from "../model/BaseModel"
 import { Patch } from "../patch/Patch"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"

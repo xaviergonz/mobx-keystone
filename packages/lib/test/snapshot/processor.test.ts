@@ -1,12 +1,10 @@
-import { fromSnapshot, model, Model, modelSnapshotInWithMetadata } from "../../src"
+import { fromSnapshot, model, Model, modelSnapshotInWithMetadata, prop } from "../../src"
 import "../commonSetup"
 
 @model("P3")
-export class P3 extends Model<{ arr: number[] }>() {
-  defaultData = {
-    arr: [],
-  }
-
+export class P3 extends Model({
+  arr: prop<number[]>(() => []),
+}) {
   fromSnapshot(sn: { y: string }) {
     return {
       arr: sn.y.split(",").map(x => +x),

@@ -1,4 +1,4 @@
-import { AnyModel } from "../model"
+import { AnyModel } from "../model/BaseModel"
 import { assertIsModel } from "../model/utils"
 import { detach } from "../parent/detach"
 import { resolvePath } from "../parent/path"

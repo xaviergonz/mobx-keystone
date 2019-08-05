@@ -1,13 +1,9 @@
 import { assertIsPrimitive } from "../utils"
+import { PrimitiveValue } from "../utils/types"
 import { typesRefinement } from "./refinement"
 import { IdentityType } from "./schemas"
 import { TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
-
-/**
- * A primitive value.
- */
-export type PrimitiveValue = undefined | null | boolean | number | string
 
 /**
  * A type that represents a certain value of a primitive (for example an *exact* number or string).

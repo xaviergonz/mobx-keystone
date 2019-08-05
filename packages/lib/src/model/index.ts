@@ -1,13 +1,15 @@
-export { getModelDataType } from "./getModelDataType"
-export { ModelMetadata, modelMetadataKey } from "./metadata"
 export {
   AnyModel,
   BaseModel,
-  Model,
+  ModelCreationData,
   ModelData,
   modelSnapshotInWithMetadata,
   modelSnapshotOutWithMetadata,
-} from "./Model"
+} from "./BaseModel"
+export { getModelDataType } from "./getModelDataType"
+export { ModelMetadata, modelMetadataKey } from "./metadata"
+export { Model } from "./Model"
 export { model } from "./modelDecorator"
-export { ModelCreationData, newModel } from "./newModel"
+export { newModel } from "./newModel"
+export { prop } from "./prop"
 export { isModel } from "./utils"

@@ -15,24 +15,18 @@ This feature is, however, **completely optional**. This is, if you are happy wit
 Type definitions are like the schemas for your data. They are usually associated with models like this:
 
 ```ts
-const todoDataType = types.object(() => ({
-  text: types.string,
-  done: types.boolean,
-}))
+@model("TodoApp/Todo")
+class Todo extends Model({
+  text: tcProp(types.string),
+  done: tcProp(types.boolean, false)
+}) {
+  // ...
+}
 
-// TypeToData<typeof todoDataType> =
-// {
+// ModelData<Todo> = {
 //   text: string,
 //   done: boolean
 // }
-
-@model("TodoApp/Todo", { dataType: todoDataType })
-class Todo extends Model<TypeToData<typeof todoDataType>> {
-  defaultData = {
-    done: false, // marks done as an optional property
-  }
-
-  // ...
 }
 ```
 
@@ -242,14 +236,31 @@ const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
   // imagine that for some reason sum includes a number 'a', a number 'b'
   // and the result
 
-  const rightResult = sum.$.a + sum.$.b === sum.$.result
+  const rightResult = sum.a + sum.b === sum.result
 
   // simple mode that will just return that the whole model is incorrect
   return rightResult
 
   // this will return that the result field is wrong
-  return rightResult ? null : new TypeCheckError(["$", "result"], "a+b", sum.$.result)
+  return rightResult ? null : new TypeCheckError(["$", "result"], "a+b", sum.result)
 })
+```
+
+### `TypeToData<type>`
+
+It is also possible to get the type represented by a type via `TypeToData`:
+
+```ts
+const t = types.object(() => {
+  x: types.number,
+  y: types.number
+})
+
+// TypeToData<typeof t> =
+// {
+//   x: number,
+//   y: number
+// }
 ```
 
 ## Notes for `mobx-state-tree` users

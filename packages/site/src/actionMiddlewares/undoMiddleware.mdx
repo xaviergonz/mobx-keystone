@@ -14,11 +14,7 @@ For example, given this simple model:
 
 ```ts
 @model("MyApp/Counter")
-class Counter extends Model<{ count: number }> {
-  defaultData = {
-    count: 0,
-  }
-
+class Counter extends Model({ count: prop(0) }) {
   add(n: number) {
     this.count += n
   }
@@ -68,16 +64,14 @@ Each change is stored as an `UndoEvent`, which is a readonly structure like:
 
 ```ts
 @model("MyApp/MyRootStore")
-class MyRootStore extends Model<{ undoData: UndoStore; counter: Counter }> {
-  defaultData = {
-    undoData: newModel(UndoStore, {}),
-    counter: newModel(Counter, {}),
-  }
-}
+class MyRootStore extends Model({
+  undoData: prop<UndoStore>(() => newModel(UndoStore, {})),
+  counter: prop<Counter>(() => newModel(Counter, {})),
+}) {}
 
 const myRootStore = newModel(MyRootStore, {})
 
-const undoManager = undoMiddleware(myRootStore, myRootStore.$.undoData)
+const undoManager = undoMiddleware(myRootStore, myRootStore.undoData)
 ```
 
 ## Making some changes skip undo/redo
@@ -88,12 +82,12 @@ Sometimes you might want some changes / part of changes skip the undo/redo mecha
 @modelAction
 someAction() {
   // this change be done/undone when the action is done/undone
-  this.$.x++
+  this.x++
   withoutUndo(() => {
     // this won't
-    this.$.y++
+    this.y++
   })
   // this will
-  this.$.z++
+  this.z++
 }
 ```

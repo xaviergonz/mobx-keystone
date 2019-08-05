@@ -1,24 +1,14 @@
 import { computed, when } from "mobx"
-import { AnyModel, BaseModel, Model } from "../model/Model"
+import { AnyModel, BaseModel, ModelCreationData } from "../model/BaseModel"
+import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
-import { ModelCreationData, newModel } from "../model/newModel"
+import { newModel } from "../model/newModel"
 import { resolveModelId } from "../parent/core"
 import { detach } from "../parent/detach"
 import { getRoot } from "../parent/path"
-import { TypeToData } from "../typeChecking/schemas"
+import { tcProp } from "../typeChecking/tcProp"
 import { types } from "../typeChecking/types"
 import { failure } from "../utils"
-
-const refDataType = types.object(() => ({
-  /**
-   * Unique model ID this reference points to.
-   *
-   * @readonly
-   */
-  id: types.string,
-
-  autoDetach: types.boolean,
-}))
 
 /**
  * A reference to the unique ID of a given model object.
@@ -26,12 +16,17 @@ const refDataType = types.object(() => ({
  *
  * @typeparam T Referenced object type.
  */
-@model("$$Ref", { dataType: refDataType })
-export class Ref<T extends AnyModel> extends Model<TypeToData<typeof refDataType>>() {
-  defaultData = {
-    autoDetach: false,
-  }
+@model("$$Ref")
+export class Ref<T extends AnyModel> extends Model({
+  /**
+   * Unique model ID this reference points to.
+   *
+   * @readonly
+   */
+  id: tcProp(types.string),
 
+  autoDetach: tcProp(types.boolean, () => false),
+}) {
   /**
    * The model this reference points to, or undefined if it could not be found in the same tree.
    *

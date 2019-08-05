@@ -1,29 +1,25 @@
-import { model, Model, modelAction, modelFlow, newModel, readonlyMiddleware } from "../../src"
+import { model, Model, modelAction, modelFlow, newModel, prop, readonlyMiddleware } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
 
 @model("P2")
-export class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 10,
-  }
-
+export class P2 extends Model({
+  y: prop(() => 10),
+}) {
   @modelAction
   setY(y: number) {
-    this.$.y = y
+    this.y = y
   }
 }
 
 @model("P")
-export class P extends Model<{ x: number; p2: P2 }>() {
-  defaultData = {
-    x: 5,
-    p2: newModel(P2, {}),
-  }
-
+export class P extends Model({
+  x: prop(() => 5),
+  p2: prop(() => newModel(P2, {})),
+}) {
   @modelAction
   setXY(x: number, y: number) {
-    this.$.x = x
+    this.x = x
     this.p2.setY(y)
     return x + y
   }
@@ -31,7 +27,7 @@ export class P extends Model<{ x: number; p2: P2 }>() {
   @modelFlow
   *setXYAsync(x: number, y: number) {
     yield delay(50)
-    this.$.x = x
+    this.x = x
     this.p2.setY(y)
     return x + y
   }

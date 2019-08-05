@@ -16,11 +16,13 @@ As a decorator:
 
 ```ts
 @model("MyApp/MyBalance")
-class MyBalance extends Model<{ balance: number }> {
+class MyBalance extends Model({
+  balance: prop<number>(),
+}) {
   @transaction
   @modelAction
   addMoney(cents: number) {
-    this.$.balance += cents
+    this.balance += cents
     // imagine that something else goes wrong
     // in this case balance will be reverted to the value that
     // was there before the action started
@@ -33,10 +35,12 @@ Programatically:
 
 ```ts
 @model("MyApp/MyModel")
-class MyBalance extends Model<{ balance: number }> {
+class MyBalance extends Model({
+  balance: prop<number>(),
+}) {
   @modelAction
   addMoney(cents: number) {
-    this.$.balance += cents
+    this.balance += cents
     // imagine that something else goes wrong
     // in this case balance will be reverted to the value that
     // was there before the action started

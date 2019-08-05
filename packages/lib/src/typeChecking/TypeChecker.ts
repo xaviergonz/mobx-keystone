@@ -120,26 +120,34 @@ export function assertIsTypeChecker(value: any) {
  * @ignore
  */
 export function resolveTypeChecker(v: any): TypeChecker {
-  if (v instanceof TypeChecker) {
-    return v
+  let next: TypeChecker | LateTypeChecker = v
+  while (true) {
+    if (next instanceof TypeChecker) {
+      return next
+    } else if (isLateTypeChecker(next)) {
+      next = next()
+    } else {
+      throw failure("type checker could not be resolved")
+    }
   }
-
-  const typeChecker: TypeChecker = v()
-  assertIsTypeChecker(typeChecker)
-  return typeChecker
 }
+
+const lateTypeCheckerSymbol = Symbol("lateTypeCheker")
 
 /**
  * @ignore
  */
-export type LateTypeChecker = () => TypeChecker
+export interface LateTypeChecker {
+  [lateTypeCheckerSymbol]: true
+  (): TypeChecker
+}
 
 /**
  * @ignore
  */
 export function lateTypeChecker(fn: () => TypeChecker): LateTypeChecker {
   let cached: TypeChecker | undefined
-  return () => {
+  const ltc = function() {
     if (cached) {
       return cached
     }
@@ -147,4 +155,14 @@ export function lateTypeChecker(fn: () => TypeChecker): LateTypeChecker {
     cached = fn()
     return cached
   }
+  ;(ltc as LateTypeChecker)[lateTypeCheckerSymbol] = true
+
+  return ltc as LateTypeChecker
+}
+
+/**
+ * @ignore
+ */
+export function isLateTypeChecker(ltc: any): ltc is LateTypeChecker {
+  return typeof ltc === "function" && ltc[lateTypeCheckerSymbol]
 }

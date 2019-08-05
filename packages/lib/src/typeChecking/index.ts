@@ -1,5 +1,5 @@
-export { PrimitiveValue } from "./primitives"
 export * from "./schemas"
+export { tcProp } from "./tcProp"
 export { typeCheck } from "./typeCheck"
 export { TypeCheckError } from "./TypeCheckError"
 export { types } from "./types"

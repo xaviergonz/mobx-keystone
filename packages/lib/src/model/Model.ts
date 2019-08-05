@@ -1,214 +1,88 @@
-import nanoid from "nanoid/non-secure"
 import { O } from "ts-toolbelt"
-import { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot"
-import { typesModel } from "../typeChecking/model"
-import { typeCheck } from "../typeChecking/typeCheck"
-import { TypeCheckError } from "../typeChecking/TypeCheckError"
-import { assertIsObject, failure } from "../utils"
-import { ModelMetadata, modelMetadataKey } from "./metadata"
-import { modelConstructorSymbol, modelInfoByClass } from "./modelInfo"
-import { assertIsModelClass } from "./utils"
-
-declare const typeSymbol: unique symbol
+import { typesObject } from "../typeChecking/object"
+import { LateTypeChecker } from "../typeChecking/TypeChecker"
+import { typesUnchecked } from "../typeChecking/unchecked"
+import { assertIsObject } from "../utils"
+import { AnyModel, BaseModel, baseModelPropNames } from "./BaseModel"
+import { modelConstructorSymbol } from "./modelInfo"
+import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
+import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
 
 /**
  * Base abstract class for models.
  *
  * Never use new directly over models, use `newModel` function instead.
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
- * If you want to make certain data properties as optional then declare their default values in
- * `defaultData`.
  *
- * @typeparam Data Data type.
+ * @typeparam TProps Model properties type.
+ * @param modelProps Model properties.
  */
-export abstract class BaseModel<Data extends { [k: string]: any }> {
-  // just to make typing work properly
-  [typeSymbol]: Data;
-
-  readonly [modelMetadataKey]: ModelMetadata
-
-  /**
-   * Gets the unique model ID of this model instance.
-   */
-  get modelId() {
-    return this[modelMetadataKey].id
-  }
-
-  /**
-   * Gets the model type name.
-   */
-  get modelType() {
-    return this[modelMetadataKey].type
-  }
-
-  /**
-   * Called after the model has been created.
-   */
-  onInit?(): void
-
-  /**
-   * Default data for optional data when not provided.
-   *
-   * @abstract
-   */
-  readonly defaultData?: Partial<Readonly<Data>>
-
-  /**
-   * Data part of the model, which is observable and will be serialized in snapshots.
-   * Use this to read/modify model data.
-   */
-  readonly $!: Data
-
-  /**
-   * Optional hook that will run once this model instance is attached to the tree of a model marked as
-   * root store via `registerRootStore`.
-   * Basically this is the place where you know the full root store is complete and where things such as
-   * middlewares, effects (reactions, etc), and other side effects should be registered, since it means
-   * that the model is now part of the active application state.
-   *
-   * It can return a disposer that will be run once this model instance is detached from such root store tree.
-   *
-   * @param rootStore
-   * @returns
-   */
-  onAttachedToRootStore?(rootStore: object): (() => void) | void
-
-  /**
-   * Optional transformation that will be run when converting from a snapshot to the data part of the model.
-   * Useful for example to do versioning and keep the data part up to date with the latest version of the model.
-   *
-   * @param snapshot
-   * @returns
-   */
-  fromSnapshot?(snapshot: any): any
-
-  /**
-   * Performs a type check over the model instance.
-   * For this to work a data type has to be declared in the model decorator.
-   *
-   * @returns A `TypeCheckError` or `null` if there is no error.
-   */
-  typeCheck(): TypeCheckError | null {
-    const type = typesModel<this>(this.constructor as any)
-    return typeCheck(type, this as any)
-  }
-
-  /**
-   * Creates an instance of Model.
-   * Never use this directly, use the `newModel` function instead.
-   *
-   * @param initialData
-   */
-  constructor(privateSymbol: typeof modelConstructorSymbol) {
-    if (privateSymbol !== modelConstructorSymbol) {
-      throw failure("models must be constructed using 'newModel'")
-    }
-
-    // rest of construction is done in internalNewModel
-  }
-}
-
-// proxy returned object so data can be accessed through this
-;(BaseModel as any) = new Proxy(BaseModel, {
-  construct(target, args, newTarget) {
-    const obj = Reflect.construct(target, args, newTarget)
-    return new Proxy(obj, {
-      get(target, p, receiver) {
-        if (p === "$" || Reflect.has(target, p)) {
-          return Reflect.get(target, p, receiver)
-        } else {
-          return target.$ ? target.$[p] : undefined
-        }
-      },
-    })
-  },
-})
-
-/**
- * Any kind of model instance.
- */
-export type AnyModel = BaseModel<any>
-
-/**
- * Type of the model class.
- */
-export type ModelClass<M extends AnyModel> = new (privateSymbol: typeof modelConstructorSymbol) => M
-
-/**
- * The data type of a model.
- */
-export type ModelData<M extends AnyModel> = M["$"]
-
-/**
- * Add missing model metadata to a model creation snapshot to generate a proper model snapshot.
- * Usually used alongside `fromSnapshot`.
- *
- * @typeparam M Model type.
- * @param modelClass Model class.
- * @param snapshot Model creation snapshot without metadata.
- * @param [id] Optional model id, if not provided a new one will be generated.
- * @returns The model snapshot (including metadata).
- */
-export function modelSnapshotInWithMetadata<M extends AnyModel>(
-  modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
-  id?: string
-): SnapshotInOfModel<M> {
-  assertIsModelClass(modelClass, "modelClass")
-  assertIsObject(snapshot, "initialData")
-
-  const modelInfo = modelInfoByClass.get(modelClass)!
-
-  return {
-    ...snapshot,
-    [modelMetadataKey]: {
-      id: id || nanoid(),
-      type: modelInfo.name,
-    },
-  } as any
-}
-
-/**
- * Add missing model metadata to a model output snapshot to generate a proper model snapshot.
- * Usually used alongside `applySnapshot`.
- *
- * @typeparam M Model type.
- * @param modelClass Model class.
- * @param snapshot Model output snapshot without metadata.
- * @param [id] Optional model id, if not provided a new one will be generated.
- * @returns The model snapshot (including metadata).
- */
-export function modelSnapshotOutWithMetadata<M extends AnyModel>(
-  modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelMetadataKey>,
-  id?: string
-): SnapshotOutOfModel<M> {
-  assertIsModelClass(modelClass, "modelClass")
-  assertIsObject(snapshot, "initialData")
-
-  const modelInfo = modelInfoByClass.get(modelClass)!
-
-  return {
-    ...snapshot,
-    [modelMetadataKey]: {
-      id: id || nanoid(),
-      type: modelInfo.name,
-    },
-  } as any
-}
-
-/**
- * Base abstract class for models.
- *
- * Never use new directly over models, use `newModel` function instead.
- * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
- * If you want to make certain data properties as optional then declare their default values in
- * `defaultData`.
- *
- * @typeparam Data Data type.
- */
-export function Model<Data extends { [k: string]: any }>(): {
-  new (privateSymbol: typeof modelConstructorSymbol): BaseModel<Data> & Readonly<Data>
+export function Model<TProps extends ModelProps>(
+  modelProps: TProps
+): {
+  new (privateSymbol: typeof modelConstructorSymbol): BaseModel<
+    ModelPropsToData<TProps>,
+    O.Optional<ModelPropsToData<TProps>, OptionalModelProps<TProps>>
+  > &
+    Omit<ModelPropsToData<TProps>, keyof AnyModel>
 } {
-  return BaseModel as any
+  assertIsObject(modelProps, "modelProps")
+
+  // create type checker if needed
+  let dataTypeChecker: LateTypeChecker | undefined
+  if (Object.values(modelProps).some(mp => mp.typeChecker)) {
+    const typeCheckerObj: {
+      [k: string]: any
+    } = {}
+    for (const [k, mp] of Object.entries(modelProps)) {
+      typeCheckerObj[k] = mp.typeChecker || typesUnchecked()
+    }
+    dataTypeChecker = typesObject(() => typeCheckerObj) as any
+  }
+
+  const modelPropertiesDesc: PropertyDescriptor = {
+    enumerable: false,
+    writable: false,
+    configurable: true,
+    value: modelProps,
+  }
+  const modelDataTypeCheckerDesc: PropertyDescriptor = {
+    enumerable: false,
+    writable: false,
+    configurable: true,
+    value: dataTypeChecker,
+  }
+
+  const extraDescriptors: PropertyDescriptorMap = {}
+
+  // skip props that are on base model, these have to be accessed through $
+  for (const modelPropName of Object.keys(modelProps).filter(
+    mp => !baseModelPropNames.has(mp as any)
+  )) {
+    extraDescriptors[modelPropName] = {
+      enumerable: false,
+      configurable: true,
+      get(this: AnyModel) {
+        return this.$[modelPropName]
+      },
+      set(this: AnyModel, v?: any) {
+        this.$[modelPropName] = v
+      },
+    }
+  }
+
+  class CustomBaseModel extends BaseModel<any, any> {
+    constructor(privateSymbol: typeof modelConstructorSymbol) {
+      super(privateSymbol)
+
+      // proxy returned object so data can be accessed through this
+      const obj = this
+      Object.defineProperty(obj, modelPropertiesSymbol, modelPropertiesDesc)
+      Object.defineProperty(obj, modelDataTypeCheckerSymbol, modelDataTypeCheckerDesc)
+      Object.defineProperties(obj, extraDescriptors)
+    }
+  }
+  ;(CustomBaseModel as any)[modelDataTypeCheckerSymbol] = dataTypeChecker
+
+  return CustomBaseModel as any
 }

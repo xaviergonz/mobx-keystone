@@ -33,8 +33,8 @@ test("onSnapshot and applySnapshot", () => {
 
   runUnprotected(() => {
     p.arr.push(1, 2, 3)
-    p.$.x++
-    p.p2!.$.y++
+    p.x++
+    p.p2!.y++
   })
 
   expect(sn).toMatchInlineSnapshot(`
@@ -221,8 +221,8 @@ test("applySnapshot can create a new submodel", () => {
   const originalSn = getSnapshot(p)
 
   runUnprotected(() => {
-    p.$.x++
-    p.$.p2 = undefined
+    p.x++
+    p.p2 = undefined
   })
 
   const sn: [SnapshotOutOf<P>, SnapshotOutOf<P>][] = []
@@ -304,7 +304,7 @@ test("applySnapshot can create a new submodel", () => {
   reset()
   const oldP2 = p.p2!
   runUnprotected(() => {
-    p.$.p2 = clone(oldP2)
+    p.p2 = clone(oldP2)
   })
   expect(p.p2).not.toBe(oldP2)
   expect(p.p2 instanceof BaseModel).toBe(true)
@@ -436,7 +436,7 @@ test("types", () => {
     _ as ({
       x: number
       arr: number[]
-      p2?: SnapshotOutOf<P2>
+      p2: SnapshotOutOf<P2> | undefined
     } & {
       $$metadata: ModelMetadata
     })

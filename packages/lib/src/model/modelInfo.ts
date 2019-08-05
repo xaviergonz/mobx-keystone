@@ -1,12 +1,10 @@
-import { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
 import { isObject } from "../utils"
+import { AnyModel, ModelClass } from "./BaseModel"
 import { ModelMetadata, modelMetadataKey } from "./metadata"
-import { AnyModel, ModelClass } from "./Model"
 
 interface ModelInfo {
   name: string
   class: ModelClass<AnyModel>
-  dataTypeChecker?: TypeChecker | LateTypeChecker
 }
 
 /**

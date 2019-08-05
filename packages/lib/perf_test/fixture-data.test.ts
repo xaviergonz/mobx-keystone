@@ -15,15 +15,15 @@ test("createMonsters", () => {
   expect(data[1].treasures!.length).toBe(10)
   expect(data[0].eatenHeroes!.length).toBe(10)
   const monster = fromSnapshot<Monster>(data[0])
-  expect(monster.$.eatenHeroes && monster.$.eatenHeroes.length === 10).toBe(true)
-  expect(monster.$.treasures.length === 10).toBe(true)
+  expect(monster.eatenHeroes && monster.eatenHeroes.length === 10).toBe(true)
+  expect(monster.treasures.length === 10).toBe(true)
 })
 
 test("createTreasure", () => {
   const data = createTreasure(10)
   expect(data.length).toBe(10)
   const treasure = fromSnapshot<Treasure>(data[1])
-  expect(treasure.$.gold > 0).toBe(true)
+  expect(treasure.gold > 0).toBe(true)
 })
 
 test("rando sorting", () => {

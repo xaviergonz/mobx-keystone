@@ -1,18 +1,12 @@
-import { fromSnapshot, getSnapshot, model, Model, newModel } from "../../src"
+import { fromSnapshot, getSnapshot, model, Model, newModel, prop } from "../../src"
 import "../commonSetup"
 
 @model("P")
-class P extends Model<{ x: number; y: number; z: number }>() {
-  defaultData = {
-    x: 15,
-    y: 10,
-    z: 30,
-  }
-
-  getDefaultData() {
-    return this.defaultData
-  }
-
+class P extends Model({
+  x: prop(() => 15),
+  y: prop(() => 10),
+  z: prop(() => 30),
+}) {
   pMethod() {
     return "p"
   }
@@ -24,11 +18,6 @@ class P extends Model<{ x: number; y: number; z: number }>() {
 
 @model("P2")
 class P2 extends P {
-  defaultData = {
-    ...super.getDefaultData(),
-    y: 20,
-  }
-
   p2Method() {
     return "p2"
   }
@@ -42,7 +31,7 @@ test("subclassing works", () => {
   const p2 = newModel(P2, {})
 
   expect(p2.x).toBe(15)
-  expect(p2.y).toBe(20)
+  expect(p2.y).toBe(10)
   expect(p2.z).toBe(30)
 
   expect(p2.pMethod()).toBe("p")
@@ -57,7 +46,7 @@ test("subclassing works", () => {
         "type": "P2",
       },
       "x": 15,
-      "y": 20,
+      "y": 10,
       "z": 30,
     }
   `)

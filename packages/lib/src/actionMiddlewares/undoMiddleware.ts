@@ -7,9 +7,8 @@ import { newModel } from "../model/newModel"
 import { getRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
-import { TypeToData } from "../typeChecking"
 import { typesArray } from "../typeChecking/array"
-import { typesObject } from "../typeChecking/object"
+import { tcProp } from "../typeChecking/tcProp"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { failure } from "../utils"
 import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
@@ -38,26 +37,16 @@ export interface UndoEvent {
   readonly inversePatches: ReadonlyArray<Patch>
 }
 
-// TODO: add proper type checking to undo store
-const undoStoreDataType = typesObject(() => ({
-  undoEvents: typesArray(typesUnchecked<UndoEvent>()),
-  redoEvents: typesArray(typesUnchecked<UndoEvent>()),
-}))
-
 /**
  * Store model instance for undo/redo actions.
  * Do not manipulate directly, other that creating it.
  */
-@model("mobx-keystone/UndoStore", { dataType: undoStoreDataType })
-export class UndoStore extends Model<TypeToData<typeof undoStoreDataType>>() {
-  /**
-   * @ignore
-   */
-  defaultData = {
-    undoEvents: [],
-    redoEvents: [],
-  }
-
+@model("mobx-keystone/UndoStore")
+export class UndoStore extends Model({
+  // TODO: add proper type checking to undo store
+  undoEvents: tcProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
+  redoEvents: tcProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
+}) {
   /**
    * @ignore
    */
@@ -128,7 +117,7 @@ export class UndoManager {
    */
   @computed
   get undoQueue(): ReadonlyArray<UndoEvent> {
-    return this.store.$.undoEvents
+    return this.store.undoEvents
   }
 
   /**
@@ -137,7 +126,7 @@ export class UndoManager {
    */
   @computed
   get redoQueue(): ReadonlyArray<UndoEvent> {
-    return this.store.$.redoEvents
+    return this.store.redoEvents
   }
 
   /**

@@ -1,18 +1,10 @@
-import {
-  findParent,
-  FlowRet,
-  model,
-  Model,
-  modelAction,
-  modelFlow,
-  newModel,
-  transaction,
-  transactionMiddleware,
-} from "../../src"
-import "../commonSetup"
+import { findParent, FlowRet, model, Model, modelAction, modelFlow, newModel, prop, transaction, transactionMiddleware } from "../../src";
+import "../commonSetup";
 
 @model("P2")
-class P2 extends Model<{ y: number }>() {
+class P2 extends Model({
+  y: prop(() => 0),
+}) {
   onInit() {
     transactionMiddleware({
       model: this,
@@ -20,13 +12,9 @@ class P2 extends Model<{ y: number }>() {
     })
   }
 
-  defaultData = {
-    y: 0,
-  }
-
   @modelAction
   addY(n: number, error: boolean): number {
-    this.$.y += n
+    this.y += n
     if (error) {
       throw new Error("addY - Error")
     }
@@ -40,16 +28,14 @@ class P2 extends Model<{ y: number }>() {
 }
 
 @model("P")
-class P extends Model<{ x: number; p2: P2 }>() {
-  defaultData = {
-    x: 0,
-    p2: newModel(P2, {}),
-  }
-
+class P extends Model({
+  x: prop(() => 0),
+  p2: prop(() => newModel(P2, {})),
+}) {
   @transaction
   @modelAction
   addX = (n: number, error: boolean): number => {
-    this.$.x += n
+    this.x += n
     if (error) {
       throw new Error("addX - Error")
     }
@@ -59,7 +45,7 @@ class P extends Model<{ x: number; p2: P2 }>() {
   @transaction
   @modelAction
   addY(a: number, b: number, error: boolean): number {
-    this.p2.$.y += a
+    this.p2.y += a
     this.p2.addY(b, error)
     return this.p2.y
   }
@@ -109,7 +95,10 @@ async function delay(x: number) {
 }
 
 @model("P2Flow")
-class P2Flow extends Model<{ y: number; z: number }>() {
+class P2Flow extends Model({
+  y: prop(() => 0),
+  z: prop(() => 0),
+}) {
   onInit() {
     transactionMiddleware({
       model: this,
@@ -117,15 +106,10 @@ class P2Flow extends Model<{ y: number; z: number }>() {
     })
   }
 
-  defaultData = {
-    y: 0,
-    z: 0,
-  };
-
   @modelFlow
   *addY(n: number, error: boolean) {
     yield delay(5)
-    this.$.y += n
+    this.y += n
     if (error) {
       throw new Error("addY - Error")
     }
@@ -142,22 +126,20 @@ class P2Flow extends Model<{ y: number; z: number }>() {
 
   @modelAction
   addZ(n: number) {
-    this.$.z += n
+    this.z += n
     return this.z
   }
 }
 
 @model("PFlow")
-class PFlow extends Model<{ x: number; p2: P2Flow }>() {
-  defaultData = {
-    x: 0,
-    p2: newModel(P2Flow, {}),
-  }
-
+class PFlow extends Model({
+  x: prop(() => 0),
+  p2: prop(() => newModel(P2Flow, {})),
+}) {
   @transaction
   @modelFlow
   addX = function*(this: PFlow, n: number, error: boolean) {
-    this.$.x += n
+    this.x += n
     yield delay(5)
     if (error) {
       throw new Error("addX - Error")
@@ -168,7 +150,7 @@ class PFlow extends Model<{ x: number; p2: P2Flow }>() {
   @transaction
   @modelFlow
   *addY(a: number, b: number, error: boolean) {
-    this.p2.$.y += a
+    this.p2.y += a
     yield delay(5)
     yield this.p2.addY(b, error)
     return this.p2.y

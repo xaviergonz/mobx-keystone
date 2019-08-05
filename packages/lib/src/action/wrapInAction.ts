@@ -1,6 +1,6 @@
 import { action, isAction } from "mobx"
 import { O } from "ts-toolbelt"
-import { AnyModel } from "../model"
+import { AnyModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { inDevMode } from "../utils"
 import {

@@ -1,13 +1,7 @@
-import { O } from "ts-toolbelt"
 import { SnapshotInOfFrozen } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
-
-type DeepReadonly<T> = T extends object
-  ? O.Readonly<T, keyof T, "deep"> extends infer R
-    ? R
-    : never
-  : T
+import { DeepReadonly } from "../utils/types"
 
 /**
  * @ignore

@@ -1,7 +1,7 @@
 import { AnyType } from "../typeChecking/schemas"
 import { failure } from "../utils"
-import { AnyModel, ModelClass } from "./Model"
-import { getModelInfoForObject, modelInfoByClass } from "./modelInfo"
+import { AnyModel, ModelClass } from "./BaseModel"
+import { modelDataTypeCheckerSymbol } from "./modelSymbols"
 import { isModel, isModelClass } from "./utils"
 
 /**
@@ -13,10 +13,8 @@ import { isModel, isModelClass } from "./utils"
 export function getModelDataType(
   modelClassOrInstance: AnyModel | ModelClass<AnyModel>
 ): AnyType | undefined {
-  if (isModel(modelClassOrInstance)) {
-    return getModelInfoForObject(modelClassOrInstance)!.dataTypeChecker as any
-  } else if (isModelClass(modelClassOrInstance)) {
-    return modelInfoByClass.get(modelClassOrInstance)!.dataTypeChecker as any
+  if (isModel(modelClassOrInstance) || isModelClass(modelClassOrInstance)) {
+    return (modelClassOrInstance as any)[modelDataTypeCheckerSymbol]
   } else {
     throw failure(`modelClassOrInstance must be a model class or instance`)
   }

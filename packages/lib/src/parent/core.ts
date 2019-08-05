@@ -1,5 +1,5 @@
 import { createAtom, IAtom, observable, ObservableMap, ObservableSet } from "mobx"
-import { AnyModel } from "../model/Model"
+import { AnyModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { isRoot, ParentPath } from "./path"

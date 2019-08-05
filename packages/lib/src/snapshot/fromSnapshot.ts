@@ -1,7 +1,7 @@
 import { action, observable } from "mobx"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
+import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
-import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { internalNewModel } from "../model/newModel"
 import { isModelSnapshot } from "../model/utils"

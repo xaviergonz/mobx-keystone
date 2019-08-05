@@ -16,15 +16,18 @@ Given the example above we could model it like this:
 
 ```ts
 @model("myApp/TodoList")
-class TodoList extends Model<{ list: Todo[]; selected?: Ref<Todo> }> {
+class TodoList extends Model({
+  list: prop<Todo[]>(() => []),
+  selected: prop<Ref<Todo> | undefined>(),
+}) {
   // ...
 
   @modelAction
   selectTodo(todo: Todo | undefined) {
-    if (!this.$.list.includes(todo)) {
+    if (!this.list.includes(todo)) {
       throw new Error("cannot select a todo that is not in the list")
     }
-    this.$.selected = todo ? ref(todo) : undefined
+    this.selected = todo ? ref(todo) : undefined
   }
 }
 ```
@@ -44,15 +47,18 @@ The `autoDetach` option, when set to true (default is false), allows the referen
 
 ```ts
 @model("myApp/TodoList")
-class TodoList extends Model<{ list: Todo[]; selected?: Ref<Todo> }> {
+class TodoList extends Model({
+  list: prop<Todo[]>(() => []),
+  selected: prop<Ref<Todo> | undefined>(),
+}) {
   // ...
 
   @modelAction
   selectTodo(todo: Todo | undefined) {
-    if (!this.$.list.includes(todo)) {
+    if (!this.list.includes(todo)) {
       throw new Error("cannot select a todo that is not in the list")
     }
-    this.$.selected = todo ? ref(todo, { autoDetach: true }) : undefined
+    this.selected = todo ? ref(todo, { autoDetach: true }) : undefined
   }
 }
 

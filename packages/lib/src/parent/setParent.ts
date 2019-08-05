@@ -1,5 +1,5 @@
 import { action, observable } from "mobx"
-import { BaseModel } from "../model/Model"
+import { BaseModel } from "../model/BaseModel"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
