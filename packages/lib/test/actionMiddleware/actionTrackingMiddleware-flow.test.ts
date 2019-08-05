@@ -8,56 +8,53 @@ import {
   modelAction,
   modelFlow,
   newModel,
+  prop,
   SimpleActionContext,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
 
 @model("P2")
-export class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 0,
-  };
-
+export class P2 extends Model({
+  y: prop(() => 0),
+}) {
   @modelFlow
   *addY(n: number) {
-    this.$.y += n / 2
+    this.y += n / 2
     yield delay(50)
-    this.$.y += n / 2
+    this.y += n / 2
     return this.y
   }
 
   @modelFlow
   *addY2(n: number) {
-    this.$.y += n / 2
+    this.y += n / 2
     yield delay(50)
-    this.$.y += n / 2
+    this.y += n / 2
     return this.y
   }
 }
 
 @model("P")
-export class P extends Model<{ p2: P2; x: number }>() {
-  defaultData = {
-    p2: newModel(P2, {}),
-    x: 0,
-  };
-
+export class P extends Model({
+  p2: prop(() => newModel(P2, {})),
+  x: prop(() => 0),
+}) {
   @modelFlow
   *addX(n: number) {
-    this.$.x += n / 2
+    this.x += n / 2
     const r: FlowRet<typeof delay> = yield delay(50)
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
     const r2: FlowRet<typeof delay> = yield delay(40)
     expect(r2).toBe(40) // just to see yields return the right result
-    this.$.x += n / 4
+    this.x += n / 4
     return this.x
   }
 
   @modelAction
   addXSync(n: number) {
-    this.$.x += n
+    this.x += n
     return n
   }
 
@@ -73,7 +70,7 @@ export class P extends Model<{ p2: P2; x: number }>() {
 
   @modelFlow
   *throwFlow(n: number) {
-    this.$.x += n
+    this.x += n
     yield delay(50)
     throw new Error("flow failed")
   }

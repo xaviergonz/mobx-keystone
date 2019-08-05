@@ -7,17 +7,14 @@ import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { assertIsObject, makePropReadonly } from "../utils"
+import { assertIsObject, failure, makePropReadonly } from "../utils"
+import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelMetadataKey } from "./metadata"
-import { AnyModel, ModelClass } from "./Model"
 import { modelConstructorSymbol, modelInfoByClass } from "./modelInfo"
+import { modelPropertiesSymbol } from "./modelSymbols"
+import { ModelProps } from "./prop"
 import { assertIsModelClass } from "./utils"
-
-/**
- * The creation data of a model.
- */
-export type ModelCreationData<M extends AnyModel> = O.Optional<M["$"], keyof M["defaultData"]>
 
 /**
  * Creates a new model of a given class.
@@ -61,10 +58,12 @@ export const internalNewModel = action(
 
     const modelObj = new modelClass(modelConstructorSymbol) as O.Writable<M>
 
-    // make defaultData non enumerable and readonly
-    makePropReadonly(modelObj, "defaultData", false)
-
-    const modelInfo = modelInfoByClass.get(modelClass)!
+    const modelInfo = modelInfoByClass.get(modelClass)
+    if (!modelInfo) {
+      throw failure(
+        `no model info for class ${modelClass.name} could be found - did you forget to add the @model decorator?`
+      )
+    }
     let id
     if (snapshotInitialData) {
       id = snapshotInitialData.id
@@ -83,15 +82,19 @@ export const internalNewModel = action(
     }
 
     // fill in defaults in initial data
-    const { defaultData } = modelObj
-    if (defaultData) {
-      const defaultDataKeys = Object.keys(defaultData as any)
-      const defaultDataKeysLen = defaultDataKeys.length
-      for (let i = 0; i < defaultDataKeysLen; i++) {
-        const k = defaultDataKeys[i]
-        if ((initialData as any)[k] === undefined) {
-          ;(initialData as any)[k] = defaultData[k]
+    const modelProps: ModelProps = (modelObj as any)[modelPropertiesSymbol]
+    const modelPropsKeys = Object.keys(modelProps)
+    for (let i = 0; i < modelPropsKeys.length; i++) {
+      const k = modelPropsKeys[i]
+      if ((initialData as any)[k] === undefined) {
+        let newValue: any = undefined
+        const propData = modelProps[k]
+        if (propData.defaultFn !== undefined) {
+          newValue = propData.defaultFn()
+        } else if (propData.defaultValue !== undefined) {
+          newValue = propData.defaultValue
         }
+        ;(initialData as any)[k] = newValue
       }
     }
 

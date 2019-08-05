@@ -16,6 +16,7 @@ import {
   Ref,
   resolvePath,
   setGlobalConfig,
+  tcProp,
   typeCheck,
   TypeCheckError,
   types,
@@ -228,18 +229,14 @@ test("object - all optional simple types", () => {
   expectTypeCheckFail(type, { x: 5, y: "6", z: 10 }, [], expected)
 })
 
-const mType = types.object(() => ({
-  x: types.number,
-  y: types.string,
-}))
-
-@model("M", { dataType: mType })
-class M extends Model<TypeToData<typeof mType>>() {
-  defaultData = { x: 10 }
-
+@model("M")
+class M extends Model({
+  x: tcProp(types.number, 10),
+  y: tcProp(types.string),
+}) {
   @modelAction
   setX(v: number) {
-    this.$.x = v
+    this.x = v
   }
 }
 
@@ -269,7 +266,7 @@ test("model typechecking", () => {
   let reactionRun = 0
   autoDispose(
     reaction(
-      () => m.$.x,
+      () => m.x,
       () => {
         reactionRun++
       }
@@ -280,7 +277,7 @@ test("model typechecking", () => {
     m.setX("5" as any)
   })
   expect(reactionRun).toBe(0)
-  expect(m.$.x).toBe(10)
+  expect(m.x).toBe(10)
   expectTypeCheckOk(type, m)
 })
 
@@ -454,21 +451,14 @@ test("cross referenced object", () => {
   )
 })
 
-const mrType = types.object(() => ({
-  x: types.number,
-  rec: types.maybe(types.model<MR>(() => MR)),
-}))
-
-@model("MR", { dataType: mrType })
-class MR extends Model<TypeToData<typeof mrType>>() {
-  defaultData = {
-    x: 10,
-    rec: undefined,
-  }
-
+@model("MR")
+class MR extends Model({
+  x: tcProp(types.number, 10),
+  rec: tcProp(types.maybe(types.model<MR>(() => MR))),
+}) {
   @modelAction
   setRec(r: MR | undefined) {
-    this.$.rec = r
+    this.rec = r
   }
 }
 
@@ -484,39 +474,25 @@ test("recursive model", () => {
   expectTypeCheckFail(type, mr, ["$", "rec"], "Model(MR) | undefined")
 })
 
-const maType = types.object(() => ({
-  x: types.number,
-  b: types.maybe(types.model<MB>(() => MB)),
-}))
-
-@model("MA", { dataType: maType })
-class MA extends Model<TypeToData<typeof maType>>() {
-  defaultData = {
-    x: 10,
-    b: undefined,
-  }
-
+@model("MA")
+class MA extends Model({
+  x: tcProp(types.number, 10),
+  b: tcProp(types.maybe(types.model<MB>(() => MB))),
+}) {
   @modelAction
   setB(r: MB | undefined) {
-    this.$.b = r
+    this.b = r
   }
 }
 
-const mbType = types.object(() => ({
-  y: types.number,
-  a: types.maybe(types.model<MA>(MA)),
-}))
-
-@model("MB", { dataType: mbType })
-class MB extends Model<TypeToData<typeof mbType>>() {
-  defaultData = {
-    y: 20,
-    a: undefined,
-  }
-
+@model("MB")
+class MB extends Model({
+  y: tcProp(types.number, 20),
+  a: tcProp(types.maybe(types.model<MA>(MA))),
+}) {
   @modelAction
   setA(r: MA | undefined) {
-    this.$.a = r
+    this.a = r
   }
 }
 
@@ -528,7 +504,7 @@ test("cross referenced model", () => {
 
   expectTypeCheckOk(type, ma)
 
-  ma.$.b!.setA("5" as any)
+  ma.b!.setA("5" as any)
   expectTypeCheckFail(type, ma, ["$", "b"], "Model(MB) | undefined")
 })
 
@@ -654,4 +630,45 @@ test("refinement (complex)", () => {
 
   expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
   expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")
+})
+
+test("typing of optional values", () => {
+  const t1 = types.object(() => ({
+    n: types.number,
+    ns: types.or(types.number, types.string),
+    nsu1: types.or(types.number, types.string, types.undefined),
+    nsu2: types.or(types.or(types.number, types.string), types.undefined),
+    nsu3: types.or(types.number, types.or(types.string, types.undefined)),
+  }))
+
+  assert(
+    _ as TypeToData<typeof t1>,
+    _ as {
+      n: number
+      ns: string | number
+      nsu1?: string | number | undefined
+      nsu2?: string | number | undefined
+      nsu3?: string | number | undefined
+    }
+  )
+
+  const a = types.array(types.number)
+  const t2 = types.object(() => ({
+    n: a,
+    ns: types.or(a, types.string),
+    nsu1: types.or(a, types.string, types.undefined),
+    nsu2: types.or(types.or(a, types.string), types.undefined),
+    nsu3: types.or(a, types.or(types.string, types.undefined)),
+  }))
+
+  assert(
+    _ as TypeToData<typeof t2>,
+    _ as {
+      n: number[]
+      ns: string | number[]
+      nsu1?: string | number[] | undefined
+      nsu2?: string | number[] | undefined
+      nsu3?: string | number[] | undefined
+    }
+  )
 })

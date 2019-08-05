@@ -1,4 +1,4 @@
-import { AnyModel } from "../model/Model"
+import { AnyModel } from "../model/BaseModel"
 import { Ref } from "../ref/Ref"
 import { typesModel } from "./model"
 

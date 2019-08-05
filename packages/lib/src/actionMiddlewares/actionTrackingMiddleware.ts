@@ -9,7 +9,7 @@ import {
   addActionMiddleware,
 } from "../action/middleware"
 import { FlowFinisher } from "../action/modelFlow"
-import { AnyModel } from "../model/Model"
+import { AnyModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 

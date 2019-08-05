@@ -1,7 +1,7 @@
 import { SnapshotInOfModel } from "../snapshot/SnapshotOf"
 import { failure, isPlainObject } from "../utils"
+import { AnyModel, BaseModel, ModelClass } from "./BaseModel"
 import { modelMetadataKey } from "./metadata"
-import { AnyModel, BaseModel, ModelClass } from "./Model"
 
 /**
  * Checks if an object is a model instance.

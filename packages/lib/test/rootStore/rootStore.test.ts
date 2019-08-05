@@ -4,6 +4,7 @@ import {
   model,
   Model,
   newModel,
+  prop,
   registerRootStore,
   runUnprotected,
   toTreeNode,
@@ -14,11 +15,9 @@ import "../commonSetup"
 const events: string[] = []
 
 @model("P3")
-export class P3 extends Model<{ z: number }>() {
-  defaultData = {
-    z: 20,
-  }
-
+export class P3 extends Model({
+  z: prop(() => 20),
+}) {
   onAttachedToRootStore(rootStore: P) {
     expect(isRootStore(rootStore)).toBeTruthy()
     events.push("p3Attached")
@@ -32,12 +31,10 @@ export class P3 extends Model<{ z: number }>() {
 }
 
 @model("P2")
-export class P2 extends Model<{ y: number; p3: P3 }>() {
-  defaultData = {
-    y: 10,
-    p3: newModel(P3, {}),
-  }
-
+export class P2 extends Model({
+  y: prop(() => 10),
+  p3: prop(() => newModel(P3, {})),
+}) {
   onAttachedToRootStore(rootStore: P) {
     expect(isRootStore(rootStore)).toBeTruthy()
     events.push("p2Attached")
@@ -51,13 +48,11 @@ export class P2 extends Model<{ y: number; p3: P3 }>() {
 }
 
 @model("P")
-export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }>() {
-  defaultData = {
-    x: 5,
-    arr: [],
-    p2: undefined,
-  }
-
+export class P extends Model({
+  x: prop(() => 5),
+  arr: prop<P2[]>(() => []),
+  p2: prop<P2 | undefined>(),
+}) {
   onAttachedToRootStore(rootStore: P) {
     expect(isRootStore(rootStore)).toBeTruthy()
     events.push("p1Attached")
@@ -112,7 +107,7 @@ test("model as rootStore", () => {
   resetEvents()
   const oldP2 = p.p2!
   runUnprotected(() => {
-    p.$.p2 = undefined
+    p.p2 = undefined
   })
 
   expect(isRootStore(p)).toBeTruthy()
@@ -129,7 +124,7 @@ test("model as rootStore", () => {
   // reattach
   resetEvents()
   runUnprotected(() => {
-    p.$.p2 = oldP2
+    p.p2 = oldP2
   })
 
   expect(isRootStore(p)).toBeTruthy()

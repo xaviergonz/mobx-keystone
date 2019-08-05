@@ -39,8 +39,8 @@ should be fairly simple. There are some trade-offs though, as shown in the follo
 
 ### If you know Typescript you already know how to type models
 
-`mobx-keystone` uses standard Typescript type annotations to declare the data of models, therefore lowering the learning curve a notch.
-However, if you need runtime type checking, `mobx-keystone` includes a completely optional type definition / runtime type checking system.
+`mobx-keystone`, when not using runtime type checking, uses standard Typescript type annotations to declare the data of models, therefore lowering the learning curv.
+However, if you need runtime type checking, `mobx-keystone` includes a completely optional type definition / runtime type checking system as well.
 
 ### Self-recursive and cross-referenced models
 
@@ -49,18 +49,14 @@ Self-recursive or cross-referenced models are impossible (or at least very hard)
 ```ts
 // self recursive model
 @model("myApp/TreeNode")
-class TreeNode extends Model<{ children: TreeNode[] }> {
-  defaultData = {
-    children: [],
-  }
-}
+class TreeNode extends Model({ children: prop<TreeNode[]>(() => []) }) {}
 
 // cross-referenced models
 @model("myApp/A")
-class A extends Model<{ b?: B }> {}
+class A extends Model({ b: prop<B | undefined>() }) {}
 
 @model("myApp/B")
-class B extends Model<{ a?: A }> {}
+class B extends Model({ a: prop<A | undefined>() }) {}
 ```
 
 ### Simpler instance / snapshot type usage
@@ -107,12 +103,12 @@ class Todo extends Model<{ done: boolean; text: string }> {
 
   @modelAction
   setText(text: string) {
-    this.$.text = text
+    this.text = text
   }
 
   @modelAction
   setDone(done: boolean) {
-    this.$.done = done
+    this.done = done
   }
 }
 
@@ -120,7 +116,7 @@ class Todo extends Model<{ done: boolean; text: string }> {
 class RootStore extends Model<{ selected?: Todo }> {
   @modelAction
   setSelected(todo: Todo) {
-    this.$.selected = todo
+    this.selected = todo
   }
 }
 ```
@@ -161,12 +157,12 @@ class Todo extends Model<{ done: boolean; text: string; title: string }> {
 
   @computed
   get asStr() {
-    return `${this.$.text} is done? ${this.$.done}`
+    return `${this.text} is done? ${this.done}`
   }
 
   @computed
   get asStrWithTitle() {
-    return `${this.$.title} - ${this.asStr}`
+    return `${this.title} - ${this.asStr}`
   }
 }
 ```

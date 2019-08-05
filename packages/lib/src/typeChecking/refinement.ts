@@ -16,13 +16,13 @@ import { TypeCheckError } from "./TypeCheckError"
  *   // imagine that for some reason sum includes a number 'a', a number 'b'
  *   // and the result
  *
- *   const rightResult = sum.$.a + sum.$.b === sum.$.result
+ *   const rightResult = sum.a + sum.b === sum.result
  *
  *   // simple mode that will just return that the whole model is incorrect
  *   return rightResult
  *
  *   // this will return that the result field is wrong
- *   return rightResult ? null : new TypeCheckError(["$", "result"], "a+b", sum.$.result)
+ *   return rightResult ? null : new TypeCheckError(["$", "result"], "a+b", sum.result)
  * })
  * ```
  *

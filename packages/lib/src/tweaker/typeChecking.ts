@@ -1,6 +1,6 @@
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
+import { AnyModel } from "../model/BaseModel"
 import { getModelDataType } from "../model/getModelDataType"
-import { AnyModel } from "../model/Model"
 import { isModel } from "../model/utils"
 import { findParent } from "../parent/findParent"
 import { internalApplyPatches } from "../patch/applyPatches"

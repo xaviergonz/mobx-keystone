@@ -9,6 +9,7 @@ import {
   modelFlow,
   newModel,
   onActionMiddleware,
+  prop,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -18,42 +19,38 @@ async function delay(x: number) {
 }
 
 @model("P2")
-export class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 0,
-  };
-
+export class P2 extends Model({
+  y: prop(() => 0),
+}) {
   @modelFlow
   *addY(n: number) {
-    this.$.y += n / 2
+    this.y += n / 2
     yield delay(50)
-    this.$.y += n / 2
+    this.y += n / 2
     return this.y
   }
 }
 
 @model("P")
-export class P extends Model<{ p2: P2; x: number }>() {
-  defaultData = {
-    p2: newModel(P2, {}),
-    x: 0,
-  };
-
+export class P extends Model({
+  p2: prop(() => newModel(P2, {})),
+  x: prop(() => 0),
+}) {
   @modelFlow
   *addX(n: number) {
-    this.$.x += n / 2
+    this.x += n / 2
     const r: FlowRet<typeof delay> = yield delay(50)
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
     const r2: FlowRet<typeof delay> = yield delay(40)
     expect(r2).toBe(40) // just to see yields return the right result
-    this.$.x += n / 4
+    this.x += n / 4
     return this.x
   }
 
   @modelAction
   addXSync(n: number) {
-    this.$.x += n
+    this.x += n
     return n
   }
 
@@ -69,7 +66,7 @@ export class P extends Model<{ p2: P2; x: number }>() {
 
   @modelFlow
   *throwFlow(n: number) {
-    this.$.x += n
+    this.x += n
     yield delay(50)
     throw new Error("flow failed")
   }
@@ -112,7 +109,7 @@ test("flow", async () => {
           "args": Array [
             2,
           ],
-          "targetId": "mockedUuid-2",
+          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         "context": Object {
@@ -136,14 +133,14 @@ test("flow", async () => {
                   "y": 0,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -168,7 +165,7 @@ test("flow", async () => {
             4,
             4,
           ],
-          "targetId": "mockedUuid-2",
+          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         "context": Object {
@@ -193,14 +190,14 @@ test("flow", async () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 6,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -229,7 +226,7 @@ test("flow", async () => {
           "args": Array [
             10,
           ],
-          "targetId": "mockedUuid-2",
+          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         "context": Object {
@@ -253,14 +250,14 @@ test("flow", async () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 16,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },

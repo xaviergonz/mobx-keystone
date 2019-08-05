@@ -24,30 +24,48 @@ A model for a todo can be defined as follows:
 // the model decorator marks this class as a model, an object with actions, etc.
 // the string identifies this model type and must be unique across your whole application
 @model("myCoolApp/Todo")
-export class Todo extends Model<{ text: string; done: boolean }> {
-  // the stuff between <> above is the type of the (observable and snapshottable) data
-  // your model will hold. it is also part of the required initialization data of the model
+export class Todo extends Model({
+  // here we define the type of the model data, which is observable and snapshottable
+  // and also part of the required initialization data of the model
 
-  // you can optionally use this to mark some data properties as optional and give them a
-  // default value when not present
-  defaultData = {
-    done: false,
-  }
+  // in this case we don't use runtime type checking
+  text: prop<string>(), // a required string
+  done: prop(false), // an optional boolean that will default to false
+  // if you want to make a property truly optional then use x: prop<TYPE | undefined()
 
+  // if we required runtime type checking we could do this
+  // text: tcProp(types.string),
+  // done: tcProp(types.boolean, false),
+  // if you want to make a property truly optional then use x: tcProp(types.maybe(TYPE))
+}) {
   // the modelAction decorator marks the function as a model action, giving it access
-  // to modify any model data (inside `this.$`) and other superpowers such as action
+  // to modify any model data and other superpowers such as action
   // middlewares, replication, etc.
   @modelAction
   setDone(done: boolean) {
-    this.$.done = done
+    this.done = done
   }
 
   @modelAction
   setText(text: string) {
-    this.$.text = text
+    this.text = text
   }
 }
 ```
+
+Note that there are several ways to define properties.
+
+Without runtime type checking:
+
+- `prop<T>()` - A property of a given type, with no default set if it is undefined in the initial data.
+- `prop<T>(defaultValue: T)` - A property of a given type, with a default set if it is undefined in the initial data. Use this only for default primitives.
+- `prop<T>(defaultFn: () => T)` - A property of a given type, with a default value generator if it is undefined in the initial data. Usually used for default objects / arrays / models.
+
+With runtime type checking (check the relevant section for more info):
+
+- `tcProp(type)` - A property of a given runtime checked type, with no default set if it is undefined in the initial data.
+- `tcProp<T>(type, defaultValue: T)` - A property of a given runtime checked type, with a default set if it is undefined in the initial data. Use this only for default primitives.
+- `tcProp<T>(type, defaultFn: () => T)` - A property of a given runtime checked type, with a default value generator if it is undefined in the initial data. Usually used for default objects / arrays / models.
 
 ## Model rules
 
@@ -55,7 +73,7 @@ The rules that need to be followed to declare a model are:
 
 - Models have to be decorated with `@model` and require a unique across-application ID for the class type.
 - They have to extend `Model`, which in Typescript require the type of the data that will become observable / snapshottable / patcheable.
-- This data (that is observable and part of the snapshot) can be accessed / changed through `this.$`.
+- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$` (for example for properties that match a built-in base model property such as `modelId` or `modelType`).
 - Model actions need to be used in order to be able to change such data.
 - Never ever declare your own constructor, there are life-cycle events for that (more on that later).
 
@@ -141,7 +159,7 @@ class BookStore extends Model<{ books: Book[] }> {
     // we can optionally use FlowRet to cast the return value to the proper type
     const myBooks: FlowRet<typeof myBackendClient.getBooks> = yield myBackendClient.getBooks(token)
 
-    this.$.books = myBooks
+    this.books = myBooks
   }
 }
 
@@ -156,16 +174,14 @@ It is possible to use a factory pattern with models. For example:
 ```ts
 function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
   @model(`myApp/${modelName}`)
-  class MyModel extends Model<{ x: TX; y: TY }> {
-    defaultData = {
-      x: initialX,
-      y: initialY,
-    }
-
+  class MyModel extends Model({
+    x: prop<TX>(() => initialX),
+    y: prop<TY>(() => initialY),
+  }) {
     @modelAction
     setXY(x: TX, y: TY) {
-      this.$.x = x
-      this.$.y = y
+      this.x = x
+      this.y = y
     }
   }
 

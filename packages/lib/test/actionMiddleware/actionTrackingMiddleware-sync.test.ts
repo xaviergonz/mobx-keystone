@@ -5,34 +5,31 @@ import {
   Model,
   modelAction,
   newModel,
+  prop,
   SimpleActionContext,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-export class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 0,
-  }
-
+export class P2 extends Model({
+  y: prop(() => 0),
+}) {
   @modelAction
   addY = (n: number) => {
-    this.$.y += n
+    this.y += n
     return this.y
   }
 }
 
 @model("P")
-export class P extends Model<{ p2: P2; x: number }>() {
-  defaultData = {
-    p2: newModel(P2, {}),
-    x: 0,
-  }
-
+export class P extends Model({
+  p2: prop(() => newModel(P2, {})),
+  x: prop(() => 0),
+}) {
   @modelAction
   addX(n: number, _unserializable?: any) {
-    this.$.x += n
+    this.x += n
     return this.x
   }
 

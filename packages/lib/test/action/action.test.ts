@@ -8,35 +8,32 @@ import {
   Model,
   modelAction,
   newModel,
+  prop,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-export class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 0,
-  }
-
+export class P2 extends Model({
+  y: prop(0),
+}) {
   @modelAction
   addY = (n: number) => {
-    this.$.y += n
+    this.y += n
     return this.y
   }
 }
 
 @model("P")
-export class P extends Model<{ p2: P2; x: number; arr: number[]; obj: { [k: string]: number } }>() {
-  defaultData = {
-    p2: newModel(P2, {}),
-    x: 0,
-    arr: [],
-    obj: {},
-  }
-
+export class P extends Model({
+  p2: prop(() => newModel(P2, {})),
+  x: prop(0),
+  arr: prop<number[]>(() => []),
+  obj: prop<{ [k: string]: number }>(() => ({})),
+}) {
   @modelAction
   addX(n: number) {
-    this.$.x += n
+    this.x += n
     return this.x
   }
 
@@ -101,14 +98,14 @@ test("action tracking", () => {
                   "y": 0,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 1,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -134,14 +131,14 @@ test("action tracking", () => {
                   "y": 0,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 1,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -172,7 +169,7 @@ test("action tracking", () => {
               "y": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
+              "id": "mockedUuid-2",
               "type": "P2",
             },
           },
@@ -194,7 +191,7 @@ test("action tracking", () => {
               "y": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
+              "id": "mockedUuid-2",
               "type": "P2",
             },
           },
@@ -230,14 +227,14 @@ test("action tracking", () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -270,14 +267,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -301,14 +298,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -323,14 +320,14 @@ test("action tracking", () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -363,14 +360,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -394,14 +391,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -416,14 +413,14 @@ test("action tracking", () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -457,14 +454,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -488,14 +485,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -506,7 +503,7 @@ test("action tracking", () => {
               "y": 4,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
+              "id": "mockedUuid-2",
               "type": "P2",
             },
           },
@@ -539,14 +536,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -570,14 +567,14 @@ test("action tracking", () => {
                     "y": 4,
                   },
                   "$$metadata": Object {
-                    "id": "mockedUuid-1",
+                    "id": "mockedUuid-2",
                     "type": "P2",
                   },
                 },
                 "x": 2,
               },
               "$$metadata": Object {
-                "id": "mockedUuid-2",
+                "id": "mockedUuid-1",
                 "type": "P",
               },
             },
@@ -588,7 +585,7 @@ test("action tracking", () => {
               "y": 4,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
+              "id": "mockedUuid-2",
               "type": "P2",
             },
           },
@@ -616,14 +613,14 @@ test("action tracking", () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-1",
+                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
+              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -737,11 +734,11 @@ test("action protection", () => {
   const err = "data changes must be performed inside model actions"
 
   expect(() => {
-    p.$.x = 100
+    p.x = 100
   }).toThrow(err)
 
   expect(() => {
-    p.p2.$.y = 100
+    p.p2.y = 100
   }).toThrow(err)
 
   expect(

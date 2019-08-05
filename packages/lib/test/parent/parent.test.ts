@@ -10,24 +10,22 @@ import {
   model,
   Model,
   modelSnapshotInWithMetadata,
+  prop,
   runUnprotected,
 } from "../../src"
 import "../commonSetup"
 
 @model("P2")
-export class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 10,
-  }
-}
+export class P2 extends Model({
+  y: prop(() => 10),
+}) {}
 
 @model("P")
-export class P extends Model<{ x: number; arr: P2[]; p2?: P2 }>() {
-  defaultData = {
-    x: 5,
-    arr: [],
-  }
-}
+export class P extends Model({
+  x: prop(() => 5),
+  arr: prop<P2[]>(() => []),
+  p2: prop<P2 | undefined>(),
+}) {}
 
 test("parent", () => {
   const p = fromSnapshot<P>(
@@ -90,7 +88,7 @@ test("parent", () => {
 
   const p2 = p.p2!
 
-  // delete prop
+  // delete prop (unsupported for this.x but supported for this.$ since they require proxies and would be slower)
   runUnprotected(() => {
     delete p.$.p2
   })
@@ -101,21 +99,21 @@ test("parent", () => {
 
   // readd prop
   runUnprotected(() => {
-    p.$.p2 = p2
+    p.p2 = p2
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
   expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
 
   // reassign prop
   runUnprotected(() => {
-    p.$.p2 = undefined
+    p.p2 = undefined
   })
   expect(getParentPath(p2)).toBeUndefined()
   expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr])
 
   // readd prop
   runUnprotected(() => {
-    p.$.p2 = p2
+    p.p2 = p2
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
   expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
@@ -130,7 +128,7 @@ test("parent", () => {
 
   // readd prop
   runUnprotected(() => {
-    p.$.p2 = p2
+    p.p2 = p2
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
   expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])

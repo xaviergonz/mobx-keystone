@@ -1,20 +1,17 @@
 import { computed } from "mobx"
-import { model, Model, modelAction, newModel } from "../src"
+import { model, Model, modelAction, newModel, prop } from "../src"
 
 @model("P2")
-export class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 10,
-  }
-}
+export class P2 extends Model({
+  y: prop(() => 10),
+}) {}
 
 @model("P")
-export class P extends Model<{ x: number; arr: number[]; p2?: P2 }>() {
-  defaultData = {
-    x: 5,
-    arr: [],
-  }
-
+export class P extends Model({
+  x: prop(() => 5),
+  arr: prop<number[]>(() => []),
+  p2: prop<P2 | undefined>(),
+}) {
   @computed
   get xx() {
     return this.x

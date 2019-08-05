@@ -5,6 +5,7 @@ import {
   modelAction,
   modelFlow,
   newModel,
+  prop,
   UndoEvent,
   UndoManager,
   undoMiddleware,
@@ -14,27 +15,23 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")
-class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 0,
-  }
-
+class P2 extends Model({
+  y: prop(() => 0),
+}) {
   @modelAction
   incY(n: number) {
-    this.$.y += n
+    this.y += n
   }
 }
 
 @model("P")
-class P extends Model<{ p2: P2; x: number }>() {
-  defaultData = {
-    x: 0,
-    p2: newModel(P2, {}),
-  }
-
+class P extends Model({
+  p2: prop(() => newModel(P2, {})),
+  x: prop(() => 0),
+}) {
   @modelAction
   incX(n: number) {
-    this.$.x += n
+    this.x += n
   }
 
   @modelAction
@@ -46,12 +43,10 @@ class P extends Model<{ p2: P2; x: number }>() {
 }
 
 @model("R")
-class R extends Model<{ undoData: UndoStore; p: P }>() {
-  defaultData = {
-    undoData: newModel(UndoStore, {}),
-    p: newModel(P, {}),
-  }
-}
+class R extends Model({
+  undoData: prop(() => newModel(UndoStore, {})),
+  p: prop(() => newModel(P, {})),
+}) {}
 
 test("undoMiddleware - sync", () => {
   const r = newModel(R, {})
@@ -283,30 +278,26 @@ test("undoMiddleware - sync", () => {
 })
 
 @model("P2Flow")
-class P2Flow extends Model<{ y: number }>() {
-  defaultData = {
-    y: 0,
-  };
-
+class P2Flow extends Model({
+  y: prop(() => 0),
+}) {
   @modelFlow
   *incY(n: number) {
     yield Promise.resolve()
-    this.$.y += n
+    this.y += n
     yield Promise.resolve()
   }
 }
 
 @model("PFlow")
-class PFlow extends Model<{ x: number; p2: P2Flow }>() {
-  defaultData = {
-    x: 0,
-    p2: newModel(P2Flow, {}),
-  };
-
+class PFlow extends Model({
+  x: prop(() => 0),
+  p2: prop(() => newModel(P2Flow, {})),
+}) {
   @modelFlow
   *incX(n: number) {
     yield Promise.resolve()
-    this.$.x += n
+    this.x += n
     yield Promise.resolve()
   }
 
@@ -322,12 +313,10 @@ class PFlow extends Model<{ x: number; p2: P2Flow }>() {
 }
 
 @model("RFlow")
-class RFlow extends Model<{ undoData: UndoStore; p: PFlow }>() {
-  defaultData = {
-    undoData: newModel(UndoStore, {}),
-    p: newModel(PFlow, {}),
-  }
-}
+class RFlow extends Model({
+  undoData: prop(() => newModel(UndoStore, {})),
+  p: prop(() => newModel(PFlow, {})),
+}) {}
 
 test("undoMiddleware - async", async () => {
   const r = newModel(RFlow, {})

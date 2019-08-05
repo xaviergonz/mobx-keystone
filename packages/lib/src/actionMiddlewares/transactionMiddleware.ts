@@ -1,5 +1,5 @@
 import { ActionMiddlewareDisposer } from "../action/middleware"
-import { AnyModel } from "../model/Model"
+import { AnyModel } from "../model/BaseModel"
 import { addModelClassInitializer } from "../model/newModel"
 import { assertIsModel, checkModelDecoratorArgs } from "../model/utils"
 import { applyPatches } from "../patch"

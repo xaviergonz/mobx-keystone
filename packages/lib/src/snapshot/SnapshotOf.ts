@@ -1,6 +1,5 @@
 import { Frozen } from "../frozen/Frozen"
-import { AnyModel, ModelData } from "../model/Model"
-import { ModelCreationData } from "../model/newModel"
+import { AnyModel, ModelCreationData, ModelData } from "../model/BaseModel"
 
 // snapshot out
 

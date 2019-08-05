@@ -42,9 +42,9 @@ test("onPatches and applyPatches", () => {
   // no changes should result in no patches
   reset()
   runUnprotected(() => {
-    p.$.x = p.x
+    p.x = p.x
     p.arr[0] = p.arr[0]
-    p.p2!.$.y = p.p2!.y
+    p.p2!.y = p.p2!.y
   })
 
   expect(pPatches).toMatchInlineSnapshot(`Array []`)
@@ -54,8 +54,8 @@ test("onPatches and applyPatches", () => {
 
   reset()
   runUnprotected(() => {
-    p.$.x++
-    p.p2!.$.y++
+    p.x++
+    p.p2!.y++
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
@@ -139,7 +139,7 @@ test("onPatches and applyPatches", () => {
   // remove subobj
   reset()
   runUnprotected(() => {
-    p.$.p2 = undefined
+    p.p2 = undefined
   })
 
   expect(pPatches).toMatchInlineSnapshot(`
@@ -185,7 +185,7 @@ test("onPatches and applyPatches", () => {
   // swap items around
   reset()
   runUnprotected(() => {
-    p.$.arr = [3, 2, 1]
+    p.arr = [3, 2, 1]
   })
 
   expect(pPatches).toMatchInlineSnapshot(`

@@ -1,7 +1,7 @@
 import { isObservableObject } from "mobx"
 import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
+import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
-import { AnyModel } from "../model/Model"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"

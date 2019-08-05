@@ -6,6 +6,7 @@ import {
   modelAction,
   modelSnapshotInWithMetadata,
   newModel,
+  prop,
   Ref,
   ref,
   registerRootStore,
@@ -13,27 +14,29 @@ import {
 import "../commonSetup"
 
 @model("P2")
-class P2 extends Model<{ y: number }>() {
-  defaultData = {
-    y: 10,
-  }
-}
+class P2 extends Model({
+  y: prop(() => 10),
+}) {}
 
 @model("P")
-class P extends Model<{ p2?: P2; p3?: P2; r?: Ref<P2> }>() {
+class P extends Model({
+  p2: prop<P2 | undefined>(),
+  p3: prop<P2 | undefined>(),
+  r: prop<Ref<P2> | undefined>(),
+}) {
   @modelAction
   setR(r: P2 | undefined, autoDetach = false) {
-    this.$.r = r ? ref(r, { autoDetach }) : undefined
+    this.r = r ? ref(r, { autoDetach }) : undefined
   }
 
   @modelAction
   setP2(p2: P2 | undefined) {
-    this.$.p2 = p2
+    this.p2 = p2
   }
 
   @modelAction
   setP3(p2: P2 | undefined) {
-    this.$.p3 = p2
+    this.p3 = p2
   }
 }
 

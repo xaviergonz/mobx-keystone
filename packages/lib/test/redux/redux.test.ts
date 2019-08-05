@@ -6,6 +6,7 @@ import {
   Model,
   modelAction,
   newModel,
+  prop,
   ReduxAction,
   ReduxMiddleware,
   SnapshotOutOfModel,
@@ -14,14 +15,12 @@ import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P")
-export class P extends Model<{ x: number }>() {
-  defaultData = {
-    x: 0,
-  }
-
+export class P extends Model({
+  x: prop(() => 0),
+}) {
   @modelAction
   addX(n: number) {
-    this.$.x += n
+    this.x += n
     return this.x
   }
 }

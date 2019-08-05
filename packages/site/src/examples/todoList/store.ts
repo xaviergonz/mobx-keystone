@@ -8,8 +8,8 @@ import {
   newModel,
   registerRootStore,
   setGlobalConfig,
+  tcProp,
   types,
-  TypeToData,
 } from "mobx-keystone"
 
 // for this example we will enable runtime data checking even in production mode
@@ -17,65 +17,58 @@ setGlobalConfig({
   modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
 })
 
-// here we define the type of the model data to have runtime checking
-// this is only required if runtime type checking is needed
-const todoDataType = types.object(() => ({
-  text: types.string,
-  done: types.boolean,
-}))
-
 // the model decorator marks this class as a model, an object with actions, etc.
 // the string identifies this model type and must be unique across your whole application
 @model("todoSample/Todo")
-export class Todo extends Model<TypeToData<typeof todoDataType>> {
-  // the stuff between <> above is the type of the (observable and snapshottable) data
-  // your model will hold. it is also part of the required initialization data of the model
-  // while we could just have used <{ text: string; done: boolean }> we use that construct
-  // to inherit the proper type from the runtime type definition
+export class Todo extends Model({
+  // here we define the type of the model data, which is observable and snapshottable
+  // and also part of the required initialization data of the model
 
-  // you can optionally use this to mark some data properties as optional and give them a
-  // default value when not present
-  defaultData = {
-    done: false,
-  }
+  // in this case we use runtime type checking (tc = type checked),
+  text: tcProp(types.string), // a required string
+  done: tcProp(types.boolean, false), // an optional boolean that will default to false
 
+  // if we didn't require runtime type checking we could do this
+  // text: prop<string>(),
+  // done: prop(false)
+}) {
   // the modelAction decorator marks the function as a model action, giving it access
-  // to modify any model data (inside `this.$`) and other superpowers such as action
+  // to modify any model data and other superpowers such as action
   // middlewares, replication, etc.
   @modelAction
   setDone(done: boolean) {
-    this.$.done = done
+    this.done = done
   }
 
   @modelAction
   setText(text: string) {
-    this.$.text = text
+    this.text = text
   }
 }
 
-const todoListDataType = types.object(() => ({
-  todos: types.array(types.model<Todo>(Todo)),
-}))
-
 @model("todoSample/TodoList")
-export class TodoList extends Model<TypeToData<typeof todoListDataType>> {
-  // again, we could have just used <{ todos: Todo[] }> if runtime type checking was not needed
+export class TodoList extends Model({
+  // in this case the default uses an arrow function to create the object since it is not a primitive
+  // and we need a different array for each model instane
+  todos: tcProp(types.array(types.model<Todo>(Todo)), () => []),
 
-  // standard mobx decorators (such as computed) can be used as usual, since anything inside
-  // `this.$` is observable
+  // if we didn't require runtime type checking
+  // todos: prop<Todo[]>(() => [])
+}) {
+  // standard mobx decorators (such as computed) can be used as usual, since props are observables
   @computed
   get pending() {
-    return this.$.todos.filter(t => !t.$.done)
+    return this.todos.filter(t => !t.done)
   }
 
   @computed
   get done() {
-    return this.$.todos.filter(t => t.$.done)
+    return this.todos.filter(t => t.done)
   }
 
   @modelAction
   add(todo: Todo) {
-    this.$.todos.push(todo)
+    this.todos.push(todo)
   }
 
   @modelAction
@@ -85,7 +78,7 @@ export class TodoList extends Model<TypeToData<typeof todoListDataType>> {
     // - also in the case of action serialization, the todo object (although a clone) will have a different
     //   reference, so a plain indexOf won't work
 
-    const list = this.$.todos
+    const list = this.todos
     const todoIndex = list.findIndex(todo => todo.modelId === todoId)
     if (todoIndex >= 0) {
       list.splice(todoIndex, 1)

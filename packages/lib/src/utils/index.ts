@@ -29,10 +29,10 @@ export function failure(msg: string) {
 /**
  * @ignore
  */
-export function addHiddenProp(object: any, propName: PropertyKey, value: any) {
+export function addHiddenProp(object: any, propName: PropertyKey, value: any, writable = true) {
   Object.defineProperty(object, propName, {
     enumerable: false,
-    writable: true,
+    writable,
     configurable: true,
     value,
   })

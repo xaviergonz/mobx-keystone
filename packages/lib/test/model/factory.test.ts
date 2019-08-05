@@ -1,19 +1,17 @@
-import { model, Model, modelAction, newModel } from "../../src"
+import { model, Model, modelAction, newModel, prop } from "../../src"
 import "../commonSetup"
 
 test("factory pattern", () => {
   function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
     @model(`myApp/${modelName}`)
-    class MyModel extends Model<{ x: TX; y: TY }>() {
-      defaultData = {
-        x: initialX,
-        y: initialY,
-      }
-
+    class MyModel extends Model({
+      x: prop<TX>(() => initialX),
+      y: prop<TY>(() => initialY),
+    }) {
       @modelAction
       setXY(x: TX, y: TY) {
-        this.$.x = x
-        this.$.y = y
+        this.x = x
+        this.y = y
       }
     }
 

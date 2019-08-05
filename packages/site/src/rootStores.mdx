@@ -44,7 +44,7 @@ First we need to define a model for the user preferences, as well as its desired
 type Theme = "light" | "dark"
 
 @model("myApp/UserPreferences")
-class UserPreferences extends Model<{ theme: Theme }> {
+class UserPreferences extends Model({ theme: prop<Theme>() }) {
   // once we are part of the root store...
   onAttachedToRootStore() {
     // everytime the snapshot of the configuration changes
@@ -68,7 +68,7 @@ class UserPreferences extends Model<{ theme: Theme }> {
 
   @modelAction
   setTheme(theme: Theme) {
-    this.$.thee = theme
+    this.thee = theme
   }
 }
 ```
@@ -77,10 +77,10 @@ class UserPreferences extends Model<{ theme: Theme }> {
 
 ```ts
 @model("myApp/RootStore")
-class RootStore extends Model<{ userPreferences: UserPreferences }> {
+class RootStore extends Model({ userPreferences: prop<UserPreferences>() }) {
   @modelAction
-  setUserPreferenes(userPreferences: UserPreferences) {
-    this.$.userPreferences = userPreferences
+  setUserPreferences(userPreferences: UserPreferences) {
+    this.userPreferences = userPreferences
   }
 }
 ```
@@ -112,7 +112,7 @@ Now we would like to have a form which will be able to edit a copy of the curren
 
 ```ts
 // we make a clone of the current preferences
-const formPreferences = clone(myRootStore.$.userPreferences)
+const formPreferences = clone(myRootStore.userPreferences)
 // since the clone is outside the root store it WON'T be auto saved
 
 // the form eventually makes changes...
@@ -139,7 +139,7 @@ For this we would just need to follow a pattern like this one:
 
 ```ts
 @model("myApp/RootStore")
-class RootStore extends Model<{...}> {
+class RootStore extends Model({...}) {
   myEnvData?: { ... }
 }
 

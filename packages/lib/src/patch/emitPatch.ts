@@ -1,5 +1,5 @@
 import { action, isAction } from "mobx"
-import { BaseModel } from "../model/Model"
+import { BaseModel } from "../model/BaseModel"
 import { getParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray } from "../utils"

@@ -1,4 +1,5 @@
 import { O } from "ts-toolbelt"
+import { IsOptionalValue } from "../utils/types"
 
 // type schemas
 
@@ -6,6 +7,7 @@ import { O } from "ts-toolbelt"
 
 export interface IdentityType<T> {
   $$identityType: T
+  $$identityTypeOpt: T & undefined
 }
 
 export interface ArrayType<S extends AnyType> {
@@ -17,38 +19,18 @@ export interface ObjectOfTypes {
 }
 
 /**
- * Checks if a value is optional (undefined, any or unknown).
- * @hidden
- *
- * Examples:
- * - string = false
- * - undefined = true
- * - string | undefined = true
- * - string & undefined = false, but we don't care
- * - any = true
- * - unknown = true
- * - null = false
- * - string | null = false
- * - string & null = false
- */
-type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
-
-// type _A = IsOptionalValue<string, true, false> // false
-// type _B = IsOptionalValue<undefined, true, false> // true
-// type _C = IsOptionalValue<string | undefined, true, false> // true
-// type _D = IsOptionalValue<string & undefined, true, false> // false, but we don't care
-// type _E = IsOptionalValue<any, true, false> // true
-// type _F = IsOptionalValue<unknown, true, false> // true
-
-/**
  * Name of the properties of an object that can be set to undefined, any or unknown
- * @hidden
  */
-type UndefinablePropsNames<T> = { [K in keyof T]: IsOptionalValue<T[K], K, never> }[keyof T]
+type UndefinablePropsNames<T> = {
+  [K in keyof T]: IsOptionalValue<T[K], K, never>
+}[keyof T]
 
 export interface ObjectType<S extends ObjectOfTypes> {
   $$objectTypeData: { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never }
-  $$objectUndefinablePropNames: UndefinablePropsNames<this["$$objectTypeData"]>
+
+  $$objectTypeOpt: { [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never }
+  $$objectUndefinablePropNames: UndefinablePropsNames<this["$$objectTypeOpt"]>
+
   $$objectType: O.Optional<this["$$objectTypeData"], this["$$objectUndefinablePropNames"]>
 }
 
@@ -64,6 +46,7 @@ export interface ObjectMapType<S extends AnyType> {
 
 export interface OrType<S extends AnyType[]> {
   $$orType: TypeToData<S[number]> extends infer R ? R : never
+  $$orTypeOpt: TypeToDataOpt<S[number]> extends infer R ? R : never
 }
 
 export type AnyType =
@@ -98,6 +81,16 @@ export type TypeToData<S extends AnyType> = S extends ObjectTypeFunction<infer S
     : never
   : S extends IdentityType<any>
   ? S["$$identityType"] extends infer R
+    ? R
+    : never
+  : never
+
+type TypeToDataOpt<S extends AnyType> = S extends OrType<any>
+  ? S["$$orTypeOpt"] extends infer R
+    ? R
+    : never
+  : S extends IdentityType<any>
+  ? S["$$identityTypeOpt"] extends infer R
     ? R
     : never
   : never

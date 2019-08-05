@@ -1,4 +1,4 @@
-import { AnyModel } from "../model/Model"
+import { AnyModel } from "../model/BaseModel"
 
 /**
  * Low level action context.

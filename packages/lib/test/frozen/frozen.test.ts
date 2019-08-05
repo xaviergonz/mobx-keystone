@@ -8,6 +8,7 @@ import {
   model,
   Model,
   newModel,
+  prop,
   runUnprotected,
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
@@ -15,7 +16,9 @@ import "../commonSetup"
 import { emulateProdMode } from "../utils"
 
 @model("P")
-class P extends Model<{ frozenStuff?: Frozen<any> }>() {}
+class P extends Model({
+  frozenStuff: prop<Frozen<any> | undefined>(),
+}) {}
 
 describe("frozen", () => {
   function basicTest<T>(name: string, data: T) {
@@ -41,7 +44,7 @@ describe("frozen", () => {
       expect(getRoot(fr)).toBe(p)
 
       runUnprotected(() => {
-        p.$.frozenStuff = undefined
+        p.frozenStuff = undefined
       })
 
       expect(getSnapshot(p).frozenStuff).toBe(undefined)
