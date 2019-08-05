@@ -1,6 +1,7 @@
 export {
   AnyModel,
   BaseModel,
+  ModelClass,
   ModelCreationData,
   ModelData,
   modelSnapshotInWithMetadata,

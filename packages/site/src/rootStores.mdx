@@ -94,7 +94,7 @@ const myPreferencesObj = JSON.parse(localStorage.get("myPreferences"))
 // since it is not yet part of a root store
 // this means we can manipulate it without fear of overwriting the
 // config in local storage
-const myPreferences = fromSnapshot(myPreferencesObj)
+const myPreferences = fromSnapshot<UserPreferences>(myPreferencesObj)
 ```
 
 ...and finally creating the root store itself with the initial data...

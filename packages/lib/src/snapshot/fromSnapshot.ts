@@ -14,6 +14,7 @@ import {
   SnapshotInOfArray,
   SnapshotInOfModel,
   SnapshotInOfObject,
+  SnapshotOutOf,
 } from "./SnapshotOf"
 
 /**
@@ -33,20 +34,23 @@ export interface FromSnapshotOptions {
  * references will fix their target IDs accordingly.
  *
  * @typeparam T Object type.
- * @param snapshot Snapshot, including primitives.
+ * @param snapshot Snapshot, even if a primitive.
  * @param [options] Options.
  * @returns The deserialized object.
  */
-export let fromSnapshot = <T>(snapshot: SnapshotInOf<T>, options?: FromSnapshotOptions): T => {
+export let fromSnapshot = <T>(
+  snapshot: SnapshotInOf<T> | SnapshotOutOf<T>,
+  options?: FromSnapshotOptions
+): T => {
   if (options && options.generateNewIds) {
     snapshot = fixSnapshotIds(snapshot)
   }
 
-  return internalFromSnapshot(snapshot)
+  return internalFromSnapshot<T>(snapshot)
 }
 fromSnapshot = action("fromSnapshot", fromSnapshot) as any
 
-function internalFromSnapshot<T>(sn: SnapshotInOf<T>): T {
+function internalFromSnapshot<T>(sn: SnapshotInOf<T> | SnapshotOutOf<T>): T {
   if (isPrimitive(sn)) {
     return sn as any
   }
