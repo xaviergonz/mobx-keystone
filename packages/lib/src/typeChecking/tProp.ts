@@ -1,5 +1,6 @@
 import { ModelProp } from "../model/prop"
-import { AnyType, TypeToData } from "./schemas"
+import { IsOptionalValue } from "../utils/types"
+import { AnyType, TypeToData, TypeToDataOpt } from "./schemas"
 
 /**
  * Defines a model property with no default value and an associated type checker.
@@ -17,7 +18,7 @@ import { AnyType, TypeToData } from "./schemas"
  */
 export function tProp<TType extends AnyType>(
   type: TType
-): ModelProp<TypeToData<TType>, never, never>
+): ModelProp<TypeToData<TType>, IsOptionalValue<TypeToDataOpt<TType>, string, never>>
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -38,7 +39,7 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultFn: () => TypeToData<TType>
-): ModelProp<TypeToData<TType>, typeof defaultFn, never>
+): ModelProp<TypeToData<TType>, string>
 
 /**
  * Defines a model property, with an optional default value
@@ -60,15 +61,16 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultValue: TypeToData<TType>
-): ModelProp<TypeToData<TType>, never, TypeToData<TType>>
+): ModelProp<TypeToData<TType>, string>
 
 export function tProp<TType extends AnyType>(
   type: TType,
   def?: any
-): ModelProp<TypeToData<TType>, any, any> {
+): ModelProp<TypeToData<TType>, any> {
   const isDefFn = typeof def === "function"
   return {
     $valueType: null as any,
+    $hasDefault: null as any,
     defaultFn: isDefFn ? def : undefined,
     defaultValue: isDefFn ? undefined : def,
     typeChecker: type as any,

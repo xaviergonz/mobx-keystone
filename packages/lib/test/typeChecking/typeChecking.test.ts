@@ -641,8 +641,10 @@ test("typing of optional values", () => {
     nsu3: types.or(types.number, types.or(types.string, types.undefined)),
   }))
 
+  type T1 = TypeToData<typeof t1>
+
   assert(
-    _ as TypeToData<typeof t1>,
+    _ as T1,
     _ as {
       n: number
       ns: string | number
@@ -661,8 +663,10 @@ test("typing of optional values", () => {
     nsu3: types.or(a, types.or(types.string, types.undefined)),
   }))
 
+  type T2 = TypeToData<typeof t2>
+
   assert(
-    _ as TypeToData<typeof t2>,
+    _ as T2,
     _ as {
       n: number[]
       ns: string | number[]

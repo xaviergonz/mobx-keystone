@@ -4,14 +4,11 @@ import { IsOptionalValue } from "../utils/types"
 /**
  * A model property.
  */
-export interface ModelProp<
-  TValue,
-  TDefaultFunc extends (() => TValue) | undefined,
-  TDefaultValue extends TValue
-> {
+export interface ModelProp<TValue, THasDefault> {
   $valueType: TValue
-  defaultFn: TDefaultFunc
-  defaultValue: TDefaultValue
+  $hasDefault: THasDefault
+  defaultFn?: () => TValue
+  defaultValue?: TValue
   typeChecker: TypeChecker | LateTypeChecker | null
 }
 
@@ -19,13 +16,11 @@ export interface ModelProp<
  * Model properties.
  */
 export interface ModelProps {
-  [k: string]: ModelProp<any, any, any>
+  [k: string]: ModelProp<any, any>
 }
 
 export type OptionalModelProps<MP extends ModelProps> = {
-  [K in keyof MP]: MP[K]["defaultFn"] | MP[K]["defaultValue"] extends never
-    ? IsOptionalValue<MP[K]["$valueType"], K, never>
-    : K
+  [K in keyof MP]: (MP[K]["$hasDefault"] & K)
 }[keyof MP]
 
 export type ModelPropsToData<MP extends ModelProps> = {
@@ -44,7 +39,7 @@ export type ModelPropsToData<MP extends ModelProps> = {
  * @typeparam TValue Value type.
  * @returns
  */
-export function prop<TValue>(): ModelProp<TValue, never, never>
+export function prop<TValue>(): ModelProp<TValue, IsOptionalValue<TValue, string, never>>
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -60,7 +55,7 @@ export function prop<TValue>(): ModelProp<TValue, never, never>
  * @param defaultFn Default value generator function.
  * @returns
  */
-export function prop<TValue>(defaultFn: () => TValue): ModelProp<TValue, typeof defaultFn, never>
+export function prop<TValue>(defaultFn: () => TValue): ModelProp<TValue, string>
 
 /**
  * Defines a model property, with an optional default value
@@ -77,12 +72,13 @@ export function prop<TValue>(defaultFn: () => TValue): ModelProp<TValue, typeof 
  * @param defaultValue Default primitive value.
  * @returns
  */
-export function prop<TValue>(defaultValue: TValue): ModelProp<TValue, never, TValue>
+export function prop<TValue>(defaultValue: TValue): ModelProp<TValue, string>
 
-export function prop<TValue>(def?: any): ModelProp<TValue, any, any> {
+export function prop<TValue>(def?: any): ModelProp<TValue, any> {
   const isDefFn = typeof def === "function"
   return {
     $valueType: null as any,
+    $hasDefault: null as any,
     defaultFn: isDefFn ? def : undefined,
     defaultValue: isDefFn ? undefined : def,
     typeChecker: null,
