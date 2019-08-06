@@ -2448,9 +2448,9 @@
   integrity sha512-yALhelO3i0hqZwhjtcr6dYyaLoCHbAMshwtj6cGxTvHZAKXHsYGdff6E8EPw3xLKY0ELUTQ69Q1rQiJENnccMA==
 
 "@types/jest@^24.0.12":
-  version "24.0.16"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.16.tgz#8d3e406ec0f0dc1688d6711af3062ff9bd428066"
-  integrity sha512-JrAiyV+PPGKZzw6uxbI761cHZ0G7QMOHXPhtSpcl08rZH6CswXaaejckn3goFKmF7M3nzEoJ0lwYCbqLMmjziQ==
+  version "24.0.17"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.17.tgz#b66ea026efb746eb5db1356ee28518aaff7af416"
+  integrity sha512-1cy3xkOAfSYn78dsBWy4M3h/QF/HeWPchNFDjysVtp3GHeTdSmtluNnELfCmfNRRHo0OWEcpf+NsEJQvwQfdqQ==
   dependencies:
     "@types/jest-diff" "*"
 
@@ -13879,9 +13879,9 @@ ts-node@^8.3.0:
     yn "^3.0.0"
 
 ts-toolbelt@^3.2.14:
-  version "3.2.18"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.2.18.tgz#a34ce412be97fa4bae0db38ff37070308a80ad88"
-  integrity sha512-hRam86nk7bv269dSfZoeSCqZec2guiCXcQMSbJ0BthxYlToWTaKSB328nn5PguUB2ta70V+eAfM4qLOUW+aqvw==
+  version "3.2.22"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.2.22.tgz#9c30a97d9f7b283275981dadff67019099ee3928"
+  integrity sha512-sV3yT4dtxeDWqa7gw6mAcdCc8se1zmWmh15FlBCTSNCruRAtvquvfadpUZRbPJpIey2j0aTT5mF3fqIhF8G2Eg==
 
 tsdx@^0.7.1:
   version "0.7.2"

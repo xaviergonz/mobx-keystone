@@ -8,6 +8,20 @@ import { modelConstructorSymbol } from "./modelInfo"
 import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
 
+declare const propsDataSymbol: unique symbol
+declare const optPropsDataSymbol: unique symbol
+
+export interface _Model<TProps extends ModelProps> {
+  [propsDataSymbol]: ModelPropsToData<TProps>
+  [optPropsDataSymbol]: OptionalModelProps<TProps>
+
+  new (privateSymbol: typeof modelConstructorSymbol): BaseModel<
+    this[typeof propsDataSymbol],
+    O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
+  > &
+    Omit<this[typeof propsDataSymbol], keyof AnyModel>
+}
+
 /**
  * Base abstract class for models.
  *
@@ -17,15 +31,7 @@ import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
  * @typeparam TProps Model properties type.
  * @param modelProps Model properties.
  */
-export function Model<TProps extends ModelProps>(
-  modelProps: TProps
-): {
-  new (privateSymbol: typeof modelConstructorSymbol): BaseModel<
-    ModelPropsToData<TProps>,
-    O.Optional<ModelPropsToData<TProps>, OptionalModelProps<TProps>>
-  > &
-    Omit<ModelPropsToData<TProps>, keyof AnyModel>
-} {
+export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TProps> {
   assertIsObject(modelProps, "modelProps")
 
   // create type checker if needed
