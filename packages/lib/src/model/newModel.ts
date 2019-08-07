@@ -1,5 +1,4 @@
 import { action, observable } from "mobx"
-import nanoid from "nanoid/non-secure"
 import { O } from "ts-toolbelt"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
@@ -49,7 +48,6 @@ export const internalNewModel = action(
     snapshotInitialData:
       | {
           unprocessedSnapshot: any
-          id: string
           snapshotToInitialData(processedSnapshot: any): any
         }
       | undefined
@@ -64,21 +62,16 @@ export const internalNewModel = action(
         `no model info for class ${modelClass.name} could be found - did you forget to add the @model decorator?`
       )
     }
-    let id
     if (snapshotInitialData) {
-      id = snapshotInitialData.id
       let sn = snapshotInitialData.unprocessedSnapshot
       if (modelObj.fromSnapshot) {
         sn = modelObj.fromSnapshot(sn)
       }
       initialData = snapshotInitialData.snapshotToInitialData(sn)
-    } else {
-      id = nanoid()
     }
 
     modelObj[modelMetadataKey] = {
       type: modelInfo.name,
-      id,
     }
 
     // fill in defaults in initial data

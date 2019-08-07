@@ -1,4 +1,3 @@
-import nanoid from "nanoid/non-secure"
 import { O } from "ts-toolbelt"
 import { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot"
 import { typesModel } from "../typeChecking/model"
@@ -28,13 +27,6 @@ export abstract class BaseModel<
   [typeSymbol]: [Data, CreationData];
 
   readonly [modelMetadataKey]: ModelMetadata
-
-  /**
-   * Gets the unique model ID of this model instance.
-   */
-  get $modelId() {
-    return this[modelMetadataKey].id
-  }
 
   /**
    * Gets the model type name.
@@ -106,7 +98,6 @@ export abstract class BaseModel<
 // these props will never be hoisted to this
 export const baseModelPropNames = new Set<keyof AnyModel>([
   modelMetadataKey,
-  "$modelId",
   "$modelType",
   "onInit",
   "$",
@@ -147,8 +138,7 @@ export type ModelCreationData<M extends AnyModel> = M extends BaseModel<any, inf
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>,
-  id?: string
+  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
@@ -158,7 +148,6 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
   return {
     ...snapshot,
     [modelMetadataKey]: {
-      id: id || nanoid(),
       type: modelInfo.name,
     },
   } as any
@@ -176,8 +165,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelMetadataKey>,
-  id?: string
+  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelMetadataKey>
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
@@ -187,7 +175,6 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   return {
     ...snapshot,
     [modelMetadataKey]: {
-      id: id || nanoid(),
       type: modelInfo.name,
     },
   } as any

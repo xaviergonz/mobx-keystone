@@ -14,15 +14,10 @@ export class P3 extends Model({
 
 test("snapshot processor", () => {
   const p = fromSnapshot<P3>(
-    modelSnapshotInWithMetadata(
-      P3,
-      {
-        y: "30,40,50",
-      },
-      "P3-id"
-    )
+    modelSnapshotInWithMetadata(P3, {
+      y: "30,40,50",
+    })
   )
 
   expect(p.arr).toStrictEqual([30, 40, 50])
-  expect(p.$modelId).toBe("P3-id")
 })

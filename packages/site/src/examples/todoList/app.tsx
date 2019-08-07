@@ -25,11 +25,11 @@ export const TodoListView = observer(({ list }: { list: TodoList }) => {
 
   const renderTodo = (todo: Todo) => (
     <TodoView
-      key={todo.$modelId}
+      key={todo.id}
       done={todo.done}
       text={todo.text}
       onClick={() => todo.setDone(!todo.done)}
-      onRemove={() => list.remove(todo.$modelId)}
+      onRemove={() => list.remove(todo.id)}
     />
   )
 

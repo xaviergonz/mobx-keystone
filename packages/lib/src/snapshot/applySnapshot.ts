@@ -51,7 +51,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   }
 
   if (isModelSnapshot(sn)) {
-    const { type, id } = sn[modelMetadataKey]
+    const { type } = sn[modelMetadataKey]
 
     const modelInfo = getModelInfoForName(type)
     if (!modelInfo) {
@@ -61,11 +61,6 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
     if (!(obj instanceof modelInfo.class) || obj.$modelType !== type) {
       // different kind of model, no reconciliation possible
       throw failure("snapshot model type does not match target model type")
-    }
-    if (obj.$modelId !== id) {
-      throw failure(
-        `snapshot model id does not match target model id - expected '${obj.$modelId}' but got 'id'`
-      )
     }
 
     return reconcile()

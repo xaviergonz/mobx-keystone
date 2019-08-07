@@ -1,8 +1,5 @@
-import { createAtom, IAtom, observable, ObservableMap, ObservableSet } from "mobx"
-import { AnyModel } from "../model/BaseModel"
-import { assertTweakedObject } from "../tweaker/core"
-import { failure } from "../utils"
-import { isRoot, ParentPath } from "./path"
+import { createAtom, IAtom, ObservableSet } from "mobx"
+import { ParentPath } from "./path"
 
 /**
  * @ignore
@@ -18,42 +15,6 @@ export const objectParentsAtoms = new WeakMap<object, IAtom>()
  * @ignore
  */
 export const objectChildren = new WeakMap<object, ObservableSet<any>>()
-
-const rootIdCaches = new WeakMap<object, ObservableMap<string, AnyModel>>()
-
-/**
- * @ignore
- */
-export function getRootIdCache(root: object): ObservableMap<string, AnyModel> {
-  let cache = rootIdCaches.get(root)
-  if (!cache) {
-    cache = observable.map()
-    rootIdCaches.set(root, cache)
-  }
-  return cache
-}
-
-/**
- * Resolves a model inside a given subtree by its id.
- *
- * @typename M Model type.
- * @param treeRoot Root node object.
- * @param id Id to resolve.
- * @returns The resolved model or undefined if not found.
- */
-export function resolveModelId<M extends AnyModel>(treeRoot: object, id: string): M | undefined {
-  assertTweakedObject(treeRoot, "treeRoot")
-  if (!isRoot(treeRoot)) {
-    throw failure("a root node was expected")
-  }
-
-  let cache = rootIdCaches.get(treeRoot)
-  if (!cache) {
-    return undefined
-  }
-  const model = cache.get(id)
-  return model as M | undefined
-}
 
 /**
  * @ignore

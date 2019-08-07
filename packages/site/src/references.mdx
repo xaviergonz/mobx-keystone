@@ -8,69 +8,131 @@ route: /references
 ## Overview
 
 As we saw in the [tree-like structure](./treeLikeStructure) section, a same non-primitve node can only be in a single tree and only once.
-This means that for example if we wanted to have a list of todos and a selected todo we would need to have the same node repeated twice (once in the list and then once again in a selected field).
+This means that for example if we wanted to have a list of todos and a selected todo then, in theory, we would need to have the same node repeated twice (once in the list and then once again in a selected field).
 
-References allows us to work around this limitation by making a "fake" node that is just a pointer to another model in the same root tree.
+References allows us to work around this limitation by making a "fake" node that is just a pointer to another object given an id.
 
-Given the example above we could model it like this:
+## Custom references
+
+References are customizable and are created like this:
+
+```ts
+const myRef = customRef<T>("some unique model type id", {
+  getId(target: T): string {
+    // given an object, what is its id?
+  },
+  resolve(ref: Ref<T>): T | undefined {
+    // given the ref object (which includes the id in ref.id),
+    // how do we get the object back?
+  },
+  onResolvedValueChange?(ref: Ref<T>, newValue: T | undefined, oldValue: T | undefined) {
+    // what should happen when the resolved value changes?
+  },
+})
+```
+
+Reference objects can then be created using `myRef(target)` and offer the following properties:
+
+- `isValid` - If the reference is valid (can be currently resolved).
+- `current` - The object this reference points to, or throws if invalid.
+- `maybeCurrent` - The object this reference points to, or undefined if invalid.
+
+## Example: Reference to single selected Todo
+
+Imagine that we had a todo list where each todo item had a unique `id: string` property, and we could select a single todo item or none.
+It could be done like this:
+
+```ts
+const todoRef = customRef<Todo>("myApp/TodoRef", {
+  getId(todo) {
+    return todo.id
+  },
+  resolve(ref) {
+    // get the todo list where this ref is
+    const todoList = findParent(ref, n => n instanceof TodoList)
+    // if the ref is not yet attached then it cannot be resolved
+    if (!todoList) return undefined
+    // but if it is attached then try to find it
+    return todoList.list.find(todo => todo.id === ref.id)
+  },
+  onResolvedValueChange?(ref, newTodo, oldTodo) {
+    if (oldTodo && !newTodo) {
+      // if the todo value we were referencing dissapeared then remove the reference
+      // from its parent
+      detach(ref)
+    }
+  },
+})
+
+@model("myApp/TodoList")
+class TodoList extends Model({
+  list: prop<Todo[]>(() => []),
+  selectedRef: prop<Ref<Todo> | undefined>(),
+}) {
+  // ...
+
+  // not strictly needed, but neat
+  @computed
+  get selectedTodo() {
+    return this.selectedRef ? this.selectedRef.current : undefined
+  }
+
+  @modelAction
+  selectTodo(todoId: string | undefined) {
+    if (!todoId) {
+      this.selectedRef = undefined
+    } else {
+      const todo = this.todos.find(todo => todo.id === todoId)
+      this.selectedRef = todoRef(todo)
+    }
+  }
+}
+```
+
+The good thing is that whenever a todo is removed from the list and it was the selected one, then the `selectedTodo` property will automatically become `undefined`.
+
+## Example: Reference to multiple selected Todos
+
+In the case multiple selection was possible we could reuse the `todoRef` created previously and model it like this instead:
 
 ```ts
 @model("myApp/TodoList")
 class TodoList extends Model({
   list: prop<Todo[]>(() => []),
-  selected: prop<Ref<Todo> | undefined>(),
+  selectedRefs: prop<Ref<Todo>[]>(() => []),
 }) {
   // ...
 
+  // not strictly needed, but neat
+  @computed
+  get selectedTodos() {
+    return this.selectedRefs.map(r => r.current)
+  }
+
   @modelAction
-  selectTodo(todo: Todo | undefined) {
-    if (!this.list.includes(todo)) {
-      throw new Error("cannot select a todo that is not in the list")
+  selectTodo(todoId: string) {
+    const todo = this.list.find(todo => todo.id === todoId)
+    if (!todo) throw new Error("unknown todo")
+
+    if (!this.selectedTodos.includes(todo)) {
+      this.selectedRefs.push(todoRef(todo))
     }
-    this.selected = todo ? ref(todo) : undefined
+  }
+
+  @modelAction
+  unselectTodo(todoId: string) {
+    const todo = this.list.find(todo => todo.id === todoId)
+    if (!todo) throw new Error("unknown todo")
+
+    const todoRefIndex = this.selectedRefs.findIndex(todoRef => todoRef.maybeCurrent === todo)
+
+    if (todoRefIndex >= 0) {
+      this.selectedRefs.splice(todoRefIndex, 1)
+    }
   }
 }
 ```
 
-Reference objects offer the following properties:
+Again, if a todo is removed from the list and it was a selected one then it will automatically dissapear from the selected todos list.
 
-- `current` - The model this reference points to, or throws if it could not be found in the same tree.
-- `maybeCurrent` - The model this reference points to, or undefined if it could not be found in the same tree.
-- `isValid` - If the reference is valid, this is, if the referenced model object is not part of the same tree than the reference.
-- `id` - Unique model ID this reference points to.
-
-## Auto-detachable references
-
-Sometimes (as in the example above) it is also desireable for a reference to get auto-detached when the original no longer exists. For this purpose the `ref` method accepts an options object with an option named `autoDetach`, which defaults to false.
-
-The `autoDetach` option, when set to true (default is false), allows the reference to auto-detach itself from its parent (using `detach`) as soon as it becomes invalid while being attached to a root store. Note that for the option to work the root object must be registered as a root store using `registerAsRootStore`.
-
-```ts
-@model("myApp/TodoList")
-class TodoList extends Model({
-  list: prop<Todo[]>(() => []),
-  selected: prop<Ref<Todo> | undefined>(),
-}) {
-  // ...
-
-  @modelAction
-  selectTodo(todo: Todo | undefined) {
-    if (!this.list.includes(todo)) {
-      throw new Error("cannot select a todo that is not in the list")
-    }
-    this.selected = todo ? ref(todo, { autoDetach: true }) : undefined
-  }
-}
-
-// for this to work the reference must live under a root store
-const todoList = newModel(TodoList, {})
-registerRootStore(todoList)
-
-// now if we delete the selected todo from the array, then `selected`
-// will become undefined
-```
-
-`autoDetach` will work differently depending on the reference container:
-
-- Model/object property: the property will be deleted (therefore remember to type the property as optional in Typescript).
-- Array item: the array item will be removed (therefore no need to type the array items as possibly undefined in Typescript).
+If you are wondering why we didn't just pass the `Todo` object to the select/unselect methods, the reason is because of action replication in remote servers. This is, if your application needs to replicate actions in a server then most likely a bran new instance of the `Todo` object will be created remotely, which won't match the one from the current model. If you don't need such use case then it is perfectly valid to pass Todo references directly.

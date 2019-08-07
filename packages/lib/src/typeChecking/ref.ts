@@ -1,18 +1,39 @@
-import { AnyModel } from "../model/BaseModel"
-import { Ref } from "../ref/Ref"
-import { typesModel } from "./model"
+import { Ref } from "../ref/customRef"
+import { typesObject } from "./object"
+import { typesString } from "./primitives"
+import { IdentityType } from "./schemas"
+import { resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { TypeCheckError } from "./TypeCheckError"
 
 /**
- * A type that represents a reference to a model.
+ * A type that represents a reference to an object or model.
  *
  * Example:
  * ```ts
- * const refToSomeModelType = types.ref<SomeModel>()
+ * const refToSomeObject = types.ref<SomeObject>()
  * ```
  *
  * @typeparam M Model type.
  * @returns
  */
-export function typesRef<M extends AnyModel>() {
-  return typesModel<Ref<M>>(Ref)
+export function typesRef<O extends object>(): IdentityType<Ref<O>> {
+  return refTypeChecker as any
 }
+
+const typeName = "Ref"
+
+const refDataTypeChecker = typesObject(() => ({
+  id: typesString,
+}))
+
+const refTypeChecker = new TypeChecker(
+  (value, path) => {
+    if (!(value instanceof Ref)) {
+      return new TypeCheckError(path, typeName, value)
+    }
+
+    const resolvedTc = resolveTypeChecker(refDataTypeChecker)
+    return resolvedTc.check(value.$, [...path, "$"])
+  },
+  () => typeName
+)

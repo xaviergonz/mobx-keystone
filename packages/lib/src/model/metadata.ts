@@ -11,11 +11,6 @@ export interface ModelMetadata {
    * Model type
    */
   readonly type: string
-
-  /**
-   * Model unique id.
-   */
-  readonly id: string
 }
 
 /**

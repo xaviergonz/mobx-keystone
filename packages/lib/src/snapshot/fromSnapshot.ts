@@ -8,7 +8,6 @@ import { isModelSnapshot } from "../model/utils"
 import { tweakArray } from "../tweaker/tweakArray"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
-import { fixSnapshotIds } from "./fixSnapshotIds"
 import {
   SnapshotInOf,
   SnapshotInOfArray,
@@ -18,34 +17,13 @@ import {
 } from "./SnapshotOf"
 
 /**
- * Options for `fromSnapshot`.
- */
-export interface FromSnapshotOptions {
-  /**
-   * If set to true (the default is false) then Models will have brand new IDs, and
-   * references will fix their target IDs accordingly.
-   */
-  generateNewIds?: boolean
-}
-
-/**
  * Deserializers a data structure from its snapshot form.
- * If options has `generateNewIds` set to true (the default is false) then Models will have brand new IDs, and
- * references will fix their target IDs accordingly.
  *
  * @typeparam T Object type.
  * @param snapshot Snapshot, even if a primitive.
- * @param [options] Options.
  * @returns The deserialized object.
  */
-export let fromSnapshot = <T>(
-  snapshot: SnapshotInOf<T> | SnapshotOutOf<T>,
-  options?: FromSnapshotOptions
-): T => {
-  if (options && options.generateNewIds) {
-    snapshot = fixSnapshotIds(snapshot)
-  }
-
+export let fromSnapshot = <T>(snapshot: SnapshotInOf<T> | SnapshotOutOf<T>): T => {
   return internalFromSnapshot<T>(snapshot)
 }
 fromSnapshot = action("fromSnapshot", fromSnapshot) as any
@@ -92,11 +70,11 @@ function fromArraySnapshot(sn: SnapshotInOfArray<any>): any[] {
 }
 
 function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
-  const { type, id } = sn[modelMetadataKey]
+  const { type } = sn[modelMetadataKey]
 
-  if (!id) {
+  if (!type) {
     throw failure(
-      `a model a snapshot must contain an id (${modelMetadataKey}.id) key, but none was found`
+      `a model a snapshot must contain a type (${modelMetadataKey}.type) key, but none was found`
     )
   }
 
@@ -106,7 +84,6 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
   }
 
   return internalNewModel(modelInfo.class as any, undefined, {
-    id,
     unprocessedSnapshot: sn,
     snapshotToInitialData,
   })

@@ -3,33 +3,15 @@ import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 
 /**
- * Options for `clone`.
- */
-export interface CloneOptions {
-  /**
-   * If set to true (the default is true) then Models will have brand new IDs, and
-   * references will fix their target IDs accordingly.
-   */
-  generateNewIds?: boolean
-}
-
-/**
- * Clones an object by doing a `fromSnapshot(getSnapshot(value), { generateNewIds: true })`.
- * If options has `generateNewIds` set to true (the default) then Models will have brand new IDs, and
- * references will fix their target IDs accordingly.
+ * Clones an object by doing a `fromSnapshot(getSnapshot(value))`.
  *
  * @typeparam T Object type.
  * @param node Object to clone.
- * @param [options] Clone options.
  * @returns The cloned object.
  */
-export function clone<T extends object>(node: T, options?: CloneOptions): T {
+export function clone<T extends object>(node: T): T {
   assertTweakedObject(node, "node")
-  const opts = {
-    generateNewIds: true,
-    ...options,
-  }
 
   const sn = getSnapshot(node)
-  return fromSnapshot(sn as any, opts)
+  return fromSnapshot(sn as any)
 }

@@ -82,14 +82,14 @@ function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>
 }
 
 function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): AnyModel {
-  const { type, id } = sn[modelMetadataKey]
+  const { type } = sn[modelMetadataKey]
 
   const modelInfo = getModelInfoForName(type)
   if (!modelInfo) {
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  if (!(value instanceof modelInfo.class) || value.$modelType !== type || value.$modelId !== id) {
+  if (!(value instanceof modelInfo.class) || value.$modelType !== type) {
     // different kind of model / model instance, no reconciliation possible
     return fromSnapshot<AnyModel>(sn)
   }
