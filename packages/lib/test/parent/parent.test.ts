@@ -57,6 +57,11 @@ test("parent", () => {
   expect(isParentOfChild(p.p2!, p)).toBeFalsy()
 
   expect(findParent(p.p2!, parent => parent instanceof P)).toBe(p)
+  expect(findParent(p.p2!, parent => parent instanceof P, 0)).toBe(p)
+  expect(findParent(p.p2!, parent => parent instanceof P, 1)).toBe(undefined) // since p2 is actually in p.$.p2
+  expect(findParent(p.p2!, parent => parent instanceof P, 2)).toBe(p)
+  expect(findParent(p.p2!, parent => parent instanceof P, 3)).toBe(p)
+
   expect(findParent(p.p2!, parent => parent instanceof P2)).toBe(undefined)
 
   expect(getParentPath(p)).toBeUndefined()
