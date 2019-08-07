@@ -94,9 +94,9 @@ Returns if the target is a "child" of the tree of the given "parent" object.
 
 Returns if the target is a "parent" that has in its tree the given "child" object.
 
-### `resolvePath<T = any>(pathRootObject: object, path: ReadonlyArray<string> | string): T`
+### `resolvePath<T = any>(pathRootObject: object, path: ReadonlyArray<string | number>): T`
 
-Resolves a path from an object.
+Resolves a path from an object, returning an object with `{ resolved: true, value: T}` or `{ resolved: false }`
 
 ### `findParent<T extends object = any>(child: object, predicate: (parent: object) => boolean): T | undefined`
 

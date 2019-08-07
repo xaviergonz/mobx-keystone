@@ -5,20 +5,12 @@ import { P, P2 } from "../testbed"
 
 test("fromSnapshot", () => {
   const p = fromSnapshot<P>(
-    modelSnapshotInWithMetadata(
-      P,
-      {
-        arr: [1, 2, 3],
-        p2: modelSnapshotInWithMetadata(
-          P2,
-          {
-            y: 12,
-          },
-          "P2-id"
-        ),
-      },
-      "P-id"
-    )
+    modelSnapshotInWithMetadata(P, {
+      arr: [1, 2, 3],
+      p2: modelSnapshotInWithMetadata(P2, {
+        y: 12,
+      }),
+    })
   )
 
   expect(p).toMatchInlineSnapshot(`
@@ -34,14 +26,12 @@ test("fromSnapshot", () => {
             "y": 12,
           },
           "$$metadata": Object {
-            "id": "P2-id",
             "type": "P2",
           },
         },
         "x": 5,
       },
       "$$metadata": Object {
-        "id": "P-id",
         "type": "P",
       },
       "boundNonAction": [Function],

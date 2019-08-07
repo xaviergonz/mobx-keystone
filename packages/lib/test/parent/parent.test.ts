@@ -29,18 +29,14 @@ export class P extends Model({
 
 test("parent", () => {
   const p = fromSnapshot<P>(
-    modelSnapshotInWithMetadata(
-      P,
-      {
-        arr: [
-          modelSnapshotInWithMetadata(P2, { y: 1 }, "P2-id1"),
-          modelSnapshotInWithMetadata(P2, { y: 2 }, "P2-id2"),
-          modelSnapshotInWithMetadata(P2, { y: 3 }, "P2-id3"),
-        ],
-        p2: modelSnapshotInWithMetadata(P2, { y: 12 }, "P2-idout"),
-      },
-      "P-id"
-    )
+    modelSnapshotInWithMetadata(P, {
+      arr: [
+        modelSnapshotInWithMetadata(P2, { y: 1 }),
+        modelSnapshotInWithMetadata(P2, { y: 2 }),
+        modelSnapshotInWithMetadata(P2, { y: 3 }),
+      ],
+      p2: modelSnapshotInWithMetadata(P2, { y: 12 }),
+    })
   )
 
   expect(p instanceof P).toBeTruthy()

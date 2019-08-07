@@ -1,4 +1,3 @@
-import { AnyModel } from "../model/BaseModel"
 import { assertIsModel } from "../model/utils"
 import { detach } from "../parent/detach"
 import { resolvePath } from "../parent/path"
@@ -27,11 +26,6 @@ export interface ActionCall {
    * Path to the model where the action will be run, as an array of string | number.
    */
   readonly targetPath: ReadonlyArray<string | number>
-
-  /**
-   * Id of the target model.
-   */
-  readonly targetId: string
 }
 
 /**
@@ -45,18 +39,11 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   // resolve path
-  const current = resolvePath(subtreeRoot, call.targetPath)
-  if (!current) {
+  const { value: current, resolved } = resolvePath(subtreeRoot, call.targetPath)
+  if (!resolved) {
     throw failure(`object at path ${call.targetPath} could not be resolved`)
   }
-  assertIsModel(current, "resolved call.targetPath")
-
-  const model = current as AnyModel
-  if (model.$modelId !== call.targetId) {
-    throw failure(
-      `target model was expected to have '${call.targetId}' as id but had '${model.$modelId}' instead`
-    )
-  }
+  assertIsModel(current, `resolved ${call.targetPath}`)
 
   if (isBuiltInAction(call.actionName)) {
     switch (call.actionName) {

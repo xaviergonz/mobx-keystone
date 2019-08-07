@@ -11,6 +11,7 @@ import {
   tProp,
   types,
 } from "mobx-keystone"
+import uuid from "uuid"
 
 // for this example we will enable runtime data checking even in production mode
 setGlobalConfig({
@@ -25,10 +26,12 @@ export class Todo extends Model({
   // and also part of the required initialization data of the model
 
   // in this case we use runtime type checking,
+  id: tProp(types.string, () => uuid.v4()), // an optional string that will use a random id when not provided
   text: tProp(types.string), // a required string
   done: tProp(types.boolean, false), // an optional boolean that will default to false
 
   // if we didn't require runtime type checking we could do this
+  // id: prop(() => uuid.v4())
   // text: prop<string>(),
   // done: prop(false)
 }) {
@@ -73,15 +76,14 @@ export class TodoList extends Model({
 
   @modelAction
   remove(todoId: string) {
-    // how here we just use as argument the ID instead of the whole object for these reasons:
-    // - in the case of action serialization, we will only need to send the id rather than the whole object
-    // - also in the case of action serialization, the todo object (although a clone) will have a different
-    //   reference, so a plain indexOf won't work
+    // how here we just use as argument the id instead of the whole object for these reasons:
+    // - in the case of action serialization, we will only need to send the index rather than the whole object
+    // - also in the case of action serialization, if we used a todo object then a clone would be sent
+    //   which will have a different reference, so a plain indexOf won't work
 
-    const list = this.todos
-    const todoIndex = list.findIndex(todo => todo.$modelId === todoId)
-    if (todoIndex >= 0) {
-      list.splice(todoIndex, 1)
+    const index = this.todos.findIndex(todo => todo.id === todoId)
+    if (index >= 0) {
+      this.todos.splice(index, 1)
     }
   }
 }

@@ -42,7 +42,6 @@ test("subclassing works", () => {
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
       "$$metadata": Object {
-        "id": "mockedUuid-1",
         "type": "P2",
       },
       "x": 15,

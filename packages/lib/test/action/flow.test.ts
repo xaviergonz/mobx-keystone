@@ -109,7 +109,6 @@ test("flow", async () => {
           "args": Array [
             2,
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         "context": Object {
@@ -133,14 +132,12 @@ test("flow", async () => {
                   "y": 0,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -165,7 +162,6 @@ test("flow", async () => {
             4,
             4,
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         "context": Object {
@@ -190,14 +186,12 @@ test("flow", async () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 6,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -226,7 +220,6 @@ test("flow", async () => {
           "args": Array [
             10,
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         "context": Object {
@@ -250,14 +243,12 @@ test("flow", async () => {
                   "y": 4,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 16,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },

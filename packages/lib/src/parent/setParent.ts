@@ -4,13 +4,7 @@ import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetac
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isPrimitive } from "../utils"
-import {
-  getRootIdCache,
-  objectChildren,
-  objectParents,
-  parentPathEquals,
-  reportParentPathChanged,
-} from "./core"
+import { objectChildren, objectParents, parentPathEquals, reportParentPathChanged } from "./core"
 import { getParentPath, getRoot, ParentPath } from "./path"
 
 /**
@@ -88,13 +82,6 @@ export const setParent = action(
       attachToNewParent()
       const newRoot = getRoot(value)
       const newRootStore = isRootStore(newRoot) ? newRoot : undefined
-
-      // update id caches
-      const modelId = value.$modelId
-      if (oldRoot !== newRoot) {
-        getRootIdCache(oldRoot).delete(modelId)
-      }
-      getRootIdCache(newRoot).set(modelId, value)
 
       // invoke model root store events
       if (oldRootStore !== newRootStore) {

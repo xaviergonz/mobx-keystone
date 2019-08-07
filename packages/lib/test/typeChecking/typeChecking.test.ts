@@ -4,6 +4,7 @@ import {
   actionTrackingMiddleware,
   AnyModel,
   AnyType,
+  customRef,
   frozen,
   model,
   Model,
@@ -12,7 +13,6 @@ import {
   newModel,
   onPatches,
   onSnapshot,
-  ref,
   Ref,
   resolvePath,
   setGlobalConfig,
@@ -85,7 +85,7 @@ function expectTypeCheckFail<T extends AnyType>(
   expected: string
 ) {
   const err = typeCheck(t, val)
-  const actualValue = resolvePath(val, path)
+  const { value: actualValue } = resolvePath(val, path)
   expect(err).toEqual(new TypeCheckError(path, expected, actualValue))
 }
 
@@ -512,11 +512,19 @@ test("ref", () => {
   const type = types.ref<M>()
 
   const m = newModel(M, { y: "6" })
-  const r = ref(m)
+  const customR = customRef<M>("customRefM", {
+    resolve() {
+      return m
+    },
+    getId(target) {
+      return "" + target.y
+    },
+  })
+  const r = customR(m)
   assert(_ as TypeToData<typeof type>, _ as Ref<M>)
 
   expectTypeCheckOk(type, r)
-  expectTypeCheckFail(type, m, [], "Model($$Ref)")
+  expectTypeCheckFail(type, m, [], "Ref")
 })
 
 test("frozen - simple type", () => {

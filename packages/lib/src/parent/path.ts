@@ -1,4 +1,5 @@
 import { assertTweakedObject } from "../tweaker/core"
+import { isObject } from "../utils"
 import { objectParents, reportParentPathObserved } from "./core"
 
 /**
@@ -148,27 +149,35 @@ export function isParentOfChild(node: object, childNode: object): boolean {
 }
 
 /**
- * Resolves a path from an object.
+ * Tries to resolve a path from an object.
  *
  * @typeparam T Returned value type.
  * @param pathRootNode Object that serves as path root.
- * @param path Path as an string array or string.
- * @returns The resolved path value.
+ * @param path Path as an string or number array.
+ * @returns An object with `{ resolved: true, value: T }` or `{ resolved: false }`.
  */
 export function resolvePath<T = any>(
   pathRootNode: object,
-  path: ReadonlyArray<string | number> | string | number
-): T {
+  path: ReadonlyArray<string | number>
+):
+  | {
+      resolved: true
+      value: T
+    }
+  | {
+      resolved: false
+      value?: undefined
+    } {
   let current: any = pathRootNode
-
-  if (typeof path === "string" || typeof path === "number") {
-    return current[path]
-  }
 
   let len = path.length
   for (let i = 0; i < len; i++) {
+    if (!isObject(current)) {
+      return { resolved: false }
+    }
+
     current = current[path[i]]
   }
 
-  return current
+  return { resolved: true, value: current }
 }

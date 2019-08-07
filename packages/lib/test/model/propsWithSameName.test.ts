@@ -4,7 +4,7 @@ import "../commonSetup"
 
 @model("M")
 class M extends Model({
-  $modelId: prop<number>(),
+  $modelType: prop<number>(),
   onInit: prop(() => 10),
   x: prop(() => 20),
   y: prop(() => 20),
@@ -26,7 +26,7 @@ class M extends Model({
 }
 
 test("props with same name", () => {
-  const m = newModel(M, { $modelId: 5 })
+  const m = newModel(M, { $modelType: 5 })
 
   expect(m.x).toBe(120)
   expect(m.$.x).toBe(120)
@@ -36,10 +36,10 @@ test("props with same name", () => {
   expect(m.x).toBe(140)
   expect(m.$.x).toBe(140)
 
-  assert(m.$modelId, _ as string)
-  expect(typeof m.$modelId).toBe("string")
-  assert(m.$.$modelId, _ as number)
-  expect(m.$.$modelId).toBe(5)
+  assert(m.$modelType, _ as string)
+  expect(typeof m.$modelType).toBe("string")
+  assert(m.$.$modelType, _ as number)
+  expect(m.$.$modelType).toBe(5)
 
   assert(m.onInit, _ as () => void)
   expect(typeof m.onInit).toBe("function")

@@ -1,4 +1,3 @@
-export { resolveModelId } from "./core"
 export { detach } from "./detach"
 export { findParent } from "./findParent"
 export { getChildrenObjects } from "./getChildrenObjects"

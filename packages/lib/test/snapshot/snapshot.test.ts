@@ -42,7 +42,6 @@ test("onSnapshot and applySnapshot", () => {
       Array [
         Object {
           "$$metadata": Object {
-            "id": "mockedUuid-2",
             "type": "P",
           },
           "arr": Array [
@@ -52,7 +51,6 @@ test("onSnapshot and applySnapshot", () => {
           ],
           "p2": Object {
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P2",
             },
             "y": 13,
@@ -61,13 +59,11 @@ test("onSnapshot and applySnapshot", () => {
         },
         Object {
           "$$metadata": Object {
-            "id": "mockedUuid-2",
             "type": "P",
           },
           "arr": Array [],
           "p2": Object {
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P2",
             },
             "y": 12,
@@ -94,13 +90,11 @@ test("onSnapshot and applySnapshot", () => {
       Array [
         Object {
           "$$metadata": Object {
-            "id": "mockedUuid-2",
             "type": "P",
           },
           "arr": Array [],
           "p2": Object {
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P2",
             },
             "y": 12,
@@ -109,7 +103,6 @@ test("onSnapshot and applySnapshot", () => {
         },
         Object {
           "$$metadata": Object {
-            "id": "mockedUuid-2",
             "type": "P",
           },
           "arr": Array [
@@ -119,7 +112,6 @@ test("onSnapshot and applySnapshot", () => {
           ],
           "p2": Object {
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P2",
             },
             "y": 13,
@@ -131,89 +123,89 @@ test("onSnapshot and applySnapshot", () => {
   `)
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
         Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p2",
-              "y",
+          Array [
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p2",
+                  "y",
+                ],
+                "value": 12,
+              },
             ],
-            "value": 12,
-          },
-        ],
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p2",
-              "y",
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p2",
+                  "y",
+                ],
+                "value": 13,
+              },
             ],
-            "value": 13,
-          },
-        ],
-      ],
-      Array [
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "arr",
-              "length",
+          ],
+          Array [
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "arr",
+                  "length",
+                ],
+                "value": 0,
+              },
             ],
-            "value": 0,
-          },
-        ],
-        Array [
-          Object {
-            "op": "add",
-            "path": Array [
-              "arr",
-              0,
+            Array [
+              Object {
+                "op": "add",
+                "path": Array [
+                  "arr",
+                  0,
+                ],
+                "value": 1,
+              },
+              Object {
+                "op": "add",
+                "path": Array [
+                  "arr",
+                  1,
+                ],
+                "value": 2,
+              },
+              Object {
+                "op": "add",
+                "path": Array [
+                  "arr",
+                  2,
+                ],
+                "value": 3,
+              },
             ],
-            "value": 1,
-          },
-          Object {
-            "op": "add",
-            "path": Array [
-              "arr",
-              1,
+          ],
+          Array [
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "x",
+                ],
+                "value": 5,
+              },
             ],
-            "value": 2,
-          },
-          Object {
-            "op": "add",
-            "path": Array [
-              "arr",
-              2,
+            Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "x",
+                ],
+                "value": 6,
+              },
             ],
-            "value": 3,
-          },
-        ],
-      ],
-      Array [
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "x",
-            ],
-            "value": 5,
-          },
-        ],
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "x",
-            ],
-            "value": 6,
-          },
-        ],
-      ],
-    ]
-  `)
+          ],
+        ]
+    `)
 })
 
 test("applySnapshot can create a new submodel", () => {
@@ -259,7 +251,6 @@ test("applySnapshot can create a new submodel", () => {
             ],
             "value": Object {
               "$$metadata": Object {
-                "id": "mockedUuid-3",
                 "type": "P2",
               },
               "y": 12,
@@ -321,7 +312,6 @@ test("applySnapshot can create a new submodel", () => {
             ],
             "value": Object {
               "$$metadata": Object {
-                "id": "mockedUuid-5",
                 "type": "P2",
               },
               "y": 12,
@@ -336,7 +326,6 @@ test("applySnapshot can create a new submodel", () => {
             ],
             "value": Object {
               "$$metadata": Object {
-                "id": "mockedUuid-3",
                 "type": "P2",
               },
               "y": 12,
@@ -352,13 +341,11 @@ test("applySnapshot can create a new submodel", () => {
       Array [
         Object {
           "$$metadata": Object {
-            "id": "mockedUuid-4",
             "type": "P",
           },
           "arr": Array [],
           "p2": Object {
             "$$metadata": Object {
-              "id": "mockedUuid-5",
               "type": "P2",
             },
             "y": 12,
@@ -367,13 +354,11 @@ test("applySnapshot can create a new submodel", () => {
         },
         Object {
           "$$metadata": Object {
-            "id": "mockedUuid-4",
             "type": "P",
           },
           "arr": Array [],
           "p2": Object {
             "$$metadata": Object {
-              "id": "mockedUuid-3",
               "type": "P2",
             },
             "y": 12,

@@ -88,7 +88,6 @@ function actionContextToActionCall(ctx: SimpleActionContext): ActionCall {
     actionName: ctx.actionName,
     args: ctx.args,
     targetPath: rootPath.path,
-    targetId: ctx.target.$modelId,
   }
 }
 

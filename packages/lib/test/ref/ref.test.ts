@@ -1,227 +1,194 @@
+import { computed } from "mobx"
 import {
-  fromSnapshot,
+  clone,
+  customRef,
+  detach,
+  findParent,
+  getParent,
+  getParentPath,
   getSnapshot,
   model,
   Model,
   modelAction,
-  modelSnapshotInWithMetadata,
   newModel,
   prop,
   Ref,
-  ref,
-  registerRootStore,
 } from "../../src"
 import "../commonSetup"
 
-@model("P2")
-class P2 extends Model({
-  y: prop(() => 10),
-}) {}
+interface Country {
+  weather: string
+}
 
-@model("P")
-class P extends Model({
-  p2: prop<P2 | undefined>(),
-  p3: prop<P2 | undefined>(),
-  r: prop<Ref<P2> | undefined>(),
+@model("Countries")
+class Countries extends Model({
+  countries: prop<{ [k: string]: Country }>(() => ({})),
+  selectedCountryRef: prop<Ref<Country> | undefined>(),
+  selectedCountriesRef: prop<Ref<Country>[]>(() => []),
 }) {
-  @modelAction
-  setR(r: P2 | undefined, autoDetach = false) {
-    this.r = r ? ref(r, { autoDetach }) : undefined
+  @computed
+  get selectedCountry() {
+    return this.selectedCountryRef ? this.selectedCountryRef.current : undefined
+  }
+
+  @computed
+  get selectedCountries() {
+    return this.selectedCountriesRef.map(r => r.current)
   }
 
   @modelAction
-  setP2(p2: P2 | undefined) {
-    this.p2 = p2
+  removeCountry(name: string) {
+    delete this.countries[name]
   }
 
   @modelAction
-  setP3(p2: P2 | undefined) {
-    this.p3 = p2
+  setSelectedCountry(country: Country | undefined) {
+    this.selectedCountryRef = country ? countryRef(country) : undefined
+  }
+
+  @modelAction
+  setSelectedCountries(countries: Country[]) {
+    this.selectedCountriesRef = countries.map(c => countryRef(c))
   }
 }
 
-test("ref", () => {
-  const p = newModel(P, {})
-  const p2 = newModel(P2, {})
+const countryRef = customRef<Country>("countryRef", {
+  resolve(ref) {
+    const countriesParent = findParent<Countries>(ref, n => n instanceof Countries)
+    if (!countriesParent) return undefined
+    return countriesParent.countries[ref.id]
+  },
 
-  p.setP2(p2)
-  p.setR(p2)
-  expect(p.r).toBeDefined()
+  getId(target) {
+    const targetParentPath = getParentPath<Countries>(target)
+    return "" + targetParentPath!.path
+  },
 
-  expect(p.r!.isValid).toBe(true)
-  expect(p.r!.current).toBe(p2)
-  expect(p.r!.maybeCurrent).toBe(p2)
-
-  expect(getSnapshot(p.r)).toMatchInlineSnapshot(`
-            Object {
-              "$$metadata": Object {
-                "id": "mockedUuid-3",
-                "type": "$$Ref",
-              },
-              "autoDetach": false,
-              "id": "mockedUuid-2",
-            }
-      `)
-
-  // not under the same root now
-  p.setP2(undefined)
-  expect(p.r!.isValid).toBe(false)
-  expect(p.r!.maybeCurrent).toBe(undefined)
-  expect(() => p.r!.current).toThrow(
-    "a model with id 'mockedUuid-2' could not be found in the same tree as the reference"
-  )
-
-  expect(getSnapshot(p.r)).toMatchInlineSnapshot(`
-            Object {
-              "$$metadata": Object {
-                "id": "mockedUuid-3",
-                "type": "$$Ref",
-              },
-              "autoDetach": false,
-              "id": "mockedUuid-2",
-            }
-      `)
-
-  // change the path, the ref should still be ok
-  p.setP3(p2)
-  expect(p.r!.isValid).toBe(true)
-  expect(p.r!.maybeCurrent).toBe(p2)
-  expect(p.r!.current).toBe(p2)
-
-  expect(getSnapshot(p.r)).toMatchInlineSnapshot(`
-            Object {
-              "$$metadata": Object {
-                "id": "mockedUuid-3",
-                "type": "$$Ref",
-              },
-              "autoDetach": false,
-              "id": "mockedUuid-2",
-            }
-      `)
-
-  // not under the same root now
-  const r = p.r!
-  p.setR(undefined)
-  expect(p.r).toBeUndefined()
-  expect(r.isValid).toBe(false)
-  expect(r.maybeCurrent).toBe(undefined)
-  expect(() => r.current).toThrow(
-    "a model with id 'mockedUuid-2' could not be found in the same tree as the reference"
-  )
-
-  expect(getSnapshot(p.r)).toMatchInlineSnapshot(`undefined`)
-})
-
-test("ref loaded from a snapshot", () => {
-  // we use two snapshots to ensure duplicated ids work when they are on different trees
-
-  const p = fromSnapshot<P>(
-    modelSnapshotInWithMetadata(
-      P,
-      {
-        p2: modelSnapshotInWithMetadata(P2, {}, "P2-1"),
-        r: modelSnapshotInWithMetadata(
-          Ref,
-          {
-            id: "P2-1",
-          },
-          "Ref-1"
-        ),
-      },
-      "P-1"
-    )
-  )
-
-  const pp = fromSnapshot<P>(
-    modelSnapshotInWithMetadata(
-      P,
-      {
-        p2: modelSnapshotInWithMetadata(P2, {}, "P2-1"),
-        r: modelSnapshotInWithMetadata(
-          Ref,
-          {
-            id: "P2-1",
-          },
-          "Ref-1"
-        ),
-      },
-      "P-1"
-    )
-  )
-
-  const r = p.r!
-  expect(r).toBeDefined()
-  expect(r.isValid).toBe(true)
-  expect(r.maybeCurrent).toBe(p.p2)
-  expect(r.current).toBe(p.p2)
-
-  const rr = pp.r!
-  expect(rr).toBeDefined()
-  expect(rr.isValid).toBe(true)
-  expect(rr.maybeCurrent).toBe(pp.p2)
-  expect(rr.current).toBe(pp.p2)
-})
-
-test("ref loaded from a broken snapshot", () => {
-  const p = fromSnapshot<P>(
-    modelSnapshotInWithMetadata(
-      P,
-      {
-        p2: modelSnapshotInWithMetadata(P2, {}, "P2-1"),
-        r: modelSnapshotInWithMetadata(
-          Ref,
-          {
-            id: "P2-2",
-          },
-          "Ref-1"
-        ),
-      },
-      "P-1"
-    )
-  )
-
-  const r = p.r!
-  expect(r).toBeDefined()
-  expect(r.isValid).toBe(false)
-  expect(r.maybeCurrent).toBe(undefined)
-  expect(() => r.current).toThrow(
-    "a model with id 'P2-2' could not be found in the same tree as the reference"
-  )
-})
-
-test("autoDetach ref", () => {
-  const p = newModel(P, {})
-  registerRootStore(p)
-
-  const p2 = newModel(P2, {})
-
-  p.setP2(p2)
-  p.setR(p2, true)
-  expect(p.r).toBeDefined()
-
-  expect(p.r!.isValid).toBe(true)
-  expect(p.r!.maybeCurrent).toBe(p2)
-  expect(p.r!.current).toBe(p2)
-
-  expect(getSnapshot(p.r)).toMatchInlineSnapshot(`
-    Object {
-      "$$metadata": Object {
-        "id": "mockedUuid-6",
-        "type": "$$Ref",
-      },
-      "autoDetach": true,
-      "id": "mockedUuid-5",
+  onResolvedValueChange(ref, newValue, oldValue) {
+    if (oldValue && !newValue) {
+      detach(ref)
     }
-  `)
+  },
+})
 
-  // not under the same root now
-  const r = p.r!
-  p.setP2(undefined)
-  expect(p.r).toBe(undefined)
-  expect(getSnapshot(p.r)).toMatchInlineSnapshot(`undefined`)
+const initialCountries: { [k: string]: Country } = {
+  spain: {
+    weather: "sunny",
+  },
+  uk: {
+    weather: "rainy",
+  },
+  france: {
+    weather: "soso",
+  },
+}
+
+test("single ref works", () => {
+  const c = newModel(Countries, {
+    countries: initialCountries,
+  })
+
+  expect(c.selectedCountryRef).toBeUndefined()
+  expect(c.selectedCountry).toBeUndefined()
+
+  const spain = c.countries["spain"]
+  c.setSelectedCountry(spain)
+  expect(c.selectedCountry).toBe(spain)
+
+  const r = c.selectedCountryRef!
+  expect(getSnapshot(r)).toMatchInlineSnapshot(`
+        Object {
+          "$$metadata": Object {
+            "type": "countryRef",
+          },
+          "id": "spain",
+        }
+    `)
+  expect(r.isValid).toBe(true)
+  expect(r.maybeCurrent).toBe(spain)
+  expect(r.current).toBe(spain)
+
+  // cloning should be ok
+  const cloneC = clone(c)
+  expect(cloneC.selectedCountry).toBe(cloneC.countries["spain"])
+
+  // remove referenced country
+  c.removeCountry("spain")
+
+  // should auto detach itself
+  expect(c.selectedCountry).toBeUndefined()
+  expect(c.selectedCountryRef).toBeUndefined()
+
+  expect(getParent(r)).toBeUndefined()
   expect(r.isValid).toBe(false)
-  expect(r.maybeCurrent).toBe(undefined)
+  expect(r.maybeCurrent).toBeUndefined()
   expect(() => r.current).toThrow(
-    "a model with id 'mockedUuid-5' could not be found in the same tree as the reference"
+    "a reference of type 'countryRef' could not resolve an object with id 'spain'"
   )
+
+  // clone should not be affected
+  expect(cloneC.selectedCountry).toBe(cloneC.countries["spain"])
+})
+
+test("array ref works", () => {
+  const c = newModel(Countries, {
+    countries: initialCountries,
+  })
+
+  expect(c.selectedCountriesRef).toEqual([])
+  expect(c.selectedCountries).toEqual([])
+
+  const spain = c.countries["spain"]
+  const uk = c.countries["uk"]
+  c.setSelectedCountries([spain, uk])
+  expect(c.selectedCountries).toEqual([spain, uk])
+
+  const r = c.selectedCountriesRef
+  expect(getSnapshot(r)).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "$$metadata": Object {
+          "type": "countryRef",
+        },
+        "id": "spain",
+      },
+      Object {
+        "$$metadata": Object {
+          "type": "countryRef",
+        },
+        "id": "uk",
+      },
+    ]
+  `)
+  expect(r.map(rr => rr.isValid)).toEqual([true, true])
+  expect(r.map(rr => rr.maybeCurrent)).toEqual([spain, uk])
+  expect(r.map(rr => rr.current)).toEqual([spain, uk])
+
+  // cloning should be ok
+  const cloneC = clone(c)
+  expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
+
+  // remove referenced country
+  const oldR = r.slice()
+  c.removeCountry("spain")
+
+  // should auto detach itself
+  expect(c.selectedCountries).toEqual([uk])
+  expect(c.selectedCountriesRef).toHaveLength(1)
+
+  expect(getParent(oldR[0])).toBeUndefined()
+  expect(oldR[0].isValid).toBe(false)
+  expect(oldR[0].maybeCurrent).toBeUndefined()
+  expect(() => oldR[0].current).toThrow(
+    "a reference of type 'countryRef' could not resolve an object with id 'spain'"
+  )
+
+  expect(c.selectedCountriesRef[0]).toBe(oldR[1])
+  expect(getParent(oldR[1])).toBe(c.selectedCountriesRef)
+  expect(oldR[1].isValid).toBe(true)
+  expect(oldR[1].maybeCurrent).toBe(uk)
+  expect(oldR[1].current).toBe(uk)
+
+  // clone should not be affected
+  expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
 })

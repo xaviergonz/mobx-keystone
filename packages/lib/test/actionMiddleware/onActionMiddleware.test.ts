@@ -75,7 +75,6 @@ test("onActionMiddleware", () => {
           "args": Array [
             1,
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         Object {
@@ -99,14 +98,12 @@ test("onActionMiddleware", () => {
                   "y": 0,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 1,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -128,7 +125,6 @@ test("onActionMiddleware", () => {
           "args": Array [
             2,
           ],
-          "targetId": "mockedUuid-2",
           "targetPath": Array [
             "$",
             "p2",
@@ -153,7 +149,6 @@ test("onActionMiddleware", () => {
               "y": 2,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
               "type": "P2",
             },
           },
@@ -176,7 +171,6 @@ test("onActionMiddleware", () => {
             3,
             4,
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         Object {
@@ -201,14 +195,12 @@ test("onActionMiddleware", () => {
                   "y": 6,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 4,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -233,7 +225,6 @@ test("onActionMiddleware", () => {
           "args": Array [
             RandomClass {},
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         Object {
@@ -257,14 +248,12 @@ test("onActionMiddleware", () => {
                   "y": 6,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 4,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -295,7 +284,6 @@ test("onActionMiddleware", () => {
               6,
             ],
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         Object {
@@ -328,14 +316,12 @@ test("onActionMiddleware", () => {
                   "y": 6,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 4,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -362,7 +348,6 @@ test("onActionMiddleware", () => {
               "a": 5,
             },
           ],
-          "targetId": "mockedUuid-1",
           "targetPath": Array [],
         },
         Object {
@@ -391,14 +376,12 @@ test("onActionMiddleware", () => {
                   "y": 6,
                 },
                 "$$metadata": Object {
-                  "id": "mockedUuid-2",
                   "type": "P2",
                 },
               },
               "x": 4,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-1",
               "type": "P",
             },
           },
@@ -426,13 +409,11 @@ test("onActionMiddleware", () => {
           "args": Array [
             Object {
               "$$metadata": Object {
-                "id": "mockedUuid-2",
                 "type": "P2",
               },
               "y": 100,
             },
           ],
-          "targetId": "mockedUuid-2",
           "targetPath": Array [
             "$",
             "p2",
@@ -443,7 +424,6 @@ test("onActionMiddleware", () => {
           "args": Array [
             Object {
               "$$metadata": Object {
-                "id": "mockedUuid-2",
                 "type": "P2",
               },
               "y": 100,
@@ -463,7 +443,6 @@ test("onActionMiddleware", () => {
               "y": 100,
             },
             "$$metadata": Object {
-              "id": "mockedUuid-2",
               "type": "P2",
             },
           },

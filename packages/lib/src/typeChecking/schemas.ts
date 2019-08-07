@@ -6,19 +6,19 @@ import { IsOptionalValue } from "../utils/types"
 // infer is there just to cache type generation
 
 export interface IdentityType<T> {
-  /** @hidden */
+  /** @ignore */
   $$identityType: T
-  /** @hidden */
+  /** @ignore */
   $$identityTypeOpt: T & undefined
 }
 
 export interface ArrayType<S extends AnyType> {
-  /** @hidden */
+  /** @ignore */
   $$arrayType: TypeToData<S>[] extends infer R ? R : never
 }
 
 export interface ObjectOfTypes {
-  /** @hidden */
+  /** @ignore */
   [k: string]: AnyType
 }
 
@@ -30,16 +30,16 @@ type UndefinablePropsNames<T> = {
 }[keyof T]
 
 export interface ObjectType<S extends ObjectOfTypes> {
-  /** @hidden */
+  /** @ignore */
   $$objectTypeData: { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never }
 
-  /** @hidden */
+  /** @ignore */
   $$objectTypeOpt: { [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never }
 
-  /** @hidden */
+  /** @ignore */
   $$objectUndefinablePropNames: UndefinablePropsNames<this["$$objectTypeOpt"]>
 
-  /** @hidden */
+  /** @ignore */
   $$objectType: O.Optional<this["$$objectTypeData"], this["$$objectUndefinablePropNames"]>
 }
 
@@ -48,16 +48,16 @@ export interface ObjectTypeFunction<S extends ObjectOfTypes> {
 }
 
 export interface ObjectMapType<S extends AnyType> {
-  /** @hidden */
+  /** @ignore */
   $$objectMapType: {
     [k: string]: TypeToData<S> extends infer R ? R : never
   }
 }
 
 export interface OrType<S extends AnyType[]> {
-  /** @hidden */
+  /** @ignore */
   $$orType: TypeToData<S[number]> extends infer R ? R : never
-  /** @hidden */
+  /** @ignore */
   $$orTypeOpt: TypeToDataOpt<S[number]> extends infer R ? R : never
 }
 
@@ -97,7 +97,7 @@ export type TypeToData<S extends AnyType> = S extends ObjectTypeFunction<infer S
     : never
   : never
 
-/** @hidden */
+/** @ignore */
 export type TypeToDataOpt<S extends AnyType> = S extends OrType<any>
   ? S["$$orTypeOpt"] extends infer R
     ? R
