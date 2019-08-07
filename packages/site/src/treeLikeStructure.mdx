@@ -98,11 +98,12 @@ Returns if the target is a "parent" that has in its tree the given "child" objec
 
 Resolves a path from an object, returning an object with `{ resolved: true, value: T}` or `{ resolved: false }`
 
-### `findParent<T extends object = any>(child: object, predicate: (parent: object) => boolean): T | undefined`
+### `findParent<T extends object = any>(child: object, predicate: (parent: object) => boolean, maxDepth = 0): T | undefined`
 
 Iterates through all the parents (from the nearest until the root)until one of them matches the given predicate.
 If the predicate is matched it will return the found node.
 If none is found it will return undefined.
+A max depth of 0 is infinite, but another one can be given.
 
 ### `walkTree<T = void>(target: object, predicate: (node: any) => T | undefined, mode: WalkTreeMode): T | undefined`
 
