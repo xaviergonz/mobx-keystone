@@ -4,7 +4,7 @@ import {
   BaseModel,
   clone,
   getSnapshot,
-  ModelMetadata,
+  modelTypeKey,
   onPatches,
   onSnapshot,
   Patch,
@@ -41,31 +41,23 @@ test("onSnapshot and applySnapshot", () => {
     Array [
       Array [
         Object {
-          "$$metadata": Object {
-            "type": "P",
-          },
+          "$modelType": "P",
           "arr": Array [
             1,
             2,
             3,
           ],
           "p2": Object {
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
             "y": 13,
           },
           "x": 6,
         },
         Object {
-          "$$metadata": Object {
-            "type": "P",
-          },
+          "$modelType": "P",
           "arr": Array [],
           "p2": Object {
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
             "y": 12,
           },
           "x": 5,
@@ -89,31 +81,23 @@ test("onSnapshot and applySnapshot", () => {
     Array [
       Array [
         Object {
-          "$$metadata": Object {
-            "type": "P",
-          },
+          "$modelType": "P",
           "arr": Array [],
           "p2": Object {
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
             "y": 12,
           },
           "x": 5,
         },
         Object {
-          "$$metadata": Object {
-            "type": "P",
-          },
+          "$modelType": "P",
           "arr": Array [
             1,
             2,
             3,
           ],
           "p2": Object {
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
             "y": 13,
           },
           "x": 6,
@@ -123,89 +107,89 @@ test("onSnapshot and applySnapshot", () => {
   `)
 
   expect(patches).toMatchInlineSnapshot(`
-        Array [
-          Array [
             Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p2",
-                  "y",
+              Array [
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p2",
+                      "y",
+                    ],
+                    "value": 12,
+                  },
                 ],
-                "value": 12,
-              },
-            ],
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p2",
-                  "y",
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p2",
+                      "y",
+                    ],
+                    "value": 13,
+                  },
                 ],
-                "value": 13,
-              },
-            ],
-          ],
-          Array [
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                  "length",
+              ],
+              Array [
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "arr",
+                      "length",
+                    ],
+                    "value": 0,
+                  },
                 ],
-                "value": 0,
-              },
-            ],
-            Array [
-              Object {
-                "op": "add",
-                "path": Array [
-                  "arr",
-                  0,
+                Array [
+                  Object {
+                    "op": "add",
+                    "path": Array [
+                      "arr",
+                      0,
+                    ],
+                    "value": 1,
+                  },
+                  Object {
+                    "op": "add",
+                    "path": Array [
+                      "arr",
+                      1,
+                    ],
+                    "value": 2,
+                  },
+                  Object {
+                    "op": "add",
+                    "path": Array [
+                      "arr",
+                      2,
+                    ],
+                    "value": 3,
+                  },
                 ],
-                "value": 1,
-              },
-              Object {
-                "op": "add",
-                "path": Array [
-                  "arr",
-                  1,
+              ],
+              Array [
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "x",
+                    ],
+                    "value": 5,
+                  },
                 ],
-                "value": 2,
-              },
-              Object {
-                "op": "add",
-                "path": Array [
-                  "arr",
-                  2,
+                Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "x",
+                    ],
+                    "value": 6,
+                  },
                 ],
-                "value": 3,
-              },
-            ],
-          ],
-          Array [
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "x",
-                ],
-                "value": 5,
-              },
-            ],
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "x",
-                ],
-                "value": 6,
-              },
-            ],
-          ],
-        ]
-    `)
+              ],
+            ]
+      `)
 })
 
 test("applySnapshot can create a new submodel", () => {
@@ -250,9 +234,7 @@ test("applySnapshot can create a new submodel", () => {
               "p2",
             ],
             "value": Object {
-              "$$metadata": Object {
-                "type": "P2",
-              },
+              "$modelType": "P2",
               "y": 12,
             },
           },
@@ -311,9 +293,7 @@ test("applySnapshot can create a new submodel", () => {
               "p2",
             ],
             "value": Object {
-              "$$metadata": Object {
-                "type": "P2",
-              },
+              "$modelType": "P2",
               "y": 12,
             },
           },
@@ -325,9 +305,7 @@ test("applySnapshot can create a new submodel", () => {
               "p2",
             ],
             "value": Object {
-              "$$metadata": Object {
-                "type": "P2",
-              },
+              "$modelType": "P2",
               "y": 12,
             },
           },
@@ -340,27 +318,19 @@ test("applySnapshot can create a new submodel", () => {
     Array [
       Array [
         Object {
-          "$$metadata": Object {
-            "type": "P",
-          },
+          "$modelType": "P",
           "arr": Array [],
           "p2": Object {
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
             "y": 12,
           },
           "x": 5,
         },
         Object {
-          "$$metadata": Object {
-            "type": "P",
-          },
+          "$modelType": "P",
           "arr": Array [],
           "p2": Object {
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
             "y": 12,
           },
           "x": 5,
@@ -392,7 +362,7 @@ test("types", () => {
     _ as ({
       y?: number
     } & {
-      $$metadata: ModelMetadata
+      [modelTypeKey]: string
     })
   )
 
@@ -401,7 +371,7 @@ test("types", () => {
     _ as ({
       y: number
     } & {
-      $$metadata: ModelMetadata
+      [modelTypeKey]: string
     })
   )
 
@@ -412,7 +382,7 @@ test("types", () => {
       arr?: number[]
       p2?: SnapshotInOf<P2>
     } & {
-      $$metadata: ModelMetadata
+      [modelTypeKey]: string
     })
   )
 
@@ -423,7 +393,7 @@ test("types", () => {
       arr: number[]
       p2: SnapshotOutOf<P2> | undefined
     } & {
-      $$metadata: ModelMetadata
+      [modelTypeKey]: string
     })
   )
 })

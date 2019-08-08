@@ -56,19 +56,11 @@ const todoSnapshot = getSnapshot(todo)
 {
   done: false,
   text: "buy some milk",
-  "$$metadata": {
-    type: "myApp/Todo",
-    id: "_SvYKK1zWYpBj7ST_fVV2"
-  }
+  $modelType: "myApp/Todo"
 }
 ```
 
-The additional `$$metadata` sub-object is used to:
-
-- Allow `fromSnapshot` to recognize the original class and faithfully recreate it, rather than assume it is a plain object.
-- Improve snapshot reconciliation.
-- Allow references to work (more on this on the [references](./references) section).
-
+The additional `$modelType` property is used to allow `fromSnapshot` to recognize the original class and faithfully recreate it, rather than assume it is a plain object.
 This metadata is only required for models, in other words, arrays, plain objects and primitives don't have this extra field.
 
 The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
@@ -77,10 +69,7 @@ The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo
 type SnapshotOutOf<Todo> = {
   done: boolean;
   type: string;
-  $$metadata: {
-    type: string;
-    id: string;
-  }
+  $modelType: string
 }
 ```
 
@@ -109,10 +98,7 @@ The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotI
 type SnapshotInOf<Todo> = {
   done?: boolean;
   type: string;
-  $$metadata: {
-    type: string;
-    id: string;
-  }
+  $modelType: string
 }
 ```
 
@@ -157,10 +143,7 @@ It is also possible to apply an snapshot over an object, reconciling the content
 applySnapshot(todo, {
   done: true,
   text: "buy some milk",
-  $$metadata: {
-    type: "myApp/Todo",
-    id: "_SvYKK1zWYpBj7ST_fVV2",
-  },
+  $modelType: "myApp/Todo",
 })
 ```
 

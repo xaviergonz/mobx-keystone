@@ -1,4 +1,5 @@
-import { Frozen } from "../frozen/Frozen"
+import { Frozen, frozenKey } from "../frozen/Frozen"
+import { modelTypeKey } from "../model"
 import { AnyModel, ModelCreationData, ModelData } from "../model/BaseModel"
 
 // snapshot out
@@ -13,12 +14,12 @@ export type SnapshotOutOfObject<T extends { [k: string]: any }> = {
 }
 
 export type SnapshotOutOfModel<M extends AnyModel> = SnapshotOutOfObject<ModelData<M>> & {
-  $$metadata: M["$$metadata"]
+  [modelTypeKey]: string
 }
 
 export type SnapshotOutOfFrozen<F extends Frozen<any>> = {
-  $$frozen: true
-  data: F["$"]
+  [frozenKey]: true
+  data: F["data"]
 }
 
 export type SnapshotOutOf<T> = T extends Array<infer U>
@@ -55,12 +56,12 @@ export type SnapshotInOfObject<T extends { [k: string]: any }> = {
 export type SnapshotInOfModel<M extends AnyModel> = SnapshotInOfObject<
   M extends { fromSnapshot(sn: infer S): any } ? S : ModelCreationData<M>
 > & {
-  $$metadata: M["$$metadata"]
+  [modelTypeKey]: string
 }
 
 export type SnapshotInOfFrozen<F extends Frozen<any>> = {
-  $$frozen: true
-  data: F["$"]
+  [frozenKey]: true
+  data: F["data"]
 }
 
 export type SnapshotInOf<T> = T extends Array<infer U>

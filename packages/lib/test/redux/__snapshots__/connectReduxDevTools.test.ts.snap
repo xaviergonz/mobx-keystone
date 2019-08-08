@@ -6,21 +6,17 @@ Array [
     Object {
       "args": Array [
         Object {
-          "$$metadata": Object {
-            "type": "TestModel",
-          },
+          "$modelType": "TestModel",
           "array": Array [],
           "x": "snapshotX",
           "y": "snapshotY",
         },
       ],
       "path": Array [],
-      "type": "[/] $$applySnapshot({\\"x\\":\\"snapshotX\\",\\"y\\":\\"snapshotY\\",\\"array\\":[],\\"$$metadata\\":{\\"type\\"...) (id 0)",
+      "type": "[/] $$applySnapshot({\\"x\\":\\"snapshotX\\",\\"y\\":\\"snapshotY\\",\\"array\\":[],\\"$modelType\\":\\"TestMo...) (id 0)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "snapshotX",
       "y": "snapshotY",
@@ -38,9 +34,7 @@ Array [
       "type": "[/] setYAsync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "",
       "y": "setYAsync +0",
@@ -53,9 +47,7 @@ Array [
       "type": "[/] setXAsync() (id 1, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +0",
       "y": "setYAsync +0",
@@ -68,9 +60,7 @@ Array [
       "type": "[/] setXAsync() (id 1, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +20",
       "y": "setYAsync +0",
@@ -83,9 +73,7 @@ Array [
       "type": "[/] setYAsync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +20",
       "y": "setYAsync +50",
@@ -103,23 +91,17 @@ Array [
           "$": Object {
             "a": "setA",
           },
-          "$$metadata": Object {
-            "type": "SubModel",
-          },
+          "$modelType": "SubModel",
         },
       ],
       "path": Array [],
-      "type": "[/] addToArray({\\"$$metadata\\":{\\"type\\":\\"SubModel\\"},\\"$\\":{\\"a\\":\\"otherA\\"}}) (id 0)",
+      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$\\":{\\"a\\":\\"otherA\\"}}) (id 0)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [
         Object {
-          "$$metadata": Object {
-            "type": "SubModel",
-          },
+          "$modelType": "SubModel",
           "a": "otherA",
         },
       ],
@@ -138,14 +120,10 @@ Array [
       "type": "[/$/array/0] setA() (id 1)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [
         Object {
-          "$$metadata": Object {
-            "type": "SubModel",
-          },
+          "$modelType": "SubModel",
           "a": "setA",
         },
       ],
@@ -165,9 +143,7 @@ Array [
       "type": "[/] setX() (id 0)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setX",
       "y": "",
@@ -185,9 +161,7 @@ Array [
       "type": "[/] setXAsync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +0",
       "y": "",
@@ -200,9 +174,7 @@ Array [
       "type": "[/] setXAsync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +20",
       "y": "",
@@ -220,9 +192,7 @@ Array [
       "type": "[/] setXAsyncThrowAsync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
@@ -235,9 +205,7 @@ Array [
       "type": "[/] setXAsyncThrowAsync() (id 0, async) -error thrown-",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
@@ -255,9 +223,7 @@ Array [
       "type": "[/] setXAsyncThrowSync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
@@ -270,9 +236,7 @@ Array [
       "type": "[/] setXAsyncThrowSync() (id 0, async) -error thrown-",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
@@ -290,9 +254,7 @@ Array [
       "type": "[/] setXAsyncWithEmptyFirstPart() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncWithEmptyFirstPart +20",
       "y": "",
@@ -310,9 +272,7 @@ Array [
       "type": "[/] setXThrow() (id 0)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXThrow",
       "y": "",
@@ -325,9 +285,7 @@ Array [
       "type": "[/] setXThrow() (id 0) -error thrown-",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXThrow",
       "y": "",
@@ -345,9 +303,7 @@ Array [
       "type": "[/] setXY() (id 0)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXY starts",
       "y": "",
@@ -360,9 +316,7 @@ Array [
       "type": "[/] setXY() (id 0) >>> [/] setX() (id 1)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setX",
       "y": "",
@@ -375,9 +329,7 @@ Array [
       "type": "[/] setXY() (id 0) >>> [/] setY() (id 2)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setX",
       "y": "setY",
@@ -390,9 +342,7 @@ Array [
       "type": "[/] setXY() (id 0)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXY ends",
       "y": "setY",
@@ -410,9 +360,7 @@ Array [
       "type": "[/] setXYAsync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXYAsync starts",
       "y": "",
@@ -425,9 +373,7 @@ Array [
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setXAsync() (id 1, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +0",
       "y": "",
@@ -440,9 +386,7 @@ Array [
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setXAsync() (id 1, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +20",
       "y": "",
@@ -455,9 +399,7 @@ Array [
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setYAsync() (id 2, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +20",
       "y": "setYAsync +0",
@@ -470,9 +412,7 @@ Array [
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setYAsync() (id 2, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsync +20",
       "y": "setYAsync +50",
@@ -485,9 +425,7 @@ Array [
       "type": "[/] setXYAsync() (id 0, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXYAsync ends",
       "y": "setYAsync +50",
@@ -505,9 +443,7 @@ Array [
       "type": "[/] setXYAsyncThrowAsync() (id 0, async) >>> [/] setXAsyncThrowAsync() (id 1, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
@@ -520,9 +456,7 @@ Array [
       "type": "[/] setXYAsyncThrowAsync() (id 0, async) >>> [/] setXAsyncThrowAsync() (id 1, async) -error thrown-",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
@@ -535,9 +469,7 @@ Array [
       "type": "[/] setXYAsyncThrowAsync() (id 0, async) -error thrown-",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
@@ -555,9 +487,7 @@ Array [
       "type": "[/] setXYAsyncThrowSync() (id 0, async) >>> [/] setXAsyncThrowSync() (id 1, async)",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
@@ -570,9 +500,7 @@ Array [
       "type": "[/] setXYAsyncThrowSync() (id 0, async) >>> [/] setXAsyncThrowSync() (id 1, async) -error thrown-",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
@@ -585,9 +513,7 @@ Array [
       "type": "[/] setXYAsyncThrowSync() (id 0, async) -error thrown-",
     },
     Object {
-      "$$metadata": Object {
-        "type": "TestModel",
-      },
+      "$modelType": "TestModel",
       "array": Array [],
       "x": "setXAsyncThrowSync +0",
       "y": "",

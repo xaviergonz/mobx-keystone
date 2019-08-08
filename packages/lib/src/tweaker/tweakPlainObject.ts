@@ -7,7 +7,7 @@ import {
   observe,
   set,
 } from "mobx"
-import { ModelMetadata, modelMetadataKey } from "../model/metadata"
+import { modelTypeKey } from "../model/metadata"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
@@ -23,7 +23,7 @@ import { runTypeCheckingAfterChange } from "./typeChecking"
 export function tweakPlainObject<T>(
   value: T,
   parentPath: ParentPath<any> | undefined,
-  snapshotModelMetadata: ModelMetadata | undefined,
+  snapshotModelType: string | undefined,
   doNotTweakChildren: boolean
 ): T {
   const originalObj: { [k: string]: any } = value
@@ -65,8 +65,8 @@ export function tweakPlainObject<T>(
     }
   }
 
-  if (snapshotModelMetadata) {
-    standardSn[modelMetadataKey] = snapshotModelMetadata
+  if (snapshotModelType) {
+    standardSn[modelTypeKey] = snapshotModelType
   }
 
   setInternalSnapshot(tweakedObj, standardSn)

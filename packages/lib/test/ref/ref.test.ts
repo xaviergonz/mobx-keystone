@@ -97,13 +97,11 @@ test("single ref works", () => {
 
   const r = c.selectedCountryRef!
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
-        Object {
-          "$$metadata": Object {
-            "type": "countryRef",
-          },
-          "id": "spain",
-        }
-    `)
+    Object {
+      "$modelType": "countryRef",
+      "id": "spain",
+    }
+  `)
   expect(r.isValid).toBe(true)
   expect(r.maybeCurrent).toBe(spain)
   expect(r.current).toBe(spain)
@@ -147,15 +145,11 @@ test("array ref works", () => {
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Array [
       Object {
-        "$$metadata": Object {
-          "type": "countryRef",
-        },
+        "$modelType": "countryRef",
         "id": "spain",
       },
       Object {
-        "$$metadata": Object {
-          "type": "countryRef",
-        },
+        "$modelType": "countryRef",
         "id": "uk",
       },
     ]

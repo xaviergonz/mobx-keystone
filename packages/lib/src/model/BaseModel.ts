@@ -4,7 +4,7 @@ import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject, failure } from "../utils"
-import { ModelMetadata, modelMetadataKey } from "./metadata"
+import { modelTypeKey } from "./metadata"
 import { modelConstructorSymbol, modelInfoByClass } from "./modelInfo"
 import { assertIsModelClass } from "./utils"
 
@@ -26,14 +26,10 @@ export abstract class BaseModel<
   // just to make typing work properly
   [typeSymbol]: [Data, CreationData];
 
-  readonly [modelMetadataKey]: ModelMetadata
-
   /**
-   * Gets the model type name.
+   * Model type name.
    */
-  get $modelType() {
-    return this[modelMetadataKey].type
-  }
+  readonly [modelTypeKey]: string
 
   /**
    * Called after the model has been created.
@@ -97,8 +93,7 @@ export abstract class BaseModel<
 
 // these props will never be hoisted to this
 export const baseModelPropNames = new Set<keyof AnyModel>([
-  modelMetadataKey,
-  "$modelType",
+  modelTypeKey,
   "onInit",
   "$",
   "onAttachedToRootStore",
@@ -133,12 +128,11 @@ export type ModelCreationData<M extends AnyModel> = M extends BaseModel<any, inf
  * @typeparam M Model type.
  * @param modelClass Model class.
  * @param snapshot Model creation snapshot without metadata.
- * @param [id] Optional model id, if not provided a new one will be generated.
  * @returns The model snapshot (including metadata).
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelMetadataKey>
+  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelTypeKey>
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
@@ -147,9 +141,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
 
   return {
     ...snapshot,
-    [modelMetadataKey]: {
-      type: modelInfo.name,
-    },
+    [modelTypeKey]: modelInfo.name,
   } as any
 }
 
@@ -160,12 +152,11 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  * @typeparam M Model type.
  * @param modelClass Model class.
  * @param snapshot Model output snapshot without metadata.
- * @param [id] Optional model id, if not provided a new one will be generated.
  * @returns The model snapshot (including metadata).
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelMetadataKey>
+  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelTypeKey>
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
@@ -174,8 +165,6 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
 
   return {
     ...snapshot,
-    [modelMetadataKey]: {
-      type: modelInfo.name,
-    },
+    [modelTypeKey]: modelInfo.name,
   } as any
 }

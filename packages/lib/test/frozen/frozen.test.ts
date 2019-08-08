@@ -26,7 +26,7 @@ describe("frozen", () => {
       const fr = frozen(data)
 
       expect(fr instanceof Frozen).toBe(true)
-      expect(fr.$).toBe(data)
+      expect(fr.data).toBe(data)
 
       const sn = getSnapshot(fr)
       expect(sn[frozenKey]).toBe(true)
@@ -35,7 +35,7 @@ describe("frozen", () => {
       const frBack = fromSnapshot<Frozen<T>>(sn)
       expect(frBack instanceof Frozen).toBe(true)
       expect(frBack).not.toBe(fr)
-      expect(frBack.$).toBe(sn.data)
+      expect(frBack.data).toBe(sn.data)
 
       const p = newModel(P, { frozenStuff: fr })
 
@@ -68,13 +68,13 @@ describe("frozen", () => {
   test("data is frozen in dev mode, but not in prod mode", () => {
     expect(() => {
       const fr = frozen([1, 2, 3])
-      ;(fr.$ as any)[0] = 10
+      ;(fr.data as any)[0] = 10
     }).toThrow()
 
     emulateProdMode(() => {
       const fr = frozen([1, 2, 3])
       expect(() => {
-        ;(fr.$ as any)[0] = 10
+        ;(fr.data as any)[0] = 10
       }).not.toThrow()
     })
   })

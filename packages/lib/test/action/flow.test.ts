@@ -131,15 +131,11 @@ test("flow", async () => {
                 "$": Object {
                   "y": 0,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 2,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "async",
         },
@@ -185,15 +181,11 @@ test("flow", async () => {
                 "$": Object {
                   "y": 4,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 6,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "async",
         },
@@ -242,15 +234,11 @@ test("flow", async () => {
                 "$": Object {
                   "y": 4,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 16,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "async",
         },

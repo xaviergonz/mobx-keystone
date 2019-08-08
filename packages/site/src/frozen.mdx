@@ -25,6 +25,6 @@ const myPolygon = [{ x: 10, y: 10 }, { x: 20, y: 10 }]
 // and things like getSnapshot will work over it
 const myFrozenPolygon = frozen(myPolygon)
 
-// to access the frozen object data we have to use `$`
-const firstPoint = myFrozenPolygon.$[0]
+// to access the frozen object data we have to use `data`
+const firstPoint = myFrozenPolygon.data[0]
 ```

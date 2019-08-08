@@ -15,7 +15,7 @@ export function tweakFrozen<T extends Frozen<any>>(
   setParent(frozenObj, parentPath)
 
   // we DON'T want data proxified, but the snapshot is the data itself
-  setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.$ })
+  setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data })
 
   return frozenObj as any
 }

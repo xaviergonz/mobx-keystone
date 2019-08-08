@@ -126,13 +126,13 @@ class SomeModel extends Model<{...}> {
 
 ## Accesing the unique id and type of a model
 
-It is interesting to observe that models include some useful properties:
+It is interesting to observe that models include a property named `$modelType`:
 
 ```ts
 myTodo1.$modelType // "myCoolApp/Todo"
 ```
 
-These two properties will end up in the snapshot representation of the model in a key named `$$metadata` and it will serve to be able to properly reconstruct the proper model class from the snapshot.
+This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
 
 ## Flows (async actions)
 

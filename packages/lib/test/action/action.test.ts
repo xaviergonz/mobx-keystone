@@ -97,15 +97,11 @@ test("action tracking", () => {
                 "$": Object {
                   "y": 0,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 1,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -128,15 +124,11 @@ test("action tracking", () => {
                 "$": Object {
                   "y": 0,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 1,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -164,9 +156,7 @@ test("action tracking", () => {
             "$": Object {
               "y": 2,
             },
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
           },
           "type": "sync",
         },
@@ -185,9 +175,7 @@ test("action tracking", () => {
             "$": Object {
               "y": 2,
             },
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
           },
           "type": "sync",
         },
@@ -220,15 +208,11 @@ test("action tracking", () => {
                 "$": Object {
                   "y": 4,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 2,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -258,15 +242,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -287,15 +267,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -307,15 +283,11 @@ test("action tracking", () => {
                 "$": Object {
                   "y": 4,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 2,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -345,15 +317,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -374,15 +342,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -394,15 +358,11 @@ test("action tracking", () => {
                 "$": Object {
                   "y": 4,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 2,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -433,15 +393,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -462,15 +418,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -478,9 +430,7 @@ test("action tracking", () => {
             "$": Object {
               "y": 4,
             },
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
           },
           "type": "sync",
         },
@@ -510,15 +460,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -539,15 +485,11 @@ test("action tracking", () => {
                   "$": Object {
                     "y": 4,
                   },
-                  "$$metadata": Object {
-                    "type": "P2",
-                  },
+                  "$modelType": "P2",
                 },
                 "x": 2,
               },
-              "$$metadata": Object {
-                "type": "P",
-              },
+              "$modelType": "P",
             },
             "type": "sync",
           },
@@ -555,9 +497,7 @@ test("action tracking", () => {
             "$": Object {
               "y": 4,
             },
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
           },
           "type": "sync",
         },
@@ -582,15 +522,11 @@ test("action tracking", () => {
                 "$": Object {
                   "y": 4,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 2,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
