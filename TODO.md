@@ -14,10 +14,10 @@
 
 - (5) action recorder abstraction?
 
-- (4) custom refs? cross tree refs?
+- (4) easier / premade custom refs?
 
 - (4) check out mst api for missing features
 
 - (3) does subclassing work? apparently it does with small gotchas
 
-- (3) future: object/array backed map, array backed set? the mapping of those types to pure json is not apparent though
+- (3) future: object/array backed map, array backed set? the mapping of those types to pure json is not apparent though, and we offer wrappers
