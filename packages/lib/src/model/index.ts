@@ -8,7 +8,7 @@ export {
   modelSnapshotOutWithMetadata,
 } from "./BaseModel"
 export { getModelDataType } from "./getModelDataType"
-export { ModelMetadata, modelMetadataKey } from "./metadata"
+export { modelTypeKey } from "./metadata"
 export { Model } from "./Model"
 export { model } from "./modelDecorator"
 export { newModel } from "./newModel"

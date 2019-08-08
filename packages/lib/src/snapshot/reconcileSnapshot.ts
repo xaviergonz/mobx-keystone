@@ -1,7 +1,7 @@
 import { isObservableObject } from "mobx"
 import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
-import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
@@ -75,14 +75,14 @@ function reconcileArraySnapshot(value: any, sn: SnapshotInOfArray<any>): any[] {
 function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>): Frozen<any> {
   // reconciliation is only possible if the target is a Frozen instance with the same data (by ref)
   // in theory we could compare the JSON representation of both datas or do a deep comparison, but that'd be too slow
-  if (value instanceof Frozen && value.$ === sn.data) {
+  if (value instanceof Frozen && value.data === sn.data) {
     return value
   }
   return frozen(sn.data)
 }
 
 function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): AnyModel {
-  const { type } = sn[modelMetadataKey]
+  const type = sn[modelTypeKey]
 
   const modelInfo = getModelInfoForName(type)
   if (!modelInfo) {

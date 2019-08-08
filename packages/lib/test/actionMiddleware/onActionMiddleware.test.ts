@@ -97,15 +97,11 @@ test("onActionMiddleware", () => {
                 "$": Object {
                   "y": 0,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 1,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -148,9 +144,7 @@ test("onActionMiddleware", () => {
             "$": Object {
               "y": 2,
             },
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
           },
           "type": "sync",
         },
@@ -194,15 +188,11 @@ test("onActionMiddleware", () => {
                 "$": Object {
                   "y": 6,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 4,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -247,15 +237,11 @@ test("onActionMiddleware", () => {
                 "$": Object {
                   "y": 6,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 4,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -315,15 +301,11 @@ test("onActionMiddleware", () => {
                 "$": Object {
                   "y": 6,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 4,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -375,15 +357,11 @@ test("onActionMiddleware", () => {
                 "$": Object {
                   "y": 6,
                 },
-                "$$metadata": Object {
-                  "type": "P2",
-                },
+                "$modelType": "P2",
               },
               "x": 4,
             },
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
           },
           "type": "sync",
         },
@@ -408,9 +386,7 @@ test("onActionMiddleware", () => {
           "actionName": "$$applySnapshot",
           "args": Array [
             Object {
-              "$$metadata": Object {
-                "type": "P2",
-              },
+              "$modelType": "P2",
               "y": 100,
             },
           ],
@@ -423,9 +399,7 @@ test("onActionMiddleware", () => {
           "actionName": "$$applySnapshot",
           "args": Array [
             Object {
-              "$$metadata": Object {
-                "type": "P2",
-              },
+              "$modelType": "P2",
               "y": 100,
             },
           ],
@@ -442,9 +416,7 @@ test("onActionMiddleware", () => {
             "$": Object {
               "y": 100,
             },
-            "$$metadata": Object {
-              "type": "P2",
-            },
+            "$modelType": "P2",
           },
           "type": "sync",
         },

@@ -22,9 +22,7 @@ Array [
           "x": 10,
           "y": "6",
         },
-        "$$metadata": Object {
-          "type": "M",
-        },
+        "$modelType": "M",
       },
       "type": "sync",
     },
@@ -50,9 +48,7 @@ Array [
           "x": 10,
           "y": "6",
         },
-        "$$metadata": Object {
-          "type": "M",
-        },
+        "$modelType": "M",
       },
       "type": "sync",
     },

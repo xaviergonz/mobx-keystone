@@ -9,7 +9,7 @@ import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { assertIsObject, failure, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
-import { modelMetadataKey } from "./metadata"
+import { modelTypeKey } from "./metadata"
 import { modelConstructorSymbol, modelInfoByClass } from "./modelInfo"
 import { modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps } from "./prop"
@@ -70,9 +70,7 @@ export const internalNewModel = action(
       initialData = snapshotInitialData.snapshotToInitialData(sn)
     }
 
-    modelObj[modelMetadataKey] = {
-      type: modelInfo.name,
-    }
+    modelObj[modelTypeKey] = modelInfo.name
 
     // fill in defaults in initial data
     const modelProps: ModelProps = (modelObj as any)[modelPropertiesSymbol]
@@ -98,7 +96,7 @@ export const internalNewModel = action(
     let obsData = tweakPlainObject(
       initialData,
       { parent: modelObj, path: "$" },
-      modelObj[modelMetadataKey],
+      modelObj[modelTypeKey],
       false
     )
     const newSn = getInternalSnapshot(obsData as any)!

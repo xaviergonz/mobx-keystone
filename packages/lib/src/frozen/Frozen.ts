@@ -6,7 +6,7 @@ import { DeepReadonly } from "../utils/types"
 /**
  * @ignore
  */
-export const frozenKey = "$$frozen"
+export const frozenKey = "$frozen"
 
 /**
  * A class that contains frozen data.
@@ -18,7 +18,7 @@ export class Frozen<T> {
   /**
    * Frozen data, deeply immutable.
    */
-  readonly $: DeepReadonly<T>
+  readonly data: DeepReadonly<T>
 
   /**
    * Creates an instance of Frozen.
@@ -31,10 +31,10 @@ export class Frozen<T> {
       checkDataIsSerializableAndFreeze(dataToFreeze)
     }
 
-    this.$ = dataToFreeze as DeepReadonly<T>
+    this.data = dataToFreeze as DeepReadonly<T>
 
     if (inDevMode()) {
-      Object.freeze(this.$)
+      Object.freeze(this.data)
     }
 
     tweak(this, undefined)
@@ -55,7 +55,7 @@ export class Frozen<T> {
  * @param data
  */
 export function frozen<T>(data: T): Frozen<T> {
-  return new Frozen(data)
+  return new Frozen<T>(data)
 }
 
 function checkDataIsSerializableAndFreeze(data: any) {

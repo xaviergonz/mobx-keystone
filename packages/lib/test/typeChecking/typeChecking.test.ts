@@ -529,12 +529,12 @@ test("ref", () => {
 
 test("frozen - simple type", () => {
   const type = types.frozen(types.number)
-  assert(_ as TypeToData<typeof type>, _ as { $: number })
+  assert(_ as TypeToData<typeof type>, _ as { data: number })
 
   const fr = frozen<number>(5)
 
   expectTypeCheckOk(type, fr)
-  expectTypeCheckFail(type, 5, [], "{ $: number; }")
+  expectTypeCheckFail(type, 5, [], "{ data: number; }")
 })
 
 test("frozen - complex type", () => {
@@ -543,12 +543,12 @@ test("frozen - complex type", () => {
       x: types.number,
     }))
   )
-  assert(_ as TypeToData<typeof type>, _ as { $: { x: number } })
+  assert(_ as TypeToData<typeof type>, _ as { data: { x: number } })
 
   const fr = frozen<{ x: number }>({ x: 5 })
 
   expectTypeCheckOk(type, fr)
-  expectTypeCheckFail(type, 5, [], "{ $: { x: number; }; }")
+  expectTypeCheckFail(type, 5, [], "{ data: { x: number; }; }")
 })
 
 test("enum (string)", () => {

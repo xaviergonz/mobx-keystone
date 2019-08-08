@@ -41,9 +41,7 @@ test("subclassing works", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$$metadata": Object {
-        "type": "P2",
-      },
+      "$modelType": "P2",
       "x": 15,
       "y": 10,
       "z": 30,

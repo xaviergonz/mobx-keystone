@@ -57,15 +57,11 @@ describe("asReduxStore", () => {
       Array [
         Object {
           "prevSn": Object {
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
             "x": 0,
           },
           "sn": Object {
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
             "x": 5,
           },
         },
@@ -121,17 +117,17 @@ describe("asReduxStore", () => {
 
     // 11200 because 12 -> 12 + 100 = 112 -> 112 * 100 = 11200
     expect(dispatched).toMatchInlineSnapshot(`
-            Object {
-              "payload": Object {
-                "actionName": "addX",
-                "args": Array [
-                  11200,
-                ],
-                "targetPath": Array [],
-              },
-              "type": "applyAction",
-            }
-        `)
+                  Object {
+                    "payload": Object {
+                      "actionName": "addX",
+                      "args": Array [
+                        11200,
+                      ],
+                      "targetPath": Array [],
+                    },
+                    "type": "applyAction",
+                  }
+            `)
 
     expect(store.getState()).toBe(getSnapshot(p))
 
@@ -139,15 +135,11 @@ describe("asReduxStore", () => {
       Array [
         Object {
           "prevSn": Object {
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
             "x": 0,
           },
           "sn": Object {
-            "$$metadata": Object {
-              "type": "P",
-            },
+            "$modelType": "P",
             "x": 12,
           },
         },

@@ -1,17 +1,7 @@
 /**
- * Key where model snapshots will store model metadata.
+ * Key where model snapshots will store model type metadata.
  */
-export const modelMetadataKey = "$$metadata"
-
-/**
- * Model metadata stored in model snapshots.
- */
-export interface ModelMetadata {
-  /**
-   * Model type
-   */
-  readonly type: string
-}
+export const modelTypeKey = "$modelType"
 
 /**
  * Returns if a given key is a reserved key in model snapshots.
@@ -20,5 +10,5 @@ export interface ModelMetadata {
  * @returns
  */
 export function isReservedModelKey(key: string) {
-  return key === modelMetadataKey
+  return key === modelTypeKey
 }

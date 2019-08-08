@@ -1,6 +1,6 @@
 import { isObject } from "../utils"
 import { AnyModel, ModelClass } from "./BaseModel"
-import { ModelMetadata, modelMetadataKey } from "./metadata"
+import { modelTypeKey } from "./metadata"
 
 interface ModelInfo {
   name: string
@@ -29,13 +29,11 @@ export function getModelInfoForName(name: string): ModelInfo | undefined {
 /**
  * @ignore
  */
-export function getModelInfoForObject(obj: {
-  [modelMetadataKey]: ModelMetadata
-}): ModelInfo | undefined {
-  if (!isObject(obj) || !obj[modelMetadataKey]) {
+export function getModelInfoForObject(obj: { [modelTypeKey]: string }): ModelInfo | undefined {
+  if (!isObject(obj) || !obj[modelTypeKey]) {
     return undefined
   }
-  return getModelInfoForName(obj[modelMetadataKey].type)
+  return getModelInfoForName(obj[modelTypeKey])
 }
 
 /**

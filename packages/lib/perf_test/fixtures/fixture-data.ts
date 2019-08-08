@@ -47,17 +47,13 @@ export function createHeros(count: number) {
     n2 = givenNames[i % givenNames.length]
     n3 = epicNames[i % epicNames.length]
     data.push(
-      modelSnapshotInWithMetadata(
-        Hero,
-        {
-          id: i,
-          name: `${n1} ${n2} the ${n3}`,
-          level: (count % 100) + 1,
-          role: HeroRoles[i % HeroRoles.length],
-          description: `${wtf} ${wtf} ${wtf}`,
-        },
-        "" + i
-      )
+      modelSnapshotInWithMetadata(Hero, {
+        id: i,
+        name: `${n1} ${n2} the ${n3}`,
+        level: (count % 100) + 1,
+        role: HeroRoles[i % HeroRoles.length],
+        description: `${wtf} ${wtf} ${wtf}`,
+      })
     )
     even = !even
     i++
@@ -80,32 +76,28 @@ export function createMonsters(count: number, treasureCount: number, heroCount: 
     const treasures = createTreasure(treasureCount)
     const eatenHeroes = createHeros(heroCount)
     data.push(
-      modelSnapshotInWithMetadata(
-        Monster,
-        {
-          id: `omg-${i}-run!`,
-          freestyle: { $$frozen: true, data: `${wtf} ${wtf} ${wtf}${wtf} ${wtf} ${wtf}` },
-          level: (count % 100) + 1,
-          hp: i % 2 === 0 ? 1 : 5 * i,
-          maxHp: 5 * i,
-          warning: "!!!!!!",
-          createdAt: Date.now(),
-          hasFangs: even,
-          hasClaws: even,
-          hasWings: !even,
-          hasGrowl: !even,
-          fearsFire: even,
-          fearsWater: !even,
-          fearsWarriors: even,
-          fearsClerics: !even,
-          fearsMages: even,
-          fearsThieves: !even,
-          stenchLevel: i % 5,
-          treasures,
-          eatenHeroes,
-        },
-        `omg-${i}-run!`
-      )
+      modelSnapshotInWithMetadata(Monster, {
+        id: `omg-${i}-run!`,
+        freestyle: { $frozen: true, data: `${wtf} ${wtf} ${wtf}${wtf} ${wtf} ${wtf}` },
+        level: (count % 100) + 1,
+        hp: i % 2 === 0 ? 1 : 5 * i,
+        maxHp: 5 * i,
+        warning: "!!!!!!",
+        createdAt: Date.now(),
+        hasFangs: even,
+        hasClaws: even,
+        hasWings: !even,
+        hasGrowl: !even,
+        fearsFire: even,
+        fearsWater: !even,
+        fearsWarriors: even,
+        fearsClerics: !even,
+        fearsMages: even,
+        fearsThieves: !even,
+        stenchLevel: i % 5,
+        treasures,
+        eatenHeroes,
+      })
     )
     even = !even
     i++

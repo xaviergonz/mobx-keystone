@@ -1,7 +1,7 @@
 import { action, observable } from "mobx"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
-import { isReservedModelKey, modelMetadataKey } from "../model/metadata"
+import { isReservedModelKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { internalNewModel } from "../model/newModel"
 import { isModelSnapshot } from "../model/utils"
@@ -70,11 +70,11 @@ function fromArraySnapshot(sn: SnapshotInOfArray<any>): any[] {
 }
 
 function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
-  const { type } = sn[modelMetadataKey]
+  const type = sn[modelTypeKey]
 
   if (!type) {
     throw failure(
-      `a model a snapshot must contain a type (${modelMetadataKey}.type) key, but none was found`
+      `a model a snapshot must contain a type key (${modelTypeKey}), but none was found`
     )
   }
 

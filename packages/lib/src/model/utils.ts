@@ -1,7 +1,7 @@
 import { SnapshotInOfModel } from "../snapshot/SnapshotOf"
 import { failure, isPlainObject } from "../utils"
 import { AnyModel, BaseModel, ModelClass } from "./BaseModel"
-import { modelMetadataKey } from "./metadata"
+import { modelTypeKey } from "./metadata"
 
 /**
  * Checks if an object is a model instance.
@@ -63,7 +63,7 @@ export function assertIsModelClass(modelClass: ModelClass<AnyModel>, argName: st
  * @ignore
  */
 export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
-  return isPlainObject(sn) && !!sn[modelMetadataKey]
+  return isPlainObject(sn) && !!sn[modelTypeKey]
 }
 
 /**
