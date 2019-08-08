@@ -31,7 +31,7 @@ const myRef = customRef<T>("some unique model type id", {
 })
 ```
 
-Reference objects can then be created using `myRef(target)` and offer the following properties:
+Reference objects can then be created using `myRef(target: T)` or `myRef(id: string)` and offer the following properties:
 
 - `isValid` - If the reference is valid (can be currently resolved).
 - `current` - The object this reference points to, or throws if invalid.

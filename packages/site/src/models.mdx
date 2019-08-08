@@ -197,3 +197,40 @@ type StringMyModel = InstanceType<typeof StringMyModel>
 const stringMyModelInstance = newModel(StringMyModel, {}) // this will be of type StringMyModel
 stringMyModelInstance.setXY("50", "60")
 ```
+
+## Map/Set wrappers
+
+Although `mobx-keystone` doesn't support properties which are Maps/Sets directly (for JSON compatibility purposes), you can still simulate Map/Set interfaces via the provider wrappers `arrayAsSet`, `arrayAsMap` and `objectAsMap`.
+
+`arrayAsSet` will wrap a property of type `V[]` and wrap it into a `Set<V>` alike interface
+
+```ts
+class ... {
+  // given myArraySet: prop<V[]>(() => [])
+  readonly mySet = arrayAsSet(() => this.myArraySet)
+}
+
+// then mySet can be used as a standard Set
+```
+
+`objectAsMap` will wrap a property of type `{ [k: string]: V }` and wrap it into a `Map<string, V>` alike interface
+
+```ts
+class ... {
+  // given myObjectMap: prop<{ [k: string]: V }>(() => ({}))
+  readonly myMap = objectAsMap(() => this.myObjectMap)
+}
+
+// then myMap can be used as a standard Map
+```
+
+`arrayAsMap` will wrap a property of type `[string, V][]` and wrap it into a `Map<string, V>` alike interface
+
+```ts
+class ... {
+  // given myArrayMap: prop<[string, V][]>(() => [])
+  readonly myMap = arrayAsMap(() => this.myArrayMap)
+}
+
+// then myMap can be used as a standard Map
+```

@@ -85,7 +85,7 @@ export declare const customRefTypeSymbol: unique symbol
 
 /** A ref constructor for custom refs */
 export interface RefConstructor<T extends object> {
-  (value: T): Ref<T>
+  (valueOrID: T | string): Ref<T>
 
   refClass: ModelClass<Ref<T>>
 
@@ -113,9 +113,13 @@ export function customRef<T extends object>(
   }
 
   const fn = (target: T) => {
-    assertIsObject(target, "target")
-
-    const id = options.getId(target)
+    let id: string
+    if (typeof target === "string") {
+      id = target
+    } else {
+      assertIsObject(target, "target")
+      id = options.getId(target)
+    }
     const model = newModel(CustomRef, {
       id,
     })
