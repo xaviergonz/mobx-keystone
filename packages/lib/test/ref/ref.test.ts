@@ -10,7 +10,6 @@ import {
   model,
   Model,
   modelAction,
-  newModel,
   prop,
   Ref,
 } from "../../src"
@@ -84,7 +83,7 @@ const initialCountries: { [k: string]: Country } = {
 }
 
 test("single ref works", () => {
-  const c = newModel(Countries, {
+  const c = new Countries({
     countries: initialCountries,
   })
 
@@ -129,7 +128,7 @@ test("single ref works", () => {
 })
 
 test("array ref works", () => {
-  const c = newModel(Countries, {
+  const c = new Countries({
     countries: initialCountries,
   })
 

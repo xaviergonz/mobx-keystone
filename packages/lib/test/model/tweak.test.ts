@@ -1,5 +1,5 @@
 import { isObservable, keys, values } from "mobx"
-import { getParent, isTreeNode, model, Model, newModel, prop, runUnprotected } from "../../src"
+import { getParent, isTreeNode, model, Model, prop, runUnprotected } from "../../src"
 import "../commonSetup"
 
 interface TestObj {
@@ -30,7 +30,9 @@ test("initial data must be tweaked", () => {
     ]),
   }) {}
 
-  const a = newModel(A, {})
+  expect(A.name).toBe("A")
+
+  const a = new A({})
 
   expect(isTreeNodeAndObs(a.map)).toBeTruthy()
   expect(isTreeNodeAndObs(a.map.obj1)).toBeTruthy()
@@ -55,7 +57,7 @@ test("data added after intial data must be tweaked", () => {
   }) {}
 
   {
-    const a = newModel(A, {})
+    const a = new A({})
     runUnprotected(() => {
       a.map = {}
       a.map.obj1 = { x: 10 }
@@ -81,7 +83,7 @@ test("data added after intial data must be tweaked", () => {
   }
 
   {
-    const a = newModel(A, {})
+    const a = new A({})
     runUnprotected(() => {
       a.map = { obj1: { x: 10 }, obj2: { x: 20 } }
       a.arr = [{ x: 10 }, { x: 20 }]

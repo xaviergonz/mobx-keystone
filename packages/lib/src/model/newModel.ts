@@ -1,41 +1,17 @@
-import { action, observable } from "mobx"
+import { action } from "mobx"
 import { O } from "ts-toolbelt"
-import { HookAction } from "../action/hookActions"
-import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { assertIsObject, failure, makePropReadonly } from "../utils"
+import { failure, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelTypeKey } from "./metadata"
-import { modelConstructorSymbol, modelInfoByClass } from "./modelInfo"
-import { modelPropertiesSymbol } from "./modelSymbols"
+import { modelInfoByClass } from "./modelInfo"
+import { modelInitializersSymbol, modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps } from "./prop"
 import { assertIsModelClass } from "./utils"
-
-/**
- * Creates a new model of a given class.
- * Use this instead of the new operator.
- *
- * @typeparam M Model class.
- * @param modelClass Model class.
- * @param initialData Initial data.
- * @returns The model instance.
- */
-export function newModel<M extends AnyModel>(
-  modelClass: ModelClass<M>,
-  initialData: ModelCreationData<M>
-): M {
-  assertIsObject(initialData, "initialData")
-
-  return internalNewModel(
-    modelClass,
-    observable.object(initialData, undefined, { deep: false }),
-    undefined
-  )
-}
 
 /**
  * @ignore
@@ -43,6 +19,7 @@ export function newModel<M extends AnyModel>(
 export const internalNewModel = action(
   "newModel",
   <M extends AnyModel>(
+    origModelObj: M,
     modelClass: ModelClass<M>,
     initialData: ModelCreationData<M> | undefined,
     snapshotInitialData:
@@ -54,7 +31,7 @@ export const internalNewModel = action(
   ): M => {
     assertIsModelClass(modelClass, "modelClass")
 
-    const modelObj = new modelClass(modelConstructorSymbol) as O.Writable<M>
+    const modelObj = origModelObj as O.Writable<M>
 
     const modelInfo = modelInfoByClass.get(modelClass)
     if (!modelInfo) {
@@ -117,16 +94,9 @@ export const internalNewModel = action(
     }
 
     // run any extra initializers for the class as needed
-    const initializers = modelClassInitializers.get(modelClass)
+    const initializers = getModelClassInitializers(modelClass)
     if (initializers) {
       initializers.forEach(init => init(modelObj))
-    }
-
-    // the object is ready
-    if (modelObj.onInit) {
-      wrapModelMethodInActionIfNeeded(modelObj, "onInit", HookAction.OnInit)
-
-      modelObj.onInit()
     }
 
     return modelObj
@@ -135,8 +105,6 @@ export const internalNewModel = action(
 
 type ModelClassInitializer = (modelInstance: AnyModel) => void
 
-const modelClassInitializers = new WeakMap<ModelClass<AnyModel>, ModelClassInitializer[]>()
-
 /**
  * @ignore
  */
@@ -144,10 +112,16 @@ export function addModelClassInitializer(
   modelClass: ModelClass<AnyModel>,
   init: ModelClassInitializer
 ) {
-  let initializers = modelClassInitializers.get(modelClass)
+  let initializers = (modelClass as any)[modelInitializersSymbol]
   if (!initializers) {
     initializers = []
-    modelClassInitializers.set(modelClass, initializers)
+    ;(modelClass as any)[modelInitializersSymbol] = initializers
   }
   initializers.push(init)
+}
+
+function getModelClassInitializers(
+  modelClass: ModelClass<AnyModel>
+): ModelClassInitializer[] | undefined {
+  return (modelClass as any)[modelInitializersSymbol]
 }

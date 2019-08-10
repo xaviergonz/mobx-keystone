@@ -48,7 +48,7 @@ class Todo extends Model({
 }) {
 }
 
-const todo = newModel(Todo, { text: "buy some milk" })
+const todo = new Todo({ text: "buy some milk" })
 
 const todoSnapshot = getSnapshot(todo)
 

@@ -5,7 +5,6 @@ import {
   Model,
   modelAction,
   ModelAutoTypeCheckingMode,
-  newModel,
   registerRootStore,
   setGlobalConfig,
   tProp,
@@ -89,13 +88,12 @@ export class TodoList extends Model({
 }
 
 export function createRootStore(): TodoList {
-  // important: to create new instances of models use `newModel` rather than the usual
-  // `new X()`. the second parameter is the initial data for the model
-  const rootStore = newModel(TodoList, {
+  // the parameter is the initial data for the model
+  const rootStore = new TodoList({
     todos: [
-      newModel(Todo, { text: "make mobx-keystone awesome!" }),
-      newModel(Todo, { text: "spread the word" }),
-      newModel(Todo, { text: "buy some milk", done: true }),
+      new Todo({ text: "make mobx-keystone awesome!" }),
+      new Todo({ text: "spread the word" }),
+      new Todo({ text: "buy some milk", done: true }),
     ],
   })
 

@@ -4,7 +4,6 @@ import {
   Model,
   modelAction,
   modelFlow,
-  newModel,
   prop,
   UndoEvent,
   UndoManager,
@@ -26,7 +25,7 @@ class P2 extends Model({
 
 @model("P")
 class P extends Model({
-  p2: prop(() => newModel(P2, {})),
+  p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {
   @modelAction
@@ -44,12 +43,12 @@ class P extends Model({
 
 @model("R")
 class R extends Model({
-  undoData: prop(() => newModel(UndoStore, {})),
-  p: prop(() => newModel(P, {})),
+  undoData: prop(() => new UndoStore({})),
+  p: prop(() => new P({})),
 }) {}
 
 test("undoMiddleware - sync", () => {
-  const r = newModel(R, {})
+  const r = new R({})
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)
@@ -292,7 +291,7 @@ class P2Flow extends Model({
 @model("PFlow")
 class PFlow extends Model({
   x: prop(() => 0),
-  p2: prop(() => newModel(P2Flow, {})),
+  p2: prop(() => new P2Flow({})),
 }) {
   @modelFlow
   *incX(n: number) {
@@ -314,12 +313,12 @@ class PFlow extends Model({
 
 @model("RFlow")
 class RFlow extends Model({
-  undoData: prop(() => newModel(UndoStore, {})),
-  p: prop(() => newModel(PFlow, {})),
+  undoData: prop(() => new UndoStore({})),
+  p: prop(() => new PFlow({})),
 }) {}
 
 test("undoMiddleware - async", async () => {
-  const r = newModel(RFlow, {})
+  const r = new RFlow({})
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)

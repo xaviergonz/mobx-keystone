@@ -7,7 +7,6 @@ import {
   getSnapshot,
   model,
   Model,
-  newModel,
   prop,
   runUnprotected,
 } from "../../src"
@@ -37,7 +36,7 @@ describe("frozen", () => {
       expect(frBack).not.toBe(fr)
       expect(frBack.data).toBe(sn.data)
 
-      const p = newModel(P, { frozenStuff: fr })
+      const p = new P({ frozenStuff: fr })
 
       expect(getSnapshot(p).frozenStuff).toBe(sn)
       expect(getParent(fr)).toBe(p.$)

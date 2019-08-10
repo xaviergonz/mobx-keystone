@@ -1,7 +1,7 @@
-import { fromSnapshot, getSnapshot, model, Model, newModel, prop } from "../../src"
+import { fromSnapshot, getSnapshot, model, Model, prop } from "../../src"
 import "../commonSetup"
 
-@model("P")
+// @model("P")
 class P extends Model({
   x: prop(() => 15),
   y: prop(() => 10),
@@ -28,7 +28,7 @@ class P2 extends P {
 }
 
 test("subclassing works", () => {
-  const p2 = newModel(P2, {})
+  const p2 = new P2({})
 
   expect(p2.x).toBe(15)
   expect(p2.y).toBe(10)

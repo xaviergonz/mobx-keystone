@@ -10,7 +10,6 @@ import {
   Model,
   modelAction,
   ModelAutoTypeCheckingMode,
-  newModel,
   onPatches,
   onSnapshot,
   Ref,
@@ -241,7 +240,7 @@ class M extends Model({
 }
 
 test("model", () => {
-  const m = newModel(M, { y: "6" })
+  const m = new M({ y: "6" })
   const type = types.model<M>(M)
   assert(_ as TypeToData<typeof type>, _ as M)
 
@@ -249,14 +248,14 @@ test("model", () => {
   expect(m.typeCheck()).toBeNull()
 
   expectTypeCheckFail(type, "ho", [], `Model(${m.$modelType})`)
-  expectTypeCheckFail(type, newModel(MR, {}), [], `Model(${m.$modelType})`)
+  expectTypeCheckFail(type, new MR({}), [], `Model(${m.$modelType})`)
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["$", "x"], "number")
   expect(m.typeCheck()).toEqual(new TypeCheckError(["$", "x"], "number", "10"))
 })
 
 test("model typechecking", () => {
-  const m = newModel(M, { y: "6" })
+  const m = new M({ y: "6" })
   const type = types.model<M>(M)
   assert(_ as TypeToData<typeof type>, _ as M)
 
@@ -281,18 +280,16 @@ test("model typechecking", () => {
   expectTypeCheckOk(type, m)
 })
 
-test("newModel with typechecking enabled", () => {
+test("new model with typechecking enabled", () => {
   setGlobalConfig({
     modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
   })
 
-  expect(() => newModel(M, { x: 10, y: 20 as any })).toThrow(
-    "TypeCheckError: [$/y] Expected: string"
-  )
+  expect(() => new M({ x: 10, y: 20 as any })).toThrow("TypeCheckError: [$/y] Expected: string")
 })
 
 test("model", () => {
-  const m = newModel(M, { y: "6" })
+  const m = new M({ y: "6" })
   const type = types.model<M>(M)
   assert(_ as TypeToData<typeof type>, _ as M)
 
@@ -465,7 +462,7 @@ class MR extends Model({
 test("recursive model", () => {
   const type = types.model<MR>(MR)
 
-  const mr = newModel(MR, { rec: newModel(MR, {}) })
+  const mr = new MR({ rec: new MR({}) })
   assert(_ as TypeToData<typeof type>, _ as MR)
 
   expectTypeCheckOk(type, mr)
@@ -499,7 +496,7 @@ class MB extends Model({
 test("cross referenced model", () => {
   const type = types.model<MA>(MA)
 
-  const ma = newModel(MA, { b: newModel(MB, { a: newModel(MA, {}) }) })
+  const ma = new MA({ b: new MB({ a: new MA({}) }) })
   assert(_ as TypeToData<typeof type>, _ as MA)
 
   expectTypeCheckOk(type, ma)
@@ -511,7 +508,7 @@ test("cross referenced model", () => {
 test("ref", () => {
   const type = types.ref<M>()
 
-  const m = newModel(M, { y: "6" })
+  const m = new M({ y: "6" })
   const customR = customRef<M>("customRefM", {
     resolve() {
       return m

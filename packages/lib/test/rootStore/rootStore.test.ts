@@ -3,7 +3,6 @@ import {
   isRootStore,
   model,
   Model,
-  newModel,
   prop,
   registerRootStore,
   runUnprotected,
@@ -33,7 +32,7 @@ export class P3 extends Model({
 @model("P2")
 export class P2 extends Model({
   y: prop(() => 10),
-  p3: prop(() => newModel(P3, {})),
+  p3: prop(() => new P3({})),
 }) {
   onAttachedToRootStore(rootStore: P) {
     expect(isRootStore(rootStore)).toBeTruthy()
@@ -66,8 +65,8 @@ export class P extends Model({
 }
 
 export function createP() {
-  return newModel(P, {
-    p2: newModel(P2, {
+  return new P({
+    p2: new P2({
       y: 12,
     }),
   })
@@ -155,7 +154,7 @@ test("model as rootStore", () => {
 })
 
 test("array as rootStore", () => {
-  const arr = toTreeNode<P3[]>([newModel(P3, {})])
+  const arr = toTreeNode<P3[]>([new P3({})])
   expect(getRootStore(arr)).toBeUndefined()
   expect(isRootStore(arr)).toBeFalsy()
 

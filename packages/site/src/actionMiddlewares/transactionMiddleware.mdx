@@ -57,7 +57,7 @@ class MyBalance extends Model({
 }
 
 // or for a particular instance
-const myBalance = newModel(MyBalance, { balance: 100 })
+const myBalance = new MyBalance({ balance: 100 })
 transactionMiddleware({
   model: myBalance,
   actionName: "addMoney",

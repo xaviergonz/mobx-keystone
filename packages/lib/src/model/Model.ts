@@ -1,23 +1,27 @@
+import { observable } from "mobx"
 import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject } from "../utils"
-import { AnyModel, BaseModel, baseModelPropNames } from "./BaseModel"
+import { AnyModel, BaseModel, baseModelPropNames, ModelClass } from "./BaseModel"
 import { modelConstructorSymbol } from "./modelInfo"
 import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
+import { internalNewModel } from "./newModel"
 import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
 
 declare const propsDataSymbol: unique symbol
 declare const optPropsDataSymbol: unique symbol
+declare const creationDataSymbol: unique symbol
 
 export interface _Model<TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToData<TProps>
   [optPropsDataSymbol]: OptionalModelProps<TProps>
+  [creationDataSymbol]: O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
 
-  new (privateSymbol: typeof modelConstructorSymbol): BaseModel<
+  new (data: this[typeof creationDataSymbol]): BaseModel<
     this[typeof propsDataSymbol],
-    O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
+    this[typeof creationDataSymbol]
   > &
     Omit<this[typeof propsDataSymbol], keyof AnyModel>
 }
@@ -25,7 +29,6 @@ export interface _Model<TProps extends ModelProps> {
 /**
  * Base abstract class for models.
  *
- * Never use new directly over models, use `newModel` function instead.
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
  * @typeparam TProps Model properties type.
@@ -78,14 +81,29 @@ export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TPr
   }
 
   class CustomBaseModel extends BaseModel<any, any> {
-    constructor(privateSymbol: typeof modelConstructorSymbol) {
-      super(privateSymbol)
+    constructor(initialData: any, snapshotInitialData: any) {
+      super(modelConstructorSymbol as any)
 
       // proxy returned object so data can be accessed through this
       const obj = this
       Object.defineProperty(obj, modelPropertiesSymbol, modelPropertiesDesc)
       Object.defineProperty(obj, modelDataTypeCheckerSymbol, modelDataTypeCheckerDesc)
       Object.defineProperties(obj, extraDescriptors)
+
+      const clazz: ModelClass<AnyModel> = this.constructor as any
+
+      if (!snapshotInitialData) {
+        assertIsObject(initialData, "initialData")
+
+        internalNewModel(
+          this,
+          clazz,
+          observable.object(initialData, undefined, { deep: false }),
+          undefined
+        )
+      } else {
+        internalNewModel(this, clazz, undefined, snapshotInitialData)
+      }
     }
   }
   ;(CustomBaseModel as any)[modelDataTypeCheckerSymbol] = dataTypeChecker

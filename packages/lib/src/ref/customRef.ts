@@ -2,7 +2,6 @@ import { computed, reaction } from "mobx"
 import { ModelClass } from "../model/BaseModel"
 import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
-import { newModel } from "../model/newModel"
 import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
 import { assertIsObject, failure } from "../utils"
@@ -120,7 +119,7 @@ export function customRef<T extends object>(
       assertIsObject(target, "target")
       id = options.getId(target)
     }
-    const model = newModel(CustomRef, {
+    const model = new CustomRef({
       id,
     })
 

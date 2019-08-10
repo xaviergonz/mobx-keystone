@@ -7,7 +7,6 @@ import {
   model,
   Model,
   modelAction,
-  newModel,
   onActionMiddleware,
   prop,
   serializeActionCallArgument,
@@ -28,7 +27,7 @@ export class P2 extends Model({
 
 @model("P")
 export class P extends Model({
-  p2: prop(() => newModel(P2, {})),
+  p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {
   @modelAction
@@ -49,8 +48,8 @@ export class P extends Model({
 }
 
 test("onActionMiddleware", () => {
-  const p1 = newModel(P, {})
-  const p2 = newModel(P, {})
+  const p1 = new P({})
+  const p2 = new P({})
 
   const events: [ActionCall, ActionContext][] = []
   function reset() {

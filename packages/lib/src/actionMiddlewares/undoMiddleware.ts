@@ -3,7 +3,6 @@ import { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
-import { newModel } from "../model/newModel"
 import { getRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
@@ -233,7 +232,7 @@ export class UndoManager {
     private readonly subtreeRoot: object,
     store?: UndoStore
   ) {
-    this.store = store || newModel(UndoStore, {})
+    this.store = store || new UndoStore({})
   }
 }
 

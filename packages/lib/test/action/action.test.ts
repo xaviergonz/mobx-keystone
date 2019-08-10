@@ -7,7 +7,6 @@ import {
   model,
   Model,
   modelAction,
-  newModel,
   prop,
 } from "../../src"
 import "../commonSetup"
@@ -26,7 +25,7 @@ export class P2 extends Model({
 
 @model("P")
 export class P extends Model({
-  p2: prop(() => newModel(P2, {})),
+  p2: prop(() => new P2({})),
   x: prop(0),
   arr: prop<number[]>(() => []),
   obj: prop<{ [k: string]: number }>(() => ({})),
@@ -54,7 +53,7 @@ export class P extends Model({
 test("action tracking", () => {
   const events: any = []
 
-  const p = newModel(P, {})
+  const p = new P({})
 
   autoDispose(
     addActionMiddleware({
@@ -541,7 +540,7 @@ test("action tracking", () => {
 test("action cancel with error", () => {
   const err = new Error("someError")
 
-  const p = newModel(P, {})
+  const p = new P({})
   autoDispose(
     addActionMiddleware({
       subtreeRoot: p,
@@ -559,7 +558,7 @@ test("action cancel with error", () => {
 test("action cancel with new return value", () => {
   const val = 999
 
-  const p = newModel(P, {})
+  const p = new P({})
   autoDispose(
     addActionMiddleware({
       subtreeRoot: p,
@@ -575,8 +574,8 @@ test("action cancel with new return value", () => {
 })
 
 test("applyAction", () => {
-  const pa = newModel(P, {})
-  const pb = newModel(P, {})
+  const pa = new P({})
+  const pb = new P({})
 
   {
     const ra = pa.addX(10)
@@ -629,7 +628,7 @@ test("applyAction", () => {
 })
 
 test("action protection", () => {
-  const p = newModel(P, {})
+  const p = new P({})
 
   const err = "data changes must be performed inside model actions"
 

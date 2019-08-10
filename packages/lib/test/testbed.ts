@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { model, Model, modelAction, newModel, prop } from "../src"
+import { model, Model, modelAction, prop } from "../src"
 
 @model("P2")
 export class P2 extends Model({
@@ -32,8 +32,8 @@ export class P extends Model({
 }
 
 export function createP(withArray = false) {
-  return newModel(P, {
-    p2: newModel(P2, {
+  return new P({
+    p2: new P2({
       y: 12,
     }),
     arr: withArray ? [1, 2, 3] : [],

@@ -4,7 +4,6 @@ import {
   model,
   Model,
   modelAction,
-  newModel,
   prop,
   SimpleActionContext,
 } from "../../src"
@@ -24,7 +23,7 @@ export class P2 extends Model({
 
 @model("P")
 export class P extends Model({
-  p2: prop(() => newModel(P2, {})),
+  p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {
   @modelAction
@@ -57,8 +56,8 @@ export class P extends Model({
 }
 
 test("actionTrackingMiddleware - sync", () => {
-  const p1 = newModel(P, {})
-  const p2 = newModel(P, {})
+  const p1 = new P({})
+  const p2 = new P({})
 
   interface Event {
     type: "filter" | "start" | "finish" | "resume" | "suspend"

@@ -1,5 +1,5 @@
 import { assert, _ } from "spec.ts"
-import { Model, model, newModel, prop, runUnprotected } from "../../src"
+import { Model, model, prop, runUnprotected } from "../../src"
 import "../commonSetup"
 
 @model("M")
@@ -9,7 +9,7 @@ class M extends Model({
   x: prop(() => 20),
   y: prop(() => 20),
 }) {
-  // would throw, since it tries to change this.$.x and this.$ is intied on newModel
+  // would throw, since it tries to change this.$.x and this.$ is intied on new M
   // x = 100
 
   // fails because already defined as prop of different type
@@ -26,7 +26,7 @@ class M extends Model({
 }
 
 test("props with same name", () => {
-  const m = newModel(M, { $modelType: 5 })
+  const m = new M({ $modelType: 5 })
 
   expect(m.x).toBe(120)
   expect(m.$.x).toBe(120)
