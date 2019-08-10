@@ -1,4 +1,3 @@
-import { newModel } from "mobx-keystone"
 import { observer } from "mobx-react"
 import React, { useState } from "react"
 import { LogsView } from "./logs"
@@ -58,7 +57,7 @@ export const TodoListView = observer(({ list }: { list: TodoList }) => {
       />
       <button
         onClick={() => {
-          list.add(newModel(Todo, { text: newTodo }))
+          list.add(new Todo({ text: newTodo }))
           setNewTodo("")
         }}
       >

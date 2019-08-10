@@ -1,4 +1,4 @@
-import { model, Model, modelAction, newModel, prop } from "../../src"
+import { model, Model, modelAction, prop } from "../../src"
 import "../commonSetup"
 
 test("factory pattern", () => {
@@ -21,7 +21,7 @@ test("factory pattern", () => {
   const NumberMyModel = createModelClass("NumberMyModel", 10, 20)
   type NumberMyModel = InstanceType<typeof NumberMyModel>
 
-  const numberMyModelInstance = newModel(NumberMyModel, {}) // this will be of type NumberMyModel
+  const numberMyModelInstance = new NumberMyModel({}) // this will be of type NumberMyModel
   expect(numberMyModelInstance.$modelType).toBe("myApp/NumberMyModel")
   expect(numberMyModelInstance.x).toBe(10)
   expect(numberMyModelInstance.y).toBe(20)
@@ -32,7 +32,7 @@ test("factory pattern", () => {
   const StringMyModel = createModelClass("StringMyModel", "10", "20")
   type StringMyModel = InstanceType<typeof StringMyModel>
 
-  const stringMyModelInstance = newModel(StringMyModel, {}) // this will be of type StringMyModel
+  const stringMyModelInstance = new StringMyModel({}) // this will be of type StringMyModel
   expect(stringMyModelInstance.$modelType).toBe("myApp/StringMyModel")
   expect(stringMyModelInstance.x).toBe("10")
   expect(stringMyModelInstance.y).toBe("20")

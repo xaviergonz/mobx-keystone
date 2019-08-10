@@ -5,7 +5,6 @@ import {
   model,
   Model,
   modelAction,
-  newModel,
   prop,
   ReduxAction,
   ReduxMiddleware,
@@ -27,7 +26,7 @@ export class P extends Model({
 
 describe("asReduxStore", () => {
   test("no middlewares", () => {
-    const p = newModel(P, {})
+    const p = new P({})
     const store = asReduxStore(p)
 
     expect(store.getState()).toBe(getSnapshot(p))
@@ -70,7 +69,7 @@ describe("asReduxStore", () => {
   })
 
   test("with middlewares", () => {
-    const p = newModel(P, {})
+    const p = new P({})
 
     const tweakAction = (action: ReduxAction, fn: (val: number) => number) => {
       return {

@@ -1,5 +1,15 @@
-import { findParent, FlowRet, model, Model, modelAction, modelFlow, newModel, prop, transaction, transactionMiddleware } from "../../src";
-import "../commonSetup";
+import {
+  findParent,
+  FlowRet,
+  model,
+  Model,
+  modelAction,
+  modelFlow,
+  prop,
+  transaction,
+  transactionMiddleware,
+} from "../../src"
+import "../commonSetup"
 
 @model("P2")
 class P2 extends Model({
@@ -30,7 +40,7 @@ class P2 extends Model({
 @model("P")
 class P extends Model({
   x: prop(() => 0),
-  p2: prop(() => newModel(P2, {})),
+  p2: prop(() => new P2({})),
 }) {
   @transaction
   @modelAction
@@ -54,7 +64,7 @@ class P extends Model({
 describe("transactionMiddleware - sync", () => {
   let p: P
   beforeEach(() => {
-    p = newModel(P, {})
+    p = new P({})
   })
 
   test("simple root action", () => {
@@ -134,7 +144,7 @@ class P2Flow extends Model({
 @model("PFlow")
 class PFlow extends Model({
   x: prop(() => 0),
-  p2: prop(() => newModel(P2Flow, {})),
+  p2: prop(() => new P2Flow({})),
 }) {
   @transaction
   @modelFlow
@@ -160,7 +170,7 @@ class PFlow extends Model({
 describe("transactionMiddleware - async", () => {
   let p: PFlow
   beforeEach(() => {
-    p = newModel(PFlow, {})
+    p = new PFlow({})
   })
 
   test("simple root action", async () => {

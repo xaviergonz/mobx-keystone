@@ -100,7 +100,7 @@ const myPreferences = fromSnapshot<UserPreferences>(myPreferencesObj)
 ...and finally creating the root store itself with the initial data...
 
 ```ts
-const myRootStore = newModel(RootStore, { userPreferences: myPreferences })
+const myRootStore = new RootStore({ userPreferences: myPreferences })
 
 // after this nextfunction is called, myPreferences will become part of a root store
 // and therefore start saving now and on changes

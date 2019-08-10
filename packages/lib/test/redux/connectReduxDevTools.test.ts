@@ -6,7 +6,6 @@ import {
   modelAction,
   modelFlow,
   modelSnapshotOutWithMetadata,
-  newModel,
   prop,
 } from "../../src"
 
@@ -151,7 +150,7 @@ class M extends Model({
   }
 }
 
-let m = newModel(M, {})
+let m = new M({})
 function mockDevTools() {
   return { init: jest.fn(), subscribe: jest.fn(), send: jest.fn() }
 }
@@ -164,7 +163,7 @@ function initTest() {
   }
   devTools = devToolsManager.connectViaExtension()
 
-  m = newModel(M, {})
+  m = new M({})
   connectReduxDevTools(devToolsManager, devTools, m)
 }
 
@@ -240,7 +239,7 @@ function addStandardTests() {
   })
 
   test('m.addtoArray({ a: "otherA" }), m.array[0].setA()', () => {
-    m.addToArray(newModel(M2, { a: "otherA" }))
+    m.addToArray(new M2({ a: "otherA" }))
     m.array[0]!.setA()
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })

@@ -3,7 +3,6 @@ import {
   Model,
   model,
   ModelAutoTypeCheckingMode,
-  newModel,
   prop,
   setGlobalConfig,
   tProp,
@@ -22,7 +21,7 @@ test("self recursive", () => {
   @model("myApp/TreeNode")
   class TreeNode extends Model({ children: prop<TreeNode[]>(() => []), x: prop(0) }) {}
 
-  const tn = newModel(TreeNode, { children: [newModel(TreeNode, {})] })
+  const tn = new TreeNode({ children: [new TreeNode({})] })
 
   assert(tn, _ as TreeNode)
   assert(tn.x, _ as number)
@@ -41,7 +40,7 @@ test("self recursive type checked", () => {
     x: tProp(types.number, 0),
   }) {}
 
-  const tn = newModel(TreeNode, { children: [newModel(TreeNode, {})] })
+  const tn = new TreeNode({ children: [new TreeNode({})] })
 
   assert(tn, _ as TreeNode)
   assert(tn.x, _ as number)
@@ -60,9 +59,9 @@ test("cross-referenced", () => {
   @model("myApp/B")
   class B extends Model({ a: prop<A | undefined>(), y: prop("") }) {}
 
-  const a = newModel(A, {
-    b: newModel(B, {
-      a: newModel(A, {}),
+  const a = new A({
+    b: new B({
+      a: new A({}),
     }),
   })
 
@@ -89,9 +88,9 @@ test("cross-referenced type checked", () => {
     y: tProp(types.string, ""),
   }) {}
 
-  const a = newModel(A, {
-    b: newModel(B, {
-      a: newModel(A, {}),
+  const a = new A({
+    b: new B({
+      a: new A({}),
     }),
   })
 
@@ -116,10 +115,10 @@ test("recursive with object", () => {
     obj: prop<Obj | undefined>(),
   }) {}
 
-  const aa = newModel(AA, {
+  const aa = new AA({
     obj: {
-      aa: newModel(AA, {}),
-      meObj: { aa: newModel(AA, {}) },
+      aa: new AA({}),
+      meObj: { aa: new AA({}) },
     },
   })
 
@@ -146,10 +145,10 @@ test("recursive with object type checked", () => {
     obj: tProp(types.maybe(typeObj)),
   }) {}
 
-  const aa = newModel(AA, {
+  const aa = new AA({
     obj: {
-      aa: newModel(AA, {}),
-      meObj: { aa: newModel(AA, {}) },
+      aa: new AA({}),
+      meObj: { aa: new AA({}) },
     },
   })
 

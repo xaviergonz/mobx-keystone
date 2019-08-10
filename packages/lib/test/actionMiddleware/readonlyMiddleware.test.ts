@@ -1,4 +1,4 @@
-import { model, Model, modelAction, modelFlow, newModel, prop, readonlyMiddleware } from "../../src"
+import { model, Model, modelAction, modelFlow, prop, readonlyMiddleware } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
 
@@ -15,7 +15,7 @@ export class P2 extends Model({
 @model("P")
 export class P extends Model({
   x: prop(() => 5),
-  p2: prop(() => newModel(P2, {})),
+  p2: prop(() => new P2({})),
 }) {
   @modelAction
   setXY(x: number, y: number) {
@@ -35,7 +35,7 @@ export class P extends Model({
 
 let p: P
 beforeEach(() => {
-  p = newModel(P, {})
+  p = new P({})
 })
 
 test("subnode", () => {

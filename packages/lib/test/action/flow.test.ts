@@ -7,7 +7,6 @@ import {
   Model,
   modelAction,
   modelFlow,
-  newModel,
   onActionMiddleware,
   prop,
 } from "../../src"
@@ -33,7 +32,7 @@ export class P2 extends Model({
 
 @model("P")
 export class P extends Model({
-  p2: prop(() => newModel(P2, {})),
+  p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {
   @modelFlow
@@ -73,7 +72,7 @@ export class P extends Model({
 }
 
 test("flow", async () => {
-  const p = newModel(P, {})
+  const p = new P({})
 
   interface Event {
     actionCall: ActionCall

@@ -1,6 +1,9 @@
+import { HookAction } from "../action/hookActions"
+import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { logWarning } from "../utils"
 import { AnyModel, ModelClass } from "./BaseModel"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
+import { modelInitializersSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -20,11 +23,32 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
     )
   }
 
+  // trick so plain new works
+  const clazz2 = clazz as any
+  const obj = {
+    [clazz.name]: class extends clazz2 {
+      constructor(initialData: any, snapshotInitialData: any) {
+        super(initialData, snapshotInitialData)
+
+        // the object is ready
+        if (this.onInit) {
+          wrapModelMethodInActionIfNeeded(this as any, "onInit", HookAction.OnInit)
+
+          this.onInit()
+        }
+      }
+    },
+  }
+  const newClazz: any = obj[clazz.name]
+  newClazz[modelInitializersSymbol] = (clazz as any)[modelInitializersSymbol]
+
   const modelInfo = {
     name,
-    class: clazz,
+    class: newClazz,
   }
 
   modelInfoByName[name] = modelInfo
-  modelInfoByClass.set(clazz, modelInfo)
+  modelInfoByClass.set(newClazz, modelInfo)
+
+  return newClazz
 }

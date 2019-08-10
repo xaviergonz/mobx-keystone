@@ -3,7 +3,6 @@ import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
-import { internalNewModel } from "../model/newModel"
 import { isModelSnapshot } from "../model/utils"
 import { tweakArray } from "../tweaker/tweakArray"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
@@ -83,7 +82,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  return internalNewModel(modelInfo.class as any, undefined, {
+  return new (modelInfo.class as any)(undefined, {
     unprocessedSnapshot: sn,
     snapshotToInitialData,
   })

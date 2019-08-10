@@ -49,7 +49,7 @@ The possible values are:
 It is also possible to trigger type checking manually:
 
 ```ts
-const myTodo = newModel(Todo, { text: "hi" })
+const myTodo = new Todo({ text: "hi" })
 const checkError = myTodo.typeCheck()
 // or
 const todoType = types.model<Todo>(Todo)
