@@ -1,5 +1,5 @@
 import { ModelProp } from "../model/prop"
-import { IsOptionalValue, PrimitiveValue } from "../utils/types"
+import { IsOptionalValue } from "../utils/types"
 import { AnyType, TypeToData, TypeToDataOpt } from "./schemas"
 
 /**
@@ -61,7 +61,7 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultValue: TypeToData<TType>
-): TypeToData<TType> extends PrimitiveValue ? ModelProp<TypeToData<TType>, string> : never
+): ModelProp<TypeToData<TType>, string>
 
 export function tProp<TType extends AnyType>(
   type: TType,
