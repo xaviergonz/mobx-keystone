@@ -1,5 +1,5 @@
 import { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
-import { IsOptionalValue } from "../utils/types"
+import { IsOptionalValue, PrimitiveValue } from "../utils/types"
 
 /**
  * A model property.
@@ -72,7 +72,9 @@ export function prop<TValue>(defaultFn: () => TValue): ModelProp<TValue, string>
  * @param defaultValue Default primitive value.
  * @returns
  */
-export function prop<TValue>(defaultValue: TValue): ModelProp<TValue, string>
+export function prop<TValue>(
+  defaultValue: TValue
+): TValue extends PrimitiveValue ? ModelProp<TValue, string> : never
 
 export function prop<TValue>(def?: any): ModelProp<TValue, any> {
   const isDefFn = typeof def === "function"
