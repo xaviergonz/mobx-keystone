@@ -57,14 +57,13 @@ export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
     },
 
     keys() {
-      const o = getTarget()
-
-      return o.values() // yes, values
+      return set.values() // yes, values
     },
 
     values() {
       const o = getTarget()
 
+      o.length // just to mark the atom as observed
       return o.values()
     },
 
