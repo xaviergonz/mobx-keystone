@@ -24,22 +24,22 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
   }
 
   // trick so plain new works
-  const clazz2 = clazz as any
   const obj = {
-    [clazz.name]: class extends clazz2 {
-      constructor(initialData: any, snapshotInitialData: any) {
-        super(initialData, snapshotInitialData)
+    [clazz.name]: function(initialData: any, snapshotInitialData: any) {
+      const instance = new (clazz as any)(initialData, snapshotInitialData)
 
-        // the object is ready
-        if (this.onInit) {
-          wrapModelMethodInActionIfNeeded(this as any, "onInit", HookAction.OnInit)
+      // the object is ready
+      if (instance.onInit) {
+        wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
 
-          this.onInit()
-        }
+        instance.onInit()
       }
+
+      return instance
     },
   }
   const newClazz: any = obj[clazz.name]
+  newClazz.prototype = clazz.prototype
   newClazz[modelInitializersSymbol] = (clazz as any)[modelInitializersSymbol]
 
   const modelInfo = {
@@ -48,7 +48,9 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
   }
 
   modelInfoByName[name] = modelInfo
+
   modelInfoByClass.set(newClazz, modelInfo)
+  modelInfoByClass.set(clazz, modelInfo)
 
   return newClazz
 }
