@@ -1,1 +1,1 @@
-export { frozen, Frozen } from "./Frozen"
+export { frozen, Frozen, FrozenCheckMode } from "./Frozen"

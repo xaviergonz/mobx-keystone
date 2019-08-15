@@ -4,6 +4,18 @@ import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
 import { DeepReadonly } from "../utils/types"
 
 /**
+ * Should freeze and plain json checks be done when creating the frozen object?
+ */
+export enum FrozenCheckMode {
+  /** Only when in dev mode */
+  DevModeOnly = "devModeOnly",
+  /** Always */
+  On = "on",
+  /** Never */
+  Off = "off",
+}
+
+/**
  * @ignore
  */
 export const frozenKey = "$frozen"
@@ -25,15 +37,18 @@ export class Frozen<T> {
    * Do not use directly, use `frozen` instead.
    *
    * @param dataToFreeze
+   * @param checkMode
    */
-  constructor(dataToFreeze: T) {
-    if (inDevMode()) {
+  constructor(dataToFreeze: T, checkMode: FrozenCheckMode = FrozenCheckMode.DevModeOnly) {
+    const check =
+      checkMode === FrozenCheckMode.On || (checkMode === FrozenCheckMode.DevModeOnly && inDevMode())
+    if (check) {
       checkDataIsSerializableAndFreeze(dataToFreeze)
     }
 
     this.data = dataToFreeze as DeepReadonly<T>
 
-    if (inDevMode()) {
+    if (check) {
       Object.freeze(this.data)
     }
 
@@ -53,9 +68,13 @@ export class Frozen<T> {
  * - without cycles
  *
  * @param data
+ * @param checkMode
  */
-export function frozen<T>(data: T): Frozen<T> {
-  return new Frozen<T>(data)
+export function frozen<T>(
+  data: T,
+  checkMode: FrozenCheckMode = FrozenCheckMode.DevModeOnly
+): Frozen<T> {
+  return new Frozen<T>(data, checkMode)
 }
 
 function checkDataIsSerializableAndFreeze(data: any) {
