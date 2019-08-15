@@ -1,38 +1,36 @@
-import { ObjectMap } from "../wrappers/ObjectMap"
+import { ArraySet } from "../wrappers/ArraySet"
+import { typesArray } from "./array"
 import { typesObject } from "./object"
-import { typesRecord } from "./record"
 import { AnyType, IdentityType, TypeToData } from "./schemas"
 import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
- * A type that represents an object-like map ObjectMap.
+ * A type that represents an array backed set ArraySet.
  *
  * Example:
  * ```ts
- * const numberMapType = types.objectMap(types.number)
+ * const numberSetType = types.arraySet(types.number)
  * ```
  *
  * @typeparam T Value type.
  * @param values Value type.
  * @returns
  */
-export function typesObjectMap<T extends AnyType>(
-  values: T
-): IdentityType<ObjectMap<TypeToData<T>>> {
+export function typesArraySet<T extends AnyType>(values: T): IdentityType<ArraySet<TypeToData<T>>> {
   return lateTypeChecker(() => {
     const valueChecker = resolveTypeChecker(values)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
-      `ObjectMap<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
+      `ArraySet<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
     const thisTc: TypeChecker = new TypeChecker((obj, path) => {
-      if (!(obj instanceof ObjectMap)) {
+      if (!(obj instanceof ArraySet)) {
         return new TypeCheckError(path, getTypeName(thisTc), obj)
       }
 
       const dataTypeChecker = typesObject(() => ({
-        items: typesRecord(valueChecker as any),
+        items: typesArray(valueChecker as any),
       }))
 
       const resolvedTc = resolveTypeChecker(dataTypeChecker)

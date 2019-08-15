@@ -168,13 +168,13 @@ A type that represents an array of values of a given type.
 const numberArrayType = types.array(types.number)
 ```
 
-### `types.objectMap(valuesType)`
+### `types.record(valuesType)`
 
 A type that represents an object-like map, an object with string keys and values all of a same given type.
 
 ```ts
 // { [k: string]: number }
-const numberMapType = types.objectMap(types.number)
+const numberMapType = types.record(types.number)
 ```
 
 ### `types.model<M>(modelClass)`
@@ -216,6 +216,24 @@ const frozenNumberType = types.frozen(types.number)
 const frozenAnyType = types.frozen(types.unchecked<any>())
 const frozenNumberArrayType = types.frozen(types.array(types.number))
 const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
+```
+
+### `types.objectMap(valuesType)`
+
+A type that represents an object-like map `ObjectMap`.
+
+```ts
+// ObjectMap<number>
+const numberMapType = types.objectMap(types.number)
+```
+
+### `types.arraySet(valuesType)`
+
+A type that represents an array backed set `ArraySet`.
+
+```ts
+// ArraySet<number>
+const numberSetType = types.arraySet(types.number)
 ```
 
 ### `types.refinement(baseType, checkFn: (data) => boolean | TypeCheckError | null)`

@@ -1,10 +1,12 @@
 import { assert, _ } from "spec.ts"
 import {
   applySnapshot,
+  ArraySet,
   BaseModel,
   clone,
   getSnapshot,
   modelTypeKey,
+  ObjectMap,
   onPatches,
   onSnapshot,
   Patch,
@@ -393,6 +395,42 @@ test("types", () => {
       arr: number[]
       p2: SnapshotOutOf<P2> | undefined
     } & {
+      [modelTypeKey]: string
+    })
+  )
+
+  assert(
+    _ as SnapshotInOf<ObjectMap<number>>,
+    _ as ({
+      items?: {
+        [k: string]: number
+      }
+      [modelTypeKey]: string
+    })
+  )
+
+  assert(
+    _ as SnapshotOutOf<ObjectMap<number>>,
+    _ as ({
+      items: {
+        [k: string]: number
+      }
+      [modelTypeKey]: string
+    })
+  )
+
+  assert(
+    _ as SnapshotInOf<ArraySet<number>>,
+    _ as ({
+      items?: number[]
+      [modelTypeKey]: string
+    })
+  )
+
+  assert(
+    _ as SnapshotOutOf<ArraySet<number>>,
+    _ as ({
+      items: number[]
       [modelTypeKey]: string
     })
   )

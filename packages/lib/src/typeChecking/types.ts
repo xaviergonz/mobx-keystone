@@ -1,4 +1,5 @@
 import { typesArray } from "./array"
+import { typesArraySet } from "./arraySet"
 import { typesEnum } from "./enum"
 import { typesMaybe, typesMaybeNull } from "./maybe"
 import { typesModel } from "./model"
@@ -15,6 +16,7 @@ import {
   typesString,
   typesUndefined,
 } from "./primitives"
+import { typesRecord } from "./record"
 import { typesRef } from "./ref"
 import { typesRefinement } from "./refinement"
 import { typesUnchecked } from "./unchecked"
@@ -30,7 +32,7 @@ export const types = {
   maybe: typesMaybe,
   maybeNull: typesMaybeNull,
   array: typesArray,
-  objectMap: typesObjectMap,
+  record: typesRecord,
   unchecked: typesUnchecked,
   model: typesModel,
   object: typesObject,
@@ -40,4 +42,6 @@ export const types = {
   refinement: typesRefinement,
   integer: typesInteger,
   nonEmptyString: typesNonEmptyString,
+  objectMap: typesObjectMap,
+  arraySet: typesArraySet,
 }
