@@ -1,11 +1,15 @@
+import { configure, observable, reaction } from "mobx"
 import { arrayAsSet } from "../../src"
 import "../commonSetup"
+import { autoDispose } from "../utils"
+
+configure({ enforceActions: "never" })
 
 let arr!: number[]
 let set!: Set<number>
 
 beforeEach(() => {
-  arr = [2, 3, 5]
+  arr = observable([2, 3, 5])
   set = arrayAsSet(() => arr)
 })
 
@@ -56,4 +60,61 @@ test("forEach", () => {
 test("has", () => {
   expect(set.has(3)).toBe(true)
   expect(set.has(300)).toBe(false)
+})
+
+test("reactivity", () => {
+  const k = jest.fn()
+  autoDispose(reaction(() => set.keys(), k))
+
+  const v = jest.fn()
+  autoDispose(reaction(() => set.values(), v))
+
+  const e = jest.fn()
+  autoDispose(reaction(() => set.entries(), e))
+
+  const i = jest.fn()
+  autoDispose(reaction(() => [...set], i))
+
+  const s = jest.fn()
+  autoDispose(reaction(() => set.size, s))
+
+  const h = jest.fn()
+  autoDispose(reaction(() => set.has(3), h))
+
+  expect(k).toHaveBeenCalledTimes(0)
+  expect(v).toHaveBeenCalledTimes(0)
+  expect(e).toHaveBeenCalledTimes(0)
+  expect(i).toHaveBeenCalledTimes(0)
+  expect(s).toHaveBeenCalledTimes(0)
+  expect(h).toHaveBeenCalledTimes(0)
+
+  // add already added
+  set.add(5)
+  expect(k).toHaveBeenCalledTimes(0)
+  expect(v).toHaveBeenCalledTimes(0)
+  expect(e).toHaveBeenCalledTimes(0)
+  expect(i).toHaveBeenCalledTimes(0)
+  expect(s).toHaveBeenCalledTimes(0)
+  expect(h).toHaveBeenCalledTimes(0)
+  jest.resetAllMocks()
+
+  // add
+  set.add(10)
+  expect(k).toHaveBeenCalledTimes(1)
+  expect(v).toHaveBeenCalledTimes(1)
+  expect(e).toHaveBeenCalledTimes(1)
+  expect(i).toHaveBeenCalledTimes(1)
+  expect(s).toHaveBeenCalledTimes(1)
+  expect(h).toHaveBeenCalledTimes(0)
+  jest.resetAllMocks()
+
+  // delete
+  set.delete(3)
+  expect(k).toHaveBeenCalledTimes(1)
+  expect(v).toHaveBeenCalledTimes(1)
+  expect(e).toHaveBeenCalledTimes(1)
+  expect(i).toHaveBeenCalledTimes(1)
+  expect(s).toHaveBeenCalledTimes(1)
+  expect(h).toHaveBeenCalledTimes(1)
+  jest.resetAllMocks()
 })

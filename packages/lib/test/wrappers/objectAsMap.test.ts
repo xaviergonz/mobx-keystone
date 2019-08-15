@@ -1,15 +1,19 @@
+import { configure, observable, reaction } from "mobx"
 import { objectAsMap } from "../../src"
 import "../commonSetup"
+import { autoDispose } from "../utils"
+
+configure({ enforceActions: "never" })
 
 let obj!: { [k: string]: number }
 let map!: Map<string, number>
 
 beforeEach(() => {
-  obj = {
+  obj = observable({
     2: 2,
     3: 3,
     5: 5,
-  }
+  })
   map = objectAsMap<number>(() => obj)
 })
 
@@ -63,4 +67,61 @@ test("forEach", () => {
 test("has", () => {
   expect(map.has("3")).toBe(true)
   expect(map.has("300")).toBe(false)
+})
+
+test("reactivity", () => {
+  const k = jest.fn()
+  autoDispose(reaction(() => map.keys(), k))
+
+  const v = jest.fn()
+  autoDispose(reaction(() => map.values(), v))
+
+  const e = jest.fn()
+  autoDispose(reaction(() => map.entries(), e))
+
+  const i = jest.fn()
+  autoDispose(reaction(() => [...map], i))
+
+  const s = jest.fn()
+  autoDispose(reaction(() => map.size, s))
+
+  const h = jest.fn()
+  autoDispose(reaction(() => map.has("3"), h))
+
+  expect(k).toHaveBeenCalledTimes(0)
+  expect(v).toHaveBeenCalledTimes(0)
+  expect(e).toHaveBeenCalledTimes(0)
+  expect(i).toHaveBeenCalledTimes(0)
+  expect(s).toHaveBeenCalledTimes(0)
+  expect(h).toHaveBeenCalledTimes(0)
+
+  // change
+  map.set("5", 7)
+  expect(k).toHaveBeenCalledTimes(0)
+  expect(v).toHaveBeenCalledTimes(1)
+  expect(e).toHaveBeenCalledTimes(1)
+  expect(i).toHaveBeenCalledTimes(1)
+  expect(s).toHaveBeenCalledTimes(0)
+  expect(h).toHaveBeenCalledTimes(0)
+  jest.resetAllMocks()
+
+  // add
+  map.set("10", 10)
+  expect(k).toHaveBeenCalledTimes(1)
+  expect(v).toHaveBeenCalledTimes(1)
+  expect(e).toHaveBeenCalledTimes(1)
+  expect(i).toHaveBeenCalledTimes(1)
+  expect(s).toHaveBeenCalledTimes(1)
+  expect(h).toHaveBeenCalledTimes(0)
+  jest.resetAllMocks()
+
+  // delete
+  map.delete("3")
+  expect(k).toHaveBeenCalledTimes(1)
+  expect(v).toHaveBeenCalledTimes(1)
+  expect(e).toHaveBeenCalledTimes(1)
+  expect(i).toHaveBeenCalledTimes(1)
+  expect(s).toHaveBeenCalledTimes(1)
+  expect(h).toHaveBeenCalledTimes(1)
+  jest.resetAllMocks()
 })

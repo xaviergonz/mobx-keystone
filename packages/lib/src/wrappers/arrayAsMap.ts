@@ -82,7 +82,8 @@ export function arrayAsMap<V>(getTarget: () => [string, V][]): Map<string, V> {
     entries() {
       const o = getTarget()
 
-      return o[Symbol.iterator]()
+      // we do the copy just to keep reactivity
+      return o.map(t => [t[0], t[1]] as [string, V])[Symbol.iterator]()
     },
 
     [Symbol.iterator]() {
