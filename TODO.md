@@ -19,5 +19,3 @@
 - (4) check out mst api for missing features
 
 - (3) does subclassing work? apparently it does with small gotchas
-
-- (3) future: object/array backed map, array backed set? the mapping of those types to pure json is not apparent though, and we offer wrappers

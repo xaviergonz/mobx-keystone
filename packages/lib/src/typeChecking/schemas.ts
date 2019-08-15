@@ -47,9 +47,9 @@ export interface ObjectTypeFunction<S extends ObjectOfTypes> {
   (): S
 }
 
-export interface ObjectMapType<S extends AnyType> {
+export interface RecordType<S extends AnyType> {
   /** @ignore */
-  $$objectMapType: {
+  $$recordType: {
     [k: string]: TypeToData<S> extends infer R ? R : never
   }
 }
@@ -66,7 +66,7 @@ export type AnyType =
   | ArrayType<any>
   | OrType<any>
   | ObjectType<any>
-  | ObjectMapType<any>
+  | RecordType<any>
   | ObjectTypeFunction<any>
 
 // type schemas to actual types
@@ -79,8 +79,8 @@ export type TypeToData<S extends AnyType> = S extends ObjectTypeFunction<infer S
   ? S["$$objectType"] extends infer R
     ? R
     : never
-  : S extends ObjectMapType<any>
-  ? S["$$objectMapType"] extends infer R
+  : S extends RecordType<any>
+  ? S["$$recordType"] extends infer R
     ? R
     : never
   : S extends ArrayType<any>

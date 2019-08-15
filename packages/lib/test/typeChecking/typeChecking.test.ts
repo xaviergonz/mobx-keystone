@@ -4,12 +4,16 @@ import {
   actionTrackingMiddleware,
   AnyModel,
   AnyType,
+  ArraySet,
+  arraySet,
   customRef,
   frozen,
   model,
   Model,
   modelAction,
   ModelAutoTypeCheckingMode,
+  ObjectMap,
+  objectMap,
   onPatches,
   onSnapshot,
   Ref,
@@ -173,13 +177,13 @@ test("array - simple types", () => {
   expectTypeCheckFail(type, ["ho"], [0], "number")
 })
 
-test("objectMap - simple types", () => {
-  const type = types.objectMap(types.number)
+test("record - simple types", () => {
+  const type = types.record(types.number)
   assert(_ as TypeToData<typeof type>, _ as { [k: string]: number })
 
   expectTypeCheckOk(type, {})
   expectTypeCheckOk(type, { x: 5, y: 6 })
-  expectTypeCheckFail(type, "ho", [], "ObjectMap<number>")
+  expectTypeCheckFail(type, "ho", [], "Record<number>")
   const wrongValue = { x: 5, y: "6" }
   expectTypeCheckFail(type, wrongValue, ["y"], "number")
 })
@@ -353,8 +357,8 @@ test("object - complex types", () => {
   expectTypeCheckFail(type, { x: 5, o: { y: 6 } }, ["o", "y"], "string")
 })
 
-test("objectMap - complex types", () => {
-  const type = types.objectMap(
+test("record - complex types", () => {
+  const type = types.record(
     types.object(() => ({
       y: types.string,
     }))
@@ -363,7 +367,7 @@ test("objectMap - complex types", () => {
 
   expectTypeCheckOk(type, { o: { y: "6" } })
 
-  const expected = "ObjectMap<{ y: string; }>"
+  const expected = "Record<{ y: string; }>"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { o: 6 }, ["o"], "{ y: string; }")
   expectTypeCheckFail(type, { o: { y: 6 } }, ["o", "y"], "string")
@@ -635,6 +639,24 @@ test("refinement (complex)", () => {
 
   expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
   expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")
+})
+
+test("objectMap", () => {
+  const type = types.objectMap(types.number)
+
+  assert(_ as TypeToData<typeof type>, _ as ObjectMap<number>)
+
+  expectTypeCheckOk(type, objectMap<number>([["1", 10]]))
+  expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["$", "items", "1"], "number")
+})
+
+test("arraySet", () => {
+  const type = types.arraySet(types.number)
+
+  assert(_ as TypeToData<typeof type>, _ as ArraySet<number>)
+
+  expectTypeCheckOk(type, arraySet<number>([1, 2, 3]))
+  expectTypeCheckFail(type, arraySet<string | number>([1, 2, "3"]), ["$", "items", 2], "number")
 })
 
 test("typing of optional values", () => {

@@ -1,3 +1,5 @@
 export { arrayAsMap } from "./arrayAsMap"
 export { arrayAsSet } from "./arrayAsSet"
+export { ArraySet, arraySet } from "./ArraySet"
 export { objectAsMap } from "./objectAsMap"
+export { ObjectMap, objectMap } from "./ObjectMap"
