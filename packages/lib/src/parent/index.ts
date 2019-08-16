@@ -7,6 +7,7 @@ export {
   getRoot,
   getRootPath,
   isChildOfParent,
+  isModelDataObject,
   isParentOfChild,
   isRoot,
   ParentPath,

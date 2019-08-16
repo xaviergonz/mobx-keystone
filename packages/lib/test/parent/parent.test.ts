@@ -3,6 +3,7 @@ import {
   findParent,
   fromSnapshot,
   getChildrenObjects,
+  getParent,
   getParentPath,
   getRootPath,
   isChildOfParent,
@@ -76,6 +77,11 @@ test("parent", () => {
   p.arr.forEach((p2, i) => {
     expect(getParentPath(p2)).toStrictEqual({ parent: p.arr, path: i })
   })
+
+  expect(getParent(p.$, false)).toBe(p)
+  expect(getParent(p.$, true)).toBe(p)
+  expect(getParent(p.arr, false)).toBe(p.$)
+  expect(getParent(p.arr, true)).toBe(p)
 
   expect(getRootPath(p.arr[0].$)).toEqual({
     root: p,
