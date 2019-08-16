@@ -116,9 +116,11 @@ class Todo extends Model({
 }
 
 @model("myApp/RootStore")
-class RootStore extends Model<{ selected?: Todo }> {
+class RootStore extends Model<{
+  selected: prop<Todo | undefined>(undefined)
+}> {
   @modelAction
-  setSelected(todo: Todo) {
+  setSelected(todo: Todo | undefined) {
     this.selected = todo
   }
 }
