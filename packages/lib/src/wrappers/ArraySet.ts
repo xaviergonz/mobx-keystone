@@ -4,7 +4,6 @@ import { model } from "../model/modelDecorator"
 import { typesArray } from "../typeChecking/array"
 import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { arrayAsSet } from "./arrayAsSet"
 
 /**
  * A set that is backed by an array.
@@ -16,22 +15,32 @@ export class ArraySet<V>
     items: tProp(typesArray(typesUnchecked<any>()), () => []), // will be properly checked by types.arraySet(subType)
   })
   implements Set<V> {
-  private readonly _set = arrayAsSet(() => this.items)
-
   @modelAction
   add(value: V) {
-    this._set.add(value)
+    const items = this.items
+
+    if (!items.includes(value)) {
+      items.push(value)
+    }
     return this
   }
 
   @modelAction
   clear() {
-    this._set.clear()
+    this.items.length = 0
   }
 
   @modelAction
   delete(value: V) {
-    return this._set.delete(value)
+    const items = this.items
+
+    const index = items.findIndex(t => t === value)
+    if (index >= 0) {
+      items.splice(index, 1)
+      return true
+    } else {
+      return false
+    }
   }
 
   forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg: any) {
@@ -42,27 +51,33 @@ export class ArraySet<V>
   }
 
   has(value: V) {
-    return this._set.has(value)
+    return this.items.includes(value)
   }
 
   get size() {
-    return this._set.size
+    return this.items.length
   }
 
   keys() {
-    return this._set.keys()
+    return this.values() // yes, values
   }
 
   values() {
-    return this._set.values()
+    const items = this.items
+
+    items.length // just to mark the atom as observed
+    return items.values()
   }
 
   entries() {
-    return this._set.entries()
+    const items = this.items
+
+    // TODO: should use an actual iterator
+    return items.map(v => [v, v] as [V, V]).values()
   }
 
   [Symbol.iterator]() {
-    return this._set[Symbol.iterator]()
+    return this.values()
   }
 
   get [Symbol.toStringTag]() {
@@ -77,7 +92,7 @@ export class ArraySet<V>
  * @param [entries] Optional initial values.
  */
 export function arraySet<V>(values?: ReadonlyArray<V> | null): ArraySet<V> {
-  const initialObj: V[] = values ? values.slice() : []
+  const initialArr: V[] = values ? values.slice() : []
 
-  return new ArraySet({ items: initialObj })
+  return new ArraySet({ items: initialArr })
 }
