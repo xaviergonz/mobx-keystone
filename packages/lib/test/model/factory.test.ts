@@ -1,4 +1,13 @@
-import { model, Model, modelAction, prop } from "../../src"
+import { assert, _ } from "spec.ts"
+import {
+  model,
+  Model,
+  modelAction,
+  modelTypeKey,
+  prop,
+  SnapshotInOf,
+  SnapshotOutOf,
+} from "../../src"
 import "../commonSetup"
 
 test("factory pattern", () => {
@@ -32,6 +41,28 @@ test("factory pattern", () => {
   const StringMyModel = createModelClass("StringMyModel", "10", "20")
   type StringMyModel = InstanceType<typeof StringMyModel>
 
+  type SInStr = SnapshotInOf<StringMyModel>
+  assert(
+    _ as SInStr,
+    _ as {
+      x?: string
+      y?: string
+    } & {
+      [modelTypeKey]: string
+    }
+  )
+
+  type SOutStr = SnapshotOutOf<StringMyModel>
+  assert(
+    _ as SOutStr,
+    _ as {
+      x: string
+      y: string
+    } & {
+      [modelTypeKey]: string
+    }
+  )
+
   const stringMyModelInstance = new StringMyModel({}) // this will be of type StringMyModel
   expect(stringMyModelInstance.$modelType).toBe("myApp/StringMyModel")
   expect(stringMyModelInstance.x).toBe("10")
@@ -39,4 +70,26 @@ test("factory pattern", () => {
   stringMyModelInstance.setXY("50", "60")
   expect(stringMyModelInstance.x).toBe("50")
   expect(stringMyModelInstance.y).toBe("60")
+
+  type SInNum = SnapshotInOf<NumberMyModel>
+  assert(
+    _ as SInNum,
+    _ as {
+      x?: number
+      y?: number
+    } & {
+      [modelTypeKey]: string
+    }
+  )
+
+  type SOutNum = SnapshotOutOf<NumberMyModel>
+  assert(
+    _ as SOutNum,
+    _ as {
+      x: number
+      y: number
+    } & {
+      [modelTypeKey]: string
+    }
+  )
 })
