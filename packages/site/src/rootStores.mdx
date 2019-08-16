@@ -140,10 +140,24 @@ For this we would just need to follow a pattern like this one:
 ```ts
 @model("myApp/RootStore")
 class RootStore extends Model({...}) {
-  myEnvData?: { ... }
+  myEnvData!: { ... }
 }
 
-// somewhere else (probably some action or on the `onAttachedToRootStore` hook)
-const rootStore = getRootStore<RootStore>(someModel)
-const myEnvData = rootStore && rootStore.myEnvData
+const rootStore = new RootStore({...})
+rootStore.myEnvData = { ... }
+registerRootStore(rootStore)
+
+// then on another model
+class ... extends Model({ ... }) {
+  // on some getter or method...
+  something() {
+    const rootStore = getRootStore<RootStore>(someModel)
+    const myEnvData = rootStore && rootStore.myEnvData
+  }
+
+  // or...
+  onAttachedToRootStore(rootStore) {
+    const myEnvData = rootStore.myEnvData
+  }
+}
 ```
