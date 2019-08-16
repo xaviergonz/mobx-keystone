@@ -19,6 +19,7 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "arr": Array [],
           "x": 10,
           "y": "6",
         },
@@ -45,6 +46,141 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "arr": Array [],
+          "x": 10,
+          "y": "6",
+        },
+        "$modelType": "M",
+      },
+      "type": "sync",
+    },
+    "result": "throw",
+    "type": "finish",
+  },
+]
+`;
+
+exports[`model typechecking 2`] = `
+Array [
+  Object {
+    "ctx": Object {
+      "actionName": "setArr",
+      "args": Array [
+        Array [
+          1,
+          2,
+          "3",
+        ],
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": M {
+        "$": Object {
+          "arr": Array [],
+          "x": 10,
+          "y": "6",
+        },
+        "$modelType": "M",
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "ctx": Object {
+      "actionName": "setArr",
+      "args": Array [
+        Array [
+          1,
+          2,
+          "3",
+        ],
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": M {
+        "$": Object {
+          "arr": Array [],
+          "x": 10,
+          "y": "6",
+        },
+        "$modelType": "M",
+      },
+      "type": "sync",
+    },
+    "result": "throw",
+    "type": "finish",
+  },
+]
+`;
+
+exports[`model typechecking 3`] = `
+Array [
+  Object {
+    "ctx": Object {
+      "actionName": "addArr",
+      "args": Array [
+        "3",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": M {
+        "$": Object {
+          "arr": Array [
+            1,
+            2,
+          ],
+          "x": 10,
+          "y": "6",
+        },
+        "$modelType": "M",
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  Object {
+    "ctx": Object {
+      "actionName": "addArr",
+      "args": Array [
+        "3",
+      ],
+      "data": Object {
+        Symbol(actionTrackingMiddlewareData): Object {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": M {
+        "$": Object {
+          "arr": Array [
+            1,
+            2,
+          ],
           "x": 10,
           "y": "6",
         },
