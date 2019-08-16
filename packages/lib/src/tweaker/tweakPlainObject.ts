@@ -185,26 +185,20 @@ function interceptObjectMutation(change: IObjectWillChange) {
 
   switch (change.type) {
     case "add":
-      {
-        change.newValue = tweak(change.newValue, {
-          parent: change.object,
-          path: "" + (change.name as any),
-        })
-      }
+      change.newValue = tweak(change.newValue, {
+        parent: change.object,
+        path: "" + (change.name as any),
+      })
       break
     case "remove":
-      {
-        tweak(change.object[change.name], undefined)
-      }
+      tweak(change.object[change.name], undefined)
       break
     case "update":
-      {
-        tweak(change.object[change.name], undefined)
-        change.newValue = tweak(change.newValue, {
-          parent: change.object,
-          path: "" + (change.name as any),
-        })
-      }
+      tweak(change.object[change.name], undefined)
+      change.newValue = tweak(change.newValue, {
+        parent: change.object,
+        path: "" + (change.name as any),
+      })
       break
   }
 

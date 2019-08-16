@@ -613,18 +613,16 @@ test("applyAction", () => {
     expect(pa.p2.y).toStrictEqual(pb.p2.y)
   }
 
-  {
-    applySnapshot(pa.p2, {
-      ...getSnapshot(pa.p2),
-      y: 100,
-    })
-    applyAction(pb, {
-      targetPath: ["$", "p2"],
-      actionName: "$$applySnapshot",
-      args: [{ ...getSnapshot(pb.p2), y: 100 }],
-    })
-    expect(pa.p2.y).toStrictEqual(pb.p2.y)
-  }
+  applySnapshot(pa.p2, {
+    ...getSnapshot(pa.p2),
+    y: 100,
+  })
+  applyAction(pb, {
+    targetPath: ["$", "p2"],
+    actionName: "$$applySnapshot",
+    args: [{ ...getSnapshot(pb.p2), y: 100 }],
+  })
+  expect(pa.p2.y).toStrictEqual(pb.p2.y)
 })
 
 test("action protection", () => {

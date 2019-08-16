@@ -89,7 +89,7 @@ test("actionTrackingMiddleware - flow", async () => {
     let str = `${ev.context.actionName} (${ev.type}${ev.result ? " - " + ev.result : ""})`
     let current = ev.context.parentContext
     while (current) {
-      str = `${current.actionName}` + " > " + str
+      str = `${current.actionName} > ${str}`
       current = current.parentContext
     }
     return str

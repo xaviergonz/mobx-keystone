@@ -42,8 +42,8 @@ test("onPatches and applyPatches", () => {
   // no changes should result in no patches
   reset()
   runUnprotected(() => {
-    p.x = p.x
-    p.arr[0] = p.arr[0]
+    p.x = p.x // eslint-disable-line no-self-assign
+    p.arr[0] = p.arr[0] // eslint-disable-line no-self-assign
     p.p2!.y = p.p2!.y
   })
 

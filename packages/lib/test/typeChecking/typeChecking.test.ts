@@ -557,9 +557,10 @@ test("enum (string)", () => {
     X1 = "x1",
     X2 = "x2",
   }
-  assert(_ as TypeToData<typeof type>, _ as A)
 
   const type = types.enum<A>(A)
+
+  assert(_ as TypeToData<typeof type>, _ as A)
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `"x1" | "x2"`)
@@ -570,9 +571,10 @@ test("enum (number)", () => {
     X1,
     X2,
   }
-  assert(_ as TypeToData<typeof type>, _ as A)
 
   const type = types.enum<A>(A)
+
+  assert(_ as TypeToData<typeof type>, _ as A)
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `0 | 1`)
@@ -584,9 +586,10 @@ test("enum (mixed)", () => {
     X15 = "x15",
     X2 = 6,
   }
-  assert(_ as TypeToData<typeof type>, _ as A)
 
   const type = types.enum<A>(A)
+
+  assert(_ as TypeToData<typeof type>, _ as A)
 
   expectTypeCheckOk(type, A.X15)
   expectTypeCheckOk(type, A.X2)

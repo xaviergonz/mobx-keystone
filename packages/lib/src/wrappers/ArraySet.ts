@@ -65,7 +65,8 @@ export class ArraySet<V>
   values() {
     const items = this.items
 
-    items.length // just to mark the atom as observed
+    // just to mark the atom as observed
+    items.length // eslint-disable-line no-unused-expressions
     return items.values()
   }
 

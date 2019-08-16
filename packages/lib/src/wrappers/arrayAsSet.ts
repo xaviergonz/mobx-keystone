@@ -63,7 +63,8 @@ export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
     values() {
       const o = getTarget()
 
-      o.length // just to mark the atom as observed
+      // just to mark the atom as observed
+      o.length // eslint-disable-line no-unused-expressions
       return o.values()
     },
 
