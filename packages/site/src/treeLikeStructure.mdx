@@ -70,9 +70,14 @@ When a non-primitive value is turned into a tree node it gains access to certain
 
 Returns the parent of the target plus the path from the parent to the target, or undefined if it has no parent.
 
-### `getParent<T extends object = any>(value: object): T | undefined`
+### `getParent<T extends object = any>(value: object, skipModelDataObject = false): T | undefined`
 
 Returns the parent object of the target object, or undefined if there's no parent.
+Note that when using this function over model properties you will get as parent its interim data object (`$`). If you want to get the parent model directly in such cases you can pass `true` as the second parameter.
+
+### `isModelDataObject(value: object)`
+
+Returns if a given object is a model interim data object (`$`)
 
 ### `getRootPath<T extends object = any>(value: object): RootPath<T>`
 

@@ -1,3 +1,4 @@
+import { BaseModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { isObject } from "../utils"
 import { objectParents, reportParentPathObserved } from "./core"
@@ -39,42 +40,68 @@ export interface RootPath<T extends object> {
  * Returns the parent of the target plus the path from the parent to the target, or undefined if it has no parent.
  *
  * @typeparam T Parent object type.
- * @param node Target object.
+ * @param value Target object.
  * @returns
  */
-export function getParentPath<T extends object = any>(node: object): ParentPath<T> | undefined {
-  assertTweakedObject(node, "node")
+export function getParentPath<T extends object = any>(value: object): ParentPath<T> | undefined {
+  assertTweakedObject(value, "value")
 
-  reportParentPathObserved(node)
-  return objectParents.get(node) as any
+  reportParentPathObserved(value)
+  return objectParents.get(value) as any
 }
 
 /**
  * Returns the parent object of the target object, or undefined if there's no parent.
  *
  * @typeparam T Parent object type.
- * @param node Target object.
+ * @param value Target object.
+ * @param [skipModelDataObject] When set to `true` (default is `false`) it will skip the interim model data object (`$`)
+ * and return the model instance directly.
  * @returns
  */
-export function getParent<T extends object = any>(node: object): T | undefined {
-  assertTweakedObject(node, "node")
+export function getParent<T extends object = any>(
+  value: object,
+  skipModelDataObject = false
+): T | undefined {
+  assertTweakedObject(value, "value")
 
-  const parentPath = getParentPath(node)
-  return parentPath ? parentPath.parent : undefined
+  let parentPath = getParentPath(value)
+
+  if (parentPath && skipModelDataObject && isModelDataObject(parentPath.parent)) {
+    return getParent(parentPath.parent, false)
+  } else {
+    return parentPath ? parentPath.parent : undefined
+  }
+}
+
+/**
+ * Returns if a given object is a model interim data object (`$`).
+ *
+ * @param value Object to check.
+ * @returns true if it is, false otherwise.
+ */
+export function isModelDataObject(value: object): boolean {
+  assertTweakedObject(value, "value")
+
+  if (!isObject(value)) {
+    return false
+  }
+  const parentPath = getParentPath(value)
+  return !!parentPath && parentPath.path === "$" && parentPath.parent instanceof BaseModel
 }
 
 /**
  * Returns the root of the target plus the path from the root to get to the target.
  *
  * @typeparam T Root object type.
- * @param node Target object.
+ * @param value Target object.
  * @returns
  */
-export function getRootPath<T extends object = any>(node: object): RootPath<T> {
-  assertTweakedObject(node, "node")
+export function getRootPath<T extends object = any>(value: object): RootPath<T> {
+  assertTweakedObject(value, "value")
 
   const rootPath = {
-    root: node,
+    root: value,
     path: [] as (string | number)[],
   }
 
@@ -91,43 +118,43 @@ export function getRootPath<T extends object = any>(node: object): RootPath<T> {
  * Returns the root of the target object, or itself if the target is a root.
  *
  * @typeparam T Root object type.
- * @param node Target object.
+ * @param value Target object.
  * @returns
  */
-export function getRoot<T extends object = any>(node: object): T {
-  assertTweakedObject(node, "node")
+export function getRoot<T extends object = any>(value: object): T {
+  assertTweakedObject(value, "value")
 
-  return getRootPath(node).root
+  return getRootPath(value).root
 }
 
 /**
  * Returns if a given object is a root object.
  *
- * @param node Target object.
+ * @param value Target object.
  * @returns
  */
-export function isRoot(node: object): boolean {
-  assertTweakedObject(node, "node")
+export function isRoot(value: object): boolean {
+  assertTweakedObject(value, "value")
 
-  return !getParent(node)
+  return !getParent(value)
 }
 
 /**
  * Returns if the target is a "child" of the tree of the given "parent" object.
  *
- * @param node Target object.
- * @param parentNode Parent object.
+ * @param child Target object.
+ * @param parent Parent object.
  * @returns
  */
-export function isChildOfParent(node: object, parentNode: object): boolean {
-  assertTweakedObject(node, "node")
-  assertTweakedObject(parentNode, "parentNode")
+export function isChildOfParent(child: object, parent: object): boolean {
+  assertTweakedObject(child, "child")
+  assertTweakedObject(parent, "parent")
 
-  let current = node
+  let current = child
   let parentPath
   while ((parentPath = getParentPath(current))) {
     current = parentPath.parent
-    if (current === parentNode) {
+    if (current === parent) {
       return true
     }
   }
@@ -137,27 +164,27 @@ export function isChildOfParent(node: object, parentNode: object): boolean {
 /**
  * Returns if the target is a "parent" that has in its tree the given "child" object.
  *
- * @param node Target object.
- * @param childNode Child object.
+ * @param parent Target object.
+ * @param child Child object.
  * @returns
  */
-export function isParentOfChild(node: object, childNode: object): boolean {
-  assertTweakedObject(node, "node")
-  assertTweakedObject(childNode, "childNode")
+export function isParentOfChild(parent: object, child: object): boolean {
+  assertTweakedObject(parent, "parent")
+  assertTweakedObject(child, "child")
 
-  return isChildOfParent(childNode, node)
+  return isChildOfParent(child, parent)
 }
 
 /**
  * Tries to resolve a path from an object.
  *
  * @typeparam T Returned value type.
- * @param pathRootNode Object that serves as path root.
+ * @param pathRootObject Object that serves as path root.
  * @param path Path as an string or number array.
  * @returns An object with `{ resolved: true, value: T }` or `{ resolved: false }`.
  */
 export function resolvePath<T = any>(
-  pathRootNode: object,
+  pathRootObject: object,
   path: ReadonlyArray<string | number>
 ):
   | {
@@ -168,7 +195,7 @@ export function resolvePath<T = any>(
       resolved: false
       value?: undefined
     } {
-  let current: any = pathRootNode
+  let current: any = pathRootObject
 
   let len = path.length
   for (let i = 0; i < len; i++) {
