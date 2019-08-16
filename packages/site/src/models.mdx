@@ -104,7 +104,7 @@ Volatile data (data that doesn't need to be snapshottable, or that needs to be t
 
 ```ts
 @model("myApp/SomeModel")
-class SomeModel extends Model<{...}> {
+class SomeModel extends Model({...}) {
   // non observable volatile data
   x = 10;
 
