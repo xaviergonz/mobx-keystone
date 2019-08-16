@@ -3,29 +3,33 @@ name: Comparison with mobx-state-tree
 route: /mstComparison
 ---
 
+import { CheckIcon } from "./components/CheckIcon"
+import { RedXIcon } from "./components/RedXIcon"
+import { ArrowUpIcon } from "./components/ArrowUpIcon"
+
 # Comparison with `mobx-state-tree`
 
 This library is very much like `mobx-state-tree` and takes lots of ideas from it, so the transition
 should be fairly simple. There are some trade-offs though, as shown in the following chart:
 
-| Feature                                   | `mobx-keystone` | `mobx-state-tree` |
-| ----------------------------------------- | --------------- | ----------------- |
-| Tree-like structure                       | 🟢               | 🟢                 |
-| Immutable snapshot generation             | 🟢               | 🟢                 |
-| Patch generation                          | 🟢               | 🟢                 |
-| Action serialization / replaying          | 🟢               | 🟢                 |
-| Action middleware support (1)             | 🟢👍             | 🟢                 |
-| - Atomic/Transaction middleware           | 🟢               | 🟢                 |
-| - Undo manager middleware                 | 🟢               | 🟢                 |
-| Flow action support                       | 🟢               | 🟢                 |
-| References                                | 🟢               | 🟢                 |
-| Frozen data                               | 🟢               | 🟢                 |
-| Typescript support (2)                    | 🟢👍👍           | 🟢                 |
-| Simplified instance / snapshot type usage | 🟢               | 🔴                |
-| Simplified model life-cycle               | 🟢               | 🔴                |
-| Runtime type validation (3)               | 🟢               | 🟢                 |
-| No metadata inside snapshots              | 🔴              | 🟢                 |
-| Redux compatibility layer                 | 🟢               | 🟢                 |
+| Feature                                   | `mobx-keystone`            | `mobx-state-tree` |
+| ----------------------------------------- | -------------------------- | ----------------- |
+| Tree-like structure                       | <CheckIcon/>               | <CheckIcon/>      |
+| Immutable snapshot generation             | <CheckIcon/>               | <CheckIcon/>      |
+| Patch generation                          | <CheckIcon/>               | <CheckIcon/>      |
+| Action serialization / replaying          | <CheckIcon/>               | <CheckIcon/>      |
+| Action middleware support (1)             | <CheckIcon/><ArrowUpIcon/> | <CheckIcon/>      |
+| - Atomic/Transaction middleware           | <CheckIcon/>               | <CheckIcon/>      |
+| - Undo manager middleware                 | <CheckIcon/>               | <CheckIcon/>      |
+| Flow action support                       | <CheckIcon/>               | <CheckIcon/>      |
+| References                                | <CheckIcon/>               | <CheckIcon/>      |
+| Frozen data                               | <CheckIcon/>               | <CheckIcon/>      |
+| Typescript support (2)                    | <CheckIcon/><ArrowUpIcon/><ArrowUpIcon/>           | <CheckIcon/>      |
+| Simplified instance / snapshot type usage | <CheckIcon/>               | <RedXIcon/>                |
+| Simplified model life-cycle               | <CheckIcon/>               | <RedXIcon/>                |
+| Runtime type validation (3)               | <CheckIcon/>               | <CheckIcon/>      |
+| No metadata inside snapshots              | <RedXIcon/>                         | <CheckIcon/>      |
+| Redux compatibility layer                 | <CheckIcon/>               | <CheckIcon/>      |
 
 1. Includes an improved action tracking middleware that makes it easier to create
    middlewares for flow (async) actions.
