@@ -236,10 +236,21 @@ test("object - all optional simple types", () => {
 class M extends Model({
   x: tProp(types.number, 10),
   y: tProp(types.string),
+  arr: tProp(types.array(types.number), () => []),
 }) {
   @modelAction
   setX(v: number) {
     this.x = v
+  }
+
+  @modelAction
+  setArr(v: number[]) {
+    this.arr = v
+  }
+
+  @modelAction
+  addArr(v: number) {
+    this.arr.push(v)
   }
 }
 
@@ -282,6 +293,20 @@ test("model typechecking", () => {
   expect(reactionRun).toBe(0)
   expect(m.x).toBe(10)
   expectTypeCheckOk(type, m)
+
+  // complex object
+  expectTypeCheckError(m, () => {
+    m.setArr([1, 2, "3" as any])
+  })
+  expect(m.arr).toEqual([])
+
+  m.setArr([1, 2])
+  expect(m.arr).toEqual([1, 2])
+
+  expectTypeCheckError(m, () => {
+    m.addArr("3" as any)
+  })
+  expect(m.arr).toEqual([1, 2])
 })
 
 test("new model with typechecking enabled", () => {
