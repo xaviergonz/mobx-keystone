@@ -259,15 +259,13 @@ function interceptArrayMutation(
       break
 
     case "update":
-      {
-        if (inDevMode() && change.newValue === undefined) {
-          throw failure(undefinedInsideArrayErrorMsg)
-        }
-
-        // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
-        tweak(array[change.index], undefined) // set old prop obj parent to undefined
-        change.newValue = tweak(change.newValue, { parent: array, path: change.index })
+      if (inDevMode() && change.newValue === undefined) {
+        throw failure(undefinedInsideArrayErrorMsg)
       }
+
+      // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
+      tweak(array[change.index], undefined) // set old prop obj parent to undefined
+      change.newValue = tweak(change.newValue, { parent: array, path: change.index })
       break
   }
   return change
