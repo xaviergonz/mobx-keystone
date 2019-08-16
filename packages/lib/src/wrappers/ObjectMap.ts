@@ -4,7 +4,6 @@ import { model } from "../model/modelDecorator"
 import { typesRecord } from "../typeChecking/record"
 import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { objectAsMap } from "./objectAsMap"
 
 /**
  * A map that is backed by an object-like map.
@@ -16,57 +15,68 @@ export class ObjectMap<V>
     items: tProp(typesRecord(typesUnchecked<any>()), () => ({})), // will be properly checked by types.objectMap(subType)
   })
   implements Map<string, V> {
-  private readonly _map = objectAsMap(() => this.items)
-
   @modelAction
   clear() {
-    this._map.clear()
+    const items = this.items
+    Object.keys(items).forEach(k => {
+      delete items[k]
+    })
   }
 
   @modelAction
   delete(key: string) {
-    return this._map.delete(key)
+    const hasKey = this.has(key)
+    if (hasKey) {
+      delete this.items[key]
+      return true
+    } else {
+      return false
+    }
   }
 
   forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg: any) {
     // we cannot use the map implementation since we need to pass this as map
-    Object.keys(this.items).forEach(k => {
-      callbackfn.call(thisArg, this.items[k], k, this)
+    const items = this.items
+    Object.keys(items).forEach(k => {
+      callbackfn.call(thisArg, items[k], k, this)
     })
   }
 
   get(key: string) {
-    return this._map.get(key)
+    return this.items[key]
   }
 
   has(key: string) {
-    return this._map.has(key)
+    return key in this.items
   }
 
   @modelAction
   set(key: string, value: V) {
-    this._map.set(key, value)
+    this.items[key] = value
     return this
   }
 
   get size() {
-    return this._map.size
+    return Object.keys(this.items).length
   }
 
   keys() {
-    return this._map.keys()
+    // TODO: should use an actual iterator
+    return Object.keys(this.items)[Symbol.iterator]()
   }
 
   values() {
-    return this._map.values()
+    // TODO: should use an actual iterator
+    return Object.values(this.items)[Symbol.iterator]()
   }
 
   entries() {
-    return this._map.entries()
+    // TODO: should use an actual iterator
+    return Object.entries(this.items)[Symbol.iterator]()
   }
 
   [Symbol.iterator]() {
-    return this._map[Symbol.iterator]()
+    return this.entries()
   }
 
   get [Symbol.toStringTag]() {
@@ -84,7 +94,9 @@ export function objectMap<V>(entries?: ReadonlyArray<readonly [string, V]> | nul
   const initialObj: { [k: string]: V } = {}
 
   if (entries) {
-    for (const entry of entries) {
+    let len = entries.length
+    for (let i = 0; i < len; i++) {
+      const entry = entries[i]
       initialObj[entry[0]] = entry[1]
     }
   }
