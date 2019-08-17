@@ -17,7 +17,7 @@ export class ArraySet<V>
   })
   implements Set<V> {
   @modelAction
-  add(value: V) {
+  add(value: V): this {
     const items = this.items
 
     if (!items.includes(value)) {
@@ -27,12 +27,12 @@ export class ArraySet<V>
   }
 
   @modelAction
-  clear() {
+  clear(): void {
     this.items.length = 0
   }
 
   @modelAction
-  delete(value: V) {
+  delete(value: V): boolean {
     const items = this.items
 
     const index = items.findIndex(t => t === value)
@@ -44,43 +44,43 @@ export class ArraySet<V>
     }
   }
 
-  forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg: any) {
+  forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg: any): void {
     // we cannot use the set implementation since we need to pass this as set
     this.items.forEach(k => {
       callbackfn.call(thisArg, k, k, this)
     })
   }
 
-  has(value: V) {
+  has(value: V): boolean {
     return this.items.includes(value)
   }
 
-  get size() {
+  get size(): number {
     return this.items.length
   }
 
-  keys() {
+  keys(): IterableIterator<V> {
     return this.values() // yes, values
   }
 
-  values() {
+  values(): IterableIterator<V> {
     const items = this.items
 
     return values(items)[Symbol.iterator]()
   }
 
-  entries() {
+  entries(): IterableIterator<[V, V]> {
     const items = this.items
 
     // TODO: should use an actual iterator
     return items.map(v => [v, v] as [V, V]).values()
   }
 
-  [Symbol.iterator]() {
+  [Symbol.iterator](): IterableIterator<V> {
     return this.values()
   }
 
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag](): string {
     return "ArraySet"
   }
 }

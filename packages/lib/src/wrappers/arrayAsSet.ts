@@ -65,7 +65,7 @@ export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
     values() {
       const items = getTarget()
 
-      return values(items)[Symbol.iterator]() as any
+      return values(items)[Symbol.iterator]() as IterableIterator<V>
     },
 
     entries() {

@@ -67,7 +67,7 @@ export function objectAsMap<V>(getTarget: () => { [k: string]: V }): Map<string,
       const items = getTarget()
 
       // TODO: should use an actual iterator
-      return keys(items)[Symbol.iterator]() as any
+      return keys(items)[Symbol.iterator]() as IterableIterator<string>
     },
 
     values() {
