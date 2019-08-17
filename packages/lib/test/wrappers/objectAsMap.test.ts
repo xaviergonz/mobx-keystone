@@ -37,8 +37,8 @@ test("set", () => {
   map.set("3", 3)
   expectMapValues([2, 3, 5])
 
-  map.set("1", 1)
-  expectMapValues([1, 2, 3, 5])
+  map.set("12", 12)
+  expectMapValues([2, 3, 5, 12])
 })
 
 test("clear", () => {

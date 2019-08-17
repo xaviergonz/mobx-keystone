@@ -1,4 +1,4 @@
-import { isObservable, keys, values } from "mobx"
+import { isObservable, keys, set, values } from "mobx"
 import { getParent, isTreeNode, model, Model, prop, runUnprotected } from "../../src"
 import "../commonSetup"
 
@@ -60,8 +60,12 @@ test("data added after intial data must be tweaked", () => {
     const a = new A({})
     runUnprotected(() => {
       a.map = {}
-      a.map.obj1 = { x: 10 }
-      a.map.obj2 = { x: 20 }
+      // this is valid in mobx5 but not mobx4
+      // a.map.obj1 = { x: 10 }
+      // a.map.obj2 = { x: 20 }
+      set(a.map, "obj1", { x: 10 })
+      set(a.map, "obj2", { x: 20 })
+
       a.arr = []
       a.arr.push({ x: 10 })
       a.arr.push({ x: 20 })

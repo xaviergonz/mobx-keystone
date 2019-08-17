@@ -19,5 +19,5 @@ test("snapshot processor", () => {
     })
   )
 
-  expect(p.arr).toStrictEqual([30, 40, 50])
+  expect(p.arr).toEqual([30, 40, 50])
 })

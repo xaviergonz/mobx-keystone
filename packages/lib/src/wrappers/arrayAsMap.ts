@@ -9,16 +9,16 @@
 export function arrayAsMap<V>(getTarget: () => [string, V][]): Map<string, V> {
   const map: Map<string, V> = {
     clear() {
-      const o = getTarget()
-      o.length = 0
+      const items = getTarget()
+      items.length = 0
     },
 
     delete(key) {
-      const o = getTarget()
+      const items = getTarget()
 
-      const index = o.findIndex(t => t[0] === key)
+      const index = items.findIndex(t => t[0] === key)
       if (index >= 0) {
-        o.splice(index, 1)
+        items.splice(index, 1)
         return true
       } else {
         return false
@@ -26,64 +26,64 @@ export function arrayAsMap<V>(getTarget: () => [string, V][]): Map<string, V> {
     },
 
     forEach(callbackfn, thisArg) {
-      const o = getTarget()
+      const items = getTarget()
 
-      o.forEach(t => {
+      items.forEach(t => {
         callbackfn.call(thisArg, t[1], t[0], map)
       })
     },
 
     get(key) {
-      const o = getTarget()
+      const items = getTarget()
 
-      const found = o.find(t => t[0] === key)
+      const found = items.find(t => t[0] === key)
       return found ? found[1] : undefined
     },
 
     has(key) {
-      const o = getTarget()
+      const items = getTarget()
 
-      return o.some(t => t[0] === key)
+      return items.some(t => t[0] === key)
     },
 
     set(key, value) {
-      const o = getTarget()
+      const items = getTarget()
 
-      const found = o.find(t => t[0] === key)
+      const found = items.find(t => t[0] === key)
       if (found) {
         found[1] = value
       } else {
-        o.push([key, value])
+        items.push([key, value])
       }
 
       return map
     },
 
     get size() {
-      const o = getTarget()
+      const items = getTarget()
 
-      return o.length
+      return items.length
     },
 
     keys() {
-      const o = getTarget()
+      const items = getTarget()
 
       // TODO: should use an actual iterator
-      return o.map(t => t[0])[Symbol.iterator]()
+      return items.map(t => t[0])[Symbol.iterator]()
     },
 
     values() {
-      const o = getTarget()
+      const items = getTarget()
 
       // TODO: should use an actual iterator
-      return o.map(t => t[1])[Symbol.iterator]()
+      return items.map(t => t[1])[Symbol.iterator]()
     },
 
     entries() {
-      const o = getTarget()
+      const items = getTarget()
 
       // we do the copy just to keep reactivity
-      return o.map(t => [t[0], t[1]] as [string, V])[Symbol.iterator]()
+      return items.map(t => [t[0], t[1]] as [string, V])[Symbol.iterator]()
     },
 
     [Symbol.iterator]() {

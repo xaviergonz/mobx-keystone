@@ -1,4 +1,4 @@
-import { action, observable } from "mobx"
+import { action, observable, set } from "mobx"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelTypeKey } from "../model/metadata"
@@ -97,7 +97,7 @@ function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
     const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
-      initialData[k] = internalFromSnapshot(v)
+      set(initialData, k, internalFromSnapshot(v))
     }
   }
   return initialData
@@ -111,7 +111,7 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
   for (let i = 0; i < snKeysLen; i++) {
     const k = snKeys[i]
     const v = sn[k]
-    plainObj[k] = internalFromSnapshot(v)
+    set(plainObj, k, internalFromSnapshot(v))
   }
   return tweakPlainObject(plainObj, undefined, undefined, true)
 }

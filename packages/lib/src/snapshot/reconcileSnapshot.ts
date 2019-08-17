@@ -1,4 +1,4 @@
-import { isObservableObject } from "mobx"
+import { isObservableObject, remove, set } from "mobx"
 import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelTypeKey } from "../model/metadata"
@@ -61,7 +61,7 @@ function reconcileArraySnapshot(value: any, sn: SnapshotInOfArray<any>): any[] {
 
   // reconcile present items
   for (let i = 0; i < value.length; i++) {
-    value[i] = reconcileSnapshot(value[i], sn[i])
+    set(value, i as any, reconcileSnapshot(value[i], sn[i]))
   }
 
   // add excess items
@@ -108,7 +108,7 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
   for (let i = 0; i < dataKeysLen; i++) {
     const k = dataKeys[i]
     if (!(k in processedSn)) {
-      delete data[k]
+      remove(data, k)
     }
   }
 
@@ -120,7 +120,7 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
 
-      data[k] = reconcileSnapshot(data[k], v)
+      set(data, k, reconcileSnapshot(data[k], v))
     }
   }
 
@@ -142,7 +142,7 @@ function reconcilePlainObjectSnapshot(value: any, sn: SnapshotInOfObject<any>): 
   for (let i = 0; i < plainObjKeysLen; i++) {
     const k = plainObjKeys[i]
     if (!(k in sn)) {
-      delete plainObj[k]
+      remove(plainObj, k)
     }
   }
 
@@ -153,7 +153,7 @@ function reconcilePlainObjectSnapshot(value: any, sn: SnapshotInOfObject<any>): 
     const k = snKeys[i]
     const v = sn[k]
 
-    plainObj[k] = reconcileSnapshot(plainObj[k], v)
+    set(plainObj, k, reconcileSnapshot(plainObj[k], v))
   }
 
   return plainObj

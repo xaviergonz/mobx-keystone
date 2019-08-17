@@ -1,3 +1,5 @@
+import { values } from "mobx"
+
 /**
  * Returns a wrapper that wraps an observable array `V[]`
  * into a set alike interface.
@@ -9,27 +11,27 @@
 export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
   const set: Set<V> = {
     add(value) {
-      const o = getTarget()
+      const items = getTarget()
 
-      if (!o.includes(value)) {
-        o.push(value)
+      if (!items.includes(value)) {
+        items.push(value)
       }
 
       return set
     },
 
     clear() {
-      const o = getTarget()
+      const items = getTarget()
 
-      o.length = 0
+      items.length = 0
     },
 
     delete(value) {
-      const o = getTarget()
+      const items = getTarget()
 
-      const index = o.findIndex(t => t === value)
+      const index = items.findIndex(t => t === value)
       if (index >= 0) {
-        o.splice(index, 1)
+        items.splice(index, 1)
         return true
       } else {
         return false
@@ -37,23 +39,23 @@ export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
     },
 
     forEach(callbackfn, thisArg) {
-      const o = getTarget()
+      const items = getTarget()
 
-      o.forEach(t => {
+      items.forEach(t => {
         callbackfn.call(thisArg, t, t, set)
       })
     },
 
     has(value) {
-      const o = getTarget()
+      const items = getTarget()
 
-      return o.includes(value)
+      return items.includes(value)
     },
 
     get size() {
-      const o = getTarget()
+      const items = getTarget()
 
-      return o.length
+      return items.length
     },
 
     keys() {
@@ -61,18 +63,16 @@ export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
     },
 
     values() {
-      const o = getTarget()
+      const items = getTarget()
 
-      // just to mark the atom as observed
-      o.length // eslint-disable-line no-unused-expressions
-      return o.values()
+      return values(items)[Symbol.iterator]()
     },
 
     entries() {
-      const o = getTarget()
+      const items = getTarget()
 
       // TODO: should use an actual iterator
-      return o.map(v => [v, v] as [V, V]).values()
+      return items.map(v => [v, v] as [V, V]).values()
     },
 
     [Symbol.iterator]() {
