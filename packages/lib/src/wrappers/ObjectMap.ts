@@ -17,7 +17,7 @@ export class ObjectMap<V>
   })
   implements Map<string, V> {
   @modelAction
-  clear() {
+  clear(): void {
     const items = this.items
     Object.keys(items).forEach(k => {
       remove(items, k)
@@ -25,7 +25,7 @@ export class ObjectMap<V>
   }
 
   @modelAction
-  delete(key: string) {
+  delete(key: string): boolean {
     const hasKey = this.has(key)
     if (hasKey) {
       remove(this.items, key)
@@ -35,7 +35,7 @@ export class ObjectMap<V>
     }
   }
 
-  forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg: any) {
+  forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg: any): void {
     // we cannot use the map implementation since we need to pass this as map
     const items = this.items
     Object.keys(items).forEach(k => {
@@ -43,44 +43,44 @@ export class ObjectMap<V>
     })
   }
 
-  get(key: string) {
+  get(key: string): V | undefined {
     return get(this.items, key)
   }
 
-  has(key: string) {
+  has(key: string): boolean {
     return has(this.items, key)
   }
 
   @modelAction
-  set(key: string, value: V) {
+  set(key: string, value: V): this {
     set(this.items, key, value)
     return this
   }
 
-  get size() {
+  get size(): number {
     return keys(this.items).length
   }
 
-  keys() {
+  keys(): IterableIterator<string> {
     // TODO: should use an actual iterator
-    return keys(this.items)[Symbol.iterator]() as any
+    return keys(this.items)[Symbol.iterator]() as IterableIterator<string>
   }
 
-  values() {
+  values(): IterableIterator<V> {
     // TODO: should use an actual iterator
     return values(this.items)[Symbol.iterator]()
   }
 
-  entries() {
+  entries(): IterableIterator<[string, V]> {
     // TODO: should use an actual iterator
     return entries(this.items)[Symbol.iterator]()
   }
 
-  [Symbol.iterator]() {
+  [Symbol.iterator](): IterableIterator<[string, V]> {
     return this.entries()
   }
 
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag](): string {
     return "ObjectMap"
   }
 }
