@@ -1,4 +1,4 @@
-import { action } from "mobx"
+import { action, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
@@ -62,7 +62,7 @@ export const internalNewModel = action(
         } else if (propData.defaultValue !== undefined) {
           newValue = propData.defaultValue
         }
-        ;(initialData as any)[k] = newValue
+        set(initialData as any, k, newValue)
       }
     }
 

@@ -1,4 +1,4 @@
-import { computed } from "mobx"
+import { computed, get, remove } from "mobx"
 import {
   clone,
   customRef,
@@ -37,7 +37,9 @@ class Countries extends Model({
 
   @modelAction
   removeCountry(name: string) {
-    delete this.countries[name]
+    // this is valid in mobx5 but not mobx4
+    // delete this.countries[name]
+    remove(this.countries, name)
   }
 
   @modelAction
@@ -55,7 +57,9 @@ const countryRef = customRef<Country>("countryRef", {
   resolve(ref) {
     const countriesParent = findParent<Countries>(ref, n => n instanceof Countries)
     if (!countriesParent) return undefined
-    return countriesParent.countries[ref.id]
+    // this is valid in mobx5 but not mobx4
+    // return countriesParent.countries[ref.id]
+    return get(countriesParent.countries, ref.id)
   },
 
   getId(target) {
@@ -70,7 +74,7 @@ const countryRef = customRef<Country>("countryRef", {
   },
 })
 
-const initialCountries: { [k: string]: Country } = {
+const initialCountries: () => { [k: string]: Country } = () => ({
   spain: {
     weather: "sunny",
   },
@@ -80,11 +84,11 @@ const initialCountries: { [k: string]: Country } = {
   france: {
     weather: "soso",
   },
-}
+})
 
 test("single ref works", () => {
   const c = new Countries({
-    countries: initialCountries,
+    countries: initialCountries(),
   })
 
   expect(c.selectedCountryRef).toBeUndefined()
@@ -107,7 +111,9 @@ test("single ref works", () => {
 
   // cloning should be ok
   const cloneC = clone(c)
-  expect(cloneC.selectedCountry).toBe(cloneC.countries["spain"])
+  expect(cloneC.countries["spain"]).toBeTruthy()
+  const cloneCSelectedCountry = cloneC.selectedCountry
+  expect(cloneCSelectedCountry).toBe(cloneC.countries["spain"])
 
   // remove referenced country
   c.removeCountry("spain")
@@ -129,7 +135,7 @@ test("single ref works", () => {
 
 test("array ref works", () => {
   const c = new Countries({
-    countries: initialCountries,
+    countries: initialCountries(),
   })
 
   expect(c.selectedCountriesRef).toEqual([])
@@ -159,6 +165,8 @@ test("array ref works", () => {
 
   // cloning should be ok
   const cloneC = clone(c)
+  expect(cloneC.countries["spain"]).toBeTruthy()
+  expect(cloneC.countries["uk"]).toBeTruthy()
   expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
 
   // remove referenced country

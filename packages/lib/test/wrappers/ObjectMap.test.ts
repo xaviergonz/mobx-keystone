@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { entries, reaction } from "mobx"
 import { ObjectMap, objectMap } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -13,7 +13,7 @@ beforeEach(() => {
 
 function expectMapValues(valsN: number[]) {
   const vals = valsN.map(v => ["" + v, v] as const)
-  expect(Object.entries(obj)).toEqual(vals)
+  expect(entries(obj)).toEqual(vals)
 
   expect([...map.values()]).toEqual(vals.map(v => v[1]))
   expect([...map.keys()]).toEqual(vals.map(v => v[0]))
@@ -31,8 +31,8 @@ test("set", () => {
   map.set("3", 3)
   expectMapValues([2, 3, 5])
 
-  map.set("1", 1)
-  expectMapValues([1, 2, 3, 5])
+  map.set("12", 12)
+  expectMapValues([2, 3, 5, 12])
 })
 
 test("clear", () => {

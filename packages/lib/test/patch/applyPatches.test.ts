@@ -63,7 +63,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.arr).toStrictEqual([1, 10, 2, 3])
+    expect(p.arr).toEqual([1, 10, 2, 3])
   })
 
   test("remove", () => {
@@ -75,7 +75,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.arr).toStrictEqual([1, 3])
+    expect(p.arr).toEqual([1, 3])
   })
 
   test("replace", () => {
@@ -88,7 +88,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.arr).toStrictEqual([1, 10, 3])
+    expect(p.arr).toEqual([1, 10, 3])
   })
 })
 

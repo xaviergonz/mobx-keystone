@@ -1,3 +1,4 @@
+import { values } from "mobx"
 import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
@@ -65,9 +66,7 @@ export class ArraySet<V>
   values() {
     const items = this.items
 
-    // just to mark the atom as observed
-    items.length // eslint-disable-line no-unused-expressions
-    return items.values()
+    return values(items)[Symbol.iterator]()
   }
 
   entries() {

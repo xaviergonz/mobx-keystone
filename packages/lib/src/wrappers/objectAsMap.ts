@@ -1,3 +1,5 @@
+import { entries, get, has, keys, remove, set, values } from "mobx"
+
 /**
  * Returns a wrapper that wraps an observable object
  * `{ [k: string]: V }` into a map alike interface.
@@ -9,18 +11,18 @@
 export function objectAsMap<V>(getTarget: () => { [k: string]: V }): Map<string, V> {
   const map: Map<string, V> = {
     clear() {
-      const o = getTarget()
-      Object.keys(o).forEach(k => {
-        delete o[k]
+      const items = getTarget()
+      Object.keys(items).forEach(k => {
+        remove(items, k)
       })
     },
 
     delete(key) {
-      const o = getTarget()
+      const items = getTarget()
 
       const hasKey = map.has(key)
       if (hasKey) {
-        delete o[key]
+        remove(items, key)
         return true
       } else {
         return false
@@ -28,58 +30,58 @@ export function objectAsMap<V>(getTarget: () => { [k: string]: V }): Map<string,
     },
 
     forEach(callbackfn, thisArg) {
-      const o = getTarget()
+      const items = getTarget()
 
-      Object.keys(o).forEach(k => {
-        callbackfn.call(thisArg, o[k], k, map)
+      Object.keys(items).forEach(k => {
+        callbackfn.call(thisArg, items[k], k, map)
       })
     },
 
     get(key) {
-      const o = getTarget()
+      const items = getTarget()
 
-      return o[key]
+      return get(items, key)
     },
 
     has(key) {
-      const o = getTarget()
+      const items = getTarget()
 
-      return key in o
+      return has(items, key)
     },
 
     set(key, value) {
-      const o = getTarget()
+      const items = getTarget()
 
-      o[key] = value
+      set(items, key, value)
 
       return map
     },
 
     get size() {
-      const o = getTarget()
+      const items = getTarget()
 
-      return Object.keys(o).length
+      return keys(items).length
     },
 
     keys() {
-      const o = getTarget()
+      const items = getTarget()
 
       // TODO: should use an actual iterator
-      return Object.keys(o)[Symbol.iterator]()
+      return keys(items)[Symbol.iterator]()
     },
 
     values() {
-      const o = getTarget()
+      const items = getTarget()
 
       // TODO: should use an actual iterator
-      return Object.values(o)[Symbol.iterator]()
+      return values(items)[Symbol.iterator]()
     },
 
     entries() {
-      const o = getTarget()
+      const items = getTarget()
 
       // TODO: should use an actual iterator
-      return Object.entries(o)[Symbol.iterator]()
+      return entries(items)[Symbol.iterator]()
     },
 
     [Symbol.iterator]() {

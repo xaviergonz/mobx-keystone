@@ -1,4 +1,4 @@
-import { isObservableArray, isObservableObject } from "mobx"
+import { isObservableArray, isObservableObject, remove } from "mobx"
 import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
@@ -36,7 +36,7 @@ function internalDetach(this: object): void {
   if (isObservableArray(parent)) {
     parent.splice(+path, 1)
   } else if (isObservableObject(parent)) {
-    delete (parent as any)[path]
+    remove(parent, "" + path)
   } else {
     throw failure("parent must be an observable object or an observable array")
   }

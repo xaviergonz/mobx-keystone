@@ -1,4 +1,4 @@
-import { observable } from "mobx"
+import { get, observable, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
@@ -72,10 +72,10 @@ export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TPr
       enumerable: false,
       configurable: true,
       get(this: AnyModel) {
-        return this.$[modelPropName]
+        return get(this.$, modelPropName)
       },
       set(this: AnyModel, v?: any) {
-        this.$[modelPropName] = v
+        set(this.$, modelPropName, v)
       },
     }
   }

@@ -1,4 +1,4 @@
-import { action } from "mobx"
+import { action, remove, set } from "mobx"
 import {
   addActionMiddleware,
   applyAction,
@@ -46,7 +46,9 @@ export class P extends Model({
   @modelAction
   addNumberToArrAndObj(n: number) {
     this.arr.push(n)
-    this.obj["" + n] = n
+    // this is valid in mobx5 but not mobx4
+    // this.obj["" + n] = n
+    set(this.obj, "" + n, n)
   }
 }
 
@@ -646,7 +648,9 @@ test("action protection", () => {
 
   expect(
     action(() => {
-      p.obj["a"] = 100
+      // this is valid in mobx5 but not mobx4
+      // p.obj["a"] = 100
+      set(p.obj, "a", 100)
     })
   ).toThrow(err)
 
@@ -660,7 +664,9 @@ test("action protection", () => {
 
   expect(
     action(() => {
-      delete p.obj["200"]
+      // this is valid in mobx5 but not mobx4
+      // delete p.obj["200"]
+      remove(p.obj, "200")
     })
   ).toThrow(err)
 })

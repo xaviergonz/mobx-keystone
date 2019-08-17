@@ -1,3 +1,4 @@
+import { entries, get, has, keys, remove, set, values } from "mobx"
 import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
@@ -19,7 +20,7 @@ export class ObjectMap<V>
   clear() {
     const items = this.items
     Object.keys(items).forEach(k => {
-      delete items[k]
+      remove(items, k)
     })
   }
 
@@ -27,7 +28,7 @@ export class ObjectMap<V>
   delete(key: string) {
     const hasKey = this.has(key)
     if (hasKey) {
-      delete this.items[key]
+      remove(this.items, key)
       return true
     } else {
       return false
@@ -43,36 +44,36 @@ export class ObjectMap<V>
   }
 
   get(key: string) {
-    return this.items[key]
+    return get(this.items, key)
   }
 
   has(key: string) {
-    return key in this.items
+    return has(this.items, key)
   }
 
   @modelAction
   set(key: string, value: V) {
-    this.items[key] = value
+    set(this.items, key, value)
     return this
   }
 
   get size() {
-    return Object.keys(this.items).length
+    return keys(this.items).length
   }
 
   keys() {
     // TODO: should use an actual iterator
-    return Object.keys(this.items)[Symbol.iterator]()
+    return keys(this.items)[Symbol.iterator]()
   }
 
   values() {
     // TODO: should use an actual iterator
-    return Object.values(this.items)[Symbol.iterator]()
+    return values(this.items)[Symbol.iterator]()
   }
 
   entries() {
     // TODO: should use an actual iterator
-    return Object.entries(this.items)[Symbol.iterator]()
+    return entries(this.items)[Symbol.iterator]()
   }
 
   [Symbol.iterator]() {

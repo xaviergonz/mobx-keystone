@@ -1,3 +1,4 @@
+import { remove, set } from "mobx"
 import {
   detach,
   findParent,
@@ -97,7 +98,9 @@ test("parent", () => {
 
   // delete prop (unsupported for this.x but supported for this.$ since they require proxies and would be slower)
   runUnprotected(() => {
-    delete p.$.p2
+    // this is valid in mobx5 but not mobx4
+    // delete p.$.p2
+    remove(p.$, "p2")
   })
   expect(p.p2).toBeUndefined()
   expect("p2" in p.$).toBeFalsy()
@@ -106,7 +109,9 @@ test("parent", () => {
 
   // readd prop
   runUnprotected(() => {
-    p.p2 = p2
+    // this is valid in mobx5 but not mobx4
+    // p.p2 = p2
+    set(p.$, "p2", p2)
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
   expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
@@ -135,7 +140,9 @@ test("parent", () => {
 
   // readd prop
   runUnprotected(() => {
-    p.p2 = p2
+    // this is valid in mobx5 but not in mobx4
+    // p.p2 = p2
+    set(p.$, "p2", p2)
   })
   expect(getParentPath(p2)).toEqual({ parent: p.$, path: "p2" })
   expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
@@ -249,7 +256,9 @@ test("parent", () => {
 
   expect(() => {
     runUnprotected(() => {
-      ;(p.$ as any).z = p.arr[0]
+      // this is valid in mobx5 but not in mobx4
+      // ;(p.$ as any).z = p.arr[0]
+      set(p.$, "z", p.arr[0])
     })
   }).toThrow("an object cannot be assigned a new parent when it already has one")
   expect((p.$ as any).z).toBe(undefined)

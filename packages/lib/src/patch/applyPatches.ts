@@ -1,3 +1,4 @@
+import { remove, set } from "mobx"
 import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
@@ -60,7 +61,7 @@ function applySinglePatch(obj: object, patch: Patch): void {
         } else {
           const index = +prop!
           // try to reconcile
-          target[index] = reconcileSnapshot(target[index], patch.value)
+          set(target, index as any, reconcileSnapshot(target[index], patch.value))
         }
         break
       }
@@ -72,19 +73,19 @@ function applySinglePatch(obj: object, patch: Patch): void {
     switch (patch.op) {
       case "add": {
         // no reconciliation, new value
-        target[prop!] = fromSnapshot(patch.value)
+        set(target, prop, fromSnapshot(patch.value))
         break
       }
 
       case "remove": {
         // no reconciliation, removing
-        delete target[prop!]
+        remove(target, prop)
         break
       }
 
       case "replace": {
         // try to reconcile
-        target[prop!] = reconcileSnapshot(target[prop!], patch.value)
+        set(target, prop, reconcileSnapshot(target[prop!], patch.value))
         break
       }
 
@@ -99,7 +100,7 @@ function pathArrayToObjectAndProp(
   path: Patch["path"]
 ): { target: any; prop?: string | number } {
   if (inDevMode()) {
-    if (!Array.isArray(path)) {
+    if (!isArray(path)) {
       throw failure(`invalid path: ${path}`)
     }
   }
