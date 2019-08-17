@@ -135,4 +135,4 @@ class TodoList extends Model({
 
 Again, if a todo is removed from the list and it was a selected one then it will automatically dissapear from the selected todos list.
 
-If you are wondering why we didn't just pass the `Todo` object to the select/unselect methods, the reason is because of action replication in remote servers. This is, if your application needs to replicate actions in a server then most likely a bran new instance of the `Todo` object will be created remotely, which won't match the one from the current model. If you don't need such use case then it is perfectly valid to pass Todo references directly.
+If you are wondering why we didn't just pass the `Todo` object to the select/unselect methods, the reason is because of action replication in remote servers. This is, if your application needs to replicate actions in a server then most likely a brand new instance of the `Todo` object will be created remotely, which won't match the one from the current model. If you don't need such use case then it is perfectly valid to pass Todo references directly.
