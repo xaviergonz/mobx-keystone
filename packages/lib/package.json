@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/xaviergonz/mobx-keystone/issues"
   },
-  "homepage": "https://mobx-keystone.netlify.com",
+  "homepage": "https://mobx-keystone.js.org",
   "license": "MIT",
   "author": "Javier González Garcés",
   "main": "dist/index.js",

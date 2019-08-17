@@ -12,7 +12,7 @@ _A MobX powered state management solution based on data trees with first class s
 
 > ### Full documentation can be found on the site:
 >
-> ## [mobx-keystone.netlify.com](https://mobx-keystone.netlify.com)
+> ## [mobx-keystone.js.org](https://mobx-keystone.js.org)
 
 ## Introduction
 
@@ -27,7 +27,7 @@ From this living tree, immutable, structurally shared, snapshots are automatical
 
 Another of the core design goals of `mobx-keystone` it to offer a great Typescript syntax out of the box, be it for models (and other kind of data such as plain objects and arrays) or for its generated snapshots.
 
-To see some code and a a glimpse of how it works check the [Todo List Example](https://mobx-keystone.netlify.com/examples/todoList)
+To see some code and a a glimpse of how it works check the [Todo List Example](https://mobx-keystone.js.org/examples/todoList)
 
 Because state trees are living, mutable models, actions are straight-forward to write; just modify local instance properties where appropriate. It is not necessary to produce a new state tree yourself, `mobx-keystone`'s snapshot functionality will derive one for you automatically.
 
@@ -65,4 +65,4 @@ If you are using Typescript, then version >= 3.5.3 is recommended, though it _mi
 
 ## Full documentation
 
-Full documentation can be found on [mobx-keystone.netlify.com](https://mobx-keystone.netlify.com)
+Full documentation can be found on [mobx-keystone.js.org](https://mobx-keystone.js.org)
