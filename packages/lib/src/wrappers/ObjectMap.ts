@@ -63,7 +63,7 @@ export class ObjectMap<V>
 
   keys() {
     // TODO: should use an actual iterator
-    return keys(this.items)[Symbol.iterator]()
+    return keys(this.items)[Symbol.iterator]() as any
   }
 
   values() {
