@@ -5,7 +5,7 @@ executors:
         docker:
             - image: circleci/node:12
               environment:
-                  CI: true
+                  CI: "true"
         working_directory: ~/workdir
 
 jobs:
