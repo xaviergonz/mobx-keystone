@@ -1,11 +1,11 @@
-import { fromSnapshot, getSnapshot, model, Model, prop } from "../../src"
+import { ExtendsModel, fromSnapshot, getSnapshot, model, Model, prop } from "../../src"
 import "../commonSetup"
 
 // @model("P")
 class P extends Model({
-  x: prop(() => 15),
-  y: prop(() => 10),
-  z: prop(() => 30),
+  x: prop(15),
+  y: prop(10),
+  z: prop(30),
 }) {
   pMethod() {
     return "p"
@@ -17,7 +17,9 @@ class P extends Model({
 }
 
 @model("P2")
-class P2 extends P {
+class P2 extends ExtendsModel(P, {
+  a: prop(50),
+}) {
   p2Method() {
     return "p2"
   }
@@ -33,6 +35,7 @@ test("subclassing works", () => {
   expect(p2.x).toBe(15)
   expect(p2.y).toBe(10)
   expect(p2.z).toBe(30)
+  expect(p2.a).toBe(50)
 
   expect(p2.pMethod()).toBe("p")
   expect(p2.p2Method()).toBe("p2")
