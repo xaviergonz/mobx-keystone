@@ -1,13 +1,11 @@
-import { get, observable, set } from "mobx"
+import { get, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject } from "../utils"
-import { AnyModel, BaseModel, baseModelPropNames, ModelClass } from "./BaseModel"
-import { modelConstructorSymbol } from "./modelInfo"
+import { AnyModel, BaseModel, baseModelPropNames } from "./BaseModel"
 import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
-import { internalNewModel } from "./newModel"
 import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
 
 declare const propsDataSymbol: unique symbol
@@ -24,6 +22,13 @@ export interface _Model<TProps extends ModelProps> {
     this[typeof creationDataSymbol]
   > &
     Omit<this[typeof propsDataSymbol], keyof AnyModel>
+}
+
+const hiddenPropertyDescriptor: PropertyDescriptor = {
+  enumerable: false,
+  writable: true,
+  configurable: true,
+  value: undefined,
 }
 
 /**
@@ -49,19 +54,6 @@ export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TPr
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
   }
 
-  const modelPropertiesDesc: PropertyDescriptor = {
-    enumerable: false,
-    writable: false,
-    configurable: true,
-    value: modelProps,
-  }
-  const modelDataTypeCheckerDesc: PropertyDescriptor = {
-    enumerable: false,
-    writable: false,
-    configurable: true,
-    value: dataTypeChecker,
-  }
-
   const extraDescriptors: PropertyDescriptorMap = {}
 
   // skip props that are on base model, these have to be accessed through $
@@ -80,33 +72,18 @@ export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TPr
     }
   }
 
-  class CustomBaseModel extends BaseModel<any, any> {
-    constructor(initialData: any, snapshotInitialData: any) {
-      super(modelConstructorSymbol as any)
-
-      // proxy returned object so data can be accessed through this
-      const obj = this
-      Object.defineProperty(obj, modelPropertiesSymbol, modelPropertiesDesc)
-      Object.defineProperty(obj, modelDataTypeCheckerSymbol, modelDataTypeCheckerDesc)
-      Object.defineProperties(obj, extraDescriptors)
-
-      const clazz: ModelClass<AnyModel> = this.constructor as any
-
-      if (!snapshotInitialData) {
-        assertIsObject(initialData, "initialData")
-
-        internalNewModel(
-          this,
-          clazz,
-          observable.object(initialData, undefined, { deep: false }),
-          undefined
-        )
-      } else {
-        internalNewModel(this, clazz, undefined, snapshotInitialData)
-      }
-    }
-  }
+  class CustomBaseModel extends BaseModel<any, any> {}
   ;(CustomBaseModel as any)[modelDataTypeCheckerSymbol] = dataTypeChecker
+
+  // proxy returned object so data can be accessed through this
+  const classProto: any = CustomBaseModel.prototype
+  Object.defineProperty(classProto, modelPropertiesSymbol, hiddenPropertyDescriptor)
+  classProto[modelPropertiesSymbol] = modelProps
+
+  Object.defineProperty(classProto, modelDataTypeCheckerSymbol, hiddenPropertyDescriptor)
+  classProto[modelDataTypeCheckerSymbol] = dataTypeChecker
+
+  Object.defineProperties(classProto, extraDescriptors)
 
   return CustomBaseModel as any
 }
