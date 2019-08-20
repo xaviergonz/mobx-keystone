@@ -35,8 +35,3 @@ export function getModelInfoForObject(obj: { [modelTypeKey]: string }): ModelInf
   }
   return getModelInfoForName(obj[modelTypeKey])
 }
-
-/**
- * @ignore
- */
-export const modelConstructorSymbol = Symbol("modelConstructor")
