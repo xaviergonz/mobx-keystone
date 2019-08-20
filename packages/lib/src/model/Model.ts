@@ -1,37 +1,32 @@
-import { get, observable, set } from "mobx"
+import { get, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { assertIsObject } from "../utils"
+import { addHiddenProp, assertIsObject, failure } from "../utils"
 import { AnyModel, BaseModel, baseModelPropNames, ModelClass } from "./BaseModel"
-import { modelConstructorSymbol } from "./modelInfo"
 import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
-import { internalNewModel } from "./newModel"
 import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
 import { assertIsModelClass } from "./utils"
 
-declare const baseDataSymbol: unique symbol
-declare const baseCreationDataSymbol: unique symbol
 declare const propsDataSymbol: unique symbol
 declare const optPropsDataSymbol: unique symbol
 declare const creationDataSymbol: unique symbol
+declare const composedCreationDataSymbol: unique symbol
 
-export interface _InheritedModel<TProps extends ModelProps, SuperModel extends AnyModel> {
-  [baseDataSymbol]: SuperModel extends BaseModel<infer D, any> ? D : unknown
-  [baseCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD> ? CD : unknown
-
-  [propsDataSymbol]: ModelPropsToData<TProps> & this[typeof baseDataSymbol]
+export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends ModelProps> {
+  [propsDataSymbol]: ModelPropsToData<TProps>
   [optPropsDataSymbol]: OptionalModelProps<TProps>
-  [creationDataSymbol]: O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]> &
-    this[typeof baseCreationDataSymbol]
+  [creationDataSymbol]: O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
 
-  new (data: this[typeof creationDataSymbol]): BaseModel<
-    this[typeof propsDataSymbol],
+  [composedCreationDataSymbol]: O.Merge<
+    SuperModel extends BaseModel<any, infer CD> ? CD : unknown,
     this[typeof creationDataSymbol]
-  > &
-    Omit<this[typeof propsDataSymbol], keyof AnyModel> &
-    SuperModel
+  >
+
+  new (data: this[typeof composedCreationDataSymbol]): SuperModel &
+    BaseModel<this[typeof propsDataSymbol], this[typeof creationDataSymbol]> &
+    Omit<this[typeof propsDataSymbol], keyof AnyModel>
 }
 
 export interface _Model<TProps extends ModelProps> {
@@ -47,24 +42,19 @@ export interface _Model<TProps extends ModelProps> {
 }
 
 /**
- * Base abstract class for models that extend another model.
+ * Base abstract class for models that extends another model.
  *
  * @typeparam TProps New model properties type.
- * @typeparam TBaseClass Base class type.
- * @typeparam TBaseProps Base model properties type.
+ * @typeparam TBaseModel Base class type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @returns
  */
-export function ExtendsModel<
-  TProps extends ModelProps,
-  TBaseClass extends AnyModel,
-  TBaseProps extends ModelProps
->(
-  baseModel: ModelClass<TBaseClass>,
+export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
+  baseModel: ModelClass<TBaseModel>,
   modelProps: TProps
-): _InheritedModel<TProps & TBaseProps, TBaseClass> {
-  return internalModel<TProps, TBaseClass, TBaseProps>(modelProps, baseModel)
+): _ExtendedModel<TBaseModel, TProps> {
+  return internalModel<TProps, TBaseModel>(modelProps, baseModel)
 }
 
 /**
@@ -79,25 +69,27 @@ export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TPr
   return internalModel(modelProps) as any
 }
 
-function internalModel<
-  TProps extends ModelProps,
-  TBaseClass extends AnyModel,
-  TBaseProps extends ModelProps
->(
+function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   modelProps: TProps,
-  baseModel?: ModelClass<TBaseClass>
-): _InheritedModel<TProps & TBaseProps, TBaseClass> {
+  baseModel?: ModelClass<TBaseModel>
+): _ExtendedModel<TBaseModel, TProps> {
+  assertIsObject(modelProps, "modelProps")
   if (baseModel) {
     assertIsModelClass(baseModel as any, "baseModel")
   }
-  assertIsObject(modelProps, "modelProps")
 
-  const composedModelProps: ModelProps = baseModel
-    ? {
-        ...(baseModel as any)[modelPropertiesSymbol],
-        ...modelProps,
+  const composedModelProps: ModelProps = modelProps
+  if (baseModel) {
+    const oldModelProps: ModelProps = (baseModel as any)[modelPropertiesSymbol]
+    for (const oldModelPropKey of Object.keys(oldModelProps)) {
+      if (modelProps[oldModelPropKey]) {
+        throw failure(
+          `extended model cannot redeclare base model property named '${oldModelPropKey}'`
+        )
       }
-    : modelProps
+      composedModelProps[oldModelPropKey] = oldModelProps[oldModelPropKey]
+    }
+  }
 
   // create type checker if needed
   let dataTypeChecker: LateTypeChecker | undefined
@@ -109,19 +101,6 @@ function internalModel<
       typeCheckerObj[k] = mp.typeChecker || typesUnchecked()
     }
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
-  }
-
-  const modelPropertiesDesc: PropertyDescriptor = {
-    enumerable: false,
-    writable: true,
-    configurable: true,
-    value: composedModelProps,
-  }
-  const modelDataTypeCheckerDesc: PropertyDescriptor = {
-    enumerable: false,
-    writable: true,
-    configurable: true,
-    value: dataTypeChecker,
   }
 
   const extraDescriptors: PropertyDescriptorMap = {}
@@ -143,58 +122,16 @@ function internalModel<
     }
   }
 
-  const addCustomBaseModelData = (cbm: any) => {
-    cbm[modelPropertiesSymbol] = composedModelProps
-    cbm[modelDataTypeCheckerSymbol] = dataTypeChecker
-  }
-
-  const initProps = (obj: any) => {
-    if (baseModel) {
-      // already defined, no need to redefine
-      obj[modelPropertiesSymbol] = modelPropertiesDesc
-      obj[modelDataTypeCheckerSymbol] = dataTypeChecker
-    } else {
-      Object.defineProperty(obj, modelPropertiesSymbol, modelPropertiesDesc)
-      Object.defineProperty(obj, modelDataTypeCheckerSymbol, modelDataTypeCheckerDesc)
-    }
-
-    Object.defineProperties(obj, extraDescriptors)
-  }
-
-  const initData = (obj: any, initialData: any, snapshotInitialData: any) => {
-    const clazz: ModelClass<AnyModel> = obj.constructor as any
-
-    if (!snapshotInitialData) {
-      assertIsObject(initialData, "initialData")
-
-      internalNewModel(
-        obj,
-        clazz,
-        observable.object(initialData, undefined, { deep: false }),
-        undefined
-      )
-    } else {
-      internalNewModel(obj, clazz, undefined, snapshotInitialData)
-    }
-  }
-
   const base: any = baseModel || BaseModel
-  class CustomBaseModel extends base {
-    constructor(initialData: any, snapshotInitialData: any, isBase?: boolean) {
-      if (baseModel) {
-        super(initialData, snapshotInitialData, true)
-      } else {
-        super(modelConstructorSymbol)
-      }
+  class CustomBaseModel extends base {}
 
-      initProps(this)
-      console.log("isBase", isBase, this.constructor)
-      if (!isBase) {
-        initData(this, initialData, snapshotInitialData)
-      }
-    }
-  }
-  addCustomBaseModelData(CustomBaseModel)
+  ;(CustomBaseModel as any)[modelPropertiesSymbol] = composedModelProps
+  ;(CustomBaseModel as any)[modelDataTypeCheckerSymbol] = dataTypeChecker
+
+  const obj = CustomBaseModel.prototype
+  addHiddenProp(obj, modelPropertiesSymbol, composedModelProps, true)
+  addHiddenProp(obj, modelDataTypeCheckerSymbol, dataTypeChecker, true)
+  Object.defineProperties(obj, extraDescriptors)
 
   return CustomBaseModel as any
 }
