@@ -196,3 +196,40 @@ type StringMyModel = InstanceType<typeof StringMyModel>
 const stringMyModelInstance = new StringMyModel({}) // this will be of type StringMyModel
 stringMyModelInstance.setXY("50", "60")
 ```
+
+## Inheritance
+
+Model inheritance is possible with a few gotchas.
+
+The first thing to bear in mind is that only the last model in the inheritance chain must be decorated with `@model`, and the second is that models that extend from other models must use `ExtendsModel` rather than the plain `Model`. For example:
+
+```ts
+// no model decorator here!
+class BasePoint extends Model({
+  x: prop<number>(),
+  y: prop<number>(),
+}) {
+  get sum() {
+    return this.x + this.y
+  }
+}
+
+// note how ExtendsModel is used
+@model("MyApp/Point3d")
+class Point3d extends ExtendsModel(BasePoint, {
+  z: prop<number>(),
+}) {
+  get sum() {
+    return super.sum + this.z
+  }
+}
+```
+
+If you want to also make the BasePoint a proper usable model you can use this trick:
+
+```ts
+@model("MyApp/Point")
+class Point extends ExtendsModel(BasePoint, {}) {}
+```
+
+Also remember that if both your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` on them.

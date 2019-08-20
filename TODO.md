@@ -17,5 +17,3 @@
 - (4) easier / premade custom refs?
 
 - (4) check out mst api for missing features
-
-- (3) does subclassing work? apparently it does with small gotchas
