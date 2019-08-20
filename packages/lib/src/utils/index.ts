@@ -26,16 +26,28 @@ export function failure(msg: string) {
   return new MobxDataModelError(msg)
 }
 
+const writableHiddenPropDescriptor: PropertyDescriptor = {
+  enumerable: false,
+  writable: true,
+  configurable: false,
+  value: undefined,
+}
+
 /**
  * @ignore
  */
 export function addHiddenProp(object: any, propName: PropertyKey, value: any, writable = true) {
-  Object.defineProperty(object, propName, {
-    enumerable: false,
-    writable,
-    configurable: true,
-    value,
-  })
+  if (writable) {
+    Object.defineProperty(object, propName, writableHiddenPropDescriptor)
+    object[propName] = value
+  } else {
+    Object.defineProperty(object, propName, {
+      enumerable: false,
+      writable,
+      configurable: true,
+      value,
+    })
+  }
 }
 
 /**
