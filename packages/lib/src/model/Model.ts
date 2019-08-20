@@ -3,7 +3,7 @@ import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { assertIsObject } from "../utils"
+import { addHiddenProp, assertIsObject } from "../utils"
 import { AnyModel, BaseModel, baseModelPropNames } from "./BaseModel"
 import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
@@ -22,13 +22,6 @@ export interface _Model<TProps extends ModelProps> {
     this[typeof creationDataSymbol]
   > &
     Omit<this[typeof propsDataSymbol], keyof AnyModel>
-}
-
-const hiddenPropertyDescriptor: PropertyDescriptor = {
-  enumerable: false,
-  writable: true,
-  configurable: true,
-  value: undefined,
 }
 
 /**
@@ -77,11 +70,8 @@ export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TPr
 
   // proxy returned object so data can be accessed through this
   const classProto: any = CustomBaseModel.prototype
-  Object.defineProperty(classProto, modelPropertiesSymbol, hiddenPropertyDescriptor)
-  classProto[modelPropertiesSymbol] = modelProps
-
-  Object.defineProperty(classProto, modelDataTypeCheckerSymbol, hiddenPropertyDescriptor)
-  classProto[modelDataTypeCheckerSymbol] = dataTypeChecker
+  addHiddenProp(classProto, modelPropertiesSymbol, modelProps, true)
+  addHiddenProp(classProto, modelDataTypeCheckerSymbol, dataTypeChecker, true)
 
   Object.defineProperties(classProto, extraDescriptors)
 
