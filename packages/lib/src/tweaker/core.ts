@@ -11,25 +11,25 @@ export const tweakedObjects = new WeakSet<Object>()
 /**
  * @ignore
  */
-export function isTweakedObject(value: any): value is Object {
-  return !isPrimitive(value) && tweakedObjects.has(value)
+export function isTweakedObject(value: object): boolean {
+  return tweakedObjects.has(value)
 }
 
 /**
  * Checks if a given object is now a tree node.
  *
  * @param value Value to check.
- * @returns ture if it is a tree node, false otherwise.
+ * @returns true if it is a tree node, false otherwise.
  */
 export function isTreeNode(value: object): boolean {
-  return isTweakedObject(value)
+  return !isPrimitive(value) && isTweakedObject(value)
 }
 
 /**
  * @ignore
  */
 export function assertTweakedObject(treeNode: any, argName: string): treeNode is Object {
-  if (!isTweakedObject(treeNode)) {
+  if (!isTreeNode(treeNode)) {
     throw failure(
       `${argName} must be a tree node (usually a model or a shallow / deep child part of a model 'data' object)`
     )

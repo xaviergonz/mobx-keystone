@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "name": "benchmark",
+  "version": "0.0.0",
+  "description": "Benchmark for mobx-keystone",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "shx rm -rf dist && tsc -p .",
+    "bench": "yarn build && cross-env NODE_ENV=production node dist/index.js"
+  },
+  "dependencies": {
+    "benchmark": "^2.1.4",
+    "chalk": "^2.4.2",
+    "mobx": "^5.10.1",
+    "mobx-state-tree": "^3.14.1"
+  },
+  "devDependencies": {
+    "@types/benchmark": "^1.0.31",
+    "cross-env": "^5.2.0",
+    "shx": "^0.3.2",
+    "typescript": "^3.5.3"
+  }
+}

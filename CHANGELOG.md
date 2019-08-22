@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.12.1
+
+- Slight performance improvements. Basic benchmarks.
+
 ## 0.12.0
 
 - Added `ExtendsModel` and a doc section about subclassing.

@@ -1,4 +1,3 @@
-import { get, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
@@ -114,10 +113,12 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
       enumerable: false,
       configurable: true,
       get(this: AnyModel) {
-        return get(this.$, modelPropName)
+        // no need to use get since these vars always get on the initial $
+        return this.$[modelPropName]
       },
       set(this: AnyModel, v?: any) {
-        set(this.$, modelPropName, v)
+        // no need to use set since these vars always get on the initial $
+        this.$[modelPropName] = v
       },
     }
   }

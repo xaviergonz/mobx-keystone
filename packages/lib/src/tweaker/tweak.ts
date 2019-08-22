@@ -1,9 +1,9 @@
-import { action, isObservableArray, isObservableObject } from "mobx"
+import { action, isObservableObject } from "mobx"
 import { Frozen } from "../frozen/Frozen"
-import { getModelInfoForObject } from "../model/modelInfo"
+import { isModel } from "../model/utils"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
-import { failure, isMap, isObject, isPlainObject, isPrimitive, isSet } from "../utils"
+import { failure, isArray, isMap, isObject, isPlainObject, isPrimitive, isSet } from "../utils"
 import { isTreeNode, isTweakedObject } from "./core"
 import { tweakArray } from "./tweakArray"
 import { tweakFrozen } from "./tweakFrozen"
@@ -37,27 +37,26 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
     return value
   }
 
-  if (isTweakedObject(value)) {
+  if (isTweakedObject(value as any)) {
     setParent(value, parentPath)
     return value
   }
 
-  if ((value as any) instanceof Frozen) {
-    return tweakFrozen(value, parentPath)
-  }
-
-  const modelInfo = getModelInfoForObject(value)
-  if (modelInfo) {
+  if (isModel(value)) {
     return tweakModel(value, parentPath)
   }
 
-  if (Array.isArray(value) || isObservableArray(value)) {
+  if (isArray(value)) {
     return tweakArray(value, parentPath, false)
   }
 
   // plain object
   if (isObservableObject(value) || isPlainObject(value)) {
     return tweakPlainObject(value, parentPath, undefined, false)
+  }
+
+  if ((value as any) instanceof Frozen) {
+    return tweakFrozen(value, parentPath)
   }
 
   // unsupported

@@ -87,14 +87,14 @@ export function isObject(value: any): value is Object {
  */
 export function isPrimitive(value: any): value is number | string | boolean | undefined | null {
   switch (typeof value) {
-    case "object":
-      return value === null
-    case "function":
-    case "symbol":
-      return false
-    default:
+    case "number":
+    case "string":
+    case "boolean":
+    case "undefined":
+    case "bigint":
       return true
   }
+  return value === null
 }
 
 /**

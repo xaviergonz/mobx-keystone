@@ -1,5 +1,5 @@
 import { getParent } from "../parent/path"
-import { isTweakedObject } from "../tweaker/core"
+import { isTreeNode } from "../tweaker/core"
 import { failure } from "../utils"
 import { TypeCheckError } from "./TypeCheckError"
 
@@ -74,7 +74,7 @@ export class TypeChecker {
       return null
     }
 
-    if (!isTweakedObject(value)) {
+    if (!isTreeNode(value)) {
       return this._check!(value, path)
     }
 
