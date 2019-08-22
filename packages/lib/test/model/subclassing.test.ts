@@ -8,6 +8,7 @@ import {
   model,
   Model,
   modelAction,
+  prop,
   tProp,
   types,
 } from "../../src"
@@ -266,4 +267,37 @@ test("three level subclassing", () => {
   expect(() => {
     p2.setB("10" as any)
   }).toThrow("TypeCheckError: [$/b] Expected: number")
+})
+
+test("abstract-ish model classes", () => {
+  function createA<P>() {
+    class A extends Model({
+      value: prop<P>(),
+    }) {
+      public validate?(_value: P): string | undefined
+
+      @computed
+      public get error(): string | undefined {
+        return this.validate!(this.value)
+      }
+    }
+
+    return A
+  }
+
+  const StringA = createA<string>()
+
+  @model("B")
+  class B extends ExtendedModel(StringA, {}) {
+    public validate(value: string): string | undefined {
+      return value.length < 3 ? "too short" : undefined
+    }
+  }
+
+  const b = new B({ value: "hi" })
+  expect(b.value).toBe("hi")
+  expect(b.validate("ho")).toBe("too short")
+  expect(b.validate("long")).toBe(undefined)
+  expect(b.error).toBe("too short")
+  expect(b instanceof StringA).toBe(true)
 })
