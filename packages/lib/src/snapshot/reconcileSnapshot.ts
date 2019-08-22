@@ -21,14 +21,6 @@ export function reconcileSnapshot(value: any, sn: any): any {
     return sn
   }
 
-  if (isMap(sn)) {
-    throw failure("a snapshot might not contain maps")
-  }
-
-  if (isSet(sn)) {
-    throw failure("a snapshot might not contain sets")
-  }
-
   if (isArray(sn)) {
     return reconcileArraySnapshot(value, sn)
   }
@@ -43,6 +35,14 @@ export function reconcileSnapshot(value: any, sn: any): any {
 
   if (isPlainObject(sn)) {
     return reconcilePlainObjectSnapshot(value, sn)
+  }
+
+  if (isMap(sn)) {
+    throw failure("a snapshot might not contain maps")
+  }
+
+  if (isSet(sn)) {
+    throw failure("a snapshot might not contain sets")
   }
 
   throw failure(`unsupported snapshot - ${sn}`)

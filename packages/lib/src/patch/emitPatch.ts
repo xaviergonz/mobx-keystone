@@ -12,10 +12,6 @@ export class InternalPatchRecorder {
   patches!: Patch[]
   invPatches!: Patch[]
 
-  constructor() {
-    this.record = this.record.bind(this)
-  }
-
   record(patches: Patch[], invPatches: Patch[]) {
     this.patches = patches
     this.invPatches = invPatches

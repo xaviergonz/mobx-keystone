@@ -4,7 +4,7 @@ import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { failure, makePropReadonly } from "../utils"
+import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelTypeKey } from "./metadata"
@@ -29,7 +29,9 @@ export const internalNewModel = action(
         }
       | undefined
   ): M => {
-    assertIsModelClass(modelClass, "modelClass")
+    if (inDevMode()) {
+      assertIsModelClass(modelClass, "modelClass")
+    }
 
     const modelObj = origModelObj as O.Writable<M>
 
@@ -83,7 +85,9 @@ export const internalNewModel = action(
 
     // link it, and make it readonly
     modelObj.$ = obsData
-    makePropReadonly(modelObj, "$", true)
+    if (inDevMode()) {
+      makePropReadonly(modelObj, "$", true)
+    }
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled() && getModelDataType(modelClass)) {
@@ -96,7 +100,11 @@ export const internalNewModel = action(
     // run any extra initializers for the class as needed
     const initializers = getModelClassInitializers(modelClass)
     if (initializers) {
-      initializers.forEach(init => init(modelObj))
+      const len = initializers.length
+      for (let i = 0; i < len; i++) {
+        const init = initializers[i]
+        init(modelObj)
+      }
     }
 
     return modelObj

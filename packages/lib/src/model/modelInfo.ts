@@ -30,8 +30,9 @@ export function getModelInfoForName(name: string): ModelInfo | undefined {
  * @ignore
  */
 export function getModelInfoForObject(obj: { [modelTypeKey]: string }): ModelInfo | undefined {
-  if (!isObject(obj) || !obj[modelTypeKey]) {
+  if (!isObject(obj)) {
     return undefined
   }
-  return getModelInfoForName(obj[modelTypeKey])
+  const modelType = obj[modelTypeKey]
+  return modelType ? getModelInfoForName(obj[modelTypeKey]) : undefined
 }

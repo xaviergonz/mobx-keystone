@@ -14,7 +14,8 @@
   },
   "workspaces": [
     "packages/lib",
-    "packages/site"
+    "packages/site",
+    "packages/benchmark"
   ],
   "devDependencies": {
     "coveralls": "^3.0.4",
