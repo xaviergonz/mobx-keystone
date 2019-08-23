@@ -14378,9 +14378,9 @@ ts-node@^8.3.0:
     yn "^3.0.0"
 
 ts-toolbelt@^3.2.14:
-  version "3.8.3"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.8.3.tgz#7f87689f0432932e9d8936582d78d1ba90a9b2d9"
-  integrity sha512-/MnLA9Pr7ppDIxMf8sGSbNoiQDORQtzdcma8IsepArmikqZbu7CiwP+aAYaZnVXjOxLAleIEyxe20LJx0WgcCw==
+  version "3.8.4"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.8.4.tgz#ada10a013693e5493b7febb72cbc7f29481ab3e3"
+  integrity sha512-JdM3qMor3jrJqtTDiOktBUsMG8GVwrN3NJA/cXlFWW7pcxwDRk0IATF5Co1hSykCphmVZ/aUWBdmhZvxgwBXhw==
 
 tsdx@^0.8.0:
   version "0.8.0"
