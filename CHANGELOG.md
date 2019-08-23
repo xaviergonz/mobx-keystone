@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.12.2
+
+- Revert dep update that broke some types.
+
 ## 0.12.1
 
 - Slight performance improvements. Basic benchmarks.
