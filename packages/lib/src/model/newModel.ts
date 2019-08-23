@@ -33,7 +33,7 @@ export const internalNewModel = action(
       assertIsModelClass(modelClass, "modelClass")
     }
 
-    const modelObj = origModelObj as O.Writable<AnyModel>
+    const modelObj = origModelObj as O.Writable<M>
 
     const modelInfo = modelInfoByClass.get(modelClass)
     if (!modelInfo) {
@@ -107,7 +107,7 @@ export const internalNewModel = action(
       }
     }
 
-    return modelObj as M
+    return modelObj
   }
 )
 
