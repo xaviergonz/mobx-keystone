@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.12.3
+
+- Updated dep with proper fixed version.
+
 ## 0.12.2
 
 - Revert dep update that broke some types.
