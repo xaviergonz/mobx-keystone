@@ -51,7 +51,7 @@
     "typescript": "^3.5.1"
   },
   "dependencies": {
-    "ts-toolbelt": "3.8.3"
+    "ts-toolbelt": "^3.8.3"
   },
   "directories": {
     "test": "test"
