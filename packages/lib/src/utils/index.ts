@@ -10,12 +10,12 @@ import {
 /**
  * A mobx-keystone error.
  */
-export class MobxDataModelError extends Error {
+export class MobxKeystoneError extends Error {
   constructor(msg: string) {
     super(msg)
 
     // Set the prototype explicitly.
-    Object.setPrototypeOf(this, MobxDataModelError.prototype)
+    Object.setPrototypeOf(this, MobxKeystoneError.prototype)
   }
 }
 
@@ -23,7 +23,7 @@ export class MobxDataModelError extends Error {
  * @ignore
  */
 export function failure(msg: string) {
-  return new MobxDataModelError(msg)
+  return new MobxKeystoneError(msg)
 }
 
 const writableHiddenPropDescriptor: PropertyDescriptor = {
