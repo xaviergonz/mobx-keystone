@@ -50,10 +50,10 @@ export interface _Model<TProps extends ModelProps> {
  * @returns
  */
 export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
-  baseModel: ModelClass<TBaseModel>,
+  baseModel: Function & { prototype: TBaseModel },
   modelProps: TProps
 ): _ExtendedModel<TBaseModel, TProps> {
-  return internalModel<TProps, TBaseModel>(modelProps, baseModel)
+  return internalModel<TProps, TBaseModel>(modelProps, baseModel as ModelClass<TBaseModel>)
 }
 
 /**

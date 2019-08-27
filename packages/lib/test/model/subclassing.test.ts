@@ -301,3 +301,34 @@ test("abstract-ish model classes", () => {
   expect(b.error).toBe("too short")
   expect(b instanceof StringA).toBe(true)
 })
+
+test("abstract model classes", () => {
+  abstract class A<P> extends Model({}) {
+    public abstract value: P
+
+    public abstract validate(_value: P): string | undefined
+
+    @computed
+    public get error(): string | undefined {
+      return this.validate(this.value)
+    }
+  }
+
+  abstract class StringA extends A<string> {}
+
+  @model("B")
+  class B extends ExtendedModel(StringA, {
+    value: prop<string>(),
+  }) {
+    public validate(value: string): string | undefined {
+      return value.length < 3 ? "too short" : undefined
+    }
+  }
+
+  const b = new B({ value: "hi" })
+  expect(b.value).toBe("hi")
+  expect(b.validate("ho")).toBe("too short")
+  expect(b.validate("long")).toBe(undefined)
+  expect(b.error).toBe("too short")
+  expect(b instanceof StringA).toBe(true)
+})
