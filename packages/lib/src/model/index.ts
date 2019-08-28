@@ -1,4 +1,5 @@
 export {
+  AbstractModelClass,
   AnyModel,
   BaseModel,
   ModelClass,
