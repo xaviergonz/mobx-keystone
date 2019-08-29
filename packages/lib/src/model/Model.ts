@@ -3,7 +3,13 @@ import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { addHiddenProp, assertIsObject, failure } from "../utils"
-import { AnyModel, BaseModel, baseModelPropNames, ModelClass } from "./BaseModel"
+import {
+  AbstractModelClass,
+  AnyModel,
+  BaseModel,
+  baseModelPropNames,
+  ModelClass,
+} from "./BaseModel"
 import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
 import { assertIsModelClass } from "./utils"
@@ -51,6 +57,34 @@ export interface _Model<TProps extends ModelProps> {
  */
 export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   baseModel: ModelClass<TBaseModel>,
+  modelProps: TProps
+): _ExtendedModel<TBaseModel, TProps>
+
+/**
+ * Base abstract class for models that extends another model.
+ *
+ * @typeparam TProps New model properties type.
+ * @typeparam TBaseModel Base class type.
+ * @param baseModel Base model type.
+ * @param modelProps Model properties.
+ * @returns
+ */
+export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
+  baseModel: AbstractModelClass<TBaseModel>,
+  modelProps: TProps
+): _ExtendedModel<TBaseModel, TProps>
+
+/**
+ * Base abstract class for models that extends another model.
+ *
+ * @typeparam TProps New model properties type.
+ * @typeparam TBaseModel Base class type.
+ * @param baseModel Base model type.
+ * @param modelProps Model properties.
+ * @returns
+ */
+export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
+  baseModel: any,
   modelProps: TProps
 ): _ExtendedModel<TBaseModel, TProps> {
   return internalModel<TProps, TBaseModel>(modelProps, baseModel)
