@@ -1,8 +1,12 @@
 # Change Log
 
+## 0.13.0
+
+- Improved support for abstract base models.
+
 ## 0.12.4
 
-- Renamed error class to MobxKeystoneError from MobxDataModelError
+- Renamed error class to MobxKeystoneError from MobxDataModelError.
 
 ## 0.12.3
 
