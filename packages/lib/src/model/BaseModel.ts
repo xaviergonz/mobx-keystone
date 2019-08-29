@@ -10,7 +10,8 @@ import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
 
-declare const typeSymbol: unique symbol
+declare const dataTypeSymbol: unique symbol
+declare const creationDataTypeSymbol: unique symbol
 
 /**
  * Base abstract class for models. Use `Model` instead when extending.
@@ -25,7 +26,8 @@ export abstract class BaseModel<
   CreationData extends { [k: string]: any }
 > {
   // just to make typing work properly
-  [typeSymbol]: [Data, CreationData];
+  [dataTypeSymbol]: Data;
+  [creationDataTypeSymbol]: CreationData;
 
   /**
    * Model type name.
@@ -117,9 +119,14 @@ export const baseModelPropNames = new Set<keyof AnyModel>([
 export type AnyModel = BaseModel<any, any>
 
 /**
- * Type of the model class.
+ * Type of a model class.
  */
 export type ModelClass<M extends AnyModel> = new (initialData: ModelCreationData<M>) => M
+
+/**
+ * Type of an abstract model class.
+ */
+export type AbstractModelClass<T extends AnyModel> = Function & { prototype: T }
 
 /**
  * The data type of a model.

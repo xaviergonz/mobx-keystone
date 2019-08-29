@@ -269,7 +269,7 @@ test("three level subclassing", () => {
   }).toThrow("TypeCheckError: [$/b] Expected: number")
 })
 
-test("abstract-ish model classes", () => {
+test("abstract-ish model classes with factory", () => {
   function createA<P>() {
     class A extends Model({
       value: prop<P>(),
@@ -287,7 +287,7 @@ test("abstract-ish model classes", () => {
 
   const StringA = createA<string>()
 
-  @model("B")
+  @model("B-abstractish-factory")
   class B extends ExtendedModel(StringA, {}) {
     public validate(value: string): string | undefined {
       return value.length < 3 ? "too short" : undefined
@@ -295,9 +295,155 @@ test("abstract-ish model classes", () => {
   }
 
   const b = new B({ value: "hi" })
+
   expect(b.value).toBe("hi")
+  assert(b.value, _ as string)
+
   expect(b.validate("ho")).toBe("too short")
   expect(b.validate("long")).toBe(undefined)
+  assert(b.validate, _ as (value: string) => string | undefined)
+
   expect(b.error).toBe("too short")
+  assert(b.error, _ as string | undefined)
+
   expect(b instanceof StringA).toBe(true)
+  assert(b, _ as B)
+})
+
+test("abstract-ish model classes without factory", () => {
+  class A<P> extends Model({
+    anotherValue: prop<number>(10),
+  }) {
+    public value!: P
+
+    public validate?(_value: P): string | undefined
+
+    @computed
+    public get error(): string | undefined {
+      return this.validate!(this.value)
+    }
+  }
+
+  abstract class StringA extends A<string> {}
+
+  @model("B-abstractish")
+  class B extends ExtendedModel(StringA, {
+    value: prop<string>(),
+  }) {
+    public validate(value: string): string | undefined {
+      return value.length < 3 ? "too short" : undefined
+    }
+  }
+
+  const b = new B({ value: "hi", anotherValue: 4 })
+
+  expect(b.value).toBe("hi")
+  assert(b.value, _ as string)
+
+  expect(b.anotherValue).toBe(4)
+  assert(b.anotherValue, _ as number)
+
+  expect(b.validate("ho")).toBe("too short")
+
+  expect(b.validate("long")).toBe(undefined)
+  assert(b.validate, _ as (value: string) => string | undefined)
+
+  expect(b.error).toBe("too short")
+  assert(b.error, _ as string | undefined)
+
+  expect(b instanceof StringA).toBe(true)
+  assert(b, _ as B)
+})
+
+test("abstract model classes with factory", () => {
+  function createA<P>() {
+    abstract class A extends Model({
+      anotherValue: prop<number>(10),
+      value: prop<P>(),
+    }) {
+      public abstract validate(_value: P): string | undefined
+
+      @computed
+      public get error(): string | undefined {
+        return this.validate!(this.value)
+      }
+    }
+
+    // we need this weird trick to make value get the right type in this case
+    return A as typeof A & {
+      new (): A
+    }
+  }
+
+  const StringA = createA<string>()
+
+  @model("B-abstract-factory")
+  class B extends ExtendedModel(StringA, {}) {
+    public validate(value: string): string | undefined {
+      return value.length < 3 ? "too short" : undefined
+    }
+  }
+
+  const b = new B({ value: "hi", anotherValue: 4 })
+
+  expect(b.value).toBe("hi")
+  assert(b.value, _ as string)
+
+  expect(b.anotherValue).toBe(4)
+  assert(b.anotherValue, _ as number)
+
+  expect(b.validate("ho")).toBe("too short")
+  expect(b.validate("long")).toBe(undefined)
+  assert(b.validate, _ as (value: string) => string | undefined)
+
+  expect(b.error).toBe("too short")
+  assert(b.error, _ as string | undefined)
+
+  expect(b instanceof StringA).toBe(true)
+  assert(b, _ as B)
+})
+
+test("abstract model classes without factory", () => {
+  abstract class A<P> extends Model({
+    anotherValue: prop<number>(10),
+  }) {
+    public abstract value: P
+
+    public abstract validate(_value: P): string | undefined
+
+    @computed
+    public get error(): string | undefined {
+      return this.validate(this.value)
+    }
+  }
+
+  abstract class StringA extends A<string> {}
+
+  @model("B-abstract")
+  class B extends ExtendedModel(StringA, {
+    value: prop<string>(),
+  }) {
+    public validate(value: string): string | undefined {
+      return value.length < 3 ? "too short" : undefined
+    }
+  }
+
+  const b = new B({ value: "hi", anotherValue: 4 })
+
+  expect(b.value).toBe("hi")
+  assert(b.value, _ as string)
+
+  expect(b.anotherValue).toBe(4)
+  assert(b.anotherValue, _ as number)
+
+  expect(b.validate("ho")).toBe("too short")
+
+  expect(b.validate("long")).toBe(undefined)
+  assert(b.validate, _ as (value: string) => string | undefined)
+
+  expect(b.error).toBe("too short")
+  assert(b.error, _ as string | undefined)
+
+  expect(b instanceof StringA).toBe(true)
+  assert(b, _ as B)
 })
