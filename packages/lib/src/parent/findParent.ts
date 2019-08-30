@@ -1,5 +1,5 @@
 import { assertTweakedObject } from "../tweaker/core"
-import { getParentPath } from "./path"
+import { fastGetParentPath, ParentPath } from "./path"
 
 /**
  * Iterates through all the parents (from the nearest until the root)
@@ -23,8 +23,8 @@ export function findParent<T extends object = any>(
   let current: any = child
   let depth = 0
 
-  let parentPath
-  while ((parentPath = getParentPath(current))) {
+  let parentPath: ParentPath<any> | undefined
+  while ((parentPath = fastGetParentPath(current))) {
     depth++
     current = parentPath.parent
     if (predicate(current)) {

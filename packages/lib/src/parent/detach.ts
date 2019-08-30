@@ -4,7 +4,7 @@ import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
-import { getParentPath } from "./path"
+import { fastGetParentPath } from "./path"
 
 /**
  * Detaches a given object from a tree.
@@ -29,7 +29,7 @@ const wrappedInternalDetach = wrapInAction(
 function internalDetach(this: object): void {
   const node = this
 
-  const parentPath = getParentPath(node)
+  const parentPath = fastGetParentPath(node)
   if (!parentPath) return
 
   const { parent, path } = parentPath

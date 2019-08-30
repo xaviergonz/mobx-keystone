@@ -1,6 +1,6 @@
 import { action, isAction } from "mobx"
 import { BaseModel } from "../model/BaseModel"
-import { getParentPath } from "../parent/path"
+import { fastGetParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray } from "../utils"
 import { Patch } from "./Patch"
@@ -119,7 +119,7 @@ function emitPatch(
   }
 
   // and also emit subtree listeners all the way to the root
-  const parentPath = getParentPath(obj)
+  const parentPath = fastGetParentPath(obj)
   if (parentPath) {
     // tweak patches so they include the child path
     const childPath = parentPath.path

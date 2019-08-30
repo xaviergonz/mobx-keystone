@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.14.0
+
+- Added `getParentToChildPath`, `getChildrenObjects` and `onChildAttachedTo`, and some performance improvements.
+
 ## 0.13.0
 
 - Improved support for abstract base models.

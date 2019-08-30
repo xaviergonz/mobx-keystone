@@ -4,7 +4,7 @@ import { ParentPath } from "./path"
 /**
  * @ignore
  */
-export const objectParents = new WeakMap<object, ParentPath<any> | undefined>()
+export const objectParents = new WeakMap<object, ParentPath<object> | undefined>()
 
 /**
  * @ignore
@@ -14,7 +14,7 @@ export const objectParentsAtoms = new WeakMap<object, IAtom>()
 /**
  * @ignore
  */
-export const objectChildren = new WeakMap<object, ObservableSet<any>>()
+export const objectChildren = new WeakMap<object, ObservableSet<object>>()
 
 /**
  * @ignore

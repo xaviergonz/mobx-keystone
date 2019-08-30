@@ -1,5 +1,5 @@
 import { action, createAtom, IAtom, untracked } from "mobx"
-import { getParentPath, ParentPath } from "../parent/path"
+import { fastGetParentPath, ParentPath } from "../parent/path"
 import { debugFreeze } from "../utils"
 import { SnapshotOutOf } from "./SnapshotOf"
 
@@ -35,7 +35,7 @@ function getInternalSnapshotParent(
 
     if (sn === parentSn) {
       // linked snapshot, skip
-      return getInternalSnapshotParent(parentSn, getParentPath(parentPath.parent))
+      return getInternalSnapshotParent(parentSn, fastGetParentPath(parentPath.parent))
     }
 
     return sn
@@ -78,7 +78,7 @@ export const setInternalSnapshot = action(
     sn.atom.reportChanged()
 
     // also update parent(s) snapshot(s) if needed
-    const parent = getInternalSnapshotParent(oldSn, getParentPath(value))
+    const parent = getInternalSnapshotParent(oldSn, fastGetParentPath(value))
     if (parent) {
       const { parentSnapshot, parentPath } = parent
       // might be false in the cases where the parent has not yet been created

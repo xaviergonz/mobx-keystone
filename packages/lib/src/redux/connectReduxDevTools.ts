@@ -4,7 +4,7 @@ import {
   ActionTrackingResult,
   SimpleActionContext,
 } from "../actionMiddlewares"
-import { getRootPath, RootPath } from "../parent"
+import { fastGetRootPath, RootPath } from "../parent/path"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { getSnapshot } from "../snapshot/getSnapshot"
 
@@ -108,7 +108,7 @@ export function connectReduxDevTools(
     }
     lastLoggedSnapshot = sn
 
-    const rootPath = getRootPath(ctx.target)
+    const rootPath = fastGetRootPath(ctx.target)
     const name = getActionContextNameAndTypePath(ctx, rootPath, result)
 
     const copy = {
@@ -161,7 +161,7 @@ export function connectReduxDevTools(
     if (ctx.parentContext) {
       const parentName = getActionContextNameAndTypePath(
         ctx.parentContext,
-        getRootPath(ctx.parentContext.target),
+        fastGetRootPath(ctx.parentContext.target),
         undefined
       )
       if (parentName) {

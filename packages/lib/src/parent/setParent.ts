@@ -5,7 +5,9 @@ import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isPrimitive } from "../utils"
 import { objectChildren, objectParents, parentPathEquals, reportParentPathChanged } from "./core"
-import { getParentPath, getRoot, ParentPath } from "./path"
+import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
+
+const defaultObservableSetOptions = { deep: false }
 
 /**
  * @ignore
@@ -36,10 +38,10 @@ export const setParent = action(
     }
 
     if (!objectChildren.has(value)) {
-      objectChildren.set(value, observable.set())
+      objectChildren.set(value, observable.set([], defaultObservableSetOptions))
     }
 
-    const oldParentPath = getParentPath(value)
+    const oldParentPath = fastGetParentPath(value)
     if (parentPathEquals(oldParentPath, parentPath)) {
       return
     }
@@ -72,15 +74,16 @@ export const setParent = action(
         children.add(value)
       }
       objectParents.set(value, parentPath)
+      reportParentPathChanged(value)
     }
 
     if (value instanceof BaseModel) {
-      const oldRoot = getRoot(value)
+      const oldRoot = fastGetRoot(value)
       const oldRootStore = isRootStore(oldRoot) ? oldRoot : undefined
       removeFromOldParent()
 
       attachToNewParent()
-      const newRoot = getRoot(value)
+      const newRoot = fastGetRoot(value)
       const newRootStore = isRootStore(newRoot) ? newRoot : undefined
 
       // invoke model root store events
@@ -96,7 +99,5 @@ export const setParent = action(
       removeFromOldParent()
       attachToNewParent()
     }
-
-    reportParentPathChanged(value)
   }
 )
