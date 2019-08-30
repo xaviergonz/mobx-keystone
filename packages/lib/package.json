@@ -22,8 +22,7 @@
   "license": "MIT",
   "author": "Javier González Garcés",
   "main": "dist/index.js",
-  "umd:main": "dist/mobx-keystone.umd.production.js",
-  "module": "dist/mobx-keystone.es.production.js",
+  "module": "dist/mobx-keystone.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
