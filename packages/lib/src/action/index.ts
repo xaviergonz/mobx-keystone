@@ -13,9 +13,9 @@ export {
   castModelFlow,
   castYield,
   FlowFunction,
+  FlowFunctionAsPromiseFunction,
   isModelFlow,
   modelFlow,
-  ModelFlow,
   PromiseFunction,
 } from "./modelFlow"
 export { runUnprotected } from "./protection"

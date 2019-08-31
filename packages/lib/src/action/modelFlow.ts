@@ -214,15 +214,22 @@ function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
   checkModelDecoratorArgs("modelFlow", target, propertyKey)
 }
 
+/**
+ * A flow function, this is, a function that returns a generator (a generator function).
+ */
 export type FlowFunction<A extends any[], R> = (...args: A) => Generator<any, R, any>
+
+/**
+ * A function that returns a promise.
+ */
 export type PromiseFunction<A extends any[], R> = (...args: A) => Promise<R>
 
-export type ModelFlow<FN extends FlowFunction<any[], any>> = FN extends FlowFunction<
-  infer A,
-  infer R
->
-  ? (...args: A) => Promise<R>
-  : never
+/**
+ * Transforms a flow function into a promise function.
+ */
+export type FlowFunctionAsPromiseFunction<
+  FN extends FlowFunction<any[], any>
+> = FN extends FlowFunction<infer A, infer R> ? (...args: A) => Promise<R> : never
 
 /**
  * Tricks the TS compiler into thinking a model flow generator function is a function that
@@ -239,7 +246,9 @@ export type ModelFlow<FN extends FlowFunction<any[], any>> = FN extends FlowFunc
  * @param fn Generator function.
  * @returns
  */
-export function castModelFlow<FN extends FlowFunction<any[], any>>(fn: FN): ModelFlow<FN> {
+export function castModelFlow<FN extends FlowFunction<any[], any>>(
+  fn: FN
+): FlowFunctionAsPromiseFunction<FN> {
   return fn as any
 }
 
