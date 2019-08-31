@@ -71,14 +71,19 @@ export function onChildAttachedTo(
       const disposersToRun: object[] = []
 
       // find dead
-      currentChildren.forEach((n: object) => {
+      const currentChildrenIter = currentChildren.values()
+      let currentChildrenCur = currentChildrenIter.next()
+      while (!currentChildrenCur.done) {
+        const n = currentChildrenCur.value
         if (!newChildren.has(n)) {
           currentChildren.delete(n)
 
           // we should run it in inverse order
           disposersToRun.push(n)
         }
-      })
+
+        currentChildrenCur = currentChildrenIter.next()
+      }
 
       if (disposersToRun.length > 0) {
         for (let i = disposersToRun.length - 1; i >= 0; i--) {
@@ -87,13 +92,18 @@ export function onChildAttachedTo(
       }
 
       // find new
-      newChildren.forEach((n: object) => {
+      const newChildrenIter = newChildren.values()
+      let newChildrenCur = newChildrenIter.next()
+      while (!newChildrenCur.done) {
+        const n = newChildrenCur.value
         if (!currentChildren.has(n)) {
           currentChildren.add(n)
 
           addDetachDisposer(n, fn(n))
         }
-      })
+
+        newChildrenCur = newChildrenIter.next()
+      }
     },
     {
       fireImmediately: true,
@@ -104,7 +114,14 @@ export function onChildAttachedTo(
     disposer()
 
     if (runDetachDisposers) {
-      currentChildren.forEach(n => runDetachDisposer(n))
+      const currentChildrenIter = currentChildren.values()
+      let currentChildrenCur = currentChildrenIter.next()
+      while (!currentChildrenCur.done) {
+        const n = currentChildrenCur.value
+        runDetachDisposer(n)
+
+        currentChildrenCur = currentChildrenIter.next()
+      }
     }
     currentChildren.clear()
   }

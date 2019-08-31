@@ -28,9 +28,11 @@ export function arrayAsMap<V>(getTarget: () => [string, V][]): Map<string, V> {
     forEach(callbackfn, thisArg) {
       const items = getTarget()
 
-      items.forEach(t => {
+      const len = items.length
+      for (let i = 0; i < len; i++) {
+        const t = items[i]
         callbackfn.call(thisArg, t[1], t[0], map)
-      })
+      }
     },
 
     get(key) {

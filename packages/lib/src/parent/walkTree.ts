@@ -49,12 +49,14 @@ function walkTreeParentFirst<T = void>(
     return ret
   }
 
-  const children = objectChildren.get(target)!
-  for (const ch of children) {
-    const ret = walkTreeParentFirst(ch, predicate)
+  const childrenIter = objectChildren.get(target)!.values()
+  let ch = childrenIter.next()
+  while (!ch.done) {
+    const ret = walkTreeParentFirst(ch.value, predicate)
     if (ret !== undefined) {
       return ret
     }
+    ch = childrenIter.next()
   }
 
   return undefined
@@ -64,12 +66,14 @@ function walkTreeChildrenFirst<T = void>(
   target: object,
   predicate: (node: object) => T | undefined
 ): T | undefined {
-  const children = objectChildren.get(target)!
-  for (const ch of children) {
-    const ret = walkTreeChildrenFirst(ch, predicate)
+  const childrenIter = objectChildren.get(target)!.values()
+  let ch = childrenIter.next()
+  while (!ch.done) {
+    const ret = walkTreeChildrenFirst(ch.value, predicate)
     if (ret !== undefined) {
       return ret
     }
+    ch = childrenIter.next()
   }
 
   const ret = predicate(target)

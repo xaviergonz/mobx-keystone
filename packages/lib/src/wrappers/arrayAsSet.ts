@@ -41,9 +41,11 @@ export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
     forEach(callbackfn, thisArg) {
       const items = getTarget()
 
-      items.forEach(t => {
+      const len = items.length
+      for (let i = 0; i < len; i++) {
+        const t = items[i]
         callbackfn.call(thisArg, t, t, set)
-      })
+      }
     },
 
     has(value) {
