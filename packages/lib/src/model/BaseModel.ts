@@ -85,8 +85,9 @@ export abstract class BaseModel<
   constructor(data: CreationData) {
     const initialData: any = data
     const snapshotInitialData: any = arguments[1]
+    const clazz: ModelClass<AnyModel> = arguments[2]
 
-    const clazz: ModelClass<AnyModel> = this.constructor as any
+    Object.setPrototypeOf(this, clazz.prototype)
 
     if (!snapshotInitialData) {
       assertIsObject(initialData, "initialData")
