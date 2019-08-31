@@ -1,7 +1,7 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { logWarning } from "../utils"
-import { AnyModel, ModelClass } from "./BaseModel"
+import { addHiddenProp, logWarning } from "../utils"
+import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 import { modelInitializersSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
@@ -29,6 +29,8 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
       const instance = new (clazz as any)(initialData, snapshotInitialData, this.constructor)
 
       // the object is ready
+      addHiddenProp(instance, modelInitializedSymbol, true, false)
+
       if (instance.onInit) {
         wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
 

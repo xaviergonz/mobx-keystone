@@ -12,6 +12,7 @@ import { assertIsModelClass } from "./utils"
 
 declare const dataTypeSymbol: unique symbol
 declare const creationDataTypeSymbol: unique symbol
+export const modelInitializedSymbol = Symbol("modelInitialized")
 
 /**
  * Base abstract class for models. Use `Model` instead when extending.
