@@ -163,6 +163,9 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
 
   const base: any = baseModel || BaseModel
 
+  // we use this weird hack rather than just class CustomBaseModel extends base {}
+  // in order to work around problems with ES5 classes extending ES6 classes
+  // see https://github.com/xaviergonz/mobx-keystone/issues/15
   const CustomBaseModel: any = (function(_base) {
     _inheritsLoose(CustomBaseModel, _base)
 
