@@ -33,7 +33,8 @@
     "test": "tsdx test",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
-    "build-docs": "shx rm -rf ../site/src/public/api && typedoc --options ./typedocconfig.js",
+    "fix-tsdocs": "shx rm -rf ../../node_modules/typedoc/node_modules/typescript",
+    "build-docs": "shx rm -rf ../site/src/public/api && yarn fix-tsdocs && typedoc --options ./typedocconfig.js",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "peerDependencies": {
