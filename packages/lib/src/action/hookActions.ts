@@ -28,5 +28,5 @@ const hookActionValues = new Set(Object.values(HookAction))
  * @returns true if it is a hook, false otherwise.
  */
 export function isHookAction(actionName: string): actionName is HookAction {
-  return hookActionValues.has(actionName)
+  return hookActionValues.has(actionName as HookAction)
 }

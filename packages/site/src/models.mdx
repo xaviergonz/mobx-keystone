@@ -147,13 +147,34 @@ interface Book {
 class BookStore extends Model({
   books: prop<Book[]>(() => []),
 }) {
+  // Typescript version
+
   @modelFlow
-  // we use * (a function generator) where we would use`async`
-  *fetchMyBooksAsync(token: string) {
+  // we use function* (a function generator) where we would use`async`
+  // the cast function is only to trick TS into thinking this is a method
+  // that returns a promise, it is not required for plain JS
+  // not how when using TS we need to specify the type of `this`, this is
+  // again not needed for plain JS
+  fetchMyBooksAsync = castModelFlow(function*(this: BookStore, token: string) {
     // we use `yield` where we would use `await`
-    // however since Typescript doesn't get along well with typed generators (yet)
-    // we can optionally use FlowRet to cast the return value to the proper type
-    const myBooks: FlowRet<typeof myBackendClient.getBooks> = yield myBackendClient.getBooks(token)
+    // since TS doesn't get along well with typed generators (yet)
+    // we can optionally use castYield to cast the return value to the proper type
+    // passing as first argument the function we are going to call
+    const myBooks = castYield(myBackendClient.getBooks, yield myBackendClient.getBooks(token))
+    // in plain JS (or if you don't care that the return type is any or want to
+    // typecast it yourself) you can just use
+    // `const myBooks = yield myBackendClient.getBooks(token)`
+
+    this.books = myBooks
+  });
+
+  // plain Javascript version
+
+  @modelFlow
+  // we use function* (a function generator) where we would use`async`
+  *fetchMyBooksAsync(token) {
+    // we use `yield` where we would use `await`
+    const myBooks = yield myBackendClient.getBooks(token)
 
     this.books = myBooks
   }

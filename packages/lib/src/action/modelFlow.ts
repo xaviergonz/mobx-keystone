@@ -214,22 +214,52 @@ function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
   checkModelDecoratorArgs("modelFlow", target, propertyKey)
 }
 
-/**
- * Type that gets the right return type of a flow.
- *
- * ```
- * // outside flows
- * const ret: FlowRet<typeof model.someFlow> = await model.someFlow() as any
- *
- * // inside flows
- * const ret: FlowRet<typeof model.someFlow> = yield model.someFlow()
- * const ret: FlowRet<typeof someAsyncFunc> = yield someAsyncFunc()
- * ```
- */
-export type FlowRet<
-  FN extends (...args: any[]) => IterableIterator<any> | Promise<any>
-> = FN extends (...args: any[]) => IterableIterator<infer R>
-  ? Exclude<R, Promise<any> | IterableIterator<any>>
-  : FN extends (...args: any[]) => Promise<infer R>
-  ? R
+export type FlowFunction<A extends any[], R> = (...args: A) => Generator<any, R, any>
+export type PromiseFunction<A extends any[], R> = (...args: A) => Promise<R>
+
+export type ModelFlow<FN extends FlowFunction<any[], any>> = FN extends FlowFunction<
+  infer A,
+  infer R
+>
+  ? (...args: A) => Promise<R>
   : never
+
+/**
+ * Tricks the TS compiler into thinking a model flow generator function is a function that
+ * returns a promise.
+ *
+ * ```
+ * @modelFlow
+ * myFlow = castModelFlow(function*(this: MyModel, _args_) {
+ *   ...
+ * })
+ * ```
+ *
+ * @typeparam FN Generator function.
+ * @param fn Generator function.
+ * @returns
+ */
+export function castModelFlow<FN extends FlowFunction<any[], any>>(fn: FN): ModelFlow<FN> {
+  return fn as any
+}
+
+/**
+ * Tricks the TS compiler into thinking a yield inside a model flow returns a proper type.
+ * Only needed if you actually care about the return value of the promise.
+ *
+ * ```
+ * const myRetValue = castYield(someAsyncFunction, yield someAsyncFunction(args))
+ * const myRetValue = castYield(someModel.someFlow, yield someModel.someFlow(args))
+ * ```
+ *
+ * @typeparam FN Promise function.
+ * @param _fn Function that returns a promise.
+ * @param value Yielded promise.
+ * @returns
+ */
+export function castYield<FN extends PromiseFunction<any[], any>>(
+  _fn: FN,
+  value: any
+): FN extends PromiseFunction<any, infer R> ? R : never {
+  return value as any
+}

@@ -23,6 +23,6 @@
     "docz": "^1.2.0",
     "docz-theme-default": "^1.2.0",
     "raw-loader": "^3.0.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.6.2"
   }
 }
