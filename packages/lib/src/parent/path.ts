@@ -86,7 +86,7 @@ export function fastGetParent<T extends object = any>(
 ): T | undefined {
   const parentPath = fastGetParentPath(value)
 
-  if (parentPath && skipModelDataObject && isModelDataObject(parentPath.parent)) {
+  if (parentPath && skipModelDataObject && fastIsModelDataObject(parentPath.parent)) {
     return fastGetParent(parentPath.parent, false)
   } else {
     return parentPath ? parentPath.parent : undefined
@@ -102,6 +102,13 @@ export function fastGetParent<T extends object = any>(
 export function isModelDataObject(value: object): boolean {
   assertTweakedObject(value, "value")
 
+  return fastIsModelDataObject(value)
+}
+
+/**
+ * @ignore
+ */
+export function fastIsModelDataObject(value: object): boolean {
   if (!isObject(value)) {
     return false
   }

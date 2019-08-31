@@ -115,9 +115,12 @@ If the predicate is matched it will return the found node.
 If none is found it will return undefined.
 A max depth of 0 is infinite, but another one can be given.
 
-### `getChildrenObjects(node: object, options?: { deep?: boolean }): Set<object>`
+### `getChildrenObjects(node: object, options?: { deep?: boolean, includeModelDataObjects?: boolean }): Set<object>`
 
-Returns all the children objects (this is, excluding primitives) of an object. Pass the options object with the `deep` option (defaults to false) set to true to get the children deeply or false to get them shallowly.
+Returns all the children objects (this is, excluding primitives) of an object.
+
+Pass the options object with the `deep` option (defaults to false) set to true to get the children deeply or false to get them shallowly.
+Set `includeModelDataObjects` (defaults to false) to get the model interim data objects (`$`) or false not to.
 
 ### `walkTree<T = void>(target: object, predicate: (node: any) => T | undefined, mode: WalkTreeMode): T | undefined`
 

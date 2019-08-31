@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.14.2
+
+- Fixed `getChildrenObjects` and `onChildAttachedTo` so they don't report the model data objects (`$`). Set the option `includeModelDataObjects` to true to get the old behaviour back in `getChildrenObjects`.
+
 ## 0.14.1
 
 - Fixed an issue with a workaround for abstract classes setting values on the constructor when using babel.

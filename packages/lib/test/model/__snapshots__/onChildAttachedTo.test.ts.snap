@@ -55,12 +55,9 @@ exports[`onChildAttachedTo (deep: true): initial 1`] = `
 Array [
   "attached to B-deep:true <- Array at [$/arr]",
   "attached to A-deep:true <- B-deep:true at [$/b]",
-  "attached to A-deep:true <- Object at [$/b/$]",
   "attached to A-deep:true <- Array at [$/b/$/arr]",
   "attached to R-deep:true <- A-deep:true at [$/a]",
-  "attached to R-deep:true <- Object at [$/a/$]",
   "attached to R-deep:true <- B-deep:true at [$/a/$/b]",
-  "attached to R-deep:true <- Object at [$/a/$/b/$]",
   "attached to R-deep:true <- Array at [$/a/$/b/$/arr]",
 ]
 `;
@@ -69,17 +66,12 @@ exports[`onChildAttachedTo (deep: true): new A 1`] = `
 Array [
   "attached to B-deep:true <- Array at [$/arr]",
   "attached to A-deep:true <- B-deep:true at [$/b]",
-  "attached to A-deep:true <- Object at [$/b/$]",
   "attached to A-deep:true <- Array at [$/b/$/arr]",
   "detached from R-deep:true <- Array at [$/a/$/b/$/arr]",
-  "detached from R-deep:true <- Object at [$/a/$/b/$]",
   "detached from R-deep:true <- B-deep:true at [$/a/$/b]",
-  "detached from R-deep:true <- Object at [$/a/$]",
   "detached from R-deep:true <- A-deep:true at [$/a]",
   "attached to R-deep:true <- A-deep:true at [$/a]",
-  "attached to R-deep:true <- Object at [$/a/$]",
   "attached to R-deep:true <- B-deep:true at [$/a/$/b]",
-  "attached to R-deep:true <- Object at [$/a/$/b/$]",
   "attached to R-deep:true <- Array at [$/a/$/b/$/arr]",
 ]
 `;
@@ -88,16 +80,12 @@ exports[`onChildAttachedTo (deep: true): new B 1`] = `
 Array [
   "attached to B-deep:true <- Array at [$/arr]",
   "detached from A-deep:true <- Array at [$/b/$/arr]",
-  "detached from A-deep:true <- Object at [$/b/$]",
   "detached from A-deep:true <- B-deep:true at [$/b]",
   "attached to A-deep:true <- B-deep:true at [$/b]",
-  "attached to A-deep:true <- Object at [$/b/$]",
   "attached to A-deep:true <- Array at [$/b/$/arr]",
   "detached from R-deep:true <- Array at [$/a/$/b/$/arr]",
-  "detached from R-deep:true <- Object at [$/a/$/b/$]",
   "detached from R-deep:true <- B-deep:true at [$/a/$/b]",
   "attached to R-deep:true <- B-deep:true at [$/a/$/b]",
-  "attached to R-deep:true <- Object at [$/a/$/b/$]",
   "attached to R-deep:true <- Array at [$/a/$/b/$/arr]",
 ]
 `;

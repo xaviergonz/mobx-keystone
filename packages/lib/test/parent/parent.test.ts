@@ -90,10 +90,10 @@ test("parent", () => {
     path: ["$", "arr", 0, "$"],
   })
 
-  expect(Array.from(getChildrenObjects(p).values())).toEqual([p.$])
+  expect(Array.from(getChildrenObjects(p).values())).toEqual([])
   expect(Array.from(getChildrenObjects(p.$).values())).toEqual([p.arr, p.p2])
   expect(Array.from(getChildrenObjects(p.arr).values())).toEqual(p.arr)
-  expect(Array.from(getChildrenObjects(p.p2!).values())).toEqual([p.p2!.$])
+  expect(Array.from(getChildrenObjects(p.p2!).values())).toEqual([])
 
   expect(getParentToChildPath(p, p)).toEqual([])
   expect(getParentToChildPath(p, p.p2!)).toEqual(["$", "p2"])
