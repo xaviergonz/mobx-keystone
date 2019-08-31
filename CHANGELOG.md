@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.14.1
+
+- Fixed an issue with a workaround for abstract classes setting values on the constructor when using babel.
+
 ## 0.14.0
 
 - Added `getParentToChildPath`, `getChildrenObjects` and `onChildAttachedTo`, and some performance improvements.

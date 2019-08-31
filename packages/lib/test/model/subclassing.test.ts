@@ -447,3 +447,16 @@ test("abstract model classes without factory", () => {
   expect(b instanceof StringA).toBe(true)
   assert(b, _ as B)
 })
+
+test("issue #18", () => {
+  abstract class A extends Model({}) {
+    public abstract value: number = void 0 as any // similiar to what babel does when using an abstract prop without default value
+  }
+
+  @model("B#18")
+  class B extends ExtendedModel(A, { value: prop<number>() }) {}
+
+  // Error: data changes must be performed inside model actions
+  const b = new B({ value: 1 }) // Instantiating the class inside `runUnprotected` works.
+  expect(b.value).toBe(1)
+})

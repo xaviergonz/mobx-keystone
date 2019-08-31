@@ -9,6 +9,7 @@ import {
   BaseModel,
   baseModelPropNames,
   ModelClass,
+  modelInitializedSymbol,
 } from "./BaseModel"
 import {
   modelDataTypeCheckerSymbol,
@@ -155,6 +156,12 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
         return this.$[modelPropName]
       },
       set(this: AnyModel, v?: any) {
+        // hack to only permit setting these values once fully constructed
+        // this is to ignore abstract properties being set by babel
+        // see https://github.com/xaviergonz/mobx-keystone/issues/18
+        if (!(this as any)[modelInitializedSymbol]) {
+          return
+        }
         // no need to use set since these vars always get on the initial $
         this.$[modelPropName] = v
       },
