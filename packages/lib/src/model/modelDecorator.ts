@@ -25,8 +25,8 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
 
   // trick so plain new works
   const obj = {
-    [clazz.name]: function(initialData: any, snapshotInitialData: any) {
-      const instance = new (clazz as any)(initialData, snapshotInitialData)
+    [clazz.name]: function(this: any, initialData: any, snapshotInitialData: any) {
+      const instance = new (clazz as any)(initialData, snapshotInitialData, this.constructor)
 
       // the object is ready
       if (instance.onInit) {

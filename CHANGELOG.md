@@ -4,6 +4,10 @@
 
 - Added `getParentToChildPath`, `getChildrenObjects` and `onChildAttachedTo`, and some performance improvements.
 
+## 0.13.1
+
+- Fixed an issue with ExtendsModel when user library was compiled using ES6 classes.
+
 ## 0.13.0
 
 - Improved support for abstract base models.
