@@ -1,5 +1,5 @@
 import { action, isAction } from "mobx"
-import { getParent, isChildOfParent } from "../parent/path"
+import { fastGetParent, isChildOfParent } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, assertIsObject, deleteFromArray, failure } from "../utils"
 import { ActionContext } from "./context"
@@ -70,7 +70,7 @@ export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
         function findNextIterator() {
           let nextIter
           while (current && !nextIter) {
-            current = getParent(current)
+            current = fastGetParent(current)
             nextIter = getCurrentIterator()
           }
           return nextIter

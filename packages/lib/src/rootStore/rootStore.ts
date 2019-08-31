@@ -1,5 +1,5 @@
 import { action } from "mobx"
-import { getRoot, isRoot } from "../parent/path"
+import { fastGetRoot, isRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
@@ -73,6 +73,6 @@ export function isRootStore(node: object): boolean {
 export function getRootStore<T extends object>(node: object): T | undefined {
   assertTweakedObject(node, "node")
 
-  const root = getRoot(node)
+  const root = fastGetRoot(node)
   return isRootStore(root) ? root : undefined
 }

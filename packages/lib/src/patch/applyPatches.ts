@@ -27,7 +27,10 @@ export function applyPatches(node: object, patches: ReadonlyArray<Patch>): void 
 export function internalApplyPatches(this: object, patches: ReadonlyArray<Patch>): void {
   const obj = this
 
-  patches.forEach(patch => applySinglePatch(obj, patch))
+  const len = patches.length
+  for (let i = 0; i < len; i++) {
+    applySinglePatch(obj, patches[i])
+  }
 }
 
 const wrappedInternalApplyPatches = wrapInAction(

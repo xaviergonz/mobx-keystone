@@ -75,6 +75,11 @@ Returns the parent of the target plus the path from the parent to the target, or
 Returns the parent object of the target object, or undefined if there's no parent.
 Note that when using this function over model properties you will get as parent its interim data object (`$`). If you want to get the parent model directly in such cases you can pass `true` as the second parameter.
 
+### `getParentToChildPath(fromParent: object, toChild: object): (string | number)[] | undefined`
+
+Gets the path to get from a parent to a given child.
+Returns an empty array if the child is actually the given parent or undefined if the child is not a child of the parent.
+
 ### `isModelDataObject(value: object)`
 
 Returns if a given object is a model interim data object (`$`)
@@ -110,6 +115,10 @@ If the predicate is matched it will return the found node.
 If none is found it will return undefined.
 A max depth of 0 is infinite, but another one can be given.
 
+### `getChildrenObjects(node: object, options?: { deep?: boolean }): Set<object>`
+
+Returns all the children objects (this is, excluding primitives) of an object. Pass the options object with the `deep` option (defaults to false) set to true to get the children deeply or false to get them shallowly.
+
 ### `walkTree<T = void>(target: object, predicate: (node: any) => T | undefined, mode: WalkTreeMode): T | undefined`
 
 Walks a tree, running the predicate function for each node.
@@ -122,8 +131,22 @@ The mode can be one of:
 
 ## Utility methods
 
+### `detach(value: object)`
+
 Besides the aforementioned `isTreeNode` and `toTreeNode` methods, there's also the `detach(value: object)` method, which allows a node to get detached from its parent following this logic:
 
 - If the parent is an object / model, detaching will delete the property.
 - If the parent is an array detaching will remove the node by splicing it.
 - If there's no parent it will throw.
+
+### `onChildAttachedTo(target: () => object, fn: (child: object) => () => void | void, options?: { deep?: boolean, fireForCurrentChildren?: boolean }): (runDetachDisposers: boolean) => void`
+
+Runs a callback everytime a new object is attached to a given node.
+The callback can optionally return a disposer which will be run when the child is detached.
+
+The optional options parameter accepts and object with the following options:
+
+- `deep: boolean` (default: `false`) - true if the callback should be run for all children deeply or false if it it should only run for shallow children.
+- `fireForCurrentChildren: boolean` (default: `true`) - true if the callback should be immediately called for currently attached children, false if only for future attachments.
+
+Returns a disposer, which has a boolean parameter which should be true if pending detachment callbacks should be run or false otherwise.

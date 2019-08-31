@@ -1,4 +1,4 @@
-import { getParent } from "../parent/path"
+import { fastGetParent } from "../parent/path"
 import { isTreeNode } from "../tweaker/core"
 import { failure } from "../utils"
 import { TypeCheckError } from "./TypeCheckError"
@@ -27,7 +27,7 @@ export function invalidateCachedTypeCheckerResult(obj: object) {
       typeCheckersWithCachedResultsOfObject.delete(current)
     }
 
-    current = getParent(current)
+    current = fastGetParent(current)
   }
 }
 

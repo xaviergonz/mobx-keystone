@@ -220,11 +220,13 @@ function interceptArrayMutation(
     case "splice":
       {
         if (inDevMode()) {
-          change.added.forEach(v => {
+          const len = change.added.length
+          for (let i = 0; i < len; i++) {
+            const v = change.added[i]
             if (v === undefined) {
               throw failure(undefinedInsideArrayErrorMsg)
             }
-          })
+          }
         }
 
         for (let i = 0; i < change.removedCount; i++) {

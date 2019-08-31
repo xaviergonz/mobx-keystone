@@ -3,7 +3,7 @@ import { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
-import { getRootPath } from "../parent/path"
+import { fastGetRootPath } from "../parent/path"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../typeChecking/array"
@@ -288,7 +288,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
           }
 
           manager.store._addUndo({
-            targetPath: getRootPath(ctx.target).path,
+            targetPath: fastGetRootPath(ctx.target).path,
             actionName: ctx.actionName,
             patches,
             inversePatches,

@@ -19,9 +19,13 @@ export class ObjectMap<V>
   @modelAction
   clear(): void {
     const items = this.items
-    Object.keys(items).forEach(k => {
+
+    const keys = Object.keys(items)
+    const len = keys.length
+    for (let i = 0; i < len; i++) {
+      const k = keys[i]
       remove(items, k)
-    })
+    }
   }
 
   @modelAction
@@ -38,9 +42,13 @@ export class ObjectMap<V>
   forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg: any): void {
     // we cannot use the map implementation since we need to pass this as map
     const items = this.items
-    Object.keys(items).forEach(k => {
+
+    const keys = Object.keys(items)
+    const len = keys.length
+    for (let i = 0; i < len; i++) {
+      const k = keys[i]
       callbackfn.call(thisArg, items[k], k, this)
-    })
+    }
   }
 
   get(key: string): V | undefined {

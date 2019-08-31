@@ -1,5 +1,5 @@
 import { assertTweakedObject } from "../tweaker/core"
-import { getChildrenObjects } from "./getChildrenObjects"
+import { objectChildren } from "./core"
 
 /**
  * Mode for the `walkTree` method.
@@ -28,31 +28,57 @@ export enum WalkTreeMode {
  */
 export function walkTree<T = void>(
   target: object,
-  predicate: (node: any) => T | undefined,
+  predicate: (node: object) => T | undefined,
   mode: WalkTreeMode
 ): T | undefined {
   assertTweakedObject(target, "target")
 
   if (mode === WalkTreeMode.ParentFirst) {
-    const ret = predicate(target)
-    if (ret !== undefined) {
-      return ret
-    }
+    return walkTreeParentFirst(target, predicate)
+  } else {
+    return walkTreeChildrenFirst(target, predicate)
+  }
+}
+
+function walkTreeParentFirst<T = void>(
+  target: object,
+  predicate: (node: object) => T | undefined
+): T | undefined {
+  const ret = predicate(target)
+  if (ret !== undefined) {
+    return ret
   }
 
-  const children = getChildrenObjects(target)
-  for (const ch of children) {
-    const ret = walkTree(ch, predicate, mode)
+  const childrenIter = objectChildren.get(target)!.values()
+  let ch = childrenIter.next()
+  while (!ch.done) {
+    const ret = walkTreeParentFirst(ch.value, predicate)
     if (ret !== undefined) {
       return ret
     }
+    ch = childrenIter.next()
   }
 
-  if (mode === WalkTreeMode.ChildrenFirst) {
-    const ret = predicate(target)
+  return undefined
+}
+
+function walkTreeChildrenFirst<T = void>(
+  target: object,
+  predicate: (node: object) => T | undefined
+): T | undefined {
+  const childrenIter = objectChildren.get(target)!.values()
+  let ch = childrenIter.next()
+  while (!ch.done) {
+    const ret = walkTreeChildrenFirst(ch.value, predicate)
     if (ret !== undefined) {
       return ret
     }
+    ch = childrenIter.next()
+  }
+
+  const ret = predicate(target)
+  if (ret !== undefined) {
+    return ret
   }
 
   return undefined

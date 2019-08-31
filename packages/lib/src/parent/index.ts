@@ -1,9 +1,11 @@
 export { detach } from "./detach"
 export { findParent } from "./findParent"
 export { getChildrenObjects } from "./getChildrenObjects"
+export { onChildAttachedTo } from "./onChildAttachedTo"
 export {
   getParent,
   getParentPath,
+  getParentToChildPath,
   getRoot,
   getRootPath,
   isChildOfParent,

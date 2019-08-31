@@ -46,6 +46,15 @@ export interface RootPath<T extends object> {
 export function getParentPath<T extends object = any>(value: object): ParentPath<T> | undefined {
   assertTweakedObject(value, "value")
 
+  return fastGetParentPath(value)
+}
+
+/**
+ * @ignore
+ */
+export function fastGetParentPath<T extends object = any>(
+  value: object
+): ParentPath<T> | undefined {
   reportParentPathObserved(value)
   return objectParents.get(value) as any
 }
@@ -65,10 +74,20 @@ export function getParent<T extends object = any>(
 ): T | undefined {
   assertTweakedObject(value, "value")
 
-  let parentPath = getParentPath(value)
+  return fastGetParent(value, skipModelDataObject)
+}
+
+/**
+ * @ignore
+ */
+export function fastGetParent<T extends object = any>(
+  value: object,
+  skipModelDataObject = false
+): T | undefined {
+  const parentPath = fastGetParentPath(value)
 
   if (parentPath && skipModelDataObject && isModelDataObject(parentPath.parent)) {
-    return getParent(parentPath.parent, false)
+    return fastGetParent(parentPath.parent, false)
   } else {
     return parentPath ? parentPath.parent : undefined
   }
@@ -86,7 +105,7 @@ export function isModelDataObject(value: object): boolean {
   if (!isObject(value)) {
     return false
   }
-  const parentPath = getParentPath(value)
+  const parentPath = fastGetParentPath(value)
   return !!parentPath && parentPath.path === "$" && parentPath.parent instanceof BaseModel
 }
 
@@ -100,13 +119,20 @@ export function isModelDataObject(value: object): boolean {
 export function getRootPath<T extends object = any>(value: object): RootPath<T> {
   assertTweakedObject(value, "value")
 
+  return fastGetRootPath(value)
+}
+
+/**
+ * @ignore
+ */
+export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
   const rootPath = {
     root: value,
     path: [] as (string | number)[],
   }
 
-  let parentPath
-  while ((parentPath = getParentPath(rootPath.root))) {
+  let parentPath: ParentPath<any> | undefined
+  while ((parentPath = fastGetParentPath(rootPath.root))) {
     rootPath.root = parentPath.parent
     rootPath.path.unshift(parentPath.path)
   }
@@ -124,7 +150,14 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
 export function getRoot<T extends object = any>(value: object): T {
   assertTweakedObject(value, "value")
 
-  return getRootPath(value).root
+  return fastGetRoot(value)
+}
+
+/**
+ * @ignore
+ */
+export function fastGetRoot<T extends object = any>(value: object): T {
+  return fastGetRootPath(value).root
 }
 
 /**
@@ -136,7 +169,7 @@ export function getRoot<T extends object = any>(value: object): T {
 export function isRoot(value: object): boolean {
   assertTweakedObject(value, "value")
 
-  return !getParent(value)
+  return !fastGetParent(value)
 }
 
 /**
@@ -152,7 +185,7 @@ export function isChildOfParent(child: object, parent: object): boolean {
 
   let current = child
   let parentPath
-  while ((parentPath = getParentPath(current))) {
+  while ((parentPath = fastGetParentPath(current))) {
     current = parentPath.parent
     if (current === parent) {
       return true
@@ -207,4 +240,38 @@ export function resolvePath<T = any>(
   }
 
   return { resolved: true, value: current }
+}
+
+/**
+ * Gets the path to get from a parent to a given child.
+ * Returns an empty array if the child is actually the given parent or undefined if the child is not a child of the parent.
+ *
+ * @param fromParent
+ * @param toChild
+ * @returns
+ */
+export function getParentToChildPath(
+  fromParent: object,
+  toChild: object
+): (string | number)[] | undefined {
+  assertTweakedObject(fromParent, "fromParent")
+  assertTweakedObject(toChild, "toChild")
+
+  if (fromParent === toChild) {
+    return []
+  }
+
+  const path: (string | number)[] = []
+
+  let current = toChild
+  let parentPath
+  while ((parentPath = fastGetParentPath(current))) {
+    path.unshift(parentPath.path)
+
+    current = parentPath.parent
+    if (current === fromParent) {
+      return path
+    }
+  }
+  return undefined
 }

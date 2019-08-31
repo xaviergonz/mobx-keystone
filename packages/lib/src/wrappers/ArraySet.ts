@@ -46,9 +46,12 @@ export class ArraySet<V>
 
   forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg: any): void {
     // we cannot use the set implementation since we need to pass this as set
-    this.items.forEach(k => {
+    const items = this.items
+    const len = items.length
+    for (let i = 0; i < len; i++) {
+      const k = items[i]
       callbackfn.call(thisArg, k, k, this)
-    })
+    }
   }
 
   has(value: V): boolean {

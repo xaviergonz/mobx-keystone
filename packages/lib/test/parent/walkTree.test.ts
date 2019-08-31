@@ -8,7 +8,7 @@ test("walktree should be reactive", () => {
     root: AnyModel,
     getId: (child: unknown) => K | undefined
   ): Registry<K, V> {
-    const reg = observable.map<K, V>()
+    const reg = observable.map<K, V>([], { deep: false })
 
     autorun(() => {
       const childrenThere = new Set<V>()
@@ -17,7 +17,7 @@ test("walktree should be reactive", () => {
         n => {
           const id = getId(n)
           if (id !== undefined) {
-            childrenThere.add(n)
+            childrenThere.add(n as any)
           }
         },
         WalkTreeMode.ParentFirst

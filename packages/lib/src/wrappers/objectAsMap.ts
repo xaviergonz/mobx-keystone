@@ -12,9 +12,13 @@ export function objectAsMap<V>(getTarget: () => { [k: string]: V }): Map<string,
   const map: Map<string, V> = {
     clear() {
       const items = getTarget()
-      Object.keys(items).forEach(k => {
+
+      const keys = Object.keys(items)
+      const len = keys.length
+      for (let i = 0; i < len; i++) {
+        const k = keys[i]
         remove(items, k)
-      })
+      }
     },
 
     delete(key) {
@@ -32,9 +36,12 @@ export function objectAsMap<V>(getTarget: () => { [k: string]: V }): Map<string,
     forEach(callbackfn, thisArg) {
       const items = getTarget()
 
-      Object.keys(items).forEach(k => {
+      const keys = Object.keys(items)
+      const len = keys.length
+      for (let i = 0; i < len; i++) {
+        const k = keys[i]
         callbackfn.call(thisArg, items[k], k, map)
-      })
+      }
     },
 
     get(key) {
