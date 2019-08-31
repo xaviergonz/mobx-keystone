@@ -2,7 +2,7 @@ import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { addHiddenProp, assertIsObject, failure } from "../utils"
+import { assertIsObject, failure } from "../utils"
 import {
   AbstractModelClass,
   AnyModel,
@@ -10,7 +10,11 @@ import {
   baseModelPropNames,
   ModelClass,
 } from "./BaseModel"
-import { modelDataTypeCheckerSymbol, modelPropertiesSymbol } from "./modelSymbols"
+import {
+  modelDataTypeCheckerSymbol,
+  modelInitializersSymbol,
+  modelPropertiesSymbol,
+} from "./modelSymbols"
 import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -158,15 +162,37 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   }
 
   const base: any = baseModel || BaseModel
-  class CustomBaseModel extends base {}
 
-  ;(CustomBaseModel as any)[modelPropertiesSymbol] = composedModelProps
-  ;(CustomBaseModel as any)[modelDataTypeCheckerSymbol] = dataTypeChecker
+  const CustomBaseModel: any = (function(_base) {
+    _inheritsLoose(CustomBaseModel, _base)
 
-  const obj = CustomBaseModel.prototype
-  addHiddenProp(obj, modelPropertiesSymbol, composedModelProps, true)
-  addHiddenProp(obj, modelDataTypeCheckerSymbol, dataTypeChecker, true)
-  Object.defineProperties(obj, extraDescriptors)
+    function CustomBaseModel(
+      this: any,
+      initialData: any,
+      snapshotInitialData: any,
+      modelConstructor: any
+    ) {
+      return new base(initialData, snapshotInitialData, modelConstructor || this.constructor)
+    }
 
-  return CustomBaseModel as any
+    return CustomBaseModel
+  })(base)
+
+  const initializers = base[modelInitializersSymbol]
+  if (initializers) {
+    CustomBaseModel[modelInitializersSymbol] = initializers.slice()
+  }
+
+  CustomBaseModel[modelPropertiesSymbol] = composedModelProps
+  CustomBaseModel[modelDataTypeCheckerSymbol] = dataTypeChecker
+
+  Object.defineProperties(CustomBaseModel.prototype, extraDescriptors)
+
+  return CustomBaseModel
+}
+
+function _inheritsLoose(subClass: any, superClass: any) {
+  subClass.prototype = Object.create(superClass.prototype)
+  subClass.prototype.constructor = subClass
+  subClass.__proto__ = superClass
 }

@@ -13,7 +13,9 @@ import { isModel, isModelClass } from "./utils"
 export function getModelDataType(
   modelClassOrInstance: AnyModel | ModelClass<AnyModel>
 ): AnyType | undefined {
-  if (isModel(modelClassOrInstance) || isModelClass(modelClassOrInstance)) {
+  if (isModel(modelClassOrInstance)) {
+    return (modelClassOrInstance as any).constructor[modelDataTypeCheckerSymbol]
+  } else if (isModelClass(modelClassOrInstance)) {
     return (modelClassOrInstance as any)[modelDataTypeCheckerSymbol]
   } else {
     throw failure(`modelClassOrInstance must be a model class or instance`)

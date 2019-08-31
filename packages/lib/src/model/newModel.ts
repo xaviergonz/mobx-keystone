@@ -52,7 +52,7 @@ export const internalNewModel = action(
     modelObj[modelTypeKey] = modelInfo.name
 
     // fill in defaults in initial data
-    const modelProps: ModelProps = (modelObj as any)[modelPropertiesSymbol]
+    const modelProps: ModelProps = (modelClass as any)[modelPropertiesSymbol]
     const modelPropsKeys = Object.keys(modelProps)
     for (let i = 0; i < modelPropsKeys.length; i++) {
       const k = modelPropsKeys[i]
