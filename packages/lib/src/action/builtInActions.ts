@@ -28,5 +28,5 @@ const builtInActionValues = new Set(Object.values(BuiltInAction))
  * @returns true if it is a built-in action, false otherwise.
  */
 export function isBuiltInAction(actionName: string): actionName is BuiltInAction {
-  return builtInActionValues.has(actionName)
+  return builtInActionValues.has(actionName as BuiltInAction)
 }

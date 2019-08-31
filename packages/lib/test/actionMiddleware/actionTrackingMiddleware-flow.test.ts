@@ -1,7 +1,8 @@
 import {
   actionTrackingMiddleware,
   ActionTrackingResult,
-  FlowRet,
+  castModelFlow,
+  castYield,
   getSnapshot,
   model,
   Model,
@@ -18,20 +19,20 @@ export class P2 extends Model({
   y: prop(() => 0),
 }) {
   @modelFlow
-  *addY(n: number) {
+  addY = castModelFlow(function*(this: P2, n: number) {
     this.y += n / 2
     yield delay(50)
     this.y += n / 2
     return this.y
-  }
+  })
 
   @modelFlow
-  *addY2(n: number) {
+  addY2 = castModelFlow(function*(this: P2, n: number) {
     this.y += n / 2
     yield delay(50)
     this.y += n / 2
     return this.y
-  }
+  })
 }
 
 @model("P")
@@ -40,16 +41,16 @@ export class P extends Model({
   x: prop(() => 0),
 }) {
   @modelFlow
-  *addX(n: number) {
+  addX = castModelFlow(function*(this: P, n: number) {
     this.x += n / 2
-    const r: FlowRet<typeof delay> = yield delay(50)
+    const r = castYield(delay, yield delay(50))
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
-    const r2: FlowRet<typeof delay> = yield delay(40)
+    const r2 = castYield(delay, yield delay(40))
     expect(r2).toBe(40) // just to see yields return the right result
     this.x += n / 4
     return this.x
-  }
+  })
 
   @modelAction
   addXSync(n: number) {
@@ -57,22 +58,21 @@ export class P extends Model({
     return n
   }
 
-  // as field
   @modelFlow
-  addXY = function*(this: P, n1: number, n2: number) {
-    const r: FlowRet<typeof this.addX> = yield this.addX(n1)
+  addXY = castModelFlow(function*(this: P, n1: number, n2: number) {
+    const r = castYield(this.addX, yield this.addX(n1))
     expect(typeof r).toBe("number")
     yield delay(50)
     yield this.p2.addY(n2)
     return n1 + n2
-  };
+  })
 
   @modelFlow
-  *throwFlow(n: number) {
+  throwFlow = castModelFlow(function*(this: P, n: number) {
     this.x += n
     yield delay(50)
     throw new Error("flow failed")
-  }
+  })
 }
 
 test("actionTrackingMiddleware - flow", async () => {
@@ -153,7 +153,7 @@ test("actionTrackingMiddleware - flow", async () => {
   autoDispose(disposer)
 
   reset()
-  const ret: FlowRet<typeof p.addX> = (await p.addX(2)) as any
+  const ret = await p.addX(2)
   expect(ret).toBe(2)
   expect(p.x).toBe(2)
   expect(getSnapshot(p).x).toBe(2)
@@ -183,7 +183,7 @@ test("actionTrackingMiddleware - flow", async () => {
   expect(events).toMatchSnapshot("addX")
 
   reset()
-  const ret2: FlowRet<typeof p.addXY> = (await p.addXY(4, 4)) as any
+  const ret2 = await p.addXY(4, 4)
   expect(ret2).toBe(8 + 1000) // +1000 because of the return value override
   expect(p.x).toBe(6)
   expect(p.p2.y).toBe(4)
@@ -301,7 +301,7 @@ test("actionTrackingMiddleware - flow", async () => {
   // disposing
   reset()
   disposer()
-  const ret3: FlowRet<typeof p.addXY> = (await p.addXY(5, 6)) as any
+  const ret3 = await p.addXY(5, 6)
   expect(ret3 < 1000).toBeTruthy() // the return value override should be gone by now
   expect(events.map(eventToString)).toMatchInlineSnapshot(`Array []`)
   expect(events).toMatchSnapshot("disposing")
