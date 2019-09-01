@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.16.0
+
+- [BREAKING CHANGE] Again changes to flows so typings are better. Check the updated flow section of the documentation to see how to work with them now (should be _much_ easier).
+
 ## 0.15.0
 
 - [BREAKING CHANGE] Using flows in TypeScript should result in improved typings, but it requires TypeScript >= 3.6.2. Check the updated flow section of the documentation to see how to work with them now.

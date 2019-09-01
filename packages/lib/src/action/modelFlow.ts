@@ -145,7 +145,6 @@ function flow<R, Args extends any[]>(
 
       onFulfilled(undefined) // kick off the process
     })
-
     return promise
   }
   ;(flowFn as any)[modelFlowSymbol] = true
@@ -214,61 +213,131 @@ function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
   checkModelDecoratorArgs("modelFlow", target, propertyKey)
 }
 
-/**
- * A flow function, this is, a function that returns a generator (a generator function).
- */
-export type FlowFunction<A extends any[], R> = (...args: A) => Generator<any, R, any>
+// allow promises to be yielded using yield*
+const promiseProto: any = Promise.prototype
 
-/**
- * A function that returns a promise.
- */
-export type PromiseFunction<A extends any[], R> = (...args: A) => Promise<R>
+/*
+promiseProto[Symbol.iterator] = function*<T>(
+  this: Promise<T>
+) {
+  const ret: T = yield this
+  return ret
+}
+*/
 
-/**
- * Transforms a flow function into a promise function.
- */
-export type FlowFunctionAsPromiseFunction<
-  FN extends FlowFunction<any[], any>
-> = FN extends FlowFunction<infer A, infer R> ? (...args: A) => Promise<R> : never
+// above code but compiled by TS for ES5
+// so we don't include a dependency to regenerator runtime
 
-/**
- * Tricks the TS compiler into thinking a model flow generator function is a function that
- * returns a promise.
- *
- * ```
- * @modelFlow
- * myFlow = castModelFlow(function*(this: MyModel, _args_) {
- *   ...
- * })
- * ```
- *
- * @typeparam FN Generator function.
- * @param fn Generator function.
- * @returns
- */
-export function castModelFlow<FN extends FlowFunction<any[], any>>(
-  fn: FN
-): FlowFunctionAsPromiseFunction<FN> {
-  return fn as any
+const __generator = function(thisArg: any, body: any) {
+  let _: any = {
+      label: 0,
+      sent: function() {
+        if (t[0] & 1) throw t[1]
+        return t[1]
+      },
+      trys: [],
+      ops: [],
+    },
+    f: any,
+    y: any,
+    t: any,
+    g: any
+  return (
+    (g = { next: verb(0), throw: verb(1), return: verb(2) }),
+    typeof Symbol === "function" &&
+      (g[Symbol.iterator] = function() {
+        return this
+      }),
+    g
+  )
+  function verb(n: any) {
+    return function(v: any) {
+      return step([n, v])
+    }
+  }
+  function step(op: any) {
+    if (f) throw new TypeError("Generator is already executing.")
+    while (_)
+      try {
+        if (
+          ((f = 1),
+          y &&
+            (t =
+              op[0] & 2
+                ? y["return"]
+                : op[0]
+                ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
+                : y.next) &&
+            !(t = t.call(y, op[1])).done)
+        )
+          return t
+        if (((y = 0), t)) op = [op[0] & 2, t.value]
+        switch (op[0]) {
+          case 0:
+          case 1:
+            t = op
+            break
+          case 4:
+            _.label++
+            return { value: op[1], done: false }
+          case 5:
+            _.label++
+            y = op[1]
+            op = [0]
+            continue
+          case 7:
+            op = _.ops.pop()
+            _.trys.pop()
+            continue
+          default:
+            if (
+              !((t = _.trys), (t = t.length > 0 && t[t.length - 1])) &&
+              (op[0] === 6 || op[0] === 2)
+            ) {
+              _ = 0
+              continue
+            }
+            if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
+              _.label = op[1]
+              break
+            }
+            if (op[0] === 6 && _.label < t[1]) {
+              _.label = t[1]
+              t = op
+              break
+            }
+            if (t && _.label < t[2]) {
+              _.label = t[2]
+              _.ops.push(op)
+              break
+            }
+            if (t[2]) _.ops.pop()
+            _.trys.pop()
+            continue
+        }
+        op = body.call(thisArg, _)
+      } catch (e) {
+        op = [6, e]
+        y = 0
+      } finally {
+        f = t = 0
+      }
+    if (op[0] & 5) throw op[1]
+    return { value: op[0] ? op[1] : void 0, done: true }
+  }
 }
 
-/**
- * Tricks the TS compiler into thinking a yield inside a model flow returns a proper type.
- * Only needed if you actually care about the return value of the promise.
- *
- * ```
- * const myRetValue = castYield(someAsyncFunction, yield someAsyncFunction(args))
- * const myRetValue = castYield(someModel.someFlow, yield someModel.someFlow(args))
- * ```
- *
- * @typeparam FN Promise function.
- * @param _fn Function that returns a promise.
- * @param value Yielded promise.
- * @returns
- */
-export function castYield<FN extends PromiseFunction<any[], any>>(
-  _fn: FN,
-  value: any
-): FN extends PromiseFunction<any, infer R> ? R : never {
-  return value as any
+promiseProto[Symbol.iterator] = function() {
+  let ret
+  return __generator(this, function(this: any, _a: any) {
+    switch (_a.label) {
+      case 0:
+        return [4 /*yield*/, this]
+      case 1:
+        ret = _a.sent()
+        return [2 /*return*/, ret]
+      default:
+        return
+    }
+  })
 }
