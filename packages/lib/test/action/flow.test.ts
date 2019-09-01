@@ -2,6 +2,7 @@ import { assert, _ } from "spec.ts"
 import {
   ActionCall,
   ActionContext,
+  asModelFlow,
   getSnapshot,
   model,
   Model,
@@ -17,13 +18,15 @@ import { autoDispose, delay } from "../utils"
 export class P2 extends Model({
   y: prop(() => 0),
 }) {
-  @modelFlow
-  *addY(n: number) {
+  private *_addY(n: number) {
     this.y += n / 2
     yield* delay(50)
     this.y += n / 2
     return this.y
   }
+
+  @modelFlow
+  addY = asModelFlow(this._addY)
 }
 
 @model("P")
@@ -32,7 +35,9 @@ export class P extends Model({
   x: prop(() => 0),
 }) {
   @modelFlow
-  *addX(n: number) {
+  addX = asModelFlow(this._addX)
+
+  private *_addX(n: number) {
     this.x += n / 2
     const r = yield* delay(50)
     assert(r, _ as number)
@@ -52,7 +57,9 @@ export class P extends Model({
   }
 
   @modelFlow
-  *addXY(n1: number, n2: number) {
+  addXY = asModelFlow(this._addXY)
+
+  private *_addXY(n1: number, n2: number) {
     const r = yield* this.addX(n1)
     assert(r, _ as number)
     expect(typeof r).toBe("number")
@@ -62,7 +69,9 @@ export class P extends Model({
   }
 
   @modelFlow
-  *throwFlow(n: number) {
+  throwFlow = asModelFlow(this._throwFlow)
+
+  private *_throwFlow(n: number) {
     this.x += n
     yield* delay(50)
     throw new Error("flow failed")

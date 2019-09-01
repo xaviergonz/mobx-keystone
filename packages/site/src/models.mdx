@@ -147,6 +147,34 @@ interface Book {
 class BookStore extends Model({
   books: prop<Book[]>(() => []),
 }) {
+  // typescript version - option 1, with private method
+
+  // note how we have to use asModelFlow to trick the TS compiler that
+  // such function is awaitable
+  @modelFlow
+  fetchMyBooksAsync = asModelFlow(this._fetchMyBooksAsync)
+
+  // we use function* (a function generator) where we would use`async`
+  private *_fetchMyBooksAsync(token: string) {
+    // we use `yield*` where we would use `await`
+    // note: it is `yield*`, NOT just `yield`
+    const myBooks = yield* myBackendClient.getBooks(token)
+
+    this.books = myBooks
+  }
+
+  // typescript version - option 2, without private method
+
+  @modelFlow
+  // not how in this case we have to pass the type of this
+  fetchMyBooksAsync = asModelFlow(function*(this: BookStore, token: string) {
+    const myBooks = yield* myBackendClient.getBooks(token)
+
+    this.books = myBooks
+  });
+
+  // javascript version
+
   @modelFlow
   // we use function* (a function generator) where we would use`async`
   *fetchMyBooksAsync(token: string) {

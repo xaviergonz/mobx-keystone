@@ -1,4 +1,5 @@
 import {
+  asModelFlow,
   findParent,
   model,
   Model,
@@ -115,8 +116,7 @@ class P2Flow extends Model({
     })
   }
 
-  @modelFlow
-  *addY(n: number, error: boolean) {
+  private *_addY(n: number, error: boolean) {
     yield* delay(5)
     this.y += n
     if (error) {
@@ -126,12 +126,17 @@ class P2Flow extends Model({
   }
 
   @modelFlow
-  *addParentX(n: number, error: boolean) {
+  addY = asModelFlow(this._addY)
+
+  private *_addParentX(n: number, error: boolean) {
     const parent = findParent<PFlow>(this, p => p instanceof PFlow)!
     yield* delay(5)
     const ret = yield* parent.addX(n, error)
     return ret
   }
+
+  @modelFlow
+  addParentX = asModelFlow(this._addParentX)
 
   @modelAction
   addZ(n: number) {
@@ -145,9 +150,7 @@ class PFlow extends Model({
   x: prop(() => 0),
   p2: prop(() => new P2Flow({})),
 }) {
-  @transaction
-  @modelFlow
-  *addX(n: number, error: boolean) {
+  private *_addX(n: number, error: boolean) {
     this.x += n
     yield* delay(5)
     if (error) {
@@ -158,12 +161,18 @@ class PFlow extends Model({
 
   @transaction
   @modelFlow
-  *addY(a: number, b: number, error: boolean) {
+  addX = asModelFlow(this._addX)
+
+  private *_addY(a: number, b: number, error: boolean) {
     this.p2.y += a
     yield* delay(5)
     yield* this.p2.addY(b, error)
     return this.p2.y
   }
+
+  @transaction
+  @modelFlow
+  addY = asModelFlow(this._addY)
 }
 
 describe("transactionMiddleware - async", () => {

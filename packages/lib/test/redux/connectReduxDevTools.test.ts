@@ -1,5 +1,6 @@
 import {
   applySnapshot,
+  asModelFlow,
   connectReduxDevTools,
   model,
   Model,
@@ -66,31 +67,39 @@ class M extends Model({
     throw new Error("bye")
   }
 
-  @modelFlow
-  *setXAsync() {
+  private *_setXAsync() {
     this.x = "setXAsync +0"
     yield* waitAsync(20)
     this.x = "setXAsync +20"
   }
 
   @modelFlow
-  *setXAsyncWithEmptyFirstPart() {
+  setXAsync = asModelFlow(this._setXAsync)
+
+  private *_setXAsyncWithEmptyFirstPart() {
     yield* waitAsync(20)
     this.x = "setXAsyncWithEmptyFirstPart +20"
   }
 
   @modelFlow
-  *setXAsyncThrowSync() {
+  setXAsyncWithEmptyFirstPart = asModelFlow(this._setXAsyncWithEmptyFirstPart)
+
+  private *_setXAsyncThrowSync() {
     this.x = "setXAsyncThrowSync +0"
     yield* waitAsync(20)
     throw new Error("setXAsyncThrowSync +20")
   }
 
   @modelFlow
-  *setXAsyncThrowAsync() {
+  setXAsyncThrowSync = asModelFlow(this._setXAsyncThrowSync)
+
+  private *_setXAsyncThrowAsync() {
     this.x = "setXAsyncThrowAsync +0"
     yield* waitAsyncReject(20)
   }
+
+  @modelFlow
+  setXAsyncThrowAsync = asModelFlow(this._setXAsyncThrowAsync)
 
   @modelAction
   setY() {
@@ -103,25 +112,31 @@ class M extends Model({
     throw new Error("bye2")
   }
 
-  @modelFlow
-  *setYAsync() {
+  private *_setYAsync() {
     this.y = "setYAsync +0"
     yield* waitAsync(50)
     this.y = "setYAsync +50"
   }
 
   @modelFlow
-  *setYAsyncThrowSync() {
+  setYAsync = asModelFlow(this._setYAsync)
+
+  private *_setYAsyncThrowSync() {
     this.y = "setYAsyncThrowSync +0"
     yield* waitAsync(50)
     throw new Error("setYAsyncThrowSync +50")
   }
 
   @modelFlow
-  *setYAsyncThrowAsync() {
+  setYAsyncThrowSync = asModelFlow(this._setYAsyncThrowSync)
+
+  private *_setYAsyncThrowAsync() {
     this.y = "setYAsyncThrowAsync +0"
     yield* waitAsyncReject(50)
   }
+
+  @modelFlow
+  setYAsyncThrowAsync = asModelFlow(this._setYAsyncThrowAsync)
 
   @modelAction
   setXY() {
@@ -131,8 +146,7 @@ class M extends Model({
     this.x = "setXY ends"
   }
 
-  @modelFlow
-  *setXYAsync() {
+  private *_setXYAsync() {
     this.x = "setXYAsync starts"
     yield* this.setXAsync()
     yield* this.setYAsync()
@@ -140,14 +154,21 @@ class M extends Model({
   }
 
   @modelFlow
-  *setXYAsyncThrowSync() {
+  setXYAsync = asModelFlow(this._setXYAsync)
+
+  private *_setXYAsyncThrowSync() {
     yield* this.setXAsyncThrowSync()
   }
 
   @modelFlow
-  *setXYAsyncThrowAsync() {
+  setXYAsyncThrowSync = asModelFlow(this._setXYAsyncThrowSync)
+
+  private *_setXYAsyncThrowAsync() {
     yield* this.setXAsyncThrowAsync()
   }
+
+  @modelFlow
+  setXYAsyncThrowAsync = asModelFlow(this._setXYAsyncThrowAsync)
 }
 
 let m = new M({})

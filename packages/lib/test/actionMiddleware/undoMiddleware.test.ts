@@ -1,4 +1,5 @@
 import {
+  asModelFlow,
   getSnapshot,
   model,
   Model,
@@ -280,12 +281,14 @@ test("undoMiddleware - sync", () => {
 class P2Flow extends Model({
   y: prop(() => 0),
 }) {
-  @modelFlow
-  *incY(n: number) {
+  private *_incY(n: number) {
     yield* Promise.resolve()
     this.y += n
     yield* Promise.resolve()
   }
+
+  @modelFlow
+  incY = asModelFlow(this._incY)
 }
 
 @model("PFlow")
@@ -293,15 +296,16 @@ class PFlow extends Model({
   x: prop(() => 0),
   p2: prop(() => new P2Flow({})),
 }) {
-  @modelFlow
-  *incX(n: number) {
+  private *_incX(n: number) {
     yield* Promise.resolve()
     this.x += n
     yield* Promise.resolve()
   }
 
   @modelFlow
-  *incXY(x: number, y: number) {
+  incX = asModelFlow(this._incX)
+
+  private *_incXY(x: number, y: number) {
     yield* Promise.resolve()
     yield* this.incX(x)
     yield* Promise.resolve()
@@ -309,6 +313,9 @@ class PFlow extends Model({
     yield* Promise.resolve()
     throw new Error("incXY")
   }
+
+  @modelFlow
+  incXY = asModelFlow(this._incXY)
 }
 
 @model("RFlow")

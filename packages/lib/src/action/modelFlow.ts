@@ -213,6 +213,33 @@ function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
   checkModelDecoratorArgs("modelFlow", target, propertyKey)
 }
 
+/**
+ * A flow function.
+ */
+export type FlowFunction<A extends any[], R> = (...args: A) => Generator<any, R, any>
+
+/**
+ * Casts a flow function so it can be awaited too.
+ */
+export type FlowFunctionToPromiseFunction<FN extends FlowFunction<any[], any>> = FN extends (
+  ...args: infer A
+) => Generator<any, infer R, any>
+  ? ((...args: A) => Promise<R>)
+  : never
+
+/**
+ * Tricks the TS compiler into thinking that a model flow function can be awaited.
+ *
+ * @typeparam FN Flow function.
+ * @param fn Flow function.
+ * @returns
+ */
+export function asModelFlow<FN extends FlowFunction<any[], any>>(
+  fn: FN
+): FlowFunctionToPromiseFunction<FN> {
+  return fn as any
+}
+
 // allow promises to be yielded using yield*
 const promiseProto: any = Promise.prototype
 

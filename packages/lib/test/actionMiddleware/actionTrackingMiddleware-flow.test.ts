@@ -1,6 +1,7 @@
 import {
   actionTrackingMiddleware,
   ActionTrackingResult,
+  asModelFlow,
   getSnapshot,
   model,
   Model,
@@ -16,8 +17,7 @@ import { autoDispose, delay } from "../utils"
 export class P2 extends Model({
   y: prop(() => 0),
 }) {
-  @modelFlow
-  *addY(n: number) {
+  private *_addY(n: number) {
     this.y += n / 2
     yield* delay(50)
     this.y += n / 2
@@ -25,12 +25,17 @@ export class P2 extends Model({
   }
 
   @modelFlow
-  *addY2(n: number) {
+  addY = asModelFlow(this._addY)
+
+  private *_addY2(n: number) {
     this.y += n / 2
     yield* delay(50)
     this.y += n / 2
     return this.y
   }
+
+  @modelFlow
+  addY2 = asModelFlow(this._addY2)
 }
 
 @model("P")
@@ -38,8 +43,7 @@ export class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {
-  @modelFlow
-  *addX(n: number) {
+  private *_addX(n: number) {
     this.x += n / 2
     const r = yield* delay(50)
     expect(r).toBe(50) // just to see yields return the right result
@@ -50,14 +54,16 @@ export class P extends Model({
     return this.x
   }
 
+  @modelFlow
+  addX = asModelFlow(this._addX)
+
   @modelAction
   addXSync(n: number) {
     this.x += n
     return n
   }
 
-  @modelFlow
-  *addXY(n1: number, n2: number) {
+  private *_addXY(n1: number, n2: number) {
     const r = yield* this.addX(n1)
     expect(typeof r).toBe("number")
     yield* delay(50)
@@ -66,11 +72,16 @@ export class P extends Model({
   }
 
   @modelFlow
-  *throwFlow(n: number) {
+  addXY = asModelFlow(this._addXY)
+
+  private *_throwFlow(n: number) {
     this.x += n
     yield* delay(50)
     throw new Error("flow failed")
   }
+
+  @modelFlow
+  throwFlow = asModelFlow(this._throwFlow)
 }
 
 test("actionTrackingMiddleware - flow", async () => {
