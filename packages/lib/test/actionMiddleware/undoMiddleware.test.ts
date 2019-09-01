@@ -282,9 +282,9 @@ class P2Flow extends Model({
 }) {
   @modelFlow
   *incY(n: number) {
-    yield Promise.resolve()
+    yield* Promise.resolve()
     this.y += n
-    yield Promise.resolve()
+    yield* Promise.resolve()
   }
 }
 
@@ -295,18 +295,18 @@ class PFlow extends Model({
 }) {
   @modelFlow
   *incX(n: number) {
-    yield Promise.resolve()
+    yield* Promise.resolve()
     this.x += n
-    yield Promise.resolve()
+    yield* Promise.resolve()
   }
 
   @modelFlow
   *incXY(x: number, y: number) {
-    yield Promise.resolve()
-    yield this.incX(x)
-    yield Promise.resolve()
-    yield this.p2.incY(y)
-    yield Promise.resolve()
+    yield* Promise.resolve()
+    yield* this.incX(x)
+    yield* Promise.resolve()
+    yield* this.p2.incY(y)
+    yield* Promise.resolve()
     throw new Error("incXY")
   }
 }

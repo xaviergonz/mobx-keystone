@@ -69,27 +69,27 @@ class M extends Model({
   @modelFlow
   *setXAsync() {
     this.x = "setXAsync +0"
-    yield waitAsync(20)
+    yield* waitAsync(20)
     this.x = "setXAsync +20"
   }
 
   @modelFlow
   *setXAsyncWithEmptyFirstPart() {
-    yield waitAsync(20)
+    yield* waitAsync(20)
     this.x = "setXAsyncWithEmptyFirstPart +20"
   }
 
   @modelFlow
   *setXAsyncThrowSync() {
     this.x = "setXAsyncThrowSync +0"
-    yield waitAsync(20)
+    yield* waitAsync(20)
     throw new Error("setXAsyncThrowSync +20")
   }
 
   @modelFlow
   *setXAsyncThrowAsync() {
     this.x = "setXAsyncThrowAsync +0"
-    yield waitAsyncReject(20)
+    yield* waitAsyncReject(20)
   }
 
   @modelAction
@@ -106,21 +106,21 @@ class M extends Model({
   @modelFlow
   *setYAsync() {
     this.y = "setYAsync +0"
-    yield waitAsync(50)
+    yield* waitAsync(50)
     this.y = "setYAsync +50"
   }
 
   @modelFlow
   *setYAsyncThrowSync() {
     this.y = "setYAsyncThrowSync +0"
-    yield waitAsync(50)
+    yield* waitAsync(50)
     throw new Error("setYAsyncThrowSync +50")
   }
 
   @modelFlow
   *setYAsyncThrowAsync() {
     this.y = "setYAsyncThrowAsync +0"
-    yield waitAsyncReject(50)
+    yield* waitAsyncReject(50)
   }
 
   @modelAction
@@ -134,19 +134,19 @@ class M extends Model({
   @modelFlow
   *setXYAsync() {
     this.x = "setXYAsync starts"
-    yield this.setXAsync()
-    yield this.setYAsync()
+    yield* this.setXAsync()
+    yield* this.setYAsync()
     this.x = "setXYAsync ends"
   }
 
   @modelFlow
   *setXYAsyncThrowSync() {
-    yield this.setXAsyncThrowSync()
+    yield* this.setXAsyncThrowSync()
   }
 
   @modelFlow
   *setXYAsyncThrowAsync() {
-    yield this.setXAsyncThrowAsync()
+    yield* this.setXAsyncThrowAsync()
   }
 }
 

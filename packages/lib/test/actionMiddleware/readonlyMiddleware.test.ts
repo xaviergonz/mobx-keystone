@@ -26,7 +26,7 @@ export class P extends Model({
 
   @modelFlow
   *setXYAsync(x: number, y: number) {
-    yield delay(50)
+    yield* delay(50)
     this.x = x
     this.p2.setY(y)
     return x + y
