@@ -1,6 +1,4 @@
 import {
-  castModelFlow,
-  castYield,
   findParent,
   model,
   Model,
@@ -9,6 +7,8 @@ import {
   prop,
   transaction,
   transactionMiddleware,
+  _async,
+  _await,
 } from "../../src"
 import "../commonSetup"
 
@@ -117,23 +117,27 @@ class P2Flow extends Model({
     })
   }
 
-  @modelFlow
-  addY = castModelFlow(function*(this: P2Flow, n: number, error: boolean) {
-    yield delay(5)
+  private *_addY(n: number, error: boolean) {
+    yield* _await(delay(5))
     this.y += n
     if (error) {
       throw new Error("addY - Error")
     }
     return this.y
-  })
+  }
 
   @modelFlow
-  addParentX = castModelFlow(function*(this: P2Flow, n: number, error: boolean) {
+  addY = _async(this._addY)
+
+  private *_addParentX(n: number, error: boolean) {
     const parent = findParent<PFlow>(this, p => p instanceof PFlow)!
-    yield delay(5)
-    const ret = castYield(parent.addX, yield parent.addX(n, error))
+    yield* _await(delay(5))
+    const ret = yield* _await(parent.addX(n, error))
     return ret
-  })
+  }
+
+  @modelFlow
+  addParentX = _async(this._addParentX)
 
   @modelAction
   addZ(n: number) {
@@ -147,25 +151,29 @@ class PFlow extends Model({
   x: prop(() => 0),
   p2: prop(() => new P2Flow({})),
 }) {
-  @transaction
-  @modelFlow
-  addX = castModelFlow(function*(this: PFlow, n: number, error: boolean) {
+  private *_addX(n: number, error: boolean) {
     this.x += n
-    yield delay(5)
+    yield* _await(delay(5))
     if (error) {
       throw new Error("addX - Error")
     }
     return this.x
-  })
+  }
 
   @transaction
   @modelFlow
-  addY = castModelFlow(function*(this: PFlow, a: number, b: number, error: boolean) {
+  addX = _async(this._addX)
+
+  private *_addY(a: number, b: number, error: boolean) {
     this.p2.y += a
-    yield delay(5)
-    yield this.p2.addY(b, error)
+    yield* _await(delay(5))
+    yield* _await(this.p2.addY(b, error))
     return this.p2.y
-  })
+  }
+
+  @transaction
+  @modelFlow
+  addY = _async(this._addY)
 }
 
 describe("transactionMiddleware - async", () => {

@@ -1,8 +1,6 @@
 import {
   actionTrackingMiddleware,
   ActionTrackingResult,
-  castModelFlow,
-  castYield,
   getSnapshot,
   model,
   Model,
@@ -10,6 +8,8 @@ import {
   modelFlow,
   prop,
   SimpleActionContext,
+  _async,
+  _await,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
@@ -18,21 +18,25 @@ import { autoDispose, delay } from "../utils"
 export class P2 extends Model({
   y: prop(() => 0),
 }) {
-  @modelFlow
-  addY = castModelFlow(function*(this: P2, n: number) {
+  private *_addY(n: number) {
     this.y += n / 2
-    yield delay(50)
+    yield* _await(delay(50))
     this.y += n / 2
     return this.y
-  })
+  }
 
   @modelFlow
-  addY2 = castModelFlow(function*(this: P2, n: number) {
+  addY = _async(this._addY)
+
+  private *_addY2(n: number) {
     this.y += n / 2
-    yield delay(50)
+    yield* _await(delay(50))
     this.y += n / 2
     return this.y
-  })
+  }
+
+  @modelFlow
+  addY2 = _async(this._addY2)
 }
 
 @model("P")
@@ -40,17 +44,19 @@ export class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {
-  @modelFlow
-  addX = castModelFlow(function*(this: P, n: number) {
+  private *_addX(n: number) {
     this.x += n / 2
-    const r = castYield(delay, yield delay(50))
+    const r = yield* _await(delay(50))
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
-    const r2 = castYield(delay, yield delay(40))
+    const r2 = yield* _await(delay(40))
     expect(r2).toBe(40) // just to see yields return the right result
     this.x += n / 4
     return this.x
-  })
+  }
+
+  @modelFlow
+  addX = _async(this._addX)
 
   @modelAction
   addXSync(n: number) {
@@ -58,21 +64,25 @@ export class P extends Model({
     return n
   }
 
-  @modelFlow
-  addXY = castModelFlow(function*(this: P, n1: number, n2: number) {
-    const r = castYield(this.addX, yield this.addX(n1))
+  private *_addXY(n1: number, n2: number) {
+    const r = yield* _await(this.addX(n1))
     expect(typeof r).toBe("number")
-    yield delay(50)
-    yield this.p2.addY(n2)
+    yield* _await(delay(50))
+    yield* _await(this.p2.addY(n2))
     return n1 + n2
-  })
+  }
 
   @modelFlow
-  throwFlow = castModelFlow(function*(this: P, n: number) {
+  addXY = _async(this._addXY)
+
+  private *_throwFlow(n: number) {
     this.x += n
-    yield delay(50)
+    yield* _await(delay(50))
     throw new Error("flow failed")
-  })
+  }
+
+  @modelFlow
+  throwFlow = _async(this._throwFlow)
 }
 
 test("actionTrackingMiddleware - flow", async () => {

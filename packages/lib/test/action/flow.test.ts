@@ -2,8 +2,6 @@ import { assert, _ } from "spec.ts"
 import {
   ActionCall,
   ActionContext,
-  castModelFlow,
-  castYield,
   getSnapshot,
   model,
   Model,
@@ -11,25 +9,25 @@ import {
   modelFlow,
   onActionMiddleware,
   prop,
+  _async,
+  _await,
 } from "../../src"
 import "../commonSetup"
-import { autoDispose } from "../utils"
-
-async function delay(x: number) {
-  return new Promise<number>(r => setTimeout(() => r(x), x))
-}
+import { autoDispose, delay } from "../utils"
 
 @model("P2")
 export class P2 extends Model({
   y: prop(() => 0),
 }) {
-  @modelFlow
-  addY = castModelFlow(function*(this: P2, n: number) {
+  private *_addY(n: number) {
     this.y += n / 2
-    yield delay(50)
+    yield* _await(delay(50))
     this.y += n / 2
     return this.y
-  })
+  }
+
+  @modelFlow
+  addY = _async(this._addY)
 }
 
 @model("P")
@@ -38,13 +36,13 @@ export class P extends Model({
   x: prop(() => 0),
 }) {
   @modelFlow
-  addX = castModelFlow(function*(this: P, n: number) {
+  addX = _async(function*(this: P, n: number) {
     this.x += n / 2
-    const r = castYield(delay, yield delay(50))
+    const r = yield* _await(delay(50))
     assert(r, _ as number)
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
-    const r2 = castYield(delay, yield delay(40))
+    const r2 = yield* _await(delay(40))
     assert(r2, _ as number)
     expect(r2).toBe(40) // just to see yields return the right result
     this.x += n / 4
@@ -58,21 +56,25 @@ export class P extends Model({
   }
 
   @modelFlow
-  addXY = castModelFlow(function*(this: P, n1: number, n2: number) {
-    const r = castYield(this.addX, yield this.addX(n1))
+  addXY = _async(this._addXY)
+
+  private *_addXY(n1: number, n2: number) {
+    const r = yield* _await(this.addX(n1))
     assert(r, _ as number)
     expect(typeof r).toBe("number")
-    yield delay(50)
-    yield this.p2.addY(n2)
+    yield* _await(delay(50))
+    yield* _await(this.p2.addY(n2))
     return n1 + n2
-  })
+  }
 
   @modelFlow
-  throwFlow = castModelFlow(function*(this: P, n: number) {
+  throwFlow = _async(this._throwFlow)
+
+  private *_throwFlow(n: number) {
     this.x += n
-    yield delay(50)
+    yield* _await(delay(50))
     throw new Error("flow failed")
-  })
+  }
 }
 
 test("flow", async () => {

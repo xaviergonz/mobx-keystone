@@ -7,6 +7,8 @@ import {
   modelFlow,
   modelSnapshotOutWithMetadata,
   prop,
+  _async,
+  _await,
 } from "../../src"
 
 jest.useRealTimers()
@@ -66,31 +68,39 @@ class M extends Model({
     throw new Error("bye")
   }
 
-  @modelFlow
-  *setXAsync() {
+  private *_setXAsync() {
     this.x = "setXAsync +0"
-    yield waitAsync(20)
+    yield* _await(waitAsync(20))
     this.x = "setXAsync +20"
   }
 
   @modelFlow
-  *setXAsyncWithEmptyFirstPart() {
-    yield waitAsync(20)
+  setXAsync = _async(this._setXAsync)
+
+  private *_setXAsyncWithEmptyFirstPart() {
+    yield* _await(waitAsync(20))
     this.x = "setXAsyncWithEmptyFirstPart +20"
   }
 
   @modelFlow
-  *setXAsyncThrowSync() {
+  setXAsyncWithEmptyFirstPart = _async(this._setXAsyncWithEmptyFirstPart)
+
+  private *_setXAsyncThrowSync() {
     this.x = "setXAsyncThrowSync +0"
-    yield waitAsync(20)
+    yield* _await(waitAsync(20))
     throw new Error("setXAsyncThrowSync +20")
   }
 
   @modelFlow
-  *setXAsyncThrowAsync() {
+  setXAsyncThrowSync = _async(this._setXAsyncThrowSync)
+
+  private *_setXAsyncThrowAsync() {
     this.x = "setXAsyncThrowAsync +0"
-    yield waitAsyncReject(20)
+    yield* _await(waitAsyncReject(20))
   }
+
+  @modelFlow
+  setXAsyncThrowAsync = _async(this._setXAsyncThrowAsync)
 
   @modelAction
   setY() {
@@ -103,25 +113,31 @@ class M extends Model({
     throw new Error("bye2")
   }
 
-  @modelFlow
-  *setYAsync() {
+  private *_setYAsync() {
     this.y = "setYAsync +0"
-    yield waitAsync(50)
+    yield* _await(waitAsync(50))
     this.y = "setYAsync +50"
   }
 
   @modelFlow
-  *setYAsyncThrowSync() {
+  setYAsync = _async(this._setYAsync)
+
+  private *_setYAsyncThrowSync() {
     this.y = "setYAsyncThrowSync +0"
-    yield waitAsync(50)
+    yield* _await(waitAsync(50))
     throw new Error("setYAsyncThrowSync +50")
   }
 
   @modelFlow
-  *setYAsyncThrowAsync() {
+  setYAsyncThrowSync = _async(this._setYAsyncThrowSync)
+
+  private *_setYAsyncThrowAsync() {
     this.y = "setYAsyncThrowAsync +0"
-    yield waitAsyncReject(50)
+    yield* _await(waitAsyncReject(50))
   }
+
+  @modelFlow
+  setYAsyncThrowAsync = _async(this._setYAsyncThrowAsync)
 
   @modelAction
   setXY() {
@@ -131,23 +147,29 @@ class M extends Model({
     this.x = "setXY ends"
   }
 
-  @modelFlow
-  *setXYAsync() {
+  private *_setXYAsync() {
     this.x = "setXYAsync starts"
-    yield this.setXAsync()
-    yield this.setYAsync()
+    yield* _await(this.setXAsync())
+    yield* _await(this.setYAsync())
     this.x = "setXYAsync ends"
   }
 
   @modelFlow
-  *setXYAsyncThrowSync() {
-    yield this.setXAsyncThrowSync()
+  setXYAsync = _async(this._setXYAsync)
+
+  private *_setXYAsyncThrowSync() {
+    yield* _await(this.setXAsyncThrowSync())
   }
 
   @modelFlow
-  *setXYAsyncThrowAsync() {
-    yield this.setXAsyncThrowAsync()
+  setXYAsyncThrowSync = _async(this._setXYAsyncThrowSync)
+
+  private *_setXYAsyncThrowAsync() {
+    yield* _await(this.setXAsyncThrowAsync())
   }
+
+  @modelFlow
+  setXYAsyncThrowAsync = _async(this._setXYAsyncThrowAsync)
 }
 
 let m = new M({})

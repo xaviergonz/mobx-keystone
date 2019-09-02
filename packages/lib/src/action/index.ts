@@ -9,13 +9,5 @@ export {
 export { HookAction, isHookAction } from "./hookActions"
 export { ActionMiddleware, ActionMiddlewareDisposer, addActionMiddleware } from "./middleware"
 export { isModelAction, modelAction } from "./modelAction"
-export {
-  castModelFlow,
-  castYield,
-  FlowFunction,
-  FlowFunctionAsPromiseFunction,
-  isModelFlow,
-  modelFlow,
-  PromiseFunction,
-} from "./modelFlow"
+export { isModelFlow, modelFlow, _async, _await } from "./modelFlow"
 export { runUnprotected } from "./protection"
