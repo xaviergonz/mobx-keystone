@@ -147,28 +147,15 @@ interface Book {
 class BookStore extends Model({
   books: prop<Book[]>(() => []),
 }) {
-  // typescript version - option 1, with private method
-
-  // note how we have to use asModelFlow to trick the TS compiler that
-  // such function is awaitable
-  @modelFlow
-  fetchMyBooksAsync = asModelFlow(this._fetchMyBooksAsync)
-
-  // we use function* (a function generator) where we would use`async`
-  private *_fetchMyBooksAsync(token: string) {
-    // we use `yield*` where we would use `await`
-    // note: it is `yield*`, NOT just `yield`
-    const myBooks = yield* myBackendClient.getBooks(token)
-
-    this.books = myBooks
-  }
-
-  // typescript version - option 2, without private method
+  // typescript version
 
   @modelFlow
-  // not how in this case we have to pass the type of this
-  fetchMyBooksAsync = asModelFlow(function*(this: BookStore, token: string) {
-    const myBooks = yield* myBackendClient.getBooks(token)
+  // note: `_async` is a function that has to be imported, we have to use `this: THISCLASS`
+  fetchMyBooksAsync = _async(function*(this: BookStore, token: string) {
+    // we use `yield* _await(X)` where we would use `await X`
+    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
+
+    const myBooks = yield* _await(myBackendClient.getBooks(token))
 
     this.books = myBooks
   });
@@ -177,15 +164,17 @@ class BookStore extends Model({
 
   @modelFlow
   // we use function* (a function generator) where we would use`async`
-  *fetchMyBooksAsync(token: string) {
-    // we use `yield*` where we would use `await`
-    // note: it is `yield*`, NOT just `yield`
-    const myBooks = yield* myBackendClient.getBooks(token)
+  *fetchMyBooksAsync(token) {
+    // we use `yield* _await(X)` where we would use `await X`
+    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
+
+    const myBooks = yield* _await(myBackendClient.getBooks(token))
 
     this.books = myBooks
   }
 }
 
+// in either case it can be used like this
 const myBookStore = new BookStore({})
 await myBookStore.fetchMyBooksAsync("someToken")
 ```

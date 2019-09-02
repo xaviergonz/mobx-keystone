@@ -2,7 +2,6 @@ import { assert, _ } from "spec.ts"
 import {
   ActionCall,
   ActionContext,
-  asModelFlow,
   getSnapshot,
   model,
   Model,
@@ -10,6 +9,8 @@ import {
   modelFlow,
   onActionMiddleware,
   prop,
+  _async,
+  _await,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
@@ -20,13 +21,13 @@ export class P2 extends Model({
 }) {
   private *_addY(n: number) {
     this.y += n / 2
-    yield* delay(50)
+    yield* _await(delay(50))
     this.y += n / 2
     return this.y
   }
 
   @modelFlow
-  addY = asModelFlow(this._addY)
+  addY = _async(this._addY)
 }
 
 @model("P")
@@ -35,20 +36,18 @@ export class P extends Model({
   x: prop(() => 0),
 }) {
   @modelFlow
-  addX = asModelFlow(this._addX)
-
-  private *_addX(n: number) {
+  addX = _async(function*(this: P, n: number) {
     this.x += n / 2
-    const r = yield* delay(50)
+    const r = yield* _await(delay(50))
     assert(r, _ as number)
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
-    const r2 = yield* delay(40)
+    const r2 = yield* _await(delay(40))
     assert(r2, _ as number)
     expect(r2).toBe(40) // just to see yields return the right result
     this.x += n / 4
     return this.x
-  }
+  })
 
   @modelAction
   addXSync(n: number) {
@@ -57,23 +56,23 @@ export class P extends Model({
   }
 
   @modelFlow
-  addXY = asModelFlow(this._addXY)
+  addXY = _async(this._addXY)
 
   private *_addXY(n1: number, n2: number) {
-    const r = yield* this.addX(n1)
+    const r = yield* _await(this.addX(n1))
     assert(r, _ as number)
     expect(typeof r).toBe("number")
-    yield* delay(50)
-    yield* this.p2.addY(n2)
+    yield* _await(delay(50))
+    yield* _await(this.p2.addY(n2))
     return n1 + n2
   }
 
   @modelFlow
-  throwFlow = asModelFlow(this._throwFlow)
+  throwFlow = _async(this._throwFlow)
 
   private *_throwFlow(n: number) {
     this.x += n
-    yield* delay(50)
+    yield* _await(delay(50))
     throw new Error("flow failed")
   }
 }

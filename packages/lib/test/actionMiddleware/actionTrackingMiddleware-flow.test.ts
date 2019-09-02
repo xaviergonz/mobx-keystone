@@ -1,7 +1,6 @@
 import {
   actionTrackingMiddleware,
   ActionTrackingResult,
-  asModelFlow,
   getSnapshot,
   model,
   Model,
@@ -9,6 +8,8 @@ import {
   modelFlow,
   prop,
   SimpleActionContext,
+  _async,
+  _await,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
@@ -19,23 +20,23 @@ export class P2 extends Model({
 }) {
   private *_addY(n: number) {
     this.y += n / 2
-    yield* delay(50)
+    yield* _await(delay(50))
     this.y += n / 2
     return this.y
   }
 
   @modelFlow
-  addY = asModelFlow(this._addY)
+  addY = _async(this._addY)
 
   private *_addY2(n: number) {
     this.y += n / 2
-    yield* delay(50)
+    yield* _await(delay(50))
     this.y += n / 2
     return this.y
   }
 
   @modelFlow
-  addY2 = asModelFlow(this._addY2)
+  addY2 = _async(this._addY2)
 }
 
 @model("P")
@@ -45,17 +46,17 @@ export class P extends Model({
 }) {
   private *_addX(n: number) {
     this.x += n / 2
-    const r = yield* delay(50)
+    const r = yield* _await(delay(50))
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
-    const r2 = yield* delay(40)
+    const r2 = yield* _await(delay(40))
     expect(r2).toBe(40) // just to see yields return the right result
     this.x += n / 4
     return this.x
   }
 
   @modelFlow
-  addX = asModelFlow(this._addX)
+  addX = _async(this._addX)
 
   @modelAction
   addXSync(n: number) {
@@ -64,24 +65,24 @@ export class P extends Model({
   }
 
   private *_addXY(n1: number, n2: number) {
-    const r = yield* this.addX(n1)
+    const r = yield* _await(this.addX(n1))
     expect(typeof r).toBe("number")
-    yield* delay(50)
-    yield* this.p2.addY(n2)
+    yield* _await(delay(50))
+    yield* _await(this.p2.addY(n2))
     return n1 + n2
   }
 
   @modelFlow
-  addXY = asModelFlow(this._addXY)
+  addXY = _async(this._addXY)
 
   private *_throwFlow(n: number) {
     this.x += n
-    yield* delay(50)
+    yield* _await(delay(50))
     throw new Error("flow failed")
   }
 
   @modelFlow
-  throwFlow = asModelFlow(this._throwFlow)
+  throwFlow = _async(this._throwFlow)
 }
 
 test("actionTrackingMiddleware - flow", async () => {

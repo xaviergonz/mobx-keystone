@@ -1,11 +1,12 @@
 import {
-  asModelFlow,
   model,
   Model,
   modelAction,
   modelFlow,
   prop,
   readonlyMiddleware,
+  _async,
+  _await,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
@@ -33,14 +34,14 @@ export class P extends Model({
   }
 
   private *_setXYAsync(x: number, y: number) {
-    yield* delay(50)
+    yield* _await(delay(50))
     this.x = x
     this.p2.setY(y)
     return x + y
   }
 
   @modelFlow
-  setXYAsync = asModelFlow(this._setXYAsync)
+  setXYAsync = _async(this._setXYAsync)
 }
 
 let p: P

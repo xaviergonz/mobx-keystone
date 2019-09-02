@@ -2,7 +2,7 @@
 
 ## 0.16.0
 
-- [BREAKING CHANGE] Again changes to flows so typings are better. Check the updated flow section of the documentation to see how to work with them now (should be _much_ easier).
+- [BREAKING CHANGE] Again changes to flows so typings are better. Check the updated flow section of the documentation to see how to work with them now (should be much easier).
 
 ## 0.15.0
 

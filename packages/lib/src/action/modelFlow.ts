@@ -145,6 +145,7 @@ function flow<R, Args extends any[]>(
 
       onFulfilled(undefined) // kick off the process
     })
+
     return promise
   }
   ;(flowFn as any)[modelFlowSymbol] = true
@@ -214,37 +215,33 @@ function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
 }
 
 /**
- * A flow function.
- */
-export type FlowFunction<A extends any[], R> = (...args: A) => Generator<any, R, any>
-
-/**
- * Casts a flow function so it can be awaited too.
- */
-export type FlowFunctionToPromiseFunction<FN extends FlowFunction<any[], any>> = FN extends (
-  ...args: infer A
-) => Generator<any, infer R, any>
-  ? ((...args: A) => Promise<R>)
-  : never
-
-/**
- * Tricks the TS compiler into thinking that a model flow function can be awaited.
+ * Tricks the TS compiler into thinking that a model flow generator function can be awaited
+ * (is a promise).
  *
- * @typeparam FN Flow function.
+ * @typeparam A Function arguments.
+ * @typeparam R Return value.
  * @param fn Flow function.
  * @returns
  */
-export function asModelFlow<FN extends FlowFunction<any[], any>>(
-  fn: FN
-): FlowFunctionToPromiseFunction<FN> {
+export function _async<A extends any[], R>(
+  fn: (...args: A) => Generator<any, R, any>
+): (...args: A) => Promise<R> {
   return fn as any
 }
 
-// allow promises to be yielded using yield*
-const promiseProto: any = Promise.prototype
+/**
+ * Makes a promise a flow, so it can be awaited with yield*.
+ *
+ * @typeparam T Promise return type.
+ * @param promise Promise.
+ * @returns
+ */
+export function _await<T>(promise: Promise<T>): Generator<Promise<T>, T, unknown> {
+  return promiseGenerator.call(promise)
+}
 
 /*
-promiseProto[Symbol.iterator] = function*<T>(
+function* promiseGenerator<T>(
   this: Promise<T>
 ) {
   const ret: T = yield this
@@ -354,7 +351,7 @@ const __generator = function(thisArg: any, body: any) {
   }
 }
 
-promiseProto[Symbol.iterator] = function() {
+function promiseGenerator(this: Promise<any>) {
   let ret
   return __generator(this, function(this: any, _a: any) {
     switch (_a.label) {

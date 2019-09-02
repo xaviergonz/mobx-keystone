@@ -1,5 +1,4 @@
 import {
-  asModelFlow,
   getSnapshot,
   model,
   Model,
@@ -10,6 +9,8 @@ import {
   UndoManager,
   undoMiddleware,
   UndoStore,
+  _async,
+  _await,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -282,13 +283,13 @@ class P2Flow extends Model({
   y: prop(() => 0),
 }) {
   private *_incY(n: number) {
-    yield* Promise.resolve()
+    yield* _await(Promise.resolve())
     this.y += n
-    yield* Promise.resolve()
+    yield* _await(Promise.resolve())
   }
 
   @modelFlow
-  incY = asModelFlow(this._incY)
+  incY = _async(this._incY)
 }
 
 @model("PFlow")
@@ -297,25 +298,25 @@ class PFlow extends Model({
   p2: prop(() => new P2Flow({})),
 }) {
   private *_incX(n: number) {
-    yield* Promise.resolve()
+    yield* _await(Promise.resolve())
     this.x += n
-    yield* Promise.resolve()
+    yield* _await(Promise.resolve())
   }
 
   @modelFlow
-  incX = asModelFlow(this._incX)
+  incX = _async(this._incX)
 
   private *_incXY(x: number, y: number) {
-    yield* Promise.resolve()
-    yield* this.incX(x)
-    yield* Promise.resolve()
-    yield* this.p2.incY(y)
-    yield* Promise.resolve()
+    yield* _await(Promise.resolve())
+    yield* _await(this.incX(x))
+    yield* _await(Promise.resolve())
+    yield* _await(this.p2.incY(y))
+    yield* _await(Promise.resolve())
     throw new Error("incXY")
   }
 
   @modelFlow
-  incXY = asModelFlow(this._incXY)
+  incXY = _async(this._incXY)
 }
 
 @model("RFlow")
