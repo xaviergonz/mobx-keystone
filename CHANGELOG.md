@@ -2,7 +2,7 @@
 
 ## 0.17.0
 
-- Better support for array / object spreading, reassing to filter/map, etc. Objects and arrays will be automatically unconverted from tree nodes when detached.
+- Better support for array / object spreading, reassign to filter/map, etc. Objects and arrays will be automatically unconverted from tree nodes when detached.
 
 ## 0.16.0
 
