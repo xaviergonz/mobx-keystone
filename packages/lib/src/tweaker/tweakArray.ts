@@ -17,7 +17,7 @@ import { Patch } from "../patch/Patch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, inDevMode, isPrimitive } from "../utils"
 import { assertCanWrite, runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { tweak } from "./tweak"
+import { tryUntweak, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -37,7 +37,15 @@ export function tweakArray<T extends any[]>(
     tweakedArr.length = originalArr.length
   }
 
-  tweakedObjects.add(tweakedArr)
+  let interceptDisposer: () => void
+  let observeDisposer: () => void
+
+  const untweak = () => {
+    interceptDisposer()
+    observeDisposer()
+  }
+
+  tweakedObjects.set(tweakedArr, untweak)
   setParent(tweakedArr, parentPath)
 
   const standardSn: any[] = []
@@ -72,8 +80,8 @@ export function tweakArray<T extends any[]>(
 
   setInternalSnapshot(tweakedArr, standardSn)
 
-  intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
-  observe(tweakedArr, arrayDidChange)
+  interceptDisposer = intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
+  observeDisposer = observe(tweakedArr, arrayDidChange)
 
   return tweakedArr as any
 }
@@ -232,6 +240,7 @@ function interceptArrayMutation(
         for (let i = 0; i < change.removedCount; i++) {
           const removedValue = change.object[change.index + i]
           tweak(removedValue, undefined)
+          tryUntweak(removedValue)
         }
 
         for (let i = 0; i < change.added.length; i++) {
@@ -266,7 +275,10 @@ function interceptArrayMutation(
       }
 
       // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
-      tweak(array[change.index], undefined) // set old prop obj parent to undefined
+      const oldVal = array[change.index]
+      tweak(oldVal, undefined) // set old prop obj parent to undefined
+      tryUntweak(oldVal)
+
       change.newValue = tweak(change.newValue, { parent: array, path: change.index })
       break
   }

@@ -161,16 +161,12 @@ test("dynamic target", () => {
 
     @modelAction
     addTodo(todo: Todo) {
-      const oldTodos = this.todos.slice()
-      this.todos.length = 0
-      this.todos = [...oldTodos, todo]
+      this.todos = [...this.todos, todo]
     }
 
     @modelAction
     removeTodo(todo: Todo) {
-      const oldTodos = this.todos.slice()
-      this.todos.length = 0
-      this.todos = oldTodos.filter(t => t !== todo)
+      this.todos = this.todos.filter(t => t !== todo)
     }
   }
 

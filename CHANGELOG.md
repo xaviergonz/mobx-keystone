@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.17.0
+
+- Better support for array / object spreading, reassing to filter/map, etc. Objects and arrays will be automatically unconverted from tree nodes when detached.
+
 ## 0.16.0
 
 - [BREAKING CHANGE] Again changes to flows so typings are better. Check the updated flow section of the documentation to see how to work with them now (should be much easier).

@@ -1,10 +1,21 @@
 import { action, isObservableObject } from "mobx"
 import { Frozen } from "../frozen/Frozen"
 import { isModel } from "../model/utils"
-import { ParentPath } from "../parent/path"
+import { objectChildren } from "../parent/core"
+import { fastGetParent, ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
-import { failure, isArray, isMap, isObject, isPlainObject, isPrimitive, isSet } from "../utils"
-import { isTreeNode, isTweakedObject } from "./core"
+import { unsetInternalSnapshot } from "../snapshot/internal"
+import {
+  failure,
+  inDevMode,
+  isArray,
+  isMap,
+  isObject,
+  isPlainObject,
+  isPrimitive,
+  isSet,
+} from "../utils"
+import { isTreeNode, isTweakedObject, tweakedObjects } from "./core"
 import { tweakArray } from "./tweakArray"
 import { tweakFrozen } from "./tweakFrozen"
 import { tweakModel } from "./tweakModel"
@@ -78,3 +89,36 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
  * @ignore
  */
 export const tweak = action("tweak", internalTweak)
+
+/**
+ * @ignore
+ */
+export function tryUntweak(value: any) {
+  if (isPrimitive(value)) {
+    return true
+  }
+
+  if (inDevMode()) {
+    if (fastGetParent(value)) {
+      throw failure("assertion error: object cannot be untweaked while it has a parent")
+    }
+  }
+
+  const untweaker = tweakedObjects.get(value)
+  if (!untweaker) {
+    return false
+  }
+
+  // we have to make a copy since it will be changed
+  const children = [...objectChildren.get(value)!]
+  for (let i = 0; i < children.length; i++) {
+    const v = children[i]
+    setParent(v, undefined)
+  }
+
+  untweaker()
+
+  tweakedObjects.delete(value)
+  unsetInternalSnapshot(value)
+  return true
+}
