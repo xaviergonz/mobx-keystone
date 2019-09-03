@@ -14,7 +14,7 @@ import { InternalPatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, isPrimitive } from "../utils"
 import { assertCanWrite, runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { tweak } from "./tweak"
+import { tryUntweak, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -31,7 +31,15 @@ export function tweakPlainObject<T>(
     ? originalObj
     : observable.object({}, undefined, observableOptions)
 
-  tweakedObjects.add(tweakedObj)
+  let interceptDisposer: () => void
+  let observeDisposer: () => void
+
+  const untweak = () => {
+    interceptDisposer()
+    observeDisposer()
+  }
+
+  tweakedObjects.set(tweakedObj, untweak)
   setParent(tweakedObj, parentPath)
 
   const standardSn: any = {}
@@ -71,8 +79,8 @@ export function tweakPlainObject<T>(
 
   setInternalSnapshot(tweakedObj, standardSn)
 
-  intercept(tweakedObj, interceptObjectMutation)
-  observe(tweakedObj, objectDidChange)
+  interceptDisposer = intercept(tweakedObj, interceptObjectMutation)
+  observeDisposer = observe(tweakedObj, objectDidChange)
 
   return tweakedObj as any
 }
@@ -190,16 +198,25 @@ function interceptObjectMutation(change: IObjectWillChange) {
         path: "" + (change.name as any),
       })
       break
-    case "remove":
-      tweak(change.object[change.name], undefined)
+
+    case "remove": {
+      const oldVal = change.object[change.name]
+      tweak(oldVal, undefined)
+      tryUntweak(oldVal)
       break
-    case "update":
-      tweak(change.object[change.name], undefined)
+    }
+
+    case "update": {
+      const oldVal = change.object[change.name]
+      tweak(oldVal, undefined)
+      tryUntweak(oldVal)
+
       change.newValue = tweak(change.newValue, {
         parent: change.object,
         path: "" + (change.name as any),
       })
       break
+    }
   }
 
   return change

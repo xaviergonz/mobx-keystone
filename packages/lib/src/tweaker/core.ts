@@ -6,7 +6,7 @@ import { failure, isPrimitive } from "../utils"
 /**
  * @ignore
  */
-export const tweakedObjects = new WeakSet<Object>()
+export const tweakedObjects = new WeakMap<Object, undefined | (() => void)>()
 
 /**
  * @ignore

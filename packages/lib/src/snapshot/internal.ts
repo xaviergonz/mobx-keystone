@@ -50,6 +50,18 @@ function getInternalSnapshotParent(
 /**
  * @ignore
  */
+export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any) => {
+  const oldSn = getInternalSnapshot(value) as SnapshotData<any>
+
+  if (oldSn) {
+    snapshots.delete(value)
+    oldSn.atom.reportChanged()
+  }
+})
+
+/**
+ * @ignore
+ */
 export const setInternalSnapshot = action(
   "setInternalSnapshot",
   <T extends object>(value: any, standard: T): void => {

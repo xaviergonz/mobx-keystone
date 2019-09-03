@@ -6,7 +6,7 @@ import { tweakedObjects } from "./core"
  * @ignore
  */
 export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined): T {
-  tweakedObjects.add(value)
+  tweakedObjects.set(value, undefined)
   setParent(value, parentPath)
 
   // nothing to do for models, data is already proxified and its parent is set

@@ -11,7 +11,7 @@ export function tweakFrozen<T extends Frozen<any>>(
   frozenObj: T,
   parentPath: ParentPath<any> | undefined
 ): T {
-  tweakedObjects.add(frozenObj)
+  tweakedObjects.set(frozenObj, undefined)
   setParent(frozenObj, parentPath)
 
   // we DON'T want data proxified, but the snapshot is the data itself
