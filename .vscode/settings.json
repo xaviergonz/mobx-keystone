@@ -4,5 +4,17 @@
     "source.organizeImports": true
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"]
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "peacock.color": "#68217A",
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#68217a",
+    "titleBar.inactiveBackground": "#68217a99",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  }
 }
