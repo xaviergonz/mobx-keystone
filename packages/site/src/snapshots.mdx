@@ -85,13 +85,6 @@ Restoring a snapshot is pretty easy as well:
 const todo = fromSnapshot<Todo>(todoSnapshot)
 ```
 
-`fromSnapshot` by default won't try to generate new IDs for each model.
-If you want to generate new IDs as well as fix any references automatically (as long as they are inside the same snapshot) you can pass the `generateNewIds` option inside an options object as shown below:
-
-```ts
-const todo = fromSnapshot<Todo>(todoSnapshot, { generateNewIds: true })
-```
-
 The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo> | SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
 
 ```
@@ -153,7 +146,7 @@ In the case above, only a single patch will be generated (for the `done` propert
 
 ### `clone<T extends object>(value: T, options?: CloneOptions): T`
 
-Snapshots can also be used to clone values. `clone` is just sugar syntax around `getSnapshot` and `fromSnapshot`, with the only difference that `generateNewIds` defaults to `true` instead of `false`.
+Snapshots can also be used to clone values. `clone` is just sugar syntax around `getSnapshot` and `fromSnapshot`.
 
 ```ts
 const clonedTodo = clone(todo)
