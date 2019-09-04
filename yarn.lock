@@ -5874,10 +5874,10 @@ docz-utils@^1.2.0:
     unist-util-is "^2.1.2"
     unist-util-visit "^1.4.0"
 
-docz@^1.2.0, docz@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/docz/-/docz-1.3.0.tgz#bcdb4c9573c7af3c030202e7ab5286fdc79c9d6b"
-  integrity sha512-1KcIOmBZ5ECvBTfZtQ6z6Eqw7NTm98/jPMw4Sd6sS9AUbEZ3erhGS2cxWqwQOKzBMXKhuE3bWgBuTCT2EG4coQ==
+docz@^1.2.0, docz@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/docz/-/docz-1.3.1.tgz#0e2381d1d435af9ef3884c4a79121e301ae3ddbf"
+  integrity sha512-Y6MOmuZLDldVoTXw3G3IK/GCvfyCyKF7R0gYW7B4Y0/31CHccx1yeXa1lXVtXWvQ5cCZIgeUM5a7+QWhFCLJ9g==
   dependencies:
     "@loadable/component" "^5.9.0"
     "@mdx-js/react" "^1.0.16"
@@ -14449,10 +14449,10 @@ ts-toolbelt@^3.8.63:
   resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-3.8.63.tgz#ee5a94a5d870f437bc6811f7428ea24c78821f6a"
   integrity sha512-OlsFC8uF1mpN2O7DlvSkgnXzOvubO790eFhTvZBFI+WLge2BYzkQk73Q3yF0R8usxhkqbemLomqRhCGWasoIKw==
 
-tsdx@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/tsdx/-/tsdx-0.9.0.tgz#12fe1e9ac4bab0d3e0177dfd9ec1971474fe178d"
-  integrity sha512-75uA3HHWQ29eSiSaQhIb0qrPS+kdTikITO7JbrWoyDgYFju73gF661YQe+YHyvSa5IHtD5uasMbFCj+lqstfzA==
+tsdx@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/tsdx/-/tsdx-0.9.1.tgz#e0c9646d0bc95f8a01c96c7e7996a2c52a3eb270"
+  integrity sha512-/rCi/eb+NNvQXFzEufcODaApZB7+Bbnexbx3bDIR9bCaeuJAKWGpNBAj/A7PFIaYPYlyYVfaTa+Y2onkwN4z5w==
   dependencies:
     "@babel/core" "^7.4.4"
     "@babel/helper-module-imports" "^7.0.0"
