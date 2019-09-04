@@ -142,7 +142,7 @@ Besides the aforementioned `isTreeNode` and `toTreeNode` methods, there's also t
 - If the parent is an array detaching will remove the node by splicing it.
 - If there's no parent it will throw.
 
-### `onChildAttachedTo(target: () => object, fn: (child: object) => () => void | void, options?: { deep?: boolean, fireForCurrentChildren?: boolean }): (runDetachDisposers: boolean) => void`
+### `onChildAttachedTo(target: () => object, fn: (child: object) => (() => void) | void, options?: { deep?: boolean, fireForCurrentChildren?: boolean }): (runDetachDisposers: boolean) => void`
 
 Runs a callback everytime a new object is attached to a given node.
 The callback can optionally return a disposer which will be run when the child is detached.

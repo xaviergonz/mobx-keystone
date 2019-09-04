@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.17.1
+
+- Fixed `onChildAttachedTo` disposer typing.
+
 ## 0.17.0
 
 - Better support for array / object spreading, reassign to filter/map, etc. Objects and arrays will be automatically unconverted from tree nodes when detached.

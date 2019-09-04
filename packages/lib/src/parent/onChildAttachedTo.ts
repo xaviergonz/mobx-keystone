@@ -23,7 +23,7 @@ import { getChildrenObjects } from "./getChildrenObjects"
  */
 export function onChildAttachedTo(
   target: () => object,
-  fn: (child: object) => () => void | void,
+  fn: (child: object) => (() => void) | void,
   options?: {
     deep?: boolean
     fireForCurrentChildren?: boolean
@@ -48,7 +48,7 @@ export function onChildAttachedTo(
     }
   }
 
-  const addDetachDisposer = (n: object, disposer: (() => void) | undefined) => {
+  const addDetachDisposer = (n: object, disposer: (() => void) | void) => {
     if (disposer) {
       detachDisposers.set(n, disposer)
     }
