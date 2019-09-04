@@ -49,11 +49,11 @@ someModel.setPrimitive(somePrimitive)
 someOtherModel.setPrimitive(somePrimitive)
 ```
 
-A way to work around rule 1 is possible however thanks to the use of references as shown in the [references](./references) section.
+A way to work around rule 1 is possible thanks to the use of references as shown in the [references](./references) section.
 
 ## How objects are transformed into nodes
 
-An model/object/array is turned into a tree node under the following circumstances:
+A model/object/array is turned into a tree node under the following circumstances:
 
 - Model instances are _always_ tree nodes.
 - Plain objects / arrays are turned into tree nodes as soon as they become children of another tree node.
@@ -68,21 +68,21 @@ When a non-primitive value is turned into a tree node it gains access to certain
 
 ### `getParentPath<T extends object = any>(value: object): ParentPath<T> | undefined`
 
-Returns the parent of the target plus the path from the parent to the target, or undefined if it has no parent.
+Returns the parent of the target plus the path from the parent to the target, or `undefined` if it has no parent.
 
 ### `getParent<T extends object = any>(value: object, skipModelDataObject = false): T | undefined`
 
-Returns the parent object of the target object, or undefined if there's no parent.
+Returns the parent object of the target object, or `undefined` if there's no parent.
 Note that when using this function over model properties you will get as parent its interim data object (`$`). If you want to get the parent model directly in such cases you can pass `true` as the second parameter.
 
 ### `getParentToChildPath(fromParent: object, toChild: object): (string | number)[] | undefined`
 
 Gets the path to get from a parent to a given child.
-Returns an empty array if the child is actually the given parent or undefined if the child is not a child of the parent.
+Returns an empty array if the child is actually the given parent or `undefined` if the child is not a child of the parent.
 
 ### `isModelDataObject(value: object)`
 
-Returns if a given object is a model interim data object (`$`)
+Returns if a given object is a model interim data object (`$`).
 
 ### `getRootPath<T extends object = any>(value: object): RootPath<T>`
 
@@ -106,31 +106,31 @@ Returns if the target is a "parent" that has in its tree the given "child" objec
 
 ### `resolvePath<T = any>(pathRootObject: object, path: ReadonlyArray<string | number>): T`
 
-Resolves a path from an object, returning an object with `{ resolved: true, value: T}` or `{ resolved: false }`
+Resolves a path from an object, returning an object with `{ resolved: true, value: T }` or `{ resolved: false }`
 
 ### `findParent<T extends object = any>(child: object, predicate: (parent: object) => boolean, maxDepth = 0): T | undefined`
 
-Iterates through all the parents (from the nearest until the root)until one of them matches the given predicate.
+Iterates through all the parents (from the nearest until the root) until one of them matches the given predicate.
 If the predicate is matched it will return the found node.
-If none is found it will return undefined.
+If none is found it will return `undefined`.
 A max depth of 0 is infinite, but another one can be given.
 
 ### `getChildrenObjects(node: object, options?: { deep?: boolean, includeModelDataObjects?: boolean }): Set<object>`
 
 Returns all the children objects (this is, excluding primitives) of an object.
 
-Pass the options object with the `deep` option (defaults to false) set to true to get the children deeply or false to get them shallowly.
-Set `includeModelDataObjects` (defaults to false) to get the model interim data objects (`$`) or false not to.
+Pass the options object with the `deep` option (defaults to `false`) set to `true` to get the children deeply or `false` to get them shallowly.
+Set `includeModelDataObjects` (defaults to `false`) to get the model interim data objects (`$`) or `false` not to.
 
 ### `walkTree<T = void>(target: object, predicate: (node: any) => T | undefined, mode: WalkTreeMode): T | undefined`
 
 Walks a tree, running the predicate function for each node.
-If the predicate function returns something other than undefined then the walk will be stopped and the function will return the returned value.
+If the predicate function returns something other than `undefined` then the walk will be stopped and the function will return the returned value.
 
 The mode can be one of:
 
 - `WalkTreeMode.ParentFirst` - The walk will be done parent (roots) first, then children.
-- `WalkTreeMode.ChildrenFirst` - The walk will be done children (leafs) first, then parents.
+- `WalkTreeMode.ChildrenFirst` - The walk will be done children (leaves) first, then parents.
 
 ## Utility methods
 
@@ -144,12 +144,12 @@ Besides the aforementioned `isTreeNode` and `toTreeNode` methods, there's also t
 
 ### `onChildAttachedTo(target: () => object, fn: (child: object) => (() => void) | void, options?: { deep?: boolean, fireForCurrentChildren?: boolean }): (runDetachDisposers: boolean) => void`
 
-Runs a callback everytime a new object is attached to a given node.
+Runs a callback every time a new object is attached to a given node.
 The callback can optionally return a disposer which will be run when the child is detached.
 
-The optional options parameter accepts and object with the following options:
+The optional `options` parameter accepts and object with the following options:
 
-- `deep: boolean` (default: `false`) - true if the callback should be run for all children deeply or false if it it should only run for shallow children.
-- `fireForCurrentChildren: boolean` (default: `true`) - true if the callback should be immediately called for currently attached children, false if only for future attachments.
+- `deep: boolean` (default: `false`) - `true` if the callback should be run for all children deeply or `false` if it it should only run for shallow children.
+- `fireForCurrentChildren: boolean` (default: `true`) - `true` if the callback should be immediately called for currently attached children, `false` if only for future attachments.
 
-Returns a disposer, which has a boolean parameter which should be true if pending detachment callbacks should be run or false otherwise.
+Returns a disposer, which has a boolean parameter which should be `true` if pending detachment callbacks should be run, or `false` otherwise.

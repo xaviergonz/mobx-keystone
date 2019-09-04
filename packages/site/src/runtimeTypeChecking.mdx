@@ -7,7 +7,7 @@ route: /runtimeTypeChecking
 
 ## Overview
 
-While `mobx-keystone` was built with first class Typescript support in mind, it is also possible to enforce runtime type checking.
+While `mobx-keystone` was built with first-class Typescript support in mind, it is also possible to enforce runtime type checking.
 This feature is, however, **completely optional**. This is, if you are happy with the type safety that Typescript offers at compilation time you are free to stick to it exclusively.
 
 ## Type definitions
@@ -27,12 +27,11 @@ class Todo extends Model({
 //   text: string,
 //   done: boolean
 // }
-}
 ```
 
-In this case whenever the model is created / changed it will be automatically type checked in development mode and will throw an exception if the change results in a model that does not pass the checking.
+In this case whenever the model is created / changed it will be automatically type-checked in development mode and will throw an exception if the change results in a model that does not pass the checking.
 
-If you want to enforce checkins no matter if `process.env.NODE_ENV` is set to production or not you can do so like this:
+If you want to enforce checks no matter if `process.env.NODE_ENV` is set to "production" or not you can do so like this:
 
 ```ts
 setGlobalConfig({
@@ -42,9 +41,9 @@ setGlobalConfig({
 
 The possible values are:
 
-- `ModelAutoTypeCheckingMode.DevModeOnly` - Auto type check models only in dev mode
-- `ModelAutoTypeCheckingMode.AlwaysOn` - Auto type check models no matter the current environment
-- `ModelAutoTypeCheckingMode.AlwaysOff` - Do not auto type check models no matter the current environment
+- `ModelAutoTypeCheckingMode.DevModeOnly` - Auto type-check models only in dev mode
+- `ModelAutoTypeCheckingMode.AlwaysOn` - Auto type-check models no matter the current environment
+- `ModelAutoTypeCheckingMode.AlwaysOff` - Do not auto type-check models no matter the current environment
 
 It is also possible to trigger type checking manually:
 
@@ -55,19 +54,19 @@ const checkError = myTodo.typeCheck()
 const todoType = types.model<Todo>(Todo)
 const checkError = typeCheck(todoType, myTodo)
 
-// also possible with non models
+// also possible with non-models
 const numberArrayType = types.array(types.number)
 const checkError = typeCheck(numberArrayType, [1, 2, 3])
 ```
 
-In all cases the returned value will be null if there are no errors or an instance of `TypeCheckError`, which will include:
+In all cases the returned value will be `null` if there are no errors or an instance of `TypeCheckError`, which will include:
 
-- `path: ReadonlyArray<string | number>` - Sub-path where the type check failed, or an empty array if the actual object/value passed failed the type check.
+- `path: ReadonlyArray<string | number>` - Sub-path where the type-check failed, or an empty array if the actual object/value failed the type-check.
 - `expectedTypeName: string` - String representation of the expected type.
-- `actualValue: any` - The actual value/sub-value that failed the type check
+- `actualValue: any` - The actual value/sub-value that failed the type-check
 - `throw(typeCheckedValue: any)` - Throws the error as an exception.
 
-While models are usually automatically type-checked, it is worth noting that other values (primitives, plain objects, arrays) are not until they become attached to some model. If you need to type check those before they become attached to a model it is always possible to use `typeCheck(type, value)` as shown previously to trigger a manual validation.
+While models are usually automatically type-checked, it is worth noting that other values (primitives, plain objects, arrays) are not until they become attached to some model. If you need to type-check those before they become attached to a model it is always possible to use `typeCheck(type, value)` as shown previously to trigger a manual validation.
 
 ## Types
 
@@ -84,11 +83,11 @@ const number5Type = types.literal(5) // the number with value 5
 
 ### `types.undefined`
 
-A type that represents the value undefined.
+A type that represents the value `undefined`.
 
 ### `types.null`
 
-A type that represents the value null.
+A type that represents the value `null`.
 
 ### `types.boolean`
 
@@ -125,7 +124,7 @@ const colorType = types.enum<Color>(Color)
 
 ### `types.or(...types)` (AKA union)
 
-A type that represents the union of several other types (a | b | c | ...).
+A type that represents the union of several other types (`a | b | c | ...`).
 
 ```ts
 const booleanOrNumberType = types.or(types.boolean, types.number)
@@ -133,7 +132,7 @@ const booleanOrNumberType = types.or(types.boolean, types.number)
 
 ### `types.maybe(type)`
 
-A type that represents either a type or undefined.
+A type that represents either a type or `undefined`.
 
 ```ts
 const numberOrUndefinedType = types.maybe(types.number)
@@ -141,7 +140,7 @@ const numberOrUndefinedType = types.maybe(types.number)
 
 ### `types.maybeNull(type)`
 
-A type that represents either a type or null.
+A type that represents either a type or `null`.
 
 ```ts
 const numberOrNullType = types.maybeNull(types.number)
@@ -180,7 +179,7 @@ const numberMapType = types.record(types.number)
 ### `types.model<M>(modelClass)`
 
 A type that represents a model. The type referenced in the model decorator will be used for type checking.
-If you use recursive / cross referencing models and get typescript errors then consider using the lambda parameter instead.
+If you use recursive / cross referencing models and get Typescript errors then consider using the lambda parameter instead.
 
 ```ts
 const someModelType = types.model<SomeModel>(SomeModel)
@@ -190,7 +189,7 @@ const someModelType = types.model<SomeModel>(() => SomeModel)
 
 ### `types.unchecked<T>()`
 
-A type that represents a given value that won't be type checked.
+A type that represents a given value that won't be type-checked.
 This is basically a way to bail out of the runtime type checking system.
 
 ```ts
@@ -283,6 +282,6 @@ const t = types.object(() => {
 
 ## Notes for `mobx-state-tree` users
 
-- Typechecking in `mobx-keystone` is performed over instances once they have been created, not over snapshots, so the type definitions should be based on that fact.
+- Type checking in `mobx-keystone` is performed over instances once they have been created, not over snapshots, so the type definitions should be based on that fact.
 - There is no `types.optional` since setting default values is already covered by the `prop` default values.
-- While models will automatically typecheck themselves upon changes, other types will be only type checked when they get attached to nodes. If for some reason you need to type check them before then manually use the `typeCheck` method.
+- While models will automatically type-check themselves upon changes, other types will be only type-checked when they get attached to nodes. If for some reason you need to type-check them before then manually use the `typeCheck` method.
