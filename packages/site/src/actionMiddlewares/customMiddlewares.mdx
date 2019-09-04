@@ -8,13 +8,13 @@ menu: Action Middlewares
 
 # Overview
 
-Besides the very specific `onActionMiddleware` (which only tracks top level actions and is usually used to record actions to be later replicated via `applyAction`), there are two additinal ways to create your own custom middleware, the low level `addActionMiddleware`, which should be rarely needed, and the more high-level but friendlier `actionTrackingMiddleware`.
+Besides the very specific `onActionMiddleware` (which only tracks top-level actions and is usually used to record actions to be later replicated via `applyAction`), there are two additional ways to create your own custom middleware, the low-level `addActionMiddleware`, which should be rarely needed, and the more high-level but friendlier `actionTrackingMiddleware`.
 
 ## `actionTrackingMiddleware`
 
 Creates an action tracking middleware, which is a simplified version of the standard action middleware.
 
-It takes two parameters, being the first one the root target model object and the second one the hooks in the form of a `ActionTrackingMiddleware` object.
+It takes two parameters, being the first one the root target model object and the second one the hooks in the form of an `ActionTrackingMiddleware` object.
 
 It returns a disposer function.
 
@@ -28,7 +28,7 @@ The `ActionTrackingMiddleware` object has the following structure:
 
   All actions are accepted by default if no filter function is present.
 
-  The param is a simplified action context (more on that later) and it returns true to accept the action, false to skip it.
+  The param is a simplified action context (more on that later) and it returns `true` to accept the action, `false` to skip it.
 
 - `onStart?(ctx: SimpleActionContext): void | ActionTrackingReturn`
 
@@ -56,7 +56,7 @@ The `ActionTrackingMiddleware` object has the following structure:
   Takes as parameters:
 
   - `ctx` - Simplified action context.
-  - `ret: { result: ActionTackingResult; value: any; }` - If the action finished normally or due to a thrown error and the return / thrown value.
+  - `ret: { result: ActionTackingResult; value: any }` - If the action finished normally or due to a thrown error and the return / thrown value.
 
   Can optionally return a new return / error value to override the result of the action.
 
@@ -92,7 +92,7 @@ The `ActionMiddleware` object has the following structure:
 
 - `middleware(ctx: ActionContext, next: () => any): any`
 
-  An action middleware function. Rember to `return next()` if you want to continue the action or throw if you want to cancel it.
+  An action middleware function. Remember to `return next()` if you want to continue the action or throw if you want to cancel it.
 
 ### `ActionContext`
 
@@ -105,6 +105,6 @@ Low level action context, which includes the following readonly data:
 - `parentContext?: SimpleActionContext` - Parent action context, if any.
 - `rootContext: SimpleActionContext` - Root action context, or itself if the root.
 - `previousAsyncStepContext?: ActionContext` - Previous async step context, undefined for sync actions or the first action of a flow.
-- `spawnAsyncStepContext?: ActionContext` - Spawn async step context, undefined for sync actions.
-- `asyncStepType?: ActionContextAsyncStepType` - Async step type, or undefined for sync actions.
+- `spawnAsyncStepContext?: ActionContext` - Spawn async step context, or `undefined` for sync actions.
+- `asyncStepType?: ActionContextAsyncStepType` - Async step type, or `undefined` for sync actions.
 - `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.

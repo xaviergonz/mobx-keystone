@@ -9,12 +9,12 @@ route: /models
 
 `mobx-keystone` supports the following kinds of data:
 
-- Models, which are like objects but enhanced with local behaviours (actions) and life-cycle events (hooks).
+- Models, which are like objects but enhanced with local behaviors (actions) and life-cycle events (hooks).
 - Objects, which serve as basic storages of data (kind of like models, except without actions and life-cycle events), as well as key-value maps of other data.
 - Arrays.
 - Primitive values (`string`, `boolean`, `number`, `null`, `undefined`).
 
-In this section we will focus about the models, since the other types can be used as children of in the usual way.
+In this section we will focus on models, since the other types can be used as children in the usual way.
 
 ## Your first model
 
@@ -25,13 +25,13 @@ A model for a todo can be defined as follows:
 // the string identifies this model type and must be unique across your whole application
 @model("myCoolApp/Todo")
 export class Todo extends Model({
-  // here we define the type of the model data, which is observable and snapshottable
+  // here we define the type of the model data, which is observable and snapshotable
   // and also part of the required initialization data of the model
 
   // in this case we don't use runtime type checking
   text: prop<string>(), // a required string
   done: prop(false), // an optional boolean that will default to false
-  // if you want to make a property truly optional then use x: prop<TYPE | undefined()
+  // if you want to make a property truly optional then use x: prop<TYPE | undefined>()
 
   // if we required runtime type checking we could do this
   // text: tProp(types.string),
@@ -57,27 +57,27 @@ Note that there are several ways to define properties.
 
 Without runtime type checking:
 
-- `prop<T>()` - A property of a given type, with no default set if it is undefined in the initial data.
-- `prop<T>(defaultValue: T)` - A property of a given type, with a default set if it is undefined in the initial data. Use this only for default primitives.
-- `prop<T>(defaultFn: () => T)` - A property of a given type, with a default value generator if it is undefined in the initial data. Usually used for default objects / arrays / models.
+- `prop<T>()` - A property of a given type, with no default set if it is `undefined` in the initial data.
+- `prop<T>(defaultValue: T)` - A property of a given type, with a default set if it is `undefined` in the initial data. Use this only for default primitives.
+- `prop<T>(defaultFn: () => T)` - A property of a given type, with a default value generator if it is `undefined` in the initial data. Usually used for default objects / arrays / models.
 
 With runtime type checking (check the relevant section for more info):
 
-- `tProp(type)` - A property of a given runtime checked type, with no default set if it is undefined in the initial data.
-- `tProp<T>(type, defaultValue: T)` - A property of a given runtime checked type, with a default set if it is undefined in the initial data. Use this only for default primitives.
-- `tProp<T>(type, defaultFn: () => T)` - A property of a given runtime checked type, with a default value generator if it is undefined in the initial data. Usually used for default objects / arrays / models.
+- `tProp(type)` - A property of a given runtime checked type, with no default set if it is `undefined` in the initial data.
+- `tProp<T>(type, defaultValue: T)` - A property of a given runtime checked type, with a default set if it is `undefined` in the initial data. Use this only for default primitives.
+- `tProp<T>(type, defaultFn: () => T)` - A property of a given runtime checked type, with a default value generator if it is `undefined` in the initial data. Usually used for default objects / arrays / models.
 
 ## Model rules
 
 The rules that need to be followed to declare a model are:
 
 - Models have to be decorated with `@model` and require a unique across-application ID for the class type.
-- They have to extend `Model`, which in Typescript require the type of the data that will become observable / snapshottable / patcheable.
+- They have to extend `Model`, which in Typescript requires the type of the data that will become observable / snapshotable / patchable.
 - This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$` (for example for properties that match a built-in base model property such as `$modelType`).
 - Model actions need to be used in order to be able to change such data.
 - Never ever declare your own constructor, there are life-cycle events for that (more on that later).
 
-Of course primitives is not the only kind of data that a model can hold. Arrays, plain objects and other objects can be used as well.
+Of course primitives are not the only kinds of data that a model can hold. Arrays, plain objects and other objects can be used as well.
 
 ## Creating a model instance
 
@@ -85,7 +85,7 @@ An instance of the todo model above can be created like this:
 
 ```ts
 const myTodo1 = new Todo({ done: true, text: "buy some milk" })
-// note how done can be skipped since it was declared with a default value
+// note how `done` can be skipped since it was declared with a default value
 const myTodo2 = new Todo({ text: "buy some coffee" })
 ```
 
@@ -95,24 +95,24 @@ Models can optionally include an implementation for each of the life-cycle hooks
 
 - `onInit()`, which serves as a replacement for the constructor and will fire as soon as the model is created.
   In most occasions it is better to use the next hook.
-- `onAttachedToRootStore(rootStore)`, which first once a model is becomes part of a root store tree and which can optionally return a disposer which will run once the model detachs from such root store tree.
+- `onAttachedToRootStore(rootStore)`, which fires once a model becomes part of a root store tree and which can optionally return a disposer which will run once the model detaches from such root store tree.
   It will be explained in detail in the [root stores](./rootStores) section.
 
 ## Volatile data
 
-Volatile data (data that doesn't need to be snapshottable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
+Volatile data (data that doesn't need to be snapshotable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
 
 ```ts
 @model("myApp/SomeModel")
 class SomeModel extends Model({...}) {
-  // non observable volatile data
+  // non-observable volatile data
   x = 10;
 
   setX(x: number) {
     this.x = x
   }
 
-  // or observable in the usual mobx way
+  // or observable in the usual MobX way
   @observable
   y = 20;
 
@@ -217,7 +217,7 @@ stringMyModelInstance.setXY("50", "60")
 
 Model inheritance is possible with a few gotchas.
 
-The first thing to bear in mind is that only the last model in the inheritance chain must be decorated with `@model`, and the second is that models that extend from other models must use `ExtendsModel` rather than the plain `Model`. For example:
+The first thing to bear in mind is that only the last model in the inheritance chain must be decorated with `@model`, and the second is that models that extend from other models must use `ExtendedModel` rather than the plain `Model`. For example:
 
 ```ts
 // no model decorator here!
@@ -230,9 +230,9 @@ class BasePoint extends Model({
   }
 }
 
-// note how ExtendsModel is used
+// note how ExtendedModel is used
 @model("MyApp/Point3d")
-class Point3d extends ExtendsModel(BasePoint, {
+class Point3d extends ExtendedModel(BasePoint, {
   z: prop<number>(),
 }) {
   get sum() {
@@ -241,11 +241,11 @@ class Point3d extends ExtendsModel(BasePoint, {
 }
 ```
 
-If you want to also make the BasePoint a proper usable model you can use this trick:
+If you want to also make `BasePoint` a proper usable model you can use this trick:
 
 ```ts
 @model("MyApp/Point")
 class Point extends ExtendsModel(BasePoint, {}) {}
 ```
 
-Also remember that if both your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` on them.
+Also remember that if your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` in the extended model.
