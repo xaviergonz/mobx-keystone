@@ -3,6 +3,7 @@ import {
   isRootStore,
   model,
   Model,
+  modelAction,
   prop,
   registerRootStore,
   runUnprotected,
@@ -218,4 +219,35 @@ test("array as rootStore", () => {
       "p3Detached",
     ]
   `)
+})
+
+test("issue #27", () => {
+  @model("#27/ModelWithNumber")
+  class ModelWithNumber extends Model({
+    x: prop<number>(),
+  }) {}
+
+  @model("#27/ModelWithArrayProp")
+  class ModelWithArrayProp extends Model({
+    values: prop<ModelWithNumber[]>(),
+  }) {
+    onAttachedToRootStore(): void {
+      this.setValues([
+        new ModelWithNumber({ x: 1 }),
+        new ModelWithNumber({ x: 2 }),
+        new ModelWithNumber({ x: 3 }),
+      ])
+    }
+
+    @modelAction
+    public setValues(values: ModelWithNumber[]): void {
+      this.values = values
+    }
+  }
+
+  const m = registerRootStore(new ModelWithArrayProp({ values: [] }))
+  expect(m.values).toHaveLength(3)
+  expect(m.values[0].x).toBe(1)
+  expect(m.values[1].x).toBe(2)
+  expect(m.values[2].x).toBe(3)
 })
