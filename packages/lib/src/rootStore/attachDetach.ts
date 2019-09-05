@@ -22,13 +22,7 @@ export function attachToRootStore(rootStore: object, child: object): void {
 
         const disposer = ch.onAttachedToRootStore(rootStore)
         if (disposer) {
-          // wrap disposer in action
-          const disposerAction = wrapInAction(
-            HookAction.OnAttachedToRootStoreDisposer,
-            disposer,
-            ActionContextActionType.Sync
-          )
-          onAttachedDisposers.set(ch, disposerAction)
+          onAttachedDisposers.set(ch, disposer)
         }
       }
     },
@@ -43,8 +37,14 @@ export function detachFromRootStore(child: object): void {
   walkTree(
     child,
     ch => {
-      const disposerAction = onAttachedDisposers.get(ch)
-      if (disposerAction) {
+      const disposer = onAttachedDisposers.get(ch)
+      if (disposer) {
+        // wrap disposer in action
+        const disposerAction = wrapInAction(
+          HookAction.OnAttachedToRootStoreDisposer,
+          disposer,
+          ActionContextActionType.Sync
+        )
         onAttachedDisposers.delete(ch)
         disposerAction.call(ch)
       }
