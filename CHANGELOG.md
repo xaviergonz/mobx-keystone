@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.17.2
+
+- Fix issue with babel transpilation that would end up in some runtime errors.
+
 ## 0.17.1
 
 - Fixed `onChildAttachedTo` disposer typing.

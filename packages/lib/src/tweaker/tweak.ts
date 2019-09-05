@@ -110,7 +110,15 @@ export function tryUntweak(value: any) {
   }
 
   // we have to make a copy since it will be changed
-  const children = [...objectChildren.get(value)!]
+  // we have to iterate ourselves since it seems like babel does not do downlevel iteration
+  const children = []
+  const childrenIter = objectChildren.get(value)!.values()
+  let childrenCur = childrenIter.next()
+  while (!childrenCur.done) {
+    children.push(childrenCur.value)
+    childrenCur = childrenIter.next()
+  }
+
   for (let i = 0; i < children.length; i++) {
     const v = children[i]
     setParent(v, undefined)
