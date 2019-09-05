@@ -24,23 +24,24 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
   }
 
   // trick so plain new works
-  const obj = {
-    [clazz.name]: function(this: any, initialData: any, snapshotInitialData: any) {
-      const instance = new (clazz as any)(initialData, snapshotInitialData, this.constructor)
+  const newClazz: any = function(this: any, initialData: any, snapshotInitialData: any) {
+    const instance = new (clazz as any)(initialData, snapshotInitialData, this.constructor)
 
-      // the object is ready
-      addHiddenProp(instance, modelInitializedSymbol, true, false)
+    // the object is ready
+    addHiddenProp(instance, modelInitializedSymbol, true, false)
 
-      if (instance.onInit) {
-        wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
+    if (instance.onInit) {
+      wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
 
-        instance.onInit()
-      }
+      instance.onInit()
+    }
 
-      return instance
-    },
+    return instance
   }
-  const newClazz: any = obj[clazz.name]
+  Object.defineProperty(newClazz, "name", {
+    ...Object.getOwnPropertyDescriptor(newClazz, "name"),
+    value: clazz.name,
+  })
   newClazz.prototype = clazz.prototype
   newClazz[modelInitializersSymbol] = (clazz as any)[modelInitializersSymbol]
 

@@ -1,5 +1,13 @@
-import { getSnapshot, model, Model, modelAction, onPatches, Patch, prop } from "../../src"
-import { isTweakedObject } from "../../src/tweaker/core"
+import {
+  getSnapshot,
+  isTreeNode,
+  model,
+  Model,
+  modelAction,
+  onPatches,
+  Patch,
+  prop,
+} from "../../src"
 import "../commonSetup"
 
 test("reassigning an array via spreading", () => {
@@ -180,16 +188,16 @@ test("reassigning an array via spreading", () => {
 
   expect(arr.arr).toBe(a3)
 
-  expect(isTweakedObject(a1)).toBeFalsy()
-  expect(isTweakedObject(a2)).toBeFalsy()
-  expect(isTweakedObject(a3)).toBeTruthy()
+  expect(isTreeNode(a1)).toBeFalsy()
+  expect(isTreeNode(a2)).toBeFalsy()
+  expect(isTreeNode(a3)).toBeTruthy()
 
   arr.set(a1)
   expect(arr.arr).toHaveLength(1)
 
-  expect(isTweakedObject(a1)).toBeTruthy()
-  expect(isTweakedObject(a2)).toBeFalsy()
-  expect(isTweakedObject(a3)).toBeFalsy()
+  expect(isTreeNode(a1)).toBeTruthy()
+  expect(isTreeNode(a2)).toBeFalsy()
+  expect(isTreeNode(a3)).toBeFalsy()
 
   expect(getSnapshot(arr)).toMatchInlineSnapshot(`
             Object {
@@ -429,16 +437,16 @@ test("reassigning an object via spreading", () => {
 
   expect(o.spreadObj).toBe(o3)
 
-  expect(isTweakedObject(o1)).toBeFalsy()
-  expect(isTweakedObject(o2)).toBeFalsy()
-  expect(isTweakedObject(o3)).toBeTruthy()
+  expect(isTreeNode(o1)).toBeFalsy()
+  expect(isTreeNode(o2)).toBeFalsy()
+  expect(isTreeNode(o3)).toBeTruthy()
 
   o.set(o1)
   expect(Object.keys(o.spreadObj)).toEqual(["one"])
 
-  expect(isTweakedObject(o1)).toBeTruthy()
-  expect(isTweakedObject(o2)).toBeFalsy()
-  expect(isTweakedObject(o3)).toBeFalsy()
+  expect(isTreeNode(o1)).toBeTruthy()
+  expect(isTreeNode(o2)).toBeFalsy()
+  expect(isTreeNode(o3)).toBeFalsy()
 
   expect(getSnapshot(o)).toMatchInlineSnapshot(`
             Object {
