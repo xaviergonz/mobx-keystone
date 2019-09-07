@@ -22,14 +22,18 @@
   "license": "MIT",
   "author": "Javier González Garcés",
   "main": "dist/index.js",
-  "module": "dist/mobx-keystone.esm.js",
   "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
+  "jsnext:main": "dist/mobx-keystone.esm.js",
+  "module": "dist/mobx-keystone.esm.js",
+  "unpkg": "dist/mobx-keystone.umd.production.min.js",
+  "react-native": "dist/mobx-keystone.esm.js",
   "files": [
     "dist"
   ],
   "scripts": {
     "start": "tsdx watch",
-    "build": "shx cp ../../README.md . && shx cp ../../LICENSE . && tsdx build",
+    "build": "shx cp ../../README.md . && shx cp ../../LICENSE . && tsdx build --name mobxKeystone --format=cjs,esm,umd",
     "test": "tsdx test",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
@@ -51,7 +55,8 @@
     "typescript": "^3.6.2"
   },
   "dependencies": {
-    "ts-toolbelt": "^3.8.63"
+    "ts-toolbelt": "^3.8.63",
+    "tslib": "^1.10.0"
   },
   "directories": {
     "test": "test"
