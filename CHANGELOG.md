@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.17.4
+
+- Fix path for ESM module.
+
 ## 0.17.3
 
 - Added UMD modules and specify proper module for react-native, add tslib to dependencies.
