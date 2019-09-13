@@ -2,6 +2,7 @@ import { computed, reaction } from "mobx"
 import { ModelClass } from "../model/BaseModel"
 import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
+import { isModel } from "../model/utils"
 import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
 import { assertIsObject, failure } from "../utils"
@@ -65,10 +66,11 @@ export interface CustomRefOptions<T extends object> {
 
   /**
    * Must return the ID associated to the given target object.
+   * If not provided it will try to get the reference Id from the model `getRefId()` method.
    *
    * @param target Target object.
    */
-  getId(target: T): string
+  getId?(target: T): string
 
   /**
    * What should happen when the resolved value changes.
@@ -104,6 +106,8 @@ export function customRef<T extends object>(
   modelTypeId: string,
   options: CustomRefOptions<T>
 ): RefConstructor<T> {
+  const getId = options.getId || getModelRefId
+
   @model(modelTypeId)
   class CustomRef extends Ref<T> {
     resolve(): T | undefined {
@@ -117,7 +121,7 @@ export function customRef<T extends object>(
       id = target
     } else {
       assertIsObject(target, "target")
-      id = options.getId(target)
+      id = getId(target)
     }
     const model = new CustomRef({
       id,
@@ -147,4 +151,18 @@ export function customRef<T extends object>(
   fn.refClass = CustomRef
 
   return (fn as any) as RefConstructor<T>
+}
+
+function getModelRefId(target: object): string {
+  if (!isModel(target)) {
+    throw failure("automatic reference id resolution only works over model instances")
+  }
+  if (!target.getRefId) {
+    throw failure("'getRefId()' must exist for automatic reference id resolution to work")
+  }
+  const id = target.getRefId()
+  if (typeof id !== "string") {
+    throw failure("'getRefId()' must return a string for automatic reference id resolution to work")
+  }
+  return id
 }

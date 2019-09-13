@@ -18,7 +18,7 @@ References are customizable and are created like this:
 
 ```ts
 const myRef = customRef<T>("some unique model type id", {
-  getId(target: T): string {
+  getId?(target: T): string {
     // given an object, what is its id?
   },
   resolve(ref: Ref<T>): T | undefined {
@@ -30,6 +30,8 @@ const myRef = customRef<T>("some unique model type id", {
   },
 })
 ```
+
+Note that if the reference points to a model and that model class specifies a method named `getRefId()` then `getId` can be omitted.
 
 Reference objects can then be created using `myRef(target: T)` or `myRef(id: string)` and offer the following properties:
 
@@ -44,18 +46,21 @@ It could be done like this:
 
 ```ts
 const todoRef = customRef<Todo>("myApp/TodoRef", {
-  getId(todo) {
-    return todo.id
-  },
+  // this works, but we will implement getRefId() on the Todo class instead
+  // getId(todo) {
+  //   return todo.id
+  // },
+
   resolve(ref) {
     // get the todo list where this ref is
-    const todoList = findParent(ref, n => n instanceof TodoList)
+    const todoList = findParent<TodoList>(ref, n => n instanceof TodoList)
     // if the ref is not yet attached then it cannot be resolved
     if (!todoList) return undefined
     // but if it is attached then try to find it
     return todoList.list.find(todo => todo.id === ref.id)
   },
-  onResolvedValueChange?(ref, newTodo, oldTodo) {
+
+  onResolvedValueChange(ref, newTodo, oldTodo) {
     if (oldTodo && !newTodo) {
       // if the todo value we were referencing disappeared then remove the reference
       // from its parent
@@ -63,6 +68,19 @@ const todoRef = customRef<Todo>("myApp/TodoRef", {
     }
   },
 })
+
+@model("myApp/Todo")
+class Todo extends Model({
+  id: prop<string>(),
+  // ...
+}) {
+  getRefId() {
+    // when getId is not specified in the custom reference it will use this as id
+    return this.id
+  }
+
+  // ...
+}
 
 @model("myApp/TodoList")
 class TodoList extends Model({
@@ -82,8 +100,8 @@ class TodoList extends Model({
     if (!todoId) {
       this.selectedRef = undefined
     } else {
-      const todo = this.todos.find(todo => todo.id === todoId)
-      this.selectedRef = todoRef(todo)
+      const todo = this.list.find(todo => todo.id === todoId)
+      this.selectedRef = todoRef(todo!)
     }
   }
 }
@@ -99,7 +117,7 @@ In the case multiple selection was possible we could reuse the `todoRef` created
 @model("myApp/TodoList")
 class TodoList extends Model({
   list: prop<Todo[]>(() => []),
-  selectedRefs: prop<Ref<Todo>[]>>(() => []),
+  selectedRefs: prop < Ref < Todo > [] >> (() => []),
 }) {
   // ...
 

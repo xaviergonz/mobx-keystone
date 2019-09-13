@@ -13,7 +13,6 @@ In the case of `mobx-keystone`, root stores are tree nodes (model instances or a
 While it is not strictly necessary to mark these instances as root stores, doing so opens up some benefits:
 
 - Root stores allow the usage of the `onAttachedToRootStore(rootStore)` hook inside models.
-- Safe references (more on that in the [references](./references) section) only work when used alongside root stores.
 
 You can think of a tree node marked as a root store as the "live tree" of your application state, meaning that any nodes attached to a root store are actually part of your running application, rather than a transient instance that might or might not end up as part of your actual application state.
 
@@ -134,7 +133,7 @@ As you can see, such hook is really a great place to manage side effects.
 
 ## Sharing contextual data
 
-Root stores are also a good place to store contextual/environmental volatile data that doesn't really need to be serialized anywhere.
+Although usually contexts are preferred for this case (see the [contexts](./contexts) section), root stores can be also an alternative to store contextual/environmental volatile data that doesn't really need to be serialized anywhere.
 For this we would just need to follow a pattern like this one:
 
 ```ts

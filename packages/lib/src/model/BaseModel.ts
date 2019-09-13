@@ -36,6 +36,11 @@ export abstract class BaseModel<
   readonly [modelTypeKey]: string
 
   /**
+   * Can be overriden to offer a reference id to be used in reference resolution.
+   */
+  getRefId?(): string
+
+  /**
    * Called after the model has been created.
    */
   onInit?(): void
@@ -110,6 +115,7 @@ export const baseModelPropNames = new Set<keyof AnyModel>([
   modelTypeKey,
   "onInit",
   "$",
+  "getRefId",
   "onAttachedToRootStore",
   "fromSnapshot",
   "typeCheck",
