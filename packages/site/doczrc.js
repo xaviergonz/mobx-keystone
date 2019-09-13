@@ -24,6 +24,7 @@ export default {
         "Custom Middlewares",
       ],
     },
+    "Contexts",
     "References",
     "Frozen Data",
     "Runtime Type Checking",

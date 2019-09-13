@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.18.0
+
+- Added contexts to share information between parents and children and to make isolated unit testing easier.
+- Models can now optionally offer a `getRefId()` method that can be automatically used by custom references to get their ids, thus making `getId` for custom references optional now.
+
 ## 0.17.4
 
 - Fix path for ESM module.

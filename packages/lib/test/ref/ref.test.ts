@@ -193,3 +193,63 @@ test("array ref works", () => {
   // clone should not be affected
   expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
 })
+test("getRefId", () => {
+  @model("myApp/Todo")
+  class Todo extends Model({ id: prop<string>() }) {
+    getRefId() {
+      return this.id
+    }
+  }
+
+  @model("myApp/TodoList")
+  class TodoList extends Model({
+    list: prop<Todo[]>(() => []),
+    selectedRef: prop<Ref<Todo> | undefined>(),
+  }) {
+    // ...
+
+    // not strictly needed, but neat
+    @computed
+    get selectedTodo() {
+      return this.selectedRef ? this.selectedRef.current : undefined
+    }
+
+    @modelAction
+    selectTodo(todoId: string | undefined) {
+      if (!todoId) {
+        this.selectedRef = undefined
+      } else {
+        const todo = this.list.find(todo => todo.id === todoId)
+        this.selectedRef = todoRef(todo!)
+      }
+    }
+  }
+
+  const todoRef = customRef<Todo>("myApp/TodoRef", {
+    // not needed since we will use `getRefId()` on the model class instead
+    // getId(todo) {
+    //   return todo.id
+    // },
+    resolve(ref) {
+      // get the todo list where this ref is
+      const todoList = findParent<TodoList>(ref, n => n instanceof TodoList)
+      // if the ref is not yet attached then it cannot be resolved
+      if (!todoList) return undefined
+      // but if it is attached then try to find it
+      return todoList.list.find(todo => todo.id === ref.id)
+    },
+    onResolvedValueChange(ref, newTodo, oldTodo) {
+      if (oldTodo && !newTodo) {
+        // if the todo value we were referencing disappeared then remove the reference
+        // from its parent
+        detach(ref)
+      }
+    },
+  })
+
+  const list = new TodoList({
+    list: [new Todo({ id: "a" }), new Todo({ id: "b" })],
+    selectedRef: todoRef("b"),
+  })
+  expect(list.selectedTodo).toBe(list.list[1])
+})
