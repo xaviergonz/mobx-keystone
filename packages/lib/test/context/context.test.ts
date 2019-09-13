@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { observable, reaction, runInAction } from "mobx"
 import { assert, _ } from "spec.ts"
 import { createContext, runUnprotected } from "../../src"
 import "../commonSetup"
@@ -34,6 +34,23 @@ test("context with non set default value", () => {
   ctx.setDefault(undefined)
   expect(reactionCalls).toBe(2)
   expect(ctx.getDefault()).toBe(undefined)
+
+  // using computed default
+  const obs = observable.box(5)
+  ctx.setDefaultComputed(() => obs.get())
+  expect(reactionCalls).toBe(3)
+  expect(ctx.getDefault()).toBe(5)
+
+  runInAction(() => {
+    obs.set(6)
+  })
+  expect(reactionCalls).toBe(4)
+  expect(ctx.getDefault()).toBe(6)
+
+  // back to static
+  ctx.setDefault(20)
+  expect(reactionCalls).toBe(5)
+  expect(ctx.getDefault()).toBe(20)
 })
 
 test("context with static values", () => {

@@ -1,12 +1,4 @@
-import {
-  action,
-  computed,
-  createAtom,
-  IAtom,
-  IComputedValue,
-  IObservableValue,
-  observable,
-} from "mobx"
+import { action, computed, createAtom, IAtom, IComputedValue, observable } from "mobx"
 import { fastGetParent } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 
@@ -26,6 +18,12 @@ export interface Context<T> {
    * @param value
    */
   setDefault(value: T): void
+
+  /**
+   * Sets the context default value resolver.
+   * @param valueFn
+   */
+  setDefaultComputed(valueFn: () => T): void
 
   /**
    * Gets the context value for a given node.
@@ -57,15 +55,25 @@ export interface Context<T> {
 type ContextValue<T> =
   | {
       type: "value"
-      value: IObservableValue<T>
+      value: T
     }
   | {
       type: "computed"
       value: IComputedValue<T>
     }
 
+function getContextValue<T>(contextValue: ContextValue<T>): T {
+  if (contextValue.type === "value") {
+    return contextValue.value
+  } else {
+    return contextValue.value.get()
+  }
+}
+
 class ContextClass<T> implements Context<T> {
-  private readonly defaultContextValue: IObservableValue<T>
+  @observable.ref
+  private defaultContextValue!: ContextValue<T>
+
   private readonly nodeContextValue = new WeakMap<object, ContextValue<T>>()
   private readonly nodeAtom = new WeakMap<object, IAtom>()
 
@@ -83,7 +91,7 @@ class ContextClass<T> implements Context<T> {
 
     const obsForNode = this.nodeContextValue.get(node)
     if (obsForNode) {
-      return obsForNode.value.get()
+      return getContextValue(obsForNode)
     }
 
     const parent = fastGetParent(node)
@@ -95,25 +103,31 @@ class ContextClass<T> implements Context<T> {
   }
 
   getDefault(): T {
-    return this.defaultContextValue.get()
+    return getContextValue(this.defaultContextValue)
   }
 
   @action
   setDefault(value: T) {
-    this.defaultContextValue.set(value)
+    this.defaultContextValue = {
+      type: "value",
+      value,
+    }
+  }
+
+  @action
+  setDefaultComputed(valueFn: () => T) {
+    this.defaultContextValue = {
+      type: "computed",
+      value: computed(valueFn),
+    }
   }
 
   @action
   set(node: object, value: T) {
-    const obsForNode = this.nodeContextValue.get(node)
-    if (!obsForNode || obsForNode.type !== "value") {
-      this.nodeContextValue.set(node, {
-        type: "value",
-        value: observable.box(value, { deep: false }),
-      })
-    } else {
-      obsForNode.value.set(value)
-    }
+    this.nodeContextValue.set(node, {
+      type: "value",
+      value,
+    })
     this.getNodeAtom(node).reportChanged()
   }
 
@@ -136,7 +150,7 @@ class ContextClass<T> implements Context<T> {
   }
 
   constructor(defaultValue?: T) {
-    this.defaultContextValue = observable.box(defaultValue, { deep: false })
+    this.setDefault(defaultValue as T)
   }
 }
 

@@ -56,7 +56,8 @@ When using `createContext` a default value can be also provided (e.g. `const use
 The returned context object has the following methods:
 
 - `getDefault()` - Gets the default context value.
-- `setDefault(value)` - Sets the default context value.
+- `setDefault(value)` - Sets the (static) default context value.
+- `setDefaultComputed(() => value)` - Sets the (computed) default context value.
 - `get(node)` - Gets the context value for a given node (recursing up in the tree until a node has a set value or the default if none is set). Usually called in actions and computed getters. This value is reactive/observable, so never cache this value since it might get stale.
 - `set(node, value)` - Sets the (static) value a node will provide for itself and its children. Usually called in `onInit`.
 - `setComputed(node, () => value)` - Sets the (computed) value a node will provide for itself and its children. Usually called in `onInit`.

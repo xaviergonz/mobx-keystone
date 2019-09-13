@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.19.0
+
+- Added `setDefaultComputed` to contexts.
+
 ## 0.18.0
 
 - Added contexts to share information between parents and children and to make isolated unit testing easier.
