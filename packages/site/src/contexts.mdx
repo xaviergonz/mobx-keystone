@@ -10,7 +10,7 @@ route: /contexts
 Contexts serve as a way to share contextual/environmental data deeply across a tree without having to know the exact structure of such tree.
 Think of it as a dependency injection system.
 
-For example, imagine a state where some children need to know the current username to perform certain operations. We could make the children use `getRoot` to access the username, but that means we need a root for unit testing any of the children, therefore we created a dependency from a child to one of its parents.
+For example, imagine a state where some children need to know the current username to perform certain operations. We could make the children use `getRoot` to access the username, but that means we need a root for unit testing any of the children, therefore, we created a dependency from a child to one of its parents.
 
 With contexts we could make it like this:
 
@@ -23,7 +23,7 @@ class SomeParent extends Model({
   // ...
 }) {
   onInit() {
-    usernameCtx.setComputed(() => this.username)
+    usernameCtx.setComputed(this, () => this.username)
   }
 }
 
@@ -57,7 +57,7 @@ The returned context object has the following methods:
 
 - `getDefault()` - Gets the default context value.
 - `setDefault(value)` - Sets the default context value.
-- `get(node)` - Gets the context value for a given node (recursing up in the tree until a node has a set value or the default if none is set). Usually called on actions and computed getters. This value is reactive/observable, so never cache this value since it might get stale.
-- `set(node, value)` - Sets the (static) value a node will provide for itself and its children. Usually called on `onInit`.
-- `setComputed(node, () => value)` - Sets the (computed) value a node will provide for itself and its children. Usually called on `onInit`.
+- `get(node)` - Gets the context value for a given node (recursing up in the tree until a node has a set value or the default if none is set). Usually called in actions and computed getters. This value is reactive/observable, so never cache this value since it might get stale.
+- `set(node, value)` - Sets the (static) value a node will provide for itself and its children. Usually called in `onInit`.
+- `setComputed(node, () => value)` - Sets the (computed) value a node will provide for itself and its children. Usually called in `onInit`.
 - `unset(node)` - Make the node no longer provide a context value.
