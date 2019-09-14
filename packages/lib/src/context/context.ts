@@ -32,6 +32,13 @@ export interface Context<T> {
   get(node: object): T
 
   /**
+   * Gets node that will provide the context value, or undefined
+   * if it comes from the default.
+   * @param node
+   */
+  getProviderNode(node: object): object | undefined
+
+  /**
    * Sets the context value for a given node, effectively making it a provider.
    * @param node
    * @param value
@@ -102,6 +109,34 @@ class ContextClass<T> implements Context<T> {
     return this.fastGet(parent)
   }
 
+  get(node: object) {
+    assertTweakedObject(node, "node")
+
+    return this.fastGet(node)
+  }
+
+  private fastGetProviderNode(node: object): object | undefined {
+    this.getNodeAtom(node).reportObserved()
+
+    const obsForNode = this.nodeContextValue.get(node)
+    if (obsForNode) {
+      return node
+    }
+
+    const parent = fastGetParent(node)
+    if (!parent) {
+      return undefined
+    }
+
+    return this.fastGetProviderNode(parent)
+  }
+
+  getProviderNode(node: object): object | undefined {
+    assertTweakedObject(node, "node")
+
+    return this.fastGetProviderNode(node)
+  }
+
   getDefault(): T {
     return getContextValue(this.defaultContextValue)
   }
@@ -141,12 +176,6 @@ class ContextClass<T> implements Context<T> {
   unset(node: object) {
     this.nodeContextValue.delete(node)
     this.getNodeAtom(node).reportChanged()
-  }
-
-  get(node: object) {
-    assertTweakedObject(node, "node")
-
-    return this.fastGet(node)
   }
 
   constructor(defaultValue?: T) {

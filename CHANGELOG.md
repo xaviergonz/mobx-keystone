@@ -2,7 +2,7 @@
 
 ## 0.19.0
 
-- Added `setDefaultComputed` to contexts.
+- Added `setDefaultComputed` and `getProviderNode` to contexts.
 
 ## 0.18.0
 
