@@ -12,7 +12,7 @@ export type RefResolver<T extends object> = (ref: Ref<T>) => T | undefined
 /**
  * Reference ID resolver type.
  */
-export type RefIdResolver<T extends object> = (target: T) => string | undefined
+export type RefIdResolver<T extends object | unknown> = (target: T) => string | undefined
 
 /**
  * Reference resolve valude changed hook type.

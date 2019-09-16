@@ -20,7 +20,7 @@ export interface RootRefOptions<T extends object> {
    *
    * @param target Target object.
    */
-  getId?: RefIdResolver<any>
+  getId?: RefIdResolver<unknown>
 
   /**
    * What should happen when the resolved value changes.
