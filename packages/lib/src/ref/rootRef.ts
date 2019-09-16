@@ -1,6 +1,7 @@
 import { action, createAtom } from "mobx"
 import { optimizedWalkTreeSearch } from "../parent/optimizedWalkTree"
 import { fastGetRoot } from "../parent/path"
+import { getSnapshot } from "../snapshot/getSnapshot"
 import {
   getModelRefId,
   internalCustomRef,
@@ -60,7 +61,7 @@ export function rootRef<T extends object>(
       // if the root changes then our list of already visited changes
       if (lastRefRoot !== refRoot) {
         lastRefRoot = refRoot
-        alreadyVisited = new WeakMap<object, T | undefined>()
+        alreadyVisited = new WeakMap()
       }
       cachedAtom.reportObserved()
 
@@ -68,6 +69,9 @@ export function rootRef<T extends object>(
         return cachedTarget
       }
 
+      // read root snapshot just to mark it as dependency
+      // (when not found, everytime anything in the tree changes we will perform another search)
+      getSnapshot(refRoot)
       const newTarget = resolveRefRoot(ref, refRoot, getId, alreadyVisited)
       if (newTarget !== cachedTarget) {
         cachedTarget = newTarget

@@ -1,4 +1,4 @@
-import { computed, get, remove } from "mobx"
+import { computed, get, reaction, remove, set } from "mobx"
 import {
   clone,
   customRef,
@@ -12,8 +12,10 @@ import {
   modelAction,
   prop,
   Ref,
+  runUnprotected,
 } from "../../src"
 import "../commonSetup"
+import { autoDispose } from "../utils"
 
 interface Country {
   weather: string
@@ -40,6 +42,11 @@ class Countries extends Model({
     // this is valid in mobx5 but not mobx4
     // delete this.countries[name]
     remove(this.countries, name)
+  }
+
+  @modelAction
+  addCountry(id: string, c: Country) {
+    set(this.countries, id, c)
   }
 
   @modelAction
@@ -265,4 +272,60 @@ test("single selection with getRefId", () => {
   list.list[1].setId("c")
   expect(list.list[1].id).toBe("c")
   expect(list.selectedTodo).toBe(undefined)
+})
+
+const countryRef2 = customRef<Country>("countryRef2", {
+  resolve(ref) {
+    const countriesParent = findParent<Countries>(ref, n => n instanceof Countries)
+    if (!countriesParent) return undefined
+    // this is valid in mobx5 but not mobx4
+    // return countriesParent.countries[ref.id]
+    return get(countriesParent.countries, ref.id)
+  },
+
+  getId(target) {
+    const targetParentPath = getParentPath<Countries>(target)
+    return "" + targetParentPath!.path
+  },
+})
+
+describe("resolution", () => {
+  test("is reactive", () => {
+    const c = new Countries({
+      countries: initialCountries(),
+    })
+    const cSpain = c.countries["spain"]
+
+    const ref = countryRef2(cSpain)
+
+    let calls = 0
+    let lastValue: any
+    autoDispose(
+      reaction(
+        () => ref.maybeCurrent,
+        v => {
+          calls++
+          lastValue = v
+        },
+        { fireImmediately: true }
+      )
+    )
+
+    expect(calls).toBe(1)
+    expect(lastValue).toBe(undefined)
+
+    runUnprotected(() => {
+      c.selectedCountryRef = ref
+    })
+    expect(calls).toBe(2)
+    expect(lastValue).toBe(cSpain)
+
+    c.removeCountry("spain")
+    expect(calls).toBe(3)
+    expect(lastValue).toBe(undefined)
+
+    c.addCountry("spain", cSpain)
+    expect(calls).toBe(4)
+    expect(lastValue).toBe(cSpain)
+  })
 })

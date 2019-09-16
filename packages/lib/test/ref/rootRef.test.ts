@@ -1,4 +1,4 @@
-import { computed, remove, set } from "mobx"
+import { computed, reaction, remove, set } from "mobx"
 import {
   clone,
   detach,
@@ -14,6 +14,7 @@ import {
 } from "../../src"
 import * as rootRefModule from "../../src/ref/rootRef"
 import "../commonSetup"
+import { autoDispose } from "../utils"
 
 @model("Country")
 class Country extends Model({
@@ -293,7 +294,7 @@ test("moving ref between roots", () => {
   expect(c1.selectedCountryRef!.current).toBe(c1Spain)
 })
 
-describe("resolution is cached", () => {
+describe("resolution", () => {
   let resolveRefRootMock: jest.SpyInstance<object | undefined, any[]>
 
   beforeEach(() => {
@@ -343,5 +344,44 @@ describe("resolution is cached", () => {
     expect(resolveRefRootMock).toHaveBeenCalledTimes(6)
     expect(ref.current).toBe(cSpain)
     expect(resolveRefRootMock).toHaveBeenCalledTimes(6)
+  })
+
+  test("is reactive", () => {
+    const c = new Countries({
+      countries: initialCountries(),
+    })
+    const cSpain = c.countries["spain"]
+
+    const ref = countryRef2(cSpain)
+
+    let calls = 0
+    let lastValue: any
+    autoDispose(
+      reaction(
+        () => ref.maybeCurrent,
+        v => {
+          calls++
+          lastValue = v
+        },
+        { fireImmediately: true }
+      )
+    )
+
+    expect(calls).toBe(1)
+    expect(lastValue).toBe(undefined)
+
+    runUnprotected(() => {
+      c.selectedCountryRef = ref
+    })
+    expect(calls).toBe(2)
+    expect(lastValue).toBe(cSpain)
+
+    c.removeCountry("spain")
+    expect(calls).toBe(3)
+    expect(lastValue).toBe(undefined)
+
+    c.addCountry(cSpain)
+    expect(calls).toBe(4)
+    expect(lastValue).toBe(cSpain)
   })
 })

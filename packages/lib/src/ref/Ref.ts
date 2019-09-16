@@ -18,7 +18,7 @@ export abstract class Ref<T extends object> extends Model({
   protected abstract resolve(): T | undefined
 
   /**
-   * The object this reference points to, or undefined if the reference is currently invalid.
+   * The object this reference points to, or `undefined` if the reference is currently invalid.
    */
   @computed
   get maybeCurrent(): T | undefined {

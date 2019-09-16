@@ -32,7 +32,7 @@ export interface Context<T> {
   get(node: object): T
 
   /**
-   * Gets node that will provide the context value, or undefined
+   * Gets node that will provide the context value, or `undefined`
    * if it comes from the default.
    * @param node
    */

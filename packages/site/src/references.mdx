@@ -22,7 +22,7 @@ They are created like this:
 const myRef = rootRef<T>("some unique model type id", {
   getId?(target: unknown): string | undefined {
     // given an object (which could or could not be of the target type)
-    // what is its id? or undefined if it has no id
+    // what is its id? or `undefined` if it has no id
     // note that we should only returns ids if our reference should be able to reference them
   },
   onResolvedValueChange?(ref: Ref<T>, newValue: T | undefined, oldValue: T | undefined) {
