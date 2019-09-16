@@ -1,7 +1,7 @@
 import { action, isObservableObject } from "mobx"
 import { Frozen } from "../frozen/Frozen"
 import { isModel } from "../model/utils"
-import { objectChildren } from "../parent/core"
+import { getObjectChildren } from "../parent/coreObjectChildren"
 import { fastGetParent, ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { unsetInternalSnapshot } from "../snapshot/internal"
@@ -112,7 +112,7 @@ export function tryUntweak(value: any) {
   // we have to make a copy since it will be changed
   // we have to iterate ourselves since it seems like babel does not do downlevel iteration
   const children = []
-  const childrenIter = objectChildren.get(value)!.values()
+  const childrenIter = getObjectChildren(value)!.values()
   let childrenCur = childrenIter.next()
   while (!childrenCur.done) {
     children.push(childrenCur.value)

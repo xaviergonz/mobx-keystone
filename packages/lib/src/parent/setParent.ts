@@ -1,13 +1,12 @@
-import { action, observable } from "mobx"
+import { action } from "mobx"
 import { BaseModel } from "../model/BaseModel"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isPrimitive } from "../utils"
-import { objectChildren, objectParents, parentPathEquals, reportParentPathChanged } from "./core"
+import { objectParents, parentPathEquals, reportParentPathChanged } from "./core"
+import { addObjectChild, initializeObjectChildren, removeObjectChild } from "./coreObjectChildren"
 import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
-
-const defaultObservableSetOptions = { deep: false }
 
 /**
  * @ignore
@@ -37,9 +36,7 @@ export const setParent = action(
       }
     }
 
-    if (!objectChildren.has(value)) {
-      objectChildren.set(value, observable.set([], defaultObservableSetOptions))
-    }
+    initializeObjectChildren(value)
 
     const oldParentPath = fastGetParentPath(value)
     if (parentPathEquals(oldParentPath, parentPath)) {
@@ -63,17 +60,15 @@ export const setParent = action(
 
     const removeFromOldParent = () => {
       if (oldParentPath && oldParentPath.parent) {
-        const children = objectChildren.get(oldParentPath.parent)!
-        children.delete(value)
+        removeObjectChild(oldParentPath.parent, value)
       }
     }
 
     const attachToNewParent = () => {
-      if (parentPath && parentPath.parent) {
-        const children = objectChildren.get(parentPath.parent)!
-        children.add(value)
-      }
       objectParents.set(value, parentPath)
+      if (parentPath && parentPath.parent) {
+        addObjectChild(parentPath.parent, value)
+      }
       reportParentPathChanged(value)
     }
 

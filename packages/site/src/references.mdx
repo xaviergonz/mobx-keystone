@@ -12,9 +12,38 @@ This means that, for example, if we wanted to have a list of todos and a selecte
 
 References allow us to work around this limitation by making a "fake" node that is just a pointer to another object given an ID.
 
+## Root references
+
+Root references are references that can be resolved as long as both the reference and the referenced object live under the same tree, this is, as long as they share a common root.
+
+They are created like this:
+
+```ts
+const myRef = rootRef<T>("some unique model type id", {
+  getId?(target: any): string | undefined {
+    // given an object (which could or could not be of the target type)
+    // what is its id? or undefined if it has no id
+    // note that we should only returns ids if our reference should be able to reference them
+  },
+  onResolvedValueChange?(ref: Ref<T>, newValue: T | undefined, oldValue: T | undefined) {
+    // what should happen when the resolved value changes?
+  },
+})
+```
+
+Note that if the reference points to a model and that model class specifies a method named `getRefId()` then `getId` can be omitted.
+
+Reference objects can then be created using `myRef(target: T)` or `myRef(id: string)` and offer the following properties:
+
+- `isValid` - If the reference is valid (can be currently resolved).
+- `current` - The object this reference points to, or throws if invalid.
+- `maybeCurrent` - The object this reference points to, or `undefined` if invalid.
+
 ## Custom references
 
-References are customizable and are created like this:
+Custom references are a bit more powerful than root references, but a bit harder to set up.
+
+They are created like this:
 
 ```ts
 const myRef = customRef<T>("some unique model type id", {
@@ -31,13 +60,9 @@ const myRef = customRef<T>("some unique model type id", {
 })
 ```
 
-Note that if the reference points to a model and that model class specifies a method named `getRefId()` then `getId` can be omitted.
+Again, if the reference points to a model and that model class specifies a method named `getRefId()` then `getId` can be omitted.
 
-Reference objects can then be created using `myRef(target: T)` or `myRef(id: string)` and offer the following properties:
-
-- `isValid` - If the reference is valid (can be currently resolved).
-- `current` - The object this reference points to, or throws if invalid.
-- `maybeCurrent` - The object this reference points to, or `undefined` if invalid.
+They can be created exactly the same way as root references and offer the exact same properties.
 
 ## Example: Reference to single selected Todo
 
@@ -45,8 +70,25 @@ Imagine that we had a todo list where each todo item had a unique `id: string` p
 It could be done like this:
 
 ```ts
+// we could use a root reference that makes use of getRefId on models...
+const todoRef = rootRef<Todo>("myApp/TodoRef", {
+  // this works, but we will use getRefId() from the Todo class instead
+  // getId(maybeTodo) {
+  //   return maybeTodo instanceof Todo ? maybeTodo.id : undefined
+  // },
+
+  onResolvedValueChange(ref, newTodo, oldTodo) {
+    if (oldTodo && !newTodo) {
+      // if the todo value we were referencing disappeared then remove the reference
+      // from its parent
+      detach(ref)
+    }
+  },
+})
+
+// ...or a custom reference
 const todoRef = customRef<Todo>("myApp/TodoRef", {
-  // this works, but we will implement getRefId() on the Todo class instead
+  // we could omit this since getRefId() is declared on the Todo class
   // getId(todo) {
   //   return todo.id
   // },

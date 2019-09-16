@@ -23,7 +23,7 @@ export const registerRootStore = action(
     assertTweakedObject(node, "node")
 
     if (rootStores.has(node)) {
-      throw failure("object already marked as root store")
+      throw failure("object already registered as root store")
     }
 
     if (!isRoot(node)) {

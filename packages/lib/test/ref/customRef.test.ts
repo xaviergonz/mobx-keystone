@@ -193,11 +193,17 @@ test("array ref works", () => {
   // clone should not be affected
   expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
 })
-test("getRefId", () => {
+
+test("single selection with getRefId", () => {
   @model("myApp/Todo")
   class Todo extends Model({ id: prop<string>() }) {
     getRefId() {
       return this.id
+    }
+
+    @modelAction
+    setId(id: string) {
+      this.id = id
     }
   }
 
@@ -230,6 +236,7 @@ test("getRefId", () => {
     // getId(todo) {
     //   return todo.id
     // },
+
     resolve(ref) {
       // get the todo list where this ref is
       const todoList = findParent<TodoList>(ref, n => n instanceof TodoList)
@@ -238,6 +245,7 @@ test("getRefId", () => {
       // but if it is attached then try to find it
       return todoList.list.find(todo => todo.id === ref.id)
     },
+
     onResolvedValueChange(ref, newTodo, oldTodo) {
       if (oldTodo && !newTodo) {
         // if the todo value we were referencing disappeared then remove the reference
@@ -252,4 +260,9 @@ test("getRefId", () => {
     selectedRef: todoRef("b"),
   })
   expect(list.selectedTodo).toBe(list.list[1])
+
+  // if we change the todo id then the ref should be gone
+  list.list[1].setId("c")
+  expect(list.list[1].id).toBe("c")
+  expect(list.selectedTodo).toBe(undefined)
 })
