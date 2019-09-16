@@ -1,4 +1,4 @@
-import { computed, get, remove } from "mobx"
+import { computed, get, reaction, remove, set } from "mobx"
 import {
   clone,
   customRef,
@@ -12,8 +12,10 @@ import {
   modelAction,
   prop,
   Ref,
+  runUnprotected,
 } from "../../src"
 import "../commonSetup"
+import { autoDispose } from "../utils"
 
 interface Country {
   weather: string
@@ -40,6 +42,11 @@ class Countries extends Model({
     // this is valid in mobx5 but not mobx4
     // delete this.countries[name]
     remove(this.countries, name)
+  }
+
+  @modelAction
+  addCountry(id: string, c: Country) {
+    set(this.countries, id, c)
   }
 
   @modelAction
@@ -193,11 +200,17 @@ test("array ref works", () => {
   // clone should not be affected
   expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
 })
-test("getRefId", () => {
+
+test("single selection with getRefId", () => {
   @model("myApp/Todo")
   class Todo extends Model({ id: prop<string>() }) {
     getRefId() {
       return this.id
+    }
+
+    @modelAction
+    setId(id: string) {
+      this.id = id
     }
   }
 
@@ -230,6 +243,7 @@ test("getRefId", () => {
     // getId(todo) {
     //   return todo.id
     // },
+
     resolve(ref) {
       // get the todo list where this ref is
       const todoList = findParent<TodoList>(ref, n => n instanceof TodoList)
@@ -238,6 +252,7 @@ test("getRefId", () => {
       // but if it is attached then try to find it
       return todoList.list.find(todo => todo.id === ref.id)
     },
+
     onResolvedValueChange(ref, newTodo, oldTodo) {
       if (oldTodo && !newTodo) {
         // if the todo value we were referencing disappeared then remove the reference
@@ -252,4 +267,65 @@ test("getRefId", () => {
     selectedRef: todoRef("b"),
   })
   expect(list.selectedTodo).toBe(list.list[1])
+
+  // if we change the todo id then the ref should be gone
+  list.list[1].setId("c")
+  expect(list.list[1].id).toBe("c")
+  expect(list.selectedTodo).toBe(undefined)
+})
+
+const countryRef2 = customRef<Country>("countryRef2", {
+  resolve(ref) {
+    const countriesParent = findParent<Countries>(ref, n => n instanceof Countries)
+    if (!countriesParent) return undefined
+    // this is valid in mobx5 but not mobx4
+    // return countriesParent.countries[ref.id]
+    return get(countriesParent.countries, ref.id)
+  },
+
+  getId(target) {
+    const targetParentPath = getParentPath<Countries>(target)
+    return "" + targetParentPath!.path
+  },
+})
+
+describe("resolution", () => {
+  test("is reactive", () => {
+    const c = new Countries({
+      countries: initialCountries(),
+    })
+    const cSpain = c.countries["spain"]
+
+    const ref = countryRef2(cSpain)
+
+    let calls = 0
+    let lastValue: any
+    autoDispose(
+      reaction(
+        () => ref.maybeCurrent,
+        v => {
+          calls++
+          lastValue = v
+        },
+        { fireImmediately: true }
+      )
+    )
+
+    expect(calls).toBe(1)
+    expect(lastValue).toBe(undefined)
+
+    runUnprotected(() => {
+      c.selectedCountryRef = ref
+    })
+    expect(calls).toBe(2)
+    expect(lastValue).toBe(cSpain)
+
+    c.removeCountry("spain")
+    expect(calls).toBe(3)
+    expect(lastValue).toBe(undefined)
+
+    c.addCountry("spain", cSpain)
+    expect(calls).toBe(4)
+    expect(lastValue).toBe(cSpain)
+  })
 })

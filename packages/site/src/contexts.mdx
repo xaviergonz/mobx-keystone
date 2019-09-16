@@ -62,3 +62,4 @@ The returned context object has the following methods:
 - `set(node, value)` - Sets the (static) value a node will provide for itself and its children. Usually called in `onInit`.
 - `setComputed(node, () => value)` - Sets the (computed) value a node will provide for itself and its children. Usually called in `onInit`.
 - `unset(node)` - Make the node no longer provide a context value.
+- `getProviderNode(node)` - Gets the node that will provide the value, or undefined if it will come from the default value.

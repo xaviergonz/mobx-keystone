@@ -2,6 +2,7 @@ import { BaseModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { isObject } from "../utils"
 import { objectParents, reportParentPathObserved } from "./core"
+import { getDeepObjectChildren } from "./coreObjectChildren"
 
 /**
  * Path from an object to its immediate parent.
@@ -190,15 +191,19 @@ export function isChildOfParent(child: object, parent: object): boolean {
   assertTweakedObject(child, "child")
   assertTweakedObject(parent, "parent")
 
-  let current = child
-  let parentPath
-  while ((parentPath = fastGetParentPath(current))) {
-    current = parentPath.parent
-    if (current === parent) {
+  // since deep children does not include "$" we will check the parent
+  if (fastIsModelDataObject(child)) {
+    child = fastGetParent(child)!
+    // edge case, where we are checking if $ is child of model directly
+    if (child === parent) {
       return true
     }
   }
-  return false
+  if (fastIsModelDataObject(parent)) {
+    parent = fastGetParent(parent)!
+  }
+
+  return getDeepObjectChildren(parent).has(child)
 }
 
 /**

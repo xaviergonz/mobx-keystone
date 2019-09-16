@@ -1,5 +1,5 @@
 import { assertTweakedObject } from "../tweaker/core"
-import { objectChildren } from "./core"
+import { getObjectChildren } from "./coreObjectChildren"
 
 /**
  * Mode for the `walkTree` method.
@@ -49,7 +49,7 @@ function walkTreeParentFirst<T = void>(
     return ret
   }
 
-  const childrenIter = objectChildren.get(target)!.values()
+  const childrenIter = getObjectChildren(target)!.values()
   let ch = childrenIter.next()
   while (!ch.done) {
     const ret = walkTreeParentFirst(ch.value, predicate)
@@ -66,7 +66,7 @@ function walkTreeChildrenFirst<T = void>(
   target: object,
   predicate: (node: object) => T | undefined
 ): T | undefined {
-  const childrenIter = objectChildren.get(target)!.values()
+  const childrenIter = getObjectChildren(target)!.values()
   let ch = childrenIter.next()
   while (!ch.done) {
     const ret = walkTreeChildrenFirst(ch.value, predicate)

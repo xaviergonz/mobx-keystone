@@ -2,7 +2,10 @@
 
 ## 0.19.0
 
-- Added `setDefaultComputed` to contexts.
+- Added `setDefaultComputed` and `getProviderNode` to contexts.
+- [BREAKING CHANGE] `getChildrenObjects` will now never report interim data objects (`$`).
+- Optimizations to `getChildrenObjects` and `onChildAttachedTo`.
+- Added `rootRef`s.
 
 ## 0.18.0
 

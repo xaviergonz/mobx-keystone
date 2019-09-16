@@ -1,58 +1,31 @@
+import { isModel } from "../model"
 import { assertTweakedObject } from "../tweaker/core"
-import { objectChildren } from "./core"
-import { fastIsModelDataObject } from "./path"
-import { walkTree, WalkTreeMode } from "./walkTree"
+import { getDeepObjectChildren, getObjectChildren } from "./coreObjectChildren"
 
 /**
  * Returns all the children objects (this is, excluding primitives) of an object.
- * Excludes model interim data objects (`$`).
+ * Excludes model interim data objects (`$`), so models will report their props as children directly.
  *
  * @param node Object to get the list of children from.
  * @param [options] An optional object with the `deep` option (defaults to false) to true to get
- * the children deeply or false to get them shallowly, and `includeModelDataObjects` (defaults to false)
- * to get the model interim data objects (`$`) or false not to.
- * @returns
+ * the children deeply or false to get them shallowly.
+ * @returns A readonly observable set with the children.
  */
 export function getChildrenObjects(
   node: object,
   options?: {
     deep?: boolean
-    includeModelDataObjects?: boolean
   }
-): Set<object> {
+): ReadonlySet<object> {
   assertTweakedObject(node, "node")
 
-  const includeModelDataObjects = !!options && !!options.includeModelDataObjects
-
   if (!options || !options.deep) {
-    // we return a set copy so it can be easily observed when any of the inner items change
-    const set = new Set<object>()
-
-    const iter = objectChildren.get(node)!.values()
-    let cur = iter.next()
-    while (!cur.done) {
-      if (includeModelDataObjects || !fastIsModelDataObject(cur.value)) {
-        set.add(cur.value)
-      }
-      cur = iter.next()
+    if (isModel(node)) {
+      node = node.$
     }
 
-    return set
+    return getObjectChildren(node)
   } else {
-    const set = new Set<object>()
-
-    walkTree(
-      node,
-      n => {
-        if (includeModelDataObjects || !fastIsModelDataObject(n)) {
-          set.add(n)
-        }
-      },
-      WalkTreeMode.ParentFirst
-    )
-
-    set.delete(node)
-
-    return set
+    return getDeepObjectChildren(node)
   }
 }

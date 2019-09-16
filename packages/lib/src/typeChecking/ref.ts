@@ -1,4 +1,4 @@
-import { Ref } from "../ref/customRef"
+import { Ref } from "../ref/Ref"
 import { typesObject } from "./object"
 import { typesString } from "./primitives"
 import { IdentityType } from "./schemas"

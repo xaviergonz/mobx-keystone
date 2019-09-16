@@ -96,16 +96,22 @@ test("context with static values", () => {
   }
 
   // should use the default for now
-  expect(ctx.get(p)).toBe(1)
   expectReactionCalls(0, 0, 0)
+  expect(ctx.get(p)).toBe(1)
   expect(ctx.get(p.p2!)).toBe(1)
   expect(ctx.get(p.arr)).toBe(1)
+  expect(ctx.getProviderNode(p)).toBe(undefined)
+  expect(ctx.getProviderNode(p.p2!)).toBe(undefined)
+  expect(ctx.getProviderNode(p.arr)).toBe(undefined)
 
   ctx.set(p, 2)
   expectReactionCalls(1, 1, 1)
   expect(ctx.get(p)).toBe(2)
   expect(ctx.get(p.p2!)).toBe(2)
   expect(ctx.get(p.arr)).toBe(2)
+  expect(ctx.getProviderNode(p)).toBe(p)
+  expect(ctx.getProviderNode(p.p2!)).toBe(p)
+  expect(ctx.getProviderNode(p.arr)).toBe(p)
 
   // set same value again
   ctx.set(p, 2)
@@ -113,24 +119,36 @@ test("context with static values", () => {
   expect(ctx.get(p)).toBe(2)
   expect(ctx.get(p.p2!)).toBe(2)
   expect(ctx.get(p.arr)).toBe(2)
+  expect(ctx.getProviderNode(p)).toBe(p)
+  expect(ctx.getProviderNode(p.p2!)).toBe(p)
+  expect(ctx.getProviderNode(p.arr)).toBe(p)
 
   ctx.set(p.p2!, 3)
   expectReactionCalls(0, 1, 0)
   expect(ctx.get(p)).toBe(2)
   expect(ctx.get(p.p2!)).toBe(3)
   expect(ctx.get(p.arr)).toBe(2)
+  expect(ctx.getProviderNode(p)).toBe(p)
+  expect(ctx.getProviderNode(p.p2!)).toBe(p.p2)
+  expect(ctx.getProviderNode(p.arr)).toBe(p)
 
   ctx.unset(p)
   expectReactionCalls(1, 0, 1)
   expect(ctx.get(p)).toBe(1)
   expect(ctx.get(p.p2!)).toBe(3)
   expect(ctx.get(p.arr)).toBe(1)
+  expect(ctx.getProviderNode(p)).toBe(undefined)
+  expect(ctx.getProviderNode(p.p2!)).toBe(p.p2)
+  expect(ctx.getProviderNode(p.arr)).toBe(undefined)
 
   ctx.setDefault(5)
   expectReactionCalls(1, 0, 1)
   expect(ctx.get(p)).toBe(5)
   expect(ctx.get(p.p2!)).toBe(3)
   expect(ctx.get(p.arr)).toBe(5)
+  expect(ctx.getProviderNode(p)).toBe(undefined)
+  expect(ctx.getProviderNode(p.p2!)).toBe(p.p2)
+  expect(ctx.getProviderNode(p.arr)).toBe(undefined)
 })
 
 test("context with computed values", () => {
