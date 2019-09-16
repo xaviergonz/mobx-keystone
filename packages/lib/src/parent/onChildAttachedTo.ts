@@ -1,5 +1,4 @@
 import { reaction } from "mobx"
-import { BaseModel } from "../model"
 import { assertIsFunction } from "../utils"
 import { getChildrenObjects } from "./getChildrenObjects"
 
@@ -57,10 +56,18 @@ export function onChildAttachedTo(
   const getChildrenObjectOpts = { deep: opts.deep }
   const getCurrentChildren = () => {
     let t = target()
-    if (t instanceof BaseModel) {
-      t = t.$
+    const children = getChildrenObjects(t, getChildrenObjectOpts)
+
+    const set = new Set<object>()
+
+    const iter = children.values()
+    let cur = iter.next()
+    while (!cur.done) {
+      set.add(cur.value)
+      cur = iter.next()
     }
-    return getChildrenObjects(t, getChildrenObjectOpts)
+
+    return set
   }
 
   const currentChildren = opts.runForCurrentChildren ? new Set<object>() : getCurrentChildren()

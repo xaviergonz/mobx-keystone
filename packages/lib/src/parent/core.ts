@@ -1,4 +1,4 @@
-import { createAtom, IAtom, ObservableSet } from "mobx"
+import { createAtom, IAtom } from "mobx"
 import { ParentPath } from "./path"
 
 /**
@@ -10,11 +10,6 @@ export const objectParents = new WeakMap<object, ParentPath<object> | undefined>
  * @ignore
  */
 export const objectParentsAtoms = new WeakMap<object, IAtom>()
-
-/**
- * @ignore
- */
-export const objectChildren = new WeakMap<object, ObservableSet<object>>()
 
 /**
  * @ignore
