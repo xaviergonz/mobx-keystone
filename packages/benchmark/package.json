@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@types/benchmark": "^1.0.31",
-    "cross-env": "^5.2.1",
+    "cross-env": "^6.0.0",
     "shx": "^0.3.2",
     "typescript": "^3.6.3"
   }
