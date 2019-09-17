@@ -68,6 +68,11 @@ They can be created exactly the same way as root references and offer the exact 
 
 `isRefOfType(ref, refType)` can be used to check if a reference object is of a given type. For example, `isRefOfType(myRef(...), myRef)` will return true.
 
+## Back-references
+
+Sometimes it is useful to get back all references that currently resolve to a given node.
+For this you can use `getRefsResolvingTo(target, refType?)`, where `target` is the node the references are pointing to and `refType` is an optional argument that when provided will ensure only references of a given type are returned. It returns an observable set of reference objects that point to the target.
+
 ## Example: Reference to single selected Todo
 
 Imagine that we had a todo list where each todo item had a unique `id: string` property, and we could select a single todo item or none.

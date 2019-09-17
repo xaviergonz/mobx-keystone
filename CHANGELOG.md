@@ -3,6 +3,7 @@
 ## 0.20.0
 
 - Added `isRefOfType(ref, refType)` to check if a ref is of a given ref type.
+- Added `getRefsResolvingTo(node, refType?)` to be able to get back references that are currently pointing to a node.
 
 ## 0.19.0
 

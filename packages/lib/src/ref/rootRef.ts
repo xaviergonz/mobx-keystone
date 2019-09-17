@@ -1,4 +1,4 @@
-import { action, createAtom } from "mobx"
+import { action } from "mobx"
 import { optimizedWalkTreeSearch } from "../parent/optimizedWalkTree"
 import { fastGetRoot } from "../parent/path"
 import { getSnapshot } from "../snapshot/getSnapshot"
@@ -43,46 +43,43 @@ export interface RootRefOptions<T extends object> {
  * @param [options] Root reference options.
  * @returns A function that allows you to construct that type of root reference.
  */
-export function rootRef<T extends object>(
-  modelTypeId: string,
-  options?: RootRefOptions<T>
-): RefConstructor<T> {
-  const getId = (options && options.getId) || getModelRefId
-  const onResolvedValueChange = options && options.onResolvedValueChange
+export const rootRef = action(
+  "rootRef",
+  <T extends object>(modelTypeId: string, options?: RootRefOptions<T>): RefConstructor<T> => {
+    const getId = (options && options.getId) || getModelRefId
+    const onResolvedValueChange = options && options.onResolvedValueChange
 
-  const resolverGen = (): RefResolver<T> => {
-    const cachedAtom = createAtom("rootRefCachedTarget")
-    let cachedTarget: T | undefined
-    let alreadyVisited: WeakMap<object, T | undefined>
-    let lastRefRoot: object
+    const resolverGen = (): RefResolver<T> => {
+      let cachedTarget: T | undefined
+      let alreadyVisited: WeakMap<object, T | undefined>
+      let lastRefRoot: object
 
-    return ref => {
-      const refRoot = fastGetRoot(ref)
-      // if the root changes then our list of already visited changes
-      if (lastRefRoot !== refRoot) {
-        lastRefRoot = refRoot
-        alreadyVisited = new WeakMap()
+      return ref => {
+        const refRoot = fastGetRoot(ref)
+        // if the root changes then our list of already visited changes
+        if (lastRefRoot !== refRoot) {
+          lastRefRoot = refRoot
+          alreadyVisited = new WeakMap()
+        }
+
+        if (isRefRootCachedTargetOk(ref, refRoot, cachedTarget, getId)) {
+          return cachedTarget
+        }
+
+        // read root snapshot just to mark it as dependency
+        // (when not found, everytime anything in the tree changes we will perform another search)
+        getSnapshot(refRoot)
+        const newTarget = resolveRefRoot(ref, refRoot, getId, alreadyVisited)
+        if (newTarget !== cachedTarget) {
+          cachedTarget = newTarget
+        }
+        return newTarget
       }
-      cachedAtom.reportObserved()
-
-      if (isRefRootCachedTargetOk(ref, refRoot, cachedTarget, getId)) {
-        return cachedTarget
-      }
-
-      // read root snapshot just to mark it as dependency
-      // (when not found, everytime anything in the tree changes we will perform another search)
-      getSnapshot(refRoot)
-      const newTarget = resolveRefRoot(ref, refRoot, getId, alreadyVisited)
-      if (newTarget !== cachedTarget) {
-        cachedTarget = newTarget
-        cachedAtom.reportChanged()
-      }
-      return newTarget
     }
-  }
 
-  return internalCustomRef(modelTypeId, resolverGen, getId, onResolvedValueChange)
-}
+    return internalCustomRef(modelTypeId, resolverGen, getId, onResolvedValueChange)
+  }
+)
 
 function isRefRootCachedTargetOk<T extends object>(
   ref: Ref<T>,
