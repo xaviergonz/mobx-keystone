@@ -75,23 +75,23 @@ export function internalCustomRef<T extends object>(
 
     // listen to changes
 
-    let oldTarget: T | undefined
-    let firstTime = true
+    let savedOldTarget: T | undefined
+    let savedFirstTime = true
 
     // TODO: will not disposing this leak and force the ref to be kept in mem?
     reaction(
       () => ref.maybeCurrent,
       newTarget => {
-        const savedOldTarget = oldTarget
-        const savedFirstTime = firstTime
+        const oldTarget = savedOldTarget
+        const firstTime = savedFirstTime
         // update early in case of thrown exceptions
-        oldTarget = newTarget
-        firstTime = false
+        savedOldTarget = newTarget
+        savedFirstTime = false
 
-        updateBackRefs(ref, fn as any, newTarget, savedOldTarget)
+        updateBackRefs(ref, fn as any, newTarget, oldTarget)
 
-        if (!savedFirstTime && onResolvedValueChange && newTarget !== savedOldTarget) {
-          onResolvedValueChange(ref, newTarget, savedOldTarget)
+        if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
+          onResolvedValueChange(ref, newTarget, oldTarget)
         }
       },
       { fireImmediately: true }
