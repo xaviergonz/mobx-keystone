@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.20.0
+
+- Added `isRefOfType(ref, refType)` to check if a ref is of a given ref type.
+
 ## 0.19.0
 
 - Added `setDefaultComputed` and `getProviderNode` to contexts.

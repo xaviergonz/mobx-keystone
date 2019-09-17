@@ -64,6 +64,10 @@ Again, if the reference points to a model and that model class specifies a metho
 
 They can be created exactly the same way as root references and offer the exact same properties.
 
+## Checking if a reference is of a given type
+
+`isRefOfType(ref, refType)` can be used to check if a reference object is of a given type. For example, `isRefOfType(myRef(...), myRef)` will return true.
+
 ## Example: Reference to single selected Todo
 
 Imagine that we had a todo list where each todo item had a unique `id: string` property, and we could select a single todo item or none.

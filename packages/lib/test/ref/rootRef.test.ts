@@ -4,6 +4,7 @@ import {
   detach,
   getParent,
   getSnapshot,
+  isRefOfType,
   model,
   Model,
   modelAction,
@@ -384,4 +385,23 @@ describe("resolution", () => {
     expect(calls).toBe(4)
     expect(lastValue).toBe(cSpain)
   })
+})
+
+test("isRefOfType", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const cSpain = c.countries["spain"]
+
+  const ref = countryRef(cSpain)
+  const ref2 = countryRef2(cSpain)
+
+  expect(isRefOfType(ref, countryRef)).toBe(true)
+  expect(isRefOfType(ref2, countryRef)).toBe(false)
+  expect(isRefOfType(ref, countryRef2)).toBe(false)
+  expect(isRefOfType(ref2, countryRef2)).toBe(true)
+
+  // check generic is ok
+  const refObj = ref as Ref<object>
+  expect(isRefOfType(refObj, countryRef)).toBe(true)
 })
