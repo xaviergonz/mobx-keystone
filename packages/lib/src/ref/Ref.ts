@@ -61,3 +61,18 @@ export interface RefConstructor<T extends object> {
   /** @internal */
   [customRefTypeSymbol]: T // just for typings
 }
+
+/**
+ * Checks if a ref object is of a given ref type.
+ *
+ * @typeparam T Referenced object type.
+ * @param ref Reference object.
+ * @param refType Reference type.
+ * @returns `true` if it is of the given type, false otherwise.
+ */
+export function isRefOfType<T extends object>(
+  ref: Ref<object>,
+  refType: RefConstructor<T>
+): ref is Ref<T> {
+  return ref instanceof refType.refClass
+}

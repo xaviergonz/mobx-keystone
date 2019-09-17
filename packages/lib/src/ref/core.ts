@@ -1,8 +1,19 @@
-import { reaction } from "mobx"
+import { observable, ObservableSet, reaction } from "mobx"
 import { model } from "../model/modelDecorator"
 import { isModel } from "../model/utils"
+import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure } from "../utils"
 import { Ref, RefConstructor } from "./Ref"
+
+interface BackRefs<T extends object> {
+  all: ObservableSet<Ref<T>>
+  byType: WeakMap<RefConstructor<T>, ObservableSet<Ref<T>>>
+}
+
+/**
+ * Back-references from object to the references that point to it.
+ */
+const objectBackRefs = new WeakMap<object, BackRefs<object>>()
 
 /**
  * Reference resolver type.
@@ -58,30 +69,35 @@ export function internalCustomRef<T extends object>(
       throw failure("ref target object must have an id of string type")
     }
 
-    const model = new CustomRef({
+    const ref = new CustomRef({
       id,
     })
 
     // listen to changes
-    if (onResolvedValueChange) {
-      let oldValue = model.maybeCurrent
-      // TODO: will not disposing this leak?
-      reaction(
-        () => model.maybeCurrent,
-        newValue => {
-          if (newValue !== oldValue) {
-            const savedOldValue = oldValue
-            oldValue = newValue
-            onResolvedValueChange!(model, newValue, savedOldValue)
-          }
-        },
-        {
-          fireImmediately: true,
-        }
-      )
-    }
 
-    return model
+    let savedOldTarget: T | undefined
+    let savedFirstTime = true
+
+    // TODO: will not disposing this leak and force the ref to be kept in mem?
+    reaction(
+      () => ref.maybeCurrent,
+      newTarget => {
+        const oldTarget = savedOldTarget
+        const firstTime = savedFirstTime
+        // update early in case of thrown exceptions
+        savedOldTarget = newTarget
+        savedFirstTime = false
+
+        updateBackRefs(ref, fn as any, newTarget, oldTarget)
+
+        if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
+          onResolvedValueChange(ref, newTarget, oldTarget)
+        }
+      },
+      { fireImmediately: true }
+    )
+
+    return ref
   }
   fn.refClass = CustomRef
 
@@ -106,4 +122,64 @@ export function getModelRefId(target: object): string | undefined {
     return id
   }
   return undefined
+}
+
+function getBackRefs(target: object, refType?: RefConstructor<object>): ObservableSet<Ref<object>> {
+  let backRefs = objectBackRefs.get(target)
+  if (!backRefs) {
+    backRefs = {
+      all: observable.set(undefined, { deep: false }),
+      byType: new WeakMap(),
+    }
+    objectBackRefs.set(target, backRefs)
+  }
+
+  if (!refType) {
+    return backRefs.all
+  } else {
+    let byType = backRefs.byType.get(refType)
+    if (!byType) {
+      byType = observable.set(undefined, { deep: false })
+      backRefs.byType.set(refType, byType)
+    }
+    return byType
+  }
+}
+
+/**
+ * Gets all references that resolve to a given object.
+ *
+ * @typeparam T Referenced object type.
+ * @param target Node the references point to.
+ * @param [refType] Pass it to filter by only references of a given type, or do not to get references of any type.
+ * @returns An observable set with all reference objects that point to the given object.
+ */
+export function getRefsResolvingTo<T extends object>(
+  target: T,
+  refType?: RefConstructor<T>
+): ObservableSet<Ref<T>> {
+  assertTweakedObject(target, "target")
+
+  const refTypeObject = refType as RefConstructor<object> | undefined
+  return getBackRefs(target, refTypeObject) as ObservableSet<Ref<T>>
+}
+
+function updateBackRefs<T extends object>(
+  ref: Ref<T>,
+  refClass: RefConstructor<T>,
+  newTarget: T | undefined,
+  oldTarget: T | undefined
+) {
+  if (newTarget === oldTarget) {
+    return
+  }
+
+  if (oldTarget) {
+    getBackRefs(oldTarget).delete(ref)
+    getBackRefs(oldTarget, refClass as RefConstructor<object>).delete(ref)
+  }
+  if (newTarget) {
+    getBackRefs(newTarget).add(ref)
+    getBackRefs(newTarget, refClass as RefConstructor<object>).add(ref)
+  }
 }

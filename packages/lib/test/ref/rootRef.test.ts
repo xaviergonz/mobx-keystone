@@ -3,7 +3,9 @@ import {
   clone,
   detach,
   getParent,
+  getRefsResolvingTo,
   getSnapshot,
+  isRefOfType,
   model,
   Model,
   modelAction,
@@ -305,7 +307,7 @@ describe("resolution", () => {
     resolveRefRootMock.mockRestore()
   })
 
-  test("is cached", () => {
+  test("is cached and backrefs", () => {
     const c = new Countries({
       countries: initialCountries(),
     })
@@ -314,36 +316,71 @@ describe("resolution", () => {
     expect(resolveRefRootMock).not.toHaveBeenCalled()
 
     const ref = countryRef2(cSpain)
-    expect(resolveRefRootMock).not.toHaveBeenCalled()
 
-    // when not valid it should get called everytime
+    // wrap in computeds just to make sure it is ok
+    const countryRefBackRefs = computed(() =>
+      Array.from(getRefsResolvingTo(cSpain, countryRef).values())
+    )
+    const countryRef2BackRefs = computed(() =>
+      Array.from(getRefsResolvingTo(cSpain, countryRef2).values())
+    )
+    const allBackRefs = computed(() => Array.from(getRefsResolvingTo(cSpain).values()))
+
+    function checkBackRefs() {
+      // this kind of ref is not being used, so should be empty always
+      expect(countryRefBackRefs.get()).toEqual([])
+
+      if (ref.maybeCurrent === cSpain) {
+        expect(allBackRefs.get()).toEqual([ref])
+        expect(countryRef2BackRefs.get()).toEqual([ref])
+      } else {
+        expect(allBackRefs.get()).toEqual([])
+        expect(countryRef2BackRefs.get()).toEqual([])
+      }
+    }
+
+    // called once because of auto reaction to changes
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(1)
+
+    // when not valid it should be cached while nothing in its tree changes
     expect(ref.isValid).toBe(false)
     expect(resolveRefRootMock).toHaveBeenCalledTimes(1)
     expect(ref.isValid).toBe(false)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(2)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(1)
+
+    checkBackRefs()
 
     runUnprotected(() => {
       c.selectedCountryRef = ref
     })
+    // auto finds new value
     expect(resolveRefRootMock).toHaveBeenCalledTimes(2)
 
-    // once valid it should be only called once
+    // once valid it is cached
     expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(2)
     expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(2)
+
+    checkBackRefs()
 
     c.removeCountry("spain")
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
     expect(ref.maybeCurrent).toBe(undefined)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(4)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
     expect(ref.maybeCurrent).toBe(undefined)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(5)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
+
+    checkBackRefs()
 
     c.addCountry(cSpain)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(4)
     expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(6)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(4)
     expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(6)
+    expect(resolveRefRootMock).toHaveBeenCalledTimes(4)
+
+    checkBackRefs()
   })
 
   test("is reactive", () => {
@@ -384,4 +421,23 @@ describe("resolution", () => {
     expect(calls).toBe(4)
     expect(lastValue).toBe(cSpain)
   })
+})
+
+test("isRefOfType", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const cSpain = c.countries["spain"]
+
+  const ref = countryRef(cSpain)
+  const ref2 = countryRef2(cSpain)
+
+  expect(isRefOfType(ref, countryRef)).toBe(true)
+  expect(isRefOfType(ref2, countryRef)).toBe(false)
+  expect(isRefOfType(ref, countryRef2)).toBe(false)
+  expect(isRefOfType(ref2, countryRef2)).toBe(true)
+
+  // check generic is ok
+  const refObj = ref as Ref<object>
+  expect(isRefOfType(refObj, countryRef)).toBe(true)
 })
