@@ -1,4 +1,5 @@
 import { observable, ObservableSet, reaction } from "mobx"
+import { O } from "ts-toolbelt"
 import { model } from "../model/modelDecorator"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
@@ -79,7 +80,7 @@ export function internalCustomRef<T extends object>(
     let savedFirstTime = true
 
     // TODO: will not disposing this leak and force the ref to be kept in mem?
-    reaction(
+    const disposeReaction = reaction(
       () => ref.maybeCurrent,
       newTarget => {
         const oldTarget = savedOldTarget
@@ -96,6 +97,15 @@ export function internalCustomRef<T extends object>(
       },
       { fireImmediately: true }
     )
+
+    const writableRef: O.Writable<CustomRef, "dispose" | "isDisposed"> = ref
+    writableRef.dispose = () => {
+      if (!writableRef.isDisposed) {
+        disposeReaction()
+        updateBackRefs(ref, fn as any, undefined, ref.maybeCurrent)
+        writableRef.isDisposed = true
+      }
+    }
 
     return ref
   }

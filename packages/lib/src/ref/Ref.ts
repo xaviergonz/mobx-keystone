@@ -3,7 +3,7 @@ import { ModelClass } from "../model/BaseModel"
 import { Model } from "../model/Model"
 import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
-import { failure } from "../utils"
+import { failure, inDevMode } from "../utils"
 
 /**
  * A reference model base type.
@@ -22,6 +22,12 @@ export abstract class Ref<T extends object> extends Model({
    */
   @computed
   get maybeCurrent(): T | undefined {
+    if (inDevMode()) {
+      if (this.isDisposed) {
+        throw failure("a disposed reference cannot be used")
+      }
+    }
+
     return this.resolve()
   }
 
@@ -30,6 +36,12 @@ export abstract class Ref<T extends object> extends Model({
    */
   @computed
   get isValid(): boolean {
+    if (inDevMode()) {
+      if (this.isDisposed) {
+        throw failure("a disposed reference cannot be used")
+      }
+    }
+
     return !!this.maybeCurrent
   }
 
@@ -38,6 +50,12 @@ export abstract class Ref<T extends object> extends Model({
    */
   @computed
   get current(): T {
+    if (inDevMode()) {
+      if (this.isDisposed) {
+        throw failure("a disposed reference cannot be used")
+      }
+    }
+
     const current = this.maybeCurrent
 
     if (!current) {
@@ -48,6 +66,16 @@ export abstract class Ref<T extends object> extends Model({
 
     return current
   }
+
+  /**
+   * Checks if the reference has been disposed.
+   */
+  readonly isDisposed: boolean = false
+
+  /**
+   * Disposes of the ref. Will do nothing if already disposed.
+   */
+  readonly dispose!: () => void
 }
 
 export declare const customRefTypeSymbol: unique symbol
