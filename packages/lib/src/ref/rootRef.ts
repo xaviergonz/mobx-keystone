@@ -70,9 +70,8 @@ export const rootRef = action(
           return cachedTarget
         }
 
-        // when not found, everytime anything in the tree changes we will perform another search
-        // but only if a child is added/removed or its id changes
-        // this search is only done for every distinct getId function
+        // when not found, everytime a child is added/removed or its id changes we will perform another search
+        // this search is only done once for every distinct getId function
         const idMap = computedIdTree!.walk(refRoot)
         const newTarget = idMap ? (idMap.get(ref.id) as T | undefined) : undefined
         if (newTarget) {
