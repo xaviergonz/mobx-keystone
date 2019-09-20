@@ -14,7 +14,6 @@ import {
   rootRef,
   runUnprotected,
 } from "../../src"
-import * as rootRefModule from "../../src/ref/rootRef"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
@@ -297,23 +296,11 @@ test("moving ref between roots", () => {
 })
 
 describe("resolution", () => {
-  let resolveRefRootMock: jest.SpyInstance<object | undefined, any[]>
-
-  beforeEach(() => {
-    resolveRefRootMock = jest.spyOn(rootRefModule, "resolveRefRoot")
-  })
-
-  afterEach(() => {
-    resolveRefRootMock.mockRestore()
-  })
-
-  test("is cached and backrefs", () => {
+  test("backrefs", () => {
     const c = new Countries({
       countries: initialCountries(),
     })
     const cSpain = c.countries["spain"]
-
-    expect(resolveRefRootMock).not.toHaveBeenCalled()
 
     const ref = countryRef2(cSpain)
 
@@ -339,46 +326,25 @@ describe("resolution", () => {
       }
     }
 
-    // called once because of auto reaction to changes
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(1)
-
-    // when not valid it should be cached while nothing in its tree changes
     expect(ref.isValid).toBe(false)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(1)
-    expect(ref.isValid).toBe(false)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(1)
 
     checkBackRefs()
 
     runUnprotected(() => {
       c.selectedCountryRef = ref
     })
-    // auto finds new value
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(2)
 
-    // once valid it is cached
     expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(2)
-    expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(2)
 
     checkBackRefs()
 
     c.removeCountry("spain")
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
     expect(ref.maybeCurrent).toBe(undefined)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
-    expect(ref.maybeCurrent).toBe(undefined)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(3)
 
     checkBackRefs()
 
     c.addCountry(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(4)
     expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(4)
-    expect(ref.current).toBe(cSpain)
-    expect(resolveRefRootMock).toHaveBeenCalledTimes(4)
 
     checkBackRefs()
   })

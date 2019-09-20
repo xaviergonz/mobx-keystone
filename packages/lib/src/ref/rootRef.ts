@@ -1,7 +1,6 @@
 import { action } from "mobx"
-import { optimizedWalkTreeSearch } from "../parent/optimizedWalkTree"
 import { fastGetRoot } from "../parent/path"
-import { getSnapshot } from "../snapshot/getSnapshot"
+import { computedWalkTreeParentFirst } from "../parent/walkTree"
 import {
   getModelRefId,
   internalCustomRef,
@@ -51,28 +50,20 @@ export const rootRef = action(
 
     const resolverGen = (ref: Ref<T>): RefResolver<T> => {
       let cachedTarget: T | undefined
-      let alreadyVisited: WeakMap<object, T | undefined>
-      let lastRefRoot: object
+      const computedWalkTree = computedWalkTreeParentFirst<T>(n =>
+        getId(n) === ref.id ? (n as T) : undefined
+      )
 
       return () => {
         const refRoot = fastGetRoot(ref)
-        // if the root changes then our list of already visited changes
-        if (lastRefRoot !== refRoot) {
-          lastRefRoot = refRoot
-          alreadyVisited = new WeakMap()
-        }
 
         if (isRefRootCachedTargetOk(ref, refRoot, cachedTarget, getId)) {
           return cachedTarget
         }
 
-        // read root snapshot just to mark it as dependency
-        // (when not found, everytime anything in the tree changes we will perform another search)
-        getSnapshot(refRoot)
-        const newTarget = resolveRefRoot(ref, refRoot, getId, alreadyVisited)
-        if (newTarget !== cachedTarget) {
-          cachedTarget = newTarget
-        }
+        // when not found, everytime anything in the tree changes we will perform another search
+        // but only if a child is added/removed or its id changes
+        const newTarget = computedWalkTree.walk(refRoot)
         return newTarget
       }
     }
@@ -92,29 +83,3 @@ function isRefRootCachedTargetOk<T extends object>(
   if (refRoot !== fastGetRoot(cachedTarget)) return false
   return true
 }
-
-/**
- * @ignore
- */
-export const resolveRefRoot = action(
-  <T extends object>(
-    ref: Ref<T>,
-    refRoot: object,
-    getId: RefIdResolver<T>,
-    alreadyVisited: WeakMap<object, T | undefined>
-  ): T | undefined => {
-    // this will mark all snapshots that don't have the required id deeply inside as visited
-    // that way we only traverse changed parts of the tree when looking for new ids
-    const found = optimizedWalkTreeSearch(refRoot, alreadyVisited, child => {
-      const id = getId(child as T)
-      if (id === ref.id) {
-        // found
-        return child as T
-      } else {
-        return undefined
-      }
-    })
-
-    return found
-  }
-)
