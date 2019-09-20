@@ -49,12 +49,12 @@ export const rootRef = action(
     const getId = (options && options.getId) || getModelRefId
     const onResolvedValueChange = options && options.onResolvedValueChange
 
-    const resolverGen = (): RefResolver<T> => {
+    const resolverGen = (ref: Ref<T>): RefResolver<T> => {
       let cachedTarget: T | undefined
       let alreadyVisited: WeakMap<object, T | undefined>
       let lastRefRoot: object
 
-      return ref => {
+      return () => {
         const refRoot = fastGetRoot(ref)
         // if the root changes then our list of already visited changes
         if (lastRefRoot !== refRoot) {

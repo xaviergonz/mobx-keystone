@@ -40,7 +40,7 @@ export type RefOnResolvedValueChange<T extends object> = (
  */
 export function internalCustomRef<T extends object>(
   modelTypeId: string,
-  resolverGen: () => RefResolver<T>,
+  resolverGen: (ref: Ref<T>) => RefResolver<T>,
   getId: RefIdResolver<T>,
   onResolvedValueChange: RefOnResolvedValueChange<T> | undefined
 ): RefConstructor<T> {
@@ -50,7 +50,7 @@ export function internalCustomRef<T extends object>(
 
     resolve(): T | undefined {
       if (!this.resolver) {
-        this.resolver = resolverGen()
+        this.resolver = resolverGen(this)
       }
 
       return this.resolver(this)
