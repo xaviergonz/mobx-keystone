@@ -1,3 +1,4 @@
+import { computed, IComputedValue } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { getObjectChildren } from "./coreObjectChildren"
 
@@ -82,4 +83,51 @@ function walkTreeChildrenFirst<T = void>(
   }
 
   return undefined
+}
+
+/**
+ * @ignore
+ */
+export function computedWalkTreeParentFirst<T = void>(
+  predicate: (node: object) => T | undefined
+): {
+  walk(target: object): T | undefined
+} {
+  const computedFns = new WeakMap<object, IComputedValue<T | undefined>>()
+
+  const getComputedTreeResult = (tree: object): T | undefined => {
+    let cmpted = computedFns.get(tree)
+    if (!cmpted) {
+      cmpted = computed(() => {
+        return walkTreeParentFirst(tree)
+      })
+      computedFns.set(tree, cmpted)
+    }
+    return cmpted.get()
+  }
+
+  function walkTreeParentFirst(target: object): T | undefined {
+    const ret = predicate(target)
+    if (ret !== undefined) {
+      return ret
+    }
+
+    const childrenIter = getObjectChildren(target)!.values()
+    let ch = childrenIter.next()
+    while (!ch.done) {
+      const ret = getComputedTreeResult(ch.value)
+      if (ret !== undefined) {
+        return ret
+      }
+      ch = childrenIter.next()
+    }
+
+    return undefined
+  }
+
+  return {
+    walk(target) {
+      return getComputedTreeResult(target)
+    },
+  }
 }

@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.20.1
+
+- Optimizations for `rootRef` resolution when the node cannot be resolved.
+
 ## 0.20.0
 
 - Added `isRefOfType(ref, refType)` to check if a ref is of a given ref type.
