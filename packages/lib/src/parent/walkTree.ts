@@ -94,6 +94,7 @@ function walkTreeChildrenFirst<T = void>(
 /**
  * @ignore
  */
+/*
 export function computedWalkTreeParentFirst<T = void>(
   predicate: (node: object) => T | undefined
 ): {
@@ -119,4 +120,93 @@ export function computedWalkTreeParentFirst<T = void>(
       return getComputedTreeResult(target)
     },
   }
+}
+*/
+
+/**
+ * @ignore
+ */
+export interface ComputedWalkTreeAggregate<R> {
+  walk(target: object): Map<R, object> | undefined
+}
+
+/**
+ * @ignore
+ */
+export function computedWalkTreeAggregate<R>(
+  predicate: (node: object) => R | undefined
+): ComputedWalkTreeAggregate<R> {
+  const computedFns = new WeakMap<object, IComputedValue<Map<R, object> | undefined>>()
+
+  const getComputedTreeResult = (tree: object): Map<R, object> | undefined => {
+    let cmpted = computedFns.get(tree)
+    if (!cmpted) {
+      cmpted = computed(() => {
+        return walkTreeAggregate(tree, predicate, recurse)
+      })
+      computedFns.set(tree, cmpted)
+    }
+    return cmpted.get()
+  }
+
+  const recurse = (ch: object) => getComputedTreeResult(ch)
+
+  return {
+    walk(target) {
+      return getComputedTreeResult(target)
+    },
+  }
+}
+
+function walkTreeAggregate<R>(
+  target: object,
+  rootPredicate: (node: object) => R | undefined,
+  recurse: (node: object) => Map<R, object> | undefined
+): Map<R, object> | undefined {
+  let map: Map<R, object> | undefined
+  const rootVal = rootPredicate(target)
+
+  const childrenMap = getObjectChildren(target)!
+  const childrenIter = childrenMap!.values()
+  let ch = childrenIter.next()
+
+  // small optimization, if there is only one child and this
+  // object provides no value we can just reuse the child ones
+  if (rootVal === undefined && childrenMap.size === 1) {
+    return recurse(ch.value)
+  }
+
+  while (!ch.done) {
+    const childMap = recurse(ch.value)
+
+    if (childMap) {
+      if (!map) {
+        map = new Map()
+      }
+
+      // add child map keys/values to own map
+      const mapIter = childMap.keys()
+
+      let mapCur = mapIter.next()
+      while (!mapCur.done) {
+        const key = mapCur.value
+        const val = childMap.get(key)!
+        map.set(key, val)
+        mapCur = mapIter.next()
+      }
+    }
+
+    ch = childrenIter.next()
+  }
+
+  // add it at the end so parent resolutions have higher
+  // priority than child ones
+  if (rootVal !== undefined) {
+    if (!map) {
+      map = new Map()
+    }
+    map.set(rootVal, target)
+  }
+
+  return map
 }

@@ -1,6 +1,6 @@
 import { action } from "mobx"
 import { fastGetRoot } from "../parent/path"
-import { computedWalkTreeParentFirst } from "../parent/walkTree"
+import { computedWalkTreeAggregate, ComputedWalkTreeAggregate } from "../parent/walkTree"
 import {
   getModelRefId,
   internalCustomRef,
@@ -32,6 +32,11 @@ export interface RootRefOptions<T extends object> {
   onResolvedValueChange?: RefOnResolvedValueChange<T>
 }
 
+const computedIdTrees = new WeakMap<
+  (node: object) => string | undefined,
+  ComputedWalkTreeAggregate<string>
+>()
+
 /**
  * Creates a root ref to an object, which in its snapshot form has an id.
  * A root ref will only be able to resolve references as long as both the Ref
@@ -48,11 +53,15 @@ export const rootRef = action(
     const getId = (options && options.getId) || getModelRefId
     const onResolvedValueChange = options && options.onResolvedValueChange
 
+    // cache/reuse computedIdTrees for same getId function
+    let computedIdTree = computedIdTrees.get(getId)
+    if (!computedIdTree) {
+      computedIdTree = computedWalkTreeAggregate<string>(getId)
+      computedIdTrees.set(getId, computedIdTree)
+    }
+
     const resolverGen = (ref: Ref<T>): RefResolver<T> => {
       let cachedTarget: T | undefined
-      const computedWalkTree = computedWalkTreeParentFirst<T>(n =>
-        getId(n) === ref.id ? (n as T) : undefined
-      )
 
       return () => {
         const refRoot = fastGetRoot(ref)
@@ -63,7 +72,12 @@ export const rootRef = action(
 
         // when not found, everytime anything in the tree changes we will perform another search
         // but only if a child is added/removed or its id changes
-        const newTarget = computedWalkTree.walk(refRoot)
+        // this search is only done for every distinct getId function
+        const idMap = computedIdTree!.walk(refRoot)
+        const newTarget = idMap ? (idMap.get(ref.id) as T | undefined) : undefined
+        if (newTarget) {
+          cachedTarget = newTarget
+        }
         return newTarget
       }
     }
