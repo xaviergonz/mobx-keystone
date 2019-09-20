@@ -35,17 +35,22 @@ export function walkTree<T = void>(
   assertTweakedObject(target, "target")
 
   if (mode === WalkTreeMode.ParentFirst) {
-    return walkTreeParentFirst(target, predicate)
+    const recurse: (node: object) => T | undefined = child =>
+      walkTreeParentFirst(child, predicate, recurse)
+    return walkTreeParentFirst(target, predicate, recurse)
   } else {
-    return walkTreeChildrenFirst(target, predicate)
+    const recurse: (node: object) => T | undefined = child =>
+      walkTreeChildrenFirst(child, predicate, recurse)
+    return walkTreeChildrenFirst(target, predicate, recurse)
   }
 }
 
 function walkTreeParentFirst<T = void>(
   target: object,
-  predicate: (node: object) => T | undefined
+  rootPredicate: (node: object) => T | undefined,
+  recurse: (node: object) => T | undefined
 ): T | undefined {
-  const ret = predicate(target)
+  const ret = rootPredicate(target)
   if (ret !== undefined) {
     return ret
   }
@@ -53,7 +58,7 @@ function walkTreeParentFirst<T = void>(
   const childrenIter = getObjectChildren(target)!.values()
   let ch = childrenIter.next()
   while (!ch.done) {
-    const ret = walkTreeParentFirst(ch.value, predicate)
+    const ret = recurse(ch.value)
     if (ret !== undefined) {
       return ret
     }
@@ -65,19 +70,20 @@ function walkTreeParentFirst<T = void>(
 
 function walkTreeChildrenFirst<T = void>(
   target: object,
-  predicate: (node: object) => T | undefined
+  rootPredicate: (node: object) => T | undefined,
+  recurse: (node: object) => T | undefined
 ): T | undefined {
   const childrenIter = getObjectChildren(target)!.values()
   let ch = childrenIter.next()
   while (!ch.done) {
-    const ret = walkTreeChildrenFirst(ch.value, predicate)
+    const ret = recurse(ch.value)
     if (ret !== undefined) {
       return ret
     }
     ch = childrenIter.next()
   }
 
-  const ret = predicate(target)
+  const ret = rootPredicate(target)
   if (ret !== undefined) {
     return ret
   }
@@ -99,31 +105,14 @@ export function computedWalkTreeParentFirst<T = void>(
     let cmpted = computedFns.get(tree)
     if (!cmpted) {
       cmpted = computed(() => {
-        return walkTreeParentFirst(tree)
+        return walkTreeParentFirst(tree, predicate, recurse)
       })
       computedFns.set(tree, cmpted)
     }
     return cmpted.get()
   }
 
-  function walkTreeParentFirst(target: object): T | undefined {
-    const ret = predicate(target)
-    if (ret !== undefined) {
-      return ret
-    }
-
-    const childrenIter = getObjectChildren(target)!.values()
-    let ch = childrenIter.next()
-    while (!ch.done) {
-      const ret = getComputedTreeResult(ch.value)
-      if (ret !== undefined) {
-        return ret
-      }
-      ch = childrenIter.next()
-    }
-
-    return undefined
-  }
+  const recurse = (ch: object) => getComputedTreeResult(ch)
 
   return {
     walk(target) {
