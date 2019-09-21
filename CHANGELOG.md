@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.20.2
+
+- Fixed a possible memory leak with refs.
+
 ## 0.20.1
 
 - Optimizations for `rootRef` resolution when the node cannot be resolved.
