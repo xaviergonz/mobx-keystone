@@ -113,7 +113,7 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
     const v = sn[k]
     set(plainObj, k, internalFromSnapshot(v))
   }
-  return tweakPlainObject(plainObj, undefined, undefined, true)
+  return tweakPlainObject(plainObj, undefined, undefined, true, false)
 }
 
 const observableOptions = {
