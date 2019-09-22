@@ -70,30 +70,32 @@ Another area of improvement is the simplification of the usage of snapshot vs. i
 ```ts
 // mobx-state-tree code
 
-const Todo = types.model({
-  done: false,
-  text: types.string
-})
-.actions(self => ({
-  setText(text: string) {
-    self.text = text
-  },
-  setDone(done: boolean) {
-    self.done = done
-  }
-}))
+const Todo = types
+  .model({
+    done: false,
+    text: types.string,
+  })
+  .actions(self => ({
+    setText(text: string) {
+      self.text = text
+    },
+    setDone(done: boolean) {
+      self.done = done
+    },
+  }))
 
-const RootStore = types.model({
-  selected: types.maybe(Todo)
-})
-.actions(self => ({
-  // note the usage of an intersection of the snapshot type and the instance type
-  setSelected(todo: SnapshotIn<typeof Todo> | Instance<typeof Todo>) {
-    // note the usage of cast to indicate that it is ok to use a snapshot when
-    // the property actually expects an instance
-    self.selected = cast(todo)
-  }
-}))
+const RootStore = types
+  .model({
+    selected: types.maybe(Todo),
+  })
+  .actions(self => ({
+    // note the usage of a union of the snapshot type and the instance type
+    setSelected(todo: SnapshotIn<typeof Todo> | Instance<typeof Todo>) {
+      // note the usage of cast to indicate that it is ok to use a snapshot when
+      // the property actually expects an instance
+      self.selected = cast(todo)
+    },
+  }))
 ```
 
 In `mobx-keystone` snapshots are usually only expected when dealing with `getSnapshot` and `fromSnapshot`, so it leads to a simpler usage:
