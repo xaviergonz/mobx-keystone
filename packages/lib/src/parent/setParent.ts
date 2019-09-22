@@ -1,10 +1,16 @@
 import { action } from "mobx"
-import { BaseModel, dataObjectParent } from "../model/BaseModel"
+import { BaseModel } from "../model/BaseModel"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isPrimitive } from "../utils"
-import { objectParents, parentPathEquals, reportParentPathChanged } from "./core"
+import {
+  dataObjectParent,
+  dataToModelNode,
+  objectParents,
+  parentPathEquals,
+  reportParentPathChanged,
+} from "./core"
 import { addObjectChild, initializeObjectChildren, removeObjectChild } from "./coreObjectChildren"
 import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
 
@@ -27,11 +33,11 @@ export const setParent = action(
       if (typeof value === "function" || typeof value === "symbol") {
         throw failure(`assertion failed: value cannot be a function or a symbol`)
       }
-      if (!isTweakedObject(value)) {
+      if (!isTweakedObject(value, true)) {
         throw failure(`assertion failed: value is not ready to take a parent`)
       }
       if (parentPath) {
-        if (!isTweakedObject(parentPath.parent)) {
+        if (!isTweakedObject(parentPath.parent, true)) {
           throw failure(`assertion failed: parent is not ready to take children`)
         }
       }
@@ -39,9 +45,22 @@ export const setParent = action(
 
     if (isDataObject) {
       dataObjectParent.set(value, parentPath!.parent)
+      // data object will proxy to use the actual parent model for child/parent stuff
+      return
     }
 
     initializeObjectChildren(value)
+
+    // make sure the new parent actually points to models when we give model data objs
+    if (parentPath) {
+      const actualParent = dataToModelNode(parentPath.parent)
+      if (parentPath.parent !== actualParent) {
+        parentPath = {
+          parent: actualParent,
+          path: parentPath.path,
+        }
+      }
+    }
 
     const oldParentPath = fastGetParentPath(value)
     if (parentPathEquals(oldParentPath, parentPath)) {

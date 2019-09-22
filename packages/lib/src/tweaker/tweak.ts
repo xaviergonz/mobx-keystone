@@ -15,7 +15,7 @@ import {
   isPrimitive,
   isSet,
 } from "../utils"
-import { isTreeNode, isTweakedObject, tweakedObjects } from "./core"
+import { isTweakedObject, tweakedObjects } from "./core"
 import { tweakArray } from "./tweakArray"
 import { tweakFrozen } from "./tweakFrozen"
 import { tweakModel } from "./tweakModel"
@@ -34,7 +34,7 @@ export function toTreeNode<T extends object>(value: T): T {
     throw failure("only objects can be turned into tree nodes")
   }
 
-  if (!isTreeNode(value)) {
+  if (!isTweakedObject(value, true)) {
     return tweak(value, undefined)
   }
   return value
@@ -48,7 +48,7 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
     return value
   }
 
-  if (isTweakedObject(value as any)) {
+  if (isTweakedObject(value as any, true)) {
     setParent(value, parentPath, false, false)
     return value
   }

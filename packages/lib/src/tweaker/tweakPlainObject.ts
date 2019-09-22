@@ -8,6 +8,7 @@ import {
   set,
 } from "mobx"
 import { modelTypeKey } from "../model/metadata"
+import { dataToModelNode } from "../parent/core"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
@@ -78,7 +79,7 @@ export function tweakPlainObject<T>(
     standardSn[modelTypeKey] = snapshotModelType
   }
 
-  setInternalSnapshot(tweakedObj, standardSn)
+  setInternalSnapshot(isDataObject ? dataToModelNode(tweakedObj) : tweakedObj, standardSn)
 
   interceptDisposer = intercept(tweakedObj, interceptObjectMutation)
   observeDisposer = observe(tweakedObj, objectDidChange)
@@ -92,7 +93,8 @@ const observableOptions = {
 
 function objectDidChange(change: IObjectDidChange): void {
   const obj = change.object
-  let { standard: standardSn } = getInternalSnapshot(obj)!
+  const actualNode = dataToModelNode(obj)
+  let { standard: standardSn } = getInternalSnapshot(actualNode)!
 
   const patchRecorder = new InternalPatchRecorder()
 
@@ -180,8 +182,8 @@ function objectDidChange(change: IObjectDidChange): void {
   runTypeCheckingAfterChange(obj, patchRecorder)
 
   if (!runningWithoutSnapshotOrPatches) {
-    setInternalSnapshot(obj, standardSn)
-    patchRecorder.emit(obj)
+    setInternalSnapshot(actualNode, standardSn)
+    patchRecorder.emit(actualNode)
   }
 }
 

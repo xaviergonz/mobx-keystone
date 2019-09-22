@@ -104,7 +104,7 @@ export function serializeActionCallArgument(argValue: any): any {
   if (isPrimitive(argValue)) {
     return argValue
   }
-  if (isTweakedObject(argValue)) {
+  if (isTweakedObject(argValue, true)) {
     return getSnapshot(argValue)
   }
 

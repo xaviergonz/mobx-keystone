@@ -265,8 +265,8 @@ test("model", () => {
   expectTypeCheckFail(type, "ho", [], `Model(${m.$modelType})`)
   expectTypeCheckFail(type, new MR({}), [], `Model(${m.$modelType})`)
   m.setX("10" as any)
-  expectTypeCheckFail(type, m, ["$", "x"], "number")
-  expect(m.typeCheck()).toEqual(new TypeCheckError(["$", "x"], "number", "10"))
+  expectTypeCheckFail(type, m, ["x"], "number")
+  expect(m.typeCheck()).toEqual(new TypeCheckError(["x"], "number", "10"))
 })
 
 test("model typechecking", () => {
@@ -314,7 +314,7 @@ test("new model with typechecking enabled", () => {
     modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
   })
 
-  expect(() => new M({ x: 10, y: 20 as any })).toThrow("TypeCheckError: [$/y] Expected: string")
+  expect(() => new M({ x: 10, y: 20 as any })).toThrow("TypeCheckError: [/y] Expected: string")
 })
 
 test("model", () => {
@@ -326,7 +326,7 @@ test("model", () => {
 
   expectTypeCheckFail(type, "ho", [], `Model(${m.$modelType})`)
   m.setX("10" as any)
-  expectTypeCheckFail(type, m, ["$", "x"], "number")
+  expectTypeCheckFail(type, m, ["x"], "number")
 })
 
 test("array - complex types", () => {
@@ -497,7 +497,7 @@ test("recursive model", () => {
   expectTypeCheckOk(type, mr)
 
   mr.setRec("5" as any)
-  expectTypeCheckFail(type, mr, ["$", "rec"], "Model(MR) | undefined")
+  expectTypeCheckFail(type, mr, ["rec"], "Model(MR) | undefined")
 })
 
 @model("MA")
@@ -531,7 +531,7 @@ test("cross referenced model", () => {
   expectTypeCheckOk(type, ma)
 
   ma.b!.setA("5" as any)
-  expectTypeCheckFail(type, ma, ["$", "b"], "Model(MB) | undefined")
+  expectTypeCheckFail(type, ma, ["b"], "Model(MB) | undefined")
 })
 
 test("ref", () => {
@@ -675,7 +675,7 @@ test("objectMap", () => {
   assert(_ as TypeToData<typeof type>, _ as ObjectMap<number>)
 
   expectTypeCheckOk(type, objectMap<number>([["1", 10]]))
-  expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["$", "items", "1"], "number")
+  expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["items", "1"], "number")
 })
 
 test("arraySet", () => {
@@ -684,7 +684,7 @@ test("arraySet", () => {
   assert(_ as TypeToData<typeof type>, _ as ArraySet<number>)
 
   expectTypeCheckOk(type, arraySet<number>([1, 2, 3]))
-  expectTypeCheckFail(type, arraySet<string | number>([1, 2, "3"]), ["$", "items", 2], "number")
+  expectTypeCheckFail(type, arraySet<string | number>([1, 2, "3"]), ["items", 2], "number")
 })
 
 test("typing of optional values", () => {

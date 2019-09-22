@@ -19,11 +19,6 @@ declare const creationDataTypeSymbol: unique symbol
 export const modelInitializedSymbol = Symbol("modelInitialized")
 
 /**
- * @ignore
- */
-export const dataObjectParent = new WeakMap<object, AnyModel>()
-
-/**
  * Base abstract class for models. Use `Model` instead when extending.
  *
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.

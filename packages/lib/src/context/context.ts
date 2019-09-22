@@ -159,6 +159,8 @@ class ContextClass<T> implements Context<T> {
 
   @action
   set(node: object, value: T) {
+    assertTweakedObject(node, "node")
+
     this.nodeContextValue.set(node, {
       type: "value",
       value,
@@ -168,12 +170,16 @@ class ContextClass<T> implements Context<T> {
 
   @action
   setComputed(node: object, valueFn: () => T) {
+    assertTweakedObject(node, "node")
+
     this.nodeContextValue.set(node, { type: "computed", value: computed(valueFn) })
     this.getNodeAtom(node).reportChanged()
   }
 
   @action
   unset(node: object) {
+    assertTweakedObject(node, "node")
+
     this.nodeContextValue.delete(node)
     this.getNodeAtom(node).reportChanged()
   }

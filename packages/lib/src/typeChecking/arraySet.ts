@@ -34,7 +34,7 @@ export function typesArraySet<T extends AnyType>(values: T): IdentityType<ArrayS
       }))
 
       const resolvedTc = resolveTypeChecker(dataTypeChecker)
-      return resolvedTc.check(obj.$, [...path, "$"])
+      return resolvedTc.check(obj.$, path)
     }, getTypeName)
 
     return thisTc

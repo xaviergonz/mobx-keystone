@@ -1,5 +1,5 @@
 import { getRootPath } from "../parent/path"
-import { isTreeNode } from "../tweaker/core"
+import { isTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 
 /**
@@ -26,11 +26,11 @@ export class TypeCheckError {
   throw(typeCheckedValue: any): never {
     let msg = "TypeCheckError: "
     let rootPath: ReadonlyArray<string | number> = []
-    if (isTreeNode(typeCheckedValue)) {
+    if (isTweakedObject(typeCheckedValue, true)) {
       rootPath = getRootPath(typeCheckedValue).path
     }
 
-    msg += "[" + [...rootPath, ...this.path].join("/") + "] "
+    msg += "[/" + [...rootPath, ...this.path].join("/") + "] "
 
     msg += "Expected: " + this.expectedTypeName
 

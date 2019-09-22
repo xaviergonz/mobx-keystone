@@ -1,6 +1,5 @@
 import { action, createAtom, IAtom, observable, ObservableSet } from "mobx"
-import { isModel } from "../model/utils"
-import { fastGetParent, fastIsModelDataObject } from "./path"
+import { fastGetParent } from "./path"
 
 const defaultObservableSetOptions = { deep: false }
 
@@ -56,15 +55,12 @@ const updateDeepObjectChildren = action(
       return obj.deep
     }
 
-    const nodeIsModel = isModel(node)
     const set = new Set<object>()
 
     const childrenIter = getObjectChildren(node)!.values()
     let ch = childrenIter.next()
     while (!ch.done) {
-      if (!nodeIsModel || !fastIsModelDataObject(ch.value)) {
-        set.add(ch.value)
-      }
+      set.add(ch.value)
 
       const ret = updateDeepObjectChildren(ch.value)
       const retIter = ret.values()

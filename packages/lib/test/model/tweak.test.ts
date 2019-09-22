@@ -41,10 +41,10 @@ test("initial data must be tweaked", () => {
   expect(isTreeNodeAndObs(a.arr[0])).toBeTruthy()
   expect(isTreeNodeAndObs(a.arr[1])).toBeTruthy()
 
-  expect(getParent(a.map)).toBe(a.$)
+  expect(getParent(a.map)).toBe(a)
   expect(getParent(a.map.obj1)).toBe(a.map)
   expect(getParent(a.map.obj2)).toBe(a.map)
-  expect(getParent(a.arr)).toBe(a.$)
+  expect(getParent(a.arr)).toBe(a)
   expect(getParent(a.arr[0])).toBe(a.arr)
   expect(getParent(a.arr[1])).toBe(a.arr)
 })
@@ -78,10 +78,10 @@ test("data added after intial data must be tweaked", () => {
     expect(isTreeNodeAndObs(a.arr![0])).toBeTruthy()
     expect(isTreeNodeAndObs(a.arr![1])).toBeTruthy()
 
-    expect(getParent(a.map!)).toBe(a.$)
+    expect(getParent(a.map!)).toBe(a)
     expect(getParent(a.map!.obj1!)).toBe(a.map)
     expect(getParent(a.map!.obj2!)).toBe(a.map)
-    expect(getParent(a.arr!)).toBe(a.$)
+    expect(getParent(a.arr!)).toBe(a)
     expect(getParent(a.arr![0])).toBe(a.arr)
     expect(getParent(a.arr![1])).toBe(a.arr)
   }
@@ -100,10 +100,10 @@ test("data added after intial data must be tweaked", () => {
     expect(isTreeNodeAndObs(a.arr![0])).toBeTruthy()
     expect(isTreeNodeAndObs(a.arr![1])).toBeTruthy()
 
-    expect(getParent(a.map!)).toBe(a.$)
+    expect(getParent(a.map!)).toBe(a)
     expect(getParent(a.map!.obj1!)).toBe(a.map)
     expect(getParent(a.map!.obj2!)).toBe(a.map)
-    expect(getParent(a.arr!)).toBe(a.$)
+    expect(getParent(a.arr!)).toBe(a)
     expect(getParent(a.arr![0])).toBe(a.arr)
     expect(getParent(a.arr![1])).toBe(a.arr)
   }

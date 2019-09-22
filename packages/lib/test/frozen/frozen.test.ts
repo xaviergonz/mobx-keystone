@@ -39,7 +39,7 @@ describe("frozen", () => {
       const p = new P({ frozenStuff: fr })
 
       expect(getSnapshot(p).frozenStuff).toBe(sn)
-      expect(getParent(fr)).toBe(p.$)
+      expect(getParent(fr)).toBe(p)
       expect(getRoot(fr)).toBe(p)
 
       runUnprotected(() => {

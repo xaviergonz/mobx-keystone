@@ -33,7 +33,7 @@ const refTypeChecker = new TypeChecker(
     }
 
     const resolvedTc = resolveTypeChecker(refDataTypeChecker)
-    return resolvedTc.check(value.$, [...path, "$"])
+    return resolvedTc.check(value.$, path)
   },
   () => typeName
 )

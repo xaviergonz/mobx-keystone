@@ -33,11 +33,6 @@ function getInternalSnapshotParent(
       return undefined
     }
 
-    if (sn === parentSn) {
-      // linked snapshot, skip
-      return getInternalSnapshotParent(parentSn, fastGetParentPath(parentPath.parent))
-    }
-
     return sn
       ? {
           parentSnapshot: parentSn,
@@ -113,20 +108,6 @@ export const setInternalSnapshot = action(
     }
   }
 )
-
-/**
- * @ignore
- */
-export function linkInternalSnapshot(value: object, snapshot: Readonly<SnapshotData<any>>) {
-  snapshots.set(value, snapshot)
-}
-
-/**
- * @ignore
- */
-export function unlinkInternalSnapshot(value: object) {
-  return snapshots.delete(value)
-}
 
 /**
  * @ignore

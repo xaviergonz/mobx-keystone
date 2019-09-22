@@ -2,6 +2,7 @@ import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { AnyModel } from "../model/BaseModel"
 import { getModelDataType } from "../model/getModelDataType"
 import { isModel } from "../model/utils"
+import { dataToModelNode } from "../parent/core"
 import { findParent } from "../parent/findParent"
 import { internalApplyPatches } from "../patch/applyPatches"
 import { InternalPatchRecorder } from "../patch/emitPatch"
@@ -40,6 +41,16 @@ export function runTypeCheckingAfterChange(obj: object, patchRecorder: InternalP
  * @returns
  */
 function findNearestParentModelWithTypeChecker(child: object): AnyModel | undefined {
+  // child might be .$, so we need to check the parent model in that case
+  const actualChild = dataToModelNode(child)
+
+  if (child !== actualChild) {
+    child = actualChild
+    if (isModel(child) && !!getModelDataType(child)) {
+      return child
+    }
+  }
+
   return findParent(child, parent => {
     return isModel(parent) && !!getModelDataType(parent)
   })

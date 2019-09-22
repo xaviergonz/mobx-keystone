@@ -130,7 +130,6 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
           ],
         },
@@ -157,7 +156,6 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
           ],
         },
@@ -186,9 +184,7 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
-            "$",
             "p2",
           ],
         },
@@ -233,7 +229,6 @@ test("undoMiddleware - sync", () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
           ],
         },
@@ -411,7 +406,6 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
           ],
         },
@@ -438,7 +432,6 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
           ],
         },
@@ -467,9 +460,7 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
-            "$",
             "p2",
           ],
         },
@@ -514,7 +505,6 @@ test("undoMiddleware - async", async () => {
             },
           ],
           "targetPath": Array [
-            "$",
             "p",
           ],
         },
