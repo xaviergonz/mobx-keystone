@@ -1,4 +1,4 @@
-import { BaseModel } from "../model/BaseModel"
+import { dataObjectParent } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { isObject } from "../utils"
 import { objectParents, reportParentPathObserved } from "./core"
@@ -110,11 +110,7 @@ export function isModelDataObject(value: object): boolean {
  * @ignore
  */
 export function fastIsModelDataObject(value: object): boolean {
-  if (!isObject(value)) {
-    return false
-  }
-  const parentPath = fastGetParentPath(value)
-  return !!parentPath && parentPath.path === "$" && parentPath.parent instanceof BaseModel
+  return dataObjectParent.has(value)
 }
 
 /**

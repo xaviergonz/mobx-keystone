@@ -73,10 +73,11 @@ export const internalNewModel = action(
     // create observable data object with initial data
 
     let obsData = tweakPlainObject(
-      initialData,
+      initialData!,
       { parent: modelObj, path: "$" },
       modelObj[modelTypeKey],
-      false
+      false,
+      true
     )
     const newSn = getInternalSnapshot(obsData as any)!
 

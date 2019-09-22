@@ -46,7 +46,7 @@ export function tweakArray<T extends any[]>(
   }
 
   tweakedObjects.set(tweakedArr, untweak)
-  setParent(tweakedArr, parentPath)
+  setParent(tweakedArr, parentPath, false, false)
 
   const standardSn: any[] = []
   standardSn.length = arrLn
@@ -67,7 +67,7 @@ export function tweakArray<T extends any[]>(
       let tweakedValue
       if (doNotTweakChildren) {
         tweakedValue = v
-        setParent(tweakedValue, path)
+        setParent(tweakedValue, path, false, false)
       } else {
         tweakedValue = tweak(v, path)
         set(tweakedArr, i, tweakedValue)
@@ -262,7 +262,8 @@ function interceptArrayMutation(
                 parent: change.object,
                 path: j,
               },
-              true
+              true,
+              false
             )
           }
         }

@@ -7,7 +7,7 @@ import { tweakedObjects } from "./core"
  */
 export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   tweakedObjects.set(value, undefined)
-  setParent(value, parentPath)
+  setParent(value, parentPath, false, false)
 
   // nothing to do for models, data is already proxified and its parent is set
   // for snapshots we will use its "$" object snapshot directly

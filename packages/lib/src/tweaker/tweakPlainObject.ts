@@ -24,7 +24,8 @@ export function tweakPlainObject<T>(
   value: T,
   parentPath: ParentPath<any> | undefined,
   snapshotModelType: string | undefined,
-  doNotTweakChildren: boolean
+  doNotTweakChildren: boolean,
+  isDataObject: boolean
 ): T {
   const originalObj: { [k: string]: any } = value
   const tweakedObj = isObservableObject(originalObj)
@@ -40,7 +41,7 @@ export function tweakPlainObject<T>(
   }
 
   tweakedObjects.set(tweakedObj, untweak)
-  setParent(tweakedObj, parentPath)
+  setParent(tweakedObj, parentPath, false, isDataObject)
 
   const standardSn: any = {}
 
@@ -62,7 +63,7 @@ export function tweakPlainObject<T>(
       let tweakedValue
       if (doNotTweakChildren) {
         tweakedValue = v
-        setParent(tweakedValue, path)
+        setParent(tweakedValue, path, false, false)
       } else {
         tweakedValue = tweak(v, path)
         set(tweakedObj, k, tweakedValue)

@@ -49,7 +49,7 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
   }
 
   if (isTweakedObject(value as any)) {
-    setParent(value, parentPath)
+    setParent(value, parentPath, false, false)
     return value
   }
 
@@ -63,7 +63,7 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 
   // plain object
   if (isObservableObject(value) || isPlainObject(value)) {
-    return tweakPlainObject(value, parentPath, undefined, false)
+    return tweakPlainObject(value, parentPath, undefined, false, false)
   }
 
   if ((value as any) instanceof Frozen) {
@@ -121,7 +121,7 @@ export function tryUntweak(value: any) {
 
   for (let i = 0; i < children.length; i++) {
     const v = children[i]
-    setParent(v, undefined)
+    setParent(v, undefined, false, false)
   }
 
   untweaker()

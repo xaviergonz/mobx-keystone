@@ -1,5 +1,5 @@
 import { action } from "mobx"
-import { BaseModel } from "../model/BaseModel"
+import { BaseModel, dataObjectParent } from "../model/BaseModel"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
@@ -16,7 +16,8 @@ export const setParent = action(
   (
     value: any,
     parentPath: ParentPath<any> | undefined,
-    indexChangeAllowed: boolean = false
+    indexChangeAllowed: boolean,
+    isDataObject: boolean
   ): void => {
     if (isPrimitive(value)) {
       return
@@ -34,6 +35,10 @@ export const setParent = action(
           throw failure(`assertion failed: parent is not ready to take children`)
         }
       }
+    }
+
+    if (isDataObject) {
+      dataObjectParent.set(value, parentPath!.parent)
     }
 
     initializeObjectChildren(value)
