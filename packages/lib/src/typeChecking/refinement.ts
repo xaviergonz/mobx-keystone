@@ -22,7 +22,7 @@ import { TypeCheckError } from "./TypeCheckError"
  *   return rightResult
  *
  *   // this will return that the result field is wrong
- *   return rightResult ? null : new TypeCheckError(["$", "result"], "a+b", sum.result)
+ *   return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
  * })
  * ```
  *

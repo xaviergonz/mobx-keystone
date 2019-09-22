@@ -18,7 +18,7 @@ Type definitions are like the schemas for your data. They are usually associated
 @model("TodoApp/Todo")
 class Todo extends Model({
   text: tProp(types.string),
-  done: tProp(types.boolean, false)
+  done: tProp(types.boolean, false),
 }) {
   // ...
 }
@@ -259,7 +259,7 @@ const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
   return rightResult
 
   // this will return that the result field is wrong
-  return rightResult ? null : new TypeCheckError(["$", "result"], "a+b", sum.result)
+  return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
 })
 ```
 

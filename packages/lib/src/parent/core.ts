@@ -1,4 +1,5 @@
 import { createAtom, IAtom } from "mobx"
+import { isModel } from "../model/utils"
 import { ParentPath } from "./path"
 
 /**
@@ -47,4 +48,24 @@ export function reportParentPathObserved(node: object) {
  */
 export function reportParentPathChanged(node: object) {
   createParentPathAtom(node).reportChanged()
+}
+
+/**
+ * @ignore
+ */
+export const dataObjectParent = new WeakMap<object, object>()
+
+/**
+ * @ignore
+ */
+export function dataToModelNode<T extends object>(node: T): T {
+  const modelNode = dataObjectParent.get(node)
+  return (modelNode as T) || node
+}
+
+/**
+ * @ignore
+ */
+export function modelToDataNode<T extends object>(node: T): T {
+  return isModel(node) ? node.$ : node
 }

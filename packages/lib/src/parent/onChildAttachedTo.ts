@@ -1,4 +1,5 @@
 import { reaction } from "mobx"
+import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction } from "../utils"
 import { getChildrenObjects } from "./getChildrenObjects"
 
@@ -56,6 +57,8 @@ export function onChildAttachedTo(
   const getChildrenObjectOpts = { deep: opts.deep }
   const getCurrentChildren = () => {
     let t = target()
+    assertTweakedObject(t, "target()")
+
     const children = getChildrenObjects(t, getChildrenObjectOpts)
 
     const set = new Set<object>()

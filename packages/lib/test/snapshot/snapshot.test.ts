@@ -4,12 +4,17 @@ import {
   ArraySet,
   BaseModel,
   clone,
+  fromSnapshot,
   getSnapshot,
+  Model,
+  model,
+  modelAction,
   modelTypeKey,
   ObjectMap,
   onPatches,
   onSnapshot,
   Patch,
+  prop,
   runUnprotected,
   SnapshotInOf,
   SnapshotOutOf,
@@ -40,33 +45,33 @@ test("onSnapshot and applySnapshot", () => {
   })
 
   expect(sn).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
-          "$modelType": "P",
-          "arr": Array [
-            1,
-            2,
-            3,
+        Array [
+          Array [
+            Object {
+              "$modelType": "P",
+              "arr": Array [
+                1,
+                2,
+                3,
+              ],
+              "p2": Object {
+                "$modelType": "P2",
+                "y": 13,
+              },
+              "x": 6,
+            },
+            Object {
+              "$modelType": "P",
+              "arr": Array [],
+              "p2": Object {
+                "$modelType": "P2",
+                "y": 12,
+              },
+              "x": 5,
+            },
           ],
-          "p2": Object {
-            "$modelType": "P2",
-            "y": 13,
-          },
-          "x": 6,
-        },
-        Object {
-          "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
-            "$modelType": "P2",
-            "y": 12,
-          },
-          "x": 5,
-        },
-      ],
-    ]
-  `)
+        ]
+    `)
 
   reset()
   autoDispose(
@@ -80,118 +85,118 @@ test("onSnapshot and applySnapshot", () => {
   expect(getSnapshot(p)).toStrictEqual(originalSn)
 
   expect(sn).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
-          "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
-            "$modelType": "P2",
-            "y": 12,
-          },
-          "x": 5,
-        },
-        Object {
-          "$modelType": "P",
-          "arr": Array [
-            1,
-            2,
-            3,
+        Array [
+          Array [
+            Object {
+              "$modelType": "P",
+              "arr": Array [],
+              "p2": Object {
+                "$modelType": "P2",
+                "y": 12,
+              },
+              "x": 5,
+            },
+            Object {
+              "$modelType": "P",
+              "arr": Array [
+                1,
+                2,
+                3,
+              ],
+              "p2": Object {
+                "$modelType": "P2",
+                "y": 13,
+              },
+              "x": 6,
+            },
           ],
-          "p2": Object {
-            "$modelType": "P2",
-            "y": 13,
-          },
-          "x": 6,
-        },
-      ],
-    ]
-  `)
+        ]
+    `)
 
   expect(patches).toMatchInlineSnapshot(`
-            Array [
-              Array [
-                Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p2",
-                      "y",
-                    ],
-                    "value": 12,
-                  },
-                ],
-                Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p2",
-                      "y",
-                    ],
-                    "value": 13,
-                  },
-                ],
-              ],
-              Array [
-                Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "arr",
-                      "length",
-                    ],
-                    "value": 0,
-                  },
-                ],
-                Array [
-                  Object {
-                    "op": "add",
-                    "path": Array [
-                      "arr",
-                      0,
-                    ],
-                    "value": 1,
-                  },
-                  Object {
-                    "op": "add",
-                    "path": Array [
-                      "arr",
-                      1,
-                    ],
-                    "value": 2,
-                  },
-                  Object {
-                    "op": "add",
-                    "path": Array [
-                      "arr",
-                      2,
-                    ],
-                    "value": 3,
-                  },
-                ],
-              ],
-              Array [
-                Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "x",
-                    ],
-                    "value": 5,
-                  },
-                ],
-                Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "x",
-                    ],
-                    "value": 6,
-                  },
-                ],
-              ],
-            ]
-      `)
+                        Array [
+                          Array [
+                            Array [
+                              Object {
+                                "op": "replace",
+                                "path": Array [
+                                  "p2",
+                                  "y",
+                                ],
+                                "value": 12,
+                              },
+                            ],
+                            Array [
+                              Object {
+                                "op": "replace",
+                                "path": Array [
+                                  "p2",
+                                  "y",
+                                ],
+                                "value": 13,
+                              },
+                            ],
+                          ],
+                          Array [
+                            Array [
+                              Object {
+                                "op": "replace",
+                                "path": Array [
+                                  "arr",
+                                  "length",
+                                ],
+                                "value": 0,
+                              },
+                            ],
+                            Array [
+                              Object {
+                                "op": "add",
+                                "path": Array [
+                                  "arr",
+                                  0,
+                                ],
+                                "value": 1,
+                              },
+                              Object {
+                                "op": "add",
+                                "path": Array [
+                                  "arr",
+                                  1,
+                                ],
+                                "value": 2,
+                              },
+                              Object {
+                                "op": "add",
+                                "path": Array [
+                                  "arr",
+                                  2,
+                                ],
+                                "value": 3,
+                              },
+                            ],
+                          ],
+                          Array [
+                            Array [
+                              Object {
+                                "op": "replace",
+                                "path": Array [
+                                  "x",
+                                ],
+                                "value": 5,
+                              },
+                            ],
+                            Array [
+                              Object {
+                                "op": "replace",
+                                "path": Array [
+                                  "x",
+                                ],
+                                "value": 6,
+                              },
+                            ],
+                          ],
+                        ]
+            `)
 })
 
 test("applySnapshot can create a new submodel", () => {
@@ -227,52 +232,52 @@ test("applySnapshot can create a new submodel", () => {
   expect(p.p2 instanceof BaseModel).toBe(true)
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p2",
-            ],
-            "value": Object {
-              "$modelType": "P2",
-              "y": 12,
-            },
-          },
-        ],
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p2",
-            ],
-            "value": undefined,
-          },
-        ],
-      ],
-      Array [
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "x",
-            ],
-            "value": 5,
-          },
-        ],
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "x",
-            ],
-            "value": 6,
-          },
-        ],
-      ],
-    ]
-  `)
+                Array [
+                  Array [
+                    Array [
+                      Object {
+                        "op": "replace",
+                        "path": Array [
+                          "p2",
+                        ],
+                        "value": Object {
+                          "$modelType": "P2",
+                          "y": 12,
+                        },
+                      },
+                    ],
+                    Array [
+                      Object {
+                        "op": "replace",
+                        "path": Array [
+                          "p2",
+                        ],
+                        "value": undefined,
+                      },
+                    ],
+                  ],
+                  Array [
+                    Array [
+                      Object {
+                        "op": "replace",
+                        "path": Array [
+                          "x",
+                        ],
+                        "value": 5,
+                      },
+                    ],
+                    Array [
+                      Object {
+                        "op": "replace",
+                        "path": Array [
+                          "x",
+                        ],
+                        "value": 6,
+                      },
+                    ],
+                  ],
+                ]
+        `)
 
   // swap the model for a clone, it should still be patched and create a snapshot,
   // but it should have a different id
@@ -286,60 +291,60 @@ test("applySnapshot can create a new submodel", () => {
   expect(getSnapshot(p.p2)).not.toBe(getSnapshot(oldP2))
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p2",
-            ],
-            "value": Object {
-              "$modelType": "P2",
-              "y": 12,
-            },
-          },
-        ],
-        Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p2",
-            ],
-            "value": Object {
-              "$modelType": "P2",
-              "y": 12,
-            },
-          },
-        ],
-      ],
-    ]
-  `)
+                Array [
+                  Array [
+                    Array [
+                      Object {
+                        "op": "replace",
+                        "path": Array [
+                          "p2",
+                        ],
+                        "value": Object {
+                          "$modelType": "P2",
+                          "y": 12,
+                        },
+                      },
+                    ],
+                    Array [
+                      Object {
+                        "op": "replace",
+                        "path": Array [
+                          "p2",
+                        ],
+                        "value": Object {
+                          "$modelType": "P2",
+                          "y": 12,
+                        },
+                      },
+                    ],
+                  ],
+                ]
+        `)
 
   expect(sn).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
-          "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
-            "$modelType": "P2",
-            "y": 12,
-          },
-          "x": 5,
-        },
-        Object {
-          "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
-            "$modelType": "P2",
-            "y": 12,
-          },
-          "x": 5,
-        },
-      ],
-    ]
-  `)
+                Array [
+                  Array [
+                    Object {
+                      "$modelType": "P",
+                      "arr": Array [],
+                      "p2": Object {
+                        "$modelType": "P2",
+                        "y": 12,
+                      },
+                      "x": 5,
+                    },
+                    Object {
+                      "$modelType": "P",
+                      "arr": Array [],
+                      "p2": Object {
+                        "$modelType": "P2",
+                        "y": 12,
+                      },
+                      "x": 5,
+                    },
+                  ],
+                ]
+        `)
 })
 
 test("undefined should not be allowed in arrays, but null should", () => {
@@ -434,4 +439,36 @@ test("types", () => {
       [modelTypeKey]: string
     })
   )
+})
+
+test("snapshot with reserved property names", () => {
+  @model("test/snapshotWithReservedPropNames")
+  class M extends Model({ onInit: prop(4) }) {
+    @modelAction
+    setOnInit(n: number) {
+      this.$.onInit = n
+    }
+  }
+
+  const p = new M({})
+  const sn = getSnapshot(p)
+  expect(p.onInit).toBeUndefined()
+
+  expect(sn).toMatchInlineSnapshot(`
+    Object {
+      "$modelType": "test/snapshotWithReservedPropNames",
+      "onInit": 4,
+    }
+  `)
+
+  const p2 = fromSnapshot<M>(sn)
+  expect(p2.onInit).toBeUndefined()
+  expect(p2.$.onInit).toBe(p.$.onInit)
+
+  applySnapshot(p2, {
+    ...sn,
+    onInit: 10,
+  })
+  expect(p2.$.onInit).toBe(10)
+  expect(p2.onInit).toBeUndefined()
 })

@@ -2,7 +2,7 @@ import { remove, set } from "mobx"
 import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
-import { BaseModel } from "../model/BaseModel"
+import { modelToDataNode } from "../parent/core"
 import { Patch } from "../patch/Patch"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
@@ -108,21 +108,16 @@ function pathArrayToObjectAndProp(
     }
   }
 
+  let target: any = modelToDataNode(obj)
+
   if (path.length === 0) {
     return {
-      target: obj,
+      target,
     }
   }
 
-  let target: any = obj
-  if (target instanceof BaseModel) {
-    target = target.$
-  }
   for (let i = 0; i <= path.length - 2; i++) {
-    target = target[path[i]]
-    if (target instanceof BaseModel) {
-      target = target.$
-    }
+    target = modelToDataNode(target[path[i]])
   }
 
   return {

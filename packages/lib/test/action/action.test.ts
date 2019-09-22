@@ -606,7 +606,7 @@ test("applyAction", () => {
   {
     const ra = pa.p2.addY(15)
     const rb = applyAction(pb, {
-      targetPath: ["$", "p2"],
+      targetPath: ["p2"],
       actionName: "addY",
       args: [15],
     })
@@ -620,7 +620,7 @@ test("applyAction", () => {
     y: 100,
   })
   applyAction(pb, {
-    targetPath: ["$", "p2"],
+    targetPath: ["p2"],
     actionName: "$$applySnapshot",
     args: [{ ...getSnapshot(pb.p2), y: 100 }],
   })

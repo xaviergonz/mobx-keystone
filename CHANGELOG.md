@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.21.0
+
+- [BREAKING CHANGE] Paths to model properties will no longer report interim data objects (`$`). This means that properties are now direct children of model objects, which should be cleaner and more understandable.
+
 ## 0.20.2
 
 - Fixed a possible memory leak with refs.

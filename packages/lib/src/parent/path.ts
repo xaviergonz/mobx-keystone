@@ -1,7 +1,13 @@
-import { dataObjectParent } from "../model/BaseModel"
+import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { isObject } from "../utils"
-import { objectParents, reportParentPathObserved } from "./core"
+import {
+  dataObjectParent,
+  dataToModelNode,
+  modelToDataNode,
+  objectParents,
+  reportParentPathObserved,
+} from "./core"
 import { getDeepObjectChildren } from "./coreObjectChildren"
 
 /**
@@ -61,37 +67,54 @@ export function fastGetParentPath<T extends object = any>(
 }
 
 /**
+ * @ignore
+ */
+export function fastGetParentPathIncludingDataObjects<T extends object = any>(
+  value: object
+): ParentPath<T> | undefined {
+  const parentModel = dataObjectParent.get(value)
+  if (parentModel) {
+    return { parent: parentModel as T, path: "$" }
+  }
+
+  const parentPath = fastGetParentPath(value)
+  if (parentPath && isModel(parentPath.parent)) {
+    return { parent: parentPath.parent.$ as T, path: parentPath.path }
+  }
+  return parentPath
+}
+
+/**
  * Returns the parent object of the target object, or undefined if there's no parent.
  *
  * @typeparam T Parent object type.
  * @param value Target object.
- * @param [skipModelDataObject] When set to `true` (default is `false`) it will skip the interim model data object (`$`)
- * and return the model instance directly.
  * @returns
  */
-export function getParent<T extends object = any>(
-  value: object,
-  skipModelDataObject = false
-): T | undefined {
+export function getParent<T extends object = any>(value: object): T | undefined {
   assertTweakedObject(value, "value")
 
-  return fastGetParent(value, skipModelDataObject)
+  return fastGetParent(value)
 }
 
 /**
  * @ignore
  */
-export function fastGetParent<T extends object = any>(
-  value: object,
-  skipModelDataObject = false
-): T | undefined {
+export function fastGetParent<T extends object = any>(value: object): T | undefined {
   const parentPath = fastGetParentPath(value)
 
-  if (parentPath && skipModelDataObject && fastIsModelDataObject(parentPath.parent)) {
-    return fastGetParent(parentPath.parent, false)
-  } else {
-    return parentPath ? parentPath.parent : undefined
-  }
+  return parentPath ? parentPath.parent : undefined
+}
+
+/**
+ * @ignore
+ */
+export function fastGetParentIncludingDataObjects<T extends object = any>(
+  value: object
+): T | undefined {
+  const parentPath = fastGetParentPathIncludingDataObjects(value)
+
+  return parentPath ? parentPath.parent : undefined
 }
 
 /**
@@ -101,7 +124,7 @@ export function fastGetParent<T extends object = any>(
  * @returns true if it is, false otherwise.
  */
 export function isModelDataObject(value: object): boolean {
-  assertTweakedObject(value, "value")
+  assertTweakedObject(value, "value", true)
 
   return fastIsModelDataObject(value)
 }
@@ -187,18 +210,6 @@ export function isChildOfParent(child: object, parent: object): boolean {
   assertTweakedObject(child, "child")
   assertTweakedObject(parent, "parent")
 
-  // since deep children does not include "$" we will check the parent
-  if (fastIsModelDataObject(child)) {
-    child = fastGetParent(child)!
-    // edge case, where we are checking if $ is child of model directly
-    if (child === parent) {
-      return true
-    }
-  }
-  if (fastIsModelDataObject(parent)) {
-    parent = fastGetParent(parent)!
-  }
-
   return getDeepObjectChildren(parent).has(child)
 }
 
@@ -210,9 +221,6 @@ export function isChildOfParent(child: object, parent: object): boolean {
  * @returns
  */
 export function isParentOfChild(parent: object, child: object): boolean {
-  assertTweakedObject(parent, "parent")
-  assertTweakedObject(child, "child")
-
   return isChildOfParent(child, parent)
 }
 
@@ -236,7 +244,10 @@ export function resolvePath<T = any>(
       resolved: false
       value?: undefined
     } {
-  let current: any = pathRootObject
+  // unit tests rely on this to work with any object
+  // assertTweakedObject(pathRootObject, "pathRootObject")
+
+  let current: any = modelToDataNode(pathRootObject)
 
   let len = path.length
   for (let i = 0; i < len; i++) {
@@ -244,10 +255,10 @@ export function resolvePath<T = any>(
       return { resolved: false }
     }
 
-    current = current[path[i]]
+    current = modelToDataNode(current[path[i]])
   }
 
-  return { resolved: true, value: current }
+  return { resolved: true, value: dataToModelNode(current) }
 }
 
 /**

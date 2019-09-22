@@ -7,6 +7,7 @@ import {
 import { fastGetRootPath, RootPath } from "../parent/path"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { getSnapshot } from "../snapshot/getSnapshot"
+import { assertTweakedObject } from "../tweaker/core"
 
 /**
  * Connects a tree node to a redux dev tools instance.
@@ -25,6 +26,8 @@ export function connectReduxDevTools(
     logArgsNearName?: boolean
   }
 ) {
+  assertTweakedObject(target, "target")
+
   const opts = {
     logArgsNearName: true,
     ...options,

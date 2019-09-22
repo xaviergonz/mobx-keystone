@@ -1,6 +1,7 @@
 import { runInAction } from "mobx"
 import { getCurrentActionContext } from "../action/context"
 import { getActionProtection } from "../action/protection"
+import { dataObjectParent } from "../parent/core"
 import { failure, isPrimitive } from "../utils"
 
 /**
@@ -11,7 +12,10 @@ export const tweakedObjects = new WeakMap<Object, undefined | (() => void)>()
 /**
  * @ignore
  */
-export function isTweakedObject(value: object): boolean {
+export function isTweakedObject(value: object, canBeDataObject: boolean): boolean {
+  if (!canBeDataObject && dataObjectParent.has(value)) {
+    return false
+  }
   return tweakedObjects.has(value)
 }
 
@@ -22,13 +26,20 @@ export function isTweakedObject(value: object): boolean {
  * @returns true if it is a tree node, false otherwise.
  */
 export function isTreeNode(value: object): boolean {
-  return !isPrimitive(value) && isTweakedObject(value)
+  return !isPrimitive(value) && isTweakedObject(value, false)
 }
 
 /**
  * @ignore
  */
-export function assertTweakedObject(treeNode: any, argName: string): treeNode is Object {
+export function assertTweakedObject(
+  treeNode: any,
+  argName: string,
+  canBeDataObject = false
+): treeNode is Object {
+  if (!canBeDataObject && dataObjectParent.has(treeNode)) {
+    throw failure(`${argName} must be the model object instance instead of the '$' sub-object`)
+  }
   if (!isTreeNode(treeNode)) {
     throw failure(
       `${argName} must be a tree node (usually a model or a shallow / deep child part of a model 'data' object)`

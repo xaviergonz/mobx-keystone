@@ -1,5 +1,4 @@
 import { action, isAction } from "mobx"
-import { BaseModel } from "../model/BaseModel"
 import { fastGetParentPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray } from "../utils"
@@ -123,11 +122,8 @@ function emitPatch(
   if (parentPath) {
     // tweak patches so they include the child path
     const childPath = parentPath.path
-    const parentIsModel = parentPath.parent instanceof BaseModel
-    const newPatches = parentIsModel ? patches : patches.map(p => addPathToPatch(p, childPath))
-    const newInversePatches = parentIsModel
-      ? inversePatches
-      : inversePatches.map(p => addPathToPatch(p, childPath))
+    const newPatches = patches.map(p => addPathToPatch(p, childPath))
+    const newInversePatches = inversePatches.map(p => addPathToPatch(p, childPath))
 
     // false to avoid emitting global patches again for the same change
     emitPatch(parentPath.parent, newPatches, newInversePatches, false)

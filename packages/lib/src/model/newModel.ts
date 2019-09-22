@@ -1,7 +1,6 @@
 import { action, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
-import { getInternalSnapshot, linkInternalSnapshot } from "../snapshot/internal"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
@@ -79,10 +78,6 @@ export const internalNewModel = action(
       false,
       true
     )
-    const newSn = getInternalSnapshot(obsData as any)!
-
-    // make the model use the inner data field snapshot
-    linkInternalSnapshot(modelObj, newSn)
 
     // link it, and make it readonly
     modelObj.$ = obsData

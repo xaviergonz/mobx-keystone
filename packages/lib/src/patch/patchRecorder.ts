@@ -1,3 +1,4 @@
+import { assertTweakedObject } from "../tweaker/core"
 import { onGlobalPatches, onPatches, OnPatchesDisposer } from "./emitPatch"
 import { Patch } from "./Patch"
 
@@ -50,6 +51,8 @@ export function patchRecorder(
   subtreeRoot: object,
   opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }
 ): PatchRecorder {
+  assertTweakedObject(subtreeRoot, "subtreeRoot")
+
   return internalPatchRecorder(subtreeRoot, opts)
 }
 

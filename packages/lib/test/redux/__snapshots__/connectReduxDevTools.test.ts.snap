@@ -113,11 +113,10 @@ Array [
     Object {
       "args": Array [],
       "path": Array [
-        "$",
         "array",
         0,
       ],
-      "type": "[/$/array/0] setA() (id 1)",
+      "type": "[/array/0] setA() (id 1)",
     },
     Object {
       "$modelType": "TestModel",
