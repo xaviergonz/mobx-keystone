@@ -2,7 +2,7 @@
 
 ## 0.22.0
 
-- Added `findParentWithPath`.
+- Added `findParentPath`.
 
 ## 0.21.0
 

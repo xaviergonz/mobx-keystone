@@ -1,5 +1,5 @@
 export { detach } from "./detach"
-export { findParent, findParentWithPath, FoundParentWithPath } from "./findParent"
+export { findParent, findParentPath, FoundParentPath } from "./findParent"
 export { getChildrenObjects } from "./getChildrenObjects"
 export { onChildAttachedTo } from "./onChildAttachedTo"
 export {

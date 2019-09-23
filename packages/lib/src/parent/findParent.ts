@@ -18,14 +18,14 @@ export function findParent<T extends object = any>(
   predicate: (parentNode: object) => boolean,
   maxDepth = 0
 ): T | undefined {
-  const foundParentPath = findParentWithPath(child, predicate, maxDepth)
+  const foundParentPath = findParentPath(child, predicate, maxDepth)
   return foundParentPath ? foundParentPath.parent : undefined
 }
 
 /**
- * Result of `findParentWithPath`.
+ * Result of `findParentPath`.
  */
-export interface FoundParentWithPath<T extends object> {
+export interface FoundParentPath<T extends object> {
   /**
    * Found parent object.
    */
@@ -50,11 +50,11 @@ export interface FoundParentWithPath<T extends object> {
  * @param maxDepth Max depth, or 0 for infinite.
  * @returns
  */
-export function findParentWithPath<T extends object = any>(
+export function findParentPath<T extends object = any>(
   child: object,
   predicate: (parentNode: object) => boolean,
   maxDepth = 0
-): FoundParentWithPath<T> | undefined {
+): FoundParentPath<T> | undefined {
   assertTweakedObject(child, "child")
 
   const path: (string | number)[] = []

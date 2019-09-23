@@ -114,7 +114,7 @@ If the predicate is matched it will return the found node.
 If none is found it will return `undefined`.
 A max depth of 0 is infinite, but another one can be given.
 
-### `findParentWithPath<T extends object = any>(child: object, predicate: (parent: object) => boolean, maxDepth = 0): FoundParentWithPath<T> | undefined`
+### `findParentPath<T extends object = any>(child: object, predicate: (parent: object) => boolean, maxDepth = 0): FoundParentPath<T> | undefined`
 
 Iterates through all the parents (from the nearest until the root) until one of them matches the given predicate.
 If the predicate is matched it will return the found node and the path from the parent to the child.
