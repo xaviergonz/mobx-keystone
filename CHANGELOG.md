@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.22.0
+
+- Added `findParentWithPath`.
+
 ## 0.21.0
 
 - [BREAKING CHANGE] Paths to model properties will no longer report interim data objects (`$`). This means that properties are now direct children of model objects, which should be cleaner and more understandable.
