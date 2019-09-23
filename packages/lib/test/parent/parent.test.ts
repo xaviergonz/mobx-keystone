@@ -2,6 +2,7 @@ import { remove, set } from "mobx"
 import {
   detach,
   findParent,
+  findParentPath,
   fromSnapshot,
   getChildrenObjects,
   getParentPath,
@@ -67,6 +68,29 @@ test("parent", () => {
   expect(findParent(p.p2!, parent => parent instanceof P, 3)).toBe(p)
 
   expect(findParent(p.p2!, parent => parent instanceof P2)).toBe(undefined)
+
+  expect(findParentPath(p.p2!, parent => parent instanceof P)).toEqual({
+    parent: p,
+    path: ["p2"],
+  })
+  expect(findParentPath(p.p2!, parent => parent instanceof P, 0)).toEqual({
+    parent: p,
+    path: ["p2"],
+  })
+  expect(findParentPath(p.p2!, parent => parent instanceof P, 1)).toEqual({
+    parent: p,
+    path: ["p2"],
+  })
+  expect(findParentPath(p.p2!, parent => parent instanceof P, 2)).toEqual({
+    parent: p,
+    path: ["p2"],
+  })
+  expect(findParentPath(p.p2!, parent => parent instanceof P, 3)).toEqual({
+    parent: p,
+    path: ["p2"],
+  })
+
+  expect(findParentPath(p.p2!, parent => parent instanceof P2)).toBe(undefined)
 
   expect(getParentPath(p)).toBeUndefined()
   expect(() => getParentPath(p.$)).toThrow($errorMessage)
