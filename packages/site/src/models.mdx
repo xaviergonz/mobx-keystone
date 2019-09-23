@@ -133,6 +133,38 @@ myTodo1.$modelType // "myCoolApp/Todo"
 
 This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
 
+## Getting the Typescript types for model data and model ceation data
+
+You can give the types of both the model creation data (the object that gets passed to new as parameter) and the model data (the type of the model data once instantiated) by using `ModelCreationData<Model>` and `ModelData<Model>`.
+
+For example, given:
+
+```ts
+@model("myCoolApp/Todo")
+export class Todo extends Model({
+  text: prop<string>(), // a required string
+  done: prop(false), // an optional boolean that will default to false
+}) {}
+```
+
+`ModelCreationData<Todo>` would be:
+
+```ts
+{
+  text: string; // required when passing it to new Todo({...})
+  done?: boolean; // optional when passing it to new Todo({...})
+}
+```
+
+and `ModelData<Todo>` would be:
+
+```ts
+{
+  text: string // since it will always be present when accessing todo.text
+  done: boolean // since it will always be present when accessing todo.done
+}
+```
+
 ## Flows (async actions)
 
 While `@modelAction` defines sync model actions, async model actions are possible as well with the use of `@modelFlow`:
