@@ -3,6 +3,7 @@
 ## 0.22.0
 
 - Added `tProp` syntax sugar for optional primitives with a default value.
+- Added `findParentPath`.
 
 ## 0.21.0
 
