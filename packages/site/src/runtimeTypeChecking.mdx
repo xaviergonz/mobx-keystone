@@ -263,6 +263,11 @@ const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
 })
 ```
 
+### Syntax sugar for optional primitives with a default value
+
+You can also do `tProp(defaultValue: string | number | boolean)`, which is equivalent to `tProp(types.string|number|boolean, defaultValue)`.
+In other words, if you use `tProp(42)`, then the property will be a number that takes the value `42` when undefined.
+
 ### `TypeToData<type>`
 
 It is also possible to get the type represented by a type via `TypeToData`:

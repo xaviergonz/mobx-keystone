@@ -731,3 +731,53 @@ test("typing of optional values", () => {
     }
   )
 })
+
+test("syntax sugar for primitives in tProp", () => {
+  @model("syntaxSugar")
+  class SS extends Model({
+    n: tProp(42),
+    s: tProp("foo"),
+    b: tProp(true),
+  }) {
+    @modelAction
+    setN(n: number) {
+      this.n = n
+    }
+
+    @modelAction
+    setS(s: string) {
+      this.s = s
+    }
+
+    @modelAction
+    setB(b: boolean) {
+      this.b = b
+    }
+  }
+
+  const ss = new SS({})
+  const type = types.model<SS>(SS)
+  assert(_ as TypeToData<typeof type>, _ as SS)
+
+  assert(ss.n, _ as number)
+  assert(ss.s, _ as string)
+  assert(ss.b, _ as boolean)
+
+  expect(ss.n).toBe(42)
+  expect(ss.s).toBe("foo")
+  expect(ss.b).toBe(true)
+
+  expectTypeCheckOk(type, ss)
+
+  ss.setN("10" as any)
+  expectTypeCheckFail(type, ss, ["n"], "number")
+  ss.setN(42)
+
+  ss.setS(10 as any)
+  expectTypeCheckFail(type, ss, ["s"], "string")
+  ss.setS("foo")
+
+  ss.setB("10" as any)
+  expectTypeCheckFail(type, ss, ["b"], "boolean")
+  ss.setB(true)
+})
