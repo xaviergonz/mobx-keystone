@@ -108,8 +108,24 @@ test("undefined", () => {
   expectTypeCheckFail(type, "ho", [], "undefined")
 })
 
+test("simple undefined", () => {
+  const type = undefined
+  assert(_ as TypeToData<typeof type>, undefined)
+
+  expectTypeCheckOk(type, undefined)
+  expectTypeCheckFail(type, "ho", [], "undefined")
+})
+
 test("null", () => {
   const type = types.null
+  assert(_ as TypeToData<typeof type>, null)
+
+  expectTypeCheckOk(type, null)
+  expectTypeCheckFail(type, "ho", [], "null")
+})
+
+test("simple null", () => {
+  const type = null
   assert(_ as TypeToData<typeof type>, null)
 
   expectTypeCheckOk(type, null)
@@ -124,8 +140,24 @@ test("boolean", () => {
   expectTypeCheckFail(type, "ho", [], "boolean")
 })
 
+test("simple boolean", () => {
+  const type = Boolean
+  assert(_ as TypeToData<typeof type>, _ as boolean)
+
+  expectTypeCheckOk(type, false)
+  expectTypeCheckFail(type, "ho", [], "boolean")
+})
+
 test("number", () => {
   const type = types.number
+  assert(_ as TypeToData<typeof type>, _ as number)
+
+  expectTypeCheckOk(type, 6)
+  expectTypeCheckFail(type, "ho", [], "number")
+})
+
+test("simple number", () => {
+  const type = Number
   assert(_ as TypeToData<typeof type>, _ as number)
 
   expectTypeCheckOk(type, 6)
@@ -140,8 +172,25 @@ test("string", () => {
   expectTypeCheckFail(type, 5, [], "string")
 })
 
+test("simple string", () => {
+  const type = String
+  assert(_ as TypeToData<typeof type>, _ as string)
+
+  expectTypeCheckOk(type, "hello")
+  expectTypeCheckFail(type, 5, [], "string")
+})
+
 test("or - simple types", () => {
   const type = types.or(types.number, types.boolean)
+  assert(_ as TypeToData<typeof type>, _ as number | boolean)
+
+  expectTypeCheckOk(type, 6)
+  expectTypeCheckOk(type, false)
+  expectTypeCheckFail(type, "ho", [], "number | boolean")
+})
+
+test("or - simple simple types", () => {
+  const type = types.or(Number, Boolean)
   assert(_ as TypeToData<typeof type>, _ as number | boolean)
 
   expectTypeCheckOk(type, 6)
@@ -738,6 +787,13 @@ test("syntax sugar for primitives in tProp", () => {
     n: tProp(42),
     s: tProp("foo"),
     b: tProp(true),
+    n2: tProp(Number, 42),
+    s2: tProp(String, "foo"),
+    b2: tProp(Boolean, true),
+    nul: tProp(null),
+    undef: tProp(undefined),
+    or: tProp(types.or(String, Number, Boolean)),
+    arr: tProp(types.array(types.or(String, Number))),
   }) {
     @modelAction
     setN(n: number) {
@@ -753,19 +809,63 @@ test("syntax sugar for primitives in tProp", () => {
     setB(b: boolean) {
       this.b = b
     }
+
+    @modelAction
+    setN2(n: number) {
+      this.n2 = n
+    }
+
+    @modelAction
+    setS2(s: string) {
+      this.s2 = s
+    }
+
+    @modelAction
+    setB2(b: boolean) {
+      this.b2 = b
+    }
+
+    @modelAction
+    setNul(n: null) {
+      this.nul = n
+    }
+
+    @modelAction
+    setUndef(u: undefined) {
+      this.undef = u
+    }
+
+    @modelAction
+    setOr(o: string | number | boolean) {
+      this.or = o
+    }
   }
 
-  const ss = new SS({})
+  const ss = new SS({ nul: null, undef: undefined, or: 5, arr: [1, "2", 3] })
   const type = types.model<SS>(SS)
   assert(_ as TypeToData<typeof type>, _ as SS)
 
   assert(ss.n, _ as number)
   assert(ss.s, _ as string)
   assert(ss.b, _ as boolean)
+  assert(ss.n2, _ as number)
+  assert(ss.s2, _ as string)
+  assert(ss.b2, _ as boolean)
+  assert(ss.nul, _ as null)
+  assert(ss.undef, _ as undefined)
+  assert(ss.or, _ as string | number | boolean)
+  assert(ss.arr, _ as (string | number)[])
 
   expect(ss.n).toBe(42)
   expect(ss.s).toBe("foo")
   expect(ss.b).toBe(true)
+  expect(ss.n2).toBe(42)
+  expect(ss.s2).toBe("foo")
+  expect(ss.b2).toBe(true)
+  expect(ss.nul).toBe(null)
+  expect(ss.undef).toBe(undefined)
+  expect(ss.or).toBe(5)
+  expect(ss.arr).toEqual([1, "2", 3])
 
   expectTypeCheckOk(type, ss)
 
@@ -780,4 +880,28 @@ test("syntax sugar for primitives in tProp", () => {
   ss.setB("10" as any)
   expectTypeCheckFail(type, ss, ["b"], "boolean")
   ss.setB(true)
+
+  ss.setN2("10" as any)
+  expectTypeCheckFail(type, ss, ["n2"], "number")
+  ss.setN2(42)
+
+  ss.setS2(10 as any)
+  expectTypeCheckFail(type, ss, ["s2"], "string")
+  ss.setS2("foo")
+
+  ss.setB2("10" as any)
+  expectTypeCheckFail(type, ss, ["b2"], "boolean")
+  ss.setB2(true)
+
+  ss.setNul(10 as any)
+  expectTypeCheckFail(type, ss, ["nul"], "null")
+  ss.setNul(null)
+
+  ss.setUndef("10" as any)
+  expectTypeCheckFail(type, ss, ["undef"], "undefined")
+  ss.setUndef(undefined)
+
+  ss.setOr({} as any)
+  expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
+  ss.setOr(5)
 })

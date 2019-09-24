@@ -2,6 +2,11 @@ import { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
 import { IsOptionalValue } from "../utils/types"
 
 /**
+ * @ignore
+ */
+export const noTypeChecker = Symbol("noTypeChecker")
+
+/**
  * A model property.
  */
 export interface ModelProp<TValue, THasDefault> {
@@ -9,7 +14,7 @@ export interface ModelProp<TValue, THasDefault> {
   $hasDefault: THasDefault
   defaultFn?: () => TValue
   defaultValue?: TValue
-  typeChecker: TypeChecker | LateTypeChecker | null
+  typeChecker: TypeChecker | LateTypeChecker | typeof noTypeChecker
 }
 
 /**
@@ -81,6 +86,6 @@ export function prop<TValue>(def?: any): ModelProp<TValue, any> {
     $hasDefault: null as any,
     defaultFn: isDefFn ? def : undefined,
     defaultValue: isDefFn ? undefined : def,
-    typeChecker: null,
+    typeChecker: noTypeChecker,
   }
 }

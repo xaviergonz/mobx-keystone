@@ -1,8 +1,9 @@
 import { ArraySet } from "../wrappers/ArraySet"
 import { typesArray } from "./array"
 import { typesObject } from "./object"
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyType, IdentityType, TypeToData } from "./schemas"
-import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**

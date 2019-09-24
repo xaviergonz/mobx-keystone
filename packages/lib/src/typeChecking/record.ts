@@ -1,6 +1,7 @@
 import { isObject } from "../utils"
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyType, RecordType } from "./schemas"
-import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
