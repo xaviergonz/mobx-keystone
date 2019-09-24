@@ -1,4 +1,4 @@
-import { O } from "ts-toolbelt"
+import { A, O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
@@ -27,7 +27,10 @@ declare const composedCreationDataSymbol: unique symbol
 export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToData<TProps>
   [optPropsDataSymbol]: OptionalModelProps<TProps>
-  [creationDataSymbol]: O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
+  [creationDataSymbol]: O.Optional<
+    O.Update<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol], A.x | null>,
+    this[typeof optPropsDataSymbol]
+  >
 
   [composedCreationDataSymbol]: O.Merge<
     SuperModel extends BaseModel<any, infer CD> ? CD : unknown,
@@ -42,7 +45,10 @@ export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends Mode
 export interface _Model<TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToData<TProps>
   [optPropsDataSymbol]: OptionalModelProps<TProps>
-  [creationDataSymbol]: O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
+  [creationDataSymbol]: O.Optional<
+    O.Update<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol], A.x | null>,
+    this[typeof optPropsDataSymbol]
+  >
 
   new (data: this[typeof creationDataSymbol]): BaseModel<
     this[typeof propsDataSymbol],

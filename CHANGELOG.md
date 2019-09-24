@@ -3,6 +3,7 @@
 ## 0.22.0
 
 - Added `findParentPath`.
+- [BREAKING CHANGE] Default values for properties will now also apply when the initial data is `null`.
 
 ## 0.21.0
 

@@ -22,7 +22,7 @@ export function tProp<TType extends AnyType>(
 
 /**
  * Defines a model property, with an optional function to generate a default value
- * if not present and an associated type checker.
+ * if the input snapshot / model creation data is `null` or `undefined` and with an associated type checker.
  *
  * Example:
  * ```ts
@@ -43,7 +43,7 @@ export function tProp<TType extends AnyType>(
 
 /**
  * Defines a model property, with an optional default value
- * if not present and an associated type checker.
+ * if the input snapshot / model creation data is `null` or `undefined` and with an associated type checker.
  * You should only use this with primitive values and never with object values
  * (array, model, object, etc).
  *

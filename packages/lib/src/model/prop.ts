@@ -43,7 +43,7 @@ export function prop<TValue>(): ModelProp<TValue, IsOptionalValue<TValue, string
 
 /**
  * Defines a model property, with an optional function to generate a default value
- * if not present.
+ * if the input snapshot / model creation data is `null` or `undefined`.
  *
  * Example:
  * ```ts
@@ -59,7 +59,7 @@ export function prop<TValue>(defaultFn: () => TValue): ModelProp<TValue, string>
 
 /**
  * Defines a model property, with an optional default value
- * if not present.
+ * if the input snapshot / model creation data is `null` or `undefined`.
  * You should only use this with primitive values and never with object values
  * (array, model, object, etc).
  *

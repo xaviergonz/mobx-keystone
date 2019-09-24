@@ -55,12 +55,13 @@ export const internalNewModel = action(
     const modelPropsKeys = Object.keys(modelProps)
     for (let i = 0; i < modelPropsKeys.length; i++) {
       const k = modelPropsKeys[i]
-      if ((initialData as any)[k] === undefined) {
-        let newValue: any = undefined
+      const v = (initialData as any)[k]
+      if (v === undefined || v === null) {
+        let newValue: any = v
         const propData = modelProps[k]
         if (propData.defaultFn !== undefined) {
           newValue = propData.defaultFn()
-        } else if (propData.defaultValue !== undefined) {
+        } else if (propData.defaultValue !== v) {
           newValue = propData.defaultValue
         }
         set(initialData as any, k, newValue)
@@ -103,7 +104,7 @@ export const internalNewModel = action(
       }
     }
 
-    return modelObj
+    return modelObj as M
   }
 )
 
