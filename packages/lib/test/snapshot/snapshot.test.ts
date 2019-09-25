@@ -387,7 +387,7 @@ test("types", () => {
     _ as ({
       x?: number | null
       arr?: number[] | null
-      p2?: SnapshotInOf<P2> | null
+      p2?: SnapshotInOf<P2>
     } & {
       [modelTypeKey]: string
     })

@@ -1,4 +1,4 @@
-import { A, O } from "ts-toolbelt"
+import { O } from "ts-toolbelt"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
@@ -16,19 +16,29 @@ import {
   modelInitializersSymbol,
   modelPropertiesSymbol,
 } from "./modelSymbols"
-import { ModelProps, ModelPropsToData, noTypeChecker, OptionalModelProps } from "./prop"
+import {
+  ModelProps,
+  ModelPropsToCreationData,
+  ModelPropsToData,
+  noTypeChecker,
+  OptionalModelProps,
+} from "./prop"
 import { assertIsModelClass } from "./utils"
 
 declare const propsDataSymbol: unique symbol
+declare const creationPropsDataSymbol: unique symbol
 declare const optPropsDataSymbol: unique symbol
 declare const creationDataSymbol: unique symbol
 declare const composedCreationDataSymbol: unique symbol
 
 export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToData<TProps>
+  [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
+
   [optPropsDataSymbol]: OptionalModelProps<TProps>
+
   [creationDataSymbol]: O.Optional<
-    O.Update<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol], A.x | null>,
+    this[typeof creationPropsDataSymbol],
     this[typeof optPropsDataSymbol]
   >
 
@@ -44,9 +54,12 @@ export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends Mode
 
 export interface _Model<TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToData<TProps>
+  [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
+
   [optPropsDataSymbol]: OptionalModelProps<TProps>
+
   [creationDataSymbol]: O.Optional<
-    O.Update<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol], A.x | null>,
+    this[typeof creationPropsDataSymbol],
     this[typeof optPropsDataSymbol]
   >
 

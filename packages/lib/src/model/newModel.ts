@@ -9,7 +9,7 @@ import { getModelDataType } from "./getModelDataType"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 import { modelInitializersSymbol, modelPropertiesSymbol } from "./modelSymbols"
-import { ModelProps } from "./prop"
+import { ModelProps, noDefaultValue } from "./prop"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -59,9 +59,9 @@ export const internalNewModel = action(
       if (v === undefined || v === null) {
         let newValue: any = v
         const propData = modelProps[k]
-        if (propData.defaultFn !== undefined) {
+        if (propData.defaultFn !== noDefaultValue) {
           newValue = propData.defaultFn()
-        } else if (propData.defaultValue !== v) {
+        } else if (propData.defaultValue !== noDefaultValue) {
           newValue = propData.defaultValue
         }
         set(initialData as any, k, newValue)
