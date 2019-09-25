@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.23.0
+
+- Improved a bit the typing for `fromSnapshot` model methods.
+
 ## 0.22.0
 
 - Added `tProp` syntax sugar for optional primitives with a default value.

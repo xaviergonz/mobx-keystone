@@ -1,6 +1,6 @@
 import { observable } from "mobx"
 import { O } from "ts-toolbelt"
-import { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot"
+import { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
@@ -73,10 +73,12 @@ export abstract class BaseModel<
    * Optional transformation that will be run when converting from a snapshot to the data part of the model.
    * Useful for example to do versioning and keep the data part up to date with the latest version of the model.
    *
-   * @param snapshot
-   * @returns
+   * @param snapshot The custom input snapshot.
+   * @returns An input snapshot that must match the current model input snapshot.
    */
-  fromSnapshot?(snapshot: any): any
+  fromSnapshot?(snapshot: {
+    [k: string]: any
+  }): SnapshotInOfObject<CreationData> & { [modelTypeKey]?: string }
 
   /**
    * Performs a type check over the model instance.
