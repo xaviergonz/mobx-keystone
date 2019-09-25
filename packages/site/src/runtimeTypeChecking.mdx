@@ -81,19 +81,19 @@ const hiType = types.literal("hi") // the string with value "hi"
 const number5Type = types.literal(5) // the number with value 5
 ```
 
-### `types.undefined`
+### `types.undefined` / `undefined`
 
 A type that represents the value `undefined`.
 
-### `types.null`
+### `types.null` / `null`
 
 A type that represents the value `null`.
 
-### `types.boolean`
+### `types.boolean` / `Boolean`
 
 A type that represents any boolean value.
 
-### `types.number`
+### `types.number` / `Number`
 
 A type that represents any number value.
 
@@ -101,7 +101,7 @@ A type that represents any number value.
 
 A type that represents any integer number value.
 
-### `types.string`
+### `types.string` / `String`
 
 A type that represents any string value.
 
@@ -262,6 +262,11 @@ const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
   return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
 })
 ```
+
+### Syntax sugar for optional primitives with a default value
+
+You can also do `tProp(defaultValue: string | number | boolean)`, which is equivalent to `tProp(types.string|number|boolean, defaultValue)`.
+In other words, if you use `tProp(42)`, then the property will be a number and take the default value `42` when the value on the snapshot / model creation data is `undefined`.
 
 ### `TypeToData<type>`
 

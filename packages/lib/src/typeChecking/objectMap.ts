@@ -1,8 +1,9 @@
 import { ObjectMap } from "../wrappers/ObjectMap"
 import { typesObject } from "./object"
 import { typesRecord } from "./record"
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyType, IdentityType, TypeToData } from "./schemas"
-import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**

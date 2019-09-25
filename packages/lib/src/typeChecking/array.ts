@@ -1,6 +1,7 @@
 import { isArray } from "../utils"
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyType, ArrayType } from "./schemas"
-import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**

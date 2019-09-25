@@ -1,5 +1,6 @@
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyType, OrType } from "./schemas"
-import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 import { typesUnchecked } from "./unchecked"
 

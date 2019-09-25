@@ -16,7 +16,7 @@ import {
   modelInitializersSymbol,
   modelPropertiesSymbol,
 } from "./modelSymbols"
-import { ModelProps, ModelPropsToData, OptionalModelProps } from "./prop"
+import { ModelProps, ModelPropsToData, noTypeChecker, OptionalModelProps } from "./prop"
 import { assertIsModelClass } from "./utils"
 
 declare const propsDataSymbol: unique symbol
@@ -137,12 +137,12 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
 
   // create type checker if needed
   let dataTypeChecker: LateTypeChecker | undefined
-  if (Object.values(composedModelProps).some(mp => mp.typeChecker)) {
+  if (Object.values(composedModelProps).some(mp => mp.typeChecker !== noTypeChecker)) {
     const typeCheckerObj: {
       [k: string]: any
     } = {}
     for (const [k, mp] of Object.entries(composedModelProps)) {
-      typeCheckerObj[k] = mp.typeChecker || typesUnchecked()
+      typeCheckerObj[k] = mp.typeChecker === noTypeChecker ? typesUnchecked() : mp.typeChecker
     }
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
   }

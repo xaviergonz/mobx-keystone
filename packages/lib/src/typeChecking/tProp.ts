@@ -1,6 +1,49 @@
 import { ModelProp } from "../model/prop"
 import { IsOptionalValue } from "../utils/types"
+import { typesBoolean, typesNumber, typesString } from "./primitives"
 import { AnyType, TypeToData, TypeToDataOpt } from "./schemas"
+
+/**
+ * Defines a string model property with a default value.
+ * Equivalent to `tProp(types.string, defaultValue)`.
+ *
+ * Example:
+ * ```ts
+ * x: tcProp("foo") // an optional string that will take the value `"foo"` when undefined.
+ * ```
+ *
+ * @param defaultValue Default value.
+ * @returns
+ */
+export function tProp(defaultValue: string): ModelProp<string, string>
+
+/**
+ * Defines a number model property with a default value.
+ * Equivalent to `tProp(types.number, defaultValue)`.
+ *
+ * Example:
+ * ```ts
+ * x: tcProp(42) // an optional number that will take the value `42` when undefined.
+ * ```
+ *
+ * @param defaultValue Default value.
+ * @returns
+ */
+export function tProp(defaultValue: number): ModelProp<number, string>
+
+/**
+ * Defines a boolean model property with a default value.
+ * Equivalent to `tProp(types.boolean, defaultValue)`.
+ *
+ * Example:
+ * ```ts
+ * x: tcProp(true) // an optional boolean that will take the value `true` when undefined.
+ * ```
+ *
+ * @param defaultValue Default value.
+ * @returns
+ */
+export function tProp(defaultValue: boolean): ModelProp<boolean, string>
 
 /**
  * Defines a model property with no default value and an associated type checker.
@@ -63,16 +106,22 @@ export function tProp<TType extends AnyType>(
   defaultValue: TypeToData<TType>
 ): ModelProp<TypeToData<TType>, string>
 
-export function tProp<TType extends AnyType>(
-  type: TType,
-  def?: any
-): ModelProp<TypeToData<TType>, any> {
+export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any> {
+  switch (typeof typeOrDefaultValue) {
+    case "string":
+      return tProp(typesString, typeOrDefaultValue)
+    case "number":
+      return tProp(typesNumber, typeOrDefaultValue)
+    case "boolean":
+      return tProp(typesBoolean, typeOrDefaultValue)
+  }
+
   const isDefFn = typeof def === "function"
   return {
     $valueType: null as any,
     $hasDefault: null as any,
     defaultFn: isDefFn ? def : undefined,
     defaultValue: isDefFn ? undefined : def,
-    typeChecker: type as any,
+    typeChecker: typeOrDefaultValue,
   }
 }

@@ -3,8 +3,9 @@ import { getModelDataType } from "../model/getModelDataType"
 import { modelInfoByClass } from "../model/modelInfo"
 import { assertIsModelClass, isModelClass } from "../model/utils"
 import { failure } from "../utils"
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { IdentityType } from "./schemas"
-import { lateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
