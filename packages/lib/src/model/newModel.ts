@@ -103,7 +103,7 @@ export const internalNewModel = action(
       }
     }
 
-    return modelObj
+    return modelObj as M
   }
 )
 

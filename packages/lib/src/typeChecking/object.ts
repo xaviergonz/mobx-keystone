@@ -1,7 +1,8 @@
 import { Frozen } from "../frozen/Frozen"
 import { assertIsFunction, assertIsObject, isObject } from "../utils"
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyType, ObjectType } from "./schemas"
-import { lateTypeChecker, LateTypeChecker, resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateTypeChecker, LateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean): S {

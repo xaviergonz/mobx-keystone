@@ -116,22 +116,6 @@ export function assertIsTypeChecker(value: any) {
   }
 }
 
-/**
- * @ignore
- */
-export function resolveTypeChecker(v: any): TypeChecker {
-  let next: TypeChecker | LateTypeChecker = v
-  while (true) {
-    if (next instanceof TypeChecker) {
-      return next
-    } else if (isLateTypeChecker(next)) {
-      next = next()
-    } else {
-      throw failure("type checker could not be resolved")
-    }
-  }
-}
-
 const lateTypeCheckerSymbol = Symbol("lateTypeCheker")
 
 /**

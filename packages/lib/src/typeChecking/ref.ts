@@ -1,8 +1,9 @@
 import { Ref } from "../ref/Ref"
 import { typesObject } from "./object"
 import { typesString } from "./primitives"
+import { resolveTypeChecker } from "./resolveTypeChecker"
 import { IdentityType } from "./schemas"
-import { resolveTypeChecker, TypeChecker } from "./TypeChecker"
+import { TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**

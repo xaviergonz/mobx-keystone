@@ -62,6 +62,11 @@ export interface OrType<S extends AnyType[]> {
 }
 
 export type AnyType =
+  | StringConstructor
+  | NumberConstructor
+  | BooleanConstructor
+  | null
+  | undefined
   | IdentityType<any>
   | ArrayType<any>
   | OrType<any>
@@ -95,7 +100,17 @@ export type TypeToData<S extends AnyType> = S extends ObjectTypeFunction<infer S
   ? S["$$identityType"] extends infer R
     ? R
     : never
-  : never
+  : S extends StringConstructor // String
+  ? string
+  : S extends NumberConstructor // Number
+  ? number
+  : S extends BooleanConstructor // Boolean
+  ? boolean
+  : S extends null // null
+  ? null
+  : S extends undefined // undefined
+  ? undefined
+  : never // anything else
 
 /** @ignore */
 export type TypeToDataOpt<S extends AnyType> = S extends OrType<any>
