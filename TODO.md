@@ -14,6 +14,4 @@
 
 - (5) action recorder abstraction?
 
-- (4) easier / premade custom refs?
-
 - (4) check out mst api for missing features
