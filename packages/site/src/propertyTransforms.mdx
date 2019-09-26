@@ -1,0 +1,64 @@
+---
+name: Property Transforms
+route: /propertyTransforms
+---
+
+# Property Transforms
+
+## Overview
+
+While model props themselves can only be JSON serializable values and models, sometimes it is useful to represent those properties in another way.
+For example, a date might be represented in the backend as a string or a number timestamp, but you might actually prefer to work with date objects.
+In order to address this you can use a property transform.
+
+For example, to transform from a number timestamp into a `Date` object you can start by defining a property transform:
+
+```ts
+const asDate = propTransform({
+  fromPropToData(prop: number) {
+    return new Date(prop)
+  },
+  fromDataToProp(data: Date) {
+    return +data
+  },
+})
+```
+
+Which can be later used to decorate your models:
+
+```ts
+@model("myApp/MyModel")
+class MyModel extends Model({
+  // the original property is a number
+  timestamp: prop<number>(),
+}) {
+  // but we will transform it into Date objects
+  @asDate("timestamp")
+  date!: Date // remember to use ! when using Typescript!
+}
+```
+
+And then used like this:
+
+```ts
+// the value will be computed and change automatically
+// if the backed property changes
+const date: Date = myModel.date
+
+// setting is just as easy
+myModel.date = new Date()
+```
+
+Remember that for transforms to be valid this must hold:
+
+```
+given PV prop value
+if fromPropToData(PV) is DV
+then fromDataToProp(DV) must be PV
+
+and inversely
+
+given DV data value
+if fromDataToProp(DV) is PV
+then fromPropToData(PV) must be DV
+```

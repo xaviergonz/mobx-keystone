@@ -3,6 +3,7 @@
 ## 0.23.0
 
 - Improved a bit the typing for `fromSnapshot` model methods.
+- Added property transforms via `propTransform`.
 
 ## 0.22.0
 
