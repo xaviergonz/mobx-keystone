@@ -27,9 +27,9 @@ export interface PropTransform<TProp, TData> {
 /**
  * A prop transform decorator.
  */
-export type PropTransformDecorator = <M>(
-  boundPropName: keyof M
-) => (target: M, propertyKey: string) => void
+export type PropTransformDecorator<TProp> = <PK extends string>(
+  boundPropName: PK
+) => (target: { [k in PK]: TProp }, propertyKey: string) => void
 
 /**
  * Creates a prop transform, useful to transform property data into another kind of data.
@@ -64,9 +64,9 @@ export type PropTransformDecorator = <M>(
  */
 export function propTransform<TProp, TData>(
   transform: PropTransform<TProp, TData>
-): PropTransformDecorator {
-  return <M>(boundPropName: keyof M) => {
-    const decorator = (target: M, propertyKey: string) => {
+): PropTransformDecorator<TProp> {
+  const parametrizedDecorator: PropTransformDecorator<TProp> = boundPropName => {
+    const decorator = (target: object, propertyKey: string) => {
       // hidden model action for the setter
       const setterName = `$propTransformSet-${propertyKey}`
 
@@ -102,4 +102,6 @@ export function propTransform<TProp, TData>(
 
     return decorator
   }
+
+  return parametrizedDecorator
 }
