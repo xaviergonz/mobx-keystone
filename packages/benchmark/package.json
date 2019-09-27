@@ -7,7 +7,8 @@
   "license": "MIT",
   "scripts": {
     "build": "shx rm -rf dist && tsc -p .",
-    "bench": "yarn build && cross-env NODE_ENV=production node dist/index.js"
+    "bench-only": "cross-env NODE_ENV=production node dist/index.js",
+    "bench": "yarn build && yarn bench-only"
   },
   "dependencies": {
     "benchmark": "^2.1.4",
