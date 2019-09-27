@@ -7,7 +7,7 @@ import {
   observe,
   set,
 } from "mobx"
-import { modelTypeKey } from "../model/metadata"
+import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { dataToModelNode } from "../parent/core"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
@@ -25,6 +25,7 @@ export function tweakPlainObject<T>(
   value: T,
   parentPath: ParentPath<any> | undefined,
   snapshotModelType: string | undefined,
+  snapshotModelId: string | undefined,
   doNotTweakChildren: boolean,
   isDataObject: boolean
 ): T {
@@ -77,6 +78,7 @@ export function tweakPlainObject<T>(
 
   if (snapshotModelType) {
     standardSn[modelTypeKey] = snapshotModelType
+    standardSn[modelIdKey] = snapshotModelId
   }
 
   setInternalSnapshot(isDataObject ? dataToModelNode(tweakedObj) : tweakedObj, standardSn)

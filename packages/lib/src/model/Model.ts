@@ -180,9 +180,15 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
       this: any,
       initialData: any,
       snapshotInitialData: any,
-      modelConstructor: any
+      modelConstructor: any,
+      generateNewIds: any
     ) {
-      return new base(initialData, snapshotInitialData, modelConstructor || this.constructor)
+      return new base(
+        initialData,
+        snapshotInitialData,
+        modelConstructor || this.constructor,
+        generateNewIds
+      )
     }
 
     return CustomBaseModel

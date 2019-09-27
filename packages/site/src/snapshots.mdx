@@ -56,11 +56,13 @@ const todoSnapshot = getSnapshot(todo)
 {
   done: false,
   text: "buy some milk",
-  $modelType: "myApp/Todo"
+  $modelType: "myApp/Todo",
+  $modelId: "Td244..."
 }
 ```
 
 The additional `$modelType` property is used to allow `fromSnapshot` to recognize the original class and faithfully recreate it, rather than assume it is a plain object.
+The additional `$modelId` property is used when serializing actions to ensure that targets are still the same when using concurrency amongst different clients and can be used as a possible source of reference id.
 This metadata is only required for models, in other words, arrays, plain objects and primitives don't have this extra field.
 
 The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
@@ -69,7 +71,9 @@ The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo
 type SnapshotOutOf<Todo> = {
   done: boolean;
   type: string;
-  $modelType: string
+
+  $modelType: string;
+  $modelId: string;
 }
 ```
 
@@ -77,7 +81,7 @@ Note that `getSnapshot` can actually be used over any tree nodes (any model, or 
 
 ## Turning a snapshot back into an instance
 
-### `fromSnapshot<T>(sn: SnapshotInOf<T> | SnapshotOutOf<T>, options?: FromSnapshotOptions): T`
+### `fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T`
 
 Restoring a snapshot is pretty easy as well:
 
@@ -85,19 +89,25 @@ Restoring a snapshot is pretty easy as well:
 const todo = fromSnapshot<Todo>(todoSnapshot)
 ```
 
-The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo> | SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
+The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:
 
 ```
 type SnapshotInOf<Todo> = {
   done?: boolean;
   type: string;
-  $modelType: string
+
+  $modelType: string;
+  $modelId: string;
 }
 ```
 
 Compared to the output snapshot note how `done` is now marked as optional since we declared a default value for it.
 
 Note that `fromSnapshot` can actually be used over any snapshot that represents a valid tree node (any model snapshot, or a plain object, array or primitive).
+
+As for the options object, these options are available:
+
+- `generateNewIds: boolean` - Pass `true` to generate new internal ids for models rather than reusing them (default is `false`).
 
 ## Reacting to snapshot changes
 
@@ -136,11 +146,12 @@ It is also possible to apply a snapshot over an object, reconciling the contents
 applySnapshot(todo, {
   done: true,
   text: "buy some milk",
-  $modelType: "myApp/Todo",
+  $modelType: todo.$modelType,
+  $modelId: todo.$modelId,
 })
 ```
 
-In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused.
+In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused (since they have a same model id).
 
 ## Cloning via snapshots
 

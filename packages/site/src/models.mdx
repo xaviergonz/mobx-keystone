@@ -73,7 +73,7 @@ The rules that need to be followed to declare a model are:
 
 - Models have to be decorated with `@model` and require a unique across-application ID for the class type.
 - They have to extend `Model`, which in Typescript requires the type of the data that will become observable / snapshotable / patchable.
-- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$` (for example for properties that match a built-in base model property such as `$modelType`).
+- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$` (for example for properties that match a built-in base model property such as `$modelType` or `$modelId`).
 - Model actions need to be used in order to be able to change such data.
 - Never ever declare your own constructor, there are life-cycle events for that (more on that later).
 
@@ -125,13 +125,14 @@ class SomeModel extends Model({...}) {
 
 ## Accessing the type of a model
 
-It is interesting to observe that models include a property named `$modelType`:
+It is interesting to observe that models include the properties named `$modelType` and `$modelId`:
 
 ```ts
 myTodo1.$modelType // "myCoolApp/Todo"
+myTodo1.$modelId // "Td244..."
 ```
 
-This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
+These properties will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
 
 ## Getting the Typescript types for model data and model ceation data
 

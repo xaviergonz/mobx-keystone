@@ -6,6 +6,14 @@ import {
   ObservableMap,
   ObservableSet,
 } from "mobx"
+import nanoid from "nanoid/non-secure"
+
+/**
+ * @ignore
+ */
+export function generateId(): string {
+  return nanoid()
+}
 
 /**
  * A mobx-keystone error.

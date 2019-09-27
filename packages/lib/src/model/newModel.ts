@@ -3,10 +3,10 @@ import { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { failure, inDevMode, makePropReadonly } from "../utils"
+import { failure, generateId, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
-import { modelTypeKey } from "./metadata"
+import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 import { modelInitializersSymbol, modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps } from "./prop"
@@ -26,7 +26,8 @@ export const internalNewModel = action(
           unprocessedSnapshot: any
           snapshotToInitialData(processedSnapshot: any): any
         }
-      | undefined
+      | undefined,
+    generateNewId: boolean
   ): M => {
     if (inDevMode()) {
       assertIsModelClass(modelClass, "modelClass")
@@ -40,15 +41,30 @@ export const internalNewModel = action(
         `no model info for class ${modelClass.name} could be found - did you forget to add the @model decorator?`
       )
     }
+
+    let id
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
+
+      id = generateNewId ? generateId() : sn[modelIdKey]
+
       if (modelObj.fromSnapshot) {
         sn = modelObj.fromSnapshot(sn)
       }
+
       initialData = snapshotInitialData.snapshotToInitialData(sn)
+    } else {
+      // a model coming from a call to new directly, generate id
+      if (inDevMode() && !generateNewId) {
+        throw failure(
+          "assertion error: tried to create a model without a snapshot with generateNewId set to false"
+        )
+      }
+      id = generateId()
     }
 
     modelObj[modelTypeKey] = modelInfo.name
+    modelObj[modelIdKey] = id
 
     // fill in defaults in initial data
     const modelProps: ModelProps = (modelClass as any)[modelPropertiesSymbol]
@@ -75,6 +91,7 @@ export const internalNewModel = action(
       initialData!,
       { parent: modelObj, path: "$" },
       modelObj[modelTypeKey],
+      modelObj[modelIdKey],
       false,
       true
     )

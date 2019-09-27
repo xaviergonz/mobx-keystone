@@ -1,11 +1,15 @@
 import { observable } from "mobx"
-import { O } from "ts-toolbelt"
-import { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
+import {
+  SnapshotInOfModel,
+  SnapshotInOfObject,
+  SnapshotOutOfModel,
+  SnapshotOutOfObject,
+} from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
-import { assertIsObject } from "../utils"
-import { modelTypeKey } from "./metadata"
+import { assertIsObject, generateId } from "../utils"
+import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
@@ -37,7 +41,12 @@ export abstract class BaseModel<
   /**
    * Model type name.
    */
-  readonly [modelTypeKey]: string
+  readonly [modelTypeKey]: string;
+
+  /**
+   * Model internal id.
+   */
+  readonly [modelIdKey]: string
 
   /**
    * Can be overriden to offer a reference id to be used in reference resolution.
@@ -78,7 +87,7 @@ export abstract class BaseModel<
    */
   fromSnapshot?(snapshot: {
     [k: string]: any
-  }): SnapshotInOfObject<CreationData> & { [modelTypeKey]?: string }
+  }): SnapshotInOfObject<CreationData> & { [modelTypeKey]?: string; [modelIdKey]?: string }
 
   /**
    * Performs a type check over the model instance.
@@ -102,16 +111,20 @@ export abstract class BaseModel<
     Object.setPrototypeOf(this, clazz.prototype)
 
     if (!snapshotInitialData) {
+      // plain new
       assertIsObject(initialData, "initialData")
 
       internalNewModel(
         this,
         clazz,
         observable.object(initialData, undefined, { deep: false }),
-        undefined
+        undefined,
+        true
       )
     } else {
-      internalNewModel(this, clazz, undefined, snapshotInitialData)
+      // from snapshot
+      const generateNewId: boolean = !!arguments[3]
+      internalNewModel(this, clazz, undefined, snapshotInitialData, generateNewId)
     }
   }
 }
@@ -119,6 +132,7 @@ export abstract class BaseModel<
 // these props will never be hoisted to this
 export const baseModelPropNames = new Set<keyof AnyModel>([
   modelTypeKey,
+  modelIdKey,
   "onInit",
   "$",
   "getRefId",
@@ -159,11 +173,13 @@ export type ModelCreationData<M extends AnyModel> = M extends BaseModel<any, inf
  * @typeparam M Model type.
  * @param modelClass Model class.
  * @param snapshot Model creation snapshot without metadata.
+ * @param [internalId] Model internal ID, or `undefined` to generate a new one.
  * @returns The model snapshot (including metadata).
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelTypeKey>
+  snapshot: SnapshotInOfObject<ModelCreationData<M>>,
+  internalId: string = generateId()
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
@@ -173,6 +189,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
   return {
     ...snapshot,
     [modelTypeKey]: modelInfo.name,
+    [modelIdKey]: internalId,
   } as any
 }
 
@@ -183,11 +200,13 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  * @typeparam M Model type.
  * @param modelClass Model class.
  * @param snapshot Model output snapshot without metadata.
+ * @param [internalId] Model internal ID, or `undefined` to generate a new one.
  * @returns The model snapshot (including metadata).
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelTypeKey>
+  snapshot: SnapshotOutOfObject<ModelData<M>>,
+  internalId: string = generateId()
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
@@ -197,5 +216,6 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   return {
     ...snapshot,
     [modelTypeKey]: modelInfo.name,
+    [modelIdKey]: internalId,
   } as any
 }

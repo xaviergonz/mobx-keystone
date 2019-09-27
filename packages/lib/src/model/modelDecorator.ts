@@ -24,8 +24,18 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
   }
 
   // trick so plain new works
-  const newClazz: any = function(this: any, initialData: any, snapshotInitialData: any) {
-    const instance = new (clazz as any)(initialData, snapshotInitialData, this.constructor)
+  const newClazz: any = function(
+    this: any,
+    initialData: any,
+    snapshotInitialData: any,
+    generateNewIds: any
+  ) {
+    const instance = new (clazz as any)(
+      initialData,
+      snapshotInitialData,
+      this.constructor,
+      generateNewIds
+    )
 
     // the object is ready
     addHiddenProp(instance, modelInitializedSymbol, true, false)
