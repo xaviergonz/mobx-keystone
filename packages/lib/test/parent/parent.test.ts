@@ -105,6 +105,7 @@ test("parent", () => {
   expect(getRootPath(p.arr[0])).toEqual({
     root: p,
     path: ["arr", 0],
+    pathObjects: [p, p.arr, p.arr[0]],
   })
 
   expect(Array.from(getChildrenObjects(p).values())).toEqual([p.arr, p.p2])

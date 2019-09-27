@@ -74,13 +74,8 @@ export class TodoList extends Model({
   }
 
   @modelAction
-  remove(todoId: string) {
-    // how here we just use as argument the id instead of the whole object for these reasons:
-    // - in the case of action serialization, we will only need to send the index rather than the whole object
-    // - also in the case of action serialization, if we used a todo object then a clone would be sent
-    //   which will have a different reference, so a plain indexOf won't work
-
-    const index = this.todos.findIndex(todo => todo.id === todoId)
+  remove(todo: Todo) {
+    const index = this.todos.indexOf(todo)
     if (index >= 0) {
       this.todos.splice(index, 1)
     }

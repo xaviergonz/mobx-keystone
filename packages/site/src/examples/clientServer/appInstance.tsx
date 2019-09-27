@@ -23,7 +23,7 @@ function initAppInstance() {
 
   let serverAction = false
   const runServerActionLocally = (actionCall: ActionCall) => {
-    const deserializedActionCall = deserializeActionCall(actionCall)
+    const deserializedActionCall = deserializeActionCall(rootStore, actionCall)
 
     let wasServerAction = serverAction
     serverAction = true
@@ -46,7 +46,7 @@ function initAppInstance() {
         // if the action does not come from the server cancel it silently
         // and send it to the server
         // it will then be replicated by the server and properly executed
-        server.sendMessage(serializeActionCall(actionCall))
+        server.sendMessage(serializeActionCall(rootStore, actionCall))
 
         ctx.data[cancelledActionSymbol] = true // just for logging purposes
 

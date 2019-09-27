@@ -223,13 +223,9 @@ test("single selection with custom getId", () => {
     }
 
     @modelAction
-    selectTodo(todoId: string | undefined) {
-      if (!todoId) {
-        this.selectedRef = undefined
-      } else {
-        const todo = this.list.find(todo => todo.id === todoId)
-        this.selectedRef = todoRef(todo!)
-      }
+    selectTodo(todo: Todo | undefined) {
+      if (todo && !this.list.includes(todo)) throw new Error("unknown todo")
+      this.selectedRef = todo ? todoRef(todo) : undefined
     }
   }
 

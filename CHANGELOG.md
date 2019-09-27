@@ -2,6 +2,10 @@
 
 ## 0.23.0
 
+- [BREAKING CHANGE] Added a `$modelId` extra property to models and their snapshots in order to be able to properly validate targets of serialized actions in scenarions with concurrent clients. Also allows the automatic optimization of the serialized version of models in action parameters by substituting them to just their paths + path of ids whenever possible.
+- [BREAKING CHANGE] `serializeActionCall`, `serializeActionCallArgument`, `deserializeActionCall` and `deserializeActionCallArgument` now require a first parameter with the root node of the model where actions are going to be performed.
+- `ActionContext` now includes `targetPathIds`.
+- Added `pathObjects` to `getRootPath`.
 - Improved a bit the typing for `fromSnapshot` model methods.
 - Improved action argument serialization so it supports dates, maps, sets, arrays of models, etc.
 

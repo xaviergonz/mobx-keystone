@@ -615,6 +615,7 @@ test("applyAction", () => {
     const ra = pa.addX(10)
     const rb = applyAction(pb, {
       targetPath: [],
+      targetPathIds: [],
       actionName: "addX",
       args: [10],
     })
@@ -627,6 +628,7 @@ test("applyAction", () => {
     const ra = pa.addXY(1, 2)
     const rb = applyAction(pb, {
       targetPath: [],
+      targetPathIds: [],
       actionName: "addXY",
       args: [1, 2],
     })
@@ -639,6 +641,7 @@ test("applyAction", () => {
     const ra = pa.p2.addY(15)
     const rb = applyAction(pb, {
       targetPath: ["p2"],
+      targetPathIds: [pb.p2.$modelId],
       actionName: "addY",
       args: [15],
     })
@@ -653,10 +656,21 @@ test("applyAction", () => {
   })
   applyAction(pb, {
     targetPath: ["p2"],
+    targetPathIds: [pb.p2.$modelId],
     actionName: "$$applySnapshot",
     args: [{ ...getSnapshot(pb.p2), y: 100 }],
   })
   expect(pa.p2.y).toStrictEqual(pb.p2.y)
+
+  // if the id of a sub-object does not match it should fail
+  expect(() => {
+    applyAction(pb, {
+      targetPath: ["p2"],
+      targetPathIds: ["NOT A GOOD ID"],
+      actionName: "addY",
+      args: [15],
+    })
+  }).toThrow('object at path ["p2"] with ids ["NOT A GOOD ID"] could not be resolved')
 })
 
 test("action protection", () => {

@@ -116,6 +116,7 @@ test("flow", async () => {
             2,
           ],
           "targetPath": Array [],
+          "targetPathIds": Array [],
         },
         "context": Object {
           "actionName": "addX",
@@ -168,6 +169,7 @@ test("flow", async () => {
             4,
           ],
           "targetPath": Array [],
+          "targetPathIds": Array [],
         },
         "context": Object {
           "actionName": "addXY",
@@ -224,6 +226,7 @@ test("flow", async () => {
             10,
           ],
           "targetPath": Array [],
+          "targetPathIds": Array [],
         },
         "context": Object {
           "actionName": "throwFlow",

@@ -1,4 +1,14 @@
 export {
+  deserializeActionCall,
+  deserializeActionCallArgument,
+  serializeActionCall,
+  serializeActionCallArgument,
+  SerializedDate,
+  SerializedMap,
+  SerializedPathRef,
+  SerializedSet,
+} from "./actionSerialization"
+export {
   ActionTrackingMiddleware,
   actionTrackingMiddleware,
   ActionTrackingResult,
@@ -6,13 +16,7 @@ export {
   SimpleActionContext,
   simplifyActionContext,
 } from "./actionTrackingMiddleware"
-export {
-  deserializeActionCall,
-  deserializeActionCallArgument,
-  onActionMiddleware,
-  serializeActionCall,
-  serializeActionCallArgument,
-} from "./onActionMiddleware"
+export { onActionMiddleware } from "./onActionMiddleware"
 export { readonlyMiddleware, ReadonlyMiddlewareReturn } from "./readonlyMiddleware"
 export { transaction, transactionMiddleware } from "./transactionMiddleware"
 export { UndoEvent, UndoManager, undoMiddleware, UndoStore, withoutUndo } from "./undoMiddleware"
