@@ -1,10 +1,6 @@
 import { observable } from "mobx"
-import {
-  SnapshotInOfModel,
-  SnapshotInOfObject,
-  SnapshotOutOfModel,
-  SnapshotOutOfObject,
-} from "../snapshot/SnapshotOf"
+import { O } from "ts-toolbelt"
+import { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
@@ -178,7 +174,7 @@ export type ModelCreationData<M extends AnyModel> = M extends BaseModel<any, inf
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: SnapshotInOfObject<ModelCreationData<M>>,
+  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelIdKey | typeof modelTypeKey>,
   internalId: string = generateId()
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
@@ -205,7 +201,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: SnapshotOutOfObject<ModelData<M>>,
+  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelIdKey | typeof modelTypeKey>,
   internalId: string = generateId()
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")

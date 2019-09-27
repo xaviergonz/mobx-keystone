@@ -3,6 +3,7 @@ import {
   model,
   Model,
   modelAction,
+  modelIdKey,
   modelTypeKey,
   prop,
   SnapshotInOf,
@@ -49,6 +50,7 @@ test("factory pattern", () => {
       y?: string
     } & {
       [modelTypeKey]: string
+      [modelIdKey]: string
     }
   )
 
@@ -60,6 +62,7 @@ test("factory pattern", () => {
       y: string
     } & {
       [modelTypeKey]: string
+      [modelIdKey]: string
     }
   )
 
@@ -79,6 +82,7 @@ test("factory pattern", () => {
       y?: number
     } & {
       [modelTypeKey]: string
+      [modelIdKey]: string
     }
   )
 
@@ -90,6 +94,7 @@ test("factory pattern", () => {
       y: number
     } & {
       [modelTypeKey]: string
+      [modelIdKey]: string
     }
   )
 })
