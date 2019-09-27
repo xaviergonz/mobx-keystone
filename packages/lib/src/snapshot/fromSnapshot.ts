@@ -38,7 +38,7 @@ interface FromSnapshotContext {
  * @returns The deserialized object.
  */
 export let fromSnapshot = <T>(
-  snapshot: SnapshotInOf<T> | SnapshotInOf<T>,
+  snapshot: SnapshotInOf<T> | SnapshotOutOf<T>,
   options?: Partial<FromSnapshotOptions>
 ): T => {
   const opts = {
