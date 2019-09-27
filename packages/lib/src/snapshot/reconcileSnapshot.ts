@@ -89,7 +89,7 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  if (!(value instanceof modelInfo.class) || value.$modelType !== type) {
+  if (!(value instanceof modelInfo.class) || value[modelTypeKey] !== type) {
     // different kind of model / model instance, no reconciliation possible
     return fromSnapshot<AnyModel>(sn)
   }

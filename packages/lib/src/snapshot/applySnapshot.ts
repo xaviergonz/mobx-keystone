@@ -58,7 +58,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       throw failure(`model with name "${type}" not found in the registry`)
     }
 
-    if (!(obj instanceof modelInfo.class) || obj.$modelType !== type) {
+    if (!(obj instanceof modelInfo.class) || obj[modelTypeKey] !== type) {
       // different kind of model, no reconciliation possible
       throw failure("snapshot model type does not match target model type")
     }
