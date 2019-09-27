@@ -1,8 +1,9 @@
-import { observable } from "mobx"
+import { isObservable, observable } from "mobx"
 import {
   ActionCall,
   ActionContext,
   applySnapshot,
+  deserializeActionCallArgument,
   getSnapshot,
   model,
   Model,
@@ -429,7 +430,7 @@ test("onActionMiddleware", () => {
   expect(events).toMatchInlineSnapshot(`Array []`)
 })
 
-test("serializeActionCallArgument", () => {
+test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   // unserializable args
   class RandomClass {}
   const rc = new RandomClass()
@@ -438,7 +439,62 @@ test("serializeActionCallArgument", () => {
     "serializeActionCallArgument could not serialize the given value"
   )
 
-  // TODO: unit test the good cases
-})
+  // primitive
+  expect(serializeActionCallArgument(42)).toBe(42)
+  expect(deserializeActionCallArgument(42)).toBe(42)
 
-// TODO: unit test deserializeActionCall + argument
+  // date
+  expect(serializeActionCallArgument(new Date(1000))).toEqual({ $dateAsTimestamp: 1000 })
+  expect(deserializeActionCallArgument({ $dateAsTimestamp: 1000 })).toEqual(new Date(1000))
+
+  // plain obj
+  const obj = { x: 10 }
+
+  expect(serializeActionCallArgument(obj)).toEqual(obj)
+  expect(deserializeActionCallArgument(obj)).toEqual(obj)
+
+  // observable obj
+  const obsObj = observable(obj)
+
+  expect(serializeActionCallArgument(obsObj)).toEqual(obj)
+  expect(isObservable(serializeActionCallArgument(obsObj))).toBe(false)
+
+  // array
+  const arr = [{ x: 10 }, 20]
+
+  expect(serializeActionCallArgument(arr)).toEqual(arr)
+  expect(deserializeActionCallArgument(arr)).toEqual(arr)
+
+  // observable array
+  const obsArr = observable(arr)
+
+  expect(serializeActionCallArgument(obsArr)).toEqual(arr)
+  expect(isObservable(serializeActionCallArgument(obsArr))).toBe(false)
+  expect(isObservable(serializeActionCallArgument(obsArr)[0])).toBe(false)
+
+  // map
+  const mapKV: [any, any][] = [["x", 10], ["y", { z: 20 }]]
+  const map = new Map<any, any>(mapKV)
+
+  expect(serializeActionCallArgument(map)).toEqual({
+    $mapAsArray: mapKV,
+  })
+  const mapBack = deserializeActionCallArgument({
+    $mapAsArray: mapKV,
+  })
+  expect(mapBack instanceof Map).toBe(true)
+  expect(Array.from(mapBack.entries())).toEqual(mapKV)
+
+  // set
+  const setK: any[] = ["x", { z: 20 }]
+  const set = new Set<any>(setK)
+
+  expect(serializeActionCallArgument(set)).toEqual({
+    $setAsArray: setK,
+  })
+  const setBack = deserializeActionCallArgument({
+    $setAsArray: setK,
+  })
+  expect(setBack instanceof Set).toBe(true)
+  expect(Array.from(setBack.keys())).toEqual(setK)
+})

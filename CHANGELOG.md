@@ -3,6 +3,7 @@
 ## 0.23.0
 
 - Improved a bit the typing for `fromSnapshot` model methods.
+- Improved action argument serialization so it supports dates, maps, sets, arrays of models, etc.
 
 ## 0.22.0
 
