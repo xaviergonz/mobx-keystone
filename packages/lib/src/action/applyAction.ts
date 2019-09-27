@@ -25,10 +25,7 @@ export interface ActionCall {
   /**
    * Path to the model where the action will be run, as an array of string | number.
    */
-  readonly targetPath: ReadonlyArray<{
-    path: string | number
-    id: string | undefined
-  }>
+  readonly targetPath: ReadonlyArray<string | number>
 }
 
 /**
@@ -42,8 +39,7 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   // resolve path
-  const targetPath = call.targetPath.map(tp => tp.path)
-  const { value: current, resolved } = resolvePath(subtreeRoot, targetPath)
+  const { value: current, resolved } = resolvePath(subtreeRoot, call.targetPath)
   if (!resolved) {
     throw failure(`object at path ${call.targetPath} could not be resolved`)
   }
