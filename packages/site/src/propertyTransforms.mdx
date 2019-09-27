@@ -62,3 +62,8 @@ given DV data value
 if fromDataToProp(DV) is PV
 then fromPropToData(PV) must be DV
 ```
+
+## `stringAsDate` and `timestampAsDate`
+
+For convenience, these built-in property transforms are provided.
+`stringAsDate` transfrom from an ISO date string to a `Date` object, while `timestampAsDate` transforms from a number timestamp to a `Date` object.

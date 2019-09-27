@@ -6,26 +6,18 @@ import {
   Model,
   onActionMiddleware,
   prop,
-  propTransform,
+  stringAsDate,
+  timestampAsDate,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
-test("propTransform", () => {
-  const asDate = propTransform<number, Date>({
-    propToData(prop) {
-      return new Date(prop)
-    },
-    dataToProp(date) {
-      return +date
-    },
-  })
-
-  @model("M")
+test("timestampAsDate", () => {
+  @model("timestampAsDate/M")
   class M extends Model({
     timestamp: prop<number>(),
   }) {
-    @asDate("timestamp")
+    @timestampAsDate("timestamp")
     date!: Date
   }
 
@@ -74,29 +66,29 @@ test("propTransform", () => {
   expect(m.timestamp).toBe(now2)
 
   expect(actionCalls).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionName": "$propTransformSet-date",
-        "args": Array [
-          1569524561993,
-        ],
-        "targetPath": Array [],
-      },
-      Object {
-        "actionName": "$propTransformSet-date",
-        "args": Array [
-          1569524561993,
-        ],
-        "targetPath": Array [],
-      },
-    ]
-  `)
+        Array [
+          Object {
+            "actionName": "$propTransformSet-date",
+            "args": Array [
+              1569524561993,
+            ],
+            "targetPath": Array [],
+          },
+          Object {
+            "actionName": "$propTransformSet-date",
+            "args": Array [
+              1569524561993,
+            ],
+            "targetPath": Array [],
+          },
+        ]
+    `)
 
   expect(reactions).toMatchInlineSnapshot(`
-            Array [
-              2019-09-26T19:02:41.993Z,
-            ]
-      `)
+                Array [
+                  2019-09-26T19:02:41.993Z,
+                ]
+        `)
 
   // apply action should work
   applyAction(m, {
@@ -107,4 +99,91 @@ test("propTransform", () => {
 
   expect(m.date).toEqual(dateNow)
   expect(m.timestamp).toBe(now)
+})
+
+test("stringAsDate", () => {
+  @model("stringAsDate/M")
+  class M extends Model({
+    time: prop<string>(),
+  }) {
+    @stringAsDate("time")
+    date!: Date
+  }
+
+  const dateNow = new Date(0)
+
+  const m = new M({ time: dateNow.toJSON() })
+
+  // getter
+  expect(m.date instanceof Date).toBeTruthy()
+  expect(m.date).toEqual(dateNow)
+
+  // when not observed it should not be cached
+  expect(m.date).not.toBe(m.date)
+
+  const reactions: Date[] = []
+  autoDispose(
+    reaction(
+      () => m.date,
+      d => {
+        reactions.push(d)
+      }
+    )
+  )
+
+  // when observed it should be cached
+  expect(m.date).toBe(m.date)
+
+  // setter
+  const actionCalls: ActionCall[] = []
+  autoDispose(
+    onActionMiddleware(m, {
+      onStart(actionCall) {
+        actionCalls.push(actionCall)
+      },
+      onFinish(actionCall) {
+        actionCalls.push(actionCall)
+      },
+    })
+  )
+
+  const dateNow2 = new Date(1569524561993)
+  m.date = dateNow2
+  expect(m.date).toEqual(dateNow2)
+  expect(m.time).toBe(dateNow2.toJSON())
+
+  expect(actionCalls).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "$propTransformSet-date",
+        "args": Array [
+          "2019-09-26T19:02:41.993Z",
+        ],
+        "targetPath": Array [],
+      },
+      Object {
+        "actionName": "$propTransformSet-date",
+        "args": Array [
+          "2019-09-26T19:02:41.993Z",
+        ],
+        "targetPath": Array [],
+      },
+    ]
+  `)
+
+  expect(reactions).toMatchInlineSnapshot(`
+                Array [
+                  2019-09-26T19:02:41.993Z,
+                ]
+        `)
+
+  // apply action should work
+  applyAction(m, {
+    actionName: "$propTransformSet-date",
+    args: [dateNow.toJSON()],
+    targetPath: [],
+  })
+
+  expect(m.date).toEqual(dateNow)
+  expect(m.time).toBe(dateNow.toJSON())
 })
