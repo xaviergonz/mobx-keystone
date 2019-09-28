@@ -1,11 +1,14 @@
 # Change Log
 
+## 0.23.0
+
+- [BREAKING CHANGE] Default values for properties will now also apply when the initial data is `null`.
+
 ## 0.22.0
 
 - Added `tProp` syntax sugar for optional primitives with a default value.
 - Added `String`, `Number`, `Boolean`, `null`, `undefined` as aliases for primitive types.
 - Added `findParentPath`.
-- [BREAKING CHANGE] Default values for properties will now also apply when the initial data is `null`.
 
 ## 0.21.0
 
