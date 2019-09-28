@@ -46,8 +46,8 @@ test("factory pattern", () => {
   assert(
     _ as SInStr,
     _ as {
-      x?: string
-      y?: string
+      x?: string | null
+      y?: string | null
     } & {
       [modelTypeKey]: string
       [modelIdKey]: string
@@ -78,8 +78,8 @@ test("factory pattern", () => {
   assert(
     _ as SInNum,
     _ as {
-      x?: number
-      y?: number
+      x?: number | null
+      y?: number | null
     } & {
       [modelTypeKey]: string
       [modelIdKey]: string

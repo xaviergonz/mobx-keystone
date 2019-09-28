@@ -63,7 +63,13 @@ test("subclassing with additional props", () => {
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & { a: number; b: number })
-  assert(_ as CD, _ as { x?: number; y?: number; z?: number } & { a?: number; b: number })
+  assert(
+    _ as CD,
+    _ as { x?: number | null; y?: number | null; z?: number | null } & {
+      a?: number | null
+      b: number
+    }
+  )
 
   const p2 = new P2({ x: 20, b: 70 })
 
@@ -117,7 +123,10 @@ test("subclassing without additional props", () => {
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & ModelPropsToData<{}>)
-  assert(_ as CD, _ as { x?: number; y?: number; z?: number } & ModelPropsToData<{}>)
+  assert(
+    _ as CD,
+    _ as { x?: number | null; y?: number | null; z?: number | null } & ModelPropsToData<{}>
+  )
 
   const p2 = new P2({ x: 20 })
 
@@ -156,7 +165,10 @@ test("subclassing without anything new", () => {
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & ModelPropsToData<{}>)
-  assert(_ as CD, _ as { x?: number; y?: number; z?: number } & ModelPropsToData<{}>)
+  assert(
+    _ as CD,
+    _ as { x?: number | null; y?: number | null; z?: number | null } & ModelPropsToData<{}>
+  )
 
   const p2 = new P2({ x: 20 })
 
@@ -221,7 +233,12 @@ test("three level subclassing", () => {
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & { a: number } & { b: number })
-  assert(_ as CD, _ as { x?: number; y?: number; z?: number } & { a?: number } & { b: number })
+  assert(
+    _ as CD,
+    _ as { x?: number | null; y?: number | null; z?: number | null } & { a?: number | null } & {
+      b: number
+    }
+  )
 
   const p2 = new P2({ x: 20, b: 70 })
 

@@ -37,7 +37,7 @@ export interface SerializedPathRef {
  * Transforms an action call argument by returning its serializable equivalent.
  * In more detail, this will transform:
  * - Primitives as is.
- * - Nodes that are under the same root node as the target root will be seralized
+ * - Nodes that are under the same root node as the target root (when provided) will be seralized
  *   as a `SerializedPathRef`
  * - Nodes that are not under the same root node as the target root will be serialized as their snapshot.
  * - Observable values as their non observable equivalent.
@@ -47,11 +47,11 @@ export interface SerializedPathRef {
  *
  * If the value cannot be serialized it will throw an exception.
  *
- * @param targetRoot Target root node of the model where this action is being performed.
  * @param argValue Argument value to be transformed into its serializable form.
+ * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The serializable form of the passed value.
  */
-export function serializeActionCallArgument(targetRoot: object, argValue: any): any {
+export function serializeActionCallArgument(argValue: any, targetRoot?: object): any {
   if (isPrimitive(argValue)) {
     return argValue
   }
@@ -85,7 +85,7 @@ export function serializeActionCallArgument(targetRoot: object, argValue: any): 
     argValue = toJS(argValue, { exportMapsAsObjects: false, detectCycles: false })
   }
 
-  const serialize = serializeActionCallArgument.bind(undefined, targetRoot)
+  const serialize = (v: any) => serializeActionCallArgument(v, targetRoot)
 
   if (Array.isArray(argValue)) {
     return argValue.map(serialize)
@@ -140,13 +140,15 @@ export function serializeActionCallArgument(targetRoot: object, argValue: any): 
  * serializable version by using `serializeActionCallArgument`.
  *
  * @param actionCall Action call to convert.
- * @param targetRoot Target root node of the model where this action is being performed.
+ * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The serializable action call.
  */
-export function serializeActionCall(targetRoot: object, actionCall: ActionCall): ActionCall {
-  assertTweakedObject(targetRoot, "targetRoot")
+export function serializeActionCall(actionCall: ActionCall, targetRoot?: object): ActionCall {
+  if (targetRoot !== undefined) {
+    assertTweakedObject(targetRoot, "targetRoot")
+  }
 
-  const serialize = serializeActionCallArgument.bind(undefined, targetRoot)
+  const serialize = (v: any) => serializeActionCallArgument(v, targetRoot)
 
   return {
     ...actionCall,
@@ -164,11 +166,11 @@ export function serializeActionCall(targetRoot: object, actionCall: ActionCall):
  * - `SerializedSet` back to `Set` objects.
  * - Everything else will be kept as is.
  *
- * @param targetRoot Target root node of the model where this action is being performed.
  * @param argValue Argument value to be transformed into its deserialized form.
+ * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The deserialized form of the passed value.
  */
-export function deserializeActionCallArgument(targetRoot: object, argValue: any): any {
+export function deserializeActionCallArgument(argValue: any, targetRoot?: object): any {
   if (isPrimitive(argValue)) {
     return argValue
   }
@@ -177,7 +179,7 @@ export function deserializeActionCallArgument(targetRoot: object, argValue: any)
     return fromSnapshot(argValue)
   }
 
-  const deserialize = deserializeActionCallArgument.bind(undefined, targetRoot)
+  const deserialize = (v: any) => deserializeActionCallArgument(v, targetRoot)
 
   if (Array.isArray(argValue)) {
     return argValue.map(deserialize)
@@ -224,20 +226,22 @@ export function deserializeActionCallArgument(targetRoot: object, argValue: any)
 
         case serializedPathRef: {
           // try to resolve the node back
-          const { resolved, value } = resolvePathCheckingIds(
-            targetRoot,
-            serialized.targetPath,
-            serialized.targetPathIds
-          )
-          if (!resolved) {
-            throw failure(
-              `object at path ${JSON.stringify(serialized.targetPath)} with ids ${JSON.stringify(
-                serialized.targetPathIds
-              )} could not be resolved`
+          if (targetRoot) {
+            const result = resolvePathCheckingIds(
+              targetRoot,
+              serialized.targetPath,
+              serialized.targetPathIds
             )
+            if (result.resolved) {
+              return result.value
+            }
           }
 
-          return value
+          throw failure(
+            `object at path ${JSON.stringify(serialized.targetPath)} with ids ${JSON.stringify(
+              serialized.targetPathIds
+            )} could not be resolved`
+          )
         }
 
         default:
@@ -255,14 +259,16 @@ export function deserializeActionCallArgument(targetRoot: object, argValue: any)
  * Ensures that an action call is deserialized by mapping the action arguments into its
  * deserialized version by using `deserializeActionCallArgument`.
  *
- * @param targetRoot Target root node of the model where this action is being performed.
  * @param actionCall Action call to convert.
+ * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The deserialized action call.
  */
-export function deserializeActionCall(targetRoot: object, actionCall: ActionCall): ActionCall {
-  assertTweakedObject(targetRoot, "targetRoot")
+export function deserializeActionCall(actionCall: ActionCall, targetRoot?: object): ActionCall {
+  if (targetRoot !== undefined) {
+    assertTweakedObject(targetRoot, "targetRoot")
+  }
 
-  const deserialize = deserializeActionCallArgument.bind(undefined, targetRoot)
+  const deserialize = (v: any) => deserializeActionCallArgument(v, targetRoot)
   return {
     ...actionCall,
     args: actionCall.args.map(deserialize),

@@ -21,66 +21,57 @@ import {
 import "../commonSetup"
 
 test("serializeActionCallArgument and deserializeActionCallArgument", () => {
-  @model("SACM")
-  class SACM extends Model({
-    child: prop<SACM | undefined>(),
-  }) {}
-
-  const r1 = new SACM({
-    child: new SACM({}),
-  })
-
   // unserializable args
   class RandomClass {}
   const rc = new RandomClass()
 
-  expect(() => serializeActionCallArgument(r1, rc)).toThrow(
+  expect(() => serializeActionCallArgument(rc)).toThrow(
     "serializeActionCallArgument could not serialize the given value"
   )
 
   // primitive
-  expect(serializeActionCallArgument(r1, 42)).toBe(42)
-  expect(deserializeActionCallArgument(r1, 42)).toBe(42)
+  expect(serializeActionCallArgument(42)).toBe(42)
+  expect(deserializeActionCallArgument(42)).toBe(42)
 
   // date
   const serDate = { $mobxKeystoneSerialized: "dateAsTimestamp", timestamp: 1000 } as SerializedDate
-  expect(serializeActionCallArgument(r1, new Date(1000))).toEqual(serDate)
-  expect(deserializeActionCallArgument(r1, serDate)).toEqual(new Date(1000))
+  expect(serializeActionCallArgument(new Date(1000))).toEqual(serDate)
+  expect(deserializeActionCallArgument(serDate)).toEqual(new Date(1000))
 
   // plain obj
   const obj = { x: 10 }
 
-  expect(serializeActionCallArgument(r1, obj)).toEqual(obj)
-  expect(deserializeActionCallArgument(r1, obj)).toEqual(obj)
+  expect(serializeActionCallArgument(obj)).toEqual(obj)
+  expect(deserializeActionCallArgument(obj)).toEqual(obj)
 
   // observable obj
   const obsObj = observable(obj)
 
-  expect(serializeActionCallArgument(r1, obsObj)).toEqual(obj)
-  expect(isObservable(serializeActionCallArgument(r1, obsObj))).toBe(false)
+  expect(serializeActionCallArgument(obsObj)).toEqual(obj)
+  expect(isObservable(serializeActionCallArgument(obsObj))).toBe(false)
 
   // array
   const arr = [{ x: 10 }, 20]
 
-  expect(serializeActionCallArgument(r1, arr)).toEqual(arr)
-  expect(deserializeActionCallArgument(r1, arr)).toEqual(arr)
+  expect(serializeActionCallArgument(arr)).toEqual(arr)
+  expect(deserializeActionCallArgument(arr)).toEqual(arr)
 
   // observable array
   const obsArr = observable(arr)
 
-  expect(serializeActionCallArgument(r1, obsArr)).toEqual(arr)
-  expect(isObservable(serializeActionCallArgument(r1, obsArr))).toBe(false)
-  expect(isObservable(serializeActionCallArgument(r1, obsArr)[0])).toBe(false)
+  expect(serializeActionCallArgument(obsArr)).toEqual(arr)
+  expect(isObservable(serializeActionCallArgument(obsArr))).toBe(false)
+  expect(isObservable(serializeActionCallArgument(obsArr)[0])).toBe(false)
 
   // map
   const mapKV: [any, any][] = [["x", 10], ["y", { z: 20 }]]
   const map = new Map<any, any>(mapKV)
 
-  expect(serializeActionCallArgument(r1, map)).toEqual({
+  expect(serializeActionCallArgument(map)).toEqual({
     $mobxKeystoneSerialized: "mapAsArray",
     items: mapKV,
   } as SerializedMap)
-  const mapBack = deserializeActionCallArgument(r1, {
+  const mapBack = deserializeActionCallArgument({
     $mobxKeystoneSerialized: "mapAsArray",
     items: mapKV,
   } as SerializedMap)
@@ -91,11 +82,11 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   const setK: any[] = ["x", { z: 20 }]
   const set = new Set<any>(setK)
 
-  expect(serializeActionCallArgument(r1, set)).toEqual({
+  expect(serializeActionCallArgument(set)).toEqual({
     $mobxKeystoneSerialized: "setAsArray",
     items: setK,
   } as SerializedSet)
-  const setBack = deserializeActionCallArgument(r1, {
+  const setBack = deserializeActionCallArgument({
     $mobxKeystoneSerialized: "setAsArray",
     items: setK,
   } as SerializedSet)
@@ -103,18 +94,26 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   expect(Array.from(setBack.keys())).toEqual(setK)
 
   // model without shared root ref
+  @model("SACM")
+  class SACM extends Model({
+    child: prop<SACM | undefined>(),
+  }) {}
+
+  const r1 = new SACM({
+    child: new SACM({}),
+  })
 
   const r2 = new SACM({
     child: new SACM({}),
   })
 
   {
-    expect(serializeActionCallArgument(r1, r2)).toBe(getSnapshot(r2))
+    expect(serializeActionCallArgument(r2, r1)).toBe(getSnapshot(r2))
 
-    const serializedR2Child = serializeActionCallArgument(r1, r2.child)
+    const serializedR2Child = serializeActionCallArgument(r2.child, r1)
     expect(serializedR2Child).toBe(getSnapshot(r2.child))
 
-    const deserializedR2Child = deserializeActionCallArgument(r1, serializedR2Child)
+    const deserializedR2Child = deserializeActionCallArgument(serializedR2Child, r1)
     expect(deserializedR2Child instanceof SACM).toBe(true)
     expect(deserializedR2Child).not.toBe(r2.child)
     expect(getSnapshot(deserializedR2Child)).toEqual(getSnapshot(r2.child))
@@ -122,14 +121,14 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
 
   // child model with shared root ref
   {
-    const serializedR2Child = serializeActionCallArgument(r2, r2.child)
+    const serializedR2Child = serializeActionCallArgument(r2.child, r2)
     expect(serializedR2Child).toEqual({
       $mobxKeystoneSerialized: "pathRef",
       targetPath: ["child"],
       targetPathIds: [r2.child!.$modelId],
     } as SerializedPathRef)
 
-    const deserializedR2Child = deserializeActionCallArgument(r2, serializedR2Child)
+    const deserializedR2Child = deserializeActionCallArgument(serializedR2Child, r2)
     expect(deserializedR2Child).toBe(r2.child)
   }
 
@@ -142,7 +141,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
       targetPathIds: [],
     } as SerializedPathRef)
 
-    const deserializedR2Child = deserializeActionCallArgument(r2, serializedR2Child)
+    const deserializedR2Child = deserializeActionCallArgument(serializedR2Child, r2)
     expect(deserializedR2Child).toBe(r2)
   }
 })
@@ -206,7 +205,7 @@ describe("concurrency", () => {
     onActionMiddleware(todoList, {
       onStart(actionCall) {
         if (capturing) {
-          captured.push(serializeActionCall(todoList, actionCall))
+          captured.push(serializeActionCall(actionCall, todoList))
           return {
             result: ActionTrackingResult.Return,
             value: undefined,
@@ -219,7 +218,7 @@ describe("concurrency", () => {
 
   function replicate(actionCall: ActionCall) {
     capturing = false
-    const ac = deserializeActionCall(todoList, actionCall)
+    const ac = deserializeActionCall(actionCall, todoList)
     applyAction(todoList, ac)
   }
 

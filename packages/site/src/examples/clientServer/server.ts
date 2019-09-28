@@ -24,7 +24,7 @@ class Server {
       // so we try / catch it
       let applyActionSucceeded = false
       try {
-        const deserializedActionCall = deserializeActionCall(this.serverRootStore, actionCall)
+        const deserializedActionCall = deserializeActionCall(actionCall, this.serverRootStore)
         applyAction(this.serverRootStore, deserializedActionCall)
         applyActionSucceeded = true
       } catch (err) {
