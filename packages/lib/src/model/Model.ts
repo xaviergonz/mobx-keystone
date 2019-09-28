@@ -16,18 +16,31 @@ import {
   modelInitializersSymbol,
   modelPropertiesSymbol,
 } from "./modelSymbols"
-import { ModelProps, ModelPropsToData, noTypeChecker, OptionalModelProps } from "./prop"
+import {
+  ModelProps,
+  ModelPropsToCreationData,
+  ModelPropsToData,
+  noTypeChecker,
+  OptionalModelProps,
+} from "./prop"
 import { assertIsModelClass } from "./utils"
 
 declare const propsDataSymbol: unique symbol
+declare const creationPropsDataSymbol: unique symbol
 declare const optPropsDataSymbol: unique symbol
 declare const creationDataSymbol: unique symbol
 declare const composedCreationDataSymbol: unique symbol
 
 export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToData<TProps>
+  [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
+
   [optPropsDataSymbol]: OptionalModelProps<TProps>
-  [creationDataSymbol]: O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
+
+  [creationDataSymbol]: O.Optional<
+    this[typeof creationPropsDataSymbol],
+    this[typeof optPropsDataSymbol]
+  >
 
   [composedCreationDataSymbol]: O.Merge<
     SuperModel extends BaseModel<any, infer CD> ? CD : unknown,
@@ -41,8 +54,14 @@ export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends Mode
 
 export interface _Model<TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToData<TProps>
+  [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
+
   [optPropsDataSymbol]: OptionalModelProps<TProps>
-  [creationDataSymbol]: O.Optional<this[typeof propsDataSymbol], this[typeof optPropsDataSymbol]>
+
+  [creationDataSymbol]: O.Optional<
+    this[typeof creationPropsDataSymbol],
+    this[typeof optPropsDataSymbol]
+  >
 
   new (data: this[typeof creationDataSymbol]): BaseModel<
     this[typeof propsDataSymbol],
