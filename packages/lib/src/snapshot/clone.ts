@@ -13,5 +13,5 @@ export function clone<T extends object>(node: T): T {
   assertTweakedObject(node, "node")
 
   const sn = getSnapshot(node)
-  return fromSnapshot(sn as any)
+  return fromSnapshot(sn)
 }

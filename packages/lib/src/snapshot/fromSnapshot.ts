@@ -89,7 +89,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>): AnyModel {
 }
 
 function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
-  const initialData = observable.object({} as any, undefined, observableOptions)
+  const initialData = observable.object({}, undefined, observableOptions)
 
   const processedSnKeys = Object.keys(processedSn)
   const processedSnKeysLen = processedSnKeys.length
@@ -104,7 +104,7 @@ function snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any {
 }
 
 function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>): object {
-  const plainObj = observable.object({} as any, undefined, observableOptions)
+  const plainObj = observable.object({}, undefined, observableOptions)
 
   const snKeys = Object.keys(sn)
   const snKeysLen = snKeys.length

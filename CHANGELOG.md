@@ -3,6 +3,7 @@
 ## 0.23.0
 
 - [BREAKING CHANGE] Default values for properties will now also apply when the initial data is `null`.
+- Improved a bit the typing for `fromSnapshot` model methods.
 
 ## 0.22.0
 
