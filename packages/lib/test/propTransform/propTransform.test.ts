@@ -4,6 +4,7 @@ import {
   applyAction,
   model,
   Model,
+  modelAction,
   onActionMiddleware,
   prop,
   stringAsDate,
@@ -19,6 +20,11 @@ test("timestampAsDate", () => {
   }) {
     @timestampAsDate("timestamp")
     date!: Date
+
+    @modelAction
+    setDate(date: Date) {
+      this.date = date
+    }
   }
 
   const now = 0
@@ -61,39 +67,39 @@ test("timestampAsDate", () => {
 
   const now2 = 1569524561993
   const dateNow2 = new Date(now2)
-  m.date = dateNow2
+  m.setDate(dateNow2)
   expect(m.date).toEqual(dateNow2)
   expect(m.timestamp).toBe(now2)
 
   expect(actionCalls).toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "actionName": "$propTransformSet-date",
-            "args": Array [
-              1569524561993,
-            ],
-            "targetPath": Array [],
-          },
-          Object {
-            "actionName": "$propTransformSet-date",
-            "args": Array [
-              1569524561993,
-            ],
-            "targetPath": Array [],
-          },
-        ]
-    `)
+    Array [
+      Object {
+        "actionName": "setDate",
+        "args": Array [
+          2019-09-26T19:02:41.993Z,
+        ],
+        "targetPath": Array [],
+      },
+      Object {
+        "actionName": "setDate",
+        "args": Array [
+          2019-09-26T19:02:41.993Z,
+        ],
+        "targetPath": Array [],
+      },
+    ]
+  `)
 
   expect(reactions).toMatchInlineSnapshot(`
-                Array [
-                  2019-09-26T19:02:41.993Z,
-                ]
-        `)
+                    Array [
+                      2019-09-26T19:02:41.993Z,
+                    ]
+          `)
 
   // apply action should work
   applyAction(m, {
-    actionName: "$propTransformSet-date",
-    args: [now],
+    actionName: "setDate",
+    args: [dateNow],
     targetPath: [],
   })
 
@@ -108,6 +114,11 @@ test("stringAsDate", () => {
   }) {
     @stringAsDate("time")
     date!: Date
+
+    @modelAction
+    setDate(date: Date) {
+      this.date = date
+    }
   }
 
   const dateNow = new Date(0)
@@ -148,23 +159,23 @@ test("stringAsDate", () => {
   )
 
   const dateNow2 = new Date(1569524561993)
-  m.date = dateNow2
+  m.setDate(dateNow2)
   expect(m.date).toEqual(dateNow2)
   expect(m.time).toBe(dateNow2.toJSON())
 
   expect(actionCalls).toMatchInlineSnapshot(`
     Array [
       Object {
-        "actionName": "$propTransformSet-date",
+        "actionName": "setDate",
         "args": Array [
-          "2019-09-26T19:02:41.993Z",
+          2019-09-26T19:02:41.993Z,
         ],
         "targetPath": Array [],
       },
       Object {
-        "actionName": "$propTransformSet-date",
+        "actionName": "setDate",
         "args": Array [
-          "2019-09-26T19:02:41.993Z",
+          2019-09-26T19:02:41.993Z,
         ],
         "targetPath": Array [],
       },
@@ -172,15 +183,15 @@ test("stringAsDate", () => {
   `)
 
   expect(reactions).toMatchInlineSnapshot(`
-                Array [
-                  2019-09-26T19:02:41.993Z,
-                ]
-        `)
+                    Array [
+                      2019-09-26T19:02:41.993Z,
+                    ]
+          `)
 
   // apply action should work
   applyAction(m, {
-    actionName: "$propTransformSet-date",
-    args: [dateNow.toJSON()],
+    actionName: "setDate",
+    args: [dateNow],
     targetPath: [],
   })
 

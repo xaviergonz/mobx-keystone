@@ -367,7 +367,7 @@ test("types", () => {
   assert(
     _ as SnapshotInOf<P2>,
     _ as ({
-      y?: number
+      y?: number | null
     } & {
       [modelTypeKey]: string
     })
@@ -385,8 +385,8 @@ test("types", () => {
   assert(
     _ as SnapshotInOf<P>,
     _ as ({
-      x?: number
-      arr?: number[]
+      x?: number | null
+      arr?: number[] | null
       p2?: SnapshotInOf<P2>
     } & {
       [modelTypeKey]: string

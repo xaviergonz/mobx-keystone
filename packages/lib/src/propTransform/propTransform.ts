@@ -1,7 +1,4 @@
 import { computed, IComputedValue } from "mobx"
-import { ActionContextActionType } from "../action/context"
-import { wrapInAction } from "../action/wrapInAction"
-import { addHiddenProp } from "../utils"
 
 /**
  * A prop transform.
@@ -54,6 +51,7 @@ export type PropTransformDecorator<TProp> = <PK extends string>(
  * }
  *
  * const date: Date = myModel.date
+ * // inside some model action
  * myModel.date = new Date()
  * ```
  *
@@ -67,19 +65,6 @@ export function propTransform<TProp, TData>(
 ): PropTransformDecorator<TProp> {
   const parametrizedDecorator: PropTransformDecorator<TProp> = boundPropName => {
     const decorator = (target: object, propertyKey: string) => {
-      // hidden model action for the setter
-      const setterName = `$propTransformSet-${propertyKey}`
-
-      function hiddenSetter(this: any, value: any) {
-        this.$[boundPropName] = value
-      }
-      const hiddenSetterAction = wrapInAction(
-        setterName,
-        hiddenSetter,
-        ActionContextActionType.Sync
-      )
-      addHiddenProp(target, setterName, hiddenSetterAction)
-
       // hidden computed getter
       let computedFn: IComputedValue<TData>
 
@@ -94,7 +79,7 @@ export function propTransform<TProp, TData>(
           return computedFn.get()
         },
         set(this: any, value: any) {
-          this[setterName](transform.dataToProp(value))
+          this.$[boundPropName] = transform.dataToProp(value)
           return true
         },
       })

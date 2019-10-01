@@ -10,7 +10,7 @@ let map!: Map<string, number>
 
 beforeEach(() => {
   arr = observable([["2", 2], ["3", 3], ["5", 5]])
-  map = arrayAsMap<number>(() => arr)
+  map = arrayAsMap<string, number>(() => arr)
 })
 
 function expectMapValues(valsN: number[]) {

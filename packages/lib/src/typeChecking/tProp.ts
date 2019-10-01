@@ -1,7 +1,7 @@
-import { ModelProp } from "../model/prop"
+import { ModelProp, noDefaultValue } from "../model/prop"
 import { IsOptionalValue } from "../utils/types"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
-import { AnyType, TypeToData, TypeToDataOpt } from "./schemas"
+import { AnyType, TypeToData } from "./schemas"
 
 /**
  * Defines a string model property with a default value.
@@ -15,7 +15,7 @@ import { AnyType, TypeToData, TypeToDataOpt } from "./schemas"
  * @param defaultValue Default value.
  * @returns
  */
-export function tProp(defaultValue: string): ModelProp<string, string>
+export function tProp(defaultValue: string): ModelProp<string, string | null | undefined, string>
 
 /**
  * Defines a number model property with a default value.
@@ -29,7 +29,7 @@ export function tProp(defaultValue: string): ModelProp<string, string>
  * @param defaultValue Default value.
  * @returns
  */
-export function tProp(defaultValue: number): ModelProp<number, string>
+export function tProp(defaultValue: number): ModelProp<number, number | null | undefined, string>
 
 /**
  * Defines a boolean model property with a default value.
@@ -43,7 +43,7 @@ export function tProp(defaultValue: number): ModelProp<number, string>
  * @param defaultValue Default value.
  * @returns
  */
-export function tProp(defaultValue: boolean): ModelProp<boolean, string>
+export function tProp(defaultValue: boolean): ModelProp<boolean, boolean | null | undefined, string>
 
 /**
  * Defines a model property with no default value and an associated type checker.
@@ -61,11 +61,15 @@ export function tProp(defaultValue: boolean): ModelProp<boolean, string>
  */
 export function tProp<TType extends AnyType>(
   type: TType
-): ModelProp<TypeToData<TType>, IsOptionalValue<TypeToDataOpt<TType>, string, never>>
+): ModelProp<
+  TypeToData<TType>,
+  TypeToData<TType>,
+  IsOptionalValue<TypeToData<TType>, string, never>
+>
 
 /**
  * Defines a model property, with an optional function to generate a default value
- * if not present and an associated type checker.
+ * if the input snapshot / model creation data is `null` or `undefined` and with an associated type checker.
  *
  * Example:
  * ```ts
@@ -82,11 +86,11 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultFn: () => TypeToData<TType>
-): ModelProp<TypeToData<TType>, string>
+): ModelProp<TypeToData<TType>, TypeToData<TType> | null | undefined, string>
 
 /**
  * Defines a model property, with an optional default value
- * if not present and an associated type checker.
+ * if the input snapshot / model creation data is `null` or `undefined` and with an associated type checker.
  * You should only use this with primitive values and never with object values
  * (array, model, object, etc).
  *
@@ -104,9 +108,9 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultValue: TypeToData<TType>
-): ModelProp<TypeToData<TType>, string>
+): ModelProp<TypeToData<TType>, TypeToData<TType> | null | undefined, string>
 
-export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any> {
+export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any, any> {
   switch (typeof typeOrDefaultValue) {
     case "string":
       return tProp(typesString, typeOrDefaultValue)
@@ -116,12 +120,14 @@ export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any> {
       return tProp(typesBoolean, typeOrDefaultValue)
   }
 
+  const hasDefaultValue = arguments.length > 1
   const isDefFn = typeof def === "function"
   return {
     $valueType: null as any,
-    $hasDefault: null as any,
-    defaultFn: isDefFn ? def : undefined,
-    defaultValue: isDefFn ? undefined : def,
+    $creationValueType: null as any,
+    $isOptional: null as any,
+    defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
+    defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
     typeChecker: typeOrDefaultValue,
   }
 }

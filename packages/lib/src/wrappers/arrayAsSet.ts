@@ -1,4 +1,86 @@
-import { values } from "mobx"
+import { action, values } from "mobx"
+
+class ArrayAsSet<V> implements Set<V> {
+  constructor(private readonly getTarget: () => V[]) {}
+
+  @action
+  add(value: V): this {
+    const items = this.getTarget()
+
+    if (!items.includes(value)) {
+      items.push(value)
+    }
+
+    return this
+  }
+
+  @action
+  clear(): void {
+    const items = this.getTarget()
+
+    items.length = 0
+  }
+
+  @action
+  delete(value: V): boolean {
+    const items = this.getTarget()
+
+    const index = items.findIndex(t => t === value)
+    if (index >= 0) {
+      items.splice(index, 1)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg?: any): void {
+    const items = this.getTarget()
+
+    const len = items.length
+    for (let i = 0; i < len; i++) {
+      const t = items[i]
+      callbackfn.call(thisArg, t, t, this)
+    }
+  }
+
+  has(value: V): boolean {
+    const items = this.getTarget()
+
+    return items.includes(value)
+  }
+
+  get size(): number {
+    const items = this.getTarget()
+
+    return items.length
+  }
+
+  keys(): IterableIterator<V> {
+    return this.values() // yes, values
+  }
+
+  values(): IterableIterator<V> {
+    const items = this.getTarget()
+
+    return values(items)[Symbol.iterator]() as IterableIterator<V>
+  }
+
+  entries(): IterableIterator<[V, V]> {
+    const items = this.getTarget()
+
+    // TODO: should use an actual iterator
+    return items.map(v => [v, v] as [V, V]).values()
+  }
+
+  [Symbol.iterator](): IterableIterator<V> {
+    return this.values()
+  }
+
+  get [Symbol.toStringTag](): string {
+    return "Set"
+  }
+}
 
 /**
  * Returns a wrapper that wraps an observable array `V[]`
@@ -9,82 +91,5 @@ import { values } from "mobx"
  * @returns
  */
 export function arrayAsSet<V>(getTarget: () => V[]): Set<V> {
-  const set: Set<V> = {
-    add(value) {
-      const items = getTarget()
-
-      if (!items.includes(value)) {
-        items.push(value)
-      }
-
-      return set
-    },
-
-    clear() {
-      const items = getTarget()
-
-      items.length = 0
-    },
-
-    delete(value) {
-      const items = getTarget()
-
-      const index = items.findIndex(t => t === value)
-      if (index >= 0) {
-        items.splice(index, 1)
-        return true
-      } else {
-        return false
-      }
-    },
-
-    forEach(callbackfn, thisArg) {
-      const items = getTarget()
-
-      const len = items.length
-      for (let i = 0; i < len; i++) {
-        const t = items[i]
-        callbackfn.call(thisArg, t, t, set)
-      }
-    },
-
-    has(value) {
-      const items = getTarget()
-
-      return items.includes(value)
-    },
-
-    get size() {
-      const items = getTarget()
-
-      return items.length
-    },
-
-    keys() {
-      return set.values() // yes, values
-    },
-
-    values() {
-      const items = getTarget()
-
-      return values(items)[Symbol.iterator]() as IterableIterator<V>
-    },
-
-    entries() {
-      const items = getTarget()
-
-      // TODO: should use an actual iterator
-      return items.map(v => [v, v] as [V, V]).values()
-    },
-
-    [Symbol.iterator]() {
-      return set.values()
-    },
-
-    get [Symbol.toStringTag]() {
-      return "Set"
-    },
-  }
-
-  return set
+  return new ArrayAsSet(getTarget)
 }
