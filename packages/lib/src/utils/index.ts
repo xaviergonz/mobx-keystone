@@ -7,6 +7,7 @@ import {
   ObservableSet,
 } from "mobx"
 import nanoid from "nanoid/non-secure"
+import { PrimitiveValue } from "./types"
 
 /**
  * @ignore
@@ -93,7 +94,7 @@ export function isObject(value: any): value is Object {
 /**
  * @ignore
  */
-export function isPrimitive(value: any): value is number | string | boolean | undefined | null {
+export function isPrimitive(value: any): value is PrimitiveValue {
   switch (typeof value) {
     case "number":
     case "string":

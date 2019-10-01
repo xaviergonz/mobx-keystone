@@ -5,7 +5,7 @@ import { O } from "ts-toolbelt"
  *
  * A primitive value.
  */
-export type PrimitiveValue = undefined | null | boolean | number | string
+export type PrimitiveValue = undefined | null | boolean | number | string | bigint
 
 /**
  * @ignore

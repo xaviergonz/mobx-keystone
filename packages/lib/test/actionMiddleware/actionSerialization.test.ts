@@ -13,10 +13,7 @@ import {
   prop,
   serializeActionCall,
   serializeActionCallArgument,
-  SerializedDate,
-  SerializedMap,
-  SerializedPathRef,
-  SerializedSet,
+  SerializedActionCallArgument,
 } from "../../src"
 import "../commonSetup"
 
@@ -30,66 +27,76 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   )
 
   // primitive
-  expect(serializeActionCallArgument(42)).toBe(42)
-  expect(deserializeActionCallArgument(42)).toBe(42)
+  const serPrim = 42
+  expect(serializeActionCallArgument(42)).toEqual(serPrim)
+  expect(deserializeActionCallArgument(serPrim)).toBe(42)
 
   // date
-  const serDate = { $mobxKeystoneSerialized: "dateAsTimestamp", timestamp: 1000 } as SerializedDate
+  const serDate = { $mobxKeystoneSerializer: "mobx-keystone/dateAsTimestamp", value: 1000 }
   expect(serializeActionCallArgument(new Date(1000))).toEqual(serDate)
   expect(deserializeActionCallArgument(serDate)).toEqual(new Date(1000))
 
   // plain obj
   const obj = { x: 10 }
+  const serObj = {
+    $mobxKeystoneSerializer: "mobx-keystone/plainObject",
+    value: {
+      x: 10,
+    },
+  }
 
-  expect(serializeActionCallArgument(obj)).toEqual(obj)
-  expect(deserializeActionCallArgument(obj)).toEqual(obj)
+  expect(serializeActionCallArgument(obj)).toEqual(serObj)
+  expect(deserializeActionCallArgument(serObj)).toEqual(obj)
 
   // observable obj
   const obsObj = observable(obj)
+  const serObsObj = serObj
 
-  expect(serializeActionCallArgument(obsObj)).toEqual(obj)
+  expect(serializeActionCallArgument(obsObj)).toEqual(serObsObj)
   expect(isObservable(serializeActionCallArgument(obsObj))).toBe(false)
 
   // array
-  const arr = [{ x: 10 }, 20]
+  const arr = [obj, 20]
+  const serArr = {
+    $mobxKeystoneSerializer: "mobx-keystone/array",
+    value: [serObj, 20],
+  }
 
-  expect(serializeActionCallArgument(arr)).toEqual(arr)
-  expect(deserializeActionCallArgument(arr)).toEqual(arr)
+  expect(serializeActionCallArgument(arr)).toEqual(serArr)
+  expect(deserializeActionCallArgument(serArr)).toEqual(arr)
 
   // observable array
   const obsArr = observable(arr)
+  const serObsArr = serArr
 
-  expect(serializeActionCallArgument(obsArr)).toEqual(arr)
-  expect(isObservable(serializeActionCallArgument(obsArr))).toBe(false)
-  expect(isObservable(serializeActionCallArgument(obsArr)[0])).toBe(false)
+  expect(serializeActionCallArgument(obsArr)).toEqual(serObsArr)
+  const serializedObsArr = serializeActionCallArgument(obsArr)
+  expect(isObservable(serializedObsArr)).toBe(false)
+  expect(isObservable((serializedObsArr as SerializedActionCallArgument).value[0])).toBe(false)
 
   // map
   const mapKV: [any, any][] = [["x", 10], ["y", { z: 20 }]]
   const map = new Map<any, any>(mapKV)
+  const serMap = {
+    $mobxKeystoneSerializer: "mobx-keystone/mapAsArray",
+    value: [["x", 10], ["y", serializeActionCallArgument({ z: 20 })]],
+  }
 
-  expect(serializeActionCallArgument(map)).toEqual({
-    $mobxKeystoneSerialized: "mapAsArray",
-    items: mapKV,
-  } as SerializedMap)
-  const mapBack = deserializeActionCallArgument({
-    $mobxKeystoneSerialized: "mapAsArray",
-    items: mapKV,
-  } as SerializedMap)
+  expect(serializeActionCallArgument(map)).toEqual(serMap)
+  const mapBack = deserializeActionCallArgument(serMap)
   expect(mapBack instanceof Map).toBe(true)
   expect(Array.from(mapBack.entries())).toEqual(mapKV)
 
   // set
   const setK: any[] = ["x", { z: 20 }]
   const set = new Set<any>(setK)
+  const serSet = {
+    $mobxKeystoneSerializer: "mobx-keystone/setAsArray",
+    value: ["x", serializeActionCallArgument({ z: 20 })],
+  }
 
-  expect(serializeActionCallArgument(set)).toEqual({
-    $mobxKeystoneSerialized: "setAsArray",
-    items: setK,
-  } as SerializedSet)
-  const setBack = deserializeActionCallArgument({
-    $mobxKeystoneSerialized: "setAsArray",
-    items: setK,
-  } as SerializedSet)
+  expect(serializeActionCallArgument(set)).toEqual(serSet)
+  const setBack = deserializeActionCallArgument(serSet)
   expect(setBack instanceof Set).toBe(true)
   expect(Array.from(setBack.keys())).toEqual(setK)
 
@@ -108,10 +115,16 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   })
 
   {
-    expect(serializeActionCallArgument(r2, r1)).toBe(getSnapshot(r2))
+    expect(serializeActionCallArgument(r2, r1)).toEqual({
+      $mobxKeystoneSerializer: "mobx-keystone/objectSnapshot",
+      value: getSnapshot(r2),
+    })
 
-    const serializedR2Child = serializeActionCallArgument(r2.child, r1)
-    expect(serializedR2Child).toBe(getSnapshot(r2.child))
+    const serializedR2Child = serializeActionCallArgument(
+      r2.child,
+      r1
+    ) as SerializedActionCallArgument
+    expect(serializedR2Child.value).toBe(getSnapshot(r2.child))
 
     const deserializedR2Child = deserializeActionCallArgument(serializedR2Child, r1)
     expect(deserializedR2Child instanceof SACM).toBe(true)
@@ -123,10 +136,12 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   {
     const serializedR2Child = serializeActionCallArgument(r2.child, r2)
     expect(serializedR2Child).toEqual({
-      $mobxKeystoneSerialized: "pathRef",
-      targetPath: ["child"],
-      targetPathIds: [r2.child!.$modelId],
-    } as SerializedPathRef)
+      $mobxKeystoneSerializer: "mobx-keystone/objectPath",
+      value: {
+        targetPath: ["child"],
+        targetPathIds: [r2.child!.$modelId],
+      },
+    })
 
     const deserializedR2Child = deserializeActionCallArgument(serializedR2Child, r2)
     expect(deserializedR2Child).toBe(r2.child)
@@ -136,10 +151,12 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   {
     const serializedR2Child = serializeActionCallArgument(r2, r2)
     expect(serializedR2Child).toEqual({
-      $mobxKeystoneSerialized: "pathRef",
-      targetPath: [],
-      targetPathIds: [],
-    } as SerializedPathRef)
+      $mobxKeystoneSerializer: "mobx-keystone/objectPath",
+      value: {
+        targetPath: [],
+        targetPathIds: [],
+      },
+    })
 
     const deserializedR2Child = deserializeActionCallArgument(serializedR2Child, r2)
     expect(deserializedR2Child).toBe(r2)

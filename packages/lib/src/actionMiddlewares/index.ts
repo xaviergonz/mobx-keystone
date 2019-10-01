@@ -1,13 +1,12 @@
 export {
   deserializeActionCall,
   deserializeActionCallArgument,
+  registerActionCallArgumentSerializer,
   serializeActionCall,
   serializeActionCallArgument,
-  SerializedDate,
-  SerializedMap,
-  SerializedPathRef,
-  SerializedSet,
-} from "./actionSerialization"
+  SerializedActionCallArgument,
+} from "./actionSerialization/actionSerialization"
+export { ActionCallArgumentSerializer } from "./actionSerialization/core"
 export {
   ActionTrackingMiddleware,
   actionTrackingMiddleware,
