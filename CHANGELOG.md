@@ -9,6 +9,7 @@
 - Added `pathObjects` to `getRootPath`.
 - Improved a bit the typing for `fromSnapshot` model methods.
 - Improved action argument serialization so it supports dates, maps, sets, arrays of models, etc.
+- `arrayAsMap` now supports arbitrary key types.
 
 ## 0.22.0
 
