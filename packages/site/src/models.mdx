@@ -134,6 +134,16 @@ myTodo1.$modelId // "Td244..."
 
 These properties will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
 
+Note that while `$modelId` is usually auto-generated, you can override this behaviour when creating the object by specifying a `modelId` property:
+
+```ts
+const myTodo = new Todo({
+  [modelId]: "my custom id",
+})
+```
+
+Just make sure that ID is unique for every model object (no matter its type).
+
 ## Getting the Typescript types for model data and model ceation data
 
 You can give the types of both the model creation data (the object that gets passed to new as parameter) and the model data (the type of the model data once instantiated) by using `ModelCreationData<Model>` and `ModelData<Model>`.

@@ -9,6 +9,11 @@ export const modelTypeKey = "$modelType"
 export const modelIdKey = "$modelId"
 
 /**
+ * Symbol to be able to override model ID when using new.
+ */
+export const modelId = Symbol("$modelId")
+
+/**
  * Returns if a given key is a reserved key in model snapshots.
  *
  * @param key

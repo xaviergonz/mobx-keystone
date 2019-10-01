@@ -5,7 +5,7 @@ import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject, generateId } from "../utils"
-import { modelIdKey, modelTypeKey } from "./metadata"
+import { modelId, modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
@@ -99,7 +99,7 @@ export abstract class BaseModel<
   /**
    * Creates an instance of Model.
    */
-  constructor(data: CreationData) {
+  constructor(data: CreationData & { [modelId]?: string }) {
     const initialData: any = data
     const snapshotInitialData: any = arguments[1]
     const clazz: ModelClass<AnyModel> = arguments[2]
@@ -145,7 +145,9 @@ export type AnyModel = BaseModel<any, any>
 /**
  * Type of a model class.
  */
-export type ModelClass<M extends AnyModel> = new (initialData: ModelCreationData<M>) => M
+export type ModelClass<M extends AnyModel> = new (
+  initialData: ModelCreationData<M> & { [modelId]?: string }
+) => M
 
 /**
  * Type of an abstract model class.

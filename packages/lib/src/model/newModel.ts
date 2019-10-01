@@ -1,4 +1,4 @@
-import { action, set } from "mobx"
+import { action, remove, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { tweakModel } from "../tweaker/tweakModel"
@@ -6,7 +6,7 @@ import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, generateId, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
-import { modelIdKey, modelTypeKey } from "./metadata"
+import { modelId, modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 import { modelInitializersSymbol, modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps, noDefaultValue } from "./prop"
@@ -20,7 +20,7 @@ export const internalNewModel = action(
   <M extends AnyModel>(
     origModelObj: M,
     modelClass: ModelClass<M>,
-    initialData: ModelCreationData<M> | undefined,
+    initialData: (ModelCreationData<M> & { [modelId]?: string }) | undefined,
     snapshotInitialData:
       | {
           unprocessedSnapshot: any
@@ -54,13 +54,16 @@ export const internalNewModel = action(
 
       initialData = snapshotInitialData.snapshotToInitialData(sn)
     } else {
-      // a model coming from a call to new directly, generate id
-      if (inDevMode() && !generateNewId) {
-        throw failure(
-          "assertion error: tried to create a model without a snapshot with generateNewId set to false"
-        )
+      // use symbol if provided
+      if (initialData![modelId]) {
+        id = initialData![modelId]
+
+        // make sure the model ID symbol does not get through to $
+        // initialData will always be an observable object already
+        remove(initialData as any, modelId)
+      } else {
+        id = generateId()
       }
-      id = generateId()
     }
 
     modelObj[modelTypeKey] = modelInfo.name
@@ -87,7 +90,6 @@ export const internalNewModel = action(
     tweakModel(modelObj, undefined)
 
     // create observable data object with initial data
-
     let obsData = tweakPlainObject(
       initialData!,
       { parent: modelObj, path: "$" },
