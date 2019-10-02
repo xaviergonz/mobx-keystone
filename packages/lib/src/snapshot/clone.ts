@@ -10,6 +10,11 @@ export interface CloneOptions {
    * Pass `true` to generate new internal ids for models rather than reusing them. (Default is `true`)
    */
   generateNewIds: boolean
+
+  /**
+   * Pass a new model id to override the one of the root with this one.
+   */
+  overrideRootModelId: string | undefined
 }
 
 /**

@@ -116,12 +116,14 @@ export abstract class BaseModel<
         clazz,
         observable.object(initialData, undefined, { deep: false }),
         undefined,
-        true
+        true,
+        undefined
       )
     } else {
       // from snapshot
       const generateNewId: boolean = !!arguments[3]
-      internalNewModel(this, clazz, undefined, snapshotInitialData, generateNewId)
+      const forcedId: string | undefined = arguments[4]
+      internalNewModel(this, clazz, undefined, snapshotInitialData, generateNewId, forcedId)
     }
   }
 }

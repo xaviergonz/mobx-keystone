@@ -28,13 +28,15 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
     this: any,
     initialData: any,
     snapshotInitialData: any,
-    generateNewIds: any
+    generateNewIds: any,
+    forcedId: any
   ) {
     const instance = new (clazz as any)(
       initialData,
       snapshotInitialData,
       this.constructor,
-      generateNewIds
+      generateNewIds,
+      forcedId
     )
 
     // the object is ready

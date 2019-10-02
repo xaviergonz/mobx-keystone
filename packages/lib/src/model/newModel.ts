@@ -27,7 +27,8 @@ export const internalNewModel = action(
           snapshotToInitialData(processedSnapshot: any): any
         }
       | undefined,
-    generateNewId: boolean
+    generateNewId: boolean,
+    forcedId: string | undefined
   ): M => {
     if (inDevMode()) {
       assertIsModelClass(modelClass, "modelClass")
@@ -46,7 +47,13 @@ export const internalNewModel = action(
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
 
-      id = generateNewId ? getGlobalConfig().modelIdGenerator() : sn[modelIdKey]
+      if (forcedId !== undefined) {
+        id = forcedId
+      } else if (generateNewId) {
+        id = getGlobalConfig().modelIdGenerator()
+      } else {
+        id = sn[modelIdKey]
+      }
 
       if (modelObj.fromSnapshot) {
         sn = modelObj.fromSnapshot(sn)

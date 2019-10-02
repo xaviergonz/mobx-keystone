@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.23.2
+
+- Added `overrideRootModelId` to `fromSnapshot` and `clone`.
+
 ## 0.23.1
 
 - Added options parameter to `clone`.

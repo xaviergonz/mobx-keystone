@@ -23,11 +23,16 @@ export interface FromSnapshotOptions {
    * Pass `true` to generate new internal ids for models rather than reusing them. (Default is `false`)
    */
   generateNewIds: boolean
+
+  /**
+   * Pass a new model id to override the one of the root with this one.
+   */
+  overrideRootModelId: string | undefined
 }
 
 interface FromSnapshotContext {
   options: FromSnapshotOptions
-  snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any
+  snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>, depth: number): any
 }
 
 /**
@@ -44,6 +49,7 @@ export let fromSnapshot = <T>(
 ): T => {
   const opts = {
     generateNewIds: false,
+    overrideRootModelId: undefined,
     ...options,
   }
 
@@ -52,13 +58,14 @@ export let fromSnapshot = <T>(
   }
   ctx.snapshotToInitialData = snapshotToInitialData.bind(undefined, ctx as FromSnapshotContext)
 
-  return internalFromSnapshot<T>(snapshot, ctx as FromSnapshotContext)
+  return internalFromSnapshot<T>(snapshot, ctx as FromSnapshotContext, 0)
 }
 fromSnapshot = action("fromSnapshot", fromSnapshot) as any
 
 function internalFromSnapshot<T>(
   sn: SnapshotInOf<T> | SnapshotOutOf<T>,
-  ctx: FromSnapshotContext
+  ctx: FromSnapshotContext,
+  depth: number
 ): T {
   if (isPrimitive(sn)) {
     return sn as any
@@ -73,7 +80,7 @@ function internalFromSnapshot<T>(
   }
 
   if (isArray(sn)) {
-    return fromArraySnapshot(sn, ctx) as any
+    return fromArraySnapshot(sn, ctx, depth) as any
   }
 
   if (isFrozenSnapshot(sn)) {
@@ -81,26 +88,34 @@ function internalFromSnapshot<T>(
   }
 
   if (isModelSnapshot(sn)) {
-    return fromModelSnapshot(sn, ctx) as any
+    return fromModelSnapshot(sn, ctx, depth) as any
   }
 
   if (isPlainObject(sn)) {
-    return fromPlainObjectSnapshot(sn, ctx) as any
+    return fromPlainObjectSnapshot(sn, ctx, depth) as any
   }
 
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-function fromArraySnapshot(sn: SnapshotInOfArray<any>, ctx: FromSnapshotContext): any[] {
+function fromArraySnapshot(
+  sn: SnapshotInOfArray<any>,
+  ctx: FromSnapshotContext,
+  depth: number
+): any[] {
   const arr = observable.array([] as any[], observableOptions)
   const ln = sn.length
   for (let i = 0; i < ln; i++) {
-    arr.push(internalFromSnapshot(sn[i], ctx))
+    arr.push(internalFromSnapshot(sn[i], ctx, depth + 1))
   }
   return tweakArray(arr, undefined, true)
 }
 
-function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotContext): AnyModel {
+function fromModelSnapshot(
+  sn: SnapshotInOfModel<AnyModel>,
+  ctx: FromSnapshotContext,
+  depth: number
+): AnyModel {
   const type = sn[modelTypeKey]
 
   if (!type) {
@@ -122,15 +137,17 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
     undefined,
     {
       unprocessedSnapshot: sn,
-      snapshotToInitialData: ctx.snapshotToInitialData,
+      snapshotToInitialData: (snapshot: any) => ctx.snapshotToInitialData(snapshot, depth + 1),
     },
-    ctx.options.generateNewIds
+    ctx.options.generateNewIds,
+    depth === 0 ? ctx.options.overrideRootModelId : undefined
   )
 }
 
 function snapshotToInitialData(
   ctx: FromSnapshotContext,
-  processedSn: SnapshotInOfModel<AnyModel>
+  processedSn: SnapshotInOfModel<AnyModel>,
+  depth: number
 ): any {
   const initialData = observable.object({}, undefined, observableOptions)
 
@@ -140,13 +157,17 @@ function snapshotToInitialData(
     const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
-      set(initialData, k, internalFromSnapshot(v, ctx))
+      set(initialData, k, internalFromSnapshot(v, ctx, depth + 1))
     }
   }
   return initialData
 }
 
-function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): object {
+function fromPlainObjectSnapshot(
+  sn: SnapshotInOfObject<any>,
+  ctx: FromSnapshotContext,
+  depth: number
+): object {
   const plainObj = observable.object({}, undefined, observableOptions)
 
   const snKeys = Object.keys(sn)
@@ -154,7 +175,7 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotC
   for (let i = 0; i < snKeysLen; i++) {
     const k = snKeys[i]
     const v = sn[k]
-    set(plainObj, k, internalFromSnapshot(v, ctx))
+    set(plainObj, k, internalFromSnapshot(v, ctx, depth + 1))
   }
   return tweakPlainObject(plainObj, undefined, undefined, undefined, true, false)
 }
