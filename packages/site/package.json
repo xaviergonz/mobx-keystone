@@ -9,7 +9,7 @@
     "build": "docz build"
   },
   "dependencies": {
-    "mobx": "^5.13.1",
+    "mobx": "^5.14.0",
     "mobx-react": "^6.1.1",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",
