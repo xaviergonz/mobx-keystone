@@ -4,7 +4,7 @@ import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 export const setSerializer: ActionCallArgumentSerializer<Set<any> | ObservableSet<any>, any[]> = {
   id: "mobx-keystone/setAsArray",
 
-  serialize(set, _, serialize) {
+  serialize(set, serialize) {
     if (!(set instanceof Set)) return cannotSerialize
 
     const arr: any[] = []
@@ -20,7 +20,7 @@ export const setSerializer: ActionCallArgumentSerializer<Set<any> | ObservableSe
     return arr
   },
 
-  deserialize(arr, _, deserialize) {
+  deserialize(arr, deserialize) {
     const set = new Set()
 
     const len = arr.length

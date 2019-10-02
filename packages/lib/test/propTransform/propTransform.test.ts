@@ -79,6 +79,7 @@ test("timestampAsDate", () => {
           2019-09-26T19:02:41.993Z,
         ],
         "targetPath": Array [],
+        "targetPathIds": Array [],
       },
       Object {
         "actionName": "setDate",
@@ -86,21 +87,23 @@ test("timestampAsDate", () => {
           2019-09-26T19:02:41.993Z,
         ],
         "targetPath": Array [],
+        "targetPathIds": Array [],
       },
     ]
   `)
 
   expect(reactions).toMatchInlineSnapshot(`
-                    Array [
-                      2019-09-26T19:02:41.993Z,
-                    ]
-          `)
+                        Array [
+                          2019-09-26T19:02:41.993Z,
+                        ]
+            `)
 
   // apply action should work
   applyAction(m, {
     actionName: "setDate",
     args: [dateNow],
     targetPath: [],
+    targetPathIds: [],
   })
 
   expect(m.date).toEqual(dateNow)
@@ -171,6 +174,7 @@ test("stringAsDate", () => {
           2019-09-26T19:02:41.993Z,
         ],
         "targetPath": Array [],
+        "targetPathIds": Array [],
       },
       Object {
         "actionName": "setDate",
@@ -178,21 +182,23 @@ test("stringAsDate", () => {
           2019-09-26T19:02:41.993Z,
         ],
         "targetPath": Array [],
+        "targetPathIds": Array [],
       },
     ]
   `)
 
   expect(reactions).toMatchInlineSnapshot(`
-                    Array [
-                      2019-09-26T19:02:41.993Z,
-                    ]
-          `)
+                        Array [
+                          2019-09-26T19:02:41.993Z,
+                        ]
+            `)
 
   // apply action should work
   applyAction(m, {
     actionName: "setDate",
     args: [dateNow],
     targetPath: [],
+    targetPathIds: [],
   })
 
   expect(m.date).toEqual(dateNow)

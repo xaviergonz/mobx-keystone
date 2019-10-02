@@ -92,7 +92,7 @@ export function serializeActionCallArgument(
   // try serializers
   for (let i = 0; i < serializersArray.length; i++) {
     const serializer = serializersArray[i]
-    const serializedValue = serializer.serialize(argValue, targetRoot, serialize)
+    const serializedValue = serializer.serialize(argValue, serialize, targetRoot)
     if (serializedValue !== cannotSerialize) {
       return {
         $mobxKeystoneSerializer: serializer.id,
@@ -154,7 +154,7 @@ export function deserializeActionCallArgument(
   const serializedValue = argValue as SerializedActionCallArgument
 
   const deserialize = (v: any) => deserializeActionCallArgument(v, targetRoot)
-  return serializer.deserialize(serializedValue.value, targetRoot, deserialize)
+  return serializer.deserialize(serializedValue.value, deserialize, targetRoot)
 }
 
 /**

@@ -7,7 +7,7 @@ export const mapSerializer: ActionCallArgumentSerializer<
 > = {
   id: "mobx-keystone/mapAsArray",
 
-  serialize(map, _, serialize) {
+  serialize(map, serialize) {
     if (!(map instanceof Map) && !isObservableMap(map)) return cannotSerialize
 
     const arr: [any, any][] = []
@@ -24,7 +24,7 @@ export const mapSerializer: ActionCallArgumentSerializer<
     return arr
   },
 
-  deserialize(arr, _, deserialize) {
+  deserialize(arr, deserialize) {
     const map = new Map()
 
     const len = arr.length
