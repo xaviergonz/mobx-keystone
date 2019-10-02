@@ -7,12 +7,13 @@
   "license": "MIT",
   "scripts": {
     "build": "shx rm -rf dist && tsc -p .",
-    "bench": "yarn build && cross-env NODE_ENV=production node dist/index.js"
+    "bench-only": "cross-env NODE_ENV=production node dist/index.js",
+    "bench": "yarn build && yarn bench-only"
   },
   "dependencies": {
     "benchmark": "^2.1.4",
     "chalk": "^2.4.2",
-    "mobx": "^5.10.1",
+    "mobx": "^5.13.1",
     "mobx-state-tree": "^3.14.1"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import { assertIsModel } from "../model/utils"
 import { detach } from "../parent/detach"
-import { resolvePath } from "../parent/path"
+import { resolvePathCheckingIds } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { assertTweakedObject } from "../tweaker/core"
@@ -26,6 +26,11 @@ export interface ActionCall {
    * Path to the model where the action will be run, as an array of string | number.
    */
   readonly targetPath: ReadonlyArray<string | number>
+
+  /**
+   * Ids of models along the path to the target, null if it is not a model.
+   */
+  readonly targetPathIds: ReadonlyArray<string | null>
 }
 
 /**
@@ -38,12 +43,20 @@ export interface ActionCall {
 export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): TRet {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
-  // resolve path
-  const { value: current, resolved } = resolvePath(subtreeRoot, call.targetPath)
+  // resolve path while checking ids
+  const { value: current, resolved } = resolvePathCheckingIds(
+    subtreeRoot,
+    call.targetPath,
+    call.targetPathIds
+  )
   if (!resolved) {
-    throw failure(`object at path ${call.targetPath} could not be resolved`)
+    throw failure(
+      `object at path ${JSON.stringify(call.targetPath)} with ids ${JSON.stringify(
+        call.targetPathIds
+      )} could not be resolved`
+    )
   }
-  assertIsModel(current, `resolved ${call.targetPath}`)
+  assertIsModel(current, `resolved ${current}`)
 
   if (isBuiltInAction(call.actionName)) {
     switch (call.actionName) {

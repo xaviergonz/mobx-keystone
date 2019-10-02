@@ -19,7 +19,7 @@
   ],
   "devDependencies": {
     "coveralls": "^3.0.4",
-    "eslint": "^6.4.0",
+    "eslint": "^6.5.1",
     "lerna": "^3.15.0",
     "netlify-cli": "^2.15.0",
     "prettier": "^1.17.0"

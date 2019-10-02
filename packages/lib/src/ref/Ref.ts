@@ -1,5 +1,6 @@
 import { computed } from "mobx"
 import { ModelClass } from "../model/BaseModel"
+import { modelTypeKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
@@ -42,7 +43,7 @@ export abstract class Ref<T extends object> extends Model({
 
     if (!current) {
       throw failure(
-        `a reference of type '${this.$modelType}' could not resolve an object with id '${this.id}'`
+        `a reference of type '${this[modelTypeKey]}' could not resolve an object with id '${this.id}'`
       )
     }
 

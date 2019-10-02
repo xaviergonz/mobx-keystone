@@ -25,7 +25,7 @@ It will return a disposer, which only needs to be called if you plan to early di
 const disposer = onActionMiddleware(myTodoList, {
   onStart(actionCall, actionContext) {
     // we could serialize the action call and do something with it
-    const serializableActionCall = serializeActionCall(actionCall)
+    const serializableActionCall = serializeActionCall(getRoot(actionContext.target), actionCall)
 
     // optionally cancel the action by throwing something
     return {

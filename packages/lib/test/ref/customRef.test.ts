@@ -109,6 +109,7 @@ test("single ref works", () => {
   const r = c.selectedCountryRef!
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Object {
+      "$modelId": "id-2",
       "$modelType": "countryRef",
       "id": "spain",
     }
@@ -158,10 +159,12 @@ test("array ref works", () => {
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Array [
       Object {
+        "$modelId": "id-6",
         "$modelType": "countryRef",
         "id": "spain",
       },
       Object {
+        "$modelId": "id-7",
         "$modelType": "countryRef",
         "id": "uk",
       },
@@ -229,13 +232,9 @@ test("single selection with getRefId", () => {
     }
 
     @modelAction
-    selectTodo(todoId: string | undefined) {
-      if (!todoId) {
-        this.selectedRef = undefined
-      } else {
-        const todo = this.list.find(todo => todo.id === todoId)
-        this.selectedRef = todoRef(todo!)
-      }
+    selectTodo(todo: Todo | undefined) {
+      if (todo && !this.list.includes(todo)) throw new Error("unknown todo")
+      this.selectedRef = todo ? todoRef(todo) : undefined
     }
   }
 

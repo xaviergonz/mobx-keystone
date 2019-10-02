@@ -1,5 +1,5 @@
 import { Frozen, frozenKey } from "../frozen/Frozen"
-import { modelTypeKey } from "../model"
+import { modelIdKey, modelTypeKey } from "../model"
 import { AnyModel, ModelCreationData, ModelData } from "../model/BaseModel"
 import { ArraySet, ObjectMap } from "../wrappers"
 
@@ -16,6 +16,7 @@ export type SnapshotOutOfObject<T extends { [k: string]: any }> = {
 
 export type SnapshotOutOfModel<M extends AnyModel> = SnapshotOutOfObject<ModelData<M>> & {
   [modelTypeKey]: string
+  [modelIdKey]: string
 }
 
 export type SnapshotOutOfFrozen<F extends Frozen<any>> = {
@@ -26,11 +27,13 @@ export type SnapshotOutOfFrozen<F extends Frozen<any>> = {
 export interface SnapshotOutOfObjectMap<V> {
   items: { [k: string]: SnapshotOutOf<V> }
   [modelTypeKey]: string
+  [modelIdKey]: string
 }
 
 export interface SnapshotOutOfArraySet<V> {
   items: SnapshotOutOf<V>[]
   [modelTypeKey]: string
+  [modelIdKey]: string
 }
 
 export type SnapshotOutOf<T> = T extends Array<infer U>
@@ -76,6 +79,7 @@ export type SnapshotInOfModel<M extends AnyModel> = SnapshotInOfObject<
   M extends { fromSnapshot(sn: infer S): any } ? S : ModelCreationData<M>
 > & {
   [modelTypeKey]: string
+  [modelIdKey]: string
 }
 
 export type SnapshotInOfFrozen<F extends Frozen<any>> = {
@@ -86,11 +90,13 @@ export type SnapshotInOfFrozen<F extends Frozen<any>> = {
 export interface SnapshotInOfObjectMap<V> {
   items?: { [k: string]: SnapshotOutOf<V> }
   [modelTypeKey]: string
+  [modelIdKey]: string
 }
 
 export interface SnapshotInOfArraySet<V> {
   items?: SnapshotOutOf<V>[]
   [modelTypeKey]: string
+  [modelIdKey]: string
 }
 
 export type SnapshotInOf<T> = T extends Array<infer U>

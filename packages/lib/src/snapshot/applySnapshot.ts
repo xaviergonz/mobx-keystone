@@ -3,7 +3,7 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
-import { modelTypeKey } from "../model/metadata"
+import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
@@ -58,9 +58,19 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       throw failure(`model with name "${type}" not found in the registry`)
     }
 
-    if (!(obj instanceof modelInfo.class) || obj.$modelType !== type) {
+    if (!(obj instanceof modelInfo.class) || obj[modelTypeKey] !== type) {
       // different kind of model, no reconciliation possible
-      throw failure("snapshot model type does not match target model type")
+      throw failure(
+        `snapshot model type '${type}' does not match target model type '${
+          (obj as any)[modelTypeKey]
+        }'`
+      )
+    }
+
+    const id = sn[modelIdKey]
+    if (obj[modelIdKey] !== id) {
+      // different id, no reconciliation possible
+      throw failure(`snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`)
     }
 
     return reconcile()

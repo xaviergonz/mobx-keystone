@@ -6,6 +6,7 @@ import {
   ObservableMap,
   ObservableSet,
 } from "mobx"
+import { PrimitiveValue } from "./types"
 
 /**
  * A mobx-keystone error.
@@ -85,7 +86,7 @@ export function isObject(value: any): value is Object {
 /**
  * @ignore
  */
-export function isPrimitive(value: any): value is number | string | boolean | undefined | null {
+export function isPrimitive(value: any): value is PrimitiveValue {
   switch (typeof value) {
     case "number":
     case "string":

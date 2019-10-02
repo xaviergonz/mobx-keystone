@@ -25,10 +25,12 @@ test("fromSnapshot", () => {
           "$": Object {
             "y": 12,
           },
+          "$modelId": "id-1",
           "$modelType": "P2",
         },
         "x": 5,
       },
+      "$modelId": "id-2",
       "$modelType": "P",
       "boundNonAction": [Function],
     }

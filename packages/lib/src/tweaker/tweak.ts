@@ -63,7 +63,7 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 
   // plain object
   if (isObservableObject(value) || isPlainObject(value)) {
-    return tweakPlainObject(value, parentPath, undefined, false, false)
+    return tweakPlainObject(value, parentPath, undefined, undefined, false, false)
   }
 
   if ((value as any) instanceof Frozen) {

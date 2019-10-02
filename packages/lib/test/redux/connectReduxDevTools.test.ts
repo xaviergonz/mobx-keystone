@@ -10,6 +10,7 @@ import {
   _async,
   _await,
 } from "../../src"
+import "../commonSetup"
 
 jest.useRealTimers()
 
@@ -267,7 +268,11 @@ function addStandardTests() {
   })
 
   test('applySnapshot(m, { x: "snapshotX", y: "snapshotY", array: [] })', () => {
-    const snapshot = modelSnapshotOutWithMetadata(M, { x: "snapshotX", y: "snapshotY", array: [] })
+    const snapshot = modelSnapshotOutWithMetadata(
+      M,
+      { x: "snapshotX", y: "snapshotY", array: [] },
+      m.$modelId
+    )
     applySnapshot(m, snapshot)
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })

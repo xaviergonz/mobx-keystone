@@ -44,6 +44,7 @@ describe("asReduxStore", () => {
       actionName: "addX",
       args: [5],
       targetPath: [],
+      targetPathIds: [],
     })
 
     const dispatched = store.dispatch(action)
@@ -53,19 +54,21 @@ describe("asReduxStore", () => {
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "prevSn": Object {
-            "$modelType": "P",
-            "x": 0,
-          },
-          "sn": Object {
-            "$modelType": "P",
-            "x": 5,
-          },
-        },
-      ]
-    `)
+            Array [
+              Object {
+                "prevSn": Object {
+                  "$modelId": "id-1",
+                  "$modelType": "P",
+                  "x": 0,
+                },
+                "sn": Object {
+                  "$modelId": "id-1",
+                  "$modelType": "P",
+                  "x": 5,
+                },
+              },
+            ]
+        `)
   })
 
   test("with middlewares", () => {
@@ -106,6 +109,7 @@ describe("asReduxStore", () => {
       actionName: "addX",
       args: [5],
       targetPath: [],
+      targetPathIds: [],
     })
 
     const dispatched = store.dispatch(action)
@@ -116,33 +120,36 @@ describe("asReduxStore", () => {
 
     // 11200 because 12 -> 12 + 100 = 112 -> 112 * 100 = 11200
     expect(dispatched).toMatchInlineSnapshot(`
-                  Object {
-                    "payload": Object {
-                      "actionName": "addX",
-                      "args": Array [
-                        11200,
-                      ],
-                      "targetPath": Array [],
-                    },
-                    "type": "applyAction",
-                  }
-            `)
+      Object {
+        "payload": Object {
+          "actionName": "addX",
+          "args": Array [
+            11200,
+          ],
+          "targetPath": Array [],
+          "targetPathIds": Array [],
+        },
+        "type": "applyAction",
+      }
+    `)
 
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "prevSn": Object {
-            "$modelType": "P",
-            "x": 0,
-          },
-          "sn": Object {
-            "$modelType": "P",
-            "x": 12,
-          },
-        },
-      ]
-    `)
+            Array [
+              Object {
+                "prevSn": Object {
+                  "$modelId": "id-2",
+                  "$modelType": "P",
+                  "x": 0,
+                },
+                "sn": Object {
+                  "$modelId": "id-2",
+                  "$modelType": "P",
+                  "x": 12,
+                },
+              },
+            ]
+        `)
   })
 })

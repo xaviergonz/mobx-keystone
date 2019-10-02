@@ -147,13 +147,10 @@ class TodoList extends Model({
   }
 
   @modelAction
-  selectTodo(todoId: string | undefined) {
-    if (!todoId) {
-      this.selectedRef = undefined
-    } else {
-      const todo = this.list.find(todo => todo.id === todoId)
-      this.selectedRef = todoRef(todo!)
-    }
+  selectTodo(todo: Todo | undefined) {
+    if (todo && !this.list.includes(todo)) throw new Error("unknown todo")
+
+    this.selectedRef = todo ? todoRef(todo) : undefined
   }
 }
 ```
@@ -179,9 +176,8 @@ class TodoList extends Model({
   }
 
   @modelAction
-  selectTodo(todoId: string) {
-    const todo = this.list.find(todo => todo.id === todoId)
-    if (!todo) throw new Error("unknown todo")
+  selectTodo(todo: Todo) {
+    if (!this.list.includes(todo)) throw new Error("unknown todo")
 
     if (!this.selectedTodos.includes(todo)) {
       this.selectedRefs.push(todoRef(todo))
@@ -189,9 +185,8 @@ class TodoList extends Model({
   }
 
   @modelAction
-  unselectTodo(todoId: string) {
-    const todo = this.list.find(todo => todo.id === todoId)
-    if (!todo) throw new Error("unknown todo")
+  unselectTodo(todo: Todo) {
+    if (!this.list.includes(todo)) throw new Error("unknown todo")
 
     const todoRefIndex = this.selectedRefs.findIndex(todoRef => todoRef.maybeCurrent === todo)
 
@@ -204,4 +199,5 @@ class TodoList extends Model({
 
 Again, if a todo is removed from the list and it was a selected one then it will automatically disappear from the selected todos list.
 
-If you are wondering why we didn't just pass the `Todo` object to the select/unselect methods, the reason is because of action replication in remote servers. This is, if your application needs to replicate actions in a server then most likely a brand new instance of the `Todo` object will be created remotely, which won't match the one from the current model. If you don't have such use case then it is perfectly valid to pass `Todo` references directly.
+Passing a `Todo` object directly to the select/unselect methods is valid even when using action replication in remote servers, since the serialization of the argument will be automatically transformed to a path to the `Todo` object from the root, plus a path of IDs for validation.
+This means that when the `Todo` object is inside the same root store as the model parent of the action being called only a minimum set of data will be sent, while only if not, then the whole snapshot will be sent.
