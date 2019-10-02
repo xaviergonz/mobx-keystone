@@ -12,7 +12,7 @@ interface ObjectPath {
 export const objectPathSerializer: ActionCallArgumentSerializer<object, ObjectPath> = {
   id: "mobx-keystone/objectPath",
 
-  serialize(value, targetRoot) {
+  serialize(value, _, targetRoot) {
     if (typeof value !== "object" || value === null || !isTweakedObject(value, false))
       return cannotSerialize
 
@@ -30,7 +30,7 @@ export const objectPathSerializer: ActionCallArgumentSerializer<object, ObjectPa
     return cannotSerialize
   },
 
-  deserialize(ref, targetRoot) {
+  deserialize(ref, _, targetRoot) {
     // try to resolve the node back
     if (targetRoot) {
       const result = resolvePathCheckingIds(targetRoot, ref.targetPath, ref.targetPathIds)

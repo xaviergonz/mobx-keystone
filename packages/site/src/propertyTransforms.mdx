@@ -1,0 +1,116 @@
+---
+name: Property Transforms
+route: /propertyTransforms
+---
+
+# Property Transforms
+
+## Overview
+
+While model props themselves can only be JSON serializable values and models, sometimes it is useful to represent those properties in another way.
+For example, a date might be represented in the backend as a string or a number timestamp, but you might actually prefer to work with date objects.
+In order to address this you can use a property transform.
+
+For example, to transform from a number timestamp into a `Date` object you can start by defining a property transform:
+
+```ts
+const asDate = propTransform({
+  fromPropToData(prop: number) {
+    return new Date(prop)
+  },
+  fromDataToProp(data: Date) {
+    return +data
+  },
+})
+```
+
+Which can be later used to decorate your models:
+
+```ts
+@model("myApp/MyModel")
+class MyModel extends Model({
+  // the original property is a number
+  timestamp: prop<number>(),
+}) {
+  // but we will transform it into Date objects
+  @asDate("timestamp")
+  date!: Date // remember to use ! when using Typescript!
+}
+```
+
+And then used like this:
+
+```ts
+// the value will be computed and change automatically
+// if the backed property changes
+const date: Date = myModel.date
+
+// setting is just as easy
+// inside a model action
+myModel.date = new Date()
+```
+
+Remember that for transforms to be valid this must hold:
+
+```
+given PV prop value
+if fromPropToData(PV) is DV
+then fromDataToProp(DV) must be PV
+
+and inversely
+
+given DV data value
+if fromDataToProp(DV) is PV
+then fromPropToData(PV) must be DV
+```
+
+## `stringAsDate` and `timestampAsDate`
+
+Since date manipulation is very common, these built-in property transforms are already provided.
+`stringAsDate` transfrom from an ISO date string to a `Date` object, while `timestampAsDate` transforms from a number timestamp to a `Date` object.
+
+## Action serialization with custom types as arguments
+
+Action serialization (via `serializeActionCall` and `deserializeActionCall`) supports many cases by default:
+
+- Primitives.
+- Tree nodes as paths if they are under the same root node as the model that holds the action being called.
+- Tree nodes as snapshots if not.
+- Arrays and observable arrays.
+- `Date` objects as timestamps.
+- Maps and observable maps.
+- Sets and observable sets.
+- Plain objects, observable or not.
+
+However, you might want to serialize an action that passes your custom type as an argument. In this case you can register a custom action seralizer:
+
+```ts
+const myTypeSerializer: ActionCallArgumentSerializer<MyType, JsonCompatibleType> = {
+  id: "someSerializerUniqueId",
+
+  serialize(valueToSerialize, serializeChild, targetRoot) {
+    if (valueToSerialize instanceof MyType) {
+      return someJsonCompatibleValue
+    }
+    // let other serializer handle it
+    return cannotSerialize
+  },
+
+  deserialize(someJsonCompatibleValue, deserializeChild, targetRoot) {
+    // return back MyType from the JSON compatible value
+  },
+}
+
+registerActionCallArgumentSerializer(myTypeSerializer)
+```
+
+In this case, whenever an instance of `MyType` is found as an action argument, then (after using `serializeActionCall` on the action call) the action argument will be serialized as a `SerializedActionCallArgument`:
+
+```ts
+{
+  $mobxKeystoneSerializer: "someSerializerUniqueId",
+  value: someJsonCompatibleValue
+}
+```
+
+Likewise, using `deserializeActionCall` will transform it back to an instance of `MyType`.

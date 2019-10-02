@@ -19,8 +19,8 @@ export interface ActionCallArgumentSerializer<TOriginal, TSerialized> {
    */
   serialize(
     value: unknown,
-    targetRoot: object | undefined,
-    serializeChild: (v: unknown) => unknown
+    serializeChild: (v: unknown) => unknown,
+    targetRoot: object | undefined
   ): TSerialized | typeof cannotSerialize
 
   /**
@@ -33,7 +33,7 @@ export interface ActionCallArgumentSerializer<TOriginal, TSerialized> {
    */
   deserialize(
     value: TSerialized,
-    targetRoot: object | undefined,
-    deserializeChild: (v: unknown) => unknown
+    deserializeChild: (v: unknown) => unknown,
+    targetRoot: object | undefined
   ): TOriginal
 }
