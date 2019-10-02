@@ -1,9 +1,9 @@
 import { action, remove, set } from "mobx"
 import { O } from "ts-toolbelt"
-import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
+import { getGlobalConfig, isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { failure, generateId, inDevMode, makePropReadonly } from "../utils"
+import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelId, modelIdKey, modelTypeKey } from "./metadata"
@@ -46,7 +46,7 @@ export const internalNewModel = action(
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
 
-      id = generateNewId ? generateId() : sn[modelIdKey]
+      id = generateNewId ? getGlobalConfig().modelIdGenerator() : sn[modelIdKey]
 
       if (modelObj.fromSnapshot) {
         sn = modelObj.fromSnapshot(sn)
@@ -62,7 +62,7 @@ export const internalNewModel = action(
         // initialData will always be an observable object already
         remove(initialData as any, modelId)
       } else {
-        id = generateId()
+        id = getGlobalConfig().modelIdGenerator()
       }
     }
 

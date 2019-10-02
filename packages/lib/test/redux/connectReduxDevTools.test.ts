@@ -10,6 +10,7 @@ import {
   _async,
   _await,
 } from "../../src"
+import "../commonSetup"
 
 jest.useRealTimers()
 
