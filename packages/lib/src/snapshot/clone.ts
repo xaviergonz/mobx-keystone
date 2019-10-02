@@ -3,7 +3,7 @@ import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 
 /**
- * Clones an object by doing a `fromSnapshot(getSnapshot(value))`.
+ * Clones an object by doing a `fromSnapshot(getSnapshot(value), { generateNewIds: true })`.
  *
  * @typeparam T Object type.
  * @param node Object to clone.
@@ -13,5 +13,5 @@ export function clone<T extends object>(node: T): T {
   assertTweakedObject(node, "node")
 
   const sn = getSnapshot(node)
-  return fromSnapshot(sn)
+  return fromSnapshot(sn, { generateNewIds: true })
 }

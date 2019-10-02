@@ -1,18 +1,15 @@
-import { isObservable, toJS } from "mobx"
 import { ActionCall } from "../action/applyAction"
 import { isHookAction } from "../action/hookActions"
 import { ActionMiddlewareDisposer } from "../action/middleware"
-import { isModelSnapshot } from "../model/utils"
-import { getRootPath } from "../parent/path"
-import { fromSnapshot } from "../snapshot/fromSnapshot"
-import { getSnapshot } from "../snapshot/getSnapshot"
-import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
-import { assertIsObject, failure, isPlainObject, isPrimitive } from "../utils"
+import { fastGetRootPath } from "../parent/path"
+import { assertTweakedObject } from "../tweaker/core"
+import { assertIsObject } from "../utils"
 import {
   actionTrackingMiddleware,
   ActionTrackingReturn,
   SimpleActionContext,
 } from "./actionTrackingMiddleware"
+import { rootPathToTargetPathIds } from "./utils"
 
 /**
  * Attaches an action middleware that invokes a listener for all actions of a given tree.
@@ -82,83 +79,12 @@ export function onActionMiddleware(
 }
 
 function actionContextToActionCall(ctx: SimpleActionContext): ActionCall {
-  const rootPath = getRootPath(ctx.target)
+  const rootPath = fastGetRootPath(ctx.target)
 
   return {
     actionName: ctx.actionName,
     args: ctx.args,
     targetPath: rootPath.path,
-  }
-}
-
-/**
- * Transforms an action call argument by returning its serializable equivalent.
- * In more detail, this will return the snapshot of models, the non observable equivalent of observable values,
- * or if it is a primitive then the primitive itself.
- * If the value cannot be serialized it will throw an exception.
- *
- * @param argValue Argument value to be transformed into its serializable form.
- * @returns The serializable form of the passed value.
- */
-export function serializeActionCallArgument(argValue: any): any {
-  if (isPrimitive(argValue)) {
-    return argValue
-  }
-  if (isTweakedObject(argValue, true)) {
-    return getSnapshot(argValue)
-  }
-
-  const origValue = argValue
-  if (isObservable(argValue)) {
-    argValue = toJS(argValue, { exportMapsAsObjects: false, detectCycles: false })
-  }
-  if (isPlainObject(argValue) || Array.isArray(argValue)) {
-    return argValue
-  }
-
-  throw failure(`serializeActionCallArgument could not serialize the given value: ${origValue}`)
-}
-
-/**
- * Ensures that an action call is serializable by mapping the action arguments into its
- * serializable version by using `serializeActionCallArgument`.
- *
- * @param actionCall Action call to convert.
- * @returns The serializable action call.
- */
-export function serializeActionCall(actionCall: ActionCall): ActionCall {
-  return {
-    ...actionCall,
-    args: actionCall.args.map(serializeActionCallArgument),
-  }
-}
-
-/**
- * Transforms an action call argument by returning its deserialized equivalent.
- * In more detail, this will transform back the snapshot of models, and keep everything else as is.
- * If the value cannot be deserialized it will throw an exception.
- *
- * @param argValue Argument value to be transformed into its deserialized form.
- * @returns The deserialized form of the passed value.
- */
-export function deserializeActionCallArgument(argValue: any): any {
-  if (isModelSnapshot(argValue)) {
-    return fromSnapshot(argValue)
-  }
-
-  return argValue
-}
-
-/**
- * Ensures that an action call is deserialized by mapping the action arguments into its
- * deserialized version by using `deserializeActionCallArgument`.
- *
- * @param actionCall Action call to convert.
- * @returns The deserialized action call.
- */
-export function deserializeActionCall(actionCall: ActionCall): ActionCall {
-  return {
-    ...actionCall,
-    args: actionCall.args.map(deserializeActionCallArgument),
+    targetPathIds: rootPathToTargetPathIds(rootPath),
   }
 }

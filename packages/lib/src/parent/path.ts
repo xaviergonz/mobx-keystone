@@ -1,6 +1,6 @@
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
-import { isObject } from "../utils"
+import { isArray, isObject } from "../utils"
 import {
   dataObjectParent,
   dataToModelNode,
@@ -41,6 +41,12 @@ export interface RootPath<T extends object> {
    * If the target is a root itself then the array will be empty.
    */
   readonly path: ReadonlyArray<string | number>
+
+  /**
+   * Objects in the path, from root (included) until target (included).
+   * If the target is a root then only the target will be included.
+   */
+  readonly pathObjects: ReadonlyArray<unknown>
 }
 
 /**
@@ -156,12 +162,14 @@ export function fastGetRootPath<T extends object = any>(value: object): RootPath
   const rootPath = {
     root: value,
     path: [] as (string | number)[],
+    pathObjects: [value] as unknown[],
   }
 
   let parentPath: ParentPath<any> | undefined
   while ((parentPath = fastGetParentPath(rootPath.root))) {
     rootPath.root = parentPath.parent
     rootPath.path.unshift(parentPath.path)
+    rootPath.pathObjects.unshift(parentPath.parent)
   }
 
   return rootPath as RootPath<any>
@@ -255,7 +263,69 @@ export function resolvePath<T = any>(
       return { resolved: false }
     }
 
-    current = modelToDataNode(current[path[i]])
+    const p = path[i]
+
+    // check just to avoid mobx warnings about trying to access out of bounds index
+    if (isArray(current) && +p >= current.length) {
+      return { resolved: false }
+    }
+
+    current = modelToDataNode(current[p])
+  }
+
+  return { resolved: true, value: dataToModelNode(current) }
+}
+
+/**
+ * @ignore
+ *
+ * Tries to resolve a path from an object while checking ids.
+ *
+ * @typeparam T Returned value type.
+ * @param pathRootObject Object that serves as path root.
+ * @param path Path as an string or number array.
+ * @param pathIds An array of ids of the models that must be checked, or null if not a model.
+ * @returns An object with `{ resolved: true, value: T }` or `{ resolved: false }`.
+ */
+export function resolvePathCheckingIds<T = any>(
+  pathRootObject: object,
+  path: ReadonlyArray<string | number>,
+  pathIds: ReadonlyArray<string | null>
+):
+  | {
+      resolved: true
+      value: T
+    }
+  | {
+      resolved: false
+      value?: undefined
+    } {
+  // unit tests rely on this to work with any object
+  // assertTweakedObject(pathRootObject, "pathRootObject")
+
+  let current: any = modelToDataNode(pathRootObject)
+  // root id is never checked
+
+  let len = path.length
+  for (let i = 0; i < len; i++) {
+    if (!isObject(current)) {
+      return { resolved: false }
+    }
+
+    const p = path[i]
+
+    // check just to avoid mobx warnings about trying to access out of bounds index
+    if (isArray(current) && +p >= current.length) {
+      return { resolved: false }
+    }
+
+    const currentMaybeModel = current[p]
+    current = modelToDataNode(currentMaybeModel)
+
+    const currentId = isModel(currentMaybeModel) ? currentMaybeModel.$modelId : null
+    if (pathIds[i] !== currentId) {
+      return { resolved: false }
+    }
   }
 
   return { resolved: true, value: dataToModelNode(current) }

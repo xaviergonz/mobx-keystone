@@ -11,6 +11,7 @@ import {
   ModelClass,
   modelInitializedSymbol,
 } from "./BaseModel"
+import { modelId } from "./metadata"
 import {
   modelDataTypeCheckerSymbol,
   modelInitializersSymbol,
@@ -47,7 +48,7 @@ export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends Mode
     this[typeof creationDataSymbol]
   >
 
-  new (data: this[typeof composedCreationDataSymbol]): SuperModel &
+  new (data: this[typeof composedCreationDataSymbol] & { [modelId]?: string }): SuperModel &
     BaseModel<this[typeof propsDataSymbol], this[typeof creationDataSymbol]> &
     Omit<this[typeof propsDataSymbol], keyof AnyModel>
 }
@@ -63,7 +64,7 @@ export interface _Model<TProps extends ModelProps> {
     this[typeof optPropsDataSymbol]
   >
 
-  new (data: this[typeof creationDataSymbol]): BaseModel<
+  new (data: this[typeof creationDataSymbol] & { [modelId]?: string }): BaseModel<
     this[typeof propsDataSymbol],
     this[typeof creationDataSymbol]
   > &
@@ -199,9 +200,15 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
       this: any,
       initialData: any,
       snapshotInitialData: any,
-      modelConstructor: any
+      modelConstructor: any,
+      generateNewIds: any
     ) {
-      return new base(initialData, snapshotInitialData, modelConstructor || this.constructor)
+      return new base(
+        initialData,
+        snapshotInitialData,
+        modelConstructor || this.constructor,
+        generateNewIds
+      )
     }
 
     return CustomBaseModel

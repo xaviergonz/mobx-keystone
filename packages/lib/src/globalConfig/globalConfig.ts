@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid"
 import { failure, inDevMode } from "../utils"
 
 /**
@@ -22,11 +23,31 @@ export enum ModelAutoTypeCheckingMode {
  * Global config object.
  */
 export interface GlobalConfig {
+  /**
+   * Model auto type-checkig mode.
+   */
   modelAutoTypeChecking: ModelAutoTypeCheckingMode
+
+  /**
+   * ID generator function for $modelId.
+   */
+  modelIdGenerator(): string
 }
 
+let localId = 0
+const localBaseId = shortenUuid(uuidv4())
+
+function defaultModelIdGenerator(): string {
+  // we use base 36 for local id since it is short and fast
+  const id = localId.toString(36) + "-" + localBaseId
+  localId++
+  return id
+}
+
+// defaults
 let globalConfig: GlobalConfig = {
   modelAutoTypeChecking: ModelAutoTypeCheckingMode.DevModeOnly,
+  modelIdGenerator: defaultModelIdGenerator,
 }
 
 /**
@@ -69,5 +90,22 @@ export function isModelAutoTypeCheckingEnabled() {
       throw failure(
         `invalid 'modelAutoTypeChecking' config value - ${globalConfig.modelAutoTypeChecking}`
       )
+  }
+}
+
+function shortenUuid(uuid: string): string {
+  // remove non hex chars
+  const hex = uuid.split("-").join("")
+
+  // convert to base64
+  const hexMatch = hex.match(/\w{2}/g)!
+  const str = String.fromCharCode.apply(null, hexMatch.map(a => parseInt(a, 16)))
+
+  if (typeof global === "object" && typeof global.Buffer === "function") {
+    // node
+    return Buffer.from(str).toString("base64")
+  } else {
+    // browser
+    return btoa(str)
   }
 }

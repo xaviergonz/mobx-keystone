@@ -28,7 +28,7 @@ export const TodoListView = observer(({ list }: { list: TodoList }) => {
       done={todo.done}
       text={todo.text}
       onClick={() => todo.setDone(!todo.done)}
-      onRemove={() => list.remove(todo.id)}
+      onRemove={() => list.remove(todo)}
     />
   )
 

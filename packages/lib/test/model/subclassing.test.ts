@@ -1,13 +1,14 @@
 import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
-  BaseModel,
   ExtendedModel,
   fromSnapshot,
   getSnapshot,
   model,
   Model,
   modelAction,
+  ModelCreationData,
+  ModelData,
   prop,
   tProp,
   types,
@@ -59,8 +60,8 @@ test("subclassing with additional props", () => {
     }
   }
 
-  type D = P2 extends BaseModel<infer A, any> ? A : never
-  type CD = P2 extends BaseModel<any, infer A> ? A : never
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & { a: number; b: number })
   assert(
     _ as CD,
@@ -92,6 +93,7 @@ test("subclassing with additional props", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
+      "$modelId": "id-1",
       "$modelType": "P2_props",
       "a": 50,
       "b": 70,
@@ -118,8 +120,8 @@ test("subclassing without additional props", () => {
     }
   }
 
-  type D = P2 extends BaseModel<infer A, any> ? A : never
-  type CD = P2 extends BaseModel<any, infer A> ? A : never
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & ModelPropsToData<{}>)
   assert(
     _ as CD,
@@ -143,6 +145,7 @@ test("subclassing without additional props", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
+      "$modelId": "id-2",
       "$modelType": "P2_noprops",
       "x": 20,
       "y": 10,
@@ -159,8 +162,8 @@ test("subclassing without anything new", () => {
   @model("P2_nothingNew")
   class P2 extends ExtendedModel(P, {}) {}
 
-  type D = P2 extends BaseModel<infer A, any> ? A : never
-  type CD = P2 extends BaseModel<any, infer A> ? A : never
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & ModelPropsToData<{}>)
   assert(
     _ as CD,
@@ -183,6 +186,7 @@ test("subclassing without anything new", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
+      "$modelId": "id-3",
       "$modelType": "P2_nothingNew",
       "x": 20,
       "y": 10,
@@ -226,8 +230,8 @@ test("three level subclassing", () => {
     }
   }
 
-  type D = P2 extends BaseModel<infer A, any> ? A : never
-  type CD = P2 extends BaseModel<any, infer A> ? A : never
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(_ as D, _ as { x: number; y: number; z: number } & { a: number } & { b: number })
   assert(
     _ as CD,
@@ -257,6 +261,7 @@ test("three level subclassing", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
+      "$modelId": "id-4",
       "$modelType": "P2_threeLevels",
       "a": 50,
       "b": 70,

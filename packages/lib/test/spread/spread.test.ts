@@ -51,130 +51,143 @@ test("reassigning an array via spreading", () => {
   expect(arr.arr[2].x).toBe(3)
 
   expect(getSnapshot(arr)).toMatchInlineSnapshot(`
-            Object {
-              "$modelType": "SpreadArr",
-              "arr": Array [
-                Object {
-                  "$modelType": "SpreadArr_Obj",
-                  "x": 1,
-                },
-                Object {
-                  "$modelType": "SpreadArr_Obj",
-                  "x": 2,
-                },
-                Object {
-                  "$modelType": "SpreadArr_Obj",
-                  "x": 3,
-                },
-              ],
-            }
-      `)
+    Object {
+      "$modelId": "id-1",
+      "$modelType": "SpreadArr",
+      "arr": Array [
+        Object {
+          "$modelId": "id-2",
+          "$modelType": "SpreadArr_Obj",
+          "x": 1,
+        },
+        Object {
+          "$modelId": "id-3",
+          "$modelType": "SpreadArr_Obj",
+          "x": 2,
+        },
+        Object {
+          "$modelId": "id-4",
+          "$modelType": "SpreadArr_Obj",
+          "x": 3,
+        },
+      ],
+    }
+  `)
 
   expect(events).toMatchInlineSnapshot(`
-        Array [
+    Array [
+      Object {
+        "invPatches": Array [
           Object {
-            "invPatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [],
-              },
+            "op": "replace",
+            "path": Array [
+              "arr",
             ],
-            "patches": Array [
+            "value": Array [],
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+            ],
+            "value": Array [
               Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 1,
-                  },
-                ],
+                "$modelId": "id-2",
+                "$modelType": "SpreadArr_Obj",
+                "x": 1,
               },
             ],
           },
+        ],
+      },
+      Object {
+        "invPatches": Array [
           Object {
-            "invPatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 1,
-                  },
-                ],
-              },
+            "op": "replace",
+            "path": Array [
+              "arr",
             ],
-            "patches": Array [
+            "value": Array [
               Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 1,
-                  },
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 2,
-                  },
-                ],
+                "$modelId": "id-2",
+                "$modelType": "SpreadArr_Obj",
+                "x": 1,
               },
             ],
           },
+        ],
+        "patches": Array [
           Object {
-            "invPatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 1,
-                  },
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 2,
-                  },
-                ],
-              },
+            "op": "replace",
+            "path": Array [
+              "arr",
             ],
-            "patches": Array [
+            "value": Array [
               Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 1,
-                  },
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 2,
-                  },
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 3,
-                  },
-                ],
+                "$modelId": "id-2",
+                "$modelType": "SpreadArr_Obj",
+                "x": 1,
+              },
+              Object {
+                "$modelId": "id-3",
+                "$modelType": "SpreadArr_Obj",
+                "x": 2,
               },
             ],
           },
-        ]
-    `)
+        ],
+      },
+      Object {
+        "invPatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+            ],
+            "value": Array [
+              Object {
+                "$modelId": "id-2",
+                "$modelType": "SpreadArr_Obj",
+                "x": 1,
+              },
+              Object {
+                "$modelId": "id-3",
+                "$modelType": "SpreadArr_Obj",
+                "x": 2,
+              },
+            ],
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+            ],
+            "value": Array [
+              Object {
+                "$modelId": "id-2",
+                "$modelType": "SpreadArr_Obj",
+                "x": 1,
+              },
+              Object {
+                "$modelId": "id-3",
+                "$modelType": "SpreadArr_Obj",
+                "x": 2,
+              },
+              Object {
+                "$modelId": "id-4",
+                "$modelType": "SpreadArr_Obj",
+                "x": 3,
+              },
+            ],
+          },
+        ],
+      },
+    ]
+  `)
   events.length = 0
 
   expect(a1).not.toBe(a2)
@@ -200,59 +213,65 @@ test("reassigning an array via spreading", () => {
   expect(isTreeNode(a3)).toBeFalsy()
 
   expect(getSnapshot(arr)).toMatchInlineSnapshot(`
-            Object {
-              "$modelType": "SpreadArr",
-              "arr": Array [
-                Object {
-                  "$modelType": "SpreadArr_Obj",
-                  "x": 1,
-                },
-              ],
-            }
-      `)
+    Object {
+      "$modelId": "id-1",
+      "$modelType": "SpreadArr",
+      "arr": Array [
+        Object {
+          "$modelId": "id-2",
+          "$modelType": "SpreadArr_Obj",
+          "x": 1,
+        },
+      ],
+    }
+  `)
 
   expect(events).toMatchInlineSnapshot(`
-        Array [
+    Array [
+      Object {
+        "invPatches": Array [
           Object {
-            "invPatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 1,
-                  },
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 2,
-                  },
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 3,
-                  },
-                ],
-              },
+            "op": "replace",
+            "path": Array [
+              "arr",
             ],
-            "patches": Array [
+            "value": Array [
               Object {
-                "op": "replace",
-                "path": Array [
-                  "arr",
-                ],
-                "value": Array [
-                  Object {
-                    "$modelType": "SpreadArr_Obj",
-                    "x": 1,
-                  },
-                ],
+                "$modelId": "id-2",
+                "$modelType": "SpreadArr_Obj",
+                "x": 1,
+              },
+              Object {
+                "$modelId": "id-3",
+                "$modelType": "SpreadArr_Obj",
+                "x": 2,
+              },
+              Object {
+                "$modelId": "id-4",
+                "$modelType": "SpreadArr_Obj",
+                "x": 3,
               },
             ],
           },
-        ]
-    `)
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+            ],
+            "value": Array [
+              Object {
+                "$modelId": "id-2",
+                "$modelType": "SpreadArr_Obj",
+                "x": 1,
+              },
+            ],
+          },
+        ],
+      },
+    ]
+  `)
   events.length = 0
 })
 
@@ -300,24 +319,28 @@ test("reassigning an object via spreading", () => {
   expect(o.spreadObj["three"].x).toBe(3)
 
   expect(getSnapshot(o)).toMatchInlineSnapshot(`
-            Object {
-              "$modelType": "SpreadObj",
-              "spreadObj": Object {
-                "one": Object {
-                  "$modelType": "SpreadObj_Obj",
-                  "x": 1,
-                },
-                "three": Object {
-                  "$modelType": "SpreadObj_Obj",
-                  "x": 3,
-                },
-                "two": Object {
-                  "$modelType": "SpreadObj_Obj",
-                  "x": 2,
-                },
-              },
-            }
-      `)
+    Object {
+      "$modelId": "id-5",
+      "$modelType": "SpreadObj",
+      "spreadObj": Object {
+        "one": Object {
+          "$modelId": "id-6",
+          "$modelType": "SpreadObj_Obj",
+          "x": 1,
+        },
+        "three": Object {
+          "$modelId": "id-8",
+          "$modelType": "SpreadObj_Obj",
+          "x": 3,
+        },
+        "two": Object {
+          "$modelId": "id-7",
+          "$modelType": "SpreadObj_Obj",
+          "x": 2,
+        },
+      },
+    }
+  `)
 
   expect(events).toMatchInlineSnapshot(`
     Array [
@@ -339,6 +362,7 @@ test("reassigning an object via spreading", () => {
             ],
             "value": Object {
               "one": Object {
+                "$modelId": "id-6",
                 "$modelType": "SpreadObj_Obj",
                 "x": 1,
               },
@@ -355,6 +379,7 @@ test("reassigning an object via spreading", () => {
             ],
             "value": Object {
               "one": Object {
+                "$modelId": "id-6",
                 "$modelType": "SpreadObj_Obj",
                 "x": 1,
               },
@@ -369,10 +394,12 @@ test("reassigning an object via spreading", () => {
             ],
             "value": Object {
               "one": Object {
+                "$modelId": "id-6",
                 "$modelType": "SpreadObj_Obj",
                 "x": 1,
               },
               "two": Object {
+                "$modelId": "id-7",
                 "$modelType": "SpreadObj_Obj",
                 "x": 2,
               },
@@ -389,10 +416,12 @@ test("reassigning an object via spreading", () => {
             ],
             "value": Object {
               "one": Object {
+                "$modelId": "id-6",
                 "$modelType": "SpreadObj_Obj",
                 "x": 1,
               },
               "two": Object {
+                "$modelId": "id-7",
                 "$modelType": "SpreadObj_Obj",
                 "x": 2,
               },
@@ -407,14 +436,17 @@ test("reassigning an object via spreading", () => {
             ],
             "value": Object {
               "one": Object {
+                "$modelId": "id-6",
                 "$modelType": "SpreadObj_Obj",
                 "x": 1,
               },
               "three": Object {
+                "$modelId": "id-8",
                 "$modelType": "SpreadObj_Obj",
                 "x": 3,
               },
               "two": Object {
+                "$modelId": "id-7",
                 "$modelType": "SpreadObj_Obj",
                 "x": 2,
               },
@@ -449,16 +481,18 @@ test("reassigning an object via spreading", () => {
   expect(isTreeNode(o3)).toBeFalsy()
 
   expect(getSnapshot(o)).toMatchInlineSnapshot(`
-            Object {
-              "$modelType": "SpreadObj",
-              "spreadObj": Object {
-                "one": Object {
-                  "$modelType": "SpreadObj_Obj",
-                  "x": 1,
-                },
-              },
-            }
-      `)
+    Object {
+      "$modelId": "id-5",
+      "$modelType": "SpreadObj",
+      "spreadObj": Object {
+        "one": Object {
+          "$modelId": "id-6",
+          "$modelType": "SpreadObj_Obj",
+          "x": 1,
+        },
+      },
+    }
+  `)
 
   expect(events).toMatchInlineSnapshot(`
     Array [
@@ -471,14 +505,17 @@ test("reassigning an object via spreading", () => {
             ],
             "value": Object {
               "one": Object {
+                "$modelId": "id-6",
                 "$modelType": "SpreadObj_Obj",
                 "x": 1,
               },
               "three": Object {
+                "$modelId": "id-8",
                 "$modelType": "SpreadObj_Obj",
                 "x": 3,
               },
               "two": Object {
+                "$modelId": "id-7",
                 "$modelType": "SpreadObj_Obj",
                 "x": 2,
               },
@@ -493,6 +530,7 @@ test("reassigning an object via spreading", () => {
             ],
             "value": Object {
               "one": Object {
+                "$modelId": "id-6",
                 "$modelType": "SpreadObj_Obj",
                 "x": 1,
               },

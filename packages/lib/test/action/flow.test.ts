@@ -116,6 +116,7 @@ test("flow", async () => {
             2,
           ],
           "targetPath": Array [],
+          "targetPathIds": Array [],
         },
         "context": Object {
           "actionName": "addX",
@@ -137,10 +138,12 @@ test("flow", async () => {
                 "$": Object {
                   "y": 0,
                 },
+                "$modelId": "id-2",
                 "$modelType": "P2",
               },
               "x": 2,
             },
+            "$modelId": "id-1",
             "$modelType": "P",
           },
           "type": "async",
@@ -166,6 +169,7 @@ test("flow", async () => {
             4,
           ],
           "targetPath": Array [],
+          "targetPathIds": Array [],
         },
         "context": Object {
           "actionName": "addXY",
@@ -188,10 +192,12 @@ test("flow", async () => {
                 "$": Object {
                   "y": 4,
                 },
+                "$modelId": "id-2",
                 "$modelType": "P2",
               },
               "x": 6,
             },
+            "$modelId": "id-1",
             "$modelType": "P",
           },
           "type": "async",
@@ -220,6 +226,7 @@ test("flow", async () => {
             10,
           ],
           "targetPath": Array [],
+          "targetPathIds": Array [],
         },
         "context": Object {
           "actionName": "throwFlow",
@@ -241,10 +248,12 @@ test("flow", async () => {
                 "$": Object {
                   "y": 4,
                 },
+                "$modelId": "id-2",
                 "$modelType": "P2",
               },
               "x": 16,
             },
+            "$modelId": "id-1",
             "$modelType": "P",
           },
           "type": "async",
