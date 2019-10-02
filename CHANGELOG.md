@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.23.1
+
+- Added options parameter to `clone`.
+
 ## 0.23.0
 
 - [BREAKING CHANGE] Added a `$modelId` extra property to models and their snapshots in order to be able to properly validate targets of serialized actions in scenarions with concurrent clients. Also allows the automatic optimization of the serialized version of models in action parameters by substituting them to just their paths + path of ids whenever possible.

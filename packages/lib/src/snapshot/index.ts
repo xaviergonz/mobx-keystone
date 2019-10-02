@@ -1,5 +1,5 @@
 export { applySnapshot } from "./applySnapshot"
-export { clone } from "./clone"
+export { clone, CloneOptions } from "./clone"
 export { fromSnapshot, FromSnapshotOptions } from "./fromSnapshot"
 export { getSnapshot } from "./getSnapshot"
 export { onSnapshot, OnSnapshotDisposer, OnSnapshotListener } from "./onSnapshot"

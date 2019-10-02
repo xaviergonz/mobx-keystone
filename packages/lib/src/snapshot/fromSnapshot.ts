@@ -35,6 +35,7 @@ interface FromSnapshotContext {
  *
  * @typeparam T Object type.
  * @param snapshot Snapshot, even if a primitive.
+ * @param [options] Options.
  * @returns The deserialized object.
  */
 export let fromSnapshot = <T>(

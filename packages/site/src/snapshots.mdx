@@ -157,7 +157,7 @@ In the case above, only a single patch will be generated (for the `done` propert
 
 ### `clone<T extends object>(value: T, options?: CloneOptions): T`
 
-Snapshots can also be used to clone values. `clone` is just sugar syntax around `getSnapshot` and `fromSnapshot`.
+Snapshots can also be used to clone values. `clone` is just sugar syntax around `getSnapshot` and `fromSnapshot` with `generateNewIds` set to `true` by default.
 
 ```ts
 const clonedTodo = clone(todo)
