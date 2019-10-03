@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.24.0
+
+- [BREAKING CHANGE] Allow to pass `$modelId` to model creation data to override it rather than using a special symbol.
+- [BREAKING CHANGE] Removed `overrideRootModelId` to `fromSnapshot` and `clone`, but made `$modelId` in models editable instead.
+
 ## 0.23.2
 
 - Added `overrideRootModelId` to `fromSnapshot` and `clone`.
