@@ -9,7 +9,7 @@ export {
   modelSnapshotOutWithMetadata,
 } from "./BaseModel"
 export { getModelDataType } from "./getModelDataType"
-export { modelId, modelIdKey, modelTypeKey } from "./metadata"
+export { modelIdKey, modelTypeKey } from "./metadata"
 export { ExtendedModel, Model } from "./Model"
 export { model } from "./modelDecorator"
 export { ModelProp, ModelProps, ModelPropsToData, prop } from "./prop"

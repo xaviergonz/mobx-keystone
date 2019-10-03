@@ -6,7 +6,7 @@ import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject } from "../utils"
-import { modelId, modelIdKey, modelTypeKey } from "./metadata"
+import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
@@ -41,9 +41,9 @@ export abstract class BaseModel<
   readonly [modelTypeKey]: string;
 
   /**
-   * Model internal id.
+   * Model internal id. Can be modified inside a model action.
    */
-  readonly [modelIdKey]: string
+  [modelIdKey]: string
 
   /**
    * Can be overriden to offer a reference id to be used in reference resolution.
@@ -100,7 +100,7 @@ export abstract class BaseModel<
   /**
    * Creates an instance of Model.
    */
-  constructor(data: CreationData & { [modelId]?: string }) {
+  constructor(data: CreationData & { [modelIdKey]?: string }) {
     const initialData: any = data
     const snapshotInitialData: any = arguments[1]
     const clazz: ModelClass<AnyModel> = arguments[2]
@@ -116,19 +116,17 @@ export abstract class BaseModel<
         clazz,
         observable.object(initialData, undefined, { deep: false }),
         undefined,
-        true,
-        undefined
+        true
       )
     } else {
       // from snapshot
       const generateNewId: boolean = !!arguments[3]
-      const forcedId: string | undefined = arguments[4]
-      internalNewModel(this, clazz, undefined, snapshotInitialData, generateNewId, forcedId)
+      internalNewModel(this, clazz, undefined, snapshotInitialData, generateNewId)
     }
   }
 }
 
-// these props will never be hoisted to this
+// these props will never be hoisted to this (except for model id)
 export const baseModelPropNames = new Set<keyof AnyModel>([
   modelTypeKey,
   modelIdKey,
@@ -149,7 +147,7 @@ export type AnyModel = BaseModel<any, any>
  * Type of a model class.
  */
 export type ModelClass<M extends AnyModel> = new (
-  initialData: ModelCreationData<M> & { [modelId]?: string }
+  initialData: ModelCreationData<M> & { [modelIdKey]?: string }
 ) => M
 
 /**

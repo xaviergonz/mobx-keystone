@@ -11,7 +11,7 @@ import {
   ModelClass,
   modelInitializedSymbol,
 } from "./BaseModel"
-import { modelId } from "./metadata"
+import { modelIdKey } from "./metadata"
 import {
   modelDataTypeCheckerSymbol,
   modelInitializersSymbol,
@@ -48,7 +48,7 @@ export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends Mode
     this[typeof creationDataSymbol]
   >
 
-  new (data: this[typeof composedCreationDataSymbol] & { [modelId]?: string }): SuperModel &
+  new (data: this[typeof composedCreationDataSymbol] & { [modelIdKey]?: string }): SuperModel &
     BaseModel<this[typeof propsDataSymbol], this[typeof creationDataSymbol]> &
     Omit<this[typeof propsDataSymbol], keyof AnyModel>
 }
@@ -64,7 +64,7 @@ export interface _Model<TProps extends ModelProps> {
     this[typeof optPropsDataSymbol]
   >
 
-  new (data: this[typeof creationDataSymbol] & { [modelId]?: string }): BaseModel<
+  new (data: this[typeof creationDataSymbol] & { [modelIdKey]?: string }): BaseModel<
     this[typeof propsDataSymbol],
     this[typeof creationDataSymbol]
   > &
@@ -136,6 +136,8 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     assertIsModelClass(baseModel as any, "baseModel")
   }
 
+  const extraDescriptors: PropertyDescriptorMap = {}
+
   const composedModelProps: ModelProps = modelProps
   if (baseModel) {
     const oldModelProps: ModelProps = (baseModel as any)[modelPropertiesSymbol]
@@ -147,6 +149,9 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
       }
       composedModelProps[oldModelPropKey] = oldModelProps[oldModelPropKey]
     }
+  } else {
+    // define $modelId on the base
+    extraDescriptors[modelIdKey] = createModelPropDescriptor(modelIdKey, true)
   }
 
   // create type checker if needed
@@ -161,31 +166,12 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
   }
 
-  const extraDescriptors: PropertyDescriptorMap = {}
-
   // skip props that are on base model, these have to be accessed through $
   // we only need to proxy new props, not old ones
   for (const modelPropName of Object.keys(modelProps).filter(
     mp => !baseModelPropNames.has(mp as any)
   )) {
-    extraDescriptors[modelPropName] = {
-      enumerable: false,
-      configurable: true,
-      get(this: AnyModel) {
-        // no need to use get since these vars always get on the initial $
-        return this.$[modelPropName]
-      },
-      set(this: AnyModel, v?: any) {
-        // hack to only permit setting these values once fully constructed
-        // this is to ignore abstract properties being set by babel
-        // see https://github.com/xaviergonz/mobx-keystone/issues/18
-        if (!(this as any)[modelInitializedSymbol]) {
-          return
-        }
-        // no need to use set since these vars always get on the initial $
-        this.$[modelPropName] = v
-      },
-    }
+    extraDescriptors[modelPropName] = createModelPropDescriptor(modelPropName, false)
   }
 
   const base: any = baseModel || BaseModel
@@ -201,15 +187,13 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
       initialData: any,
       snapshotInitialData: any,
       modelConstructor: any,
-      generateNewIds: any,
-      forcedId: any
+      generateNewIds: any
     ) {
       return new base(
         initialData,
         snapshotInitialData,
         modelConstructor || this.constructor,
-        generateNewIds,
-        forcedId
+        generateNewIds
       )
     }
 
@@ -233,4 +217,25 @@ function _inheritsLoose(subClass: any, superClass: any) {
   subClass.prototype = Object.create(superClass.prototype)
   subClass.prototype.constructor = subClass
   subClass.__proto__ = superClass
+}
+
+function createModelPropDescriptor(modelPropName: string, enumerable: boolean): PropertyDescriptor {
+  return {
+    enumerable,
+    configurable: true,
+    get(this: AnyModel) {
+      // no need to use get since these vars always get on the initial $
+      return this.$[modelPropName]
+    },
+    set(this: AnyModel, v?: any) {
+      // hack to only permit setting these values once fully constructed
+      // this is to ignore abstract properties being set by babel
+      // see https://github.com/xaviergonz/mobx-keystone/issues/18
+      if (!(this as any)[modelInitializedSymbol]) {
+        return
+      }
+      // no need to use set since these vars always get on the initial $
+      this.$[modelPropName] = v
+    },
+  }
 }

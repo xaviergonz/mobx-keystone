@@ -1,4 +1,4 @@
-import { fromSnapshot, getSnapshot, model, Model, modelId } from "../../src"
+import { fromSnapshot, getSnapshot, model, Model, runUnprotected } from "../../src"
 import "../commonSetup"
 
 test("ids", () => {
@@ -17,7 +17,7 @@ test("ids", () => {
 
   // provided id
   {
-    const m1 = new M({ [modelId]: "MY_ID" })
+    const m1 = new M({ $modelId: "MY_ID" })
     expect(m1.$modelId).toBe("MY_ID")
     expect(getSnapshot(m1)).toEqual({
       $modelId: "MY_ID",
@@ -38,6 +38,27 @@ test("ids", () => {
     expect(m2.$modelId).toBe("MY_ID2")
     expect(getSnapshot(m2)).toEqual({
       $modelId: "MY_ID2",
+      $modelType: "ids",
+    })
+  }
+
+  // change id on the fly
+  {
+    const m1 = new M({})
+    expect(m1.$modelId).toBe("id-2")
+    expect((m1.$ as any).$modelId).toBe("id-2")
+    expect(getSnapshot(m1)).toEqual({
+      $modelId: "id-2",
+      $modelType: "ids",
+    })
+
+    runUnprotected(() => {
+      m1.$modelId = "MY_ID"
+    })
+    expect(m1.$modelId).toBe("MY_ID")
+    expect((m1.$ as any).$modelId).toBe("MY_ID")
+    expect(getSnapshot(m1)).toEqual({
+      $modelId: "MY_ID",
       $modelType: "ids",
     })
   }

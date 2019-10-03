@@ -1,4 +1,4 @@
-import { action, remove, set } from "mobx"
+import { action, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { getGlobalConfig, isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { tweakModel } from "../tweaker/tweakModel"
@@ -6,7 +6,7 @@ import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
-import { modelId, modelIdKey, modelTypeKey } from "./metadata"
+import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
 import { modelInitializersSymbol, modelPropertiesSymbol } from "./modelSymbols"
 import { ModelProps, noDefaultValue } from "./prop"
@@ -20,15 +20,14 @@ export const internalNewModel = action(
   <M extends AnyModel>(
     origModelObj: M,
     modelClass: ModelClass<M>,
-    initialData: (ModelCreationData<M> & { [modelId]?: string }) | undefined,
+    initialData: (ModelCreationData<M> & { [modelIdKey]?: string }) | undefined,
     snapshotInitialData:
       | {
           unprocessedSnapshot: any
           snapshotToInitialData(processedSnapshot: any): any
         }
       | undefined,
-    generateNewId: boolean,
-    forcedId: string | undefined
+    generateNewId: boolean
   ): M => {
     if (inDevMode()) {
       assertIsModelClass(modelClass, "modelClass")
@@ -47,9 +46,7 @@ export const internalNewModel = action(
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
 
-      if (forcedId !== undefined) {
-        id = forcedId
-      } else if (generateNewId) {
+      if (generateNewId) {
         id = getGlobalConfig().modelIdGenerator()
       } else {
         id = sn[modelIdKey]
@@ -62,19 +59,14 @@ export const internalNewModel = action(
       initialData = snapshotInitialData.snapshotToInitialData(sn)
     } else {
       // use symbol if provided
-      if (initialData![modelId]) {
-        id = initialData![modelId]
-
-        // make sure the model ID symbol does not get through to $
-        // initialData will always be an observable object already
-        remove(initialData as any, modelId)
+      if (initialData![modelIdKey]) {
+        id = initialData![modelIdKey]
       } else {
         id = getGlobalConfig().modelIdGenerator()
       }
     }
 
     modelObj[modelTypeKey] = modelInfo.name
-    modelObj[modelIdKey] = id
 
     // fill in defaults in initial data
     const modelProps: ModelProps = (modelClass as any)[modelPropertiesSymbol]
@@ -94,6 +86,8 @@ export const internalNewModel = action(
       }
     }
 
+    set(initialData as any, modelIdKey, id)
+
     tweakModel(modelObj, undefined)
 
     // create observable data object with initial data
@@ -101,10 +95,15 @@ export const internalNewModel = action(
       initialData!,
       { parent: modelObj, path: "$" },
       modelObj[modelTypeKey],
-      modelObj[modelIdKey],
       false,
       true
     )
+
+    // hide $.$modelId
+    Object.defineProperty(obsData, modelIdKey, {
+      ...Object.getOwnPropertyDescriptor(obsData, modelIdKey),
+      enumerable: false,
+    })
 
     // link it, and make it readonly
     modelObj.$ = obsData

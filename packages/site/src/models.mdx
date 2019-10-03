@@ -73,7 +73,7 @@ The rules that need to be followed to declare a model are:
 
 - Models have to be decorated with `@model` and require a unique across-application ID for the class type.
 - They have to extend `Model`, which in Typescript requires the type of the data that will become observable / snapshotable / patchable.
-- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$` (for example for properties that match a built-in base model property such as `$modelType` or `$modelId`).
+- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
 - Model actions need to be used in order to be able to change such data.
 - Never ever declare your own constructor, there are life-cycle events for that (more on that later).
 
@@ -134,12 +134,19 @@ myTodo1.$modelId // "Td244..."
 
 These properties will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
 
-Note that while `$modelId` is usually auto-generated, you can override this behaviour when creating the object by specifying a `modelId` property:
+Note that while `$modelId` is usually auto-generated, you can override this behaviour when creating the object by specifying it as a property:
 
 ```ts
 const myTodo = new Todo({
-  [modelId]: "my custom id",
+  $modelId: "my custom id",
 })
+```
+
+as well as writing to it inside a model action:
+
+```ts
+// inside some model action
+this.$modelId = "my new custom id"
 ```
 
 Just make sure that ID is unique for every model object (no matter its type).

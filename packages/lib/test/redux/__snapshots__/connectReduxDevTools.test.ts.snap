@@ -97,12 +97,11 @@ Array [
           "$": Object {
             "a": "setA",
           },
-          "$modelId": "id-16",
           "$modelType": "SubModel",
         },
       ],
       "path": Array [],
-      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$modelId\\":\\"id-16\\",\\"$\\":{\\"a\\":\\"otherA\\"}}) (id 0)",
+      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$\\":{\\"a\\":\\"otherA\\"}}) (id 0)",
     },
     Object {
       "$modelId": "id-15",
