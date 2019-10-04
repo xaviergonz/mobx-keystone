@@ -1,6 +1,5 @@
 import { isObservable, observable } from "mobx"
 import {
-  ActionCall,
   ActionTrackingResult,
   applyAction,
   deserializeActionCall,
@@ -13,6 +12,7 @@ import {
   prop,
   serializeActionCall,
   serializeActionCallArgument,
+  SerializedActionCall,
   SerializedActionCallArgument,
 } from "../../src"
 import "../commonSetup"
@@ -213,7 +213,7 @@ describe("concurrency", () => {
 
   let todoList!: TodoList
   let capturing = true
-  let captured: ActionCall[] = []
+  let captured: SerializedActionCall[] = []
   beforeEach(() => {
     todoList = newTodoList()
     capturing = true
@@ -233,7 +233,7 @@ describe("concurrency", () => {
     })
   })
 
-  function replicate(actionCall: ActionCall) {
+  function replicate(actionCall: SerializedActionCall) {
     capturing = false
     const ac = deserializeActionCall(actionCall, todoList)
     applyAction(todoList, ac)
