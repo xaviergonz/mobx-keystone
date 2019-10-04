@@ -88,11 +88,11 @@ export function tweakArray<T extends any[]>(
 
 function arrayDidChange(change: IArrayChange | IArraySplice) {
   const arr = change.object
-  let { standard: standardSn } = getInternalSnapshot(arr)!
+  let { standard: oldSnapshot } = getInternalSnapshot(arr)!
 
   const patchRecorder = new InternalPatchRecorder()
 
-  standardSn = standardSn.slice()
+  const newSnapshot = oldSnapshot.slice()
 
   switch (change.type) {
     case "splice":
@@ -109,20 +109,27 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
           }
         }
 
-        const oldLen = standardSn.length
-        const removedCount = change.removedCount
-        const removedItems = standardSn.splice(change.index, removedCount, ...addedItems)
+        const oldLen = oldSnapshot.length
+        newSnapshot.splice(change.index, change.removedCount, ...addedItems)
+        const newLen = newSnapshot.length
 
-        // generate patches
         const patches: Patch[] = []
         const invPatches: Patch[] = []
 
-        const replacedCount = Math.min(removedCount, addedCount)
-        for (let i = 0; i < replacedCount; i++) {
-          const oldVal = removedItems[i]
-          const newVal = addedItems[i]
+        // replace as much as possible
+        let minLen = Math.min(oldLen, newLen)
+
+        // optimization, if we remove as many as we add we can just replace those
+        if (change.removedCount === change.addedCount) {
+          minLen = Math.min(minLen, change.removedCount)
+        }
+
+        for (let i = change.index; i < minLen; i++) {
+          const oldVal = oldSnapshot[i]
+          const newVal = newSnapshot[i]
+
           if (oldVal !== newVal) {
-            const path = [change.index + i]
+            const path = [i]
             patches.push({
               op: "replace",
               path,
@@ -136,36 +143,36 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
           }
         }
 
-        if (removedCount > addedCount) {
-          patches.push({
-            op: "replace",
-            path: ["length"],
-            value: standardSn.length,
-          })
-
-          for (let i = replacedCount; i < removedCount; i++) {
-            const path = [change.index + i]
-            invPatches.push({
-              op: "add",
-              path,
-              value: removedItems[i],
-            })
-          }
-        } else if (addedCount > removedCount) {
-          for (let i = replacedCount; i < addedCount; i++) {
-            const path = [change.index + i]
+        if (newLen > oldLen) {
+          // add extra
+          for (let i = oldLen; i < newLen; i++) {
+            const path = [i]
             patches.push({
               op: "add",
               path,
-              value: addedItems[i],
+              value: newSnapshot[i],
             })
           }
-
           invPatches.push({
             op: "replace",
             path: ["length"],
             value: oldLen,
           })
+        } else if (newLen < oldLen) {
+          // remove extra
+          patches.push({
+            op: "replace",
+            path: ["length"],
+            value: newLen,
+          })
+          for (let i = newLen; i < oldLen; i++) {
+            const path = [i]
+            invPatches.push({
+              op: "add",
+              path,
+              value: oldSnapshot[i],
+            })
+          }
         }
 
         patchRecorder.record(patches, invPatches)
@@ -176,12 +183,12 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
       {
         const k = change.index
         const val = change.newValue
-        const oldVal = standardSn[k]
+        const oldVal = newSnapshot[k]
         if (isPrimitive(val)) {
-          standardSn[k] = val
+          newSnapshot[k] = val
         } else {
           const valueSn = getInternalSnapshot(val)!
-          standardSn[k] = valueSn.standard
+          newSnapshot[k] = valueSn.standard
         }
 
         const path = [k]
@@ -191,7 +198,7 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
             {
               op: "replace",
               path,
-              value: standardSn[k],
+              value: newSnapshot[k],
             },
           ],
           [
@@ -209,7 +216,7 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
   runTypeCheckingAfterChange(arr, patchRecorder)
 
   if (!runningWithoutSnapshotOrPatches) {
-    setInternalSnapshot(arr, standardSn)
+    setInternalSnapshot(arr, newSnapshot)
     patchRecorder.emit(arr)
   }
 }

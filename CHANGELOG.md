@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.24.1
+
+- Fixed wrong patches being generated for array splices sometimes.
+
 ## 0.24.0
 
 - [BREAKING CHANGE] Allow to pass `$modelId` to model creation data to override it rather than using a special symbol.
