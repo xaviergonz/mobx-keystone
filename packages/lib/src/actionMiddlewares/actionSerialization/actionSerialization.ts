@@ -1,3 +1,4 @@
+import { O } from "ts-toolbelt"
 import { ActionCall } from "../../action/applyAction"
 import { assertTweakedObject } from "../../tweaker/core"
 import { failure, isPlainObject, isPrimitive } from "../../utils"
@@ -59,10 +60,25 @@ export interface SerializedActionCallArgument {
 }
 
 /**
+ * A serialized action call.
+ */
+export interface SerializedActionCall extends Omit<ActionCall, "serialized"> {
+  /**
+   * Serialized action arguments.
+   */
+  readonly args: ReadonlyArray<SerializedActionCallArgument | PrimitiveValue>
+
+  /**
+   * Marks this action call as serialized.
+   */
+  serialized: true
+}
+
+/**
  * Transforms an action call argument by returning a `SerializedActionCallArgument`.
  * The following are supported out of the box:
  * - Primitives.
- * - Nodes that are under the same root node as the target root (when provided) will be seralized
+ * - Nodes that are under the same root node as the target root (when provided) will be serialized
  *   as a path.
  * - Nodes that are not under the same root node as the target root will be serialized as their snapshot.
  * - Arrays (observable or not).
@@ -112,7 +128,14 @@ export function serializeActionCallArgument(
  * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The serializable action call.
  */
-export function serializeActionCall(actionCall: ActionCall, targetRoot?: object): ActionCall {
+export function serializeActionCall(
+  actionCall: ActionCall,
+  targetRoot?: object
+): SerializedActionCall {
+  if (actionCall.serialized) {
+    throw failure("cannot serialize an already serialized action call")
+  }
+
   if (targetRoot !== undefined) {
     assertTweakedObject(targetRoot, "targetRoot")
   }
@@ -121,6 +144,7 @@ export function serializeActionCall(actionCall: ActionCall, targetRoot?: object)
 
   return {
     ...actionCall,
+    serialized: true,
     args: actionCall.args.map(serialize),
   }
 }
@@ -165,16 +189,26 @@ export function deserializeActionCallArgument(
  * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The deserialized action call.
  */
-export function deserializeActionCall(actionCall: ActionCall, targetRoot?: object): ActionCall {
+export function deserializeActionCall(
+  actionCall: SerializedActionCall,
+  targetRoot?: object
+): ActionCall {
+  if (!actionCall.serialized) {
+    throw failure("cannot deserialize a non serialized action call")
+  }
+
   if (targetRoot !== undefined) {
     assertTweakedObject(targetRoot, "targetRoot")
   }
 
   const deserialize = (v: any) => deserializeActionCallArgument(v, targetRoot)
-  return {
+  const deserializedActionCall: ActionCall = {
     ...actionCall,
+    serialized: undefined,
     args: actionCall.args.map(deserialize),
   }
+  delete (deserializedActionCall as O.Writable<ActionCall>).serialized
+  return deserializedActionCall
 }
 
 // serializer registration (from low priority to high priority)

@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "start": "tsdx watch",
-    "build": "shx cp ../../README.md . && shx cp ../../LICENSE . && tsdx build --name mobxKeystone --format=cjs,esm,umd",
+    "build": "tsc -p . --noEmit && shx cp ../../README.md . && shx cp ../../LICENSE . && tsdx build --name mobxKeystone --format=cjs,esm,umd",
     "test": "tsdx test",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",

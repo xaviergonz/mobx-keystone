@@ -4,6 +4,7 @@ export {
   registerActionCallArgumentSerializer,
   serializeActionCall,
   serializeActionCallArgument,
+  SerializedActionCall,
   SerializedActionCallArgument,
 } from "./actionSerialization/actionSerialization"
 export { ActionCallArgumentSerializer } from "./actionSerialization/core"

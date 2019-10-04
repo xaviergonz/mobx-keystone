@@ -31,6 +31,11 @@ export interface ActionCall {
    * Ids of models along the path to the target, null if it is not a model.
    */
   readonly targetPathIds: ReadonlyArray<string | null>
+
+  /**
+   * Marks this action call as non serialized.
+   */
+  readonly serialized?: undefined
 }
 
 /**
@@ -41,6 +46,10 @@ export interface ActionCall {
  * @returns The return value of the action, if any.
  */
 export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): TRet {
+  if (call.serialized) {
+    throw failure("cannot apply a serialized action call, deserialize it first")
+  }
+
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   // resolve path while checking ids
