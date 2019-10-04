@@ -39,15 +39,19 @@ export interface ActionCall {
 }
 
 /**
- * Applies (runs) a serialized action over a target object.
+ * Applies (runs) an action over a target object.
+ *
+ * If you intend to apply serialized actions check one of the `applySerializedAction` methods instead.
  *
  * @param subtreeRoot Subtree root target object to run the action over.
- * @param call The serialized action, usually as coming from `onActionMiddleware`.
+ * @param call The action, usually as coming from `onActionMiddleware`.
  * @returns The return value of the action, if any.
  */
 export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): TRet {
   if (call.serialized) {
-    throw failure("cannot apply a serialized action call, deserialize it first")
+    throw failure(
+      "cannot apply a serialized action call, use one of the 'applySerializedAction' methods instead"
+    )
   }
 
   assertTweakedObject(subtreeRoot, "subtreeRoot")

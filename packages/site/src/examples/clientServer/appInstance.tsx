@@ -1,11 +1,10 @@
 import {
-  ActionCall,
   ActionTrackingResult,
-  applyAction,
-  deserializeActionCall,
+  applySerializedActionAndSyncNewModelIds,
   fromSnapshot,
   onActionMiddleware,
   serializeActionCall,
+  SerializedActionCallWithModelIdOverrides,
 } from "mobx-keystone"
 import { observer } from "mobx-react"
 import React, { useState } from "react"
@@ -22,13 +21,14 @@ function initAppInstance() {
   const rootStore = fromSnapshot<TodoList>(rootStoreSnapshot)
 
   let serverAction = false
-  const runServerActionLocally = (actionCall: ActionCall) => {
-    const deserializedActionCall = deserializeActionCall(actionCall, rootStore)
-
+  const runServerActionLocally = (actionCall: SerializedActionCallWithModelIdOverrides) => {
     let wasServerAction = serverAction
     serverAction = true
     try {
-      applyAction(rootStore, deserializedActionCall)
+      // in clients we use the sync new model ids version to make sure that
+      // any model ids that were generated in the server side end up being
+      // the same in the client side
+      applySerializedActionAndSyncNewModelIds(rootStore, actionCall)
     } finally {
       serverAction = wasServerAction
     }
