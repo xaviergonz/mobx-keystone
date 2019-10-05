@@ -47,8 +47,11 @@ export abstract class BaseModel<
 
   /**
    * Can be overriden to offer a reference id to be used in reference resolution.
+   * By default it will use `$modelId`.
    */
-  getRefId?(): string
+  getRefId(): string {
+    return this[modelIdKey]
+  }
 
   /**
    * Called after the model has been created.

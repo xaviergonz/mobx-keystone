@@ -9,6 +9,7 @@ test("ids", () => {
   {
     const m1 = new M({})
     expect(m1.$modelId).toBe("id-1")
+    expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       $modelId: "id-1",
       $modelType: "ids",
@@ -19,6 +20,7 @@ test("ids", () => {
   {
     const m1 = new M({ $modelId: "MY_ID" })
     expect(m1.$modelId).toBe("MY_ID")
+    expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       $modelId: "MY_ID",
       $modelType: "ids",
@@ -29,6 +31,7 @@ test("ids", () => {
   {
     const m1 = fromSnapshot<M>({ $modelType: "ids", $modelId: "MY_ID2" })
     expect(m1.$modelId).toBe("MY_ID2")
+    expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       $modelId: "MY_ID2",
       $modelType: "ids",
@@ -36,6 +39,7 @@ test("ids", () => {
 
     const m2 = fromSnapshot<M>(getSnapshot(m1))
     expect(m2.$modelId).toBe("MY_ID2")
+    expect(m2.getRefId()).toBe(m2.$modelId)
     expect(getSnapshot(m2)).toEqual({
       $modelId: "MY_ID2",
       $modelType: "ids",
@@ -46,6 +50,7 @@ test("ids", () => {
   {
     const m1 = new M({})
     expect(m1.$modelId).toBe("id-2")
+    expect(m1.getRefId()).toBe(m1.$modelId)
     expect((m1.$ as any).$modelId).toBe("id-2")
     expect(getSnapshot(m1)).toEqual({
       $modelId: "id-2",
@@ -56,6 +61,7 @@ test("ids", () => {
       m1.$modelId = "MY_ID"
     })
     expect(m1.$modelId).toBe("MY_ID")
+    expect(m1.getRefId()).toBe(m1.$modelId)
     expect((m1.$ as any).$modelId).toBe("MY_ID")
     expect(getSnapshot(m1)).toEqual({
       $modelId: "MY_ID",

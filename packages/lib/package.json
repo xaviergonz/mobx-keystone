@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.24.1",
+  "version": "0.25.0",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsc -p . --noEmit && shx cp ../../README.md . && shx cp ../../LICENSE . && tsdx build --name mobxKeystone --format=cjs,esm,umd",
+    "build": "shx rm -rf dist && tsc -p . --noEmit && shx cp ../../README.md . && shx cp ../../LICENSE . && tsdx build --name mobxKeystone --format=cjs,esm,umd",
     "test": "tsdx test",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",

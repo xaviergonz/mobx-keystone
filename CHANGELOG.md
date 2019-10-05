@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.25.0
+
+- Added `applySerializedActionAndTrackNewModelIds` and `applySerializedActionAndSyncNewModelIds`. Prefer those over `deserializeActionCall` plus `applyAction` when applying serialized (over the wire) actions in order to avoid \$modelId desynchronization.
+- Added a default implementation of `getRefId()` which returns `$modelId`.
+
 ## 0.24.1
 
 - Fixed wrong patches being generated for array splices sometimes.
