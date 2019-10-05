@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.25.1
+
+- Small optimization for `applySerializedActionAndTrackNewModelIds` so it doesn't traverse frozen values.
+
 ## 0.25.0
 
 - Added `applySerializedActionAndTrackNewModelIds` and `applySerializedActionAndSyncNewModelIds`. Prefer those over `deserializeActionCall` plus `applyAction` when applying serialized (over the wire) actions in order to avoid \$modelId desynchronization.

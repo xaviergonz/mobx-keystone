@@ -1,5 +1,6 @@
 import { runInAction } from "mobx"
 import { applyAction } from "../../action/applyAction"
+import { frozenKey } from "../../frozen/Frozen"
 import { modelIdKey } from "../../model/metadata"
 import { applyPatches } from "../../patch/applyPatches"
 import { onPatches } from "../../patch/emitPatch"
@@ -99,13 +100,16 @@ function deepScanValueForModelIdChanges(
       deepScanValueForModelIdChanges(modelIdOverrides, value[i], [...path, i])
     }
   } else if (isObject(value)) {
-    const keys = Object.keys(value)
-    const len = keys.length
-    for (let i = 0; i < len; i++) {
-      const propName = keys[i]
-      const propValue = value[propName]
+    // skip frozen values
+    if (!value[frozenKey]) {
+      const keys = Object.keys(value)
+      const len = keys.length
+      for (let i = 0; i < len; i++) {
+        const propName = keys[i]
+        const propValue = value[propName]
 
-      deepScanValueForModelIdChanges(modelIdOverrides, propValue, [...path, propName])
+        deepScanValueForModelIdChanges(modelIdOverrides, propValue, [...path, propName])
+      }
     }
   }
 }
