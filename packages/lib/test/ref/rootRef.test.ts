@@ -2,6 +2,7 @@ import { computed, reaction, remove, set } from "mobx"
 import {
   clone,
   detach,
+  fromSnapshot,
   getParent,
   getRefsResolvingTo,
   getSnapshot,
@@ -405,4 +406,39 @@ test("isRefOfType", () => {
   // check generic is ok
   const refObj = ref as Ref<object>
   expect(isRefOfType(refObj, countryRef)).toBe(true)
+})
+
+test("getRefsResolvingTo after loading from snapshot", () => {
+  @model("#56/Root")
+  class Root extends Model({
+    a: prop<A>(),
+    b: prop<B>(),
+  }) {}
+
+  @model("#56/A")
+  class A extends Model({}) {
+    @computed
+    public get bs(): B[] {
+      return Array.from(getRefsResolvingTo(this), ref => getParent<B>(ref)!)
+    }
+  }
+
+  @model("#56/B")
+  class B extends Model({
+    a: prop<Ref<A>>(),
+  }) {}
+
+  const aRef = rootRef<A>("aRef")
+
+  const a = new A({})
+  const b = new B({ a: aRef(a) })
+  const root = new Root({ a, b })
+  expect([...getRefsResolvingTo(root.a)]).toEqual([root.b.a])
+  expect(root.a.bs).toHaveLength(1)
+  expect(root.a.bs[0]).toBe(root.b)
+
+  const newRoot = fromSnapshot<Root>(getSnapshot(root))
+  expect([...getRefsResolvingTo(newRoot.a)]).toEqual([newRoot.b.a])
+  expect(newRoot.a.bs).toHaveLength(1)
+  expect(newRoot.a.bs[0]).toBe(newRoot.b)
 })

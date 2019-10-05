@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.25.2
+
+- Fixed an issue with back-references and `onResolvedValueChange` not working when references were being restored from a snapshot.
+
 ## 0.25.1
 
 - Small optimization for `applySerializedActionAndTrackNewModelIds` so it doesn't traverse frozen values.
