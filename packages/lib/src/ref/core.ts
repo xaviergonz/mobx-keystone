@@ -54,6 +54,32 @@ export function internalCustomRef<T extends object>(
 
       return this.resolver(this)
     }
+
+    onInit() {
+      // listen to changes
+
+      let savedOldTarget: T | undefined
+      let savedFirstTime = true
+
+      // according to mwestrate this won't leak as long as we don't keep the disposer around
+      reaction(
+        () => this.maybeCurrent,
+        newTarget => {
+          const oldTarget = savedOldTarget
+          const firstTime = savedFirstTime
+          // update early in case of thrown exceptions
+          savedOldTarget = newTarget
+          savedFirstTime = false
+
+          updateBackRefs(this, fn as any, newTarget, oldTarget)
+
+          if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
+            onResolvedValueChange(this, newTarget, oldTarget)
+          }
+        },
+        { fireImmediately: true }
+      )
+    }
   }
 
   const fn = (target: T) => {
@@ -72,30 +98,6 @@ export function internalCustomRef<T extends object>(
     const ref = new CustomRef({
       id,
     })
-
-    // listen to changes
-
-    let savedOldTarget: T | undefined
-    let savedFirstTime = true
-
-    // according to mwestrate this won't leak as long as we don't keep the disposer around
-    reaction(
-      () => ref.maybeCurrent,
-      newTarget => {
-        const oldTarget = savedOldTarget
-        const firstTime = savedFirstTime
-        // update early in case of thrown exceptions
-        savedOldTarget = newTarget
-        savedFirstTime = false
-
-        updateBackRefs(ref, fn as any, newTarget, oldTarget)
-
-        if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
-          onResolvedValueChange(ref, newTarget, oldTarget)
-        }
-      },
-      { fireImmediately: true }
-    )
 
     return ref
   }
