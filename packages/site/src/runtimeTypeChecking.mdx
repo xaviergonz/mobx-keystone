@@ -61,7 +61,7 @@ const checkError = typeCheck(numberArrayType, [1, 2, 3])
 
 In all cases the returned value will be `null` if there are no errors or an instance of `TypeCheckError`, which will include:
 
-- `path: ReadonlyArray<string | number>` - Sub-path where the type-check failed, or an empty array if the actual object/value failed the type-check.
+- `path: Path` - Sub-path where the type-check failed, or an empty array if the actual object/value failed the type-check.
 - `expectedTypeName: string` - String representation of the expected type.
 - `actualValue: any` - The actual value/sub-value that failed the type-check
 - `throw(typeCheckedValue: any)` - Throws the error as an exception.

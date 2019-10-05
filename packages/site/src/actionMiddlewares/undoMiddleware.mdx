@@ -53,7 +53,7 @@ And the following actions:
 
 Each change is stored as an `UndoEvent`, which is a readonly structure like:
 
-- `targetPath: ReadonlyArray<string | number>` - Path to the object that invoked the action from its root.
+- `targetPath: Path` - Path to the object that invoked the action from its root.
 - `actionName: string` - Name of the action that was invoked.
 - `patches: ReadonlyArray<Patch>` - Patches with changes done inside the action. Use `redo()` in the `UndoManager` to apply them.
 - `inversePatches: ReadonlyArray<Patch>` - Patches to undo the changes done inside the action. Use `undo()` in the `UndoManager` to apply them.

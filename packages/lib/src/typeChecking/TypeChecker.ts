@@ -1,11 +1,12 @@
 import { fastGetParentIncludingDataObjects } from "../parent/path"
+import { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { TypeCheckError } from "./TypeCheckError"
 
-type CheckFunction = (value: any, path: ReadonlyArray<string | number>) => TypeCheckError | null
+type CheckFunction = (value: any, path: Path) => TypeCheckError | null
 
-const emptyPath: ReadonlyArray<string | number> = []
+const emptyPath: Path = []
 
 type CheckResult = TypeCheckError | null
 type CheckResultCache = WeakMap<object, CheckResult>
@@ -69,7 +70,7 @@ export class TypeChecker {
     return this.checkResultCache ? this.checkResultCache.get(obj) : undefined
   }
 
-  check(value: any, path: ReadonlyArray<string | number>): TypeCheckError | null {
+  check(value: any, path: Path): TypeCheckError | null {
     if (this.unchecked) {
       return null
     }

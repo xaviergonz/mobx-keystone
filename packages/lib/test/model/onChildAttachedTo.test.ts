@@ -5,6 +5,7 @@ import {
   model,
   modelAction,
   onChildAttachedTo,
+  Path,
   prop,
 } from "../../src"
 import { isArray, isObject } from "../../src/utils"
@@ -19,12 +20,7 @@ const name = (obj: object) => {
 
 const events: string[] = []
 
-const log = (
-  type: "attached" | "detached",
-  self: object,
-  child: object,
-  path: ReadonlyArray<string | number>
-) => {
+const log = (type: "attached" | "detached", self: object, child: object, path: Path) => {
   events.push(
     `${type} ${type === "attached" ? "to" : "from"} ${name(self)} <- ${name(child)} at [${path.join(
       "/"

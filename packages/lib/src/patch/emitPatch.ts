@@ -1,5 +1,6 @@
 import { action, isAction } from "mobx"
 import { fastGetParentPath } from "../parent/path"
+import { PathElement } from "../parent/pathTypes"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray } from "../utils"
 import { Patch } from "./Patch"
@@ -130,7 +131,7 @@ function emitPatch(
   }
 }
 
-function addPathToPatch(patch: Patch, path: string | number): Patch {
+function addPathToPatch(patch: Patch, path: PathElement): Patch {
   return {
     ...patch,
     path: [path, ...patch.path],

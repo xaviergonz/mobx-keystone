@@ -74,7 +74,7 @@ Returns the parent of the target plus the path from the parent to the target, or
 
 Returns the parent object of the target object, or `undefined` if there's no parent.
 
-### `getParentToChildPath(fromParent: object, toChild: object): (string | number)[] | undefined`
+### `getParentToChildPath(fromParent: object, toChild: object): Path | undefined`
 
 Gets the path to get from a parent to a given child.
 Returns an empty array if the child is actually the given parent or `undefined` if the child is not a child of the parent.
@@ -103,7 +103,7 @@ Returns if the target is a "child" of the tree of the given "parent" object.
 
 Returns if the target is a "parent" that has in its tree the given "child" object.
 
-### `resolvePath<T = any>(pathRootObject: object, path: ReadonlyArray<string | number>): T`
+### `resolvePath<T = any>(pathRootObject: object, path: Path): T`
 
 Resolves a path from an object, returning an object with `{ resolved: true, value: T }` or `{ resolved: false }`
 

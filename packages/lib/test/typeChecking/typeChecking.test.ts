@@ -16,6 +16,7 @@ import {
   objectMap,
   onPatches,
   onSnapshot,
+  Path,
   Ref,
   resolvePath,
   setGlobalConfig,
@@ -81,12 +82,7 @@ function expectTypeCheckOk<T extends AnyType>(t: T, val: TypeToData<T>) {
   expect(err).toBeNull()
 }
 
-function expectTypeCheckFail<T extends AnyType>(
-  t: T,
-  val: any,
-  path: ReadonlyArray<string | number>,
-  expected: string
-) {
+function expectTypeCheckFail<T extends AnyType>(t: T, val: any, path: Path, expected: string) {
   const err = typeCheck(t, val)
   const { value: actualValue } = resolvePath(val, path)
   expect(err).toEqual(new TypeCheckError(path, expected, actualValue))

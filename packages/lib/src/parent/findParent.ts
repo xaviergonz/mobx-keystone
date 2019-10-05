@@ -1,5 +1,6 @@
 import { assertTweakedObject } from "../tweaker/core"
 import { fastGetParentPath, ParentPath } from "./path"
+import { Path, WritablePath } from "./pathTypes"
 
 /**
  * Iterates through all the parents (from the nearest until the root)
@@ -34,7 +35,7 @@ export interface FoundParentPath<T extends object> {
   /**
    * Path from the found parent to the child.
    */
-  readonly path: ReadonlyArray<string | number>
+  readonly path: Path
 }
 
 /**
@@ -57,7 +58,7 @@ export function findParentPath<T extends object = any>(
 ): FoundParentPath<T> | undefined {
   assertTweakedObject(child, "child")
 
-  const path: (string | number)[] = []
+  const path: WritablePath = []
 
   let current: any = child
   let depth = 0

@@ -13,9 +13,9 @@ Basically, every change will generate two kind of patches, patches from the prev
 
 ```ts
 export interface Patch {
-  op: "replace" | "remove" | "add"
-  path: (string | number)[]
-  value?: any // value is not available for remove operations
+  readonly op: "replace" | "remove" | "add"
+  readonly path: Path
+  readonly value?: any // value is not available for remove operations
 }
 ```
 

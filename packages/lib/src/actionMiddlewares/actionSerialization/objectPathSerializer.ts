@@ -1,11 +1,12 @@
 import { fastGetRootPath, resolvePathCheckingIds } from "../../parent/path"
+import { Path } from "../../parent/pathTypes"
 import { isTweakedObject } from "../../tweaker/core"
 import { failure } from "../../utils"
 import { rootPathToTargetPathIds } from "../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 interface ObjectPath {
-  targetPath: (string | number)[]
+  targetPath: Path
   targetPathIds: (string | null)[]
 }
 

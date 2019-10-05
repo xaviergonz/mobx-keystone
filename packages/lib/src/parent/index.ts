@@ -16,4 +16,5 @@ export {
   resolvePath,
   RootPath,
 } from "./path"
+export { Path, PathElement, WritablePath } from "./pathTypes"
 export { walkTree, WalkTreeMode } from "./walkTree"

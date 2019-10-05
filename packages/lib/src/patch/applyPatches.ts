@@ -3,6 +3,7 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { modelToDataNode } from "../parent/core"
+import { PathElement } from "../parent/pathTypes"
 import { Patch } from "../patch/Patch"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
@@ -101,7 +102,7 @@ function applySinglePatch(obj: object, patch: Patch): void {
 function pathArrayToObjectAndProp(
   obj: object,
   path: Patch["path"]
-): { target: any; prop?: string | number } {
+): { target: any; prop?: PathElement } {
   if (inDevMode()) {
     if (!isArray(path)) {
       throw failure(`invalid path: ${path}`)

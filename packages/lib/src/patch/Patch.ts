@@ -1,5 +1,7 @@
+import { Path } from "../parent/pathTypes"
+
 export interface Patch {
-  op: "replace" | "remove" | "add"
-  path: (string | number)[]
-  value?: any
+  readonly op: "replace" | "remove" | "add"
+  readonly path: Path
+  readonly value?: any
 }

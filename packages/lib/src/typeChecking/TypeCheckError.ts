@@ -1,4 +1,5 @@
 import { getRootPath } from "../parent/path"
+import { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 
@@ -12,11 +13,7 @@ export class TypeCheckError {
    * @param expectedTypeName Name of the expected type.
    * @param actualValue Actual value.
    */
-  constructor(
-    readonly path: ReadonlyArray<string | number>,
-    readonly expectedTypeName: string,
-    readonly actualValue: any
-  ) {}
+  constructor(readonly path: Path, readonly expectedTypeName: string, readonly actualValue: any) {}
 
   /**
    * Throws the type check error as an actual error.
@@ -25,7 +22,7 @@ export class TypeCheckError {
    */
   throw(typeCheckedValue: any): never {
     let msg = "TypeCheckError: "
-    let rootPath: ReadonlyArray<string | number> = []
+    let rootPath: Path = []
     if (isTweakedObject(typeCheckedValue, true)) {
       rootPath = getRootPath(typeCheckedValue).path
     }

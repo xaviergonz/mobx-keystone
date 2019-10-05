@@ -1,7 +1,10 @@
 import { runInAction } from "mobx"
 import { applyAction } from "../../action/applyAction"
 import { frozenKey } from "../../frozen/Frozen"
+import { isModel } from "../../model"
 import { modelIdKey } from "../../model/metadata"
+import { resolvePath } from "../../parent/path"
+import { WritablePath } from "../../parent/pathTypes"
 import { applyPatches } from "../../patch/applyPatches"
 import { onPatches } from "../../patch/emitPatch"
 import { Patch } from "../../patch/Patch"
@@ -54,7 +57,7 @@ export function applySerializedActionAndTrackNewModelIds<TRet = any>(
 
   // set a patch listener to track changes to model ids
   const patchDisposer = onPatches(subtreeRoot, patches => {
-    scanPatchesForModelIdChanges(modelIdOverrides, patches)
+    scanPatchesForModelIdChanges(subtreeRoot, modelIdOverrides, patches)
   })
 
   try {
@@ -72,32 +75,45 @@ export function applySerializedActionAndTrackNewModelIds<TRet = any>(
   }
 }
 
-function scanPatchesForModelIdChanges(modelIdOverrides: Patch[], patches: Patch[]) {
+function scanPatchesForModelIdChanges(root: object, modelIdOverrides: Patch[], patches: Patch[]) {
   const len = patches.length
   for (let i = 0; i < len; i++) {
     const patch = patches[i]
     if (patch.op === "replace" || patch.op === "add") {
-      deepScanValueForModelIdChanges(modelIdOverrides, patch.value, patch.path)
+      deepScanValueForModelIdChanges(
+        root,
+        modelIdOverrides,
+        patch.value,
+        patch.path as WritablePath
+      )
     }
   }
 }
 
 function deepScanValueForModelIdChanges(
+  root: object,
   modelIdOverrides: Patch[],
   value: any,
-  path: (string | number)[]
+  path: WritablePath
 ) {
-  if (path[path.length - 1] === modelIdKey && typeof value === "string") {
-    // found one
-    modelIdOverrides.push({
-      op: "replace",
-      path: path,
-      value: value,
-    })
+  if (path.length >= 1 && path[path.length - 1] === modelIdKey && typeof value === "string") {
+    // ensure the parent is an actual model
+    const parent = resolvePath(root, path.slice(0, path.length - 1)).value
+
+    if (isModel(parent)) {
+      // found one
+      modelIdOverrides.push({
+        op: "replace",
+        path: path.slice(),
+        value: value,
+      })
+    }
   } else if (Array.isArray(value)) {
     const len = value.length
     for (let i = 0; i < len; i++) {
-      deepScanValueForModelIdChanges(modelIdOverrides, value[i], [...path, i])
+      path.push(i)
+      deepScanValueForModelIdChanges(root, modelIdOverrides, value[i], path)
+      path.pop()
     }
   } else if (isObject(value)) {
     // skip frozen values
@@ -108,7 +124,9 @@ function deepScanValueForModelIdChanges(
         const propName = keys[i]
         const propValue = value[propName]
 
-        deepScanValueForModelIdChanges(modelIdOverrides, propValue, [...path, propName])
+        path.push(propName)
+        deepScanValueForModelIdChanges(root, modelIdOverrides, propValue, path)
+        path.pop()
       }
     }
   }

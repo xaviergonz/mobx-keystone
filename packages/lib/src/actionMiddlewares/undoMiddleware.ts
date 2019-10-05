@@ -4,6 +4,7 @@ import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
 import { model } from "../model/modelDecorator"
 import { fastGetRootPath } from "../parent/path"
+import { Path } from "../parent/pathTypes"
 import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../typeChecking/array"
@@ -19,7 +20,7 @@ export interface UndoEvent {
   /**
    * Path to the object that invoked the action from its root.
    */
-  readonly targetPath: ReadonlyArray<string | number>
+  readonly targetPath: Path
   /**
    * Name of the action that was invoked.
    */

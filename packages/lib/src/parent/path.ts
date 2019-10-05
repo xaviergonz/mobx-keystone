@@ -9,6 +9,7 @@ import {
   reportParentPathObserved,
 } from "./core"
 import { getDeepObjectChildren } from "./coreObjectChildren"
+import { Path, PathElement, WritablePath } from "./pathTypes"
 
 /**
  * Path from an object to its immediate parent.
@@ -23,7 +24,7 @@ export interface ParentPath<T extends object> {
   /**
    * Property name (if the parent is an object) or index number (if the parent is an array).
    */
-  readonly path: string | number
+  readonly path: PathElement
 }
 
 /**
@@ -40,7 +41,7 @@ export interface RootPath<T extends object> {
    * Path from the root to the given target, as a string array.
    * If the target is a root itself then the array will be empty.
    */
-  readonly path: ReadonlyArray<string | number>
+  readonly path: Path
 
   /**
    * Objects in the path, from root (included) until target (included).
@@ -161,7 +162,7 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
 export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
   const rootPath = {
     root: value,
-    path: [] as (string | number)[],
+    path: [] as WritablePath,
     pathObjects: [value] as unknown[],
   }
 
@@ -232,6 +233,8 @@ export function isParentOfChild(parent: object, child: object): boolean {
   return isChildOfParent(child, parent)
 }
 
+const unresolved = { resolved: false } as const
+
 /**
  * Tries to resolve a path from an object.
  *
@@ -242,7 +245,7 @@ export function isParentOfChild(parent: object, child: object): boolean {
  */
 export function resolvePath<T = any>(
   pathRootObject: object,
-  path: ReadonlyArray<string | number>
+  path: Path
 ):
   | {
       resolved: true
@@ -260,14 +263,14 @@ export function resolvePath<T = any>(
   let len = path.length
   for (let i = 0; i < len; i++) {
     if (!isObject(current)) {
-      return { resolved: false }
+      return unresolved
     }
 
     const p = path[i]
 
     // check just to avoid mobx warnings about trying to access out of bounds index
     if (isArray(current) && +p >= current.length) {
-      return { resolved: false }
+      return unresolved
     }
 
     current = modelToDataNode(current[p])
@@ -289,7 +292,7 @@ export function resolvePath<T = any>(
  */
 export function resolvePathCheckingIds<T = any>(
   pathRootObject: object,
-  path: ReadonlyArray<string | number>,
+  path: Path,
   pathIds: ReadonlyArray<string | null>
 ):
   | {
@@ -339,10 +342,7 @@ export function resolvePathCheckingIds<T = any>(
  * @param toChild
  * @returns
  */
-export function getParentToChildPath(
-  fromParent: object,
-  toChild: object
-): (string | number)[] | undefined {
+export function getParentToChildPath(fromParent: object, toChild: object): Path | undefined {
   assertTweakedObject(fromParent, "fromParent")
   assertTweakedObject(toChild, "toChild")
 
@@ -350,7 +350,7 @@ export function getParentToChildPath(
     return []
   }
 
-  const path: (string | number)[] = []
+  const path: WritablePath = []
 
   let current = toChild
   let parentPath

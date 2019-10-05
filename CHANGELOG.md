@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.25.3
+
+- Fixed `applySerializedActionAndTrackNewModelIds` so it won't track `$modelId` changes for plain objects.
+- Added `Path` and `PathElement` types.
+
 ## 0.25.2
 
 - Fixed an issue with back-references and `onResolvedValueChange` not working when references were being restored from a snapshot.
@@ -10,7 +15,7 @@
 
 ## 0.25.0
 
-- Added `applySerializedActionAndTrackNewModelIds` and `applySerializedActionAndSyncNewModelIds`. Prefer those over `deserializeActionCall` plus `applyAction` when applying serialized (over the wire) actions in order to avoid \$modelId desynchronization.
+- Added `applySerializedActionAndTrackNewModelIds` and `applySerializedActionAndSyncNewModelIds`. Prefer those over `deserializeActionCall` plus `applyAction` when applying serialized (over the wire) actions in order to avoid `$modelId` desynchronization.
 - Added a default implementation of `getRefId()` which returns `$modelId`.
 
 ## 0.24.1

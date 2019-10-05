@@ -1,6 +1,7 @@
 import { assertIsModel } from "../model/utils"
 import { detach } from "../parent/detach"
 import { resolvePathCheckingIds } from "../parent/path"
+import { Path } from "../parent/pathTypes"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { assertTweakedObject } from "../tweaker/core"
@@ -25,7 +26,7 @@ export interface ActionCall {
   /**
    * Path to the model where the action will be run, as an array of string | number.
    */
-  readonly targetPath: ReadonlyArray<string | number>
+  readonly targetPath: Path
 
   /**
    * Ids of models along the path to the target, null if it is not a model.
