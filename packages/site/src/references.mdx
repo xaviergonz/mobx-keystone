@@ -31,7 +31,7 @@ const myRef = rootRef<T>("some unique model type id", {
 })
 ```
 
-Note that if the reference points to a model and that model class specifies a method named `getRefId()` then `getId` can be omitted.
+Note that if the reference points to a model and that model class specifies a custom method named `getRefId()` (or you want to use `$modelId` as reference ID, which is the default implementation of `getRefId()`) then `getId` can be omitted.
 
 Reference objects can then be created using `myRef(target: T)` or `myRef(id: string)` and offer the following properties:
 
