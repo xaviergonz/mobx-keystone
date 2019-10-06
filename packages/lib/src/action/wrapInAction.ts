@@ -64,15 +64,22 @@ export function wrapInAction<T extends Function>(
     setCurrentActionContext(context)
 
     let mwareFn: () => any = fn.bind(this, ...arguments)
-    for (const mware of getActionMiddlewares(this)) {
+    const mwareIter = getActionMiddlewares(this)[Symbol.iterator]()
+    let mwareCur = mwareIter.next()
+    while (!mwareCur.done) {
+      const mware = mwareCur.value
+
       const filterPassed = mware.filter ? mware.filter(context) : true
       if (filterPassed) {
         mwareFn = mware.middleware.bind(undefined, context, mwareFn)
       }
+
+      mwareCur = mwareIter.next()
     }
 
     try {
       const ret = mwareFn()
+
       if (isFlowFinsher) {
         const flowFinisher = ret as FlowFinisher
         const value = flowFinisher.value
