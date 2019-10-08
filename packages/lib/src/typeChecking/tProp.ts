@@ -9,7 +9,7 @@ import { AnyType, TypeToData } from "./schemas"
  *
  * Example:
  * ```ts
- * x: tcProp("foo") // an optional string that will take the value `"foo"` when undefined.
+ * x: tProp("foo") // an optional string that will take the value `"foo"` when undefined.
  * ```
  *
  * @param defaultValue Default value.
@@ -23,7 +23,7 @@ export function tProp(defaultValue: string): ModelProp<string, string | null | u
  *
  * Example:
  * ```ts
- * x: tcProp(42) // an optional number that will take the value `42` when undefined.
+ * x: tProp(42) // an optional number that will take the value `42` when undefined.
  * ```
  *
  * @param defaultValue Default value.
@@ -37,7 +37,7 @@ export function tProp(defaultValue: number): ModelProp<number, number | null | u
  *
  * Example:
  * ```ts
- * x: tcProp(true) // an optional boolean that will take the value `true` when undefined.
+ * x: tProp(true) // an optional boolean that will take the value `true` when undefined.
  * ```
  *
  * @param defaultValue Default value.
@@ -50,8 +50,8 @@ export function tProp(defaultValue: boolean): ModelProp<boolean, boolean | null 
  *
  * Example:
  * ```ts
- * x: tcProp(types.number) // a required number
- * x: tcProp(types.maybe(types.number)) // an optional number, which defaults to undefined
+ * x: tProp(types.number) // a required number
+ * x: tProp(types.maybe(types.number)) // an optional number, which defaults to undefined
  * ```
  *
  * @typeparam TType Type checker type.
@@ -73,8 +73,8 @@ export function tProp<TType extends AnyType>(
  *
  * Example:
  * ```ts
- * x: tcProp(types.number, () => 10) // an optional number, with a default value of 10
- * x: tcProp(types.array(types.number), () => []) // an optional number array, with a default empty array
+ * x: tProp(types.number, () => 10) // an optional number, with a default value of 10
+ * x: tProp(types.array(types.number), () => []) // an optional number array, with a default empty array
  * ```
  *
  * @typeparam TType Type checker type.
@@ -96,7 +96,7 @@ export function tProp<TType extends AnyType>(
  *
  * Example:
  * ```ts
- * x: tcProp(types.number, 10) // an optional number, with a default value of 10
+ * x: tProp(types.number, 10) // an optional number, with a default value of 10
  * ```
  *
  * @typeparam TType Type checker type.
