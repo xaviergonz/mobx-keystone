@@ -90,7 +90,7 @@ export function prop<TValue>(
  * @returns
  */
 export function prop<TValue>(
-  defaultValue: TValue
+  defaultValue: Exclude<TValue, object>
 ): ModelProp<TValue, TValue | null | undefined, string>
 
 export function prop<TValue>(def?: any): ModelProp<TValue, any, any> {
