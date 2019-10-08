@@ -107,7 +107,7 @@ export function tProp<TType extends AnyType>(
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  defaultValue: TypeToData<TType>
+  defaultValue: Exclude<TypeToData<TType>, object>
 ): ModelProp<TypeToData<TType>, TypeToData<TType> | null | undefined, string>
 
 export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any, any> {
