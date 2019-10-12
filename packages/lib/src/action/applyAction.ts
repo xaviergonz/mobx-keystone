@@ -34,7 +34,7 @@ export interface ActionCall {
   readonly targetPathIds: ReadonlyArray<string | null>
 
   /**
-   * Marks this action call as non serialized.
+   * Marks this action call as non-serialized.
    */
   readonly serialized?: undefined
 }

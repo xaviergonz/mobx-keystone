@@ -31,7 +31,7 @@ export interface SerializedActionCallWithModelIdOverrides extends SerializedActi
  * via `applySerializedActionAndSyncNewModelIds`.
  * This means this method is usually used on the server side.
  *
- * If you intend to apply non serialized actions check `applyAction` instead.
+ * If you intend to apply non-serialized actions check `applyAction` instead.
  *
  * @param subtreeRoot Subtree root target object to run the action over.
  * @param call The serialized action, usually as coming from the server/client.
@@ -46,7 +46,7 @@ export function applySerializedActionAndTrackNewModelIds<TRet = any>(
   serializedActionCall: SerializedActionCallWithModelIdOverrides
 } {
   if (!call.serialized) {
-    throw failure("cannot apply a non serialized action call, use 'applyAction' instead")
+    throw failure("cannot apply a non-serialized action call, use 'applyAction' instead")
   }
 
   assertTweakedObject(subtreeRoot, "subtreeRoot")
@@ -139,7 +139,7 @@ function deepScanValueForModelIdChanges(
  * via `applySerializedActionAndSyncNewModelIds`.
  * This means this method is usually used on the server side.
  *
- * If you intend to apply non serialized actions check `applyAction` instead.
+ * If you intend to apply non-serialized actions check `applyAction` instead.
  *
  * @param subtreeRoot Subtree root target object to run the action over.
  * @param call The serialized action, usually as coming from the server/client.
@@ -151,7 +151,7 @@ export function applySerializedActionAndSyncNewModelIds<TRet = any>(
   call: SerializedActionCallWithModelIdOverrides
 ): TRet {
   if (!call.serialized) {
-    throw failure("cannot apply a non serialized action call, use 'applyAction' instead")
+    throw failure("cannot apply a non-serialized action call, use 'applyAction' instead")
   }
 
   assertTweakedObject(subtreeRoot, "subtreeRoot")

@@ -191,7 +191,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
   assertCanWrite()
 
   if (typeof change.name === "symbol") {
-    throw failure("symbol properties are not supported.")
+    throw failure("symbol properties are not supported")
   }
 
   switch (change.type) {

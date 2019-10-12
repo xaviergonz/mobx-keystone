@@ -194,7 +194,7 @@ export function deserializeActionCall(
   targetRoot?: object
 ): ActionCall {
   if (!actionCall.serialized) {
-    throw failure("cannot deserialize a non serialized action call")
+    throw failure("cannot deserialize a non-serialized action call")
   }
 
   if (targetRoot !== undefined) {
