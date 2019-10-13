@@ -38,11 +38,11 @@ export function reconcileSnapshot(value: any, sn: any): any {
   }
 
   if (isMap(sn)) {
-    throw failure("a snapshot might not contain maps")
+    throw failure("a snapshot must not contain maps")
   }
 
   if (isSet(sn)) {
-    throw failure("a snapshot might not contain sets")
+    throw failure("a snapshot must not contain sets")
   }
 
   throw failure(`unsupported snapshot - ${sn}`)

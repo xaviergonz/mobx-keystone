@@ -47,7 +47,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   }
 
   if (isFrozenSnapshot(sn)) {
-    throw failure("applySnapshot can not be used over frozen objects")
+    throw failure("applySnapshot cannot be used over frozen objects")
   }
 
   if (isModelSnapshot(sn)) {

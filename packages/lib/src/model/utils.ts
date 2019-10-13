@@ -71,10 +71,10 @@ export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
  */
 export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey: string) {
   if (typeof propertyKey !== "string") {
-    throw failure(fnName + " cannot be used over symbol properties")
+    throw failure(`${fnName} cannot be used over symbol properties`)
   }
 
-  const errMessage = fnName + " must be used over model classes or instances"
+  const errMessage = `${fnName} must be used over model classes or instances`
 
   if (!target) {
     throw failure(errMessage)

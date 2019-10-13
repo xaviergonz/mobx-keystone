@@ -94,7 +94,7 @@ export function isModelAutoTypeCheckingEnabled() {
 }
 
 function shortenUuid(uuid: string): string {
-  // remove non hex chars
+  // remove non-hex chars
   const hex = uuid.split("-").join("")
 
   // convert to base64

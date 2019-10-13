@@ -66,11 +66,11 @@ function internalFromSnapshot<T>(
   }
 
   if (isMap(sn)) {
-    throw failure("a snapshot might not contain maps")
+    throw failure("a snapshot must not contain maps")
   }
 
   if (isSet(sn)) {
-    throw failure("a snapshot might not contain sets")
+    throw failure("a snapshot must not contain sets")
   }
 
   if (isArray(sn)) {
@@ -105,9 +105,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   const type = sn[modelTypeKey]
 
   if (!type) {
-    throw failure(
-      `a model a snapshot must contain a type key (${modelTypeKey}), but none was found`
-    )
+    throw failure(`a model snapshot must contain a type key (${modelTypeKey}), but none was found`)
   }
 
   const modelInfo = getModelInfoForName(type)
@@ -116,7 +114,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   }
 
   if (!sn[modelIdKey]) {
-    throw failure(`a model a snapshot must contain an id key (${modelIdKey}), but none was found`)
+    throw failure(`a model snapshot must contain an id key (${modelIdKey}), but none was found`)
   }
 
   return new (modelInfo.class as any)(
