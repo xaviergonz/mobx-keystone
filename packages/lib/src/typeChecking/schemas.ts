@@ -12,9 +12,9 @@ export interface IdentityType<T> {
   $$identityTypeOpt: T & undefined
 }
 
-export interface ArrayType<S extends AnyType> {
+export interface ArrayType<S> {
   /** @ignore */
-  $$arrayType: TypeToData<S>[] extends infer R ? R : never
+  $$arrayType: Array<TypeToData<S>> extends infer R ? R : never
 }
 
 export interface ObjectOfTypes {
@@ -29,7 +29,7 @@ type UndefinablePropsNames<T> = {
   [K in keyof T]: IsOptionalValue<T[K], K, never>
 }[keyof T]
 
-export interface ObjectType<S extends ObjectOfTypes> {
+export interface ObjectType<S> {
   /** @ignore */
   $$objectTypeData: { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never }
 
@@ -43,18 +43,18 @@ export interface ObjectType<S extends ObjectOfTypes> {
   $$objectType: O.Optional<this["$$objectTypeData"], this["$$objectUndefinablePropNames"]>
 }
 
-export interface ObjectTypeFunction<S extends ObjectOfTypes> {
-  (): S
+export interface ObjectTypeFunction {
+  (): ObjectOfTypes
 }
 
-export interface RecordType<S extends AnyType> {
+export interface RecordType<S> {
   /** @ignore */
   $$recordType: {
     [k: string]: TypeToData<S> extends infer R ? R : never
   }
 }
 
-export interface OrType<S extends AnyType[]> {
+export interface OrType<S extends any[]> {
   /** @ignore */
   $$orType: TypeToData<S[number]> extends infer R ? R : never
   /** @ignore */
@@ -72,12 +72,12 @@ export type AnyType =
   | OrType<any>
   | ObjectType<any>
   | RecordType<any>
-  | ObjectTypeFunction<any>
+  | ObjectTypeFunction
 
 // type schemas to actual types
 
-export type TypeToData<S extends AnyType> = S extends ObjectTypeFunction<infer S2>
-  ? ObjectType<S2>["$$objectType"] extends infer R
+export type TypeToData<S> = S extends ObjectTypeFunction
+  ? ObjectType<ReturnType<S>>["$$objectType"] extends infer R
     ? R
     : never
   : S extends ObjectType<any>
@@ -113,7 +113,7 @@ export type TypeToData<S extends AnyType> = S extends ObjectTypeFunction<infer S
   : never // anything else
 
 /** @ignore */
-export type TypeToDataOpt<S extends AnyType> = S extends OrType<any>
+export type TypeToDataOpt<S> = S extends OrType<any>
   ? S["$$orTypeOpt"] extends infer R
     ? R
     : never

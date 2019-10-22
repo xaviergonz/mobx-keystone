@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.26.1
+
+- Optimized types a bit.
+
 ## 0.26.0
 
 - Made it impossible in Typescript to give a default value for an object type without using a default value generator function to avoid possible mistakes.

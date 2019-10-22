@@ -178,10 +178,10 @@ function updateBackRefs<T extends object>(
 
   if (oldTarget) {
     getBackRefs(oldTarget).delete(ref)
-    getBackRefs(oldTarget, refClass as RefConstructor<object>).delete(ref)
+    getBackRefs(oldTarget, refClass as RefConstructor<any>).delete(ref)
   }
   if (newTarget) {
     getBackRefs(newTarget).add(ref)
-    getBackRefs(newTarget, refClass as RefConstructor<object>).add(ref)
+    getBackRefs(newTarget, refClass as RefConstructor<any>).add(ref)
   }
 }
