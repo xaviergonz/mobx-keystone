@@ -41,6 +41,7 @@ const perObjectActionMiddlewaresIterator = new WeakMap<object, ActionMiddlewares
 
 /**
  * @ignore
+ * @internal
  *
  * Gets the current action middlewares to be run over a given object as an iterable object.
  *

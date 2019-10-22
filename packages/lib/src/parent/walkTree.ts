@@ -125,6 +125,7 @@ export function computedWalkTreeParentFirst<T = void>(
 
 /**
  * @ignore
+ * @internal
  */
 export interface ComputedWalkTreeAggregate<R> {
   walk(target: object): Map<R, object> | undefined
@@ -132,6 +133,7 @@ export interface ComputedWalkTreeAggregate<R> {
 
 /**
  * @ignore
+ * @internal
  */
 export function computedWalkTreeAggregate<R>(
   predicate: (node: object) => R | undefined

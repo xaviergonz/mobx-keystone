@@ -1,2 +1,2 @@
-export { isTreeNode } from "./core"
-export { toTreeNode } from "./tweak"
+export * from "./core"
+export * from "./tweak"

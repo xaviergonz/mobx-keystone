@@ -16,6 +16,7 @@ declare const creationDataTypeSymbol: unique symbol
 
 /**
  * @ignore
+ * @internal
  */
 export const modelInitializedSymbol = Symbol("modelInitialized")
 
@@ -130,6 +131,9 @@ export abstract class BaseModel<
 }
 
 // these props will never be hoisted to this (except for model id)
+/**
+ * @internal
+ */
 export const baseModelPropNames = new Set<keyof AnyModel>([
   modelTypeKey,
   modelIdKey,

@@ -4,6 +4,7 @@ let actionProtection = true
 
 /**
  * @ignore
+ * @internal
  *
  * Gets if the action protection is currently enabled or not.
  *

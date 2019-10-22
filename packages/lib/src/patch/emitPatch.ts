@@ -7,6 +7,7 @@ import { Patch } from "./Patch"
 
 /**
  * @ignore
+ * @internal
  */
 export class InternalPatchRecorder {
   patches!: Patch[]

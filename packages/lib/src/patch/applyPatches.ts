@@ -24,6 +24,7 @@ export function applyPatches(node: object, patches: ReadonlyArray<Patch>): void 
 
 /**
  * @ignore
+ * @internal
  */
 export function internalApplyPatches(this: object, patches: ReadonlyArray<Patch>): void {
   const obj = this

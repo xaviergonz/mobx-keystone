@@ -36,6 +36,7 @@ export type RefOnResolvedValueChange<T extends object> = (
 
 /**
  * @ignore
+ * @internal
  */
 export function internalCustomRef<T extends object>(
   modelTypeId: string,

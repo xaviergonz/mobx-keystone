@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.26.3
+
+- Fixed type generation.
+
 ## 0.26.1
 
 - Optimized types a bit.

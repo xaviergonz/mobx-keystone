@@ -1,1 +1,1 @@
-export { getRootStore, isRootStore, registerRootStore, unregisterRootStore } from "./rootStore"
+export * from "./rootStore"

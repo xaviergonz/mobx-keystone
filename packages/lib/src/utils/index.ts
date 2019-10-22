@@ -22,6 +22,7 @@ export class MobxKeystoneError extends Error {
 
 /**
  * @ignore
+ * @internal
  */
 export function failure(msg: string) {
   return new MobxKeystoneError(msg)
@@ -36,6 +37,7 @@ const writableHiddenPropDescriptor: PropertyDescriptor = {
 
 /**
  * @ignore
+ * @internal
  */
 export function addHiddenProp(object: any, propName: PropertyKey, value: any, writable = true) {
   if (writable) {
@@ -53,6 +55,7 @@ export function addHiddenProp(object: any, propName: PropertyKey, value: any, wr
 
 /**
  * @ignore
+ * @internal
  */
 export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: boolean) {
   const propDesc = Object.getOwnPropertyDescriptor(object, propName)
@@ -69,6 +72,7 @@ export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: bo
 
 /**
  * @ignore
+ * @internal
  */
 export function isPlainObject(value: any): value is Object {
   if (!isObject(value)) return false
@@ -78,6 +82,7 @@ export function isPlainObject(value: any): value is Object {
 
 /**
  * @ignore
+ * @internal
  */
 export function isObject(value: any): value is Object {
   return value !== null && typeof value === "object"
@@ -85,6 +90,7 @@ export function isObject(value: any): value is Object {
 
 /**
  * @ignore
+ * @internal
  */
 export function isPrimitive(value: any): value is PrimitiveValue {
   switch (typeof value) {
@@ -100,6 +106,7 @@ export function isPrimitive(value: any): value is PrimitiveValue {
 
 /**
  * @ignore
+ * @internal
  */
 export function debugFreeze(value: object) {
   if (inDevMode()) {
@@ -109,6 +116,7 @@ export function debugFreeze(value: object) {
 
 /**
  * @ignore
+ * @internal
  */
 export function deleteFromArray<T>(array: T[], value: T): boolean {
   let index = array.indexOf(value)
@@ -121,6 +129,7 @@ export function deleteFromArray<T>(array: T[], value: T): boolean {
 
 /**
  * @ignore
+ * @internal
  */
 export function isMap(val: any): val is Map<any, any> | ObservableMap {
   return val instanceof Map || isObservableMap(val)
@@ -128,6 +137,7 @@ export function isMap(val: any): val is Map<any, any> | ObservableMap {
 
 /**
  * @ignore
+ * @internal
  */
 export function isSet(val: any): val is Set<any> | ObservableSet {
   return val instanceof Set || isObservableSet(val)
@@ -135,6 +145,7 @@ export function isSet(val: any): val is Set<any> | ObservableSet {
 
 /**
  * @ignore
+ * @internal
  */
 export function isArray(val: any): val is any[] | IObservableArray {
   return Array.isArray(val) || isObservableArray(val)
@@ -142,6 +153,7 @@ export function isArray(val: any): val is any[] | IObservableArray {
 
 /**
  * @ignore
+ * @internal
  */
 export function inDevMode(): boolean {
   return process.env.NODE_ENV !== "production"
@@ -149,6 +161,7 @@ export function inDevMode(): boolean {
 
 /**
  * @ignore
+ * @internal
  */
 export function assertIsObject(value: any, argName: string): void {
   if (!isObject(value)) {
@@ -158,6 +171,7 @@ export function assertIsObject(value: any, argName: string): void {
 
 /**
  * @ignore
+ * @internal
  */
 export function assertIsFunction(value: any, argName: string): void {
   if (typeof value !== "function") {
@@ -167,6 +181,7 @@ export function assertIsFunction(value: any, argName: string): void {
 
 /**
  * @ignore
+ * @internal
  */
 export function assertIsPrimitive(value: any, argName: string): void {
   if (!isPrimitive(value)) {
@@ -176,6 +191,7 @@ export function assertIsPrimitive(value: any, argName: string): void {
 
 /**
  * @ignore
+ * @internal
  */
 export interface DecorateMethodOrFieldData {
   target: any
@@ -185,6 +201,7 @@ export interface DecorateMethodOrFieldData {
 
 /**
  * @ignore
+ * @internal
  */
 export function decorateWrapMethodOrField(
   data: DecorateMethodOrFieldData,
@@ -227,6 +244,7 @@ export function decorateWrapMethodOrField(
 
 /**
  * @ignore
+ * @internal
  */
 export function logWarning(type: "warn" | "error", msg: string): void {
   msg = "[mobx-keystone] " + msg

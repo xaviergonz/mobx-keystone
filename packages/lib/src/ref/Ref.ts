@@ -59,7 +59,6 @@ export interface RefConstructor<T extends object> {
 
   refClass: ModelClass<Ref<T>>
 
-  /** @internal */
   [customRefTypeSymbol]: T // just for typings
 }
 

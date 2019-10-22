@@ -155,6 +155,7 @@ function flow<R, Args extends any[]>(
 
 /**
  * @ignore
+ * @internal
  */
 export interface FlowFinisher {
   value: any

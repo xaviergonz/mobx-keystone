@@ -58,6 +58,7 @@ export function patchRecorder(
 
 /**
  * @ignore
+ * @internal
  *
  * Creates a global or local patch recorder.
  *

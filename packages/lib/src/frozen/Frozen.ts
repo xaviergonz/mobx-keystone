@@ -118,6 +118,9 @@ function checkDataIsSerializableAndFreeze(data: any) {
 }
 
 /**
+ * @ignore
+ * @internal
+ *
  * Checks if an snapshot is an snapshot for a frozen data.
  *
  * @param snapshot

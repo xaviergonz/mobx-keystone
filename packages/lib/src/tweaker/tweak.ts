@@ -87,11 +87,13 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 
 /**
  * @ignore
+ * @internal
  */
 export const tweak = action("tweak", internalTweak)
 
 /**
  * @ignore
+ * @internal
  */
 export function tryUntweak(value: any) {
   if (isPrimitive(value)) {

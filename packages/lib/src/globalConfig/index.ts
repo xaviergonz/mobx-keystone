@@ -1,1 +1,1 @@
-export { getGlobalConfig, ModelAutoTypeCheckingMode, setGlobalConfig } from "./globalConfig"
+export * from "./globalConfig"

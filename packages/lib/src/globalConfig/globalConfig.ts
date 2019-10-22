@@ -73,6 +73,7 @@ export function getGlobalConfig(): Readonly<GlobalConfig> {
 
 /**
  * @ignore
+ * @internal
  *
  * Returns if the auto type checking for models is enabled.
  *

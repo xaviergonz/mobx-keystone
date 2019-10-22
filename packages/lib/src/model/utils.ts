@@ -15,6 +15,7 @@ export function isModel(model: any): model is AnyModel {
 
 /**
  * @ignore
+ * @internal
  *
  * Asserts something is actually a model.
  *
@@ -33,6 +34,7 @@ export function assertIsModel(
 
 /**
  * @ignore
+ * @internal
  */
 export function isModelClass(modelClass: any): modelClass is ModelClass<AnyModel> {
   if (typeof modelClass !== "function") {
@@ -48,6 +50,7 @@ export function isModelClass(modelClass: any): modelClass is ModelClass<AnyModel
 
 /**
  * @ignore
+ * @internal
  */
 export function assertIsModelClass(modelClass: ModelClass<AnyModel>, argName: string): void {
   if (typeof modelClass !== "function") {
@@ -61,6 +64,7 @@ export function assertIsModelClass(modelClass: ModelClass<AnyModel>, argName: st
 
 /**
  * @ignore
+ * @internal
  */
 export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
   return isPlainObject(sn) && !!sn[modelTypeKey]
@@ -68,6 +72,7 @@ export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
 
 /**
  * @ignore
+ * @internal
  */
 export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey: string) {
   if (typeof propertyKey !== "string") {

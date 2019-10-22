@@ -6,11 +6,13 @@ import { failure, isPrimitive } from "../utils"
 
 /**
  * @ignore
+ * @internal
  */
 export const tweakedObjects = new WeakMap<Object, undefined | (() => void)>()
 
 /**
  * @ignore
+ * @internal
  */
 export function isTweakedObject(value: object, canBeDataObject: boolean): boolean {
   if (!canBeDataObject && dataObjectParent.has(value)) {
@@ -31,6 +33,7 @@ export function isTreeNode(value: object): boolean {
 
 /**
  * @ignore
+ * @internal
  */
 export function assertTweakedObject(
   treeNode: any,
@@ -50,6 +53,7 @@ export function assertTweakedObject(
 
 /**
  * @ignore
+ * @internal
  */
 export function canWrite(): boolean {
   return !getActionProtection() || !!getCurrentActionContext()
@@ -57,6 +61,7 @@ export function canWrite(): boolean {
 
 /**
  * @ignore
+ * @internal
  */
 export function assertCanWrite() {
   if (!canWrite()) {
@@ -66,11 +71,13 @@ export function assertCanWrite() {
 
 /**
  * @ignore
+ * @internal
  */
 export let runningWithoutSnapshotOrPatches = false
 
 /**
  * @ignore
+ * @internal
  */
 export function runWithoutSnapshotOrPatches(fn: () => void) {
   const old = runningWithoutSnapshotOrPatches

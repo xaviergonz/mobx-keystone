@@ -9,6 +9,7 @@ export const modelTypeKey = "$modelType"
 export const modelIdKey = "$modelId"
 
 /**
+ * @internal
  * Returns if a given key is a reserved key in model snapshots.
  *
  * @param key
