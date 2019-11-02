@@ -189,6 +189,7 @@ export function modelFlow(
   baseDescriptor?: PropertyDescriptor
 ): void {
   return decorateWrapMethodOrField(
+    "modelFlow",
     {
       target,
       propertyKey,

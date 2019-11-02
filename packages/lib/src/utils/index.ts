@@ -196,7 +196,7 @@ export function assertIsPrimitive(value: any, argName: string): void {
 export interface DecorateMethodOrFieldData {
   target: any
   propertyKey: string
-  baseDescriptor?: PropertyDescriptor
+  baseDescriptor?: PropertyDescriptor & { initializer?: () => any }
 }
 
 /**
@@ -204,19 +204,41 @@ export interface DecorateMethodOrFieldData {
  * @internal
  */
 export function decorateWrapMethodOrField(
+  decoratorName: string,
   data: DecorateMethodOrFieldData,
   wrap: (data: DecorateMethodOrFieldData, fn: any) => any
-) {
+): any {
   const { target, propertyKey, baseDescriptor } = data
 
   if (baseDescriptor) {
     // method decorator
+    if (baseDescriptor.get !== undefined) {
+      return fail(`@${decoratorName} cannot be used with getters`)
+    }
+
+    // babel / typescript
+    // @action method() { }
+    if (baseDescriptor.value) {
+      // typescript
+      return {
+        enumerable: false,
+        writable: true,
+        configurable: true,
+        value: wrap(data, baseDescriptor.value),
+      }
+    }
+
+    // babel only: @action method = () => {}
+    const { initializer } = baseDescriptor
     return {
       enumerable: false,
-      writable: true,
       configurable: true,
-      value: wrap(data, baseDescriptor.value),
-    } as any
+      writable: true,
+      initializer() {
+        // N.B: we can't immediately invoke initializer; this would be wrong
+        return wrap(data, initializer!.call(this))
+      },
+    }
   } else {
     // field decorator
     Object.defineProperty(target, propertyKey, {

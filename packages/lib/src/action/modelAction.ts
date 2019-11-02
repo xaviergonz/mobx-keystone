@@ -34,6 +34,7 @@ export function modelAction(
   baseDescriptor?: PropertyDescriptor
 ): void {
   return decorateWrapMethodOrField(
+    "modelAction",
     {
       target,
       propertyKey,

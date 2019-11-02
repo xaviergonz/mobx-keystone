@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.26.4
+
+- Fix compatibility with babel decorators.
+
 ## 0.26.3
 
 - Fixed type generation.
