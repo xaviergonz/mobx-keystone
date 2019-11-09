@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.26.5
+
+- Added a ponyfill fallback for btoa for React Native.
+
 ## 0.26.4
 
 - Fix compatibility with babel decorators.

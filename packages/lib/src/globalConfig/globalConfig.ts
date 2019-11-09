@@ -1,5 +1,6 @@
 import uuidv4 from "uuid/v4"
 import { failure, inDevMode } from "../utils"
+import { toBase64 } from "../utils/toBase64"
 
 /**
  * Model auto type-checking mode.
@@ -102,11 +103,5 @@ function shortenUuid(uuid: string): string {
   const hexMatch = hex.match(/\w{2}/g)!
   const str = String.fromCharCode.apply(null, hexMatch.map(a => parseInt(a, 16)))
 
-  if (typeof global === "object" && typeof global.Buffer === "function") {
-    // node
-    return Buffer.from(str).toString("base64")
-  } else {
-    // browser
-    return btoa(str)
-  }
+  return toBase64(str)
 }
