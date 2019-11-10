@@ -34,10 +34,10 @@ export type PropTransformDecorator<TProp> = <PK extends string>(
  * For example, to transform from a number timestamp into a date:
  * ```ts
  * const asDate = propTransform({
- *   fromPropToData(prop: number) {
+ *   propToData(prop: number) {
  *     return new Date(prop)
  *   },
- *   fromDataToProp(data: Date) {
+ *   dataToProp(data: Date) {
  *     return +data
  *   }
  * })

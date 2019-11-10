@@ -15,10 +15,10 @@ For example, to transform from a number timestamp into a `Date` object you can s
 
 ```ts
 const asDate = propTransform({
-  fromPropToData(prop: number) {
+  propToData(prop: number) {
     return new Date(prop)
   },
-  fromDataToProp(data: Date) {
+  dataToProp(data: Date) {
     return +data
   },
 })
@@ -54,14 +54,14 @@ Remember that for transforms to be valid this must hold:
 
 ```
 given PV prop value
-if fromPropToData(PV) is DV
-then fromDataToProp(DV) must be PV
+if propToData(PV) is DV
+then dataToProp(DV) must be PV
 
 and inversely
 
 given DV data value
-if fromDataToProp(DV) is PV
-then fromPropToData(PV) must be DV
+if dataToProp(DV) is PV
+then propToData(PV) must be DV
 ```
 
 ## `stringAsDate` and `timestampAsDate`
