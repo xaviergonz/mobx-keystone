@@ -18,8 +18,8 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
 
   if (modelInfoByName[name]) {
     logWarning(
-      "error",
-      `a model with name "${name}" already exists (if you are using hot-reloading this might be the cause)`
+      "warn",
+      `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`
     )
   }
 

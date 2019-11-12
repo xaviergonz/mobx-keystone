@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.26.6
+
+- Switched an error to be a warning instead when using hot reloading.
+
 ## 0.26.5
 
 - Added a ponyfill fallback for btoa for React Native.
