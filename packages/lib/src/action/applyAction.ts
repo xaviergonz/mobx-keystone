@@ -89,6 +89,6 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   } else if (isHookAction(call.actionName)) {
     throw failure(`calls to hooks (${call.actionName}) cannot be applied`)
   } else {
-    return current[call.actionName].apply(current, call.args)
+    return (current as any)[call.actionName].apply(current, call.args)
   }
 }

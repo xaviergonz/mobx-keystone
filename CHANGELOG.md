@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.26.7
+
+- Simplified types.or typing.
+
 ## 0.26.6
 
 - Switched an error to be a warning instead when using hot reloading.

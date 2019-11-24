@@ -23,10 +23,10 @@ export function isModel(model: any): model is AnyModel {
  * @param argName
  */
 export function assertIsModel(
-  model: AnyModel,
+  model: unknown,
   argName: string,
   customErrMsg = "must be a model instance"
-) {
+): asserts model is AnyModel {
   if (!isModel(model)) {
     throw failure(`${argName} ${customErrMsg}`)
   }
@@ -52,7 +52,10 @@ export function isModelClass(modelClass: any): modelClass is ModelClass<AnyModel
  * @ignore
  * @internal
  */
-export function assertIsModelClass(modelClass: ModelClass<AnyModel>, argName: string): void {
+export function assertIsModelClass(
+  modelClass: unknown,
+  argName: string
+): asserts modelClass is ModelClass<AnyModel> {
   if (typeof modelClass !== "function") {
     throw failure(`${argName} must be a class`)
   }

@@ -109,9 +109,10 @@ export class TypeChecker {
 }
 
 /**
+ * @internal
  * @ignore
  */
-export function assertIsTypeChecker(value: any) {
+export function assertIsTypeChecker(value: unknown): asserts value is TypeChecker {
   if (!(value instanceof TypeChecker)) {
     throw failure("type checker expected")
   }

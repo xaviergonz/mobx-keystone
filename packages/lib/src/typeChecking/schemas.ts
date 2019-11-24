@@ -8,8 +8,6 @@ import { IsOptionalValue } from "../utils/types"
 export interface IdentityType<T> {
   /** @ignore */
   $$identityType: T
-  /** @ignore */
-  $$identityTypeOpt: T & undefined
 }
 
 export interface ArrayType<S> {
@@ -54,13 +52,6 @@ export interface RecordType<S> {
   }
 }
 
-export interface OrType<S extends any[]> {
-  /** @ignore */
-  $$orType: TypeToData<S[number]> extends infer R ? R : never
-  /** @ignore */
-  $$orTypeOpt: TypeToDataOpt<S[number]> extends infer R ? R : never
-}
-
 export type AnyType =
   | StringConstructor
   | NumberConstructor
@@ -69,7 +60,6 @@ export type AnyType =
   | undefined
   | IdentityType<any>
   | ArrayType<any>
-  | OrType<any>
   | ObjectType<any>
   | RecordType<any>
   | ObjectTypeFunction
@@ -92,10 +82,6 @@ export type TypeToData<S> = S extends ObjectTypeFunction
   ? S["$$arrayType"] extends infer R
     ? R
     : never
-  : S extends OrType<any>
-  ? S["$$orType"] extends infer R
-    ? R
-    : never
   : S extends IdentityType<any>
   ? S["$$identityType"] extends infer R
     ? R
@@ -113,12 +99,4 @@ export type TypeToData<S> = S extends ObjectTypeFunction
   : never // anything else
 
 /** @ignore */
-export type TypeToDataOpt<S> = S extends OrType<any>
-  ? S["$$orTypeOpt"] extends infer R
-    ? R
-    : never
-  : S extends IdentityType<any>
-  ? S["$$identityTypeOpt"] extends infer R
-    ? R
-    : never
-  : never
+export type TypeToDataOpt<S> = S extends IdentityType<any> ? S["$$identityType"] & undefined : never

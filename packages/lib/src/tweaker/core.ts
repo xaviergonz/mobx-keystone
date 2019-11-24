@@ -14,11 +14,11 @@ export const tweakedObjects = new WeakMap<Object, undefined | (() => void)>()
  * @ignore
  * @internal
  */
-export function isTweakedObject(value: object, canBeDataObject: boolean): boolean {
-  if (!canBeDataObject && dataObjectParent.has(value)) {
+export function isTweakedObject(value: unknown, canBeDataObject: boolean): value is object {
+  if (!canBeDataObject && dataObjectParent.has(value as object)) {
     return false
   }
-  return tweakedObjects.has(value)
+  return tweakedObjects.has(value as object)
 }
 
 /**
@@ -27,7 +27,7 @@ export function isTweakedObject(value: object, canBeDataObject: boolean): boolea
  * @param value Value to check.
  * @returns true if it is a tree node, false otherwise.
  */
-export function isTreeNode(value: object): boolean {
+export function isTreeNode(value: unknown): value is object {
   return !isPrimitive(value) && isTweakedObject(value, false)
 }
 
@@ -36,11 +36,11 @@ export function isTreeNode(value: object): boolean {
  * @internal
  */
 export function assertTweakedObject(
-  treeNode: any,
+  treeNode: unknown,
   argName: string,
   canBeDataObject = false
-): treeNode is Object {
-  if (!canBeDataObject && dataObjectParent.has(treeNode)) {
+): asserts treeNode is object {
+  if (!canBeDataObject && dataObjectParent.has(treeNode as object)) {
     throw failure(`${argName} must be the model object instance instead of the '$' sub-object`)
   }
   if (!isTreeNode(treeNode)) {
@@ -48,7 +48,6 @@ export function assertTweakedObject(
       `${argName} must be a tree node (usually a model or a shallow / deep child part of a model 'data' object)`
     )
   }
-  return true
 }
 
 /**

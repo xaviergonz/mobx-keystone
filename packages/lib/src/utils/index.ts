@@ -163,7 +163,7 @@ export function inDevMode(): boolean {
  * @ignore
  * @internal
  */
-export function assertIsObject(value: any, argName: string): void {
+export function assertIsObject(value: unknown, argName: string): asserts value is object {
   if (!isObject(value)) {
     throw failure(`${argName} must be an object`)
   }
@@ -173,7 +173,7 @@ export function assertIsObject(value: any, argName: string): void {
  * @ignore
  * @internal
  */
-export function assertIsFunction(value: any, argName: string): void {
+export function assertIsFunction(value: unknown, argName: string): asserts value is Function {
   if (typeof value !== "function") {
     throw failure(`${argName} must be a function`)
   }
@@ -183,7 +183,10 @@ export function assertIsFunction(value: any, argName: string): void {
  * @ignore
  * @internal
  */
-export function assertIsPrimitive(value: any, argName: string): void {
+export function assertIsPrimitive(
+  value: unknown,
+  argName: string
+): asserts value is PrimitiveValue {
   if (!isPrimitive(value)) {
     throw failure(`${argName} must be a primitive`)
   }

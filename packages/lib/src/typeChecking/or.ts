@@ -1,5 +1,5 @@
 import { resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyType, OrType } from "./schemas"
+import { AnyType } from "./schemas"
 import { lateTypeChecker, TypeChecker } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 import { typesUnchecked } from "./unchecked"
@@ -16,7 +16,7 @@ import { typesUnchecked } from "./unchecked"
  * @param options Possible types.
  * @returns
  */
-export function typesOr<T extends AnyType[]>(...options: T): OrType<T> {
+export function typesOr<T extends AnyType[]>(...options: T): T[number] {
   return lateTypeChecker(() => {
     const checkers = options.map(resolveTypeChecker)
 
