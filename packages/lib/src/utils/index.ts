@@ -216,7 +216,7 @@ export function decorateWrapMethodOrField(
   if (baseDescriptor) {
     // method decorator
     if (baseDescriptor.get !== undefined) {
-      return fail(`@${decoratorName} cannot be used with getters`)
+      throw failure(`@${decoratorName} cannot be used with getters`)
     }
 
     // babel / typescript
