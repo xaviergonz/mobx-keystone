@@ -4,11 +4,15 @@ route: /examples/todoList
 menu: Examples
 ---
 
+import { Code } from 'gatsby-theme-docz/src/components/Code'
 import { Playground } from "docz"
 import storeSource from "!!raw-loader!./store.ts.txt"
 import appSource from "!!raw-loader!./app.tsx.txt"
 import logsSource from "!!raw-loader!./logs.tsx.txt"
 import { App } from "./app.tsx"
+import { FixStyle } from "../../components/FixStyle.tsx"
+
+<FixStyle/>
 
 # Examples / Todo List
 
@@ -18,12 +22,18 @@ import { App } from "./app.tsx"
 
 ### examples/todoList/store.ts
 
-<editor>{storeSource}</editor>
+<Code className={'tsx'}>
+  {storeSource}
+</Code>
 
 ### examples/todoList/app.tsx
 
-<editor>{appSource}</editor>
+<Code className={'tsx'}>
+  {appSource}
+</Code>
 
 ### examples/todoList/logs.tsx
 
-<editor>{logsSource}</editor>
+<Code className={'tsx'}>
+  {logsSource}
+</Code>

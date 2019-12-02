@@ -2,9 +2,11 @@ export default {
   title: "mobx-keystone",
   description:
     "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
+  repository: "https://github.com/xaviergonz/mobx-keystone",
+  npm: "https://npmjs.com/package/mobx-keystone",
+  apiRef: "/public/api",
   typescript: true,
   propsParser: false,
-  codeSandbox: false,
   menu: [
     "Introduction",
     "Comparison with mobx-state-tree",
@@ -31,37 +33,10 @@ export default {
     "Property Transforms",
     "Redux Compatibility",
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
-    "API Reference",
-    "GitHub Repo 🔗",
-    "NPM Project Page 🔗",
   ],
-  htmlContext: {
-    head: {
-      links: [
-        {
-          rel: "stylesheet",
-          href: "https://codemirror.net/theme/blackboard.css",
-        },
-      ],
-    },
-  },
   themeConfig: {
-    logo: {
-      src: "/public/images/lib-logo.png",
-      width: 100,
-    },
-    mode: "dark",
-    codemirrorTheme: "blackboard",
-    showPlaygroundEditor: false,
-    linesToScrollEditor: 50,
-    colors: {
-      codeColor: "#8DB6DE",
-      codeBg: "#0C1021",
-      blockquoteColor: "#8DB6DE",
-      blockquoteBg: "#0C1021",
-    },
+    mode: "light",
+    showDarkModeSwitch: false,
   },
-  src: "./src",
-  public: "./src/public",
   plugins: [],
 }
