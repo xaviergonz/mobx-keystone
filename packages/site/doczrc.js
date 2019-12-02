@@ -35,7 +35,7 @@ export default {
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
   ],
   themeConfig: {
-    mode: "dark",
+    mode: "light",
     showDarkModeSwitch: false,
   },
   plugins: [],
