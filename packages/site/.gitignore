@@ -2,4 +2,4 @@
 .DS_Store
 node_modules
 /.docz/
-/src/public/api/
+/public/api/

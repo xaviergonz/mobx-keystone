@@ -3,6 +3,10 @@ name: Frozen Data
 route: /frozen
 ---
 
+import { FixStyle } from "./components/FixStyle.tsx"
+
+<FixStyle />
+
 # Frozen Data
 
 ## Overview
@@ -19,7 +23,10 @@ As an example, say that your app uses lists of lots of points (polygons), and yo
 type Polygon = { x: number; y: number }[]
 
 // not frozen polygon, `getSnaphot` for example still won't work on it
-const myPolygon = [{ x: 10, y: 10 }, { x: 20, y: 10 }]
+const myPolygon = [
+  { x: 10, y: 10 },
+  { x: 20, y: 10 },
+]
 
 // now myPolygon will be frozen, in dev mode it cannot be changed anymore
 // and things like `getSnapshot` will work over it
