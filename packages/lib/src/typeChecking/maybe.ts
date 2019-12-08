@@ -4,6 +4,7 @@ import { AnyType, IdentityType } from "./schemas"
 
 /**
  * A type that represents either a type or undefined.
+ * Syntactic sugar for `types.or(baseType, types.undefined)`
  *
  * Example:
  * ```ts
@@ -11,15 +12,16 @@ import { AnyType, IdentityType } from "./schemas"
  * ```
  *
  * @typeparam S Type.
- * @param type Type.
+ * @param baseType Type.
  * @returns
  */
-export function typesMaybe<T extends AnyType>(type: T): T | IdentityType<undefined> {
-  return typesOr(type, typesUndefined)
+export function typesMaybe<T extends AnyType>(baseType: T): T | IdentityType<undefined> {
+  return typesOr(baseType, typesUndefined)
 }
 
 /**
  * A type that represents either a type or null.
+ * Syntactic sugar for `types.or(baseType, types.null)`
  *
  *  * Example:
  * ```ts

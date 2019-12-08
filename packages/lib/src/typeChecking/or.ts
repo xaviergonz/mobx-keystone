@@ -1,6 +1,7 @@
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyType } from "./schemas"
-import { lateTypeChecker, TypeChecker } from "./TypeChecker"
+import { lateVal } from "../utils"
+import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
+import { AnyStandardType, AnyType } from "./schemas"
+import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 import { typesUnchecked } from "./unchecked"
 
@@ -13,12 +14,14 @@ import { typesUnchecked } from "./unchecked"
  * ```
  *
  * @typeparam T Type.
- * @param options Possible types.
+ * @param orTypes Possible types.
  * @returns
  */
-export function typesOr<T extends AnyType[]>(...options: T): T[number] {
+export function typesOr<T extends AnyType[]>(...orTypes: T): T[number] {
+  const typeInfoGen: TypeInfoGen = t => new OrTypeInfo(t, orTypes.map(resolveStandardType))
+
   return lateTypeChecker(() => {
-    const checkers = options.map(resolveTypeChecker)
+    const checkers = orTypes.map(resolveTypeChecker)
 
     // if the or includes unchecked then it is unchecked
     if (checkers.some(tc => tc.unchecked)) {
@@ -36,15 +39,35 @@ export function typesOr<T extends AnyType[]>(...options: T): T[number] {
       return typeNames.join(" | ")
     }
 
-    const thisTc: TypeChecker = new TypeChecker((value, path) => {
-      const noMatchingType = checkers.every(tc => !!tc.check(value, path))
-      if (noMatchingType) {
-        return new TypeCheckError(path, getTypeName(thisTc), value)
-      } else {
-        return null
-      }
-    }, getTypeName)
+    const thisTc: TypeChecker = new TypeChecker(
+      (value, path) => {
+        const noMatchingType = checkers.every(tc => !!tc.check(value, path))
+        if (noMatchingType) {
+          return new TypeCheckError(path, getTypeName(thisTc), value)
+        } else {
+          return null
+        }
+      },
+      getTypeName,
+      typeInfoGen
+    )
 
     return thisTc
-  }) as any
+  }, typeInfoGen) as any
+}
+
+/**
+ * `types.or` type info.
+ */
+export class OrTypeInfo extends TypeInfo {
+  // memoize to always return the same array on the getter
+  private _orTypeInfos = lateVal(() => this.orTypes.map(getTypeInfo))
+
+  get orTypeInfos(): ReadonlyArray<TypeInfo> {
+    return this._orTypeInfos()
+  }
+
+  constructor(thisType: AnyStandardType, readonly orTypes: ReadonlyArray<AnyStandardType>) {
+    super(thisType)
+  }
 }

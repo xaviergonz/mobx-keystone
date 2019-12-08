@@ -3,7 +3,7 @@ import { typesObject } from "./object"
 import { typesString } from "./primitives"
 import { resolveTypeChecker } from "./resolveTypeChecker"
 import { IdentityType } from "./schemas"
-import { TypeChecker } from "./TypeChecker"
+import { TypeChecker, TypeInfo } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -36,5 +36,11 @@ const refTypeChecker = new TypeChecker(
     const resolvedTc = resolveTypeChecker(refDataTypeChecker)
     return resolvedTc.check(value.$, path)
   },
-  () => typeName
+  () => typeName,
+  t => new RefTypeInfo(t)
 )
+
+/**
+ * `types.ref` type info.
+ */
+export class RefTypeInfo extends TypeInfo {}

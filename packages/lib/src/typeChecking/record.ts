@@ -1,7 +1,7 @@
 import { isObject } from "../utils"
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyType, RecordType } from "./schemas"
-import { lateTypeChecker, TypeChecker } from "./TypeChecker"
+import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
+import { AnyStandardType, AnyType, RecordType } from "./schemas"
+import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -14,34 +14,53 @@ import { TypeCheckError } from "./TypeCheckError"
  * ```
  *
  * @typeparam T Type.
- * @param values Type of the values of the object-like map.
+ * @param valueType Type of the values of the object-like map.
  * @returns
  */
-export function typesRecord<T extends AnyType>(values: T): RecordType<T> {
+export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
+  const typeInfoGen: TypeInfoGen = tc => new RecordTypeInfo(tc, resolveStandardType(valueType))
+
   return lateTypeChecker(() => {
-    const valueChecker = resolveTypeChecker(values)
+    const valueChecker = resolveTypeChecker(valueType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Record<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
-    const thisTc: TypeChecker = new TypeChecker((obj, path) => {
-      if (!isObject(obj)) return new TypeCheckError(path, getTypeName(thisTc), obj)
+    const thisTc: TypeChecker = new TypeChecker(
+      (obj, path) => {
+        if (!isObject(obj)) return new TypeCheckError(path, getTypeName(thisTc), obj)
 
-      if (!valueChecker.unchecked) {
-        const keys = Object.keys(obj)
-        for (let i = 0; i < keys.length; i++) {
-          const k = keys[i]
-          const v = obj[k]
-          const valueError = valueChecker.check(v, [...path, k])
-          if (valueError) {
-            return valueError
+        if (!valueChecker.unchecked) {
+          const keys = Object.keys(obj)
+          for (let i = 0; i < keys.length; i++) {
+            const k = keys[i]
+            const v = obj[k]
+            const valueError = valueChecker.check(v, [...path, k])
+            if (valueError) {
+              return valueError
+            }
           }
         }
-      }
 
-      return null
-    }, getTypeName)
+        return null
+      },
+      getTypeName,
+      typeInfoGen
+    )
 
     return thisTc
-  }) as any
+  }, typeInfoGen) as any
+}
+
+/**
+ * `types.record` type info.
+ */
+export class RecordTypeInfo extends TypeInfo {
+  get valueTypeInfo(): TypeInfo {
+    return getTypeInfo(this.valueType)
+  }
+
+  constructor(thisType: AnyStandardType, readonly valueType: AnyStandardType) {
+    super(thisType)
+  }
 }

@@ -1,6 +1,6 @@
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyType, TypeToData } from "./schemas"
-import { lateTypeChecker, TypeChecker } from "./TypeChecker"
+import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
+import { AnyStandardType, AnyType, TypeToData } from "./schemas"
+import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -39,6 +39,9 @@ export function typesRefinement<T extends AnyType>(
   checkFn: (data: TypeToData<T>) => TypeCheckError | null | boolean,
   typeName?: string
 ): T {
+  const typeInfoGen: TypeInfoGen = t =>
+    new RefinementTypeInfo(t, resolveStandardType(baseType), checkFn, typeName)
+
   return lateTypeChecker(() => {
     const baseChecker = resolveTypeChecker(baseType)
 
@@ -48,23 +51,45 @@ export function typesRefinement<T extends AnyType>(
       return `${refinementName}<${baseTypeName}>`
     }
 
-    const thisTc: TypeChecker = new TypeChecker((data, path) => {
-      const baseErr = baseChecker.check(data, path)
-      if (baseErr) {
-        return baseErr
-      }
+    const thisTc: TypeChecker = new TypeChecker(
+      (data, path) => {
+        const baseErr = baseChecker.check(data, path)
+        if (baseErr) {
+          return baseErr
+        }
 
-      const refinementErr = checkFn(data)
+        const refinementErr = checkFn(data)
 
-      if (refinementErr === true) {
-        return null
-      } else if (refinementErr === false) {
-        return new TypeCheckError([], getTypeName(thisTc), data)
-      } else {
-        return refinementErr || null
-      }
-    }, getTypeName)
+        if (refinementErr === true) {
+          return null
+        } else if (refinementErr === false) {
+          return new TypeCheckError([], getTypeName(thisTc), data)
+        } else {
+          return refinementErr || null
+        }
+      },
+      getTypeName,
+      typeInfoGen
+    )
 
     return thisTc
-  }) as any
+  }, typeInfoGen) as any
+}
+
+/**
+ * `types.refinement` type info.
+ */
+export class RefinementTypeInfo extends TypeInfo {
+  get baseTypeInfo(): TypeInfo {
+    return getTypeInfo(this.baseType)
+  }
+
+  constructor(
+    thisType: AnyStandardType,
+    readonly baseType: AnyStandardType,
+    readonly checkFunction: (data: any) => TypeCheckError | null | boolean,
+    readonly typeName: string | undefined
+  ) {
+    super(thisType)
+  }
 }

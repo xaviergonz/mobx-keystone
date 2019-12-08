@@ -1,11 +1,19 @@
+import { O } from "ts-toolbelt"
 import { Frozen } from "../frozen/Frozen"
-import { assertIsFunction, assertIsObject, isObject } from "../utils"
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyType, ObjectType } from "./schemas"
-import { lateTypeChecker, LateTypeChecker, TypeChecker } from "./TypeChecker"
+import { assertIsFunction, assertIsObject, isObject, lateVal } from "../utils"
+import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
+import { AnyStandardType, AnyType, ObjectType, ObjectTypeFunction } from "./schemas"
+import {
+  getTypeInfo,
+  lateTypeChecker,
+  LateTypeChecker,
+  TypeChecker,
+  TypeInfo,
+  TypeInfoGen,
+} from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
-function typesObjectHelper<S>(objFn: S, frozen: boolean): S {
+function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
 
   return lateTypeChecker(() => {
@@ -30,32 +38,36 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean): S {
       return `{ ${propsMsg.join(" ")} }`
     }
 
-    const thisTc: TypeChecker = new TypeChecker((obj, path) => {
-      if (!isObject(obj) || (frozen && !(obj instanceof Frozen)))
-        return new TypeCheckError(path, getTypeName(thisTc), obj)
+    const thisTc: TypeChecker = new TypeChecker(
+      (obj, path) => {
+        if (!isObject(obj) || (frozen && !(obj instanceof Frozen)))
+          return new TypeCheckError(path, getTypeName(thisTc), obj)
 
-      const keysToCheck = new Set(Object.keys(obj))
-      for (const [k, unresolvedTc] of schemaEntries) {
-        const tc = resolveTypeChecker(unresolvedTc)
-        const objVal = obj[k]
+        const keysToCheck = new Set(Object.keys(obj))
+        for (const [k, unresolvedTc] of schemaEntries) {
+          const tc = resolveTypeChecker(unresolvedTc)
+          const objVal = obj[k]
 
-        const valueError = !tc.unchecked ? tc.check(objVal, [...path, k]) : null
-        if (valueError) {
-          return valueError
+          const valueError = !tc.unchecked ? tc.check(objVal, [...path, k]) : null
+          if (valueError) {
+            return valueError
+          }
+
+          keysToCheck.delete(k)
         }
 
-        keysToCheck.delete(k)
-      }
+        if (keysToCheck.size > 0) {
+          return new TypeCheckError(path, getTypeName(thisTc), obj)
+        }
 
-      if (keysToCheck.size > 0) {
-        return new TypeCheckError(path, getTypeName(thisTc), obj)
-      }
-
-      return null
-    }, getTypeName)
+        return null
+      },
+      getTypeName,
+      typeInfoGen
+    )
 
     return thisTc
-  }) as any
+  }, typeInfoGen) as any
 }
 
 /**
@@ -77,7 +89,44 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean): S {
  */
 export function typesObject<T>(objectFunction: T): T {
   // we can't type this function or else we won't be able to make it work recursively
-  return typesObjectHelper(objectFunction, false)
+  const typeInfoGen: TypeInfoGen = t => new ObjectTypeInfo(t, objectFunction as any)
+
+  return typesObjectHelper(objectFunction, false, typeInfoGen) as any
+}
+
+/**
+ * `types.object` type info for an object props.
+ */
+export interface ObjectTypeInfoProps {
+  readonly [propName: string]: Readonly<{
+    type: AnyStandardType
+    typeInfo: TypeInfo
+  }>
+}
+
+/**
+ * `types.object` type info.
+ */
+export class ObjectTypeInfo extends TypeInfo {
+  // memoize to always return the same object
+  private _props = lateVal(() => {
+    const objSchema = this._objTypeFn()
+
+    const propTypes: O.Writable<ObjectTypeInfoProps> = {}
+    Object.keys(objSchema).forEach(propName => {
+      const type = resolveStandardType(objSchema[propName])
+      propTypes[propName] = { type, typeInfo: getTypeInfo(type) }
+    })
+    return propTypes
+  })
+
+  get props(): ObjectTypeInfoProps {
+    return this._props()
+  }
+
+  constructor(thisType: AnyStandardType, private _objTypeFn: ObjectTypeFunction) {
+    super(thisType)
+  }
 }
 
 /**
@@ -100,6 +149,20 @@ export function typesFrozen<T extends AnyType>(dataType: T): ObjectType<{ data: 
     () => ({
       data: dataType,
     }),
-    true
+    true,
+    t => new FrozenTypeInfo(t, resolveStandardType(dataType))
   ) as any
+}
+
+/**
+ * `types.frozen` type info.
+ */
+export class FrozenTypeInfo extends TypeInfo {
+  get dataTypeInfo(): TypeInfo {
+    return getTypeInfo(this.dataType)
+  }
+
+  constructor(thisType: AnyStandardType, readonly dataType: AnyStandardType) {
+    super(thisType)
+  }
 }

@@ -1,9 +1,9 @@
 import { ObjectMap } from "../wrappers/ObjectMap"
 import { typesObject } from "./object"
 import { typesRecord } from "./record"
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyType, IdentityType, TypeToData } from "./schemas"
-import { lateTypeChecker, TypeChecker } from "./TypeChecker"
+import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
+import { AnyStandardType, AnyType, IdentityType, TypeToData } from "./schemas"
+import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -15,31 +15,50 @@ import { TypeCheckError } from "./TypeCheckError"
  * ```
  *
  * @typeparam T Value type.
- * @param values Value type.
+ * @param valueType Value type.
  * @returns
  */
 export function typesObjectMap<T extends AnyType>(
-  values: T
+  valueType: T
 ): IdentityType<ObjectMap<TypeToData<T>>> {
+  const typeInfoGen: TypeInfoGen = t => new ObjectMapTypeInfo(t, resolveStandardType(valueType))
+
   return lateTypeChecker(() => {
-    const valueChecker = resolveTypeChecker(values)
+    const valueChecker = resolveTypeChecker(valueType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `ObjectMap<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
-    const thisTc: TypeChecker = new TypeChecker((obj, path) => {
-      if (!(obj instanceof ObjectMap)) {
-        return new TypeCheckError(path, getTypeName(thisTc), obj)
-      }
+    const thisTc: TypeChecker = new TypeChecker(
+      (obj, path) => {
+        if (!(obj instanceof ObjectMap)) {
+          return new TypeCheckError(path, getTypeName(thisTc), obj)
+        }
 
-      const dataTypeChecker = typesObject(() => ({
-        items: typesRecord(valueChecker as any),
-      }))
+        const dataTypeChecker = typesObject(() => ({
+          items: typesRecord(valueChecker as any),
+        }))
 
-      const resolvedTc = resolveTypeChecker(dataTypeChecker)
-      return resolvedTc.check(obj.$, path)
-    }, getTypeName)
+        const resolvedTc = resolveTypeChecker(dataTypeChecker)
+        return resolvedTc.check(obj.$, path)
+      },
+      getTypeName,
+      typeInfoGen
+    )
 
     return thisTc
-  }) as any
+  }, typeInfoGen) as any
+}
+
+/**
+ * `types.objectMap` type info.
+ */
+export class ObjectMapTypeInfo extends TypeInfo {
+  get valueTypeInfo(): TypeInfo {
+    return getTypeInfo(this.valueType)
+  }
+
+  constructor(thisType: AnyStandardType, readonly valueType: AnyStandardType) {
+    super(thisType)
+  }
 }

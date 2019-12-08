@@ -1,6 +1,7 @@
 import { ModelProp, noDefaultValue } from "../model/prop"
 import { IsOptionalValue } from "../utils/types"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
+import { resolveStandardType } from "./resolveTypeChecker"
 import { AnyType, TypeToData } from "./schemas"
 
 /**
@@ -128,6 +129,6 @@ export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any, a
     $isOptional: null as any,
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
-    typeChecker: typeOrDefaultValue,
+    typeChecker: resolveStandardType(typeOrDefaultValue) as any,
   }
 }

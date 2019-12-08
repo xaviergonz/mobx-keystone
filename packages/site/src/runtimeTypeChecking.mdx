@@ -267,7 +267,7 @@ const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
 })
 ```
 
-### Syntax sugar for optional primitives with a default value
+### Syntactic sugar for optional primitives with a default value
 
 You can also do `tProp(defaultValue: string | number | boolean)`, which is equivalent to `tProp(types.string|number|boolean, defaultValue)`.
 In other words, if you use `tProp(42)`, then the property will be a number and take the default value `42` when the value on the snapshot / model creation data is `undefined`.
@@ -288,6 +288,26 @@ const t = types.object(() => {
 //   y: number
 // }
 ```
+
+### Reflection of runtime type info
+
+Thanks to `getTypeInfo(type: AnyType): TypeInfo` it is possible to runtime info of a type. `TypeInfo` is the base class for the following classes:
+
+- `LiteralTypeInfo` (`types.literal`, `types.undefined`, `types.null`)
+- `BooleanTypeInfo` (`types.boolean`)
+- `NumberTypeInfo` (`types.number`)
+- `StringTypeInfo` (`types.string`)
+- `OrTypeInfo` (`types.or`, `types.maybe`, `types.maybeNull`, `types.enum`)
+- `ArrayTypeInfo` (`types.array`)
+- `ModelTypeInfo` (`types.model`)
+- `ObjectTypeInfo` (`types.object`)
+- `RefinementTypeInfo` (`types.refinement`, `types.integer`, `types.nonEmptyString`)
+- `ObjectMapTypeInfo` (`types.objectMap`)
+- `ArraySetTypeInfo` (`types.arraySet`)
+- `RecordTypeInfo` (`types.record`)
+- `UncheckedTypeInfo` (`types.unchecked`)
+- `RefTypeInfo` (`types.ref`)
+- `FrozenTypeInfo` (`types.frozen`)
 
 ## Notes for `mobx-state-tree` users
 

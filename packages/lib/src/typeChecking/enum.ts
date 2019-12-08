@@ -19,6 +19,7 @@ function enumValues(e: any): (string | number)[] {
 
 /**
  * An enum type, based on a Typescript alike enum object.
+ * Syntactic sugar for `types.or(...enum_values.map(types.literal))`
  *
  * Example:
  * ```ts
