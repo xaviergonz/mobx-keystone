@@ -52,17 +52,20 @@ export interface RecordType<S> {
   }
 }
 
+export type AnyStandardType =
+  | IdentityType<any>
+  | ArrayType<any>
+  | ObjectType<any>
+  | RecordType<any>
+  | ObjectTypeFunction
+
 export type AnyType =
   | StringConstructor
   | NumberConstructor
   | BooleanConstructor
   | null
   | undefined
-  | IdentityType<any>
-  | ArrayType<any>
-  | ObjectType<any>
-  | RecordType<any>
-  | ObjectTypeFunction
+  | AnyStandardType
 
 // type schemas to actual types
 

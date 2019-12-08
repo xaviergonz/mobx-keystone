@@ -284,3 +284,22 @@ export function logWarning(type: "warn" | "error", msg: string): void {
       throw failure(`unknown log type - ${type}`)
   }
 }
+
+const notMemoized = Symbol("notMemoized")
+
+/**
+ * @ignore
+ * @internal
+ */
+export function lateVal<TF extends (...args: any[]) => any>(getter: TF): TF {
+  let memoized: TF | typeof notMemoized = notMemoized
+
+  const fn = (...args: any[]): any => {
+    if (memoized === notMemoized) {
+      memoized = getter(...args)
+    }
+    return memoized
+  }
+
+  return fn as TF
+}

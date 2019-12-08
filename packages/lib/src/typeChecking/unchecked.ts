@@ -1,7 +1,11 @@
 import { IdentityType } from "./schemas"
-import { TypeChecker } from "./TypeChecker"
+import { TypeChecker, TypeInfo } from "./TypeChecker"
 
-const unchecked: IdentityType<any> = new TypeChecker(null, () => "any") as any
+const unchecked: IdentityType<any> = new TypeChecker(
+  null,
+  () => "any",
+  t => new UncheckedTypeInfo(t)
+) as any
 
 /**
  * A type that represents a given value that won't be type checked.
@@ -20,3 +24,8 @@ const unchecked: IdentityType<any> = new TypeChecker(null, () => "any") as any
 export function typesUnchecked<T = never>(): IdentityType<T> {
   return unchecked
 }
+
+/**
+ * `types.unchecked` type info.
+ */
+export class UncheckedTypeInfo extends TypeInfo {}

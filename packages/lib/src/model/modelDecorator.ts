@@ -3,7 +3,11 @@ import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { addHiddenProp, logWarning } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
-import { modelInitializersSymbol } from "./modelSymbols"
+import {
+  modelDataTypeCheckerSymbol,
+  modelInitializersSymbol,
+  modelPropertiesSymbol,
+} from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -54,6 +58,8 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
   })
   newClazz.prototype = clazz.prototype
   newClazz[modelInitializersSymbol] = (clazz as any)[modelInitializersSymbol]
+  newClazz[modelPropertiesSymbol] = (clazz as any)[modelPropertiesSymbol]
+  newClazz[modelDataTypeCheckerSymbol] = (clazz as any)[modelDataTypeCheckerSymbol]
 
   const modelInfo = {
     name,

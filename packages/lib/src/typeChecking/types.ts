@@ -1,12 +1,22 @@
-import { typesArray } from "./array"
-import { typesArraySet } from "./arraySet"
+import { ArrayTypeInfo, typesArray } from "./array"
+import { ArraySetTypeInfo, typesArraySet } from "./arraySet"
 import { typesEnum } from "./enum"
 import { typesMaybe, typesMaybeNull } from "./maybe"
-import { typesModel } from "./model"
-import { typesFrozen, typesObject } from "./object"
-import { typesObjectMap } from "./objectMap"
-import { typesOr } from "./or"
+import { ModelTypeInfo, ModelTypeInfoProps, typesModel } from "./model"
 import {
+  FrozenTypeInfo,
+  ObjectTypeInfo,
+  ObjectTypeInfoProps,
+  typesFrozen,
+  typesObject,
+} from "./object"
+import { ObjectMapTypeInfo, typesObjectMap } from "./objectMap"
+import { OrTypeInfo, typesOr } from "./or"
+import {
+  BooleanTypeInfo,
+  LiteralTypeInfo,
+  NumberTypeInfo,
+  StringTypeInfo,
   typesBoolean,
   typesInteger,
   typesLiteral,
@@ -16,10 +26,30 @@ import {
   typesString,
   typesUndefined,
 } from "./primitives"
-import { typesRecord } from "./record"
-import { typesRef } from "./ref"
-import { typesRefinement } from "./refinement"
-import { typesUnchecked } from "./unchecked"
+import { RecordTypeInfo, typesRecord } from "./record"
+import { RefTypeInfo, typesRef } from "./ref"
+import { RefinementTypeInfo, typesRefinement } from "./refinement"
+import { typesUnchecked, UncheckedTypeInfo } from "./unchecked"
+export { getTypeInfo, TypeInfo } from "./TypeChecker"
+export {
+  BooleanTypeInfo,
+  LiteralTypeInfo,
+  NumberTypeInfo,
+  StringTypeInfo,
+  FrozenTypeInfo,
+  ObjectMapTypeInfo,
+  RefinementTypeInfo,
+  RecordTypeInfo,
+  RefTypeInfo,
+  UncheckedTypeInfo,
+  ObjectTypeInfo,
+  ObjectTypeInfoProps,
+  ArraySetTypeInfo,
+  ArrayTypeInfo,
+  ModelTypeInfo,
+  ModelTypeInfoProps,
+  OrTypeInfo,
+}
 
 export const types = {
   literal: typesLiteral,

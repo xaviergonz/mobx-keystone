@@ -4,11 +4,6 @@ import { IsOptionalValue } from "../utils/types"
 /**
  * @ignore
  */
-export const noTypeChecker = Symbol("noTypeChecker")
-
-/**
- * @ignore
- */
 export const noDefaultValue = Symbol("noDefaultValue")
 
 /**
@@ -20,7 +15,7 @@ export interface ModelProp<TValue, TCreationValue, TIsOptional> {
   $isOptional: TIsOptional
   defaultFn: (() => TValue) | typeof noDefaultValue
   defaultValue: TValue | typeof noDefaultValue
-  typeChecker: TypeChecker | LateTypeChecker | typeof noTypeChecker
+  typeChecker: TypeChecker | LateTypeChecker | undefined
 }
 
 /**
@@ -31,7 +26,7 @@ export interface ModelProps {
 }
 
 export type OptionalModelProps<MP extends ModelProps> = {
-  [K in keyof MP]: (MP[K]["$isOptional"] & K)
+  [K in keyof MP]: MP[K]["$isOptional"] & K
 }[keyof MP]
 
 export type ModelPropsToData<MP extends ModelProps> = {
@@ -103,6 +98,6 @@ export function prop<TValue>(def?: any): ModelProp<TValue, any, any> {
     $isOptional: null as any,
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
-    typeChecker: noTypeChecker,
+    typeChecker: undefined,
   }
 }

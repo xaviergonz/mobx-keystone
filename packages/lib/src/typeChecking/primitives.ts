@@ -1,8 +1,8 @@
 import { assertIsPrimitive } from "../utils"
 import { PrimitiveValue } from "../utils/types"
 import { typesRefinement } from "./refinement"
-import { IdentityType } from "./schemas"
-import { TypeChecker } from "./TypeChecker"
+import { AnyStandardType, IdentityType } from "./schemas"
+import { TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -33,14 +33,27 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
       break
   }
 
+  const typeInfoGen: TypeInfoGen = t => new LiteralTypeInfo(t, literal)
+
   return new TypeChecker(
     (value, path) => (value === literal ? null : new TypeCheckError(path, typeName, value)),
-    () => typeName
+    () => typeName,
+    typeInfoGen
   ) as any
 }
 
 /**
+ * `types.literal` type info.
+ */
+export class LiteralTypeInfo extends TypeInfo {
+  constructor(thisType: AnyStandardType, readonly literal: PrimitiveValue) {
+    super(thisType)
+  }
+}
+
+/**
  * A type that represents the value undefined.
+ * Syntactic sugar for `types.literal(undefined)`.
  *
  * ```ts
  * types.undefined
@@ -50,6 +63,7 @@ export const typesUndefined = typesLiteral(undefined)
 
 /**
  * A type that represents the value null.
+ * Syntactic sugar for `types.literal(null)`.
  *
  * ```ts
  * types.null
@@ -64,10 +78,16 @@ export const typesNull = typesLiteral(null)
  * types.boolean
  * ```
  */
-export const typesBoolean = (new TypeChecker(
+export const typesBoolean: IdentityType<boolean> = new TypeChecker(
   (value, path) => (typeof value === "boolean" ? null : new TypeCheckError(path, "boolean", value)),
-  () => "boolean"
-) as any) as IdentityType<boolean>
+  () => "boolean",
+  t => new BooleanTypeInfo(t)
+) as any
+
+/**
+ * `types.boolean` type info.
+ */
+export class BooleanTypeInfo extends TypeInfo {}
 
 /**
  * A type that represents any number value.
@@ -76,10 +96,16 @@ export const typesBoolean = (new TypeChecker(
  * types.number
  * ```
  */
-export const typesNumber = (new TypeChecker(
+export const typesNumber: IdentityType<number> = new TypeChecker(
   (value, path) => (typeof value === "number" ? null : new TypeCheckError(path, "number", value)),
-  () => "number"
-) as any) as IdentityType<number>
+  () => "number",
+  t => new NumberTypeInfo(t)
+) as any
+
+/**
+ * `types.number` type info.
+ */
+export class NumberTypeInfo extends TypeInfo {}
 
 /**
  * A type that represents any string value.
@@ -88,13 +114,20 @@ export const typesNumber = (new TypeChecker(
  * types.string
  * ```
  */
-export const typesString = (new TypeChecker(
+export const typesString: IdentityType<string> = new TypeChecker(
   (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
-  () => "string"
-) as any) as IdentityType<string>
+  () => "string",
+  t => new StringTypeInfo(t)
+) as any
+
+/**
+ * `types.string` type info.
+ */
+export class StringTypeInfo extends TypeInfo {}
 
 /**
  * A type that represents any integer number value.
+ * Syntactic sugar for `types.refinement(types.number, n => Number.isInteger(n), "integer")`
  *
  * ```ts
  * types.integer
@@ -104,6 +137,7 @@ export const typesInteger = typesRefinement(typesNumber, n => Number.isInteger(n
 
 /**
  * A type that represents any string value other than "".
+ * Syntactic sugar for `types.refinement(types.string, s => s !== "", "nonEmpty")`
  *
  * ```ts
  * types.nonEmptyString

@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.27.0
+
+- Added `getTypeInfo(type: AnyType): TypeInfo` to get runtime reflection info about types.
+
 ## 0.26.7
 
 - Simplified types.or typing.
@@ -78,7 +82,7 @@
 
 ## 0.22.0
 
-- Added `tProp` syntax sugar for optional primitives with a default value.
+- Added `tProp` syntactic sugar for optional primitives with a default value.
 - Added `String`, `Number`, `Boolean`, `null`, `undefined` as aliases for primitive types.
 - Added `findParentPath`.
 

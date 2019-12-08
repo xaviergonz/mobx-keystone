@@ -6,26 +6,47 @@ import {
   AnyType,
   ArraySet,
   arraySet,
+  ArraySetTypeInfo,
+  ArrayTypeInfo,
+  BooleanTypeInfo,
   customRef,
   frozen,
+  FrozenTypeInfo,
+  getTypeInfo,
+  LiteralTypeInfo,
   model,
   Model,
   modelAction,
   ModelAutoTypeCheckingMode,
+  ModelTypeInfo,
+  ModelTypeInfoProps,
+  NumberTypeInfo,
   ObjectMap,
   objectMap,
+  ObjectMapTypeInfo,
+  ObjectTypeInfo,
+  ObjectTypeInfoProps,
   onPatches,
   onSnapshot,
+  OrTypeInfo,
   Path,
+  prop,
+  RecordTypeInfo,
   Ref,
+  RefinementTypeInfo,
+  RefTypeInfo,
   resolvePath,
   setGlobalConfig,
+  StringTypeInfo,
   tProp,
   typeCheck,
   TypeCheckError,
+  TypeInfo,
   types,
   TypeToData,
+  UncheckedTypeInfo,
 } from "../../src"
+import { resolveStandardType } from "../../src/typeChecking/resolveTypeChecker"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
@@ -88,12 +109,29 @@ function expectTypeCheckFail<T extends AnyType>(t: T, val: any, path: Path, expe
   expect(err).toEqual(new TypeCheckError(path, expected, actualValue))
 }
 
+function expectValidTypeInfo<TI extends TypeInfo>(
+  type: AnyType,
+  ti: new (...args: any[]) => TI
+): TI {
+  const typeInfo = getTypeInfo(type) as TI
+  expect(typeInfo).toBe(getTypeInfo(type)) // always return same object
+  expect(typeInfo).toBeInstanceOf(ti)
+  expect(typeInfo.thisType).toBe(resolveStandardType(type))
+  return typeInfo
+}
+
 test("literal", () => {
   const type = types.literal("hi")
   assert(_ as TypeToData<typeof type>, "hi")
 
   expectTypeCheckOk(type, "hi")
   expectTypeCheckFail(type, "ho", [], JSON.stringify("hi"))
+
+  const typeInfo = getTypeInfo(type) as LiteralTypeInfo
+  expect(typeInfo).toBe(getTypeInfo(type)) // always return same object
+  expect(typeInfo).toBeInstanceOf(LiteralTypeInfo)
+  expect(typeInfo.thisType).toBe(type)
+  expect(typeInfo.literal).toBe("hi")
 })
 
 test("undefined", () => {
@@ -102,6 +140,9 @@ test("undefined", () => {
 
   expectTypeCheckOk(type, undefined)
   expectTypeCheckFail(type, "ho", [], "undefined")
+
+  const typeInfo = expectValidTypeInfo(type, LiteralTypeInfo)
+  expect(typeInfo.literal).toBe(undefined)
 })
 
 test("simple undefined", () => {
@@ -110,6 +151,9 @@ test("simple undefined", () => {
 
   expectTypeCheckOk(type, undefined)
   expectTypeCheckFail(type, "ho", [], "undefined")
+
+  const typeInfo = expectValidTypeInfo(type, LiteralTypeInfo)
+  expect(typeInfo.literal).toBe(undefined)
 })
 
 test("null", () => {
@@ -118,6 +162,9 @@ test("null", () => {
 
   expectTypeCheckOk(type, null)
   expectTypeCheckFail(type, "ho", [], "null")
+
+  const typeInfo = expectValidTypeInfo(type, LiteralTypeInfo)
+  expect(typeInfo.literal).toBe(null)
 })
 
 test("simple null", () => {
@@ -126,6 +173,9 @@ test("simple null", () => {
 
   expectTypeCheckOk(type, null)
   expectTypeCheckFail(type, "ho", [], "null")
+
+  const typeInfo = expectValidTypeInfo(type, LiteralTypeInfo)
+  expect(typeInfo.literal).toBe(null)
 })
 
 test("boolean", () => {
@@ -134,6 +184,8 @@ test("boolean", () => {
 
   expectTypeCheckOk(type, false)
   expectTypeCheckFail(type, "ho", [], "boolean")
+
+  expectValidTypeInfo(type, BooleanTypeInfo)
 })
 
 test("simple boolean", () => {
@@ -142,6 +194,8 @@ test("simple boolean", () => {
 
   expectTypeCheckOk(type, false)
   expectTypeCheckFail(type, "ho", [], "boolean")
+
+  expectValidTypeInfo(type, BooleanTypeInfo)
 })
 
 test("number", () => {
@@ -150,6 +204,8 @@ test("number", () => {
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckFail(type, "ho", [], "number")
+
+  expectValidTypeInfo(type, NumberTypeInfo)
 })
 
 test("simple number", () => {
@@ -158,6 +214,8 @@ test("simple number", () => {
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckFail(type, "ho", [], "number")
+
+  expectValidTypeInfo(type, NumberTypeInfo)
 })
 
 test("string", () => {
@@ -166,6 +224,8 @@ test("string", () => {
 
   expectTypeCheckOk(type, "hello")
   expectTypeCheckFail(type, 5, [], "string")
+
+  expectValidTypeInfo(type, StringTypeInfo)
 })
 
 test("simple string", () => {
@@ -174,6 +234,8 @@ test("simple string", () => {
 
   expectTypeCheckOk(type, "hello")
   expectTypeCheckFail(type, 5, [], "string")
+
+  expectValidTypeInfo(type, StringTypeInfo)
 })
 
 test("or - simple types", () => {
@@ -183,6 +245,10 @@ test("or - simple types", () => {
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
   expectTypeCheckFail(type, "ho", [], "number | boolean")
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypes).toEqual([types.number, types.boolean])
+  expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.boolean)])
 })
 
 test("or - simple simple types", () => {
@@ -192,6 +258,10 @@ test("or - simple simple types", () => {
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
   expectTypeCheckFail(type, "ho", [], "number | boolean")
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypes).toEqual([types.number, types.boolean])
+  expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.boolean)])
 })
 
 test("maybe", () => {
@@ -201,6 +271,10 @@ test("maybe", () => {
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, undefined)
   expectTypeCheckFail(type, "ho", [], "number | undefined")
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypes).toEqual([types.number, types.undefined])
+  expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.undefined)])
 })
 
 test("maybeNull", () => {
@@ -210,6 +284,10 @@ test("maybeNull", () => {
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, null)
   expectTypeCheckFail(type, "ho", [], "number | null")
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypes).toEqual([types.number, types.null])
+  expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.null)])
 })
 
 test("array - simple types", () => {
@@ -220,6 +298,10 @@ test("array - simple types", () => {
   expectTypeCheckOk(type, [1, 2, 3])
   expectTypeCheckFail(type, "ho", [], "Array<number>")
   expectTypeCheckFail(type, ["ho"], [0], "number")
+
+  const typeInfo = expectValidTypeInfo(type, ArrayTypeInfo)
+  expect(typeInfo.itemType).toEqual(types.number)
+  expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(types.number))
 })
 
 test("record - simple types", () => {
@@ -231,6 +313,10 @@ test("record - simple types", () => {
   expectTypeCheckFail(type, "ho", [], "Record<number>")
   const wrongValue = { x: 5, y: "6" }
   expectTypeCheckFail(type, wrongValue, ["y"], "number")
+
+  const typeInfo = expectValidTypeInfo(type, RecordTypeInfo)
+  expect(typeInfo.valueType).toEqual(types.number)
+  expect(typeInfo.valueTypeInfo).toEqual(getTypeInfo(types.number))
 })
 
 test("unchecked", () => {
@@ -240,6 +326,8 @@ test("unchecked", () => {
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, { x: 5, y: 6 } as any)
   expectTypeCheckOk(type, "ho" as any)
+
+  expectValidTypeInfo(type, UncheckedTypeInfo)
 })
 
 test("object - simple types", () => {
@@ -255,12 +343,28 @@ test("object - simple types", () => {
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { x: 5, y: 6 }, ["y"], "string")
   expectTypeCheckFail(type, { x: 5, y: "6", z: 10 }, [], expected)
+
+  const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
+  expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+  expect(typeInfo.props).toStrictEqual({
+    x: {
+      type: types.number,
+      typeInfo: getTypeInfo(types.number),
+    },
+    y: {
+      type: types.string,
+      typeInfo: getTypeInfo(types.string),
+    },
+  } as ObjectTypeInfoProps)
 })
 
 test("object - all optional simple types", () => {
+  const xType = types.maybe(types.number)
+  const yType = types.maybe(types.string)
+
   const type = types.object(() => ({
-    x: types.maybe(types.number),
-    y: types.maybe(types.string),
+    x: xType,
+    y: yType,
   }))
   assert(_ as TypeToData<typeof type>, _ as { x?: number; y?: string })
 
@@ -275,13 +379,30 @@ test("object - all optional simple types", () => {
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { x: 5, y: 6 }, ["y"], "string | undefined")
   expectTypeCheckFail(type, { x: 5, y: "6", z: 10 }, [], expected)
+
+  const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
+  expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+  expect(typeInfo.props).toStrictEqual({
+    x: {
+      type: xType,
+      typeInfo: getTypeInfo(xType),
+    },
+    y: {
+      type: yType,
+      typeInfo: getTypeInfo(yType),
+    },
+  } as ObjectTypeInfoProps)
 })
+
+const mArrType = types.array(types.number)
+const mArrDefault = () => []
 
 @model("M")
 class M extends Model({
   x: tProp(types.number, 10),
   y: tProp(types.string),
-  arr: tProp(types.array(types.number), () => []),
+  arr: tProp(mArrType, mArrDefault),
+  untyped: prop(5),
 }) {
   @modelAction
   setX(v: number) {
@@ -312,6 +433,37 @@ test("model", () => {
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["x"], "number")
   expect(m.typeCheck()).toEqual(new TypeCheckError(["x"], "number", "10"))
+
+  const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
+  expect(typeInfo.modelClass).toBe(M)
+  expect(typeInfo.modelType).toBe("M")
+  expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+  expect(typeInfo.props).toStrictEqual({
+    x: {
+      type: types.number,
+      typeInfo: getTypeInfo(types.number),
+      hasDefault: true,
+      default: 10,
+    },
+    y: {
+      type: types.string,
+      typeInfo: getTypeInfo(types.string),
+      hasDefault: false,
+      default: undefined,
+    },
+    arr: {
+      type: mArrType,
+      typeInfo: getTypeInfo(mArrType),
+      hasDefault: true,
+      default: mArrDefault,
+    },
+    untyped: {
+      type: undefined,
+      typeInfo: undefined,
+      hasDefault: true,
+      default: 5,
+    },
+  } as ModelTypeInfoProps)
 })
 
 test("model typechecking", () => {
@@ -362,25 +514,12 @@ test("new model with typechecking enabled", () => {
   expect(() => new M({ x: 10, y: 20 as any })).toThrow("TypeCheckError: [/y] Expected: string")
 })
 
-test("model", () => {
-  const m = new M({ y: "6" })
-  const type = types.model<M>(M)
-  assert(_ as TypeToData<typeof type>, _ as M)
-
-  expectTypeCheckOk(type, m)
-
-  expectTypeCheckFail(type, "ho", [], `Model(${m.$modelType})`)
-  m.setX("10" as any)
-  expectTypeCheckFail(type, m, ["x"], "number")
-})
-
 test("array - complex types", () => {
-  const type = types.array(
-    types.object(() => ({
-      x: types.number,
-    }))
-  )
-  assert(_ as TypeToData<typeof type>, _ as ({ x: number })[])
+  const itemType = types.object(() => ({
+    x: types.number,
+  }))
+  const type = types.array(itemType)
+  assert(_ as TypeToData<typeof type>, _ as { x: number }[])
 
   expectTypeCheckOk(type, [{ x: 5 }])
 
@@ -388,6 +527,10 @@ test("array - complex types", () => {
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, [5], [0], "{ x: number; }")
   expectTypeCheckFail(type, [{ x: "5" }], [0, "x"], "number")
+
+  const typeInfo = expectValidTypeInfo(type, ArrayTypeInfo)
+  expect(typeInfo.itemType).toEqual(itemType)
+  expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(itemType))
 })
 
 test("array - unchecked", () => {
@@ -399,14 +542,21 @@ test("array - unchecked", () => {
   const expected = "Array<any>"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckOk(type, ["1"] as any)
+
+  const typeInfo = expectValidTypeInfo(type, ArrayTypeInfo)
+  expect(typeInfo.itemType).toEqual(types.unchecked())
+  expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(types.unchecked()))
 })
 
 test("object - complex types", () => {
+  const xType = types.maybe(types.number)
+  const oType = types.object(() => ({
+    y: types.string,
+  }))
+
   const type = types.object(() => ({
-    x: types.maybe(types.number),
-    o: types.object(() => ({
-      y: types.string,
-    })),
+    x: xType,
+    o: oType,
   }))
   assert(
     _ as TypeToData<typeof type>,
@@ -425,14 +575,27 @@ test("object - complex types", () => {
   expectTypeCheckFail(type, { x: 5, o: 6 }, ["o"], "{ y: string; }")
   expectTypeCheckFail(type, { x: 5, o: { y: "6" }, z: 10 }, [], expected)
   expectTypeCheckFail(type, { x: 5, o: { y: 6 } }, ["o", "y"], "string")
+
+  const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
+  expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+  expect(typeInfo.props).toStrictEqual({
+    x: {
+      type: xType,
+      typeInfo: getTypeInfo(xType),
+    },
+    o: {
+      type: oType,
+      typeInfo: getTypeInfo(oType),
+    },
+  } as ObjectTypeInfoProps)
 })
 
 test("record - complex types", () => {
-  const type = types.record(
-    types.object(() => ({
-      y: types.string,
-    }))
-  )
+  const valueType = types.object(() => ({
+    y: types.string,
+  }))
+
+  const type = types.record(valueType)
   assert(_ as TypeToData<typeof type>, _ as { [k: string]: { y: string } })
 
   expectTypeCheckOk(type, { o: { y: "6" } })
@@ -441,16 +604,20 @@ test("record - complex types", () => {
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { o: 6 }, ["o"], "{ y: string; }")
   expectTypeCheckFail(type, { o: { y: 6 } }, ["o", "y"], "string")
+
+  const typeInfo = expectValidTypeInfo(type, RecordTypeInfo)
+  expect(typeInfo.valueType).toEqual(valueType)
+  expect(typeInfo.valueTypeInfo).toEqual(getTypeInfo(valueType))
 })
 
 test("or - complex types", () => {
-  const type = types.or(
-    types.object(() => ({
-      y: types.string,
-    })),
-    types.number
-  )
-  assert(_ as TypeToData<typeof type>, _ as number | ({ y: string }))
+  const typeA = types.object(() => ({
+    y: types.string,
+  }))
+  const typeB = types.number
+
+  const type = types.or(typeA, typeB)
+  assert(_ as TypeToData<typeof type>, _ as number | { y: string })
 
   expectTypeCheckOk(type, { y: "6" })
   expectTypeCheckOk(type, 6)
@@ -458,15 +625,27 @@ test("or - complex types", () => {
   const expected = "{ y: string; } | number"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { y: 6 }, [], expected)
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypes).toEqual([typeA, typeB])
+  expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(typeA), getTypeInfo(typeB)])
 })
 
 test("or - one type unchecked", () => {
-  const type = types.or(types.number, types.boolean, types.unchecked<string>())
+  const typeA = types.number
+  const typeB = types.boolean
+  const typeC = types.unchecked<string>()
+
+  const type = types.or(typeA, typeB, typeC)
   assert(_ as TypeToData<typeof type>, _ as string | number | boolean)
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
   expectTypeCheckOk(type, "ho")
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypes).toEqual([typeA, typeB, typeC])
+  expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(typeA), getTypeInfo(typeB), getTypeInfo(typeC)])
 })
 
 test("recursive object", () => {
@@ -492,6 +671,16 @@ test("recursive object", () => {
     // won't say anything of the wrong x because of the or (maybe) type
     "{ x: number; rec: ...; } | undefined"
   )
+
+  const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
+  expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+  expect(typeInfo.props.x).toStrictEqual({
+    type: types.number,
+    typeInfo: getTypeInfo(types.number),
+  })
+  const recTypeInfo = expectValidTypeInfo(typeInfo.props.rec.type, OrTypeInfo)
+  expect(recTypeInfo.orTypes[0]).toBe(type)
+  expect(recTypeInfo.orTypeInfos[0]).toBe(typeInfo)
 })
 
 test("cross referenced object", () => {
@@ -520,6 +709,30 @@ test("cross referenced object", () => {
     // won't say anything of the wrong y because of the or (maybe) type
     "{ y: number; a: { x: number; b: ...; } | undefined; } | undefined"
   )
+
+  {
+    const typeInfo = expectValidTypeInfo(typeA, ObjectTypeInfo)
+    expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+    expect(typeInfo.props.x).toStrictEqual({
+      type: types.number,
+      typeInfo: getTypeInfo(types.number),
+    })
+    const propTypeInfo = expectValidTypeInfo(typeInfo.props.b.type, OrTypeInfo)
+    expect(propTypeInfo.orTypes[0]).toBe(typeB)
+    expect(propTypeInfo.orTypeInfos[0]).toBe(getTypeInfo(typeB))
+  }
+
+  {
+    const typeInfo = expectValidTypeInfo(typeB, ObjectTypeInfo)
+    expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+    expect(typeInfo.props.y).toStrictEqual({
+      type: types.number,
+      typeInfo: getTypeInfo(types.number),
+    })
+    const propTypeInfo = expectValidTypeInfo(typeInfo.props.a.type, OrTypeInfo)
+    expect(propTypeInfo.orTypes[0]).toBe(typeA)
+    expect(propTypeInfo.orTypeInfos[0]).toBe(getTypeInfo(typeA))
+  }
 })
 
 @model("MR")
@@ -543,6 +756,22 @@ test("recursive model", () => {
 
   mr.setRec("5" as any)
   expectTypeCheckFail(type, mr, ["rec"], "Model(MR) | undefined")
+
+  const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
+  expect(typeInfo.modelClass).toBe(MR)
+  expect(typeInfo.modelType).toBe("MR")
+  expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+  expect(typeInfo.props.x).toStrictEqual({
+    type: types.number,
+    typeInfo: getTypeInfo(types.number),
+    hasDefault: true,
+    default: 10,
+  })
+  const recTypeInfo = expectValidTypeInfo(typeInfo.props.rec.type, OrTypeInfo)
+  const recModelTypeInfo = expectValidTypeInfo(recTypeInfo.orTypes[0], ModelTypeInfo)
+  expect(recModelTypeInfo.modelClass).toBe(MR)
+  expect(recModelTypeInfo.modelType).toBe("MR")
+  expect(recModelTypeInfo.props.rec).toBeDefined()
 })
 
 @model("MA")
@@ -577,6 +806,22 @@ test("cross referenced model", () => {
 
   ma.b!.setA("5" as any)
   expectTypeCheckFail(type, ma, ["b"], "Model(MB) | undefined")
+
+  const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
+  expect(typeInfo.modelClass).toBe(MA)
+  expect(typeInfo.modelType).toBe("MA")
+  expect(typeInfo.props).toBe(typeInfo.props) // always return same object
+  expect(typeInfo.props.x).toStrictEqual({
+    type: types.number,
+    typeInfo: getTypeInfo(types.number),
+    hasDefault: true,
+    default: 10,
+  })
+  const recTypeInfo = expectValidTypeInfo(typeInfo.props.b.type, OrTypeInfo)
+  const recModelTypeInfo = expectValidTypeInfo(recTypeInfo.orTypes[0], ModelTypeInfo)
+  expect(recModelTypeInfo.modelClass).toBe(MB)
+  expect(recModelTypeInfo.modelType).toBe("MB")
+  expect(recModelTypeInfo.props.a).toBeDefined()
 })
 
 test("ref", () => {
@@ -596,6 +841,8 @@ test("ref", () => {
 
   expectTypeCheckOk(type, r)
   expectTypeCheckFail(type, m, [], "Ref")
+
+  expectValidTypeInfo(type, RefTypeInfo)
 })
 
 test("frozen - simple type", () => {
@@ -606,20 +853,28 @@ test("frozen - simple type", () => {
 
   expectTypeCheckOk(type, fr)
   expectTypeCheckFail(type, 5, [], "{ data: number; }")
+
+  const typeInfo = expectValidTypeInfo(type, FrozenTypeInfo)
+  expect(typeInfo.dataType).toBe(types.number)
+  expect(typeInfo.dataTypeInfo).toBe(getTypeInfo(types.number))
 })
 
 test("frozen - complex type", () => {
-  const type = types.frozen(
-    types.object(() => ({
-      x: types.number,
-    }))
-  )
+  const dataType = types.object(() => ({
+    x: types.number,
+  }))
+
+  const type = types.frozen(dataType)
   assert(_ as TypeToData<typeof type>, _ as { data: { x: number } })
 
   const fr = frozen<{ x: number }>({ x: 5 })
 
   expectTypeCheckOk(type, fr)
   expectTypeCheckFail(type, 5, [], "{ data: { x: number; }; }")
+
+  const typeInfo = expectValidTypeInfo(type, FrozenTypeInfo)
+  expect(typeInfo.dataType).toBe(dataType)
+  expect(typeInfo.dataTypeInfo).toBe(getTypeInfo(dataType))
 })
 
 test("enum (string)", () => {
@@ -634,6 +889,15 @@ test("enum (string)", () => {
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `"x1" | "x2"`)
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypeInfos).toHaveLength(2)
+  const orA = typeInfo.orTypeInfos[0] as LiteralTypeInfo
+  expect(orA).toBeInstanceOf(LiteralTypeInfo)
+  expect(orA.literal).toBe(A.X1)
+  const orB = typeInfo.orTypeInfos[1] as LiteralTypeInfo
+  expect(orB).toBeInstanceOf(LiteralTypeInfo)
+  expect(orB.literal).toBe(A.X2)
 })
 
 test("enum (number)", () => {
@@ -648,6 +912,15 @@ test("enum (number)", () => {
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `0 | 1`)
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypeInfos).toHaveLength(2)
+  const orA = typeInfo.orTypeInfos[0] as LiteralTypeInfo
+  expect(orA).toBeInstanceOf(LiteralTypeInfo)
+  expect(orA.literal).toBe(A.X1)
+  const orB = typeInfo.orTypeInfos[1] as LiteralTypeInfo
+  expect(orB).toBeInstanceOf(LiteralTypeInfo)
+  expect(orB.literal).toBe(A.X2)
 })
 
 test("enum (mixed)", () => {
@@ -664,6 +937,18 @@ test("enum (mixed)", () => {
   expectTypeCheckOk(type, A.X15)
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `0 | "x15" | 6`)
+
+  const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.orTypeInfos).toHaveLength(3)
+  const orA = typeInfo.orTypeInfos[0] as LiteralTypeInfo
+  expect(orA).toBeInstanceOf(LiteralTypeInfo)
+  expect(orA.literal).toBe(A.X1)
+  const orB = typeInfo.orTypeInfos[1] as LiteralTypeInfo
+  expect(orB).toBeInstanceOf(LiteralTypeInfo)
+  expect(orB.literal).toBe(A.X15)
+  const orC = typeInfo.orTypeInfos[2] as LiteralTypeInfo
+  expect(orC).toBeInstanceOf(LiteralTypeInfo)
+  expect(orC.literal).toBe(A.X2)
 })
 
 test("integer", () => {
@@ -672,6 +957,8 @@ test("integer", () => {
 
   expectTypeCheckOk(type, 5)
   expectTypeCheckFail(type, 5.5, [], "integer<number>")
+
+  // no type info test, it is a refinement
 })
 
 test("nonEmptyString", () => {
@@ -680,20 +967,26 @@ test("nonEmptyString", () => {
 
   expectTypeCheckOk(type, " ")
   expectTypeCheckFail(type, "", [], "nonEmpty<string>")
+
+  // no type info test, it is a refinement
 })
 
 test("refinement (simple)", () => {
-  const type = types.refinement(
-    types.number,
-    n => {
-      return Number.isInteger(n)
-    },
-    "integer"
-  )
+  const checkFn = (n: number) => {
+    return Number.isInteger(n)
+  }
+
+  const type = types.refinement(types.number, checkFn, "integer")
   assert(_ as TypeToData<typeof type>, _ as number)
 
   expectTypeCheckOk(type, 5)
   expectTypeCheckFail(type, 5.5, [], "integer<number>")
+
+  const typeInfo = expectValidTypeInfo(type, RefinementTypeInfo)
+  expect(typeInfo.baseType).toBe(types.number)
+  expect(typeInfo.baseTypeInfo).toBe(getTypeInfo(types.number))
+  expect(typeInfo.checkFunction).toBe(checkFn)
+  expect(typeInfo.typeName).toBe("integer")
 })
 
 test("refinement (complex)", () => {
@@ -712,6 +1005,9 @@ test("refinement (complex)", () => {
 
   expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
   expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")
+
+  const typeInfo = expectValidTypeInfo(type, RefinementTypeInfo)
+  expect(typeInfo.typeName).toBe(undefined)
 })
 
 test("objectMap", () => {
@@ -719,8 +1015,20 @@ test("objectMap", () => {
 
   assert(_ as TypeToData<typeof type>, _ as ObjectMap<number>)
 
-  expectTypeCheckOk(type, objectMap<number>([["1", 10]]))
-  expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["items", "1"], "number")
+  expectTypeCheckOk(
+    type,
+    objectMap<number>([["1", 10]])
+  )
+  expectTypeCheckFail(
+    type,
+    objectMap<string>([["1", "10"]]),
+    ["items", "1"],
+    "number"
+  )
+
+  const typeInfo = expectValidTypeInfo(type, ObjectMapTypeInfo)
+  expect(typeInfo.valueType).toBe(types.number)
+  expect(typeInfo.valueTypeInfo).toBe(getTypeInfo(types.number))
 })
 
 test("arraySet", () => {
@@ -728,8 +1036,20 @@ test("arraySet", () => {
 
   assert(_ as TypeToData<typeof type>, _ as ArraySet<number>)
 
-  expectTypeCheckOk(type, arraySet<number>([1, 2, 3]))
-  expectTypeCheckFail(type, arraySet<string | number>([1, 2, "3"]), ["items", 2], "number")
+  expectTypeCheckOk(
+    type,
+    arraySet<number>([1, 2, 3])
+  )
+  expectTypeCheckFail(
+    type,
+    arraySet<string | number>([1, 2, "3"]),
+    ["items", 2],
+    "number"
+  )
+
+  const typeInfo = expectValidTypeInfo(type, ArraySetTypeInfo)
+  expect(typeInfo.valueType).toBe(types.number)
+  expect(typeInfo.valueTypeInfo).toBe(getTypeInfo(types.number))
 })
 
 test("typing of optional values", () => {
