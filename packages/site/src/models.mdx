@@ -323,3 +323,9 @@ class Point extends ExtendsModel(BasePoint, {}) {}
 ```
 
 Also remember that if your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` in the extended model.
+
+If you are using Typescript and want to extend an abstract class you will need to use `abstractModelClass` like this:
+
+```ts
+class X extends ExtendsModel(abstractModelClass(SomeAbstractClass), { ... }) { ... }
+```

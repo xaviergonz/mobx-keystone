@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.28.0
+
+- [BREAKING CHANGE] If you want to use `ExtendsModel` over an abstract class now it must be done like `ExtendsModel(abstractModelClass(SomeAbstractClass), { ... })`.
+
 ## 0.27.0
 
 - Added `getTypeInfo(type: AnyType): TypeInfo` to get runtime reflection info about types.

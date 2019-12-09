@@ -1,7 +1,7 @@
 import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
-  AbstractModelClass,
+  abstractModelClass,
   ExtendedModel,
   fromSnapshot,
   getSnapshot,
@@ -350,7 +350,7 @@ test("abstract-ish model classes without factory", () => {
   abstract class StringA extends A<string> {}
 
   @model("B-abstractish")
-  class B extends ExtendedModel(StringA, {
+  class B extends ExtendedModel(abstractModelClass(StringA), {
     value: prop<string>(),
   }) {
     public validate(value: string): string | undefined {
@@ -392,14 +392,13 @@ test("abstract model classes with factory", () => {
       }
     }
 
-    // we need this weird trick to make value get the right type in this case
-    return A as AbstractModelClass<A>
+    return A
   }
 
   const StringA = createA<string>()
 
   @model("B-abstract-factory")
-  class B extends ExtendedModel(StringA, {}) {
+  class B extends ExtendedModel(abstractModelClass(StringA), {}) {
     public validate(value: string): string | undefined {
       return value.length < 3 ? "too short" : undefined
     }
@@ -441,7 +440,7 @@ test("abstract model classes without factory", () => {
   abstract class StringA extends A<string> {}
 
   @model("B-abstract")
-  class B extends ExtendedModel(StringA, {
+  class B extends ExtendedModel(abstractModelClass(StringA), {
     value: prop<string>(),
   }) {
     public validate(value: string): string | undefined {
@@ -475,7 +474,7 @@ test("issue #18", () => {
   }
 
   @model("B#18")
-  class B extends ExtendedModel(A, { value: prop<number>() }) {}
+  class B extends ExtendedModel(abstractModelClass(A), { value: prop<number>() }) {}
 
   // Error: data changes must be performed inside model actions
   const b = new B({ value: 1 }) // Instantiating the class inside `runUnprotected` works.
@@ -493,7 +492,7 @@ test("issue #2", () => {
     }
 
     // sadly we are forced to use the cast to keep the generic of the type
-    return class extends ExtendedModel(ExtendedBaseT as AbstractModelClass<ExtendedBaseT>, {
+    return class extends ExtendedModel(abstractModelClass(ExtendedBaseT), {
       value: prop<T>(() => defaultValue),
     }) {}
   }
