@@ -1,6 +1,7 @@
 import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
+  AbstractModelClass,
   ExtendedModel,
   fromSnapshot,
   getSnapshot,
@@ -392,9 +393,7 @@ test("abstract model classes with factory", () => {
     }
 
     // we need this weird trick to make value get the right type in this case
-    return A as typeof A & {
-      new (): A
-    }
+    return A as AbstractModelClass<A>
   }
 
   const StringA = createA<string>()
@@ -481,4 +480,28 @@ test("issue #18", () => {
   // Error: data changes must be performed inside model actions
   const b = new B({ value: 1 }) // Instantiating the class inside `runUnprotected` works.
   expect(b.value).toBe(1)
+})
+
+test("issue #2", () => {
+  abstract class Base<T> extends Model({}) {
+    public abstract value: T
+  }
+
+  function ExtendedBase<T>(defaultValue: T) {
+    abstract class ExtendedBaseT extends Base<T> {
+      public abstract value: T
+    }
+
+    // sadly we are forced to use the cast to keep the generic of the type
+    return class extends ExtendedModel(ExtendedBaseT as AbstractModelClass<ExtendedBaseT>, {
+      value: prop<T>(() => defaultValue),
+    }) {}
+  }
+
+  @model("issue-2/model")
+  class MyModel extends ExtendedBase("val") {}
+
+  const m = new MyModel({})
+
+  assert(m.value, _ as string)
 })
