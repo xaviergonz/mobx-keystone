@@ -151,16 +151,30 @@ export const baseModelPropNames = new Set<keyof AnyModel>([
 export type AnyModel = BaseModel<any, any>
 
 /**
- * Type of a model class.
+ * Extracts the instance type of a model class.
  */
 export type ModelClass<M extends AnyModel> = new (
   initialData: ModelCreationData<M> & { [modelIdKey]?: string }
 ) => M
 
+export declare const abstractModelClassSymbol: unique symbol
+
 /**
- * Type of an abstract model class.
+ * Extracts the instance type of a class marked with `abstractModelClass`.
  */
-export type AbstractModelClass<T extends AnyModel> = Function & { prototype: T }
+export type AbstractModelClass<T extends AnyModel> = { [abstractModelClassSymbol]: T }
+
+/**
+ * Tricks Typescript into accepting abstract classes as a parameter for `ExtendedModel`.
+ * Does nothing in runtime.
+ *
+ * @typeparam T Abstract model class type.
+ * @param type Abstract model class.
+ * @returns
+ */
+export function abstractModelClass<T>(type: T): T & { [abstractModelClassSymbol]: T } {
+  return type as any
+}
 
 /**
  * The data type of a model.

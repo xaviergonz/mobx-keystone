@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.28.0
+
+- [BREAKING CHANGE] If you want to use `ExtendedModel` over an abstract class now it must be done like `ExtendedModel(abstractModelClass(SomeAbstractClass), { ... })`.
+
 ## 0.27.0
 
 - Added `getTypeInfo(type: AnyType): TypeInfo` to get runtime reflection info about types.
@@ -157,7 +161,7 @@
 
 ## 0.13.1
 
-- Fixed an issue with ExtendsModel when user library was compiled using ES6 classes.
+- Fixed an issue with ExtendedModel when user library was compiled using ES6 classes.
 
 ## 0.13.0
 
@@ -181,7 +185,7 @@
 
 ## 0.12.0
 
-- Added `ExtendsModel` and a doc section about subclassing.
+- Added `ExtendedModel` and a doc section about subclassing.
 
 ## 0.11.4
 
