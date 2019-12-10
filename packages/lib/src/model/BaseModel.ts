@@ -165,7 +165,7 @@ export declare const abstractModelClassSymbol: unique symbol
 export type AbstractModelClass<T extends AnyModel> = { [abstractModelClassSymbol]: T }
 
 /**
- * Tricks Typescript into accepting abstract classes as a parameter for `ExtendsModel`.
+ * Tricks Typescript into accepting abstract classes as a parameter for `ExtendedModel`.
  * Does nothing in runtime.
  *
  * @typeparam T Abstract model class type.
