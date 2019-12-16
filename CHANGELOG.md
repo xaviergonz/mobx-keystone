@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.28.1
+
+- Updated min Typescript version to 3.7.
+
 ## 0.28.0
 
 - [BREAKING CHANGE] If you want to use `ExtendedModel` over an abstract class now it must be done like `ExtendedModel(abstractModelClass(SomeAbstractClass), { ... })`.
