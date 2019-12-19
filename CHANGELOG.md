@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.28.2
+
+- Fix: modifying a node inside `onAttachedToRootStore` or its returned disposer no longer results in broken snapshots.
+
 ## 0.28.1
 
 - Updated min Typescript version to 3.7.

@@ -1,6 +1,4 @@
 import { runInAction } from "mobx"
-import { getCurrentActionContext } from "../action/context"
-import { getActionProtection } from "../action/protection"
 import { dataObjectParent } from "../parent/core"
 import { failure, isPrimitive } from "../utils"
 
@@ -47,24 +45,6 @@ export function assertTweakedObject(
     throw failure(
       `${argName} must be a tree node (usually a model or a shallow / deep child part of a model 'data' object)`
     )
-  }
-}
-
-/**
- * @ignore
- * @internal
- */
-export function canWrite(): boolean {
-  return !getActionProtection() || !!getCurrentActionContext()
-}
-
-/**
- * @ignore
- * @internal
- */
-export function assertCanWrite() {
-  if (!canWrite()) {
-    throw failure("data changes must be performed inside model actions")
   }
 }
 

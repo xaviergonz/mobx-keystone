@@ -7,6 +7,7 @@ import {
   observe,
   set,
 } from "mobx"
+import { assertCanWrite } from "../action/protection"
 import { modelTypeKey } from "../model/metadata"
 import { dataToModelNode } from "../parent/core"
 import { ParentPath } from "../parent/path"
@@ -14,7 +15,7 @@ import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, isPrimitive } from "../utils"
-import { assertCanWrite, runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
+import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { tryUntweak, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 

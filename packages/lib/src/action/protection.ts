@@ -1,4 +1,25 @@
 import { runInAction } from "mobx"
+import { failure } from "../utils"
+import { getCurrentActionContext } from "./context"
+import { runPendingActions } from "./pendingActions"
+
+/**
+ * @ignore
+ * @internal
+ */
+export function canWrite(): boolean {
+  return !getActionProtection() || !!getCurrentActionContext()
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function assertCanWrite() {
+  if (!canWrite()) {
+    throw failure("data changes must be performed inside model actions")
+  }
+}
 
 let actionProtection = true
 
@@ -50,5 +71,8 @@ export function runUnprotected<T>(arg1: any, arg2?: any): T {
     }
   } finally {
     actionProtection = oldActionProtection
+
+    // execute pending actions (attach/detach from root store events)
+    runPendingActions()
   }
 }

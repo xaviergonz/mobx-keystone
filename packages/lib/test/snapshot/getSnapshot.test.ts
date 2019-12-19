@@ -1,5 +1,13 @@
 import { autorun, observable, reaction } from "mobx"
-import { getSnapshot, runUnprotected } from "../../src"
+import {
+  getSnapshot,
+  model,
+  Model,
+  modelAction,
+  prop,
+  registerRootStore,
+  runUnprotected,
+} from "../../src"
 import "../commonSetup"
 import { createP } from "../testbed"
 import { autoDispose } from "../utils"
@@ -167,4 +175,90 @@ test("reactive snapshots", () => {
   })
   expect(pResult.length).toBe(3)
   expect(p2Result.length).toBe(1)
+})
+
+test("issue #74 - with action", () => {
+  @model("#74/A")
+  class A extends Model({
+    value: prop<number>(),
+  }) {
+    public onAttachedToRootStore() {
+      this.value = 1
+
+      return () => {
+        this.value = 2
+      }
+    }
+  }
+
+  @model("#74/Store")
+  class Store extends Model({
+    all: prop<A[]>(() => []),
+  }) {
+    @modelAction
+    public add(a: A): void {
+      this.all.push(a)
+      expect(a.value).toBe(0) // will be changed after the action is finished
+    }
+
+    @modelAction
+    public remove(index: number): void {
+      const removed = this.all.splice(index, 1)
+      expect(removed[0].value).toBe(1) // will be changed after the action is finished
+    }
+  }
+
+  const store = registerRootStore(new Store({}))
+  const newA = new A({ value: 0 })
+  store.add(newA)
+
+  expect(getSnapshot(store).all).toHaveLength(store.all.length)
+  expect(newA.value).toBe(1)
+  expect(getSnapshot(newA).value).toBe(1)
+
+  store.remove(0)
+  expect(getSnapshot(store).all).toHaveLength(store.all.length)
+  expect(newA.value).toBe(2)
+  expect(getSnapshot(newA).value).toBe(2)
+})
+
+test("issue #74 - with runUnprotected", () => {
+  @model("#74/A")
+  class A extends Model({
+    value: prop<number>(),
+  }) {
+    public onAttachedToRootStore() {
+      this.value = 1
+
+      return () => {
+        this.value = 2
+      }
+    }
+  }
+
+  @model("#74/Store")
+  class Store extends Model({
+    all: prop<A[]>(() => []),
+  }) {}
+
+  const store = registerRootStore(new Store({}))
+  const newA = new A({ value: 0 })
+
+  runUnprotected(() => {
+    store.all.push(newA)
+    expect(newA.value).toBe(0) // will be changed after the action is finished
+  })
+
+  expect(getSnapshot(store).all).toHaveLength(store.all.length)
+  expect(newA.value).toBe(1)
+  expect(getSnapshot(newA).value).toBe(1)
+
+  runUnprotected(() => {
+    const removed = store.all.splice(0, 1)
+    expect(removed[0].value).toBe(1) // will be changed after the action is finished
+  })
+
+  expect(getSnapshot(store).all).toHaveLength(store.all.length)
+  expect(newA.value).toBe(2)
+  expect(getSnapshot(newA).value).toBe(2)
 })
