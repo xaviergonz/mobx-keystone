@@ -1,4 +1,4 @@
-import { action, isAction } from "mobx"
+import { action } from "mobx"
 import { O } from "ts-toolbelt"
 import { AnyModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
@@ -29,11 +29,7 @@ export function wrapInAction<T extends Function>(
   overrideContext?: (ctx: O.Writable<ActionContext>) => void,
   isFlowFinsher = false
 ): T {
-  if (!isAction(fn)) {
-    fn = action(name, fn)
-  }
-
-  function wrappedAction(this: any) {
+  const wrappedAction = action(name, function(this: any) {
     if (inDevMode()) {
       assertTweakedObject(this, "wrappedAction")
     }
@@ -99,7 +95,7 @@ export function wrapInAction<T extends Function>(
       // execute pending actions (attach/detach from root store events)
       runPendingActions()
     }
-  }
+  })
   ;(wrappedAction as any)[modelActionSymbol] = true
 
   return wrappedAction as any

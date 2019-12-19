@@ -61,18 +61,23 @@ export function runUnprotected<T>(arg1: any, arg2?: any): T {
   const name = typeof arg1 === "string" ? arg1 : undefined
   const fn: () => T = typeof arg1 === "string" ? arg2 : arg1
 
-  const oldActionProtection = actionProtection
-  actionProtection = false
-  try {
-    if (name) {
-      return runInAction(name, fn)
-    } else {
-      return runInAction(fn)
-    }
-  } finally {
-    actionProtection = oldActionProtection
+  const innerAction = () => {
+    const oldActionProtection = actionProtection
+    actionProtection = false
 
-    // execute pending actions (attach/detach from root store events)
-    runPendingActions()
+    try {
+      return fn()
+    } finally {
+      actionProtection = oldActionProtection
+
+      // execute pending actions (attach/detach from root store events)
+      runPendingActions()
+    }
+  }
+
+  if (name) {
+    return runInAction(name, innerAction)
+  } else {
+    return runInAction(innerAction)
   }
 }

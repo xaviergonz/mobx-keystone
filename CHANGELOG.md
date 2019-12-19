@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.28.3
+
+- Improve a bit the atomicity of `modelAction` / `runUnprotected`.
+
 ## 0.28.2
 
 - Fix: modifying a node inside `onAttachedToRootStore` or its returned disposer no longer results in broken snapshots.
