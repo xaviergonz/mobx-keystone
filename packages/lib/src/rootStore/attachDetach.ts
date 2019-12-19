@@ -1,5 +1,6 @@
 import { ActionContextActionType } from "../action/context"
 import { HookAction } from "../action/hookActions"
+import { enqueueOrRunPendingAction } from "../action/pendingActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { BaseModel } from "../model/BaseModel"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
@@ -20,10 +21,12 @@ export function attachToRootStore(rootStore: object, child: object): void {
           HookAction.OnAttachedToRootStore
         )
 
-        const disposer = ch.onAttachedToRootStore(rootStore)
-        if (disposer) {
-          onAttachedDisposers.set(ch, disposer)
-        }
+        enqueueOrRunPendingAction(() => {
+          const disposer = ch.onAttachedToRootStore!(rootStore)
+          if (disposer) {
+            onAttachedDisposers.set(ch, disposer)
+          }
+        })
       }
     },
     WalkTreeMode.ParentFirst
@@ -46,7 +49,10 @@ export function detachFromRootStore(child: object): void {
           ActionContextActionType.Sync
         )
         onAttachedDisposers.delete(ch)
-        disposerAction.call(ch)
+
+        enqueueOrRunPendingAction(() => {
+          disposerAction.call(ch)
+        })
       }
     },
     WalkTreeMode.ChildrenFirst

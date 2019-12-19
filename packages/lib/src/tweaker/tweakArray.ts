@@ -10,13 +10,14 @@ import {
   observe,
   set,
 } from "mobx"
+import { assertCanWrite } from "../action/protection"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { Patch } from "../patch/Patch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, inDevMode, isPrimitive } from "../utils"
-import { assertCanWrite, runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
+import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { tryUntweak, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
