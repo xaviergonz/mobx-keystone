@@ -7,6 +7,7 @@ import {
   observe,
   set,
 } from "mobx"
+import { runPendingActions } from "../action/pendingActions"
 import { assertCanWrite } from "../action/protection"
 import { modelTypeKey } from "../model/metadata"
 import { dataToModelNode } from "../parent/core"
@@ -179,6 +180,9 @@ function objectDidChange(change: IObjectDidChange): void {
       }
       break
   }
+
+  // execute pending actions (attach/detach from root store events)
+  runPendingActions()
 
   runTypeCheckingAfterChange(obj, patchRecorder)
 

@@ -178,7 +178,7 @@ test("reactive snapshots", () => {
 })
 
 test("issue #74 - with action", () => {
-  @model("#74/A")
+  @model("#74-1/A")
   class A extends Model({
     value: prop<number>(),
   }) {
@@ -191,20 +191,20 @@ test("issue #74 - with action", () => {
     }
   }
 
-  @model("#74/Store")
+  @model("#74-1/Store")
   class Store extends Model({
     all: prop<A[]>(() => []),
   }) {
     @modelAction
     public add(a: A): void {
       this.all.push(a)
-      expect(a.value).toBe(0) // will be changed after the action is finished
+      expect(a.value).toBe(1)
     }
 
     @modelAction
     public remove(index: number): void {
       const removed = this.all.splice(index, 1)
-      expect(removed[0].value).toBe(1) // will be changed after the action is finished
+      expect(removed[0].value).toBe(2)
     }
   }
 
@@ -223,7 +223,7 @@ test("issue #74 - with action", () => {
 })
 
 test("issue #74 - with runUnprotected", () => {
-  @model("#74/A")
+  @model("#74-2/A")
   class A extends Model({
     value: prop<number>(),
   }) {
@@ -236,7 +236,7 @@ test("issue #74 - with runUnprotected", () => {
     }
   }
 
-  @model("#74/Store")
+  @model("#74-2/Store")
   class Store extends Model({
     all: prop<A[]>(() => []),
   }) {}
@@ -246,7 +246,7 @@ test("issue #74 - with runUnprotected", () => {
 
   runUnprotected(() => {
     store.all.push(newA)
-    expect(newA.value).toBe(0) // will be changed after the action is finished
+    expect(newA.value).toBe(1)
   })
 
   expect(getSnapshot(store).all).toHaveLength(store.all.length)
@@ -255,7 +255,7 @@ test("issue #74 - with runUnprotected", () => {
 
   runUnprotected(() => {
     const removed = store.all.splice(0, 1)
-    expect(removed[0].value).toBe(1) // will be changed after the action is finished
+    expect(removed[0].value).toBe(2)
   })
 
   expect(getSnapshot(store).all).toHaveLength(store.all.length)
