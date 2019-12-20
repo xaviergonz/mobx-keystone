@@ -12,7 +12,6 @@ import {
 import { getActionMiddlewares } from "./middleware"
 import { isModelAction } from "./modelAction"
 import { FlowFinisher } from "./modelFlow"
-import { runPendingActions } from "./pendingActions"
 
 /**
  * @ignore
@@ -91,9 +90,6 @@ export function wrapInAction<T extends Function>(
       }
     } finally {
       setCurrentActionContext(context.parentContext)
-
-      // execute pending actions (attach/detach from root store events)
-      runPendingActions()
     }
   })
   ;(wrappedAction as any)[modelActionSymbol] = true

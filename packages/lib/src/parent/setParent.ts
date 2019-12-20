@@ -1,4 +1,5 @@
 import { action } from "mobx"
+import { enqueuePendingAction } from "../action/pendingActions"
 import { BaseModel } from "../model/BaseModel"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
@@ -108,10 +109,14 @@ export const setParent = action(
       // invoke model root store events
       if (oldRootStore !== newRootStore) {
         if (oldRootStore) {
-          detachFromRootStore(value)
+          enqueuePendingAction(() => {
+            detachFromRootStore(value)
+          })
         }
         if (newRootStore) {
-          attachToRootStore(newRootStore, value)
+          enqueuePendingAction(() => {
+            attachToRootStore(newRootStore, value)
+          })
         }
       }
     } else {

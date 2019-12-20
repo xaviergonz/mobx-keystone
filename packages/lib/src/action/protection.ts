@@ -1,7 +1,6 @@
 import { runInAction } from "mobx"
 import { failure } from "../utils"
 import { getCurrentActionContext } from "./context"
-import { runPendingActions } from "./pendingActions"
 
 /**
  * @ignore
@@ -69,9 +68,6 @@ export function runUnprotected<T>(arg1: any, arg2?: any): T {
       return fn()
     } finally {
       actionProtection = oldActionProtection
-
-      // execute pending actions (attach/detach from root store events)
-      runPendingActions()
     }
   }
 
