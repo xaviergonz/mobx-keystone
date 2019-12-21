@@ -1,5 +1,6 @@
 export * from "./actionSerialization"
 export * from "./actionTrackingMiddleware"
+export * from "./draftMiddleware"
 export * from "./onActionMiddleware"
 export * from "./readonlyMiddleware"
 export * from "./transactionMiddleware"
