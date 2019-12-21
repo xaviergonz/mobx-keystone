@@ -32,6 +32,7 @@ export default {
     "Runtime Type Checking",
     "Property Transforms",
     "Drafts",
+    "Sandboxes",
     "Redux Compatibility",
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
   ],
