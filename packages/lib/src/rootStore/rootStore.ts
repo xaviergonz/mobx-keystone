@@ -1,10 +1,11 @@
-import { action } from "mobx"
+import { action, createAtom, IAtom } from "mobx"
 import { fastGetRoot, isRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
 const rootStores = new WeakSet<object>()
+const rootStoreAtoms = new WeakMap<object, IAtom>()
 
 /**
  * Registers a model / tree node object as a root store tree.
@@ -34,6 +35,7 @@ export const registerRootStore = action(
 
     attachToRootStore(node, node)
 
+    getOrCreateRootStoreAtom(node).reportChanged()
     return node
   }
 )
@@ -51,6 +53,8 @@ export const unregisterRootStore = action("unregisterRootStore", (node: object):
   rootStores.delete(node)
 
   detachFromRootStore(node)
+
+  getOrCreateRootStoreAtom(node).reportChanged()
 })
 
 /**
@@ -59,7 +63,10 @@ export const unregisterRootStore = action("unregisterRootStore", (node: object):
  * @param node Object.
  * @returns
  */
-export function isRootStore(node: object): boolean {
+export function isRootStore(node: object | null | undefined): boolean {
+  assertTweakedObject(node, "node")
+
+  getOrCreateRootStoreAtom(node).reportObserved()
   return rootStores.has(node)
 }
 
@@ -75,4 +82,13 @@ export function getRootStore<T extends object>(node: object): T | undefined {
 
   const root = fastGetRoot(node)
   return isRootStore(root) ? root : undefined
+}
+
+function getOrCreateRootStoreAtom(node: object): IAtom {
+  let atom = rootStoreAtoms.get(node)
+  if (!atom) {
+    atom = createAtom("rootStore")
+    rootStoreAtoms.set(node, atom)
+  }
+  return atom
 }

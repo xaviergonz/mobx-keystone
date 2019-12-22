@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.29.0
+
+- Made `isRootStore` reactive.
+
 ## 0.28.4
 
 - `onAttachedToRootStore` and its disposer will be called right after a change is made rather than after a whole action is finished (restores behaviour of version <= 0.28.1).

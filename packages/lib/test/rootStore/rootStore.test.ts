@@ -1,3 +1,4 @@
+import { reaction } from "mobx"
 import {
   getRootStore,
   isRootStore,
@@ -111,7 +112,7 @@ test("model as rootStore", () => {
   })
 
   expect(isRootStore(p)).toBeTruthy()
-  expect(isRootStore(p.p2!)).toBeFalsy()
+  expect(() => isRootStore(p.p2!)).toThrow("node must be a tree node")
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(oldP2)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
@@ -238,4 +239,30 @@ test("issue #27", () => {
 
   const m = registerRootStore(new ModelWithArrayProp({ values: [] }))
   expect(m.values).toEqual([1, 2, 3])
+})
+
+test("isRootStore is reactive", () => {
+  @model("isRootStore is reactive/M")
+  class M extends Model({}) {}
+  const obj = new M({})
+  const events: boolean[] = []
+
+  reaction(
+    () => isRootStore(obj),
+    isRS => {
+      events.push(isRS)
+    },
+    { fireImmediately: true }
+  )
+
+  expect(events).toEqual([false])
+  events.length = 0
+
+  registerRootStore(obj)
+  expect(events).toEqual([true])
+  events.length = 0
+
+  unregisterRootStore(obj)
+  expect(events).toEqual([false])
+  events.length = 0
 })
