@@ -23,6 +23,7 @@ export default {
         "transactionMiddleware",
         "undoMiddleware",
         "readonlyMiddleware",
+        "draftMiddleware",
         "Custom Middlewares",
       ],
     },
