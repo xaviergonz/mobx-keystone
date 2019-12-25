@@ -1,6 +1,6 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { addHiddenProp, logWarning } from "../utils"
+import { addHiddenProp, failure, logWarning } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 import {
@@ -26,6 +26,10 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
       "warn",
       `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`
     )
+  }
+
+  if ((clazz as any)[modelUnwrappedClassSymbol]) {
+    throw failure("a class already decorated with `@model` cannot be re-decorated")
   }
 
   // trick so plain new works
