@@ -291,11 +291,11 @@ stringMyModelInstance.setXY("50", "60")
 
 Model inheritance is possible with a few gotchas.
 
-The first thing to bear in mind is that only the last model in the inheritance chain must be decorated with `@model`, and the second is that models that extend from other models must use `ExtendedModel` rather than the plain `Model`. For example:
+The first thing to bear in mind is that models that extend from other models must use `ExtendedModel` rather than the plain `Model`. For example:
 
 ```ts
-// no model decorator here!
-class BasePoint extends Model({
+@model("MyApp/Point")
+class Point extends Model({
   x: prop<number>(),
   y: prop<number>(),
 }) {
@@ -313,13 +313,6 @@ class Point3d extends ExtendedModel(BasePoint, {
     return super.sum + this.z
   }
 }
-```
-
-If you want to also make `BasePoint` a proper usable model you can use this trick:
-
-```ts
-@model("MyApp/Point")
-class Point extends ExtendedModel(BasePoint, {}) {}
 ```
 
 Also remember that if your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` in the extended model.

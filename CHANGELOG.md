@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.30.0
+
+- It is now possible to use `ExtendedModel` over classes that use the `@model` decorator.
+
 ## 0.29.0
 
 - Made `isRootStore` reactive.

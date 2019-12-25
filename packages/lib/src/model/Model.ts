@@ -16,6 +16,7 @@ import {
   modelDataTypeCheckerSymbol,
   modelInitializersSymbol,
   modelPropertiesSymbol,
+  modelUnwrappedClassSymbol,
 } from "./modelSymbols"
 import { ModelProps, ModelPropsToCreationData, ModelPropsToData, OptionalModelProps } from "./prop"
 import { assertIsModelClass } from "./utils"
@@ -128,6 +129,13 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
     assertIsModelClass(baseModel as any, "baseModel")
+
+    // if the baseModel is wrapped with the model decorator get the original one
+    const unwrappedClass = (baseModel as any)[modelUnwrappedClassSymbol]
+    if (unwrappedClass) {
+      baseModel = unwrappedClass
+      assertIsModelClass(baseModel as any, "baseModel")
+    }
   }
 
   const extraDescriptors: PropertyDescriptorMap = {}

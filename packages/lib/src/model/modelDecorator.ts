@@ -7,6 +7,7 @@ import {
   modelDataTypeCheckerSymbol,
   modelInitializersSymbol,
   modelPropertiesSymbol,
+  modelUnwrappedClassSymbol,
 } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
@@ -60,6 +61,7 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
   newClazz[modelInitializersSymbol] = (clazz as any)[modelInitializersSymbol]
   newClazz[modelPropertiesSymbol] = (clazz as any)[modelPropertiesSymbol]
   newClazz[modelDataTypeCheckerSymbol] = (clazz as any)[modelDataTypeCheckerSymbol]
+  newClazz[modelUnwrappedClassSymbol] = clazz
 
   const modelInfo = {
     name,

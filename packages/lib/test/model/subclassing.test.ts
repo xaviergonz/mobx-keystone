@@ -504,3 +504,41 @@ test("issue #2", () => {
 
   assert(m.value, _ as string)
 })
+
+test("classes using model decorator can be extended", () => {
+  @model("Point2d")
+  class P2d extends Model({
+    x: tProp(types.number, 15),
+    y: tProp(types.number, 10),
+  }) {
+    get sum() {
+      return this.x + this.y
+    }
+  }
+
+  @model("Point3d")
+  class P3d extends ExtendedModel(P2d, {
+    z: tProp(types.number, 20),
+  }) {
+    get sum() {
+      return super.sum + this.z
+    }
+  }
+
+  {
+    const p2d = new P2d({})
+    expect(p2d.x).toBe(15)
+    expect(p2d.y).toBe(10)
+    expect((p2d as any).z).toBe(undefined)
+    expect(p2d.$modelType).toBe("Point2d")
+  }
+
+  {
+    const p3d = new P3d({})
+    expect(p3d.x).toBe(15)
+    expect(p3d.y).toBe(10)
+    expect(p3d.z).toBe(20)
+    expect(p3d.sum).toBe(p3d.x + p3d.y + p3d.z)
+    expect(p3d.$modelType).toBe("Point3d")
+  }
+})
