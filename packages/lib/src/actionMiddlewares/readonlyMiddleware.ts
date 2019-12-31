@@ -2,7 +2,11 @@ import { isHookAction } from "../action/hookActions"
 import { ActionMiddlewareDisposer } from "../action/middleware"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
-import { actionTrackingMiddleware, ActionTrackingResult } from "./actionTrackingMiddleware"
+import {
+  actionTrackingMiddleware,
+  ActionTrackingResult,
+  SimpleActionContext,
+} from "./actionTrackingMiddleware"
 
 /**
  * Return type for readonly middleware.
@@ -43,16 +47,29 @@ export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareRetur
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   let writable = false
+  const writableSymbol = Symbol("writable")
 
   const disposer = actionTrackingMiddleware(subtreeRoot, {
     filter(ctx) {
-      if (ctx.parentContext) {
-        // sub-action, do nothing
+      // skip hooks
+      if (isHookAction(ctx.actionName)) {
         return false
       }
 
-      // skip hooks
-      if (isHookAction(ctx.actionName)) {
+      // if we are inside allowWrite it is writable
+      let currentlyWritable = writable
+
+      if (!currentlyWritable) {
+        // if a parent context was writable then the child should be as well
+        let currentCtx: SimpleActionContext | undefined = ctx
+        while (currentCtx && !currentlyWritable) {
+          currentlyWritable = !!currentCtx.data[writableSymbol]
+          currentCtx = currentCtx.parentContext
+        }
+      }
+
+      if (currentlyWritable) {
+        ctx.data[writableSymbol] = true
         return false
       }
 
@@ -60,13 +77,10 @@ export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareRetur
     },
 
     onStart(ctx) {
-      if (!writable) {
-        return {
-          result: ActionTrackingResult.Throw,
-          value: failure(`tried to invoke action '${ctx.actionName}' over a readonly node`),
-        }
-      } else {
-        return undefined
+      // if we get here (wasn't filtered out) it is not writable
+      return {
+        result: ActionTrackingResult.Throw,
+        value: failure(`tried to invoke action '${ctx.actionName}' over a readonly node`),
       }
     },
   })

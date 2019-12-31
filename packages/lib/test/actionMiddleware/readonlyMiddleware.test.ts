@@ -1,8 +1,10 @@
 import {
+  applyPatches,
   model,
   Model,
   modelAction,
   modelFlow,
+  onPatches,
   prop,
   readonlyMiddleware,
   _async,
@@ -60,9 +62,15 @@ test("subnode", () => {
   allowWrite(() => p.p2.setY(300))
   expect(p.p2.y).toBe(300)
 
-  p.setXY(50, 400)
+  expect(() => p.setXY(50, 400)).toThrow("tried to invoke action 'setY' over a readonly node")
   expect(p.x).toBe(50)
-  expect(p.p2.y).toBe(400)
+  expect(p.p2.y).toBe(300) // unchanged
+
+  allowWrite(() => {
+    p.setXY(60, 500)
+  })
+  expect(p.x).toBe(60)
+  expect(p.p2.y).toBe(500)
 
   dispose()
 
@@ -120,4 +128,58 @@ test("root node (async)", async () => {
   await delay(100) // just to make sure it didn't mutate later
   expect(p.x).toBe(5)
   expect(p.p2.y).toBe(10)
+})
+
+test("applyPatches", () => {
+  const { dispose, allowWrite } = readonlyMiddleware(p)
+  autoDispose(dispose)
+
+  expect(p.x).toBe(5)
+  expect(() => {
+    applyPatches(p, [
+      {
+        op: "replace",
+        path: ["x"],
+        value: 6,
+      },
+    ])
+  }).toThrow("tried to invoke action '$$applyPatches' over a readonly node")
+  expect(p.x).toBe(5)
+
+  allowWrite(() => {
+    applyPatches(p, [
+      {
+        op: "replace",
+        path: ["x"],
+        value: 6,
+      },
+    ])
+  })
+  expect(p.x).toBe(6)
+})
+
+test("action inside onPatches", () => {
+  const { dispose, allowWrite } = readonlyMiddleware(p)
+  autoDispose(dispose)
+
+  const anotherP = new P({})
+  let calls = 0
+  autoDispose(
+    onPatches(anotherP, () => {
+      calls++
+
+      allowWrite(() => {
+        p.setXY(500, 600)
+      })
+
+      expect(() => {
+        p.setXY(100, 200)
+      }).toThrow("tried to invoke action 'setXY' over a readonly node")
+    })
+  )
+
+  expect(p.x).toBe(5)
+  anotherP.setXY(400, 500)
+  expect(calls).toBe(2)
+  expect(p.x).toBe(500)
 })

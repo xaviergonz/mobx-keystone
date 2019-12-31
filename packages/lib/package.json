@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.30.0",
+  "version": "0.30.1",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -56,7 +56,7 @@
     "typescript": "^3.7.3"
   },
   "dependencies": {
-    "ts-toolbelt": "^4.8.8",
+    "ts-toolbelt": "^6.1.4",
     "tslib": "^1.10.0",
     "uuid": "^3.3.3"
   },

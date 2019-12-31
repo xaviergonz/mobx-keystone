@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.30.1
+
+- Fixed an issue with the readonly middleware where sometimes it was possible to write to a protected node when the write was being done from an unprotected parent node action.
+
 ## 0.30.0
 
 - It is now possible to use `ExtendedModel` over classes that use the `@model` decorator.
