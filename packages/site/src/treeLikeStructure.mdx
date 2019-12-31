@@ -162,3 +162,20 @@ The optional `options` parameter accepts and object with the following options:
 - `fireForCurrentChildren: boolean` (default: `true`) - `true` if the callback should be immediately called for currently attached children, `false` if only for future attachments.
 
 Returns a disposer, which has a boolean parameter which should be `true` if pending detachment callbacks should be run, or `false` otherwise.
+
+## `deepEquals(a: any, b: any): boolean`
+
+Deeply compares two values.
+
+Supported values are:
+
+- Primitives
+- Boxed observables
+- Objects, observable objects
+- Arrays, observable arrays
+- Typed arrays
+- Maps, observable maps
+- Sets, observable sets
+- Tree nodes (optimized by using snapshot comparison internally)
+
+Note that in the case of models the result will be false if their model IDs are different.
