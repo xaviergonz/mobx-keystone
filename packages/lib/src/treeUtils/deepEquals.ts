@@ -48,5 +48,5 @@ export function deepEquals(a: any, b: any): boolean {
 
 const toJSOptions: ToJSOptions = {
   exportMapsAsObjects: false,
-  recurseEverything: true,
+  recurseEverything: false,
 }
