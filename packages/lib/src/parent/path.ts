@@ -288,19 +288,24 @@ export function resolvePath<T = any>(
 
 /**
  * @ignore
+ */
+export const skipIdChecking = Symbol("skipIdChecking")
+
+/**
+ * @ignore
  *
  * Tries to resolve a path from an object while checking ids.
  *
  * @typeparam T Returned value type.
  * @param pathRootObject Object that serves as path root.
  * @param path Path as an string or number array.
- * @param pathIds An array of ids of the models that must be checked, or null if not a model.
+ * @param pathIds An array of ids of the models that must be checked, null if not a model or `skipIdChecking` to skip it.
  * @returns An object with `{ resolved: true, value: T }` or `{ resolved: false }`.
  */
 export function resolvePathCheckingIds<T = any>(
   pathRootObject: object,
   path: Path,
-  pathIds: ReadonlyArray<string | null>
+  pathIds: ReadonlyArray<string | null | typeof skipIdChecking>
 ):
   | {
       resolved: true
@@ -332,9 +337,12 @@ export function resolvePathCheckingIds<T = any>(
     const currentMaybeModel = current[p]
     current = modelToDataNode(currentMaybeModel)
 
-    const currentId = isModel(currentMaybeModel) ? currentMaybeModel.$modelId : null
-    if (pathIds[i] !== currentId) {
-      return { resolved: false }
+    const expectedId = pathIds[i]
+    if (expectedId !== skipIdChecking) {
+      const currentId = isModel(currentMaybeModel) ? currentMaybeModel.$modelId : null
+      if (expectedId !== currentId) {
+        return { resolved: false }
+      }
     }
   }
 

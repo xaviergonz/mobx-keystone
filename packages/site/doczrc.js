@@ -31,6 +31,7 @@ export default {
     "Frozen Data",
     "Runtime Type Checking",
     "Property Transforms",
+    "Drafts",
     "Redux Compatibility",
     { name: "Examples", menu: ["Todo List", "Client/Server"] },
   ],
