@@ -11,7 +11,7 @@ import { failure } from "../utils"
 import { deepEquals } from "./deepEquals"
 
 /**
- * A class that with draft related methods.
+ * A class with the implementationm of draft.
  * Use `draft` to create an instance of this class.
  *
  * @typeparam T Data type.
@@ -20,7 +20,7 @@ export class Draft<T extends object> {
   /**
    * Draft data object.
    */
-  readonly data!: T
+  readonly data: T
 
   /**
    * Commits current draft changes to the original object.
@@ -133,7 +133,7 @@ export class Draft<T extends object> {
   /**
    * Original data object.
    */
-  readonly originalData!: T
+  readonly originalData: T
 
   @computed
   private get originalSnapshot() {
