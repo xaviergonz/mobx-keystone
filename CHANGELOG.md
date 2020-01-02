@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.31.0
+
 - Added `deepEquals` to deeply check for equality standard values, observable values, and tree nodes.
 - Added `draft` to create drafts of parts of the state that can be later committed to it (see Drafts section on the docs).
 
