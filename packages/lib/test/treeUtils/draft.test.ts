@@ -215,3 +215,57 @@ test("commitByPath", () => {
   expect(d.isDirtyByPath(["child"])).toBe(false)
   expectDirty() // y is still dirty
 })
+
+test("drafts of drafts (1)", () => {
+  d.data.setX(10)
+
+  const dd = draft(d.data)
+  dd.data.setX(100)
+
+  expect(p.x).toBe(1)
+  expect(d.data.x).toBe(10)
+  expect(dd.data.x).toBe(100)
+  expect(d.isDirty).toBe(true)
+  expect(dd.isDirty).toBe(true)
+
+  dd.commit()
+  expect(p.x).toBe(1)
+  expect(d.data.x).toBe(100)
+  expect(dd.data.x).toBe(100)
+  expect(d.isDirty).toBe(true)
+  expect(dd.isDirty).toBe(false)
+
+  d.commit()
+  expect(p.x).toBe(100)
+  expect(d.data.x).toBe(100)
+  expect(dd.data.x).toBe(100)
+  expect(d.isDirty).toBe(false)
+  expect(dd.isDirty).toBe(false)
+})
+
+test("drafts of drafts (2)", () => {
+  d.data.setX(10)
+
+  const dd = draft(d.data)
+  dd.data.setX(100)
+
+  expect(p.x).toBe(1)
+  expect(d.data.x).toBe(10)
+  expect(dd.data.x).toBe(100)
+  expect(d.isDirty).toBe(true)
+  expect(dd.isDirty).toBe(true)
+
+  d.commit()
+  expect(p.x).toBe(10)
+  expect(d.data.x).toBe(10)
+  expect(dd.data.x).toBe(100)
+  expect(d.isDirty).toBe(false)
+  expect(dd.isDirty).toBe(true)
+
+  dd.commit()
+  expect(p.x).toBe(10)
+  expect(d.data.x).toBe(100)
+  expect(dd.data.x).toBe(100)
+  expect(d.isDirty).toBe(true)
+  expect(dd.isDirty).toBe(false)
+})
