@@ -1,9 +1,14 @@
 import { reaction, runInAction } from "mobx"
-import { readonlyMiddleware, ReadonlyMiddlewareReturn } from "../actionMiddlewares"
-import { getParentToChildPath, resolvePath } from "../parent"
-import { applyPatches, onPatches, patchRecorder, PatchRecorder } from "../patch"
-import { isRootStore, registerRootStore, unregisterRootStore } from "../rootStore"
-import { clone } from "../snapshot"
+import {
+  readonlyMiddleware,
+  ReadonlyMiddlewareReturn,
+} from "../actionMiddlewares/readonlyMiddleware"
+import { getParentToChildPath, resolvePath } from "../parent/path"
+import { applyPatches } from "../patch/applyPatches"
+import { onPatches } from "../patch/emitPatch"
+import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
+import { isRootStore, registerRootStore, unregisterRootStore } from "../rootStore/rootStore"
+import { clone } from "../snapshot/clone"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, failure } from "../utils"
 
