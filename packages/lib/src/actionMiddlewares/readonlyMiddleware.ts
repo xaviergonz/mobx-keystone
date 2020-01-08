@@ -12,7 +12,7 @@ import {
  * Return type for readonly middleware.
  */
 export interface ReadonlyMiddlewareReturn {
-  allowWrite<FN extends () => R, R>(fn: FN): R
+  allowWrite<FN extends () => any>(fn: FN): ReturnType<FN>
 
   dispose: ActionMiddlewareDisposer
 }

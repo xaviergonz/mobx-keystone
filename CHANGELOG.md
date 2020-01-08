@@ -1,5 +1,7 @@
 # Change Log
 
+- Added `sandbox` to create a sandbox copy of the state for testing "what-if" scenarios; changes can be either committed to the original state or rejected (see Sandboxes section in the docs).
+
 ## 0.31.0
 
 - Added `deepEquals` to deeply check for equality standard values, observable values, and tree nodes.
