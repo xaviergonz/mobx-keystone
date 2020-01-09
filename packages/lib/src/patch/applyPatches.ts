@@ -15,23 +15,39 @@ import { failure, inDevMode, isArray } from "../utils"
  *
  * @param node Target object.
  * @param patches List of patches to apply.
+ * @param reverse Whether patches are applied in reverse order.
  */
-export function applyPatches(node: object, patches: ReadonlyArray<Patch>): void {
+export function applyPatches(
+  node: object,
+  patches: ReadonlyArray<Patch>,
+  reverse: boolean = false
+): void {
   assertTweakedObject(node, "node")
 
-  wrappedInternalApplyPatches.call(node, patches)
+  wrappedInternalApplyPatches.call(node, patches, reverse)
 }
 
 /**
  * @ignore
  * @internal
  */
-export function internalApplyPatches(this: object, patches: ReadonlyArray<Patch>): void {
+export function internalApplyPatches(
+  this: object,
+  patches: ReadonlyArray<Patch>,
+  reverse: boolean = false
+): void {
   const obj = this
 
-  const len = patches.length
-  for (let i = 0; i < len; i++) {
-    applySinglePatch(obj, patches[i])
+  if (reverse) {
+    let i = patches.length
+    while (i--) {
+      applySinglePatch(obj, patches[i])
+    }
+  } else {
+    const len = patches.length
+    for (let i = 0; i < len; i++) {
+      applySinglePatch(obj, patches[i])
+    }
   }
 }
 

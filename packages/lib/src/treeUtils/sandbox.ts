@@ -179,7 +179,7 @@ export class SandboxManager {
           this.allowWrite(() => {
             let i = recorder.events.length
             while (i-- > numRecorderEvents) {
-              applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches)
+              applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)
             }
           })
         }

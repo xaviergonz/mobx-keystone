@@ -87,10 +87,16 @@ interface PatchRecorderEvent {
 
 ## Applying patches
 
-### `applyPatches(obj: object, patches: Patch[]): void`
+### `applyPatches(obj: object, patches: Patch[], reverse?: boolean): void`
 
 It is also possible to apply patches / inverse patches doing this:
 
 ```ts
 applyPatches(todo, patches)
+```
+
+Patches (especially inverse patches) can be applied in reverse order:
+
+```ts
+applyPatches(todo, patches, true)
 ```

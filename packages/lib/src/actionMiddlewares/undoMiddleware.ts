@@ -189,7 +189,7 @@ export class UndoManager {
     const event = this.undoQueue[this.undoQueue.length - 1]
 
     withoutUndo(() => {
-      applyPatches(this.subtreeRoot, event.inversePatches)
+      applyPatches(this.subtreeRoot, event.inversePatches, true)
     })
 
     this.store._undo()

@@ -44,7 +44,10 @@ test("onPatches and applyPatches", () => {
 
   function expectSameSnapshotOnceReverted() {
     runUnprotected(() => {
-      pInvPatches.forEach(invpatches => applyPatches(p, invpatches))
+      pInvPatches
+        .slice()
+        .reverse()
+        .forEach(invpatches => applyPatches(p, invpatches, true))
     })
     expect(getSnapshot(p)).toStrictEqual(sn)
   }
@@ -583,7 +586,10 @@ test("patches with reserved prop names", () => {
 
   function expectSameSnapshotOnceReverted() {
     runUnprotected(() => {
-      pInvPatches.forEach(invpatches => applyPatches(p, invpatches))
+      pInvPatches
+        .slice()
+        .reverse()
+        .forEach(invpatches => applyPatches(p, invpatches, true))
     })
     expect(getSnapshot(p)).toStrictEqual(sn)
   }

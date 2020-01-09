@@ -1,5 +1,8 @@
 # Change Log
 
+- Added support to `applyPatches` for applying patches in reverse order.
+- Fixed applying inverse patches in reverse order.
+
 ## 0.32.0
 
 - Added `sandbox` to create a sandbox copy of the state for testing "what-if" scenarios; changes can be either committed to the original state or rejected (see Sandboxes section in the docs).

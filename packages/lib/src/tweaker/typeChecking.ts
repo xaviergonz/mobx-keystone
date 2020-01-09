@@ -23,7 +23,7 @@ export function runTypeCheckingAfterChange(obj: object, patchRecorder: InternalP
       if (err) {
         // quietly apply inverse patches (do not generate patches, snapshots, actions, etc)
         runWithoutSnapshotOrPatches(() => {
-          internalApplyPatches.call(obj, patchRecorder.invPatches)
+          internalApplyPatches.call(obj, patchRecorder.invPatches, true)
         })
         // at the end of apply patches it will be type checked again and its result cached once more
         err.throw(parentModelWithTypeChecker)
