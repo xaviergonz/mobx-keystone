@@ -50,6 +50,28 @@ describe("object property", () => {
     })
     expect(p2data.y).toBe(10)
   })
+
+  test.each([undefined, false, true])("replace (reverse=%j)", reverse => {
+    runUnprotected(() => {
+      applyPatches(
+        p,
+        [
+          {
+            op: "replace",
+            path: ["p2", "y"],
+            value: 10,
+          },
+          {
+            op: "replace",
+            path: ["p2", "y"],
+            value: 11,
+          },
+        ],
+        reverse
+      )
+    })
+    expect(p2data.y).toBe(reverse ? 10 : 11)
+  })
 })
 
 describe("array", () => {
@@ -64,6 +86,28 @@ describe("array", () => {
       ])
     })
     expect(p.arr).toEqual([1, 10, 2, 3])
+  })
+
+  test.each([undefined, false, true])("add (reverse=%j)", reverse => {
+    runUnprotected(() => {
+      applyPatches(
+        p,
+        [
+          {
+            op: "add",
+            path: ["arr", "1"],
+            value: 10,
+          },
+          {
+            op: "add",
+            path: ["arr", "1"],
+            value: 11,
+          },
+        ],
+        reverse
+      )
+    })
+    expect(p.arr).toEqual([1, reverse ? 10 : 11, !reverse ? 10 : 11, 2, 3])
   })
 
   test("remove", () => {
@@ -89,6 +133,28 @@ describe("array", () => {
       ])
     })
     expect(p.arr).toEqual([1, 10, 3])
+  })
+
+  test.each([undefined, false, true])("replace (reverse=%j)", reverse => {
+    runUnprotected(() => {
+      applyPatches(
+        p,
+        [
+          {
+            op: "replace",
+            path: ["arr", "1"],
+            value: 10,
+          },
+          {
+            op: "replace",
+            path: ["arr", "1"],
+            value: 11,
+          },
+        ],
+        reverse
+      )
+    })
+    expect(p.arr).toEqual([1, reverse ? 10 : 11, 3])
   })
 })
 
@@ -131,5 +197,29 @@ describe("whole object", () => {
     })
     expect(p.p2).toBe(oldP2)
     expect(p.p2!.y).toBe(20)
+  })
+
+  test.each([undefined, false, true])("replace (same id, reverse=%j)", reverse => {
+    const oldP2 = p.p2!
+    runUnprotected(() => {
+      applyPatches(
+        p,
+        [
+          {
+            op: "replace",
+            path: ["p2"],
+            value: { ...getSnapshot(oldP2), y: 20 },
+          },
+          {
+            op: "replace",
+            path: ["p2"],
+            value: { ...getSnapshot(oldP2), y: 21 },
+          },
+        ],
+        reverse
+      )
+    })
+    expect(p.p2).toBe(oldP2)
+    expect(p.p2!.y).toBe(reverse ? 20 : 21)
   })
 })

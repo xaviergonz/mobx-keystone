@@ -70,7 +70,7 @@ export function transactionMiddleware<M extends AnyModel>(target: {
             const { events } = patchRecorder
             for (let i = events.length - 1; i >= 0; i--) {
               const event = events[i]
-              applyPatches(event.target, event.inversePatches)
+              applyPatches(event.target, event.inversePatches, true)
             }
           }
         } finally {
