@@ -1,6 +1,7 @@
 import { observable } from "mobx"
 import { O } from "ts-toolbelt"
 import { getGlobalConfig } from "../globalConfig"
+import { getSnapshot } from "../snapshot/getSnapshot"
 import { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
@@ -127,6 +128,10 @@ export abstract class BaseModel<
       const generateNewId: boolean = !!arguments[3]
       internalNewModel(this, clazz, undefined, snapshotInitialData, generateNewId)
     }
+  }
+
+  toString() {
+    return `[${this.constructor.name}#${this[modelTypeKey]} ${JSON.stringify(getSnapshot(this))}]`
   }
 }
 
