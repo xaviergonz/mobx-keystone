@@ -1,27 +1,27 @@
-import { jsonPatchToPatch, jsonPathToPath, patchToJsonPatch, pathToJsonPath } from "../../src"
+import { jsonPatchToPatch, jsonPointerToPath, patchToJsonPatch, pathToJsonPointer } from "../../src"
 import "../commonSetup"
 
 test("JSON path conversion", () => {
-  expect(pathToJsonPath([])).toEqual("")
-  expect(jsonPathToPath("")).toEqual([])
+  expect(pathToJsonPointer([])).toEqual("")
+  expect(jsonPointerToPath("")).toEqual([])
 
-  expect(pathToJsonPath([""])).toEqual("/")
-  expect(jsonPathToPath("/")).toEqual([""])
+  expect(pathToJsonPointer([""])).toEqual("/")
+  expect(jsonPointerToPath("/")).toEqual([""])
 
-  expect(pathToJsonPath(["abc"])).toEqual("/abc")
-  expect(jsonPathToPath("/abc")).toEqual(["abc"])
+  expect(pathToJsonPointer(["abc"])).toEqual("/abc")
+  expect(jsonPointerToPath("/abc")).toEqual(["abc"])
 
-  expect(pathToJsonPath(["abc", "def"])).toEqual("/abc/def")
-  expect(jsonPathToPath("/abc/def")).toEqual(["abc", "def"])
+  expect(pathToJsonPointer(["abc", "def"])).toEqual("/abc/def")
+  expect(jsonPointerToPath("/abc/def")).toEqual(["abc", "def"])
 
-  expect(pathToJsonPath([123, 456])).toEqual("/123/456")
-  expect(jsonPathToPath("/123/456")).toEqual(["123", "456"])
+  expect(pathToJsonPointer([123, 456])).toEqual("/123/456")
+  expect(jsonPointerToPath("/123/456")).toEqual(["123", "456"])
 
-  expect(pathToJsonPath(["/a"])).toEqual("/~1a")
-  expect(jsonPathToPath("/~1a")).toEqual(["/a"])
+  expect(pathToJsonPointer(["/a"])).toEqual("/~1a")
+  expect(jsonPointerToPath("/~1a")).toEqual(["/a"])
 
-  expect(pathToJsonPath(["~a"])).toEqual("/~0a")
-  expect(jsonPathToPath("/~0a")).toEqual(["~a"])
+  expect(pathToJsonPointer(["~a"])).toEqual("/~0a")
+  expect(jsonPointerToPath("/~0a")).toEqual(["~a"])
 })
 
 test("JSON patch conversion", () => {

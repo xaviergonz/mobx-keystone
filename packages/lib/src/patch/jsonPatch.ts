@@ -52,12 +52,12 @@ function unescapePathComponent(path: string): string {
 }
 
 /**
- * Converts a path into a JSON path.
+ * Converts a path into a JSON pointer.
  *
  * @param path Path to convert.
- * @returns Converted path.
+ * @returns Converted JSON pointer.
  */
-export function pathToJsonPath(path: Path): string {
+export function pathToJsonPointer(path: Path): string {
   if (path.length <= 0) {
     return ""
   }
@@ -65,20 +65,20 @@ export function pathToJsonPath(path: Path): string {
 }
 
 /**
- * Converts a JSON path into a path.
+ * Converts a JSON pointer into a path.
  *
- * @param jsonPath Path to convert.
+ * @param jsonPointer JSON pointer to convert.
  * @returns Converted path.
  */
-export function jsonPathToPath(jsonPath: string): Path {
-  if (jsonPath === "") {
+export function jsonPointerToPath(jsonPointer: string): Path {
+  if (jsonPointer === "") {
     return []
   }
-  if (!jsonPath.startsWith("/")) {
-    throw failure("a JSON path must start with '/' or be empty")
+  if (!jsonPointer.startsWith("/")) {
+    throw failure("a JSON pointer must start with '/' or be empty")
   }
-  jsonPath = jsonPath.slice(1)
-  return jsonPath.split("/").map(unescapePathComponent)
+  jsonPointer = jsonPointer.slice(1)
+  return jsonPointer.split("/").map(unescapePathComponent)
 }
 
 /**
@@ -90,7 +90,7 @@ export function jsonPathToPath(jsonPath: string): Path {
 export function patchToJsonPatch(patch: Patch): JsonPatch {
   return {
     ...patch,
-    path: pathToJsonPath(patch.path),
+    path: pathToJsonPointer(patch.path),
   }
 }
 
@@ -103,6 +103,6 @@ export function patchToJsonPatch(patch: Patch): JsonPatch {
 export function jsonPatchToPatch(jsonPatch: JsonPatch): Patch {
   return {
     ...jsonPatch,
-    path: jsonPathToPath(jsonPatch.path),
+    path: jsonPointerToPath(jsonPatch.path),
   }
 }
