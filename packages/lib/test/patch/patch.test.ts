@@ -558,6 +558,104 @@ test("onPatches and applyPatches", () => {
   expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
 
   expectSameSnapshotOnceReverted()
+
+  // unshift items
+  reset()
+  runUnprotected(() => {
+    p.arr.unshift(10, 11) // [10, 11, 1, 2, 3]
+  })
+
+  expect(pPatches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            0,
+          ],
+          "value": 10,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            1,
+          ],
+          "value": 11,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            2,
+          ],
+          "value": 1,
+        },
+        Object {
+          "op": "add",
+          "path": Array [
+            "arr",
+            3,
+          ],
+          "value": 2,
+        },
+        Object {
+          "op": "add",
+          "path": Array [
+            "arr",
+            4,
+          ],
+          "value": 3,
+        },
+      ],
+    ]
+  `)
+
+  expect(pInvPatches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            0,
+          ],
+          "value": 1,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            1,
+          ],
+          "value": 2,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            2,
+          ],
+          "value": 3,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "arr",
+            "length",
+          ],
+          "value": 3,
+        },
+      ],
+    ]
+  `)
+
+  expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+
+  expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
+  expectSameSnapshotOnceReverted()
 })
 
 test("patches with reserved prop names", () => {
