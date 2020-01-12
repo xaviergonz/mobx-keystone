@@ -1,5 +1,7 @@
 # Change Log
 
+- Static properties now will be preserved in classes that use the model decorator.
+
 ## 0.33.0
 
 - Fixed an issue with wrong patch order being generated for actions triggered inside `onAttachedToRootStore`.
