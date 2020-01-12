@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.33.0
+
 - Fixed an issue with wrong patch order being generated for actions triggered inside `onAttachedToRootStore`.
 - Added support to `applyPatches` for applying patches in reverse order.
 - Fixed applying inverse patches in reverse order.
