@@ -61,6 +61,7 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
     ...Object.getOwnPropertyDescriptor(newClazz, "name"),
     value: clazz.name,
   })
+  newClazz.__proto__ = clazz
   newClazz.prototype = clazz.prototype
   newClazz[modelInitializersSymbol] = (clazz as any)[modelInitializersSymbol]
   newClazz[modelPropertiesSymbol] = (clazz as any)[modelPropertiesSymbol]
