@@ -7,7 +7,9 @@ import {
   onPatches,
   Patch,
   prop,
+  registerRootStore,
   runUnprotected,
+  unregisterRootStore,
 } from "../../src"
 import "../commonSetup"
 import { createP } from "../testbed"
@@ -637,4 +639,108 @@ test("patches with reserved prop names", () => {
             `)
 
   expectSameSnapshotOnceReverted()
+})
+
+test("patches with action in onAttachedToRootStore", () => {
+  @model("test/patchesWithActionInOnAttachedToRootStore/M")
+  class M extends Model({ value: prop<number>(0) }) {
+    onAttachedToRootStore() {
+      this.setValue(1)
+    }
+
+    @modelAction
+    setValue(value: number) {
+      this.value = value
+    }
+  }
+
+  @model("test/patchesWithActionInOnAttachedToRootStore/R")
+  class R extends Model({ ms: prop<M[]>(() => []) }) {
+    @modelAction
+    addM(m: M) {
+      this.ms.push(m)
+    }
+  }
+
+  const r = new R({})
+  autoDispose(() => unregisterRootStore(r))
+  registerRootStore(r)
+
+  const sn = getSnapshot(r)
+
+  const rPatches: Patch[][] = []
+  const rInvPatches: Patch[][] = []
+  autoDispose(
+    onPatches(r, (ptchs, iptchs) => {
+      rPatches.push(ptchs)
+      rInvPatches.push(iptchs)
+    })
+  )
+  expect(rPatches).toMatchInlineSnapshot(`Array []`)
+  expect(rInvPatches).toMatchInlineSnapshot(`Array []`)
+
+  r.addM(new M({}))
+
+  expect(rPatches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "op": "add",
+          "path": Array [
+            "ms",
+            0,
+          ],
+          "value": Object {
+            "$modelId": "id-5",
+            "$modelType": "test/patchesWithActionInOnAttachedToRootStore/M",
+            "value": 0,
+          },
+        },
+      ],
+      Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "ms",
+            0,
+            "value",
+          ],
+          "value": 1,
+        },
+      ],
+    ]
+  `)
+  expect(rInvPatches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "ms",
+            "length",
+          ],
+          "value": 0,
+        },
+      ],
+      Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "ms",
+            0,
+            "value",
+          ],
+          "value": 0,
+        },
+      ],
+    ]
+  `)
+
+  runUnprotected(() => {
+    rInvPatches
+      .slice()
+      .reverse()
+      .forEach(invpatches => applyPatches(r, invpatches, true))
+  })
+  expect(getSnapshot(r)).toStrictEqual(sn)
 })

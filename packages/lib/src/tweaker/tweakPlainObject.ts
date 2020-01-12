@@ -181,15 +181,15 @@ function objectDidChange(change: IObjectDidChange): void {
       break
   }
 
-  // execute pending actions (attach/detach from root store events)
-  runPendingActions()
-
   runTypeCheckingAfterChange(obj, patchRecorder)
 
   if (!runningWithoutSnapshotOrPatches) {
     setInternalSnapshot(actualNode, standardSn)
     patchRecorder.emit(actualNode)
   }
+
+  // execute pending actions (attach/detach from root store events)
+  runPendingActions()
 }
 
 function interceptObjectMutation(change: IObjectWillChange) {
