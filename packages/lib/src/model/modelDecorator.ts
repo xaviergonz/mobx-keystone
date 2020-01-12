@@ -3,12 +3,7 @@ import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { addHiddenProp, failure, logWarning } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
-import {
-  modelDataTypeCheckerSymbol,
-  modelInitializersSymbol,
-  modelPropertiesSymbol,
-  modelUnwrappedClassSymbol,
-} from "./modelSymbols"
+import { modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -57,14 +52,15 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
 
     return instance
   }
+
+  // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
+  Object.setPrototypeOf(newClazz, clazz)
+  newClazz.prototype = clazz.prototype
+
   Object.defineProperty(newClazz, "name", {
     ...Object.getOwnPropertyDescriptor(newClazz, "name"),
     value: clazz.name,
   })
-  newClazz.prototype = clazz.prototype
-  newClazz[modelInitializersSymbol] = (clazz as any)[modelInitializersSymbol]
-  newClazz[modelPropertiesSymbol] = (clazz as any)[modelPropertiesSymbol]
-  newClazz[modelDataTypeCheckerSymbol] = (clazz as any)[modelDataTypeCheckerSymbol]
   newClazz[modelUnwrappedClassSymbol] = clazz
 
   const modelInfo = {

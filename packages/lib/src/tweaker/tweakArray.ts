@@ -118,62 +118,79 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
         const patches: Patch[] = []
         const invPatches: Patch[] = []
 
-        // replace as much as possible
-        let minLen = Math.min(oldLen, newLen)
-
-        // optimization, if we remove as many as we add we can just replace those
-        if (change.removedCount === change.addedCount) {
-          minLen = Math.min(minLen, change.removedCount)
-        }
-
-        for (let i = change.index; i < minLen; i++) {
-          const oldVal = oldSnapshot[i]
-          const newVal = newSnapshot[i]
-
-          if (oldVal !== newVal) {
-            const path = [i]
-            patches.push({
-              op: "replace",
-              path,
-              value: newVal,
-            })
-            invPatches.push({
-              op: "replace",
-              path,
-              value: oldVal,
-            })
-          }
-        }
-
-        if (newLen > oldLen) {
-          // add extra
-          for (let i = oldLen; i < newLen; i++) {
-            const path = [i]
+        // optimization, if `splice` is equivalent to `unshift` on a non-empty array
+        if (change.index === 0 && addedCount !== 0 && change.removedCount === 0 && oldLen !== 0) {
+          let i = addedCount
+          const path = [0]
+          while (i--) {
             patches.push({
               op: "add",
               path,
-              value: newSnapshot[i],
+              value: addedItems[i],
+            })
+            invPatches.push({
+              op: "remove",
+              path,
             })
           }
-          invPatches.push({
-            op: "replace",
-            path: ["length"],
-            value: oldLen,
-          })
-        } else if (newLen < oldLen) {
-          // remove extra
-          patches.push({
-            op: "replace",
-            path: ["length"],
-            value: newLen,
-          })
-          for (let i = newLen; i < oldLen; i++) {
-            const path = [i]
+        } else {
+          // replace as much as possible
+          let minLen = Math.min(oldLen, newLen)
+
+          // optimization, if we remove as many as we add we can just replace those
+          if (change.removedCount === change.addedCount) {
+            minLen = Math.min(minLen, change.removedCount)
+          }
+
+          for (let i = change.index; i < minLen; i++) {
+            const oldVal = oldSnapshot[i]
+            const newVal = newSnapshot[i]
+
+            if (oldVal !== newVal) {
+              const path = [i]
+              patches.push({
+                op: "replace",
+                path,
+                value: newVal,
+              })
+              invPatches.push({
+                op: "replace",
+                path,
+                value: oldVal,
+              })
+            }
+          }
+
+          if (newLen > oldLen) {
+            // add extra
+            for (let i = oldLen; i < newLen; i++) {
+              const path = [i]
+              patches.push({
+                op: "add",
+                path,
+                value: newSnapshot[i],
+              })
+            }
             invPatches.push({
-              op: "add",
-              path,
-              value: oldSnapshot[i],
+              op: "replace",
+              path: ["length"],
+              value: oldLen,
             })
+          } else if (newLen < oldLen) {
+            // remove extra
+            patches.push({
+              op: "replace",
+              path: ["length"],
+              value: newLen,
+            })
+            for (let i = newLen; i < oldLen; i++) {
+              const path = [i]
+              invPatches.push({
+                op: "add",
+                path,
+                value: oldSnapshot[i],
+              })
+            }
           }
         }
 

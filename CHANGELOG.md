@@ -1,6 +1,7 @@
 # Change Log
 
 - Added support for obtaining multiple sandbox nodes at the same time.
+- Static properties now will be preserved in classes that use the model decorator.
 
 ## 0.33.0
 
