@@ -215,15 +215,15 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
       break
   }
 
-  // execute pending actions (attach/detach from root store events)
-  runPendingActions()
-
   runTypeCheckingAfterChange(arr, patchRecorder)
 
   if (!runningWithoutSnapshotOrPatches) {
     setInternalSnapshot(arr, newSnapshot)
     patchRecorder.emit(arr)
   }
+
+  // execute pending actions (attach/detach from root store events)
+  runPendingActions()
 }
 
 const undefinedInsideArrayErrorMsg =
