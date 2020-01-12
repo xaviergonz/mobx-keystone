@@ -1,4 +1,5 @@
 export * from "./applyPatches"
 export * from "./emitPatch"
+export * from "./jsonPatch"
 export * from "./Patch"
 export * from "./patchRecorder"

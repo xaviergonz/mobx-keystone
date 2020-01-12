@@ -1,9 +1,6 @@
 import { Path } from "../parent/pathTypes"
 
-export declare type Patch =
-  | PatchAddOperation<any>
-  | PatchRemoveOperation
-  | PatchReplaceOperation<any>
+export type Patch = PatchAddOperation<any> | PatchRemoveOperation | PatchReplaceOperation<any>
 
 export interface PatchBaseOperation {
   path: Path
