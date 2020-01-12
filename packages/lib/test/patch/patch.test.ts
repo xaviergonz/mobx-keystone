@@ -713,6 +713,183 @@ describe("onPatches and applyPatches", () => {
 
     expectSameSnapshotOnceReverted()
   })
+
+  test("unshift items (empty array)", () => {
+    const {
+      p,
+      pPatches,
+      pInvPatches,
+      p2Patches,
+      p2InvPatches,
+      expectSameSnapshotOnceReverted,
+    } = setup(false)
+
+    runUnprotected(() => {
+      p.arr.unshift(10, 11) // [10, 11]
+    })
+
+    expect(pPatches).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              0,
+            ],
+            "value": 10,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              1,
+            ],
+            "value": 11,
+          },
+        ],
+      ]
+    `)
+
+    expect(pInvPatches).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+              "length",
+            ],
+            "value": 0,
+          },
+        ],
+      ]
+    `)
+
+    expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+
+    expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
+    expectSameSnapshotOnceReverted()
+  })
+
+  test("push items", () => {
+    const {
+      p,
+      pPatches,
+      pInvPatches,
+      p2Patches,
+      p2InvPatches,
+      expectSameSnapshotOnceReverted,
+    } = setup(true)
+
+    runUnprotected(() => {
+      p.arr.push(10, 11) // [1, 2, 3, 10, 11]
+    })
+
+    expect(pPatches).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              3,
+            ],
+            "value": 10,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              4,
+            ],
+            "value": 11,
+          },
+        ],
+      ]
+    `)
+
+    expect(pInvPatches).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+              "length",
+            ],
+            "value": 3,
+          },
+        ],
+      ]
+    `)
+
+    expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+
+    expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
+    expectSameSnapshotOnceReverted()
+  })
+
+  test("push items (empty array)", () => {
+    const {
+      p,
+      pPatches,
+      pInvPatches,
+      p2Patches,
+      p2InvPatches,
+      expectSameSnapshotOnceReverted,
+    } = setup(false)
+
+    runUnprotected(() => {
+      p.arr.push(10, 11) // [10, 11]
+    })
+
+    expect(pPatches).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              0,
+            ],
+            "value": 10,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              1,
+            ],
+            "value": 11,
+          },
+        ],
+      ]
+    `)
+
+    expect(pInvPatches).toMatchInlineSnapshot(`
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+              "length",
+            ],
+            "value": 0,
+          },
+        ],
+      ]
+    `)
+
+    expect(p2Patches).toMatchInlineSnapshot(`Array []`)
+
+    expect(p2InvPatches).toMatchInlineSnapshot(`Array []`)
+
+    expectSameSnapshotOnceReverted()
+  })
 })
 
 test("patches with reserved prop names", () => {
