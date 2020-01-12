@@ -1,5 +1,7 @@
 # Change Log
 
+- Added support for obtaining multiple sandbox nodes at the same time.
+
 ## 0.33.0
 
 - Fixed an issue with wrong patch order being generated for actions triggered inside `onAttachedToRootStore`.
