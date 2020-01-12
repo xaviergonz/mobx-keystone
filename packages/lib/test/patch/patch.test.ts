@@ -569,44 +569,20 @@ test("onPatches and applyPatches", () => {
     Array [
       Array [
         Object {
-          "op": "replace",
+          "op": "add",
+          "path": Array [
+            "arr",
+            0,
+          ],
+          "value": 11,
+        },
+        Object {
+          "op": "add",
           "path": Array [
             "arr",
             0,
           ],
           "value": 10,
-        },
-        Object {
-          "op": "replace",
-          "path": Array [
-            "arr",
-            1,
-          ],
-          "value": 11,
-        },
-        Object {
-          "op": "replace",
-          "path": Array [
-            "arr",
-            2,
-          ],
-          "value": 1,
-        },
-        Object {
-          "op": "add",
-          "path": Array [
-            "arr",
-            3,
-          ],
-          "value": 2,
-        },
-        Object {
-          "op": "add",
-          "path": Array [
-            "arr",
-            4,
-          ],
-          "value": 3,
         },
       ],
     ]
@@ -616,36 +592,18 @@ test("onPatches and applyPatches", () => {
     Array [
       Array [
         Object {
-          "op": "replace",
+          "op": "remove",
           "path": Array [
             "arr",
             0,
           ],
-          "value": 1,
         },
         Object {
-          "op": "replace",
+          "op": "remove",
           "path": Array [
             "arr",
-            1,
+            0,
           ],
-          "value": 2,
-        },
-        Object {
-          "op": "replace",
-          "path": Array [
-            "arr",
-            2,
-          ],
-          "value": 3,
-        },
-        Object {
-          "op": "replace",
-          "path": Array [
-            "arr",
-            "length",
-          ],
-          "value": 3,
         },
       ],
     ]
