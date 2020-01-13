@@ -1,6 +1,7 @@
 # Change Log
 
 - Added support for obtaining multiple sandbox nodes at the same time.
+- Added `$modelType` as static property to model classes, as well as better `toString()` to model classes and instances for logging purposes.
 - Static properties now will be preserved in classes that use the model decorator.
 
 ## 0.33.0
