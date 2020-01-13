@@ -2,6 +2,7 @@ import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { addHiddenProp, failure, logWarning } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
+import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 import { modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
@@ -52,6 +53,9 @@ export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
 
     return instance
   }
+
+  clazz.toString = () => `class ${clazz.name}#${name}`
+  ;(clazz as any)[modelTypeKey] = name
 
   // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
   Object.setPrototypeOf(newClazz, clazz)

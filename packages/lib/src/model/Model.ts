@@ -11,7 +11,7 @@ import {
   ModelClass,
   modelInitializedSymbol,
 } from "./BaseModel"
-import { modelIdKey } from "./metadata"
+import { modelIdKey, modelTypeKey } from "./metadata"
 import {
   modelDataTypeCheckerSymbol,
   modelInitializersSymbol,
@@ -28,6 +28,11 @@ declare const creationDataSymbol: unique symbol
 declare const composedCreationDataSymbol: unique symbol
 
 export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends ModelProps> {
+  /**
+   * Model type name assigned to this class, or undefined if none.
+   */
+  readonly [modelTypeKey]: string | undefined
+
   [propsDataSymbol]: ModelPropsToData<TProps>
   [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
 
@@ -49,6 +54,11 @@ export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends Mode
 }
 
 export interface _Model<TProps extends ModelProps> {
+  /**
+   * Model type name assigned to this class, or undefined if none.
+   */
+  readonly [modelTypeKey]: string | undefined
+
   [propsDataSymbol]: ModelPropsToData<TProps>
   [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
 
