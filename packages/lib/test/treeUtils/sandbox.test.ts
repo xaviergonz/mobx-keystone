@@ -1,6 +1,7 @@
 import { assert, _ } from "spec.ts"
 import {
   isRootStore,
+  isTweakedObject,
   model,
   Model,
   modelAction,
@@ -70,6 +71,23 @@ test("withSandbox can be called with one node or a tuple of nodes", () => {
     assert(nodes, _ as [B, A])
     expect(nodes[0].$modelType).toBe("B")
     expect(nodes[1].$modelType).toBe("A")
+    return false
+  })
+})
+
+test("withSandbox can be called with an array node", () => {
+  @model("R")
+  class R extends Model({ a: prop<A[]>() }) {}
+
+  const r = new R({ a: [new A({ b: new B({ value: 1 }) }), new A({ b: new B({ value: 2 }) })] })
+
+  const manager = sandbox(r)
+  autoDispose(() => manager.dispose())
+
+  manager.withSandbox(r.a, node => {
+    assert(node, _ as A[])
+    expect(node).toHaveLength(2)
+    expect(isTweakedObject(node, false)).toBeTruthy()
     return false
   })
 })

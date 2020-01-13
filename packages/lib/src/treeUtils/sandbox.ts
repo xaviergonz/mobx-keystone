@@ -9,7 +9,7 @@ import { onPatches } from "../patch/emitPatch"
 import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
 import { isRootStore, registerRootStore, unregisterRootStore } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
-import { assertTweakedObject } from "../tweaker/core"
+import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { assertIsFunction, failure } from "../utils"
 
 /**
@@ -112,7 +112,7 @@ export class SandboxManager {
   withSandbox<T extends object | [object], R = void>(node: T, fn: WithSandboxCallback<T, R>): R {
     assertIsFunction(fn, "fn")
 
-    const isNodesArray = Array.isArray(node)
+    const isNodesArray = Array.isArray(node) && !isTweakedObject(node, false)
     const nodes: T[] = isNodesArray ? (node as T[]) : [node]
 
     const { sandboxNodes, applyRecorderChanges } = this.prepareSandboxChanges(nodes)
