@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Jest Current File",
       "program": "${workspaceFolder}/node_modules/.bin/tsdx",
-      "args": ["test", "${fileBasenameNoExtension}"],
+      "args": ["test", "--ci", "-i", "${fileBasenameNoExtension}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "disableOptimisticBPs": true,
