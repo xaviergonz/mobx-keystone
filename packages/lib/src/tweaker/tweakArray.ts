@@ -99,8 +99,11 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
   switch (change.type) {
     case "splice":
       {
-        let addedItems = []
+        const index = change.index
         const addedCount = change.addedCount
+        const removedCount = change.removedCount
+
+        let addedItems = []
         addedItems.length = addedCount
         for (let i = 0; i < addedCount; i++) {
           const v = change.added[i]
@@ -112,47 +115,28 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
         }
 
         const oldLen = oldSnapshot.length
-        newSnapshot.splice(change.index, change.removedCount, ...addedItems)
-        const newLen = newSnapshot.length
+        newSnapshot.splice(index, removedCount, ...addedItems)
 
         const patches: Patch[] = []
         const invPatches: Patch[] = []
 
-        // optimization, if `splice` is equivalent to `unshift` on a non-empty array
-        if (change.index === 0 && addedCount !== 0 && change.removedCount === 0 && oldLen !== 0) {
-          let i = addedCount
-          const path = [0]
-          while (i--) {
-            patches.push({
-              op: "add",
-              path,
-              value: addedItems[i],
-            })
-            invPatches.push({
-              op: "remove",
-              path,
-            })
-          }
-        } else {
-          // replace as much as possible
-          let minLen = Math.min(oldLen, newLen)
+        // optimization: if we add as many as we remove then replace instead
+        if (addedCount === removedCount) {
+          for (let i = 0; i < addedCount; i++) {
+            const realIndex = index + i
 
-          // optimization, if we remove as many as we add we can just replace those
-          if (change.removedCount === change.addedCount) {
-            minLen = Math.min(minLen, change.removedCount)
-          }
+            const newVal = newSnapshot[realIndex]
+            const oldVal = oldSnapshot[realIndex]
 
-          for (let i = change.index; i < minLen; i++) {
-            const oldVal = oldSnapshot[i]
-            const newVal = newSnapshot[i]
-
-            if (oldVal !== newVal) {
-              const path = [i]
+            if (newVal !== oldVal) {
+              const path = [realIndex]
+              // replace 0, 1, 2...
               patches.push({
                 op: "replace",
                 path,
                 value: newVal,
               })
+              // replace ...2, 1, 0 since inverse patches are applied in reverse
               invPatches.push({
                 op: "replace",
                 path,
@@ -160,36 +144,72 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
               })
             }
           }
+        } else {
+          const interimLen = oldLen - removedCount
 
-          if (newLen > oldLen) {
-            // add extra
-            for (let i = oldLen; i < newLen; i++) {
-              const path = [i]
+          // first remove items
+          if (removedCount > 0) {
+            // optimization, when removing from the end set the length instead
+            const removeUsingSetLength = index >= interimLen
+            if (removeUsingSetLength) {
               patches.push({
-                op: "add",
-                path,
-                value: newSnapshot[i],
+                op: "replace",
+                path: ["length"],
+                value: interimLen,
               })
             }
-            invPatches.push({
-              op: "replace",
-              path: ["length"],
-              value: oldLen,
-            })
-          } else if (newLen < oldLen) {
-            // remove extra
-            patches.push({
-              op: "replace",
-              path: ["length"],
-              value: newLen,
-            })
-            for (let i = newLen; i < oldLen; i++) {
-              const path = [i]
+
+            for (let i = removedCount - 1; i >= 0; i--) {
+              const realIndex = index + i
+              const path = [realIndex]
+
+              if (!removeUsingSetLength) {
+                // remove ...2, 1, 0
+                patches.push({
+                  op: "remove",
+                  path,
+                })
+              }
+
+              // add 0, 1, 2... since inverse patches are applied in reverse
               invPatches.push({
                 op: "add",
                 path,
-                value: oldSnapshot[i],
+                value: oldSnapshot[realIndex],
               })
+            }
+          }
+
+          // then add items
+          if (addedCount > 0) {
+            // optimization, for inverse patches, when adding from the end set the length to restore instead
+            const restoreUsingSetLength = index >= interimLen
+            if (restoreUsingSetLength) {
+              invPatches.push({
+                op: "replace",
+                path: ["length"],
+                value: interimLen,
+              })
+            }
+
+            for (let i = 0; i < addedCount; i++) {
+              const realIndex = index + i
+              const path = [realIndex]
+
+              // add 0, 1, 2...
+              patches.push({
+                op: "add",
+                path,
+                value: newSnapshot[realIndex],
+              })
+
+              // remove ...2, 1, 0 since inverse patches are applied in reverse
+              if (!restoreUsingSetLength) {
+                invPatches.push({
+                  op: "remove",
+                  path,
+                })
+              }
             }
           }
         }

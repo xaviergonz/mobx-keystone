@@ -123,89 +123,89 @@ test("onSnapshot and applySnapshot", () => {
     `)
 
   expect(patches).toMatchInlineSnapshot(`
-                                Array [
-                                  Array [
-                                    Array [
-                                      Object {
-                                        "op": "replace",
-                                        "path": Array [
-                                          "p2",
-                                          "y",
-                                        ],
-                                        "value": 12,
-                                      },
-                                    ],
-                                    Array [
-                                      Object {
-                                        "op": "replace",
-                                        "path": Array [
-                                          "p2",
-                                          "y",
-                                        ],
-                                        "value": 13,
-                                      },
-                                    ],
-                                  ],
-                                  Array [
-                                    Array [
-                                      Object {
-                                        "op": "replace",
-                                        "path": Array [
-                                          "arr",
-                                          "length",
-                                        ],
-                                        "value": 0,
-                                      },
-                                    ],
-                                    Array [
-                                      Object {
-                                        "op": "add",
-                                        "path": Array [
-                                          "arr",
-                                          0,
-                                        ],
-                                        "value": 1,
-                                      },
-                                      Object {
-                                        "op": "add",
-                                        "path": Array [
-                                          "arr",
-                                          1,
-                                        ],
-                                        "value": 2,
-                                      },
-                                      Object {
-                                        "op": "add",
-                                        "path": Array [
-                                          "arr",
-                                          2,
-                                        ],
-                                        "value": 3,
-                                      },
-                                    ],
-                                  ],
-                                  Array [
-                                    Array [
-                                      Object {
-                                        "op": "replace",
-                                        "path": Array [
-                                          "x",
-                                        ],
-                                        "value": 5,
-                                      },
-                                    ],
-                                    Array [
-                                      Object {
-                                        "op": "replace",
-                                        "path": Array [
-                                          "x",
-                                        ],
-                                        "value": 6,
-                                      },
-                                    ],
-                                  ],
-                                ]
-                `)
+    Array [
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
+              "y",
+            ],
+            "value": 12,
+          },
+        ],
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
+              "y",
+            ],
+            "value": 13,
+          },
+        ],
+      ],
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "arr",
+              "length",
+            ],
+            "value": 0,
+          },
+        ],
+        Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              2,
+            ],
+            "value": 3,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              1,
+            ],
+            "value": 2,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
+              0,
+            ],
+            "value": 1,
+          },
+        ],
+      ],
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "x",
+            ],
+            "value": 5,
+          },
+        ],
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+      ],
+    ]
+  `)
 })
 
 test("applySnapshot can create a new submodel", () => {
@@ -447,86 +447,86 @@ test("undefined should not be allowed in arrays, but null should", () => {
 test("types", () => {
   assert(
     _ as SnapshotInOf<P2>,
-    _ as ({
+    _ as {
       y?: number | null
     } & {
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 
   assert(
     _ as SnapshotOutOf<P2>,
-    _ as ({
+    _ as {
       y: number
     } & {
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 
   assert(
     _ as SnapshotInOf<P>,
-    _ as ({
+    _ as {
       x?: number | null
       arr?: number[] | null
       p2?: SnapshotInOf<P2>
     } & {
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 
   assert(
     _ as SnapshotOutOf<P>,
-    _ as ({
+    _ as {
       x: number
       arr: number[]
       p2: SnapshotOutOf<P2> | undefined
     } & {
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 
   assert(
     _ as SnapshotInOf<ObjectMap<number>>,
-    _ as ({
+    _ as {
       items?: {
         [k: string]: number
       }
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 
   assert(
     _ as SnapshotOutOf<ObjectMap<number>>,
-    _ as ({
+    _ as {
       items: {
         [k: string]: number
       }
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 
   assert(
     _ as SnapshotInOf<ArraySet<number>>,
-    _ as ({
+    _ as {
       items?: number[]
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 
   assert(
     _ as SnapshotOutOf<ArraySet<number>>,
-    _ as ({
+    _ as {
       items: number[]
       [modelTypeKey]: string
       [modelIdKey]: string
-    })
+    }
   )
 })
 
