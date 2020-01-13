@@ -130,8 +130,17 @@ export abstract class BaseModel<
     }
   }
 
-  toString() {
-    return `[${this.constructor.name}#${this[modelTypeKey]} ${JSON.stringify(getSnapshot(this))}]`
+  toString(options?: { withData?: boolean }) {
+    const finalOptions = {
+      withData: true,
+      ...options,
+    }
+
+    const firstPart = `${this.constructor.name}#${this[modelTypeKey]}`
+
+    return finalOptions.withData
+      ? `[${firstPart} ${JSON.stringify(getSnapshot(this))}]`
+      : `[${firstPart}]`
   }
 }
 

@@ -61,4 +61,5 @@ test("model decorator sets model type static prop and toString methods", () => {
 
   const inst = new MyModel2({}) as MyModel
   expect(`${inst}`).toBe(`[MyModel#${type} ${JSON.stringify(getSnapshot(inst))}]`)
+  expect(`${inst.toString({ withData: false })}`).toBe(`[MyModel#${type}]`)
 })
