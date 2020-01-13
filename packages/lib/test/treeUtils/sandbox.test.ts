@@ -1,6 +1,7 @@
 import { assert, _ } from "spec.ts"
 import {
   isRootStore,
+  isTweakedObject,
   model,
   Model,
   modelAction,
@@ -33,6 +34,62 @@ test("sandbox creates instance of SandboxManager", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
   expect(manager instanceof SandboxManager).toBeTruthy()
+})
+
+test("withSandbox can be called with one node or a tuple of nodes", () => {
+  const a = new A({ b: new B({ value: 0 }) })
+  const manager = sandbox(a)
+  autoDispose(() => manager.dispose())
+
+  manager.withSandbox(a, node => {
+    assert(node, _ as A)
+    expect(node.$modelType).toBe("A")
+    return false
+  })
+
+  manager.withSandbox([a], nodes => {
+    assert(nodes, _ as [A])
+    expect(nodes[0].$modelType).toBe("A")
+    return false
+  })
+
+  manager.withSandbox([a, a], nodes => {
+    assert(nodes, _ as [A, A])
+    expect(nodes[0].$modelType).toBe("A")
+    expect(nodes[1].$modelType).toBe("A")
+    return false
+  })
+
+  manager.withSandbox([a, a.b], nodes => {
+    assert(nodes, _ as [A, B])
+    expect(nodes[0].$modelType).toBe("A")
+    expect(nodes[1].$modelType).toBe("B")
+    return false
+  })
+
+  manager.withSandbox([a.b, a], nodes => {
+    assert(nodes, _ as [B, A])
+    expect(nodes[0].$modelType).toBe("B")
+    expect(nodes[1].$modelType).toBe("A")
+    return false
+  })
+})
+
+test("withSandbox can be called with an array node", () => {
+  @model("R")
+  class R extends Model({ a: prop<A[]>() }) {}
+
+  const r = new R({ a: [new A({ b: new B({ value: 1 }) }), new A({ b: new B({ value: 2 }) })] })
+
+  const manager = sandbox(r)
+  autoDispose(() => manager.dispose())
+
+  manager.withSandbox(r.a, node => {
+    assert(node, _ as A[])
+    expect(node).toHaveLength(2)
+    expect(isTweakedObject(node, false)).toBeTruthy()
+    return false
+  })
 })
 
 test("withSandbox callback is called when node is a child of subtreeRoot", () => {

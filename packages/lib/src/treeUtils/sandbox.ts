@@ -9,13 +9,13 @@ import { onPatches } from "../patch/emitPatch"
 import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
 import { isRootStore, registerRootStore, unregisterRootStore } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
-import { assertTweakedObject } from "../tweaker/core"
+import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { assertIsFunction, failure } from "../utils"
 
 /**
  * Callback function for `SandboxManager.withSandbox`.
  */
-export type WithSandboxCallback<T extends object, R> = (
+export type WithSandboxCallback<T extends object | [object], R> = (
   node: T
 ) => boolean | { commit: boolean; return: R }
 
@@ -101,7 +101,7 @@ export class SandboxManager {
    *
    * @typeparam T Object type.
    * @typeparam R Return type.
-   * @param node Object for which to obtain a sandbox copy.
+   * @param node Object or tuple of objects for which to obtain a sandbox copy.
    * @param fn Function that is called with a sandbox copy of `node`. Any changes made to the
    * sandbox are applied to the original subtree when `fn` returns `true` or
    * `{ commit: true, ... }`. When `fn` returns `false` or `{ commit: false, ... }` the changes made
@@ -109,14 +109,19 @@ export class SandboxManager {
    * @returns Value of type `R` when `fn` returns an object of type `{ commit: boolean; return: R }`
    * or `void` when `fn` returns a boolean.
    */
-  withSandbox<T extends object, R = void>(node: T, fn: WithSandboxCallback<T, R>): R {
+  withSandbox<T extends object | [object], R = void>(node: T, fn: WithSandboxCallback<T, R>): R {
     assertIsFunction(fn, "fn")
 
-    const { sandboxNode, applyRecorderChanges } = this.prepareSandboxChanges(node)
+    const isNodesArray = Array.isArray(node) && !isTweakedObject(node, false)
+    const nodes: T[] = isNodesArray ? (node as T[]) : [node]
+
+    const { sandboxNodes, applyRecorderChanges } = this.prepareSandboxChanges(nodes)
 
     let commit = false
     try {
-      const returnValue = this.allowWrite(() => fn(sandboxNode))
+      const returnValue = this.allowWrite(() =>
+        fn((isNodesArray ? sandboxNodes : sandboxNodes[0]) as T)
+      )
       if (typeof returnValue === "boolean") {
         commit = returnValue
         return undefined as any
@@ -136,25 +141,29 @@ export class SandboxManager {
     this.disposer()
   }
 
-  private prepareSandboxChanges<T extends object>(
-    node: T
-  ): { sandboxNode: T; applyRecorderChanges: (commit: boolean) => void } {
-    assertTweakedObject(node, "node")
-
+  private prepareSandboxChanges<T extends object[]>(
+    nodes: T
+  ): { sandboxNodes: T; applyRecorderChanges: (commit: boolean) => void } {
     const isNestedWithSandboxCall = !!this.withSandboxPatchRecorder
 
-    const path = getParentToChildPath(
-      isNestedWithSandboxCall ? this.subtreeRootClone : this.subtreeRoot,
-      node
-    )
-    if (!path) {
-      throw failure(`node is not a child of subtreeRoot${isNestedWithSandboxCall ? "Clone" : ""}`)
-    }
+    const sandboxNodes = nodes.map(node => {
+      assertTweakedObject(node, "node")
 
-    const sandboxNode = resolvePath<T>(this.subtreeRootClone, path).value
-    if (!sandboxNode) {
-      throw failure("path could not be resolved - sandbox may be out of sync with original tree")
-    }
+      const path = getParentToChildPath(
+        isNestedWithSandboxCall ? this.subtreeRootClone : this.subtreeRoot,
+        node
+      )
+      if (!path) {
+        throw failure(`node is not a child of subtreeRoot${isNestedWithSandboxCall ? "Clone" : ""}`)
+      }
+
+      const sandboxNode = resolvePath<typeof node>(this.subtreeRootClone, path).value
+      if (!sandboxNode) {
+        throw failure("path could not be resolved - sandbox may be out of sync with original tree")
+      }
+
+      return sandboxNode
+    }) as T
 
     if (!this.withSandboxPatchRecorder) {
       this.withSandboxPatchRecorder = patchRecorder(this.subtreeRootClone)
@@ -186,7 +195,7 @@ export class SandboxManager {
       })
     }
 
-    return { sandboxNode, applyRecorderChanges }
+    return { sandboxNodes, applyRecorderChanges }
   }
 }
 
