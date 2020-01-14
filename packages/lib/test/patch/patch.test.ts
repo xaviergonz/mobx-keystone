@@ -178,8 +178,6 @@ describe("onPatches and applyPatches", () => {
       expectSameSnapshotOnceReverted,
     } = setup()
 
-    const p2Id = p.p2!.$modelId
-
     runUnprotected(() => {
       p.p2 = undefined
     })
@@ -207,7 +205,7 @@ describe("onPatches and applyPatches", () => {
               "p2",
             ],
             "value": Object {
-              "$modelId": "${p2Id}",
+              "$modelId": "id-5",
               "$modelType": "P2",
               "y": 12,
             },
@@ -300,17 +298,17 @@ describe("onPatches and applyPatches", () => {
             "op": "replace",
             "path": Array [
               "arr",
+              "length",
+            ],
+            "value": 1,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
               1,
             ],
             "value": 5,
-          },
-          Object {
-            "op": "replace",
-            "path": Array [
-              "arr",
-              "length",
-            ],
-            "value": 2,
           },
         ],
       ]
@@ -320,7 +318,15 @@ describe("onPatches and applyPatches", () => {
       Array [
         Array [
           Object {
-            "op": "replace",
+            "op": "add",
+            "path": Array [
+              "arr",
+              2,
+            ],
+            "value": 3,
+          },
+          Object {
+            "op": "add",
             "path": Array [
               "arr",
               1,
@@ -328,12 +334,12 @@ describe("onPatches and applyPatches", () => {
             "value": 2,
           },
           Object {
-            "op": "add",
+            "op": "replace",
             "path": Array [
               "arr",
-              2,
+              "length",
             ],
-            "value": 3,
+            "value": 1,
           },
         ],
       ]
@@ -367,12 +373,20 @@ describe("onPatches and applyPatches", () => {
             "op": "replace",
             "path": Array [
               "arr",
+              "length",
+            ],
+            "value": 1,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "arr",
               1,
             ],
             "value": 5,
           },
           Object {
-            "op": "replace",
+            "op": "add",
             "path": Array [
               "arr",
               2,
@@ -395,7 +409,15 @@ describe("onPatches and applyPatches", () => {
       Array [
         Array [
           Object {
-            "op": "replace",
+            "op": "add",
+            "path": Array [
+              "arr",
+              2,
+            ],
+            "value": 3,
+          },
+          Object {
+            "op": "add",
             "path": Array [
               "arr",
               1,
@@ -406,17 +428,9 @@ describe("onPatches and applyPatches", () => {
             "op": "replace",
             "path": Array [
               "arr",
-              2,
-            ],
-            "value": 3,
-          },
-          Object {
-            "op": "replace",
-            "path": Array [
-              "arr",
               "length",
             ],
-            "value": 3,
+            "value": 1,
           },
         ],
       ]
@@ -498,20 +512,11 @@ describe("onPatches and applyPatches", () => {
       Array [
         Array [
           Object {
-            "op": "replace",
+            "op": "remove",
             "path": Array [
               "arr",
               1,
             ],
-            "value": 3,
-          },
-          Object {
-            "op": "replace",
-            "path": Array [
-              "arr",
-              "length",
-            ],
-            "value": 2,
           },
         ],
       ]
@@ -521,20 +526,12 @@ describe("onPatches and applyPatches", () => {
       Array [
         Array [
           Object {
-            "op": "replace",
+            "op": "add",
             "path": Array [
               "arr",
               1,
             ],
             "value": 2,
-          },
-          Object {
-            "op": "add",
-            "path": Array [
-              "arr",
-              2,
-            ],
-            "value": 3,
           },
         ],
       ]
@@ -672,15 +669,15 @@ describe("onPatches and applyPatches", () => {
               "arr",
               0,
             ],
-            "value": 11,
+            "value": 10,
           },
           Object {
             "op": "add",
             "path": Array [
               "arr",
-              0,
+              1,
             ],
-            "value": 10,
+            "value": 11,
           },
         ],
       ]
@@ -700,7 +697,7 @@ describe("onPatches and applyPatches", () => {
             "op": "remove",
             "path": Array [
               "arr",
-              0,
+              1,
             ],
           },
         ],
@@ -1023,7 +1020,7 @@ test("patches with action in onAttachedToRootStore", () => {
             0,
           ],
           "value": Object {
-            "$modelId": "${r.ms[0].$modelId}",
+            "$modelId": "id-31",
             "$modelType": "test/patchesWithActionInOnAttachedToRootStore/M",
             "value": 0,
           },
