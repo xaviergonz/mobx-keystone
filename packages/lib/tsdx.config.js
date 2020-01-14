@@ -1,6 +1,6 @@
 module.exports = {
   rollup(config) {
-    config.output.treeshake.propertyReadSideEffects = true
+    config.treeshake.propertyReadSideEffects = true
     return config
   },
 }
