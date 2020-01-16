@@ -1,3 +1,5 @@
+import { action } from "mobx"
+
 const pendingActions: Array<() => void> = []
 
 /**
@@ -10,9 +12,9 @@ export function enqueuePendingAction(action: () => void): void {
 /**
  * @ignore
  */
-export function runPendingActions(): void {
+export const runPendingActions = action("runPendingActions", () => {
   while (pendingActions.length > 0) {
     const pendingAction = pendingActions.shift()!
     pendingAction()
   }
-}
+})
