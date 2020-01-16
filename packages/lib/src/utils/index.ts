@@ -267,11 +267,20 @@ export function decorateWrapMethodOrField(
   }
 }
 
+const warningsAlreadyDisplayed = new Set<string>()
+
 /**
  * @ignore
  * @internal
  */
-export function logWarning(type: "warn" | "error", msg: string): void {
+export function logWarning(type: "warn" | "error", msg: string, uniqueKey?: string): void {
+  if (uniqueKey) {
+    if (warningsAlreadyDisplayed.has(uniqueKey)) {
+      return
+    }
+    warningsAlreadyDisplayed.add(uniqueKey)
+  }
+
   msg = "[mobx-keystone] " + msg
   switch (type) {
     case "warn":
