@@ -1,5 +1,7 @@
 # Change Log
 
+- Warnings about duplicate model names will now only show once per model.
+
 ## 0.34.0
 
 - Optimized the patches generated for array operations.
