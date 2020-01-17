@@ -1,7 +1,8 @@
+import { action } from "mobx"
 import { ActionContextActionType } from "../action/context"
 import { HookAction } from "../action/hookActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { BaseModel } from "../model/BaseModel"
+import { AnyModel, BaseModel } from "../model/BaseModel"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
@@ -9,31 +10,46 @@ const onAttachedDisposers = new WeakMap<object, () => void>()
 /**
  * @ignore
  */
-export function attachToRootStore(rootStore: object, child: object): void {
-  walkTree(
-    child,
-    ch => {
-      if (ch instanceof BaseModel && ch.onAttachedToRootStore) {
-        wrapModelMethodInActionIfNeeded(
-          ch,
-          "onAttachedToRootStore",
-          HookAction.OnAttachedToRootStore
-        )
+export const attachToRootStore = action(
+  "attachToRootStore",
+  (rootStore: object, child: object): void => {
+    // we use an array to ensure they will get called even if the actual hook modifies the tree
+    const childrenToCall: AnyModel[] = []
 
-        const disposer = ch.onAttachedToRootStore!(rootStore)
-        if (disposer) {
-          onAttachedDisposers.set(ch, disposer)
+    walkTree(
+      child,
+      ch => {
+        if (ch instanceof BaseModel && ch.onAttachedToRootStore) {
+          wrapModelMethodInActionIfNeeded(
+            ch,
+            "onAttachedToRootStore",
+            HookAction.OnAttachedToRootStore
+          )
+          childrenToCall.push(ch)
         }
+      },
+      WalkTreeMode.ParentFirst
+    )
+
+    const childrenToCallLen = childrenToCall.length
+    for (let i = 0; i < childrenToCallLen; i++) {
+      const ch = childrenToCall[i]
+
+      const disposer = ch.onAttachedToRootStore!(rootStore)
+      if (disposer) {
+        onAttachedDisposers.set(ch, disposer)
       }
-    },
-    WalkTreeMode.ParentFirst
-  )
-}
+    }
+  }
+)
 
 /**
  * @ignore
  */
-export function detachFromRootStore(child: object): void {
+export const detachFromRootStore = action("detachFromRootStore", (child: object): void => {
+  // we use an array to ensure they will get called even if the actual hook modifies the tree
+  const disposersToCall: (() => void)[] = []
+
   walkTree(
     child,
     ch => {
@@ -44,12 +60,17 @@ export function detachFromRootStore(child: object): void {
           HookAction.OnAttachedToRootStoreDisposer,
           disposer,
           ActionContextActionType.Sync
-        )
+        ).bind(ch)
         onAttachedDisposers.delete(ch)
 
-        disposerAction.call(ch)
+        disposersToCall.push(disposerAction)
       }
     },
     WalkTreeMode.ChildrenFirst
   )
-}
+
+  const disposersToCallLen = disposersToCall.length
+  for (let i = 0; i < disposersToCallLen; i++) {
+    disposersToCall[i]()
+  }
+})

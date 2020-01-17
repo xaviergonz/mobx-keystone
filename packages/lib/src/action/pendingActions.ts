@@ -1,20 +1,11 @@
-import { action } from "mobx"
+import { when } from "mobx"
 
-const pendingActions: Array<() => void> = []
+const alwaysTrue = () => true
 
 /**
  * @ignore
  */
 export function enqueuePendingAction(action: () => void): void {
-  pendingActions.push(action)
+  // delay action until all current actions are finished
+  when(alwaysTrue, action)
 }
-
-/**
- * @ignore
- */
-export const runPendingActions = action("runPendingActions", () => {
-  while (pendingActions.length > 0) {
-    const pendingAction = pendingActions.shift()!
-    pendingAction()
-  }
-})

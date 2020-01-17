@@ -1,3 +1,4 @@
+import { computed, IComputedValue } from "mobx"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { isArray, isObject } from "../utils"
@@ -161,11 +162,10 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
   return fastGetRootPath(value)
 }
 
-/**
- * @ignore
- * @internal
- */
-export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
+// we use computeds so they are cached whenever possible
+const computedsGetRootPath = new WeakMap<object, IComputedValue<RootPath<any>>>()
+
+function internalGetRootPath<T extends object = any>(value: object): RootPath<T> {
   const rootPath = {
     root: value,
     path: [] as WritablePath,
@@ -180,6 +180,21 @@ export function fastGetRootPath<T extends object = any>(value: object): RootPath
   }
 
   return rootPath as RootPath<any>
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
+  let computedGetRootPathForNode = computedsGetRootPath.get(value)
+  if (!computedGetRootPathForNode) {
+    computedGetRootPathForNode = computed(() => {
+      return internalGetRootPath(value)
+    })
+    computedsGetRootPath.set(value, computedGetRootPathForNode)
+  }
+  return computedGetRootPathForNode.get()
 }
 
 /**

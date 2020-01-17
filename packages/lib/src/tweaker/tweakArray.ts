@@ -10,7 +10,6 @@ import {
   observe,
   set,
 } from "mobx"
-import { runPendingActions } from "../action/pendingActions"
 import { assertCanWrite } from "../action/protection"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
@@ -258,9 +257,6 @@ function arrayDidChange(change: IArrayChange | IArraySplice) {
     setInternalSnapshot(arr, newSnapshot)
     patchRecorder.emit(arr)
   }
-
-  // execute pending actions (attach/detach from root store events)
-  runPendingActions()
 }
 
 const undefinedInsideArrayErrorMsg =

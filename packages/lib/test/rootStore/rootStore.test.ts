@@ -38,11 +38,13 @@ export class P2 extends Model({
 }) {
   onAttachedToRootStore(rootStore: P) {
     expect(isRootStore(rootStore)).toBeTruthy()
+    expect(getRootStore(this.p3)).toBe(rootStore)
     events.push("p2Attached")
 
     return () => {
       // root store should be gone by now
       expect(getRootStore(this)).toBeUndefined()
+      expect(getRootStore(this.p3)).toBeUndefined()
       events.push("p2Detached")
     }
   }
@@ -56,11 +58,23 @@ export class P extends Model({
 }) {
   onAttachedToRootStore(rootStore: P) {
     expect(isRootStore(rootStore)).toBeTruthy()
+    if (this.p2) {
+      expect(getRootStore(this.p2)).toBe(rootStore)
+    }
+    this.arr.forEach(p2 => {
+      expect(getRootStore(p2)).toBe(rootStore)
+    })
     events.push("p1Attached")
 
     return () => {
       // root store should be gone by now
       expect(getRootStore(this)).toBeUndefined()
+      if (this.p2) {
+        expect(getRootStore(this.p2)).toBeUndefined()
+      }
+      this.arr.forEach(p2 => {
+        expect(getRootStore(p2)).toBeUndefined()
+      })
       events.push("p1Detached")
     }
   }
@@ -97,12 +111,12 @@ test("model as rootStore", () => {
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(p.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          "p1Attached",
-          "p2Attached",
-          "p3Attached",
-        ]
-    `)
+    Array [
+      "p1Attached",
+      "p2Attached",
+      "p3Attached",
+    ]
+  `)
 
   // detach p2 from root store
   resetEvents()
@@ -133,11 +147,11 @@ test("model as rootStore", () => {
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(p.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          "p2Attached",
-          "p3Attached",
-        ]
-    `)
+    Array [
+      "p2Attached",
+      "p3Attached",
+    ]
+  `)
 
   // unregister root store
   resetEvents()

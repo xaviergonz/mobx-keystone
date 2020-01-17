@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.35.0
+
+- [BREAKING CHANGE] `onAttachedToRootStore` and its disposer will be called after all actions are finished.
+- Improvements to ensure `onAttachedToRootStore` and its disposers are called in a more reliable manner.
+- `getRootPath`, `getRoot`, `getRootStore` are now internally computed, so they should be faster when being observed.
 - Warnings about duplicate model names will now only show once per model.
 
 ## 0.34.0

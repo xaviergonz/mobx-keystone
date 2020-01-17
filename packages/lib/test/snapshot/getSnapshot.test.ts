@@ -198,13 +198,13 @@ test("issue #74 - with action", () => {
     @modelAction
     public add(a: A): void {
       this.all.push(a)
-      expect(a.value).toBe(1)
+      expect(a.value).toBe(0) // since onAttachedToRootStore will be run after all actions are finished
     }
 
     @modelAction
     public remove(index: number): void {
       const removed = this.all.splice(index, 1)
-      expect(removed[0].value).toBe(2)
+      expect(removed[0].value).toBe(1) // since onAttachedToRootStore disposer will be run after all actions are finished
     }
   }
 
@@ -246,7 +246,7 @@ test("issue #74 - with runUnprotected", () => {
 
   runUnprotected(() => {
     store.all.push(newA)
-    expect(newA.value).toBe(1)
+    expect(newA.value).toBe(0) // since onAttachedToRootStore will be run after all actions are finished
   })
 
   expect(getSnapshot(store).all).toHaveLength(store.all.length)
@@ -255,7 +255,7 @@ test("issue #74 - with runUnprotected", () => {
 
   runUnprotected(() => {
     const removed = store.all.splice(0, 1)
-    expect(removed[0].value).toBe(2)
+    expect(removed[0].value).toBe(1) // since onAttachedToRootStore disposer will be run after all actions are finished
   })
 
   expect(getSnapshot(store).all).toHaveLength(store.all.length)
