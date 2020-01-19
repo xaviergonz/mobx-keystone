@@ -39,7 +39,7 @@ export class ObjectMap<V>
     }
   }
 
-  forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg: any): void {
+  forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg?: any): void {
     // we cannot use the map implementation since we need to pass this as map
     const items = this.items
 

@@ -44,7 +44,7 @@ export class ArraySet<V>
     }
   }
 
-  forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg: any): void {
+  forEach(callbackfn: (value: V, value2: V, set: Set<V>) => void, thisArg?: any): void {
     // we cannot use the set implementation since we need to pass this as set
     const items = this.items
     const len = items.length

@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.36.1
+
+- Fixed `ObjectMap.forEach` and `ArraySet.forEach` typings.
+
 ## 0.36.0
 
 - Added new way / guide to use the factory pattern when `declaration` option is set to `true` in `tsconfig.json`.
