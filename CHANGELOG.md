@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.36.0
+
+- Added new way / guide to use the factory pattern when `declaration` option is set to `true` in `tsconfig.json`.
+
 ## 0.35.0
 
 - [BREAKING CHANGE] `onAttachedToRootStore` and its disposer will be called after all actions are finished.

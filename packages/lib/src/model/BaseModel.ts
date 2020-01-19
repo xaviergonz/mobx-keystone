@@ -171,6 +171,13 @@ export type ModelClass<M extends AnyModel> = new (
   initialData: ModelCreationData<M> & { [modelIdKey]?: string }
 ) => M
 
+/**
+ * A model class declaration, made of a base model and the model interface.
+ */
+export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
+  new (...args: any[]): ModelInterface
+}
+
 export declare const abstractModelClassSymbol: unique symbol
 
 /**

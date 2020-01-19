@@ -8,6 +8,7 @@ import {
   model,
   Model,
   modelAction,
+  ModelClassDeclaration,
   ModelCreationData,
   ModelData,
   prop,
@@ -541,4 +542,28 @@ test("classes using model decorator can be extended", () => {
     expect(p3d.sum).toBe(p3d.x + p3d.y + p3d.z)
     expect(p3d.$modelType).toBe("Point3d")
   }
+})
+
+export interface IClassWithType<T> {
+  test(e: T): void
+}
+
+export function createClassWithType<T>(modelName: string) {
+  const EntityStoreProps = Model({
+    val: prop<T>(),
+  })
+
+  @model(`ClassWithType/${modelName}`)
+  class ClassWithType extends EntityStoreProps implements IClassWithType<T> {
+    @modelAction
+    test(_e: T) {}
+  }
+
+  return ClassWithType as ModelClassDeclaration<typeof EntityStoreProps, IClassWithType<T>>
+}
+
+test("external class factory with type declaration", () => {
+  const ES = createClassWithType<number>("number")
+  const es = new ES({ val: 5 })
+  es.test(10)
 })

@@ -287,6 +287,32 @@ const stringMyModelInstance = new StringMyModel({}) // this will be of type Stri
 stringMyModelInstance.setXY("50", "60")
 ```
 
+Note that the above will only work when not generating declaration maps. If you need to generate declarations (for example for a library) then it is a bit more tedious, but still possible:
+
+```ts
+export interface IMyModel<TX, TY> {
+  setXY(x: TX, y: TY): void
+}
+
+function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
+  const MyModelProps = Model({
+    x: prop<TX>(() => initialX),
+    y: prop<TY>(() => initialY),
+  })
+
+  @model(`myApp/${modelName}`)
+  class MyModel extends MyModelProps implements IMyModel<TX, TY> {
+    @modelAction
+    setXY(x: TX, y: TY) {
+      this.x = x
+      this.y = y
+    }
+  }
+
+  return MyModel as ModelClassDeclaration<typeof MyModelProps, IMyModel<TX, TY>>
+}
+```
+
 ## Inheritance
 
 Model inheritance is possible with a few gotchas.
