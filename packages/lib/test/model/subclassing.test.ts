@@ -544,22 +544,23 @@ test("classes using model decorator can be extended", () => {
   }
 })
 
-export interface IClassWithType<T> {
-  test(e: T): void
-}
-
 export function createClassWithType<T>(modelName: string) {
-  const EntityStoreProps = Model({
+  const ClassWithTypeProps = Model({
     val: prop<T>(),
   })
 
   @model(`ClassWithType/${modelName}`)
-  class ClassWithType extends EntityStoreProps implements IClassWithType<T> {
+  class ClassWithType extends ClassWithTypeProps {
     @modelAction
     test(_e: T) {}
   }
 
-  return ClassWithType as ModelClassDeclaration<typeof EntityStoreProps, IClassWithType<T>>
+  return ClassWithType as ModelClassDeclaration<
+    typeof ClassWithTypeProps,
+    {
+      test(e: T): void
+    }
+  >
 }
 
 test("external class factory with type declaration", () => {
