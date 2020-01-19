@@ -4,8 +4,9 @@ const alwaysTrue = () => true
 
 /**
  * @ignore
+ * @internal
  */
-export function enqueuePendingAction(action: () => void): void {
+export function runAfterCurrentActions(action: () => void): void {
   // delay action until all current actions are finished
   when(alwaysTrue, action)
 }

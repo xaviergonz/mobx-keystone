@@ -1,4 +1,5 @@
 import { reaction, runInAction } from "mobx"
+import { runAfterCurrentActions } from "../action/runAfterCurrentActions"
 import {
   readonlyMiddleware,
   ReadonlyMiddlewareReturn,
@@ -41,10 +42,10 @@ export class SandboxManager {
   private withSandboxPatchRecorder: PatchRecorder | undefined
 
   /**
-   * Function from `readonlyMiddleware` that will allow actions to be started inside the provided
+   * `readonlyMiddleware` that will allow actions to be started inside the provided
    * code block on a readonly node.
    */
-  private allowWrite: ReadonlyMiddlewareReturn["allowWrite"]
+  private readonlyMw: ReadonlyMiddlewareReturn
 
   /**
    * Creates an instance of `SandboxManager`.
@@ -76,18 +77,22 @@ export class SandboxManager {
       if (this.withSandboxPatchRecorder) {
         throw failure("original subtree must not change while 'withSandbox' executes")
       }
-      this.allowWrite(() => {
-        applyPatches(this.subtreeRootClone, patches)
+
+      this.readonlyMw.writeAllowed = true
+      applyPatches(this.subtreeRootClone, patches)
+
+      // ensure we only stop the write lock until current actions and triggered reactions are finished
+      runAfterCurrentActions(() => {
+        this.readonlyMw.writeAllowed = false
       })
     })
 
-    const { allowWrite, dispose: disposeReadonlyMW } = readonlyMiddleware(this.subtreeRootClone)
-    this.allowWrite = allowWrite
+    this.readonlyMw = readonlyMiddleware(this.subtreeRootClone)
 
     this.disposer = () => {
       disposeReactionRS()
       disposeOnPatches()
-      disposeReadonlyMW()
+      this.readonlyMw.dispose()
       if (isRootStore(this.subtreeRootClone)) {
         unregisterRootStore(this.subtreeRootClone)
       }
@@ -119,7 +124,7 @@ export class SandboxManager {
 
     let commit = false
     try {
-      const returnValue = this.allowWrite(() =>
+      const returnValue = this.readonlyMw.allowWrite(() =>
         fn((isNodesArray ? sandboxNodes : sandboxNodes[0]) as T)
       )
       if (typeof returnValue === "boolean") {
@@ -185,7 +190,7 @@ export class SandboxManager {
             }
           }
         } else {
-          this.allowWrite(() => {
+          this.readonlyMw.allowWrite(() => {
             let i = recorder.events.length
             while (i-- > numRecorderEvents) {
               applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)

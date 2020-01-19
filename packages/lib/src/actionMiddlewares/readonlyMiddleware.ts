@@ -14,6 +14,8 @@ import {
 export interface ReadonlyMiddlewareReturn {
   allowWrite<FN extends () => any>(fn: FN): ReturnType<FN>
 
+  writeAllowed: boolean
+
   dispose: ActionMiddlewareDisposer
 }
 
@@ -87,6 +89,15 @@ export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareRetur
 
   return {
     dispose: disposer,
+
+    get writeAllowed() {
+      return writable
+    },
+
+    set writeAllowed(value: boolean) {
+      writable = value
+    },
+
     allowWrite(fn) {
       const oldWritable = writable
       writable = true

@@ -1,3 +1,4 @@
+import { reaction } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   isRootStore,
@@ -341,4 +342,41 @@ test("sandbox cannot be changed outside of fn", () => {
   })
 
   expect(() => n.setValue(1)).toThrow("tried to invoke action 'setValue' over a readonly node")
+})
+
+test("sandbox is patched when original tree with reaction changes", () => {
+  @model("R2")
+  class R extends Model({ a: prop<A>(), n: prop<number>(0) }) {
+    onInit() {
+      autoDispose(
+        reaction(
+          () => this.a.b.value,
+          () => {
+            this.inc()
+          }
+        )
+      )
+    }
+
+    @modelAction
+    inc() {
+      this.n++
+    }
+  }
+
+  const r = new R({ a: new A({ b: new B({ value: 0 }) }) })
+  const manager = sandbox(r)
+  autoDispose(() => manager.dispose())
+
+  r.a.b.setValue(10)
+
+  expect(r.a.b.value).toBe(10)
+  expect(r.n).toBe(1)
+
+  manager.withSandbox(r, rcopy => {
+    expect(rcopy.a.b.value).toBe(10)
+    // 2 because it runs in original and copy, so now they are out of sync
+    expect(rcopy.n).toBe(2)
+    return false
+  })
 })
