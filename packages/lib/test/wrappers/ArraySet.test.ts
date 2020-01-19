@@ -1,5 +1,5 @@
 import { reaction } from "mobx"
-import { ArraySet, arraySet } from "../../src"
+import { ArraySet, arraySet, detach } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
@@ -115,4 +115,11 @@ test("reactivity", () => {
   expect(s).toHaveBeenCalledTimes(1)
   expect(h).toHaveBeenCalledTimes(1)
   jest.resetAllMocks()
+})
+
+test("detach", () => {
+  const arr = arraySet<{ x: number }>([{ x: 2 }, { x: 3 }, { x: 5 }])
+  const three = Array.from(arr.values()).find(i => i.x === 3)!
+  detach(three)
+  expect(Array.from(arr.values()).map(i => i.x)).toEqual([2, 5])
 })

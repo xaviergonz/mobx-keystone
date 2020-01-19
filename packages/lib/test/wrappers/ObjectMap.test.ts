@@ -1,5 +1,5 @@
 import { entries, reaction } from "mobx"
-import { ObjectMap, objectMap } from "../../src"
+import { detach, ObjectMap, objectMap } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
@@ -7,7 +7,11 @@ let map!: ObjectMap<number>
 let obj!: ObjectMap<number>["items"]
 
 beforeEach(() => {
-  map = objectMap<number>([["2", 2], ["3", 3], ["5", 5]])
+  map = objectMap<number>([
+    ["2", 2],
+    ["3", 3],
+    ["5", 5],
+  ])
   obj = map.items
 })
 
@@ -118,4 +122,14 @@ test("reactivity", () => {
   expect(s).toHaveBeenCalledTimes(1)
   expect(h).toHaveBeenCalledTimes(1)
   jest.resetAllMocks()
+})
+
+test("detach", () => {
+  const map = objectMap<{ x: number }>([
+    ["2", { x: 2 }],
+    ["3", { x: 3 }],
+    ["5", { x: 5 }],
+  ])
+  detach(map.get("3")!)
+  expect(Array.from(map.keys())).toEqual(["2", "5"])
 })
