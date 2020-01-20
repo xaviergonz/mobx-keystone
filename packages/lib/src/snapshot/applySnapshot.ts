@@ -5,7 +5,7 @@ import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
-import { isModelSnapshot } from "../model/utils"
+import { isModel, isModelSnapshot } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject } from "../utils"
 import { reconcileSnapshot } from "./reconcileSnapshot"
@@ -58,7 +58,13 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       throw failure(`model with name "${type}" not found in the registry`)
     }
 
-    if (!(obj instanceof modelInfo.class) || obj[modelTypeKey] !== type) {
+    // we don't check by actual instance since it might be a different one due to hot reloading
+    if (!isModel(obj)) {
+      // not a model instance, no reconciliation possible
+      throw failure(`the target for a model snapshot must be a model instance`)
+    }
+
+    if (obj[modelTypeKey] !== type) {
       // different kind of model, no reconciliation possible
       throw failure(
         `snapshot model type '${type}' does not match target model type '${
