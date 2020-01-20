@@ -1,9 +1,8 @@
 # Change Log
 
-- Made `applySnapshot` not check by model instance in reconciliation for better compatibility with hot-reloading.
-
 ## 0.36.1
 
+- Made `applySnapshot` not check by model instance in reconciliation for better compatibility with hot-reloading.
 - Fixed `ObjectMap.forEach` and `ArraySet.forEach` typings.
 
 ## 0.36.0
