@@ -78,12 +78,17 @@ export class SandboxManager {
         throw failure("original subtree must not change while 'withSandbox' executes")
       }
 
-      this.readonlyMw.writeAllowed = true
-      applyPatches(this.subtreeRootClone, patches)
+      const allowWriteFinisher = this.readonlyMw.allowWriteWithFinisher()
+      try {
+        applyPatches(this.subtreeRootClone, patches)
+      } catch (err) {
+        allowWriteFinisher()
+        throw err
+      }
 
-      // ensure we only stop the write lock until current actions and triggered reactions are finished
+      // ensure we only stop the write lock once current actions and triggered reactions up to applyPatches are finished
       runAfterCurrentActions(() => {
-        this.readonlyMw.writeAllowed = false
+        allowWriteFinisher()
       })
     })
 

@@ -14,7 +14,9 @@ import {
 export interface ReadonlyMiddlewareReturn {
   allowWrite<FN extends () => any>(fn: FN): ReturnType<FN>
 
-  writeAllowed: boolean
+  readonly writeAllowed: boolean
+
+  allowWriteWithFinisher(): () => void
 
   dispose: ActionMiddlewareDisposer
 }
@@ -48,7 +50,7 @@ export interface ReadonlyMiddlewareReturn {
 export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareReturn {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
-  let writable = false
+  let writableLock = 0
   const writableSymbol = Symbol("writable")
 
   const disposer = actionTrackingMiddleware(subtreeRoot, {
@@ -59,7 +61,7 @@ export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareRetur
       }
 
       // if we are inside allowWrite it is writable
-      let currentlyWritable = writable
+      let currentlyWritable = !!writableLock
 
       if (!currentlyWritable) {
         // if a parent context was writable then the child should be as well
@@ -90,21 +92,28 @@ export function readonlyMiddleware(subtreeRoot: object): ReadonlyMiddlewareRetur
   return {
     dispose: disposer,
 
-    get writeAllowed() {
-      return writable
+    allowWriteWithFinisher() {
+      writableLock++
+
+      let finisherCalled = false
+      return () => {
+        if (!finisherCalled) {
+          finisherCalled = true
+          writableLock--
+        }
+      }
     },
 
-    set writeAllowed(value: boolean) {
-      writable = value
+    get writeAllowed() {
+      return !!writableLock
     },
 
     allowWrite(fn) {
-      const oldWritable = writable
-      writable = true
+      writableLock++
       try {
         return fn()
       } finally {
-        writable = oldWritable
+        writableLock--
       }
     },
   }
