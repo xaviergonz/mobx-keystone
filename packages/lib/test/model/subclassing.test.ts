@@ -1,13 +1,13 @@
 import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
-  abstractModelClass,
   ExtendedModel,
   fromSnapshot,
   getSnapshot,
   model,
   Model,
   modelAction,
+  modelClass,
   ModelClassDeclaration,
   ModelCreationData,
   ModelData,
@@ -351,7 +351,7 @@ test("abstract-ish model classes without factory", () => {
   abstract class StringA extends A<string> {}
 
   @model("B-abstractish")
-  class B extends ExtendedModel(abstractModelClass(StringA), {
+  class B extends ExtendedModel(StringA, {
     value: prop<string>(),
   }) {
     public validate(value: string): string | undefined {
@@ -399,7 +399,7 @@ test("abstract model classes with factory", () => {
   const StringA = createA<string>()
 
   @model("B-abstract-factory")
-  class B extends ExtendedModel(abstractModelClass(StringA), {}) {
+  class B extends ExtendedModel(StringA, {}) {
     public validate(value: string): string | undefined {
       return value.length < 3 ? "too short" : undefined
     }
@@ -441,7 +441,7 @@ test("abstract model classes without factory", () => {
   abstract class StringA extends A<string> {}
 
   @model("B-abstract")
-  class B extends ExtendedModel(abstractModelClass(StringA), {
+  class B extends ExtendedModel(StringA, {
     value: prop<string>(),
   }) {
     public validate(value: string): string | undefined {
@@ -475,7 +475,7 @@ test("issue #18", () => {
   }
 
   @model("B#18")
-  class B extends ExtendedModel(abstractModelClass(A), { value: prop<number>() }) {}
+  class B extends ExtendedModel(A, { value: prop<number>() }) {}
 
   // Error: data changes must be performed inside model actions
   const b = new B({ value: 1 }) // Instantiating the class inside `runUnprotected` works.
@@ -492,10 +492,9 @@ test("issue #2", () => {
       public abstract value: T
     }
 
-    // sadly we are forced to use the cast to keep the generic of the type
-    return class extends ExtendedModel(abstractModelClass(ExtendedBaseT), {
+    return ExtendedModel(ExtendedBaseT, {
       value: prop<T>(() => defaultValue),
-    }) {}
+    })
   }
 
   @model("issue-2/model")
@@ -567,4 +566,25 @@ test("external class factory with type declaration", () => {
   const ES = createClassWithType<number>("number")
   const es = new ES({ val: 5 })
   es.test(10)
+})
+
+test("issue #109", () => {
+  @model("my/BaseModel")
+  class BaseModel<T> extends Model({
+    items: prop<string[]>(() => []),
+  }) {
+    superFoo(_x: T) {}
+  }
+
+  @model("my/ChildModel")
+  class ChildModel extends ExtendedModel(modelClass<BaseModel<number>>(BaseModel), {}) {
+    foo() {
+      assert(this.items, _ as string[])
+      this.items.push("hi")
+      assert(this.superFoo, _ as (x: number) => void)
+      this.superFoo(5)
+    }
+  }
+
+  new ChildModel({})
 })

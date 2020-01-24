@@ -344,8 +344,10 @@ class Point3d extends ExtendedModel(BasePoint, {
 
 Also remember that if your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` in the extended model.
 
-Since Typescript sometimes is not able to infer abstract classes generics under some circumstances then if you want to extend an abstract class you will need to use `abstractModelClass` like this:
+If you want to extend a generic class, then you may want to use `modelClass` in order to specify the exact generic like this:
 
 ```ts
-class X extends ExtendedModel(abstractModelClass(SomeAbstractClass), { ... }) { ... }
+class X extends ExtendedModel(modelClass<SomeGenericClass<string>>(SomeGenericClass), { ... }) { ... }
 ```
+
+If you don´t it will still compile, but the generic will be assumed to have unknown for all its generic parameters.

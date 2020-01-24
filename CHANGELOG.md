@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.37.0
+
+- Deprecated `abstractModelClass`, which should not be needed anymore.
+- Added `modelClass` to better support base models with generics.
+- A few type optimizations.
+
 ## 0.36.1
 
 - Made `applySnapshot` not check by model instance in reconciliation for better compatibility with hot-reloading.

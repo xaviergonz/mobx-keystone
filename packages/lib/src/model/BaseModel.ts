@@ -162,14 +162,14 @@ export const baseModelPropNames = new Set<keyof AnyModel>([
 /**
  * Any kind of model instance.
  */
-export type AnyModel = BaseModel<any, any>
+export interface AnyModel extends BaseModel<any, any> {}
 
 /**
  * Extracts the instance type of a model class.
  */
-export type ModelClass<M extends AnyModel> = new (
-  initialData: ModelCreationData<M> & { [modelIdKey]?: string }
-) => M
+export interface ModelClass<M extends AnyModel> {
+  new (initialData: ModelCreationData<M> & { [modelIdKey]?: string }): M
+}
 
 /**
  * A model class declaration, made of a base model and the model interface.
@@ -178,14 +178,9 @@ export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelCla
   new (...args: any[]): ModelInterface
 }
 
-export declare const abstractModelClassSymbol: unique symbol
-
 /**
- * Extracts the instance type of a class marked with `abstractModelClass`.
- */
-export type AbstractModelClass<T extends AnyModel> = { [abstractModelClassSymbol]: T }
-
-/**
+ * @deprecated Should not be needed anymore.
+ *
  * Tricks Typescript into accepting abstract classes as a parameter for `ExtendedModel`.
  * Does nothing in runtime.
  *
@@ -193,7 +188,19 @@ export type AbstractModelClass<T extends AnyModel> = { [abstractModelClassSymbol
  * @param type Abstract model class.
  * @returns
  */
-export function abstractModelClass<T>(type: T): T & { [abstractModelClassSymbol]: T } {
+export function abstractModelClass<T>(type: T): T & Object {
+  return type as any
+}
+
+/**
+ * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.
+ * Does nothing in runtime.
+ *
+ * @typeparam T Generic model class type.
+ * @param type Generic model class.
+ * @returns
+ */
+export function modelClass<T extends AnyModel>(type: { prototype: T }): ModelClass<T> {
   return type as any
 }
 
