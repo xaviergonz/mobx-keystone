@@ -29,6 +29,7 @@ class P2 extends Model({
 class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(() => 0),
+  arr: prop<number[]>(() => []),
 }) {
   @modelAction
   incX(n: number) {
@@ -40,6 +41,12 @@ class P extends Model({
     this.incX(x)
     this.p2.incY(y)
     throw new Error("incXY")
+  }
+
+  @modelAction
+  pushArr(x: number) {
+    this.arr.push(x - 10)
+    this.arr.push(x)
   }
 }
 
@@ -195,18 +202,18 @@ test("undoMiddleware - sync", () => {
               "op": "replace",
               "path": Array [
                 "p",
-                "p2",
-                "y",
+                "x",
               ],
-              "value": 10,
+              "value": 3,
             },
             Object {
               "op": "replace",
               "path": Array [
                 "p",
-                "x",
+                "p2",
+                "y",
               ],
-              "value": 3,
+              "value": 10,
             },
           ],
           "patches": Array [
@@ -264,6 +271,124 @@ test("undoMiddleware - sync", () => {
   expectUndoRedoToBe(3, 1)
   manager.clearRedo()
   expectUndoRedoToBe(3, 0)
+  manager.clearUndo()
+  expectUndoRedoToBe(0, 0)
+
+  // adding and removing from array
+  p.pushArr(1)
+  p.pushArr(2)
+  expect(r.undoData.redoEvents).toMatchInlineSnapshot(`Array []`)
+  expect(r.undoData.undoEvents).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "pushArr",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "arr",
+              "length",
+            ],
+            "value": 0,
+          },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "arr",
+              "length",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "p",
+              "arr",
+              0,
+            ],
+            "value": -9,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "p",
+              "arr",
+              1,
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+      },
+      Object {
+        "actionName": "pushArr",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "arr",
+              "length",
+            ],
+            "value": 2,
+          },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "arr",
+              "length",
+            ],
+            "value": 3,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "p",
+              "arr",
+              2,
+            ],
+            "value": -8,
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "p",
+              "arr",
+              3,
+            ],
+            "value": 2,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+      },
+    ]
+  `)
+  expectUndoRedoToBe(2, 0)
+
+  expect(p.arr).toEqual([-9, 1, -8, 2])
+  manager.undo()
+  expect(p.arr).toEqual([-9, 1])
+  manager.undo()
+  expect(p.arr).toEqual([])
+  expectUndoRedoToBe(0, 2)
+
+  manager.redo()
+  expect(p.arr).toEqual([-9, 1])
+  manager.redo()
+  expect(p.arr).toEqual([-9, 1, -8, 2])
+  expectUndoRedoToBe(2, 0)
+
   manager.clearUndo()
   expectUndoRedoToBe(0, 0)
 
@@ -471,18 +596,18 @@ test("undoMiddleware - async", async () => {
               "op": "replace",
               "path": Array [
                 "p",
-                "p2",
-                "y",
+                "x",
               ],
-              "value": 10,
+              "value": 3,
             },
             Object {
               "op": "replace",
               "path": Array [
                 "p",
-                "x",
+                "p2",
+                "y",
               ],
-              "value": 3,
+              "value": 10,
             },
           ],
           "patches": Array [

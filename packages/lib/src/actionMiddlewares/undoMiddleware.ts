@@ -285,7 +285,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
 
           for (const event of patchRecorder.events) {
             patches.push(...event.patches)
-            inversePatches.unshift(...event.inversePatches)
+            inversePatches.push(...event.inversePatches)
           }
 
           manager.store._addUndo({

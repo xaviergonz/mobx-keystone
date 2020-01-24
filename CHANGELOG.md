@@ -5,6 +5,7 @@
 - Deprecated `abstractModelClass`, which should not be needed anymore.
 - Added `modelClass` to better support base models with generics.
 - A few type optimizations.
+- Fixed undo middleware regression (not properly undoing) that happened in v0.33.0.
 
 ## 0.36.1
 
