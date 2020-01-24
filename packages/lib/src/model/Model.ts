@@ -4,7 +4,6 @@ import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure } from "../utils"
 import {
-  AbstractModelClass,
   AnyModel,
   BaseModel,
   baseModelPropNames,
@@ -27,7 +26,7 @@ declare const optPropsDataSymbol: unique symbol
 declare const creationDataSymbol: unique symbol
 declare const composedCreationDataSymbol: unique symbol
 
-export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends ModelProps> {
+export interface _Model<SuperModel, TProps extends ModelProps> {
   /**
    * Model type name assigned to this class, or undefined if none.
    */
@@ -43,39 +42,15 @@ export interface _ExtendedModel<SuperModel extends AnyModel, TProps extends Mode
     this[typeof optPropsDataSymbol]
   >
 
-  [composedCreationDataSymbol]: O.Merge<
-    SuperModel extends BaseModel<any, infer CD> ? CD : unknown,
-    this[typeof creationDataSymbol]
-  >
+  [composedCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD>
+    ? O.Merge<CD, this[typeof creationDataSymbol]>
+    : this[typeof creationDataSymbol]
 
   new (data: this[typeof composedCreationDataSymbol] & { [modelIdKey]?: string }): SuperModel &
     BaseModel<this[typeof propsDataSymbol], this[typeof creationDataSymbol]> &
     Omit<this[typeof propsDataSymbol], keyof AnyModel>
 }
 
-export interface _Model<TProps extends ModelProps> {
-  /**
-   * Model type name assigned to this class, or undefined if none.
-   */
-  readonly [modelTypeKey]: string | undefined
-
-  [propsDataSymbol]: ModelPropsToData<TProps>
-  [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
-
-  [optPropsDataSymbol]: OptionalModelProps<TProps>
-
-  [creationDataSymbol]: O.Optional<
-    this[typeof creationPropsDataSymbol],
-    this[typeof optPropsDataSymbol]
-  >
-
-  new (data: this[typeof creationDataSymbol] & { [modelIdKey]?: string }): BaseModel<
-    this[typeof propsDataSymbol],
-    this[typeof creationDataSymbol]
-  > &
-    Omit<this[typeof propsDataSymbol], keyof AnyModel>
-}
-
 /**
  * Base abstract class for models that extends another model.
  *
@@ -85,39 +60,12 @@ export interface _Model<TProps extends ModelProps> {
  * @param modelProps Model properties.
  * @returns
  */
-export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
-  baseModel: ModelClass<TBaseModel>,
+export function ExtendedModel<TProps extends ModelProps, TBaseModelClass>(
+  baseModel: TBaseModelClass,
   modelProps: TProps
-): _ExtendedModel<TBaseModel, TProps>
-
-/**
- * Base abstract class for models that extends another model.
- *
- * @typeparam TProps New model properties type.
- * @typeparam TBaseModel Base class type.
- * @param baseModel Base model type.
- * @param modelProps Model properties.
- * @returns
- */
-export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
-  baseModel: AbstractModelClass<TBaseModel>,
-  modelProps: TProps
-): _ExtendedModel<TBaseModel, TProps>
-
-/**
- * Base abstract class for models that extends another model.
- *
- * @typeparam TProps New model properties type.
- * @typeparam TBaseModel Base class type.
- * @param baseModel Base model type.
- * @param modelProps Model properties.
- * @returns
- */
-export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
-  baseModel: any,
-  modelProps: TProps
-): _ExtendedModel<TBaseModel, TProps> {
-  return internalModel<TProps, TBaseModel>(modelProps, baseModel)
+): _Model<TBaseModelClass & Object extends ModelClass<infer M> ? M : never, TProps> {
+  // note that & Object is there to support abstract classes
+  return internalModel<TProps, any>(modelProps, baseModel as any)
 }
 
 /**
@@ -128,14 +76,14 @@ export function ExtendedModel<TProps extends ModelProps, TBaseModel extends AnyM
  * @typeparam TProps Model properties type.
  * @param modelProps Model properties.
  */
-export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<TProps> {
+export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<unknown, TProps> {
   return internalModel(modelProps) as any
 }
 
 function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   modelProps: TProps,
   baseModel?: ModelClass<TBaseModel>
-): _ExtendedModel<TBaseModel, TProps> {
+): _Model<TBaseModel, TProps> {
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
     assertIsModelClass(baseModel as any, "baseModel")
