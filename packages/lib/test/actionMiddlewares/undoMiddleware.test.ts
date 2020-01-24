@@ -48,11 +48,6 @@ class P extends Model({
     this.arr.push(x - 10)
     this.arr.push(x)
   }
-
-  @modelAction
-  popArr(): number | undefined {
-    return this.arr.pop()
-  }
 }
 
 @model("R")
