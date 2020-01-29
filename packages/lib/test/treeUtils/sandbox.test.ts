@@ -1,3 +1,4 @@
+import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   getNodeSandboxManager,
@@ -359,6 +360,16 @@ test("sanboxed nodes can check if they are sandboxed", () => {
     onAttachedToRootStore() {
       initEvents.push(`A2 attached: ${isSandboxedNode(this)}`)
     }
+
+    @computed
+    get isSandboxed() {
+      return isSandboxedNode(this)
+    }
+
+    @modelAction
+    shouldBeSandboxed(shouldBeSandboxed: boolean): void {
+      expect(isSandboxedNode(this)).toBe(shouldBeSandboxed)
+    }
   }
 
   @model("B2")
@@ -371,6 +382,11 @@ test("sanboxed nodes can check if they are sandboxed", () => {
 
     onAttachedToRootStore() {
       initEvents.push(`B2 attached: ${isSandboxedNode(this)}`)
+    }
+
+    @computed
+    get isSandboxed() {
+      return isSandboxedNode(this)
     }
 
     @modelAction
@@ -410,6 +426,9 @@ test("sanboxed nodes can check if they are sandboxed", () => {
   expect(getNodeSandboxManager(a.b)).toBeUndefined()
   expect(isSandboxedNode(a.b)).toBe(false)
 
+  expect(a.isSandboxed).toBe(false)
+  a.shouldBeSandboxed(false)
+  expect(a.b.isSandboxed).toBe(false)
   a.b.shouldBeSandboxed(false)
 
   manager.withSandbox(a, sa => {
@@ -418,6 +437,9 @@ test("sanboxed nodes can check if they are sandboxed", () => {
     expect(getNodeSandboxManager(sa.b)).toBe(manager)
     expect(isSandboxedNode(sa.b)).toBe(true)
 
+    expect(sa.isSandboxed).toBe(true)
+    sa.shouldBeSandboxed(true)
+    expect(sa.b.isSandboxed).toBe(true)
     sa.b.shouldBeSandboxed(true)
 
     return false
