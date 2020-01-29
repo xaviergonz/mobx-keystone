@@ -1,13 +1,17 @@
 import { reaction } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
+  detach,
+  getRefsResolvingTo,
   isRootStore,
   isTweakedObject,
   model,
   Model,
   modelAction,
   prop,
+  Ref,
   registerRootStore,
+  rootRef,
   sandbox,
   SandboxManager,
   unregisterRootStore,
@@ -421,6 +425,39 @@ describe("tree with reaction", () => {
     manager.withSandbox(r, rcopy => {
       expect(rcopy.a.b.value).toBe(0)
       expect(rcopy.n).toBe(0)
+      return false
+    })
+  })
+})
+
+describe("backrefs", () => {
+  const bRef = rootRef<B>("BRef")
+
+  @model("R3")
+  class R extends Model({ a: prop<A>(), bref: prop<Ref<B> | undefined>() }) {
+    @modelAction
+    setRef(b: B | undefined) {
+      if (b) {
+        this.bref = bRef(b)
+      } else if (this.bref) {
+        detach(this.bref)
+      }
+    }
+  }
+
+  test("backrefs in sandbox", () => {
+    const r = new R({ a: new A({ b: new B({ value: 0 }) }) })
+    const manager = sandbox(r)
+    autoDispose(() => manager.dispose())
+
+    expect(Array.from(getRefsResolvingTo(r.a.b))).toHaveLength(0)
+
+    r.setRef(r.a.b)
+
+    expect(Array.from(getRefsResolvingTo(r.a.b))).toHaveLength(1)
+
+    manager.withSandbox(r, rcopy => {
+      expect(Array.from(getRefsResolvingTo(rcopy.a.b))).toHaveLength(1)
       return false
     })
   })
