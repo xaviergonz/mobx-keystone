@@ -1,4 +1,4 @@
-import { reaction, runInAction } from "mobx"
+import { reaction, runInAction, _getGlobalState } from "mobx"
 import {
   readonlyMiddleware,
   ReadonlyMiddlewareReturn,
@@ -77,7 +77,9 @@ export class SandboxManager {
         throw failure("original subtree must not change while 'withSandbox' executes")
       }
       this.allowWrite(() => {
-        applyPatches(this.subtreeRootClone, patches)
+        runWithoutReaction(() => {
+          applyPatches(this.subtreeRootClone, patches)
+        })
       })
     })
 
@@ -177,21 +179,23 @@ export class SandboxManager {
         this.withSandboxPatchRecorder = undefined
       }
       runInAction(() => {
-        if (commit) {
-          if (!isNestedWithSandboxCall) {
-            const len = recorder.events.length
-            for (let i = 0; i < len; i++) {
-              applyPatches(this.subtreeRoot, recorder.events[i].patches)
+        runWithoutReaction(() => {
+          if (commit) {
+            if (!isNestedWithSandboxCall) {
+              const len = recorder.events.length
+              for (let i = 0; i < len; i++) {
+                applyPatches(this.subtreeRoot, recorder.events[i].patches)
+              }
             }
+          } else {
+            this.allowWrite(() => {
+              let i = recorder.events.length
+              while (i-- > numRecorderEvents) {
+                applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)
+              }
+            })
           }
-        } else {
-          this.allowWrite(() => {
-            let i = recorder.events.length
-            while (i-- > numRecorderEvents) {
-              applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)
-            }
-          })
-        }
+        })
       })
     }
 
@@ -208,4 +212,15 @@ export class SandboxManager {
  */
 export function sandbox(subtreeRoot: object): SandboxManager {
   return new SandboxManager(subtreeRoot)
+}
+
+function runWithoutReaction<R = void>(fn: () => R): R {
+  const globalState = _getGlobalState()
+  const pushFn = globalState.pendingReactions.push
+  globalState.pendingReactions.push = () => {}
+  try {
+    return fn()
+  } finally {
+    globalState.pendingReactions.push = pushFn
+  }
 }

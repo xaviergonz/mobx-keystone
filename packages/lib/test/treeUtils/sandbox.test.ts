@@ -1,3 +1,4 @@
+import { reaction } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   isRootStore,
@@ -341,4 +342,86 @@ test("sandbox cannot be changed outside of fn", () => {
   })
 
   expect(() => n.setValue(1)).toThrow("tried to invoke action 'setValue' over a readonly node")
+})
+
+describe("tree with reaction", () => {
+  @model("R2")
+  class R extends Model({ a: prop<A>(), n: prop<number>(0) }) {
+    onInit() {
+      autoDispose(
+        reaction(
+          () => this.a.b.value,
+          () => {
+            this.inc()
+          }
+        )
+      )
+    }
+
+    @modelAction
+    inc() {
+      this.n++
+    }
+  }
+
+  test("sandbox is patched when original tree changes", () => {
+    const r = new R({ a: new A({ b: new B({ value: 0 }) }) })
+    const manager = sandbox(r)
+    autoDispose(() => manager.dispose())
+
+    r.a.b.setValue(10)
+
+    expect(r.a.b.value).toBe(10)
+    expect(r.n).toBe(1)
+
+    manager.withSandbox(r, rcopy => {
+      expect(rcopy.a.b.value).toBe(10)
+      expect(rcopy.n).toBe(1)
+      return false
+    })
+  })
+
+  test("sandbox and original tree are in sync after changes in sandbox have been committed", () => {
+    const r = new R({ a: new A({ b: new B({ value: 0 }) }) })
+    const manager = sandbox(r)
+    autoDispose(() => manager.dispose())
+
+    manager.withSandbox(r, rcopy => {
+      rcopy.a.b.setValue(10)
+      expect(rcopy.a.b.value).toBe(10)
+      expect(rcopy.n).toBe(1)
+      return true
+    })
+
+    expect(r.a.b.value).toBe(10)
+    expect(r.n).toBe(1)
+
+    manager.withSandbox(r, rcopy => {
+      expect(rcopy.a.b.value).toBe(10)
+      expect(rcopy.n).toBe(1)
+      return false
+    })
+  })
+
+  test("sandbox and original tree are in sync after changes in sandbox have been rejected", () => {
+    const r = new R({ a: new A({ b: new B({ value: 0 }) }) })
+    const manager = sandbox(r)
+    autoDispose(() => manager.dispose())
+
+    manager.withSandbox(r, rcopy => {
+      rcopy.a.b.setValue(10)
+      expect(rcopy.a.b.value).toBe(10)
+      expect(rcopy.n).toBe(1)
+      return false
+    })
+
+    expect(r.a.b.value).toBe(0)
+    expect(r.n).toBe(0)
+
+    manager.withSandbox(r, rcopy => {
+      expect(rcopy.a.b.value).toBe(0)
+      expect(rcopy.n).toBe(0)
+      return false
+    })
+  })
 })
