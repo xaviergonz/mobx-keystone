@@ -3,6 +3,7 @@ import {
   readonlyMiddleware,
   ReadonlyMiddlewareReturn,
 } from "../actionMiddlewares/readonlyMiddleware"
+import { createContext } from "../context"
 import { getParentToChildPath, resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { onPatches } from "../patch/emitPatch"
@@ -11,6 +12,31 @@ import { isRootStore, registerRootStore, unregisterRootStore } from "../rootStor
 import { clone } from "../snapshot/clone"
 import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { assertIsFunction, failure } from "../utils"
+
+/**
+ * Context that allows access to the sandbox manager this node runs under (if any).
+ */
+const sandboxManagerContext = createContext<SandboxManager>()
+
+/**
+ * Returns the sandbox manager of a node, or `undefined` if none.
+ *
+ * @param node Node to check.
+ * @returns The sandbox manager of a node, or `undefined` if none.
+ */
+export function getNodeSandboxManager(node: object): SandboxManager | undefined {
+  return sandboxManagerContext.get(node)
+}
+
+/**
+ * Returns if a given node is a sandboxed node.
+ *
+ * @param node Node to check.
+ * @returns `true` if it is sandboxed, `false`
+ */
+export function isSandboxedNode(node: object): boolean {
+  return !!getNodeSandboxManager(node)
+}
 
 /**
  * Callback function for `SandboxManager.withSandbox`.
@@ -54,7 +80,20 @@ export class SandboxManager {
    */
   constructor(private readonly subtreeRoot: object) {
     assertTweakedObject(subtreeRoot, "subtreeRoot")
-    this.subtreeRootClone = clone(subtreeRoot, { generateNewIds: false })
+
+    // we temporarily set the default value of the context manager so that
+    // cloned nodes can access it while in their onInit phase
+
+    let previousContextDefault = sandboxManagerContext.getDefault()
+    sandboxManagerContext.setDefault(this)
+    try {
+      this.subtreeRootClone = clone(subtreeRoot, { generateNewIds: false })
+      sandboxManagerContext.set(this.subtreeRootClone, this)
+    } catch (err) {
+      throw err
+    } finally {
+      sandboxManagerContext.setDefault(previousContextDefault)
+    }
 
     let wasRS = false
     const disposeReactionRS = reaction(
