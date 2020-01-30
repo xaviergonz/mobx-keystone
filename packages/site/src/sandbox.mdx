@@ -59,12 +59,12 @@ The callback passed to `withSandbox` supports two return types:
 @model("NumberStore")
 class NumberStore extends Model({
   a: prop<EvenNumber>(),
-  b: prop<EvenNumber>()
+  b: prop<EvenNumber>(),
 }) {}
 
 const store = new NumberStore({
   a: new EvenNumber({ value: 0 }),
-  b: new EvenNumber({ value: 2 })
+  b: new EvenNumber({ value: 2 }),
 })
 
 const storeSandbox = sandbox(store)
@@ -72,7 +72,6 @@ storeSandbox.withSandbox([store.a, store.b], ([a, b]) => {
   // ...
 })
 ```
-
 
 `withSandbox` calls can be nested:
 
@@ -142,6 +141,15 @@ The `sandbox` function generates an instance with the following methods:
 
 - `withSandbox<T extends object | [object], R = void>(node: T, fn: (node: T) => boolean | { commit: boolean; return: R }): R` - Executes `fn` with a sandbox copy of `node`. Any changes made to the sandbox are applied to the original subtree when `fn` returns `true` or `{ commit: true, ... }`. When `fn` returns `false` or `{ commit: false, ... }` the changes made to the sandbox are rejected. When `fn` returns an object of type `{ commit: boolean; return: R }` then `withSandbox` returns a value of type `R`.
 - `dispose()` - Disposes of the sandbox.
+
+### Checking if a node is sandboxed / getting a node sandbox manager
+
+Sometimes it might be useful to know if a node is part of a sandbox or its related sandbox manager. To do so you can use the following functions:
+
+- `isSandboxedNode(node: object): boolean` - Returns if a given node is a sandboxed node.
+- `getNodeSandboxManager(node: object): SandboxManager | undefined` - Returns the sandbox manager of a node, or `undefined` if none.
+
+These might be useful for example to filter out reactions that should only run on the "real" nodes, but not on the sandboxed ones.
 
 ## Examples
 

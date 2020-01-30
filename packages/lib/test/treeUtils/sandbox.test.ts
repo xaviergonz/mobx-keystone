@@ -1,12 +1,19 @@
+import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
+  customRef,
+  getNodeSandboxManager,
+  getParent,
   isRootStore,
+  isSandboxedNode,
   isTweakedObject,
   model,
   Model,
   modelAction,
   prop,
+  Ref,
   registerRootStore,
+  runUnprotected,
   sandbox,
   SandboxManager,
   unregisterRootStore,
@@ -341,4 +348,147 @@ test("sandbox cannot be changed outside of fn", () => {
   })
 
   expect(() => n.setValue(1)).toThrow("tried to invoke action 'setValue' over a readonly node")
+})
+
+test("sanboxed nodes can check if they are sandboxed", () => {
+  const initEvents: string[] = []
+
+  @model("A2")
+  class A2 extends Model({
+    b: prop<B2>(),
+  }) {
+    onInit() {
+      initEvents.push(`A2 init: ${isSandboxedNode(this)}`)
+    }
+
+    onAttachedToRootStore() {
+      initEvents.push(`A2 attached: ${isSandboxedNode(this)}`)
+    }
+
+    @computed
+    get isSandboxed() {
+      return isSandboxedNode(this)
+    }
+
+    @modelAction
+    shouldBeSandboxed(shouldBeSandboxed: boolean): void {
+      expect(isSandboxedNode(this)).toBe(shouldBeSandboxed)
+    }
+  }
+
+  @model("B2")
+  class B2 extends Model({
+    value: prop<number>(),
+  }) {
+    onInit() {
+      initEvents.push(`B2 init: ${isSandboxedNode(this)}`)
+    }
+
+    onAttachedToRootStore() {
+      initEvents.push(`B2 attached: ${isSandboxedNode(this)}`)
+    }
+
+    @computed
+    get isSandboxed() {
+      return isSandboxedNode(this)
+    }
+
+    @modelAction
+    shouldBeSandboxed(shouldBeSandboxed: boolean): void {
+      expect(isSandboxedNode(this)).toBe(shouldBeSandboxed)
+    }
+  }
+
+  const a = new A2({ b: new B2({ value: 0 }) })
+  registerRootStore(a)
+  autoDispose(() => {
+    if (isRootStore(a)) {
+      unregisterRootStore(a)
+    }
+  })
+
+  expect(initEvents).toMatchInlineSnapshot(`
+    Array [
+      "B2 init: false",
+      "A2 init: false",
+      "A2 attached: false",
+      "B2 attached: false",
+    ]
+  `)
+  initEvents.length = 0
+
+  const manager = sandbox(a)
+  autoDispose(() => manager.dispose())
+
+  expect(initEvents).toMatchInlineSnapshot(`
+    Array [
+      "B2 init: true",
+      "A2 init: true",
+      "A2 attached: true",
+      "B2 attached: true",
+    ]
+  `)
+  initEvents.length = 0
+
+  expect(getNodeSandboxManager(a)).toBeUndefined()
+  expect(isSandboxedNode(a)).toBe(false)
+  expect(getNodeSandboxManager(a.b)).toBeUndefined()
+  expect(isSandboxedNode(a.b)).toBe(false)
+
+  expect(a.isSandboxed).toBe(false)
+  a.shouldBeSandboxed(false)
+  expect(a.b.isSandboxed).toBe(false)
+  a.b.shouldBeSandboxed(false)
+
+  manager.withSandbox(a, sa => {
+    expect(getNodeSandboxManager(sa)).toBe(manager)
+    expect(isSandboxedNode(sa)).toBe(true)
+    expect(getNodeSandboxManager(sa.b)).toBe(manager)
+    expect(isSandboxedNode(sa.b)).toBe(true)
+
+    expect(sa.isSandboxed).toBe(true)
+    sa.shouldBeSandboxed(true)
+    expect(sa.b.isSandboxed).toBe(true)
+    sa.b.shouldBeSandboxed(true)
+
+    return false
+  })
+})
+
+test("isSandboxedNode recognizes ref/prev/next to all be sandboxed nodes or not sandboxed nodes", () => {
+  const aRef = customRef<A>("aRef", {
+    resolve(ref: Ref<A>): A | undefined {
+      const maybeR = getParent<R>(ref)
+      return maybeR ? maybeR.a : undefined
+    },
+    onResolvedValueChange(ref, next, prev) {
+      if (next) {
+        expect(isSandboxedNode(ref)).toBe(isSandboxedNode(next))
+      }
+      if (prev) {
+        // false since it is already detached
+        expect(isSandboxedNode(prev)).toBe(false)
+      }
+    },
+  })
+
+  @model("R3")
+  class R extends Model({ a: prop<A | undefined>(), aref: prop<Ref<A> | undefined>() }) {}
+
+  const a = new A({ b: new B({ value: 0 }) })
+  const r = new R({})
+  const manager = sandbox(r)
+  autoDispose(() => manager.dispose())
+
+  runUnprotected(() => {
+    r.aref = aRef(a)
+  })
+
+  runUnprotected(() => {
+    r.a = a
+  })
+
+  runUnprotected(() => {
+    r.a = undefined
+  })
 })

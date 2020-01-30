@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.38.0
+
+- Added `isSandboxedNode` and `getNodeSandboxManager` to be able to tell when a node is sandboxed / which is its sandbox manager (if any).
+
 ## 0.37.0
 
 - Deprecated `abstractModelClass`, which should not be needed anymore.
