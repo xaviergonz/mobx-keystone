@@ -1,7 +1,9 @@
 import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
+  customRef,
   getNodeSandboxManager,
+  getParent,
   isRootStore,
   isSandboxedNode,
   isTweakedObject,
@@ -9,7 +11,9 @@ import {
   Model,
   modelAction,
   prop,
+  Ref,
   registerRootStore,
+  runUnprotected,
   sandbox,
   SandboxManager,
   unregisterRootStore,
@@ -397,6 +401,11 @@ test("sanboxed nodes can check if they are sandboxed", () => {
 
   const a = new A2({ b: new B2({ value: 0 }) })
   registerRootStore(a)
+  autoDispose(() => {
+    if (isRootStore(a)) {
+      unregisterRootStore(a)
+    }
+  })
 
   expect(initEvents).toMatchInlineSnapshot(`
     Array [
@@ -443,5 +452,43 @@ test("sanboxed nodes can check if they are sandboxed", () => {
     sa.b.shouldBeSandboxed(true)
 
     return false
+  })
+})
+
+test("isSandboxedNode recognizes ref/prev/next to all be sandboxed nodes or not sandboxed nodes", () => {
+  const aRef = customRef<A>("aRef", {
+    resolve(ref: Ref<A>): A | undefined {
+      const maybeR = getParent<R>(ref)
+      return maybeR ? maybeR.a : undefined
+    },
+    onResolvedValueChange(ref, next, prev) {
+      if (next) {
+        expect(isSandboxedNode(ref)).toBe(isSandboxedNode(next))
+      }
+      if (prev) {
+        // false since it is already detached
+        expect(isSandboxedNode(prev)).toBe(false)
+      }
+    },
+  })
+
+  @model("R3")
+  class R extends Model({ a: prop<A | undefined>(), aref: prop<Ref<A> | undefined>() }) {}
+
+  const a = new A({ b: new B({ value: 0 }) })
+  const r = new R({})
+  const manager = sandbox(r)
+  autoDispose(() => manager.dispose())
+
+  runUnprotected(() => {
+    r.aref = aRef(a)
+  })
+
+  runUnprotected(() => {
+    r.a = a
+  })
+
+  runUnprotected(() => {
+    r.a = undefined
   })
 })
