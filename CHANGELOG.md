@@ -2,6 +2,8 @@
 
 ## 0.38.0
 
+- `applyPatches` now supports arrays of arrays of patches.
+- Improved reconciliation - now `applyPatches` and `applySnapshot` are more likely to reuse instantiated model objects whenever possible rather than recreating them anew (as long as their model types and ids match).
 - Added `isSandboxedNode` and `getNodeSandboxManager` to be able to tell when a node is sandboxed / which is its sandbox manager (if any).
 
 ## 0.37.0
