@@ -3,8 +3,10 @@ import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
-import { isModelSnapshot } from "../model/utils"
+import { isModel, isModelSnapshot } from "../model/utils"
+import { fastGetParentPathIncludingDataObjects, PathElement } from "../parent"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
+import { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
 import {
   SnapshotInOfArray,
@@ -16,13 +18,13 @@ import {
 /**
  * @ignore
  */
-export function reconcileSnapshot(value: any, sn: any): any {
+export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool): any {
   if (isPrimitive(sn)) {
     return sn
   }
 
   if (isArray(sn)) {
-    return reconcileArraySnapshot(value, sn)
+    return reconcileArraySnapshot(value, sn, modelPool)
   }
 
   if (isFrozenSnapshot(sn)) {
@@ -30,11 +32,11 @@ export function reconcileSnapshot(value: any, sn: any): any {
   }
 
   if (isModelSnapshot(sn)) {
-    return reconcileModelSnapshot(value, sn)
+    return reconcileModelSnapshot(value, sn, modelPool)
   }
 
   if (isPlainObject(sn)) {
-    return reconcilePlainObjectSnapshot(value, sn)
+    return reconcilePlainObjectSnapshot(value, sn, modelPool)
   }
 
   if (isMap(sn)) {
@@ -48,7 +50,11 @@ export function reconcileSnapshot(value: any, sn: any): any {
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-function reconcileArraySnapshot(value: any, sn: SnapshotInOfArray<any>): any[] {
+function reconcileArraySnapshot(
+  value: any,
+  sn: SnapshotInOfArray<any>,
+  modelPool: ModelPool
+): any[] {
   if (!isArray(value)) {
     // no reconciliation possible
     return fromSnapshot(sn)
@@ -61,12 +67,16 @@ function reconcileArraySnapshot(value: any, sn: SnapshotInOfArray<any>): any[] {
 
   // reconcile present items
   for (let i = 0; i < value.length; i++) {
-    set(value, i as any, reconcileSnapshot(value[i], sn[i]))
+    const newValue = reconcileSnapshot(value[i], sn[i], modelPool)
+
+    detachIfNeeded(newValue, value, i)
+
+    set(value, i as any, newValue)
   }
 
   // add excess items
   for (let i = value.length; i < sn.length; i++) {
-    value.push(fromSnapshot(sn[i]))
+    value.push(reconcileSnapshot(undefined, sn[i], modelPool))
   }
 
   return value
@@ -81,7 +91,11 @@ function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>
   return frozen(sn.data)
 }
 
-function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): AnyModel {
+function reconcileModelSnapshot(
+  value: any,
+  sn: SnapshotInOfModel<AnyModel>,
+  modelPool: ModelPool
+): AnyModel {
   const type = sn[modelTypeKey]
 
   const modelInfo = getModelInfoForName(type)
@@ -90,6 +104,12 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
   }
 
   const id = sn[modelIdKey]
+
+  // try to use model from pool if possible
+  const modelInPool = modelPool.findModelForSnapshot(sn)
+  if (modelInPool) {
+    value = modelInPool
+  }
 
   if (
     !(value instanceof modelInfo.class) ||
@@ -126,14 +146,23 @@ function reconcileModelSnapshot(value: any, sn: SnapshotInOfModel<AnyModel>): An
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
 
-      set(data, k, reconcileSnapshot(data[k], v))
+      const oldValue = data[k]
+      const newValue = reconcileSnapshot(oldValue, v, modelPool)
+
+      detachIfNeeded(newValue, data, k)
+
+      set(data, k, newValue)
     }
   }
 
   return modelObj
 }
 
-function reconcilePlainObjectSnapshot(value: any, sn: SnapshotInOfObject<any>): object {
+function reconcilePlainObjectSnapshot(
+  value: any,
+  sn: SnapshotInOfObject<any>,
+  modelPool: ModelPool
+): object {
   // plain obj
   if (!isPlainObject(value) && !isObservableObject(value)) {
     // no reconciliation possible
@@ -159,8 +188,23 @@ function reconcilePlainObjectSnapshot(value: any, sn: SnapshotInOfObject<any>): 
     const k = snKeys[i]
     const v = sn[k]
 
-    set(plainObj, k, reconcileSnapshot(plainObj[k], v))
+    const oldValue = plainObj[k]
+    const newValue = reconcileSnapshot(oldValue, v, modelPool)
+
+    detachIfNeeded(newValue, plainObj, k)
+
+    set(plainObj, k, newValue)
   }
 
   return plainObj
+}
+
+function detachIfNeeded(newValue: any, parent: any, path: PathElement) {
+  // edge case for when we are swapping models around properties / array indexes
+  if (isModel(newValue)) {
+    const parentPath = fastGetParentPathIncludingDataObjects(newValue)
+    if (parentPath && parentPath.parent === parent && "" + parentPath.path !== "" + path) {
+      set(parent, parentPath.path, null)
+    }
+  }
 }

@@ -5,10 +5,10 @@ import { wrapInAction } from "../action/wrapInAction"
 import { modelToDataNode } from "../parent/core"
 import { PathElement } from "../parent/pathTypes"
 import { Patch } from "../patch/Patch"
-import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isArray } from "../utils"
+import { ModelPool } from "../utils/ModelPool"
 
 /**
  * Applies the given patches to the given target object.
@@ -19,10 +19,14 @@ import { failure, inDevMode, isArray } from "../utils"
  */
 export function applyPatches(
   node: object,
-  patches: ReadonlyArray<Patch>,
+  patches: ReadonlyArray<Patch> | ReadonlyArray<ReadonlyArray<Patch>>,
   reverse: boolean = false
 ): void {
   assertTweakedObject(node, "node")
+
+  if (patches.length <= 0) {
+    return
+  }
 
   wrappedInternalApplyPatches.call(node, patches, reverse)
 }
@@ -33,20 +37,37 @@ export function applyPatches(
  */
 export function internalApplyPatches(
   this: object,
-  patches: ReadonlyArray<Patch>,
+  patches: ReadonlyArray<Patch> | ReadonlyArray<ReadonlyArray<Patch>>,
   reverse: boolean = false
 ): void {
   const obj = this
+  const modelPool = new ModelPool(obj)
 
   if (reverse) {
     let i = patches.length
     while (i--) {
-      applySinglePatch(obj, patches[i])
+      const p = patches[i]
+      if (!isArray(p)) {
+        applySinglePatch(obj, p as Patch, modelPool)
+      } else {
+        let j = p.length
+        while (j--) {
+          applySinglePatch(obj, p[j], modelPool)
+        }
+      }
     }
   } else {
     const len = patches.length
     for (let i = 0; i < len; i++) {
-      applySinglePatch(obj, patches[i])
+      const p = patches[i]
+      if (!isArray(p)) {
+        applySinglePatch(obj, p as Patch, modelPool)
+      } else {
+        const len2 = p.length
+        for (let j = 0; j < len2; j++) {
+          applySinglePatch(obj, p[j], modelPool)
+        }
+      }
     }
   }
 }
@@ -57,15 +78,16 @@ const wrappedInternalApplyPatches = wrapInAction(
   ActionContextActionType.Sync
 )
 
-function applySinglePatch(obj: object, patch: Patch): void {
+function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void {
   const { target, prop } = pathArrayToObjectAndProp(obj, patch.path)
 
   if (isArray(target)) {
     switch (patch.op) {
       case "add": {
         const index = +prop!
-        // no reconciliation, new value
-        target.splice(index, 0, fromSnapshot(patch.value))
+        // reconcile from the pool if possible
+        const newValue = reconcileSnapshot(undefined, patch.value, modelPool)
+        target.splice(index, 0, newValue)
         break
       }
 
@@ -82,7 +104,8 @@ function applySinglePatch(obj: object, patch: Patch): void {
         } else {
           const index = +prop!
           // try to reconcile
-          set(target, index as any, reconcileSnapshot(target[index], patch.value))
+          const newValue = reconcileSnapshot(target[index], patch.value, modelPool)
+          set(target, index as any, newValue)
         }
         break
       }
@@ -93,8 +116,9 @@ function applySinglePatch(obj: object, patch: Patch): void {
   } else {
     switch (patch.op) {
       case "add": {
-        // no reconciliation, new value
-        set(target, prop, fromSnapshot(patch.value))
+        // reconcile from the pool if possible
+        const newValue = reconcileSnapshot(undefined, patch.value, modelPool)
+        set(target, prop, newValue)
         break
       }
 
@@ -106,7 +130,9 @@ function applySinglePatch(obj: object, patch: Patch): void {
 
       case "replace": {
         // try to reconcile
-        set(target, prop, reconcileSnapshot(target[prop!], patch.value))
+        // we don't need to tweak the pool since reconcileSnapshot will do that for us
+        const newValue = reconcileSnapshot(target[prop!], patch.value, modelPool)
+        set(target, prop, newValue)
         break
       }
 

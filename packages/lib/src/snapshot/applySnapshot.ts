@@ -8,6 +8,7 @@ import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject } from "../utils"
+import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
 
@@ -29,7 +30,8 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   const obj = this
 
   const reconcile = () => {
-    const ret = reconcileSnapshot(obj, sn)
+    const modelPool = new ModelPool(obj)
+    const ret = reconcileSnapshot(obj, sn, modelPool)
 
     if (inDevMode()) {
       if (ret !== obj) {

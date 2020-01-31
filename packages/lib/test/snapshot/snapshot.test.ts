@@ -241,53 +241,53 @@ test("applySnapshot can create a new submodel", () => {
   expect(p.p2 instanceof BaseModel).toBe(true)
 
   expect(patches).toMatchInlineSnapshot(`
+    Array [
+      Array [
         Array [
-          Array [
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p2",
-                ],
-                "value": Object {
-                  "$modelId": "id-3",
-                  "$modelType": "P2",
-                  "y": 12,
-                },
-              },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
             ],
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p2",
-                ],
-                "value": undefined,
-              },
+            "value": Object {
+              "$modelId": "id-3",
+              "$modelType": "P2",
+              "y": 12,
+            },
+          },
+        ],
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
             ],
-          ],
-          Array [
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "x",
-                ],
-                "value": 5,
-              },
+            "value": undefined,
+          },
+        ],
+      ],
+      Array [
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "x",
             ],
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "x",
-                ],
-                "value": 6,
-              },
+            "value": 5,
+          },
+        ],
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "x",
             ],
-          ],
-        ]
-    `)
+            "value": 6,
+          },
+        ],
+      ],
+    ]
+  `)
 
   // swap the model for a clone, it should still be patched and create a snapshot,
   // but it should have a different id

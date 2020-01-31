@@ -1,5 +1,7 @@
 import { computed, reaction, remove, set } from "mobx"
 import {
+  applyPatches,
+  applySnapshot,
   clone,
   detach,
   fromSnapshot,
@@ -10,6 +12,8 @@ import {
   model,
   Model,
   modelAction,
+  onPatches,
+  Patch,
   prop,
   Ref,
   rootRef,
@@ -441,4 +445,119 @@ test("getRefsResolvingTo after loading from snapshot", () => {
   expect([...getRefsResolvingTo(newRoot.a)]).toEqual([newRoot.b.a])
   expect(newRoot.a.bs).toHaveLength(1)
   expect(newRoot.a.bs[0]).toBe(newRoot.b)
+})
+
+test("applySnapshot - applyPatches - ref", () => {
+  const bRef = rootRef<B>("bRef", {
+    onResolvedValueChange(_, next, prev) {
+      if (prev && !next) {
+        detach(prev)
+      }
+    },
+  })
+
+  @model("A")
+  class A extends Model({ b: prop<Ref<B>>() }) {}
+
+  @model("B")
+  class B extends Model({ x: prop<number>() }) {}
+
+  @model("R")
+  class R extends Model({ as: prop<A[]>(), bs: prop<B[]>() }) {
+    @modelAction
+    moveToEnd(index: number) {
+      const a = this.as.splice(index, 1)[0]
+      this.as.push(a)
+    }
+  }
+
+  const b1 = new B({ x: 1 })
+  const a1 = new A({ b: bRef(b1) })
+  const b2 = new B({ x: 2 })
+  const a2 = new A({ b: bRef(b2) })
+  const ro = new R({ as: [a1, a2], bs: [b1, b2] })
+  const rc = clone(ro, { generateNewIds: false })
+  const rp = clone(ro, { generateNewIds: false })
+  const rs = clone(ro, { generateNewIds: false })
+
+  // record patches and take a snapshot
+  const patches: Patch[][] = []
+  autoDispose(
+    onPatches(ro, p => {
+      patches.push(p)
+    })
+  )
+  ro.moveToEnd(0)
+
+  const nofPatches = patches.length
+  expect(patches).toMatchInlineSnapshot(`
+    Array [
+      Array [
+        Object {
+          "op": "remove",
+          "path": Array [
+            "as",
+            0,
+          ],
+        },
+      ],
+      Array [
+        Object {
+          "op": "add",
+          "path": Array [
+            "as",
+            1,
+          ],
+          "value": Object {
+            "$modelId": "id-58",
+            "$modelType": "A",
+            "b": Object {
+              "$modelId": "id-57",
+              "$modelType": "bRef",
+              "id": "id-56",
+            },
+          },
+        },
+      ],
+    ]
+  `)
+
+  const snapshot = getSnapshot(ro)
+
+  expect(patches.length).toBe(nofPatches)
+  expect(ro.as).toHaveLength(2)
+  expect(ro.bs).toHaveLength(2)
+
+  // work over clone
+  expect(rc.as[0].b.maybeCurrent).toBe(rc.bs[0])
+  expect(rc.as[1].b.maybeCurrent).toBe(rc.bs[1])
+  rc.moveToEnd(0)
+
+  expect(patches.length).toBe(nofPatches)
+  expect(rc.as).toHaveLength(2)
+  expect(rc.bs).toHaveLength(2)
+  expect(rc.as[0].b.maybeCurrent).toBe(rc.bs[1])
+  expect(rc.as[1].b.maybeCurrent).toBe(rc.bs[0])
+
+  // apply patches
+  expect(rp.as[0].b.maybeCurrent).toBe(rp.bs[0])
+  expect(rp.as[1].b.maybeCurrent).toBe(rp.bs[1])
+  applyPatches(rp, patches)
+
+  expect(patches.length).toBe(nofPatches)
+  expect(rp.as).toHaveLength(2)
+  expect(rp.bs).toHaveLength(2)
+  expect(rp.as[0].b.maybeCurrent).toBe(rp.bs[1])
+  expect(rp.as[1].b.maybeCurrent).toBe(rp.bs[0])
+
+  // apply snapshot
+  expect(rs.as[0].b.maybeCurrent).toBe(rs.bs[0])
+  expect(rs.as[1].b.maybeCurrent).toBe(rs.bs[1])
+  applySnapshot(rs, snapshot)
+
+  expect(patches.length).toBe(nofPatches)
+  expect(rs.as).toHaveLength(2)
+  expect(rs.bs).toHaveLength(2)
+  expect(rs.as[0].b.maybeCurrent).toBe(rs.bs[1])
+  expect(rs.as[1].b.maybeCurrent).toBe(rs.bs[0])
 })
