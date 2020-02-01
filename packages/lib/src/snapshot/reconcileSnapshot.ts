@@ -4,7 +4,7 @@ import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
-import { fastGetParentPathIncludingDataObjects, PathElement } from "../parent"
+import { fastGetParentPathIncludingDataObjects } from "../parent"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
@@ -67,9 +67,10 @@ function reconcileArraySnapshot(
 
   // reconcile present items
   for (let i = 0; i < value.length; i++) {
-    const newValue = reconcileSnapshot(value[i], sn[i], modelPool)
+    const oldValue = value[i]
+    const newValue = reconcileSnapshot(oldValue, sn[i], modelPool)
 
-    detachIfNeeded(newValue, value, i)
+    detachIfNeeded(newValue, oldValue, modelPool)
 
     set(value, i as any, newValue)
   }
@@ -149,7 +150,7 @@ function reconcileModelSnapshot(
       const oldValue = data[k]
       const newValue = reconcileSnapshot(oldValue, v, modelPool)
 
-      detachIfNeeded(newValue, data, k)
+      detachIfNeeded(newValue, oldValue, modelPool)
 
       set(data, k, newValue)
     }
@@ -191,7 +192,7 @@ function reconcilePlainObjectSnapshot(
     const oldValue = plainObj[k]
     const newValue = reconcileSnapshot(oldValue, v, modelPool)
 
-    detachIfNeeded(newValue, plainObj, k)
+    detachIfNeeded(newValue, oldValue, modelPool)
 
     set(plainObj, k, newValue)
   }
@@ -199,12 +200,18 @@ function reconcilePlainObjectSnapshot(
   return plainObj
 }
 
-function detachIfNeeded(newValue: any, parent: any, path: PathElement) {
-  // edge case for when we are swapping models around properties / array indexes
-  if (isModel(newValue)) {
+function detachIfNeeded(newValue: any, oldValue: any, modelPool: ModelPool) {
+  // edge case for when we are swapping models around the tree
+
+  if (newValue === oldValue) {
+    // already where it should be
+    return
+  }
+
+  if (isModel(newValue) && modelPool.findModelByTypeAndId(newValue.$modelType, newValue.$modelId)) {
     const parentPath = fastGetParentPathIncludingDataObjects(newValue)
-    if (parentPath && parentPath.parent === parent && "" + parentPath.path !== "" + path) {
-      set(parent, parentPath.path, null)
+    if (parentPath) {
+      set(parentPath.parent, parentPath.path, null)
     }
   }
 }

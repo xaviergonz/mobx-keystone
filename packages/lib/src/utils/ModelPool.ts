@@ -29,12 +29,16 @@ export class ModelPool {
     }
   }
 
+  findModelByTypeAndId(modelType: string, modelId: string): object | undefined {
+    return this.pool.get(getPoolKey(modelType, modelId))
+  }
+
   findModelForSnapshot(sn: any): object | undefined {
     if (!isModelSnapshot(sn)) {
       return undefined
     }
 
-    return this.pool.get(getPoolKey(sn.$modelType, sn.$modelId))
+    return this.findModelByTypeAndId(sn.$modelType, sn.$modelId)
   }
 }
 
