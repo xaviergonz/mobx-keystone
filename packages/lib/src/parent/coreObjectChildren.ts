@@ -1,4 +1,5 @@
 import { action, createAtom, IAtom, observable, ObservableSet } from "mobx"
+import { AnyModel } from "../model/BaseModel"
 import { isModel } from "../model/utils"
 import { fastGetParent } from "./path"
 
@@ -7,7 +8,7 @@ const defaultObservableSetOptions = { deep: false }
 interface ObjectChildrenData {
   shallow: ObservableSet<object>
   deep: ReadonlySet<object>
-  deepByModelTypeAndId: ReadonlyMap<string, object>
+  deepByModelTypeAndId: ReadonlyMap<string, AnyModel>
   deepDirty: boolean
   deepAtom: IAtom
 }
@@ -53,7 +54,7 @@ export function getDeepObjectChildren(node: object) {
 function addNodeToDeepLists(
   node: any,
   deep: Set<object>,
-  deepByModelTypeAndId: Map<string, object>
+  deepByModelTypeAndId: Map<string, AnyModel>
 ) {
   deep.add(node)
   if (isModel(node)) {
@@ -71,7 +72,7 @@ const updateDeepObjectChildren = action((node: object) => {
   }
 
   const deep = new Set<object>()
-  const deepByModelTypeAndId = new Map<string, object>()
+  const deepByModelTypeAndId = new Map<string, AnyModel>()
 
   const childrenIter = getObjectChildren(node)!.values()
   let ch = childrenIter.next()

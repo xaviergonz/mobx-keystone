@@ -1,9 +1,10 @@
+import { AnyModel } from "../model/BaseModel"
 import { isModelSnapshot } from "../model/utils"
 import { dataObjectParent } from "../parent/core"
 import { byModelTypeAndIdKey, getDeepObjectChildren } from "../parent/coreObjectChildren"
 
 export class ModelPool {
-  private pool: ReadonlyMap<string, object>
+  private pool: ReadonlyMap<string, AnyModel>
 
   constructor(root: object) {
     // make sure we don't use the sub-data $ object
@@ -12,11 +13,11 @@ export class ModelPool {
     this.pool = getDeepObjectChildren(root).deepByModelTypeAndId
   }
 
-  findModelByTypeAndId(modelType: string, modelId: string): object | undefined {
+  findModelByTypeAndId(modelType: string, modelId: string): AnyModel | undefined {
     return this.pool.get(byModelTypeAndIdKey(modelType, modelId))
   }
 
-  findModelForSnapshot(sn: any): object | undefined {
+  findModelForSnapshot(sn: any): AnyModel | undefined {
     if (!isModelSnapshot(sn)) {
       return undefined
     }
