@@ -1,36 +1,19 @@
-import { isModel, isModelSnapshot } from "../model/utils"
+import { isModelSnapshot } from "../model/utils"
 import { dataObjectParent } from "../parent/core"
-import { getDeepObjectChildren } from "../parent/coreObjectChildren"
+import { byModelTypeAndIdKey, getDeepObjectChildren } from "../parent/coreObjectChildren"
 
 export class ModelPool {
-  private pool = new Map<string, object>()
+  private pool: ReadonlyMap<string, object>
 
-  constructor(root: any) {
-    this.addToPool(root)
-  }
-
-  private addOneToPool(value: any) {
-    if (isModel(value)) {
-      this.pool.set(getPoolKey(value.$modelType, value.$modelId), value)
-    }
-  }
-
-  private addToPool(value: any) {
+  constructor(root: object) {
     // make sure we don't use the sub-data $ object
-    value = dataObjectParent.get(value) || value
+    root = dataObjectParent.get(root) || root
 
-    // return all submodels to the pool
-    this.addOneToPool(value)
-    const iter = getDeepObjectChildren(value).values()
-    let current = iter.next()
-    while (!current.done) {
-      this.addOneToPool(current.value)
-      current = iter.next()
-    }
+    this.pool = getDeepObjectChildren(root).deepByModelTypeAndId
   }
 
   findModelByTypeAndId(modelType: string, modelId: string): object | undefined {
-    return this.pool.get(getPoolKey(modelType, modelId))
+    return this.pool.get(byModelTypeAndIdKey(modelType, modelId))
   }
 
   findModelForSnapshot(sn: any): object | undefined {
@@ -40,8 +23,4 @@ export class ModelPool {
 
     return this.findModelByTypeAndId(sn.$modelType, sn.$modelId)
   }
-}
-
-function getPoolKey(modelType: string, modelId: string) {
-  return modelType + " " + modelId
 }

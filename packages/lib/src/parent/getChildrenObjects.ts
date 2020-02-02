@@ -20,6 +20,6 @@ export function getChildrenObjects(
   if (!options || !options.deep) {
     return getObjectChildren(node)
   } else {
-    return getDeepObjectChildren(node)
+    return getDeepObjectChildren(node).deep
   }
 }

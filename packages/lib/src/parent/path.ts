@@ -241,7 +241,7 @@ export function isChildOfParent(child: object, parent: object): boolean {
   assertTweakedObject(child, "child")
   assertTweakedObject(parent, "parent")
 
-  return getDeepObjectChildren(parent).has(child)
+  return getDeepObjectChildren(parent).deep.has(child)
 }
 
 /**
