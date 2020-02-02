@@ -14,7 +14,7 @@ import { assertIsModelClass } from "./utils"
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model = (name: string) => (clazz: ModelClass<AnyModel>) => {
+export const model = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {

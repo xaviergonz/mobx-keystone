@@ -165,7 +165,7 @@ describe("whole object", () => {
         {
           op: "add",
           path: ["p3"],
-          value: getSnapshot(p.p2),
+          value: { ...getSnapshot(p.p2), $modelId: "some other id" }, // since we can't have two objects with the same type and id under the same tree
         },
       ])
     })
