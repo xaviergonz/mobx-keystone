@@ -47,7 +47,7 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
     : this[typeof creationDataSymbol]
 
   new (data: this[typeof composedCreationDataSymbol] & { [modelIdKey]?: string }): SuperModel &
-    BaseModel<this[typeof propsDataSymbol], this[typeof creationDataSymbol]> &
+    BaseModel<this[typeof propsDataSymbol], this[typeof composedCreationDataSymbol]> &
     Omit<this[typeof propsDataSymbol], keyof AnyModel>
 }
 
