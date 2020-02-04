@@ -1,3 +1,4 @@
+import { computed } from "mobx"
 import {
   getSnapshot,
   model,
@@ -5,6 +6,9 @@ import {
   modelAction,
   modelFlow,
   prop,
+  Ref,
+  registerRootStore,
+  rootRef,
   UndoEvent,
   UndoManager,
   undoMiddleware,
@@ -672,4 +676,96 @@ test("undoMiddleware - async", async () => {
   manager.dispose()
   await p.incX(200)
   expectUndoRedoToBe(0, 0)
+})
+
+test("issue #115", () => {
+  const elementRef = rootRef<ElementModel>("toryjs/ElementRef", {})
+
+  @model("toryjs/ElementModel")
+  class ElementModel extends Model({
+    name: prop<string>(),
+    selected: prop<boolean>(),
+  }) {
+    @modelAction
+    setSelected(value: boolean) {
+      this.selected = value
+    }
+  }
+
+  @model("toryjs/StateModel")
+  class StateModel extends Model({
+    selectedElementRef: prop<Ref<ElementModel> | undefined>(),
+  }) {
+    @modelAction
+    selectElement(element?: ElementModel) {
+      if (this.selectedElementRef != null) {
+        this.selectedElementRef.current.setSelected(false)
+      }
+
+      this.selectedElementRef = element ? elementRef(element) : undefined
+
+      if (this.selectedElementRef != null) {
+        this.selectedElementRef.current.setSelected(true)
+      }
+    }
+
+    @computed
+    get selectedElement() {
+      return this.selectedElementRef ? this.selectedElementRef.current : undefined
+    }
+  }
+
+  @model("toryjs/RootModel")
+  class RootModel extends Model({
+    undoData: prop<UndoStore>(() => new UndoStore({})),
+    store: prop<ElementModel[]>(),
+    state: prop<StateModel>(),
+  }) {}
+
+  const model1 = new ElementModel({ name: "First", selected: false })
+  const model2 = new ElementModel({ name: "Second", selected: false })
+  const rootModel = new RootModel({
+    store: [model1, model2],
+    state: new StateModel({}),
+  })
+  registerRootStore(rootModel)
+
+  const undoManager = undoMiddleware(rootModel, rootModel.undoData)
+
+  function expectState(
+    selectedModel: ElementModel | undefined,
+    undoLevels: number,
+    redoLevels: number
+  ) {
+    expect(model1.selected).toBe(model1 === selectedModel)
+    expect(model2.selected).toBe(model2 === selectedModel)
+    expect(rootModel.state.selectedElement).toBe(selectedModel)
+    if (!selectedModel) {
+      expect(rootModel.state.selectedElementRef).toBe(undefined)
+    } else {
+      expect(rootModel.state.selectedElementRef!.current).toBe(selectedModel)
+    }
+    expect(undoManager.undoLevels).toBe(undoLevels)
+    expect(undoManager.redoLevels).toBe(redoLevels)
+  }
+
+  expectState(undefined, 0, 0)
+
+  rootModel.state.selectElement(model1)
+  expectState(model1, 1, 0)
+
+  rootModel.state.selectElement(model2)
+  expectState(model2, 2, 0)
+
+  undoManager.undo()
+  expectState(model1, 1, 1)
+
+  undoManager.undo()
+  expectState(undefined, 0, 2)
+
+  undoManager.redo()
+  expectState(model1, 1, 1)
+
+  undoManager.redo()
+  expectState(model2, 2, 0)
 })

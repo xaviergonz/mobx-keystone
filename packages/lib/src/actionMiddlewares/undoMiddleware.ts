@@ -248,14 +248,22 @@ export class UndoManager {
 export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
+  interface PatchRecorderData {
+    recorder: PatchRecorder
+    recorderStack: number
+  }
+
   const patchRecorderSymbol = Symbol("patchRecorder")
   function initPatchRecorder(ctx: SimpleActionContext) {
-    ctx.rootContext.data[patchRecorderSymbol] = patchRecorder(subtreeRoot, {
-      recording: false,
-      filter: undoDisabledFilter,
-    })
+    ctx.rootContext.data[patchRecorderSymbol] = {
+      recorder: patchRecorder(subtreeRoot, {
+        recording: false,
+        filter: undoDisabledFilter,
+      }),
+      recorderStack: 0,
+    } as PatchRecorderData
   }
-  function getPatchRecorder(ctx: SimpleActionContext): PatchRecorder {
+  function getPatchRecorderData(ctx: SimpleActionContext): PatchRecorderData {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
 
@@ -268,16 +276,18 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
       }
     },
     onResume(ctx) {
-      const patchRecorder = getPatchRecorder(ctx)
-      patchRecorder.recording = true
+      const patchRecorderData = getPatchRecorderData(ctx)
+      patchRecorderData.recorderStack++
+      patchRecorderData.recorder.recording = patchRecorderData.recorderStack > 0
     },
     onSuspend(ctx) {
-      const patchRecorder = getPatchRecorder(ctx)
-      patchRecorder.recording = false
+      const patchRecorderData = getPatchRecorderData(ctx)
+      patchRecorderData.recorderStack--
+      patchRecorderData.recorder.recording = patchRecorderData.recorderStack > 0
     },
     onFinish(ctx) {
       if (ctx === ctx.rootContext) {
-        const patchRecorder = getPatchRecorder(ctx)
+        const patchRecorder = getPatchRecorderData(ctx).recorder
 
         if (patchRecorder.events.length > 0) {
           const patches: Patch[] = []
