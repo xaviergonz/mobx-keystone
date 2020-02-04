@@ -68,6 +68,9 @@ test("subclassing with additional props", () => {
   assert(
     _ as CD,
     _ as { x?: number | null; y?: number | null; z?: number | null } & {
+      x?: number | null
+      y?: number | null
+      z?: number | null
       a?: number | null
       b: number
     }
@@ -237,7 +240,15 @@ test("three level subclassing", () => {
   assert(_ as D, _ as { x: number; y: number; z: number } & { a: number } & { b: number })
   assert(
     _ as CD,
-    _ as { x?: number | null; y?: number | null; z?: number | null } & { a?: number | null } & {
+    _ as {
+      x?: number | null | undefined
+      y?: number | null | undefined
+      z?: number | null | undefined
+    } & { x?: number | null; y?: number | null; z?: number | null; a?: number | null } & {
+      x?: number | null
+      y?: number | null
+      z?: number | null
+      a?: number | null
       b: number
     }
   )

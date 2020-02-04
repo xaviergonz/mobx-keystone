@@ -9,8 +9,8 @@ import { modelActionSymbol, wrapInAction } from "./wrapInAction"
  * @param fn Function to check.
  * @returns
  */
-export function isModelAction(fn: any) {
-  return typeof fn === "function" && fn[modelActionSymbol]
+export function isModelAction(fn: any): fn is (...args: any[]) => any {
+  return typeof fn === "function" && !!fn[modelActionSymbol]
 }
 
 function checkModelActionArgs(target: any, propertyKey: string, value: any) {
