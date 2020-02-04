@@ -159,12 +159,12 @@ test("array ref works", () => {
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Array [
       Object {
-        "$modelId": "id-15",
+        "$modelId": "id-5",
         "$modelType": "countryRef",
         "id": "spain",
       },
       Object {
-        "$modelId": "id-16",
+        "$modelId": "id-6",
         "$modelType": "countryRef",
         "id": "uk",
       },
@@ -509,12 +509,12 @@ test("applySnapshot - applyPatches - ref", () => {
             1,
           ],
           "value": Object {
-            "$modelId": "id-58",
+            "$modelId": "id-3",
             "$modelType": "A",
             "b": Object {
-              "$modelId": "id-57",
+              "$modelId": "id-2",
               "$modelType": "bRef",
-              "id": "id-56",
+              "id": "id-1",
             },
           },
         },

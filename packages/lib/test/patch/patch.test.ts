@@ -205,7 +205,7 @@ describe("onPatches and applyPatches", () => {
               "p2",
             ],
             "value": Object {
-              "$modelId": "id-5",
+              "$modelId": "id-1",
               "$modelType": "P2",
               "y": 12,
             },
@@ -1020,7 +1020,7 @@ test("patches with action in onAttachedToRootStore", () => {
             0,
           ],
           "value": Object {
-            "$modelId": "id-31",
+            "$modelId": "id-2",
             "$modelType": "test/patchesWithActionInOnAttachedToRootStore/M",
             "value": 0,
           },

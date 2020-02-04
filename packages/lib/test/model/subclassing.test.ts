@@ -147,7 +147,7 @@ test("subclassing without additional props", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-2",
+      "$modelId": "id-1",
       "$modelType": "P2_noprops",
       "x": 20,
       "y": 10,
@@ -188,7 +188,7 @@ test("subclassing without anything new", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-3",
+      "$modelId": "id-1",
       "$modelType": "P2_nothingNew",
       "x": 20,
       "y": 10,
@@ -263,7 +263,7 @@ test("three level subclassing", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-4",
+      "$modelId": "id-1",
       "$modelType": "P2_threeLevels",
       "a": 50,
       "b": 70,

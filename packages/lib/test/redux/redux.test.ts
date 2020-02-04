@@ -136,20 +136,20 @@ describe("asReduxStore", () => {
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "prevSn": Object {
-                  "$modelId": "id-2",
-                  "$modelType": "P",
-                  "x": 0,
-                },
-                "sn": Object {
-                  "$modelId": "id-2",
-                  "$modelType": "P",
-                  "x": 12,
-                },
-              },
-            ]
-        `)
+      Array [
+        Object {
+          "prevSn": Object {
+            "$modelId": "id-1",
+            "$modelType": "P",
+            "x": 0,
+          },
+          "sn": Object {
+            "$modelId": "id-1",
+            "$modelType": "P",
+            "x": 12,
+          },
+        },
+      ]
+    `)
   })
 })

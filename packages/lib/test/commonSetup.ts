@@ -10,3 +10,7 @@ setGlobalConfig({
     return `id-${id++}`
   },
 })
+
+beforeEach(() => {
+  id = 1
+})

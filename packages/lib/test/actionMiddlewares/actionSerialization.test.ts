@@ -75,11 +75,17 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   expect(isObservable((serializedObsArr as SerializedActionCallArgument).value[0])).toBe(false)
 
   // map
-  const mapKV: [any, any][] = [["x", 10], ["y", { z: 20 }]]
+  const mapKV: [any, any][] = [
+    ["x", 10],
+    ["y", { z: 20 }],
+  ]
   const map = new Map<any, any>(mapKV)
   const serMap = {
     $mobxKeystoneSerializer: "mobx-keystone/mapAsArray",
-    value: [["x", 10], ["y", serializeActionCallArgument({ z: 20 })]],
+    value: [
+      ["x", 10],
+      ["y", serializeActionCallArgument({ z: 20 })],
+    ],
   }
 
   expect(serializeActionCallArgument(map)).toEqual(serMap)
@@ -249,7 +255,7 @@ describe("concurrency", () => {
     replicate(captured[0])
     // trying to change a deleted item
     expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",1] with ids [null,"id-6"] could not be resolved'
+      'object at path ["list",1] with ids [null,"id-2"] could not be resolved'
     )
   })
 
@@ -263,7 +269,7 @@ describe("concurrency", () => {
     replicate(captured[0])
     // trying to remove already removed item
     expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",1] with ids [null,"id-10"] could not be resolved'
+      'object at path ["list",1] with ids [null,"id-2"] could not be resolved'
     )
   })
 
@@ -277,7 +283,7 @@ describe("concurrency", () => {
     replicate(captured[0])
     // trying to change an item that moved to index 0 from index 2
     expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",2] with ids [null,"id-15"] could not be resolved'
+      'object at path ["list",2] with ids [null,"id-3"] could not be resolved'
     )
   })
 
@@ -291,7 +297,7 @@ describe("concurrency", () => {
     replicate(captured[0])
     // trying to remove an item that no longer exists
     expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",1] with ids [null,"id-18"] could not be resolved'
+      'object at path ["list",1] with ids [null,"id-2"] could not be resolved'
     )
   })
 })

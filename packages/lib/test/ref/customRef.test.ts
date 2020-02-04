@@ -159,12 +159,12 @@ test("array ref works", () => {
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Array [
       Object {
-        "$modelId": "id-6",
+        "$modelId": "id-2",
         "$modelType": "countryRef",
         "id": "spain",
       },
       Object {
-        "$modelId": "id-7",
+        "$modelId": "id-3",
         "$modelType": "countryRef",
         "id": "uk",
       },

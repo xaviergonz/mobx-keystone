@@ -250,7 +250,7 @@ test("applySnapshot can create a new submodel", () => {
               "p2",
             ],
             "value": Object {
-              "$modelId": "id-3",
+              "$modelId": "id-1",
               "$modelType": "P2",
               "y": 12,
             },
@@ -301,66 +301,66 @@ test("applySnapshot can create a new submodel", () => {
   expect(getSnapshot(p.p2)).not.toBe(getSnapshot(oldP2))
 
   expect(patches).toMatchInlineSnapshot(`
+    Array [
+      Array [
         Array [
-          Array [
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p2",
-                ],
-                "value": Object {
-                  "$modelId": "id-5",
-                  "$modelType": "P2",
-                  "y": 12,
-                },
-              },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
             ],
-            Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p2",
-                ],
-                "value": Object {
-                  "$modelId": "id-3",
-                  "$modelType": "P2",
-                  "y": 12,
-                },
-              },
+            "value": Object {
+              "$modelId": "id-3",
+              "$modelType": "P2",
+              "y": 12,
+            },
+          },
+        ],
+        Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p2",
             ],
-          ],
-        ]
-    `)
+            "value": Object {
+              "$modelId": "id-1",
+              "$modelType": "P2",
+              "y": 12,
+            },
+          },
+        ],
+      ],
+    ]
+  `)
 
   expect(sn).toMatchInlineSnapshot(`
-        Array [
-          Array [
-            Object {
-              "$modelId": "id-4",
-              "$modelType": "P",
-              "arr": Array [],
-              "p2": Object {
-                "$modelId": "id-5",
-                "$modelType": "P2",
-                "y": 12,
-              },
-              "x": 5,
-            },
-            Object {
-              "$modelId": "id-4",
-              "$modelType": "P",
-              "arr": Array [],
-              "p2": Object {
-                "$modelId": "id-3",
-                "$modelType": "P2",
-                "y": 12,
-              },
-              "x": 5,
-            },
-          ],
-        ]
-    `)
+    Array [
+      Array [
+        Object {
+          "$modelId": "id-2",
+          "$modelType": "P",
+          "arr": Array [],
+          "p2": Object {
+            "$modelId": "id-3",
+            "$modelType": "P2",
+            "y": 12,
+          },
+          "x": 5,
+        },
+        Object {
+          "$modelId": "id-2",
+          "$modelType": "P",
+          "arr": Array [],
+          "p2": Object {
+            "$modelId": "id-1",
+            "$modelType": "P2",
+            "y": 12,
+          },
+          "x": 5,
+        },
+      ],
+    ]
+  `)
 
   // if we apply the same sub-snapshot with the same id it should be reconciled instead
   reset()
@@ -402,22 +402,22 @@ test("applySnapshot can create a new submodel", () => {
     Array [
       Array [
         Object {
-          "$modelId": "id-4",
+          "$modelId": "id-2",
           "$modelType": "P",
           "arr": Array [],
           "p2": Object {
-            "$modelId": "id-5",
+            "$modelId": "id-3",
             "$modelType": "P2",
             "y": 256,
           },
           "x": 5,
         },
         Object {
-          "$modelId": "id-4",
+          "$modelId": "id-2",
           "$modelType": "P",
           "arr": Array [],
           "p2": Object {
-            "$modelId": "id-5",
+            "$modelId": "id-3",
             "$modelType": "P2",
             "y": 12,
           },
@@ -544,12 +544,12 @@ test("snapshot with reserved property names", () => {
   expect(p.onInit).toBeUndefined()
 
   expect(sn).toMatchInlineSnapshot(`
-        Object {
-          "$modelId": "id-8",
-          "$modelType": "test/snapshotWithReservedPropNames",
-          "onInit": 4,
-        }
-    `)
+    Object {
+      "$modelId": "id-1",
+      "$modelType": "test/snapshotWithReservedPropNames",
+      "onInit": 4,
+    }
+  `)
 
   const p2 = fromSnapshot<M>(sn)
   expect(p2.onInit).toBeUndefined()
