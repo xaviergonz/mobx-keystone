@@ -351,3 +351,51 @@ class X extends ExtendedModel(modelClass<SomeGenericClass<string>>(SomeGenericCl
 ```
 
 If you don't it will still compile, but the generic will be assumed to have unknown for all its generic parameters.
+
+## Usage without decorators
+
+Although this library was primarily intented to be used with decorators it is also possible to use it without them.
+
+To do so you can use the `decoratedModel` method as shown below:
+
+```ts
+const Todo = decoratedModel(
+  // the string identifies this model type and must be unique across your whole application
+  // you may pass `undefined` if you don't want the model to be registered yet (e.g. for a base class)
+  "myCoolApp/Todo",
+  // note: although the name of class here is optional it is recommended when using Typescript to make
+  // the IDE show better typings and emit shorter declarations
+  class Todo extends Model({
+    text: prop<string>(), // a required string
+    done: prop(false), // an optional boolean that will default to false when the input is null or undefined
+  }) {
+    // note how here we don't decorate the method directly, but on the next parameter instead
+    // @modelAction
+    setDone(done: boolean) {
+      this.done = done
+    }
+
+    // @modelAction
+    setText(text: string) {
+      this.text = text
+    }
+
+    // @computed
+    get fullText() {
+      return `${this.done ? "DONE" : "TODO"} - ${this.text}`
+    }
+  },
+  // here we pass what we would use as decorators to the class methods/properties above
+  // if we want to use multiple chained decorators we can pass an array of them instead
+  // note that any kind of Typescript compatible decorator is supported, not only the built-in ones!
+  {
+    setDone: modelAction,
+    setText: modelAction,
+    fullText: computed,
+  }
+)
+// needed to be able to do SnapshotInOf<Todo>, etc
+type Todo = InstanceType<typeof Todo>
+
+const myTodo = new Todo({ done: false, text: "buy some milk" })
+```

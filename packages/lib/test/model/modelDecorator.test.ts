@@ -80,6 +80,8 @@ test("model decorator sets model type static prop and toString methods", () => {
 })
 
 test("decoratedModel", () => {
+  let initCalls = 0
+
   const Point = decoratedModel(
     "decoratedModel/Point",
     class Point<N> extends Model({
@@ -105,6 +107,10 @@ test("decoratedModel", () => {
 
       volatile = "volatile"
       volatile2!: N
+
+      onInit() {
+        initCalls++
+      }
     },
     {
       setX: modelAction,
@@ -120,7 +126,9 @@ test("decoratedModel", () => {
     expect(Point.prototype.setY).toBeUndefined()
     expect(isModelAction(Point.prototype.setXY)).toBeTruthy()
 
+    expect(initCalls).toBe(0)
     const p = new Point<number>({ x: 10, y: 20 })
+    expect(initCalls).toBe(1)
     expect(isModelAction(p.setX)).toBeTruthy()
     expect(isModelAction(p.setY)).toBeTruthy()
     expect(isModelAction(p.setXY)).toBeTruthy()
