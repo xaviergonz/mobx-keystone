@@ -62,7 +62,7 @@ export type PropTransformDecorator<TProp> = <PK extends string>(
  */
 export function propTransform<TProp, TData>(
   transform: PropTransform<TProp, TData>
-): PropTransformDecorator<TProp> {
+): PropTransformDecorator<TProp> & PropTransform<TProp, TData> {
   const parametrizedDecorator: PropTransformDecorator<TProp> = boundPropName => {
     const decorator = (target: object, propertyKey: string) => {
       // hidden computed getter
@@ -87,6 +87,8 @@ export function propTransform<TProp, TData>(
 
     return decorator
   }
+  ;(parametrizedDecorator as any).propToData = transform.propToData.bind(transform)
+  ;(parametrizedDecorator as any).dataToProp = transform.dataToProp.bind(transform)
 
-  return parametrizedDecorator
+  return parametrizedDecorator as any
 }

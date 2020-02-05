@@ -1,5 +1,7 @@
 # Change Log
 
+- Property transforms can now be used standalone.
+
 ## 0.39.0
 
 - Added `decoratedModel` so the library can be used without decorators.

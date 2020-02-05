@@ -54,6 +54,21 @@ const date: Date = myModel.date
 myModel.date = new Date()
 ```
 
+Property transforms can also be used standalone:
+
+```ts
+asDate.propToData(...)
+asDate.dataToProp(...)
+```
+
+which is useful when creating the object anew:
+
+```ts
+const myModel = new MyModel({
+  timestamp: asDate.dataToProp(new Date()),
+})
+```
+
 Remember that for transforms to be valid this must hold:
 
 ```

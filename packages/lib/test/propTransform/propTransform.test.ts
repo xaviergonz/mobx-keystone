@@ -30,6 +30,9 @@ test("timestampAsDate", () => {
   const now = 0
   const dateNow = new Date(now)
 
+  expect(timestampAsDate.propToData(now)).toStrictEqual(dateNow)
+  expect(timestampAsDate.dataToProp(dateNow)).toStrictEqual(now)
+
   const m = new M({ timestamp: now })
 
   // getter
@@ -67,6 +70,10 @@ test("timestampAsDate", () => {
 
   const now2 = 1569524561993
   const dateNow2 = new Date(now2)
+
+  expect(timestampAsDate.propToData(now2)).toStrictEqual(dateNow2)
+  expect(timestampAsDate.dataToProp(dateNow2)).toStrictEqual(now2)
+
   m.setDate(dateNow2)
   expect(m.date).toEqual(dateNow2)
   expect(m.timestamp).toBe(now2)
@@ -165,6 +172,9 @@ test("stringAsDate", () => {
   m.setDate(dateNow2)
   expect(m.date).toEqual(dateNow2)
   expect(m.time).toBe(dateNow2.toJSON())
+
+  expect(stringAsDate.propToData(m.time)).toStrictEqual(dateNow2)
+  expect(stringAsDate.dataToProp(dateNow2)).toStrictEqual(m.time)
 
   expect(actionCalls).toMatchInlineSnapshot(`
     Array [
