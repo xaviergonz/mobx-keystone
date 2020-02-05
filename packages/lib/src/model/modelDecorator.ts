@@ -94,26 +94,19 @@ const internalModel = (name: string, options: { afterNew?: (instance: any) => vo
 }
 
 // basically taken from TS
-const tsDecorate: any =
-  (this && (this as any).tsDecorate) ||
-  function(decorators: any, target: any, key: any, desc: any) {
-    var c = arguments.length,
-      r =
-        c < 3
-          ? target
-          : desc === null
-          ? (desc = Object.getOwnPropertyDescriptor(target, key))
-          : desc,
-      d
-    if (typeof Reflect === "object" && typeof (Reflect as any).decorate === "function")
-      r = (Reflect as any).decorate(decorators, target, key, desc)
-    else
-      for (var i = decorators.length - 1; i >= 0; i--)
-        if ((d = decorators[i]))
-          r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r
-    // eslint-disable-next-line no-sequences
-    return c > 3 && r && Object.defineProperty(target, key, r), r
-  }
+function tsDecorate(decorators: any, target: any, key: any, desc: any) {
+  var c = arguments.length,
+    r =
+      c < 3 ? target : desc === null ? (desc = Object.getOwnPropertyDescriptor(target, key)) : desc,
+    d
+  if (typeof Reflect === "object" && typeof (Reflect as any).decorate === "function")
+    r = (Reflect as any).decorate(decorators, target, key, desc)
+  else
+    for (var i = decorators.length - 1; i >= 0; i--)
+      if ((d = decorators[i])) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r
+  // eslint-disable-next-line no-sequences
+  return c > 3 && r && Object.defineProperty(target, key, r), r
+}
 
 /**
  * Marks a class (which MUST inherit from the `Model` abstract class)
@@ -137,12 +130,13 @@ export function decoratedModel<MC extends ModelClass<AnyModel>>(
   // decorate class members
   for (const [k, decorator] of Object.entries(decorators)) {
     const prototypeValueDesc = Object.getOwnPropertyDescriptor(clazz.prototype, k)
-    // TS seems to send null for methods in the prototype and void 0 for props
+    // TS seems to send null for methods in the prototype
+    // (which we substitute for the descriptor to avoid a double look-up) and void 0 (undefined) for props
     tsDecorate(
       Array.isArray(decorator) ? decorator : [decorator],
       clazz.prototype,
       k,
-      prototypeValueDesc ? null : void 0
+      prototypeValueDesc ? prototypeValueDesc : void 0
     )
   }
 
