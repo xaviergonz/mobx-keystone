@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.39.0
+
+- Added `decoratedModel` so the library can be used without decorators.
+
 ## 0.38.0
 
 - Fixes for `undoMiddleware`, where it wouldn't properly record changes outside a subaction after a subaction is performed.
