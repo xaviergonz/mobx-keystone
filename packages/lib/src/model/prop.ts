@@ -40,11 +40,11 @@ export type OptionalModelProps<MP extends ModelProps> = {
   [K in keyof MP]: MP[K]["$isOptional"] & K
 }[keyof MP]
 
-export type ModelPropsToPropData<MP extends ModelProps> = {
+export type ModelPropsToPropsData<MP extends ModelProps> = {
   [k in keyof MP]: MP[k]["$propValueType"]
 }
 
-export type ModelPropsToPropCreationData<MP extends ModelProps> = O.Optional<
+export type ModelPropsToPropsCreationData<MP extends ModelProps> = O.Optional<
   {
     [k in keyof MP]: MP[k]["$propCreationValueType"]
   },

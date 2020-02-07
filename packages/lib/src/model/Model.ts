@@ -22,8 +22,8 @@ import {
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
-  ModelPropsToPropCreationData,
-  ModelPropsToPropData,
+  ModelPropsToPropsCreationData,
+  ModelPropsToPropsData,
   OptionalModelProps,
 } from "./prop"
 import { assertIsModelClass } from "./utils"
@@ -45,12 +45,12 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
    */
   readonly [modelTypeKey]: string | undefined
 
-  [propsDataSymbol]: ModelPropsToPropData<TProps>
+  [propsDataSymbol]: ModelPropsToPropsData<TProps>
   [instanceDataSymbol]: ModelPropsToInstanceData<TProps>
 
   [optDataSymbol]: OptionalModelProps<TProps>
 
-  [propsCreationDataSymbol]: ModelPropsToPropCreationData<TProps>
+  [propsCreationDataSymbol]: ModelPropsToPropsCreationData<TProps>
   [instanceCreationDataSymbol]: ModelPropsToInstanceCreationData<TProps>
 
   [composedPropsCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD>

@@ -9,13 +9,13 @@ import {
   modelAction,
   modelClass,
   ModelClassDeclaration,
-  ModelCreationData,
-  ModelData,
+  ModelPropsCreationData,
+  ModelPropsData,
   prop,
   tProp,
   types,
 } from "../../src"
-import { ModelPropsToData } from "../../src/model/prop"
+import { ModelPropsToPropsData } from "../../src/model/prop"
 import "../commonSetup"
 
 // @model("P")
@@ -62,12 +62,22 @@ test("subclassing with additional props", () => {
     }
   }
 
-  type D = ModelData<P2>
-  type CD = ModelCreationData<P2>
-  assert(_ as D, _ as { x: number; y: number; z: number } & { a: number; b: number })
+  type D = ModelPropsData<P2>
+  type CD = ModelPropsCreationData<P2>
+  assert(
+    _ as D,
+    _ as { x: number; y: number; z: number } & {
+      a: number
+      b: number
+    }
+  )
   assert(
     _ as CD,
-    _ as { x?: number | null; y?: number | null; z?: number | null } & {
+    _ as {
+      x?: number | null
+      y?: number | null
+      z?: number | null
+    } & {
       x?: number | null
       y?: number | null
       z?: number | null
@@ -125,12 +135,23 @@ test("subclassing without additional props", () => {
     }
   }
 
-  type D = ModelData<P2>
-  type CD = ModelCreationData<P2>
-  assert(_ as D, _ as { x: number; y: number; z: number } & ModelPropsToData<{}>)
+  type D = ModelPropsData<P2>
+  type CD = ModelPropsCreationData<P2>
+  assert(
+    _ as D,
+    _ as {
+      x: number
+      y: number
+      z: number
+    } & ModelPropsToPropsData<{}>
+  )
   assert(
     _ as CD,
-    _ as { x?: number | null; y?: number | null; z?: number | null } & ModelPropsToData<{}>
+    _ as {
+      x?: number | null
+      y?: number | null
+      z?: number | null
+    } & ModelPropsToPropsData<{}>
   )
 
   const p2 = new P2({ x: 20 })
@@ -167,12 +188,23 @@ test("subclassing without anything new", () => {
   @model("P2_nothingNew")
   class P2 extends ExtendedModel(P, {}) {}
 
-  type D = ModelData<P2>
-  type CD = ModelCreationData<P2>
-  assert(_ as D, _ as { x: number; y: number; z: number } & ModelPropsToData<{}>)
+  type D = ModelPropsData<P2>
+  type CD = ModelPropsCreationData<P2>
+  assert(
+    _ as D,
+    _ as {
+      x: number
+      y: number
+      z: number
+    } & ModelPropsToPropsData<{}>
+  )
   assert(
     _ as CD,
-    _ as { x?: number | null; y?: number | null; z?: number | null } & ModelPropsToData<{}>
+    _ as {
+      x?: number | null
+      y?: number | null
+      z?: number | null
+    } & ModelPropsToPropsData<{}>
   )
 
   const p2 = new P2({ x: 20 })
@@ -235,16 +267,26 @@ test("three level subclassing", () => {
     }
   }
 
-  type D = ModelData<P2>
-  type CD = ModelCreationData<P2>
-  assert(_ as D, _ as { x: number; y: number; z: number } & { a: number } & { b: number })
+  type D = ModelPropsData<P2>
+  type CD = ModelPropsCreationData<P2>
+  assert(
+    _ as D,
+    _ as { x: number; y: number; z: number } & {
+      a: number
+    } & { b: number }
+  )
   assert(
     _ as CD,
     _ as {
       x?: number | null | undefined
       y?: number | null | undefined
       z?: number | null | undefined
-    } & { x?: number | null; y?: number | null; z?: number | null; a?: number | null } & {
+    } & {
+      x?: number | null
+      y?: number | null
+      z?: number | null
+      a?: number | null
+    } & {
       x?: number | null
       y?: number | null
       z?: number | null
