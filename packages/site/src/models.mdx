@@ -177,7 +177,10 @@ setGlobalConfig({
 
 ## Getting the Typescript types for model data and model ceation data
 
-You can give the types of both the model creation data (the object that gets passed to new as parameter) and the model data (the type of the model data once instantiated) by using `ModelCreationData<Model>` and `ModelData<Model>`.
+- `ModelPropsData<Model>` is the the type of the model props without transformations (as accessible via `model.$`).
+- `ModelInstanceData<Model>` is the type of the model props with transformation (as accessible via `this`).
+- `ModelPropsCreationData<Model>` is the the type of the creation model props without transformations (like `SnapshotIn<Model>` excluding `$modelId` and `$modelType`).
+- `ModelInstanceCreationData<Model>` is the type of the first parameter passed to `new Model(...)`.
 
 For example, given:
 
@@ -189,7 +192,7 @@ export class Todo extends Model({
 }) {}
 ```
 
-`ModelCreationData<Todo>` would be:
+`ModelInstanceCreationData<Todo>` would be:
 
 ```ts
 {
@@ -198,7 +201,7 @@ export class Todo extends Model({
 }
 ```
 
-and `ModelData<Todo>` would be:
+and `ModelInstanceData<Todo>` would be:
 
 ```ts
 {

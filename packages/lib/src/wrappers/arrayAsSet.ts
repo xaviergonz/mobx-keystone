@@ -1,6 +1,6 @@
 import { action, values } from "mobx"
 
-class ArrayAsSet<V> implements Set<V> {
+export class ArrayAsSet<V> implements Set<V> {
   constructor(private readonly getTarget: () => V[]) {}
 
   @action

@@ -124,11 +124,15 @@ export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any, a
   const hasDefaultValue = arguments.length > 1
   const isDefFn = typeof def === "function"
   return {
-    $valueType: null as any,
-    $creationValueType: null as any,
+    $propValueType: null as any,
+    $propCreationValueType: null as any,
     $isOptional: null as any,
+    $instanceValueType: null as any,
+    $instanceCreationValueType: null as any,
+
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
     typeChecker: resolveStandardType(typeOrDefaultValue) as any,
+    transform: undefined,
   }
 }

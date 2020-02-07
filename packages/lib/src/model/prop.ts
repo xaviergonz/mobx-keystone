@@ -1,3 +1,5 @@
+import { O } from "ts-toolbelt"
+import { PropTransform } from "../propTransform/propTransform"
 import { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
 import { IsOptionalValue } from "../utils/types"
 
@@ -9,13 +11,22 @@ export const noDefaultValue = Symbol("noDefaultValue")
 /**
  * A model property.
  */
-export interface ModelProp<TValue, TCreationValue, TIsOptional> {
-  $valueType: TValue
-  $creationValueType: TCreationValue
+export interface ModelProp<
+  TPropValue,
+  TPropCreationValue,
+  TIsOptional,
+  TInstanceValue = TPropValue,
+  TInstanceCreationValue = TPropCreationValue
+> {
+  $propValueType: TPropValue
+  $propCreationValueType: TPropCreationValue
+  $instanceValueType: TInstanceValue
+  $instanceCreationValueType: TInstanceCreationValue
   $isOptional: TIsOptional
-  defaultFn: (() => TValue) | typeof noDefaultValue
-  defaultValue: TValue | typeof noDefaultValue
+  defaultFn: (() => TPropValue) | typeof noDefaultValue
+  defaultValue: TPropValue | typeof noDefaultValue
   typeChecker: TypeChecker | LateTypeChecker | undefined
+  transform: PropTransform<any, any> | undefined
 }
 
 /**
@@ -29,13 +40,27 @@ export type OptionalModelProps<MP extends ModelProps> = {
   [K in keyof MP]: MP[K]["$isOptional"] & K
 }[keyof MP]
 
-export type ModelPropsToData<MP extends ModelProps> = {
-  [k in keyof MP]: MP[k]["$valueType"]
+export type ModelPropsToPropData<MP extends ModelProps> = {
+  [k in keyof MP]: MP[k]["$propValueType"]
 }
 
-export type ModelPropsToCreationData<MP extends ModelProps> = {
-  [k in keyof MP]: MP[k]["$creationValueType"]
+export type ModelPropsToPropCreationData<MP extends ModelProps> = O.Optional<
+  {
+    [k in keyof MP]: MP[k]["$propCreationValueType"]
+  },
+  OptionalModelProps<MP>
+>
+
+export type ModelPropsToInstanceData<MP extends ModelProps> = {
+  [k in keyof MP]: MP[k]["$instanceValueType"]
 }
+
+export type ModelPropsToInstanceCreationData<MP extends ModelProps> = O.Optional<
+  {
+    [k in keyof MP]: MP[k]["$instanceCreationValueType"]
+  },
+  OptionalModelProps<MP>
+>
 
 /**
  * Defines a model property with no default value.
@@ -93,11 +118,15 @@ export function prop<TValue>(def?: any): ModelProp<TValue, any, any> {
   const isDefFn = typeof def === "function"
 
   return {
-    $valueType: null as any,
-    $creationValueType: null as any,
+    $propValueType: null as any,
+    $propCreationValueType: null as any,
     $isOptional: null as any,
+    $instanceValueType: null as any,
+    $instanceCreationValueType: null as any,
+
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
     typeChecker: undefined,
+    transform: undefined,
   }
 }

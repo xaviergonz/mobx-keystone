@@ -4,7 +4,7 @@ import { getGlobalConfig, isModelAutoTypeCheckingEnabled } from "../globalConfig
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
-import { AnyModel, ModelClass, ModelCreationData } from "./BaseModel"
+import { AnyModel, ModelClass, ModelPropsCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
@@ -20,7 +20,7 @@ export const internalNewModel = action(
   <M extends AnyModel>(
     origModelObj: M,
     modelClass: ModelClass<M>,
-    initialData: (ModelCreationData<M> & { [modelIdKey]?: string }) | undefined,
+    initialData: (ModelPropsCreationData<M> & { [modelIdKey]?: string }) | undefined,
     snapshotInitialData:
       | {
           unprocessedSnapshot: any

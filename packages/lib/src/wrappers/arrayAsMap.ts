@@ -1,6 +1,6 @@
 import { action } from "mobx"
 
-class ArrayAsMap<K, V> implements Map<K, V> {
+export class ArrayAsMap<K, V> implements Map<K, V> {
   constructor(private readonly getTarget: () => [K, V][]) {}
 
   @action

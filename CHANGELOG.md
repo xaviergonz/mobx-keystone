@@ -1,5 +1,7 @@
 # Change Log
 
+- [BREAKING CHANGE] Some type helpers have been renamed: `ModelData` -> `ModelPropsData` / `ModelInstanceData`, `ModelCreationData` -> `ModelPropsCreationData` / `ModelInstanceCreationData`.
+- New feature: "Implicit property transforms", which are preferred over the old decorator based property transforms, wrappers (`arrayAsSet`, `arrayAsMap`, `objectAsMap`) and collection models (`ArraySet`, `ObjectMap`).
 - Property transforms can now be used standalone.
 
 ## 0.39.0

@@ -1,6 +1,6 @@
 import { action, entries, get, has, keys, remove, set, values } from "mobx"
 
-class ObjectAsMap<V> implements Map<string, V> {
+export class ObjectAsMap<V> implements Map<string, V> {
   constructor(private readonly getTarget: () => { [k: string]: V }) {}
 
   @action

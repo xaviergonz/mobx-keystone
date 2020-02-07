@@ -1,4 +1,5 @@
 import { O } from "ts-toolbelt"
+import { memoTransformCache, PropTransform } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
@@ -17,14 +18,26 @@ import {
   modelPropertiesSymbol,
   modelUnwrappedClassSymbol,
 } from "./modelSymbols"
-import { ModelProps, ModelPropsToCreationData, ModelPropsToData, OptionalModelProps } from "./prop"
+import {
+  ModelProps,
+  ModelPropsToInstanceCreationData,
+  ModelPropsToInstanceData,
+  ModelPropsToPropCreationData,
+  ModelPropsToPropData,
+  OptionalModelProps,
+} from "./prop"
 import { assertIsModelClass } from "./utils"
 
 declare const propsDataSymbol: unique symbol
-declare const creationPropsDataSymbol: unique symbol
-declare const optPropsDataSymbol: unique symbol
-declare const creationDataSymbol: unique symbol
-declare const composedCreationDataSymbol: unique symbol
+declare const instanceDataSymbol: unique symbol
+
+declare const optDataSymbol: unique symbol
+
+declare const propsCreationDataSymbol: unique symbol
+declare const instanceCreationDataSymbol: unique symbol
+
+declare const composedPropsCreationDataSymbol: unique symbol
+declare const composedInstanceCreationDataSymbol: unique symbol
 
 export interface _Model<SuperModel, TProps extends ModelProps> {
   /**
@@ -32,23 +45,31 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
    */
   readonly [modelTypeKey]: string | undefined
 
-  [propsDataSymbol]: ModelPropsToData<TProps>
-  [creationPropsDataSymbol]: ModelPropsToCreationData<TProps>
+  [propsDataSymbol]: ModelPropsToPropData<TProps>
+  [instanceDataSymbol]: ModelPropsToInstanceData<TProps>
 
-  [optPropsDataSymbol]: OptionalModelProps<TProps>
+  [optDataSymbol]: OptionalModelProps<TProps>
 
-  [creationDataSymbol]: O.Optional<
-    this[typeof creationPropsDataSymbol],
-    this[typeof optPropsDataSymbol]
-  >
+  [propsCreationDataSymbol]: ModelPropsToPropCreationData<TProps>
+  [instanceCreationDataSymbol]: ModelPropsToInstanceCreationData<TProps>
 
-  [composedCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD>
-    ? O.Merge<CD, this[typeof creationDataSymbol]>
-    : this[typeof creationDataSymbol]
+  [composedPropsCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD>
+    ? O.Merge<CD, this[typeof propsCreationDataSymbol]>
+    : this[typeof propsCreationDataSymbol]
+  [composedInstanceCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD>
+    ? O.Merge<CD, this[typeof instanceCreationDataSymbol]>
+    : this[typeof instanceCreationDataSymbol]
 
-  new (data: this[typeof composedCreationDataSymbol] & { [modelIdKey]?: string }): SuperModel &
-    BaseModel<this[typeof propsDataSymbol], this[typeof composedCreationDataSymbol]> &
-    Omit<this[typeof propsDataSymbol], keyof AnyModel>
+  new (
+    data: this[typeof composedInstanceCreationDataSymbol] & { [modelIdKey]?: string }
+  ): SuperModel &
+    BaseModel<
+      this[typeof propsDataSymbol],
+      this[typeof composedPropsCreationDataSymbol],
+      this[typeof instanceDataSymbol],
+      this[typeof composedInstanceCreationDataSymbol]
+    > &
+    Omit<this[typeof instanceDataSymbol], keyof AnyModel>
 }
 
 /**
@@ -111,7 +132,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     }
   } else {
     // define $modelId on the base
-    extraDescriptors[modelIdKey] = createModelPropDescriptor(modelIdKey, true)
+    extraDescriptors[modelIdKey] = createModelPropDescriptor(modelIdKey, undefined, true)
   }
 
   // create type checker if needed
@@ -131,10 +152,18 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   for (const modelPropName of Object.keys(modelProps).filter(
     mp => !baseModelPropNames.has(mp as any)
   )) {
-    extraDescriptors[modelPropName] = createModelPropDescriptor(modelPropName, false)
+    extraDescriptors[modelPropName] = createModelPropDescriptor(
+      modelPropName,
+      modelProps[modelPropName].transform,
+      false
+    )
   }
 
   const base: any = baseModel || BaseModel
+
+  const propsWithTransform = Object.entries(modelProps)
+    .filter(([_propName, prop]) => !!prop.transform)
+    .map(([propName, prop]) => [propName, prop.transform!] as const)
 
   // we use this weird hack rather than just class CustomBaseModel extends base {}
   // in order to work around problems with ES5 classes extending ES6 classes
@@ -153,7 +182,8 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
         initialData,
         snapshotInitialData,
         modelConstructor || this.constructor,
-        generateNewIds
+        generateNewIds,
+        propsWithTransform
       )
     }
 
@@ -179,23 +209,60 @@ function _inheritsLoose(subClass: any, superClass: any) {
   subClass.__proto__ = superClass
 }
 
-function createModelPropDescriptor(modelPropName: string, enumerable: boolean): PropertyDescriptor {
-  return {
-    enumerable,
-    configurable: true,
-    get(this: AnyModel) {
-      // no need to use get since these vars always get on the initial $
-      return this.$[modelPropName]
-    },
-    set(this: AnyModel, v?: any) {
-      // hack to only permit setting these values once fully constructed
-      // this is to ignore abstract properties being set by babel
-      // see https://github.com/xaviergonz/mobx-keystone/issues/18
-      if (!(this as any)[modelInitializedSymbol]) {
-        return
-      }
-      // no need to use set since these vars always get on the initial $
-      this.$[modelPropName] = v
-    },
+function createModelPropDescriptor(
+  modelPropName: string,
+  transform: PropTransform<any, any> | undefined,
+  enumerable: boolean
+): PropertyDescriptor {
+  // the code is duplicated to ensure better speed
+  if (transform) {
+    return {
+      enumerable,
+      configurable: true,
+      get(this: AnyModel) {
+        // no need to use get since these vars always get on the initial $
+        const memoTransform = memoTransformCache.getOrCreateMemoTransform(
+          this,
+          modelPropName,
+          transform
+        )
+        return memoTransform.propToData(this.$[modelPropName])
+      },
+      set(this: AnyModel, v?: any) {
+        // hack to only permit setting these values once fully constructed
+        // this is to ignore abstract properties being set by babel
+        // see https://github.com/xaviergonz/mobx-keystone/issues/18
+        if (!(this as any)[modelInitializedSymbol]) {
+          return
+        }
+        // no need to use set since these vars always get on the initial $
+        const memoTransform = memoTransformCache.getOrCreateMemoTransform(
+          this,
+          modelPropName,
+          transform
+        )
+        const oldPropValue = this.$[modelPropName]
+        this.$[modelPropName] = memoTransform.dataToProp(v, oldPropValue)
+      },
+    }
+  } else {
+    return {
+      enumerable,
+      configurable: true,
+      get(this: AnyModel) {
+        // no need to use get since these vars always get on the initial $
+        return this.$[modelPropName]
+      },
+      set(this: AnyModel, v?: any) {
+        // hack to only permit setting these values once fully constructed
+        // this is to ignore abstract properties being set by babel
+        // see https://github.com/xaviergonz/mobx-keystone/issues/18
+        if (!(this as any)[modelInitializedSymbol]) {
+          return
+        }
+        // no need to use set since these vars always get on the initial $
+        this.$[modelPropName] = v
+      },
+    }
   }
 }
