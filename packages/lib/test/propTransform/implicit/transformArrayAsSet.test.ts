@@ -9,10 +9,10 @@ import {
   Model,
   modelAction,
   onActionMiddleware,
-  prop,
   SnapshotInOf,
   SnapshotOutOf,
-  transformArrayAsSet,
+  tProp_setArray,
+  types,
 } from "../../../src"
 import "../../commonSetup"
 import { autoDispose } from "../../utils"
@@ -24,9 +24,11 @@ function expectSimilarSet(s1: Set<any>, s2: Set<any>) {
 test("transformArrayAsSet", () => {
   @model("transformArrayAsSet/M")
   class M extends Model({
-    set: transformArrayAsSet(
-      prop<number[]>(() => [])
-    ),
+    // set: prop_setArray(
+    //   () => new Set<number>([10, 20, 30])
+    // ),
+
+    set: tProp_setArray(types.setArray(types.number), () => new Set([10, 20, 30])),
   }) {
     @modelAction
     setSet(set: Set<number>) {
@@ -41,6 +43,9 @@ test("transformArrayAsSet", () => {
 
   assert(_ as SnapshotInOf<M>["set"], _ as number[] | null | undefined)
   assert(_ as SnapshotOutOf<M>["set"], _ as number[])
+
+  const m2 = new M({})
+  expect(getSnapshot(m2).set).toEqual([10, 20, 30])
 
   const initialSet = new Set<number>([1, 2, 3])
 

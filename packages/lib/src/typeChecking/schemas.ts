@@ -12,7 +12,9 @@ export interface IdentityType<T> {
 
 export interface ArrayType<S> {
   /** @ignore */
-  $$arrayType: Array<TypeToData<S>> extends infer R ? R : never
+  $$arrayType: {
+    [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never
+  }
 }
 
 export interface ObjectOfTypes {

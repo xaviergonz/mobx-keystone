@@ -8,11 +8,11 @@ import {
   Model,
   modelAction,
   onActionMiddleware,
-  prop,
   SnapshotInOf,
   SnapshotOutOf,
   timestampAsDate,
-  transformTimestampAsDate,
+  tProp_dateTimestamp,
+  types,
 } from "../../../src"
 import "../../commonSetup"
 import { autoDispose } from "../../utils"
@@ -20,7 +20,8 @@ import { autoDispose } from "../../utils"
 test("transformTimestampAsDate", () => {
   @model("transformTimestampAsDate/M")
   class M extends Model({
-    date: transformTimestampAsDate(prop<number>()),
+    // date: prop_dateTimestamp<Date>(),
+    date: tProp_dateTimestamp(types.dateTimestamp),
   }) {
     @modelAction
     setDate(date: Date) {

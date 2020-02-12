@@ -96,6 +96,8 @@ export class ArrayAsMap<K, V> implements Map<K, V> {
 }
 
 /**
+ * @deprecated Consider using `prop_mapArray` or `tProp_mapArray` instead.
+ *
  * Returns a wrapper that wraps an observable tuple array `[K, V][]`
  * into a map alike interface.
  *

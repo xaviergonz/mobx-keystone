@@ -7,10 +7,7 @@ import { ArraySet, ObjectMap } from "../wrappers"
 
 // infer is there just to cache type generation
 
-export interface SnapshotOutOfArray<T> extends Array<SnapshotOutOf<T>> {}
-export interface SnapshotOutOfReadonlyArray<T> extends ReadonlyArray<SnapshotOutOf<T>> {}
-
-export type SnapshotOutOfObject<T extends { [k: string]: any }> = {
+export type SnapshotOutOfObject<T> = {
   [k in keyof T]: SnapshotOutOf<T[k]> extends infer R ? R : never
 }
 
@@ -36,15 +33,7 @@ export interface SnapshotOutOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type SnapshotOutOf<T> = T extends Array<infer U>
-  ? SnapshotOutOfArray<U> extends infer R
-    ? R
-    : never
-  : T extends ReadonlyArray<infer U>
-  ? SnapshotOutOfReadonlyArray<U> extends infer R
-    ? R
-    : never
-  : T extends ObjectMap<infer V>
+export type SnapshotOutOf<T> = T extends ObjectMap<infer V>
   ? SnapshotOutOfObjectMap<V> extends infer R
     ? R
     : never
@@ -68,10 +57,7 @@ export type SnapshotOutOf<T> = T extends Array<infer U>
 
 // snapshot in
 
-export interface SnapshotInOfArray<T> extends Array<SnapshotInOf<T>> {}
-export interface SnapshotInOfReadonlyArray<T> extends ReadonlyArray<SnapshotInOf<T>> {}
-
-export type SnapshotInOfObject<T extends { [k: string]: any }> = {
+export type SnapshotInOfObject<T> = {
   [k in keyof T]: SnapshotInOf<T[k]> extends infer R ? R : never
 }
 
@@ -99,15 +85,7 @@ export interface SnapshotInOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type SnapshotInOf<T> = T extends Array<infer U>
-  ? SnapshotInOfArray<U> extends infer R
-    ? R
-    : never
-  : T extends ReadonlyArray<infer U>
-  ? SnapshotInOfReadonlyArray<U> extends infer R
-    ? R
-    : never
-  : T extends ObjectMap<infer V>
+export type SnapshotInOf<T> = T extends ObjectMap<infer V>
   ? SnapshotInOfObjectMap<V> extends infer R
     ? R
     : never

@@ -97,13 +97,15 @@ export class ObjectAsMap<V> implements Map<string, V> {
 }
 
 /**
+ * @deprecated Consider using `prop_mapObject` or `tProp_mapObject` instead.
+ *
  * Returns a wrapper that wraps an observable object
- * `{ [k: string]: V }` into a map alike interface.
+ * `Record<string, V>` into a map alike interface.
  *
  * @typeparam V Value type
  * @param getTarget Target store object getter.
  * @returns
  */
-export function objectAsMap<V>(getTarget: () => { [k: string]: V }): Map<string, V> {
+export function objectAsMap<V>(getTarget: () => Record<string, V>): Map<string, V> {
   return new ObjectAsMap(getTarget)
 }

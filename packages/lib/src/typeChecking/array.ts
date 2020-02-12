@@ -16,7 +16,7 @@ import { TypeCheckError } from "./TypeCheckError"
  * @param itemType Type of inner items.
  * @returns
  */
-export function typesArray<T extends AnyType>(itemType: T): ArrayType<T> {
+export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
   const typeInfoGen: TypeInfoGen = t => new ArrayTypeInfo(t, resolveStandardType(itemType))
 
   return lateTypeChecker(() => {

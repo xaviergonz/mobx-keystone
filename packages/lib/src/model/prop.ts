@@ -63,6 +63,33 @@ export type ModelPropsToInstanceCreationData<MP extends ModelProps> = O.Optional
 >
 
 /**
+ * @ignore
+ */
+export type OnlyPrimitives<T> = Exclude<T, object>
+
+/**
+ * A model prop that maybe / maybe not is optional, depending on if the value can take undefined.
+ */
+export type MaybeOptionalModelProp<TPropValue, TInstanceValue = TPropValue> = ModelProp<
+  TPropValue,
+  TPropValue,
+  IsOptionalValue<TPropValue, string, never>,
+  TInstanceValue,
+  TInstanceValue
+>
+
+/**
+ * A model prop that is definitely optional.
+ */
+export type OptionalModelProp<TPropValue, TInstanceValue = TPropValue> = ModelProp<
+  TPropValue,
+  TPropValue | null | undefined,
+  string,
+  TInstanceValue,
+  TInstanceValue | null | undefined
+>
+
+/**
  * Defines a model property with no default value.
  *
  * Example:
@@ -74,7 +101,7 @@ export type ModelPropsToInstanceCreationData<MP extends ModelProps> = O.Optional
  * @typeparam TValue Value type.
  * @returns
  */
-export function prop<TValue>(): ModelProp<TValue, TValue, IsOptionalValue<TValue, string, never>>
+export function prop<TValue>(): MaybeOptionalModelProp<TValue>
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -90,9 +117,7 @@ export function prop<TValue>(): ModelProp<TValue, TValue, IsOptionalValue<TValue
  * @param defaultFn Default value generator function.
  * @returns
  */
-export function prop<TValue>(
-  defaultFn: () => TValue
-): ModelProp<TValue, TValue | null | undefined, string>
+export function prop<TValue>(defaultFn: () => TValue): OptionalModelProp<TValue>
 
 /**
  * Defines a model property, with an optional default value
@@ -109,9 +134,7 @@ export function prop<TValue>(
  * @param defaultValue Default primitive value.
  * @returns
  */
-export function prop<TValue>(
-  defaultValue: Exclude<TValue, object>
-): ModelProp<TValue, TValue | null | undefined, string>
+export function prop<TValue>(defaultValue: OnlyPrimitives<TValue>): OptionalModelProp<TValue>
 
 export function prop<TValue>(def?: any): ModelProp<TValue, any, any> {
   const hasDefaultValue = arguments.length > 0

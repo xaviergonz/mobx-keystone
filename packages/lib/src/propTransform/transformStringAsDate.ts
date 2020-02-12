@@ -1,35 +1,63 @@
-import { ModelProp } from "../model/prop"
+import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
+import { AnyType, TypeToData } from "../typeChecking/schemas"
+import { tProp } from "../typeChecking/tProp"
 import { propTransform, transformedProp } from "./propTransform"
 
 /**
- * @deprecated Consider using `transformStringAsDate` instead.
+ * @deprecated Consider using `prop_dateString` or `tProp_dateString` instead.
  *
  * Decorator property transform for ISO date strings to Date objects and vice-versa.
  */
 export const stringAsDate = propTransform<string | null | undefined, Date | null | undefined>({
   propToData(prop) {
-    if (prop == null) return prop
-    return new Date(prop)
+    return typeof prop === "string" ? new Date(prop) : prop
   },
   dataToProp(date) {
-    if (date == null) return date
-    return date.toJSON()
+    return date instanceof Date ? date.toJSON() : date
   },
 })
 
 /**
- * Implicit property transform for ISO date strings to Date objects and vice-versa.
- *
- * @param prop
+ * Transforms dates into strings.
  */
-export function transformStringAsDate<TValue, TCreationValue, TIsOptional>(
-  prop: ModelProp<TValue, TCreationValue, TIsOptional, any>
-): ModelProp<
-  TValue,
-  TCreationValue,
-  TIsOptional,
-  (TValue extends string ? Date : never) | Extract<TValue, undefined | null>,
-  (TCreationValue extends string ? Date : never) | Extract<TCreationValue, undefined | null>
-> {
-  return transformedProp(prop, stringAsDate)
+export type TransformDateToString<T> = (T extends Date ? string : never) | Exclude<T, Date>
+
+/**
+ * Transforms strings into dates.
+ */
+export type TransformStringToDate<T> = (T extends string ? Date : never) | Exclude<T, string>
+
+export function prop_dateString<TValue>(): MaybeOptionalModelProp<
+  TransformDateToString<TValue>,
+  TValue
+>
+
+export function prop_dateString<TValue>(
+  defaultFn: () => TValue
+): OptionalModelProp<TransformDateToString<TValue>, TValue>
+
+export function prop_dateString<TValue>(
+  defaultValue: OnlyPrimitives<TValue>
+): OptionalModelProp<TransformDateToString<TValue>, TValue>
+
+export function prop_dateString(def?: any) {
+  return transformedProp(prop(def), stringAsDate, true)
+}
+
+export function tProp_dateString<TType extends AnyType>(
+  type: TType
+): MaybeOptionalModelProp<TypeToData<TType>, TransformStringToDate<TypeToData<TType>>>
+
+export function tProp_dateString<TType extends AnyType>(
+  type: TType,
+  defaultFn: () => TransformStringToDate<TypeToData<TType>>
+): OptionalModelProp<TypeToData<TType>, TransformStringToDate<TypeToData<TType>>>
+
+export function tProp_dateString<TType extends AnyType>(
+  type: TType,
+  defaultValue: OnlyPrimitives<TransformStringToDate<TypeToData<TType>>>
+): OptionalModelProp<TypeToData<TType>, TransformStringToDate<TypeToData<TType>>>
+
+export function tProp_dateString(typeOrDefaultValue: any, def?: any) {
+  return transformedProp(tProp(typeOrDefaultValue, def), stringAsDate, true)
 }

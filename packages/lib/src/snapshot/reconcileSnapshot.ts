@@ -8,12 +8,7 @@ import { fastGetParentPathIncludingDataObjects } from "../parent"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
-import {
-  SnapshotInOfArray,
-  SnapshotInOfFrozen,
-  SnapshotInOfModel,
-  SnapshotInOfObject,
-} from "./SnapshotOf"
+import { SnapshotInOfFrozen, SnapshotInOfModel, SnapshotInOfObject } from "./SnapshotOf"
 
 /**
  * @ignore
@@ -52,7 +47,7 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool): an
 
 function reconcileArraySnapshot(
   value: any,
-  sn: SnapshotInOfArray<any>,
+  sn: SnapshotInOfObject<any[]>,
   modelPool: ModelPool
 ): any[] {
   if (!isArray(value)) {

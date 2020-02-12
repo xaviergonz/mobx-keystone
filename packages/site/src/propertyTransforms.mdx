@@ -7,7 +7,7 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 <FixStyle />
 
-# Property Transforms
+# Property Transform Decorators
 
 ## Overview
 
@@ -18,7 +18,7 @@ In order to address this you can use a property transform.
 For example, to transform from a number timestamp into a `Date` object you can start by defining a property transform:
 
 ```ts
-const asDate = propTransform({
+const asDate = propTransformDecorator({
   propToData(prop: number) {
     return new Date(prop)
   },
@@ -87,6 +87,8 @@ then propToData(PV) must be DV
 
 Since date manipulation is very common, these built-in property transforms are already provided.
 `stringAsDate` transfrom from an ISO date string to a `Date` object, while `timestampAsDate` transforms from a number timestamp to a `Date` object.
+
+That being said, check the new `prop_dateString`, `tProp_dateString`, `prop_dateTimestamp` and `tProp_dateTimestamp` described in the [Map, Sets, Dates](./mapsSetsDates) section. It should be more straightforward.
 
 ## Action serialization with custom types as arguments
 

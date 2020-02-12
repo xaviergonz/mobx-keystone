@@ -1,4 +1,4 @@
-import { ModelProp } from "../model/prop"
+import { ModelProp, noDefaultValue } from "../model/prop"
 import { failure } from "../utils"
 
 /**
@@ -35,7 +35,7 @@ export type PropTransformDecorator<TProp> = <PK extends string>(
  *
  * For example, to transform from a number timestamp into a date:
  * ```ts
- * const asDate = propTransform({
+ * const asDate = propTransformDecorator({
  *   propToData(prop: number) {
  *     return new Date(prop)
  *   },
@@ -175,14 +175,29 @@ function toMemoPropTransform<TProp, TData>(
  */
 export function transformedProp(
   prop: ModelProp<any, any, any, any, any>,
-  transform: PropTransform<any, any>
+  transform: PropTransform<any, any>,
+  transformDefault: boolean
 ): ModelProp<any, any, any, any, any> {
   if (prop.transform) {
     throw failure("a property cannot have more than one transform")
   }
 
-  return {
+  const p = {
     ...prop,
     transform,
   }
+
+  // transform defaults if needed
+  if (transformDefault) {
+    if (p.defaultValue !== noDefaultValue) {
+      const originalDefaultValue = p.defaultValue
+      p.defaultValue = transform.dataToProp(originalDefaultValue)
+    }
+    if (p.defaultFn !== noDefaultValue) {
+      const originalDefaultFn = p.defaultFn as () => any
+      p.defaultFn = () => transform.dataToProp(originalDefaultFn())
+    }
+  }
+
+  return p
 }

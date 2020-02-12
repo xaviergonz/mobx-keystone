@@ -10,8 +10,7 @@ import {
   onActionMiddleware,
   SnapshotInOf,
   SnapshotOutOf,
-  tProp,
-  transformStringAsDate,
+  tProp_dateString,
   types,
 } from "../../../src"
 import "../../commonSetup"
@@ -20,7 +19,8 @@ import { autoDispose } from "../../utils"
 test("transformStringAsDate", () => {
   @model("transformStringAsDate/M")
   class M extends Model({
-    date: transformStringAsDate(tProp(types.string)),
+    // date: prop_dateString<Date>()
+    date: tProp_dateString(types.dateString),
   }) {
     @modelAction
     setDate(date: Date) {

@@ -1,33 +1,61 @@
-import { ModelProp } from "../model/prop"
-import { arrayAsSet } from "../wrappers/arrayAsSet"
-import { propTransform, transformedProp } from "./propTransform"
+import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
+import { AnyType, TypeToData } from "../typeChecking/schemas"
+import { tProp } from "../typeChecking/tProp"
+import { isArray, isSet } from "../utils"
+import { arrayAsSet } from "../wrappers/arrayAsSetWrapper"
+import { PropTransform, transformedProp } from "./propTransform"
 
-const arrayAsSetInnerTransform = propTransform<
-  any[] | null | undefined,
-  Set<any> | null | undefined
->({
+const arrayAsSetInnerTransform: PropTransform<any[] | unknown, Set<any> | unknown> = {
   propToData(arr) {
-    return arr ? arrayAsSet(() => arr) : arr
+    return isArray(arr) ? arrayAsSet(() => arr) : arr
   },
   dataToProp(newSet) {
-    return newSet ? [...newSet.values()] : newSet
+    return isSet(newSet) ? [...newSet.values()] : newSet
   },
-})
+}
 
 /**
- * Implicit property transform for that allows a backed array to be used as if it were a set.
- *
- * @param prop
+ * Transforms sets into arrays.
  */
-export function transformArrayAsSet<TValue, TCreationValue, TIsOptional>(
-  prop: ModelProp<TValue, TCreationValue, TIsOptional, any>
-): ModelProp<
-  TValue,
-  TCreationValue,
-  TIsOptional,
-  (TValue extends Array<infer I> ? Set<I> : never) | Extract<TValue, undefined | null>,
-  | (TCreationValue extends Array<infer I> ? Set<I> : never)
-  | Extract<TCreationValue, undefined | null>
-> {
-  return transformedProp(prop, arrayAsSetInnerTransform)
+export type TransformSetToArray<T> =
+  | (T extends Set<infer I> ? Array<I> : never)
+  | Exclude<T, Set<any>>
+
+/**
+ * Transforms arrays into sets.
+ */
+export type TransformArrayToSet<T> =
+  | (T extends Array<infer I> ? Set<I> : never)
+  | Exclude<T, Array<any>>
+
+export function prop_setArray<TValue>(): MaybeOptionalModelProp<TransformSetToArray<TValue>, TValue>
+
+export function prop_setArray<TValue>(
+  defaultFn: () => TValue
+): OptionalModelProp<TransformSetToArray<TValue>, TValue>
+
+export function prop_setArray<TValue>(
+  defaultValue: OnlyPrimitives<TValue>
+): OptionalModelProp<TransformSetToArray<TValue>, TValue>
+
+export function prop_setArray(def?: any) {
+  return transformedProp(prop(def), arrayAsSetInnerTransform, true)
+}
+
+export function tProp_setArray<TType extends AnyType>(
+  type: TType
+): MaybeOptionalModelProp<TypeToData<TType>, TransformArrayToSet<TypeToData<TType>>>
+
+export function tProp_setArray<TType extends AnyType>(
+  type: TType,
+  defaultFn: () => TransformArrayToSet<TypeToData<TType>>
+): OptionalModelProp<TypeToData<TType>, TransformArrayToSet<TypeToData<TType>>>
+
+export function tProp_setArray<TType extends AnyType>(
+  type: TType,
+  defaultValue: OnlyPrimitives<TransformArrayToSet<TypeToData<TType>>>
+): OptionalModelProp<TypeToData<TType>, TransformArrayToSet<TypeToData<TType>>>
+
+export function tProp_setArray(typeOrDefaultValue: any, def?: any) {
+  return transformedProp(tProp(typeOrDefaultValue, def), arrayAsSetInnerTransform, true)
 }

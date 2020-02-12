@@ -7,13 +7,7 @@ import { isModelSnapshot } from "../model/utils"
 import { tweakArray } from "../tweaker/tweakArray"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
-import {
-  SnapshotInOf,
-  SnapshotInOfArray,
-  SnapshotInOfModel,
-  SnapshotInOfObject,
-  SnapshotOutOf,
-} from "./SnapshotOf"
+import { SnapshotInOf, SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * From snapshot options.
@@ -92,7 +86,7 @@ function internalFromSnapshot<T>(
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-function fromArraySnapshot(sn: SnapshotInOfArray<any>, ctx: FromSnapshotContext): any[] {
+function fromArraySnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): any[] {
   const arr = observable.array([] as any[], observableOptions)
   const ln = sn.length
   for (let i = 0; i < ln; i++) {
