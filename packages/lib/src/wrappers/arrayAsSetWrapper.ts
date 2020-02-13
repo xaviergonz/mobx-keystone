@@ -1,6 +1,6 @@
 import { action, values } from "mobx"
 
-class ArrayAsSet<V> implements Set<V> {
+export class ArrayAsSet<V> implements Set<V> {
   constructor(private readonly getTarget: () => V[]) {}
 
   @action
@@ -83,6 +83,8 @@ class ArrayAsSet<V> implements Set<V> {
 }
 
 /**
+ * @deprecated Consider using `prop_setArray` or `tProp_setArray` instead.
+ *
  * Returns a wrapper that wraps an observable array `V[]`
  * into a set alike interface.
  *

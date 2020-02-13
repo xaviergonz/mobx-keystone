@@ -89,7 +89,7 @@ export function tweakArray<T extends any[]>(
 
 function arrayDidChange(change: IArrayChange | IArraySplice) {
   const arr = change.object
-  let { standard: oldSnapshot } = getInternalSnapshot(arr)!
+  let { standard: oldSnapshot } = getInternalSnapshot(arr as Array<any>)!
 
   const patchRecorder = new InternalPatchRecorder()
 

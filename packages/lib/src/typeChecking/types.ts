@@ -29,6 +29,8 @@ import {
 import { RecordTypeInfo, typesRecord } from "./record"
 import { RefTypeInfo, typesRef } from "./ref"
 import { RefinementTypeInfo, typesRefinement } from "./refinement"
+import { AnyType } from "./schemas"
+import { TupleTypeInfo, typesTuple } from "./tuple"
 import { typesUnchecked, UncheckedTypeInfo } from "./unchecked"
 export { getTypeInfo, TypeInfo } from "./TypeChecker"
 export {
@@ -49,6 +51,7 @@ export {
   ModelTypeInfo,
   ModelTypeInfoProps,
   OrTypeInfo,
+  TupleTypeInfo,
 }
 
 export const types = {
@@ -74,4 +77,17 @@ export const types = {
   nonEmptyString: typesNonEmptyString,
   objectMap: typesObjectMap,
   arraySet: typesArraySet,
+  tuple: typesTuple,
+
+  mapArray<T extends AnyType>(valueType: T) {
+    return typesArray(typesTuple(typesString, valueType))
+  },
+  setArray<T extends AnyType>(valueType: T) {
+    return typesArray(valueType)
+  },
+  mapObject<T extends AnyType>(valueType: T) {
+    return typesRecord(valueType)
+  },
+  dateString: typesNonEmptyString,
+  dateTimestamp: typesInteger,
 }

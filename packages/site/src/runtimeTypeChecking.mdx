@@ -171,6 +171,14 @@ A type that represents an array of values of a given type.
 const numberArrayType = types.array(types.number)
 ```
 
+### `types.tuple(...itemTypes)`
+
+A type that represents a tuple of values of a given type.
+
+```ts
+const stringNumberTupleType = types.tuple(types.string, types.number)
+```
+
 ### `types.record(valuesType)`
 
 A type that represents an object-like map, an object with string keys and values all of a same given type.

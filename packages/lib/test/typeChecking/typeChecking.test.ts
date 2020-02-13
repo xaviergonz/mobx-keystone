@@ -39,6 +39,7 @@ import {
   setGlobalConfig,
   StringTypeInfo,
   tProp,
+  TupleTypeInfo,
   typeCheck,
   TypeCheckError,
   TypeInfo,
@@ -302,6 +303,20 @@ test("array - simple types", () => {
   const typeInfo = expectValidTypeInfo(type, ArrayTypeInfo)
   expect(typeInfo.itemType).toEqual(types.number)
   expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(types.number))
+})
+
+test("tuple - simple types", () => {
+  const type = types.tuple(types.number, types.string)
+  assert(_ as TypeToData<typeof type>, _ as [number, string])
+
+  expectTypeCheckOk(type, [1, "str1"])
+  expectTypeCheckOk(type, [2, "str2"])
+  expectTypeCheckFail(type, "ho", [], "[number, string]")
+  expectTypeCheckFail(type, [1, 2], [1], "string")
+
+  const typeInfo = expectValidTypeInfo(type, TupleTypeInfo)
+  expect(typeInfo.itemTypes).toEqual([types.number, types.string])
+  expect(typeInfo.itemTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.string)])
 })
 
 test("record - simple types", () => {
