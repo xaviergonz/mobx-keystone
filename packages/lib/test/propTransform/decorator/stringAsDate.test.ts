@@ -65,7 +65,7 @@ test("stringAsDate", () => {
 
   const dateNow2 = new Date(1569524561993)
   m.setDate(dateNow2)
-  expect(m.date).toBe(dateNow2)
+  expect(m.date).toEqual(dateNow2)
   expect(m.time).toBe(dateNow2.toJSON())
 
   expect(stringAsDate.propToData(m.time)).toStrictEqual(dateNow2)

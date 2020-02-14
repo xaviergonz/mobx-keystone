@@ -1,6 +1,7 @@
 import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
 import { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
+import { DateBackedByProp } from "./DateBackedByProp"
 import { propTransform, transformedProp } from "./propTransform"
 
 /**
@@ -9,11 +10,20 @@ import { propTransform, transformedProp } from "./propTransform"
  * Decorator property transform for number timestamps to Date objects and vice-versa.
  */
 export const timestampAsDate = propTransform<number | null | undefined, Date | null | undefined>({
-  propToData(prop) {
-    return typeof prop === "number" ? new Date(prop) : prop
+  propToData(prop, setProp) {
+    if (typeof prop !== "number") {
+      return prop
+    }
+    if (setProp) {
+      return new DateBackedByProp(prop, date => {
+        setProp(date.getTime())
+      })
+    } else {
+      return new Date(prop)
+    }
   },
   dataToProp(date) {
-    return date instanceof Date ? +date : date
+    return date instanceof Date ? date.getTime() : date
   },
 })
 

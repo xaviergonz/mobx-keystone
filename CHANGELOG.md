@@ -1,5 +1,8 @@
 # Change Log
 
+- When using date transforms, mutation made by methods (`setTime`, etc.) are reflected in the backed property (string / timestamp), so it is no longer required to treat dates as immutable objects.
+- Performance improvements for implicit property transform collections.
+
 ## 0.40.0
 
 - [BREAKING CHANGE - types] Some type helpers have been renamed: `ModelData` -> `ModelPropsData` / `ModelInstanceData`, `ModelCreationData` -> `ModelPropsCreationData` / `ModelInstanceCreationData`.

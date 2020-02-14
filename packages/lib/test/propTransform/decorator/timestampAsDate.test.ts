@@ -79,7 +79,7 @@ test("timestampAsDate", () => {
   expect(timestampAsDate.dataToProp(dateNow2)).toStrictEqual(now2)
 
   m.setDate(dateNow2)
-  expect(m.date).toBe(dateNow2)
+  expect(m.date).toEqual(dateNow2)
   expect(m.timestamp).toBe(now2)
 
   expect(actionCalls).toMatchInlineSnapshot(`
@@ -123,7 +123,7 @@ test("timestampAsDate", () => {
   // changing the date to be the same should keep the cached value intact
   reactions.length = 0
   m.setDate(dateNow)
-  expect(m.date).toBe(dateNow)
+  expect(m.date).toEqual(dateNow)
   expect(reactions).toHaveLength(0)
 
   // changing the backed value to be the same should keep the cached value intact

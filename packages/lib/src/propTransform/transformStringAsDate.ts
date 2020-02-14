@@ -1,6 +1,7 @@
 import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
 import { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
+import { DateBackedByProp } from "./DateBackedByProp"
 import { propTransform, transformedProp } from "./propTransform"
 
 /**
@@ -9,8 +10,17 @@ import { propTransform, transformedProp } from "./propTransform"
  * Decorator property transform for ISO date strings to Date objects and vice-versa.
  */
 export const stringAsDate = propTransform<string | null | undefined, Date | null | undefined>({
-  propToData(prop) {
-    return typeof prop === "string" ? new Date(prop) : prop
+  propToData(prop, setProp) {
+    if (typeof prop !== "string") {
+      return prop
+    }
+    if (setProp) {
+      return new DateBackedByProp(prop, date => {
+        setProp(date.toJSON())
+      })
+    } else {
+      return new Date(prop)
+    }
   },
   dataToProp(date) {
     return date instanceof Date ? date.toJSON() : date

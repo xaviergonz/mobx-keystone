@@ -241,8 +241,7 @@ function createModelPropDescriptor(
           modelPropName,
           transform
         )
-        const oldPropValue = this.$[modelPropName]
-        this.$[modelPropName] = memoTransform.dataToProp(v, oldPropValue)
+        this.$[modelPropName] = memoTransform.dataToProp(v)
       },
     }
   } else {

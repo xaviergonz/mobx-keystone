@@ -1,9 +1,8 @@
-import { reaction } from "mobx"
+import { computed, isObservableSet, reaction } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   ActionCall,
   applyAction,
-  ArrayAsSet,
   getSnapshot,
   model,
   Model,
@@ -39,6 +38,16 @@ test("transformArrayAsSet", () => {
     setAdd(n: number) {
       this.set.add(n)
     }
+
+    @computed
+    get has1() {
+      return this.set.has(1)
+    }
+
+    @modelAction
+    delete(val: number) {
+      return this.set.delete(val)
+    }
   }
 
   assert(_ as SnapshotInOf<M>["set"], _ as number[] | null | undefined)
@@ -51,10 +60,21 @@ test("transformArrayAsSet", () => {
 
   const m = new M({ set: initialSet })
 
+  // check it can be used in computeds when observed and not accessed first
+  const has1Events: boolean[] = []
+  reaction(
+    () => m.has1,
+    v => {
+      has1Events.push(v)
+    }
+  )
+  expect(m.has1).toBe(true)
+  expect(has1Events).toHaveLength(0)
+
   expect(getSnapshot(m).set).toEqual([1, 2, 3])
 
   // getter
-  expect(m.set instanceof ArrayAsSet).toBeTruthy()
+  expect(isObservableSet(m.set)).toBeTruthy()
   expectSimilarSet(m.set, initialSet)
 
   // should be cached
@@ -98,10 +118,13 @@ test("transformArrayAsSet", () => {
   const newSet = new Set([5, 6, 7])
   m.setSet(newSet)
   expect(m.set).not.toBe(newSet) // must be transformed
-  expect(m.set instanceof ArrayAsSet).toBeTruthy()
+  expect(isObservableSet(m.set)).toBeTruthy()
   expectSimilarSet(m.set, newSet)
 
   expect(m.$.set).toEqual([5, 6, 7])
+
+  expect(has1Events).toEqual([false])
+  has1Events.length = 0
 
   expect(actionCalls).toMatchInlineSnapshot(`
     Array [
@@ -152,4 +175,16 @@ test("transformArrayAsSet", () => {
 
   expectSimilarSet(m.set, initialSet)
   expect(m.$.set).toEqual([...initialSet.values()])
+
+  expect(has1Events).toEqual([true])
+  has1Events.length = 0
+
+  // check intercept doesn't mess up return values
+  expect(m.set.has(1)).toBe(true)
+
+  expect(m.delete(1)).toBe(true)
+  expect(m.set.has(1)).toBe(false)
+
+  expect(m.delete(1)).toBe(false)
+  expect(m.set.has(1)).toBe(false)
 })

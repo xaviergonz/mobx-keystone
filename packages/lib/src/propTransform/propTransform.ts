@@ -1,3 +1,4 @@
+import { AnyModel } from "../model/BaseModel"
 import { ModelProp, noDefaultValue } from "../model/prop"
 import { failure } from "../utils"
 
@@ -9,9 +10,10 @@ export interface PropTransform<TProp, TData> {
    * Transform from property value to custom data.
    *
    * @param propValue
+   * @param setProp
    * @returns
    */
-  propToData(propValue: TProp): TData
+  propToData(propValue: TProp, setProp?: (newPropValue: TProp) => void): TData
 
   /**
    * Transform from custom data to property value.
@@ -69,7 +71,7 @@ export function propTransform<TProp, TData>(
     const decorator = (target: object, propertyKey: string) => {
       // make the field a getter setter
       Object.defineProperty(target, propertyKey, {
-        get(this: any): TData {
+        get(this: AnyModel): TData {
           const memoTransform = memoTransformCache.getOrCreateMemoTransform(
             this,
             propertyKey,
@@ -78,15 +80,14 @@ export function propTransform<TProp, TData>(
 
           return memoTransform.propToData(this.$[boundPropName])
         },
-        set(this: any, value: any) {
+        set(this: AnyModel, value: any) {
           const memoTransform = memoTransformCache.getOrCreateMemoTransform(
             this,
             propertyKey,
             transform
           )
 
-          const oldPropValue = this.$[boundPropName]
-          this.$[boundPropName] = memoTransform.dataToProp(value, oldPropValue)
+          this.$[boundPropName] = memoTransform.dataToProp(value)
           return true
         },
       })
@@ -104,7 +105,7 @@ class MemoTransformCache {
   private readonly cache = new WeakMap<object, Map<string, MemoPropTransform<any, any>>>()
 
   getOrCreateMemoTransform<TProp, TData>(
-    target: object,
+    target: AnyModel,
     propName: string,
     baseTransform: PropTransform<TProp, TData>
   ): MemoPropTransform<TProp, TData> {
@@ -115,7 +116,9 @@ class MemoTransformCache {
     }
     let memoTransform = transformsPerProperty.get(propName)
     if (!memoTransform) {
-      memoTransform = toMemoPropTransform(baseTransform)
+      memoTransform = toMemoPropTransform(baseTransform, newPropValue => {
+        target.$[propName] = newPropValue
+      })
       transformsPerProperty.set(propName, memoTransform)
     }
     return memoTransform
@@ -136,13 +139,14 @@ export interface MemoPropTransform<TProp, TData> {
   isMemoPropTransform: true
 
   propToData(propValue: TProp): TData
-  dataToProp(newDataValue: TData, currentPropValue: TProp): TProp
+  dataToProp(dataValue: TData): TProp
 }
 
 const valueNotMemoized = Symbol("valueNotMemoized")
 
 function toMemoPropTransform<TProp, TData>(
-  transform: PropTransform<TProp, TData>
+  transform: PropTransform<TProp, TData>,
+  propSetter: (newPropValue: TProp) => void
 ): MemoPropTransform<TProp, TData> {
   let lastPropValue: any = valueNotMemoized
   let lastDataValue: any = valueNotMemoized
@@ -152,19 +156,17 @@ function toMemoPropTransform<TProp, TData>(
 
     propToData(propValue: any) {
       if (lastPropValue !== propValue) {
-        lastDataValue = transform.propToData(propValue)
+        lastDataValue = transform.propToData(propValue, propSetter)
         lastPropValue = propValue
       }
       return lastDataValue
     },
-    dataToProp(newDataValue: any, oldPropValue: any) {
-      // check the last prop value too just in case the backed value changed
-      // yet we try to re-set the same data
-      if (lastDataValue !== newDataValue || lastPropValue !== oldPropValue) {
-        lastPropValue = transform.dataToProp(newDataValue)
-        lastDataValue = newDataValue
-      }
-      return lastPropValue
+    dataToProp(newDataValue: any) {
+      // clear caches in this case
+      lastPropValue = valueNotMemoized
+      lastDataValue = valueNotMemoized
+
+      return transform.dataToProp(newDataValue)
     },
   }
 }

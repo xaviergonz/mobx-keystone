@@ -140,7 +140,7 @@ export abstract class BaseModel<
             propName,
             propTransform
           )
-          initialData[propName] = memoTransform.dataToProp(initialData[propName], undefined)
+          initialData[propName] = memoTransform.dataToProp(initialData[propName])
         }
       }
 
