@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { isObservableMap, reaction } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   ActionCall,
@@ -7,7 +7,6 @@ import {
   model,
   Model,
   modelAction,
-  ObjectAsMap,
   onActionMiddleware,
   SnapshotInOf,
   SnapshotOutOf,
@@ -52,7 +51,7 @@ test("transformObjectAsMap", () => {
   expect(getSnapshot(m).map).toEqual({ 1: 1, 2: 2, 3: 3 })
 
   // getter
-  expect(m.map instanceof ObjectAsMap).toBeTruthy()
+  expect(isObservableMap(m.map)).toBeTruthy()
   expectSimilarMap(m.map, initialMap)
 
   // should be cached
@@ -99,6 +98,8 @@ test("transformObjectAsMap", () => {
     ["7", 7],
   ])
   m.setMap(newMap)
+  expect(m.map).not.toBe(newMap) // must be transformed
+  expect(isObservableMap(m.map)).toBeTruthy()
   expectSimilarMap(m.map, newMap)
 
   expect(m.$.map).toEqual({ 5: 5, 6: 6, 7: 7 })
@@ -134,10 +135,10 @@ test("transformObjectAsMap", () => {
 
   expect(reactions).toMatchInlineSnapshot(`
     Array [
-      Map {
-        "5" => 5,
-        "6" => 6,
-        "7" => 7,
+      Object {
+        "5": 5,
+        "6": 6,
+        "7": 7,
       },
     ]
   `)

@@ -26,6 +26,11 @@ test("transformStringAsDate", () => {
     setDate(date: Date) {
       this.date = date
     }
+
+    @modelAction
+    setDateTime(time: number) {
+      this.date.setTime(time)
+    }
   }
 
   assert(_ as SnapshotInOf<M>["date"], _ as string)
@@ -39,7 +44,7 @@ test("transformStringAsDate", () => {
 
   // getter
   expect(m.date instanceof Date).toBeTruthy()
-  expect(m.date).toBe(dateNow) // same instance
+  expect(m.date).toEqual(dateNow) // not same instance, transformation will generate a new one
 
   // should be cached
   expect(m.date).toBe(m.date)
@@ -72,7 +77,7 @@ test("transformStringAsDate", () => {
 
   const dateNow2 = new Date(1569524561993)
   m.setDate(dateNow2)
-  expect(m.date).toBe(dateNow2)
+  expect(m.date).toEqual(dateNow2)
   expect(m.$.date).toBe(dateNow2.toJSON())
 
   expect(actionCalls).toMatchInlineSnapshot(`
@@ -112,4 +117,8 @@ test("transformStringAsDate", () => {
 
   expect(m.date).toEqual(dateNow)
   expect(m.$.date).toBe(dateNow.toJSON())
+
+  // make sure mutations on the date object are picked up in the backed prop
+  m.setDateTime(10)
+  expect(m.$.date).toBe(new Date(10).toJSON())
 })

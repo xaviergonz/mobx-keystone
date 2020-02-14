@@ -28,6 +28,8 @@ Although `mobx-keystone` doesn't support properties which are Maps/Sets/Dates di
 
 A map backed by an object with string keys.
 
+Since the backed property is an object operations should be as fast as usual.
+
 ```ts
 class ... extends Model({
   // without type checking
@@ -47,7 +49,12 @@ model.$.myNumberMap // the backed Record<string, number>, same as in the snapsho
 
 ### `prop_mapArray` / `tProp_mapArray`
 
-A map backed by a [string, VALUE] array. Note that, currently, since the backed property is actually an array lookups will need to iterate over all array items.
+A map backed by a [string, VALUE] array. The array must not include duplicate keys.
+
+Note that, currently, since the backed property is actually an array the following operations will be slower than usual:
+
+- `set` operations will need to iterate the backed array until the item to update is found.
+- `delete` operations will need to iterate the backed array until the item to be deleted is found.
 
 ```ts
 class ... extends Model({
@@ -68,7 +75,11 @@ model.$.myNumberMap // the backed [string, number][], same as in the snapshot
 
 ### `prop_setArray` / `tProp_setArray`
 
-A set backed by an array. Note that, currently, since the backed property is actually an array lookups will need to iterate over all array items.
+A set backed by an array. The array must not include duplicate values.
+
+Note that, currently, since the backed property is actually an array the following operations will be slower than usual:
+
+- `delete` operations will need to iterate the backed array until it finds the value to be deleted.
 
 ```ts
 class ... extends Model({
