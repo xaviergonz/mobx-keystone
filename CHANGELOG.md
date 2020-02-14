@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.41.0
+
 - When using date transforms, mutation made by methods (`setTime`, etc.) are reflected in the backed property (string / timestamp), so it is no longer required to treat dates as immutable objects.
 - Performance improvements for implicit property transform collections.
 
