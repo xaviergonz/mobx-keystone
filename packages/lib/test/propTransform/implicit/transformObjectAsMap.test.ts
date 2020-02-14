@@ -99,6 +99,8 @@ test("transformObjectAsMap", () => {
     ["7", 7],
   ])
   m.setMap(newMap)
+  expect(m.map).not.toBe(newMap) // must be transformed
+  expect(m.map instanceof ObjectAsMap).toBeTruthy()
   expectSimilarMap(m.map, newMap)
 
   expect(m.$.map).toEqual({ 5: 5, 6: 6, 7: 7 })

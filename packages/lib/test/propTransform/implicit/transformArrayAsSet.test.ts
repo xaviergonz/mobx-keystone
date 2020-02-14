@@ -97,6 +97,8 @@ test("transformArrayAsSet", () => {
 
   const newSet = new Set([5, 6, 7])
   m.setSet(newSet)
+  expect(m.set).not.toBe(newSet) // must be transformed
+  expect(m.set instanceof ArrayAsSet).toBeTruthy()
   expectSimilarSet(m.set, newSet)
 
   expect(m.$.set).toEqual([5, 6, 7])

@@ -104,6 +104,8 @@ test("transformArrayAsMap", () => {
     ["7", 7],
   ])
   m.setMap(newMap)
+  expect(m.map).not.toBe(newMap) // must be transformed
+  expect(m.map instanceof ArrayAsMap).toBeTruthy()
   expectSimilarMap(m.map, newMap)
 
   expect(m.$.map).toEqual([
