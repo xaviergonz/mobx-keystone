@@ -49,7 +49,7 @@ model.$.myNumberMap // the backed Record<string, number>, same as in the snapsho
 
 ### `prop_mapArray` / `tProp_mapArray`
 
-A map backed by a [string, VALUE] array.
+A map backed by a [string, VALUE] array. The array must not include duplicate keys.
 
 Note that, currently, since the backed property is actually an array the following operations will be slower than usual:
 
@@ -75,7 +75,7 @@ model.$.myNumberMap // the backed [string, number][], same as in the snapshot
 
 ### `prop_setArray` / `tProp_setArray`
 
-A set backed by an array.
+A set backed by an array. The array must not include duplicate values.
 
 Note that, currently, since the backed property is actually an array the following operations will be slower than usual:
 
