@@ -13,7 +13,7 @@ beforeEach(() => {
     2: 2,
     3: 3,
     5: 5,
-  })
+  } as { [k: string]: number })
   map = objectAsMap<number>(() => obj)
 })
 
