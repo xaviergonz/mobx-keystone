@@ -312,3 +312,20 @@ export function lateVal<TF extends (...args: any[]) => any>(getter: TF): TF {
 
   return fn as TF
 }
+
+/**
+ * @ignore
+ * @internal
+ */
+export function lazy<V>(valueGen: () => V): () => V {
+  let inited = false
+  let val: V | undefined
+
+  return (): V => {
+    if (!inited) {
+      val = valueGen()
+      inited = true
+    }
+    return val!
+  }
+}

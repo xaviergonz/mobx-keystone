@@ -1,4 +1,4 @@
-import { assertIsModel } from "../model/utils"
+import "../model/utils" // if we don't have this then dep order gets messed up
 import { detach } from "../parent/detach"
 import { resolvePathCheckingIds } from "../parent/path"
 import { Path } from "../parent/pathTypes"
@@ -6,6 +6,9 @@ import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
+import { applyCall } from "./applyCall"
+import { applyDelete } from "./applyDelete"
+import { applySet } from "./applySet"
 import { BuiltInAction, isBuiltInAction } from "./builtInActions"
 import { isHookAction } from "./hookActions"
 
@@ -39,6 +42,15 @@ export interface ActionCall {
   readonly serialized?: undefined
 }
 
+const builtInActionToFunction = {
+  [BuiltInAction.ApplySnapshot]: applySnapshot,
+  [BuiltInAction.ApplyPatches]: applyPatches,
+  [BuiltInAction.Detach]: detach,
+  [BuiltInAction.ApplySet]: applySet,
+  [BuiltInAction.ApplyDelete]: applyDelete,
+  [BuiltInAction.ApplyCall]: applyCall,
+}
+
 /**
  * Applies (runs) an action over a target object.
  *
@@ -70,22 +82,15 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
       )} could not be resolved`
     )
   }
-  assertIsModel(current, `resolved ${current}`)
+  assertTweakedObject(current, `resolved ${current}`, true)
 
   if (isBuiltInAction(call.actionName)) {
-    switch (call.actionName) {
-      case BuiltInAction.ApplySnapshot:
-        return applySnapshot.apply(current, [current, ...call.args] as any) as any
-
-      case BuiltInAction.ApplyPatches:
-        return applyPatches.apply(current, [current, ...call.args] as any) as any
-
-      case BuiltInAction.Detach:
-        return detach.apply(current, [current, ...call.args] as any) as any
-
-      default:
-        throw failure(`assertion error: unknown built-in action - ${call.actionName}`)
+    const fnToCall: (...args: any[]) => any = builtInActionToFunction[call.actionName]
+    if (!fnToCall) {
+      throw failure(`assertion error: unknown built-in action - ${call.actionName}`)
     }
+
+    return fnToCall.apply(current, [current, ...call.args])
   } else if (isHookAction(call.actionName)) {
     throw failure(`calls to hooks (${call.actionName}) cannot be applied`)
   } else {

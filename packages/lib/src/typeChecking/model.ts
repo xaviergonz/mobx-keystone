@@ -2,8 +2,8 @@ import { O } from "ts-toolbelt"
 import { AnyModel, ModelClass } from "../model/BaseModel"
 import { getModelDataType } from "../model/getModelDataType"
 import { modelInfoByClass } from "../model/modelInfo"
-import { modelPropertiesSymbol } from "../model/modelSymbols"
-import { ModelProps, noDefaultValue } from "../model/prop"
+import { getInternalModelClassPropsInfo } from "../model/modelPropsInfo"
+import { noDefaultValue } from "../model/prop"
 import { assertIsModelClass, isModelClass } from "../model/utils"
 import { failure, lateVal } from "../utils"
 import { resolveTypeChecker } from "./resolveTypeChecker"
@@ -101,7 +101,7 @@ export interface ModelTypeInfoProps {
  */
 export class ModelTypeInfo extends TypeInfo {
   private _props = lateVal(() => {
-    const objSchema: ModelProps = (this.modelClass as any)[modelPropertiesSymbol]
+    const objSchema = getInternalModelClassPropsInfo(this.modelClass)
 
     const propTypes: O.Writable<ModelTypeInfoProps> = {}
     Object.keys(objSchema).forEach(propName => {

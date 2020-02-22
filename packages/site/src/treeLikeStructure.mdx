@@ -143,7 +143,7 @@ The mode can be one of:
 
 ## Utility methods
 
-### `detach(value: object)`
+### `detach(value: object): void`
 
 Besides the aforementioned `isTreeNode` and `toTreeNode` methods, there's also the `detach(value: object)` method, which allows a node to get detached from its parent following this logic:
 
@@ -162,6 +162,30 @@ The optional `options` parameter accepts and object with the following options:
 - `fireForCurrentChildren: boolean` (default: `true`) - `true` if the callback should be immediately called for currently attached children, `false` if only for future attachments.
 
 Returns a disposer, which has a boolean parameter which should be `true` if pending detachment callbacks should be run, or `false` otherwise.
+
+### `applySet<O extends object, K extends keyof O, V extends O[K]>(node: O, fieldName: K, value: V): void`
+
+Allows setting an object/model field / array index to a given value without the need to wrap it in `modelAction`. Unlike `runUnprotected`, these is actually an action that can be captured and replicated.
+
+```ts
+applySet(someModel, "prop", "value")
+```
+
+### `applyDelete<O extends object, K extends keyof O>(node: O, fieldName: K): void`
+
+Allows deleting an object field / array index without the need to wrap it in `modelAction`. Unlike `runUnprotected`, these is actually an action that can be captured and replicated.
+
+```ts
+applyDelete(someObject, "field")
+```
+
+### `applyCall<O extends object, K extends keyof O, FN extends O[K]>(node: O, methodName: K, ..args: Parameters<FN> : ReturnType<FN>`
+
+Allows calling an model/object/array method without the need to wrap it in `modelAction`. Unlike `runUnprotected`, these is actually an action that can be captured and replicated.
+
+```ts
+const newArrayLength = applyCall(someArray, "push", 1, 2, 3)
+```
 
 ### `deepEquals(a: any, b: any): boolean`
 
