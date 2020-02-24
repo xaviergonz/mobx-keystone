@@ -3,9 +3,11 @@ import {
   applyAction,
   applyCall,
   BuiltInAction,
+  deserializeActionCall,
   model,
   Model,
   prop,
+  serializeActionCall,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -98,12 +100,17 @@ test("applyCall", () => {
   `)
 
   // apply action should work
-  const ret = applyAction(p.arr, {
+  const act = {
     actionName: BuiltInAction.ApplyCall,
     args: ["push", 6, 7],
     targetPath: [],
     targetPathIds: [],
-  })
+  }
+
+  const serAct = serializeActionCall(act, p.arr)
+  const desAct = deserializeActionCall(serAct, p.arr)
+
+  const ret = applyAction(p.arr, desAct)
   expect(p.arr).toEqual([1, 2, 3, 4, 5, 6, 7])
   expect(ret).toBe(p.arr.length)
 })
