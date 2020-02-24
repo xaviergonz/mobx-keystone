@@ -1,4 +1,4 @@
-import uuidv4 from "uuid/v4"
+import { v4 as uuidv4 } from "uuid"
 import { failure, inDevMode } from "../utils"
 import { toBase64 } from "../utils/toBase64"
 
@@ -101,7 +101,10 @@ function shortenUuid(uuid: string): string {
 
   // convert to base64
   const hexMatch = hex.match(/\w{2}/g)!
-  const str = String.fromCharCode.apply(null, hexMatch.map(a => parseInt(a, 16)))
+  const str = String.fromCharCode.apply(
+    null,
+    hexMatch.map(a => parseInt(a, 16))
+  )
 
   return toBase64(str)
 }
