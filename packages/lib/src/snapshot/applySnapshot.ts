@@ -7,7 +7,7 @@ import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsObject, failure, inDevMode, isArray, isPlainObject } from "../utils"
+import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import { SnapshotOutOf } from "./SnapshotOf"
@@ -23,7 +23,7 @@ export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf
   assertTweakedObject(node, "node")
   assertIsObject(snapshot, "snapshot")
 
-  wrappedInternalApplySnapshot.call(node, snapshot)
+  wrappedInternalApplySnapshot().call(node, snapshot)
 }
 
 function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>): void {
@@ -96,8 +96,6 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-const wrappedInternalApplySnapshot = wrapInAction(
-  BuiltInAction.ApplySnapshot,
-  internalApplySnapshot,
-  ActionContextActionType.Sync
+const wrappedInternalApplySnapshot = lazy(() =>
+  wrapInAction(BuiltInAction.ApplySnapshot, internalApplySnapshot, ActionContextActionType.Sync)
 )

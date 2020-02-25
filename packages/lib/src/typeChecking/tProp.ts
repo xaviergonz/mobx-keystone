@@ -1,10 +1,12 @@
 import {
   MaybeOptionalModelProp,
   ModelProp,
+  ModelPropOptions,
   noDefaultValue,
   OnlyPrimitives,
   OptionalModelProp,
 } from "../model/prop"
+import { isObject } from "../utils"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
 import { resolveStandardType } from "./resolveTypeChecker"
 import { AnyType, TypeToData } from "./schemas"
@@ -19,9 +21,10 @@ import { AnyType, TypeToData } from "./schemas"
  * ```
  *
  * @param defaultValue Default value.
+ * @param options Model property options.
  * @returns
  */
-export function tProp(defaultValue: string): OptionalModelProp<string>
+export function tProp(defaultValue: string, options?: ModelPropOptions): OptionalModelProp<string>
 
 /**
  * Defines a number model property with a default value.
@@ -33,9 +36,10 @@ export function tProp(defaultValue: string): OptionalModelProp<string>
  * ```
  *
  * @param defaultValue Default value.
+ * @param options Model property options.
  * @returns
  */
-export function tProp(defaultValue: number): OptionalModelProp<number>
+export function tProp(defaultValue: number, options?: ModelPropOptions): OptionalModelProp<number>
 
 /**
  * Defines a boolean model property with a default value.
@@ -47,25 +51,10 @@ export function tProp(defaultValue: number): OptionalModelProp<number>
  * ```
  *
  * @param defaultValue Default value.
+ * @param options Model property options.
  * @returns
  */
-export function tProp(defaultValue: boolean): OptionalModelProp<boolean>
-
-/**
- * Defines a model property with no default value and an associated type checker.
- *
- * Example:
- * ```ts
- * x: tProp(types.number) // a required number
- * x: tProp(types.maybe(types.number)) // an optional number, which defaults to undefined
- * ```
- *
- * @typeparam TType Type checker type.
- *
- * @param type Type checker.
- * @returns
- */
-export function tProp<TType extends AnyType>(type: TType): MaybeOptionalModelProp<TypeToData<TType>>
+export function tProp(defaultValue: boolean, options?: ModelPropOptions): OptionalModelProp<boolean>
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -81,11 +70,13 @@ export function tProp<TType extends AnyType>(type: TType): MaybeOptionalModelPro
  *
  * @param type Type checker.
  * @param defaultFn Default value generator function.
+ * @param options Model property options.
  * @returns
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  defaultFn: () => TypeToData<TType>
+  defaultFn: () => TypeToData<TType>,
+  options?: ModelPropOptions
 ): OptionalModelProp<TypeToData<TType>>
 
 /**
@@ -103,24 +94,66 @@ export function tProp<TType extends AnyType>(
  *
  * @param type Type checker.
  * @param defaultValue Default value generator function.
+ * @param options Model property options.
  * @returns
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  defaultValue: OnlyPrimitives<TypeToData<TType>>
+  defaultValue: OnlyPrimitives<TypeToData<TType>>,
+  options?: ModelPropOptions
 ): OptionalModelProp<TypeToData<TType>>
 
-export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any, any> {
+/**
+ * Defines a model property with no default value and an associated type checker.
+ *
+ * Example:
+ * ```ts
+ * x: tProp(types.number) // a required number
+ * x: tProp(types.maybe(types.number)) // an optional number, which defaults to undefined
+ * ```
+ *
+ * @typeparam TType Type checker type.
+ *
+ * @param type Type checker.
+ * @param options Model property options.
+ * @returns
+ */
+export function tProp<TType extends AnyType>(
+  type: TType,
+  options?: ModelPropOptions
+): MaybeOptionalModelProp<TypeToData<TType>>
+
+export function tProp(typeOrDefaultValue: any, arg1?: any, arg2?: any): ModelProp<any, any, any> {
+  let def: any
+  let opts: ModelPropOptions = {}
+  let hasDefaultValue = false
+
   switch (typeof typeOrDefaultValue) {
     case "string":
-      return tProp(typesString, typeOrDefaultValue)
+      return tProp(typesString, typeOrDefaultValue, arg1)
     case "number":
-      return tProp(typesNumber, typeOrDefaultValue)
+      return tProp(typesNumber, typeOrDefaultValue, arg1)
     case "boolean":
-      return tProp(typesBoolean, typeOrDefaultValue)
+      return tProp(typesBoolean, typeOrDefaultValue, arg1)
   }
 
-  const hasDefaultValue = arguments.length > 1
+  if (arguments.length >= 3) {
+    // type, default, options
+    def = arg1
+    hasDefaultValue = true
+    opts = { ...arg2 }
+  } else if (arguments.length === 2) {
+    // type, default | options
+    if (isObject(arg1)) {
+      // options
+      opts = { ...arg1 }
+    } else {
+      // default
+      def = arg1
+      hasDefaultValue = true
+    }
+  }
+
   const isDefFn = typeof def === "function"
   return {
     $propValueType: null as any,
@@ -133,5 +166,6 @@ export function tProp(typeOrDefaultValue: any, def?: any): ModelProp<any, any, a
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
     typeChecker: resolveStandardType(typeOrDefaultValue) as any,
     transform: undefined,
+    options: opts,
   }
 }

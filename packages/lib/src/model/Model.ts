@@ -1,5 +1,7 @@
 import { O } from "ts-toolbelt"
-import { memoTransformCache, PropTransform } from "../propTransform/propTransform"
+import { applySet } from "../action/applySet"
+import { getCurrentActionContext } from "../action/context"
+import { memoTransformCache } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
@@ -10,15 +12,17 @@ import {
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
+  ModelInstanceData,
 } from "./BaseModel"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import {
   modelDataTypeCheckerSymbol,
   modelInitializersSymbol,
-  modelPropertiesSymbol,
   modelUnwrappedClassSymbol,
 } from "./modelSymbols"
 import {
+  ModelProp,
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
@@ -121,7 +125,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
 
   const composedModelProps: ModelProps = modelProps
   if (baseModel) {
-    const oldModelProps: ModelProps = (baseModel as any)[modelPropertiesSymbol]
+    const oldModelProps = getInternalModelClassPropsInfo(baseModel)
     for (const oldModelPropKey of Object.keys(oldModelProps)) {
       if (modelProps[oldModelPropKey]) {
         throw failure(
@@ -154,7 +158,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   )) {
     extraDescriptors[modelPropName] = createModelPropDescriptor(
       modelPropName,
-      modelProps[modelPropName].transform,
+      modelProps[modelPropName],
       false
     )
   }
@@ -195,7 +199,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     CustomBaseModel[modelInitializersSymbol] = initializers.slice()
   }
 
-  CustomBaseModel[modelPropertiesSymbol] = composedModelProps
+  setInternalModelClassPropsInfo(CustomBaseModel, composedModelProps)
   CustomBaseModel[modelDataTypeCheckerSymbol] = dataTypeChecker
 
   Object.defineProperties(CustomBaseModel.prototype, extraDescriptors)
@@ -211,57 +215,72 @@ function _inheritsLoose(subClass: any, superClass: any) {
 
 function createModelPropDescriptor(
   modelPropName: string,
-  transform: PropTransform<any, any> | undefined,
+  modelProp: ModelProp<any, any, any> | undefined,
   enumerable: boolean
 ): PropertyDescriptor {
-  // the code is duplicated to ensure better speed
+  return {
+    enumerable,
+    configurable: true,
+    get(this: AnyModel) {
+      return getModelInstanceDataField(this, modelProp, modelPropName)
+    },
+    set(this: AnyModel, v?: any) {
+      // hack to only permit setting these values once fully constructed
+      // this is to ignore abstract properties being set by babel
+      // see https://github.com/xaviergonz/mobx-keystone/issues/18
+      if (!(this as any)[modelInitializedSymbol]) {
+        return
+      }
+      setModelInstanceDataField(this, modelProp, modelPropName, v)
+    },
+  }
+}
+
+function getModelInstanceDataField<M extends AnyModel>(
+  model: M,
+  modelProp: ModelProp<any, any, any> | undefined,
+  modelPropName: keyof ModelInstanceData<M>
+): ModelInstanceData<M>[typeof modelPropName] {
+  const transform = modelProp ? modelProp.transform : undefined
+
   if (transform) {
-    return {
-      enumerable,
-      configurable: true,
-      get(this: AnyModel) {
-        // no need to use get since these vars always get on the initial $
-        const memoTransform = memoTransformCache.getOrCreateMemoTransform(
-          this,
-          modelPropName,
-          transform
-        )
-        return memoTransform.propToData(this.$[modelPropName])
-      },
-      set(this: AnyModel, v?: any) {
-        // hack to only permit setting these values once fully constructed
-        // this is to ignore abstract properties being set by babel
-        // see https://github.com/xaviergonz/mobx-keystone/issues/18
-        if (!(this as any)[modelInitializedSymbol]) {
-          return
-        }
-        // no need to use set since these vars always get on the initial $
-        const memoTransform = memoTransformCache.getOrCreateMemoTransform(
-          this,
-          modelPropName,
-          transform
-        )
-        this.$[modelPropName] = memoTransform.dataToProp(v)
-      },
-    }
+    // no need to use get since these vars always get on the initial $
+    const memoTransform = memoTransformCache.getOrCreateMemoTransform(
+      model,
+      modelPropName as string,
+      transform
+    )
+    return memoTransform.propToData(model.$[modelPropName])
   } else {
-    return {
-      enumerable,
-      configurable: true,
-      get(this: AnyModel) {
-        // no need to use get since these vars always get on the initial $
-        return this.$[modelPropName]
-      },
-      set(this: AnyModel, v?: any) {
-        // hack to only permit setting these values once fully constructed
-        // this is to ignore abstract properties being set by babel
-        // see https://github.com/xaviergonz/mobx-keystone/issues/18
-        if (!(this as any)[modelInitializedSymbol]) {
-          return
-        }
-        // no need to use set since these vars always get on the initial $
-        this.$[modelPropName] = v
-      },
-    }
+    // no need to use get since these vars always get on the initial $
+    return model.$[modelPropName]
+  }
+}
+
+function setModelInstanceDataField<M extends AnyModel>(
+  model: M,
+  modelProp: ModelProp<any, any, any> | undefined,
+  modelPropName: keyof ModelInstanceData<M>,
+  value: ModelInstanceData<M>[typeof modelPropName]
+): void {
+  if (modelProp && modelProp.options.setterAction && !getCurrentActionContext()) {
+    // use apply set instead to wrap it in an action
+    applySet(model, modelPropName as any, value)
+    return
+  }
+
+  const transform = modelProp ? modelProp.transform : undefined
+
+  if (transform) {
+    // no need to use set since these vars always get on the initial $
+    const memoTransform = memoTransformCache.getOrCreateMemoTransform(
+      model,
+      modelPropName as string,
+      transform
+    )
+    model.$[modelPropName] = memoTransform.dataToProp(value)
+  } else {
+    // no need to use set since these vars always get on the initial $
+    model.$[modelPropName] = value
   }
 }

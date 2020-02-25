@@ -8,8 +8,9 @@ import { AnyModel, ModelClass, ModelPropsCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInfoByClass } from "./modelInfo"
-import { modelInitializersSymbol, modelPropertiesSymbol } from "./modelSymbols"
-import { ModelProps, noDefaultValue } from "./prop"
+import { getInternalModelClassPropsInfo } from "./modelPropsInfo"
+import { modelInitializersSymbol } from "./modelSymbols"
+import { noDefaultValue } from "./prop"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -69,7 +70,7 @@ export const internalNewModel = action(
     modelObj[modelTypeKey] = modelInfo.name
 
     // fill in defaults in initial data
-    const modelProps: ModelProps = (modelClass as any)[modelPropertiesSymbol]
+    const modelProps = getInternalModelClassPropsInfo(modelClass)
     const modelPropsKeys = Object.keys(modelProps)
     for (let i = 0; i < modelPropsKeys.length; i++) {
       const k = modelPropsKeys[i]

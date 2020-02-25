@@ -3,7 +3,7 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure } from "../utils"
+import { failure, lazy } from "../utils"
 import { fastGetParentPathIncludingDataObjects } from "./path"
 
 /**
@@ -17,13 +17,11 @@ import { fastGetParentPathIncludingDataObjects } from "./path"
 export function detach(node: object): void {
   assertTweakedObject(node, "node")
 
-  wrappedInternalDetach.call(node)
+  wrappedInternalDetach().call(node)
 }
 
-const wrappedInternalDetach = wrapInAction(
-  BuiltInAction.Detach,
-  internalDetach,
-  ActionContextActionType.Sync
+const wrappedInternalDetach = lazy(() =>
+  wrapInAction(BuiltInAction.Detach, internalDetach, ActionContextActionType.Sync)
 )
 
 function internalDetach(this: object): void {

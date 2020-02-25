@@ -1,5 +1,8 @@
 # Change Log
 
+- Added the model property option `setterAction` so that it automatically implenents model prop setters wrapped in actions.
+- Added `applySet`, `applyDelete`, `applyCall` to be able manipulate data without the need to use `modelAction`.
+
 ## 0.41.0
 
 - When using date transforms, mutation made by methods (`setTime`, etc.) are reflected in the backed property (string / timestamp), so it is no longer required to treat dates as immutable objects.

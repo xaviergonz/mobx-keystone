@@ -203,7 +203,10 @@ function detachIfNeeded(newValue: any, oldValue: any, modelPool: ModelPool) {
     return
   }
 
-  if (isModel(newValue) && modelPool.findModelByTypeAndId(newValue.$modelType, newValue.$modelId)) {
+  if (
+    isModel(newValue) &&
+    modelPool.findModelByTypeAndId(newValue[modelTypeKey], newValue[modelIdKey])
+  ) {
     const parentPath = fastGetParentPathIncludingDataObjects(newValue)
     if (parentPath) {
       set(parentPath.parent, parentPath.path, null)

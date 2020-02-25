@@ -1,4 +1,5 @@
 import { computed, IComputedValue } from "mobx"
+import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { isArray, isObject } from "../utils"
@@ -354,7 +355,7 @@ export function resolvePathCheckingIds<T = any>(
 
     const expectedId = pathIds[i]
     if (expectedId !== skipIdChecking) {
-      const currentId = isModel(currentMaybeModel) ? currentMaybeModel.$modelId : null
+      const currentId = isModel(currentMaybeModel) ? currentMaybeModel[modelIdKey] : null
       if (expectedId !== currentId) {
         return { resolved: false }
       }

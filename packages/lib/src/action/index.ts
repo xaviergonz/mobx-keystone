@@ -1,4 +1,7 @@
 export * from "./applyAction"
+export * from "./applyCall"
+export * from "./applyDelete"
+export * from "./applySet"
 export * from "./builtInActions"
 export * from "./context"
 export * from "./hookActions"

@@ -16,13 +16,13 @@
     "react-dom": "^16.10.2",
     "react-feather": "^2.0.3",
     "remotedev": "^0.2.9",
-    "uuid": "^3.3.2"
+    "uuid": "^7.0.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.7.4",
     "@types/react": "^16.9.5",
     "@types/react-dom": "^16.9.1",
-    "@types/uuid": "^3.4.5",
+    "@types/uuid": "^7.0.0",
     "raw-loader": "^4.0.0",
     "typescript": "^3.6.3"
   }

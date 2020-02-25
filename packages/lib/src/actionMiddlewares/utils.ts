@@ -1,3 +1,4 @@
+import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { RootPath } from "../parent/path"
 import { Path } from "../parent/pathTypes"
@@ -10,7 +11,7 @@ export function rootPathToTargetPathIds(rootPath: RootPath<any>): (string | null
 
   for (let i = 0; i < rootPath.path.length; i++) {
     const targetObj = rootPath.pathObjects[i + 1] // first is root, we don't care about its ID
-    const targetObjId = isModel(targetObj) ? targetObj.$modelId : null
+    const targetObjId = isModel(targetObj) ? targetObj[modelIdKey] : null
     targetPathIds.push(targetObjId)
   }
 
@@ -26,7 +27,7 @@ export function pathToTargetPathIds(root: any, path: Path): (string | null)[] {
 
   for (let i = 0; i < path.length; i++) {
     current = current[path[i]]
-    const targetObjId = isModel(current) ? current.$modelId : null
+    const targetObjId = isModel(current) ? current[modelIdKey] : null
     targetPathIds.push(targetObjId)
   }
 

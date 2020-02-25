@@ -14,6 +14,18 @@ export enum BuiltInAction {
    * detach
    */
   Detach = "$$detach",
+  /**
+   * applySet
+   */
+  ApplySet = "$$applySet",
+  /**
+   * applyDelete
+   */
+  ApplyDelete = "$$applyDelete",
+  /**
+   * applyCall
+   */
+  ApplyCall = "$$applyCall",
 }
 
 const builtInActionValues = new Set(Object.values(BuiltInAction))

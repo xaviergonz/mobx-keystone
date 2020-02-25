@@ -7,7 +7,7 @@ import { PathElement } from "../parent/pathTypes"
 import { Patch } from "../patch/Patch"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, inDevMode, isArray } from "../utils"
+import { failure, inDevMode, isArray, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 
 /**
@@ -28,7 +28,7 @@ export function applyPatches(
     return
   }
 
-  wrappedInternalApplyPatches.call(node, patches, reverse)
+  wrappedInternalApplyPatches().call(node, patches, reverse)
 }
 
 /**
@@ -72,10 +72,8 @@ export function internalApplyPatches(
   }
 }
 
-const wrappedInternalApplyPatches = wrapInAction(
-  BuiltInAction.ApplyPatches,
-  internalApplyPatches,
-  ActionContextActionType.Sync
+const wrappedInternalApplyPatches = lazy(() =>
+  wrapInAction(BuiltInAction.ApplyPatches, internalApplyPatches, ActionContextActionType.Sync)
 )
 
 function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void {
