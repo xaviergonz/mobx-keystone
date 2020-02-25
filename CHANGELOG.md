@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.42.0
+
 - Added the model property option `setterAction` so that it automatically implenents model prop setters wrapped in actions.
 - Added `applySet`, `applyDelete`, `applyCall` to be able manipulate data without the need to use `modelAction`.
 
