@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.42.1
+
+- Fixed issue with updated uuid dependency.
+
 ## 0.42.0
 
 - Added the model property option `setterAction` so that it automatically implenents model prop setters wrapped in actions.
