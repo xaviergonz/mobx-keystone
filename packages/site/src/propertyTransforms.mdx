@@ -7,7 +7,7 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 <FixStyle />
 
-# Property Transform Decorators
+# Property Transforms
 
 ## Overview
 
@@ -18,7 +18,7 @@ In order to address this you can use a property transform.
 For example, to transform from a number timestamp into a `Date` object you can start by defining a property transform:
 
 ```ts
-const asDate = propTransformDecorator({
+const asDate = propTransform({
   propToData(prop: number) {
     return new Date(prop)
   },
