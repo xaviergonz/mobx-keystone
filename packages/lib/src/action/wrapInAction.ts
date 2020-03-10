@@ -21,16 +21,24 @@ export const modelActionSymbol = Symbol("modelAction")
 /**
  * @ignore
  */
-export function wrapInAction<T extends Function>(
-  name: string,
-  fn: T,
-  actionType: ActionContextActionType,
-  overrideContext?: (ctx: O.Writable<ActionContext>) => void,
-  isFlowFinsher = false
-): T {
+export function wrapInAction<T extends Function>({
+  name,
+  fn,
+  actionType,
+  overrideContext,
+  isFlowFinisher = false,
+}: {
+  name: string
+  fn: T
+  actionType: ActionContextActionType
+  overrideContext?: (ctx: O.Writable<ActionContext>) => void
+  isFlowFinisher?: boolean
+}): T {
   const wrappedAction = action(name, function(this: any) {
+    const target = this
+
     if (inDevMode()) {
-      assertTweakedObject(this, "wrappedAction")
+      assertTweakedObject(target, "wrappedAction")
     }
 
     const parentContext = getCurrentActionContext()
@@ -38,7 +46,7 @@ export function wrapInAction<T extends Function>(
     const context: O.Writable<ActionContext> = {
       actionName: name,
       type: actionType,
-      target: this,
+      target,
       args: Array.from(arguments),
       parentContext,
       data: {},
@@ -59,8 +67,8 @@ export function wrapInAction<T extends Function>(
 
     setCurrentActionContext(context)
 
-    let mwareFn: () => any = fn.bind(this, ...arguments)
-    const mwareIter = getActionMiddlewares(this)[Symbol.iterator]()
+    let mwareFn: () => any = fn.bind(target, ...arguments)
+    const mwareIter = getActionMiddlewares(target)[Symbol.iterator]()
     let mwareCur = mwareIter.next()
     while (!mwareCur.done) {
       const mware = mwareCur.value
@@ -76,7 +84,7 @@ export function wrapInAction<T extends Function>(
     try {
       const ret = mwareFn()
 
-      if (isFlowFinsher) {
+      if (isFlowFinisher) {
         const flowFinisher = ret as FlowFinisher
         const value = flowFinisher.value
         if (flowFinisher.resolution === "accept") {
@@ -110,7 +118,7 @@ export function wrapModelMethodInActionIfNeeded<M extends AnyModel>(
     return
   }
 
-  const wrappedFn = wrapInAction(name, fn, ActionContextActionType.Sync)
+  const wrappedFn = wrapInAction({ name, fn, actionType: ActionContextActionType.Sync })
   const proto = Object.getPrototypeOf(model)
   const protoFn = proto[propertyKey]
   if (protoFn === fn) {

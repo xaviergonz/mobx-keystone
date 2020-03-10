@@ -9,8 +9,8 @@ import { modelActionSymbol, wrapInAction } from "./wrapInAction"
  * @param fn Function to check.
  * @returns
  */
-export function isModelAction(fn: any): fn is (...args: any[]) => any {
-  return typeof fn === "function" && !!fn[modelActionSymbol]
+export function isModelAction(fn: (...args: any[]) => any): boolean {
+  return typeof fn === "function" && !!(fn as any)[modelActionSymbol]
 }
 
 function checkModelActionArgs(target: any, propertyKey: string, value: any) {
@@ -45,7 +45,11 @@ export function modelAction(
         return fn
       } else {
         checkModelActionArgs(data.target, data.propertyKey, fn)
-        return wrapInAction(data.propertyKey, fn, ActionContextActionType.Sync)
+        return wrapInAction({
+          name: data.propertyKey,
+          fn,
+          actionType: ActionContextActionType.Sync,
+        })
       }
     }
   )

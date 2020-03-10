@@ -10,7 +10,8 @@ export default {
   menu: [
     "Introduction",
     "Comparison with mobx-state-tree",
-    "Models",
+    "Class Models",
+    "Functional Models",
     "Tree-Like Structure",
     "Root Stores",
     "Snapshots",

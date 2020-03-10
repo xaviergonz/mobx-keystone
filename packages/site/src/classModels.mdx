@@ -1,28 +1,29 @@
 ---
-name: Models
-route: /models
+name: Class Models
+route: /classModels
 ---
 
 import { FixStyle } from "./components/FixStyle.tsx"
 
 <FixStyle />
 
-# Models
+# Class Models
 
 ## Overview
 
 `mobx-keystone` supports the following kinds of data:
 
-- Models, which are like objects but enhanced with local behaviors (actions) and life-cycle events (hooks).
-- Objects, which serve as basic storages of data (kind of like models, except without actions and life-cycle events), as well as key-value maps of other data.
+- Class models, which are like objects but enhanced with local behaviors (actions/views) and life-cycle events (hooks).
+- Functional models, which only define behaviors (actions/views) over plain data and _do not have_ life-cycle events (hooks).
+- Objects, which serve as basic storages of data (kind of like class models, except without actions and life-cycle events), as well as key-value maps of other data.
 - Arrays.
 - Primitive values (`string`, `boolean`, `number`, `null`, `undefined`).
 
-In this section we will focus on models, since the other types can be used as children in the usual way.
+In this section we will focus on class models, since the other types can be used as children in the usual way.
 
-## Your first model
+## Your first class model
 
-A model for a todo can be defined as follows:
+A class model for a todo can be defined as follows:
 
 ```ts
 // the model decorator marks this class as a model, an object with actions, etc.
@@ -54,6 +55,11 @@ export class Todo extends Model({
   setText(text: string) {
     this.text = text
   }
+
+  @computed
+  get asString() {
+    return `${!this.done ? "TODO" : "DONE"} ${this.text}`
+  }
 }
 ```
 
@@ -71,19 +77,19 @@ With runtime type checking (check the relevant section for more info):
 - `tProp<T>(type, defaultValue: T, options?: ModelOptions)` - A property of a given runtime checked type, with a default set if it is `null` or `undefined` in the initial data. Use this only for default primitives.
 - `tProp<T>(type, defaultFn: () => T, options?: ModelOptions)` - A property of a given runtime checked type, with a default value generator if it is `null` or `undefined` in the initial data. Usually used for default objects / arrays / models.
 
-## Model rules
+## Class model rules
 
-The rules that need to be followed to declare a model are:
+The rules that need to be followed to declare a class model are:
 
-- Models have to be decorated with `@model` and require a unique across-application ID for the class type.
+- Class models have to be decorated with `@model` and require a unique across-application ID for the class type.
 - They have to extend `Model`, which in Typescript requires the type of the data that will become observable / snapshotable / patchable.
 - This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
 - Model actions need to be used in order to be able to change such data.
 - Never ever declare your own constructor, there are life-cycle events for that (more on that later).
 
-Of course primitives are not the only kinds of data that a model can hold. Arrays, plain objects and other objects can be used as well.
+Of course primitives are not the only kinds of data that a class model can hold. Arrays, plain objects and other objects can be used as well.
 
-## Creating a model instance
+## Creating a class model instance
 
 An instance of the todo model above can be created like this:
 
@@ -93,7 +99,7 @@ const myTodo1 = new Todo({ done: true, text: "buy some milk" })
 const myTodo2 = new Todo({ text: "buy some coffee" })
 ```
 
-## Automatic model actions for property setters
+## Automatic class model actions for property setters
 
 Since most of the times the only action we need for a property is a setter we can use the model option `setterAction` to reduce boilerplace and allow setting properties as if they were wrapped in a `modelAction`. For example, the model above could be written as:
 
@@ -126,25 +132,25 @@ myTodo.someObject.foo = ...
 myTodo.someArray.push(...)
 ```
 
-If for some reason you still require to change these without using a `modelAction` consider using `applySet`, `applyDelete` and/or `applyCall` if needed.
+If for some reason you still require to change these without using a `modelAction` consider using `fnObject.set`, `fnObject.delete`, `fnObject.call`, `fnArray.push`, etc. if needed.
 
 ## Life-cycle event hooks
 
-Models can optionally include an implementation for each of the life-cycle hooks:
+Class models can optionally include an implementation for each of the life-cycle hooks:
 
 - `onInit()`, which serves as a replacement for the constructor and will fire as soon as the model is created.
   In most occasions it is better to use the next hook.
-- `onAttachedToRootStore(rootStore)`, which fires once a model becomes part of a root store tree and which can optionally return a disposer which will run once the model detaches from such root store tree.
+- `onAttachedToRootStore(rootStore)`, which fires once a class model becomes part of a root store tree and which can optionally return a disposer which will run once the model detaches from such root store tree.
   It will be explained in detail in the [root stores](./rootStores) section.
 
-## Volatile data
+## Runtime data
 
-Volatile data (data that doesn't need to be snapshotable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
+Runtime data (data that doesn't need to be snapshotable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
 
 ```ts
 @model("myApp/SomeModel")
 class SomeModel extends Model({...}) {
-  // non-observable volatile data
+  // non-observable runtime data
   x = 10;
 
   setX(x: number) {
@@ -162,9 +168,9 @@ class SomeModel extends Model({...}) {
 }
 ```
 
-## Accessing the type and ID of a model
+## Accessing the type and ID of a class model
 
-It is interesting to observe that models include the properties named `$modelType` and `$modelId`:
+It is interesting to observe that class models include the properties named `$modelType` and `$modelId`:
 
 ```ts
 myTodo1.$modelType // "myCoolApp/Todo"
@@ -209,6 +215,8 @@ setGlobalConfig({
   modelIdGenerator: myModelIdGeneratorFunction,
 })
 ```
+
+If for some reason you do not want to have/require these extra properties in your snapshots please see [functional models](./functionalModels) instead.
 
 ## Getting the Typescript types for model data and model creation data
 
@@ -255,7 +263,7 @@ interface Book {
   price: number
 }
 
-@model("myApp/Auth")
+@model("myApp/BookStore")
 class BookStore extends Model({
   books: prop<Book[]>(() => []),
 }) {
@@ -275,7 +283,7 @@ class BookStore extends Model({
   // javascript version
 
   @modelFlow
-  // we use function* (a function generator) where we would use`async`
+  // we use function* (a function generator) where we would use `async`
   *fetchMyBooksAsync(token) {
     // we use `yield* _await(X)` where we would use `await X`
     // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
@@ -293,7 +301,7 @@ await myBookStore.fetchMyBooksAsync("someToken")
 
 ## Factory pattern
 
-It is possible to use a factory pattern with models. For example:
+It is possible to use a factory pattern with class models. For example:
 
 ```ts
 function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
@@ -356,7 +364,7 @@ export function createModelClass<TX, TY>(modelName: string, initialX: TX, initia
 
 Model inheritance is possible with a few gotchas.
 
-The first thing to bear in mind is that models that extend from other models must use `ExtendedModel` rather than the plain `Model`. For example:
+The first thing to bear in mind is that class models that extend from other class models must use `ExtendedModel` rather than the plain `Model`. For example:
 
 ```ts
 @model("MyApp/Point")

@@ -23,9 +23,9 @@ export enum BuiltInAction {
    */
   ApplyDelete = "$$applyDelete",
   /**
-   * applyCall
+   * applyMethodCall
    */
-  ApplyCall = "$$applyCall",
+  ApplyMethodCall = "$$applyMethodCall",
 }
 
 const builtInActionValues = new Set(Object.values(BuiltInAction))

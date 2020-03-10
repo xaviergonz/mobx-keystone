@@ -1,111 +1,16 @@
-import {
-  action,
-  IArrayChange,
-  IArraySplice,
-  intercept,
-  IObservableArray,
-  ISetWillChange,
-  isObservableArray,
-  observable,
-  ObservableSet,
-  observe,
-} from "mobx"
 import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
 import { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
-import { failure, inDevMode, isArray, isSet } from "../utils"
-import { Lock } from "../utils/lock"
+import { isArray, isSet } from "../utils"
+import { asSet, setToArray } from "../wrappers/asSet"
 import { PropTransform, transformedProp } from "./propTransform"
-
-const observableSetBackedByObservableArray = action(
-  <T>(array: IObservableArray<T>): ObservableSet<T> => {
-    if (inDevMode()) {
-      if (!isObservableArray(array)) {
-        throw failure("assertion failed: expected an observable array")
-      }
-    }
-
-    const set = observable.set(array)
-
-    if (set.size !== array.length) {
-      throw failure("arrays backing a set cannot contain duplicate values")
-    }
-
-    const mutationLock = new Lock()
-
-    // for speed reasons we will just assume distinct values are only once in the array
-
-    // when the array changes the set changes
-    observe(
-      array,
-      action(
-        mutationLock.unlockedFn((change: IArrayChange<T> | IArraySplice<T>) => {
-          switch (change.type) {
-            case "splice": {
-              {
-                const removed = change.removed
-                for (let i = 0; i < removed.length; i++) {
-                  set.delete(removed[i])
-                }
-              }
-
-              {
-                const added = change.added
-                for (let i = 0; i < added.length; i++) {
-                  set.add(added[i])
-                }
-              }
-
-              break
-            }
-
-            case "update": {
-              set.delete(change.oldValue)
-              set.add(change.newValue)
-              break
-            }
-          }
-        })
-      )
-    )
-
-    // when the set changes also change the array
-    intercept(
-      set,
-      action((change: ISetWillChange<T>) => {
-        if (!mutationLock.isLocked) {
-          return null // already changed
-        }
-
-        switch (change.type) {
-          case "add": {
-            array.push(change.newValue)
-            break
-          }
-
-          case "delete": {
-            const i = array.indexOf(change.oldValue)
-            if (i >= 0) {
-              array.splice(i, 1)
-            }
-            break
-          }
-        }
-
-        return change
-      })
-    )
-
-    return set
-  }
-)
 
 const arrayAsSetInnerTransform: PropTransform<any[] | unknown, Set<any> | unknown> = {
   propToData(arr) {
-    return isArray(arr) ? observableSetBackedByObservableArray(arr as IObservableArray) : arr
+    return isArray(arr) ? asSet(arr) : arr
   },
   dataToProp(newSet) {
-    return isSet(newSet) ? [...newSet.values()] : newSet
+    return isSet(newSet) ? setToArray(newSet) : newSet
   },
 }
 

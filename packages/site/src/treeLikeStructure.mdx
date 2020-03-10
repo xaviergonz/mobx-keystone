@@ -179,12 +179,12 @@ Allows deleting an object field / array index without the need to wrap it in `mo
 applyDelete(someObject, "field")
 ```
 
-### `applyCall<O extends object, K extends keyof O, FN extends O[K]>(node: O, methodName: K, ..args: Parameters<FN> : ReturnType<FN>`
+### `applyMethodCall<O extends object, K extends keyof O, FN extends O[K]>(node: O, methodName: K, ..args: Parameters<FN> : ReturnType<FN>`
 
 Allows calling an model/object/array method without the need to wrap it in `modelAction`. Unlike `runUnprotected`, these is actually an action that can be captured and replicated.
 
 ```ts
-const newArrayLength = applyCall(someArray, "push", 1, 2, 3)
+const newArrayLength = applyMethodCall(someArray, "push", 1, 2, 3)
 ```
 
 ### `deepEquals(a: any, b: any): boolean`

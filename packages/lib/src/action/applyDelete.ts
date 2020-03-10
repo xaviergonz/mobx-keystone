@@ -26,5 +26,9 @@ export function internalApplyDelete<O extends object>(this: O, fieldName: string
 }
 
 const wrappedInternalApplyDelete = lazy(() =>
-  wrapInAction(BuiltInAction.ApplyDelete, internalApplyDelete, ActionContextActionType.Sync)
+  wrapInAction({
+    name: BuiltInAction.ApplyDelete,
+    fn: internalApplyDelete,
+    actionType: ActionContextActionType.Sync,
+  })
 )

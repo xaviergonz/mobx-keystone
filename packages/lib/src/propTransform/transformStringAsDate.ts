@@ -1,26 +1,19 @@
 import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
 import { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
-import { DateBackedByProp } from "./DateBackedByProp"
+import { immutableDate } from "./ImmutableDate"
 import { propTransform, transformedProp } from "./propTransform"
 
 /**
- * @deprecated Consider using `prop_dateString` or `tProp_dateString` instead.
- *
- * Decorator property transform for ISO date strings to Date objects and vice-versa.
+ * Property transform for ISO date strings to Date objects and vice-versa.
+ * If a model property, consider using `prop_dateString` or `tProp_dateString` instead.
  */
 export const stringAsDate = propTransform<string | null | undefined, Date | null | undefined>({
-  propToData(prop, setProp) {
+  propToData(prop) {
     if (typeof prop !== "string") {
       return prop
     }
-    if (setProp) {
-      return new DateBackedByProp(prop, date => {
-        setProp(date.toJSON())
-      })
-    } else {
-      return new Date(prop)
-    }
+    return immutableDate(prop) as Date
   },
   dataToProp(date) {
     return date instanceof Date ? date.toJSON() : date

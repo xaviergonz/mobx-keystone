@@ -73,7 +73,11 @@ export function internalApplyPatches(
 }
 
 const wrappedInternalApplyPatches = lazy(() =>
-  wrapInAction(BuiltInAction.ApplyPatches, internalApplyPatches, ActionContextActionType.Sync)
+  wrapInAction({
+    name: BuiltInAction.ApplyPatches,
+    fn: internalApplyPatches,
+    actionType: ActionContextActionType.Sync,
+  })
 )
 
 function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void {

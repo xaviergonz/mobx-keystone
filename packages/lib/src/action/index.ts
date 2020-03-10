@@ -1,6 +1,6 @@
 export * from "./applyAction"
-export * from "./applyCall"
 export * from "./applyDelete"
+export * from "./applyMethodCall"
 export * from "./applySet"
 export * from "./builtInActions"
 export * from "./context"

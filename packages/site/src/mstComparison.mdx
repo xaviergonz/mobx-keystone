@@ -15,30 +15,31 @@ import { FixStyle } from "./components/FixStyle.tsx"
 This library is very much like `mobx-state-tree` and takes lots of ideas from it, so the transition
 should be fairly simple. There are some trade-offs though, as shown in the following chart:
 
-| Feature                                   | `mobx-keystone`                          | `mobx-state-tree` |
-| ----------------------------------------- | ---------------------------------------- | ----------------- |
-| Tree-like structure                       | <CheckIcon/>                             | <CheckIcon/>      |
-| Immutable snapshot generation             | <CheckIcon/>                             | <CheckIcon/>      |
-| Patch generation                          | <CheckIcon/>                             | <CheckIcon/>      |
-| Action serialization / replaying          | <CheckIcon/>                             | <CheckIcon/>      |
-| Action middleware support (1)             | <CheckIcon/><ArrowUpIcon/>               | <CheckIcon/>      |
-| - Atomic/Transaction middleware           | <CheckIcon/>                             | <CheckIcon/>      |
-| - Undo manager middleware                 | <CheckIcon/>                             | <CheckIcon/>      |
-| Flow action support                       | <CheckIcon/>                             | <CheckIcon/>      |
-| References                                | <CheckIcon/>                             | <CheckIcon/>      |
-| Frozen data                               | <CheckIcon/>                             | <CheckIcon/>      |
-| Typescript support (2)                    | <CheckIcon/><ArrowUpIcon/><ArrowUpIcon/> | <CheckIcon/>      |
-| Simplified instance / snapshot type usage | <CheckIcon/>                             | <RedXIcon/>       |
-| Simplified model life-cycle               | <CheckIcon/>                             | <RedXIcon/>       |
-| Runtime type validation (3)               | <CheckIcon/>                             | <CheckIcon/>      |
-| No metadata inside snapshots              | <RedXIcon/>                              | <CheckIcon/>      |
-| Redux compatibility layer                 | <CheckIcon/>                             | <CheckIcon/>      |
+| Feature                                   | `mobx-keystone`                          | `mobx-state-tree`          |
+| ----------------------------------------- | ---------------------------------------- | -------------------------- |
+| Tree-like structure                       | <CheckIcon/>                             | <CheckIcon/>               |
+| Immutable snapshot generation             | <CheckIcon/>                             | <CheckIcon/>               |
+| Patch generation                          | <CheckIcon/>                             | <CheckIcon/>               |
+| Action serialization / replaying          | <CheckIcon/>                             | <CheckIcon/>               |
+| Action middleware support (1)             | <CheckIcon/><ArrowUpIcon/>               | <CheckIcon/>               |
+| - Atomic/Transaction middleware           | <CheckIcon/>                             | <CheckIcon/>               |
+| - Undo manager middleware                 | <CheckIcon/>                             | <CheckIcon/>               |
+| Flow action support                       | <CheckIcon/>                             | <CheckIcon/>               |
+| References                                | <CheckIcon/>                             | <CheckIcon/>               |
+| Frozen data                               | <CheckIcon/>                             | <CheckIcon/>               |
+| Typescript support (2)                    | <CheckIcon/><ArrowUpIcon/><ArrowUpIcon/> | <CheckIcon/>               |
+| Simplified instance / snapshot type usage | <CheckIcon/>                             | <RedXIcon/>                |
+| Simplified model life-cycle               | <CheckIcon/>                             | <RedXIcon/>                |
+| Runtime type validation (3)               | <CheckIcon/>                             | <CheckIcon/>               |
+| No metadata inside snapshots (4)          | <CheckIcon/>                             | <CheckIcon/><ArrowUpIcon/> |
+| Redux compatibility layer                 | <CheckIcon/>                             | <CheckIcon/>               |
 
 1. Includes an improved action tracking middleware that makes it easier to create
    middlewares for flow (async) actions.
 2. Support for self-model references / cross-model references / no need for late types, no need for casting,
    etc.
 3. Runtime type checking / type definitions are completely optional in `mobx-keystone`
+4. Only when using functional models, although they lack lifecycle support.
 
 ## Typescript improvements
 
@@ -185,4 +186,4 @@ For example, you might create a submodel with an `afterCreate` hook, but it migh
 Maybe you might want to set up an effect (`reaction` or the like), but you only want that effect to work after it actually becomes part of your application state.
 Likewise you might want to call `getRoot` to access the root model, but it might actually not give the value you expect until the model is attached to a parent which is eventually (or not) attached to the proper root.
 
-`mobx-keystone` solves this by only offering two life-cycle hooks, `onInit`, which is _always_ called once the model has been created (and since there's no lazy initialization they will always be), and `onAttachedToRootStore` (plus an optional disposer that gets executed when it is detached), which gets called once the model gets attached to the proper root node (a root store), thus ensuring that at that point `getRoot` will return the expected value and makes it a perfect place to set up effects (more info in the [models](./models) section).
+`mobx-keystone` solves this by only offering two life-cycle hooks, `onInit`, which is _always_ called once the model has been created (and since there's no lazy initialization they will always be), and `onAttachedToRootStore` (plus an optional disposer that gets executed when it is detached), which gets called once the model gets attached to the proper root node (a root store), thus ensuring that at that point `getRoot` will return the expected value and makes it a perfect place to set up effects (more info in the [class models](./classModels) section).

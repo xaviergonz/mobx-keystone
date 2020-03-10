@@ -1,7 +1,7 @@
 import {
   addActionMiddleware,
   applyAction,
-  applyCall,
+  applyMethodCall,
   BuiltInAction,
   deserializeActionCall,
   model,
@@ -42,14 +42,14 @@ test("applyCall", () => {
   )
   expect(events.length).toBe(0)
 
-  expect(applyCall(p.arr, "push", 4, 5)).toBe(p.arr.length)
+  expect(applyMethodCall(p.arr, "push", 4, 5)).toBe(p.arr.length)
   expect(p.arr).toEqual([1, 2, 3, 4, 5])
 
   expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
         "ctx": Object {
-          "actionName": "$$applyCall",
+          "actionName": "$$applyMethodCall",
           "args": Array [
             "push",
             Array [
@@ -73,7 +73,7 @@ test("applyCall", () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "$$applyCall",
+          "actionName": "$$applyMethodCall",
           "args": Array [
             "push",
             Array [
@@ -101,7 +101,7 @@ test("applyCall", () => {
 
   // apply action should work
   const act = {
-    actionName: BuiltInAction.ApplyCall,
+    actionName: BuiltInAction.ApplyMethodCall,
     args: ["push", 6, 7],
     targetPath: [],
     targetPathIds: [],

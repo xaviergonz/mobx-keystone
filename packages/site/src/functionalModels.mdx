@@ -1,0 +1,220 @@
+---
+name: Functional Models
+route: /functionalModels
+---
+
+import { FixStyle } from "./components/FixStyle.tsx"
+
+<FixStyle />
+
+# Functional Models
+
+## Overview
+
+Functional models only define the behaviors (actions/views) that can be performed over data, but separating them from the data itself, thus becoming functions with the target data as parameter.
+
+Compared with class models, this has the distinct advantage of not requiring `$modelId` and `$modelType` as properties in the snapshots, but however comes with some disadvantages as well, namely:
+
+- They don't have default initializers for their properties, since they use actual data objects as data.
+- They don't support lifecycle hooks directly (although `onChildAttachedTo` can still be used).
+- Reconciliation is somewhat worse due to the lack of a `$modelId` to uniquely identify the instances.
+- Tagged runtime extra data is created lazily (upon access).
+
+That being said, they have some use cases (for example to represent a backend response that does not include `$modelId`/`$modelType` and needs to be modified locally and eventually sent back).
+
+## Your first functional model
+
+Functional models work over data, so first we need to declare the type of the data they will work with. Data for a todo can be defined as follows:
+
+```ts
+interface Todo {
+  text: string
+  done: boolean
+}
+```
+
+or if we want runtime type checking:
+
+```ts
+const todoType = types.object(() => ({
+  text: types.string,
+  done: types.boolean,
+}))
+```
+
+Then we can define the set of actions/views that can act over such data:
+
+```ts
+// the string identifies this model type and must be unique across your whole application
+const fnTodo = fnModel<Todo>("myCoolApp/Todo") // if not using runtime type checking
+  // or fnModel(todoType, "myCoolApp/Todo") if using runtime type checking
+
+  // we can also define views (computeds)
+  .views({
+    // must be parameter-less!
+    asString() {
+      return `${!this.done ? "TODO" : "DONE "} ${this.text}`
+    },
+  })
+
+  // and actions
+  .actions({
+    setDone(done: boolean) {
+      this.done = done
+    },
+
+    setText(text: string) {
+      this.text = text
+    },
+  })
+```
+
+## Functional model rules
+
+The rules that need to be followed to declare a model are:
+
+- Model actions need to be used in order to be able to change such data.
+
+Of course primitives are not the only kinds of data that a model can hold. Arrays, plain objects and other objects can be used as well.
+
+## Creating a model instance and using actions/views
+
+An instance of the todo model above can be created like this:
+
+```ts
+const myTodo = fnTodo.create({ done: true, text: "buy some milk" })
+```
+
+When using actions/views you need to pass the data object as first argument:
+
+```ts
+FnTodo.setDone(myTodo, false)
+const str = fnTodo.asString(myTodo)
+```
+
+Also note that this also holds when using actions/views within other actions/views. For example:
+
+```ts
+...
+.actions({
+  setAll(done: boolean, text: string) {
+    fnTodo.setDone(this, done)
+    fnTodo.setText(this, text)
+  }
+})
+```
+
+## Automatic model actions for property setters
+
+Since most of the times the only action we need for a property is a setter we can use `setterActions` to reduce boilerplace. For example, the model above could be written as:
+
+```ts
+const fnTodo = fnModel<Todo>("myCoolApp/Todo").setterActions({
+  setDone: "done",
+  setText: "text",
+})
+
+const myTodo = Todo.create({ done: true, text: "buy some coffee" })
+
+fnTodo.setDone(myTodo, false)
+fnTodo.setText(myTodo, "buy milk instead")
+```
+
+## Computed views with options
+
+Sometimes you might need to use a custom comparison function for a computed view. You can do it like this:
+
+```ts
+...
+.views({
+  asStringWithOptions: {
+    get() {
+      return ...
+    },
+    equals: comparer.struct // or whichever you need
+  }
+})
+```
+
+## Life-cycle event hooks
+
+Functional models do not support life-cycle event hooks. However, you might somewhat get a similar functionality by using `onChildAttachedTo`.
+
+## Runtime data
+
+Runtime data (data that doesn't need to be snapshotable, or that needs to be tracked in any way) can be tagged (attached) to the data object in a lazy way thanks to the `tag` function.
+
+```ts
+const todoTag = tag((data: Todo) => {
+  return {
+    x: 10,
+    // functions also supported
+  }
+})
+
+const tagData = todoTag.for(myTodo)
+tagData.x // 10
+tagData.x = 20
+```
+
+Note that tagged data will be created lazily, this is, it will be created the first time a tag is requested for a data object, and only once.
+
+## Accessing the runtime checking type
+
+Assuming the `fnModel` method was called with a type that describes the object, it is possible to get it back.
+
+```ts
+const todoType = fnTodo.type
+```
+
+## Getting the Typescript types for model Data
+
+- `FnModelData<typeof fnModelType>`
+
+For example `FnModelData<typeof fnTodo>` would return the type of the `Todo` interface.
+
+## Flows (async actions)
+
+While `actions` define sync model actions, async model actions are possible as well with the use of `flowActions`:
+
+```ts
+interface Book {
+  title: string
+  price: number
+}
+
+const fnBookStore = fnModel<{
+  books: Book[]
+}>("myApp/BookStore").flowActions({
+  *fetchMyBooksAsync(token: string) {
+    // we use `yield* _await(X)` where we would use `await X`
+    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
+
+    const myBooks = yield* _await(myBackendClient.getBooks(token))
+
+    this.books = myBooks
+  },
+})
+
+// it can be used like this
+const myBookStore = BookStore.create({ books: [] })
+await myBookStore.fetchMyBooksAsync("someToken")
+```
+
+## Predefined `fnObject` and `fnArray`
+
+In order to work over object and arrays in a functional matter without requiring declaring custom actions you can use the already predefined `fnObject` and `fnArray`.
+
+`fnObject` works over any kind of objects (including model themselves!) and offers:
+
+- `set(obj, key, value)` to set a key.
+- `delete(obj, key)` to delete a key.
+- `call(methodName, ...args)` to call a method.
+
+`fnArray` works over arrays and offers:
+
+- `set(array, index, value)` to set an index.
+- `delete(array, index)` to delete an index.
+- `setLength(array, length)` to set a new length.
+
+Plus the usual array mutation methods (`pop`, `push`, etc.).

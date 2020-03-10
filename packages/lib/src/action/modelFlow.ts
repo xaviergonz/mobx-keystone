@@ -1,18 +1,27 @@
 import { O } from "ts-toolbelt"
 import { checkModelDecoratorArgs } from "../model/utils"
-import { decorateWrapMethodOrField, failure } from "../utils"
+import { assertTweakedObject } from "../tweaker/core"
+import { decorateWrapMethodOrField, failure, inDevMode } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
 import { wrapInAction } from "./wrapInAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
 
-function flow<R, Args extends any[]>(
+/**
+ * @ignore
+ * @internal
+ */
+export function flow<R, Args extends any[]>(
   name: string,
   generator: (...args: Args) => IterableIterator<any>
 ): (...args: Args) => Promise<any> {
   // Implementation based on https://github.com/tj/co/blob/master/index.js
   const flowFn = function(this: any, ...args: any[]) {
-    const self = this
+    const target = this
+
+    if (inDevMode()) {
+      assertTweakedObject(target, "flow")
+    }
 
     let previousAsyncStepContext: ActionContext | undefined
 
@@ -30,15 +39,15 @@ function flow<R, Args extends any[]>(
     }
 
     let generatorRun = false
-    const gen = wrapInAction(
+    const gen = wrapInAction({
       name,
-      () => {
+      fn: () => {
         generatorRun = true
-        return generator.apply(self, args as Args)
+        return generator.apply(target, args as Args)
       },
-      ActionContextActionType.Async,
-      ctxOverride(ActionContextAsyncStepType.Spawn)
-    ).apply(self)
+      actionType: ActionContextActionType.Async,
+      overrideContext: ctxOverride(ActionContextAsyncStepType.Spawn),
+    }).apply(target)
 
     if (!generatorRun) {
       // maybe it got overridden into a sync action
@@ -54,16 +63,16 @@ function flow<R, Args extends any[]>(
       function onFulfilled(res: any): void {
         let ret
         try {
-          ret = wrapInAction(
+          ret = wrapInAction({
             name,
-            genNext,
-            ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.Resume)
-          ).call(self, res)
+            fn: genNext,
+            actionType: ActionContextActionType.Async,
+            overrideContext: ctxOverride(ActionContextAsyncStepType.Resume),
+          }).call(target, res)
         } catch (e) {
-          wrapInAction(
+          wrapInAction({
             name,
-            (err: any) => {
+            fn: (err: any) => {
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
                 value: err,
@@ -73,10 +82,10 @@ function flow<R, Args extends any[]>(
                 rejecter: reject,
               } as FlowFinisher
             },
-            ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.Throw),
-            true
-          ).call(self, e)
+            actionType: ActionContextActionType.Async,
+            overrideContext: ctxOverride(ActionContextAsyncStepType.Throw),
+            isFlowFinisher: true,
+          }).call(target, e)
           return
         }
 
@@ -86,16 +95,16 @@ function flow<R, Args extends any[]>(
       function onRejected(err: any): void {
         let ret
         try {
-          ret = wrapInAction(
+          ret = wrapInAction({
             name,
-            genThrow,
-            ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.ResumeError)
-          ).call(self, err)
+            fn: genThrow,
+            actionType: ActionContextActionType.Async,
+            overrideContext: ctxOverride(ActionContextAsyncStepType.ResumeError),
+          }).call(target, err)
         } catch (e) {
-          wrapInAction(
+          wrapInAction({
             name,
-            (err: any) => {
+            fn: (err: any) => {
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
                 value: err,
@@ -105,10 +114,10 @@ function flow<R, Args extends any[]>(
                 rejecter: reject,
               } as FlowFinisher
             },
-            ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.Throw),
-            true
-          ).call(self, e)
+            actionType: ActionContextActionType.Async,
+            overrideContext: ctxOverride(ActionContextAsyncStepType.Throw),
+            isFlowFinisher: true,
+          }).call(target, e)
           return
         }
 
@@ -121,9 +130,9 @@ function flow<R, Args extends any[]>(
           ret.then(next, reject)
         } else if (ret.done) {
           // done
-          wrapInAction(
+          wrapInAction({
             name,
-            (val: any) => {
+            fn: (val: any) => {
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
                 value: val,
@@ -133,10 +142,10 @@ function flow<R, Args extends any[]>(
                 rejecter: reject,
               } as FlowFinisher
             },
-            ActionContextActionType.Async,
-            ctxOverride(ActionContextAsyncStepType.Return),
-            true
-          ).call(self, ret.value)
+            actionType: ActionContextActionType.Async,
+            overrideContext: ctxOverride(ActionContextAsyncStepType.Return),
+            isFlowFinisher: true,
+          }).call(target, ret.value)
         } else {
           // continue
           Promise.resolve(ret.value).then(onFulfilled, onRejected)
@@ -200,10 +209,7 @@ export function modelFlow(
         return fn
       } else {
         checkModelFlowArgs(data.target, data.propertyKey, fn)
-        return flow(
-          data.propertyKey,
-          fn
-        )
+        return flow(data.propertyKey, fn)
       }
     }
   )

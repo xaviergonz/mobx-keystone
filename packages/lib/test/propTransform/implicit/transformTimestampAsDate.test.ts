@@ -32,11 +32,6 @@ test("transformTimestampAsDate", () => {
     setTimestamp(timestamp: number) {
       this.$.date = timestamp
     }
-
-    @modelAction
-    setDateTime(time: number) {
-      this.date.setTime(time)
-    }
   }
 
   assert(_ as SnapshotInOf<M>["date"], _ as number)
@@ -85,8 +80,8 @@ test("transformTimestampAsDate", () => {
   const now2 = 1569524561993
   const dateNow2 = new Date(now2)
 
-  expect(timestampAsDate.propToData(now2)).toStrictEqual(dateNow2)
-  expect(timestampAsDate.dataToProp(dateNow2)).toStrictEqual(now2)
+  expect(timestampAsDate.propToData(now2)).toEqual(dateNow2)
+  expect(timestampAsDate.dataToProp(dateNow2)).toEqual(now2)
 
   m.setDate(dateNow2)
   expect(m.date).toEqual(dateNow2)
@@ -157,8 +152,4 @@ test("transformTimestampAsDate", () => {
       1970-01-01T00:00:10.000Z,
     ]
   `)
-
-  // make sure mutations on the date object are picked up in the backed prop
-  m.setDateTime(10)
-  expect(m.$.date).toBe(10)
 })
