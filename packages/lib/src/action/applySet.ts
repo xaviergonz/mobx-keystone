@@ -39,5 +39,9 @@ export function internalApplySet<O extends object>(
 }
 
 const wrappedInternalApplySet = lazy(() =>
-  wrapInAction(BuiltInAction.ApplySet, internalApplySet, ActionContextActionType.Sync)
+  wrapInAction({
+    name: BuiltInAction.ApplySet,
+    fn: internalApplySet,
+    actionType: ActionContextActionType.Sync,
+  })
 )

@@ -1,3 +1,4 @@
+import { getFnModelAction } from "../fnModel/actions"
 import "../model/utils" // if we don't have this then dep order gets messed up
 import { detach } from "../parent/detach"
 import { resolvePathCheckingIds } from "../parent/path"
@@ -6,8 +7,8 @@ import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
-import { applyCall } from "./applyCall"
 import { applyDelete } from "./applyDelete"
+import { applyMethodCall } from "./applyMethodCall"
 import { applySet } from "./applySet"
 import { BuiltInAction, isBuiltInAction } from "./builtInActions"
 import { isHookAction } from "./hookActions"
@@ -48,7 +49,7 @@ const builtInActionToFunction = {
   [BuiltInAction.Detach]: detach,
   [BuiltInAction.ApplySet]: applySet,
   [BuiltInAction.ApplyDelete]: applyDelete,
-  [BuiltInAction.ApplyCall]: applyCall,
+  [BuiltInAction.ApplyMethodCall]: applyMethodCall,
 }
 
 /**
@@ -94,6 +95,11 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   } else if (isHookAction(call.actionName)) {
     throw failure(`calls to hooks (${call.actionName}) cannot be applied`)
   } else {
-    return (current as any)[call.actionName].apply(current, call.args)
+    const standaloneAction = getFnModelAction(call.actionName)
+    if (standaloneAction) {
+      return standaloneAction.apply(current, call.args as any)
+    } else {
+      return (current as any)[call.actionName].apply(current, call.args)
+    }
   }
 }

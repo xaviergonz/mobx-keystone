@@ -1,5 +1,15 @@
 # Change Log
 
+- [BREAKING CHANGES]
+  - `applyCall` has been renamed to `applyMethodCall` - consider using `fnObject.call` though.
+  - `arrayAsMap`, `ArrayAsMap` were removed (see `asMap` for a replacement).
+  - `arrayAsSet`, `ArrayAsSet` were removed (see `asSet` for a replacement).
+  - `objectAsMap`, `ObjectAsMap` were removed (see `asMap` for a replacement).
+- Added `asMap` and `asSet`, which are similar to the old `arrayAsMap`, etc. except that they take the data object directly.
+- Added `fnModel` as a functional alternative to models that do not require `$modelId` or `$modelType` (see the relevant section on the docs for more info).
+- Added `tag` to be able to tag objects with extra data (useful for functional models for example).
+- Added `fnObject` and `fnArray` to be able to directly manipulate objects/arrays without the need of predefined model actions.
+
 ## 0.42.1
 
 - Fixed issue with updated uuid dependency.

@@ -26,11 +26,6 @@ test("transformStringAsDate", () => {
     setDate(date: Date) {
       this.date = date
     }
-
-    @modelAction
-    setDateTime(time: number) {
-      this.date.setTime(time)
-    }
   }
 
   assert(_ as SnapshotInOf<M>["date"], _ as string)
@@ -117,8 +112,4 @@ test("transformStringAsDate", () => {
 
   expect(m.date).toEqual(dateNow)
   expect(m.$.date).toBe(dateNow.toJSON())
-
-  // make sure mutations on the date object are picked up in the backed prop
-  m.setDateTime(10)
-  expect(m.$.date).toBe(new Date(10).toJSON())
 })

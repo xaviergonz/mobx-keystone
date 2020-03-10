@@ -68,8 +68,8 @@ test("stringAsDate", () => {
   expect(m.date).toEqual(dateNow2)
   expect(m.time).toBe(dateNow2.toJSON())
 
-  expect(stringAsDate.propToData(m.time)).toStrictEqual(dateNow2)
-  expect(stringAsDate.dataToProp(dateNow2)).toStrictEqual(m.time)
+  expect(stringAsDate.propToData(m.time)).toEqual(dateNow2)
+  expect(stringAsDate.dataToProp(dateNow2)).toEqual(m.time)
 
   expect(actionCalls).toMatchInlineSnapshot(`
     Array [

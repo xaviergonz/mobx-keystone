@@ -21,7 +21,11 @@ export function detach(node: object): void {
 }
 
 const wrappedInternalDetach = lazy(() =>
-  wrapInAction(BuiltInAction.Detach, internalDetach, ActionContextActionType.Sync)
+  wrapInAction({
+    name: BuiltInAction.Detach,
+    fn: internalDetach,
+    actionType: ActionContextActionType.Sync,
+  })
 )
 
 function internalDetach(this: object): void {

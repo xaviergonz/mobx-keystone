@@ -1,7 +1,9 @@
 import {
   IObservableArray,
+  IObservableObject,
   isObservableArray,
   isObservableMap,
+  isObservableObject,
   isObservableSet,
   ObservableMap,
   ObservableSet,
@@ -173,6 +175,62 @@ export function assertIsObject(value: unknown, argName: string): asserts value i
  * @ignore
  * @internal
  */
+export function assertIsPlainObject(value: unknown, argName: string): asserts value is object {
+  if (!isPlainObject(value)) {
+    throw failure(`${argName} must be a plain object`)
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function assertIsObservableObject(
+  value: unknown,
+  argName: string
+): asserts value is IObservableObject {
+  if (!isObservableObject(value)) {
+    throw failure(`${argName} must be an observable object`)
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function assertIsObservableArray(
+  value: unknown,
+  argName: string
+): asserts value is IObservableArray {
+  if (!isObservableArray(value)) {
+    throw failure(`${argName} must be an observable array`)
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function assertIsMap(value: unknown, argName: string): asserts value is Map<any, any> {
+  if (!isMap(value)) {
+    throw failure(`${argName} must be a map`)
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function assertIsSet(value: unknown, argName: string): asserts value is Set<any> {
+  if (!isSet(value)) {
+    throw failure(`${argName} must be a set`)
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
 export function assertIsFunction(value: unknown, argName: string): asserts value is Function {
   if (typeof value !== "function") {
     throw failure(`${argName} must be a function`)
@@ -189,6 +247,16 @@ export function assertIsPrimitive(
 ): asserts value is PrimitiveValue {
   if (!isPrimitive(value)) {
     throw failure(`${argName} must be a primitive`)
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function assertIsString(value: unknown, argName: string): asserts value is string {
+  if (typeof value !== "string") {
+    throw failure(`${argName} must be a string`)
   }
 }
 

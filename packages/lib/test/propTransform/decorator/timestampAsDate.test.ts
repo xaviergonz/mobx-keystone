@@ -34,8 +34,8 @@ test("timestampAsDate", () => {
   const now = 0
   const dateNow = new Date(now)
 
-  expect(timestampAsDate.propToData(now)).toStrictEqual(dateNow)
-  expect(timestampAsDate.dataToProp(dateNow)).toStrictEqual(now)
+  expect(timestampAsDate.propToData(now)).toEqual(dateNow)
+  expect(timestampAsDate.dataToProp(dateNow)).toEqual(now)
 
   const m = new M({ timestamp: now })
 
@@ -75,8 +75,8 @@ test("timestampAsDate", () => {
   const now2 = 1569524561993
   const dateNow2 = new Date(now2)
 
-  expect(timestampAsDate.propToData(now2)).toStrictEqual(dateNow2)
-  expect(timestampAsDate.dataToProp(dateNow2)).toStrictEqual(now2)
+  expect(timestampAsDate.propToData(now2)).toEqual(dateNow2)
+  expect(timestampAsDate.dataToProp(dateNow2)).toEqual(now2)
 
   m.setDate(dateNow2)
   expect(m.date).toEqual(dateNow2)

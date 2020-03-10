@@ -97,5 +97,9 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
 }
 
 const wrappedInternalApplySnapshot = lazy(() =>
-  wrapInAction(BuiltInAction.ApplySnapshot, internalApplySnapshot, ActionContextActionType.Sync)
+  wrapInAction({
+    name: BuiltInAction.ApplySnapshot,
+    fn: internalApplySnapshot,
+    actionType: ActionContextActionType.Sync,
+  })
 )

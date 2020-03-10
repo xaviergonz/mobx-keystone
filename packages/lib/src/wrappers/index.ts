@@ -1,5 +1,4 @@
-export * from "./arrayAsMapWrapper"
-export * from "./arrayAsSetWrapper"
 export * from "./ArraySet"
-export * from "./objectAsMapWrapper"
+export * from "./asMap"
+export * from "./asSet"
 export * from "./ObjectMap"
