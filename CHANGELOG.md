@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.43.0
+
 - [BREAKING CHANGES]
   - `applyCall` has been renamed to `applyMethodCall` - consider using `fnObject.call` though.
   - `arrayAsMap`, `ArrayAsMap` were removed (see `asMap` for a replacement).
