@@ -88,7 +88,7 @@ const myTodo = fnTodo.create({ done: true, text: "buy some milk" })
 When using actions/views you need to pass the data object as first argument:
 
 ```ts
-FnTodo.setDone(myTodo, false)
+fnTodo.setDone(myTodo, false)
 const str = fnTodo.asString(myTodo)
 ```
 
@@ -97,6 +97,8 @@ Also note that this also holds when using actions/views within other actions/vie
 ```ts
 ...
 .actions({
+  ...
+
   setAll(done: boolean, text: string) {
     fnTodo.setDone(this, done)
     fnTodo.setText(this, text)
