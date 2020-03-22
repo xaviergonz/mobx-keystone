@@ -22,6 +22,6 @@
     "eslint": "^6.5.1",
     "lerna": "^3.16.5",
     "netlify-cli": "^2.17.0",
-    "prettier": "^1.17.0"
+    "prettier": "^2.0.1"
   }
 }
