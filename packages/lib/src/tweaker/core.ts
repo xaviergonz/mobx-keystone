@@ -41,7 +41,7 @@ export function assertTweakedObject(
   if (!canBeDataObject && dataObjectParent.has(treeNode as object)) {
     throw failure(`${argName} must be the model object instance instead of the '$' sub-object`)
   }
-  if (!isTreeNode(treeNode)) {
+  if (isPrimitive(treeNode) || !isTweakedObject(treeNode, true)) {
     throw failure(
       `${argName} must be a tree node (usually a model or a shallow / deep child part of a model 'data' object)`
     )

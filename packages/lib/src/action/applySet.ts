@@ -1,4 +1,5 @@
 import { isObservable, set } from "mobx"
+import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { lazy } from "../utils"
 import { BuiltInAction } from "./builtInActions"
@@ -22,16 +23,10 @@ export function applySet<O extends object, K extends keyof O, V extends O[K]>(
   wrappedInternalApplySet().call(node, fieldName as string | number, value)
 }
 
-/**
- * @ignore
- * @internal
- */
-export function internalApplySet<O extends object>(
-  this: O,
-  fieldName: string | number,
-  value: any
-): void {
-  if (isObservable(this)) {
+function internalApplySet<O extends object>(this: O, fieldName: string | number, value: any): void {
+  // we need to check if it is a model since models can become observable objects
+  // (e.g. by having a computed value)
+  if (!isModel(this) && isObservable(this)) {
     set(this, fieldName, value)
   } else {
     ;(this as any)[fieldName] = value
