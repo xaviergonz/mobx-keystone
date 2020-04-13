@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.43.1
+
+- Fixed an issue with automatic setter actions not working when the model included computed properties.
+
 ## 0.43.0
 
 - [BREAKING CHANGES]

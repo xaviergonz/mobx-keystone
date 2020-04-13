@@ -1,3 +1,4 @@
+import { computed } from "mobx"
 import { addActionMiddleware, model, Model, modelAction, prop } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -6,6 +7,11 @@ import { autoDispose } from "../utils"
 export class P extends Model({
   y: prop(0, { setterAction: true }),
 }) {
+  @computed
+  get cv() {
+    return this.y * 10
+  }
+
   @modelAction
   setY(n: number) {
     this.y = n
@@ -39,6 +45,8 @@ test("setterAction", () => {
 
   p.y = 5
   expect(p.y).toBe(5)
+  expect(p.$.y).toBe(5)
+  expect(p.cv).toBe(50)
 
   expect(events).toMatchInlineSnapshot(`
     Array [
@@ -90,6 +98,8 @@ test("setterAction", () => {
   // check that it is not wrapped in action when used inside an action already
   p.setY(10)
   expect(p.y).toBe(10)
+  expect(p.$.y).toBe(10)
+  expect(p.cv).toBe(100)
   expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
