@@ -9,7 +9,6 @@
     "build": "docz build"
   },
   "dependencies": {
-    "docz": "~2.2.0",
     "mobx": "^5.14.0",
     "mobx-react": "^6.1.1",
     "react": "^16.10.2",
@@ -19,6 +18,8 @@
     "uuid": "^7.0.0"
   },
   "devDependencies": {
+    "docz": "^2.3.0",
+    "gatsby-plugin-mdx": "^1.1.7",
     "@babel/plugin-proposal-decorators": "^7.7.4",
     "@types/react": "^16.9.5",
     "@types/react-dom": "^16.9.1",
