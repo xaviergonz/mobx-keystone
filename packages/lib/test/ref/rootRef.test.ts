@@ -73,6 +73,7 @@ class Countries extends Model({
 
 const countryRef = rootRef<Country>("countryRef", {
   onResolvedValueChange(ref, newValue, oldValue) {
+    expect(newValue !== oldValue)
     if (oldValue && !newValue) {
       detach(ref)
     }
@@ -240,6 +241,7 @@ test("single selection with custom getId", () => {
     },
 
     onResolvedValueChange(ref, newTodo, oldTodo) {
+      expect(newTodo !== oldTodo)
       if (oldTodo && !newTodo) {
         // if the todo value we were referencing disappeared then remove the reference
         // from its parent
@@ -450,6 +452,7 @@ test("getRefsResolvingTo after loading from snapshot", () => {
 test("applySnapshot - applyPatches - ref", () => {
   const bRef = rootRef<B>("bRef", {
     onResolvedValueChange(_, next, prev) {
+      expect(next !== prev)
       if (prev && !next) {
         detach(prev)
       }

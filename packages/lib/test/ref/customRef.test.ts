@@ -76,6 +76,7 @@ const countryRef = customRef<Country>("countryRef", {
   },
 
   onResolvedValueChange(ref, newValue, oldValue) {
+    expect(newValue !== oldValue)
     if (oldValue && !newValue) {
       detach(ref)
     }
@@ -254,6 +255,7 @@ test("single selection with getRefId", () => {
     },
 
     onResolvedValueChange(ref, newTodo, oldTodo) {
+      expect(newTodo !== oldTodo)
       if (oldTodo && !newTodo) {
         // if the todo value we were referencing disappeared then remove the reference
         // from its parent
