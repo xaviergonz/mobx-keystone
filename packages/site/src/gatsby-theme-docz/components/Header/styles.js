@@ -14,14 +14,13 @@ export const logoTitle = {
 export const logoImage = {
   marginRight: 16,
   width: 48,
-  height: 48,
 }
 
 export const wrapper = {
   bg: "header.bg",
   position: "relative",
   zIndex: 1,
-  borderBottom: t => `1px solid ${t.colors.border}`,
+  borderBottom: (t) => `1px solid ${t.colors.border}`,
 }
 
 export const innerContainer = {
