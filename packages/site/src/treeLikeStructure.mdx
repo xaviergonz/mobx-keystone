@@ -62,7 +62,8 @@ A model/object/array is turned into a tree node under the following circumstance
 - Model instances are _always_ tree nodes.
 - Plain objects / arrays are turned into tree nodes as soon as they become children of another tree node.
 
-To check if an non-primitive has been turned into a tree node you can use `isTreeNode(value: object): boolean`.
+To check if an non-primitive has been turned into a tree node you can use `isTreeNode(value: object): boolean`, or
+`assertIsTreeNode(value: object, argName: string = "argument"): asserts value is object` to assert it.
 
 To turn a non-primitive into a tree node you can use `toTreeNode<T>(value: T): T`. If the object is already a tree node then the same object will be returned.
 
@@ -145,7 +146,7 @@ The mode can be one of:
 
 ### `detach(value: object): void`
 
-Besides the aforementioned `isTreeNode` and `toTreeNode` methods, there's also the `detach(value: object)` method, which allows a node to get detached from its parent following this logic:
+Besides the aforementioned `isTreeNode`, `assertIsTreeNode` and `toTreeNode` methods, there's also the `detach(value: object)` method, which allows a node to get detached from its parent following this logic:
 
 - If the parent is an object / model, detaching will delete the property.
 - If the parent is an array detaching will remove the node by splicing it.

@@ -49,6 +49,19 @@ export function assertTweakedObject(
 }
 
 /**
+ * Asserts a given object is now a tree node, or throws otherwise.
+ *
+ * @param value Value to check.
+ * @param argName Argument name, part of the thrown error description.
+ */
+export function assertIsTreeNode(
+  value: unknown,
+  argName: string = "argument"
+): asserts value is object {
+  assertTweakedObject(value, argName, false)
+}
+
+/**
  * @ignore
  * @internal
  */

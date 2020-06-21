@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.44.0
+
+- Added `assertIsTreeNode`, which asserts if an object is a tree node or throws otherwise.
+
 ## 0.43.1
 
 - Fixed an issue with automatic setter actions not working when the model included computed properties.
