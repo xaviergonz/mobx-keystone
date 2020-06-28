@@ -1,6 +1,6 @@
 # mobx-keystone
 
-_A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more_
+_A MobX powered state management solution based on data trees with first-class support for Typescript, snapshots, patches and much more_
 
 [![npm](https://img.shields.io/npm/v/mobx-keystone.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/mobx-keystone)
 ![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=flat-square)
@@ -22,34 +22,34 @@ Simply put, it tries to combine the best features of both immutability (transact
 Unlike MobX itself, `mobx-keystone` is very opinionated about how data should be structured and updated.
 This makes it possible to solve many common problems out of the box.
 
-Central in `mobx-keystone` (`mobx-keystone`) is the concept of a _living tree_. The tree consists of mutable, but strictly protected objects (models, arrays and plain objects).
-From this living tree, immutable, structurally shared, snapshots are automatically generated.
+Central in `mobx-keystone` is the concept of a _living tree_. The tree consists of mutable, but strictly protected objects (models, arrays and plain objects).
+From this living tree, immutable, structurally shared snapshots are automatically generated.
 
-Another of the core design goals of `mobx-keystone` it to offer a great Typescript syntax out of the box, be it for models (and other kind of data such as plain objects and arrays) or for its generated snapshots.
+Another core design goal of `mobx-keystone` is to offer a great Typescript syntax out of the box, be it for models (and other kinds of data such as plain objects and arrays) or for its generated snapshots.
 
-To see some code and a a glimpse of how it works check the [Todo List Example](https://mobx-keystone.js.org/examples/todoList)
+To see some code and get a glimpse of how it works check the [Todo List Example](https://mobx-keystone.js.org/examples/todoList).
 
-Because state trees are living, mutable models, actions are straight-forward to write; just modify local instance properties where appropriate. It is not necessary to produce a new state tree yourself, `mobx-keystone`'s snapshot functionality will derive one for you automatically.
+Because state trees are living, mutable models, actions are straightforward to write; just modify local instance properties where appropriate. It is not necessary to produce a new state tree yourself, `mobx-keystone`'s snapshot functionality will derive one for you automatically.
 
 Although mutable sounds scary to some, fear not, actions have many interesting properties.
 By default trees can only be modified by using an action that belongs to the same subtree.
 Furthermore, actions are replayable and can be used to distribute changes.
 
-Moreover, because changes can be detected on a fine grained level, JSON patches are supported out of the box.
+Moreover, because changes can be detected on a fine-grained level, JSON patches are supported out of the box.
 Simply subscribing to the patch stream of a tree is another way to sync diffs with, for example, back-end servers or other clients.
 
-Since `mobx-keystone` uses MobX behind the scenes, it integrates seamlessly with [mobx](https://mobx.js.org) and [mobx-react](https://github.com/mobxjs/mobx-react).
+Since `mobx-keystone` uses MobX behind the scenes, it integrates seamlessly with [`mobx`](https://mobx.js.org) and [`mobx-react`](https://github.com/mobxjs/mobx-react).
 Even cooler, because it supports snapshots, action middlewares and replayable actions out of the box, it is possible to replace a Redux store and reducer with a MobX data model.
 This makes it possible to connect the Redux devtools to `mobx-keystone`.
 
-Like React, `mobx-keystone` consists of composable components, called _models_, which captures a small piece of state. They are instantiated from props and after that manage and protect their own internal state (using actions). Moreover, when applying snapshots, tree nodes are reconciled as much as possible.
+Like React, `mobx-keystone` consists of composable components, called _models_, which capture small pieces of state. They are instantiated from props and after that manage and protect their own internal state (using actions). Moreover, when applying snapshots, tree nodes are reconciled as much as possible.
 
 ## Requirements
 
 This library requires a more or less modern Javascript environment to work, namely one with support for:
 
-- Mobx 4 (with its gotchas) or 5 (recommended)
-- Proxies (when using mobx 5+)
+- MobX 4 (with its gotchas) or 5 (recommended)
+- Proxies (when using MobX 5+)
 - Symbols
 - WeakMap/WeakSet
 
