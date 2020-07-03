@@ -1,5 +1,6 @@
 export * from "./action"
 export * from "./actionMiddlewares"
+export * from "./config"
 export * from "./context"
 export * from "./fnModel"
 export * from "./frozen"
