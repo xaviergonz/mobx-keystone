@@ -18,7 +18,13 @@ import { FixStyle } from "./components/FixStyle.tsx"
 - An array.
 - A primitive value (`string`, `boolean`, `number`, `null`, `undefined`).
 
-About arrays, it is interesting to note that they _cannot_ hold `undefined` values, but they _can_ hold `null` values. This rule is enforced to ensure compatibility with JSON.
+About arrays, it is interesting to note that by default they _cannot_ hold `undefined` values, but they _can_ hold `null` values. This rule is enforced to ensure compatibility with JSON. If you really need arrays with `undefined` values, it can be enabled in the global configuration:
+
+```ts
+setGlobalConfig({
+  allowUndefinedArrayElements: true,
+})
+```
 
 Since the structure is a tree, this means these tree rules apply:
 
