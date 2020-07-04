@@ -37,7 +37,7 @@ export interface GlobalConfig {
   /**
    * Allow array elements to be `undefined`.
    */
-  allowArrayElementUndefined: boolean
+  allowUndefinedArrayElements: boolean
 }
 
 let localId = 0
@@ -54,7 +54,7 @@ function defaultModelIdGenerator(): string {
 let globalConfig: GlobalConfig = {
   modelAutoTypeChecking: ModelAutoTypeCheckingMode.DevModeOnly,
   modelIdGenerator: defaultModelIdGenerator,
-  allowArrayElementUndefined: false,
+  allowUndefinedArrayElements: false,
 }
 
 /**
