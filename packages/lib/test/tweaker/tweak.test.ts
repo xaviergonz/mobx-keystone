@@ -1,10 +1,10 @@
-import { getGlobalConfig, runUnprotected, setGlobalConfig, tweak } from "../../src"
+import { getGlobalConfig, runUnprotected, setGlobalConfig, toTreeNode } from "../../src"
 
 describe("tweak", () => {
   test("array disallows undefined element when allowUndefinedArrayElements is false", () => {
     expect(getGlobalConfig().allowUndefinedArrayElements).toBeFalsy()
 
-    const array = tweak<undefined[]>([], undefined)
+    const array = toTreeNode<undefined[]>([])
 
     expect(() => {
       runUnprotected(() => {
@@ -16,7 +16,7 @@ describe("tweak", () => {
   test("array allows undefined element when allowUndefinedArrayElements is true", () => {
     setGlobalConfig({ allowUndefinedArrayElements: true })
 
-    const array = tweak<undefined[]>([], undefined)
+    const array = toTreeNode<undefined[]>([])
 
     expect(() => {
       runUnprotected(() => {
