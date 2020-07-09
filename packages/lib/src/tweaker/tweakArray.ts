@@ -11,6 +11,7 @@ import {
   set,
 } from "mobx"
 import { assertCanWrite } from "../action/protection"
+import { getGlobalConfig } from "../globalConfig"
 import { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
@@ -272,7 +273,7 @@ function interceptArrayMutation(
   switch (change.type) {
     case "splice":
       {
-        if (inDevMode()) {
+        if (inDevMode() && !getGlobalConfig().allowUndefinedArrayElements) {
           const len = change.added.length
           for (let i = 0; i < len; i++) {
             const v = change.added[i]
@@ -316,7 +317,11 @@ function interceptArrayMutation(
       break
 
     case "update":
-      if (inDevMode() && change.newValue === undefined) {
+      if (
+        inDevMode() &&
+        !getGlobalConfig().allowUndefinedArrayElements &&
+        change.newValue === undefined
+      ) {
         throw failure(undefinedInsideArrayErrorMsg)
       }
 

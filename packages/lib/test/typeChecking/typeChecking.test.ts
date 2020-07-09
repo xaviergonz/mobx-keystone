@@ -563,6 +563,20 @@ test("array - unchecked", () => {
   expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(types.unchecked()))
 })
 
+test("array - undefined", () => {
+  const type = types.array(types.undefined)
+  assert(_ as TypeToData<typeof type>, _ as undefined[])
+
+  expectTypeCheckOk(type, [undefined])
+
+  expectTypeCheckFail(type, "ho", [], "Array<undefined>")
+  expectTypeCheckFail(type, ["ho"], [0], "undefined")
+
+  const typeInfo = expectValidTypeInfo(type, ArrayTypeInfo)
+  expect(typeInfo.itemType).toEqual(types.undefined)
+  expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(types.undefined))
+})
+
 test("object - complex types", () => {
   const xType = types.maybe(types.number)
   const oType = types.object(() => ({
