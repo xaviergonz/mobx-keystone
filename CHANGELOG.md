@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.45.0
+
+- Added `allowUndefinedArrayElements` global config option to allow arrays to take `undefined` elements.
+
 ## 0.44.0
 
 - Added `assertIsTreeNode`, which asserts if an object is a tree node or throws otherwise.
