@@ -251,9 +251,11 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
   interface PatchRecorderData {
     recorder: PatchRecorder
     recorderStack: number
+    undoRootContext: SimpleActionContext
   }
 
   const patchRecorderSymbol = Symbol("patchRecorder")
+
   function initPatchRecorder(ctx: SimpleActionContext) {
     ctx.rootContext.data[patchRecorderSymbol] = {
       recorder: patchRecorder(subtreeRoot, {
@@ -261,8 +263,10 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
         filter: undoDisabledFilter,
       }),
       recorderStack: 0,
+      undoRootContext: ctx,
     } as PatchRecorderData
   }
+
   function getPatchRecorderData(ctx: SimpleActionContext): PatchRecorderData {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
@@ -271,7 +275,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
 
   const middlewareDisposer = actionTrackingMiddleware(subtreeRoot, {
     onStart(ctx) {
-      if (ctx === ctx.rootContext) {
+      if (!getPatchRecorderData(ctx)) {
         initPatchRecorder(ctx)
       }
     },
@@ -286,8 +290,9 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
       patchRecorderData.recorder.recording = patchRecorderData.recorderStack > 0
     },
     onFinish(ctx) {
-      if (ctx === ctx.rootContext) {
-        const patchRecorder = getPatchRecorderData(ctx).recorder
+      const patchRecorderData = getPatchRecorderData(ctx)
+      if (patchRecorderData && patchRecorderData.undoRootContext === ctx) {
+        const patchRecorder = patchRecorderData.recorder
 
         if (patchRecorder.events.length > 0) {
           const patches: Patch[] = []

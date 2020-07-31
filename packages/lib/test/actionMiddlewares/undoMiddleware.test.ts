@@ -769,3 +769,110 @@ test("issue #115", () => {
   undoManager.redo()
   expectState(model2, 2, 0)
 })
+
+test("undo-aware substore called from non undo-aware root store", () => {
+  @model("subactions/RootStore")
+  class RootStore extends Model({
+    substore: prop(() => new SubStore({})),
+  }) {
+    @modelAction
+    addSubStoreValueIndirect(value: number) {
+      this.substore.addValue(value)
+    }
+
+    @modelAction
+    addSubStoreValueDirect(value: number) {
+      this.substore.values.push(value)
+    }
+  }
+
+  @model("subactions/SubStore")
+  class SubStore extends Model({
+    values: prop(() => [] as number[]),
+  }) {
+    @modelAction
+    addValue(value: number) {
+      this.values.push(value)
+    }
+  }
+
+  const rootStore = new RootStore({})
+  const manager = undoMiddleware(rootStore.substore)
+  expect(manager.undoLevels).toBe(0)
+
+  rootStore.substore.addValue(1)
+  expect(rootStore.substore.values).toEqual([1])
+  expect(manager.undoLevels).toBe(1) // substore action directly called
+  expect(manager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "addValue",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "values",
+              "length",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "values",
+              0,
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "substore",
+        ],
+      },
+    ]
+  `)
+  manager.clearUndo()
+
+  rootStore.addSubStoreValueDirect(2)
+  expect(rootStore.substore.values).toEqual([1, 2])
+  expect(manager.undoLevels).toBe(0) // no substore action called
+  expect(manager.undoQueue).toMatchInlineSnapshot(`Array []`)
+  manager.clearUndo()
+
+  rootStore.addSubStoreValueIndirect(3)
+  expect(rootStore.substore.values).toEqual([1, 2, 3])
+  expect(manager.undoLevels).toBe(1) // substore action indirectly called
+  expect(manager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "addValue",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "values",
+              "length",
+            ],
+            "value": 2,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "values",
+              2,
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "substore",
+        ],
+      },
+    ]
+  `)
+  manager.clearUndo()
+})

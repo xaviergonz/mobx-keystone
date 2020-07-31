@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.45.1
+
+- Fixed a bug when calling an undo-able model action from a non undo-able parent model.
+
 ## 0.45.0
 
 - Added `allowUndefinedArrayElements` global config option to allow arrays to take `undefined` elements.
