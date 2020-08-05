@@ -1,5 +1,7 @@
 # Change Log
 
+- Fix: `allowUndefinedArrayElements` now also applies to frozen data.
+
 ## 0.45.1
 
 - Fixed a bug when calling an undo-able model action from a non undo-able parent model.

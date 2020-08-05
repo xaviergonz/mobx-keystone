@@ -1,3 +1,4 @@
+import { getGlobalConfig } from "../globalConfig"
 import { SnapshotInOfFrozen } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
@@ -89,7 +90,7 @@ function checkDataIsSerializableAndFreeze(data: any) {
     const arrLen = data.length
     for (let i = 0; i < arrLen; i++) {
       const v = data[i]
-      if (v === undefined) {
+      if (v === undefined && !getGlobalConfig().allowUndefinedArrayElements) {
         throw failure(
           "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
         )
