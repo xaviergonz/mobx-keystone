@@ -78,9 +78,6 @@ test("subclassing with additional props", () => {
       y?: number | null
       z?: number | null
     } & {
-      x?: number | null
-      y?: number | null
-      z?: number | null
       a?: number | null
       b: number
     }
@@ -282,15 +279,8 @@ test("three level subclassing", () => {
       y?: number | null | undefined
       z?: number | null | undefined
     } & {
-      x?: number | null
-      y?: number | null
-      z?: number | null
-      a?: number | null
+      a?: number | null | undefined
     } & {
-      x?: number | null
-      y?: number | null
-      z?: number | null
-      a?: number | null
       b: number
     }
   )

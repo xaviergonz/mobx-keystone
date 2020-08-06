@@ -1,4 +1,3 @@
-import { O } from "ts-toolbelt"
 import { applySet } from "../action/applySet"
 import { getCurrentActionContext } from "../action/context"
 import { memoTransformCache } from "../propTransform/propTransform"
@@ -28,19 +27,15 @@ import {
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
   ModelPropsToPropsData,
-  OptionalModelProps,
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
 declare const propsDataSymbol: unique symbol
 declare const instanceDataSymbol: unique symbol
 
-declare const optDataSymbol: unique symbol
-
 declare const propsCreationDataSymbol: unique symbol
 declare const instanceCreationDataSymbol: unique symbol
 
-declare const composedPropsCreationDataSymbol: unique symbol
 declare const composedInstanceCreationDataSymbol: unique symbol
 
 export interface _Model<SuperModel, TProps extends ModelProps> {
@@ -52,16 +47,11 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
   [propsDataSymbol]: ModelPropsToPropsData<TProps>
   [instanceDataSymbol]: ModelPropsToInstanceData<TProps>
 
-  [optDataSymbol]: OptionalModelProps<TProps>
-
   [propsCreationDataSymbol]: ModelPropsToPropsCreationData<TProps>
   [instanceCreationDataSymbol]: ModelPropsToInstanceCreationData<TProps>
 
-  [composedPropsCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD>
-    ? O.Merge<CD, this[typeof propsCreationDataSymbol]>
-    : this[typeof propsCreationDataSymbol]
-  [composedInstanceCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD>
-    ? O.Merge<CD, this[typeof instanceCreationDataSymbol]>
+  [composedInstanceCreationDataSymbol]: SuperModel extends BaseModel<any, infer ICD>
+    ? this[typeof instanceCreationDataSymbol] & ICD
     : this[typeof instanceCreationDataSymbol]
 
   new (
@@ -69,9 +59,9 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
   ): SuperModel &
     BaseModel<
       this[typeof propsDataSymbol],
-      this[typeof composedPropsCreationDataSymbol],
+      this[typeof propsCreationDataSymbol],
       this[typeof instanceDataSymbol],
-      this[typeof composedInstanceCreationDataSymbol]
+      this[typeof instanceCreationDataSymbol]
     > &
     Omit<this[typeof instanceDataSymbol], keyof AnyModel>
 }
@@ -141,7 +131,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
 
   // create type checker if needed
   let dataTypeChecker: LateTypeChecker | undefined
-  if (Object.values(composedModelProps).some((mp) => !!mp.typeChecker)) {
+  if (Object.values(composedModelProps).some(mp => !!mp.typeChecker)) {
     const typeCheckerObj: {
       [k: string]: any
     } = {}
@@ -154,7 +144,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   // skip props that are on base model, these have to be accessed through $
   // we only need to proxy new props, not old ones
   for (const modelPropName of Object.keys(modelProps).filter(
-    (mp) => !baseModelPropNames.has(mp as any)
+    mp => !baseModelPropNames.has(mp as any)
   )) {
     extraDescriptors[modelPropName] = createModelPropDescriptor(
       modelPropName,
@@ -172,7 +162,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   // we use this weird hack rather than just class CustomBaseModel extends base {}
   // in order to work around problems with ES5 classes extending ES6 classes
   // see https://github.com/xaviergonz/mobx-keystone/issues/15
-  const CustomBaseModel: any = (function (_base) {
+  const CustomBaseModel: any = (function(_base) {
     _inheritsLoose(CustomBaseModel, _base)
 
     function CustomBaseModel(
