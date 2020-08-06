@@ -15,7 +15,7 @@ import {
   tProp,
   types,
 } from "../../src"
-import { ModelPropsToPropsData } from "../../src/model/prop"
+import { ModelPropsToPropsCreationData, ModelPropsToPropsData } from "../../src/model/prop"
 import "../commonSetup"
 
 // @model("P")
@@ -148,7 +148,7 @@ test("subclassing without additional props", () => {
       x?: number | null
       y?: number | null
       z?: number | null
-    } & ModelPropsToPropsData<{}>
+    } & ModelPropsToPropsCreationData<{}>
   )
 
   const p2 = new P2({ x: 20 })
@@ -201,7 +201,7 @@ test("subclassing without anything new", () => {
       x?: number | null
       y?: number | null
       z?: number | null
-    } & ModelPropsToPropsData<{}>
+    } & ModelPropsToPropsCreationData<{}>
   )
 
   const p2 = new P2({ x: 20 })
