@@ -14,10 +14,29 @@ import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
 
-declare const propsDataTypeSymbol: unique symbol
-declare const propsCreationDataTypeSymbol: unique symbol
-declare const instanceDataTypeSymbol: unique symbol
-declare const instanceCreationDataTypeSymbol: unique symbol
+/**
+ * @ignore
+ * @internal
+ */
+export declare const propsDataTypeSymbol: unique symbol
+
+/**
+ * @ignore
+ * @internal
+ */
+export declare const propsCreationDataTypeSymbol: unique symbol
+
+/**
+ * @ignore
+ * @internal
+ */
+export declare const instanceDataTypeSymbol: unique symbol
+
+/**
+ * @ignore
+ * @internal
+ */
+export declare const instanceCreationDataTypeSymbol: unique symbol
 
 /**
  * @ignore
@@ -196,7 +215,7 @@ export interface AnyModel extends BaseModel<any, any> {}
  * Extracts the instance type of a model class.
  */
 export interface ModelClass<M extends AnyModel> {
-  new (initialData: ModelInstanceCreationData<M> & { [modelIdKey]?: string }): M
+  new (initialData: any): M
 }
 
 /**
@@ -240,38 +259,17 @@ export type ModelPropsData<M extends AnyModel> = M["$"]
 /**
  * The props creation data type of a model.
  */
-export type ModelPropsCreationData<M extends AnyModel> = M extends BaseModel<
-  any,
-  infer PropsCreationData,
-  any,
-  any
->
-  ? PropsCreationData
-  : never
+export type ModelPropsCreationData<M extends AnyModel> = M[typeof propsCreationDataTypeSymbol]
 
 /**
  * The instance data type of a model.
  */
-export type ModelInstanceData<M extends AnyModel> = M extends BaseModel<
-  any,
-  any,
-  infer InstanceData,
-  any
->
-  ? InstanceData
-  : never
+export type ModelInstanceData<M extends AnyModel> = M[typeof instanceDataTypeSymbol]
 
 /**
  * The transformed creation data type of a model.
  */
-export type ModelInstanceCreationData<M extends AnyModel> = M extends BaseModel<
-  any,
-  any,
-  any,
-  infer InstanceCreationData
->
-  ? InstanceCreationData
-  : never
+export type ModelInstanceCreationData<M extends AnyModel> = M[typeof instanceCreationDataTypeSymbol]
 
 /**
  * Add missing model metadata to a model creation snapshot to generate a proper model snapshot.

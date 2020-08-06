@@ -101,13 +101,13 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
 ): _Model<TBaseModel, TProps> {
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
-    assertIsModelClass(baseModel as any, "baseModel")
+    assertIsModelClass(baseModel, "baseModel")
 
     // if the baseModel is wrapped with the model decorator get the original one
     const unwrappedClass = (baseModel as any)[modelUnwrappedClassSymbol]
     if (unwrappedClass) {
       baseModel = unwrappedClass
-      assertIsModelClass(baseModel as any, "baseModel")
+      assertIsModelClass(baseModel, "baseModel")
     }
   }
 
