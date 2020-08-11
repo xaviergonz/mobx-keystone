@@ -3056,9 +3056,9 @@
     "@types/react" "*"
 
 "@types/react@*", "@types/react@^16.9.5":
-  version "16.9.44"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.44.tgz#da84b179c031aef67dc92c33bd3401f1da2fa3bc"
-  integrity sha512-BtLoJrXdW8DVZauKP+bY4Kmiq7ubcJq+H/aCpRfvPF7RAT3RwR73Sg8szdc2YasbAlWBDrQ6Q+AFM0KwtQY+WQ==
+  version "16.9.46"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.46.tgz#f0326cd7adceda74148baa9bff6e918632f5069e"
+  integrity sha512-dbHzO3aAq1lB3jRQuNpuZ/mnu+CdD3H0WVaaBQA8LTT3S33xhVBUj232T8M3tAhSWJs/D/UqORYUlJNl/8VQZg==
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
@@ -12695,15 +12695,15 @@ markdown-table@^2.0.0:
   dependencies:
     repeat-string "^1.0.0"
 
-marked@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/marked/-/marked-1.0.0.tgz#d35784245a04871e5988a491e28867362e941693"
-  integrity sha512-Wo+L1pWTVibfrSr+TTtMuiMfNzmZWiOPeO7rZsQUY5bgsxpHesBEcIWJloWVTFnrMXnf/TL30eTFSGJddmQAng==
-
 marked@^0.3.12:
   version "0.3.19"
   resolved "https://registry.yarnpkg.com/marked/-/marked-0.3.19.tgz#5d47f709c4c9fc3c216b6d46127280f40b39d790"
   integrity sha512-ea2eGWOqNxPcXv8dyERdSr/6FmzvWwzjMxpfGB/sbMccXoct+xY+YukPD+QTUZwyvK7BZwcr4m21WBOW41pAkg==
+
+marked@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-1.1.1.tgz#e5d61b69842210d5df57b05856e0c91572703e6a"
+  integrity sha512-mJzT8D2yPxoPh7h0UXkB+dBj4FykPJ2OIfxAWeIHrvoHDkFxukV/29QxoFQoPM6RLEwhIFdJpmKBlqVM3s2ZIw==
 
 marksy@^8.0.0:
   version "8.0.0"
@@ -18644,9 +18644,9 @@ ts-pnp@^1.1.6:
   integrity sha512-csd+vJOb/gkzvcCHgTGSChYpy5f1/XKNsmvBGO4JXS+z1v2HobugDz4s1IeFXM3wZB44uczs+eazB5Q/ccdhQw==
 
 ts-toolbelt@^6.1.4:
-  version "6.15.0"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-6.15.0.tgz#e1806c4904f5dc819d8dd2c48e09ccc60bfb742f"
-  integrity sha512-WuXbnXmVgzAGdruH7jbYf4j/0Y4anfMOD0KUU8iw6/4SbzdQVpfso4BJ1Z/t7hKLN2++gWYIseaw/ciyWKLreQ==
+  version "6.15.3"
+  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-6.15.3.tgz#d9fdf5cc8f08e21c459671386f4e4e0d0d4d624d"
+  integrity sha512-enrjNgrlb7IVc8FTtE6LicR+tw+pmhKXljl67BJ+UYfPGqZtJWkLn5S5eV2Vh8affwLJvkKdRb1wilu4DG7YEQ==
 
 tsconfig-paths@^3.9.0:
   version "3.9.0"
@@ -18736,9 +18736,9 @@ tslib@^1, tslib@^1.10.0, tslib@^1.8.1, tslib@^1.9.0, tslib@^1.9.3:
   integrity sha512-i/6DQjL8Xf3be4K/E6Wgpekn5Qasl1usyw++dAA35Ue5orEn65VIxOA+YvNNl9HV3qv70T7CNwjODHZrLwvd1Q==
 
 tslib@^2.0.0, tslib@~2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.0.0.tgz#18d13fc2dce04051e20f074cc8387fd8089ce4f3"
-  integrity sha512-lTqkx847PI7xEDYJntxZH89L2/aXInsyF2luSafe/+0fHOMjlBNXdH6th7f70qxLDhul7KZK0zC8V5ZIyHl0/g==
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.0.1.tgz#410eb0d113e5b6356490eec749603725b021b43e"
+  integrity sha512-SgIkNheinmEBgx1IUNirK0TUD4X9yjjBRTqqjggWCU3pUEqIk3/Uwl3yRixYKT6WjQuGiwDv4NomL3wqRCj+CQ==
 
 tsutils@^3.17.1:
   version "3.17.1"
@@ -18833,17 +18833,17 @@ typedoc-default-themes@^0.10.2:
   dependencies:
     lunr "^2.3.8"
 
-typedoc@^0.17.1:
-  version "0.17.8"
-  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.17.8.tgz#96b67e9454aa7853bfc4dc9a55c8a07adfd5478e"
-  integrity sha512-/OyrHCJ8jtzu+QZ+771YaxQ9s4g5Z3XsQE3Ma7q+BL392xxBn4UMvvCdVnqKC2T/dz03/VXSLVKOP3lHmDdc/w==
+typedoc@^0.18.0:
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/typedoc/-/typedoc-0.18.0.tgz#8bf53ddd7df5b8966b52c946929a09549d78682b"
+  integrity sha512-UgDQwapCGQCCdYhEQzQ+kGutmcedklilgUGf62Vw6RdI29u6FcfAXFQfRTiJEbf16aK3YnkB20ctQK1JusCRbA==
   dependencies:
-    fs-extra "^8.1.0"
+    fs-extra "^9.0.1"
     handlebars "^4.7.6"
     highlight.js "^10.0.0"
     lodash "^4.17.15"
     lunr "^2.3.8"
-    marked "1.0.0"
+    marked "^1.1.1"
     minimatch "^3.0.0"
     progress "^2.0.3"
     shelljs "^0.8.4"
