@@ -45,7 +45,7 @@ class Countries extends Model({
 
   @computed
   get selectedCountries() {
-    return this.selectedCountriesRef.map(r => r.current)
+    return this.selectedCountriesRef.map((r) => r.current)
   }
 
   @modelAction
@@ -67,7 +67,7 @@ class Countries extends Model({
 
   @modelAction
   setSelectedCountries(countries: Country[]) {
-    this.selectedCountriesRef = countries.map(c => countryRef(c))
+    this.selectedCountriesRef = countries.map((c) => countryRef(c))
   }
 }
 
@@ -118,6 +118,7 @@ test("single ref works", () => {
   expect(r.isValid).toBe(true)
   expect(r.maybeCurrent).toBe(spain)
   expect(r.current).toBe(spain)
+  expect(r.id).toBe(spain.id)
 
   // cloning should be ok
   const cloneC = clone(c)
@@ -171,9 +172,9 @@ test("array ref works", () => {
       },
     ]
   `)
-  expect(r.map(rr => rr.isValid)).toEqual([true, true])
-  expect(r.map(rr => rr.maybeCurrent)).toEqual([spain, uk])
-  expect(r.map(rr => rr.current)).toEqual([spain, uk])
+  expect(r.map((rr) => rr.isValid)).toEqual([true, true])
+  expect(r.map((rr) => rr.maybeCurrent)).toEqual([spain, uk])
+  expect(r.map((rr) => rr.current)).toEqual([spain, uk])
 
   // cloning should be ok
   const cloneC = clone(c)
@@ -368,7 +369,7 @@ describe("resolution", () => {
     autoDispose(
       reaction(
         () => ref.maybeCurrent,
-        v => {
+        (v) => {
           calls++
           lastValue = v
         },
@@ -425,7 +426,7 @@ test("getRefsResolvingTo after loading from snapshot", () => {
   class A extends Model({}) {
     @computed
     public get bs(): B[] {
-      return Array.from(getRefsResolvingTo(this), ref => getParent<B>(ref)!)
+      return Array.from(getRefsResolvingTo(this), (ref) => getParent<B>(ref)!)
     }
   }
 
@@ -486,7 +487,7 @@ test("applySnapshot - applyPatches - ref", () => {
   // record patches and take a snapshot
   const patches: Patch[][] = []
   autoDispose(
-    onPatches(ro, p => {
+    onPatches(ro, (p) => {
       patches.push(p)
     })
   )
