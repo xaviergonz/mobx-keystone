@@ -1,7 +1,9 @@
 # Change Log
 
+## 0.45.2
+
 - Fix: `allowUndefinedArrayElements` now also applies to frozen data.
-- Optimized a bit the typings for extended models.
+- Optimized a bit the generated typings for extended models.
 
 ## 0.45.1
 
