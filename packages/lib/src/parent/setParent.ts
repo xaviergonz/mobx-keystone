@@ -107,17 +107,15 @@ export const setParent = action(
       const newRootStore = isRootStore(newRoot) ? newRoot : undefined
 
       // invoke model root store events
-      if (oldRootStore !== newRootStore) {
-        if (oldRootStore) {
-          enqueuePendingAction(() => {
+      if (oldRootStore !== newRootStore && (oldRootStore || newRootStore)) {
+        enqueuePendingAction(() => {
+          if (oldRootStore) {
             detachFromRootStore(value)
-          })
-        }
-        if (newRootStore) {
-          enqueuePendingAction(() => {
+          }
+          if (newRootStore) {
             attachToRootStore(newRootStore, value)
-          })
-        }
+          }
+        })
       }
     } else {
       removeFromOldParent()
