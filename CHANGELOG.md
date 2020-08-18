@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.45.3
+
+- Fix: `onAttachedToRootStore` will still be invoked after all model actions are finished (as it was before), but now before other user reactions are triggered.
+
 ## 0.45.2
 
 - Fix: `allowUndefinedArrayElements` now also applies to frozen data.

@@ -12,6 +12,7 @@ import {
 import { getActionMiddlewares } from "./middleware"
 import { isModelAction } from "./modelAction"
 import { FlowFinisher } from "./modelFlow"
+import { tryRunPendingActions } from "./pendingActions"
 
 /**
  * @ignore
@@ -34,7 +35,7 @@ export function wrapInAction<T extends Function>({
   overrideContext?: (ctx: O.Writable<ActionContext>) => void
   isFlowFinisher?: boolean
 }): T {
-  const wrappedAction = action(name, function(this: any) {
+  const wrappedAction = action(name, function (this: any) {
     const target = this
 
     if (inDevMode()) {
@@ -98,6 +99,8 @@ export function wrapInAction<T extends Function>({
       }
     } finally {
       setCurrentActionContext(context.parentContext)
+
+      tryRunPendingActions()
     }
   })
   ;(wrappedAction as any)[modelActionSymbol] = true
