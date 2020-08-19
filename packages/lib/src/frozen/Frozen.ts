@@ -2,7 +2,6 @@ import { getGlobalConfig } from "../globalConfig"
 import { SnapshotInOfFrozen } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
-import { DeepReadonly } from "../utils/types"
 
 /**
  * Should freeze and plain json checks be done when creating the frozen object?
@@ -31,7 +30,7 @@ export class Frozen<T> {
   /**
    * Frozen data, deeply immutable.
    */
-  readonly data: DeepReadonly<T>
+  readonly data: T
 
   /**
    * Creates an instance of Frozen.
@@ -47,7 +46,7 @@ export class Frozen<T> {
       checkDataIsSerializableAndFreeze(dataToFreeze)
     }
 
-    this.data = dataToFreeze as DeepReadonly<T>
+    this.data = dataToFreeze
 
     if (check) {
       Object.freeze(this.data)

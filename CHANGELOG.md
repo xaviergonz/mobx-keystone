@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.45.4
+
+- Fix: The type of data inside frozen is no longer forced to be `DeepReadonly`. This fixes a possible issue where the type might no longer be assignable with itself.
+
 ## 0.45.3
 
 - Fix: `onAttachedToRootStore` will still be invoked after all model actions are finished (as it was before), but now before other user reactions are triggered.

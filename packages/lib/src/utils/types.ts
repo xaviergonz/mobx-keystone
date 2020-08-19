@@ -1,5 +1,3 @@
-import { O } from "ts-toolbelt"
-
 /**
  * @ignore
  *
@@ -31,8 +29,3 @@ export type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
 // type _D = IsOptionalValue<string & undefined, true, false> // false, but we don't care
 // type _E = IsOptionalValue<any, true, false> // true
 // type _F = IsOptionalValue<unknown, true, false> // true
-
-/**
- * @ignore
- */
-export type DeepReadonly<T> = T extends object ? O.Readonly<T, keyof T, "deep"> : T
