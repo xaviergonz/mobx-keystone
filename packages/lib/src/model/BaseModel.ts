@@ -16,25 +16,21 @@ import { assertIsModelClass } from "./utils"
 
 /**
  * @ignore
- * @internal
  */
 export declare const propsDataTypeSymbol: unique symbol
 
 /**
  * @ignore
- * @internal
  */
 export declare const propsCreationDataTypeSymbol: unique symbol
 
 /**
  * @ignore
- * @internal
  */
 export declare const instanceDataTypeSymbol: unique symbol
 
 /**
  * @ignore
- * @internal
  */
 export declare const instanceCreationDataTypeSymbol: unique symbol
 

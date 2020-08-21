@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.45.5
+
+- Fixed an issue related to typing changes of the generated types optimization for extended models.
+
 ## 0.45.4
 
 - Fix: The type of data inside frozen is no longer forced to be `DeepReadonly`. This fixes a possible issue where the type might no longer be assignable with itself.
