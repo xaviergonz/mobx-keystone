@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.46.0
+
+- [BREAKING CHANGE] Runtime type-checking of objects will no longer complain about excess properties, they will just be ignored.
+
 ## 0.45.5
 
 - Fixed an issue related to typing changes of the generated types optimization for extended models.

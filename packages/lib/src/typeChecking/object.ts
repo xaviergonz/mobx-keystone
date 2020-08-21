@@ -43,7 +43,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         if (!isObject(obj) || (frozen && !(obj instanceof Frozen)))
           return new TypeCheckError(path, getTypeName(thisTc), obj)
 
-        const keysToCheck = new Set(Object.keys(obj))
+        // note: we allow excess properties when checking objects
         for (const [k, unresolvedTc] of schemaEntries) {
           const tc = resolveTypeChecker(unresolvedTc)
           const objVal = obj[k]
@@ -52,12 +52,6 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
           if (valueError) {
             return valueError
           }
-
-          keysToCheck.delete(k)
-        }
-
-        if (keysToCheck.size > 0) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj)
         }
 
         return null
@@ -89,7 +83,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
  */
 export function typesObject<T>(objectFunction: T): T {
   // we can't type this function or else we won't be able to make it work recursively
-  const typeInfoGen: TypeInfoGen = t => new ObjectTypeInfo(t, objectFunction as any)
+  const typeInfoGen: TypeInfoGen = (t) => new ObjectTypeInfo(t, objectFunction as any)
 
   return typesObjectHelper(objectFunction, false, typeInfoGen) as any
 }
@@ -113,7 +107,7 @@ export class ObjectTypeInfo extends TypeInfo {
     const objSchema = this._objTypeFn()
 
     const propTypes: O.Writable<ObjectTypeInfoProps> = {}
-    Object.keys(objSchema).forEach(propName => {
+    Object.keys(objSchema).forEach((propName) => {
       const type = resolveStandardType(objSchema[propName])
       propTypes[propName] = { type, typeInfo: getTypeInfo(type) }
     })
@@ -150,7 +144,7 @@ export function typesFrozen<T extends AnyType>(dataType: T): ObjectType<{ data: 
       data: dataType,
     }),
     true,
-    t => new FrozenTypeInfo(t, resolveStandardType(dataType))
+    (t) => new FrozenTypeInfo(t, resolveStandardType(dataType))
   ) as any
 }
 
