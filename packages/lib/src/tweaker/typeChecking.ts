@@ -11,6 +11,7 @@ import { runWithoutSnapshotOrPatches } from "./core"
 
 /**
  * @ignore
+ * @internal
  */
 export function runTypeCheckingAfterChange(obj: object, patchRecorder: InternalPatchRecorder) {
   // invalidate type check cached result
@@ -51,7 +52,7 @@ function findNearestParentModelWithTypeChecker(child: object): AnyModel | undefi
     }
   }
 
-  return findParent(child, parent => {
+  return findParent(child, (parent) => {
     return isModel(parent) && !!getModelDataType(parent)
   })
 }
