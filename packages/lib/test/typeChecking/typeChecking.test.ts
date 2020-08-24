@@ -59,11 +59,11 @@ beforeEach(() => {
 
 function expectTypeCheckError(m: AnyModel, fn: () => void) {
   const snapshots: any[] = []
-  const disposer1 = onSnapshot(m, sn => {
+  const disposer1 = onSnapshot(m, (sn) => {
     snapshots.push(sn)
   })
   const patches: any[] = []
-  const disposer2 = onPatches(m, p => {
+  const disposer2 = onPatches(m, (p) => {
     patches.push(p)
   })
   const actions: any[] = []
@@ -357,7 +357,8 @@ test("object - simple types", () => {
   const expected = "{ x: number; y: string; }"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { x: 5, y: 6 }, ["y"], "string")
-  expectTypeCheckFail(type, { x: 5, y: "6", z: 10 }, [], expected)
+  // excess properties are allowed
+  expectTypeCheckOk(type, { x: 5, y: "6", z: 10 } as any)
 
   const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
   expect(typeInfo.props).toBe(typeInfo.props) // always return same object
@@ -393,7 +394,8 @@ test("object - all optional simple types", () => {
   const expected = "{ x: number | undefined; y: string | undefined; }"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { x: 5, y: 6 }, ["y"], "string | undefined")
-  expectTypeCheckFail(type, { x: 5, y: "6", z: 10 }, [], expected)
+  // excess properties are allowed
+  expectTypeCheckOk(type, { x: 5, y: "6" })
 
   const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
   expect(typeInfo.props).toBe(typeInfo.props) // always return same object
@@ -602,7 +604,8 @@ test("object - complex types", () => {
   const expected = "{ x: number | undefined; o: { y: string; }; }"
   expectTypeCheckFail(type, "ho", [], expected)
   expectTypeCheckFail(type, { x: 5, o: 6 }, ["o"], "{ y: string; }")
-  expectTypeCheckFail(type, { x: 5, o: { y: "6" }, z: 10 }, [], expected)
+  // excess properties are ok
+  expectTypeCheckOk(type, { x: 5, o: { y: "6" }, z: 10 } as any)
   expectTypeCheckFail(type, { x: 5, o: { y: 6 } }, ["o", "y"], "string")
 
   const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
@@ -1025,7 +1028,7 @@ test("refinement (complex)", () => {
     result: types.number,
   }))
 
-  const type = types.refinement(sumObjType, sum => {
+  const type = types.refinement(sumObjType, (sum) => {
     const rightResult = sum.a + sum.b === sum.result
 
     return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
