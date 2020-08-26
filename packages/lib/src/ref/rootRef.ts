@@ -50,8 +50,8 @@ const computedIdTrees = new WeakMap<
 export const rootRef = action(
   "rootRef",
   <T extends object>(modelTypeId: string, options?: RootRefOptions<T>): RefConstructor<T> => {
-    const getId = (options && options.getId) || getModelRefId
-    const onResolvedValueChange = options && options.onResolvedValueChange
+    const getId = options?.getId ?? getModelRefId
+    const onResolvedValueChange = options?.onResolvedValueChange
 
     // cache/reuse computedIdTrees for same getId function
     let computedIdTree = computedIdTrees.get(getId)

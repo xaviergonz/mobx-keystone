@@ -49,7 +49,7 @@ export interface CustomRefOptions<T extends object> {
 export const customRef = action(
   "customRef",
   <T extends object>(modelTypeId: string, options: CustomRefOptions<T>): RefConstructor<T> => {
-    const getId = options.getId || getModelRefId
+    const getId = options.getId ?? getModelRefId
 
     return internalCustomRef(
       modelTypeId,

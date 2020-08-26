@@ -138,7 +138,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
       filter = targetFilter
     } else {
       const customFilter = filter
-      filter = ctx => {
+      filter = (ctx) => {
         return targetFilter(ctx) && customFilter(ctx)
       }
     }

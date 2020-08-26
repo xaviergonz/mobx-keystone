@@ -84,14 +84,14 @@ export const setParent = action(
     }
 
     const removeFromOldParent = () => {
-      if (oldParentPath && oldParentPath.parent) {
+      if (oldParentPath?.parent) {
         removeObjectChild(oldParentPath.parent, value)
       }
     }
 
     const attachToNewParent = () => {
       objectParents.set(value, parentPath)
-      if (parentPath && parentPath.parent) {
+      if (parentPath?.parent) {
         addObjectChild(parentPath.parent, value)
       }
       reportParentPathChanged(value)

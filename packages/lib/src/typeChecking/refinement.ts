@@ -39,7 +39,7 @@ export function typesRefinement<T extends AnyType>(
   checkFn: (data: TypeToData<T>) => TypeCheckError | null | boolean,
   typeName?: string
 ): T {
-  const typeInfoGen: TypeInfoGen = t =>
+  const typeInfoGen: TypeInfoGen = (t) =>
     new RefinementTypeInfo(t, resolveStandardType(baseType), checkFn, typeName)
 
   return lateTypeChecker(() => {
@@ -65,7 +65,7 @@ export function typesRefinement<T extends AnyType>(
         } else if (refinementErr === false) {
           return new TypeCheckError([], getTypeName(thisTc), data)
         } else {
-          return refinementErr || null
+          return refinementErr ?? null
         }
       },
       getTypeName,

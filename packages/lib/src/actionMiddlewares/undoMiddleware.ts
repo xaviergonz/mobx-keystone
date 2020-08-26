@@ -233,7 +233,7 @@ export class UndoManager {
     private readonly subtreeRoot: object,
     store?: UndoStore
   ) {
-    this.store = store || new UndoStore({})
+    this.store = store ?? new UndoStore({})
   }
 }
 

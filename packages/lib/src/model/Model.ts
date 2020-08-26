@@ -153,7 +153,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     )
   }
 
-  const base: any = baseModel || BaseModel
+  const base: any = baseModel ?? BaseModel
 
   const propsWithTransform = Object.entries(modelProps)
     .filter(([_propName, prop]) => !!prop.transform)
@@ -175,7 +175,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
       return new base(
         initialData,
         snapshotInitialData,
-        modelConstructor || this.constructor,
+        modelConstructor ?? this.constructor,
         generateNewIds,
         propsWithTransform
       )
@@ -253,13 +253,13 @@ function setModelInstanceDataField<M extends AnyModel>(
   modelPropName: keyof ModelInstanceData<M>,
   value: ModelInstanceData<M>[typeof modelPropName]
 ): void {
-  if (modelProp && modelProp.options.setterAction && !getCurrentActionContext()) {
+  if (modelProp?.options.setterAction && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     applySet(model, modelPropName as any, value)
     return
   }
 
-  const transform = modelProp ? modelProp.transform : undefined
+  const transform = modelProp?.transform
 
   if (transform) {
     // no need to use set since these vars always get on the initial $

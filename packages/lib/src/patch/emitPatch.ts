@@ -124,8 +124,8 @@ function emitPatch(
   if (parentPath) {
     // tweak patches so they include the child path
     const childPath = parentPath.path
-    const newPatches = patches.map(p => addPathToPatch(p, childPath))
-    const newInversePatches = inversePatches.map(p => addPathToPatch(p, childPath))
+    const newPatches = patches.map((p) => addPathToPatch(p, childPath))
+    const newInversePatches = inversePatches.map((p) => addPathToPatch(p, childPath))
 
     // false to avoid emitting global patches again for the same change
     emitPatch(parentPath.parent, newPatches, newInversePatches, false)

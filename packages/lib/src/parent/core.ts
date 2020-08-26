@@ -60,7 +60,7 @@ export const dataObjectParent = new WeakMap<object, object>()
  */
 export function dataToModelNode<T extends object>(node: T): T {
   const modelNode = dataObjectParent.get(node)
-  return (modelNode as T) || node
+  return (modelNode as T) ?? node
 }
 
 /**

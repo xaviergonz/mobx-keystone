@@ -9,7 +9,7 @@ export class ModelPool {
 
   constructor(root: object) {
     // make sure we don't use the sub-data $ object
-    root = dataObjectParent.get(root) || root
+    root = dataObjectParent.get(root) ?? root
 
     this.pool = getDeepObjectChildren(root).deepByModelTypeAndId
   }

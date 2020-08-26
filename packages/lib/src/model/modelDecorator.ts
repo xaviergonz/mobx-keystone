@@ -38,7 +38,7 @@ const internalModel = (name: string, options: { afterNew?: (instance: any) => vo
   }
 
   // trick so plain new works
-  const newClazz: any = function(
+  const newClazz: any = function (
     this: any,
     initialData: any,
     snapshotInitialData: any,
@@ -51,7 +51,7 @@ const internalModel = (name: string, options: { afterNew?: (instance: any) => vo
       generateNewIds
     )
 
-    if (options && options.afterNew) {
+    if (options?.afterNew) {
       options.afterNew(instance)
     }
 
