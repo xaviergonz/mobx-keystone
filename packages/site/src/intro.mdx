@@ -34,7 +34,7 @@ To see some code and get a glimpse of how it works check the [Todo List Example]
 Because state trees are living, mutable models, actions are straightforward to write; just modify local instance properties where appropriate. It is not necessary to produce a new state tree yourself, `mobx-keystone`'s snapshot functionality will derive one for you automatically.
 
 Although mutable sounds scary to some, fear not, actions have many interesting properties.
-By default trees can only be modified by using an action that belongs to the same subtree.
+By default, trees can only be modified by using an action that belongs to the same subtree.
 Furthermore, actions are replayable and can be used to distribute changes.
 
 Moreover, because changes can be detected on a fine-grained level, JSON patches are supported out of the box.
