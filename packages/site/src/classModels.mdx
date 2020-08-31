@@ -271,7 +271,7 @@ class BookStore extends Model({
 
   @modelFlow
   // note: `_async` is a function that has to be imported, we have to use `this: THISCLASS`
-  fetchMyBooksAsync = _async(function* (this: BookStore, token: string) {
+  fetchMyBooksAsync = _async(function*(this: BookStore, token: string) {
     // we use `yield* _await(X)` where we would use `await X`
     // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
 
