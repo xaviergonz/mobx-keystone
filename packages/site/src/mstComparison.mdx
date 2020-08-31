@@ -79,7 +79,7 @@ const Todo = types
     done: false,
     text: types.string,
   })
-  .actions((self) => ({
+  .actions(self => ({
     setText(text: string) {
       self.text = text
     },
@@ -92,7 +92,7 @@ const RootStore = types
   .model({
     selected: types.maybe(Todo),
   })
-  .actions((self) => ({
+  .actions(self => ({
     // note the usage of a union of the snapshot type and the instance type
     setSelected(todo: SnapshotIn<typeof Todo> | Instance<typeof Todo>) {
       // note the usage of cast to indicate that it is ok to use a snapshot when
@@ -145,7 +145,7 @@ const Todo = types
     text: types.string,
     title: types.string,
   })
-  .views((self) => ({
+  .views(self => ({
     get asStr() {
       // here we use `self` since the properties come from a previous chunk
       return `${self.text} is done? ${self.done}`
