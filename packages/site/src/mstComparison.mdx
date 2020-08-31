@@ -79,7 +79,7 @@ const Todo = types
     done: false,
     text: types.string,
   })
-  .actions(self => ({
+  .actions((self) => ({
     setText(text: string) {
       self.text = text
     },
@@ -92,7 +92,7 @@ const RootStore = types
   .model({
     selected: types.maybe(Todo),
   })
-  .actions(self => ({
+  .actions((self) => ({
     // note the usage of a union of the snapshot type and the instance type
     setSelected(todo: SnapshotIn<typeof Todo> | Instance<typeof Todo>) {
       // note the usage of cast to indicate that it is ok to use a snapshot when
@@ -145,7 +145,7 @@ const Todo = types
     text: types.string,
     title: types.string,
   })
-  .views(self => ({
+  .views((self) => ({
     get asStr() {
       // here we use `self` since the properties come from a previous chunk
       return `${self.text} is done? ${self.done}`
@@ -184,6 +184,6 @@ class Todo extends Model({
 
 For example, you might create a submodel with an `afterCreate` hook, but it might never be actually executed unless the node contents are accessed (due to lazy initialization).
 Maybe you might want to set up an effect (`reaction` or the like), but you only want that effect to work after it actually becomes part of your application state.
-Likewise you might want to call `getRoot` to access the root model, but it might actually not give the value you expect until the model is attached to a parent which is eventually (or not) attached to the proper root.
+Likewise, you might want to call `getRoot` to access the root model, but it might actually not give the value you expect until the model is attached to a parent which is eventually (or not) attached to the proper root.
 
 `mobx-keystone` solves this by only offering two life-cycle hooks, `onInit`, which is _always_ called once the model has been created (and since there's no lazy initialization they will always be), and `onAttachedToRootStore` (plus an optional disposer that gets executed when it is detached), which gets called once the model gets attached to the proper root node (a root store), thus ensuring that at that point `getRoot` will return the expected value and makes it a perfect place to set up effects (more info in the [class models](./classModels) section).
