@@ -1,5 +1,5 @@
 module.exports = {
-  src: ["src/index.ts"],
+  inputFiles: ["src/index.ts"],
   module: "commonjs",
   excludeNotExported: true,
   excludePrivate: true,
