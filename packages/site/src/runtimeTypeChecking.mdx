@@ -123,7 +123,7 @@ enum Color {
   Green = "green",
 }
 
-const colorType = types.enum<Color>(Color)
+const colorType = types.enum(Color)
 ```
 
 ### `types.or(...types)` (AKA union)
@@ -255,13 +255,13 @@ over models, ensure numbers are integers, etc.
 ```ts
 const integerType = types.refinement(
   types.number,
-  n => {
+  (n) => {
     return Number.isInteger(n)
   },
   "integer"
 )
 
-const sumModelType = types.refinement(types.model<Sum>(Sum), sum => {
+const sumModelType = types.refinement(types.model<Sum>(Sum), (sum) => {
   // imagine that for some reason sum includes a number 'a', a number 'b'
   // and the result
 

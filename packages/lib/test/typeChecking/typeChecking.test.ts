@@ -915,7 +915,7 @@ test("enum (string)", () => {
     X2 = "x2",
   }
 
-  const type = types.enum<A>(A)
+  const type = types.enum(A)
 
   assert(_ as TypeToData<typeof type>, _ as A)
 
@@ -938,7 +938,7 @@ test("enum (number)", () => {
     X2,
   }
 
-  const type = types.enum<A>(A)
+  const type = types.enum(A)
 
   assert(_ as TypeToData<typeof type>, _ as A)
 
@@ -962,7 +962,7 @@ test("enum (mixed)", () => {
     X2 = 6,
   }
 
-  const type = types.enum<A>(A)
+  const type = types.enum(A)
 
   assert(_ as TypeToData<typeof type>, _ as A)
 

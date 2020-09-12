@@ -18,6 +18,12 @@ function enumValues(e: any): (string | number)[] {
 }
 
 /**
+ * @ignore
+ * Extract enum values out of a enum object.
+ */
+export type EnumValues<E> = E extends Record<infer _K, infer V> ? V : never
+
+/**
  * An enum type, based on a Typescript alike enum object.
  * Syntactic sugar for `types.or(...enum_values.map(types.literal))`
  *
@@ -28,16 +34,37 @@ function enumValues(e: any): (string | number)[] {
  *   Green = "green"
  * }
  *
- * const colorType = types.enum<Color>(Color)
+ * const colorType = types.enum(Color)
  * ```
  *
  * @template E Enum type.
  * @param enumObject
  * @returns
  */
+export function typesEnum<E extends object>(enumObject: E): IdentityType<EnumValues<E>>
+/**
+ * An enum type, based on a Typescript alike enum object.
+ * Syntactic sugar for `types.or(...enum_values.map(types.literal))`
+ *
+ * Example:
+ * ```ts
+ * enum Color {
+ *   Red = "red",
+ *   Green = "green"
+ * }
+ *
+ * const colorType = types.enum(Color)
+ * ```
+ *
+ * @template E Enum type.
+ * @param enumObject
+ * @returns
+ */
+export function typesEnum<E = never>(enumObject: object): IdentityType<E>
+
 export function typesEnum<E = never>(enumObject: object): IdentityType<E> {
   assertIsObject(enumObject, "enumObject")
 
-  const literals = enumValues(enumObject).map(e => typesLiteral(e))
+  const literals = enumValues(enumObject).map((e) => typesLiteral(e))
   return typesOr(...literals) as any
 }

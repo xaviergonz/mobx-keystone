@@ -1,5 +1,7 @@
 # Change Log
 
+- `types.enum` no longer requires the generic type in typescript, the enum object as parameter is enough.
+
 ## 0.46.0
 
 - [BREAKING CHANGE] Runtime type-checking of objects will no longer complain about excess properties, they will just be ignored.
