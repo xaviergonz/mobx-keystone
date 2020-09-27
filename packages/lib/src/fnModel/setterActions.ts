@@ -1,21 +1,20 @@
-import { addActionToFnModel, FnModelActionDef } from "./actions"
-import { FnModelFn } from "./core"
+import { propNameToSetterActionName } from "../utils";
+import { addActionToFnModel, FnModelActionDef } from "./actions";
+import { FnModelFn } from "./core";
 
 /**
- * An object with functional model setter action definitions.
+ * An array with functional model setter action definitions.
  */
-export interface FnModelSetterActionsDef<Data> {
-  [k: string]: keyof Data
-}
+export type FnModelSetterActionsArrayDef<Data> = ReadonlyArray<keyof Data & string>
 
 /**
- * Functional model setter actions.
+ * Array to functional model setter actions.
  */
-export type FnModelSetterActions<
+export type FnModelSetterActionsArray<
   Data extends object,
-  SetterActionsDef extends FnModelSetterActionsDef<Data>
-> = {
-  [k in keyof SetterActionsDef]: FnModelFn<Data, (value: Data[SetterActionsDef[k]]) => void>
+  SetterActionsDef extends FnModelSetterActionsArrayDef<Data>
+  > = {
+    [k in SetterActionsDef[number] as `set${Capitalize<k>}`]: FnModelFn<Data, (value: Data[k]) => void>
 }
 
 /**
@@ -25,10 +24,10 @@ export type FnModelSetterActions<
 export function extendFnModelSetterActions<Data>(
   fnModelObj: any,
   namespace: string,
-  setterActions: FnModelSetterActionsDef<Data>
+  ...setterActions: FnModelSetterActionsArrayDef<Data>
 ): any {
-  for (const [name, fieldName] of Object.entries(setterActions)) {
-    // make strings setters
+  for (const fieldName of setterActions) {
+    const name = propNameToSetterActionName(fieldName);
     const fn: FnModelActionDef = function(this: Data, value: any) {
       this[fieldName] = value
     }

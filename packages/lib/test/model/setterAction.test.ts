@@ -1,20 +1,21 @@
 import { computed } from "mobx"
-import { addActionMiddleware, model, Model, modelAction, prop } from "../../src"
+import { addActionMiddleware, model, Model, prop, tProp } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P")
 export class P extends Model({
   y: prop(0, { setterAction: true }),
+  z: tProp(0, { setterAction: true }),
 }) {
   @computed
-  get cv() {
+  get cy() {
     return this.y * 10
   }
 
-  @modelAction
-  setY(n: number) {
-    this.y = n
+  @computed
+  get cz() {
+    return this.z * 10
   }
 }
 
@@ -43,18 +44,17 @@ test("setterAction", () => {
   )
   expect(events.length).toBe(0)
 
-  p.y = 5
+  p.setY(5)
   expect(p.y).toBe(5)
   expect(p.$.y).toBe(5)
-  expect(p.cv).toBe(50)
+  expect(p.cy).toBe(50)
 
   expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
         "ctx": Object {
-          "actionName": "$$applySet",
+          "actionName": "setY",
           "args": Array [
-            "y",
             5,
           ],
           "data": Object {},
@@ -63,6 +63,7 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "y": 5,
+              "z": 0,
             },
             "$modelType": "P",
           },
@@ -72,9 +73,8 @@ test("setterAction", () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "$$applySet",
+          "actionName": "setY",
           "args": Array [
-            "y",
             5,
           ],
           "data": Object {},
@@ -83,6 +83,7 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "y": 5,
+              "z": 0,
             },
             "$modelType": "P",
           },
@@ -95,25 +96,26 @@ test("setterAction", () => {
   `)
   events.length = 0
 
-  // check that it is not wrapped in action when used inside an action already
-  p.setY(10)
-  expect(p.y).toBe(10)
-  expect(p.$.y).toBe(10)
-  expect(p.cv).toBe(100)
+  p.setZ(5)
+  expect(p.z).toBe(5)
+  expect(p.$.z).toBe(5)
+  expect(p.cz).toBe(50)
+
   expect(events).toMatchInlineSnapshot(`
     Array [
       Object {
         "ctx": Object {
-          "actionName": "setY",
+          "actionName": "setZ",
           "args": Array [
-            10,
+            5,
           ],
           "data": Object {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "y": 10,
+              "y": 5,
+              "z": 5,
             },
             "$modelType": "P",
           },
@@ -123,16 +125,17 @@ test("setterAction", () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "setY",
+          "actionName": "setZ",
           "args": Array [
-            10,
+            5,
           ],
           "data": Object {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "y": 10,
+              "y": 5,
+              "z": 5,
             },
             "$modelType": "P",
           },

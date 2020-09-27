@@ -7,8 +7,8 @@ import { extendFnModelActions, FnModelActions, FnModelActionsDef } from "./actio
 import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
 import {
   extendFnModelSetterActions,
-  FnModelSetterActions,
-  FnModelSetterActionsDef,
+  FnModelSetterActionsArray,
+  FnModelSetterActionsArrayDef
 } from "./setterActions"
 import { extendFnModelViews, FnModelViews, FnModelViewsDef } from "./views"
 
@@ -67,9 +67,9 @@ export interface FnModelBase<Data extends object, Extra> {
    *
    * @param setterActions Setter actions to add.
    */
-  setterActions<SA extends FnModelSetterActionsDef<Data>>(
-    setterActions: ThisType<Data> & SA
-  ): FnModel<Data, Extra & FnModelSetterActions<Data, SA>>
+  setterActions<SA extends FnModelSetterActionsArrayDef<Data>>(
+    ...setterActions: SA
+  ): FnModel<Data, Extra & FnModelSetterActionsArray<Data, SA>>
 }
 
 /**
@@ -119,7 +119,7 @@ export function fnModel(arg1: any, arg2?: string): FnModel<any, {}> {
   fnModelObj.views = extendFnModelViews.bind(undefined, fnModelObj)
   fnModelObj.actions = extendFnModelActions.bind(undefined, fnModelObj, namespace)
   fnModelObj.flowActions = extendFnModelFlowActions.bind(undefined, fnModelObj, namespace)
-  fnModelObj.setterActions = extendFnModelSetterActions.bind(undefined, fnModelObj, namespace)
+  fnModelObj.setterActions = (extendFnModelSetterActions as any).bind(undefined, fnModelObj, namespace)
 
   return fnModelObj as FnModel<any, {}>
 }

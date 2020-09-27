@@ -101,7 +101,7 @@ const myTodo2 = new Todo({ text: "buy some coffee" })
 
 ## Automatic class model actions for property setters
 
-Since most of the times, the only action we need for a property is a setter we can use the model option `setterAction` to reduce boilerplace and allow setting properties as if they were wrapped in a `modelAction`. For example, the model above could be written as:
+Since most of the times, the only action we need for a property is a setter we can use the model option `setterAction` to reduce boilerplace and generate property setters. For example, the model above could be written as:
 
 ```ts
 @model("myCoolApp/Todo")
@@ -113,23 +113,8 @@ export class Todo extends Model({
 const myTodo = new Todo({ text: "buy some coffee" })
 
 // this is now allowed and properly wrapped in two respective actions
-myTodo.text = "buy some milk"
-myTodo.done = true
-```
-
-Note however that this does not apply when setting the properties under `$`, sub-objects or array methods. For example, these would still require a `modelAction`:
-
-```ts
-// all these will throw
-
-myTodo.$.text = "buy some milk"
-myTodo.$.done = true
-
-// given someObject uses setterAction
-myTodo.someObject.foo = ...
-
-// given someArray uses setterAction
-myTodo.someArray.push(...)
+myTodo.setText("buy some milk")
+myTodo.setDone(true)
 ```
 
 If for some reason you still require to change these without using a `modelAction` consider using `fnObject.set`, `fnObject.delete`, `fnObject.call`, `fnArray.push`, etc. if needed.

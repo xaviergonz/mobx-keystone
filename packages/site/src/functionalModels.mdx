@@ -111,10 +111,7 @@ Also note that this also holds when using actions/views within other actions/vie
 Since most of the times the only action we need for a property is a setter we can use `setterActions` to reduce boilerplace. For example, the model above could be written as:
 
 ```ts
-const fnTodo = fnModel<Todo>("myCoolApp/Todo").setterActions({
-  setDone: "done",
-  setText: "text",
-})
+const fnTodo = fnModel<Todo>("myCoolApp/Todo").setterActions("done", "text")
 
 const myTodo = Todo.create({ done: true, text: "buy some coffee" })
 

@@ -1,32 +1,33 @@
-import { applySet } from "../action/applySet"
-import { getCurrentActionContext } from "../action/context"
+import { AnyModelProp } from 'model'
+import { ActionContextActionType } from "../action/context"
+import { wrapInAction } from "../action/wrapInAction"
 import { memoTransformCache } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { assertIsObject, failure } from "../utils"
+import { assertIsObject, failure, propNameToSetterActionName } from "../utils"
 import {
   AnyModel,
   BaseModel,
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData,
+  ModelInstanceData
 } from "./BaseModel"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import {
   modelDataTypeCheckerSymbol,
   modelInitializersSymbol,
-  modelUnwrappedClassSymbol,
+  modelUnwrappedClassSymbol
 } from "./modelSymbols"
 import {
-  ModelProp,
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
   ModelPropsToPropsData,
+  ModelPropsToSetterActions
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -63,7 +64,8 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
       this[typeof instanceDataSymbol],
       this[typeof instanceCreationDataSymbol]
     > &
-    Omit<this[typeof instanceDataSymbol], keyof AnyModel>
+    Omit<this[typeof instanceDataSymbol], keyof AnyModel> &
+    ModelPropsToSetterActions<TProps>
 }
 
 /**
@@ -194,6 +196,21 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
 
   Object.defineProperties(CustomBaseModel.prototype, extraDescriptors)
 
+  // add setter actions to prototype
+  for (const [propName, propData] of Object.entries(modelProps)) {
+    if (propData.options.setterAction) {
+      const setterActionName = propNameToSetterActionName(propName)
+      CustomBaseModel.prototype[setterActionName] = wrapInAction(
+        {
+          name: setterActionName,
+          fn: function (this: any, value: any) {
+            this[propName] = value;
+          }, actionType: ActionContextActionType.Sync
+        }
+      )
+    }
+  }
+
   return CustomBaseModel
 }
 
@@ -205,7 +222,7 @@ function _inheritsLoose(subClass: any, superClass: any) {
 
 function createModelPropDescriptor(
   modelPropName: string,
-  modelProp: ModelProp<any, any, any> | undefined,
+  modelProp: AnyModelProp | undefined,
   enumerable: boolean
 ): PropertyDescriptor {
   return {
@@ -228,7 +245,7 @@ function createModelPropDescriptor(
 
 function getModelInstanceDataField<M extends AnyModel>(
   model: M,
-  modelProp: ModelProp<any, any, any> | undefined,
+  modelProp: AnyModelProp | undefined,
   modelPropName: keyof ModelInstanceData<M>
 ): ModelInstanceData<M>[typeof modelPropName] {
   const transform = modelProp ? modelProp.transform : undefined
@@ -249,16 +266,10 @@ function getModelInstanceDataField<M extends AnyModel>(
 
 function setModelInstanceDataField<M extends AnyModel>(
   model: M,
-  modelProp: ModelProp<any, any, any> | undefined,
+  modelProp: AnyModelProp | undefined,
   modelPropName: keyof ModelInstanceData<M>,
   value: ModelInstanceData<M>[typeof modelPropName]
 ): void {
-  if (modelProp?.options.setterAction && !getCurrentActionContext()) {
-    // use apply set instead to wrap it in an action
-    applySet(model, modelPropName as any, value)
-    return
-  }
-
   const transform = modelProp?.transform
 
   if (transform) {

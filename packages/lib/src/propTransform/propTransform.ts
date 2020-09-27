@@ -1,6 +1,6 @@
-import { AnyModel } from "../model/BaseModel"
-import { ModelProp, noDefaultValue } from "../model/prop"
-import { failure } from "../utils"
+import { AnyModel } from "../model/BaseModel";
+import { AnyModelProp, noDefaultValue } from "../model/prop";
+import { failure } from "../utils";
 
 /**
  * A prop transform.
@@ -176,10 +176,10 @@ function toMemoPropTransform<TProp, TData>(
  * @internal
  */
 export function transformedProp(
-  prop: ModelProp<any, any, any, any, any>,
+  prop: AnyModelProp,
   transform: PropTransform<any, any>,
   transformDefault: boolean
-): ModelProp<any, any, any, any, any> {
+): AnyModelProp {
   if (prop.transform) {
     throw failure("a property cannot have more than one transform")
   }

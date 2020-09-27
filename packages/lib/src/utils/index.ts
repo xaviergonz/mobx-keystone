@@ -6,7 +6,7 @@ import {
   isObservableObject,
   isObservableSet,
   ObservableMap,
-  ObservableSet,
+  ObservableSet
 } from "mobx"
 import { PrimitiveValue } from "./types"
 
@@ -396,4 +396,12 @@ export function lazy<V>(valueGen: () => V): () => V {
     }
     return val!
   }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function propNameToSetterActionName(propName: string): string {
+    return `set${propName[0].toUpperCase()}${propName.slice(1)}`;
 }
