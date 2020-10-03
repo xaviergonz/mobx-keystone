@@ -3,6 +3,11 @@
 - Requires TypeScript 4.1.0
 - [BREAKING CHANGE] Class model `setterAction: true` prop option will now generate a setter like `setX` instead.
 - [BREAKING CHANGE] Functional model `setterActions` now just take the field names rather than an object with the setter mapping.
+
+## 0.47.0
+
+- Added `onPatches` callback option to the `patchRecorder`.
+- The `events` list in the `patchRecorder` is now an observable array.
 - `types.enum` no longer requires the generic type in typescript, the enum object as parameter is enough.
 
 ## 0.46.0
