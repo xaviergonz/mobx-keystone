@@ -37,12 +37,45 @@ const disposer = onPatches(todo, (patches, inversePatches) => {
 })
 ```
 
-### `patchRecorder(target: object, opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }): PatchRecorder`
+### `patchRecorder(target: object, opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }; onPatches?: OnPatchesListener): PatchRecorder;`
 
 `patchRecorder` is an abstraction over `onPatches` that can be used like this:
 
 ```ts
-const recorder = patchRecorder(todo)
+const recorder = patchRecorder(todo, options)
+```
+
+Where the allowed options are:
+
+```ts
+/**
+ * Patch recorder options.
+ */
+export interface PatchRecorderOptions {
+  /**
+   * If the patch recorder is initilly recording when created.
+   */
+  recording?: boolean
+
+  /**
+   * An optional callback filter to select wich patches to record/skip.
+   * It will be executed before the event is added to the events list.
+   *
+   * @param patches Patches about to be recorded.
+   * @param inversePatches Inverse patches about to be recorded.
+   * @returns `true` to record the patch, `false` to skip it.
+   */
+  filter?(patches: Patch[], inversePatches: Patch[]): boolean
+
+  /**
+   * An optional callback run once a patch is recorded.
+   * It will be executed after the event is added to the events list.
+   *
+   * @param patches Patches just recorded.
+   * @param inversePatches Inverse patches just recorded.
+   */
+  onPatches?: OnPatchesListener
+}
 ```
 
 It will return an interface implementation that allows you to handle patch recording via the following properties:
@@ -55,7 +88,7 @@ interface PatchRecorder {
   recording: boolean
 
   /**
-   * Patching events.
+   * Observable array of patching events.
    */
   readonly events: PatchRecorderEvent[]
 

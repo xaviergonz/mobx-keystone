@@ -1,5 +1,6 @@
+import { observable } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
-import { onGlobalPatches, onPatches, OnPatchesDisposer } from "./emitPatch"
+import { onGlobalPatches, onPatches, OnPatchesDisposer, OnPatchesListener } from "./emitPatch"
 import { Patch } from "./Patch"
 
 /**
@@ -30,7 +31,7 @@ export interface PatchRecorder {
   recording: boolean
 
   /**
-   * Patching events.
+   * Observable array of patching events.
    */
   readonly events: PatchRecorderEvent[]
 
@@ -41,16 +42,42 @@ export interface PatchRecorder {
 }
 
 /**
+ * Patch recorder options.
+ */
+export interface PatchRecorderOptions {
+  /**
+   * If the patch recorder is initilly recording when created.
+   */
+  recording?: boolean
+
+  /**
+   * An optional callback filter to select wich patches to record/skip.
+   * It will be executed before the event is added to the events list.
+   *
+   * @param patches Patches about to be recorded.
+   * @param inversePatches Inverse patches about to be recorded.
+   * @returns `true` to record the patch, `false` to skip it.
+   */
+  filter?(patches: Patch[], inversePatches: Patch[]): boolean
+
+  /**
+   * An optional callback run once a patch is recorded.
+   * It will be executed after the event is added to the events list.
+   *
+   * @param patches Patches just recorded.
+   * @param inversePatches Inverse patches just recorded.
+   */
+  onPatches?: OnPatchesListener
+}
+
+/**
  * Creates a patch recorder.
  *
  * @param subtreeRoot
  * @param [opts]
  * @returns The patch recorder.
  */
-export function patchRecorder(
-  subtreeRoot: object,
-  opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }
-): PatchRecorder {
+export function patchRecorder(subtreeRoot: object, opts?: PatchRecorderOptions): PatchRecorder {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   return internalPatchRecorder(subtreeRoot, opts)
@@ -68,7 +95,7 @@ export function patchRecorder(
  */
 export function internalPatchRecorder(
   subtreeRoot: object | undefined,
-  opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }
+  opts?: PatchRecorderOptions
 ): PatchRecorder {
   let { recording, filter } = {
     recording: true,
@@ -76,7 +103,9 @@ export function internalPatchRecorder(
     ...opts,
   }
 
-  const events: PatchRecorderEvent[] = []
+  const events = observable.array<PatchRecorderEvent>([], {
+    deep: false,
+  })
 
   let onPatchesDisposer: OnPatchesDisposer
 
@@ -88,6 +117,7 @@ export function internalPatchRecorder(
           patches: p,
           inversePatches: invP,
         })
+        opts?.onPatches?.(p, invP)
       }
     })
   } else {
@@ -98,6 +128,7 @@ export function internalPatchRecorder(
           patches: p,
           inversePatches: invP,
         })
+        opts?.onPatches?.(p, invP)
       }
     })
   }
