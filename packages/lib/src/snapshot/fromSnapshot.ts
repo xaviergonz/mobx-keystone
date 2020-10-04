@@ -2,6 +2,7 @@ import { action, observable, set } from "mobx"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
+import { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { tweakArray } from "../tweaker/tweakArray"
@@ -111,14 +112,13 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
     throw failure(`a model snapshot must contain an id key (${modelIdKey}), but none was found`)
   }
 
-  return new (modelInfo.class as any)(
-    undefined,
-    {
+  return new (modelInfo.class as any)(undefined, {
+    snapshotInitialData: {
       unprocessedSnapshot: sn,
       snapshotToInitialData: ctx.snapshotToInitialData,
     },
-    ctx.options.generateNewIds
-  )
+    generateNewIds: ctx.options.generateNewIds,
+  } as ModelConstructorOptions)
 }
 
 function snapshotToInitialData(

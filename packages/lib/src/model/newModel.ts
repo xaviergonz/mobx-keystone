@@ -7,6 +7,7 @@ import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelClass, ModelPropsCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
 import { getInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelInitializersSymbol } from "./modelSymbols"
@@ -20,16 +21,12 @@ export const internalNewModel = action(
   "newModel",
   <M extends AnyModel>(
     origModelObj: M,
-    modelClass: ModelClass<M>,
     initialData: (ModelPropsCreationData<M> & { [modelIdKey]?: string }) | undefined,
-    snapshotInitialData:
-      | {
-          unprocessedSnapshot: any
-          snapshotToInitialData(processedSnapshot: any): any
-        }
-      | undefined,
-    generateNewId: boolean
+    options: Pick<ModelConstructorOptions, "modelClass" | "snapshotInitialData" | "generateNewIds">
   ): M => {
+    const { modelClass: _modelClass, snapshotInitialData, generateNewIds } = options
+    const modelClass = _modelClass!
+
     if (inDevMode()) {
       assertIsModelClass(modelClass, "modelClass")
     }
@@ -47,7 +44,7 @@ export const internalNewModel = action(
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
 
-      if (generateNewId) {
+      if (generateNewIds) {
         id = getGlobalConfig().modelIdGenerator()
       } else {
         id = sn[modelIdKey]

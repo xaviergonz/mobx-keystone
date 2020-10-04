@@ -1,10 +1,7 @@
-import { HookAction } from "../action/hookActions"
-import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { addHiddenProp, failure, logWarning } from "../utils"
-import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
+import { logWarning } from "../utils"
+import { AnyModel, ModelClass } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
-import { modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -15,14 +12,10 @@ import { assertIsModelClass } from "./utils"
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
 export const model = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
-  return internalModel(name, {})(clazz)
+  return internalModel(name)(clazz)
 }
 
-const internalModel = (name: string, options: { afterNew?: (instance: any) => void }) => <
-  MC extends ModelClass<AnyModel>
->(
-  clazz: MC
-): MC => {
+const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
@@ -33,64 +26,19 @@ const internalModel = (name: string, options: { afterNew?: (instance: any) => vo
     )
   }
 
-  if ((clazz as any)[modelUnwrappedClassSymbol]) {
-    throw failure("a class already decorated with `@model` cannot be re-decorated")
-  }
-
-  // trick so plain new works
-  const newClazz: any = function (
-    this: any,
-    initialData: any,
-    snapshotInitialData: any,
-    generateNewIds: any
-  ) {
-    const instance = new (clazz as any)(
-      initialData,
-      snapshotInitialData,
-      this.constructor,
-      generateNewIds
-    )
-
-    if (options?.afterNew) {
-      options.afterNew(instance)
-    }
-
-    // the object is ready
-    addHiddenProp(instance, modelInitializedSymbol, true, false)
-
-    if (instance.onInit) {
-      wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
-
-      instance.onInit()
-    }
-
-    return instance
-  }
-
   clazz.toString = () => `class ${clazz.name}#${name}`
   ;(clazz as any)[modelTypeKey] = name
 
-  // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
-  Object.setPrototypeOf(newClazz, clazz)
-  newClazz.prototype = clazz.prototype
-
-  Object.defineProperty(newClazz, "name", {
-    ...Object.getOwnPropertyDescriptor(newClazz, "name"),
-    value: clazz.name,
-  })
-  newClazz[modelUnwrappedClassSymbol] = clazz
-
   const modelInfo = {
     name,
-    class: newClazz,
+    class: clazz,
   }
 
   modelInfoByName[name] = modelInfo
 
-  modelInfoByClass.set(newClazz, modelInfo)
   modelInfoByClass.set(clazz, modelInfo)
 
-  return newClazz
+  return clazz
 }
 
 // basically taken from TS
