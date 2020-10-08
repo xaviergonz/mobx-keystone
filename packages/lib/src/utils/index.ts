@@ -282,36 +282,34 @@ export function decorateWrapMethodOrField(
   const { target, propertyKey, baseDescriptor } = data
 
   if (baseDescriptor) {
-    // method decorator
     if (baseDescriptor.get !== undefined) {
       throw failure(`@${decoratorName} cannot be used with getters`)
     }
 
-    // babel / typescript
-    // @action method() { }
     if (baseDescriptor.value) {
-      // typescript
+      // babel / typescript - method decorator
+      // @action method() { }
       return {
         enumerable: false,
         writable: true,
         configurable: true,
         value: wrap(data, baseDescriptor.value),
       }
-    }
-
-    // babel only: @action method = () => {}
-    const { initializer } = baseDescriptor
-    return {
-      enumerable: false,
-      configurable: true,
-      writable: true,
-      initializer() {
-        // N.B: we can't immediately invoke initializer; this would be wrong
-        return wrap(data, initializer!.call(this))
-      },
+    } else {
+      // babel - field decorator: @action method = () => {}
+      const { initializer } = baseDescriptor
+      return {
+        enumerable: false,
+        configurable: true,
+        writable: true,
+        initializer() {
+          // N.B: we can't immediately invoke initializer; this would be wrong
+          return wrap(data, initializer!.call(this))
+        },
+      }
     }
   } else {
-    // field decorator
+    // typescript - field decorator
     Object.defineProperty(target, propertyKey, {
       configurable: true,
       enumerable: false,
