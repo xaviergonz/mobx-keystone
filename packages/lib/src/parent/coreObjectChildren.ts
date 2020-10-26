@@ -18,6 +18,7 @@ const objectChildren = new WeakMap<object, ObjectChildrenData>()
 
 /**
  * @ignore
+ * @internal
  */
 export function initializeObjectChildren(node: object) {
   if (objectChildren.has(node)) {
@@ -35,6 +36,7 @@ export function initializeObjectChildren(node: object) {
 
 /**
  * @ignore
+ * @internal
  */
 export function getObjectChildren(node: object) {
   return objectChildren.get(node)!.shallow
@@ -42,6 +44,7 @@ export function getObjectChildren(node: object) {
 
 /**
  * @ignore
+ * @internal
  */
 export function getDeepObjectChildren(node: object) {
   const obj = objectChildren.get(node)!
@@ -100,6 +103,7 @@ const updateDeepObjectChildren = action((node: object) => {
 
 /**
  * @ignore
+ * @internal
  */
 export const addObjectChild = action((node: object, child: object) => {
   const obj = objectChildren.get(node)!
@@ -110,6 +114,7 @@ export const addObjectChild = action((node: object, child: object) => {
 
 /**
  * @ignore
+ * @internal
  */
 export const removeObjectChild = action((node: object, child: object) => {
   const obj = objectChildren.get(node)!
@@ -134,6 +139,7 @@ function invalidateDeepChildren(node: object) {
 
 /**
  * @ignore
+ * @internal
  */
 export function byModelTypeAndIdKey(modelType: string, modelId: string) {
   return modelType + " " + modelId

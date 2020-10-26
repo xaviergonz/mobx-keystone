@@ -16,6 +16,7 @@ import { assertIsModelClass } from "./utils"
 
 /**
  * @ignore
+ * @internal
  */
 export const internalNewModel = action(
   "newModel",

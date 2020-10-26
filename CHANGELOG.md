@@ -2,6 +2,10 @@
 
 ## 0.47.0
 
+- Make the typing of some functions not rely on mobx internal typings.
+
+## 0.47.0
+
 - Added `onPatches` callback option to the `patchRecorder`.
 - The `events` list in the `patchRecorder` is now an observable array.
 - `types.enum` no longer requires the generic type in typescript, the enum object as parameter is enough.

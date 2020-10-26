@@ -12,6 +12,7 @@ const snapshots = new WeakMap<Object, SnapshotData<any>>()
 
 /**
  * @ignore
+ * @internal
  */
 export function getInternalSnapshot<T extends object>(
   value: T
@@ -44,6 +45,7 @@ function getInternalSnapshotParent(
 
 /**
  * @ignore
+ * @internal
  */
 export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any) => {
   const oldSn = getInternalSnapshot(value) as SnapshotData<any>
@@ -56,6 +58,7 @@ export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any
 
 /**
  * @ignore
+ * @internal
  */
 export const setInternalSnapshot = action(
   "setInternalSnapshot",

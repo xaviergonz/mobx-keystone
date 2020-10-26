@@ -18,9 +18,9 @@ const rootStoreAtoms = new WeakMap<object, IAtom>()
  * @param node Node object to register as root store.
  * @returns The same model object that was passed.
  */
-export const registerRootStore = action(
+export const registerRootStore: <T extends object>(node: T) => T = action(
   "registerRootStore",
-  <T extends object>(node: T): T => {
+  (node) => {
     assertTweakedObject(node, "node")
 
     if (rootStores.has(node)) {
@@ -45,7 +45,7 @@ export const registerRootStore = action(
  *
  * @param node Node object to unregister as root store.
  */
-export const unregisterRootStore = action("unregisterRootStore", (node: object): void => {
+export const unregisterRootStore: (node: object) => void = action("unregisterRootStore", (node) => {
   if (!isRootStore(node)) {
     throw failure("not a root store")
   }

@@ -17,6 +17,7 @@ import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
 
 /**
  * @ignore
+ * @internal
  */
 export const setParent = action(
   "setParent",

@@ -47,7 +47,10 @@ const computedIdTrees = new WeakMap<
  * @param [options] Root reference options.
  * @returns A function that allows you to construct that type of root reference.
  */
-export const rootRef = action(
+export const rootRef: <T extends object>(
+  modelTypeId: string,
+  options?: RootRefOptions<T> | undefined
+) => RefConstructor<T> = action(
   "rootRef",
   <T extends object>(modelTypeId: string, options?: RootRefOptions<T>): RefConstructor<T> => {
     const getId = options?.getId ?? getModelRefId
