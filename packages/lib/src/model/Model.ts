@@ -1,31 +1,29 @@
 import { applySet } from "../action/applySet"
 import { getCurrentActionContext } from "../action/context"
-import { HookAction } from "../action/hookActions"
-import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { memoTransformCache } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { addHiddenProp, assertIsObject, failure } from "../utils"
+import { assertIsObject, failure } from "../utils"
 import {
   AnyModel,
   BaseModel,
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData,
+  ModelInstanceData
 } from "./BaseModel"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
-import { modelDataTypeCheckerSymbol, modelInitializersSymbol } from "./modelSymbols"
+import { modelDataTypeCheckerSymbol, modelInitializersSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
   ModelProp,
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
-  ModelPropsToPropsData,
+  ModelPropsToPropsData
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -99,8 +97,15 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   baseModel?: ModelClass<TBaseModel>
 ): _Model<TBaseModel, TProps> {
   assertIsObject(modelProps, "modelProps")
-  if (baseModel) {
+ if (baseModel) {
     assertIsModelClass(baseModel, "baseModel")
+
+    // if the baseModel is wrapped with the model decorator get the original one
+    const unwrappedClass = (baseModel as any)[modelUnwrappedClassSymbol]
+    if (unwrappedClass) {
+      baseModel = unwrappedClass
+      assertIsModelClass(baseModel, "baseModel")
+    }
   }
 
   const extraDescriptors: PropertyDescriptorMap = {}
@@ -166,19 +171,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
         ...constructorOptions,
         modelClass: constructorOptions?.modelClass ?? this.constructor,
         propsWithTransforms,
-        skipFinalInitialization: true,
       } as ModelConstructorOptions)
-
-      // the object is ready and this is the outmost constructor
-      if (!constructorOptions?.skipFinalInitialization) {
-        addHiddenProp(baseModel, modelInitializedSymbol, true, false)
-
-        if (baseModel.onInit) {
-          wrapModelMethodInActionIfNeeded(baseModel, "onInit", HookAction.OnInit)
-
-          baseModel.onInit()
-        }
-      }
 
       return baseModel
     }

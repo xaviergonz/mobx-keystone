@@ -1,7 +1,10 @@
-import { logWarning } from "../utils"
-import { AnyModel, ModelClass } from "./BaseModel"
+import { HookAction } from "../action/hookActions"
+import { wrapModelMethodInActionIfNeeded } from '../action/wrapInAction'
+import { addHiddenProp, failure, logWarning } from "../utils"
+import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
+import { modelUnwrappedClassSymbol } from './modelSymbols'
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -26,19 +29,62 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
     )
   }
 
+  if ((clazz as any)[modelUnwrappedClassSymbol]) {
+    throw failure("a class already decorated with `@model` cannot be re-decorated")
+  }
+
+  // trick so plain new works
+  const newClazz: any = function (
+    this: any,
+    initialData: any,
+    snapshotInitialData: any,
+    generateNewIds: any
+  ) {
+    const instance = new (clazz as any)(
+      initialData,
+      snapshotInitialData,
+      this.constructor,
+      generateNewIds
+    )
+
+    // TODO: here we actually apply field decorators and call makeObservable(instance)
+
+    // the object is ready
+    addHiddenProp(instance, modelInitializedSymbol, true, false)
+
+    if (instance.onInit) {
+      wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
+
+      instance.onInit()
+    }
+
+    return instance
+  }
+
   clazz.toString = () => `class ${clazz.name}#${name}`
   ;(clazz as any)[modelTypeKey] = name
 
+  // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
+  Object.setPrototypeOf(newClazz, clazz)
+  newClazz.prototype = clazz.prototype
+
+  Object.defineProperty(newClazz, "name", {
+    ...Object.getOwnPropertyDescriptor(newClazz, "name"),
+    value: clazz.name,
+  })
+  newClazz[modelUnwrappedClassSymbol] = clazz
+
   const modelInfo = {
     name,
-    class: clazz,
+    class: newClazz,
   }
 
   modelInfoByName[name] = modelInfo
 
+  modelInfoByClass.set(newClazz, modelInfo)
   modelInfoByClass.set(clazz, modelInfo)
 
-  return clazz
+  return newClazz
 }
 
 // basically taken from TS
