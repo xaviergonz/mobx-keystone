@@ -20,6 +20,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "useDefineForClassFields": true
   }
 }

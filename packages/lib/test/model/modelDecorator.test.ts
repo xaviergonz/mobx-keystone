@@ -174,7 +174,8 @@ test("decoratedModel", () => {
       this.setZ(z)
     }
 
-    get length() {
+    // we rename the prop since mobx6 does not support computed prop override
+    get length3d() {
       return this.x + this.y + this.z
     }
   }
@@ -182,7 +183,7 @@ test("decoratedModel", () => {
   const Point3d = decoratedModel("decoratedModel/Point3d", _Point3d, {
     setZ: modelAction,
     setXYZ: modelAction,
-    length: computed,
+    length3d: computed,
   })
   type Point3d = _Point3d
 
@@ -199,12 +200,12 @@ test("decoratedModel", () => {
     expect(isModelAction(p2.setXY)).toBeTruthy()
     expect(isModelAction(p2.setZ)).toBeTruthy()
     expect(isModelAction(p2.setXYZ)).toBeTruthy()
-    expect(isComputedProp(p2, "length"))
+    expect(isComputedProp(p2, "length3d")).toBeTruthy()
 
     expect(p2.x).toBe(10)
     expect(p2.y).toBe(20)
     expect(p2.z).toBe(30)
-    expect(p2.length).toBe(60)
+    expect(p2.length3d).toBe(60)
     expect(p2.volatile).toBe("volatile")
     assert(p2.volatile2, _ as unknown) // known issue, no way to specify generic for base class
 
@@ -212,7 +213,7 @@ test("decoratedModel", () => {
     expect(p2.x).toBe(20)
     expect(p2.y).toBe(30)
     expect(p2.z).toBe(40)
-    expect(p2.length).toBe(90)
+    expect(p2.length3d).toBe(90)
 
     assert(
       _ as SnapshotInOf<Point3d>,

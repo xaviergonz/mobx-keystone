@@ -14,5 +14,4 @@ export interface ModelConstructorOptions {
   modelClass?: ModelClass<AnyModel>
   generateNewIds?: boolean
   propsWithTransforms?: ReadonlyArray<readonly [string, PropTransform<any, any>]>
-  skipFinalInitialization?: boolean
 }

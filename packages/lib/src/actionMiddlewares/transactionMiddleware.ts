@@ -1,6 +1,6 @@
 import { ActionMiddlewareDisposer } from "../action/middleware"
 import { AnyModel } from "../model/BaseModel"
-import { addModelClassInitializer } from "../model/newModel"
+import { addModelClassInitializer } from "../model/modelClassInitializer"
 import { assertIsModel, checkModelDecoratorArgs } from "../model/utils"
 import { applyPatches } from "../patch"
 import { internalPatchRecorder, PatchRecorder } from "../patch/patchRecorder"
@@ -90,7 +90,7 @@ export function transactionMiddleware<M extends AnyModel>(target: {
 export function transaction(target: any, propertyKey: string): void {
   checkModelDecoratorArgs("transaction", target, propertyKey)
 
-  addModelClassInitializer(target.constructor, modelInstance => {
+  addModelClassInitializer(target.constructor, (modelInstance) => {
     transactionMiddleware({
       model: modelInstance,
       actionName: propertyKey as any,

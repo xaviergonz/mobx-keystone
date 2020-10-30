@@ -1,12 +1,9 @@
 import {
   action,
-  IArrayChange,
-  IArraySplice,
   IMapWillChange,
   intercept,
   IObjectDidChange,
   IObservableArray,
-  IObservableObject,
   isObservableArray,
   isObservableObject,
   observable,
@@ -26,10 +23,9 @@ import {
 import { Lock } from "../utils/lock"
 import { tag } from "../utils/tag"
 
-const observableMapBackedByObservableObject = action(<T>(obj: IObservableObject): ObservableMap<
-  string,
-  T
-> & { dataObject: typeof obj } => {
+const observableMapBackedByObservableObject = action(<T>(obj: object): ObservableMap<string, T> & {
+  dataObject: typeof obj
+} => {
   if (inDevMode()) {
     if (!isObservableObject(obj)) {
       throw failure("assertion failed: expected an observable object")
@@ -122,7 +118,7 @@ const observableMapBackedByObservableArray = action(
     observe(
       array,
       action(
-        mutationLock.unlockedFn((change: IArrayChange<[string, T]> | IArraySplice<[string, T]>) => {
+        mutationLock.unlockedFn((change: any /*IArrayDidChange<[string, T]>*/) => {
           switch (change.type) {
             case "splice": {
               {
@@ -163,7 +159,7 @@ const observableMapBackedByObservableArray = action(
         switch (change.type) {
           case "update": {
             // replace the whole tuple to keep tuple immutability
-            const i = array.findIndex(i => i[0] === change.name)
+            const i = array.findIndex((i) => i[0] === change.name)
             array[i] = [change.name, change.newValue!]
             break
           }
@@ -174,7 +170,7 @@ const observableMapBackedByObservableArray = action(
           }
 
           case "delete": {
-            const i = array.findIndex(i => i[0] === change.name)
+            const i = array.findIndex((i) => i[0] === change.name)
             if (i >= 0) {
               array.splice(i, 1)
             }

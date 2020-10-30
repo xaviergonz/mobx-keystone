@@ -1,12 +1,10 @@
 import { applySet } from "../action/applySet"
 import { getCurrentActionContext } from "../action/context"
-import { HookAction } from "../action/hookActions"
-import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { memoTransformCache } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { addHiddenProp, assertIsObject, failure } from "../utils"
+import { assertIsObject, failure } from "../utils"
 import {
   AnyModel,
   BaseModel,
@@ -16,9 +14,10 @@ import {
   ModelInstanceData,
 } from "./BaseModel"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { modelInitializersSymbol } from "./modelClassInitializer"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
-import { modelDataTypeCheckerSymbol, modelInitializersSymbol } from "./modelSymbols"
+import { modelDataTypeCheckerSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
   ModelProp,
   ModelProps,
@@ -101,6 +100,13 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
     assertIsModelClass(baseModel, "baseModel")
+
+    // if the baseModel is wrapped with the model decorator get the original one
+    const unwrappedClass = (baseModel as any)[modelUnwrappedClassSymbol]
+    if (unwrappedClass) {
+      baseModel = unwrappedClass
+      assertIsModelClass(baseModel, "baseModel")
+    }
   }
 
   const extraDescriptors: PropertyDescriptorMap = {}
@@ -145,6 +151,9 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     )
   }
 
+  const extraPropNames = Object.keys(extraDescriptors)
+  const extraPropNamesLen = extraPropNames.length
+
   const base: any = baseModel ?? BaseModel
 
   const propsWithTransforms = Object.entries(modelProps)
@@ -166,17 +175,13 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
         ...constructorOptions,
         modelClass: constructorOptions?.modelClass ?? this.constructor,
         propsWithTransforms,
-        skipFinalInitialization: true,
       } as ModelConstructorOptions)
 
-      // the object is ready and this is the outmost constructor
-      if (!constructorOptions?.skipFinalInitialization) {
-        addHiddenProp(baseModel, modelInitializedSymbol, true, false)
-
-        if (baseModel.onInit) {
-          wrapModelMethodInActionIfNeeded(baseModel, "onInit", HookAction.OnInit)
-
-          baseModel.onInit()
+      // make sure abstract classes do not override prototype props
+      for (let i = 0; i < extraPropNamesLen; i++) {
+        const extraPropName = extraPropNames[i]
+        if (Object.getOwnPropertyDescriptor(baseModel, extraPropName)) {
+          delete baseModel[extraPropName]
         }
       }
 

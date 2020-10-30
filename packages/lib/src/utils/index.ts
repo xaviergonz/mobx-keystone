@@ -1,6 +1,6 @@
+import * as mobx from "mobx"
 import {
   IObservableArray,
-  IObservableObject,
   isObservableArray,
   isObservableMap,
   isObservableObject,
@@ -185,10 +185,7 @@ export function assertIsPlainObject(value: unknown, argName: string): asserts va
  * @ignore
  * @internal
  */
-export function assertIsObservableObject(
-  value: unknown,
-  argName: string
-): asserts value is IObservableObject {
+export function assertIsObservableObject(value: unknown, argName: string): asserts value is object {
   if (!isObservableObject(value)) {
     throw failure(`${argName} must be an observable object`)
   }
@@ -270,6 +267,24 @@ export interface DecorateMethodOrFieldData {
   baseDescriptor?: PropertyDescriptor & { initializer?: () => any }
 }
 
+const decoratorsSymbol = Symbol("decorators")
+
+type WrapFunction = (data: DecorateMethodOrFieldData, fn: any) => any
+type LateInitializationFunctionsArray = ((instance: any) => void)[]
+
+/**
+ * @ignore
+ * @internal
+ */
+export function addLateInitializationFunction(target: any, fn: (instance: any) => void) {
+  let decoratorsArray: LateInitializationFunctionsArray = target[decoratorsSymbol]
+  if (!decoratorsArray) {
+    decoratorsArray = []
+    addHiddenProp(target, decoratorsSymbol, decoratorsArray)
+  }
+  decoratorsArray.push(fn)
+}
+
 /**
  * @ignore
  * @internal
@@ -277,9 +292,15 @@ export interface DecorateMethodOrFieldData {
 export function decorateWrapMethodOrField(
   decoratorName: string,
   data: DecorateMethodOrFieldData,
-  wrap: (data: DecorateMethodOrFieldData, fn: any) => any
+  wrap: WrapFunction
 ): any {
   const { target, propertyKey, baseDescriptor } = data
+
+  const addFieldDecorator = () => {
+    addLateInitializationFunction(target, (instance) => {
+      instance[propertyKey] = wrap(data, instance[propertyKey])
+    })
+  }
 
   if (baseDescriptor) {
     if (baseDescriptor.get !== undefined) {
@@ -297,39 +318,24 @@ export function decorateWrapMethodOrField(
       }
     } else {
       // babel - field decorator: @action method = () => {}
-      const { initializer } = baseDescriptor
-      return {
-        enumerable: false,
-        configurable: true,
-        writable: true,
-        initializer() {
-          // N.B: we can't immediately invoke initializer; this would be wrong
-          return wrap(data, initializer!.call(this))
-        },
-      }
+      addFieldDecorator()
     }
   } else {
     // typescript - field decorator
-    Object.defineProperty(target, propertyKey, {
-      configurable: true,
-      enumerable: false,
-      get() {
-        return undefined
-      },
-      set(fn) {
-        addHiddenProp(
-          this,
-          propertyKey,
-          wrap(
-            {
-              ...data,
-              target: this,
-            },
-            fn
-          )
-        )
-      },
-    })
+    addFieldDecorator()
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function runLateInitializationFunctions(instance: any): void {
+  const fns: LateInitializationFunctionsArray | undefined = instance[decoratorsSymbol]
+  if (fns) {
+    for (const fn of fns) {
+      fn(instance)
+    }
   }
 }
 
@@ -393,5 +399,17 @@ export function lazy<V>(valueGen: () => V): () => V {
       inited = true
     }
     return val!
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function getMobxVersion(): number {
+  if ((mobx as any).makeObservable!) {
+    return 6
+  } else {
+    return 5
   }
 }

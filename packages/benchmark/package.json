@@ -13,7 +13,7 @@
   "dependencies": {
     "benchmark": "^2.1.4",
     "chalk": "^4.0.0",
-    "mobx": "^5.14.0",
+    "mobx": "^6.0.1",
     "mobx-state-tree": "^3.14.1"
   },
   "devDependencies": {

@@ -19,6 +19,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "skipLibCheck": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "useDefineForClassFields": true
   }
 }
