@@ -1,6 +1,10 @@
 # Change Log
 
-## 0.47.0
+## 0.48.0
+
+- Made it compatible with MobX v6 while keeping it compatible with v5 and v4 still.
+
+## 0.47.1
 
 - Make the typing of some functions not rely on mobx internal typings.
 

@@ -17,22 +17,22 @@ import { assertIsModelClass } from "./utils"
 /**
  * @ignore
  */
-export declare const propsDataTypeSymbol: unique symbol
+export const propsDataTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export declare const propsCreationDataTypeSymbol: unique symbol
+export const propsCreationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export declare const instanceDataTypeSymbol: unique symbol
+export const instanceDataTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export declare const instanceCreationDataTypeSymbol: unique symbol
+export const instanceCreationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
@@ -139,6 +139,17 @@ export abstract class BaseModel<
     }: ModelConstructorOptions = arguments[1] as any
 
     Object.setPrototypeOf(this, modelClass!.prototype)
+
+    const self = this as any
+
+    // let's always use the one from the prototype
+    delete self[modelIdKey]
+
+    // delete unnecessary props
+    delete self[propsDataTypeSymbol]
+    delete self[propsCreationDataTypeSymbol]
+    delete self[instanceDataTypeSymbol]
+    delete self[instanceCreationDataTypeSymbol]
 
     if (!snapshotInitialData) {
       // plain new

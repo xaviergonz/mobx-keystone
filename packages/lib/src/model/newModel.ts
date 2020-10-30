@@ -4,13 +4,13 @@ import { getGlobalConfig, isModelAutoTypeCheckingEnabled } from "../globalConfig
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
-import { AnyModel, ModelClass, ModelPropsCreationData } from "./BaseModel"
+import { AnyModel, ModelPropsCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { getModelClassInitializers } from "./modelClassInitializer"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
 import { getInternalModelClassPropsInfo } from "./modelPropsInfo"
-import { modelInitializersSymbol } from "./modelSymbols"
 import { noDefaultValue } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -131,26 +131,3 @@ export const internalNewModel = action(
     return modelObj as M
   }
 )
-
-type ModelClassInitializer = (modelInstance: AnyModel) => void
-
-/**
- * @ignore
- */
-export function addModelClassInitializer(
-  modelClass: ModelClass<AnyModel>,
-  init: ModelClassInitializer
-) {
-  let initializers = (modelClass as any)[modelInitializersSymbol]
-  if (!initializers) {
-    initializers = []
-    ;(modelClass as any)[modelInitializersSymbol] = initializers
-  }
-  initializers.push(init)
-}
-
-function getModelClassInitializers(
-  modelClass: ModelClass<AnyModel>
-): ModelClassInitializer[] | undefined {
-  return (modelClass as any)[modelInitializersSymbol]
-}

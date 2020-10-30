@@ -61,7 +61,8 @@ test("transformObjectAsMap", () => {
   autoDispose(
     reaction(
       () => m.map,
-      d => {
+      (d) => {
+        expect(isObservableMap(d)).toBeTruthy()
         reactions.push(d)
       }
     )
@@ -135,11 +136,20 @@ test("transformObjectAsMap", () => {
 
   expect(reactions).toMatchInlineSnapshot(`
     Array [
-      Object {
-        "5": 5,
-        "6": 6,
-        "7": 7,
-      },
+      Array [
+        Array [
+          "5",
+          5,
+        ],
+        Array [
+          "6",
+          6,
+        ],
+        Array [
+          "7",
+          7,
+        ],
+      ],
     ]
   `)
 

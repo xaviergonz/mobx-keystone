@@ -1,6 +1,4 @@
 import {
-  IArrayChange,
-  IArraySplice,
   IArrayWillChange,
   IArrayWillSplice,
   intercept,
@@ -88,7 +86,7 @@ export function tweakArray<T extends any[]>(
   return tweakedArr as any
 }
 
-function arrayDidChange(change: IArrayChange | IArraySplice) {
+function arrayDidChange(change: any /*IArrayDidChange*/) {
   const arr = change.object
   let { standard: oldSnapshot } = getInternalSnapshot(arr as Array<any>)!
 

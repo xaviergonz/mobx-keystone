@@ -1,10 +1,17 @@
+import * as mobx from "mobx"
 import { HookAction } from "../action/hookActions"
-import { wrapModelMethodInActionIfNeeded } from '../action/wrapInAction'
-import { addHiddenProp, failure, logWarning } from "../utils"
+import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
+import {
+  addHiddenProp,
+  failure,
+  getMobxVersion,
+  logWarning,
+  runLateInitializationFunctions,
+} from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
-import { modelUnwrappedClassSymbol } from './modelSymbols'
+import { modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -47,7 +54,23 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
       generateNewIds
     )
 
-    // TODO: here we actually apply field decorators and call makeObservable(instance)
+    runLateInitializationFunctions(instance)
+
+    // compatibility with mobx 6
+    if (getMobxVersion() >= 6) {
+      try {
+        ;(mobx as any).makeObservable(instance)
+      } catch (err) {
+        // sadly we need to use this hack since the PR to do this the proper way
+        // was rejected on the mobx side
+        if (
+          err.message !==
+          "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either"
+        ) {
+          throw err
+        }
+      }
+    }
 
     // the object is ready
     addHiddenProp(instance, modelInitializedSymbol, true, false)

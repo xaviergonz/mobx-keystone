@@ -36,7 +36,7 @@ export class P extends Model({
   x: prop(() => 0),
 }) {
   @modelFlow
-  addX = _async(function*(this: P, n: number) {
+  addX = _async(function* (this: P, n: number) {
     this.x += n / 2
     const r = yield* _await(delay(50))
     assert(r, _ as number)
@@ -139,10 +139,14 @@ test("flow", async () => {
                   "y": 0,
                 },
                 "$modelType": "P2",
+                "addY": [Function],
               },
               "x": 2,
             },
             "$modelType": "P",
+            "addX": [Function],
+            "addXY": [Function],
+            "throwFlow": [Function],
           },
           "type": "async",
         },
@@ -191,10 +195,14 @@ test("flow", async () => {
                   "y": 4,
                 },
                 "$modelType": "P2",
+                "addY": [Function],
               },
               "x": 6,
             },
             "$modelType": "P",
+            "addX": [Function],
+            "addXY": [Function],
+            "throwFlow": [Function],
           },
           "type": "async",
         },
@@ -245,10 +253,14 @@ test("flow", async () => {
                   "y": 4,
                 },
                 "$modelType": "P2",
+                "addY": [Function],
               },
               "x": 16,
             },
             "$modelType": "P",
+            "addX": [Function],
+            "addXY": [Function],
+            "throwFlow": [Function],
           },
           "type": "async",
         },

@@ -11,19 +11,20 @@ import {
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData
+  ModelInstanceData,
 } from "./BaseModel"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { modelInitializersSymbol } from "./modelClassInitializer"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
-import { modelDataTypeCheckerSymbol, modelInitializersSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
+import { modelDataTypeCheckerSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
   ModelProp,
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
-  ModelPropsToPropsData
+  ModelPropsToPropsData,
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -97,7 +98,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   baseModel?: ModelClass<TBaseModel>
 ): _Model<TBaseModel, TProps> {
   assertIsObject(modelProps, "modelProps")
- if (baseModel) {
+  if (baseModel) {
     assertIsModelClass(baseModel, "baseModel")
 
     // if the baseModel is wrapped with the model decorator get the original one
@@ -150,6 +151,9 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     )
   }
 
+  const extraPropNames = Object.keys(extraDescriptors)
+  const extraPropNamesLen = extraPropNames.length
+
   const base: any = baseModel ?? BaseModel
 
   const propsWithTransforms = Object.entries(modelProps)
@@ -172,6 +176,14 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
         modelClass: constructorOptions?.modelClass ?? this.constructor,
         propsWithTransforms,
       } as ModelConstructorOptions)
+
+      // make sure abstract classes do not override prototype props
+      for (let i = 0; i < extraPropNamesLen; i++) {
+        const extraPropName = extraPropNames[i]
+        if (Object.getOwnPropertyDescriptor(baseModel, extraPropName)) {
+          delete baseModel[extraPropName]
+        }
+      }
 
       return baseModel
     }
