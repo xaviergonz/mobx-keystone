@@ -1,4 +1,3 @@
-import * as mobx from "mobx"
 import {
   IObservableArray,
   isObservableArray,
@@ -9,6 +8,8 @@ import {
   ObservableSet,
 } from "mobx"
 import { PrimitiveValue } from "./types"
+
+const { makeObservable } = require("mobx")
 
 /**
  * A mobx-keystone error.
@@ -407,7 +408,7 @@ export function lazy<V>(valueGen: () => V): () => V {
  * @internal
  */
 export function getMobxVersion(): number {
-  if ((mobx as any).makeObservable!) {
+  if (makeObservable) {
     return 6
   } else {
     return 5

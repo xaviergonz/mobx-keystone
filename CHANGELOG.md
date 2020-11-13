@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.48.1
+
+- Fixed compatibility with MobX v5 and v4 when using ESM build.
+
 ## 0.48.0
 
 - Made it compatible with MobX v6 while keeping it compatible with v5 and v4 still.
