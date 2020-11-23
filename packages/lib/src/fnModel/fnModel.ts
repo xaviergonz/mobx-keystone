@@ -2,14 +2,16 @@ import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { toTreeNode } from "../tweaker/tweak"
 import { AnyStandardType, TypeToData } from "../typeChecking/schemas"
 import { typeCheck } from "../typeChecking/typeCheck"
-import { assertIsString } from "../utils"
-import { extendFnModelActions, FnModelActions, FnModelActionsDef } from "./actions"
-import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
+import { assertIsString, propNameToSetterActionName } from "../utils"
 import {
-  extendFnModelSetterActions,
-  FnModelSetterActionsArray,
-  FnModelSetterActionsArrayDef
-} from "./setterActions"
+  addActionToFnModel,
+  extendFnModelActions,
+  FnModelActionDef,
+  FnModelActions,
+  FnModelActionsDef,
+} from "./actions"
+import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
+import { FnModelSetterActionsArray, FnModelSetterActionsArrayDef } from "./setterActions"
 import { extendFnModelViews, FnModelViews, FnModelViewsDef } from "./views"
 
 declare const dataTypeSymbol: unique symbol
@@ -119,7 +121,11 @@ export function fnModel(arg1: any, arg2?: string): FnModel<any, {}> {
   fnModelObj.views = extendFnModelViews.bind(undefined, fnModelObj)
   fnModelObj.actions = extendFnModelActions.bind(undefined, fnModelObj, namespace)
   fnModelObj.flowActions = extendFnModelFlowActions.bind(undefined, fnModelObj, namespace)
-  fnModelObj.setterActions = (extendFnModelSetterActions as any).bind(undefined, fnModelObj, namespace)
+  fnModelObj.setterActions = (extendFnModelSetterActions as any).bind(
+    undefined,
+    fnModelObj,
+    namespace
+  )
 
   return fnModelObj as FnModel<any, {}>
 }
@@ -136,4 +142,21 @@ function fnModelCreateWithType<Data extends object>(actualType: AnyStandardType,
     }
   }
   return toTreeNode(data)
+}
+
+function extendFnModelSetterActions<Data>(
+  fnModelObj: any,
+  namespace: string,
+  ...setterActions: FnModelSetterActionsArrayDef<Data>
+): any {
+  for (const fieldName of setterActions) {
+    const name = propNameToSetterActionName(fieldName)
+    const fn: FnModelActionDef = function (this: Data, value: any) {
+      this[fieldName] = value
+    }
+
+    addActionToFnModel(fnModelObj, namespace, name, fn, false)
+  }
+
+  return fnModelObj
 }
