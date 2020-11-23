@@ -30,6 +30,7 @@
     "emitDecoratorMetadata": false,
     "skipLibCheck": true,
     "noEmit": true,
-    "stripInternal": true
+    "stripInternal": true,
+    "useDefineForClassFields": true
   }
 }

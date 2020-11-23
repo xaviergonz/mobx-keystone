@@ -1,3 +1,3 @@
 module.exports = {
-  extends: ["react-app", "prettier/@typescript-eslint"],
+  extends: ["react-app", "prettier"],
 }

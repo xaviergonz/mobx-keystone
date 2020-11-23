@@ -66,7 +66,8 @@ test("transformArrayAsMap", () => {
   autoDispose(
     reaction(
       () => m.map,
-      d => {
+      (d) => {
+        expect(isObservableMap(d)).toBeTruthy()
         reactions.push(d)
       }
     )
@@ -74,10 +75,10 @@ test("transformArrayAsMap", () => {
 
   // do some ops
   expect(m.map.has("4")).toBe(false)
-  expect(m.$.map.some(i => i[0] === "4")).toBe(false)
+  expect(m.$.map.some((i) => i[0] === "4")).toBe(false)
   m.mapAdd("4", 4)
   expect(m.map.get("4")).toBe(4)
-  expect(m.$.map.find(i => i[0] === "4")![1]).toBe(4)
+  expect(m.$.map.find((i) => i[0] === "4")![1]).toBe(4)
 
   expect(reactions).toHaveLength(0) // since only the contents changed
 
@@ -144,11 +145,20 @@ test("transformArrayAsMap", () => {
 
   expect(reactions).toMatchInlineSnapshot(`
     Array [
-      Object {
-        "5": 5,
-        "6": 6,
-        "7": 7,
-      },
+      Array [
+        Array [
+          "5",
+          5,
+        ],
+        Array [
+          "6",
+          6,
+        ],
+        Array [
+          "7",
+          7,
+        ],
+      ],
     ]
   `)
 

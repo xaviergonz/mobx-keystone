@@ -1,6 +1,6 @@
-import { AnyModel } from "../model/BaseModel";
-import { AnyModelProp, noDefaultValue } from "../model/prop";
-import { failure } from "../utils";
+import { AnyModel } from "../model/BaseModel"
+import { AnyModelProp, noDefaultValue } from "../model/prop"
+import { addLateInitializationFunction, failure } from "../utils"
 
 /**
  * A prop transform.
@@ -67,29 +67,31 @@ export type PropTransformDecorator<TProp> = <PK extends string>(
 export function propTransform<TProp, TData>(
   transform: PropTransform<TProp, TData>
 ): PropTransformDecorator<TProp> & typeof transform {
-  const parametrizedDecorator: PropTransformDecorator<TProp> = boundPropName => {
-    const decorator = (target: object, propertyKey: string) => {
-      // make the field a getter setter
-      Object.defineProperty(target, propertyKey, {
-        get(this: AnyModel): TData {
-          const memoTransform = memoTransformCache.getOrCreateMemoTransform(
-            this,
-            propertyKey,
-            transform
-          )
+  const parametrizedDecorator: PropTransformDecorator<TProp> = (boundPropName) => {
+    const decorator = (target: any, propertyKey: string) => {
+      addLateInitializationFunction(target, (instance) => {
+        // make the field a getter setter
+        Object.defineProperty(instance, propertyKey, {
+          get(this: AnyModel): TData {
+            const memoTransform = memoTransformCache.getOrCreateMemoTransform(
+              this,
+              propertyKey,
+              transform
+            )
 
-          return memoTransform.propToData(this.$[boundPropName])
-        },
-        set(this: AnyModel, value: any) {
-          const memoTransform = memoTransformCache.getOrCreateMemoTransform(
-            this,
-            propertyKey,
-            transform
-          )
+            return memoTransform.propToData(this.$[boundPropName])
+          },
+          set(this: AnyModel, value: any) {
+            const memoTransform = memoTransformCache.getOrCreateMemoTransform(
+              this,
+              propertyKey,
+              transform
+            )
 
-          this.$[boundPropName] = memoTransform.dataToProp(value)
-          return true
-        },
+            this.$[boundPropName] = memoTransform.dataToProp(value)
+            return true
+          },
+        })
       })
     }
 
@@ -116,7 +118,7 @@ class MemoTransformCache {
     }
     let memoTransform = transformsPerProperty.get(propName)
     if (!memoTransform) {
-      memoTransform = toMemoPropTransform(baseTransform, newPropValue => {
+      memoTransform = toMemoPropTransform(baseTransform, (newPropValue) => {
         target.$[propName] = newPropValue
       })
       transformsPerProperty.set(propName, memoTransform)

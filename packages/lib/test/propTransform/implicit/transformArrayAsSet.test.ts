@@ -64,7 +64,7 @@ test("transformArrayAsSet", () => {
   const has1Events: boolean[] = []
   reaction(
     () => m.has1,
-    v => {
+    (v) => {
       has1Events.push(v)
     }
   )
@@ -84,7 +84,8 @@ test("transformArrayAsSet", () => {
   autoDispose(
     reaction(
       () => m.set,
-      d => {
+      (d) => {
+        expect(isObservableSet(d)).toBeTruthy()
         reactions.push(d)
       }
     )
@@ -157,11 +158,11 @@ test("transformArrayAsSet", () => {
 
   expect(reactions).toMatchInlineSnapshot(`
     Array [
-      Set {
+      Array [
         5,
         6,
         7,
-      },
+      ],
     ]
   `)
 

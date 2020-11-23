@@ -46,16 +46,11 @@ export interface CustomRefOptions<T extends object> {
  * @param options Custom reference options.
  * @returns A function that allows you to construct that type of custom reference.
  */
-export const customRef = action(
-  "customRef",
-  <T extends object>(modelTypeId: string, options: CustomRefOptions<T>): RefConstructor<T> => {
-    const getId = options.getId ?? getModelRefId
+export const customRef: <T extends object>(
+  modelTypeId: string,
+  options: CustomRefOptions<T>
+) => RefConstructor<T> = action("customRef", (modelTypeId, options) => {
+  const getId = options.getId ?? getModelRefId
 
-    return internalCustomRef(
-      modelTypeId,
-      () => options.resolve,
-      getId,
-      options.onResolvedValueChange
-    )
-  }
-)
+  return internalCustomRef(modelTypeId, () => options.resolve, getId, options.onResolvedValueChange)
+})

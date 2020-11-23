@@ -4,32 +4,30 @@ import { getGlobalConfig, isModelAutoTypeCheckingEnabled } from "../globalConfig
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
-import { AnyModel, ModelClass, ModelPropsCreationData } from "./BaseModel"
+import { AnyModel, ModelPropsCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { getModelClassInitializers } from "./modelClassInitializer"
+import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
 import { getInternalModelClassPropsInfo } from "./modelPropsInfo"
-import { modelInitializersSymbol } from "./modelSymbols"
 import { noDefaultValue } from "./prop"
 import { assertIsModelClass } from "./utils"
 
 /**
  * @ignore
+ * @internal
  */
 export const internalNewModel = action(
   "newModel",
   <M extends AnyModel>(
     origModelObj: M,
-    modelClass: ModelClass<M>,
     initialData: (ModelPropsCreationData<M> & { [modelIdKey]?: string }) | undefined,
-    snapshotInitialData:
-      | {
-          unprocessedSnapshot: any
-          snapshotToInitialData(processedSnapshot: any): any
-        }
-      | undefined,
-    generateNewId: boolean
+    options: Pick<ModelConstructorOptions, "modelClass" | "snapshotInitialData" | "generateNewIds">
   ): M => {
+    const { modelClass: _modelClass, snapshotInitialData, generateNewIds } = options
+    const modelClass = _modelClass!
+
     if (inDevMode()) {
       assertIsModelClass(modelClass, "modelClass")
     }
@@ -47,7 +45,7 @@ export const internalNewModel = action(
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
 
-      if (generateNewId) {
+      if (generateNewIds) {
         id = getGlobalConfig().modelIdGenerator()
       } else {
         id = sn[modelIdKey]
@@ -133,26 +131,3 @@ export const internalNewModel = action(
     return modelObj as M
   }
 )
-
-type ModelClassInitializer = (modelInstance: AnyModel) => void
-
-/**
- * @ignore
- */
-export function addModelClassInitializer(
-  modelClass: ModelClass<AnyModel>,
-  init: ModelClassInitializer
-) {
-  let initializers = (modelClass as any)[modelInitializersSymbol]
-  if (!initializers) {
-    initializers = []
-    ;(modelClass as any)[modelInitializersSymbol] = initializers
-  }
-  initializers.push(init)
-}
-
-function getModelClassInitializers(
-  modelClass: ModelClass<AnyModel>
-): ModelClassInitializer[] | undefined {
-  return (modelClass as any)[modelInitializersSymbol]
-}

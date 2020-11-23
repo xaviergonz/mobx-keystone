@@ -1,4 +1,4 @@
-import { runInAction } from "mobx"
+import { action } from "mobx"
 import { failure } from "../utils"
 import { getCurrentActionContext } from "./context"
 import { tryRunPendingActions } from "./pendingActions"
@@ -75,8 +75,8 @@ export function runUnprotected<T>(arg1: any, arg2?: any): T {
   }
 
   if (name) {
-    return runInAction(name, innerAction)
+    return action(name, innerAction)()
   } else {
-    return runInAction(innerAction)
+    return action(innerAction)()
   }
 }

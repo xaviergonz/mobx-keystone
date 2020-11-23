@@ -1,4 +1,4 @@
-import { AnyModelProp } from 'model'
+import { AnyModelProp } from "model"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { memoTransformCache } from "../propTransform/propTransform"
@@ -12,22 +12,20 @@ import {
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData
+  ModelInstanceData,
 } from "./BaseModel"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { modelInitializersSymbol } from "./modelClassInitializer"
+import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
-import {
-  modelDataTypeCheckerSymbol,
-  modelInitializersSymbol,
-  modelUnwrappedClassSymbol
-} from "./modelSymbols"
+import { modelDataTypeCheckerSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
   ModelPropsToPropsData,
-  ModelPropsToSetterActions
+  ModelPropsToSetterActions,
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -155,9 +153,12 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     )
   }
 
+  const extraPropNames = Object.keys(extraDescriptors)
+  const extraPropNamesLen = extraPropNames.length
+
   const base: any = baseModel ?? BaseModel
 
-  const propsWithTransform = Object.entries(modelProps)
+  const propsWithTransforms = Object.entries(modelProps)
     .filter(([_propName, prop]) => !!prop.transform)
     .map(([propName, prop]) => [propName, prop.transform!] as const)
 
@@ -170,17 +171,23 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     function CustomBaseModel(
       this: any,
       initialData: any,
-      snapshotInitialData: any,
-      modelConstructor: any,
-      generateNewIds: any
+      constructorOptions?: ModelConstructorOptions
     ) {
-      return new base(
-        initialData,
-        snapshotInitialData,
-        modelConstructor ?? this.constructor,
-        generateNewIds,
-        propsWithTransform
-      )
+      const baseModel = new base(initialData, {
+        ...constructorOptions,
+        modelClass: constructorOptions?.modelClass ?? this.constructor,
+        propsWithTransforms,
+      } as ModelConstructorOptions)
+
+      // make sure abstract classes do not override prototype props
+      for (let i = 0; i < extraPropNamesLen; i++) {
+        const extraPropName = extraPropNames[i]
+        if (Object.getOwnPropertyDescriptor(baseModel, extraPropName)) {
+          delete baseModel[extraPropName]
+        }
+      }
+
+      return baseModel
     }
 
     return CustomBaseModel
@@ -200,14 +207,13 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   for (const [propName, propData] of Object.entries(modelProps)) {
     if (propData.options.setterAction) {
       const setterActionName = propNameToSetterActionName(propName)
-      CustomBaseModel.prototype[setterActionName] = wrapInAction(
-        {
-          name: setterActionName,
-          fn: function (this: any, value: any) {
-            this[propName] = value;
-          }, actionType: ActionContextActionType.Sync
-        }
-      )
+      CustomBaseModel.prototype[setterActionName] = wrapInAction({
+        name: setterActionName,
+        fn: function (this: any, value: any) {
+          this[propName] = value
+        },
+        actionType: ActionContextActionType.Sync,
+      })
     }
   }
 

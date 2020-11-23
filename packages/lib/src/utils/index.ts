@@ -1,14 +1,15 @@
 import {
   IObservableArray,
-  IObservableObject,
   isObservableArray,
   isObservableMap,
   isObservableObject,
   isObservableSet,
   ObservableMap,
-  ObservableSet
+  ObservableSet,
 } from "mobx"
 import { PrimitiveValue } from "./types"
+
+const { makeObservable } = require("mobx")
 
 /**
  * A mobx-keystone error.
@@ -185,10 +186,7 @@ export function assertIsPlainObject(value: unknown, argName: string): asserts va
  * @ignore
  * @internal
  */
-export function assertIsObservableObject(
-  value: unknown,
-  argName: string
-): asserts value is IObservableObject {
+export function assertIsObservableObject(value: unknown, argName: string): asserts value is object {
   if (!isObservableObject(value)) {
     throw failure(`${argName} must be an observable object`)
   }
@@ -270,6 +268,24 @@ export interface DecorateMethodOrFieldData {
   baseDescriptor?: PropertyDescriptor & { initializer?: () => any }
 }
 
+const decoratorsSymbol = Symbol("decorators")
+
+type WrapFunction = (data: DecorateMethodOrFieldData, fn: any) => any
+type LateInitializationFunctionsArray = ((instance: any) => void)[]
+
+/**
+ * @ignore
+ * @internal
+ */
+export function addLateInitializationFunction(target: any, fn: (instance: any) => void) {
+  let decoratorsArray: LateInitializationFunctionsArray = target[decoratorsSymbol]
+  if (!decoratorsArray) {
+    decoratorsArray = []
+    addHiddenProp(target, decoratorsSymbol, decoratorsArray)
+  }
+  decoratorsArray.push(fn)
+}
+
 /**
  * @ignore
  * @internal
@@ -277,61 +293,50 @@ export interface DecorateMethodOrFieldData {
 export function decorateWrapMethodOrField(
   decoratorName: string,
   data: DecorateMethodOrFieldData,
-  wrap: (data: DecorateMethodOrFieldData, fn: any) => any
+  wrap: WrapFunction
 ): any {
   const { target, propertyKey, baseDescriptor } = data
 
+  const addFieldDecorator = () => {
+    addLateInitializationFunction(target, (instance) => {
+      instance[propertyKey] = wrap(data, instance[propertyKey])
+    })
+  }
+
   if (baseDescriptor) {
-    // method decorator
     if (baseDescriptor.get !== undefined) {
       throw failure(`@${decoratorName} cannot be used with getters`)
     }
 
-    // babel / typescript
-    // @action method() { }
     if (baseDescriptor.value) {
-      // typescript
+      // babel / typescript - method decorator
+      // @action method() { }
       return {
         enumerable: false,
         writable: true,
         configurable: true,
         value: wrap(data, baseDescriptor.value),
       }
-    }
-
-    // babel only: @action method = () => {}
-    const { initializer } = baseDescriptor
-    return {
-      enumerable: false,
-      configurable: true,
-      writable: true,
-      initializer() {
-        // N.B: we can't immediately invoke initializer; this would be wrong
-        return wrap(data, initializer!.call(this))
-      },
+    } else {
+      // babel - field decorator: @action method = () => {}
+      addFieldDecorator()
     }
   } else {
-    // field decorator
-    Object.defineProperty(target, propertyKey, {
-      configurable: true,
-      enumerable: false,
-      get() {
-        return undefined
-      },
-      set(fn) {
-        addHiddenProp(
-          this,
-          propertyKey,
-          wrap(
-            {
-              ...data,
-              target: this,
-            },
-            fn
-          )
-        )
-      },
-    })
+    // typescript - field decorator
+    addFieldDecorator()
+  }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function runLateInitializationFunctions(instance: any): void {
+  const fns: LateInitializationFunctionsArray | undefined = instance[decoratorsSymbol]
+  if (fns) {
+    for (const fn of fns) {
+      fn(instance)
+    }
   }
 }
 
@@ -403,5 +408,17 @@ export function lazy<V>(valueGen: () => V): () => V {
  * @internal
  */
 export function propNameToSetterActionName(propName: string): string {
-    return `set${propName[0].toUpperCase()}${propName.slice(1)}`;
+  return `set${propName[0].toUpperCase()}${propName.slice(1)}`
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function getMobxVersion(): number {
+  if (makeObservable) {
+    return 6
+  } else {
+    return 5
+  }
 }

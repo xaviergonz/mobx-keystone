@@ -1,11 +1,19 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { addHiddenProp, failure, logWarning } from "../utils"
+import {
+  addHiddenProp,
+  failure,
+  getMobxVersion,
+  logWarning,
+  runLateInitializationFunctions,
+} from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 import { modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
+
+const { makeObservable } = require("mobx")
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
@@ -15,14 +23,10 @@ import { assertIsModelClass } from "./utils"
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
 export const model = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
-  return internalModel(name, {})(clazz)
+  return internalModel(name)(clazz)
 }
 
-const internalModel = (name: string, options: { afterNew?: (instance: any) => void }) => <
-  MC extends ModelClass<AnyModel>
->(
-  clazz: MC
-): MC => {
+const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
@@ -51,8 +55,22 @@ const internalModel = (name: string, options: { afterNew?: (instance: any) => vo
       generateNewIds
     )
 
-    if (options?.afterNew) {
-      options.afterNew(instance)
+    runLateInitializationFunctions(instance)
+
+    // compatibility with mobx 6
+    if (getMobxVersion() >= 6) {
+      try {
+        makeObservable(instance)
+      } catch (err) {
+        // sadly we need to use this hack since the PR to do this the proper way
+        // was rejected on the mobx side
+        if (
+          err.message !==
+          "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either"
+        ) {
+          throw err
+        }
+      }
     }
 
     // the object is ready

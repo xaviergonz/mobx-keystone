@@ -82,44 +82,42 @@ test("model decorator sets model type static prop and toString methods", () => {
 test("decoratedModel", () => {
   let initCalls = 0
 
-  const Point = decoratedModel(
-    "decoratedModel/Point",
-    class Point<N> extends Model({
-      x: prop<number>(5),
-      y: prop<number>(),
-    }) {
-      setX(x: number) {
-        this.x = x
-      }
-
-      setY = (y: number) => {
-        this.y = y
-      }
-
-      setXY(x: number, y: number) {
-        this.setX(x)
-        this.setY(y)
-      }
-
-      get length() {
-        return this.x + this.y
-      }
-
-      volatile = "volatile"
-      volatile2!: N
-
-      onInit() {
-        initCalls++
-      }
-    },
-    {
-      setX: modelAction,
-      setY: modelAction,
-      setXY: [modelAction],
-      length: computed,
+  class _Point<N> extends Model({
+    x: prop<number>(5),
+    y: prop<number>(),
+  }) {
+    setX(x: number) {
+      this.x = x
     }
-  )
-  type Point = InstanceType<typeof Point>
+
+    setY = (y: number) => {
+      this.y = y
+    }
+
+    setXY(x: number, y: number) {
+      this.setX(x)
+      this.setY(y)
+    }
+
+    get length() {
+      return this.x + this.y
+    }
+
+    volatile = "volatile"
+    volatile2!: N
+
+    onInit() {
+      initCalls++
+    }
+  }
+
+  const Point = decoratedModel("decoratedModel/Point", _Point, {
+    setX: modelAction,
+    setY: modelAction,
+    setXY: [modelAction],
+    length: computed,
+  })
+  type Point<N> = _Point<N>
 
   {
     expect(isModelAction(Point.prototype.setX)).toBeTruthy()
@@ -127,7 +125,7 @@ test("decoratedModel", () => {
     expect(isModelAction(Point.prototype.setXY)).toBeTruthy()
 
     expect(initCalls).toBe(0)
-    const p = new Point<number>({ x: 10, y: 20 })
+    const p: Point<number> = new Point<number>({ x: 10, y: 20 })
     expect(initCalls).toBe(1)
     expect(isModelAction(p.setX)).toBeTruthy()
     expect(isModelAction(p.setY)).toBeTruthy()
@@ -146,7 +144,7 @@ test("decoratedModel", () => {
     expect(p.length).toBe(50)
 
     assert(
-      _ as SnapshotInOf<Point>,
+      _ as SnapshotInOf<Point<number>>,
       _ as { x?: number | null; y: number } & {
         [modelTypeKey]: string
         [modelIdKey]: string
@@ -154,7 +152,7 @@ test("decoratedModel", () => {
     )
 
     assert(
-      _ as SnapshotOutOf<Point>,
+      _ as SnapshotOutOf<Point<number>>,
       _ as { x: number; y: number } & {
         [modelTypeKey]: string
         [modelIdKey]: string
@@ -164,31 +162,30 @@ test("decoratedModel", () => {
 
   // extension
 
-  const Point3d = decoratedModel(
-    "decoratedModel/Point3d",
-    class Point3d extends ExtendedModel(Point, {
-      z: prop<number>(),
-    }) {
-      setZ(z: number) {
-        this.z = z
-      }
-
-      setXYZ(x: number, y: number, z: number) {
-        super.setXY(x, y)
-        this.setZ(z)
-      }
-
-      get length() {
-        return this.x + this.y + this.z
-      }
-    },
-    {
-      setZ: modelAction,
-      setXYZ: modelAction,
-      length: computed,
+  class _Point3d extends ExtendedModel(Point, {
+    z: prop<number>(),
+  }) {
+    setZ(z: number) {
+      this.z = z
     }
-  )
-  type Point3d = InstanceType<typeof Point3d>
+
+    setXYZ(x: number, y: number, z: number) {
+      super.setXY(x, y)
+      this.setZ(z)
+    }
+
+    // we rename the prop since mobx6 does not support computed prop override
+    get length3d() {
+      return this.x + this.y + this.z
+    }
+  }
+
+  const Point3d = decoratedModel("decoratedModel/Point3d", _Point3d, {
+    setZ: modelAction,
+    setXYZ: modelAction,
+    length3d: computed,
+  })
+  type Point3d = _Point3d
 
   {
     expect(isModelAction(Point3d.prototype.setX)).toBeTruthy()
@@ -197,18 +194,18 @@ test("decoratedModel", () => {
     expect(isModelAction(Point3d.prototype.setZ)).toBeTruthy()
     expect(isModelAction(Point3d.prototype.setXYZ)).toBeTruthy()
 
-    const p2 = new Point3d({ x: 10, y: 20, z: 30 })
+    const p2: Point3d = new Point3d({ x: 10, y: 20, z: 30 })
     expect(isModelAction(p2.setX)).toBeTruthy()
     expect(isModelAction(p2.setY)).toBeTruthy()
     expect(isModelAction(p2.setXY)).toBeTruthy()
     expect(isModelAction(p2.setZ)).toBeTruthy()
     expect(isModelAction(p2.setXYZ)).toBeTruthy()
-    expect(isComputedProp(p2, "length"))
+    expect(isComputedProp(p2, "length3d")).toBeTruthy()
 
     expect(p2.x).toBe(10)
     expect(p2.y).toBe(20)
     expect(p2.z).toBe(30)
-    expect(p2.length).toBe(60)
+    expect(p2.length3d).toBe(60)
     expect(p2.volatile).toBe("volatile")
     assert(p2.volatile2, _ as unknown) // known issue, no way to specify generic for base class
 
@@ -216,7 +213,7 @@ test("decoratedModel", () => {
     expect(p2.x).toBe(20)
     expect(p2.y).toBe(30)
     expect(p2.z).toBe(40)
-    expect(p2.length).toBe(90)
+    expect(p2.length3d).toBe(90)
 
     assert(
       _ as SnapshotInOf<Point3d>,

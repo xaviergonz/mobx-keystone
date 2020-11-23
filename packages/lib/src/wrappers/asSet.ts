@@ -1,7 +1,5 @@
 import {
   action,
-  IArrayChange,
-  IArraySplice,
   intercept,
   IObservableArray,
   ISetWillChange,
@@ -38,7 +36,7 @@ const observableSetBackedByObservableArray = action(<T>(array: IObservableArray<
   observe(
     array,
     action(
-      mutationLock.unlockedFn((change: IArrayChange<T> | IArraySplice<T>) => {
+      mutationLock.unlockedFn((change: any /*IArrayDidChange<T>*/) => {
         switch (change.type) {
           case "splice": {
             {

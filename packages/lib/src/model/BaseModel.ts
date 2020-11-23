@@ -1,7 +1,6 @@
 import { observable } from "mobx"
 import { O } from "ts-toolbelt"
 import { getGlobalConfig } from "../globalConfig"
-import { PropTransform } from "../propTransform"
 import { memoTransformCache } from "../propTransform/propTransform"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
@@ -10,6 +9,7 @@ import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject } from "../utils"
 import { modelIdKey, modelTypeKey } from "./metadata"
+import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
@@ -17,22 +17,22 @@ import { assertIsModelClass } from "./utils"
 /**
  * @ignore
  */
-export declare const propsDataTypeSymbol: unique symbol
+export const propsDataTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export declare const propsCreationDataTypeSymbol: unique symbol
+export const propsCreationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export declare const instanceDataTypeSymbol: unique symbol
+export const instanceDataTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export declare const instanceCreationDataTypeSymbol: unique symbol
+export const instanceCreationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
@@ -130,23 +130,37 @@ export abstract class BaseModel<
    * Creates an instance of Model.
    */
   constructor(data: InstanceCreationData & { [modelIdKey]?: string }) {
-    let initialData: any = data
-    const snapshotInitialData: any = arguments[1]
-    const clazz: ModelClass<AnyModel> = arguments[2]
-    const propsWithTransforms: [string, PropTransform<any, any>][] = arguments[4]
+    let initialData = data as any
+    const {
+      snapshotInitialData,
+      modelClass,
+      propsWithTransforms,
+      generateNewIds,
+    }: ModelConstructorOptions = arguments[1] as any
 
-    Object.setPrototypeOf(this, clazz.prototype)
+    Object.setPrototypeOf(this, modelClass!.prototype)
+
+    const self = this as any
+
+    // let's always use the one from the prototype
+    delete self[modelIdKey]
+
+    // delete unnecessary props
+    delete self[propsDataTypeSymbol]
+    delete self[propsCreationDataTypeSymbol]
+    delete self[instanceDataTypeSymbol]
+    delete self[instanceCreationDataTypeSymbol]
 
     if (!snapshotInitialData) {
       // plain new
       assertIsObject(initialData, "initialData")
 
       // apply transforms to initial data if needed
-      const propsWithTransformsLen = propsWithTransforms.length
+      const propsWithTransformsLen = propsWithTransforms!.length
       if (propsWithTransformsLen > 0) {
         initialData = Object.assign(initialData)
         for (let i = 0; i < propsWithTransformsLen; i++) {
-          const propWithTransform = propsWithTransforms[i]
+          const propWithTransform = propsWithTransforms![i]
           const propName = propWithTransform[0]
           const propTransform = propWithTransform[1]
 
@@ -159,17 +173,13 @@ export abstract class BaseModel<
         }
       }
 
-      internalNewModel(
-        this,
-        clazz,
-        observable.object(initialData, undefined, { deep: false }),
-        undefined,
-        true
-      )
+      internalNewModel(this, observable.object(initialData, undefined, { deep: false }), {
+        modelClass,
+        generateNewIds: true,
+      })
     } else {
       // from snapshot
-      const generateNewId: boolean = !!arguments[3]
-      internalNewModel(this, clazz, undefined, snapshotInitialData, generateNewId)
+      internalNewModel(this, undefined, { modelClass, snapshotInitialData, generateNewIds })
     }
   }
 

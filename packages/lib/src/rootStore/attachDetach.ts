@@ -9,6 +9,7 @@ const onAttachedDisposers = new WeakMap<object, () => void>()
 
 /**
  * @ignore
+ * @internal
  */
 export const attachToRootStore = action(
   "attachToRootStore",
@@ -18,7 +19,7 @@ export const attachToRootStore = action(
 
     walkTree(
       child,
-      ch => {
+      (ch) => {
         if (ch instanceof BaseModel && ch.onAttachedToRootStore) {
           wrapModelMethodInActionIfNeeded(
             ch,
@@ -45,6 +46,7 @@ export const attachToRootStore = action(
 
 /**
  * @ignore
+ * @internal
  */
 export const detachFromRootStore = action("detachFromRootStore", (child: object): void => {
   // we use an array to ensure they will get called even if the actual hook modifies the tree
@@ -52,7 +54,7 @@ export const detachFromRootStore = action("detachFromRootStore", (child: object)
 
   walkTree(
     child,
-    ch => {
+    (ch) => {
       const disposer = onAttachedDisposers.get(ch)
       if (disposer) {
         // wrap disposer in action

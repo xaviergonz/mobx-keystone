@@ -30,6 +30,7 @@ test("basic", () => {
         "x": 5,
       },
       "$modelType": "P",
+      "boundAction": [Function],
       "boundNonAction": [Function],
     }
   `)
