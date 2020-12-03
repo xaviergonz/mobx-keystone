@@ -93,7 +93,7 @@ export type ModelPropsToInstanceCreationData<MP extends ModelProps> = O.Optional
   >
 
 export type ModelPropsToSetterActions<MP extends ModelProps> = {
-  [k in (keyof MP & string) as MP[k]["$hasSetterAction"] & `set${Capitalize<k>}`]: (value: MP[k]["$instanceValueType"]) => void
+  [k in (keyof MP) as MP[k]["$hasSetterAction"] & `set${Capitalize<k & string>}`]: (value: MP[k]["$instanceValueType"]) => void
 }
 
 /**
