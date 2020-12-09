@@ -1,5 +1,6 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
+import { getGlobalConfig } from "../globalConfig"
 import {
   addHiddenProp,
   failure,
@@ -30,11 +31,13 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
-    logWarning(
-      "warn",
-      `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
-      `duplicateModelName - ${name}`
-    )
+    if (getGlobalConfig().showDuplicateModelNameWarnings) {
+      logWarning(
+        "warn",
+        `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
+        `duplicateModelName - ${name}`
+      )
+    }
   }
 
   if ((clazz as any)[modelUnwrappedClassSymbol]) {

@@ -38,6 +38,12 @@ export interface GlobalConfig {
    * Allow array elements to be `undefined`.
    */
   allowUndefinedArrayElements: boolean
+
+  /**
+   * Enables/disables warnings related to duplicated model names (defaults to `true`).
+   * Usually set to false in test environments (e.g. jest).
+   */
+  showDuplicateModelNameWarnings: boolean
 }
 
 let localId = 0
@@ -55,6 +61,7 @@ let globalConfig: GlobalConfig = {
   modelAutoTypeChecking: ModelAutoTypeCheckingMode.DevModeOnly,
   modelIdGenerator: defaultModelIdGenerator,
   allowUndefinedArrayElements: false,
+  showDuplicateModelNameWarnings: true,
 }
 
 /**
@@ -109,7 +116,7 @@ function shortenUuid(uuid: string): string {
   const hexMatch = hex.match(/\w{2}/g)!
   const str = String.fromCharCode.apply(
     null,
-    hexMatch.map(a => parseInt(a, 16))
+    hexMatch.map((a) => parseInt(a, 16))
   )
 
   return toBase64(str)

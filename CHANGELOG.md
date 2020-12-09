@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.48.2
+
+- Added `showDuplicateModelNameWarnings` to the global config.
+
 ## 0.48.1
 
 - Fixed compatibility with MobX v5 and v4 when using ESM build.
