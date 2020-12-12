@@ -1253,3 +1253,69 @@ test("syntax sugar for primitives in tProp", () => {
   expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
   ss.setOr(5)
 })
+
+describe("model type validation", () => {
+  test("simple", () => {
+    @model("ValidatedModel/simple", types.object(() => ({ value: types.number })))
+    class M extends Model({
+      value: prop<number>(),
+    }) {}
+
+    expect(new M({ value: 10 }).typeValidate()).toBeNull()
+  })
+
+  test("complex - union", () => {
+    @model(
+      "ValidatedModel/complex-union",
+      types.or(
+        types.object(() => ({
+          kind: types.literal("float"),
+          value: types.number,
+        })),
+        types.object(() => ({
+          kind: types.literal("int"),
+          value: types.integer,
+        }))
+      )
+    )
+    class M extends Model({
+      kind: prop<"float" | "int">(),
+      value: prop<number>(),
+    }) {}
+
+    const m1 = new M({ kind: "float", value: 10.5 })
+    expect(m1.typeValidate()).toBeNull()
+
+    const m2 = new M({ kind: "int", value: 10 })
+    expect(m2.typeValidate()).toBeNull()
+
+    const m3 = new M({ kind: "int", value: 10.5 })
+    expect(m3.typeValidate()).toEqual(
+      new TypeCheckError(
+        [],
+        `{ kind: "float"; value: number; } | { kind: "int"; value: integer<number>; }`,
+        m3
+      )
+    )
+  })
+
+  test("class property", () => {
+    @model("ValidatedModel/class-property", types.object(() => ({ value: types.number })))
+    class M extends Model({}) {
+      value: number = 10
+    }
+
+    expect(new M({}).typeValidate()).toBeNull()
+  })
+
+  test("computed property", () => {
+    @model("ValidatedModel/computed-property", types.object(() => ({ value: types.number })))
+    class M extends Model({}) {
+      get value(): number {
+        return 10
+      }
+    }
+
+    expect(new M({}).typeValidate()).toBeNull()
+  })
+})

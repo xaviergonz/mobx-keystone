@@ -1,6 +1,7 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { getGlobalConfig } from "../globalConfig"
+import { AnyType, TypeToData } from "../typeChecking/schemas"
 import {
   addHiddenProp,
   failure,
@@ -11,10 +12,22 @@ import {
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
-import { modelUnwrappedClassSymbol } from "./modelSymbols"
+import { modelUnwrappedClassSymbol, modelValidationTypeCheckerSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
 const { makeObservable } = require("mobx")
+
+type AllKeys<T> = T extends unknown ? keyof T : never
+
+type AllValues<T, K extends keyof any> = T extends object
+  ? K extends keyof T
+    ? T[K]
+    : never
+  : never
+
+type Unionize<T> = {
+  [K in AllKeys<T>]: AllValues<T, K>
+}
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
@@ -23,11 +36,19 @@ const { makeObservable } = require("mobx")
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
-  return internalModel(name)(clazz)
+export const model = <T extends AnyType>(name: string, type?: T) => <
+  MC extends ModelClass<AnyModel & Unionize<TypeToData<T>>>
+>(
+  clazz: MC
+): MC => {
+  return internalModel(name, type)(clazz)
 }
 
-const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
+const internalModel = <T extends AnyType>(name: string, type?: T) => <
+  MC extends ModelClass<AnyModel & Unionize<TypeToData<T>>>
+>(
+  clazz: MC
+): MC => {
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
@@ -90,6 +111,7 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
 
   clazz.toString = () => `class ${clazz.name}#${name}`
   ;(clazz as any)[modelTypeKey] = name
+  ;(clazz as any)[modelValidationTypeCheckerSymbol] = type
 
   // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
   Object.setPrototypeOf(newClazz, clazz)
