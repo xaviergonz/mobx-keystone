@@ -117,6 +117,7 @@ test("decoratedModel", () => {
     setXY: [modelAction],
     length: computed,
   })
+  // eslint-disable-next-line @typescript-eslint/no-redeclare
   type Point<N> = _Point<N>
 
   {
@@ -185,6 +186,7 @@ test("decoratedModel", () => {
     setXYZ: modelAction,
     length3d: computed,
   })
+  // eslint-disable-next-line @typescript-eslint/no-redeclare
   type Point3d = _Point3d
 
   {
