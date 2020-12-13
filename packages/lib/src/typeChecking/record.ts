@@ -18,7 +18,7 @@ import { TypeCheckError } from "./TypeCheckError"
  * @returns
  */
 export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
-  const typeInfoGen: TypeInfoGen = tc => new RecordTypeInfo(tc, resolveStandardType(valueType))
+  const typeInfoGen: TypeInfoGen = (tc) => new RecordTypeInfo(tc, resolveStandardType(valueType))
 
   return lateTypeChecker(() => {
     const valueChecker = resolveTypeChecker(valueType)

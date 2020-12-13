@@ -9,7 +9,7 @@ const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
   /*false, ModelAutoTypeCheckingMode.AlwaysOn, */ ModelAutoTypeCheckingMode.AlwaysOff,
 ]
 
-tcModes.forEach(tcMode => {
+tcModes.forEach((tcMode) => {
   let name = ""
   let bigModel: typeof BigModel | typeof TcBigModel
 
@@ -55,13 +55,13 @@ tcModes.forEach(tcMode => {
   const smallModelVars = ["a", "b", "c", "d"]
 
   const accessVars = (x: any) => {
-    bigModelBigVars.forEach(bmbv => {
+    bigModelBigVars.forEach((bmbv) => {
       const small = x[bmbv]
-      smallModelVars.forEach(smv => {
+      smallModelVars.forEach((smv) => {
         small[smv]
       })
     })
-    bigModelSmallVars.forEach(bmsv => {
+    bigModelSmallVars.forEach((bmsv) => {
       x[bmsv]
     })
   }
@@ -93,13 +93,13 @@ tcModes.forEach(tcMode => {
   }
 
   const setVars = (x: any) => {
-    bigModelBigVars.forEach(bmbv => {
+    bigModelBigVars.forEach((bmbv) => {
       const small = x[bmbv]
-      smallModelVars.forEach(smv => {
+      smallModelVars.forEach((smv) => {
         small["set" + smv.toUpperCase()](small[smv] + "x")
       })
     })
-    bigModelSmallVars.forEach(bmsv => {
+    bigModelSmallVars.forEach((bmsv) => {
       x["set" + bmsv.toUpperCase()](x[bmsv] + "x")
     })
   }

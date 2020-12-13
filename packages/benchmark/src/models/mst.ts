@@ -7,7 +7,7 @@ export const mstSmallModel = types
     c: "c",
     d: "d",
   })
-  .views(self => ({
+  .views((self) => ({
     get a2() {
       return self.a + self.a
     },
@@ -21,7 +21,7 @@ export const mstSmallModel = types
       return self.d + self.d
     },
   }))
-  .actions(self => ({
+  .actions((self) => ({
     setA(x: string) {
       self.a = x
     },
@@ -47,7 +47,7 @@ export const mstBigModel = types
     c: "c",
     d: "d",
   })
-  .views(self => ({
+  .views((self) => ({
     get a2() {
       return self.a + self.a
     },
@@ -61,7 +61,7 @@ export const mstBigModel = types
       return self.d + self.d
     },
   }))
-  .actions(self => ({
+  .actions((self) => ({
     setAA(s: any) {
       self.aa = s
     },

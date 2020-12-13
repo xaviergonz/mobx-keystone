@@ -98,7 +98,7 @@ export class SandboxManager {
     let wasRS = false
     const disposeReactionRS = reaction(
       () => isRootStore(subtreeRoot),
-      isRS => {
+      (isRS) => {
         if (isRS !== wasRS) {
           wasRS = isRS
           if (isRS) {
@@ -111,7 +111,7 @@ export class SandboxManager {
       { fireImmediately: true }
     )
 
-    const disposeOnPatches = onPatches(subtreeRoot, patches => {
+    const disposeOnPatches = onPatches(subtreeRoot, (patches) => {
       if (this.withSandboxPatchRecorder) {
         throw failure("original subtree must not change while 'withSandbox' executes")
       }
@@ -185,7 +185,7 @@ export class SandboxManager {
   ): { sandboxNodes: T; applyRecorderChanges: (commit: boolean) => void } {
     const isNestedWithSandboxCall = !!this.withSandboxPatchRecorder
 
-    const sandboxNodes = nodes.map(node => {
+    const sandboxNodes = nodes.map((node) => {
       assertTweakedObject(node, "node")
 
       const path = getParentToChildPath(

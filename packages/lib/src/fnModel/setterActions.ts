@@ -29,7 +29,7 @@ export function extendFnModelSetterActions<Data>(
 ): any {
   for (const [name, fieldName] of Object.entries(setterActions)) {
     // make strings setters
-    const fn: FnModelActionDef = function(this: Data, value: any) {
+    const fn: FnModelActionDef = function (this: Data, value: any) {
       this[fieldName] = value
     }
 

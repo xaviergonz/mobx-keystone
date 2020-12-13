@@ -60,12 +60,12 @@ export class TodoList extends Model({
   // standard mobx decorators (such as computed) can be used as usual, since props are observables
   @computed
   get pending() {
-    return this.todos.filter(t => !t.done)
+    return this.todos.filter((t) => !t.done)
   }
 
   @computed
   get done() {
-    return this.todos.filter(t => t.done)
+    return this.todos.filter((t) => t.done)
   }
 
   @modelAction

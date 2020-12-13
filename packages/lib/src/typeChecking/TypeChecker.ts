@@ -144,7 +144,7 @@ export interface LateTypeChecker {
  */
 export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen): LateTypeChecker {
   let cached: TypeChecker | undefined
-  const ltc = function() {
+  const ltc = function () {
     if (cached) {
       return cached
     }

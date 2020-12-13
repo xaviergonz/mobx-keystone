@@ -1,0 +1,5 @@
+node_modules/
+dist/
+
+/packages/site/.docz/**
+/packages/site/public/api/**

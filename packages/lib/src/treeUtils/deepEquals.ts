@@ -2,7 +2,7 @@ import fastDeepEqual from "fast-deep-equal/es6"
 import { isObservable, toJS } from "mobx"
 import { getSnapshot } from "../snapshot"
 import { isTreeNode } from "../tweaker"
-import { getMobxVersion } from '../utils'
+import { getMobxVersion } from "../utils"
 
 /**
  * Deeply compares two values.
@@ -46,7 +46,10 @@ export function deepEquals(a: any, b: any): boolean {
   return fastDeepEqual(a, b)
 }
 
-const toJSOptions = getMobxVersion() >= 6 ? undefined : {
-  exportMapsAsObjects: false,
-  recurseEverything: false,
-}
+const toJSOptions =
+  getMobxVersion() >= 6
+    ? undefined
+    : {
+        exportMapsAsObjects: false,
+        recurseEverything: false,
+      }

@@ -58,9 +58,9 @@ describe("frozen", () => {
   basicTest("plain complex object", { a: { aa: 1 }, b: 2, c: 3 })
 
   test("a non plain object should throw in dev mode, but not in prod mode", () => {
-    expect(() => frozen(function() {})).toThrow("frozen data must be plainly serializable to JSON")
+    expect(() => frozen(function () {})).toThrow("frozen data must be plainly serializable to JSON")
     emulateProdMode(() => {
-      expect(() => frozen(function() {})).not.toThrow()
+      expect(() => frozen(function () {})).not.toThrow()
     })
   })
 

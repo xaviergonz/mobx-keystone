@@ -31,14 +31,14 @@ const log = (type: "attached" | "detached", self: object, child: object, path: P
 beforeEach(() => {
   events.length = 0
 })
-;[true, false].forEach(deep => {
+;[true, false].forEach((deep) => {
   test(`onChildAttachedTo (deep: ${deep})`, () => {
     const disposers: ((runDetach: boolean) => void)[] = []
 
     const addHook = (node: object) => {
       const d = onChildAttachedTo(
         () => node,
-        child => {
+        (child) => {
           const path = getParentToChildPath(node, child)!
           if (!path) {
             fail("path between " + node + " and " + child + " could not be found")
@@ -121,7 +121,7 @@ beforeEach(() => {
     expect(events).toMatchSnapshot("new arr")
 
     // disposer
-    disposers.forEach(d => d(false))
+    disposers.forEach((d) => d(false))
     events.length = 0
     r.a.b.setArr([4, 5, 6])
     expect(events).toHaveLength(0)
@@ -134,7 +134,7 @@ test("dynamic target", () => {
   const addHook = (fn: () => object) => {
     const d = onChildAttachedTo(
       fn,
-      child => {
+      (child) => {
         const node = fn()
         const path = getParentToChildPath(node, child)!
         log("attached", node, child, path)
@@ -165,7 +165,7 @@ test("dynamic target", () => {
 
     @modelAction
     removeTodo(todo: Todo) {
-      this.todos = this.todos.filter(t => t !== todo)
+      this.todos = this.todos.filter((t) => t !== todo)
     }
   }
 
@@ -191,7 +191,7 @@ test("dynamic target", () => {
   expect(events).toMatchSnapshot("remove Todo")
 
   // disposer
-  disposers.forEach(d => d(false))
+  disposers.forEach((d) => d(false))
   events.length = 0
   todoList.removeTodo(todoList.todos[0])
   expect(events).toHaveLength(0)

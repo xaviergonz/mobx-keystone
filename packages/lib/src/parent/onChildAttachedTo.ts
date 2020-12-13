@@ -77,7 +77,7 @@ export function onChildAttachedTo(
 
   const disposer = reaction(
     () => getCurrentChildren(),
-    newChildren => {
+    (newChildren) => {
       const disposersToRun: object[] = []
 
       // find dead

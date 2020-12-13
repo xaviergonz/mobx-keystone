@@ -17,13 +17,13 @@ import { TypeCheckError } from "./TypeCheckError"
  * @returns
  */
 export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
-  const typeInfoGen: TypeInfoGen = t => new TupleTypeInfo(t, itemTypes.map(resolveStandardType))
+  const typeInfoGen: TypeInfoGen = (t) => new TupleTypeInfo(t, itemTypes.map(resolveStandardType))
 
   return lateTypeChecker(() => {
     const checkers = itemTypes.map(resolveTypeChecker)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
-      const typeNames = checkers.map(tc => {
+      const typeNames = checkers.map((tc) => {
         if (recursiveTypeCheckers.includes(tc)) {
           return "..."
         }

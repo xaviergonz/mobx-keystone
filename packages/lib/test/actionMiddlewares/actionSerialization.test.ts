@@ -190,7 +190,7 @@ describe("concurrency", () => {
 
     @modelAction
     removeMany(todos: Todo[]) {
-      todos.forEach(todo => {
+      todos.forEach((todo) => {
         this.remove(todo)
       })
     }

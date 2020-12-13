@@ -30,7 +30,7 @@ export function onSnapshot<T extends object>(
   let currentSnapshot = getSnapshot(node)
   return reaction(
     () => getSnapshot(node),
-    newSnapshot => {
+    (newSnapshot) => {
       const prevSn = currentSnapshot
       currentSnapshot = newSnapshot
       listener(newSnapshot, prevSn)

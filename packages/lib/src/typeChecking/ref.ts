@@ -37,7 +37,7 @@ const refTypeChecker = new TypeChecker(
     return resolvedTc.check(value.$, path)
   },
   () => typeName,
-  t => new RefTypeInfo(t)
+  (t) => new RefTypeInfo(t)
 )
 
 /**

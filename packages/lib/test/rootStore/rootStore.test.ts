@@ -61,7 +61,7 @@ export class P extends Model({
     if (this.p2) {
       expect(getRootStore(this.p2)).toBe(rootStore)
     }
-    this.arr.forEach(p2 => {
+    this.arr.forEach((p2) => {
       expect(getRootStore(p2)).toBe(rootStore)
     })
     events.push("p1Attached")
@@ -72,7 +72,7 @@ export class P extends Model({
       if (this.p2) {
         expect(getRootStore(this.p2)).toBeUndefined()
       }
-      this.arr.forEach(p2 => {
+      this.arr.forEach((p2) => {
         expect(getRootStore(p2)).toBeUndefined()
       })
       events.push("p1Detached")
@@ -263,7 +263,7 @@ test("isRootStore is reactive", () => {
 
   reaction(
     () => isRootStore(obj),
-    isRS => {
+    (isRS) => {
       events.push(isRS)
     },
     { fireImmediately: true }
