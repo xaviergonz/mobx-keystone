@@ -61,6 +61,13 @@ jobs:
           at: .
       - run: yarn lib:test -i
 
+  lint:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: .
+      - run: yarn lint
+
 workflows:
   version: 2
   full-workflow:
@@ -70,5 +77,8 @@ workflows:
           requires:
             - install
       - lib-test:
+          requires:
+            - install
+      - lint:
           requires:
             - install
