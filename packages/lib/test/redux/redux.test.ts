@@ -84,12 +84,12 @@ describe("asReduxStore", () => {
       }
     }
 
-    const mware1: ReduxMiddleware<P> = () => next => action => {
-      return tweakAction(next(tweakAction(action, x => x * 2)), x => x * 100)
+    const mware1: ReduxMiddleware<P> = () => (next) => (action) => {
+      return tweakAction(next(tweakAction(action, (x) => x * 2)), (x) => x * 100)
     }
 
-    const mware2: ReduxMiddleware<P> = () => next => action => {
-      return tweakAction(next(tweakAction(action, x => x + 2)), x => x + 100)
+    const mware2: ReduxMiddleware<P> = () => (next) => (action) => {
+      return tweakAction(next(tweakAction(action, (x) => x + 2)), (x) => x + 100)
     }
 
     const store = asReduxStore(p, mware1, mware2)

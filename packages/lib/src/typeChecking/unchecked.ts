@@ -4,7 +4,7 @@ import { TypeChecker, TypeInfo } from "./TypeChecker"
 const unchecked: IdentityType<any> = new TypeChecker(
   null,
   () => "any",
-  t => new UncheckedTypeInfo(t)
+  (t) => new UncheckedTypeInfo(t)
 ) as any
 
 /**

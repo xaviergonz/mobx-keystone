@@ -21,7 +21,7 @@ import { TypeCheckError } from "./TypeCheckError"
 export function typesArraySet<T extends AnyType>(
   valueType: T
 ): IdentityType<ArraySet<TypeToData<T>>> {
-  const typeInfoGen: TypeInfoGen = t => new ArraySetTypeInfo(t, resolveStandardType(valueType))
+  const typeInfoGen: TypeInfoGen = (t) => new ArraySetTypeInfo(t, resolveStandardType(valueType))
 
   return lateTypeChecker(() => {
     const valueChecker = resolveTypeChecker(valueType)

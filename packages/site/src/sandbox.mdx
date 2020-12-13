@@ -42,7 +42,7 @@ const numSandbox = sandbox(num)
 The sandbox manager `numSandbox` can now be used to test assigning a new value by performing the `setValue` action on a copy of `num` and validating the result using the computed property `isValid`.
 
 ```ts
-const isValid = numSandbox.withSandbox(num, numCopy => {
+const isValid = numSandbox.withSandbox(num, (numCopy) => {
   numCopy.setValue(2)
   return { commit: false, return: numCopy.isValid }
 })
@@ -76,11 +76,11 @@ storeSandbox.withSandbox([store.a, store.b], ([a, b]) => {
 `withSandbox` calls can be nested:
 
 ```ts
-const isValid = numSandbox.withSandbox(num, numCopy1 => {
+const isValid = numSandbox.withSandbox(num, (numCopy1) => {
   numCopy1.setValue(2)
 
   const isValid1 = numCopy1.isValid
-  const isValid2 = numSandbox.withSandbox(numCopy1, numCopy2 => {
+  const isValid2 = numSandbox.withSandbox(numCopy1, (numCopy2) => {
     numCopy2.setValue(numCopy2.value * 2)
     return { commit: false, return: numCopy2.isValid }
   })
@@ -93,16 +93,16 @@ When nesting `withSandbox` calls, the node for which the corresponding sandbox n
 
 ```ts
 // good:
-numSandbox.withSandbox(num, numCopy1 => {
-  numSandbox.withSandbox(numCopy1, numCopy2 => {
+numSandbox.withSandbox(num, (numCopy1) => {
+  numSandbox.withSandbox(numCopy1, (numCopy2) => {
     // ...
   })
   // ...
 })
 
 // bad:
-numSandbox.withSandbox(num, numCopy1 => {
-  numSandbox.withSandbox(num, numCopy2 => {
+numSandbox.withSandbox(num, (numCopy1) => {
+  numSandbox.withSandbox(num, (numCopy2) => {
     // ...
   })
   // ...
@@ -112,15 +112,15 @@ numSandbox.withSandbox(num, numCopy1 => {
 When changes made in nested `withSandbox` calls are to be committed, only the outermost `withSandbox` call commits changes to the original subtree. Changes made in any inner `withSandbox` call are either retained or rolled back depending on the commit flag. E.g.:
 
 ```ts
-numSandbox.withSandbox(num, numCopy1 => {
+numSandbox.withSandbox(num, (numCopy1) => {
   // numCopy1.value => 0
   numCopy1.setValue(1)
   // numCopy1.value => 1
-  numSandbox.withSandbox(numCopy1, numCopy2 => {
+  numSandbox.withSandbox(numCopy1, (numCopy2) => {
     // numCopy2.value => 1
     numCopy2.setValue(2)
     // numCopy2.value => 2
-    numSandbox.withSandbox(numCopy2, numCopy3 => {
+    numSandbox.withSandbox(numCopy2, (numCopy3) => {
       // numCopy3.value => 2
       numCopy3.setValue(3)
       // numCopy3.value => 3
@@ -181,7 +181,7 @@ class ItemStore extends Model({
 }) {
   @computed
   get errors(): string[] {
-    return this.items.map(item => item.error).filter(error => error !== undefined) as string[]
+    return this.items.map((item) => item.error).filter((error) => error !== undefined) as string[]
   }
 
   @modelAction
@@ -190,7 +190,7 @@ class ItemStore extends Model({
   }
 
   canAddItem(item: Item): boolean {
-    return !!sandboxCtx.get(this)?.withSandbox(this, node => {
+    return !!sandboxCtx.get(this)?.withSandbox(this, (node) => {
       node.addItem(item)
       return { commit: false, return: node.errors.length === 0 }
     })
@@ -213,7 +213,7 @@ Now, consider the following item model which, in this example, may only exist on
 class ItemA extends Model({}) implements Item {
   @computed
   get error(): string | undefined {
-    return getParent<Item[]>(this)?.some(item => item !== this && item instanceof ItemA)
+    return getParent<Item[]>(this)?.some((item) => item !== this && item instanceof ItemA)
       ? "only 1 instance of ItemA allowed"
       : undefined
   }

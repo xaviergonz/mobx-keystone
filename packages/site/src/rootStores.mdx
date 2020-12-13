@@ -53,7 +53,7 @@ class UserPreferences extends Model({ theme: prop<Theme>() }) {
     // every time the snapshot of the configuration changes
     const reactionDisposer = reaction(
       () => getSnapshot(this),
-      sn => {
+      (sn) => {
         // save the config to local storage
         localStorage.set("myPreferences", JSON.stringify(sn))
       },

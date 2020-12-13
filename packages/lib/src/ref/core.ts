@@ -65,7 +65,7 @@ export function internalCustomRef<T extends object>(
       // according to mwestrate this won't leak as long as we don't keep the disposer around
       reaction(
         () => this.maybeCurrent,
-        newTarget => {
+        (newTarget) => {
           const oldTarget = savedOldTarget
           const firstTime = savedFirstTime
           // update early in case of thrown exceptions

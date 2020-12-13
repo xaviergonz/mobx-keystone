@@ -35,7 +35,7 @@ class Countries extends Model({
 
   @computed
   get selectedCountries() {
-    return this.selectedCountriesRef.map(r => r.current)
+    return this.selectedCountriesRef.map((r) => r.current)
   }
 
   @modelAction
@@ -57,13 +57,13 @@ class Countries extends Model({
 
   @modelAction
   setSelectedCountries(countries: Country[]) {
-    this.selectedCountriesRef = countries.map(c => countryRef(c))
+    this.selectedCountriesRef = countries.map((c) => countryRef(c))
   }
 }
 
 const countryRef = customRef<Country>("countryRef", {
   resolve(ref) {
-    const countriesParent = findParent<Countries>(ref, n => n instanceof Countries)
+    const countriesParent = findParent<Countries>(ref, (n) => n instanceof Countries)
     if (!countriesParent) return undefined
     // this is valid in mobx5 but not mobx4
     // return countriesParent.countries[ref.id]
@@ -171,9 +171,9 @@ test("array ref works", () => {
       },
     ]
   `)
-  expect(r.map(rr => rr.isValid)).toEqual([true, true])
-  expect(r.map(rr => rr.maybeCurrent)).toEqual([spain, uk])
-  expect(r.map(rr => rr.current)).toEqual([spain, uk])
+  expect(r.map((rr) => rr.isValid)).toEqual([true, true])
+  expect(r.map((rr) => rr.maybeCurrent)).toEqual([spain, uk])
+  expect(r.map((rr) => rr.current)).toEqual([spain, uk])
 
   // cloning should be ok
   const cloneC = clone(c)
@@ -247,11 +247,11 @@ test("single selection with getRefId", () => {
 
     resolve(ref) {
       // get the todo list where this ref is
-      const todoList = findParent<TodoList>(ref, n => n instanceof TodoList)
+      const todoList = findParent<TodoList>(ref, (n) => n instanceof TodoList)
       // if the ref is not yet attached then it cannot be resolved
       if (!todoList) return undefined
       // but if it is attached then try to find it
-      return todoList.list.find(todo => todo.id === ref.id)
+      return todoList.list.find((todo) => todo.id === ref.id)
     },
 
     onResolvedValueChange(ref, newTodo, oldTodo) {
@@ -278,7 +278,7 @@ test("single selection with getRefId", () => {
 
 const countryRef2 = customRef<Country>("countryRef2", {
   resolve(ref) {
-    const countriesParent = findParent<Countries>(ref, n => n instanceof Countries)
+    const countriesParent = findParent<Countries>(ref, (n) => n instanceof Countries)
     if (!countriesParent) return undefined
     // this is valid in mobx5 but not mobx4
     // return countriesParent.countries[ref.id]
@@ -305,7 +305,7 @@ describe("resolution", () => {
     autoDispose(
       reaction(
         () => ref.maybeCurrent,
-        v => {
+        (v) => {
           calls++
           lastValue = v
         },

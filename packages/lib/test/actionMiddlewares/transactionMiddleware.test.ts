@@ -34,7 +34,7 @@ class P2 extends Model({
 
   @modelAction
   addParentX(n: number, error: boolean): number {
-    return findParent<P>(this, p => p instanceof P)!.addX(n, error)
+    return findParent<P>(this, (p) => p instanceof P)!.addX(n, error)
   }
 }
 
@@ -102,7 +102,7 @@ describe("transactionMiddleware - sync", () => {
 })
 
 async function delay(x: number) {
-  return new Promise<number>(r => setTimeout(() => r(x), x))
+  return new Promise<number>((r) => setTimeout(() => r(x), x))
 }
 
 @model("P2Flow")
@@ -130,7 +130,7 @@ class P2Flow extends Model({
   addY = _async(this._addY)
 
   private *_addParentX(n: number, error: boolean) {
-    const parent = findParent<PFlow>(this, p => p instanceof PFlow)!
+    const parent = findParent<PFlow>(this, (p) => p instanceof PFlow)!
     yield* _await(delay(5))
     const ret = yield* _await(parent.addX(n, error))
     return ret

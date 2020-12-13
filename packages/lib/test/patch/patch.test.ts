@@ -43,7 +43,7 @@ describe("onPatches and applyPatches", () => {
         pInvPatches
           .slice()
           .reverse()
-          .forEach(invpatches => applyPatches(p, invpatches, true))
+          .forEach((invpatches) => applyPatches(p, invpatches, true))
       })
       expect(getSnapshot(p)).toStrictEqual(sn)
     }
@@ -920,7 +920,7 @@ test("patches with reserved prop names", () => {
       pInvPatches
         .slice()
         .reverse()
-        .forEach(invpatches => applyPatches(p, invpatches, true))
+        .forEach((invpatches) => applyPatches(p, invpatches, true))
     })
     expect(getSnapshot(p)).toStrictEqual(sn)
   }
@@ -1069,7 +1069,7 @@ test("patches with action in onAttachedToRootStore", () => {
     rInvPatches
       .slice()
       .reverse()
-      .forEach(invpatches => applyPatches(r, invpatches, true))
+      .forEach((invpatches) => applyPatches(r, invpatches, true))
   })
   expect(getSnapshot(r)).toStrictEqual(sn)
 })

@@ -12,89 +12,89 @@ import { assertIsObservableArray, assertIsSet, failure, inDevMode } from "../uti
 import { Lock } from "../utils/lock"
 import { tag } from "../utils/tag"
 
-const observableSetBackedByObservableArray = action(<T>(array: IObservableArray<T>): ObservableSet<
-  T
-> & { dataObject: typeof array } => {
-  if (inDevMode()) {
-    if (!isObservableArray(array)) {
-      throw failure("assertion failed: expected an observable array")
+const observableSetBackedByObservableArray = action(
+  <T>(array: IObservableArray<T>): ObservableSet<T> & { dataObject: typeof array } => {
+    if (inDevMode()) {
+      if (!isObservableArray(array)) {
+        throw failure("assertion failed: expected an observable array")
+      }
     }
-  }
 
-  const set = observable.set(array)
-  ;(set as any).dataObject = array
+    const set = observable.set(array)
+    ;(set as any).dataObject = array
 
-  if (set.size !== array.length) {
-    throw failure("arrays backing a set cannot contain duplicate values")
-  }
+    if (set.size !== array.length) {
+      throw failure("arrays backing a set cannot contain duplicate values")
+    }
 
-  const mutationLock = new Lock()
+    const mutationLock = new Lock()
 
-  // for speed reasons we will just assume distinct values are only once in the array
+    // for speed reasons we will just assume distinct values are only once in the array
 
-  // when the array changes the set changes
-  observe(
-    array,
-    action(
-      mutationLock.unlockedFn((change: any /*IArrayDidChange<T>*/) => {
+    // when the array changes the set changes
+    observe(
+      array,
+      action(
+        mutationLock.unlockedFn((change: any /*IArrayDidChange<T>*/) => {
+          switch (change.type) {
+            case "splice": {
+              {
+                const removed = change.removed
+                for (let i = 0; i < removed.length; i++) {
+                  set.delete(removed[i])
+                }
+              }
+
+              {
+                const added = change.added
+                for (let i = 0; i < added.length; i++) {
+                  set.add(added[i])
+                }
+              }
+
+              break
+            }
+
+            case "update": {
+              set.delete(change.oldValue)
+              set.add(change.newValue)
+              break
+            }
+          }
+        })
+      )
+    )
+
+    // when the set changes also change the array
+    intercept(
+      set,
+      action((change: ISetWillChange<T>) => {
+        if (!mutationLock.isLocked) {
+          return null // already changed
+        }
+
         switch (change.type) {
-          case "splice": {
-            {
-              const removed = change.removed
-              for (let i = 0; i < removed.length; i++) {
-                set.delete(removed[i])
-              }
-            }
-
-            {
-              const added = change.added
-              for (let i = 0; i < added.length; i++) {
-                set.add(added[i])
-              }
-            }
-
+          case "add": {
+            array.push(change.newValue)
             break
           }
 
-          case "update": {
-            set.delete(change.oldValue)
-            set.add(change.newValue)
+          case "delete": {
+            const i = array.indexOf(change.oldValue)
+            if (i >= 0) {
+              array.splice(i, 1)
+            }
             break
           }
         }
+
+        return change
       })
     )
-  )
 
-  // when the set changes also change the array
-  intercept(
-    set,
-    action((change: ISetWillChange<T>) => {
-      if (!mutationLock.isLocked) {
-        return null // already changed
-      }
-
-      switch (change.type) {
-        case "add": {
-          array.push(change.newValue)
-          break
-        }
-
-        case "delete": {
-          const i = array.indexOf(change.oldValue)
-          if (i >= 0) {
-            array.splice(i, 1)
-          }
-          break
-        }
-      }
-
-      return change
-    })
-  )
-
-  return set as any
-})
+    return set as any
+  }
+)
 
 const asSetTag = tag((array: Array<any>) => {
   assertIsObservableArray(array, "array")

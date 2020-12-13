@@ -21,7 +21,7 @@ import { TypeCheckError } from "./TypeCheckError"
 export function typesObjectMap<T extends AnyType>(
   valueType: T
 ): IdentityType<ObjectMap<TypeToData<T>>> {
-  const typeInfoGen: TypeInfoGen = t => new ObjectMapTypeInfo(t, resolveStandardType(valueType))
+  const typeInfoGen: TypeInfoGen = (t) => new ObjectMapTypeInfo(t, resolveStandardType(valueType))
 
   return lateTypeChecker(() => {
     const valueChecker = resolveTypeChecker(valueType)

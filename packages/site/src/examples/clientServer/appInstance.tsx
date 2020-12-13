@@ -35,7 +35,7 @@ function initAppInstance() {
   }
 
   // listen to action messages to be replicated into the local root store
-  server.onMessage(actionCall => {
+  server.onMessage((actionCall) => {
     runServerActionLocally(actionCall)
   })
 

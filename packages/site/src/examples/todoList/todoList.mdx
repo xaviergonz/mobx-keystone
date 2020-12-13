@@ -4,7 +4,7 @@ route: /examples/todoList
 menu: Examples
 ---
 
-import { Code } from 'gatsby-theme-docz/src/components/Code'
+import { Code } from "gatsby-theme-docz/src/components/Code"
 import { Playground } from "docz"
 import storeSource from "!!raw-loader!./store.ts.txt"
 import appSource from "!!raw-loader!./app.tsx.txt"
@@ -12,7 +12,7 @@ import logsSource from "!!raw-loader!./logs.tsx.txt"
 import { App } from "./app.tsx"
 import { FixStyle } from "../../components/FixStyle.tsx"
 
-<FixStyle/>
+<FixStyle />
 
 # Examples / Todo List
 
@@ -22,18 +22,12 @@ import { FixStyle } from "../../components/FixStyle.tsx"
 
 ### examples/todoList/store.ts
 
-<Code className={'tsx'}>
-  {storeSource}
-</Code>
+<Code className={"tsx"}>{storeSource}</Code>
 
 ### examples/todoList/app.tsx
 
-<Code className={'tsx'}>
-  {appSource}
-</Code>
+<Code className={"tsx"}>{appSource}</Code>
 
 ### examples/todoList/logs.tsx
 
-<Code className={'tsx'}>
-  {logsSource}
-</Code>
+<Code className={"tsx"}>{logsSource}</Code>
