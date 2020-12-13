@@ -21,7 +21,12 @@ function enumValues(e: any): (string | number)[] {
  * @ignore
  * Extract enum values out of a enum object.
  */
-export type EnumValues<E> = E extends Record<any, infer V> ? V : never
+export type EnumValues<E> = E extends Record<
+  infer _K, // eslint-disable-line @typescript-eslint/no-unused-vars
+  infer V
+>
+  ? V
+  : never
 
 /**
  * An enum type, based on a Typescript alike enum object.
