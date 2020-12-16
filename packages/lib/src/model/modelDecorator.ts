@@ -6,15 +6,14 @@ import {
   failure,
   getMobxVersion,
   logWarning,
-  runLateInitializationFunctions,
+  mobx6,
+  runLateInitializationFunctions
 } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 import { modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
-
-const { makeObservable } = require("mobx")
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
@@ -63,7 +62,7 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
     // compatibility with mobx 6
     if (getMobxVersion() >= 6) {
       try {
-        makeObservable(instance)
+        mobx6.makeObservable(instance)
       } catch (err) {
         // sadly we need to use this hack since the PR to do this the proper way
         // was rejected on the mobx side

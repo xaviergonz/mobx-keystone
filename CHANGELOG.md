@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.48.3
+
+- Remove `require` usage from esm modules to fix snowpack compatibility.
+
 ## 0.48.2
 
 - Added `showDuplicateModelNameWarnings` to the global config.
