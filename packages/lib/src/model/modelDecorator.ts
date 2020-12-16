@@ -7,7 +7,7 @@ import {
   getMobxVersion,
   logWarning,
   mobx6,
-  runLateInitializationFunctions
+  runLateInitializationFunctions,
 } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"

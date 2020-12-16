@@ -6,7 +6,7 @@ import {
   isObservableObject,
   isObservableSet,
   ObservableMap,
-  ObservableSet
+  ObservableSet,
 } from "mobx"
 import { PrimitiveValue } from "./types"
 
@@ -409,7 +409,7 @@ export function lazy<V>(valueGen: () => V): () => V {
  */
 export const mobx6 = {
   // eslint-disable-next-line no-useless-concat
-  makeObservable:  (mobx as any)["makeObservable" + ""] as typeof mobx["makeObservable"]
+  makeObservable: (mobx as any)["makeObservable" + ""] as typeof mobx["makeObservable"],
 }
 
 /**
