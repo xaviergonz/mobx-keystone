@@ -1,5 +1,7 @@
 # Change Log
 
+- `ExtendedModel` will now throw when the `baseModel` argument is not a model class.
+
 ## 0.48.3
 
 - Remove `require` usage from esm modules to fix snowpack compatibility.
