@@ -14,7 +14,7 @@ import { TypeCheckError } from "./TypeCheckError"
  * const refToSomeObject = types.ref<SomeObject>()
  * ```
  *
- * @typeparam M Model type.
+ * @typeparam O Object or model type.
  * @returns
  */
 export function typesRef<O extends object>(): IdentityType<Ref<O>> {
