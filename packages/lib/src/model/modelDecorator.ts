@@ -33,6 +33,7 @@ type Unionize<T> = {
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
  * as a model.
  *
+ * @typeparam T Data type.
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
