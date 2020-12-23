@@ -33,20 +33,20 @@ type Unionize<T> = {
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
  * as a model.
  *
- * @typeparam T Data type.
+ * @typeparam DataType Data type.
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model = <T extends AnyStandardType>(name: string, type?: T) => <
-  MC extends ModelClass<AnyModel & Unionize<TypeToData<T>>>
+export const model = <DataType extends AnyStandardType>(name: string, dataType?: DataType) => <
+  MC extends ModelClass<AnyModel & Unionize<TypeToData<DataType>>>
 >(
   clazz: MC
 ): MC => {
-  return internalModel(name, type)(clazz)
+  return internalModel(name, dataType)(clazz)
 }
 
-const internalModel = <T extends AnyStandardType>(name: string, type?: T) => <
-  MC extends ModelClass<AnyModel & Unionize<TypeToData<T>>>
+const internalModel = <DataType extends AnyStandardType>(name: string, dataType?: DataType) => <
+  MC extends ModelClass<AnyModel & Unionize<TypeToData<DataType>>>
 >(
   clazz: MC
 ): MC => {
@@ -112,7 +112,7 @@ const internalModel = <T extends AnyStandardType>(name: string, type?: T) => <
 
   clazz.toString = () => `class ${clazz.name}#${name}`
   ;(clazz as any)[modelTypeKey] = name
-  ;(clazz as any)[modelValidationTypeCheckerSymbol] = type
+  ;(clazz as any)[modelValidationTypeCheckerSymbol] = dataType
 
   // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
   Object.setPrototypeOf(newClazz, clazz)
