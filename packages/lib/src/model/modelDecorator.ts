@@ -1,13 +1,13 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { getGlobalConfig } from "../globalConfig"
-import { AnyType, TypeToData } from "../typeChecking/schemas"
+import { AnyStandardType, TypeToData } from "../typeChecking/schemas"
 import {
   addHiddenProp,
   failure,
   getMobxVersion,
   logWarning,
-  runLateInitializationFunctions,
+  runLateInitializationFunctions
 } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
@@ -36,7 +36,7 @@ type Unionize<T> = {
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model = <T extends AnyType>(name: string, type?: T) => <
+export const model = <T extends AnyStandardType>(name: string, type?: T) => <
   MC extends ModelClass<AnyModel & Unionize<TypeToData<T>>>
 >(
   clazz: MC
@@ -44,7 +44,7 @@ export const model = <T extends AnyType>(name: string, type?: T) => <
   return internalModel(name, type)(clazz)
 }
 
-const internalModel = <T extends AnyType>(name: string, type?: T) => <
+const internalModel = <T extends AnyStandardType>(name: string, type?: T) => <
   MC extends ModelClass<AnyModel & Unionize<TypeToData<T>>>
 >(
   clazz: MC
