@@ -63,7 +63,7 @@ export function typesRefinement<T extends AnyType>(
         if (refinementErr === true) {
           return null
         } else if (refinementErr === false) {
-          return new TypeCheckError([], getTypeName(thisTc), data)
+          return new TypeCheckError(path, getTypeName(thisTc), data)
         } else {
           return refinementErr ?? null
         }
