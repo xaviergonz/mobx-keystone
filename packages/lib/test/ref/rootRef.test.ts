@@ -18,6 +18,7 @@ import {
   Ref,
   rootRef,
   runUnprotected,
+  undoMiddleware,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -564,4 +565,105 @@ test("applySnapshot - applyPatches - ref", () => {
   expect(rs.bs).toHaveLength(2)
   expect(rs.as[0].b.maybeCurrent).toBe(rs.bs[1])
   expect(rs.as[1].b.maybeCurrent).toBe(rs.bs[0])
+})
+
+test("undo manager can undo removal of a referenced object in a single step", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+
+  const manager = undoMiddleware(c)
+  autoDispose(() => manager.dispose())
+
+  const spain = c.countries["spain"]
+  c.setSelectedCountry(spain)
+
+  expect(manager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "setSelectedCountry",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "selectedCountryRef",
+            ],
+            "value": undefined,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "selectedCountryRef",
+            ],
+            "value": Object {
+              "$modelId": "id-6",
+              "$modelType": "countryRef",
+              "id": "spain",
+            },
+          },
+        ],
+        "targetPath": Array [],
+      },
+    ]
+  `)
+  expect(manager.redoQueue).toMatchInlineSnapshot(`Array []`)
+  manager.clearUndo()
+  manager.clearRedo()
+
+  // remove referenced country
+  c.removeCountry("spain")
+  expect(manager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "removeCountry",
+        "inversePatches": Array [
+          Object {
+            "op": "add",
+            "path": Array [
+              "countries",
+              "spain",
+            ],
+            "value": Object {
+              "$modelId": "id-1",
+              "$modelType": "Country",
+              "id": "spain",
+              "weather": "sunny",
+            },
+          },
+          Object {
+            "op": "add",
+            "path": Array [
+              "selectedCountryRef",
+            ],
+            "value": Object {
+              "$modelId": "id-6",
+              "$modelType": "countryRef",
+              "id": "spain",
+            },
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "remove",
+            "path": Array [
+              "countries",
+              "spain",
+            ],
+          },
+          Object {
+            "op": "remove",
+            "path": Array [
+              "selectedCountryRef",
+            ],
+          },
+        ],
+        "targetPath": Array [],
+      },
+    ]
+  `)
+  expect(manager.redoQueue).toMatchInlineSnapshot(`Array []`)
+
+  expect(c.selectedCountryRef?.maybeCurrent).toBe(undefined)
 })

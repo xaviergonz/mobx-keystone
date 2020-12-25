@@ -26,7 +26,7 @@ export type RefResolver<T extends object> = (ref: Ref<T>) => T | undefined
 export type RefIdResolver<T extends object | unknown> = (target: T) => string | undefined
 
 /**
- * Reference resolve valude changed hook type.
+ * Type for the callback called when a reference resolved value changes.
  */
 export type RefOnResolvedValueChange<T extends object> = (
   ref: Ref<T>,

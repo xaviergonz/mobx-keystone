@@ -35,7 +35,12 @@ export function wrapInAction<T extends Function>({
   overrideContext?: (ctx: O.Writable<ActionContext>) => void
   isFlowFinisher?: boolean
 }): T {
-  const wrappedAction = action(name, function (this: any) {
+  // we need to make only inner actions actual mobx actions
+  // so reactions (e.g. reference detaching) are picked up in the
+  // right context
+  fn = action(name, fn)
+
+  const wrappedAction = function (this: any) {
     const target = this
 
     if (inDevMode()) {
@@ -102,7 +107,7 @@ export function wrapInAction<T extends Function>({
 
       tryRunPendingActions()
     }
-  })
+  }
   ;(wrappedAction as any)[modelActionSymbol] = true
 
   return wrappedAction as any

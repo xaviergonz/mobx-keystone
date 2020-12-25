@@ -10,7 +10,7 @@ import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../typeChecking/array"
 import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { failure } from "../utils"
+import { failure, getMobxVersion, mobx6 } from "../utils"
 import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
 
 /**
@@ -233,6 +233,10 @@ export class UndoManager {
     private readonly subtreeRoot: object,
     store?: UndoStore
   ) {
+    if (getMobxVersion() >= 6) {
+      mobx6.makeObservable(this)
+    }
+
     this.store = store ?? new UndoStore({})
   }
 }
