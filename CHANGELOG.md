@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.48.4
+
 - Fixed TypeError path for refinement types.
 - Fix for the undo manager so it will correctly group reference invalidations inside the action that caused it.
 - `ExtendedModel` will now throw when the `baseModel` argument is not a model class.
