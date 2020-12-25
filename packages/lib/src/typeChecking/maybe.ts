@@ -11,7 +11,7 @@ import { AnyType, IdentityType } from "./schemas"
  * const numberOrUndefinedType = types.maybe(types.number)
  * ```
  *
- * @typeparam S Type.
+ * @typeparam T Type.
  * @param baseType Type.
  * @returns
  */
@@ -28,7 +28,7 @@ export function typesMaybe<T extends AnyType>(baseType: T): T | IdentityType<und
  * const numberOrNullType = types.maybeNull(types.number)
  * ```
  *
- * @typeparam S Type.
+ * @typeparam T Type.
  * @param type Type.
  * @returns
  */

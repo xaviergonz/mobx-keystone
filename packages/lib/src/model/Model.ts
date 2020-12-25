@@ -68,7 +68,7 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
  * Base abstract class for models that extends another model.
  *
  * @typeparam TProps New model properties type.
- * @typeparam TBaseModel Base class type.
+ * @typeparam TBaseModelClass Base class type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @returns
