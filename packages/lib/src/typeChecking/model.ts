@@ -1,6 +1,7 @@
 import { O } from "ts-toolbelt"
 import { AnyModel, ModelClass } from "../model/BaseModel"
 import { getModelDataType } from "../model/getModelDataType"
+import { getModelValidationType } from "../model/getModelValidationType"
 import { modelInfoByClass } from "../model/modelInfo"
 import { getInternalModelClassPropsInfo } from "../model/modelPropsInfo"
 import { noDefaultValue } from "../model/prop"
@@ -56,7 +57,8 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
           }
 
           const dataTypeChecker = getModelDataType(value)
-          if (!dataTypeChecker) {
+          const validationTypeChecker = getModelValidationType(value)
+          if (!dataTypeChecker && !validationTypeChecker) {
             throw failure(
               `type checking cannot be performed over model of type '${
                 modelInfo.name
@@ -66,9 +68,17 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
             )
           }
 
-          const resolvedTc = resolveTypeChecker(dataTypeChecker)
-          if (!resolvedTc.unchecked) {
-            return resolvedTc.check(value.$, path)
+          if (dataTypeChecker) {
+            const resolvedTc = resolveTypeChecker(dataTypeChecker)
+            if (!resolvedTc.unchecked) {
+              return resolvedTc.check(value.$, [...path, "$"])
+            }
+          }
+          if (validationTypeChecker) {
+            const resolvedTc = resolveTypeChecker(validationTypeChecker)
+            if (!resolvedTc.unchecked) {
+              return resolvedTc.check(value, path)
+            }
           }
 
           return null

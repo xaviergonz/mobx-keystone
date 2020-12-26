@@ -8,7 +8,6 @@ import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject } from "../utils"
-import { getModelValidationType } from "./getModelValidationType"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
@@ -126,17 +125,6 @@ export abstract class BaseModel<
    */
   typeCheck(): TypeCheckError | null {
     const type = typesModel<this>(this.constructor as any)
-    return typeCheck(type, this as any)
-  }
-
-  /**
-   * Performs type validation over the model instance.
-   * For this to work a validation type has do be declared in the model decorator.
-   *
-   * @returns A `TypeCheckError` or `null` if there is no error.
-   */
-  typeValidate(): TypeCheckError | null {
-    const type = getModelValidationType(this.constructor as any)
     return typeCheck(type, this as any)
   }
 

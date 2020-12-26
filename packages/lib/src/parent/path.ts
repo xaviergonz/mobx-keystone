@@ -264,11 +264,14 @@ const unresolved = { resolved: false } as const
  * @typeparam T Returned value type.
  * @param pathRootObject Object that serves as path root.
  * @param path Path as an string or number array.
+ * @param includeModelDataObjects Pass `true` to include model interim data objects (`$`) explicitly
+ * in `path` or `false` to automatically traverse to `$` for all model nodes (defaults to `false`).
  * @returns An object with `{ resolved: true, value: T }` or `{ resolved: false }`.
  */
 export function resolvePath<T = any>(
   pathRootObject: object,
-  path: Path
+  path: Path,
+  includeModelDataObjects: boolean = false
 ):
   | {
       resolved: true
@@ -281,7 +284,7 @@ export function resolvePath<T = any>(
   // unit tests rely on this to work with any object
   // assertTweakedObject(pathRootObject, "pathRootObject")
 
-  let current: any = modelToDataNode(pathRootObject)
+  let current: any = includeModelDataObjects ? pathRootObject : modelToDataNode(pathRootObject)
 
   let len = path.length
   for (let i = 0; i < len; i++) {
@@ -296,10 +299,10 @@ export function resolvePath<T = any>(
       return unresolved
     }
 
-    current = modelToDataNode(current[p])
+    current = includeModelDataObjects ? current[p] : modelToDataNode(current[p])
   }
 
-  return { resolved: true, value: dataToModelNode(current) }
+  return { resolved: true, value: includeModelDataObjects ? current : dataToModelNode(current) }
 }
 
 /**
