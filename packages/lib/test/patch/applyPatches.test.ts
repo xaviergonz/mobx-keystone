@@ -51,7 +51,7 @@ describe("object property", () => {
     expect(p2data.y).toBe(10)
   })
 
-  test.each([undefined, false, true])("replace (reverse=%j)", reverse => {
+  test.each([undefined, false, true])("replace (reverse=%j)", (reverse) => {
     runUnprotected(() => {
       applyPatches(
         p,
@@ -88,7 +88,7 @@ describe("array", () => {
     expect(p.arr).toEqual([1, 10, 2, 3])
   })
 
-  test.each([undefined, false, true])("add (reverse=%j)", reverse => {
+  test.each([undefined, false, true])("add (reverse=%j)", (reverse) => {
     runUnprotected(() => {
       applyPatches(
         p,
@@ -135,7 +135,7 @@ describe("array", () => {
     expect(p.arr).toEqual([1, 10, 3])
   })
 
-  test.each([undefined, false, true])("replace (reverse=%j)", reverse => {
+  test.each([undefined, false, true])("replace (reverse=%j)", (reverse) => {
     runUnprotected(() => {
       applyPatches(
         p,
@@ -199,7 +199,7 @@ describe("whole object", () => {
     expect(p.p2!.y).toBe(20)
   })
 
-  test.each([undefined, false, true])("replace (same id, reverse=%j)", reverse => {
+  test.each([undefined, false, true])("replace (same id, reverse=%j)", (reverse) => {
     const oldP2 = p.p2!
     runUnprotected(() => {
       applyPatches(

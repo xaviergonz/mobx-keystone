@@ -1,4 +1,3 @@
-import { action, isAction } from "mobx"
 import { fastGetParent, isChildOfParent } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, assertIsObject, deleteFromArray, failure } from "../utils"
@@ -126,9 +125,8 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
     throw failure("middleware.filter must be a function or undefined")
   }
 
-  if (!isAction(middleware)) {
-    middleware = action(middleware.name || "actionMiddleware", middleware)
-  }
+  // reminder: never turn middlewares into actions or else
+  // reactions will not be picked up by the undo manager
 
   if (subtreeRoot) {
     const targetFilter = (ctx: ActionContext) =>

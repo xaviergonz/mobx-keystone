@@ -1,9 +1,7 @@
 import { action, computed, createAtom, IAtom, IComputedValue, observable } from "mobx"
 import { fastGetParent } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
-import { getMobxVersion } from "../utils"
-
-const { makeObservable } = require("mobx")
+import { getMobxVersion, mobx6 } from "../utils"
 
 /**
  * A context.
@@ -189,7 +187,7 @@ class ContextClass<T> implements Context<T> {
 
   constructor(defaultValue?: T) {
     if (getMobxVersion() >= 6) {
-      makeObservable(this)
+      mobx6.makeObservable(this)
     }
 
     this.setDefault(defaultValue as T)

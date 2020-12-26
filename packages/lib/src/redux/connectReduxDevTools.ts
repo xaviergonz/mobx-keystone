@@ -133,7 +133,7 @@ export function connectReduxDevTools(
 
     if (opts.logArgsNearName) {
       let args = ctx.args
-        .map(a => {
+        .map((a) => {
           try {
             return JSON.stringify(a)
           } catch {

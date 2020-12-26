@@ -50,7 +50,7 @@ test("timestampAsDate", () => {
   autoDispose(
     reaction(
       () => m.date,
-      d => {
+      (d) => {
         reactions.push(d)
       }
     )

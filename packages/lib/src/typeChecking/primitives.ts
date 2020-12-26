@@ -33,7 +33,7 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
       break
   }
 
-  const typeInfoGen: TypeInfoGen = t => new LiteralTypeInfo(t, literal)
+  const typeInfoGen: TypeInfoGen = (t) => new LiteralTypeInfo(t, literal)
 
   return new TypeChecker(
     (value, path) => (value === literal ? null : new TypeCheckError(path, typeName, value)),
@@ -81,7 +81,7 @@ export const typesNull = typesLiteral(null)
 export const typesBoolean: IdentityType<boolean> = new TypeChecker(
   (value, path) => (typeof value === "boolean" ? null : new TypeCheckError(path, "boolean", value)),
   () => "boolean",
-  t => new BooleanTypeInfo(t)
+  (t) => new BooleanTypeInfo(t)
 ) as any
 
 /**
@@ -99,7 +99,7 @@ export class BooleanTypeInfo extends TypeInfo {}
 export const typesNumber: IdentityType<number> = new TypeChecker(
   (value, path) => (typeof value === "number" ? null : new TypeCheckError(path, "number", value)),
   () => "number",
-  t => new NumberTypeInfo(t)
+  (t) => new NumberTypeInfo(t)
 ) as any
 
 /**
@@ -117,7 +117,7 @@ export class NumberTypeInfo extends TypeInfo {}
 export const typesString: IdentityType<string> = new TypeChecker(
   (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
   () => "string",
-  t => new StringTypeInfo(t)
+  (t) => new StringTypeInfo(t)
 ) as any
 
 /**
@@ -133,7 +133,7 @@ export class StringTypeInfo extends TypeInfo {}
  * types.integer
  * ```
  */
-export const typesInteger = typesRefinement(typesNumber, n => Number.isInteger(n), "integer")
+export const typesInteger = typesRefinement(typesNumber, (n) => Number.isInteger(n), "integer")
 
 /**
  * A type that represents any string value other than "".
@@ -143,4 +143,4 @@ export const typesInteger = typesRefinement(typesNumber, n => Number.isInteger(n
  * types.nonEmptyString
  * ```
  */
-export const typesNonEmptyString = typesRefinement(typesString, s => s !== "", "nonEmpty")
+export const typesNonEmptyString = typesRefinement(typesString, (s) => s !== "", "nonEmpty")

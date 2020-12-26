@@ -88,7 +88,7 @@ export function asReduxStore<T extends object>(
     },
   }
 
-  const runners = middlewares.map(mw => mw(store))
+  const runners = middlewares.map((mw) => mw(store))
 
   return store
 }

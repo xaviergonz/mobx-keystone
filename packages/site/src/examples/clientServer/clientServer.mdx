@@ -4,7 +4,7 @@ route: /examples/clientServer
 menu: Examples
 ---
 
-import { Code } from 'gatsby-theme-docz/src/components/Code'
+import { Code } from "gatsby-theme-docz/src/components/Code"
 import { Playground } from "docz"
 import appSource from "!!raw-loader!./app.tsx.txt"
 import serverSource from "!!raw-loader!./server.ts.txt"
@@ -12,7 +12,7 @@ import appInstanceSource from "!!raw-loader!./appInstance.tsx.txt"
 import { App } from "./app.tsx"
 import { FixStyle } from "../../components/FixStyle.tsx"
 
-<FixStyle/>
+<FixStyle />
 
 # Examples / Client Server
 
@@ -24,18 +24,12 @@ In this example we will be synchronizing two separate root stores via action cap
 
 ### examples/clientServer/server.ts
 
-<Code className={'tsx'}>
-  {serverSource}
-</Code>
+<Code className={"tsx"}>{serverSource}</Code>
 
 ### examples/clientServer/appInstance.tsx
 
-<Code className={'tsx'}>
-  {appInstanceSource}
-</Code>
+<Code className={"tsx"}>{appInstanceSource}</Code>
 
 ### examples/clientServer/app.tsx
 
-<Code className={'tsx'}>
-  {appSource}
-</Code>
+<Code className={"tsx"}>{appSource}</Code>

@@ -74,7 +74,7 @@ export const LogsView = observer((props: { rootStore: TodoList }) => {
 function ActionCallToText(props: { actionCall: ExtendedActionCall }) {
   const actionCall = props.actionCall
 
-  const args = actionCall.args.map(arg => JSON.stringify(arg)).join(", ")
+  const args = actionCall.args.map((arg) => JSON.stringify(arg)).join(", ")
   const path = actionCall.targetPath.join("/")
   let text = `[${path}] ${actionCall.actionName}(${args})`
   if (actionCall.cancelled) {

@@ -10,7 +10,9 @@
     "site:start": "cd packages && cd site && yarn start",
     "site:build": "cd packages && cd site && yarn build",
     "build-netlify": "yarn lib:build && yarn lib:build-docs && yarn site:build",
-    "netlify-dev": "yarn build-netlify && netlify dev"
+    "netlify-dev": "yarn build-netlify && netlify dev",
+    "lint": "prettier --check . && cd packages && cd lib && yarn lint",
+    "lint-fix": "prettier --write ."
   },
   "workspaces": [
     "packages/lib",
@@ -35,6 +37,7 @@
     "eslint-webpack-plugin": "^2.1.0",
     "lerna": "^3.16.5",
     "netlify-cli": "^2.17.0",
-    "prettier": "^2.1.2"
+    "prettier": "^2.1.2",
+    "typescript": "^4.1.3"
   }
 }

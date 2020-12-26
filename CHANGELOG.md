@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.48.4
+
+- Fixed TypeError path for refinement types.
+- Fix for the undo manager so it will correctly group reference invalidations inside the action that caused it.
+- `ExtendedModel` will now throw when the `baseModel` argument is not a model class.
+
+## 0.48.3
+
+- Remove `require` usage from esm modules to fix snowpack compatibility.
+
 ## 0.48.2
 
 - Added `showDuplicateModelNameWarnings` to the global config.

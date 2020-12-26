@@ -14,7 +14,7 @@ import "../commonSetup"
 
 jest.useRealTimers()
 
-const waitAsync = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+const waitAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const waitAsyncReject = async (ms: number) => {
   await waitAsync(ms)
   throw new Error("thrown")

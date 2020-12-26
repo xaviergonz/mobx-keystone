@@ -1021,6 +1021,17 @@ test("refinement (simple)", () => {
   expect(typeInfo.typeName).toBe("integer")
 })
 
+test("refinement (simple child)", () => {
+  const checkFn = (n: number) => {
+    return Number.isInteger(n)
+  }
+
+  const type = types.object(() => ({ value: types.refinement(types.number, checkFn, "integer") }))
+
+  expectTypeCheckOk(type, { value: 5 })
+  expectTypeCheckFail(type, { value: 5.5 }, ["value"], "integer<number>")
+})
+
 test("refinement (complex)", () => {
   const sumObjType = types.object(() => ({
     a: types.number,

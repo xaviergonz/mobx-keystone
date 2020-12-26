@@ -16,7 +16,7 @@ export function flow<R, Args extends any[]>(
   generator: (...args: Args) => IterableIterator<any>
 ): (...args: Args) => Promise<any> {
   // Implementation based on https://github.com/tj/co/blob/master/index.js
-  const flowFn = function(this: any, ...args: any[]) {
+  const flowFn = function (this: any, ...args: any[]) {
     const target = this
 
     if (inDevMode()) {
@@ -59,7 +59,7 @@ export function flow<R, Args extends any[]>(
     const genNext = gen.next.bind(gen)
     const genThrow = gen.throw!.bind(gen)
 
-    const promise = new Promise<R>(function(resolve, reject) {
+    const promise = new Promise<R>(function (resolve, reject) {
       function onFulfilled(res: any): void {
         let ret
         try {
@@ -260,10 +260,10 @@ function* promiseGenerator<T>(
 // above code but compiled by TS for ES5
 // so we don't include a dependency to regenerator runtime
 
-const __generator = function(thisArg: any, body: any) {
+const __generator = function (thisArg: any, body: any) {
   let _: any = {
       label: 0,
-      sent: function() {
+      sent: function () {
         if (t[0] & 1) throw t[1]
         return t[1]
       },
@@ -277,13 +277,13 @@ const __generator = function(thisArg: any, body: any) {
   return (
     (g = { next: verb(0), throw: verb(1), return: verb(2) }),
     typeof Symbol === "function" &&
-      (g[Symbol.iterator] = function() {
+      (g[Symbol.iterator] = function () {
         return this
       }),
     g
   )
   function verb(n: any) {
-    return function(v: any) {
+    return function (v: any) {
       return step([n, v])
     }
   }
@@ -361,7 +361,7 @@ const __generator = function(thisArg: any, body: any) {
 
 function promiseGenerator(this: Promise<any>) {
   let ret
-  return __generator(this, function(this: any, _a: any) {
+  return __generator(this, function (this: any, _a: any) {
     switch (_a.label) {
       case 0:
         return [4 /*yield*/, this]

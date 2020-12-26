@@ -26,7 +26,7 @@ export type RefResolver<T extends object> = (ref: Ref<T>) => T | undefined
 export type RefIdResolver<T extends object | unknown> = (target: T) => string | undefined
 
 /**
- * Reference resolve valude changed hook type.
+ * Type for the callback called when a reference resolved value changes.
  */
 export type RefOnResolvedValueChange<T extends object> = (
   ref: Ref<T>,
@@ -65,7 +65,7 @@ export function internalCustomRef<T extends object>(
       // according to mwestrate this won't leak as long as we don't keep the disposer around
       reaction(
         () => this.maybeCurrent,
-        newTarget => {
+        (newTarget) => {
           const oldTarget = savedOldTarget
           const firstTime = savedFirstTime
           // update early in case of thrown exceptions

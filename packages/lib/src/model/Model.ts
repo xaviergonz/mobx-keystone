@@ -68,7 +68,7 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
  * Base abstract class for models that extends another model.
  *
  * @typeparam TProps New model properties type.
- * @typeparam TBaseModel Base class type.
+ * @typeparam TBaseModelClass Base class type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @returns
@@ -77,6 +77,8 @@ export function ExtendedModel<TProps extends ModelProps, TBaseModelClass>(
   baseModel: TBaseModelClass,
   modelProps: TProps
 ): _Model<TBaseModelClass & Object extends ModelClass<infer M> ? M : never, TProps> {
+  assertIsModelClass(baseModel, "baseModel")
+
   // note that & Object is there to support abstract classes
   return internalModel<TProps, any>(modelProps, baseModel as any)
 }

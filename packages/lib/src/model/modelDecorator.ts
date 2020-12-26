@@ -7,15 +7,14 @@ import {
   failure,
   getMobxVersion,
   logWarning,
-  runLateInitializationFunctions
+  mobx6,
+  runLateInitializationFunctions,
 } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 import { modelUnwrappedClassSymbol, modelValidationTypeCheckerSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
-
-const { makeObservable } = require("mobx")
 
 type AllKeys<T> = T extends unknown ? keyof T : never
 
@@ -85,7 +84,7 @@ const internalModel = <DataType extends AnyStandardType>(name: string, dataType?
     // compatibility with mobx 6
     if (getMobxVersion() >= 6) {
       try {
-        makeObservable(instance)
+        mobx6.makeObservable(instance)
       } catch (err) {
         // sadly we need to use this hack since the PR to do this the proper way
         // was rejected on the mobx side

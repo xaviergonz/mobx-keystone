@@ -130,7 +130,7 @@ test("reactive snapshots", () => {
   autoDispose(
     reaction(
       () => getSnapshot(p),
-      newSn => {
+      (newSn) => {
         pResult.push(newSn)
       }
     )
@@ -140,7 +140,7 @@ test("reactive snapshots", () => {
   autoDispose(
     reaction(
       () => getSnapshot(p.p2),
-      newSn => {
+      (newSn) => {
         p2Result.push(newSn)
       }
     )

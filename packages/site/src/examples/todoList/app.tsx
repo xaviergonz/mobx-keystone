@@ -37,20 +37,20 @@ export const TodoListView = observer(({ list }: { list: TodoList }) => {
       {list.pending.length > 0 && (
         <>
           <h5>TODO</h5>
-          {list.pending.map(t => renderTodo(t))}
+          {list.pending.map((t) => renderTodo(t))}
         </>
       )}
 
       {list.done.length > 0 && (
         <>
           <h5>DONE</h5>
-          {list.done.map(t => renderTodo(t))}
+          {list.done.map((t) => renderTodo(t))}
         </>
       )}
       <br />
       <input
         value={newTodo}
-        onChange={ev => {
+        onChange={(ev) => {
           setNewTodo(ev.target.value || "")
         }}
         placeholder="I will..."

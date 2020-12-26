@@ -46,8 +46,10 @@ export const modelInitializedSymbol = Symbol("modelInitialized")
  *
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
- * @typeparam Data Data type.
+ * @typeparam PropsData Props data type.
  * @typeparam CreationData Creation data type.
+ * @typeparam InstanceData Instace data type.
+ * @typeparam InstanceCreationData Instance creation data type.
  */
 export abstract class BaseModel<
   PropsData extends { [k: string]: any },

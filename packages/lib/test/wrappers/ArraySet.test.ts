@@ -15,9 +15,9 @@ function expectSetValues(vals: number[]) {
   expect(arr).toEqual(vals)
   expect([...set.values()]).toEqual(vals)
   expect([...set.keys()]).toEqual(vals)
-  expect([...set.entries()]).toEqual(vals.map(v => [v, v]))
+  expect([...set.entries()]).toEqual(vals.map((v) => [v, v]))
   expect([...set]).toEqual(vals)
-  vals.forEach(v => {
+  vals.forEach((v) => {
     expect(set.has(v)).toBe(true)
   })
   expect(set.size).toBe(vals.length)
@@ -46,7 +46,7 @@ test("delete", () => {
 test("forEach", () => {
   let v: number[] = []
   const self = {}
-  set.forEach(function(this: any, t1, t2, s) {
+  set.forEach(function (this: any, t1, t2, s) {
     expect(this).toBe(self)
     expect(t1).toBe(t2)
     v.push(t1)
@@ -119,7 +119,7 @@ test("reactivity", () => {
 
 test("detach", () => {
   const arr = arraySet<{ x: number }>([{ x: 2 }, { x: 3 }, { x: 5 }])
-  const three = Array.from(arr.values()).find(i => i.x === 3)!
+  const three = Array.from(arr.values()).find((i) => i.x === 3)!
   detach(three)
-  expect(Array.from(arr.values()).map(i => i.x)).toEqual([2, 5])
+  expect(Array.from(arr.values()).map((i) => i.x)).toEqual([2, 5])
 })
