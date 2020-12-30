@@ -1,3 +1,4 @@
+import { addActionToFnModel, FnModelActionDef } from "./actions"
 import { FnModelFn } from "./core"
 
 /**
@@ -12,9 +13,9 @@ export type FnModelSetterActionsArray<
   Data extends object,
   SetterActionsDef extends FnModelSetterActionsArrayDef<Data>
 > = {
-  [k in keyof SetterActionsDef as `set${Capitalize<k & string>}`]: FnModelFn<
+  [k in SetterActionsDef[number] as `set${Capitalize<k>}`]: FnModelFn<
     Data,
-    (value: Data[SetterActionsDef[k]]) => void
+    (value: Data[k]) => void
   >
 }
 
@@ -25,7 +26,9 @@ export type FnModelSetterActionsArray<
 export function extendFnModelSetterActions<Data>(
   fnModelObj: any,
   namespace: string,
-  setterActions: FnModelSetterActionsDef<Data>
+  setterActions: {
+    [k: string]: keyof Data
+  }
 ): any {
   for (const [name, fieldName] of Object.entries(setterActions)) {
     // make strings setters
