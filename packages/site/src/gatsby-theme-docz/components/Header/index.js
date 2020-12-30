@@ -6,7 +6,7 @@ import { Box, Flex, jsx, useColorMode } from "theme-ui"
 import logoImage from "./lib-logo.png"
 import * as styles from "./styles"
 
-export const Header = props => {
+export const Header = (props) => {
   const { onOpen } = props
   const {
     title,

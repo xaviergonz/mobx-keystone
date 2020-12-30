@@ -61,36 +61,36 @@ test("parent", () => {
   expect(isChildOfParent(p, p.p2!)).toBeFalsy()
   expect(isParentOfChild(p.p2!, p)).toBeFalsy()
 
-  expect(findParent(p.p2!, parent => parent instanceof P)).toBe(p)
-  expect(findParent(p.p2!, parent => parent instanceof P, 0)).toBe(p)
-  expect(findParent(p.p2!, parent => parent instanceof P, 1)).toBe(p)
-  expect(findParent(p.p2!, parent => parent instanceof P, 2)).toBe(p)
-  expect(findParent(p.p2!, parent => parent instanceof P, 3)).toBe(p)
+  expect(findParent(p.p2!, (parent) => parent instanceof P)).toBe(p)
+  expect(findParent(p.p2!, (parent) => parent instanceof P, 0)).toBe(p)
+  expect(findParent(p.p2!, (parent) => parent instanceof P, 1)).toBe(p)
+  expect(findParent(p.p2!, (parent) => parent instanceof P, 2)).toBe(p)
+  expect(findParent(p.p2!, (parent) => parent instanceof P, 3)).toBe(p)
 
-  expect(findParent(p.p2!, parent => parent instanceof P2)).toBe(undefined)
+  expect(findParent(p.p2!, (parent) => parent instanceof P2)).toBe(undefined)
 
-  expect(findParentPath(p.p2!, parent => parent instanceof P)).toEqual({
+  expect(findParentPath(p.p2!, (parent) => parent instanceof P)).toEqual({
     parent: p,
     path: ["p2"],
   })
-  expect(findParentPath(p.p2!, parent => parent instanceof P, 0)).toEqual({
+  expect(findParentPath(p.p2!, (parent) => parent instanceof P, 0)).toEqual({
     parent: p,
     path: ["p2"],
   })
-  expect(findParentPath(p.p2!, parent => parent instanceof P, 1)).toEqual({
+  expect(findParentPath(p.p2!, (parent) => parent instanceof P, 1)).toEqual({
     parent: p,
     path: ["p2"],
   })
-  expect(findParentPath(p.p2!, parent => parent instanceof P, 2)).toEqual({
+  expect(findParentPath(p.p2!, (parent) => parent instanceof P, 2)).toEqual({
     parent: p,
     path: ["p2"],
   })
-  expect(findParentPath(p.p2!, parent => parent instanceof P, 3)).toEqual({
+  expect(findParentPath(p.p2!, (parent) => parent instanceof P, 3)).toEqual({
     parent: p,
     path: ["p2"],
   })
 
-  expect(findParentPath(p.p2!, parent => parent instanceof P2)).toBe(undefined)
+  expect(findParentPath(p.p2!, (parent) => parent instanceof P2)).toBe(undefined)
 
   expect(getParentPath(p)).toBeUndefined()
   expect(() => getParentPath(p.$)).toThrow($errorMessage)

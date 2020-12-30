@@ -1,0 +1,9 @@
+node_modules/
+dist/
+
+/packages/lib/coverage/
+/packages/lib/README.md
+/packages/lib/LICENSE
+
+/packages/site/.docz/
+/packages/site/public/api/

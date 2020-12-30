@@ -108,11 +108,11 @@ const todoRef = customRef<Todo>("myApp/TodoRef", {
 
   resolve(ref) {
     // get the todo list where this ref is
-    const todoList = findParent<TodoList>(ref, n => n instanceof TodoList)
+    const todoList = findParent<TodoList>(ref, (n) => n instanceof TodoList)
     // if the ref is not yet attached then it cannot be resolved
     if (!todoList) return undefined
     // but if it is attached then try to find it
-    return todoList.list.find(todo => todo.id === ref.id)
+    return todoList.list.find((todo) => todo.id === ref.id)
   },
 
   onResolvedValueChange(ref, newTodo, oldTodo) {
@@ -176,7 +176,7 @@ class TodoList extends Model({
   // not strictly needed, but neat
   @computed
   get selectedTodos() {
-    return this.selectedRefs.map(r => r.current)
+    return this.selectedRefs.map((r) => r.current)
   }
 
   @modelAction
@@ -192,7 +192,7 @@ class TodoList extends Model({
   unselectTodo(todo: Todo) {
     if (!this.list.includes(todo)) throw new Error("unknown todo")
 
-    const todoRefIndex = this.selectedRefs.findIndex(todoRef => todoRef.maybeCurrent === todo)
+    const todoRefIndex = this.selectedRefs.findIndex((todoRef) => todoRef.maybeCurrent === todo)
 
     if (todoRefIndex >= 0) {
       this.selectedRefs.splice(todoRefIndex, 1)

@@ -35,7 +35,7 @@ export class ArraySet<V>
   delete(value: V): boolean {
     const items = this.items
 
-    const index = items.findIndex(t => t === value)
+    const index = items.findIndex((t) => t === value)
     if (index >= 0) {
       items.splice(index, 1)
       return true
@@ -76,7 +76,7 @@ export class ArraySet<V>
     const items = this.items
 
     // TODO: should use an actual iterator
-    return items.map(v => [v, v] as [V, V]).values()
+    return items.map((v) => [v, v] as [V, V]).values()
   }
 
   [Symbol.iterator](): IterableIterator<V> {

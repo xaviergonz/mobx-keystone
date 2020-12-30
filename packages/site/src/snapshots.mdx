@@ -120,7 +120,7 @@ Snapshots are observable values in themselves, which means standard MobX reactio
 ```ts
 const disposer = reaction(
   () => getSnapshot(todo),
-  todoSnapshot => {
+  (todoSnapshot) => {
     // do something
   }
 )

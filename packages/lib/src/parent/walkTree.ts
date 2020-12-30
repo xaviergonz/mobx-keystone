@@ -35,11 +35,11 @@ export function walkTree<T = void>(
   assertTweakedObject(target, "target")
 
   if (mode === WalkTreeMode.ParentFirst) {
-    const recurse: (node: object) => T | undefined = child =>
+    const recurse: (node: object) => T | undefined = (child) =>
       walkTreeParentFirst(child, predicate, recurse)
     return walkTreeParentFirst(target, predicate, recurse)
   } else {
-    const recurse: (node: object) => T | undefined = child =>
+    const recurse: (node: object) => T | undefined = (child) =>
       walkTreeChildrenFirst(child, predicate, recurse)
     return walkTreeChildrenFirst(target, predicate, recurse)
   }

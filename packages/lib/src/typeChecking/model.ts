@@ -32,7 +32,7 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
 
   if (!isModelClass(modelClass) && typeof modelClass === "function") {
     // resolve later
-    const typeInfoGen: TypeInfoGen = t => new ModelTypeInfo(t, modelClass())
+    const typeInfoGen: TypeInfoGen = (t) => new ModelTypeInfo(t, modelClass())
     return lateTypeChecker(() => typesModel(modelClass()) as any, typeInfoGen) as any
   } else {
     const modelClazz: ModelClass<AnyModel> = modelClass as any
@@ -43,7 +43,7 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
       return cachedTypeChecker as any
     }
 
-    const typeInfoGen: TypeInfoGen = t => new ModelTypeInfo(t, modelClazz)
+    const typeInfoGen: TypeInfoGen = (t) => new ModelTypeInfo(t, modelClazz)
 
     const tc = lateTypeChecker(() => {
       const modelInfo = modelInfoByClass.get(modelClazz)!
@@ -104,7 +104,7 @@ export class ModelTypeInfo extends TypeInfo {
     const objSchema = getInternalModelClassPropsInfo(this.modelClass)
 
     const propTypes: O.Writable<ModelTypeInfoProps> = {}
-    Object.keys(objSchema).forEach(propName => {
+    Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
       const type = (propData.typeChecker as any) as AnyStandardType

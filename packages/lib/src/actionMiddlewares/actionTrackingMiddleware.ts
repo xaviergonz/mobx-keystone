@@ -156,7 +156,7 @@ export function actionTrackingMiddleware(
     }
   }
 
-  const userFilter: ActionMiddleware["filter"] = ctx => {
+  const userFilter: ActionMiddleware["filter"] = (ctx) => {
     if (hooks.filter) {
       return hooks.filter(simplifyActionContext(ctx))
     }
@@ -166,7 +166,7 @@ export function actionTrackingMiddleware(
 
   const resumeSuspendSupport = !!hooks.onResume || !!hooks.onSuspend
 
-  const filter: ActionMiddleware["filter"] = ctx => {
+  const filter: ActionMiddleware["filter"] = (ctx) => {
     if (ctx.type === ActionContextActionType.Sync) {
       // start and finish is on the same context
       const accepted = userFilter(ctx)

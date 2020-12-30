@@ -116,7 +116,6 @@ export function tProp(defaultValue: boolean, options?: ModelPropOptions): Option
  * ```
  *
  * @typeparam TType Type checker type.
- *
  * @param type Type checker.
  * @param defaultFn Default value generator function.
  * @param options Model property options.
@@ -163,7 +162,6 @@ export function tProp<TType extends AnyType>(
  * ```
  *
  * @typeparam TType Type checker type.
- *
  * @param type Type checker.
  * @param defaultValue Default value generator function.
  * @param options Model property options.
@@ -209,7 +207,6 @@ export function tProp<TType extends AnyType>(
  * ```
  *
  * @typeparam TType Type checker type.
- *
  * @param type Type checker.
  * @param options Model property options.
  * @returns

@@ -1,99 +1,108 @@
 version: 2.1
 
 executors:
-    my-executor:
-        docker:
-            - image: circleci/node:14
-              environment:
-                  CI: "true"
-        working_directory: ~/workdir
+  my-executor:
+    docker:
+      - image: circleci/node:14
+        environment:
+          CI: "true"
+    working_directory: ~/workdir
 
 jobs:
-    install:
-        executor: my-executor
-        steps:
-            - checkout
+  install:
+    executor: my-executor
+    steps:
+      - checkout
 
-            - restore_cache:
-                  name: restore .cache/yarn
-                  keys:
-                      - yarn-cache-{{ arch }}
-            - restore_cache:
-                  name: restore node_modules
-                  keys:
-                      - node-modules-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-                      - node-modules-{{ arch }}-{{ .Branch }}
-                      - node-modules-{{ arch }}
+      - restore_cache:
+          name: restore .cache/yarn
+          keys:
+            - yarn-cache-{{ arch }}
+      - restore_cache:
+          name: restore node_modules
+          keys:
+            - node-modules-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - node-modules-{{ arch }}-{{ .Branch }}
+            - node-modules-{{ arch }}
 
-            - run: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
 
-            - save_cache:
-                  name: cache .cache/yarn
-                  key: yarn-cache-{{ arch }}
-                  paths:
-                      - ~/.cache/yarn
-            - save_cache:
-                  name: cache node_modules
-                  key: node-modules-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-                  paths:
-                      - node_modules
+      - save_cache:
+          name: cache .cache/yarn
+          key: yarn-cache-{{ arch }}
+          paths:
+            - ~/.cache/yarn
+      - save_cache:
+          name: cache node_modules
+          key: node-modules-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
 
-            - persist_to_workspace:
-                  root: .
-                  paths:
-                      - ./*
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./*
 
-    lib-site-build:
-        executor: my-executor
-        steps:
-            - attach_workspace:
-                  at: .
-            - run: yarn lib:build && yarn lib:build-docs && yarn site:build
-            - persist_to_workspace:
-                  root: .
-                  paths:
-                      - ./*
+  lib-site-build:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: .
+      - run: yarn lib:build && yarn lib:build-docs && yarn site:build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./*
 
-    lib-test:
-        executor: my-executor
-        steps:
-            - attach_workspace:
-                  at: .
-            - run: yarn lib:test -i --coverage
-            - persist_to_workspace:
-                  root: .
-                  paths:
-                      - packages/lib/coverage/*
+  lib-test:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: .
+      - run: yarn lib:test -i --coverage
+      - persist_to_workspace:
+          root: .
+          paths:
+            - packages/lib/coverage/*
+  lint:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: .
+      - run: yarn lint
 
-    # upload coverage
-    upload-coveralls:
-        executor: my-executor
-        steps:
-            - attach_workspace:
-                  at: .
+  # upload coverage
+  upload-coveralls:
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: .
 
-            # only run coveralls if the token is present (it is not present for fork PRs for security reasons)
-            - run:
-                  name: upload coveralls
-                  command: |
-                      if [[ -v COVERALLS_REPO_TOKEN ]]
-                      then
-                          cat ./packages/lib/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
-                          echo "Coveralls info uploaded"
-                      else
-                          echo "Warning - Coveralls info could NOT be uploaded since the COVERALLS_REPO_TOKEN was not available"
-                      fi
+      # only run coveralls if the token is present (it is not present for fork PRs for security reasons)
+      - run:
+          name: upload coveralls
+          command: |
+            if [[ -v COVERALLS_REPO_TOKEN ]]
+            then
+                cat ./packages/lib/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+                echo "Coveralls info uploaded"
+            else
+                echo "Warning - Coveralls info could NOT be uploaded since the COVERALLS_REPO_TOKEN was not available"
+            fi
 workflows:
-    version: 2
-    full-workflow:
-        jobs:
+  version: 2
+  full-workflow:
+    jobs:
+      - install
+      - lib-site-build:
+          requires:
             - install
-            - lib-site-build:
-                  requires:
-                      - install
-            - lib-test:
-                  requires:
-                      - install
-            - upload-coveralls:
-                  requires:
-                      - lib-test
+      - lib-test:
+          requires:
+            - install
+      - lint:
+          requires:
+            - install
+      - upload-coveralls:
+          requires:
+            - lib-test

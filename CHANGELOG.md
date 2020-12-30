@@ -4,6 +4,20 @@
 - [BREAKING CHANGE] Class model `setterAction: true` prop option will now generate a setter like `setX` instead.
 - [BREAKING CHANGE] Functional model `setterActions` now just take the field names rather than an object with the setter mapping.
 
+## 0.48.4
+
+- Fixed TypeError path for refinement types.
+- Fix for the undo manager so it will correctly group reference invalidations inside the action that caused it.
+- `ExtendedModel` will now throw when the `baseModel` argument is not a model class.
+
+## 0.48.3
+
+- Remove `require` usage from esm modules to fix snowpack compatibility.
+
+## 0.48.2
+
+- Added `showDuplicateModelNameWarnings` to the global config.
+
 ## 0.48.1
 
 - Fixed compatibility with MobX v5 and v4 when using ESM build.

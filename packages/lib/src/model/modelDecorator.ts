@@ -1,10 +1,12 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
+import { getGlobalConfig } from "../globalConfig"
 import {
   addHiddenProp,
   failure,
   getMobxVersion,
   logWarning,
+  mobx6,
   runLateInitializationFunctions,
 } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
@@ -12,8 +14,6 @@ import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
 import { modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
-
-const { makeObservable } = require("mobx")
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
@@ -30,11 +30,13 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
-    logWarning(
-      "warn",
-      `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
-      `duplicateModelName - ${name}`
-    )
+    if (getGlobalConfig().showDuplicateModelNameWarnings) {
+      logWarning(
+        "warn",
+        `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
+        `duplicateModelName - ${name}`
+      )
+    }
   }
 
   if ((clazz as any)[modelUnwrappedClassSymbol]) {
@@ -60,7 +62,7 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
     // compatibility with mobx 6
     if (getMobxVersion() >= 6) {
       try {
-        makeObservable(instance)
+        mobx6.makeObservable(instance)
       } catch (err) {
         // sadly we need to use this hack since the PR to do this the proper way
         // was rejected on the mobx side

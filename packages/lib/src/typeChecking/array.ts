@@ -17,7 +17,7 @@ import { TypeCheckError } from "./TypeCheckError"
  * @returns
  */
 export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
-  const typeInfoGen: TypeInfoGen = t => new ArrayTypeInfo(t, resolveStandardType(itemType))
+  const typeInfoGen: TypeInfoGen = (t) => new ArrayTypeInfo(t, resolveStandardType(itemType))
 
   return lateTypeChecker(() => {
     const itemChecker = resolveTypeChecker(itemType)

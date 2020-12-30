@@ -56,7 +56,7 @@ export function applySerializedActionAndTrackNewModelIds<TRet = any>(
   const modelIdOverrides: Patch[] = []
 
   // set a patch listener to track changes to model ids
-  const patchDisposer = onPatches(subtreeRoot, patches => {
+  const patchDisposer = onPatches(subtreeRoot, (patches) => {
     scanPatchesForModelIdChanges(subtreeRoot, modelIdOverrides, patches)
   })
 

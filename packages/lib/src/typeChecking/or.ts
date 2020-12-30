@@ -18,18 +18,18 @@ import { typesUnchecked } from "./unchecked"
  * @returns
  */
 export function typesOr<T extends AnyType[]>(...orTypes: T): T[number] {
-  const typeInfoGen: TypeInfoGen = t => new OrTypeInfo(t, orTypes.map(resolveStandardType))
+  const typeInfoGen: TypeInfoGen = (t) => new OrTypeInfo(t, orTypes.map(resolveStandardType))
 
   return lateTypeChecker(() => {
     const checkers = orTypes.map(resolveTypeChecker)
 
     // if the or includes unchecked then it is unchecked
-    if (checkers.some(tc => tc.unchecked)) {
+    if (checkers.some((tc) => tc.unchecked)) {
       return typesUnchecked() as any
     }
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
-      const typeNames = checkers.map(tc => {
+      const typeNames = checkers.map((tc) => {
         if (recursiveTypeCheckers.includes(tc)) {
           return "..."
         }
@@ -41,7 +41,7 @@ export function typesOr<T extends AnyType[]>(...orTypes: T): T[number] {
 
     const thisTc: TypeChecker = new TypeChecker(
       (value, path) => {
-        const noMatchingType = checkers.every(tc => !!tc.check(value, path))
+        const noMatchingType = checkers.every((tc) => !!tc.check(value, path))
         if (noMatchingType) {
           return new TypeCheckError(path, getTypeName(thisTc), value)
         } else {

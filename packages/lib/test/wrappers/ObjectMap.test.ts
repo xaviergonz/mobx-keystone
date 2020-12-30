@@ -16,14 +16,14 @@ beforeEach(() => {
 })
 
 function expectMapValues(valsN: number[]) {
-  const vals = valsN.map(v => ["" + v, v] as const)
+  const vals = valsN.map((v) => ["" + v, v] as const)
   expect(entries(obj)).toEqual(vals)
 
-  expect([...map.values()]).toEqual(vals.map(v => v[1]))
-  expect([...map.keys()]).toEqual(vals.map(v => v[0]))
+  expect([...map.values()]).toEqual(vals.map((v) => v[1]))
+  expect([...map.keys()]).toEqual(vals.map((v) => v[0]))
   expect([...map.entries()]).toEqual(vals)
   expect([...map]).toEqual(vals)
-  vals.forEach(t => {
+  vals.forEach((t) => {
     expect(map.has(t[0])).toBe(true)
   })
   expect(map.size).toBe(vals.length)
@@ -54,7 +54,7 @@ test("delete", () => {
 test("forEach", () => {
   let a: [string, number][] = []
   const self = {}
-  map.forEach(function(this: any, v, k, m) {
+  map.forEach(function (this: any, v, k, m) {
     expect(this).toBe(self)
     a.push([k, v])
     expect(m).toBe(map)

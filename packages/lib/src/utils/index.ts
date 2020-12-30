@@ -1,3 +1,4 @@
+import * as mobx from "mobx"
 import {
   IObservableArray,
   isObservableArray,
@@ -8,8 +9,6 @@ import {
   ObservableSet,
 } from "mobx"
 import { PrimitiveValue } from "./types"
-
-const { makeObservable } = require("mobx")
 
 /**
  * A mobx-keystone error.
@@ -403,6 +402,16 @@ export function lazy<V>(valueGen: () => V): () => V {
   }
 }
 
+// just to ensure import * is kept properly
+/**
+ * @ignore
+ * @internal
+ */
+export const mobx6 = {
+  // eslint-disable-next-line no-useless-concat
+  makeObservable: (mobx as any)["makeObservable" + ""] as typeof mobx["makeObservable"],
+}
+
 /**
  * @ignore
  * @internal
@@ -416,7 +425,7 @@ export function propNameToSetterActionName(propName: string): string {
  * @internal
  */
 export function getMobxVersion(): number {
-  if (makeObservable) {
+  if (mobx6.makeObservable!) {
     return 6
   } else {
     return 5

@@ -41,7 +41,7 @@ test("stringAsDate", () => {
   autoDispose(
     reaction(
       () => m.date,
-      d => {
+      (d) => {
         reactions.push(d)
       }
     )
