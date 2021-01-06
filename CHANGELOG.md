@@ -1,5 +1,7 @@
 # Change Log
 
+- Added `assign` to `fnObject`.
+
 ## 0.48.4
 
 - Fixed TypeError path for refinement types.
