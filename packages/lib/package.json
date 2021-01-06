@@ -46,6 +46,9 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "eslint": "^7.12.1",
     "mobx": "^6.0.1",
     "netlify-cli": "^2.17.0",
     "shx": "^0.3.2",
