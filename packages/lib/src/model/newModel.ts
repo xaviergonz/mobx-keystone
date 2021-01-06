@@ -1,8 +1,10 @@
 import { action, set } from "mobx"
 import { O } from "ts-toolbelt"
 import { getGlobalConfig, isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
+import { getParent } from "../parent/path"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
+import { validationContext } from "../typeChecking/validation"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelPropsCreationData } from "./BaseModel"
 import { getModelDataType } from "./getModelDataType"
@@ -126,6 +128,15 @@ export const internalNewModel = action(
         const init = initializers[i]
         init(modelObj)
       }
+    }
+
+    // validate model and provide the result via a context if needed
+    if (getGlobalConfig().modelAutoTypeValidation) {
+      validationContext.setComputed(modelObj, () => {
+        const parent = getParent(modelObj)
+        const result = parent ? validationContext.get(parent)! : modelObj.typeCheck()
+        return result
+      })
     }
 
     return modelObj as M

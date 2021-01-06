@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { computed, reaction } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   actionTrackingMiddleware,
@@ -13,6 +13,7 @@ import {
   frozen,
   FrozenTypeInfo,
   getTypeInfo,
+  getValidationResult,
   LiteralTypeInfo,
   model,
   Model,
@@ -1266,13 +1267,24 @@ test("syntax sugar for primitives in tProp", () => {
 })
 
 describe("model type validation", () => {
+  beforeAll(() => {
+    setGlobalConfig({ modelAutoTypeValidation: true })
+  })
+
+  afterAll(() => {
+    setGlobalConfig({ modelAutoTypeValidation: false })
+  })
+
   test("simple", () => {
-    @model("ValidatedModel/simple", types.object(() => ({ value: types.number })))
+    @model("ValidatedModel/simple", types.object(() => ({ value: types.integer })))
     class M extends Model({
       value: prop<number>(),
     }) {}
 
     expect(new M({ value: 10 }).typeCheck()).toBeNull()
+    expect(new M({ value: 10.5 }).typeCheck()).toEqual(
+      new TypeCheckError(["value"], "integer<number>", 10.5)
+    )
   })
 
   test("complex - union", () => {
@@ -1294,18 +1306,14 @@ describe("model type validation", () => {
       value: prop<number>(),
     }) {}
 
-    const m1 = new M({ kind: "float", value: 10.5 })
-    expect(m1.typeCheck()).toBeNull()
-
-    const m2 = new M({ kind: "int", value: 10 })
-    expect(m2.typeCheck()).toBeNull()
-
-    const m3 = new M({ kind: "int", value: 10.5 })
-    expect(m3.typeCheck()).toEqual(
+    expect(new M({ kind: "float", value: 10.5 }).typeCheck()).toBeNull()
+    expect(new M({ kind: "int", value: 10 }).typeCheck()).toBeNull()
+    const m = new M({ kind: "int", value: 10.5 })
+    expect(m.typeCheck()).toEqual(
       new TypeCheckError(
         [],
         `{ kind: "float"; value: number; } | { kind: "int"; value: integer<number>; }`,
-        m3
+        m
       )
     )
   })
@@ -1320,14 +1328,23 @@ describe("model type validation", () => {
   })
 
   test("computed property", () => {
-    @model("ValidatedModel/computed-property", types.object(() => ({ value: types.number })))
-    class M extends Model({}) {
-      get value(): number {
-        return 10
+    @model(
+      "ValidatedModel/computed-property",
+      types.object(() => ({ computedValue: types.integer }))
+    )
+    class M extends Model({
+      value: prop<number>(),
+    }) {
+      @computed
+      get computedValue(): number {
+        return this.value
       }
     }
 
-    expect(new M({}).typeCheck()).toBeNull()
+    expect(new M({ value: 10 }).typeCheck()).toBeNull()
+    expect(new M({ value: 10.5 }).typeCheck()).toEqual(
+      new TypeCheckError(["computedValue"], "integer<number>", 10.5)
+    )
   })
 
   test("child model", () => {
@@ -1348,7 +1365,127 @@ describe("model type validation", () => {
 
     const parent = new Parent({ child: new Child({ value: 10.5 }) })
     expect(parent.typeCheck()).toEqual(
-      new TypeCheckError(["child", "value"], `integer<number>`, 10.5)
+      new TypeCheckError(["child", "value"], "integer<number>", 10.5)
     )
+  })
+
+  test("reactive context", () => {
+    @model("ValidatedModel/reactive-context", types.object(() => ({ value: types.integer })))
+    class M extends Model({
+      value: prop<number>(),
+    }) {
+      @modelAction
+      setValue(value: number): void {
+        this.value = value
+      }
+    }
+
+    const m = new M({ value: 10 })
+
+    const errors: Array<TypeCheckError | null | undefined> = []
+    autoDispose(
+      reaction(
+        () => getValidationResult(m),
+        (error) => {
+          errors.push(error)
+        },
+        { fireImmediately: true }
+      )
+    )
+
+    m.setValue(10.5)
+    m.setValue(11.5)
+    m.setValue(11)
+
+    expect(errors).toEqual([
+      null,
+      new TypeCheckError(["value"], "integer<number>", 10.5),
+      new TypeCheckError(["value"], "integer<number>", 11.5),
+      null,
+    ])
+  })
+
+  test("reactive context with child models", () => {
+    @model(
+      "ValidatedModel/reactive-context-with-child-models/Child",
+      types.object(() => ({ value: types.integer }))
+    )
+    class Child extends Model({
+      value: prop<number>(),
+    }) {
+      @modelAction
+      setValue(value: number): void {
+        this.value = value
+      }
+    }
+
+    @model(
+      "ValidatedModel/reactive-context-with-child-models/Parent",
+      types.object(() => ({ child1: types.model<Child>(Child), child2: types.model<Child>(Child) }))
+    )
+    class Parent extends Model({
+      child1: prop<Child>(),
+      child2: prop<Child>(),
+    }) {}
+
+    const child1 = new Child({ value: 10 })
+    const child2 = new Child({ value: 20 })
+    const parent = new Parent({ child1, child2 })
+
+    const errors: Record<
+      "parent" | "child1" | "child2",
+      Array<TypeCheckError | null | undefined>
+    > = {
+      parent: [],
+      child1: [],
+      child2: [],
+    }
+    autoDispose(
+      reaction(
+        () => getValidationResult(parent),
+        (error) => {
+          errors.parent.push(error)
+        },
+        { fireImmediately: true }
+      )
+    )
+    autoDispose(
+      reaction(
+        () => getValidationResult(child1),
+        (error) => {
+          errors.child1.push(error)
+        },
+        { fireImmediately: true }
+      )
+    )
+    autoDispose(
+      reaction(
+        () => getValidationResult(child2),
+        (error) => {
+          errors.child2.push(error)
+        },
+        { fireImmediately: true }
+      )
+    )
+
+    child1.setValue(10.5)
+    child1.setValue(11.5)
+    child1.setValue(11)
+
+    expect(errors).toEqual({
+      parent: [
+        null,
+        new TypeCheckError(["child1", "value"], "integer<number>", 10.5),
+        new TypeCheckError(["child1", "value"], "integer<number>", 11.5),
+        null,
+      ],
+      child1: [
+        null,
+        new TypeCheckError(["value"], "integer<number>", 10.5),
+        new TypeCheckError(["value"], "integer<number>", 11.5),
+        null,
+      ],
+      child2: [null],
+    })
   })
 })
