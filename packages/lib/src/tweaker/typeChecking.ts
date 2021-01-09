@@ -7,6 +7,7 @@ import { findParent } from "../parent/findParent"
 import { internalApplyPatches } from "../patch/applyPatches"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { invalidateCachedTypeCheckerResult } from "../typeChecking/TypeChecker"
+import { throwTypeCheckErrors } from "../typeChecking/TypeCheckErrors"
 import { runWithoutSnapshotOrPatches } from "./core"
 
 /**
@@ -27,7 +28,7 @@ export function runTypeCheckingAfterChange(obj: object, patchRecorder: InternalP
           internalApplyPatches.call(obj, patchRecorder.invPatches, true)
         })
         // at the end of apply patches it will be type checked again and its result cached once more
-        err.throw(parentModelWithTypeChecker)
+        throwTypeCheckErrors(err, parentModelWithTypeChecker)
       }
     }
   }

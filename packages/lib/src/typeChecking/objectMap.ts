@@ -4,7 +4,7 @@ import { typesRecord } from "./record"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyStandardType, AnyType, IdentityType, TypeToData } from "./schemas"
 import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError } from "./TypeCheckErrors"
 
 /**
  * A type that represents an object-like map ObjectMap.
@@ -32,7 +32,7 @@ export function typesObjectMap<T extends AnyType>(
     const thisTc: TypeChecker = new TypeChecker(
       (obj, path) => {
         if (!(obj instanceof ObjectMap)) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj)
+          return createTypeCheckError(path, getTypeName(thisTc), obj)
         }
 
         const dataTypeChecker = typesObject(() => ({

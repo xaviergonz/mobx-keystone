@@ -1,6 +1,6 @@
 import { O } from "ts-toolbelt"
 import { Frozen } from "../frozen/Frozen"
-import { assertIsFunction, assertIsObject, isObject, lateVal } from "../utils"
+import { assertIsFunction, assertIsObject, isNonEmptyArray, isObject, lateVal } from "../utils"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyStandardType, AnyType, ObjectType, ObjectTypeFunction } from "./schemas"
 import {
@@ -11,7 +11,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError, mergeTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
@@ -41,20 +41,21 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
     const thisTc: TypeChecker = new TypeChecker(
       (obj, path) => {
         if (!isObject(obj) || (frozen && !(obj instanceof Frozen)))
-          return new TypeCheckError(path, getTypeName(thisTc), obj)
+          return createTypeCheckError(path, getTypeName(thisTc), obj)
 
         // note: we allow excess properties when checking objects
+        const valueErrors: TypeCheckErrors[] = []
         for (const [k, unresolvedTc] of schemaEntries) {
           const tc = resolveTypeChecker(unresolvedTc)
           const objVal = obj[k]
 
           const valueError = !tc.unchecked ? tc.check(objVal, [...path, k]) : null
           if (valueError) {
-            return valueError
+            valueErrors.push(valueError)
           }
         }
 
-        return null
+        return isNonEmptyArray(valueErrors) ? mergeTypeCheckErrors("and", valueErrors) : null
       },
       getTypeName,
       typeInfoGen

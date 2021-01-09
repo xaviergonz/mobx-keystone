@@ -9,12 +9,14 @@ import {
   ArraySetTypeInfo,
   ArrayTypeInfo,
   BooleanTypeInfo,
+  createTypeCheckError,
   customRef,
   frozen,
   FrozenTypeInfo,
   getTypeInfo,
   getValidationResult,
   LiteralTypeInfo,
+  mergeTypeCheckErrors,
   model,
   Model,
   modelAction,
@@ -42,7 +44,7 @@ import {
   tProp,
   TupleTypeInfo,
   typeCheck,
-  TypeCheckError,
+  TypeCheckErrors,
   TypeInfo,
   types,
   TypeToData,
@@ -105,10 +107,22 @@ function expectTypeCheckOk<T extends AnyType>(t: T, val: TypeToData<T>) {
   expect(err).toBeNull()
 }
 
-function expectTypeCheckFail<T extends AnyType>(t: T, val: any, path: Path, expected: string) {
+function expectTypeCheckFail<T extends AnyType>(t: T, val: any, errors: TypeCheckErrors): void
+function expectTypeCheckFail<T extends AnyType>(t: T, val: any, path: Path, expected: string): void
+function expectTypeCheckFail<T extends AnyType>(
+  t: T,
+  val: any,
+  ...errorInfo: [TypeCheckErrors] | [Path, string]
+): void {
   const err = typeCheck(t, val)
-  const { value: actualValue } = resolvePath(val, path, true)
-  expect(err).toEqual(new TypeCheckError(path, expected, actualValue))
+  if (errorInfo.length === 1) {
+    const [errors] = errorInfo
+    expect(err).toEqual(errors)
+  } else {
+    const [path, expected] = errorInfo
+    const { value: actualValue } = resolvePath(val, path, true)
+    expect(err).toEqual(createTypeCheckError(path, expected, actualValue))
+  }
 }
 
 function expectValidTypeInfo<TI extends TypeInfo>(
@@ -246,7 +260,14 @@ test("or - simple types", () => {
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
-  expectTypeCheckFail(type, "ho", [], "number | boolean")
+  expectTypeCheckFail(
+    type,
+    "ho",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], "number", "ho"),
+      createTypeCheckError([], "boolean", "ho"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypes).toEqual([types.number, types.boolean])
@@ -259,7 +280,14 @@ test("or - simple simple types", () => {
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
-  expectTypeCheckFail(type, "ho", [], "number | boolean")
+  expectTypeCheckFail(
+    type,
+    "ho",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], "number", "ho"),
+      createTypeCheckError([], "boolean", "ho"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypes).toEqual([types.number, types.boolean])
@@ -272,7 +300,14 @@ test("maybe", () => {
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, undefined)
-  expectTypeCheckFail(type, "ho", [], "number | undefined")
+  expectTypeCheckFail(
+    type,
+    "ho",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], "number", "ho"),
+      createTypeCheckError([], "undefined", "ho"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypes).toEqual([types.number, types.undefined])
@@ -285,7 +320,14 @@ test("maybeNull", () => {
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, null)
-  expectTypeCheckFail(type, "ho", [], "number | null")
+  expectTypeCheckFail(
+    type,
+    "ho",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], "number", "ho"),
+      createTypeCheckError([], "null", "ho"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypes).toEqual([types.number, types.null])
@@ -394,7 +436,14 @@ test("object - all optional simple types", () => {
 
   const expected = "{ x: number | undefined; y: string | undefined; }"
   expectTypeCheckFail(type, "ho", [], expected)
-  expectTypeCheckFail(type, { x: 5, y: 6 }, ["y"], "string | undefined")
+  expectTypeCheckFail(
+    type,
+    { x: 5, y: 6 },
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["y"], "string", 6),
+      createTypeCheckError(["y"], "undefined", 6),
+    ])
+  )
   // excess properties are allowed
   expectTypeCheckOk(type, { x: 5, y: "6" })
 
@@ -450,7 +499,7 @@ test("model", () => {
   expectTypeCheckFail(type, new MR({}), [], `Model(${m.$modelType})`)
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["$", "x"], "number")
-  expect(m.typeCheck()).toEqual(new TypeCheckError(["$", "x"], "number", "10"))
+  expect(m.typeCheck()).toEqual(createTypeCheckError(["$", "x"], "number", "10"))
 
   const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
   expect(typeInfo.modelClass).toBe(M)
@@ -580,6 +629,30 @@ test("array - undefined", () => {
   expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(types.undefined))
 })
 
+test("array - multiple errors", () => {
+  const type = types.array(types.number)
+  expectTypeCheckFail(
+    type,
+    ["1", true],
+    mergeTypeCheckErrors("and", [
+      createTypeCheckError([0], "number", "1"),
+      createTypeCheckError([1], "number", true),
+    ])
+  )
+})
+
+test("tuple - multiple errors", () => {
+  const type = types.tuple(types.number, types.string)
+  expectTypeCheckFail(
+    type,
+    ["1", 1],
+    mergeTypeCheckErrors("and", [
+      createTypeCheckError([0], "number", "1"),
+      createTypeCheckError([1], "string", 1),
+    ])
+  )
+})
+
 test("object - complex types", () => {
   const xType = types.maybe(types.number)
   const oType = types.object(() => ({
@@ -623,6 +696,18 @@ test("object - complex types", () => {
   } as ObjectTypeInfoProps)
 })
 
+test("object - multiple errors", () => {
+  const type = types.object(() => ({ x: types.number, y: types.number }))
+  expectTypeCheckFail(
+    type,
+    { x: "1", y: true },
+    mergeTypeCheckErrors("and", [
+      createTypeCheckError(["x"], "number", "1"),
+      createTypeCheckError(["y"], "number", true),
+    ])
+  )
+})
+
 test("record - complex types", () => {
   const valueType = types.object(() => ({
     y: types.string,
@@ -643,6 +728,18 @@ test("record - complex types", () => {
   expect(typeInfo.valueTypeInfo).toEqual(getTypeInfo(valueType))
 })
 
+test("record - multiple errors", () => {
+  const type = types.record(types.number)
+  expectTypeCheckFail(
+    type,
+    { x: "1", y: true },
+    mergeTypeCheckErrors("and", [
+      createTypeCheckError(["x"], "number", "1"),
+      createTypeCheckError(["y"], "number", true),
+    ])
+  )
+})
+
 test("or - complex types", () => {
   const typeA = types.object(() => ({
     y: types.string,
@@ -655,9 +752,22 @@ test("or - complex types", () => {
   expectTypeCheckOk(type, { y: "6" })
   expectTypeCheckOk(type, 6)
 
-  const expected = "{ y: string; } | number"
-  expectTypeCheckFail(type, "ho", [], expected)
-  expectTypeCheckFail(type, { y: 6 }, [], expected)
+  expectTypeCheckFail(
+    type,
+    "ho",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], "{ y: string; }", "ho"),
+      createTypeCheckError([], "number", "ho"),
+    ])
+  )
+  expectTypeCheckFail(
+    type,
+    { y: 6 },
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["y"], "string", 6),
+      createTypeCheckError([], "number", { y: 6 }),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypes).toEqual([typeA, typeB])
@@ -699,10 +809,20 @@ test("recursive object", () => {
 
   expectTypeCheckFail(
     type,
+    { x: 5, rec: "ho" },
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["rec"], "{ x: number; rec: ... | undefined; }", "ho"),
+      createTypeCheckError(["rec"], "undefined", "ho"),
+    ])
+  )
+  expectTypeCheckFail(
+    type,
     { x: 5, rec: { x: "6" } },
-    ["rec"],
-    // won't say anything of the wrong x because of the or (maybe) type
-    "{ x: number; rec: ...; } | undefined"
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["rec", "x"], "number", "6"),
+      createTypeCheckError(["rec"], "undefined", { x: "6" }),
+      // won't say anything about the missing nested `rec` because of the `or` (`maybe`) type
+    ])
   )
 
   const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
@@ -737,10 +857,29 @@ test("cross referenced object", () => {
 
   expectTypeCheckFail(
     typeA,
+    "ho",
+    [],
+    "{ x: number; b: { y: number; a: ... | undefined; } | undefined; }"
+  )
+  expectTypeCheckFail(
+    typeA,
+    { x: 5, b: "ho" },
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(
+        ["b"],
+        "{ y: number; a: { x: number; b: ... | undefined; } | undefined; }",
+        "ho"
+      ),
+      createTypeCheckError(["b"], "undefined", "ho"),
+    ])
+  )
+  expectTypeCheckFail(
+    typeA,
     { x: 5, b: { y: "6", a: undefined } },
-    ["b"],
-    // won't say anything of the wrong y because of the or (maybe) type
-    "{ y: number; a: { x: number; b: ...; } | undefined; } | undefined"
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["b", "y"], "number", "6"),
+      createTypeCheckError(["b"], "undefined", { y: "6", a: undefined }),
+    ])
   )
 
   {
@@ -788,7 +927,14 @@ test("recursive model", () => {
   expectTypeCheckOk(type, mr)
 
   mr.setRec("5" as any)
-  expectTypeCheckFail(type, mr, ["$", "rec"], "Model(MR) | undefined")
+  expectTypeCheckFail(
+    type,
+    mr,
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["$", "rec"], "Model(MR)", "5"),
+      createTypeCheckError(["$", "rec"], "undefined", "5"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
   expect(typeInfo.modelClass).toBe(MR)
@@ -838,7 +984,15 @@ test("cross referenced model", () => {
   expectTypeCheckOk(type, ma)
 
   ma.b!.setA("5" as any)
-  expectTypeCheckFail(type, ma, ["$", "b"], "Model(MB) | undefined")
+  expectTypeCheckFail(
+    type,
+    ma,
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["$", "b", "$", "a"], "Model(MA)", "5"),
+      createTypeCheckError(["$", "b", "$", "a"], "undefined", "5"),
+      createTypeCheckError(["$", "b"], "undefined", ma.b!),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
   expect(typeInfo.modelClass).toBe(MA)
@@ -921,7 +1075,14 @@ test("enum (string)", () => {
   assert(_ as TypeToData<typeof type>, _ as A)
 
   expectTypeCheckOk(type, A.X2)
-  expectTypeCheckFail(type, "X1", [], `"x1" | "x2"`)
+  expectTypeCheckFail(
+    type,
+    "X1",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], `"x1"`, "X1"),
+      createTypeCheckError([], `"x2"`, "X1"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypeInfos).toHaveLength(2)
@@ -944,7 +1105,14 @@ test("enum (number)", () => {
   assert(_ as TypeToData<typeof type>, _ as A)
 
   expectTypeCheckOk(type, A.X2)
-  expectTypeCheckFail(type, "X1", [], `0 | 1`)
+  expectTypeCheckFail(
+    type,
+    "X1",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], "0", "X1"),
+      createTypeCheckError([], "1", "X1"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypeInfos).toHaveLength(2)
@@ -969,7 +1137,15 @@ test("enum (mixed)", () => {
 
   expectTypeCheckOk(type, A.X15)
   expectTypeCheckOk(type, A.X2)
-  expectTypeCheckFail(type, "X1", [], `0 | "x15" | 6`)
+  expectTypeCheckFail(
+    type,
+    "X1",
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError([], "0", "X1"),
+      createTypeCheckError([], `"x15"`, "X1"),
+      createTypeCheckError([], "6", "X1"),
+    ])
+  )
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
   expect(typeInfo.orTypeInfos).toHaveLength(3)
@@ -1043,7 +1219,7 @@ test("refinement (complex)", () => {
   const type = types.refinement(sumObjType, (sum) => {
     const rightResult = sum.a + sum.b === sum.result
 
-    return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
+    return rightResult ? null : createTypeCheckError(["result"], "a+b", sum.result)
   })
   assert(_ as TypeToData<typeof type>, _ as { b: number; a: number; result: number })
 
@@ -1262,7 +1438,15 @@ test("syntax sugar for primitives in tProp", () => {
   ss.setUndef(undefined)
 
   ss.setOr({} as any)
-  expectTypeCheckFail(type, ss, ["$", "or"], "string | number | boolean")
+  expectTypeCheckFail(
+    type,
+    ss,
+    mergeTypeCheckErrors("or", [
+      createTypeCheckError(["$", "or"], "string", {}),
+      createTypeCheckError(["$", "or"], "number", {}),
+      createTypeCheckError(["$", "or"], "boolean", {}),
+    ])
+  )
   ss.setOr(5)
 })
 
@@ -1283,7 +1467,7 @@ describe("model type validation", () => {
 
     expect(new M({ value: 10 }).typeCheck()).toBeNull()
     expect(new M({ value: 10.5 }).typeCheck()).toEqual(
-      new TypeCheckError(["value"], "integer<number>", 10.5)
+      createTypeCheckError(["value"], "integer<number>", 10.5)
     )
   })
 
@@ -1310,11 +1494,10 @@ describe("model type validation", () => {
     expect(new M({ kind: "int", value: 10 }).typeCheck()).toBeNull()
     const m = new M({ kind: "int", value: 10.5 })
     expect(m.typeCheck()).toEqual(
-      new TypeCheckError(
-        [],
-        `{ kind: "float"; value: number; } | { kind: "int"; value: integer<number>; }`,
-        m
-      )
+      mergeTypeCheckErrors("or", [
+        createTypeCheckError(["kind"], `"float"`, "int"),
+        createTypeCheckError(["value"], `integer<number>`, 10.5),
+      ])
     )
   })
 
@@ -1343,7 +1526,7 @@ describe("model type validation", () => {
 
     expect(new M({ value: 10 }).typeCheck()).toBeNull()
     expect(new M({ value: 10.5 }).typeCheck()).toEqual(
-      new TypeCheckError(["computedValue"], "integer<number>", 10.5)
+      createTypeCheckError(["computedValue"], "integer<number>", 10.5)
     )
   })
 
@@ -1365,7 +1548,7 @@ describe("model type validation", () => {
 
     const parent = new Parent({ child: new Child({ value: 10.5 }) })
     expect(parent.typeCheck()).toEqual(
-      new TypeCheckError(["child", "value"], "integer<number>", 10.5)
+      createTypeCheckError(["child", "value"], "integer<number>", 10.5)
     )
   })
 
@@ -1382,7 +1565,7 @@ describe("model type validation", () => {
 
     const m = new M({ value: 10 })
 
-    const errors: Array<TypeCheckError | null | undefined> = []
+    const errors: Array<TypeCheckErrors | null | undefined> = []
     autoDispose(
       reaction(
         () => getValidationResult(m),
@@ -1399,8 +1582,8 @@ describe("model type validation", () => {
 
     expect(errors).toEqual([
       null,
-      new TypeCheckError(["value"], "integer<number>", 10.5),
-      new TypeCheckError(["value"], "integer<number>", 11.5),
+      createTypeCheckError(["value"], "integer<number>", 10.5),
+      createTypeCheckError(["value"], "integer<number>", 11.5),
       null,
     ])
   })
@@ -1434,7 +1617,7 @@ describe("model type validation", () => {
 
     const errors: Record<
       "parent" | "child1" | "child2",
-      Array<TypeCheckError | null | undefined>
+      Array<TypeCheckErrors | null | undefined>
     > = {
       parent: [],
       child1: [],
@@ -1475,14 +1658,14 @@ describe("model type validation", () => {
     expect(errors).toEqual({
       parent: [
         null,
-        new TypeCheckError(["child1", "value"], "integer<number>", 10.5),
-        new TypeCheckError(["child1", "value"], "integer<number>", 11.5),
+        createTypeCheckError(["child1", "value"], "integer<number>", 10.5),
+        createTypeCheckError(["child1", "value"], "integer<number>", 11.5),
         null,
       ],
       child1: [
         null,
-        new TypeCheckError(["value"], "integer<number>", 10.5),
-        new TypeCheckError(["value"], "integer<number>", 11.5),
+        createTypeCheckError(["value"], "integer<number>", 10.5),
+        createTypeCheckError(["value"], "integer<number>", 11.5),
         null,
       ],
       child2: [null],

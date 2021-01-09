@@ -1,33 +1,29 @@
+import fastDeepEqual from "fast-deep-equal/es6"
 import { createContext } from "../context"
 import { getRootPath } from "../parent/path"
-import { deepEquals } from "../treeUtils/deepEquals"
-import { TypeCheckError } from "./TypeCheckError"
+import { transformTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 
-export const validationContext = createContext<TypeCheckError | null>()
+export const validationContext = createContext<TypeCheckErrors | null>()
 
 /**
  * Gets the validation result for the subtree of a node with the type check error path relative to
  * the node.
  *
  * @param node Tree node.
- * @returns `TypeCheckError` if there is an error, `null` if there is no error, and `undefined` if
+ * @returns `TypeCheckErrors` if there are errors, `null` if there is no error, and `undefined` if
  * model type validation is not enabled in the global config.
  */
-export function getValidationResult(node: object): TypeCheckError | null | undefined {
-  const error = validationContext.get(node)
+export function getValidationResult(node: object): TypeCheckErrors | null | undefined {
+  const errors = validationContext.get(node)
 
-  if (!error) {
-    return error
+  if (!errors) {
+    return errors
   }
 
   const nodePath = getRootPath(node).path
-  if (deepEquals(nodePath, error.path.slice(0, nodePath.length))) {
-    return new TypeCheckError(
-      error.path.slice(getRootPath(node).path.length),
-      error.expectedTypeName,
-      error.actualValue
-    )
-  }
-
-  return null
+  return transformTypeCheckErrors(errors, (error) =>
+    fastDeepEqual(nodePath, error.path.slice(0, nodePath.length))
+      ? { ...error, path: error.path.slice(nodePath.length) }
+      : null
+  )
 }

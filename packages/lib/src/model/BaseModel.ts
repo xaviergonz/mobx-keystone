@@ -6,7 +6,7 @@ import { getSnapshot } from "../snapshot/getSnapshot"
 import { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
-import { TypeCheckError } from "../typeChecking/TypeCheckError"
+import { TypeCheckErrors } from "../typeChecking/TypeCheckErrors"
 import { assertIsObject } from "../utils"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
@@ -121,9 +121,9 @@ export abstract class BaseModel<
    * Performs a type check over the model instance.
    * For this to work a data type has to be declared in the model decorator.
    *
-   * @returns A `TypeCheckError` or `null` if there is no error.
+   * @returns A `TypeCheckErrors` or `null` if there is no error.
    */
-  typeCheck(): TypeCheckError | null {
+  typeCheck(): TypeCheckErrors | null {
     const type = typesModel<this>(this.constructor as any)
     return typeCheck(type, this as any)
   }

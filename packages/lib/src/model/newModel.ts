@@ -4,6 +4,7 @@ import { getGlobalConfig, isModelAutoTypeCheckingEnabled } from "../globalConfig
 import { getParent } from "../parent/path"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
+import { throwTypeCheckErrors } from "../typeChecking/TypeCheckErrors"
 import { validationContext } from "../typeChecking/validation"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelPropsCreationData } from "./BaseModel"
@@ -116,7 +117,7 @@ export const internalNewModel = action(
     if (isModelAutoTypeCheckingEnabled() && getModelDataType(modelClass)) {
       const err = modelObj.typeCheck()
       if (err) {
-        err.throw(modelObj)
+        throwTypeCheckErrors(err, modelObj)
       }
     }
 

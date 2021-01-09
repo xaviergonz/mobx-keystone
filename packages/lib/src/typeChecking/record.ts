@@ -1,8 +1,8 @@
-import { isObject } from "../utils"
+import { isNonEmptyArray, isObject } from "../utils"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyStandardType, AnyType, RecordType } from "./schemas"
 import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError, mergeTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 
 /**
  * A type that represents an object-like map, an object with string keys and values all of a same given type.
@@ -28,18 +28,20 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
 
     const thisTc: TypeChecker = new TypeChecker(
       (obj, path) => {
-        if (!isObject(obj)) return new TypeCheckError(path, getTypeName(thisTc), obj)
+        if (!isObject(obj)) return createTypeCheckError(path, getTypeName(thisTc), obj)
 
         if (!valueChecker.unchecked) {
+          const valueErrors: TypeCheckErrors[] = []
           const keys = Object.keys(obj)
           for (let i = 0; i < keys.length; i++) {
             const k = keys[i]
             const v = obj[k]
             const valueError = valueChecker.check(v, [...path, k])
             if (valueError) {
-              return valueError
+              valueErrors.push(valueError)
             }
           }
+          return isNonEmptyArray(valueErrors) ? mergeTypeCheckErrors("and", valueErrors) : null
         }
 
         return null

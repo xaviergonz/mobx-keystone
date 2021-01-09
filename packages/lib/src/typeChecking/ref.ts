@@ -4,7 +4,7 @@ import { typesString } from "./primitives"
 import { resolveTypeChecker } from "./resolveTypeChecker"
 import { IdentityType } from "./schemas"
 import { TypeChecker, TypeInfo } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError } from "./TypeCheckErrors"
 
 /**
  * A type that represents a reference to an object or model.
@@ -30,7 +30,7 @@ const refDataTypeChecker = typesObject(() => ({
 const refTypeChecker = new TypeChecker(
   (value, path) => {
     if (!(value instanceof Ref)) {
-      return new TypeCheckError(path, typeName, value)
+      return createTypeCheckError(path, typeName, value)
     }
 
     const resolvedTc = resolveTypeChecker(refDataTypeChecker)
