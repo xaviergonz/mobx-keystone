@@ -32,36 +32,17 @@ test("isTypeCheckErrorExpression", () => {
 
 describe("mergeTypeCheckErrors", () => {
   test("one argument", () => {
-    const error: TypeCheckErrors = {
-      path: [],
-      expectedTypeName: "number",
-      actualValue: "abc",
-    }
+    const error = createTypeCheckError([], "number", "abc")
     expect(mergeTypeCheckErrors("and", [error])).toStrictEqual(error)
   })
 
   test("two arguments (not same operator)", () => {
     const errors: ReadonlyNonEmptyArray<TypeCheckErrors> = [
-      {
-        path: ["x"],
-        expectedTypeName: "number",
-        actualValue: "x",
-      },
-      {
-        op: "or",
-        args: [
-          {
-            path: ["y"],
-            expectedTypeName: "number",
-            actualValue: "y",
-          },
-          {
-            path: ["y"],
-            expectedTypeName: "undefined",
-            actualValue: "y",
-          },
-        ],
-      },
+      createTypeCheckError(["x"], "number", "x"),
+      mergeTypeCheckErrors("or", [
+        createTypeCheckError(["y"], "number", "y"),
+        createTypeCheckError(["y"], "undefined", "y"),
+      ]),
     ]
     expect(mergeTypeCheckErrors("and", errors)).toStrictEqual({ op: "and", args: errors })
   })
@@ -69,47 +50,19 @@ describe("mergeTypeCheckErrors", () => {
   test("two arguments (same operator)", () => {
     expect(
       mergeTypeCheckErrors("and", [
-        {
-          path: ["x"],
-          expectedTypeName: "number",
-          actualValue: "x",
-        },
-        {
-          op: "and",
-          args: [
-            {
-              path: ["y", "a"],
-              expectedTypeName: "number",
-              actualValue: "a",
-            },
-            {
-              path: ["y", "b"],
-              expectedTypeName: "number",
-              actualValue: "b",
-            },
-          ],
-        },
+        createTypeCheckError(["x"], "number", "x"),
+        mergeTypeCheckErrors("and", [
+          createTypeCheckError(["y", "a"], "number", "a"),
+          createTypeCheckError(["y", "b"], "number", "b"),
+        ]),
       ])
-    ).toStrictEqual({
-      op: "and",
-      args: [
-        {
-          path: ["x"],
-          expectedTypeName: "number",
-          actualValue: "x",
-        },
-        {
-          path: ["y", "a"],
-          expectedTypeName: "number",
-          actualValue: "a",
-        },
-        {
-          path: ["y", "b"],
-          expectedTypeName: "number",
-          actualValue: "b",
-        },
-      ],
-    })
+    ).toStrictEqual(
+      mergeTypeCheckErrors("and", [
+        createTypeCheckError(["x"], "number", "x"),
+        createTypeCheckError(["y", "a"], "number", "a"),
+        createTypeCheckError(["y", "b"], "number", "b"),
+      ])
+    )
   })
 })
 
@@ -128,36 +81,18 @@ test("transformTypeCheckErrors", () => {
 
 describe("getTypeCheckErrorMessage", () => {
   test("single error", () => {
-    expect(
-      getTypeCheckErrorMessage(
-        {
-          path: [],
-          expectedTypeName: "number",
-          actualValue: "abc",
-        },
-        "abc"
-      )
-    ).toBe("[/] Expected: number")
+    expect(getTypeCheckErrorMessage(createTypeCheckError([], "number", "abc"), "abc")).toBe(
+      "[/] Expected: number"
+    )
   })
 
   test("error expression - simple", () => {
     expect(
       getTypeCheckErrorMessage(
-        {
-          op: "and",
-          args: [
-            {
-              path: ["x"],
-              expectedTypeName: "number",
-              actualValue: "x",
-            },
-            {
-              path: ["y"],
-              expectedTypeName: "number",
-              actualValue: "y",
-            },
-          ],
-        },
+        mergeTypeCheckErrors("and", [
+          createTypeCheckError(["x"], "number", "x"),
+          createTypeCheckError(["y"], "number", "y"),
+        ]),
         {
           x: "x",
           y: "y",
@@ -175,41 +110,16 @@ describe("getTypeCheckErrorMessage", () => {
   test("error expression - complex", () => {
     expect(
       getTypeCheckErrorMessage(
-        {
-          op: "or",
-          args: [
-            {
-              op: "and",
-              args: [
-                {
-                  path: ["kind"],
-                  expectedTypeName: '"float"',
-                  actualValue: '"boolean"',
-                },
-                {
-                  path: ["value"],
-                  expectedTypeName: "number",
-                  actualValue: true,
-                },
-              ],
-            },
-            {
-              op: "and",
-              args: [
-                {
-                  path: ["kind"],
-                  expectedTypeName: '"int"',
-                  actualValue: '"boolean"',
-                },
-                {
-                  path: ["value"],
-                  expectedTypeName: "integer<number>",
-                  actualValue: true,
-                },
-              ],
-            },
-          ],
-        },
+        mergeTypeCheckErrors("or", [
+          mergeTypeCheckErrors("and", [
+            createTypeCheckError(["kind"], `"float"`, `"boolean"`),
+            createTypeCheckError(["value"], "number", true),
+          ]),
+          mergeTypeCheckErrors("and", [
+            createTypeCheckError(["kind"], `"int"`, `"boolean"`),
+            createTypeCheckError(["value"], "integer<number>", true),
+          ]),
+        ]),
         {
           kind: "boolean",
           value: true,
