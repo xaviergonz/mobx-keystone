@@ -33,7 +33,7 @@ test("isTypeCheckErrorExpression", () => {
 describe("mergeTypeCheckErrors", () => {
   test("one argument", () => {
     const error = createTypeCheckError([], "number", "abc")
-    expect(mergeTypeCheckErrors("and", [error])).toStrictEqual(error)
+    expect(mergeTypeCheckErrors("and", [error])).toEqual(error)
   })
 
   test("two arguments (not same operator)", () => {
@@ -44,7 +44,7 @@ describe("mergeTypeCheckErrors", () => {
         createTypeCheckError(["y"], "undefined", "y"),
       ]),
     ]
-    expect(mergeTypeCheckErrors("and", errors)).toStrictEqual({ op: "and", args: errors })
+    expect(mergeTypeCheckErrors("and", errors)).toEqual({ op: "and", args: errors })
   })
 
   test("two arguments (same operator)", () => {
@@ -56,7 +56,7 @@ describe("mergeTypeCheckErrors", () => {
           createTypeCheckError(["y", "b"], "number", "b"),
         ]),
       ])
-    ).toStrictEqual(
+    ).toEqual(
       mergeTypeCheckErrors("and", [
         createTypeCheckError(["x"], "number", "x"),
         createTypeCheckError(["y", "a"], "number", "a"),
