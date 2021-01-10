@@ -10,6 +10,9 @@ test("typed object", () => {
 
   fnObject.delete(obj, "a")
   expect(obj.a).toBe(undefined)
+
+  fnObject.assign(obj, { a: 3 })
+  expect(obj.a).toBe(3)
 })
 
 test("untyped object", () => {
@@ -21,9 +24,12 @@ test("untyped object", () => {
 
   fnObject.delete(obj, "b")
   expect(obj.b).toBe(undefined)
+
+  fnObject.assign(obj, { b: 3 })
+  expect(obj.b).toBe(3)
 })
 
-test("call", () => {
+test("over a model", () => {
   @model(`${test.name}/M`)
   class M extends Model({ x: prop(10) }) {
     // without action
@@ -46,4 +52,7 @@ test("call", () => {
 
   expect(fnObject.call(m, "setXAction", 30)).toBe(30)
   expect(m.x).toBe(30)
+
+  fnObject.set(m, "x", 40)
+  expect(m.x).toBe(40)
 })

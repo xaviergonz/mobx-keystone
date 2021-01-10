@@ -206,11 +206,13 @@ await myBookStore.fetchMyBooksAsync("someToken")
 ## Predefined `fnObject` and `fnArray`
 
 In order to work over object and arrays in a functional matter without requiring declaring custom actions you can use the already predefined `fnObject` and `fnArray`.
+Note: these also work over class models.
 
 `fnObject` works over any kind of objects (including model themselves!) and offers:
 
 - `set(obj, key, value)` to set a key.
 - `delete(obj, key)` to delete a key.
+- `assign(obj, partialObj)` to assign values (similar to `Object.assign`).
 - `call(methodName, ...args)` to call a method.
 
 `fnArray` works over arrays and offers:
