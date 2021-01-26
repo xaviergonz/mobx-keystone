@@ -14,7 +14,7 @@
     "benchmark": "^2.1.4",
     "chalk": "^4.0.0",
     "mobx": "^6.0.1",
-    "mobx-state-tree": "^4.0.2"
+    "mobx-state-tree": "^5.0.0"
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.0",
