@@ -1,5 +1,6 @@
 # Change Log
 
+- [BREAKING CHANGE] The sandbox manager's `withSandbox` method now requires an array of nodes from the original tree and the corresponding sandbox nodes are now positional arguments of the callback function.
 - Added `assign` to `fnObject`.
 
 ## 0.48.4

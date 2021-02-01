@@ -42,7 +42,7 @@ const numSandbox = sandbox(num)
 The sandbox manager `numSandbox` can now be used to test assigning a new value by performing the `setValue` action on a copy of `num` and validating the result using the computed property `isValid`.
 
 ```ts
-const isValid = numSandbox.withSandbox(num, (numCopy) => {
+const isValid = numSandbox.withSandbox([num], (numCopy) => {
   numCopy.setValue(2)
   return { commit: false, return: numCopy.isValid }
 })
@@ -68,7 +68,7 @@ const store = new NumberStore({
 })
 
 const storeSandbox = sandbox(store)
-storeSandbox.withSandbox([store.a, store.b], ([a, b]) => {
+storeSandbox.withSandbox([store.a, store.b], (a, b) => {
   // ...
 })
 ```
@@ -76,11 +76,11 @@ storeSandbox.withSandbox([store.a, store.b], ([a, b]) => {
 `withSandbox` calls can be nested:
 
 ```ts
-const isValid = numSandbox.withSandbox(num, (numCopy1) => {
+const isValid = numSandbox.withSandbox([num], (numCopy1) => {
   numCopy1.setValue(2)
 
   const isValid1 = numCopy1.isValid
-  const isValid2 = numSandbox.withSandbox(numCopy1, (numCopy2) => {
+  const isValid2 = numSandbox.withSandbox([numCopy1], (numCopy2) => {
     numCopy2.setValue(numCopy2.value * 2)
     return { commit: false, return: numCopy2.isValid }
   })
@@ -93,16 +93,16 @@ When nesting `withSandbox` calls, the node for which the corresponding sandbox n
 
 ```ts
 // good:
-numSandbox.withSandbox(num, (numCopy1) => {
-  numSandbox.withSandbox(numCopy1, (numCopy2) => {
+numSandbox.withSandbox([num], (numCopy1) => {
+  numSandbox.withSandbox([numCopy1], (numCopy2) => {
     // ...
   })
   // ...
 })
 
 // bad:
-numSandbox.withSandbox(num, (numCopy1) => {
-  numSandbox.withSandbox(num, (numCopy2) => {
+numSandbox.withSandbox([num], (numCopy1) => {
+  numSandbox.withSandbox([num], (numCopy2) => {
     // ...
   })
   // ...
@@ -112,15 +112,15 @@ numSandbox.withSandbox(num, (numCopy1) => {
 When changes made in nested `withSandbox` calls are to be committed, only the outermost `withSandbox` call commits changes to the original subtree. Changes made in any inner `withSandbox` call are either retained or rolled back depending on the commit flag. E.g.:
 
 ```ts
-numSandbox.withSandbox(num, (numCopy1) => {
+numSandbox.withSandbox([num], (numCopy1) => {
   // numCopy1.value => 0
   numCopy1.setValue(1)
   // numCopy1.value => 1
-  numSandbox.withSandbox(numCopy1, (numCopy2) => {
+  numSandbox.withSandbox([numCopy1], (numCopy2) => {
     // numCopy2.value => 1
     numCopy2.setValue(2)
     // numCopy2.value => 2
-    numSandbox.withSandbox(numCopy2, (numCopy3) => {
+    numSandbox.withSandbox([numCopy2], (numCopy3) => {
       // numCopy3.value => 2
       numCopy3.setValue(3)
       // numCopy3.value => 3
@@ -139,7 +139,7 @@ The sandbox copy of a subtree root node tracks the [root store](../rootStores) s
 
 The `sandbox` function generates an instance with the following methods:
 
-- `withSandbox<T extends object | [object], R = void>(node: T, fn: (node: T) => boolean | { commit: boolean; return: R }): R` - Executes `fn` with a sandbox copy of `node`. Any changes made to the sandbox are applied to the original subtree when `fn` returns `true` or `{ commit: true, ... }`. When `fn` returns `false` or `{ commit: false, ... }` the changes made to the sandbox are rejected. When `fn` returns an object of type `{ commit: boolean; return: R }` then `withSandbox` returns a value of type `R`.
+- `withSandbox<T extends [object, ...object[]], R = void>(nodes: T, fn: (...nodes: T) => boolean | { commit: boolean; return: R }): R` - Executes `fn` with sandbox copies of the elements of `nodes`. Any changes made to the sandbox are applied to the original subtree when `fn` returns `true` or `{ commit: true, ... }`. When `fn` returns `false` or `{ commit: false, ... }` the changes made to the sandbox are rejected. When `fn` returns an object of type `{ commit: boolean; return: R }` then `withSandbox` returns a value of type `R`.
 - `dispose()` - Disposes of the sandbox.
 
 ### Checking if a node is sandboxed / getting a node sandbox manager
@@ -190,7 +190,7 @@ class ItemStore extends Model({
   }
 
   canAddItem(item: Item): boolean {
-    return !!sandboxCtx.get(this)?.withSandbox(this, (node) => {
+    return !!sandboxCtx.get(this)?.withSandbox([this], (node) => {
       node.addItem(item)
       return { commit: false, return: node.errors.length === 0 }
     })

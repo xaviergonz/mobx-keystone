@@ -48,33 +48,33 @@ test("withSandbox can be called with one node or a tuple of nodes", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(a, (node) => {
+  manager.withSandbox([a], (node) => {
     assert(node, _ as A)
     expect(node.$modelType).toBe("A")
     return false
   })
 
-  manager.withSandbox([a], (nodes) => {
+  manager.withSandbox([a], (...nodes) => {
     assert(nodes, _ as [A])
     expect(nodes[0].$modelType).toBe("A")
     return false
   })
 
-  manager.withSandbox([a, a], (nodes) => {
+  manager.withSandbox([a, a], (...nodes) => {
     assert(nodes, _ as [A, A])
     expect(nodes[0].$modelType).toBe("A")
     expect(nodes[1].$modelType).toBe("A")
     return false
   })
 
-  manager.withSandbox([a, a.b], (nodes) => {
+  manager.withSandbox([a, a.b], (...nodes) => {
     assert(nodes, _ as [A, B])
     expect(nodes[0].$modelType).toBe("A")
     expect(nodes[1].$modelType).toBe("B")
     return false
   })
 
-  manager.withSandbox([a.b, a], (nodes) => {
+  manager.withSandbox([a.b, a], (...nodes) => {
     assert(nodes, _ as [B, A])
     expect(nodes[0].$modelType).toBe("B")
     expect(nodes[1].$modelType).toBe("A")
@@ -91,7 +91,7 @@ test("withSandbox can be called with an array node", () => {
   const manager = sandbox(r)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(r.a, (node) => {
+  manager.withSandbox([r.a], (node) => {
     assert(node, _ as A[])
     expect(node).toHaveLength(2)
     expect(isTweakedObject(node, false)).toBeTruthy()
@@ -106,7 +106,7 @@ test("withSandbox callback is called when node is a child of subtreeRoot", () =>
 
   let called = false
 
-  manager.withSandbox(a, () => {
+  manager.withSandbox([a], () => {
     called = true
     return false
   })
@@ -119,7 +119,7 @@ test("withSandbox throws a failure when node is not a child of subtreeRoot", () 
   autoDispose(() => manager.dispose())
 
   expect(() => {
-    manager.withSandbox(a, () => false)
+    manager.withSandbox([a], () => false)
   }).toThrow("node is not a child of subtreeRoot")
 })
 
@@ -128,7 +128,7 @@ test("sandbox copy reuses IDs from original tree", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(a, (node) => {
+  manager.withSandbox([a], (node) => {
     expect(node.$modelId).toBe(a.$modelId)
     expect(node.b.$modelId).toBe(a.b.$modelId)
     return false
@@ -141,7 +141,7 @@ test("original tree must not be changed while withSandbox executes", () => {
   autoDispose(() => manager.dispose())
 
   expect(() =>
-    manager.withSandbox(a.b, () => {
+    manager.withSandbox([a.b], () => {
       a.b.setValue(2)
       return false
     })
@@ -158,9 +158,9 @@ test.each<[boolean, boolean]>([
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(a.b, (node1) => {
+  manager.withSandbox([a.b], (node1) => {
     node1.setValue(1)
-    manager.withSandbox(node1, (node2) => {
+    manager.withSandbox([node1], (node2) => {
       expect(node2.value).toBe(1)
       node2.setValue(2)
       return commitInner
@@ -172,7 +172,7 @@ test.each<[boolean, boolean]>([
   const expectedValue = commitOuter ? (commitInner ? 2 : 1) : 0
 
   expect(a.b.value).toBe(expectedValue)
-  manager.withSandbox(a.b, (node1) => {
+  manager.withSandbox([a.b], (node1) => {
     expect(node1.value).toBe(expectedValue)
     return false
   })
@@ -183,9 +183,9 @@ test("nested withSandbox call requires sandbox node", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(a.b, () => {
+  manager.withSandbox([a.b], () => {
     expect(() =>
-      manager.withSandbox(a.b, () => {
+      manager.withSandbox([a.b], () => {
         return false
       })
     ).toThrow("node is not a child of subtreeRootClone")
@@ -204,7 +204,7 @@ test("sandbox node is a root store if original subtree root is a root store", ()
   autoDispose(() => manager.dispose())
 
   expect(isRootStore(a)).toBeFalsy()
-  manager.withSandbox(a, (node) => {
+  manager.withSandbox([a], (node) => {
     expect(isRootStore(node)).toBeFalsy()
     return false
   })
@@ -212,7 +212,7 @@ test("sandbox node is a root store if original subtree root is a root store", ()
   registerRootStore(a)
 
   expect(isRootStore(a)).toBeTruthy()
-  manager.withSandbox(a, (node) => {
+  manager.withSandbox([a], (node) => {
     expect(isRootStore(node)).toBeTruthy()
     return false
   })
@@ -220,7 +220,7 @@ test("sandbox node is a root store if original subtree root is a root store", ()
   unregisterRootStore(a)
 
   expect(isRootStore(a)).toBeFalsy()
-  manager.withSandbox(a, (node) => {
+  manager.withSandbox([a], (node) => {
     expect(isRootStore(node)).toBeFalsy()
     return false
   })
@@ -231,14 +231,14 @@ test("sandbox is patched when original tree changes", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(0)
     return false
   })
 
   a.b.setValue(1)
 
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(1)
     return false
   })
@@ -249,7 +249,7 @@ test("changes in sandbox can be applied to original tree", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     node.setValue(1)
     expect(a.b.value).toBe(0)
     expect(node.value).toBe(1)
@@ -262,7 +262,7 @@ test("changes in sandbox can be applied to original tree", () => {
   })
   expect(a.b.value).toBe(2)
 
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(2)
     return false
   })
@@ -273,7 +273,7 @@ test("changes in sandbox can be rejected", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     node.setValue(1)
     expect(a.b.value).toBe(0)
     expect(node.value).toBe(1)
@@ -286,7 +286,7 @@ test("changes in sandbox can be rejected", () => {
   })
   expect(a.b.value).toBe(0)
 
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(0)
     return false
   })
@@ -298,7 +298,7 @@ test("changes in sandbox are rejected when fn throws", () => {
   autoDispose(() => manager.dispose())
 
   expect(() => {
-    manager.withSandbox(a.b, (node) => {
+    manager.withSandbox([a.b], (node) => {
       node.setValue(1)
       expect(a.b.value).toBe(0)
       expect(node.value).toBe(1)
@@ -308,7 +308,7 @@ test("changes in sandbox are rejected when fn throws", () => {
 
   expect(a.b.value).toBe(0)
 
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(0)
     return false
   })
@@ -319,7 +319,7 @@ test("withSandbox can return value from fn", () => {
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
 
-  const returnValue1 = manager.withSandbox(a.b, (node) => {
+  const returnValue1 = manager.withSandbox([a.b], (node) => {
     node.setValue(1)
     return { commit: false, return: 123 }
   })
@@ -327,7 +327,7 @@ test("withSandbox can return value from fn", () => {
   expect(returnValue1).toBe(123)
   expect(a.b.value).toBe(0)
 
-  const returnValue2 = manager.withSandbox(a.b, (node) => {
+  const returnValue2 = manager.withSandbox([a.b], (node) => {
     node.setValue(1)
     return { commit: true, return: { x: "x" } }
   })
@@ -342,7 +342,7 @@ test("sandbox cannot be changed outside of fn", () => {
   autoDispose(() => manager.dispose())
 
   let n!: B
-  manager.withSandbox(a.b, (node) => {
+  manager.withSandbox([a.b], (node) => {
     n = node
     return false
   })
@@ -440,7 +440,7 @@ test("sanboxed nodes can check if they are sandboxed", () => {
   expect(a.b.isSandboxed).toBe(false)
   a.b.shouldBeSandboxed(false)
 
-  manager.withSandbox(a, (sa) => {
+  manager.withSandbox([a], (sa) => {
     expect(getNodeSandboxManager(sa)).toBe(manager)
     expect(isSandboxedNode(sa)).toBe(true)
     expect(getNodeSandboxManager(sa.b)).toBe(manager)
