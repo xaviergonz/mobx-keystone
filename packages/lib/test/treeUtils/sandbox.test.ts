@@ -510,4 +510,44 @@ test("sandbox commit patches are grouped in a single undo item", () => {
 
   expect(undoManager.undoLevels).toBe(1)
   expect(undoManager.redoLevels).toBe(0)
+  expect(undoManager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "$$applyPatches",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 0,
+          },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 1,
+          },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 2,
+          },
+        ],
+        "targetPath": Array [],
+      },
+    ]
+  `)
 })
