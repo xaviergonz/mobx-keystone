@@ -95,14 +95,8 @@ export const internalNewModel = action(
       { parent: modelObj, path: "$" },
       modelObj[modelTypeKey],
       false,
-      true
+      true,
     )
-
-    // hide $.$modelId
-    Object.defineProperty(obsData, modelIdKey, {
-      ...Object.getOwnPropertyDescriptor(obsData, modelIdKey),
-      enumerable: false,
-    })
 
     // link it, and make it readonly
     modelObj.$ = obsData

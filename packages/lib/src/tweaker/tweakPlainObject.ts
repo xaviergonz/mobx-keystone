@@ -5,7 +5,7 @@ import {
   isObservableObject,
   observable,
   observe,
-  set,
+  set
 } from "mobx"
 import { assertCanWrite } from "../action/protection"
 import { modelTypeKey } from "../model/metadata"

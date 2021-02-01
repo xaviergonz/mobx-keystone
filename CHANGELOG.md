@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.48.5
+
+- Fixed incompatibility with MobX >= 6.1 (in order to fix it `$modelId` is now an enumerable property though).
 - Added `assign` to `fnObject`.
 
 ## 0.48.4

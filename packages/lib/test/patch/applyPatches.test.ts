@@ -160,16 +160,17 @@ describe("array", () => {
 
 describe("whole object", () => {
   test("add", () => {
+    const newSn = { ...getSnapshot(p.p2), $modelId: "some other id" } // since we can't have two objects with the same type and id under the same tree
     runUnprotected(() => {
       applyPatches(p, [
         {
           op: "add",
           path: ["p3"],
-          value: { ...getSnapshot(p.p2), $modelId: "some other id" }, // since we can't have two objects with the same type and id under the same tree
+          value: newSn
         },
       ])
     })
-    expect((p.$ as any).p3).toStrictEqual(p.p2!)
+    expect(getSnapshot((p.$ as any).p3)).toStrictEqual(newSn)
   })
 
   test("remove", () => {
