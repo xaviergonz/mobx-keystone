@@ -1,6 +1,7 @@
 # Change Log
 
 - [BREAKING CHANGE] The sandbox manager's `withSandbox` method now requires an array of nodes from the original tree and the corresponding sandbox nodes are now positional arguments of the callback function.
+- Fixed the sandbox to group commit patches so that the undo manager will undo the commit in a single step.
 - Added `assign` to `fnObject`.
 
 ## 0.48.4

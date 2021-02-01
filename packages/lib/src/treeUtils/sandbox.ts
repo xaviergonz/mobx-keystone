@@ -7,6 +7,7 @@ import { createContext } from "../context"
 import { getParentToChildPath, resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { onPatches } from "../patch/emitPatch"
+import { Patch } from "../patch/Patch"
 import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
 import { isRootStore, registerRootStore, unregisterRootStore } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
@@ -214,23 +215,25 @@ export class SandboxManager {
         recorder.dispose()
         this.withSandboxPatchRecorder = undefined
       }
-      runInAction(() => {
-        if (commit) {
-          if (!isNestedWithSandboxCall) {
-            const len = recorder.events.length
-            for (let i = 0; i < len; i++) {
-              applyPatches(this.subtreeRoot, recorder.events[i].patches)
-            }
+      if (commit) {
+        if (!isNestedWithSandboxCall) {
+          const patches: Patch[] = []
+          const len = recorder.events.length
+          for (let i = 0; i < len; i++) {
+            patches.push(...recorder.events[i].patches)
           }
-        } else {
-          this.allowWrite(() => {
+          applyPatches(this.subtreeRoot, patches)
+        }
+      } else {
+        this.allowWrite(() => {
+          runInAction(() => {
             let i = recorder.events.length
             while (i-- > numRecorderEvents) {
               applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)
             }
           })
-        }
-      })
+        })
+      }
     }
 
     return { sandboxNodes, applyRecorderChanges }
