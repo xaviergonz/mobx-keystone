@@ -1,5 +1,6 @@
 # Change Log
 
+- Fixed the sandbox to group commit patches so that the undo manager will undo the commit in a single step.
 - Added `assign` to `fnObject`.
 
 ## 0.48.4
