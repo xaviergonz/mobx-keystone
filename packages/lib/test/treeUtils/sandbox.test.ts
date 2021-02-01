@@ -16,6 +16,7 @@ import {
   runUnprotected,
   sandbox,
   SandboxManager,
+  undoMiddleware,
   unregisterRootStore,
 } from "../../src"
 import "../commonSetup"
@@ -491,4 +492,62 @@ test("isSandboxedNode recognizes ref/prev/next to all be sandboxed nodes or not 
   runUnprotected(() => {
     r.a = undefined
   })
+})
+
+test("sandbox commit patches are grouped in a single undo item", () => {
+  const b = new B({ value: 0 })
+  const sandboxManager = sandbox(b)
+  const undoManager = undoMiddleware(b)
+
+  expect(undoManager.undoLevels).toBe(0)
+  expect(undoManager.redoLevels).toBe(0)
+
+  sandboxManager.withSandbox(b, (node) => {
+    node.setValue(1)
+    node.setValue(2)
+    return { return: undefined, commit: true }
+  })
+
+  expect(undoManager.undoLevels).toBe(1)
+  expect(undoManager.redoLevels).toBe(0)
+  expect(undoManager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "actionName": "$$applyPatches",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 0,
+          },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 1,
+          },
+          Object {
+            "op": "replace",
+            "path": Array [
+              "value",
+            ],
+            "value": 2,
+          },
+        ],
+        "targetPath": Array [],
+      },
+    ]
+  `)
 })
