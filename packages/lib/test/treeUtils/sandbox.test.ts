@@ -502,7 +502,7 @@ test("sandbox commit patches are grouped in a single undo item", () => {
   expect(undoManager.undoLevels).toBe(0)
   expect(undoManager.redoLevels).toBe(0)
 
-  sandboxManager.withSandbox(b, (node) => {
+  sandboxManager.withSandbox([b], (node) => {
     node.setValue(1)
     node.setValue(2)
     return { return: undefined, commit: true }
