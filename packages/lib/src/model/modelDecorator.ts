@@ -7,7 +7,7 @@ import {
   getMobxVersion,
   logWarning,
   mobx6,
-  runLateInitializationFunctions
+  runLateInitializationFunctions,
 } from "../utils"
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
@@ -68,9 +68,9 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
         // was rejected on the mobx side
         if (
           err.message !==
-          "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" && 
+            "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
           err.message !==
-          "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
+            "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
         ) {
           throw err
         }

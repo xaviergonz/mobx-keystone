@@ -95,7 +95,7 @@ export const internalNewModel = action(
       { parent: modelObj, path: "$" },
       modelObj[modelTypeKey],
       false,
-      true,
+      true
     )
 
     // link it, and make it readonly

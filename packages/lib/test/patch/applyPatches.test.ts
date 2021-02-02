@@ -166,7 +166,7 @@ describe("whole object", () => {
         {
           op: "add",
           path: ["p3"],
-          value: newSn
+          value: newSn,
         },
       ])
     })
