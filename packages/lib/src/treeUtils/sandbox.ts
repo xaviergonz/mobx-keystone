@@ -11,7 +11,7 @@ import { Patch } from "../patch/Patch"
 import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
 import { isRootStore, registerRootStore, unregisterRootStore } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
-import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
+import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, failure } from "../utils"
 
 /**
@@ -42,8 +42,8 @@ export function isSandboxedNode(node: object): boolean {
 /**
  * Callback function for `SandboxManager.withSandbox`.
  */
-export type WithSandboxCallback<T extends object | [object], R> = (
-  node: T
+export type WithSandboxCallback<T extends readonly [object, ...object[]], R> = (
+  ...nodes: T
 ) => boolean | { commit: boolean; return: R }
 
 /**
@@ -136,32 +136,33 @@ export class SandboxManager {
   }
 
   /**
-   * Executes `fn` with a sandbox copy of `node`. The changes made to the sandbox in `fn` can be
-   * accepted, i.e. applied to the original subtree, or rejected.
+   * Executes `fn` with sandbox copies of the elements of `nodes`. The changes made to the sandbox
+   * in `fn` can be accepted, i.e. applied to the original subtree, or rejected.
    *
    * @typeparam T Object type.
    * @typeparam R Return type.
-   * @param node Object or tuple of objects for which to obtain a sandbox copy.
-   * @param fn Function that is called with a sandbox copy of `node`. Any changes made to the
-   * sandbox are applied to the original subtree when `fn` returns `true` or
+   * @param nodes Tuple of objects for which to obtain sandbox copies.
+   * @param fn Function that is called with sandbox copies of the elements of `nodes`. Any changes
+   * made to the sandbox are applied to the original subtree when `fn` returns `true` or
    * `{ commit: true, ... }`. When `fn` returns `false` or `{ commit: false, ... }` the changes made
    * to the sandbox are rejected.
    * @returns Value of type `R` when `fn` returns an object of type `{ commit: boolean; return: R }`
    * or `void` when `fn` returns a boolean.
    */
-  withSandbox<T extends object | [object], R = void>(node: T, fn: WithSandboxCallback<T, R>): R {
+  withSandbox<T extends readonly [object, ...object[]], R = void>(
+    nodes: T,
+    fn: WithSandboxCallback<T, R>
+  ): R {
+    for (let i = 0; i < nodes.length; i++) {
+      assertTweakedObject(nodes[i], `nodes[${i}]`)
+    }
     assertIsFunction(fn, "fn")
-
-    const isNodesArray = Array.isArray(node) && !isTweakedObject(node, false)
-    const nodes: T[] = isNodesArray ? (node as T[]) : [node]
 
     const { sandboxNodes, applyRecorderChanges } = this.prepareSandboxChanges(nodes)
 
     let commit = false
     try {
-      const returnValue = this.allowWrite(() =>
-        fn((isNodesArray ? sandboxNodes : sandboxNodes[0]) as T)
-      )
+      const returnValue = this.allowWrite(() => fn(...sandboxNodes))
       if (typeof returnValue === "boolean") {
         commit = returnValue
         return undefined as any
@@ -181,14 +182,12 @@ export class SandboxManager {
     this.disposer()
   }
 
-  private prepareSandboxChanges<T extends object[]>(
+  private prepareSandboxChanges<T extends readonly [object, ...object[]]>(
     nodes: T
   ): { sandboxNodes: T; applyRecorderChanges: (commit: boolean) => void } {
     const isNestedWithSandboxCall = !!this.withSandboxPatchRecorder
 
-    const sandboxNodes = nodes.map((node) => {
-      assertTweakedObject(node, "node")
-
+    const sandboxNodes = (nodes.map((node) => {
       const path = getParentToChildPath(
         isNestedWithSandboxCall ? this.subtreeRootClone : this.subtreeRoot,
         node
@@ -203,7 +202,7 @@ export class SandboxManager {
       }
 
       return sandboxNode
-    }) as T
+    }) as unknown) as T
 
     if (!this.withSandboxPatchRecorder) {
       this.withSandboxPatchRecorder = patchRecorder(this.subtreeRootClone)
