@@ -1,6 +1,10 @@
 # Change Log
 
 - [BREAKING CHANGE] The sandbox manager's `withSandbox` method now requires an array of nodes from the original tree and the corresponding sandbox nodes are now positional arguments of the callback function.
+
+## 0.48.5
+
+- Fixed incompatibility with MobX >= 6.1 (in order to fix it `$modelId` is now an enumerable property though).
 - Fixed the sandbox to group commit patches so that the undo manager will undo the commit in a single step.
 - Added `assign` to `fnObject`.
 

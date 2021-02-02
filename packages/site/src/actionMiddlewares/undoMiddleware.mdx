@@ -85,13 +85,13 @@ Sometimes you might want some changes / part of changes skip the undo/redo mecha
 ```ts
 @modelAction
 someAction() {
-  // this change be done/undone when the action is done/undone
+  // this change will be redone/undone when the action is redone/undone
   this.x++
   withoutUndo(() => {
-    // this won't
+    // this one won't
     this.y++
   })
-  // this will
+  // this one will
   this.z++
 }
 ```

@@ -95,13 +95,14 @@ Array [
       "args": Array [
         M2 {
           "$": Object {
+            "$modelId": "id-2",
             "a": "setA",
           },
           "$modelType": "SubModel",
         },
       ],
       "path": Array [],
-      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$\\":{\\"a\\":\\"otherA\\"}}) (id 0)",
+      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$\\":{\\"a\\":\\"otherA\\",\\"$modelId\\":\\"id-2\\"}}) (id 0)",
     },
     Object {
       "$modelId": "id-1",

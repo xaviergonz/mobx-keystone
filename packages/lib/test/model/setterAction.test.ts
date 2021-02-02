@@ -62,6 +62,7 @@ test("setterAction", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "y": 5,
             },
             "$modelType": "P",
@@ -82,6 +83,7 @@ test("setterAction", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "y": 5,
             },
             "$modelType": "P",
@@ -113,6 +115,7 @@ test("setterAction", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "y": 10,
             },
             "$modelType": "P",
@@ -132,6 +135,7 @@ test("setterAction", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "y": 10,
             },
             "$modelType": "P",
