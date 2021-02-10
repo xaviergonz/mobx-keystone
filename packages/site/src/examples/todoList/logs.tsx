@@ -1,5 +1,5 @@
 import { ActionCall, getSnapshot, onActionMiddleware, onPatches, Patch } from "mobx-keystone"
-import { observer, useLocalStore } from "mobx-react"
+import { observer, useLocalObservable } from "mobx-react"
 import React, { useEffect } from "react"
 import { TodoList } from "./store"
 
@@ -10,7 +10,7 @@ interface ExtendedActionCall extends ActionCall {
 }
 
 export const LogsView = observer((props: { rootStore: TodoList }) => {
-  const data = useLocalStore(() => ({
+  const data = useLocalObservable(() => ({
     actions: [] as ExtendedActionCall[],
     patchesList: [] as Patch[][],
 
