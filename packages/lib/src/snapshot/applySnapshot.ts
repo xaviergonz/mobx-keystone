@@ -35,7 +35,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
 
     if (inDevMode()) {
       if (ret !== obj) {
-        throw failure("assertion error: reconciled object has to be the same")
+        throw failure("assertion failed: reconciled object has to be the same")
       }
     }
   }

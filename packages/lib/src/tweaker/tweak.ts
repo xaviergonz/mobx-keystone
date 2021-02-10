@@ -106,7 +106,7 @@ export function tryUntweak(value: any) {
 
   if (inDevMode()) {
     if (fastGetParent(value)) {
-      throw failure("assertion error: object cannot be untweaked while it has a parent")
+      throw failure("assertion failed: object cannot be untweaked while it has a parent")
     }
   }
 
