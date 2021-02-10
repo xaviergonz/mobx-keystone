@@ -107,11 +107,8 @@ function reconcileModelSnapshot(
     value = modelInPool
   }
 
-  if (
-    !(value instanceof modelInfo.class) ||
-    value[modelTypeKey] !== type ||
-    value[modelIdKey] !== id
-  ) {
+  // we don't check by actual instance since the class might be a different one due to hot reloading
+  if (!isModel(value) || value[modelTypeKey] !== type || value[modelIdKey] !== id) {
     // different kind of model / model instance, no reconciliation possible
     return fromSnapshot<AnyModel>(sn)
   }

@@ -60,7 +60,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       throw failure(`model with name "${type}" not found in the registry`)
     }
 
-    // we don't check by actual instance since it might be a different one due to hot reloading
+    // we don't check by actual instance since the class might be a different one due to hot reloading
     if (!isModel(obj)) {
       // not a model instance, no reconciliation possible
       throw failure(`the target for a model snapshot must be a model instance`)

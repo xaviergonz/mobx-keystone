@@ -1,6 +1,9 @@
 # Change Log
 
+## 0.49.0
+
 - [BREAKING CHANGE] The sandbox manager's `withSandbox` method now requires an array of nodes from the original tree and the corresponding sandbox nodes are now positional arguments of the callback function.
+- Fix for a possible issue when using `applySnapshot` with hot reloading.
 
 ## 0.48.5
 
