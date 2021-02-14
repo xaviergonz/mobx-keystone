@@ -5,7 +5,7 @@ import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelPropsCreationData } from "./BaseModel"
-import { getModelDataType } from "./getModelDataType"
+import { getModelMetadata } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { getModelClassInitializers } from "./modelClassInitializer"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
@@ -105,7 +105,7 @@ export const internalNewModel = action(
     }
 
     // type check it if needed
-    if (isModelAutoTypeCheckingEnabled() && getModelDataType(modelClass)) {
+    if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {
       const err = modelObj.typeCheck()
       if (err) {
         err.throw(modelObj)

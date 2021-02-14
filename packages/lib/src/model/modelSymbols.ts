@@ -1,2 +1,2 @@
-export const modelDataTypeCheckerSymbol = Symbol("modelDataTypeChecker")
+export const modelMetadataSymbol = Symbol("modelMetadata")
 export const modelUnwrappedClassSymbol = Symbol("modelUnwrappedClass")

@@ -11,20 +11,21 @@ import {
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData,
+  ModelInstanceData
 } from "./BaseModel"
+import { ModelMetadata } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
-import { modelDataTypeCheckerSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
+import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
   ModelProp,
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
-  ModelPropsToPropsData,
+  ModelPropsToPropsData
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -199,7 +200,8 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   }
 
   setInternalModelClassPropsInfo(CustomBaseModel, composedModelProps)
-  CustomBaseModel[modelDataTypeCheckerSymbol] = dataTypeChecker
+  
+  CustomBaseModel[modelMetadataSymbol] = { dataType: dataTypeChecker} as ModelMetadata
 
   Object.defineProperties(CustomBaseModel.prototype, extraDescriptors)
 

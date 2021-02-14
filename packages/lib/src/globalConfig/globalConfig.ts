@@ -30,7 +30,7 @@ export interface GlobalConfig {
   modelAutoTypeChecking: ModelAutoTypeCheckingMode
 
   /**
-   * ID generator function for $modelId.
+   * ID generator function for model ids.
    */
   modelIdGenerator(): string
 
