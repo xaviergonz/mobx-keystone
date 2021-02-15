@@ -60,11 +60,11 @@ beforeEach(() => {
 
 function expectTypeCheckError(m: AnyModel, fn: () => void) {
   const snapshots: any[] = []
-  const disposer1 = onSnapshot(m, sn => {
+  const disposer1 = onSnapshot(m, (sn) => {
     snapshots.push(sn)
   })
   const patches: any[] = []
-  const disposer2 = onPatches(m, p => {
+  const disposer2 = onPatches(m, (p) => {
     patches.push(p)
   })
   const actions: any[] = []
@@ -1046,7 +1046,7 @@ test("refinement (complex)", () => {
     result: types.number,
   }))
 
-  const type = types.refinement(sumObjType, sum => {
+  const type = types.refinement(sumObjType, (sum) => {
     const rightResult = sum.a + sum.b === sum.result
 
     return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)

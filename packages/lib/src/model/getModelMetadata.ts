@@ -11,12 +11,12 @@ export interface ModelMetadata {
   /**
    * Associated data type for runtime checking (if any).
    */
-  dataType?: AnyType;
+  dataType?: AnyType
 
   /**
    * Property used as model id (usually `$modelId` unless overridden).
    */
-  modelIdProperty: string;
+  modelIdProperty: string
 }
 
 /**
@@ -44,9 +44,9 @@ const modelIdPropertyNameCache = new WeakMap<object, string>()
  * @internal
  */
 export function getModelIdPropertyName(modelClass: ModelClass<AnyModel>): string {
-  let realKey = modelIdPropertyNameCache.get(modelClass);
+  let realKey = modelIdPropertyNameCache.get(modelClass)
   if (!realKey) {
-    realKey = getModelMetadata(modelClass).modelIdProperty;
+    realKey = getModelMetadata(modelClass).modelIdProperty
     modelIdPropertyNameCache.set(modelClass, realKey)
   }
   return realKey

@@ -19,7 +19,7 @@ test("input snapshot processor", () => {
   }) {
     fromSnapshot(sn: { y: string }) {
       return {
-        arr: sn.y.split(",").map(x => +x),
+        arr: sn.y.split(",").map((x) => +x),
       }
     }
   }

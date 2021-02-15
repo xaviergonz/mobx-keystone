@@ -73,9 +73,9 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
  * @ignore
  * Ensures that a $modelId property is present if no idProp is provided.
  */
-export type AddModelIdPropIfNeeded<TProps extends ModelProps> = ExtractModelIdProp<
-  TProps
-> extends never
+export type AddModelIdPropIfNeeded<
+  TProps extends ModelProps
+> = ExtractModelIdProp<TProps> extends never
   ? TProps & { $modelId: typeof idProp } // we use the actual name here to avoid having to re-export the original
   : TProps
 
@@ -154,7 +154,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   }
 
   // look for id keys
-  const idKeys = Object.keys(composedModelProps).filter(k => composedModelProps[k] === idProp)
+  const idKeys = Object.keys(composedModelProps).filter((k) => composedModelProps[k] === idProp)
   if (idKeys.length > 1) {
     throw failure(`expected at most one idProp but got many: ${JSON.stringify(idKeys)}`)
   }
@@ -162,7 +162,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     idKeys.push(modelIdKey)
   }
 
-  const needsTypeChecker = Object.values(composedModelProps).some(mp => !!mp.typeChecker)
+  const needsTypeChecker = Object.values(composedModelProps).some((mp) => !!mp.typeChecker)
 
   // transform id keys (only one really)
   const idKey = idKeys[0]
@@ -184,7 +184,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   // skip props that are on base model, these have to be accessed through $
   // we only need to proxy new props, not old ones
   for (const modelPropName of Object.keys(modelProps).filter(
-    mp => !baseModelPropNames.has(mp as any)
+    (mp) => !baseModelPropNames.has(mp as any)
   )) {
     extraDescriptors[modelPropName] = createModelPropDescriptor(
       modelPropName,
@@ -205,7 +205,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   // we use this weird hack rather than just class CustomBaseModel extends base {}
   // in order to work around problems with ES5 classes extending ES6 classes
   // see https://github.com/xaviergonz/mobx-keystone/issues/15
-  const CustomBaseModel: any = (function(_base) {
+  const CustomBaseModel: any = (function (_base) {
     _inheritsLoose(CustomBaseModel, _base)
 
     function CustomBaseModel(
