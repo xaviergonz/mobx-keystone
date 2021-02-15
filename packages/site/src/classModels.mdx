@@ -209,7 +209,7 @@ class ModelWithCustomId extends Model({
 }
 ```
 
-In this case `this.$modelId` can still be used in instances (not so in snapshots) as a shortcut to read / write this custom ID property if desired.
+In this case either `customId` (both in snapshots and instances) or `$modelId` (only in instances) can be used to read / write the ID property.
 
 ## Customizing the ID generator function
 
