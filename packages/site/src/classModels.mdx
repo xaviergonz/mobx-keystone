@@ -196,6 +196,23 @@ this.$modelId = "my new custom id"
 
 Just make sure that ID is unique for every model object (no matter its type).
 
+## Customizing the ID property
+
+It is possible to use any other custom property as ID source by assigning to it the `idProp` value. For example:
+
+```ts
+@model("myApp/ModelWithCustomId")
+class ModelWithCustomId extends Model({
+  customId: idProp
+}) {
+  ...
+}
+```
+
+In this case `this.$modelId` can still be used in instances (not so in snapshots) as a shortcut to read / write this custom ID property if desired.
+
+## Customizing the ID generator function
+
 The default model ID generator function is tuned up to be fast and works like this:
 
 ```ts

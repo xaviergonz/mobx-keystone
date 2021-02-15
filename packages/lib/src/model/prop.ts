@@ -27,13 +27,15 @@ export interface ModelProp<
   TPropCreationValue,
   TIsOptional,
   TInstanceValue = TPropValue,
-  TInstanceCreationValue = TPropCreationValue
+  TInstanceCreationValue = TPropCreationValue,
+  TIsId extends boolean = false
 > {
   $propValueType: TPropValue
   $propCreationValueType: TPropCreationValue
   $instanceValueType: TInstanceValue
   $instanceCreationValueType: TInstanceCreationValue
   $isOptional: TIsOptional
+  $isId: TIsId
 
   defaultFn: (() => TPropValue) | typeof noDefaultValue
   defaultValue: TPropValue | typeof noDefaultValue
@@ -46,7 +48,7 @@ export interface ModelProp<
  * Model properties.
  */
 export interface ModelProps {
-  [k: string]: ModelProp<any, any, any>
+  [k: string]: ModelProp<any, any, any, any, any, any>
 }
 
 export type OptionalModelProps<MP extends ModelProps> = {
@@ -73,6 +75,19 @@ export type ModelPropsToInstanceCreationData<MP extends ModelProps> = O.Optional
     [k in keyof MP]: MP[k]["$instanceCreationValueType"]
   },
   OptionalModelProps<MP>
+>
+
+/**
+ * A property that will be used as model id, replacing $modelId.
+ * Can only be used in models and there can be only one per model.
+ */
+export const idProp = (Symbol("idProp") as any) as ModelProp<
+  string,
+  string,
+  string,
+  string,
+  string,
+  true
 >
 
 /**
@@ -188,6 +203,7 @@ export function prop<TValue>(arg1?: any, arg2?: any): ModelProp<TValue, any, any
     $isOptional: null as any,
     $instanceValueType: null as any,
     $instanceCreationValueType: null as any,
+    $isId: null as never,
 
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,

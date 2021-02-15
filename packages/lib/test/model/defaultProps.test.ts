@@ -1,5 +1,14 @@
 import { assert, _ } from "spec.ts"
-import { Model, model, ModelPropsCreationData, ModelPropsData, prop, tProp, types } from "../../src"
+import {
+  Model,
+  model,
+  modelIdKey,
+  ModelPropsCreationData,
+  ModelPropsData,
+  prop,
+  tProp,
+  types,
+} from "../../src"
 import "../commonSetup"
 
 @model("M")
@@ -27,6 +36,8 @@ test("default props", () => {
   assert(
     _ as ModelPropsCreationData<M>,
     _ as {
+      [modelIdKey]?: string
+
       x?: number | null
       xx?: number | null
       xxx?: number | null
@@ -50,6 +61,8 @@ test("default props", () => {
   assert(
     _ as ModelPropsData<M>,
     _ as {
+      [modelIdKey]: string
+
       x: number
       xx: number | undefined
       xxx: number | null

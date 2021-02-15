@@ -8,6 +8,7 @@ import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject } from "../utils"
+import { getModelIdPropertyName } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
@@ -36,6 +37,11 @@ export const instanceCreationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
+ */
+export const modelIdPropertyNameSymbol = Symbol()
+
+/**
+ * @ignore
  * @internal
  */
 export const modelInitializedSymbol = Symbol("modelInitialized")
@@ -49,32 +55,41 @@ export const modelInitializedSymbol = Symbol("modelInitialized")
  * @typeparam CreationData Creation data type.
  * @typeparam InstanceData Instace data type.
  * @typeparam InstanceCreationData Instance creation data type.
+ * @typeparam ModelIdPropertyName Model id property name.
  */
 export abstract class BaseModel<
   PropsData extends { [k: string]: any },
   PropsCreationData extends { [k: string]: any },
   InstanceData extends { [k: string]: any } = PropsData,
-  InstanceCreationData extends { [k: string]: any } = PropsCreationData
+  InstanceCreationData extends { [k: string]: any } = PropsCreationData,
+  ModelIdPropertyName extends string = never
 > {
   // just to make typing work properly
   [propsDataTypeSymbol]: PropsData;
   [propsCreationDataTypeSymbol]: PropsCreationData;
   [instanceDataTypeSymbol]: InstanceData;
   [instanceCreationDataTypeSymbol]: InstanceCreationData;
+  [modelIdPropertyNameSymbol]: ModelIdPropertyName;
 
   /**
    * Model type name.
    */
-  readonly [modelTypeKey]: string;
+  readonly [modelTypeKey]: string
 
   /**
    * Model internal id. Can be modified inside a model action.
    */
-  [modelIdKey]: string
+  get [modelIdKey](): string {
+    return this.$[getModelIdPropertyName(this.constructor as any)]
+  }
+
+  set [modelIdKey](newId: string) {
+    ;(this.$ as any)[getModelIdPropertyName(this.constructor as any)] = newId
+  }
 
   /**
    * Can be overriden to offer a reference id to be used in reference resolution.
-   * By default it will use `$modelId`.
+   * By default it will use the model id property (usually `$modelId` unless overridden).
    */
   getRefId(): string {
     return this[modelIdKey]
@@ -115,7 +130,9 @@ export abstract class BaseModel<
    */
   fromSnapshot?(snapshot: {
     [k: string]: any
-  }): SnapshotInOfObject<PropsCreationData> & { [modelTypeKey]?: string; [modelIdKey]?: string }
+  }): SnapshotInOfObject<PropsCreationData> & {
+    [modelTypeKey]?: string
+  }
 
   /**
    * Performs a type check over the model instance.
@@ -131,7 +148,7 @@ export abstract class BaseModel<
   /**
    * Creates an instance of Model.
    */
-  constructor(data: InstanceCreationData & { [modelIdKey]?: string }) {
+  constructor(data: InstanceCreationData) {
     let initialData = data as any
     const {
       snapshotInitialData,
@@ -144,14 +161,12 @@ export abstract class BaseModel<
 
     const self = this as any
 
-    // let's always use the one from the prototype
-    delete self[modelIdKey]
-
     // delete unnecessary props
     delete self[propsDataTypeSymbol]
     delete self[propsCreationDataTypeSymbol]
     delete self[instanceDataTypeSymbol]
     delete self[instanceCreationDataTypeSymbol]
+    delete self[modelIdPropertyNameSymbol]
 
     if (!snapshotInitialData) {
       // plain new
@@ -217,7 +232,7 @@ export const baseModelPropNames = new Set<keyof AnyModel>([
 /**
  * Any kind of model instance.
  */
-export interface AnyModel extends BaseModel<any, any> {}
+export interface AnyModel extends BaseModel<any, any, any, any, any> {}
 
 /**
  * Extracts the instance type of a model class.
@@ -280,6 +295,11 @@ export type ModelInstanceData<M extends AnyModel> = M[typeof instanceDataTypeSym
 export type ModelInstanceCreationData<M extends AnyModel> = M[typeof instanceCreationDataTypeSymbol]
 
 /**
+ * The model id property name.
+ */
+export type ModelIdPropertyName<M extends AnyModel> = M[typeof modelIdPropertyNameSymbol]
+
+/**
  * Add missing model metadata to a model creation snapshot to generate a proper model snapshot.
  * Usually used alongside `fromSnapshot`.
  *
@@ -291,18 +311,19 @@ export type ModelInstanceCreationData<M extends AnyModel> = M[typeof instanceCre
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelIdKey | typeof modelTypeKey>,
+  snapshot: O.Omit<SnapshotInOfModel<M>, ModelIdPropertyName<M> | typeof modelTypeKey>,
   internalId: string = getGlobalConfig().modelIdGenerator()
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
 
   const modelInfo = modelInfoByClass.get(modelClass)!
+  const modelIdPropertyName = getModelIdPropertyName(modelClass)
 
   return {
     ...snapshot,
     [modelTypeKey]: modelInfo.name,
-    [modelIdKey]: internalId,
+    [modelIdPropertyName]: internalId,
   } as any
 }
 
@@ -318,17 +339,18 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelIdKey | typeof modelTypeKey>,
+  snapshot: O.Omit<SnapshotOutOfModel<M>, ModelIdPropertyName<M> | typeof modelTypeKey>,
   internalId: string = getGlobalConfig().modelIdGenerator()
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
 
   const modelInfo = modelInfoByClass.get(modelClass)!
+  const modelIdPropertyName = getModelIdPropertyName(modelClass)
 
   return {
     ...snapshot,
     [modelTypeKey]: modelInfo.name,
-    [modelIdKey]: internalId,
+    [modelIdPropertyName]: internalId,
   } as any
 }

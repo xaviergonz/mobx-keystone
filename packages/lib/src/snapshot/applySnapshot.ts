@@ -3,6 +3,7 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
+import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
@@ -75,7 +76,8 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       )
     }
 
-    const id = sn[modelIdKey]
+    const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+    const id = sn[modelIdPropertyName]
     if (obj[modelIdKey] !== id) {
       // different id, no reconciliation possible
       throw failure(`snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`)

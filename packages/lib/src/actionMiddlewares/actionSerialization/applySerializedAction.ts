@@ -1,8 +1,8 @@
 import { runInAction } from "mobx"
 import { applyAction } from "../../action/applyAction"
 import { frozenKey } from "../../frozen/Frozen"
-import { isModel } from "../../model"
-import { modelIdKey } from "../../model/metadata"
+import { getModelIdPropertyName } from "../../model/getModelMetadata"
+import { isModel } from "../../model/utils"
 import { resolvePath } from "../../parent/path"
 import { WritablePath } from "../../parent/pathTypes"
 import { applyPatches } from "../../patch/applyPatches"
@@ -56,7 +56,7 @@ export function applySerializedActionAndTrackNewModelIds<TRet = any>(
   const modelIdOverrides: Patch[] = []
 
   // set a patch listener to track changes to model ids
-  const patchDisposer = onPatches(subtreeRoot, (patches) => {
+  const patchDisposer = onPatches(subtreeRoot, patches => {
     scanPatchesForModelIdChanges(subtreeRoot, modelIdOverrides, patches)
   })
 
@@ -96,17 +96,20 @@ function deepScanValueForModelIdChanges(
   value: any,
   path: WritablePath
 ) {
-  if (path.length >= 1 && path[path.length - 1] === modelIdKey && typeof value === "string") {
+  if (path.length >= 1 && typeof value === "string") {
     // ensure the parent is an actual model
     const parent = resolvePath(root, path.slice(0, path.length - 1)).value
 
     if (isModel(parent)) {
-      // found one
-      modelIdOverrides.push({
-        op: "replace",
-        path: path.slice(),
-        value: value,
-      })
+      const propertyName = path[path.length - 1]
+      if (propertyName === getModelIdPropertyName(parent.constructor as any)) {
+        // found one
+        modelIdOverrides.push({
+          op: "replace",
+          path: path.slice(),
+          value: value,
+        })
+      }
     }
   } else if (Array.isArray(value)) {
     const len = value.length

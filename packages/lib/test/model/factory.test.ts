@@ -48,11 +48,11 @@ test("factory pattern", () => {
   assert(
     _ as SInStr,
     _ as {
+      [modelIdKey]?: string
       x?: string | null
       y?: string | null
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 
@@ -60,11 +60,11 @@ test("factory pattern", () => {
   assert(
     _ as SOutStr,
     _ as {
+      [modelIdKey]: string
       x: string
       y: string
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 
@@ -80,11 +80,11 @@ test("factory pattern", () => {
   assert(
     _ as SInNum,
     _ as {
+      [modelIdKey]?: string
       x?: number | null
       y?: number | null
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 
@@ -92,11 +92,11 @@ test("factory pattern", () => {
   assert(
     _ as SOutNum,
     _ as {
+      [modelIdKey]: string
       x: number
       y: number
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 })

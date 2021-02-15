@@ -1,7 +1,10 @@
 import { applySet } from "../action/applySet"
 import { getCurrentActionContext } from "../action/context"
+import { getGlobalConfig } from "../globalConfig"
 import { memoTransformCache } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
+import { typesString } from "../typeChecking/primitives"
+import { tProp } from "../typeChecking/tProp"
 import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure } from "../utils"
@@ -11,7 +14,7 @@ import {
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData
+  ModelInstanceData,
 } from "./BaseModel"
 import { ModelMetadata } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
@@ -20,12 +23,14 @@ import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
+  idProp,
   ModelProp,
   ModelProps,
   ModelPropsToInstanceCreationData,
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
-  ModelPropsToPropsData
+  ModelPropsToPropsData,
+  prop,
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -49,21 +54,37 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
   [propsCreationDataSymbol]: ModelPropsToPropsCreationData<TProps>
   [instanceCreationDataSymbol]: ModelPropsToInstanceCreationData<TProps>
 
-  [composedInstanceCreationDataSymbol]: SuperModel extends BaseModel<any, infer ICD>
+  [composedInstanceCreationDataSymbol]: SuperModel extends BaseModel<any, any, any, infer ICD, any>
     ? this[typeof instanceCreationDataSymbol] & ICD
     : this[typeof instanceCreationDataSymbol]
 
-  new (
-    data: this[typeof composedInstanceCreationDataSymbol] & { [modelIdKey]?: string }
-  ): SuperModel &
+  new (data: this[typeof composedInstanceCreationDataSymbol]): SuperModel &
     BaseModel<
       this[typeof propsDataSymbol],
       this[typeof propsCreationDataSymbol],
       this[typeof instanceDataSymbol],
-      this[typeof instanceCreationDataSymbol]
+      this[typeof instanceCreationDataSymbol],
+      ExtractModelIdProp<TProps> & string
     > &
     Omit<this[typeof instanceDataSymbol], keyof AnyModel>
 }
+
+/**
+ * @ignore
+ * Ensures that a $modelId property is present if no idProp is provided.
+ */
+export type AddModelIdPropIfNeeded<TProps extends ModelProps> = ExtractModelIdProp<
+  TProps
+> extends never
+  ? TProps & { $modelId: typeof idProp } // we use the actual name here to avoid having to re-export the original
+  : TProps
+
+/**
+ * Extract the model id property from the model props.
+ */
+export type ExtractModelIdProp<TProps extends ModelProps> = {
+  [K in keyof TProps]: TProps[K]["$isId"] extends true ? K : never
+}[keyof TProps]
 
 /**
  * Base abstract class for models that extends another model.
@@ -77,11 +98,14 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
 export function ExtendedModel<TProps extends ModelProps, TBaseModelClass>(
   baseModel: TBaseModelClass,
   modelProps: TProps
-): _Model<TBaseModelClass & Object extends ModelClass<infer M> ? M : never, TProps> {
+): _Model<
+  TBaseModelClass & Object extends ModelClass<infer M> ? M : never,
+  AddModelIdPropIfNeeded<TProps>
+> {
   assertIsModelClass(baseModel, "baseModel")
 
   // note that & Object is there to support abstract classes
-  return internalModel<TProps, any>(modelProps, baseModel as any)
+  return internalModel(modelProps, baseModel as any)
 }
 
 /**
@@ -92,14 +116,16 @@ export function ExtendedModel<TProps extends ModelProps, TBaseModelClass>(
  * @typeparam TProps Model properties type.
  * @param modelProps Model properties.
  */
-export function Model<TProps extends ModelProps>(modelProps: TProps): _Model<unknown, TProps> {
-  return internalModel(modelProps) as any
+export function Model<TProps extends ModelProps>(
+  modelProps: TProps
+): _Model<unknown, AddModelIdPropIfNeeded<TProps>> {
+  return internalModel(modelProps, undefined)
 }
 
 function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   modelProps: TProps,
-  baseModel?: ModelClass<TBaseModel>
-): _Model<TBaseModel, TProps> {
+  baseModel: ModelClass<TBaseModel> | undefined
+): _Model<TBaseModel, AddModelIdPropIfNeeded<TProps>> {
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
     assertIsModelClass(baseModel, "baseModel")
@@ -125,14 +151,27 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
       }
       composedModelProps[oldModelPropKey] = oldModelProps[oldModelPropKey]
     }
-  } else {
-    // define $modelId on the base
-    extraDescriptors[modelIdKey] = createModelPropDescriptor(modelIdKey, undefined, true)
   }
+
+  // look for id keys
+  const idKeys = Object.keys(composedModelProps).filter(k => composedModelProps[k] === idProp)
+  if (idKeys.length > 1) {
+    throw failure(`expected at most one idProp but got many: ${JSON.stringify(idKeys)}`)
+  }
+  if (idKeys.length <= 0) {
+    idKeys.push(modelIdKey)
+  }
+
+  const needsTypeChecker = Object.values(composedModelProps).some(mp => !!mp.typeChecker)
+
+  // transform id keys (only one really)
+  const idKey = idKeys[0]
+  const idGenerator = () => getGlobalConfig().modelIdGenerator()
+  composedModelProps[idKey] = needsTypeChecker ? tProp(typesString, idGenerator) : prop(idGenerator)
 
   // create type checker if needed
   let dataTypeChecker: LateTypeChecker | undefined
-  if (Object.values(composedModelProps).some((mp) => !!mp.typeChecker)) {
+  if (needsTypeChecker) {
     const typeCheckerObj: {
       [k: string]: any
     } = {}
@@ -145,7 +184,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   // skip props that are on base model, these have to be accessed through $
   // we only need to proxy new props, not old ones
   for (const modelPropName of Object.keys(modelProps).filter(
-    (mp) => !baseModelPropNames.has(mp as any)
+    mp => !baseModelPropNames.has(mp as any)
   )) {
     extraDescriptors[modelPropName] = createModelPropDescriptor(
       modelPropName,
@@ -166,7 +205,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   // we use this weird hack rather than just class CustomBaseModel extends base {}
   // in order to work around problems with ES5 classes extending ES6 classes
   // see https://github.com/xaviergonz/mobx-keystone/issues/15
-  const CustomBaseModel: any = (function (_base) {
+  const CustomBaseModel: any = (function(_base) {
     _inheritsLoose(CustomBaseModel, _base)
 
     function CustomBaseModel(
@@ -200,8 +239,11 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   }
 
   setInternalModelClassPropsInfo(CustomBaseModel, composedModelProps)
-  
-  CustomBaseModel[modelMetadataSymbol] = { dataType: dataTypeChecker} as ModelMetadata
+
+  CustomBaseModel[modelMetadataSymbol] = {
+    dataType: dataTypeChecker,
+    modelIdProperty: idKey,
+  } as ModelMetadata
 
   Object.defineProperties(CustomBaseModel.prototype, extraDescriptors)
 

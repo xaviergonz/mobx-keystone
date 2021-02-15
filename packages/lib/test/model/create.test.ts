@@ -1,4 +1,4 @@
-import { model, Model, prop, tProp, types } from "../../src"
+import { idProp, model, Model, modelIdKey, prop, tProp, types } from "../../src"
 import "../commonSetup"
 
 describe("create with extra properties", () => {
@@ -15,6 +15,7 @@ describe("create with extra properties", () => {
     expect(m.value).toBe(0)
     expect((m as any).a).toBeUndefined()
     expect((m.$ as any).a).toBe(2)
+    expect((m.$ as any)[modelIdKey]).toBe(m[modelIdKey])
   })
 
   test("with checked props", () => {
@@ -28,5 +29,20 @@ describe("create with extra properties", () => {
     expect(m.value).toBe(0)
     expect((m as any).a).toBeUndefined()
     expect((m.$ as any).a).toBe(2)
+    expect((m.$ as any)[modelIdKey]).toBe(m[modelIdKey])
+  })
+
+  test("with a custom model id", () => {
+    @model("M-customId")
+    class M extends Model({
+      id: idProp,
+    }) {}
+
+    const m = new M({ id: "123" })
+    expect(m instanceof M).toBeTruthy()
+    expect(m.id).toBe("123")
+    expect(m.$.id).toBe("123")
+    expect(m[modelIdKey]).toBe("123")
+    expect((m.$ as any)[modelIdKey]).toBe(undefined) // should not be actually stored
   })
 })

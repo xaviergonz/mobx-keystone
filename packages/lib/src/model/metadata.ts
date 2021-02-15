@@ -4,7 +4,7 @@
 export const modelTypeKey = "$modelType"
 
 /**
- * Key where model snapshots will store model internal IDs metadata.
+ * Key where model snapshots usually will store model internal IDs metadata (unless overridden).
  */
 export const modelIdKey = "$modelId"
 
@@ -16,5 +16,7 @@ export const modelIdKey = "$modelId"
  * @returns
  */
 export function isReservedModelKey(key: string) {
-  return key === modelTypeKey || key === modelIdKey
+  // note $modelId is NOT a reserved key, since it will eventually end up in the data
+  // and can actually be changed
+  return key === modelTypeKey
 }
