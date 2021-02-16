@@ -663,3 +663,43 @@ test("issue #109", () => {
 
   new ChildModel({})
 })
+
+test("ExtendedModel should bring static / prototype properties", () => {
+  @model("Bobbin")
+  class Bobbin extends Model({}) {
+    static LAST = "Threadbare"
+  }
+  Object.defineProperty(Bobbin.prototype, "first", {
+    value: "Bobbin",
+    writable: false,
+  })
+  // (Bobbin.prototype as any).first = "Bobbin"
+
+  expect((Bobbin.prototype as any).first).toBe("Bobbin")
+  expect(Bobbin.LAST).toBe("Threadbare")
+
+  const bobbin = new Bobbin({})
+  expect((bobbin as any).first).toBe("Bobbin")
+  expect((bobbin as any).LAST).toBe(undefined)
+
+  @model("ExtendedBobbin")
+  class ExtendedBobbin extends ExtendedModel(Bobbin, {}) {
+    static LAST2 = "Threepwood"
+  }
+  Object.defineProperty(ExtendedBobbin.prototype, "first2", {
+    value: "Guybrush",
+    writable: false,
+  })
+  // (ExtendedBobbin.prototype as any).first2 = "Guybrush"
+
+  expect((ExtendedBobbin.prototype as any).first).toBe("Bobbin")
+  expect((ExtendedBobbin as any).LAST).toBe("Threadbare")
+  expect((ExtendedBobbin.prototype as any).first2).toBe("Guybrush")
+  expect((ExtendedBobbin as any).LAST2).toBe("Threepwood")
+
+  const extendedBobbin = new ExtendedBobbin({})
+  expect((extendedBobbin as any).first).toBe("Bobbin")
+  expect((extendedBobbin as any).LAST).toBe(undefined)
+  expect((extendedBobbin as any).first2).toBe("Guybrush")
+  expect((extendedBobbin as any).LAST2).toBe(undefined)
+})
