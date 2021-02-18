@@ -1,5 +1,7 @@
 # Change Log
 
+- Added `withoutUndo` and `isUndoRecordingDisabled` to `UndoManager`. Consider using those instead of the global `withoutUndo`.
+
 ## 0.50.0
 
 - It is now possible to use a custom property as model id instead of `$modelId` by assigning to a property the new `idProp` value. In any case, model instances can still use `model.$modelId` to read/write this custom property if desired.

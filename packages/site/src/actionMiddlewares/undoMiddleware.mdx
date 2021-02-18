@@ -87,7 +87,8 @@ Sometimes you might want some changes / part of changes skip the undo/redo mecha
 someAction() {
   // this change will be redone/undone when the action is redone/undone
   this.x++
-  withoutUndo(() => {
+
+  someUndoManager.withoutUndo(() => {
     // this one won't
     this.y++
   })

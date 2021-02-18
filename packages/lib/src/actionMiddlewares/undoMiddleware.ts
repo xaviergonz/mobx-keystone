@@ -220,6 +220,32 @@ export class UndoManager {
     this.disposer()
   }
 
+  private _isUndoRecordingDisabled = false
+
+  /**
+   * Returns if undo recording is currently disabled or not for this particular `UndoManager`.
+   */
+  get isUndoRecordingDisabled() {
+    return isGlobalUndoRecordingDisabled || this._isUndoRecordingDisabled
+  }
+
+  /**
+   * Skips the undo recording mechanism for the code block that gets run synchronously inside.
+   *
+   * @typeparam T
+   * @param fn
+   * @returns
+   */
+  withoutUndo<T>(fn: () => T): T {
+    const savedUndoDisabled = this._isUndoRecordingDisabled
+    this._isUndoRecordingDisabled = true
+    try {
+      return fn()
+    } finally {
+      this._isUndoRecordingDisabled = savedUndoDisabled
+    }
+  }
+
   /**
    * Creates an instance of `UndoManager`.
    * Do not use directly, use `undoMiddleware` instead.
@@ -252,6 +278,8 @@ export class UndoManager {
 export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
+  let manager: UndoManager
+
   interface PatchRecorderData {
     recorder: PatchRecorder
     recorderStack: number
@@ -264,7 +292,9 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
     ctx.rootContext.data[patchRecorderSymbol] = {
       recorder: patchRecorder(subtreeRoot, {
         recording: false,
-        filter: undoDisabledFilter,
+        filter: () => {
+          return !manager.isUndoRecordingDisabled
+        },
       }),
       recorderStack: 0,
       undoRootContext: ctx,
@@ -274,8 +304,6 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
   function getPatchRecorderData(ctx: SimpleActionContext): PatchRecorderData {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
-
-  let manager: UndoManager
 
   const middlewareDisposer = actionTrackingMiddleware(subtreeRoot, {
     onStart(ctx) {
@@ -324,25 +352,23 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
   return manager
 }
 
-let undoDisabled = false
-
-const undoDisabledFilter = () => {
-  return !undoDisabled
-}
+let isGlobalUndoRecordingDisabled = false
 
 /**
- * Skips the undo recording mechanism for the code block that gets run synchronously inside.
+ * @deprecated
+ * Globally skips the undo recording mechanism for the code block that gets run synchronously inside.
+ * Consider using the `withoutUndo` method of a particular `UndoManager` instead.
  *
  * @typeparam T
  * @param fn
  * @returns
  */
 export function withoutUndo<T>(fn: () => T): T {
-  const savedUndoDisabled = undoDisabled
-  undoDisabled = true
+  const savedUndoDisabled = isGlobalUndoRecordingDisabled
+  isGlobalUndoRecordingDisabled = true
   try {
     return fn()
   } finally {
-    undoDisabled = savedUndoDisabled
+    isGlobalUndoRecordingDisabled = savedUndoDisabled
   }
 }
