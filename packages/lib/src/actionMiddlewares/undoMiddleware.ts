@@ -226,15 +226,15 @@ export class UndoManager {
    * Returns if undo recording is currently disabled or not for this particular `UndoManager`.
    */
   get isUndoRecordingDisabled() {
-    return isGlobalUndoRecordingDisabled || this._isUndoRecordingDisabled
+    return this._isUndoRecordingDisabled
   }
 
   /**
    * Skips the undo recording mechanism for the code block that gets run synchronously inside.
    *
-   * @typeparam T
-   * @param fn
-   * @returns
+   * @typeparam T Code block return type.
+   * @param fn Code block to run.
+   * @returns The value returned by the code block.
    */
   withoutUndo<T>(fn: () => T): T {
     const savedUndoDisabled = this._isUndoRecordingDisabled
@@ -293,7 +293,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
       recorder: patchRecorder(subtreeRoot, {
         recording: false,
         filter: () => {
-          return !manager.isUndoRecordingDisabled
+          return !_isGlobalUndoRecordingDisabled && !manager.isUndoRecordingDisabled
         },
       }),
       recorderStack: 0,
@@ -352,23 +352,31 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
   return manager
 }
 
-let isGlobalUndoRecordingDisabled = false
+let _isGlobalUndoRecordingDisabled = false
 
 /**
- * @deprecated
+ * Returns if the undo recording mechanism is currently disabled.
+ *
+ * @returns `true` if it is currently disabled, `false` otherwise.
+ */
+export function isGlobalUndoRecordingDisabled() {
+  return _isGlobalUndoRecordingDisabled
+}
+
+/**
  * Globally skips the undo recording mechanism for the code block that gets run synchronously inside.
  * Consider using the `withoutUndo` method of a particular `UndoManager` instead.
  *
- * @typeparam T
- * @param fn
- * @returns
+ * @typeparam T Code block return type.
+ * @param fn Code block to run.
+ * @returns The value returned by the code block.
  */
 export function withoutUndo<T>(fn: () => T): T {
-  const savedUndoDisabled = isGlobalUndoRecordingDisabled
-  isGlobalUndoRecordingDisabled = true
+  const savedUndoDisabled = _isGlobalUndoRecordingDisabled
+  _isGlobalUndoRecordingDisabled = true
   try {
     return fn()
   } finally {
-    isGlobalUndoRecordingDisabled = savedUndoDisabled
+    _isGlobalUndoRecordingDisabled = savedUndoDisabled
   }
 }

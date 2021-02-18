@@ -88,10 +88,18 @@ someAction() {
   // this change will be redone/undone when the action is redone/undone
   this.x++
 
+  // you may skip only in certain undo managers...
   someUndoManager.withoutUndo(() => {
     // this one won't
     this.y++
   })
+
+  // or for all of them
+  withoutUndo(() => {
+    // this one won't
+    this.y++
+  })
+
   // this one will
   this.z++
 }

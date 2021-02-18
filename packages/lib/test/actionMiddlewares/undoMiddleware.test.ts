@@ -470,20 +470,7 @@ test("undoMiddleware - async", async () => {
   }
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
-    expect(manager.canUndo).toBe(undoLevels > 0)
-    expect(manager.undoLevels).toBe(undoLevels)
-    expect(manager.undoQueue.length).toBe(undoLevels)
-
-    expect(manager.canRedo).toBe(redoLevels > 0)
-    expect(manager.redoLevels).toBe(redoLevels)
-    expect(manager.redoQueue.length).toBe(redoLevels)
-
-    if (undoLevels <= 0) {
-      expect(() => manager.undo()).toThrow("nothing to undo")
-    }
-    if (redoLevels <= 0) {
-      expect(() => manager.redo()).toThrow("nothing to redo")
-    }
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
   }
 
   expectUndoRedoToBe(0, 0)
