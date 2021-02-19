@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.51.0
+
 - Added `withoutUndo` and `isUndoRecordingDisabled` to `UndoManager`. Consider using those instead of the global `withoutUndo` if more precision over which `UndoManager` to skip recording to is needed.
 
 ## 0.50.0
