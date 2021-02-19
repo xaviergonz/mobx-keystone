@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.52.0
+
+- Added `withGroup` to `UndoManager` so that several sync actions can be undone/redone as a single step.
+
+## 0.51.1
+
+- Fix for broken library build.
+
 ## 0.51.0
 
 - Added `withoutUndo` and `isUndoRecordingDisabled` to `UndoManager`. Consider using those instead of the global `withoutUndo` if more precision over which `UndoManager` to skip recording to is needed.

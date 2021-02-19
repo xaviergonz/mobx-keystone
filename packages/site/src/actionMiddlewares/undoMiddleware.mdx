@@ -104,3 +104,22 @@ someAction() {
   this.z++
 }
 ```
+
+## Grouping multiple actions into a single undo/redo step
+
+Sometimes you might want multiple actions to be undone/redone in a single step. To do so you can use the `withGroup` function like this:
+
+```ts
+someUndoManager.withGroup("optional group name", () => {
+  someModel.firstAction()
+  someOtherModel.secondAction()
+
+  // note how nested groups are allowed
+  someUndoManager.withGroup(() => {
+    someModel.thirdAction()
+    someOtherModel.fourthAction()
+  })
+})
+```
+
+Now, once undo/redo is called all the actions will be undone/redone in a single call. Note that `withGroup` currently only works for sync actions.

@@ -605,6 +605,7 @@ test("undo manager can undo removal of a referenced object in a single step", ()
           },
         ],
         "targetPath": Array [],
+        "type": "single",
       },
     ]
   `)
@@ -660,6 +661,7 @@ test("undo manager can undo removal of a referenced object in a single step", ()
           },
         ],
         "targetPath": Array [],
+        "type": "single",
       },
     ]
   `)

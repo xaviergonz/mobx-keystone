@@ -16,7 +16,24 @@ import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingM
 /**
  * An undo/redo event.
  */
-export interface UndoEvent {
+export type UndoEvent = UndoSingleEvent | UndoEventGroup
+
+/**
+ * Undo event type.
+ */
+export enum UndoEventType {
+  Single = "single",
+  Group = "group",
+}
+
+/**
+ * An undo/redo single event.
+ */
+export interface UndoSingleEvent {
+  /**
+   * Expresses this is a single event.
+   */
+  readonly type: UndoEventType.Single
   /**
    * Path to the object that invoked the action from its root.
    */
@@ -35,6 +52,39 @@ export interface UndoEvent {
    * Use `undo()` in the `UndoManager` to apply them.
    */
   readonly inversePatches: ReadonlyArray<Patch>
+}
+
+/**
+ * An undo/redo event group.
+ */
+export interface UndoEventGroup {
+  /**
+   * Expresses this is an event group.
+   */
+  readonly type: UndoEventType.Group
+  /**
+   * Name of the group (if any).
+   */
+  readonly groupName?: string
+  /**
+   * Events that conform this group (might be single events or other nested groups).
+   */
+  readonly events: ReadonlyArray<UndoEvent>
+}
+
+function toSingleEvents(event: UndoEvent, reverse: boolean): ReadonlyArray<UndoSingleEvent> {
+  if (event.type === UndoEventType.Single) return [event]
+  else {
+    const array: UndoSingleEvent[] = []
+    for (const e of event.events) {
+      if (reverse) {
+        array.unshift(...toSingleEvents(e, true))
+      } else {
+        array.push(...toSingleEvents(e, false))
+      }
+    }
+    return array
+  }
 }
 
 /**
@@ -99,6 +149,42 @@ export class UndoStore extends Model({
       // once an undo event is added redo queue is no longer valid
       this.redoEvents.length = 0
     })
+  }
+
+  private _groupStack: UndoEventGroup[] = []
+
+  /**
+   * @ignore
+   */
+  _addUndoToCurrentGroup(event: UndoEvent) {
+    const group = this._groupStack[this._groupStack.length - 1]
+    if (!group) {
+      this._addUndo(event)
+    } else {
+      ;(group.events as UndoEvent[]).push(event)
+    }
+  }
+
+  /**
+   * @ignore
+   */
+  _startGroup(groupName: string | undefined) {
+    this._groupStack.push({
+      type: UndoEventType.Group,
+      groupName,
+      events: [],
+    })
+  }
+
+  /**
+   * @ignore
+   */
+  _endGroup() {
+    const group = this._groupStack.pop()
+    if (!group) {
+      throw new Error("assertion failed: endGroup needs at least one group in the stack")
+    }
+    this._addUndoToCurrentGroup(group)
   }
 }
 
@@ -189,7 +275,9 @@ export class UndoManager {
     const event = this.undoQueue[this.undoQueue.length - 1]
 
     withoutUndo(() => {
-      applyPatches(this.subtreeRoot, event.inversePatches, true)
+      toSingleEvents(event, true).forEach((e) => {
+        applyPatches(this.subtreeRoot, e.inversePatches, true)
+      })
     })
 
     this.store._undo()
@@ -207,7 +295,9 @@ export class UndoManager {
     const event = this.redoQueue[this.redoQueue.length - 1]
 
     withoutUndo(() => {
-      applyPatches(this.subtreeRoot, event.patches)
+      toSingleEvents(event, false).forEach((e) => {
+        applyPatches(this.subtreeRoot, e.patches)
+      })
     })
 
     this.store._redo()
@@ -243,6 +333,43 @@ export class UndoManager {
       return fn()
     } finally {
       this._isUndoRecordingDisabled = savedUndoDisabled
+    }
+  }
+
+  /**
+   * Runs a synchronous code block as an undo group.
+   * Note that nested groups are allowed.
+   *
+   * @param groupName Group name.
+   * @param fn Code block.
+   * @returns Code block return value.
+   */
+  withGroup<T>(groupName: string, fn: () => T): T
+
+  /**
+   * Runs a synchronous code block as an undo group.
+   * Note that nested groups are allowed.
+   *
+   * @param fn Code block.
+   * @returns Code block return value.
+   */
+  withGroup<T>(fn: () => T): T
+
+  withGroup<T>(arg1: any, arg2?: any): T {
+    let groupName: string | undefined
+    let fn: () => T
+    if (typeof arg1 === "string") {
+      groupName = arg1
+      fn = arg2
+    } else {
+      fn = arg1
+    }
+
+    this.store._startGroup(groupName)
+    try {
+      return fn()
+    } finally {
+      this.store._endGroup()
     }
   }
 
@@ -335,7 +462,8 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
             inversePatches.push(...event.inversePatches)
           }
 
-          manager.store._addUndo({
+          manager.store._addUndoToCurrentGroup({
+            type: UndoEventType.Single,
             targetPath: fastGetRootPath(ctx.target).path,
             actionName: ctx.actionName,
             patches,

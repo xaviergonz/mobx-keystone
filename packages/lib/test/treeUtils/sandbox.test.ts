@@ -547,6 +547,7 @@ test("sandbox commit patches are grouped in a single undo item", () => {
           },
         ],
         "targetPath": Array [],
+        "type": "single",
       },
     ]
   `)

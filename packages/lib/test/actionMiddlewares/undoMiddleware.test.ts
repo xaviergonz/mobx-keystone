@@ -148,6 +148,7 @@ test("undoMiddleware - sync", () => {
           "targetPath": Array [
             "p",
           ],
+          "type": "single",
         },
         Object {
           "actionName": "incX",
@@ -174,6 +175,7 @@ test("undoMiddleware - sync", () => {
           "targetPath": Array [
             "p",
           ],
+          "type": "single",
         },
         Object {
           "actionName": "incY",
@@ -203,6 +205,7 @@ test("undoMiddleware - sync", () => {
             "p",
             "p2",
           ],
+          "type": "single",
         },
         Object {
           "actionName": "incXY",
@@ -247,6 +250,7 @@ test("undoMiddleware - sync", () => {
           "targetPath": Array [
             "p",
           ],
+          "type": "single",
         },
       ],
     }
@@ -334,6 +338,7 @@ test("undoMiddleware - sync", () => {
         "targetPath": Array [
           "p",
         ],
+        "type": "single",
       },
       Object {
         "actionName": "pushArr",
@@ -380,6 +385,7 @@ test("undoMiddleware - sync", () => {
         "targetPath": Array [
           "p",
         ],
+        "type": "single",
       },
     ]
   `)
@@ -529,6 +535,7 @@ test("undoMiddleware - async", async () => {
           "targetPath": Array [
             "p",
           ],
+          "type": "single",
         },
         Object {
           "actionName": "incX",
@@ -555,6 +562,7 @@ test("undoMiddleware - async", async () => {
           "targetPath": Array [
             "p",
           ],
+          "type": "single",
         },
         Object {
           "actionName": "incY",
@@ -584,6 +592,7 @@ test("undoMiddleware - async", async () => {
             "p",
             "p2",
           ],
+          "type": "single",
         },
         Object {
           "actionName": "incXY",
@@ -628,6 +637,7 @@ test("undoMiddleware - async", async () => {
           "targetPath": Array [
             "p",
           ],
+          "type": "single",
         },
       ],
     }
@@ -822,6 +832,7 @@ test("undo-aware substore called from non undo-aware root store", () => {
         "targetPath": Array [
           "substore",
         ],
+        "type": "single",
       },
     ]
   `)
@@ -863,6 +874,7 @@ test("undo-aware substore called from non undo-aware root store", () => {
         "targetPath": Array [
           "substore",
         ],
+        "type": "single",
       },
     ]
   `)
@@ -894,4 +906,411 @@ test("does not generate steps if using withoutUndo", () => {
 
   expect(p.x).toBe(4)
   expectUndoRedoToBe(0, 0)
+})
+
+test("withGroup", () => {
+  const r = new R({})
+  const p = r.p
+
+  const manager = undoMiddleware(r, r.undoData)
+  autoDispose(() => manager.dispose())
+
+  function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
+  }
+
+  expectUndoRedoToBe(0, 0)
+
+  manager.withGroup("group1", () => {
+    p.incX(1)
+    p.incX(2)
+
+    manager.withGroup(() => {
+      p.incX(3)
+      p.incX(4)
+    })
+  })
+
+  expect(p.x).toBe(10)
+  expectUndoRedoToBe(1, 0)
+  expect(manager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 0,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "events": Array [
+              Object {
+                "actionName": "incX",
+                "inversePatches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 3,
+                  },
+                ],
+                "patches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 6,
+                  },
+                ],
+                "targetPath": Array [
+                  "p",
+                ],
+                "type": "single",
+              },
+              Object {
+                "actionName": "incX",
+                "inversePatches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 6,
+                  },
+                ],
+                "patches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 10,
+                  },
+                ],
+                "targetPath": Array [
+                  "p",
+                ],
+                "type": "single",
+              },
+            ],
+            "groupName": undefined,
+            "type": "group",
+          },
+        ],
+        "groupName": "group1",
+        "type": "group",
+      },
+    ]
+  `)
+
+  manager.undo()
+  expectUndoRedoToBe(0, 1)
+  expect(p.x).toBe(0)
+  expect(manager.redoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 0,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "events": Array [
+              Object {
+                "actionName": "incX",
+                "inversePatches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 3,
+                  },
+                ],
+                "patches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 6,
+                  },
+                ],
+                "targetPath": Array [
+                  "p",
+                ],
+                "type": "single",
+              },
+              Object {
+                "actionName": "incX",
+                "inversePatches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 6,
+                  },
+                ],
+                "patches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 10,
+                  },
+                ],
+                "targetPath": Array [
+                  "p",
+                ],
+                "type": "single",
+              },
+            ],
+            "groupName": undefined,
+            "type": "group",
+          },
+        ],
+        "groupName": "group1",
+        "type": "group",
+      },
+    ]
+  `)
+
+  manager.redo()
+  expectUndoRedoToBe(1, 0)
+  expect(p.x).toBe(10)
+  expect(manager.undoQueue).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 0,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "events": Array [
+              Object {
+                "actionName": "incX",
+                "inversePatches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 3,
+                  },
+                ],
+                "patches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 6,
+                  },
+                ],
+                "targetPath": Array [
+                  "p",
+                ],
+                "type": "single",
+              },
+              Object {
+                "actionName": "incX",
+                "inversePatches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 6,
+                  },
+                ],
+                "patches": Array [
+                  Object {
+                    "op": "replace",
+                    "path": Array [
+                      "p",
+                      "x",
+                    ],
+                    "value": 10,
+                  },
+                ],
+                "targetPath": Array [
+                  "p",
+                ],
+                "type": "single",
+              },
+            ],
+            "groupName": undefined,
+            "type": "group",
+          },
+        ],
+        "groupName": "group1",
+        "type": "group",
+      },
+    ]
+  `)
 })
