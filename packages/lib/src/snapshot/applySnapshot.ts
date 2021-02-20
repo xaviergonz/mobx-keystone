@@ -3,6 +3,7 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
+import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
@@ -35,7 +36,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
 
     if (inDevMode()) {
       if (ret !== obj) {
-        throw failure("assertion error: reconciled object has to be the same")
+        throw failure("assertion failed: reconciled object has to be the same")
       }
     }
   }
@@ -60,7 +61,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       throw failure(`model with name "${type}" not found in the registry`)
     }
 
-    // we don't check by actual instance since it might be a different one due to hot reloading
+    // we don't check by actual instance since the class might be a different one due to hot reloading
     if (!isModel(obj)) {
       // not a model instance, no reconciliation possible
       throw failure(`the target for a model snapshot must be a model instance`)
@@ -75,7 +76,8 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       )
     }
 
-    const id = sn[modelIdKey]
+    const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+    const id = sn[modelIdPropertyName]
     if (obj[modelIdKey] !== id) {
       // different id, no reconciliation possible
       throw failure(`snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`)

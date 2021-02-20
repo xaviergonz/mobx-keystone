@@ -38,6 +38,7 @@ export interface ModelProp<
   TIsOptional,
   TInstanceValue = TPropValue,
   TInstanceCreationValue = TPropCreationValue,
+  TIsId extends boolean = false,
   THasSetterAction = never
 > {
   $propValueType: TPropValue
@@ -45,6 +46,7 @@ export interface ModelProp<
   $instanceValueType: TInstanceValue
   $instanceCreationValueType: TInstanceCreationValue
   $isOptional: TIsOptional
+  $isId: TIsId
   $hasSetterAction: THasSetterAction
 
   defaultFn: (() => TPropValue) | typeof noDefaultValue
@@ -57,7 +59,7 @@ export interface ModelProp<
 /**
  * Any model property.
  */
-export type AnyModelProp = ModelProp<any, any, any, any, any, any>
+export type AnyModelProp = ModelProp<any, any, any, any, any, any, any>
 
 /**
  * Model properties.
@@ -90,11 +92,26 @@ export type ModelPropsToInstanceCreationData<MP extends ModelProps> = O.Optional
     [k in keyof MP]: MP[k]["$instanceCreationValueType"]
   },
   OptionalModelProps<MP>
-  >
+>
 
 export type ModelPropsToSetterActions<MP extends ModelProps> = {
-  [k in (keyof MP) as MP[k]["$hasSetterAction"] & `set${Capitalize<k & string>}`]: (value: MP[k]["$instanceValueType"]) => void
+  [k in keyof MP as MP[k]["$hasSetterAction"] & `set${Capitalize<k & string>}`]: (
+    value: MP[k]["$instanceValueType"]
+  ) => void
 }
+
+/**
+ * A property that will be used as model id, replacing $modelId.
+ * Can only be used in models and there can be only one per model.
+ */
+export const idProp = (Symbol("idProp") as any) as ModelProp<
+  string,
+  string,
+  string,
+  string,
+  string,
+  true
+>
 
 /**
  * @ignore
@@ -115,12 +132,16 @@ export type MaybeOptionalModelProp<TPropValue, TInstanceValue = TPropValue> = Mo
 /**
  * A model prop that maybe / maybe not is optional, depending on if the value can take undefined, with a setter action.
  */
-export type MaybeOptionalModelPropWithSetterAction<TPropValue, TInstanceValue = TPropValue> = ModelProp<
+export type MaybeOptionalModelPropWithSetterAction<
+  TPropValue,
+  TInstanceValue = TPropValue
+> = ModelProp<
   TPropValue,
   TPropValue,
   IsOptionalValue<TPropValue, string, never>,
   TInstanceValue,
   TInstanceValue,
+  false,
   string
 >
 
@@ -144,6 +165,7 @@ export type OptionalModelPropWithSetterAction<TPropValue, TInstanceValue = TProp
   string,
   TInstanceValue,
   TInstanceValue | null | undefined,
+  false,
   string
 >
 
@@ -242,7 +264,9 @@ export function prop<TValue>(
  * @param options Model property options.
  * @returns
  */
-export function prop<TValue>(options: ModelPropOptionsWithSetterAction): MaybeOptionalModelPropWithSetterAction<TValue>
+export function prop<TValue>(
+  options: ModelPropOptionsWithSetterAction
+): MaybeOptionalModelPropWithSetterAction<TValue>
 
 /**
  * Defines a model property with no default value.
@@ -260,7 +284,10 @@ export function prop<TValue>(options: ModelPropOptionsWithSetterAction): MaybeOp
 export function prop<TValue>(options?: ModelPropOptions): MaybeOptionalModelProp<TValue>
 
 // base
-export function prop<TValue>(arg1?: any, arg2?: any): ModelProp<TValue, any, any, TValue, any, any> {
+export function prop<TValue>(
+  arg1?: any,
+  arg2?: any
+): ModelProp<TValue, any, any, TValue, any, any, any> {
   let def: any
   let opts: ModelPropOptions = {}
   let hasDefaultValue = false
@@ -290,6 +317,7 @@ export function prop<TValue>(arg1?: any, arg2?: any): ModelProp<TValue, any, any
     $isOptional: null as any,
     $instanceValueType: null as any,
     $instanceCreationValueType: null as any,
+    $isId: null as never,
     $hasSetterAction: null as any,
 
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,

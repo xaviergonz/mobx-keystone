@@ -8,10 +8,10 @@ import {
   extendFnModelActions,
   FnModelActionDef,
   FnModelActions,
-  FnModelActionsDef,
+  FnModelActionsDef
 } from "./actions"
+import { FnModelFn } from "./core"
 import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
-import { FnModelSetterActionsArray, FnModelSetterActionsArrayDef } from "./setterActions"
 import { extendFnModelViews, FnModelViews, FnModelViewsDef } from "./views"
 
 declare const dataTypeSymbol: unique symbol
@@ -159,4 +159,22 @@ function extendFnModelSetterActions<Data>(
   }
 
   return fnModelObj
+}
+
+/**
+ * An array with functional model setter action definitions.
+ */
+export type FnModelSetterActionsArrayDef<Data> = ReadonlyArray<(keyof Data) & string>
+
+/**
+ * Array to functional model setter actions.
+ */
+export type FnModelSetterActionsArray<
+  Data extends object,
+  SetterActionsDef extends FnModelSetterActionsArrayDef<Data>
+> = {
+  [K in SetterActionsDef[number] as `set${Capitalize<K>}`]: FnModelFn<
+    Data,
+    (value: Data[K]) => void
+  >
 }

@@ -18,7 +18,9 @@
     "uuid": "^8.1.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.12.13",
     "@babel/plugin-proposal-decorators": "^7.7.4",
+    "@babel/plugin-transform-classes": "^7.12.13",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/uuid": "^8.0.0",

@@ -88,7 +88,7 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   if (isBuiltInAction(call.actionName)) {
     const fnToCall: (...args: any[]) => any = builtInActionToFunction[call.actionName]
     if (!fnToCall) {
-      throw failure(`assertion error: unknown built-in action - ${call.actionName}`)
+      throw failure(`assertion failed: unknown built-in action - ${call.actionName}`)
     }
 
     return fnToCall.apply(current, [current, ...call.args])

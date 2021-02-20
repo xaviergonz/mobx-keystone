@@ -3,4 +3,11 @@ exports.onCreateBabelConfig = ({ actions }) => {
     name: `@babel/plugin-proposal-decorators`,
     options: { legacy: true },
   })
+  actions.setBabelPlugin({
+    name: "@babel/plugin-proposal-class-properties",
+    options: { loose: false },
+  })
+  actions.setBabelPlugin({
+    name: "@babel/plugin-transform-classes",
+  })
 }

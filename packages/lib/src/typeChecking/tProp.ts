@@ -2,13 +2,12 @@ import {
   AnyModelProp,
   MaybeOptionalModelProp,
   MaybeOptionalModelPropWithSetterAction,
-
   ModelPropOptions,
   ModelPropOptionsWithSetterAction,
   noDefaultValue,
   OnlyPrimitives,
   OptionalModelProp,
-  OptionalModelPropWithSetterAction
+  OptionalModelPropWithSetterAction,
 } from "../model/prop"
 import { isObject } from "../utils"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
@@ -28,7 +27,10 @@ import { AnyType, TypeToData } from "./schemas"
  * @param options Model property options.
  * @returns
  */
-export function tProp(defaultValue: string, options: ModelPropOptionsWithSetterAction): OptionalModelPropWithSetterAction<string>
+export function tProp(
+  defaultValue: string,
+  options: ModelPropOptionsWithSetterAction
+): OptionalModelPropWithSetterAction<string>
 
 /**
  * Defines a string model property with a default value.
@@ -58,7 +60,10 @@ export function tProp(defaultValue: string, options?: ModelPropOptions): Optiona
  * @param options Model property options.
  * @returns
  */
-export function tProp(defaultValue: number, options: ModelPropOptionsWithSetterAction): OptionalModelPropWithSetterAction<number>
+export function tProp(
+  defaultValue: number,
+  options: ModelPropOptionsWithSetterAction
+): OptionalModelPropWithSetterAction<number>
 
 /**
  * Defines a number model property with a default value.
@@ -88,7 +93,10 @@ export function tProp(defaultValue: number, options?: ModelPropOptions): Optiona
  * @param options Model property options.
  * @returns
  */
-export function tProp(defaultValue: boolean, options: ModelPropOptionsWithSetterAction): OptionalModelPropWithSetterAction<boolean>
+export function tProp(
+  defaultValue: boolean,
+  options: ModelPropOptionsWithSetterAction
+): OptionalModelPropWithSetterAction<boolean>
 
 /**
  * Defines a boolean model property with a default value.
@@ -274,6 +282,7 @@ export function tProp(typeOrDefaultValue: any, arg1?: any, arg2?: any): AnyModel
     $isOptional: null as any,
     $instanceValueType: null as any,
     $instanceCreationValueType: null as any,
+    $isId: null as never,
     $hasSetterAction: null as any,
 
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,

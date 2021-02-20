@@ -28,14 +28,19 @@ test("input snapshot processor", () => {
     _ as SnapshotInOf<P3>,
     _ as {
       y: string
-    } & { [modelTypeKey]: string; [modelIdKey]: string }
+    } & {
+      [modelTypeKey]: string
+    }
   )
 
   assert(
     _ as SnapshotOutOf<P3>,
     _ as {
+      [modelIdKey]: string
       arr: number[]
-    } & { [modelTypeKey]: string; [modelIdKey]: string }
+    } & {
+      [modelTypeKey]: string
+    }
   )
 
   const p = fromSnapshot<P3>(

@@ -85,13 +85,41 @@ Sometimes you might want some changes / part of changes skip the undo/redo mecha
 ```ts
 @modelAction
 someAction() {
-  // this change be done/undone when the action is done/undone
+  // this change will be redone/undone when the action is redone/undone
   this.x++
-  withoutUndo(() => {
-    // this won't
+
+  // you may skip only in certain undo managers...
+  someUndoManager.withoutUndo(() => {
+    // this one won't
     this.y++
   })
-  // this will
+
+  // or for all of them
+  withoutUndo(() => {
+    // this one won't
+    this.y++
+  })
+
+  // this one will
   this.z++
 }
 ```
+
+## Grouping multiple actions into a single undo/redo step
+
+Sometimes you might want multiple actions to be undone/redone in a single step. To do so you can use the `withGroup` function like this:
+
+```ts
+someUndoManager.withGroup("optional group name", () => {
+  someModel.firstAction()
+  someOtherModel.secondAction()
+
+  // note how nested groups are allowed
+  someUndoManager.withGroup(() => {
+    someModel.thirdAction()
+    someOtherModel.fourthAction()
+  })
+})
+```
+
+Now, once undo/redo is called all the actions will be undone/redone in a single call. Note that `withGroup` currently only works for sync actions.

@@ -1,6 +1,7 @@
 import { isObservableObject, remove, set } from "mobx"
 import { Frozen, frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
+import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
@@ -99,7 +100,8 @@ function reconcileModelSnapshot(
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const id = sn[modelIdKey]
+  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+  const id = sn[modelIdPropertyName]
 
   // try to use model from pool if possible
   const modelInPool = modelPool.findModelForSnapshot(sn)
@@ -107,11 +109,8 @@ function reconcileModelSnapshot(
     value = modelInPool
   }
 
-  if (
-    !(value instanceof modelInfo.class) ||
-    value[modelTypeKey] !== type ||
-    value[modelIdKey] !== id
-  ) {
+  // we don't check by actual instance since the class might be a different one due to hot reloading
+  if (!isModel(value) || value[modelTypeKey] !== type || value[modelIdKey] !== id) {
     // different kind of model / model instance, no reconciliation possible
     return fromSnapshot<AnyModel>(sn)
   }

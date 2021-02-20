@@ -1,8 +1,36 @@
 # Change Log
 
-- Requires TypeScript 4.1.0
-- [BREAKING CHANGE] Class model `setterAction: true` prop option will now generate a setter like `setX` instead.
+- [BREAKING CHANGE] Now requires TypeScript 4.1.0
+- [BREAKING CHANGE] Class model `setterAction: true` prop option will now generate a setter like `setX` automatically instead of making the property assignable.
 - [BREAKING CHANGE] Functional model `setterActions` now just take the field names rather than an object with the setter mapping.
+
+## 0.52.0
+
+- Added `withGroup` to `UndoManager` so that several sync actions can be undone/redone as a single step.
+
+## 0.51.1
+
+- Fix for broken library build.
+
+## 0.51.0
+
+- Added `withoutUndo` and `isUndoRecordingDisabled` to `UndoManager`. Consider using those instead of the global `withoutUndo` if more precision over which `UndoManager` to skip recording to is needed.
+
+## 0.50.0
+
+- It is now possible to use a custom property as model id instead of `$modelId` by assigning to a property the new `idProp` value. In any case, model instances can still use `model.$modelId` to read/write this custom property if desired.
+
+## 0.49.0
+
+- [BREAKING CHANGE] The sandbox manager's `withSandbox` method now requires an array of nodes from the original tree and the corresponding sandbox nodes are now positional arguments of the callback function.
+- Fix for a possible issue when using `applySnapshot` with hot reloading.
+
+## 0.48.5
+
+- Fixed incompatibility with MobX >= 6.1 (in order to fix it `$modelId` is now an enumerable property though).
+- Fixed the sandbox to group commit patches so that the undo manager will undo the commit in a single step.
+- Added `assign` to `fnObject`.
+  > > > > > > > master
 
 ## 0.48.4
 

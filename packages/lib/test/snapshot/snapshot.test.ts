@@ -448,44 +448,44 @@ test("types", () => {
   assert(
     _ as SnapshotInOf<P2>,
     _ as {
+      [modelIdKey]?: string
       y?: number | null
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 
   assert(
     _ as SnapshotOutOf<P2>,
     _ as {
+      [modelIdKey]: string
       y: number
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 
   assert(
     _ as SnapshotInOf<P>,
     _ as {
+      [modelIdKey]?: string
       x?: number | null
       arr?: number[] | null
       p2?: SnapshotInOf<P2>
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 
   assert(
     _ as SnapshotOutOf<P>,
     _ as {
+      [modelIdKey]: string
       x: number
       arr: number[]
       p2: SnapshotOutOf<P2> | undefined
     } & {
       [modelTypeKey]: string
-      [modelIdKey]: string
     }
   )
 

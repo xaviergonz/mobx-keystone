@@ -1,6 +1,6 @@
 import { O } from "ts-toolbelt"
 import { AnyModel, ModelClass } from "../model/BaseModel"
-import { getModelDataType } from "../model/getModelDataType"
+import { getModelMetadata } from "../model/getModelMetadata"
 import { modelInfoByClass } from "../model/modelInfo"
 import { getInternalModelClassPropsInfo } from "../model/modelPropsInfo"
 import { noDefaultValue } from "../model/prop"
@@ -55,7 +55,7 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
             return new TypeCheckError(path, typeName, value)
           }
 
-          const dataTypeChecker = getModelDataType(value)
+          const dataTypeChecker = getModelMetadata(value).dataType
           if (!dataTypeChecker) {
             throw failure(
               `type checking cannot be performed over model of type '${

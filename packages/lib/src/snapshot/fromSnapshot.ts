@@ -1,7 +1,8 @@
 import { action, observable, set } from "mobx"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import { AnyModel } from "../model/BaseModel"
-import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
+import { getModelIdPropertyName } from "../model/getModelMetadata"
+import { isReservedModelKey, modelTypeKey } from "../model/metadata"
 import { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
@@ -108,8 +109,11 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  if (!sn[modelIdKey]) {
-    throw failure(`a model snapshot must contain an id key (${modelIdKey}), but none was found`)
+  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+  if (!sn[modelIdPropertyName]) {
+    throw failure(
+      `a model snapshot of type '${type}' must contain an id key (${modelIdPropertyName}), but none was found`
+    )
   }
 
   return new (modelInfo.class as any)(undefined, {
