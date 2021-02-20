@@ -35,6 +35,7 @@ type Unionize<T> = {
  * @typeparam ValidationType Validation type.
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
+ * @param validationType Runtime validation type.
  */
 export const model = <ValidationType extends AnyStandardType>(
   name: string,
