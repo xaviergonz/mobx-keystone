@@ -21,6 +21,7 @@ import {
   Model,
   modelAction,
   ModelAutoTypeCheckingMode,
+  modelIdKey,
   ModelTypeInfo,
   ModelTypeInfoProps,
   NumberTypeInfo,
@@ -517,6 +518,12 @@ test("model", () => {
       typeInfo: getTypeInfo(types.string),
       hasDefault: false,
       default: undefined,
+    },
+    [modelIdKey]: {
+      type: types.string,
+      typeInfo: getTypeInfo(types.string),
+      hasDefault: true,
+      default: typeInfo.props[modelIdKey].default,
     },
     arr: {
       type: mArrType,

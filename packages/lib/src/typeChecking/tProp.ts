@@ -158,6 +158,7 @@ export function tProp(typeOrDefaultValue: any, arg1?: any, arg2?: any): ModelPro
     $isOptional: null as any,
     $instanceValueType: null as any,
     $instanceCreationValueType: null as any,
+    $isId: null as never,
 
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,

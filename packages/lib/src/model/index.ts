@@ -1,6 +1,5 @@
 export * from "./BaseModel"
-export * from "./getModelDataType"
-export * from "./getModelValidationType"
+export * from "./getModelMetadata"
 export * from "./metadata"
 export * from "./Model"
 export * from "./modelDecorator"

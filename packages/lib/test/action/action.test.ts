@@ -92,10 +92,12 @@ test("action tracking", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "arr": Array [],
               "obj": Object {},
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 0,
                 },
                 "$modelType": "P2",
@@ -120,10 +122,12 @@ test("action tracking", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "arr": Array [],
               "obj": Object {},
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 0,
                 },
                 "$modelType": "P2",
@@ -157,6 +161,7 @@ test("action tracking", () => {
           "rootContext": [Circular],
           "target": P2 {
             "$": Object {
+              "$modelId": "id-2",
               "y": 2,
             },
             "$modelType": "P2",
@@ -177,6 +182,7 @@ test("action tracking", () => {
           "rootContext": [Circular],
           "target": P2 {
             "$": Object {
+              "$modelId": "id-2",
               "y": 2,
             },
             "$modelType": "P2",
@@ -207,10 +213,12 @@ test("action tracking", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "arr": Array [],
               "obj": Object {},
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 4,
                 },
                 "$modelType": "P2",
@@ -242,10 +250,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -268,10 +278,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -285,10 +297,12 @@ test("action tracking", () => {
           },
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "arr": Array [],
               "obj": Object {},
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 4,
                 },
                 "$modelType": "P2",
@@ -320,10 +334,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -346,10 +362,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -363,10 +381,12 @@ test("action tracking", () => {
           },
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "arr": Array [],
               "obj": Object {},
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 4,
                 },
                 "$modelType": "P2",
@@ -399,10 +419,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -425,10 +447,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -442,6 +466,7 @@ test("action tracking", () => {
           },
           "target": P2 {
             "$": Object {
+              "$modelId": "id-2",
               "y": 4,
             },
             "$modelType": "P2",
@@ -469,10 +494,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -495,10 +522,12 @@ test("action tracking", () => {
             "rootContext": [Circular],
             "target": P {
               "$": Object {
+                "$modelId": "id-1",
                 "arr": Array [],
                 "obj": Object {},
                 "p2": P2 {
                   "$": Object {
+                    "$modelId": "id-2",
                     "y": 4,
                   },
                   "$modelType": "P2",
@@ -512,6 +541,7 @@ test("action tracking", () => {
           },
           "target": P2 {
             "$": Object {
+              "$modelId": "id-2",
               "y": 4,
             },
             "$modelType": "P2",
@@ -534,10 +564,12 @@ test("action tracking", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "arr": Array [],
               "obj": Object {},
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 4,
                 },
                 "$modelType": "P2",

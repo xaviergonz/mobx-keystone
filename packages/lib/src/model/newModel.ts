@@ -8,8 +8,8 @@ import { throwTypeCheckErrors } from "../typeChecking/TypeCheckErrors"
 import { validationContext } from "../typeChecking/validation"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { AnyModel, ModelPropsCreationData } from "./BaseModel"
-import { getModelDataType } from "./getModelDataType"
-import { modelIdKey, modelTypeKey } from "./metadata"
+import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
+import { modelTypeKey } from "./metadata"
 import { getModelClassInitializers } from "./modelClassInitializer"
 import { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
@@ -25,7 +25,7 @@ export const internalNewModel = action(
   "newModel",
   <M extends AnyModel>(
     origModelObj: M,
-    initialData: (ModelPropsCreationData<M> & { [modelIdKey]?: string }) | undefined,
+    initialData: ModelPropsCreationData<M> | undefined,
     options: Pick<ModelConstructorOptions, "modelClass" | "snapshotInitialData" | "generateNewIds">
   ): M => {
     const { modelClass: _modelClass, snapshotInitialData, generateNewIds } = options
@@ -44,14 +44,18 @@ export const internalNewModel = action(
       )
     }
 
+    const modelIdPropertyName = getModelIdPropertyName(modelClass)
+    const modelProps = getInternalModelClassPropsInfo(modelClass)
+    const modelIdPropData = modelProps[modelIdPropertyName]!
+
     let id
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
 
       if (generateNewIds) {
-        id = getGlobalConfig().modelIdGenerator()
+        id = (modelIdPropData.defaultFn as () => string)()
       } else {
-        id = sn[modelIdKey]
+        id = sn[modelIdPropertyName]
       }
 
       if (modelObj.fromSnapshot) {
@@ -61,34 +65,36 @@ export const internalNewModel = action(
       initialData = snapshotInitialData.snapshotToInitialData(sn)
     } else {
       // use symbol if provided
-      if (initialData![modelIdKey]) {
-        id = initialData![modelIdKey]
+      if (initialData![modelIdPropertyName]) {
+        id = initialData![modelIdPropertyName]
       } else {
-        id = getGlobalConfig().modelIdGenerator()
+        id = (modelIdPropData.defaultFn as () => string)()
       }
     }
 
     modelObj[modelTypeKey] = modelInfo.name
 
     // fill in defaults in initial data
-    const modelProps = getInternalModelClassPropsInfo(modelClass)
     const modelPropsKeys = Object.keys(modelProps)
     for (let i = 0; i < modelPropsKeys.length; i++) {
       const k = modelPropsKeys[i]
-      const v = (initialData as any)[k]
-      if (v === undefined || v === null) {
-        let newValue: any = v
-        const propData = modelProps[k]
-        if (propData.defaultFn !== noDefaultValue) {
-          newValue = propData.defaultFn()
-        } else if (propData.defaultValue !== noDefaultValue) {
-          newValue = propData.defaultValue
+      // id is already initialized above
+      if (k !== modelIdPropertyName) {
+        const v = (initialData as any)[k]
+        if (v === undefined || v === null) {
+          let newValue: any = v
+          const propData = modelProps[k]
+          if (propData.defaultFn !== noDefaultValue) {
+            newValue = propData.defaultFn()
+          } else if (propData.defaultValue !== noDefaultValue) {
+            newValue = propData.defaultValue
+          }
+          set(initialData as any, k, newValue)
         }
-        set(initialData as any, k, newValue)
       }
     }
 
-    set(initialData as any, modelIdKey, id)
+    set(initialData as any, modelIdPropertyName, id)
 
     tweakModel(modelObj, undefined)
 
@@ -101,12 +107,6 @@ export const internalNewModel = action(
       true
     )
 
-    // hide $.$modelId
-    Object.defineProperty(obsData, modelIdKey, {
-      ...Object.getOwnPropertyDescriptor(obsData, modelIdKey),
-      enumerable: false,
-    })
-
     // link it, and make it readonly
     modelObj.$ = obsData
     if (inDevMode()) {
@@ -114,7 +114,7 @@ export const internalNewModel = action(
     }
 
     // type check it if needed
-    if (isModelAutoTypeCheckingEnabled() && getModelDataType(modelClass)) {
+    if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {
       const err = modelObj.typeCheck()
       if (err) {
         throwTypeCheckErrors(err, modelObj)

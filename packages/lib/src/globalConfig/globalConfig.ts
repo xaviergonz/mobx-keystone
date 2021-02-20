@@ -25,7 +25,7 @@ export enum ModelAutoTypeCheckingMode {
  */
 export interface GlobalConfig {
   /**
-   * Model auto type-checkig mode.
+   * Model auto type-checking mode.
    */
   modelAutoTypeChecking: ModelAutoTypeCheckingMode
 
@@ -35,7 +35,7 @@ export interface GlobalConfig {
   modelAutoTypeValidation: boolean
 
   /**
-   * ID generator function for $modelId.
+   * ID generator function for model ids.
    */
   modelIdGenerator(): string
 

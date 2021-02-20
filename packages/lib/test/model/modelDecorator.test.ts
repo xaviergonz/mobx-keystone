@@ -146,17 +146,23 @@ test("decoratedModel", () => {
 
     assert(
       _ as SnapshotInOf<Point<number>>,
-      _ as { x?: number | null; y: number } & {
+      _ as {
+        [modelIdKey]?: string
+        x?: number | null
+        y: number
+      } & {
         [modelTypeKey]: string
-        [modelIdKey]: string
       }
     )
 
     assert(
       _ as SnapshotOutOf<Point<number>>,
-      _ as { x: number; y: number } & {
-        [modelTypeKey]: string
+      _ as {
         [modelIdKey]: string
+        x: number
+        y: number
+      } & {
+        [modelTypeKey]: string
       }
     )
   }
@@ -219,17 +225,25 @@ test("decoratedModel", () => {
 
     assert(
       _ as SnapshotInOf<Point3d>,
-      _ as { x?: number | null; y: number; z: number } & {
+      _ as {
+        [modelIdKey]?: string
+        x?: number | null
+        y: number
+        z: number
+      } & {
         [modelTypeKey]: string
-        [modelIdKey]: string
       }
     )
 
     assert(
       _ as SnapshotOutOf<Point3d>,
-      _ as { x: number; y: number; z: number } & {
-        [modelTypeKey]: string
+      _ as {
         [modelIdKey]: string
+        x: number
+        y: number
+        z: number
+      } & {
+        [modelTypeKey]: string
       }
     )
   }

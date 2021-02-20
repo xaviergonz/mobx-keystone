@@ -92,8 +92,10 @@ test("onActionMiddleware", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 0,
                 },
                 "$modelType": "P2",
@@ -144,6 +146,7 @@ test("onActionMiddleware", () => {
           "rootContext": [Circular],
           "target": P2 {
             "$": Object {
+              "$modelId": "id-2",
               "y": 2,
             },
             "$modelType": "P2",
@@ -188,8 +191,10 @@ test("onActionMiddleware", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 6,
                 },
                 "$modelType": "P2",
@@ -239,8 +244,10 @@ test("onActionMiddleware", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 6,
                 },
                 "$modelType": "P2",
@@ -305,8 +312,10 @@ test("onActionMiddleware", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 6,
                 },
                 "$modelType": "P2",
@@ -363,8 +372,10 @@ test("onActionMiddleware", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
+              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
+                  "$modelId": "id-2",
                   "y": 6,
                 },
                 "$modelType": "P2",
@@ -429,6 +440,7 @@ test("onActionMiddleware", () => {
           "rootContext": [Circular],
           "target": P2 {
             "$": Object {
+              "$modelId": "id-2",
               "y": 100,
             },
             "$modelType": "P2",

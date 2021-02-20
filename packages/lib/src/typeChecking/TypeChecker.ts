@@ -86,7 +86,7 @@ export class TypeChecker {
     let cachedResult = this.getCachedResult(value)
 
     if (cachedResult === undefined) {
-      // we set the path empty since the resoult could be used for another paths other than this base
+      // we set the path empty since the result could be used for paths other than this base
       cachedResult = this._check!(value, emptyPath)
       this.setCachedResult(value, cachedResult)
     }

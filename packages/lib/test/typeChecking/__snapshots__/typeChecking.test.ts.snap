@@ -19,6 +19,7 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "$modelId": "id-1",
           "arr": Array [],
           "untyped": 5,
           "x": 10,
@@ -47,6 +48,7 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "$modelId": "id-1",
           "arr": Array [],
           "untyped": 5,
           "x": 10,
@@ -85,6 +87,7 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "$modelId": "id-1",
           "arr": Array [],
           "untyped": 5,
           "x": 10,
@@ -117,6 +120,7 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "$modelId": "id-1",
           "arr": Array [],
           "untyped": 5,
           "x": 10,
@@ -151,6 +155,7 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "$modelId": "id-1",
           "arr": Array [
             1,
             2,
@@ -182,6 +187,7 @@ Array [
       "rootContext": [Circular],
       "target": M {
         "$": Object {
+          "$modelId": "id-1",
           "arr": Array [
             1,
             2,

@@ -1,6 +1,6 @@
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { AnyModel } from "../model/BaseModel"
-import { getModelDataType } from "../model/getModelDataType"
+import { getModelMetadata } from "../model/getModelMetadata"
 import { isModel } from "../model/utils"
 import { dataToModelNode } from "../parent/core"
 import { findParent } from "../parent/findParent"
@@ -48,12 +48,12 @@ function findNearestParentModelWithTypeChecker(child: object): AnyModel | undefi
 
   if (child !== actualChild) {
     child = actualChild
-    if (isModel(child) && !!getModelDataType(child)) {
+    if (isModel(child) && !!getModelMetadata(child).dataType) {
       return child
     }
   }
 
   return findParent(child, (parent) => {
-    return isModel(parent) && !!getModelDataType(parent)
+    return isModel(parent) && !!getModelMetadata(parent).dataType
   })
 }

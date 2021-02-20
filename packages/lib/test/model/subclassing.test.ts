@@ -9,13 +9,13 @@ import {
   modelAction,
   modelClass,
   ModelClassDeclaration,
+  modelIdKey,
   ModelPropsCreationData,
   ModelPropsData,
   prop,
   tProp,
   types,
 } from "../../src"
-import { ModelPropsToPropsCreationData, ModelPropsToPropsData } from "../../src/model/prop"
 import "../commonSetup"
 
 // @model("P")
@@ -66,7 +66,13 @@ test("subclassing with additional props", () => {
   type CD = ModelPropsCreationData<P2>
   assert(
     _ as D,
-    _ as { x: number; y: number; z: number } & {
+    _ as {
+      [modelIdKey]: string
+      x: number
+      y: number
+      z: number
+    } & {
+      [modelIdKey]: string
       a: number
       b: number
     }
@@ -74,10 +80,12 @@ test("subclassing with additional props", () => {
   assert(
     _ as CD,
     _ as {
+      [modelIdKey]?: string
       x?: number | null
       y?: number | null
       z?: number | null
     } & {
+      [modelIdKey]?: string
       a?: number | null
       b: number
     }
@@ -137,18 +145,24 @@ test("subclassing without additional props", () => {
   assert(
     _ as D,
     _ as {
+      [modelIdKey]: string
       x: number
       y: number
       z: number
-    } & ModelPropsToPropsData<{}>
+    } & {
+      [modelIdKey]: string
+    }
   )
   assert(
     _ as CD,
     _ as {
+      [modelIdKey]?: string
       x?: number | null
       y?: number | null
       z?: number | null
-    } & ModelPropsToPropsCreationData<{}>
+    } & {
+      [modelIdKey]?: string
+    }
   )
 
   const p2 = new P2({ x: 20 })
@@ -190,18 +204,24 @@ test("subclassing without anything new", () => {
   assert(
     _ as D,
     _ as {
+      [modelIdKey]: string
       x: number
       y: number
       z: number
-    } & ModelPropsToPropsData<{}>
+    } & {
+      [modelIdKey]: string
+    }
   )
   assert(
     _ as CD,
     _ as {
+      [modelIdKey]?: string
       x?: number | null
       y?: number | null
       z?: number | null
-    } & ModelPropsToPropsCreationData<{}>
+    } & {
+      [modelIdKey]?: string
+    }
   )
 
   const p2 = new P2({ x: 20 })
@@ -268,19 +288,31 @@ test("three level subclassing", () => {
   type CD = ModelPropsCreationData<P2>
   assert(
     _ as D,
-    _ as { x: number; y: number; z: number } & {
+    _ as {
+      [modelIdKey]: string
+      x: number
+      y: number
+      z: number
+    } & {
+      [modelIdKey]: string
       a: number
-    } & { b: number }
+    } & {
+      [modelIdKey]: string
+      b: number
+    }
   )
   assert(
     _ as CD,
     _ as {
+      [modelIdKey]?: string
       x?: number | null | undefined
       y?: number | null | undefined
       z?: number | null | undefined
     } & {
+      [modelIdKey]?: string
       a?: number | null | undefined
     } & {
+      [modelIdKey]?: string
       b: number
     }
   )
@@ -630,4 +662,44 @@ test("issue #109", () => {
   }
 
   new ChildModel({})
+})
+
+test("ExtendedModel should bring static / prototype properties", () => {
+  @model("Bobbin")
+  class Bobbin extends Model({}) {
+    static LAST = "Threadbare"
+  }
+  Object.defineProperty(Bobbin.prototype, "first", {
+    value: "Bobbin",
+    writable: false,
+  })
+  // (Bobbin.prototype as any).first = "Bobbin"
+
+  expect((Bobbin.prototype as any).first).toBe("Bobbin")
+  expect(Bobbin.LAST).toBe("Threadbare")
+
+  const bobbin = new Bobbin({})
+  expect((bobbin as any).first).toBe("Bobbin")
+  expect((bobbin as any).LAST).toBe(undefined)
+
+  @model("ExtendedBobbin")
+  class ExtendedBobbin extends ExtendedModel(Bobbin, {}) {
+    static LAST2 = "Threepwood"
+  }
+  Object.defineProperty(ExtendedBobbin.prototype, "first2", {
+    value: "Guybrush",
+    writable: false,
+  })
+  // (ExtendedBobbin.prototype as any).first2 = "Guybrush"
+
+  expect((ExtendedBobbin.prototype as any).first).toBe("Bobbin")
+  expect((ExtendedBobbin as any).LAST).toBe("Threadbare")
+  expect((ExtendedBobbin.prototype as any).first2).toBe("Guybrush")
+  expect((ExtendedBobbin as any).LAST2).toBe("Threepwood")
+
+  const extendedBobbin = new ExtendedBobbin({})
+  expect((extendedBobbin as any).first).toBe("Bobbin")
+  expect((extendedBobbin as any).LAST).toBe(undefined)
+  expect((extendedBobbin as any).first2).toBe("Guybrush")
+  expect((extendedBobbin as any).LAST2).toBe(undefined)
 })

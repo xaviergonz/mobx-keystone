@@ -13,7 +13,7 @@ import {
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
-import { modelUnwrappedClassSymbol, modelValidationTypeCheckerSymbol } from "./modelSymbols"
+import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
 
 type AllKeys<T> = T extends unknown ? keyof T : never
@@ -90,7 +90,9 @@ const internalModel = <DataType extends AnyStandardType>(name: string, dataType?
         // was rejected on the mobx side
         if (
           err.message !==
-          "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either"
+            "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
+          err.message !==
+            "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
         ) {
           throw err
         }
@@ -111,7 +113,7 @@ const internalModel = <DataType extends AnyStandardType>(name: string, dataType?
 
   clazz.toString = () => `class ${clazz.name}#${name}`
   ;(clazz as any)[modelTypeKey] = name
-  ;(clazz as any)[modelValidationTypeCheckerSymbol] = dataType
+  ;(clazz as any)[modelMetadataSymbol].validationType = dataType
 
   // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
   Object.setPrototypeOf(newClazz, clazz)
