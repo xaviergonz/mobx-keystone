@@ -32,23 +32,21 @@ type Unionize<T> = {
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
  * as a model.
  *
- * @typeparam DataType Data type.
+ * @typeparam ValidationType Validation type.
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model = <DataType extends AnyStandardType>(name: string, dataType?: DataType) => <
-  MC extends ModelClass<AnyModel & Unionize<TypeToData<DataType>>>
->(
-  clazz: MC
-): MC => {
-  return internalModel(name, dataType)(clazz)
+export const model = <ValidationType extends AnyStandardType>(
+  name: string,
+  validationType?: ValidationType
+) => <MC extends ModelClass<AnyModel & Unionize<TypeToData<ValidationType>>>>(clazz: MC): MC => {
+  return internalModel(name, validationType)(clazz)
 }
 
-const internalModel = <DataType extends AnyStandardType>(name: string, dataType?: DataType) => <
-  MC extends ModelClass<AnyModel & Unionize<TypeToData<DataType>>>
->(
-  clazz: MC
-): MC => {
+const internalModel = <ValidationType extends AnyStandardType>(
+  name: string,
+  validationType?: ValidationType
+) => <MC extends ModelClass<AnyModel & Unionize<TypeToData<ValidationType>>>>(clazz: MC): MC => {
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
@@ -113,7 +111,7 @@ const internalModel = <DataType extends AnyStandardType>(name: string, dataType?
 
   clazz.toString = () => `class ${clazz.name}#${name}`
   ;(clazz as any)[modelTypeKey] = name
-  ;(clazz as any)[modelMetadataSymbol].validationType = dataType
+  ;(clazz as any)[modelMetadataSymbol].validationType = validationType
 
   // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
   Object.setPrototypeOf(newClazz, clazz)
