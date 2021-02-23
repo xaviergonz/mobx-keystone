@@ -245,7 +245,7 @@ test("sandbox is patched when original tree changes", () => {
   })
 })
 
-test("changes in sandbox can be applied to original tree", () => {
+test("changes in sandbox can be applied to original tree - idempotent action", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
   autoDispose(() => manager.dispose())
@@ -265,6 +265,36 @@ test("changes in sandbox can be applied to original tree", () => {
 
   manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(2)
+    return false
+  })
+})
+
+test("changes in sandbox can be applied to original tree - non-idempotent action", () => {
+  @model("C")
+  class C extends Model({
+    values: prop<number[]>(),
+  }) {
+    @modelAction
+    append(value: number): void {
+      this.values.push(value)
+    }
+  }
+
+  const c = new C({ values: [] })
+  const manager = sandbox(c)
+  autoDispose(() => manager.dispose())
+
+  manager.withSandbox([c], (node) => {
+    node.append(10)
+    node.append(11)
+    expect(c.values).toEqual([])
+    expect(node.values).toEqual([10, 11])
+    return true
+  })
+  expect(c.values).toEqual([10, 11])
+
+  manager.withSandbox([c], (node) => {
+    expect(node.values).toEqual([10, 11])
     return false
   })
 })

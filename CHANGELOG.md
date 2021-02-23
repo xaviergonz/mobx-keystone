@@ -1,5 +1,7 @@
 # Change Log
 
+- Fixed committing non-idempotent sandbox changes to the original subtree.
+
 ## 0.52.0
 
 - Added `withGroup` to `UndoManager` so that several sync actions can be undone/redone as a single step.

@@ -74,6 +74,11 @@ export class SandboxManager {
   private allowWrite: ReadonlyMiddlewareReturn["allowWrite"]
 
   /**
+   * Whether changes made in the sandbox are currently being committed to the original subtree.
+   */
+  private isComitting: boolean = false
+
+  /**
    * Creates an instance of `SandboxManager`.
    * Do not use directly, use `sandbox` instead.
    *
@@ -116,9 +121,11 @@ export class SandboxManager {
       if (this.withSandboxPatchRecorder) {
         throw failure("original subtree must not change while 'withSandbox' executes")
       }
-      this.allowWrite(() => {
-        applyPatches(this.subtreeRootClone, patches)
-      })
+      if (!this.isComitting) {
+        this.allowWrite(() => {
+          applyPatches(this.subtreeRootClone, patches)
+        })
+      }
     })
 
     const { allowWrite, dispose: disposeReadonlyMW } = readonlyMiddleware(this.subtreeRootClone)
@@ -222,7 +229,9 @@ export class SandboxManager {
           for (let i = 0; i < len; i++) {
             patches.push(...recorder.events[i].patches)
           }
+          this.isComitting = true
           applyPatches(this.subtreeRoot, patches)
+          this.isComitting = false
         }
       } else {
         this.allowWrite(() => {
