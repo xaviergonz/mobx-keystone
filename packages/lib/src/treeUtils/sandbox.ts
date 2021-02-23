@@ -229,9 +229,14 @@ export class SandboxManager {
           for (let i = 0; i < len; i++) {
             patches.push(...recorder.events[i].patches)
           }
+
+          const isCommitting = this.isComitting
           this.isComitting = true
-          applyPatches(this.subtreeRoot, patches)
-          this.isComitting = false
+          try {
+            applyPatches(this.subtreeRoot, patches)
+          } finally {
+            this.isComitting = isCommitting
+          }
         }
       } else {
         this.allowWrite(() => {
