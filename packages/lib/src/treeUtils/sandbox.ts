@@ -76,7 +76,7 @@ export class SandboxManager {
   /**
    * Whether changes made in the sandbox are currently being committed to the original subtree.
    */
-  private isComitting: boolean = false
+  private isCommitting: boolean = false
 
   /**
    * Creates an instance of `SandboxManager`.
@@ -121,7 +121,7 @@ export class SandboxManager {
       if (this.withSandboxPatchRecorder) {
         throw failure("original subtree must not change while 'withSandbox' executes")
       }
-      if (!this.isComitting) {
+      if (!this.isCommitting) {
         this.allowWrite(() => {
           applyPatches(this.subtreeRootClone, patches)
         })
@@ -230,12 +230,12 @@ export class SandboxManager {
             patches.push(...recorder.events[i].patches)
           }
 
-          const isCommitting = this.isComitting
-          this.isComitting = true
+          const isCommitting = this.isCommitting
+          this.isCommitting = true
           try {
             applyPatches(this.subtreeRoot, patches)
           } finally {
-            this.isComitting = isCommitting
+            this.isCommitting = isCommitting
           }
         }
       } else {
