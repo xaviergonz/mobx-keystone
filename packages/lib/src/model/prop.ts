@@ -10,8 +10,9 @@ import { IsOptionalValue } from "../utils/types"
 export interface ModelPropOptions {
   /**
    * Set to `true` to automatically generate a property setter in a model action (defaults to `false`).
+   * Set to `assign` to get the old behaviour of making the property assignable.
    */
-  readonly setterAction?: boolean
+  readonly setterAction?: boolean | "assign"
 }
 
 /**

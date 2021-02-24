@@ -1,4 +1,5 @@
-import { ActionContextActionType } from "../action/context"
+import { applySet } from "../action/applySet"
+import { ActionContextActionType, getCurrentActionContext } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { getGlobalConfig } from "../globalConfig"
 import { memoTransformCache } from "../propTransform/propTransform"
@@ -104,7 +105,6 @@ export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel
 ): _Model<TModel, AddModelIdPropIfNeeded<TProps>> {
   assertIsModelClass(baseModel, "baseModel")
 
-  // note that & Object is there to support abstract classes
   return internalModel(modelProps, baseModel as any)
 }
 
@@ -320,6 +320,12 @@ function setModelInstanceDataField<M extends AnyModel>(
   modelPropName: keyof ModelInstanceData<M>,
   value: ModelInstanceData<M>[typeof modelPropName]
 ): void {
+  if (modelProp?.options.setterAction === "assign" && !getCurrentActionContext()) {
+    // use apply set instead to wrap it in an action
+    applySet(model, modelPropName as any, value)
+    return
+  }
+
   const transform = modelProp?.transform
 
   if (transform) {

@@ -7,6 +7,8 @@ import { autoDispose } from "../utils"
 export class P extends Model({
   y: prop(0, { setterAction: true }),
   z: tProp(0, { setterAction: true }),
+  sy: prop(0, { setterAction: "assign" }),
+  sz: tProp(0, { setterAction: "assign" }),
 }) {
   @computed
   get cy() {
@@ -16,6 +18,16 @@ export class P extends Model({
   @computed
   get cz() {
     return this.z * 10
+  }
+
+  @computed
+  get csy() {
+    return this.sy * 10
+  }
+
+  @computed
+  get csz() {
+    return this.sz * 10
   }
 }
 
@@ -63,6 +75,8 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "$modelId": "id-1",
+              "sy": 0,
+              "sz": 0,
               "y": 5,
               "z": 0,
             },
@@ -84,6 +98,8 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "$modelId": "id-1",
+              "sy": 0,
+              "sz": 0,
               "y": 5,
               "z": 0,
             },
@@ -117,6 +133,8 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "$modelId": "id-1",
+              "sy": 0,
+              "sz": 0,
               "y": 5,
               "z": 5,
             },
@@ -138,6 +156,128 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "$modelId": "id-1",
+              "sy": 0,
+              "sz": 0,
+              "y": 5,
+              "z": 5,
+            },
+            "$modelType": "P",
+          },
+          "type": "sync",
+        },
+        "event": "action finished",
+        "result": undefined,
+      },
+    ]
+  `)
+  events.length = 0
+
+  p.sy = 5
+  expect(p.sy).toBe(5)
+  expect(p.$.sy).toBe(5)
+  expect(p.csy).toBe(50)
+
+  expect(events).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "ctx": Object {
+          "actionName": "$$applySet",
+          "args": Array [
+            "sy",
+            5,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": P {
+            "$": Object {
+              "$modelId": "id-1",
+              "sy": 5,
+              "sz": 0,
+              "y": 5,
+              "z": 5,
+            },
+            "$modelType": "P",
+          },
+          "type": "sync",
+        },
+        "event": "action started",
+      },
+      Object {
+        "ctx": Object {
+          "actionName": "$$applySet",
+          "args": Array [
+            "sy",
+            5,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": P {
+            "$": Object {
+              "$modelId": "id-1",
+              "sy": 5,
+              "sz": 0,
+              "y": 5,
+              "z": 5,
+            },
+            "$modelType": "P",
+          },
+          "type": "sync",
+        },
+        "event": "action finished",
+        "result": undefined,
+      },
+    ]
+  `)
+  events.length = 0
+
+  p.sz = 5
+  expect(p.sz).toBe(5)
+  expect(p.$.sz).toBe(5)
+  expect(p.csz).toBe(50)
+
+  expect(events).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "ctx": Object {
+          "actionName": "$$applySet",
+          "args": Array [
+            "sz",
+            5,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": P {
+            "$": Object {
+              "$modelId": "id-1",
+              "sy": 5,
+              "sz": 5,
+              "y": 5,
+              "z": 5,
+            },
+            "$modelType": "P",
+          },
+          "type": "sync",
+        },
+        "event": "action started",
+      },
+      Object {
+        "ctx": Object {
+          "actionName": "$$applySet",
+          "args": Array [
+            "sz",
+            5,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": P {
+            "$": Object {
+              "$modelId": "id-1",
+              "sy": 5,
+              "sz": 5,
               "y": 5,
               "z": 5,
             },

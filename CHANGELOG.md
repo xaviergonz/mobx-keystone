@@ -1,7 +1,7 @@
 # Change Log
 
 - [BREAKING CHANGE] Now requires TypeScript 4.2.0.
-- [BREAKING CHANGE] Class model `setterAction: true` prop option will now generate a setter like `setX` automatically instead of making the property assignable.
+- [BREAKING CHANGE] Class model `setterAction: true` prop option will now generate a setter like `setX` automatically instead of making the property assignable. To get the old behaviour use `setterAction: "assign"` instead.
 - [BREAKING CHANGE] Functional model `setterActions` now just take the field names rather than an object with the setter mapping.
 - Fixed an issue when using `ExtendedModel` with abstract classes in Typescript 4.2.0.
 - Fixed committing non-idempotent sandbox changes to the original subtree.
