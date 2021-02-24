@@ -29,3 +29,21 @@ export type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
 // type _D = IsOptionalValue<string & undefined, true, false> // false, but we don't care
 // type _E = IsOptionalValue<any, true, false> // true
 // type _F = IsOptionalValue<unknown, true, false> // true
+
+/**
+ * @ignore
+ *
+ * An array that must have at least one element.
+ */
+export interface NonEmptyArray<T> extends Array<T> {
+  0: T
+}
+
+/**
+ * @ignore
+ *
+ * A read-only array that must have at least one element.
+ */
+export interface ReadonlyNonEmptyArray<T> extends ReadonlyArray<T> {
+  readonly 0: T
+}

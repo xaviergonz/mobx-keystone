@@ -2,6 +2,7 @@ import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { toTreeNode } from "../tweaker/tweak"
 import { AnyStandardType, TypeToData } from "../typeChecking/schemas"
 import { typeCheck } from "../typeChecking/typeCheck"
+import { throwTypeCheckErrors } from "../typeChecking/TypeCheckErrors"
 import { assertIsString } from "../utils"
 import { extendFnModelActions, FnModelActions, FnModelActionsDef } from "./actions"
 import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
@@ -130,9 +131,9 @@ function fnModelCreateWithoutType<Data extends object>(data: Data): Data {
 
 function fnModelCreateWithType<Data extends object>(actualType: AnyStandardType, data: Data): Data {
   if (isModelAutoTypeCheckingEnabled()) {
-    const errors = typeCheck(actualType, data)
-    if (errors) {
-      errors.throw(data)
+    const err = typeCheck(actualType, data)
+    if (err) {
+      throwTypeCheckErrors(err, data)
     }
   }
   return toTreeNode(data)

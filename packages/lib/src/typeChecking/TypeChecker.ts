@@ -4,13 +4,13 @@ import { isTweakedObject } from "../tweaker/core"
 import { failure, lateVal } from "../utils"
 import { resolveStandardType } from "./resolveTypeChecker"
 import { AnyStandardType, AnyType } from "./schemas"
-import { TypeCheckError } from "./TypeCheckError"
+import { transformTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 
-type CheckFunction = (value: any, path: Path) => TypeCheckError | null
+type CheckFunction = (value: any, path: Path) => TypeCheckErrors | null
 
 const emptyPath: Path = []
 
-type CheckResult = TypeCheckError | null
+type CheckResult = TypeCheckErrors | null
 type CheckResultCache = WeakMap<object, CheckResult>
 
 const typeCheckersWithCachedResultsOfObject = new WeakMap<object, Set<TypeChecker>>()
@@ -72,7 +72,7 @@ export class TypeChecker {
     return this.checkResultCache ? this.checkResultCache.get(obj) : undefined
   }
 
-  check(value: any, path: Path): TypeCheckError | null {
+  check(value: any, path: Path): TypeCheckErrors | null {
     if (this.unchecked) {
       return null
     }
@@ -92,11 +92,10 @@ export class TypeChecker {
     }
 
     if (cachedResult) {
-      return new TypeCheckError(
-        [...path, ...cachedResult.path],
-        cachedResult.expectedTypeName,
-        cachedResult.actualValue
-      )
+      return transformTypeCheckErrors(cachedResult, (cachedError) => ({
+        ...cachedError,
+        path: [...path, ...cachedError.path],
+      }))
     } else {
       return null
     }

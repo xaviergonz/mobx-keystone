@@ -1,5 +1,6 @@
 export * from "./schemas"
 export * from "./tProp"
 export * from "./typeCheck"
-export * from "./TypeCheckError"
+export * from "./TypeCheckErrors"
 export * from "./types"
+export * from "./validation"

@@ -1,8 +1,8 @@
-import { isArray, lateVal } from "../utils"
+import { isArray, isNonEmptyArray, lateVal } from "../utils"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyStandardType, AnyType, ArrayType } from "./schemas"
 import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError, mergeTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 
 /**
  * A type that represents an tuple of values of a given type.
@@ -36,20 +36,21 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
     const thisTc: TypeChecker = new TypeChecker(
       (array, path) => {
         if (!isArray(array) || array.length !== itemTypes.length) {
-          return new TypeCheckError(path, getTypeName(thisTc), array)
+          return createTypeCheckError(path, getTypeName(thisTc), array)
         }
 
+        const itemErrors: TypeCheckErrors[] = []
         for (let i = 0; i < array.length; i++) {
           const itemChecker = checkers[i]
           if (!itemChecker.unchecked) {
             const itemError = itemChecker.check(array[i], [...path, i])
             if (itemError) {
-              return itemError
+              itemErrors.push(itemError)
             }
           }
         }
 
-        return null
+        return isNonEmptyArray(itemErrors) ? mergeTypeCheckErrors("and", itemErrors) : null
       },
       getTypeName,
       typeInfoGen

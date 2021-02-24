@@ -45,9 +45,11 @@
     "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0"
   },
   "devDependencies": {
+    "@types/dedent": "^0.7.0",
     "@types/jest": "^26.0.0",
     "@typescript-eslint/eslint-plugin": "^4.5.0",
     "@typescript-eslint/parser": "^4.5.0",
+    "dedent": "^0.7.0",
     "eslint": "^7.12.1",
     "eslint-plugin-flowtype": "^5.2.0",
     "eslint-plugin-jest": "^24.1.0",

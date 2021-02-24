@@ -1,8 +1,8 @@
-import { isArray } from "../utils"
+import { isArray, isNonEmptyArray } from "../utils"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyStandardType, AnyType, ArrayType } from "./schemas"
 import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError, mergeTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 
 /**
  * A type that represents an array of values of a given type.
@@ -28,16 +28,18 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
     const thisTc: TypeChecker = new TypeChecker(
       (array, path) => {
         if (!isArray(array)) {
-          return new TypeCheckError(path, getTypeName(thisTc), array)
+          return createTypeCheckError(path, getTypeName(thisTc), array)
         }
 
         if (!itemChecker.unchecked) {
+          const itemErrors: TypeCheckErrors[] = []
           for (let i = 0; i < array.length; i++) {
             const itemError = itemChecker.check(array[i], [...path, i])
             if (itemError) {
-              return itemError
+              itemErrors.push(itemError)
             }
           }
+          return isNonEmptyArray(itemErrors) ? mergeTypeCheckErrors("and", itemErrors) : null
         }
 
         return null

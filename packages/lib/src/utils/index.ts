@@ -8,7 +8,7 @@ import {
   ObservableMap,
   ObservableSet,
 } from "mobx"
-import { PrimitiveValue } from "./types"
+import { NonEmptyArray, PrimitiveValue } from "./types"
 
 /**
  * A mobx-keystone error.
@@ -151,6 +151,16 @@ export function isSet(val: any): val is Set<any> | ObservableSet {
  */
 export function isArray(val: any): val is any[] | IObservableArray {
   return Array.isArray(val) || isObservableArray(val)
+}
+
+/**
+ * Checks whether an array is non-empty.
+ *
+ * @param arr Array to check.
+ * @returns `true` if `arr` is non-empty, otherwise `false`.
+ */
+export function isNonEmptyArray<T>(arr: T[]): arr is NonEmptyArray<T> {
+  return arr.length !== 0
 }
 
 /**

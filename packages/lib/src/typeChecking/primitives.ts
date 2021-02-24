@@ -3,7 +3,7 @@ import { PrimitiveValue } from "../utils/types"
 import { typesRefinement } from "./refinement"
 import { AnyStandardType, IdentityType } from "./schemas"
 import { TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError } from "./TypeCheckErrors"
 
 /**
  * A type that represents a certain value of a primitive (for example an *exact* number or string).
@@ -36,7 +36,7 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
   const typeInfoGen: TypeInfoGen = (t) => new LiteralTypeInfo(t, literal)
 
   return new TypeChecker(
-    (value, path) => (value === literal ? null : new TypeCheckError(path, typeName, value)),
+    (value, path) => (value === literal ? null : createTypeCheckError(path, typeName, value)),
     () => typeName,
     typeInfoGen
   ) as any
@@ -79,7 +79,8 @@ export const typesNull = typesLiteral(null)
  * ```
  */
 export const typesBoolean: IdentityType<boolean> = new TypeChecker(
-  (value, path) => (typeof value === "boolean" ? null : new TypeCheckError(path, "boolean", value)),
+  (value, path) =>
+    typeof value === "boolean" ? null : createTypeCheckError(path, "boolean", value),
   () => "boolean",
   (t) => new BooleanTypeInfo(t)
 ) as any
@@ -97,7 +98,7 @@ export class BooleanTypeInfo extends TypeInfo {}
  * ```
  */
 export const typesNumber: IdentityType<number> = new TypeChecker(
-  (value, path) => (typeof value === "number" ? null : new TypeCheckError(path, "number", value)),
+  (value, path) => (typeof value === "number" ? null : createTypeCheckError(path, "number", value)),
   () => "number",
   (t) => new NumberTypeInfo(t)
 ) as any
@@ -115,7 +116,7 @@ export class NumberTypeInfo extends TypeInfo {}
  * ```
  */
 export const typesString: IdentityType<string> = new TypeChecker(
-  (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
+  (value, path) => (typeof value === "string" ? null : createTypeCheckError(path, "string", value)),
   () => "string",
   (t) => new StringTypeInfo(t)
 ) as any

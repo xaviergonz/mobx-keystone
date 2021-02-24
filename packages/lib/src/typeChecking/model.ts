@@ -9,7 +9,7 @@ import { failure, lateVal } from "../utils"
 import { resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyStandardType, IdentityType } from "./schemas"
 import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { createTypeCheckError, mergeTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
 
@@ -52,11 +52,13 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
       return new TypeChecker(
         (value, path) => {
           if (!(value instanceof modelClazz)) {
-            return new TypeCheckError(path, typeName, value)
+            return createTypeCheckError(path, typeName, value)
           }
 
-          const dataTypeChecker = getModelMetadata(value).dataType
-          if (!dataTypeChecker) {
+          const modelMetadata = getModelMetadata(value)
+          const dataTypeChecker = modelMetadata.dataType
+          const validationTypeChecker = modelMetadata.validationType
+          if (!dataTypeChecker && !validationTypeChecker) {
             throw failure(
               `type checking cannot be performed over model of type '${
                 modelInfo.name
@@ -66,9 +68,28 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
             )
           }
 
-          const resolvedTc = resolveTypeChecker(dataTypeChecker)
-          if (!resolvedTc.unchecked) {
-            return resolvedTc.check(value.$, path)
+          let dataErrors: TypeCheckErrors | null | undefined
+          if (dataTypeChecker) {
+            const resolvedTc = resolveTypeChecker(dataTypeChecker)
+            if (!resolvedTc.unchecked) {
+              dataErrors = resolvedTc.check(value.$, [...path, "$"])
+            }
+          }
+
+          let validationErrors: TypeCheckErrors | null | undefined
+          if (validationTypeChecker) {
+            const resolvedTc = resolveTypeChecker(validationTypeChecker)
+            if (!resolvedTc.unchecked) {
+              validationErrors = resolvedTc.check(value, path)
+            }
+          }
+
+          if (dataErrors && validationErrors) {
+            return mergeTypeCheckErrors("and", [dataErrors, validationErrors])
+          } else if (dataErrors) {
+            return dataErrors
+          } else if (validationErrors) {
+            return validationErrors
           }
 
           return null

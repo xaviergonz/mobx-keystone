@@ -1,8 +1,8 @@
-import { lateVal } from "../utils"
+import { isNonEmptyArray, lateVal } from "../utils"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import { AnyStandardType, AnyType } from "./schemas"
 import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { mergeTypeCheckErrors, TypeCheckErrors } from "./TypeCheckErrors"
 import { typesUnchecked } from "./unchecked"
 
 /**
@@ -41,12 +41,16 @@ export function typesOr<T extends AnyType[]>(...orTypes: T): T[number] {
 
     const thisTc: TypeChecker = new TypeChecker(
       (value, path) => {
-        const noMatchingType = checkers.every((tc) => !!tc.check(value, path))
-        if (noMatchingType) {
-          return new TypeCheckError(path, getTypeName(thisTc), value)
-        } else {
-          return null
+        const errors: TypeCheckErrors[] = []
+        for (const tc of checkers) {
+          const tcErrors = tc.check(value, path)
+          if (tcErrors) {
+            errors.push(tcErrors)
+          } else {
+            return null
+          }
         }
+        return isNonEmptyArray(errors) ? mergeTypeCheckErrors("or", errors) : null
       },
       getTypeName,
       typeInfoGen

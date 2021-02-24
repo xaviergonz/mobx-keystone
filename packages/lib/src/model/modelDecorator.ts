@@ -1,6 +1,7 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { getGlobalConfig } from "../globalConfig"
+import { AnyStandardType, TypeToData } from "../typeChecking/schemas"
 import {
   addHiddenProp,
   failure,
@@ -12,21 +13,41 @@ import {
 import { AnyModel, ModelClass, modelInitializedSymbol } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { modelInfoByClass, modelInfoByName } from "./modelInfo"
-import { modelUnwrappedClassSymbol } from "./modelSymbols"
+import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import { assertIsModelClass } from "./utils"
+
+type AllKeys<T> = T extends unknown ? keyof T : never
+
+type AllValues<T, K extends keyof any> = T extends object
+  ? K extends keyof T
+    ? T[K]
+    : never
+  : never
+
+type Unionize<T> = {
+  [K in AllKeys<T>]: AllValues<T, K>
+}
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` abstract class)
  * as a model.
  *
+ * @typeparam ValidationType Validation type.
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
+ * @param validationType Runtime validation type.
  */
-export const model = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
-  return internalModel(name)(clazz)
+export const model = <ValidationType extends AnyStandardType>(
+  name: string,
+  validationType?: ValidationType
+) => <MC extends ModelClass<AnyModel & Unionize<TypeToData<ValidationType>>>>(clazz: MC): MC => {
+  return internalModel(name, validationType)(clazz)
 }
 
-const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz: MC): MC => {
+const internalModel = <ValidationType extends AnyStandardType>(
+  name: string,
+  validationType?: ValidationType
+) => <MC extends ModelClass<AnyModel & Unionize<TypeToData<ValidationType>>>>(clazz: MC): MC => {
   assertIsModelClass(clazz, "a model class")
 
   if (modelInfoByName[name]) {
@@ -91,6 +112,7 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel>>(clazz:
 
   clazz.toString = () => `class ${clazz.name}#${name}`
   ;(clazz as any)[modelTypeKey] = name
+  ;(clazz as any)[modelMetadataSymbol].validationType = validationType
 
   // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
   Object.setPrototypeOf(newClazz, clazz)

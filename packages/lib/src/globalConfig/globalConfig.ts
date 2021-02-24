@@ -30,6 +30,11 @@ export interface GlobalConfig {
   modelAutoTypeChecking: ModelAutoTypeCheckingMode
 
   /**
+   * Model auto type-validation.
+   */
+  modelAutoTypeValidation: boolean
+
+  /**
    * ID generator function for model ids.
    */
   modelIdGenerator(): string
@@ -59,6 +64,7 @@ function defaultModelIdGenerator(): string {
 // defaults
 let globalConfig: GlobalConfig = {
   modelAutoTypeChecking: ModelAutoTypeCheckingMode.DevModeOnly,
+  modelAutoTypeValidation: false,
   modelIdGenerator: defaultModelIdGenerator,
   allowUndefinedArrayElements: false,
   showDuplicateModelNameWarnings: true,

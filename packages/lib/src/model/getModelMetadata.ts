@@ -14,6 +14,11 @@ export interface ModelMetadata {
   dataType?: AnyType
 
   /**
+   * Associated validation type for runtime checking (if any).
+   */
+  validationType?: AnyType
+
+  /**
    * Property used as model id (usually `$modelId` unless overridden).
    */
   modelIdProperty: string
