@@ -32,7 +32,6 @@
 - Fixed incompatibility with MobX >= 6.1 (in order to fix it `$modelId` is now an enumerable property though).
 - Fixed the sandbox to group commit patches so that the undo manager will undo the commit in a single step.
 - Added `assign` to `fnObject`.
-  > > > > > > > master
 
 ## 0.48.4
 
