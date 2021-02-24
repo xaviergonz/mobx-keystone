@@ -9,12 +9,13 @@ import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure, propNameToSetterActionName } from "../utils"
 import {
+  AbstractModelClass,
   AnyModel,
   BaseModel,
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData
+  ModelInstanceData,
 } from "./BaseModel"
 import { ModelMetadata } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
@@ -31,7 +32,7 @@ import {
   ModelPropsToPropsCreationData,
   ModelPropsToPropsData,
   ModelPropsToSetterActions,
-  prop
+  prop,
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -92,18 +93,15 @@ export type ExtractModelIdProp<TProps extends ModelProps> = {
  * Base abstract class for models that extends another model.
  *
  * @typeparam TProps New model properties type.
- * @typeparam TBaseModelClass Base class type.
+ * @typeparam TModel Model type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @returns
  */
-export function ExtendedModel<TProps extends ModelProps, TBaseModelClass>(
-  baseModel: TBaseModelClass,
+export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel>(
+  baseModel: AbstractModelClass<TModel>,
   modelProps: TProps
-): _Model<
-  TBaseModelClass & Object extends ModelClass<infer M> ? M : never,
-  AddModelIdPropIfNeeded<TProps>
-> {
+): _Model<TModel, AddModelIdPropIfNeeded<TProps>> {
   assertIsModelClass(baseModel, "baseModel")
 
   // note that & Object is there to support abstract classes

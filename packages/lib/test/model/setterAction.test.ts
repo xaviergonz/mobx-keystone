@@ -117,7 +117,8 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "$modelId": "id-1",
-              "y": 10,
+              "y": 5,
+              "z": 5,
             },
             "$modelType": "P",
           },
@@ -137,7 +138,8 @@ test("setterAction", () => {
           "target": P {
             "$": Object {
               "$modelId": "id-1",
-              "y": 10,
+              "y": 5,
+              "z": 5,
             },
             "$modelType": "P",
           },

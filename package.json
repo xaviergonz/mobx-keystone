@@ -20,12 +20,12 @@
     "packages/benchmark"
   ],
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.5.0",
-    "@typescript-eslint/parser": "^4.5.0",
+    "@typescript-eslint/eslint-plugin": "^4.11.1",
+    "@typescript-eslint/parser": "^4.11.1",
     "babel-eslint": "10.1.0",
     "coveralls": "^3.0.4",
     "eslint": "^7.12.1",
-    "eslint-config-prettier": "^7.0.0",
+    "eslint-config-prettier": "^8.0.0",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-flowtype": "^5.2.0",
     "eslint-plugin-import": "^2.22.1",
@@ -38,6 +38,14 @@
     "lerna": "^3.16.5",
     "netlify-cli": "^3.4.3",
     "prettier": "^2.1.2",
-    "typescript": "^4.1.3"
+    "typescript": "^4.2.2"
+  },
+  "resolutions": {
+    "**/rollup-plugin-typescript2": "0.30.0",
+    "**/@typescript-eslint/eslint-plugin": "^4.11.1",
+    "**/@typescript-eslint/parser": "^4.11.1",
+    "**/jest": "^26.6.3",
+    "**/ts-jest": "^26.4.4",
+    "**/typescript": "^4.2.2"
   }
 }
