@@ -8,7 +8,7 @@ import {
   extendFnModelActions,
   FnModelActionDef,
   FnModelActions,
-  FnModelActionsDef
+  FnModelActionsDef,
 } from "./actions"
 import { FnModelFn } from "./core"
 import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
@@ -164,7 +164,7 @@ function extendFnModelSetterActions<Data>(
 /**
  * An array with functional model setter action definitions.
  */
-export type FnModelSetterActionsArrayDef<Data> = ReadonlyArray<(keyof Data) & string>
+export type FnModelSetterActionsArrayDef<Data> = ReadonlyArray<keyof Data & string>
 
 /**
  * Array to functional model setter actions.

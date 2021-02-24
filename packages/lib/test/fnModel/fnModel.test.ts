@@ -9,7 +9,7 @@ import {
   tag,
   types,
   TypeToData,
-  _await
+  _await,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
