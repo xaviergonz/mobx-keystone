@@ -2,14 +2,16 @@ import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { toTreeNode } from "../tweaker/tweak"
 import { AnyStandardType, TypeToData } from "../typeChecking/schemas"
 import { typeCheck } from "../typeChecking/typeCheck"
-import { assertIsString } from "../utils"
-import { extendFnModelActions, FnModelActions, FnModelActionsDef } from "./actions"
-import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
+import { assertIsString, propNameToSetterActionName } from "../utils"
 import {
-  extendFnModelSetterActions,
-  FnModelSetterActions,
-  FnModelSetterActionsDef,
-} from "./setterActions"
+  addActionToFnModel,
+  extendFnModelActions,
+  FnModelActionDef,
+  FnModelActions,
+  FnModelActionsDef,
+} from "./actions"
+import { FnModelFn } from "./core"
+import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
 import { extendFnModelViews, FnModelViews, FnModelViewsDef } from "./views"
 
 declare const dataTypeSymbol: unique symbol
@@ -67,9 +69,9 @@ export interface FnModelBase<Data extends object, Extra> {
    *
    * @param setterActions Setter actions to add.
    */
-  setterActions<SA extends FnModelSetterActionsDef<Data>>(
-    setterActions: ThisType<Data> & SA
-  ): FnModel<Data, Extra & FnModelSetterActions<Data, SA>>
+  setterActions<SA extends FnModelSetterActionsArrayDef<Data>>(
+    ...setterActions: SA
+  ): FnModel<Data, Extra & FnModelSetterActionsArray<Data, SA>>
 }
 
 /**
@@ -119,7 +121,11 @@ export function fnModel(arg1: any, arg2?: string): FnModel<any, {}> {
   fnModelObj.views = extendFnModelViews.bind(undefined, fnModelObj)
   fnModelObj.actions = extendFnModelActions.bind(undefined, fnModelObj, namespace)
   fnModelObj.flowActions = extendFnModelFlowActions.bind(undefined, fnModelObj, namespace)
-  fnModelObj.setterActions = extendFnModelSetterActions.bind(undefined, fnModelObj, namespace)
+  fnModelObj.setterActions = (extendFnModelSetterActions as any).bind(
+    undefined,
+    fnModelObj,
+    namespace
+  )
 
   return fnModelObj as FnModel<any, {}>
 }
@@ -136,4 +142,39 @@ function fnModelCreateWithType<Data extends object>(actualType: AnyStandardType,
     }
   }
   return toTreeNode(data)
+}
+
+function extendFnModelSetterActions<Data>(
+  fnModelObj: any,
+  namespace: string,
+  ...setterActions: FnModelSetterActionsArrayDef<Data>
+): any {
+  for (const fieldName of setterActions) {
+    const name = propNameToSetterActionName(fieldName)
+    const fn: FnModelActionDef = function (this: Data, value: any) {
+      this[fieldName] = value
+    }
+
+    addActionToFnModel(fnModelObj, namespace, name, fn, false)
+  }
+
+  return fnModelObj
+}
+
+/**
+ * An array with functional model setter action definitions.
+ */
+export type FnModelSetterActionsArrayDef<Data> = ReadonlyArray<keyof Data & string>
+
+/**
+ * Array to functional model setter actions.
+ */
+export type FnModelSetterActionsArray<
+  Data extends object,
+  SetterActionsDef extends FnModelSetterActionsArrayDef<Data>
+> = {
+  [K in SetterActionsDef[number] as `set${Capitalize<K>}`]: FnModelFn<
+    Data,
+    (value: Data[K]) => void
+  >
 }

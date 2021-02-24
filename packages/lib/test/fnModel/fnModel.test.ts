@@ -45,10 +45,7 @@ test("without type", async () => {
         equals: comparer.default,
       },
     })
-    .setterActions({
-      setDone: "done",
-      setText: "text",
-    })
+    .setterActions("done", "text")
     .actions({
       setAll(done: boolean, text: string) {
         // just to see we can use views within actions
@@ -386,10 +383,7 @@ test("with type", async () => {
         equals: comparer.default,
       },
     })
-    .setterActions({
-      setDone: "done",
-      setText: "text",
-    })
+    .setterActions("done", "text")
     .actions({
       setAll(done: boolean, text: string) {
         // just to see we can use views within actions

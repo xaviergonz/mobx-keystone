@@ -242,6 +242,11 @@ export interface ModelClass<M extends AnyModel> {
 }
 
 /**
+ * Extracts the instance type of an abstract model class.
+ */
+export type AbstractModelClass<M extends AnyModel> = abstract new (initialData: any) => M;
+
+/**
  * A model class declaration, made of a base model and the model interface.
  */
 export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {

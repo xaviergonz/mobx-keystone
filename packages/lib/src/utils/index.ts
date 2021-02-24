@@ -416,6 +416,14 @@ export const mobx6 = {
  * @ignore
  * @internal
  */
+export function propNameToSetterActionName(propName: string): string {
+  return `set${propName[0].toUpperCase()}${propName.slice(1)}`
+}
+
+/**
+ * @ignore
+ * @internal
+ */
 export function getMobxVersion(): number {
   if (mobx6.makeObservable!) {
     return 6
