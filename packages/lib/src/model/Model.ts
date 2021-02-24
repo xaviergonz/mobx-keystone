@@ -9,12 +9,13 @@ import { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure } from "../utils"
 import {
+  AbstractModelClass,
   AnyModel,
   BaseModel,
   baseModelPropNames,
   ModelClass,
   modelInitializedSymbol,
-  ModelInstanceData,
+  ModelInstanceData
 } from "./BaseModel"
 import { ModelMetadata } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
@@ -30,7 +31,7 @@ import {
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
   ModelPropsToPropsData,
-  prop,
+  prop
 } from "./prop"
 import { assertIsModelClass } from "./utils"
 
@@ -90,16 +91,42 @@ export type ExtractModelIdProp<TProps extends ModelProps> = {
  * Base abstract class for models that extends another model.
  *
  * @typeparam TProps New model properties type.
- * @typeparam TBaseModelClass Base class type.
+ * @typeparam TModel Model type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @returns
  */
-export function ExtendedModel<TProps extends ModelProps, TBaseModelClass>(
-  baseModel: TBaseModelClass,
+export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel>(
+  baseModel: ModelClass<TModel>,
   modelProps: TProps
 ): _Model<
-  TBaseModelClass & Object extends ModelClass<infer M> ? M : never,
+  TModel,
+  AddModelIdPropIfNeeded<TProps>
+>
+
+/**
+ * Base abstract class for models that extends another model.
+ *
+ * @typeparam TProps New model properties type.
+ * @typeparam TModel Model type.
+ * @param baseModel Base model type.
+ * @param modelProps Model properties.
+ * @returns
+ */
+export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel>(
+  baseModel: AbstractModelClass<TModel>,
+  modelProps: TProps
+): _Model<
+  TModel,
+  AddModelIdPropIfNeeded<TProps>
+>
+
+// base
+export function ExtendedModel<TProps extends ModelProps>(
+  baseModel: any,
+  modelProps: TProps
+): _Model<
+  any,
   AddModelIdPropIfNeeded<TProps>
 > {
   assertIsModelClass(baseModel, "baseModel")
