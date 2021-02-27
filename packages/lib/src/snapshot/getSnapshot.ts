@@ -1,7 +1,7 @@
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, isPrimitive } from "../utils"
 import { getInternalSnapshot, reportInternalSnapshotObserved } from "./internal"
-import { SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * Retrieves an immutable snapshot for a data structure.

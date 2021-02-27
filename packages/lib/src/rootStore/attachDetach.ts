@@ -2,7 +2,8 @@ import { action } from "mobx"
 import { ActionContextActionType } from "../action/context"
 import { HookAction } from "../action/hookActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { AnyModel, BaseModel } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
+import { _BaseModel } from "../model/_BaseModel"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
@@ -20,13 +21,13 @@ export const attachToRootStore = action(
     walkTree(
       child,
       (ch) => {
-        if (ch instanceof BaseModel && ch.onAttachedToRootStore) {
+        if (ch instanceof _BaseModel && ch.onAttachedToRootStore) {
           wrapModelMethodInActionIfNeeded(
-            ch,
+            ch as AnyModel,
             "onAttachedToRootStore",
             HookAction.OnAttachedToRootStore
           )
-          childrenToCall.push(ch)
+          childrenToCall.push(ch as AnyModel)
         }
       },
       WalkTreeMode.ParentFirst

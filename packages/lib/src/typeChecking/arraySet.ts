@@ -1,9 +1,10 @@
 import { ArraySet } from "../wrappers/ArraySet"
 import { typesArray } from "./array"
+import { getTypeInfo } from "./getTypeInfo"
 import { typesObject } from "./object"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyStandardType, AnyType, IdentityType, TypeToData } from "./schemas"
-import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "./schemas"
+import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**

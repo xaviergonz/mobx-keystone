@@ -1,15 +1,20 @@
 import { action, observable, set } from "mobx"
 import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
-import { AnyModel } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelTypeKey } from "../model/metadata"
-import { ModelConstructorOptions } from "../model/ModelConstructorOptions"
+import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
 import { tweakArray } from "../tweaker/tweakArray"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
-import { SnapshotInOf, SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOf } from "./SnapshotOf"
+import type {
+  SnapshotInOf,
+  SnapshotInOfModel,
+  SnapshotInOfObject,
+  SnapshotOutOf,
+} from "./SnapshotOf"
 
 /**
  * From snapshot options.
@@ -61,14 +66,6 @@ function internalFromSnapshot<T>(
     return sn as any
   }
 
-  if (isMap(sn)) {
-    throw failure("a snapshot must not contain maps")
-  }
-
-  if (isSet(sn)) {
-    throw failure("a snapshot must not contain sets")
-  }
-
   if (isArray(sn)) {
     return fromArraySnapshot(sn, ctx) as any
   }
@@ -83,6 +80,14 @@ function internalFromSnapshot<T>(
 
   if (isPlainObject(sn)) {
     return fromPlainObjectSnapshot(sn, ctx) as any
+  }
+
+  if (isMap(sn)) {
+    throw failure("a snapshot must not contain maps")
+  }
+
+  if (isSet(sn)) {
+    throw failure("a snapshot must not contain sets")
   }
 
   throw failure(`unsupported snapshot - ${sn}`)

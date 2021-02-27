@@ -6,7 +6,7 @@ import { memoTransformCache } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
 import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
-import { LateTypeChecker } from "../typeChecking/TypeChecker"
+import type { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure, propNameToSetterActionName } from "../utils"
 import {
@@ -18,10 +18,10 @@ import {
   modelInitializedSymbol,
   ModelInstanceData,
 } from "./BaseModel"
-import { ModelMetadata } from "./getModelMetadata"
+import type { ModelMetadata } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import { modelInitializersSymbol } from "./modelClassInitializer"
-import { ModelConstructorOptions } from "./ModelConstructorOptions"
+import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {

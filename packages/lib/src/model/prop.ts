@@ -1,8 +1,8 @@
-import { O } from "ts-toolbelt"
-import { PropTransform } from "../propTransform/propTransform"
-import { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
+import type { O } from "ts-toolbelt"
+import type { PropTransform } from "../propTransform/propTransform"
+import type { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
 import { isObject } from "../utils"
-import { IsOptionalValue } from "../utils/types"
+import type { IsOptionalValue } from "../utils/types"
 
 /**
  * Model property options.

@@ -8,8 +8,8 @@ import {
   ActionMiddlewareDisposer,
   addActionMiddleware,
 } from "../action/middleware"
-import { FlowFinisher } from "../action/modelFlow"
-import { AnyModel } from "../model/BaseModel"
+import type { FlowFinisher } from "../action/modelFlow"
+import type { AnyModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 

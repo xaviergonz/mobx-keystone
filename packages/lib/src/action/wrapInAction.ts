@@ -1,6 +1,6 @@
 import { action } from "mobx"
-import { O } from "ts-toolbelt"
-import { AnyModel } from "../model/BaseModel"
+import type { O } from "ts-toolbelt"
+import type { AnyModel } from "../model/BaseModel"
 import { assertTweakedObject } from "../tweaker/core"
 import { inDevMode } from "../utils"
 import {
@@ -9,15 +9,10 @@ import {
   getCurrentActionContext,
   setCurrentActionContext,
 } from "./context"
+import { isModelAction, modelActionSymbol } from "./isModelAction"
 import { getActionMiddlewares } from "./middleware"
-import { isModelAction } from "./modelAction"
-import { FlowFinisher } from "./modelFlow"
+import type { FlowFinisher } from "./modelFlow"
 import { tryRunPendingActions } from "./pendingActions"
-
-/**
- * @ignore
- */
-export const modelActionSymbol = Symbol("modelAction")
 
 /**
  * @ignore

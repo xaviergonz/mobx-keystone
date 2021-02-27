@@ -1,5 +1,5 @@
 import { addActionToFnModel } from "./actions"
-import { FnModelAsyncFn } from "./core"
+import type { FnModelAsyncFn } from "./core"
 
 /**
  * Functional model flow action definition.

@@ -1,6 +1,6 @@
-import { ActionCall } from "../action/applyAction"
+import type { ActionCall } from "../action/applyAction"
 import { isHookAction } from "../action/hookActions"
-import { ActionMiddlewareDisposer } from "../action/middleware"
+import type { ActionMiddlewareDisposer } from "../action/middleware"
 import { fastGetRootPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject } from "../utils"

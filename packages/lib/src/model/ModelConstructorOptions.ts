@@ -1,5 +1,5 @@
-import { PropTransform } from "../propTransform/propTransform"
-import { AnyModel, ModelClass } from "./BaseModel"
+import type { PropTransform } from "../propTransform/propTransform"
+import type { AnyModel, ModelClass } from "./BaseModel"
 
 /**
  * @internal

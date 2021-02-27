@@ -1,25 +1,10 @@
-import { action, isObservableObject } from "mobx"
-import { Frozen } from "../frozen/Frozen"
-import { isModel } from "../model/utils"
+import { action } from "mobx"
 import { getObjectChildren } from "../parent/coreObjectChildren"
 import { fastGetParent, ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { unsetInternalSnapshot } from "../snapshot/internal"
-import {
-  failure,
-  inDevMode,
-  isArray,
-  isMap,
-  isObject,
-  isPlainObject,
-  isPrimitive,
-  isSet,
-} from "../utils"
+import { failure, inDevMode, isMap, isObject, isPrimitive, isSet } from "../utils"
 import { isTweakedObject, tweakedObjects } from "./core"
-import { tweakArray } from "./tweakArray"
-import { tweakFrozen } from "./tweakFrozen"
-import { tweakModel } from "./tweakModel"
-import { tweakPlainObject } from "./tweakPlainObject"
 
 /**
  * Turns an object (array, plain object) into a tree node,
@@ -42,32 +27,39 @@ export function toTreeNode<T extends object>(value: T): T {
 
 /**
  * @ignore
+ * @internal
  */
+export type Tweaker<T> = (value: T, parentPath: ParentPath<any> | undefined) => T | undefined
+
+const tweakers: { priority: number; tweaker: Tweaker<any> }[] = []
+
+/**
+ * @ignore
+ * @internal
+ */
+export function registerTweaker<T>(priority: number, tweaker: Tweaker<T>): void {
+  tweakers.push({ priority, tweaker })
+  tweakers.sort((a, b) => a.priority - b.priority)
+}
+
 function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   if (isPrimitive(value)) {
     return value
   }
 
+  // already tweaked
   if (isTweakedObject(value as any, true)) {
     setParent(value, parentPath, false, false)
     return value
   }
 
-  if (isModel(value)) {
-    return tweakModel(value, parentPath)
-  }
-
-  if (isArray(value)) {
-    return tweakArray(value, parentPath, false)
-  }
-
-  // plain object
-  if (isObservableObject(value) || isPlainObject(value)) {
-    return tweakPlainObject(value, parentPath, undefined, false, false)
-  }
-
-  if ((value as any) instanceof Frozen) {
-    return tweakFrozen(value, parentPath)
+  const tweakersLen = tweakers.length
+  for (let i = 0; i < tweakersLen; i++) {
+    const { tweaker } = tweakers[i]
+    const tweakedVal = tweaker(value, parentPath)
+    if (tweakedVal !== undefined) {
+      return tweakedVal
+    }
   }
 
   // unsupported

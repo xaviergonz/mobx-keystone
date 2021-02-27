@@ -1,5 +1,5 @@
-import { O } from "ts-toolbelt"
-import { IsOptionalValue } from "../utils/types"
+import type { O } from "ts-toolbelt"
+import type { IsOptionalValue } from "../utils/types"
 
 // type schemas
 

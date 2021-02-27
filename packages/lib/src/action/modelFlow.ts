@@ -1,4 +1,4 @@
-import { O } from "ts-toolbelt"
+import type { O } from "ts-toolbelt"
 import { checkModelDecoratorArgs } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { decorateWrapMethodOrField, failure, inDevMode } from "../utils"

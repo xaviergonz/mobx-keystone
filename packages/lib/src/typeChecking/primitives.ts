@@ -1,7 +1,7 @@
 import { assertIsPrimitive } from "../utils"
-import { PrimitiveValue } from "../utils/types"
-import { typesRefinement } from "./refinement"
-import { AnyStandardType, IdentityType } from "./schemas"
+import type { PrimitiveValue } from "../utils/types"
+import { registerStandardType } from "./resolveTypeChecker"
+import type { AnyStandardType, IdentityType } from "./schemas"
 import { TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
@@ -61,6 +61,8 @@ export class LiteralTypeInfo extends TypeInfo {
  */
 export const typesUndefined = typesLiteral(undefined)
 
+registerStandardType(undefined, typesUndefined)
+
 /**
  * A type that represents the value null.
  * Syntactic sugar for `types.literal(null)`.
@@ -70,6 +72,8 @@ export const typesUndefined = typesLiteral(undefined)
  * ```
  */
 export const typesNull = typesLiteral(null)
+
+registerStandardType(null, typesNull)
 
 /**
  * A type that represents any boolean value.
@@ -83,6 +87,8 @@ export const typesBoolean: IdentityType<boolean> = new TypeChecker(
   () => "boolean",
   (t) => new BooleanTypeInfo(t)
 ) as any
+
+registerStandardType(Boolean, typesBoolean)
 
 /**
  * `types.boolean` type info.
@@ -102,6 +108,8 @@ export const typesNumber: IdentityType<number> = new TypeChecker(
   (t) => new NumberTypeInfo(t)
 ) as any
 
+registerStandardType(Number, typesNumber)
+
 /**
  * `types.number` type info.
  */
@@ -120,27 +128,9 @@ export const typesString: IdentityType<string> = new TypeChecker(
   (t) => new StringTypeInfo(t)
 ) as any
 
+registerStandardType(String, typesString)
+
 /**
  * `types.string` type info.
  */
 export class StringTypeInfo extends TypeInfo {}
-
-/**
- * A type that represents any integer number value.
- * Syntactic sugar for `types.refinement(types.number, n => Number.isInteger(n), "integer")`
- *
- * ```ts
- * types.integer
- * ```
- */
-export const typesInteger = typesRefinement(typesNumber, (n) => Number.isInteger(n), "integer")
-
-/**
- * A type that represents any string value other than "".
- * Syntactic sugar for `types.refinement(types.string, s => s !== "", "nonEmpty")`
- *
- * ```ts
- * types.nonEmptyString
- * ```
- */
-export const typesNonEmptyString = typesRefinement(typesString, (s) => s !== "", "nonEmpty")

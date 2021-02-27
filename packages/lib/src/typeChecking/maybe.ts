@@ -1,6 +1,6 @@
 import { typesOr } from "./or"
 import { typesNull, typesUndefined } from "./primitives"
-import { AnyType, IdentityType } from "./schemas"
+import type { AnyType, IdentityType } from "./schemas"
 
 /**
  * A type that represents either a type or undefined.

@@ -10,8 +10,7 @@ import {
   objectParents,
   reportParentPathObserved,
 } from "./core"
-import { getDeepObjectChildren } from "./coreObjectChildren"
-import { Path, PathElement, WritablePath } from "./pathTypes"
+import type { Path, PathElement, WritablePath } from "./pathTypes"
 
 /**
  * Path from an object to its immediate parent.
@@ -229,31 +228,6 @@ export function isRoot(value: object): boolean {
   assertTweakedObject(value, "value")
 
   return !fastGetParent(value)
-}
-
-/**
- * Returns if the target is a "child" of the tree of the given "parent" object.
- *
- * @param child Target object.
- * @param parent Parent object.
- * @returns
- */
-export function isChildOfParent(child: object, parent: object): boolean {
-  assertTweakedObject(child, "child")
-  assertTweakedObject(parent, "parent")
-
-  return getDeepObjectChildren(parent).deep.has(child)
-}
-
-/**
- * Returns if the target is a "parent" that has in its tree the given "child" object.
- *
- * @param parent Target object.
- * @param child Child object.
- * @returns
- */
-export function isParentOfChild(parent: object, child: object): boolean {
-  return isChildOfParent(child, parent)
 }
 
 const unresolved = { resolved: false } as const

@@ -1,5 +1,5 @@
 import { isObject } from "../utils"
-import { AnyModel, ModelClass } from "./BaseModel"
+import type { AnyModel, ModelClass } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 
 interface ModelInfo {

@@ -1,6 +1,6 @@
 import { createAtom, IAtom } from "mobx"
 import { isModel } from "../model/utils"
-import { ParentPath } from "./path"
+import type { ParentPath } from "./path"
 
 /**
  * @ignore

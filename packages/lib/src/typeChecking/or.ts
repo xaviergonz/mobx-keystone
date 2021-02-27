@@ -1,7 +1,8 @@
 import { lateVal } from "../utils"
+import { getTypeInfo } from "./getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyStandardType, AnyType } from "./schemas"
-import { getTypeInfo, lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import type { AnyStandardType, AnyType } from "./schemas"
+import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 import { typesUnchecked } from "./unchecked"
 

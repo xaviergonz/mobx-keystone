@@ -10,13 +10,13 @@ import {
 import { assertCanWrite } from "../action/protection"
 import { modelTypeKey } from "../model/metadata"
 import { dataToModelNode } from "../parent/core"
-import { ParentPath } from "../parent/path"
+import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
-import { failure, isPrimitive } from "../utils"
+import { failure, isPlainObject, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { tryUntweak, tweak } from "./tweak"
+import { registerTweaker, tryUntweak, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -225,3 +225,11 @@ function interceptObjectMutation(change: IObjectWillChange) {
 
   return change
 }
+
+registerTweaker(4, (value, parentPath) => {
+  // plain object
+  if (isObservableObject(value) || isPlainObject(value)) {
+    return tweakPlainObject(value, parentPath, undefined, false, false)
+  }
+  return undefined
+})

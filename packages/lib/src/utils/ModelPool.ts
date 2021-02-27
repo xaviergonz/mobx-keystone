@@ -1,4 +1,4 @@
-import { AnyModel } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelTypeKey } from "../model/metadata"
 import { getModelInfoForName } from "../model/modelInfo"

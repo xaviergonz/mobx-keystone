@@ -10,14 +10,14 @@ import {
 } from "mobx"
 import { assertCanWrite } from "../action/protection"
 import { getGlobalConfig } from "../globalConfig"
-import { ParentPath } from "../parent/path"
+import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
-import { Patch } from "../patch/Patch"
+import type { Patch } from "../patch/Patch"
 import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
-import { failure, inDevMode, isPrimitive } from "../utils"
+import { failure, inDevMode, isArray, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { tryUntweak, tweak } from "./tweak"
+import { registerTweaker, tryUntweak, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -333,6 +333,13 @@ function interceptArrayMutation(
   }
   return change
 }
+
+registerTweaker(3, (value, parentPath) => {
+  if (isArray(value)) {
+    return tweakArray(value, parentPath, false)
+  }
+  return undefined
+})
 
 const observableOptions = {
   deep: false,

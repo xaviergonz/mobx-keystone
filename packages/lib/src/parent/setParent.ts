@@ -1,6 +1,6 @@
 import { action } from "mobx"
 import { enqueuePendingAction } from "../action/pendingActions"
-import { BaseModel } from "../model/BaseModel"
+import { _BaseModel } from "../model/_BaseModel"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { isTweakedObject } from "../tweaker/core"
@@ -98,7 +98,7 @@ export const setParent = action(
       reportParentPathChanged(value)
     }
 
-    if (value instanceof BaseModel) {
+    if (value instanceof _BaseModel) {
       const oldRoot = fastGetRoot(value)
       const oldRootStore = isRootStore(oldRoot) ? oldRoot : undefined
       removeFromOldParent()

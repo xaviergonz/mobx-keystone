@@ -1,6 +1,6 @@
-import { AnyType } from "../typeChecking/schemas"
+import type { AnyType } from "../typeChecking/schemas"
 import { failure } from "../utils"
-import { AnyModel, ModelClass } from "./BaseModel"
+import type { AnyModel, ModelClass } from "./BaseModel"
 import { modelMetadataSymbol } from "./modelSymbols"
 import { isModel, isModelClass } from "./utils"
 

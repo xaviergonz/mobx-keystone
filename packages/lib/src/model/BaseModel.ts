@@ -1,19 +1,20 @@
 import { observable } from "mobx"
-import { O } from "ts-toolbelt"
+import type { O } from "ts-toolbelt"
 import { getGlobalConfig } from "../globalConfig"
 import { memoTransformCache } from "../propTransform/propTransform"
 import { getSnapshot } from "../snapshot/getSnapshot"
-import { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
+import type { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
-import { TypeCheckError } from "../typeChecking/TypeCheckError"
+import type { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { assertIsObject } from "../utils"
 import { getModelIdPropertyName } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
-import { ModelConstructorOptions } from "./ModelConstructorOptions"
+import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
+import { setBaseModel } from "./_BaseModel"
 
 /**
  * @ignore
@@ -213,6 +214,8 @@ export abstract class BaseModel<
       : `[${firstPart}]`
   }
 }
+
+setBaseModel(BaseModel)
 
 // these props will never be hoisted to this (except for model id)
 /**

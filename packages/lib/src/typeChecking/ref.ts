@@ -2,7 +2,7 @@ import { Ref } from "../ref/Ref"
 import { typesObject } from "./object"
 import { typesString } from "./primitives"
 import { resolveTypeChecker } from "./resolveTypeChecker"
-import { IdentityType } from "./schemas"
+import type { IdentityType } from "./schemas"
 import { TypeChecker, TypeInfo } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 

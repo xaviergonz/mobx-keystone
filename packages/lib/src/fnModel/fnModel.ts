@@ -1,6 +1,6 @@
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { toTreeNode } from "../tweaker/tweak"
-import { AnyStandardType, TypeToData } from "../typeChecking/schemas"
+import type { AnyStandardType, TypeToData } from "../typeChecking/schemas"
 import { typeCheck } from "../typeChecking/typeCheck"
 import { assertIsString, propNameToSetterActionName } from "../utils"
 import {
@@ -10,7 +10,7 @@ import {
   FnModelActions,
   FnModelActionsDef,
 } from "./actions"
-import { FnModelFn } from "./core"
+import type { FnModelFn } from "./core"
 import { extendFnModelFlowActions, FnModelFlowActions, FnModelFlowActionsDef } from "./flowActions"
 import { extendFnModelViews, FnModelViews, FnModelViewsDef } from "./views"
 

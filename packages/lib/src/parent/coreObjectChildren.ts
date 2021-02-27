@@ -1,5 +1,5 @@
 import { action, createAtom, IAtom, observable, ObservableSet } from "mobx"
-import { AnyModel } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { fastGetParent } from "./path"

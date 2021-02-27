@@ -1,5 +1,5 @@
 import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
-import { AnyType, TypeToData } from "../typeChecking/schemas"
+import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { immutableDate } from "./ImmutableDate"
 import { propTransform, transformedProp } from "./propTransform"

@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { ModelClass } from "../model/BaseModel"
+import type { ModelClass } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { typesString } from "../typeChecking/primitives"

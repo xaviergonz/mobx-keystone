@@ -1,9 +1,8 @@
 import { fastGetParentIncludingDataObjects } from "../parent/path"
-import { Path } from "../parent/pathTypes"
+import type { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, lateVal } from "../utils"
-import { resolveStandardType } from "./resolveTypeChecker"
-import { AnyStandardType, AnyType } from "./schemas"
+import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
 
 type CheckFunction = (value: any, path: Path) => TypeCheckError | null
@@ -185,18 +184,3 @@ export class TypeInfo {
  * @ignore
  */
 export type TypeInfoGen = (t: AnyStandardType) => TypeInfo
-
-/**
- * Gets the type info of a given type.
- *
- * @param type Type to get the info from.
- * @returns The type info.
- */
-export function getTypeInfo(type: AnyType): TypeInfo {
-  const stdType = resolveStandardType(type)
-  const typeInfo = ((stdType as any) as TypeChecker | LateTypeChecker).typeInfo
-  if (!typeInfo) {
-    throw failure(`type info not found for ${type}`)
-  }
-  return typeInfo
-}

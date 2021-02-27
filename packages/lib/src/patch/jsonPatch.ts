@@ -1,6 +1,6 @@
-import { Path } from "../parent/pathTypes"
+import type { Path } from "../parent/pathTypes"
 import { failure } from "../utils"
-import { Patch } from "./Patch"
+import type { Patch } from "./Patch"
 
 export type JsonPatch =
   | JsonPatchAddOperation<any>

@@ -12,7 +12,7 @@ import {
 import { isObject } from "../utils"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
 import { resolveStandardType } from "./resolveTypeChecker"
-import { AnyType, TypeToData } from "./schemas"
+import type { AnyType, TypeToData } from "./schemas"
 
 /**
  * Defines a string model property with a default value.

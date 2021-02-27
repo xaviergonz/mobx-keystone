@@ -1,5 +1,4 @@
 import { getFnModelAction } from "../fnModel/actions"
-import "../model/utils" // if we don't have this then dep order gets messed up
 import { detach } from "../parent/detach"
 import { resolvePathCheckingIds } from "../parent/path"
 import { Path } from "../parent/pathTypes"

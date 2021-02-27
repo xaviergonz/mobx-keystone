@@ -1,7 +1,7 @@
 import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
-import { RootPath } from "../parent/path"
-import { Path } from "../parent/pathTypes"
+import type { RootPath } from "../parent/path"
+import type { Path } from "../parent/pathTypes"
 
 /**
  * @ignore

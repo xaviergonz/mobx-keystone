@@ -6,7 +6,7 @@ import {
   RefOnResolvedValueChange,
   RefResolver,
 } from "./core"
-import { RefConstructor } from "./Ref"
+import type { RefConstructor } from "./Ref"
 
 /**
  * Custom reference options.

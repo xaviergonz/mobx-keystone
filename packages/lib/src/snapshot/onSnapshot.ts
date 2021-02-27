@@ -1,7 +1,7 @@
 import { reaction } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { getSnapshot } from "./getSnapshot"
-import { SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * Listener function for onSnapshot.

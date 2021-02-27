@@ -1,17 +1,8 @@
 import { checkModelDecoratorArgs } from "../model/utils"
 import { decorateWrapMethodOrField, failure } from "../utils"
 import { ActionContextActionType } from "./context"
-import { modelActionSymbol, wrapInAction } from "./wrapInAction"
-
-/**
- * Returns if the given function is a model action or not.
- *
- * @param fn Function to check.
- * @returns
- */
-export function isModelAction(fn: (...args: any[]) => any): boolean {
-  return typeof fn === "function" && !!(fn as any)[modelActionSymbol]
-}
+import { isModelAction } from "./isModelAction"
+import { wrapInAction } from "./wrapInAction"
 
 function checkModelActionArgs(target: any, propertyKey: string, value: any) {
   if (typeof value !== "function") {

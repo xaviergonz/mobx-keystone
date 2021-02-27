@@ -1,7 +1,7 @@
 import { assertIsObject } from "../utils"
 import { typesOr } from "./or"
 import { typesLiteral } from "./primitives"
-import { IdentityType } from "./schemas"
+import type { IdentityType } from "./schemas"
 
 function enumValues(e: any): (string | number)[] {
   const vals = []

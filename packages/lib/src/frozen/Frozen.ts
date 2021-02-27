@@ -1,5 +1,5 @@
 import { getGlobalConfig } from "../globalConfig"
-import { SnapshotInOfFrozen } from "../snapshot"
+import type { SnapshotInOfFrozen } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
 

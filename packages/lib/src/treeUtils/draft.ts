@@ -1,7 +1,7 @@
 import { action, computed } from "mobx"
 import { pathToTargetPathIds } from "../actionMiddlewares/utils"
 import { resolvePath, resolvePathCheckingIds, skipIdChecking } from "../parent/path"
-import { Path } from "../parent/pathTypes"
+import type { Path } from "../parent/pathTypes"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { fromSnapshot } from "../snapshot/fromSnapshot"

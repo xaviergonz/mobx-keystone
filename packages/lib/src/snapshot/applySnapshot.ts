@@ -11,7 +11,7 @@ import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
-import { SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.

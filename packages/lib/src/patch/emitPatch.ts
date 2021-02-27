@@ -1,9 +1,9 @@
 import { action, isAction } from "mobx"
 import { fastGetParentPath } from "../parent/path"
-import { PathElement } from "../parent/pathTypes"
+import type { PathElement } from "../parent/pathTypes"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray } from "../utils"
-import { Patch } from "./Patch"
+import type { Patch } from "./Patch"
 
 /**
  * @ignore

@@ -1,7 +1,7 @@
 import { ActionCall, applyAction } from "../action"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { onSnapshot, OnSnapshotDisposer, OnSnapshotListener } from "../snapshot/onSnapshot"
-import { SnapshotOutOf } from "../snapshot/SnapshotOf"
+import type { SnapshotOutOf } from "../snapshot/SnapshotOf"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 

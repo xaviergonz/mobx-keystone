@@ -1,4 +1,4 @@
-import { AnyModel } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
 import { AnyModelProp, noDefaultValue } from "../model/prop"
 import { addLateInitializationFunction, failure } from "../utils"
 

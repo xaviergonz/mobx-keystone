@@ -1,6 +1,6 @@
 import { resolveTypeChecker } from "./resolveTypeChecker"
-import { AnyType, TypeToData } from "./schemas"
-import { TypeCheckError } from "./TypeCheckError"
+import type { AnyType, TypeToData } from "./schemas"
+import type { TypeCheckError } from "./TypeCheckError"
 
 /**
  * Checks if a value conforms to a given type.

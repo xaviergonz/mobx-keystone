@@ -1,5 +1,5 @@
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
-import { AnyModel } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
 import { isModel } from "../model/utils"
 import { dataToModelNode } from "../parent/core"

@@ -1,4 +1,4 @@
-import { IObservableArray } from "mobx"
+import type { IObservableArray } from "mobx"
 import { isArray } from "../../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 

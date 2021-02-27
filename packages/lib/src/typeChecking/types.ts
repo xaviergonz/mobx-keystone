@@ -18,9 +18,7 @@ import {
   NumberTypeInfo,
   StringTypeInfo,
   typesBoolean,
-  typesInteger,
   typesLiteral,
-  typesNonEmptyString,
   typesNull,
   typesNumber,
   typesString,
@@ -28,11 +26,13 @@ import {
 } from "./primitives"
 import { RecordTypeInfo, typesRecord } from "./record"
 import { RefTypeInfo, typesRef } from "./ref"
+import { typesInteger, typesNonEmptyString } from "./refinedPrimitives"
 import { RefinementTypeInfo, typesRefinement } from "./refinement"
-import { AnyType } from "./schemas"
+import type { AnyType } from "./schemas"
 import { TupleTypeInfo, typesTuple } from "./tuple"
 import { typesUnchecked, UncheckedTypeInfo } from "./unchecked"
-export { getTypeInfo, TypeInfo } from "./TypeChecker"
+export { getTypeInfo } from "./getTypeInfo"
+export { TypeInfo } from "./TypeChecker"
 export {
   BooleanTypeInfo,
   LiteralTypeInfo,

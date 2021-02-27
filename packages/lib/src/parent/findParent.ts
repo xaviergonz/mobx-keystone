@@ -1,6 +1,6 @@
 import { assertTweakedObject } from "../tweaker/core"
 import { fastGetParentPath, ParentPath } from "./path"
-import { Path, WritablePath } from "./pathTypes"
+import type { Path, WritablePath } from "./pathTypes"
 
 /**
  * Iterates through all the parents (from the nearest until the root)

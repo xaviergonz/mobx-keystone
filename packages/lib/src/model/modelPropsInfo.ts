@@ -1,5 +1,5 @@
-import { AnyModel, ModelClass } from "./BaseModel"
-import { ModelProps } from "./prop"
+import type { AnyModel, ModelClass } from "./BaseModel"
+import type { ModelProps } from "./prop"
 
 const modelPropertiesSymbol = Symbol("modelProperties")
 

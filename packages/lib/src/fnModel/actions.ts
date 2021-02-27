@@ -1,5 +1,5 @@
 import { ActionContextActionType } from "../action/context"
-import { isModelAction } from "../action/modelAction"
+import { isModelAction } from "../action/isModelAction"
 import { flow, isModelFlow } from "../action/modelFlow"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertIsFunction, failure, logWarning } from "../utils"

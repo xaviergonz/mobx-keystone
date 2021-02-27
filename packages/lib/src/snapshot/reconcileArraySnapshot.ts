@@ -1,0 +1,46 @@
+import { set } from "mobx"
+import { isArray } from "../utils"
+import { ModelPool } from "../utils/ModelPool"
+import { fromSnapshot } from "./fromSnapshot"
+import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
+import type { SnapshotInOfObject } from "./SnapshotOf"
+
+function reconcileArraySnapshot(
+  value: any,
+  sn: SnapshotInOfObject<any[]>,
+  modelPool: ModelPool
+): any[] {
+  if (!isArray(value)) {
+    // no reconciliation possible
+    return fromSnapshot(sn)
+  }
+
+  // remove excess items
+  if (value.length > sn.length) {
+    value.splice(sn.length, value.length - sn.length)
+  }
+
+  // reconcile present items
+  for (let i = 0; i < value.length; i++) {
+    const oldValue = value[i]
+    const newValue = reconcileSnapshot(oldValue, sn[i], modelPool)
+
+    detachIfNeeded(newValue, oldValue, modelPool)
+
+    set(value, i as any, newValue)
+  }
+
+  // add excess items
+  for (let i = value.length; i < sn.length; i++) {
+    value.push(reconcileSnapshot(undefined, sn[i], modelPool))
+  }
+
+  return value
+}
+
+registerReconciler(1, (value, sn, modelPool) => {
+  if (isArray(sn)) {
+    return reconcileArraySnapshot(value, sn, modelPool)
+  }
+  return undefined
+})

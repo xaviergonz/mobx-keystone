@@ -1,7 +1,7 @@
 import { action, createAtom, IAtom, untracked } from "mobx"
 import { fastGetParentPath, ParentPath } from "../parent/path"
 import { debugFreeze } from "../utils"
-import { SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotOutOf } from "./SnapshotOf"
 
 interface SnapshotData<T extends object> {
   standard: SnapshotOutOf<T>

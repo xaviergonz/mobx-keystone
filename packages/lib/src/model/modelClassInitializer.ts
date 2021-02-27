@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "./BaseModel"
+import type { AnyModel, ModelClass } from "./BaseModel"
 
 /**
  * @internal

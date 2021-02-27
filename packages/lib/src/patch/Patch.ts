@@ -1,4 +1,4 @@
-import { Path } from "../parent/pathTypes"
+import type { Path } from "../parent/pathTypes"
 
 export type Patch = PatchAddOperation<any> | PatchRemoveOperation | PatchReplaceOperation<any>
 

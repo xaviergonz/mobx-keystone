@@ -1,5 +1,5 @@
 import { isHookAction } from "../action/hookActions"
-import { ActionMiddlewareDisposer } from "../action/middleware"
+import type { ActionMiddlewareDisposer } from "../action/middleware"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import {

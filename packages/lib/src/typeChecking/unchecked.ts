@@ -1,4 +1,4 @@
-import { IdentityType } from "./schemas"
+import type { IdentityType } from "./schemas"
 import { TypeChecker, TypeInfo } from "./TypeChecker"
 
 const unchecked: IdentityType<any> = new TypeChecker(

@@ -1,7 +1,8 @@
-import { fastGetParent, isChildOfParent } from "../parent/path"
+import { fastGetParent } from "../parent/path"
+import { isChildOfParent } from "../parent/path2"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, assertIsObject, deleteFromArray, failure } from "../utils"
-import { ActionContext } from "./context"
+import type { ActionContext } from "./context"
 
 /**
  * An action middleware.
