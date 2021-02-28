@@ -18,7 +18,7 @@ import {
   _await,
 } from "../../src"
 import "../commonSetup"
-import { autoDispose } from "../utils"
+import { autoDispose, delay } from "../utils"
 
 @model("P2")
 class P2 extends Model({
@@ -413,54 +413,54 @@ test("undoMiddleware - sync", () => {
   expectUndoRedoToBe(0, 0)
 })
 
-@model("P2Flow")
-class P2Flow extends Model({
-  y: prop(() => 0),
-}) {
-  private *_incY(n: number) {
-    yield* _await(Promise.resolve())
-    this.y += n
-    yield* _await(Promise.resolve())
-  }
-
-  @modelFlow
-  incY = _async(this._incY)
-}
-
-@model("PFlow")
-class PFlow extends Model({
-  x: prop(() => 0),
-  p2: prop(() => new P2Flow({})),
-}) {
-  private *_incX(n: number) {
-    yield* _await(Promise.resolve())
-    this.x += n
-    yield* _await(Promise.resolve())
-  }
-
-  @modelFlow
-  incX = _async(this._incX)
-
-  private *_incXY(x: number, y: number) {
-    yield* _await(Promise.resolve())
-    yield* _await(this.incX(x))
-    yield* _await(Promise.resolve())
-    yield* _await(this.p2.incY(y))
-    yield* _await(Promise.resolve())
-    throw new Error("incXY")
-  }
-
-  @modelFlow
-  incXY = _async(this._incXY)
-}
-
-@model("RFlow")
-class RFlow extends Model({
-  undoData: prop(() => new UndoStore({})),
-  p: prop(() => new PFlow({})),
-}) {}
-
 test("undoMiddleware - async", async () => {
+  @model("P2Flow")
+  class P2Flow extends Model({
+    y: prop(() => 0),
+  }) {
+    private *_incY(n: number) {
+      yield* _await(Promise.resolve())
+      this.y += n
+      yield* _await(Promise.resolve())
+    }
+
+    @modelFlow
+    incY = _async(this._incY)
+  }
+
+  @model("PFlow")
+  class PFlow extends Model({
+    x: prop(() => 0),
+    p2: prop(() => new P2Flow({})),
+  }) {
+    private *_incX(n: number) {
+      yield* _await(Promise.resolve())
+      this.x += n
+      yield* _await(Promise.resolve())
+    }
+
+    @modelFlow
+    incX = _async(this._incX)
+
+    private *_incXY(x: number, y: number) {
+      yield* _await(Promise.resolve())
+      yield* _await(this.incX(x))
+      yield* _await(Promise.resolve())
+      yield* _await(this.p2.incY(y))
+      yield* _await(Promise.resolve())
+      throw new Error("incXY")
+    }
+
+    @modelFlow
+    incXY = _async(this._incXY)
+  }
+
+  @model("RFlow")
+  class RFlow extends Model({
+    undoData: prop(() => new UndoStore({})),
+    p: prop(() => new PFlow({})),
+  }) {}
+
   const r = new RFlow({})
   const p = r.p
 
@@ -1313,4 +1313,177 @@ test("withGroup", () => {
       },
     ]
   `)
+})
+
+test("concurrent async actions", async () => {
+  @model("ConcurrentAsyncActionsM")
+  class ConcurrentAsyncActionsM extends Model({
+    undoData: prop(() => new UndoStore({})),
+    x: prop(() => 0),
+    y: prop(() => 0),
+  }) {
+    private *_incX(x: number) {
+      this.x += x
+      yield* _await(delay(19))
+      this.x += x
+    }
+
+    @modelFlow
+    incX = _async(this._incX)
+
+    private *_incY(y: number) {
+      this.y += y
+      yield* _await(delay(19))
+      this.y += y
+    }
+
+    @modelFlow
+    incY = _async(this._incY)
+  }
+
+  const r = new ConcurrentAsyncActionsM({})
+
+  const manager = undoMiddleware(r, r.undoData)
+  expect(manager instanceof UndoManager).toBeTruthy()
+  autoDispose(() => manager.dispose())
+
+  function getEvents(): { undo: ReadonlyArray<UndoEvent>; redo: ReadonlyArray<UndoEvent> } {
+    return {
+      undo: manager.undoQueue,
+      redo: manager.redoQueue,
+    }
+  }
+
+  function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
+  }
+
+  expectUndoRedoToBe(0, 0)
+
+  const xPromise = r.incX(1)
+  expect(r.x).toBe(1)
+  expect(r.y).toBe(0)
+  expectUndoRedoToBe(0, 0)
+
+  await delay(10)
+  expect(r.x).toBe(1)
+  expect(r.y).toBe(0)
+  expectUndoRedoToBe(0, 0)
+
+  const yPromise = r.incY(10)
+  expect(r.x).toBe(1)
+  expect(r.y).toBe(10)
+  expectUndoRedoToBe(0, 0)
+
+  await delay(10)
+  expect(r.x).toBe(2)
+  expect(r.y).toBe(10)
+  expectUndoRedoToBe(1, 0)
+
+  await delay(10)
+  expect(r.x).toBe(2)
+  expect(r.y).toBe(20)
+  expectUndoRedoToBe(2, 0)
+
+  expect(getEvents()).toMatchInlineSnapshot(`
+    Object {
+      "redo": Array [],
+      "undo": Array [
+        Object {
+          "actionName": "incX",
+          "inversePatches": Array [
+            Object {
+              "op": "replace",
+              "path": Array [
+                "x",
+              ],
+              "value": 0,
+            },
+            Object {
+              "op": "replace",
+              "path": Array [
+                "x",
+              ],
+              "value": 1,
+            },
+          ],
+          "patches": Array [
+            Object {
+              "op": "replace",
+              "path": Array [
+                "x",
+              ],
+              "value": 1,
+            },
+            Object {
+              "op": "replace",
+              "path": Array [
+                "x",
+              ],
+              "value": 2,
+            },
+          ],
+          "targetPath": Array [],
+          "type": "single",
+        },
+        Object {
+          "actionName": "incY",
+          "inversePatches": Array [
+            Object {
+              "op": "replace",
+              "path": Array [
+                "y",
+              ],
+              "value": 0,
+            },
+            Object {
+              "op": "replace",
+              "path": Array [
+                "y",
+              ],
+              "value": 10,
+            },
+          ],
+          "patches": Array [
+            Object {
+              "op": "replace",
+              "path": Array [
+                "y",
+              ],
+              "value": 10,
+            },
+            Object {
+              "op": "replace",
+              "path": Array [
+                "y",
+              ],
+              "value": 20,
+            },
+          ],
+          "targetPath": Array [],
+          "type": "single",
+        },
+      ],
+    }
+  `)
+
+  await xPromise
+  expect(r.x).toBe(2)
+  expect(r.y).toBe(20)
+  expectUndoRedoToBe(2, 0)
+
+  await yPromise
+  expect(r.x).toBe(2)
+  expect(r.y).toBe(20)
+  expectUndoRedoToBe(2, 0)
+
+  manager.undo()
+  expect(r.x).toBe(2)
+  expect(r.y).toBe(0)
+  expectUndoRedoToBe(1, 1)
+
+  manager.undo()
+  expect(r.x).toBe(0)
+  expect(r.y).toBe(0)
+  expectUndoRedoToBe(0, 2)
 })
