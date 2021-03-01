@@ -18,7 +18,7 @@ import {
   _await,
 } from "../../src"
 import "../commonSetup"
-import { autoDispose, delay } from "../utils"
+import { autoDispose, timeMock } from "../utils"
 
 @model("P2")
 class P2 extends Model({
@@ -119,142 +119,7 @@ test("undoMiddleware - sync", () => {
   expect(p.p2.y).toBe(10 + 20)
 
   expectUndoRedoToBe(4, 0)
-  expect(getEvents()).toMatchInlineSnapshot(`
-    Object {
-      "redo": Array [],
-      "undo": Array [
-        Object {
-          "actionName": "incX",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 0,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 1,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-          ],
-          "type": "single",
-        },
-        Object {
-          "actionName": "incX",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 1,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 3,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-          ],
-          "type": "single",
-        },
-        Object {
-          "actionName": "incY",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 0,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 10,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-            "p2",
-          ],
-          "type": "single",
-        },
-        Object {
-          "actionName": "incXY",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 3,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 10,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 6,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 30,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-          ],
-          "type": "single",
-        },
-      ],
-    }
-  `)
+  expect(getEvents()).toMatchSnapshot()
 
   // 4 actions to undo, 5 snapshots
 
@@ -290,105 +155,8 @@ test("undoMiddleware - sync", () => {
   // adding and removing from array
   p.pushArr(1)
   p.pushArr(2)
-  expect(r.undoData.redoEvents).toMatchInlineSnapshot(`Array []`)
-  expect(r.undoData.undoEvents).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionName": "pushArr",
-        "inversePatches": Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p",
-              "arr",
-              "length",
-            ],
-            "value": 0,
-          },
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p",
-              "arr",
-              "length",
-            ],
-            "value": 1,
-          },
-        ],
-        "patches": Array [
-          Object {
-            "op": "add",
-            "path": Array [
-              "p",
-              "arr",
-              0,
-            ],
-            "value": -9,
-          },
-          Object {
-            "op": "add",
-            "path": Array [
-              "p",
-              "arr",
-              1,
-            ],
-            "value": 1,
-          },
-        ],
-        "targetPath": Array [
-          "p",
-        ],
-        "type": "single",
-      },
-      Object {
-        "actionName": "pushArr",
-        "inversePatches": Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p",
-              "arr",
-              "length",
-            ],
-            "value": 2,
-          },
-          Object {
-            "op": "replace",
-            "path": Array [
-              "p",
-              "arr",
-              "length",
-            ],
-            "value": 3,
-          },
-        ],
-        "patches": Array [
-          Object {
-            "op": "add",
-            "path": Array [
-              "p",
-              "arr",
-              2,
-            ],
-            "value": -8,
-          },
-          Object {
-            "op": "add",
-            "path": Array [
-              "p",
-              "arr",
-              3,
-            ],
-            "value": 2,
-          },
-        ],
-        "targetPath": Array [
-          "p",
-        ],
-        "type": "single",
-      },
-    ]
-  `)
+  expect(r.undoData.redoEvents).toHaveLength(0)
+  expect(r.undoData.undoEvents).toMatchSnapshot()
   expectUndoRedoToBe(2, 0)
 
   expect(p.arr).toEqual([-9, 1, -8, 2])
@@ -413,54 +181,54 @@ test("undoMiddleware - sync", () => {
   expectUndoRedoToBe(0, 0)
 })
 
+@model("P2Flow")
+class P2Flow extends Model({
+  y: prop(() => 0),
+}) {
+  private *_incY(n: number) {
+    yield* _await(Promise.resolve())
+    this.y += n
+    yield* _await(Promise.resolve())
+  }
+
+  @modelFlow
+  incY = _async(this._incY)
+}
+
+@model("PFlow")
+class PFlow extends Model({
+  x: prop(() => 0),
+  p2: prop(() => new P2Flow({})),
+}) {
+  private *_incX(n: number) {
+    yield* _await(Promise.resolve())
+    this.x += n
+    yield* _await(Promise.resolve())
+  }
+
+  @modelFlow
+  incX = _async(this._incX)
+
+  private *_incXY(x: number, y: number) {
+    yield* _await(Promise.resolve())
+    yield* _await(this.incX(x))
+    yield* _await(Promise.resolve())
+    yield* _await(this.p2.incY(y))
+    yield* _await(Promise.resolve())
+    throw new Error("incXY")
+  }
+
+  @modelFlow
+  incXY = _async(this._incXY)
+}
+
+@model("RFlow")
+class RFlow extends Model({
+  undoData: prop(() => new UndoStore({})),
+  p: prop(() => new PFlow({})),
+}) {}
+
 test("undoMiddleware - async", async () => {
-  @model("P2Flow")
-  class P2Flow extends Model({
-    y: prop(() => 0),
-  }) {
-    private *_incY(n: number) {
-      yield* _await(Promise.resolve())
-      this.y += n
-      yield* _await(Promise.resolve())
-    }
-
-    @modelFlow
-    incY = _async(this._incY)
-  }
-
-  @model("PFlow")
-  class PFlow extends Model({
-    x: prop(() => 0),
-    p2: prop(() => new P2Flow({})),
-  }) {
-    private *_incX(n: number) {
-      yield* _await(Promise.resolve())
-      this.x += n
-      yield* _await(Promise.resolve())
-    }
-
-    @modelFlow
-    incX = _async(this._incX)
-
-    private *_incXY(x: number, y: number) {
-      yield* _await(Promise.resolve())
-      yield* _await(this.incX(x))
-      yield* _await(Promise.resolve())
-      yield* _await(this.p2.incY(y))
-      yield* _await(Promise.resolve())
-      throw new Error("incXY")
-    }
-
-    @modelFlow
-    incXY = _async(this._incXY)
-  }
-
-  @model("RFlow")
-  class RFlow extends Model({
-    undoData: prop(() => new UndoStore({})),
-    p: prop(() => new PFlow({})),
-  }) {}
-
   const r = new RFlow({})
   const p = r.p
 
@@ -506,142 +274,7 @@ test("undoMiddleware - async", async () => {
   expect(p.p2.y).toBe(10 + 20)
 
   expectUndoRedoToBe(4, 0)
-  expect(getEvents()).toMatchInlineSnapshot(`
-    Object {
-      "redo": Array [],
-      "undo": Array [
-        Object {
-          "actionName": "incX",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 0,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 1,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-          ],
-          "type": "single",
-        },
-        Object {
-          "actionName": "incX",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 1,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 3,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-          ],
-          "type": "single",
-        },
-        Object {
-          "actionName": "incY",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 0,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 10,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-            "p2",
-          ],
-          "type": "single",
-        },
-        Object {
-          "actionName": "incXY",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 3,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 10,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "x",
-              ],
-              "value": 6,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "p",
-                "p2",
-                "y",
-              ],
-              "value": 30,
-            },
-          ],
-          "targetPath": Array [
-            "p",
-          ],
-          "type": "single",
-        },
-      ],
-    }
-  `)
+  expect(getEvents()).toMatchSnapshot()
 
   // 4 actions to undo, 5 snapshots
 
@@ -805,79 +438,19 @@ test("undo-aware substore called from non undo-aware root store", () => {
   rootStore.substore.addValue(1)
   expect(rootStore.substore.values).toEqual([1])
   expect(manager.undoLevels).toBe(1) // substore action directly called
-  expect(manager.undoQueue).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionName": "addValue",
-        "inversePatches": Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "values",
-              "length",
-            ],
-            "value": 0,
-          },
-        ],
-        "patches": Array [
-          Object {
-            "op": "add",
-            "path": Array [
-              "values",
-              0,
-            ],
-            "value": 1,
-          },
-        ],
-        "targetPath": Array [
-          "substore",
-        ],
-        "type": "single",
-      },
-    ]
-  `)
+  expect(manager.undoQueue).toMatchSnapshot()
   manager.clearUndo()
 
   rootStore.addSubStoreValueDirect(2)
   expect(rootStore.substore.values).toEqual([1, 2])
   expect(manager.undoLevels).toBe(0) // no substore action called
-  expect(manager.undoQueue).toMatchInlineSnapshot(`Array []`)
+  expect(manager.undoQueue).toHaveLength(0)
   manager.clearUndo()
 
   rootStore.addSubStoreValueIndirect(3)
   expect(rootStore.substore.values).toEqual([1, 2, 3])
   expect(manager.undoLevels).toBe(1) // substore action indirectly called
-  expect(manager.undoQueue).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionName": "addValue",
-        "inversePatches": Array [
-          Object {
-            "op": "replace",
-            "path": Array [
-              "values",
-              "length",
-            ],
-            "value": 2,
-          },
-        ],
-        "patches": Array [
-          Object {
-            "op": "add",
-            "path": Array [
-              "values",
-              2,
-            ],
-            "value": 3,
-          },
-        ],
-        "targetPath": Array [
-          "substore",
-        ],
-        "type": "single",
-      },
-    ]
-  `)
+  expect(manager.undoQueue).toMatchSnapshot()
   manager.clearUndo()
 })
 
@@ -933,389 +506,188 @@ test("withGroup", () => {
 
   expect(p.x).toBe(10)
   expectUndoRedoToBe(1, 0)
-  expect(manager.undoQueue).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "events": Array [
-          Object {
-            "actionName": "incX",
-            "inversePatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 0,
-              },
-            ],
-            "patches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 1,
-              },
-            ],
-            "targetPath": Array [
-              "p",
-            ],
-            "type": "single",
-          },
-          Object {
-            "actionName": "incX",
-            "inversePatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 1,
-              },
-            ],
-            "patches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 3,
-              },
-            ],
-            "targetPath": Array [
-              "p",
-            ],
-            "type": "single",
-          },
-          Object {
-            "events": Array [
-              Object {
-                "actionName": "incX",
-                "inversePatches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 3,
-                  },
-                ],
-                "patches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 6,
-                  },
-                ],
-                "targetPath": Array [
-                  "p",
-                ],
-                "type": "single",
-              },
-              Object {
-                "actionName": "incX",
-                "inversePatches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 6,
-                  },
-                ],
-                "patches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 10,
-                  },
-                ],
-                "targetPath": Array [
-                  "p",
-                ],
-                "type": "single",
-              },
-            ],
-            "groupName": undefined,
-            "type": "group",
-          },
-        ],
-        "groupName": "group1",
-        "type": "group",
-      },
-    ]
-  `)
+  expect(manager.undoQueue).toMatchSnapshot()
 
   manager.undo()
   expectUndoRedoToBe(0, 1)
   expect(p.x).toBe(0)
-  expect(manager.redoQueue).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "events": Array [
-          Object {
-            "actionName": "incX",
-            "inversePatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 0,
-              },
-            ],
-            "patches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 1,
-              },
-            ],
-            "targetPath": Array [
-              "p",
-            ],
-            "type": "single",
-          },
-          Object {
-            "actionName": "incX",
-            "inversePatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 1,
-              },
-            ],
-            "patches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 3,
-              },
-            ],
-            "targetPath": Array [
-              "p",
-            ],
-            "type": "single",
-          },
-          Object {
-            "events": Array [
-              Object {
-                "actionName": "incX",
-                "inversePatches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 3,
-                  },
-                ],
-                "patches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 6,
-                  },
-                ],
-                "targetPath": Array [
-                  "p",
-                ],
-                "type": "single",
-              },
-              Object {
-                "actionName": "incX",
-                "inversePatches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 6,
-                  },
-                ],
-                "patches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 10,
-                  },
-                ],
-                "targetPath": Array [
-                  "p",
-                ],
-                "type": "single",
-              },
-            ],
-            "groupName": undefined,
-            "type": "group",
-          },
-        ],
-        "groupName": "group1",
-        "type": "group",
-      },
-    ]
-  `)
+  expect(manager.redoQueue).toMatchSnapshot()
 
   manager.redo()
   expectUndoRedoToBe(1, 0)
   expect(p.x).toBe(10)
-  expect(manager.undoQueue).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "events": Array [
-          Object {
-            "actionName": "incX",
-            "inversePatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 0,
-              },
-            ],
-            "patches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 1,
-              },
-            ],
-            "targetPath": Array [
-              "p",
-            ],
-            "type": "single",
-          },
-          Object {
-            "actionName": "incX",
-            "inversePatches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 1,
-              },
-            ],
-            "patches": Array [
-              Object {
-                "op": "replace",
-                "path": Array [
-                  "p",
-                  "x",
-                ],
-                "value": 3,
-              },
-            ],
-            "targetPath": Array [
-              "p",
-            ],
-            "type": "single",
-          },
-          Object {
-            "events": Array [
-              Object {
-                "actionName": "incX",
-                "inversePatches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 3,
-                  },
-                ],
-                "patches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 6,
-                  },
-                ],
-                "targetPath": Array [
-                  "p",
-                ],
-                "type": "single",
-              },
-              Object {
-                "actionName": "incX",
-                "inversePatches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 6,
-                  },
-                ],
-                "patches": Array [
-                  Object {
-                    "op": "replace",
-                    "path": Array [
-                      "p",
-                      "x",
-                    ],
-                    "value": 10,
-                  },
-                ],
-                "targetPath": Array [
-                  "p",
-                ],
-                "type": "single",
-              },
-            ],
-            "groupName": undefined,
-            "type": "group",
-          },
-        ],
-        "groupName": "group1",
-        "type": "group",
-      },
-    ]
-  `)
+  expect(manager.undoQueue).toMatchSnapshot()
+})
+
+test("withGroupFlow - simple case", async () => {
+  const r = new RFlow({})
+  const p = r.p
+
+  const manager = undoMiddleware(r, r.undoData)
+  autoDispose(() => manager.dispose())
+
+  function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
+  }
+
+  expectUndoRedoToBe(0, 0)
+
+  const retValue1 = await manager.withGroupFlow("group1", function* () {
+    yield* _await(p.incX(1))
+    yield* _await(p.incX(2))
+
+    const retValue2 = yield* _await(
+      manager.withGroupFlow(function* () {
+        yield* _await(p.incX(3))
+        yield* _await(p.incX(4))
+        return 2
+      })
+    )
+    expect(retValue2).toBe(2)
+    return 1
+  })
+
+  expect(retValue1).toBe(1)
+
+  expect(p.x).toBe(10)
+  expectUndoRedoToBe(1, 0)
+  expect(manager.undoQueue).toMatchSnapshot()
+
+  manager.undo()
+  expectUndoRedoToBe(0, 1)
+  expect(p.x).toBe(0)
+  expect(manager.redoQueue).toMatchSnapshot()
+
+  manager.redo()
+  expectUndoRedoToBe(1, 0)
+  expect(p.x).toBe(10)
+  expect(manager.undoQueue).toMatchSnapshot()
+})
+
+test("withGroupFlow - throwing", async () => {
+  const r = new RFlow({})
+  const p = r.p
+
+  const manager = undoMiddleware(r, r.undoData)
+  autoDispose(() => manager.dispose())
+
+  function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
+  }
+
+  expectUndoRedoToBe(0, 0)
+
+  try {
+    await manager.withGroupFlow("group1", function* () {
+      yield* _await(p.incX(1))
+
+      try {
+        yield* _await(
+          manager.withGroupFlow(function* () {
+            yield* _await(p.incX(3))
+            // eslint-disable-next-line no-throw-literal
+            throw "inside"
+          })
+        )
+        fail("should have thrown")
+      } catch (err) {
+        expect(err).toBe("inside")
+        // eslint-disable-next-line no-throw-literal
+        throw "outside"
+      }
+    })
+    fail("should have thrown")
+  } catch (err) {
+    expect(err).toBe("outside")
+  }
+
+  expect(p.x).toBe(4)
+  expectUndoRedoToBe(1, 0)
+  expect(manager.undoQueue).toMatchSnapshot()
+
+  manager.undo()
+  expectUndoRedoToBe(0, 1)
+  expect(p.x).toBe(0)
+  expect(manager.redoQueue).toMatchSnapshot()
+
+  manager.redo()
+  expectUndoRedoToBe(1, 0)
+  expect(p.x).toBe(4)
+  expect(manager.undoQueue).toMatchSnapshot()
+})
+
+test("withGroupFlow - concurrent", async () => {
+  const r = new RFlow({})
+  const p = r.p
+
+  const manager = undoMiddleware(r, r.undoData)
+  autoDispose(() => manager.dispose())
+
+  function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
+  }
+
+  expectUndoRedoToBe(0, 0)
+
+  const { advanceTimeTo } = timeMock()
+
+  // 0
+  const promise1 = manager.withGroupFlow("group1", function* () {
+    yield* _await(p.incX(1))
+    yield* _await(advanceTimeTo(190))
+    yield* _await(p.incX(2))
+  })
+
+  expect(p.x).toBe(0)
+  expect(p.p2.y).toBe(0)
+  expectUndoRedoToBe(0, 0)
+
+  // 5 - first incX run
+  await advanceTimeTo(50)
+  expect(p.x).toBe(1)
+  expect(p.p2.y).toBe(0)
+  expectUndoRedoToBe(0, 0)
+
+  // 10
+  await p.p2.incY(10)
+  await advanceTimeTo(100)
+  expect(p.x).toBe(1)
+  expect(p.p2.y).toBe(10)
+  expectUndoRedoToBe(1, 0)
+
+  // 20 - second incX run
+  await advanceTimeTo(200)
+  expect(p.x).toBe(3)
+  expect(p.p2.y).toBe(10)
+  expectUndoRedoToBe(2, 0)
+  await promise1
+
+  await p.p2.incY(10)
+  expect(p.x).toBe(3)
+  expect(p.p2.y).toBe(20)
+  expectUndoRedoToBe(3, 0)
+
+  expect(manager.undoQueue).toMatchSnapshot()
+
+  manager.undo()
+  expectUndoRedoToBe(2, 1)
+  expect(p.x).toBe(3)
+  expect(p.p2.y).toBe(10)
+
+  manager.undo()
+  expectUndoRedoToBe(1, 2)
+  expect(p.x).toBe(0)
+  expect(p.p2.y).toBe(10)
+
+  manager.undo()
+  expectUndoRedoToBe(0, 3)
+  expect(p.x).toBe(0)
+  expect(p.p2.y).toBe(0)
 })
 
 test("concurrent async actions", async () => {
+  const { advanceTimeTo } = timeMock()
+
   @model("ConcurrentAsyncActionsM")
   class ConcurrentAsyncActionsM extends Model({
     undoData: prop(() => new UndoStore({})),
@@ -1324,7 +696,7 @@ test("concurrent async actions", async () => {
   }) {
     private *_incX(x: number) {
       this.x += x
-      yield* _await(delay(19))
+      yield* _await(advanceTimeTo(190))
       this.x += x
     }
 
@@ -1333,7 +705,7 @@ test("concurrent async actions", async () => {
 
     private *_incY(y: number) {
       this.y += y
-      yield* _await(delay(19))
+      yield* _await(advanceTimeTo(290))
       this.y += y
     }
 
@@ -1365,7 +737,7 @@ test("concurrent async actions", async () => {
   expect(r.y).toBe(0)
   expectUndoRedoToBe(0, 0)
 
-  await delay(10)
+  await advanceTimeTo(100)
   expect(r.x).toBe(1)
   expect(r.y).toBe(0)
   expectUndoRedoToBe(0, 0)
@@ -1375,97 +747,17 @@ test("concurrent async actions", async () => {
   expect(r.y).toBe(10)
   expectUndoRedoToBe(0, 0)
 
-  await delay(10)
+  await advanceTimeTo(200)
   expect(r.x).toBe(2)
   expect(r.y).toBe(10)
   expectUndoRedoToBe(1, 0)
 
-  await delay(10)
+  await advanceTimeTo(300)
   expect(r.x).toBe(2)
   expect(r.y).toBe(20)
   expectUndoRedoToBe(2, 0)
 
-  expect(getEvents()).toMatchInlineSnapshot(`
-    Object {
-      "redo": Array [],
-      "undo": Array [
-        Object {
-          "actionName": "incX",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "x",
-              ],
-              "value": 0,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "x",
-              ],
-              "value": 1,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "x",
-              ],
-              "value": 1,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "x",
-              ],
-              "value": 2,
-            },
-          ],
-          "targetPath": Array [],
-          "type": "single",
-        },
-        Object {
-          "actionName": "incY",
-          "inversePatches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "y",
-              ],
-              "value": 0,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "y",
-              ],
-              "value": 10,
-            },
-          ],
-          "patches": Array [
-            Object {
-              "op": "replace",
-              "path": Array [
-                "y",
-              ],
-              "value": 10,
-            },
-            Object {
-              "op": "replace",
-              "path": Array [
-                "y",
-              ],
-              "value": 20,
-            },
-          ],
-          "targetPath": Array [],
-          "type": "single",
-        },
-      ],
-    }
-  `)
+  expect(getEvents()).toMatchSnapshot()
 
   await xPromise
   expect(r.x).toBe(2)

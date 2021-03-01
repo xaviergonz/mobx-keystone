@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.54.0
+
+- Added `withGroupFlow` to `UndoManager` so that several async actions can be undone/redone as a single step.
+
 ## 0.53.0
 
 - [BREAKING CHANGE] Now requires TypeScript 4.2.0.

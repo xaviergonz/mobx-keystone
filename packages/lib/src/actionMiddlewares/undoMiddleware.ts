@@ -143,7 +143,7 @@ export class UndoStore extends Model({
    * @ignore
    */
   @modelAction
-  _addUndo(event: UndoEvent) {
+  private _addUndo(event: UndoEvent) {
     withoutUndo(() => {
       this.undoEvents.push(event)
       // once an undo event is added redo queue is no longer valid
@@ -156,35 +156,64 @@ export class UndoStore extends Model({
   /**
    * @ignore
    */
-  _addUndoToCurrentGroup(event: UndoEvent) {
-    const group = this._groupStack[this._groupStack.length - 1]
-    if (!group) {
+  _addUndoToParentGroup(parentGroup: UndoEventGroup | undefined, event: UndoEvent) {
+    if (!parentGroup) {
       this._addUndo(event)
     } else {
-      ;(group.events as UndoEvent[]).push(event)
+      ;(parentGroup.events as UndoEvent[]).push(event)
     }
   }
 
   /**
    * @ignore
    */
-  _startGroup(groupName: string | undefined) {
-    this._groupStack.push({
+  get _currentGroup() {
+    return this._groupStack[this._groupStack.length - 1]
+  }
+
+  /**
+   * @ignore
+   */
+  _startGroup(groupName: string | undefined, startRunning: boolean) {
+    let running = false
+    const parentGroup = this._currentGroup
+
+    const group: UndoEventGroup = {
       type: UndoEventType.Group,
       groupName,
       events: [],
-    })
-  }
-
-  /**
-   * @ignore
-   */
-  _endGroup() {
-    const group = this._groupStack.pop()
-    if (!group) {
-      throw new Error("assertion failed: endGroup needs at least one group in the stack")
     }
-    this._addUndoToCurrentGroup(group)
+
+    const groupErrorMsg = "assertion failed: group out of order"
+
+    const api = {
+      pause: () => {
+        if (!running || this._currentGroup !== group) {
+          throw new Error(groupErrorMsg)
+        }
+        this._groupStack.pop()
+        running = false
+      },
+      resume: () => {
+        if (running) {
+          throw new Error(groupErrorMsg)
+        }
+        this._groupStack.push(group)
+        running = true
+      },
+      end: () => {
+        if (running) {
+          api.pause()
+        }
+        this._addUndoToParentGroup(parentGroup, group)
+      },
+    }
+
+    if (startRunning) {
+      api.resume()
+    }
+
+    return api
   }
 }
 
@@ -365,12 +394,100 @@ export class UndoManager {
       fn = arg1
     }
 
-    this.store._startGroup(groupName)
+    const group = this.store._startGroup(groupName, true)
     try {
       return fn()
     } finally {
-      this.store._endGroup()
+      group.end()
     }
+  }
+
+  /**
+   * Runs an asynchronous code block as an undo group.
+   * Note that nested groups are allowed.
+   *
+   * @param groupName Group name.
+   * @param fn Flow function.
+   * @returns Flow function return value.
+   */
+  withGroupFlow<R>(groupName: string, fn: () => Generator<any, R, any>): Promise<R>
+
+  /**
+   * Runs an asynchronous code block as an undo group.
+   * Note that nested groups are allowed.
+   *
+   * @param fn Flow function.
+   * @returns Flow function return value.
+   */
+  withGroupFlow<R>(fn: () => Generator<any, R, any>): Promise<R>
+
+  withGroupFlow<R>(arg1: any, arg2?: any): Promise<R> {
+    let groupName: string | undefined
+    let fn: () => Generator<any, R, any>
+    if (typeof arg1 === "string") {
+      groupName = arg1
+      fn = arg2
+    } else {
+      fn = arg1
+    }
+
+    const gen = fn()
+
+    const group = this.store._startGroup(groupName, false)
+
+    // use bound functions to fix es6 compilation
+    const genNext = gen.next.bind(gen)
+    const genThrow = gen.throw!.bind(gen)
+
+    const promise = new Promise<R>(function (resolve, reject) {
+      function onFulfilled(res: any): void {
+        group.resume()
+        let ret
+        try {
+          ret = genNext(res)
+        } catch (e) {
+          group.end()
+          reject(e)
+          return
+        }
+
+        group.pause()
+        next(ret)
+      }
+
+      function onRejected(err: any): void {
+        group.resume()
+        let ret
+        try {
+          ret = genThrow(err)
+        } catch (e) {
+          group.end()
+          reject(e)
+          return
+        }
+
+        group.pause()
+        next(ret)
+      }
+
+      function next(ret: any): void {
+        if (ret && typeof ret.then === "function") {
+          // an async iterator
+          ret.then(next, reject)
+        } else if (ret.done) {
+          // done
+          group.end()
+          resolve(ret.value)
+        } else {
+          // continue
+          Promise.resolve(ret.value).then(onFulfilled, onRejected)
+        }
+      }
+
+      onFulfilled(undefined) // kick off the process
+    })
+
+    return promise
   }
 
   /**
@@ -411,6 +528,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
     recorder: PatchRecorder
     recorderStack: number
     undoRootContext: SimpleActionContext
+    group: UndoEventGroup | undefined
   }
 
   const patchRecorderSymbol = Symbol("patchRecorder")
@@ -425,6 +543,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
       }),
       recorderStack: 0,
       undoRootContext: ctx,
+      group: manager.store._currentGroup,
     } as PatchRecorderData
   }
 
@@ -462,7 +581,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
             inversePatches.push(...event.inversePatches)
           }
 
-          manager.store._addUndoToCurrentGroup({
+          manager.store._addUndoToParentGroup(patchRecorderData.group, {
             type: UndoEventType.Single,
             targetPath: fastGetRootPath(ctx.target).path,
             actionName: ctx.actionName,

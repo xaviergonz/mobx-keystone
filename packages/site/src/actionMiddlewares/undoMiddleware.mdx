@@ -107,7 +107,7 @@ someAction() {
 
 ## Grouping multiple actions into a single undo/redo step
 
-Sometimes you might want multiple actions to be undone/redone in a single step. To do so you can use the `withGroup` function like this:
+Sometimes you might want multiple actions to be undone/redone in a single step. If they are sync actions you may use the `withGroup` function like this:
 
 ```ts
 someUndoManager.withGroup("optional group name", () => {
@@ -122,4 +122,16 @@ someUndoManager.withGroup("optional group name", () => {
 })
 ```
 
-Now, once undo/redo is called all the actions will be undone/redone in a single call. Note that `withGroup` currently only works for sync actions.
+If they are async actions then you may use `withGroupFlow` instead:
+
+```ts
+someUndoManager.withGroupFlow("optional group name", function* () {
+  yield* _await(someModel.firstAsyncAction())
+
+  yield* _await(someService.someAsyncStuffInTheMiddle())
+
+  yield* _await(someModel.secondAsyncAction())
+})
+```
+
+Now, once undo/redo is called all the actions will be undone/redone in a single call.

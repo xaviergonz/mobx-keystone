@@ -1,0 +1,1608 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`concurrent async actions 1`] = `
+Object {
+  "redo": Array [],
+  "undo": Array [
+    Object {
+      "actionName": "incX",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "x",
+          ],
+          "value": 0,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "x",
+          ],
+          "value": 1,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "x",
+          ],
+          "value": 1,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "x",
+          ],
+          "value": 2,
+        },
+      ],
+      "targetPath": Array [],
+      "type": "single",
+    },
+    Object {
+      "actionName": "incY",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "y",
+          ],
+          "value": 0,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "y",
+          ],
+          "value": 10,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "y",
+          ],
+          "value": 10,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "y",
+          ],
+          "value": 20,
+        },
+      ],
+      "targetPath": Array [],
+      "type": "single",
+    },
+  ],
+}
+`;
+
+exports[`undo-aware substore called from non undo-aware root store 1`] = `
+Array [
+  Object {
+    "actionName": "addValue",
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "values",
+          "length",
+        ],
+        "value": 0,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "add",
+        "path": Array [
+          "values",
+          0,
+        ],
+        "value": 1,
+      },
+    ],
+    "targetPath": Array [
+      "substore",
+    ],
+    "type": "single",
+  },
+]
+`;
+
+exports[`undo-aware substore called from non undo-aware root store 2`] = `
+Array [
+  Object {
+    "actionName": "addValue",
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "values",
+          "length",
+        ],
+        "value": 2,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "add",
+        "path": Array [
+          "values",
+          2,
+        ],
+        "value": 3,
+      },
+    ],
+    "targetPath": Array [
+      "substore",
+    ],
+    "type": "single",
+  },
+]
+`;
+
+exports[`undoMiddleware - async 1`] = `
+Object {
+  "redo": Array [],
+  "undo": Array [
+    Object {
+      "actionName": "incX",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 0,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 1,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+      ],
+      "type": "single",
+    },
+    Object {
+      "actionName": "incX",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 1,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 3,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+      ],
+      "type": "single",
+    },
+    Object {
+      "actionName": "incY",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 0,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 10,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+        "p2",
+      ],
+      "type": "single",
+    },
+    Object {
+      "actionName": "incXY",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 3,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 10,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 6,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 30,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+      ],
+      "type": "single",
+    },
+  ],
+}
+`;
+
+exports[`undoMiddleware - sync 1`] = `
+Object {
+  "redo": Array [],
+  "undo": Array [
+    Object {
+      "actionName": "incX",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 0,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 1,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+      ],
+      "type": "single",
+    },
+    Object {
+      "actionName": "incX",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 1,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 3,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+      ],
+      "type": "single",
+    },
+    Object {
+      "actionName": "incY",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 0,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 10,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+        "p2",
+      ],
+      "type": "single",
+    },
+    Object {
+      "actionName": "incXY",
+      "inversePatches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 3,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 10,
+        },
+      ],
+      "patches": Array [
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "x",
+          ],
+          "value": 6,
+        },
+        Object {
+          "op": "replace",
+          "path": Array [
+            "p",
+            "p2",
+            "y",
+          ],
+          "value": 30,
+        },
+      ],
+      "targetPath": Array [
+        "p",
+      ],
+      "type": "single",
+    },
+  ],
+}
+`;
+
+exports[`undoMiddleware - sync 2`] = `
+Array [
+  Object {
+    "actionName": "pushArr",
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "arr",
+          "length",
+        ],
+        "value": 0,
+      },
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "arr",
+          "length",
+        ],
+        "value": 1,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "add",
+        "path": Array [
+          "p",
+          "arr",
+          0,
+        ],
+        "value": -9,
+      },
+      Object {
+        "op": "add",
+        "path": Array [
+          "p",
+          "arr",
+          1,
+        ],
+        "value": 1,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+    ],
+    "type": "single",
+  },
+  Object {
+    "actionName": "pushArr",
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "arr",
+          "length",
+        ],
+        "value": 2,
+      },
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "arr",
+          "length",
+        ],
+        "value": 3,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "add",
+        "path": Array [
+          "p",
+          "arr",
+          2,
+        ],
+        "value": -8,
+      },
+      Object {
+        "op": "add",
+        "path": Array [
+          "p",
+          "arr",
+          3,
+        ],
+        "value": 2,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+    ],
+    "type": "single",
+  },
+]
+`;
+
+exports[`withGroup 1`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 10,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroup 2`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 10,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroup 3`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 10,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroupFlow - concurrent 1`] = `
+Array [
+  Object {
+    "actionName": "incY",
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 0,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 10,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+      "p2",
+    ],
+    "type": "single",
+  },
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+  Object {
+    "actionName": "incY",
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 10,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 20,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+      "p2",
+    ],
+    "type": "single",
+  },
+]
+`;
+
+exports[`withGroupFlow - simple case 1`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 10,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroupFlow - simple case 2`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 10,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroupFlow - simple case 3`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 3,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 6,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 10,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroupFlow - throwing 1`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 4,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroupFlow - throwing 2`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 4,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`withGroupFlow - throwing 3`] = `
+Array [
+  Object {
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "events": Array [
+          Object {
+            "actionName": "incX",
+            "inversePatches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 1,
+              },
+            ],
+            "patches": Array [
+              Object {
+                "op": "replace",
+                "path": Array [
+                  "p",
+                  "x",
+                ],
+                "value": 4,
+              },
+            ],
+            "targetPath": Array [
+              "p",
+            ],
+            "type": "single",
+          },
+        ],
+        "groupName": undefined,
+        "type": "group",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
