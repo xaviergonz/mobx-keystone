@@ -35,7 +35,7 @@ function internalApplySet<O extends object>(this: O, fieldName: string | number,
 
 const wrappedInternalApplySet = lazy(() =>
   wrapInAction({
-    name: BuiltInAction.ApplySet,
+    nameOrNameFn: BuiltInAction.ApplySet,
     fn: internalApplySet,
     actionType: ActionContextActionType.Sync,
   })

@@ -1,4 +1,5 @@
 import { action } from "mobx"
+import { isDataModel } from "../dataModel/utils"
 import { getObjectChildren } from "../parent/coreObjectChildren"
 import { fastGetParent, ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
@@ -51,6 +52,13 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
   if (isTweakedObject(value as any, true)) {
     setParent(value, parentPath, false, false)
     return value
+  }
+
+  // unsupported (must go before plain object tweaker)
+  if (isDataModel(value)) {
+    throw failure(
+      "data models are not directly supported. you may insert the data in the tree instead ('$' property)."
+    )
   }
 
   const tweakersLen = tweakers.length

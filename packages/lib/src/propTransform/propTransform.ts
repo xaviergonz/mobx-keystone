@@ -1,6 +1,7 @@
+import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
-import { AnyModelProp, noDefaultValue } from "../model/prop"
-import { addLateInitializationFunction, failure } from "../utils"
+import { AnyModelProp, noDefaultValue } from "../modelShared/prop"
+import { addLateInitializationFunction, failure, runAfterNewSymbol } from "../utils"
 
 /**
  * A prop transform.
@@ -69,10 +70,10 @@ export function propTransform<TProp, TData>(
 ): PropTransformDecorator<TProp> & typeof transform {
   const parametrizedDecorator: PropTransformDecorator<TProp> = (boundPropName) => {
     const decorator = (target: any, propertyKey: string) => {
-      addLateInitializationFunction(target, (instance) => {
+      addLateInitializationFunction(target, runAfterNewSymbol, (instance) => {
         // make the field a getter setter
         Object.defineProperty(instance, propertyKey, {
-          get(this: AnyModel): TData {
+          get(this: AnyModel | AnyDataModel): TData {
             const memoTransform = memoTransformCache.getOrCreateMemoTransform(
               this,
               propertyKey,
@@ -81,7 +82,7 @@ export function propTransform<TProp, TData>(
 
             return memoTransform.propToData(this.$[boundPropName])
           },
-          set(this: AnyModel, value: any) {
+          set(this: AnyModel | AnyDataModel, value: any) {
             const memoTransform = memoTransformCache.getOrCreateMemoTransform(
               this,
               propertyKey,
@@ -107,7 +108,7 @@ class MemoTransformCache {
   private readonly cache = new WeakMap<object, Map<string, MemoPropTransform<any, any>>>()
 
   getOrCreateMemoTransform<TProp, TData>(
-    target: AnyModel,
+    target: AnyModel | AnyDataModel,
     propName: string,
     baseTransform: PropTransform<TProp, TData>
   ): MemoPropTransform<TProp, TData> {

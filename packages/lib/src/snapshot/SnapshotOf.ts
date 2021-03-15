@@ -1,6 +1,7 @@
 import type { Frozen, frozenKey } from "../frozen/Frozen"
-import type { AnyModel, ModelPropsCreationData, ModelPropsData } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
 import type { modelIdKey, modelTypeKey } from "../model/metadata"
+import type { ModelPropsCreationData, ModelPropsData } from "../modelShared/BaseModelShared"
 import type { ArraySet, ObjectMap } from "../wrappers"
 
 // snapshot out

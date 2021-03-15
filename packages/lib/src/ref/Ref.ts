@@ -1,7 +1,7 @@
 import { computed } from "mobx"
-import type { ModelClass } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
 import { Model } from "../model/Model"
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
 import { failure } from "../utils"

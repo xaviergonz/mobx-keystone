@@ -1,8 +1,7 @@
 import { action } from "mobx"
 import type { O } from "ts-toolbelt"
+import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
-import { assertTweakedObject } from "../tweaker/core"
-import { inDevMode } from "../utils"
 import {
   ActionContext,
   ActionContextActionType,
@@ -17,30 +16,39 @@ import { tryRunPendingActions } from "./pendingActions"
 /**
  * @ignore
  */
+export type WrapInActionOverrideContextFn = (ctx: O.Writable<ActionContext>, self: any) => void
+
+/**
+ * @ignore
+ */
 export function wrapInAction<T extends Function>({
-  name,
+  nameOrNameFn,
   fn,
   actionType,
   overrideContext,
   isFlowFinisher = false,
 }: {
-  name: string
+  nameOrNameFn: string | (() => string)
   fn: T
   actionType: ActionContextActionType
-  overrideContext?: (ctx: O.Writable<ActionContext>) => void
+  overrideContext?: WrapInActionOverrideContextFn
   isFlowFinisher?: boolean
 }): T {
-  // we need to make only inner actions actual mobx actions
-  // so reactions (e.g. reference detaching) are picked up in the
-  // right context
-  fn = action(name, fn)
+  let fnInAction = false
 
   const wrappedAction = function (this: any) {
-    const target = this
+    const name = typeof nameOrNameFn === "function" ? nameOrNameFn() : nameOrNameFn
 
-    if (inDevMode()) {
-      assertTweakedObject(target, "wrappedAction")
+    if (!fnInAction) {
+      fnInAction = true
+
+      // we need to make only inner actions actual mobx actions
+      // so reactions (e.g. reference detaching) are picked up in the
+      // right context
+      fn = action(name, fn)
     }
+
+    const target = this
 
     const parentContext = getCurrentActionContext()
 
@@ -54,7 +62,7 @@ export function wrapInAction<T extends Function>({
       rootContext: undefined as any, // will be set after the override
     }
     if (overrideContext) {
-      overrideContext(context)
+      overrideContext(context, this)
     }
     if (!context.rootContext) {
       if (context.previousAsyncStepContext) {
@@ -69,7 +77,7 @@ export function wrapInAction<T extends Function>({
     setCurrentActionContext(context)
 
     let mwareFn: () => any = fn.bind(target, ...arguments)
-    const mwareIter = getActionMiddlewares(target)[Symbol.iterator]()
+    const mwareIter = getActionMiddlewares(context.target)[Symbol.iterator]()
     let mwareCur = mwareIter.next()
     while (!mwareCur.done) {
       const mware = mwareCur.value
@@ -111,7 +119,7 @@ export function wrapInAction<T extends Function>({
 /**
  * @ignore
  */
-export function wrapModelMethodInActionIfNeeded<M extends AnyModel>(
+export function wrapModelMethodInActionIfNeeded<M extends AnyModel | AnyDataModel>(
   model: M,
   propertyKey: keyof M,
   name: string
@@ -121,7 +129,11 @@ export function wrapModelMethodInActionIfNeeded<M extends AnyModel>(
     return
   }
 
-  const wrappedFn = wrapInAction({ name, fn, actionType: ActionContextActionType.Sync })
+  const wrappedFn = wrapInAction({
+    nameOrNameFn: name,
+    fn,
+    actionType: ActionContextActionType.Sync,
+  })
   const proto = Object.getPrototypeOf(model)
   const protoFn = proto[propertyKey]
   if (protoFn === fn) {

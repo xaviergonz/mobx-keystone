@@ -1,5 +1,6 @@
 import { ArrayTypeInfo, typesArray } from "./array"
 import { ArraySetTypeInfo, typesArraySet } from "./arraySet"
+import { typesDataModelData } from "./dataModelData"
 import { typesEnum } from "./enum"
 import { typesMaybe, typesMaybeNull } from "./maybe"
 import { ModelTypeInfo, ModelTypeInfoProps, typesModel } from "./model"
@@ -68,6 +69,7 @@ export const types = {
   record: typesRecord,
   unchecked: typesUnchecked,
   model: typesModel,
+  dataModelData: typesDataModelData,
   object: typesObject,
   ref: typesRef,
   frozen: typesFrozen,

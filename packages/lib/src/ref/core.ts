@@ -1,6 +1,6 @@
 import { observable, ObservableSet, reaction } from "mobx"
-import { model } from "../model/modelDecorator"
 import { isModel } from "../model/utils"
+import { model } from "../modelShared/modelDecorator"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure } from "../utils"
 import { Ref, RefConstructor } from "./Ref"

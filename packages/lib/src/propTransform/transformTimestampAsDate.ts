@@ -1,4 +1,9 @@
-import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
+import {
+  MaybeOptionalModelProp,
+  OnlyPrimitives,
+  OptionalModelProp,
+  prop,
+} from "../modelShared/prop"
 import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { immutableDate } from "./ImmutableDate"
@@ -44,7 +49,7 @@ export function prop_dateTimestamp<TValue>(
 ): OptionalModelProp<TransformDateToTimestamp<TValue>, TValue>
 
 export function prop_dateTimestamp(def?: any) {
-  return transformedProp(prop(def), timestampAsDate, true)
+  return transformedProp(arguments.length >= 1 ? prop(def) : prop(), timestampAsDate, true)
 }
 
 export function tProp_dateTimestamp<TType extends AnyType>(
@@ -62,5 +67,9 @@ export function tProp_dateTimestamp<TType extends AnyType>(
 ): OptionalModelProp<TypeToData<TType>, TransformTimestampToDate<TypeToData<TType>>>
 
 export function tProp_dateTimestamp(typeOrDefaultValue: any, def?: any) {
-  return transformedProp(tProp(typeOrDefaultValue, def), timestampAsDate, true)
+  return transformedProp(
+    arguments.length >= 2 ? tProp(typeOrDefaultValue, def) : tProp(typeOrDefaultValue),
+    timestampAsDate,
+    true
+  )
 }

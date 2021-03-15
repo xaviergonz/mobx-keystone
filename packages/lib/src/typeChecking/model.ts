@@ -1,10 +1,11 @@
 import type { O } from "ts-toolbelt"
-import type { AnyModel, ModelClass } from "../model/BaseModel"
+import type { AnyModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
-import { modelInfoByClass } from "../model/modelInfo"
-import { getInternalModelClassPropsInfo } from "../model/modelPropsInfo"
-import { noDefaultValue } from "../model/prop"
-import { assertIsModelClass, isModelClass } from "../model/utils"
+import { isModelClass } from "../model/utils"
+import type { ModelClass } from "../modelShared/BaseModelShared"
+import { modelInfoByClass } from "../modelShared/modelInfo"
+import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
+import { noDefaultValue } from "../modelShared/prop"
 import { failure, lateVal } from "../utils"
 import { getTypeInfo } from "./getTypeInfo"
 import { resolveTypeChecker } from "./resolveTypeChecker"
@@ -37,7 +38,6 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
     return lateTypeChecker(() => typesModel(modelClass()) as any, typeInfoGen) as any
   } else {
     const modelClazz: ModelClass<AnyModel> = modelClass as any
-    assertIsModelClass(modelClazz, "modelClass")
 
     const cachedTypeChecker = cachedModelTypeChecker.get(modelClazz)
     if (cachedTypeChecker) {
@@ -56,14 +56,14 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
             return new TypeCheckError(path, typeName, value)
           }
 
-          const dataTypeChecker = getModelMetadata(value).dataType
+          const dataTypeChecker = getModelMetadata(value as AnyModel).dataType
           if (!dataTypeChecker) {
             throw failure(
               `type checking cannot be performed over model of type '${
                 modelInfo.name
-              }' at path ${path.join(
+              }' at path '${path.join(
                 "/"
-              )} since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
+              )}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
             )
           }
 

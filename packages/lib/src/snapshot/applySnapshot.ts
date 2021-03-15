@@ -3,10 +3,12 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { isFrozenSnapshot } from "../frozen/Frozen"
+import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
-import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
+import type { ModelClass } from "../modelShared/BaseModelShared"
+import { getModelInfoForName } from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
@@ -76,7 +78,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
       )
     }
 
-    const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+    const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
     const id = sn[modelIdPropertyName]
     if (obj[modelIdKey] !== id) {
       // different id, no reconciliation possible
@@ -100,7 +102,7 @@ function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>):
 
 const wrappedInternalApplySnapshot = lazy(() =>
   wrapInAction({
-    name: BuiltInAction.ApplySnapshot,
+    nameOrNameFn: BuiltInAction.ApplySnapshot,
     fn: internalApplySnapshot,
     actionType: ActionContextActionType.Sync,
   })

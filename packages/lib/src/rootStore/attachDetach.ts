@@ -60,7 +60,7 @@ export const detachFromRootStore = action("detachFromRootStore", (child: object)
       if (disposer) {
         // wrap disposer in action
         const disposerAction = wrapInAction({
-          name: HookAction.OnAttachedToRootStoreDisposer,
+          nameOrNameFn: HookAction.OnAttachedToRootStoreDisposer,
           fn: disposer,
           actionType: ActionContextActionType.Sync,
         }).bind(ch)

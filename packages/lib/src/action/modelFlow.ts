@@ -1,9 +1,9 @@
 import type { O } from "ts-toolbelt"
-import { checkModelDecoratorArgs } from "../model/utils"
-import { assertTweakedObject } from "../tweaker/core"
-import { decorateWrapMethodOrField, failure, inDevMode } from "../utils"
+import { checkModelDecoratorArgs } from "../modelShared/checkModelDecoratorArgs"
+import { decorateWrapMethodOrField, failure } from "../utils"
+import { getActionNameAndContextOverride } from "./actionDecoratorUtils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { wrapInAction } from "./wrapInAction"
+import { wrapInAction, WrapInActionOverrideContextFn } from "./wrapInAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
 
@@ -11,22 +11,29 @@ const modelFlowSymbol = Symbol("modelFlow")
  * @ignore
  * @internal
  */
-export function flow<R, Args extends any[]>(
-  name: string,
+export function flow<R, Args extends any[]>({
+  nameOrNameFn,
+  generator,
+  overrideContext,
+}: {
+  nameOrNameFn: string | (() => string)
   generator: (...args: Args) => IterableIterator<any>
-): (...args: Args) => Promise<any> {
+  overrideContext?: WrapInActionOverrideContextFn
+}): (...args: Args) => Promise<any> {
   // Implementation based on https://github.com/tj/co/blob/master/index.js
   const flowFn = function (this: any, ...args: any[]) {
-    const target = this
+    const name = typeof nameOrNameFn === "function" ? nameOrNameFn() : nameOrNameFn
 
-    if (inDevMode()) {
-      assertTweakedObject(target, "flow")
-    }
+    const target = this
 
     let previousAsyncStepContext: ActionContext | undefined
 
-    const ctxOverride = (stepType: ActionContextAsyncStepType) => {
-      return (ctx: O.Writable<ActionContext>) => {
+    const ctxOverride = (stepType: ActionContextAsyncStepType): WrapInActionOverrideContextFn => {
+      return (ctx: O.Writable<ActionContext>, self) => {
+        if (overrideContext) {
+          overrideContext(ctx, self)
+        }
+
         ctx.previousAsyncStepContext = previousAsyncStepContext
         ctx.spawnAsyncStepContext = previousAsyncStepContext
           ? previousAsyncStepContext.spawnAsyncStepContext
@@ -40,7 +47,7 @@ export function flow<R, Args extends any[]>(
 
     let generatorRun = false
     const gen = wrapInAction({
-      name,
+      nameOrNameFn: name,
       fn: () => {
         generatorRun = true
         return generator.apply(target, args as Args)
@@ -64,14 +71,14 @@ export function flow<R, Args extends any[]>(
         let ret
         try {
           ret = wrapInAction({
-            name,
+            nameOrNameFn: name,
             fn: genNext,
             actionType: ActionContextActionType.Async,
             overrideContext: ctxOverride(ActionContextAsyncStepType.Resume),
           }).call(target, res)
         } catch (e) {
           wrapInAction({
-            name,
+            nameOrNameFn: name,
             fn: (err: any) => {
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
@@ -96,14 +103,14 @@ export function flow<R, Args extends any[]>(
         let ret
         try {
           ret = wrapInAction({
-            name,
+            nameOrNameFn: name,
             fn: genThrow,
             actionType: ActionContextActionType.Async,
             overrideContext: ctxOverride(ActionContextAsyncStepType.ResumeError),
           }).call(target, err)
         } catch (e) {
           wrapInAction({
-            name,
+            nameOrNameFn: name,
             fn: (err: any) => {
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
@@ -131,7 +138,7 @@ export function flow<R, Args extends any[]>(
         } else if (ret.done) {
           // done
           wrapInAction({
-            name,
+            nameOrNameFn: name,
             fn: (val: any) => {
               // we use a flow finisher to allow middlewares to tweak the return value before resolution
               return {
@@ -197,6 +204,8 @@ export function modelFlow(
   propertyKey: string,
   baseDescriptor?: PropertyDescriptor
 ): void {
+  const { actionName, overrideContext } = getActionNameAndContextOverride(target, propertyKey)
+
   return decorateWrapMethodOrField(
     "modelFlow",
     {
@@ -209,7 +218,8 @@ export function modelFlow(
         return fn
       } else {
         checkModelFlowArgs(data.target, data.propertyKey, fn)
-        return flow(data.propertyKey, fn)
+
+        return flow({ nameOrNameFn: actionName, generator: fn, overrideContext })
       }
     }
   )

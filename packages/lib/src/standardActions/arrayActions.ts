@@ -7,7 +7,7 @@ function _splice(this: any[], ...args: any[]): any[] {
   return (this.splice as any)(...args)
 }
 
-const _fnArray = fnModel<unknown[]>("mobx-keystone/fnArray").actions({
+const _arrayActions = fnModel<unknown[]>("mobx-keystone/arrayActions").actions({
   set(index: number, value: any): void {
     set(this, index, value)
   },
@@ -51,50 +51,53 @@ const _fnArray = fnModel<unknown[]>("mobx-keystone/fnArray").actions({
   },
 })
 
-export const fnArray = {
-  set: _fnArray.set as <T>(array: T[], index: number, value: T) => void,
+export const arrayActions = {
+  set: _arrayActions.set as <T>(array: T[], index: number, value: T) => void,
 
-  delete: _fnArray.delete as <T>(array: T[], index: number) => boolean,
+  delete: _arrayActions.delete as <T>(array: T[], index: number) => boolean,
 
-  setLength: _fnArray.setLength as <T>(array: T[], length: number) => void,
+  setLength: _arrayActions.setLength as <T>(array: T[], length: number) => void,
 
-  concat: _fnArray.concat as <T>(array: T[], ...items: ConcatArray<T>[]) => T[],
+  concat: _arrayActions.concat as <T>(array: T[], ...items: ConcatArray<T>[]) => T[],
 
-  copyWithin: _fnArray.copyWithin as <T>(
+  copyWithin: _arrayActions.copyWithin as <T>(
     array: T[],
     target: number,
     start: number,
     end?: number | undefined
   ) => T[],
 
-  fill: _fnArray.fill as <T>(
+  fill: _arrayActions.fill as <T>(
     array: T[],
     value: T,
     start?: number | undefined,
     end?: number | undefined
   ) => T[],
 
-  pop: _fnArray.pop as <T>(array: T[]) => T | undefined,
+  pop: _arrayActions.pop as <T>(array: T[]) => T | undefined,
 
-  push: _fnArray.push as <T>(array: T[], ...items: T[]) => number,
+  push: _arrayActions.push as <T>(array: T[], ...items: T[]) => number,
 
-  reverse: _fnArray.reverse as <T>(array: T[]) => T[],
+  reverse: _arrayActions.reverse as <T>(array: T[]) => T[],
 
-  shift: _fnArray.shift as <T>(array: T[]) => T | undefined,
+  shift: _arrayActions.shift as <T>(array: T[]) => T | undefined,
 
-  slice: _fnArray.slice as <T>(
+  slice: _arrayActions.slice as <T>(
     array: T[],
     start?: number | undefined,
     end?: number | undefined
   ) => T[],
 
-  sort: _fnArray.sort as <T>(array: T[], compareFn?: ((a: T, b: T) => number) | undefined) => T[],
+  sort: _arrayActions.sort as <T>(
+    array: T[],
+    compareFn?: ((a: T, b: T) => number) | undefined
+  ) => T[],
 
-  splice: _fnArray.splice as
+  splice: _arrayActions.splice as
     | (<T>(array: T[], start: number, deleteCount?: number) => T[])
     | (<T>(array: T[], start: number, deleteCount: number, ...items: T[]) => T[]),
 
-  unshift: _fnArray.unshift as <T>(array: T[], ...items: T[]) => number,
+  unshift: _arrayActions.unshift as <T>(array: T[], ...items: T[]) => number,
 
-  create: _fnArray.create as <T>(data: T[]) => T[],
+  create: _arrayActions.create as <T>(data: T[]) => T[],
 }

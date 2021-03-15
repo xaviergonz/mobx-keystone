@@ -1,4 +1,9 @@
-import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
+import {
+  MaybeOptionalModelProp,
+  OnlyPrimitives,
+  OptionalModelProp,
+  prop,
+} from "../modelShared/prop"
 import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { isArray, isSet } from "../utils"
@@ -6,11 +11,11 @@ import { asSet, setToArray } from "../wrappers/asSet"
 import { PropTransform, transformedProp } from "./propTransform"
 
 const arrayAsSetInnerTransform: PropTransform<any[] | unknown, Set<any> | unknown> = {
-  propToData(arr) {
-    return isArray(arr) ? asSet(arr) : arr
+  propToData(arrayOrSet) {
+    return isArray(arrayOrSet) ? asSet(arrayOrSet) : arrayOrSet
   },
-  dataToProp(newSet) {
-    return isSet(newSet) ? setToArray(newSet) : newSet
+  dataToProp(setOrArray) {
+    return isSet(setOrArray) ? setToArray(setOrArray) : setOrArray
   },
 }
 
@@ -39,7 +44,7 @@ export function prop_setArray<TValue>(
 ): OptionalModelProp<TransformSetToArray<TValue>, TValue>
 
 export function prop_setArray(def?: any) {
-  return transformedProp(prop(def), arrayAsSetInnerTransform, true)
+  return transformedProp(arguments.length >= 1 ? prop(def) : prop(), arrayAsSetInnerTransform, true)
 }
 
 export function tProp_setArray<TType extends AnyType>(
@@ -57,5 +62,9 @@ export function tProp_setArray<TType extends AnyType>(
 ): OptionalModelProp<TypeToData<TType>, TransformArrayToSet<TypeToData<TType>>>
 
 export function tProp_setArray(typeOrDefaultValue: any, def?: any) {
-  return transformedProp(tProp(typeOrDefaultValue, def), arrayAsSetInnerTransform, true)
+  return transformedProp(
+    arguments.length >= 2 ? tProp(typeOrDefaultValue, def) : tProp(typeOrDefaultValue),
+    arrayAsSetInnerTransform,
+    true
+  )
 }

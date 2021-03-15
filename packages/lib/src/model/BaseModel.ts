@@ -1,9 +1,21 @@
 import { observable } from "mobx"
 import type { O } from "ts-toolbelt"
 import { getGlobalConfig } from "../globalConfig"
+import {
+  instanceCreationDataTypeSymbol,
+  instanceDataTypeSymbol,
+  ModelClass,
+  propsCreationDataTypeSymbol,
+  propsDataTypeSymbol,
+} from "../modelShared/BaseModelShared"
+import { modelInfoByClass } from "../modelShared/modelInfo"
 import { memoTransformCache } from "../propTransform/propTransform"
 import { getSnapshot } from "../snapshot/getSnapshot"
-import type { SnapshotInOfModel, SnapshotInOfObject, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
+import type {
+  SnapshotInOfModel,
+  SnapshotInOfObject,
+  SnapshotOutOfModel,
+} from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import type { TypeCheckError } from "../typeChecking/TypeCheckError"
@@ -11,7 +23,6 @@ import { assertIsObject } from "../utils"
 import { getModelIdPropertyName } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
-import { modelInfoByClass } from "./modelInfo"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
 import { setBaseModel } from "./_BaseModel"
@@ -19,33 +30,7 @@ import { setBaseModel } from "./_BaseModel"
 /**
  * @ignore
  */
-export const propsDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const propsCreationDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const instanceDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const instanceCreationDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
 export const modelIdPropertyNameSymbol = Symbol()
-
-/**
- * @ignore
- * @internal
- */
-export const modelInitializedSymbol = Symbol("modelInitialized")
 
 /**
  * Base abstract class for models. Use `Model` instead when extending.
@@ -53,7 +38,7 @@ export const modelInitializedSymbol = Symbol("modelInitialized")
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
  * @typeparam PropsData Props data type.
- * @typeparam CreationData Creation data type.
+ * @typeparam PropsCreationData Props creation data type.
  * @typeparam InstanceData Instace data type.
  * @typeparam InstanceCreationData Instance creation data type.
  * @typeparam ModelIdPropertyName Model id property name.
@@ -137,7 +122,7 @@ export abstract class BaseModel<
 
   /**
    * Performs a type check over the model instance.
-   * For this to work a data type has to be declared in the model decorator.
+   * For this to work a data type has to be declared as part of the model properties.
    *
    * @returns A `TypeCheckError` or `null` if there is no error.
    */
@@ -147,7 +132,7 @@ export abstract class BaseModel<
   }
 
   /**
-   * Creates an instance of Model.
+   * Creates an instance of a model.
    */
   constructor(data: InstanceCreationData) {
     let initialData = data as any
@@ -238,25 +223,6 @@ export const baseModelPropNames = new Set<keyof AnyModel>([
 export interface AnyModel extends BaseModel<any, any, any, any, any> {}
 
 /**
- * Extracts the instance type of a model class.
- */
-export interface ModelClass<M extends AnyModel> {
-  new (initialData: any): M
-}
-
-/**
- * Extracts the instance type of an abstract model class.
- */
-export type AbstractModelClass<M extends AnyModel> = abstract new (initialData: any) => M;
-
-/**
- * A model class declaration, made of a base model and the model interface.
- */
-export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
-  new (...args: any[]): ModelInterface
-}
-
-/**
  * @deprecated Should not be needed anymore.
  *
  * Tricks Typescript into accepting abstract classes as a parameter for `ExtendedModel`.
@@ -269,38 +235,6 @@ export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelCla
 export function abstractModelClass<T>(type: T): T & Object {
   return type as any
 }
-
-/**
- * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.
- * Does nothing in runtime.
- *
- * @typeparam T Generic model class type.
- * @param type Generic model class.
- * @returns
- */
-export function modelClass<T extends AnyModel>(type: { prototype: T }): ModelClass<T> {
-  return type as any
-}
-
-/**
- * The props data type of a model.
- */
-export type ModelPropsData<M extends AnyModel> = M["$"]
-
-/**
- * The props creation data type of a model.
- */
-export type ModelPropsCreationData<M extends AnyModel> = M[typeof propsCreationDataTypeSymbol]
-
-/**
- * The instance data type of a model.
- */
-export type ModelInstanceData<M extends AnyModel> = M[typeof instanceDataTypeSymbol]
-
-/**
- * The transformed creation data type of a model.
- */
-export type ModelInstanceCreationData<M extends AnyModel> = M[typeof instanceCreationDataTypeSymbol]
 
 /**
  * The model id property name.
@@ -361,4 +295,11 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
     [modelTypeKey]: modelInfo.name,
     [modelIdPropertyName]: internalId,
   } as any
+}
+
+/**
+ * A model class declaration, made of a base model and the model interface.
+ */
+export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
+  new (...args: any[]): ModelInterface
 }

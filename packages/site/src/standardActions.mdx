@@ -1,0 +1,27 @@
+---
+name: Standard Actions
+route: /standardActions
+---
+
+import { FixStyle } from "./components/FixStyle.tsx"
+
+<FixStyle />
+
+# Standard Actions
+
+In order to work over object and arrays without requiring declaring custom actions you can use the already predefined `objectActions` and `arrayActions` (note these also work over class models).
+
+`objectActions` work over any kind of objects (including model themselves) and offer:
+
+- `set(obj, key, value)` to set a key.
+- `delete(obj, key)` to delete a key.
+- `assign(obj, partialObj)` to assign values (similar to `Object.assign`).
+- `call(methodName, ...args)` to call a method.
+
+`arrayActions` work over arrays and offer:
+
+- `set(array, index, value)` to set an index.
+- `delete(array, index)` to delete an index.
+- `setLength(array, length)` to set a new length.
+
+Plus the usual array mutation methods (`pop`, `push`, etc.).

@@ -32,7 +32,7 @@ export function internalApplyMethodCall(this: any, methodName: string | number, 
 
 const wrappedInternalApplyMethodCall = lazy(() =>
   wrapInAction({
-    name: BuiltInAction.ApplyMethodCall,
+    nameOrNameFn: BuiltInAction.ApplyMethodCall,
     fn: internalApplyMethodCall,
     actionType: ActionContextActionType.Sync,
   })

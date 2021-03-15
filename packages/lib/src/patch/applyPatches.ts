@@ -74,7 +74,7 @@ export function internalApplyPatches(
 
 const wrappedInternalApplyPatches = lazy(() =>
   wrapInAction({
-    name: BuiltInAction.ApplyPatches,
+    nameOrNameFn: BuiltInAction.ApplyPatches,
     fn: internalApplyPatches,
     actionType: ActionContextActionType.Sync,
   })

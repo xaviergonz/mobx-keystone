@@ -1,5 +1,6 @@
-import { checkModelDecoratorArgs } from "../model/utils"
+import { checkModelDecoratorArgs } from "../modelShared/checkModelDecoratorArgs"
 import { decorateWrapMethodOrField, failure } from "../utils"
+import { getActionNameAndContextOverride } from "./actionDecoratorUtils"
 import { ActionContextActionType } from "./context"
 import { isModelAction } from "./isModelAction"
 import { wrapInAction } from "./wrapInAction"
@@ -24,6 +25,8 @@ export function modelAction(
   propertyKey: string,
   baseDescriptor?: PropertyDescriptor
 ): void {
+  const { actionName, overrideContext } = getActionNameAndContextOverride(target, propertyKey)
+
   return decorateWrapMethodOrField(
     "modelAction",
     {
@@ -36,10 +39,12 @@ export function modelAction(
         return fn
       } else {
         checkModelActionArgs(data.target, data.propertyKey, fn)
+
         return wrapInAction({
-          name: data.propertyKey,
+          nameOrNameFn: actionName,
           fn,
           actionType: ActionContextActionType.Sync,
+          overrideContext,
         })
       }
     }

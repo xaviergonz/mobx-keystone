@@ -1,6 +1,7 @@
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import type { SnapshotInOfModel } from "../snapshot/SnapshotOf"
 import { failure, isPlainObject } from "../utils"
-import type { AnyModel, ModelClass } from "./BaseModel"
+import type { AnyModel } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { _BaseModel } from "./_BaseModel"
 
@@ -72,29 +73,4 @@ export function assertIsModelClass(
  */
 export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
   return isPlainObject(sn) && !!sn[modelTypeKey]
-}
-
-/**
- * @ignore
- * @internal
- */
-export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey: string) {
-  if (typeof propertyKey !== "string") {
-    throw failure(`${fnName} cannot be used over symbol properties`)
-  }
-
-  const errMessage = `${fnName} must be used over model classes or instances`
-
-  if (!target) {
-    throw failure(errMessage)
-  }
-
-  // check target is a model object or extended class
-  if (
-    !(target instanceof _BaseModel) &&
-    target !== _BaseModel &&
-    !(target.prototype instanceof _BaseModel)
-  ) {
-    throw failure(errMessage)
-  }
 }

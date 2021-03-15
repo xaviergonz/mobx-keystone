@@ -22,7 +22,7 @@ export function detach(node: object): void {
 
 const wrappedInternalDetach = lazy(() =>
   wrapInAction({
-    name: BuiltInAction.Detach,
+    nameOrNameFn: BuiltInAction.Detach,
     fn: internalDetach,
     actionType: ActionContextActionType.Sync,
   })

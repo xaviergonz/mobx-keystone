@@ -1,7 +1,7 @@
 import { entries, get, has, keys, remove, set, values } from "mobx"
 import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
-import { model } from "../model/modelDecorator"
+import { model } from "../modelShared/modelDecorator"
 import { typesRecord } from "../typeChecking/record"
 import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"

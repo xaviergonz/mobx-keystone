@@ -14,7 +14,7 @@ import { FixStyle } from "./components/FixStyle.tsx"
 `mobx-keystone` supports the following kinds of data:
 
 - Class models, which are like objects but enhanced with local behaviors (actions/views) and life-cycle events (hooks).
-- Functional models, which only define behaviors (actions/views) over plain data and _do not have_ life-cycle events (hooks).
+- Data models, which only define behaviors (actions/views) over "untainted" data and have a _very_ limited number life-cycle events (hooks).
 - Objects, which serve as basic storages of data (kind of like class models, except without actions and life-cycle events), as well as key-value maps of other data.
 - Arrays.
 - Primitive values (`string`, `boolean`, `number`, `null`, `undefined`).
@@ -81,7 +81,7 @@ With runtime type checking (check the relevant section for more info):
 
 The rules that need to be followed to declare a class model are:
 
-- Class models have to be decorated with `@model` and require a unique across-application ID for the class type.
+- Class models have to be decorated with `@model` and require a unique across-application ID for the model type.
 - They have to extend `Model`, which in Typescript requires the type of the data that will become observable / snapshotable / patchable.
 - This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
 - Model actions need to be used in order to be able to change such data.
@@ -101,7 +101,7 @@ const myTodo2 = new Todo({ text: "buy some coffee" })
 
 ## Automatic class model actions for property setters
 
-Since most of the times, the only action we need for a property is a setter we can use the model option `setterAction` to reduce boilerplace and generate property setters. For example, the model above could be written as:
+Most times, the only action we need for a property is a setter we can use the model option `setterAction` to reduce boilerplace and generate property setters. For example, the model above could be written as:
 
 ```ts
 @model("myCoolApp/Todo")
@@ -117,7 +117,7 @@ myTodo.setText("buy some milk")
 myTodo.setDone(true)
 ```
 
-If for some reason you still require to change these without using a `modelAction` consider using `fnObject.set`, `fnObject.delete`, `fnObject.call`, `fnArray.push`, etc. if needed.
+If for some reason you still require to change these without using a `modelAction` consider using `objectActions.set`, `objectActions.delete`, `objectActions.call`, `arrayActions.push`, etc. if needed.
 
 ## Life-cycle event hooks
 
@@ -218,12 +218,12 @@ setGlobalConfig({
 })
 ```
 
-If for some reason you do not want to have/require these extra properties in your snapshots please see [functional models](./functionalModels) instead.
+If for some reason you do not want to have/require these extra properties in your snapshots please see [data models](./dataModels) instead.
 
 ## Getting the Typescript types for model data and model creation data
 
 - `ModelPropsData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
-- `ModelInstanceData<Model>` is the type of the model props with transformation (as accessible via `this`).
+- `ModelInstanceData<Model>` is the type of the model props with transformations (as accessible via `this`).
 - `ModelPropsCreationData<Model>` is the the type of the creation model props without transformations (like `SnapshotIn<Model>` excluding `$modelId` and `$modelType`).
 - `ModelInstanceCreationData<Model>` is the type of the first parameter passed to `new Model(...)`.
 
@@ -409,8 +409,8 @@ To do so you can use the `decoratedModel` method as shown below:
 ```ts
 // note the _ at the beginning of the name to distinguish it from the decorated version
 class _Todo extends Model({
-  text: prop<string>(), // a required string
-  done: prop(false), // an optional boolean that will default to false when the input is null or undefined
+  text: prop<string>(),
+  done: prop(false),
 }) {
   // note how here we don't decorate the method directly, but on the next parameter instead
   // @modelAction

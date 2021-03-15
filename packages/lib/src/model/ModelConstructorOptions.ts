@@ -1,5 +1,6 @@
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import type { PropTransform } from "../propTransform/propTransform"
-import type { AnyModel, ModelClass } from "./BaseModel"
+import type { AnyModel } from "./BaseModel"
 
 /**
  * @internal

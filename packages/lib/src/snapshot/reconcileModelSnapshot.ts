@@ -2,8 +2,9 @@ import { remove, set } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
-import { getModelInfoForName } from "../model/modelInfo"
 import { isModel, isModelSnapshot } from "../model/utils"
+import { ModelClass } from "../modelShared/BaseModelShared"
+import { getModelInfoForName } from "../modelShared/modelInfo"
 import { failure } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
@@ -22,7 +23,7 @@ function reconcileModelSnapshot(
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
   const id = sn[modelIdPropertyName]
 
   // try to use model from pool if possible

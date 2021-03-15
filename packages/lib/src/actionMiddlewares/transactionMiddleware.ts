@@ -1,7 +1,8 @@
 import type { ActionMiddlewareDisposer } from "../action/middleware"
 import type { AnyModel } from "../model/BaseModel"
-import { addModelClassInitializer } from "../model/modelClassInitializer"
-import { assertIsModel, checkModelDecoratorArgs } from "../model/utils"
+import { assertIsModel } from "../model/utils"
+import { checkModelDecoratorArgs } from "../modelShared/checkModelDecoratorArgs"
+import { addModelClassInitializer } from "../modelShared/modelClassInitializer"
 import { applyPatches } from "../patch"
 import { internalPatchRecorder, PatchRecorder } from "../patch/patchRecorder"
 import { assertIsObject, failure } from "../utils"
@@ -92,7 +93,7 @@ export function transaction(target: any, propertyKey: string): void {
 
   addModelClassInitializer(target.constructor, (modelInstance) => {
     transactionMiddleware({
-      model: modelInstance,
+      model: modelInstance as AnyModel,
       actionName: propertyKey as any,
     })
   })

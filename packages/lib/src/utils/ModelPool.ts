@@ -1,8 +1,9 @@
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelTypeKey } from "../model/metadata"
-import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
+import { ModelClass } from "../modelShared/BaseModelShared"
+import { getModelInfoForName } from "../modelShared/modelInfo"
 import { dataObjectParent } from "../parent/core"
 import { byModelTypeAndIdKey, getDeepObjectChildren } from "../parent/coreObjectChildren"
 
@@ -27,7 +28,7 @@ export class ModelPool {
 
     const modelType = sn[modelTypeKey]
     const modelInfo = getModelInfoForName(modelType)!
-    const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+    const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
 
     return this.findModelByTypeAndId(sn[modelTypeKey], sn[modelIdPropertyName])
   }

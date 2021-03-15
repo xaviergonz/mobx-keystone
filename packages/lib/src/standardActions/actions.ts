@@ -3,7 +3,24 @@ import { isModelAction } from "../action/isModelAction"
 import { flow, isModelFlow } from "../action/modelFlow"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertIsFunction, failure, logWarning } from "../utils"
-import { assertFnModelKeyNotInUse, FnModelFn } from "./core"
+
+/**
+ * A function with an object as target.
+ */
+export type FnModelFn<T extends object, FN extends (...args: any[]) => any> = (
+  target: T,
+  ...args: Parameters<FN>
+) => ReturnType<FN>
+
+/**
+ * @ignore
+ * @internal
+ */
+export function assertFnModelKeyNotInUse(fnModelObj: any, key: string) {
+  if (fnModelObj[key] !== undefined) {
+    throw failure(`key '${key}' cannot be redeclared`)
+  }
+}
 
 const fnModelActionRegistry = new Map<string, FnModelFn<any, FnModelActionDef>>()
 
@@ -11,7 +28,7 @@ const fnModelActionRegistry = new Map<string, FnModelFn<any, FnModelActionDef>>(
  * @ignore
  * @internal
  */
-export function getFnModelAction(actionName: string) {
+export function getFnModelLegacyAction(actionName: string) {
   return fnModelActionRegistry.get(actionName)
 }
 
@@ -83,9 +100,9 @@ export function addActionToFnModel<Data>(
   }
 
   const wrappedAction = isFlow
-    ? flow(fullActionName, fn)
+    ? flow({ nameOrNameFn: fullActionName, generator: fn })
     : wrapInAction({
-        name: fullActionName,
+        nameOrNameFn: fullActionName,
         fn,
         actionType: ActionContextActionType.Sync,
       })

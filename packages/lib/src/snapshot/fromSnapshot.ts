@@ -4,8 +4,9 @@ import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelTypeKey } from "../model/metadata"
 import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
-import { getModelInfoForName } from "../model/modelInfo"
 import { isModelSnapshot } from "../model/utils"
+import type { ModelClass } from "../modelShared/BaseModelShared"
+import { getModelInfoForName } from "../modelShared/modelInfo"
 import { tweakArray } from "../tweaker/tweakArray"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
@@ -114,7 +115,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class)
+  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
   if (!sn[modelIdPropertyName]) {
     throw failure(
       `a model snapshot of type '${type}' must contain an id key (${modelIdPropertyName}), but none was found`

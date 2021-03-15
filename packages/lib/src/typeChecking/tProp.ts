@@ -8,7 +8,7 @@ import {
   OnlyPrimitives,
   OptionalModelProp,
   OptionalModelPropWithSetterAction,
-} from "../model/prop"
+} from "../modelShared/prop"
 import { isObject } from "../utils"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
 import { resolveStandardType } from "./resolveTypeChecker"

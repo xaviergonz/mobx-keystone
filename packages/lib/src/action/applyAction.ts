@@ -1,9 +1,10 @@
-import { getFnModelAction } from "../fnModel/actions"
+import { getDataModelAction } from "../dataModel/actions"
 import { detach } from "../parent/detach"
 import { resolvePathCheckingIds } from "../parent/path"
 import { Path } from "../parent/pathTypes"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
+import { getFnModelLegacyAction } from "../standardActions/actions"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { applyDelete } from "./applyDelete"
@@ -91,14 +92,22 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
     }
 
     return fnToCall.apply(current, [current, ...call.args])
-  } else if (isHookAction(call.actionName)) {
-    throw failure(`calls to hooks (${call.actionName}) cannot be applied`)
-  } else {
-    const standaloneAction = getFnModelAction(call.actionName)
-    if (standaloneAction) {
-      return standaloneAction.apply(current, call.args as any)
-    } else {
-      return (current as any)[call.actionName].apply(current, call.args)
-    }
   }
+
+  if (isHookAction(call.actionName)) {
+    throw failure(`calls to hooks (${call.actionName}) cannot be applied`)
+  }
+
+  const dataModelAction = getDataModelAction(call.actionName)
+  if (dataModelAction) {
+    const instance: any = new dataModelAction.modelClass(current)
+    return instance[dataModelAction.fnName].apply(instance, call.args)
+  }
+
+  const fnModelLegacyAction = getFnModelLegacyAction(call.actionName)
+  if (fnModelLegacyAction) {
+    return fnModelLegacyAction.apply(current, call.args as any)
+  }
+
+  return (current as any)[call.actionName].apply(current, call.args)
 }

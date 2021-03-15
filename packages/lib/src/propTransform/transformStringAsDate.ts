@@ -1,4 +1,9 @@
-import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
+import {
+  MaybeOptionalModelProp,
+  OnlyPrimitives,
+  OptionalModelProp,
+  prop,
+} from "../modelShared/prop"
 import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { immutableDate } from "./ImmutableDate"
@@ -9,14 +14,14 @@ import { propTransform, transformedProp } from "./propTransform"
  * If a model property, consider using `prop_dateString` or `tProp_dateString` instead.
  */
 export const stringAsDate = propTransform<string | null | undefined, Date | null | undefined>({
-  propToData(prop) {
-    if (typeof prop !== "string") {
-      return prop
+  propToData(stringOrDate) {
+    if (typeof stringOrDate !== "string") {
+      return stringOrDate
     }
-    return immutableDate(prop) as Date
+    return immutableDate(stringOrDate) as Date
   },
-  dataToProp(date) {
-    return date instanceof Date ? date.toJSON() : date
+  dataToProp(dateOrString) {
+    return dateOrString instanceof Date ? dateOrString.toJSON() : dateOrString
   },
 })
 
@@ -44,7 +49,7 @@ export function prop_dateString<TValue>(
 ): OptionalModelProp<TransformDateToString<TValue>, TValue>
 
 export function prop_dateString(def?: any) {
-  return transformedProp(prop(def), stringAsDate, true)
+  return transformedProp(arguments.length >= 1 ? prop(def) : prop(), stringAsDate, true)
 }
 
 export function tProp_dateString<TType extends AnyType>(
@@ -62,5 +67,9 @@ export function tProp_dateString<TType extends AnyType>(
 ): OptionalModelProp<TypeToData<TType>, TransformStringToDate<TypeToData<TType>>>
 
 export function tProp_dateString(typeOrDefaultValue: any, def?: any) {
-  return transformedProp(tProp(typeOrDefaultValue, def), stringAsDate, true)
+  return transformedProp(
+    arguments.length >= 2 ? tProp(typeOrDefaultValue, def) : tProp(typeOrDefaultValue),
+    stringAsDate,
+    true
+  )
 }

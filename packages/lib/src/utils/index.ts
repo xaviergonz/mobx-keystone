@@ -267,7 +267,11 @@ export interface DecorateMethodOrFieldData {
   baseDescriptor?: PropertyDescriptor & { initializer?: () => any }
 }
 
-const decoratorsSymbol = Symbol("decorators")
+/**
+ * @ignore
+ * @internal
+ */
+export const runAfterNewSymbol = Symbol("runAfterNew")
 
 type WrapFunction = (data: DecorateMethodOrFieldData, fn: any) => any
 type LateInitializationFunctionsArray = ((instance: any) => void)[]
@@ -276,13 +280,17 @@ type LateInitializationFunctionsArray = ((instance: any) => void)[]
  * @ignore
  * @internal
  */
-export function addLateInitializationFunction(target: any, fn: (instance: any) => void) {
-  let decoratorsArray: LateInitializationFunctionsArray = target[decoratorsSymbol]
-  if (!decoratorsArray) {
-    decoratorsArray = []
-    addHiddenProp(target, decoratorsSymbol, decoratorsArray)
+export function addLateInitializationFunction(
+  target: any,
+  symbol: symbol,
+  fn: (instance: any) => void
+) {
+  let array: LateInitializationFunctionsArray = target[symbol]
+  if (!array) {
+    array = []
+    addHiddenProp(target, symbol, array)
   }
-  decoratorsArray.push(fn)
+  array.push(fn)
 }
 
 /**
@@ -297,7 +305,7 @@ export function decorateWrapMethodOrField(
   const { target, propertyKey, baseDescriptor } = data
 
   const addFieldDecorator = () => {
-    addLateInitializationFunction(target, (instance) => {
+    addLateInitializationFunction(target, runAfterNewSymbol, (instance) => {
       instance[propertyKey] = wrap(data, instance[propertyKey])
     })
   }
@@ -330,11 +338,11 @@ export function decorateWrapMethodOrField(
  * @ignore
  * @internal
  */
-export function runLateInitializationFunctions(instance: any): void {
-  const fns: LateInitializationFunctionsArray | undefined = instance[decoratorsSymbol]
+export function runLateInitializationFunctions(target: any, symbol: symbol): void {
+  const fns: LateInitializationFunctionsArray | undefined = target[symbol]
   if (fns) {
     for (const fn of fns) {
-      fn(instance)
+      fn(target)
     }
   }
 }

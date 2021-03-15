@@ -1,110 +1,118 @@
-import { comparer, reaction } from "mobx"
+import { computed, reaction } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   addActionMiddleware,
   applyAction,
-  fnModel,
-  FnModelData,
+  DataModel,
+  ExtendedDataModel,
+  getParent,
+  idProp,
+  Model,
+  model,
+  modelAction,
+  modelFlow,
+  ModelPropsData,
+  prop,
+  prop_dateTimestamp,
   registerRootStore,
-  tag,
+  toTreeNode,
+  tProp,
   types,
-  TypeToData,
+  _async,
   _await,
 } from "../../src"
 import "../commonSetup"
 import { autoDispose, delay } from "../utils"
 
 test("without type", async () => {
-  interface Todo {
-    done: boolean
-    text: string
-  }
-
   let viewRuns = 0
 
-  const todoTag = tag((todo: Todo) => ({
-    ten: 10,
+  @model("myApp/Todo1")
+  class Todo extends DataModel({
+    done: prop<boolean>({ setterAction: true }),
+    text: prop<string>(),
+  }) {
+    ten = 10
+
     get inverseDone() {
-      return !todo.done
-    },
+      return !this.done
+    }
+
     toggleDone() {
-      todoModel.setDone(todo, !todo.done)
-    },
-  }))
+      this.setDone(!this.done)
+    }
 
-  const todoModel = fnModel<Todo>("myApp/Todo1")
-    .views({
-      asString(): string {
-        viewRuns++
-        return `${this.done ? "DONE" : "TODO"} ${this.text}`
-      },
-      asStringWithOptions: {
-        get(): string {
-          return `${this.done ? "DONE" : "TODO"} ${this.text}`
-        },
-        equals: comparer.default,
-      },
-    })
-    .setterActions("done", "text")
-    .actions({
-      setAll(done: boolean, text: string) {
-        // just to see we can use views within actions
-        const str = todoModel.asString(this)
-        expect(str).toBe(`${this.done ? "DONE" : "TODO"} ${this.text}`)
+    @computed
+    get asString() {
+      viewRuns++
+      return `${this.done ? "DONE" : "TODO"} ${this.text}`
+    }
 
-        // just to see we can use views within actions
-        const str2 = todoModel.asStringWithOptions(this)
-        expect(str2).toBe(`${this.done ? "DONE" : "TODO"} ${this.text}`)
+    @modelAction
+    setText = (text: string) => {
+      this.text = text
+    }
 
-        // just to see we can use actions within actions
-        todoModel.setDone(this, done)
+    @modelAction
+    setAll(done: boolean, text: string) {
+      // just to see we can use views within actions
+      const str = this.asString
+      expect(str).toBe(`${this.done ? "DONE" : "TODO"} ${this.text}`)
 
-        todo.text = text
-        return 32 + todoTag.for(this).ten
-      },
-    })
-    .flowActions({
-      *asyncAction(done: boolean) {
-        this.done = done
-        yield* _await(delay(10))
-        return this.done
-      },
-    })
+      // just to see we can use actions within actions
+      this.setDone(done)
 
-  assert(_ as FnModelData<typeof todoModel>, _ as Todo)
+      todo.text = text
+      return 32 + this.ten
+    }
 
-  expect(todoModel.type).toBe(null)
+    private *_asyncAction(done: boolean) {
+      this.done = done
+      yield* _await(delay(10))
+      return this.done
+    }
 
-  const todo = todoModel.create({ done: true, text: "1" })
-  registerRootStore(todo)
+    @modelFlow
+    asyncAction = _async(this._asyncAction)
+  }
 
-  // tag
-  const myTodoTag = todoTag.for(todo)
-  // same once constructed
-  expect(todoTag.for(todo)).toBe(myTodoTag)
+  assert(
+    _ as ModelPropsData<Todo>,
+    _ as {
+      done: boolean
+      text: string
+    }
+  )
 
-  expect(myTodoTag.ten).toBe(10)
-  expect(myTodoTag.inverseDone).toBe(false)
-  myTodoTag.toggleDone()
+  const todo = new Todo({ done: true, text: "1" })
+  registerRootStore(todo.$)
+
+  // props
+  expect(todo.done).toBe(todo.$.done)
+  expect(todo.text).toBe(todo.$.text)
+
+  expect(todo.ten).toBe(10)
+  expect(todo.inverseDone).toBe(false)
+  todo.toggleDone()
   expect(todo.done).toBe(false)
 
   // uncached when not observed
   expect(viewRuns).toBe(0)
-  expect(todoModel.asString(todo)).toBe("TODO 1")
-  expect(todoModel.asString(todo)).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
   expect(viewRuns).toBe(2)
   viewRuns = 0
 
   // cached when observed
   autoDispose(
     reaction(
-      () => todoModel.asString(todo),
+      () => todo.asString,
       () => {}
     )
   )
   expect(viewRuns).toBe(1)
-  expect(todoModel.asString(todo)).toBe("TODO 1")
-  expect(todoModel.asString(todo)).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
   expect(viewRuns).toBe(1)
   viewRuns = 0
 
@@ -112,7 +120,7 @@ test("without type", async () => {
 
   autoDispose(
     addActionMiddleware({
-      subtreeRoot: todo,
+      subtreeRoot: todo.$,
       middleware(ctx, next) {
         events.push({
           event: "action started",
@@ -130,14 +138,16 @@ test("without type", async () => {
   )
   expect(events.length).toBe(0)
 
-  todoModel.setDone(todo, true)
+  todo.setDone(true)
   expect(viewRuns).toBe(1)
   expect(todo.done).toBe(true)
+  expect(todo.$.done).toBe(todo.done)
 
-  todoModel.setText(todo, "2")
+  todo.setText("2")
   expect(todo.text).toBe("2")
+  expect(todo.$.text).toBe(todo.text)
 
-  expect(todoModel.setAll(todo, false, "3")).toBe(42)
+  expect(todo.setAll(false, "3")).toBe(42)
   expect(todo.done).toBe(false)
   expect(todo.text).toBe("3")
 
@@ -145,7 +155,7 @@ test("without type", async () => {
     Array [
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setDone",
+          "actionName": "fn::myApp/Todo1::setDone",
           "args": Array [
             true,
           ],
@@ -162,7 +172,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setDone",
+          "actionName": "fn::myApp/Todo1::setDone",
           "args": Array [
             true,
           ],
@@ -180,7 +190,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setText",
+          "actionName": "fn::myApp/Todo1::setText",
           "args": Array [
             "2",
           ],
@@ -197,7 +207,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setText",
+          "actionName": "fn::myApp/Todo1::setText",
           "args": Array [
             "2",
           ],
@@ -215,7 +225,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setAll",
+          "actionName": "fn::myApp/Todo1::setAll",
           "args": Array [
             false,
             "3",
@@ -233,13 +243,13 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setDone",
+          "actionName": "fn::myApp/Todo1::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "myApp/Todo1::setAll",
+            "actionName": "fn::myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -254,7 +264,7 @@ test("without type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "myApp/Todo1::setAll",
+            "actionName": "fn::myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -278,13 +288,13 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setDone",
+          "actionName": "fn::myApp/Todo1::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "myApp/Todo1::setAll",
+            "actionName": "fn::myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -299,7 +309,7 @@ test("without type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "myApp/Todo1::setAll",
+            "actionName": "fn::myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -324,7 +334,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo1::setAll",
+          "actionName": "fn::myApp/Todo1::setAll",
           "args": Array [
             false,
             "3",
@@ -345,9 +355,9 @@ test("without type", async () => {
   `)
 
   expect(
-    applyAction(todo, {
-      actionName: "myApp/Todo1::setAll",
-      args: [todo, true, "4"],
+    applyAction(todo.$, {
+      actionName: "fn::myApp/Todo1::setAll",
+      args: [true, "4"],
       targetPath: [],
       targetPathIds: [],
     })
@@ -357,75 +367,101 @@ test("without type", async () => {
   expect(todo.text).toBe("4")
 
   // flows
-  const newDone = await todoModel.asyncAction(todo, false)
+  const newDone = await todo.asyncAction(false)
   expect(todo.done).toBe(false)
   expect(newDone).toBe(false)
 })
 
 test("with type", async () => {
-  const todoType = types.object(() => ({
-    done: types.boolean,
-    text: types.string,
-  }))
-
   let viewRuns = 0
 
-  const todoModel = fnModel(todoType, "myApp/Todo2")
-    .views({
-      asString(): string {
-        viewRuns++
-        return `${this.done ? "DONE" : "TODO"} ${this.text}`
-      },
-      asStringWithOptions: {
-        get(): string {
-          return `${this.done ? "DONE" : "TODO"} ${this.text}`
-        },
-        equals: comparer.default,
-      },
-    })
-    .setterActions("done", "text")
-    .actions({
-      setAll(done: boolean, text: string) {
-        // just to see we can use views within actions
-        const str = todoModel.asString(this)
-        expect(str).toBe(`${this.done ? "DONE" : "TODO"} ${this.text}`)
+  @model("myApp/Todo2")
+  class Todo extends DataModel({
+    done: tProp(types.boolean, { setterAction: true }),
+    text: tProp(types.string),
+  }) {
+    ten = 10
 
-        // just to see we can use views within actions
-        const str2 = todoModel.asStringWithOptions(this)
-        expect(str2).toBe(`${this.done ? "DONE" : "TODO"} ${this.text}`)
+    get inverseDone() {
+      return !this.done
+    }
 
-        // just to see we can use actions within actions
-        todoModel.setDone(this, done)
+    toggleDone() {
+      this.setDone(!this.done)
+    }
 
-        todo.text = text
-        return 42
-      },
-    })
+    @computed
+    get asString() {
+      viewRuns++
+      return `${this.done ? "DONE" : "TODO"} ${this.text}`
+    }
 
-  assert(_ as FnModelData<typeof todoModel>, _ as TypeToData<typeof todoType>)
+    @modelAction
+    setText = (text: string) => {
+      this.text = text
+    }
 
-  expect(todoModel.type).toBe(todoType)
+    @modelAction
+    setAll(done: boolean, text: string) {
+      // just to see we can use views within actions
+      const str = this.asString
+      expect(str).toBe(`${this.done ? "DONE" : "TODO"} ${this.text}`)
 
-  const todo = todoModel.create({ done: false, text: "1" })
-  registerRootStore(todo)
+      // just to see we can use actions within actions
+      this.setDone(done)
+
+      todo.text = text
+      return 32 + this.ten
+    }
+
+    private *_asyncAction(done: boolean) {
+      this.done = done
+      yield* _await(delay(10))
+      return this.done
+    }
+
+    @modelFlow
+    asyncAction = _async(this._asyncAction)
+  }
+
+  assert(
+    _ as ModelPropsData<Todo>,
+    _ as {
+      done: boolean
+      text: string
+    }
+  )
+
+  const todo = new Todo({ done: true, text: "1" })
+  expect(todo.typeCheck()).toBe(null)
+  registerRootStore(todo.$)
+
+  // props
+  expect(todo.done).toBe(todo.$.done)
+  expect(todo.text).toBe(todo.$.text)
+
+  expect(todo.ten).toBe(10)
+  expect(todo.inverseDone).toBe(false)
+  todo.toggleDone()
+  expect(todo.done).toBe(false)
 
   // uncached when not observed
   expect(viewRuns).toBe(0)
-  expect(todoModel.asString(todo)).toBe("TODO 1")
-  expect(todoModel.asString(todo)).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
   expect(viewRuns).toBe(2)
   viewRuns = 0
 
   // cached when observed
   autoDispose(
     reaction(
-      () => todoModel.asString(todo),
+      () => todo.asString,
       () => {}
     )
   )
   expect(viewRuns).toBe(1)
-  expect(todoModel.asString(todo)).toBe("TODO 1")
-  expect(todoModel.asString(todo)).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
+  expect(todo.asString).toBe("TODO 1")
   expect(viewRuns).toBe(1)
   viewRuns = 0
 
@@ -433,7 +469,7 @@ test("with type", async () => {
 
   autoDispose(
     addActionMiddleware({
-      subtreeRoot: todo,
+      subtreeRoot: todo.$,
       middleware(ctx, next) {
         events.push({
           event: "action started",
@@ -451,14 +487,16 @@ test("with type", async () => {
   )
   expect(events.length).toBe(0)
 
-  todoModel.setDone(todo, true)
+  todo.setDone(true)
   expect(viewRuns).toBe(1)
   expect(todo.done).toBe(true)
+  expect(todo.$.done).toBe(todo.done)
 
-  todoModel.setText(todo, "2")
+  todo.setText("2")
   expect(todo.text).toBe("2")
+  expect(todo.$.text).toBe(todo.text)
 
-  expect(todoModel.setAll(todo, false, "3")).toBe(42)
+  expect(todo.setAll(false, "3")).toBe(42)
   expect(todo.done).toBe(false)
   expect(todo.text).toBe("3")
 
@@ -466,7 +504,7 @@ test("with type", async () => {
     Array [
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setDone",
+          "actionName": "fn::myApp/Todo2::setDone",
           "args": Array [
             true,
           ],
@@ -483,7 +521,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setDone",
+          "actionName": "fn::myApp/Todo2::setDone",
           "args": Array [
             true,
           ],
@@ -501,7 +539,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setText",
+          "actionName": "fn::myApp/Todo2::setText",
           "args": Array [
             "2",
           ],
@@ -518,7 +556,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setText",
+          "actionName": "fn::myApp/Todo2::setText",
           "args": Array [
             "2",
           ],
@@ -536,7 +574,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setAll",
+          "actionName": "fn::myApp/Todo2::setAll",
           "args": Array [
             false,
             "3",
@@ -554,13 +592,13 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setDone",
+          "actionName": "fn::myApp/Todo2::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "myApp/Todo2::setAll",
+            "actionName": "fn::myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -575,7 +613,7 @@ test("with type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "myApp/Todo2::setAll",
+            "actionName": "fn::myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -599,13 +637,13 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setDone",
+          "actionName": "fn::myApp/Todo2::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "myApp/Todo2::setAll",
+            "actionName": "fn::myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -620,7 +658,7 @@ test("with type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "myApp/Todo2::setAll",
+            "actionName": "fn::myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -645,7 +683,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "myApp/Todo2::setAll",
+          "actionName": "fn::myApp/Todo2::setAll",
           "args": Array [
             false,
             "3",
@@ -666,9 +704,9 @@ test("with type", async () => {
   `)
 
   expect(
-    applyAction(todo, {
-      actionName: "myApp/Todo2::setAll",
-      args: [todo, true, "4"],
+    applyAction(todo.$, {
+      actionName: "fn::myApp/Todo2::setAll",
+      args: [true, "4"],
       targetPath: [],
       targetPathIds: [],
     })
@@ -676,4 +714,276 @@ test("with type", async () => {
 
   expect(todo.done).toBe(true)
   expect(todo.text).toBe("4")
+
+  // flows
+  const newDone = await todo.asyncAction(false)
+  expect(todo.done).toBe(false)
+  expect(newDone).toBe(false)
+})
+
+test("no defaults can be used for props", () => {
+  expect(() =>
+    DataModel({
+      x: prop(5),
+    })
+  ).toThrow("data models do not support properties with default values, but property 'x' has one")
+})
+
+test("idProp is not allowed", () => {
+  expect(() =>
+    DataModel({
+      id: idProp,
+    })
+  ).toThrow('expected no idProp but got some: ["id"]')
+})
+
+test("transforms work, but do not do intial transformations", () => {
+  @model("test/Trans")
+  class Trans extends DataModel({
+    date: prop_dateTimestamp<Date>(),
+  }) {
+    @modelAction
+    setDate(date: Date) {
+      this.date = date
+    }
+  }
+
+  const trans = new Trans({ date: 100000 })
+  expect(trans.date instanceof Date).toBe(true)
+  expect(+trans.date).toBe(100000)
+  expect(trans.$.date).toBe(100000)
+
+  trans.setDate(new Date(400000))
+  expect(trans.date instanceof Date).toBe(true)
+  expect(+trans.date).toBe(400000)
+  expect(trans.$.date).toBe(400000)
+
+  expect(
+    () =>
+      new Trans({
+        date: new Date() as any,
+      })
+  ).toThrow()
+})
+
+test("onLazyInit gets called", () => {
+  let lazyInitCalls = 0
+
+  @model("test/LazyInit")
+  class LazyInit extends DataModel({
+    x: prop<number>(),
+  }) {
+    onLazyInit() {
+      lazyInitCalls++
+      this.x++
+    }
+  }
+
+  expect(lazyInitCalls).toBe(0)
+
+  const inst = new LazyInit({ x: 10 })
+  expect(lazyInitCalls).toBe(1)
+  expect(inst.x).toBe(11)
+})
+
+test("multiple calls to new with the same tree node return the same instance", () => {
+  @model("test/SameInstance")
+  class SameInstance extends DataModel({
+    x: prop<number>(),
+  }) {}
+
+  const inst1 = new SameInstance({ x: 10 })
+  const inst2 = new SameInstance(inst1.$)
+  expect(inst1).toBe(inst2)
+})
+
+test("type checking", () => {
+  @model("test/TypeCheck")
+  class TypeCheck extends DataModel({
+    x: tProp(types.number),
+  }) {}
+
+  const wrongData = {
+    x: "10",
+  }
+
+  const errorMsg = "TypeCheckError: [/x] Expected: number"
+
+  expect(() => new TypeCheck(wrongData as any)).toThrow(errorMsg)
+})
+
+test("parent/child", () => {
+  @model("test/ChildModel")
+  class ChildModel extends DataModel({
+    x: tProp(types.number),
+  }) {}
+
+  @model("test/ParentModel")
+  class ParentModel extends Model({
+    subObj: tProp(types.maybe(types.dataModelData<ChildModel>(ChildModel)), { setterAction: true }),
+  }) {}
+
+  const pm = new ParentModel({})
+
+  const tc = new ChildModel({ x: 10 })
+
+  expect(() => pm.setSubObj(tc)).toThrow(
+    "data models are not directly supported. you may insert the data in the tree instead ('$' property)."
+  )
+  pm.setSubObj(tc.$)
+  expect(pm.subObj).toBe(tc.$)
+  expect(getParent(tc.$)).toBe(pm)
+  expect(() => getParent(tc)).toThrow("value must be a tree node")
+})
+
+test("two different classes over the same data return different instances", () => {
+  @model("test/a")
+  class A extends DataModel({ x: prop<number>() }) {}
+
+  @model("test/b")
+  class B extends DataModel({ x: prop<number>() }) {}
+
+  const data = toTreeNode({ x: 10 })
+
+  expect(new A(data)).not.toBe(new B(data))
+})
+
+test("extends works", () => {
+  @model("test/extends/base")
+  class Base extends DataModel({ x: prop<number>({ setterAction: true }) }) {}
+
+  const bm = new Base({ x: 10 })
+  expect(bm.x).toBe(10)
+
+  const events: any = []
+
+  autoDispose(
+    addActionMiddleware({
+      subtreeRoot: bm.$,
+      middleware(ctx, next) {
+        events.push({
+          event: "action started",
+          ctx,
+        })
+        const result = next()
+        events.push({
+          event: "action finished",
+          ctx,
+          result,
+        })
+        return result
+      },
+    })
+  )
+
+  bm.setX(30)
+
+  expect(bm.x).toBe(30)
+
+  expect(events).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "ctx": Object {
+          "actionName": "fn::test/extends/base::setX",
+          "args": Array [
+            30,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": Object {
+            "x": 30,
+          },
+          "type": "sync",
+        },
+        "event": "action started",
+      },
+      Object {
+        "ctx": Object {
+          "actionName": "fn::test/extends/base::setX",
+          "args": Array [
+            30,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": Object {
+            "x": 30,
+          },
+          "type": "sync",
+        },
+        "event": "action finished",
+        "result": undefined,
+      },
+    ]
+  `)
+
+  @model("test/extends/extended")
+  class Extended extends ExtendedDataModel(Base, {
+    y: prop<number>({ setterAction: true }),
+  }) {}
+
+  const m = new Extended({ x: 10, y: 20 })
+  expect(m.x).toBe(10)
+  expect(m.y).toBe(20)
+
+  events.length = 0
+  autoDispose(
+    addActionMiddleware({
+      subtreeRoot: m.$,
+      middleware(ctx, next) {
+        events.push({
+          event: "action started",
+          ctx,
+        })
+        const result = next()
+        return result
+      },
+    })
+  )
+
+  m.setX(30)
+  m.setY(40)
+
+  expect(m.x).toBe(30)
+  expect(m.y).toBe(40)
+
+  expect(events).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "ctx": Object {
+          "actionName": "fn::test/extends/extended::setX",
+          "args": Array [
+            30,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": Object {
+            "x": 30,
+            "y": 40,
+          },
+          "type": "sync",
+        },
+        "event": "action started",
+      },
+      Object {
+        "ctx": Object {
+          "actionName": "fn::test/extends/extended::setY",
+          "args": Array [
+            40,
+          ],
+          "data": Object {},
+          "parentContext": undefined,
+          "rootContext": [Circular],
+          "target": Object {
+            "x": 30,
+            "y": 40,
+          },
+          "type": "sync",
+        },
+        "event": "action started",
+      },
+    ]
+  `)
 })

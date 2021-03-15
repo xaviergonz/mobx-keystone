@@ -1,4 +1,9 @@
-import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
+import {
+  MaybeOptionalModelProp,
+  OnlyPrimitives,
+  OptionalModelProp,
+  prop,
+} from "../modelShared/prop"
 import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { isMap, isObject } from "../utils"
@@ -9,15 +14,11 @@ const objectAsMapInnerTransform: PropTransform<
   Record<string, any> | unknown,
   Map<string, any> | unknown
 > = {
-  propToData(obj) {
-    return isObject(obj) ? asMap(obj as any) : obj
+  propToData(objectOrMap) {
+    return isObject(objectOrMap) ? asMap(objectOrMap as any) : objectOrMap
   },
-  dataToProp(newMap) {
-    if (!isMap(newMap)) {
-      return newMap
-    }
-
-    return mapToObject(newMap)
+  dataToProp(mapOrObject) {
+    return isMap(mapOrObject) ? mapToObject(mapOrObject) : mapOrObject
   },
 }
 
@@ -49,7 +50,11 @@ export function prop_mapObject<TValue>(
 ): OptionalModelProp<TransformMapToObject<TValue>, TValue>
 
 export function prop_mapObject(def?: any) {
-  return transformedProp(prop(def), objectAsMapInnerTransform, true)
+  return transformedProp(
+    arguments.length >= 1 ? prop(def) : prop(),
+    objectAsMapInnerTransform,
+    true
+  )
 }
 
 export function tProp_mapObject<TType extends AnyType>(
@@ -67,5 +72,9 @@ export function tProp_mapObject<TType extends AnyType>(
 ): OptionalModelProp<TypeToData<TType>, TransformObjectToMap<TypeToData<TType>>>
 
 export function tProp_mapObject(typeOrDefaultValue: any, def?: any) {
-  return transformedProp(tProp(typeOrDefaultValue, def), objectAsMapInnerTransform, true)
+  return transformedProp(
+    arguments.length >= 2 ? tProp(typeOrDefaultValue, def) : tProp(typeOrDefaultValue),
+    objectAsMapInnerTransform,
+    true
+  )
 }

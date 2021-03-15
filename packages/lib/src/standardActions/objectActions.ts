@@ -2,7 +2,7 @@ import { remove, set } from "mobx"
 import { assertIsObject } from "../utils"
 import { fnModel } from "./fnModel"
 
-const _fnObject = fnModel<any>("mobx-keystone/fnObject").actions({
+const _objectActions = fnModel<any>("mobx-keystone/objectActions").actions({
   set(key: PropertyKey, value: any): void {
     set(this, key, value)
   },
@@ -24,22 +24,25 @@ const _fnObject = fnModel<any>("mobx-keystone/fnObject").actions({
   },
 })
 
-export const fnObject = {
-  set: _fnObject.set as <T extends object, K extends keyof T>(
+export const objectActions = {
+  set: _objectActions.set as <T extends object, K extends keyof T>(
     target: T,
     key: K,
     value: T[K]
   ) => void,
 
-  assign: _fnObject.assign as <T extends object>(target: T, partialObject: Partial<T>) => void,
+  assign: _objectActions.assign as <T extends object>(target: T, partialObject: Partial<T>) => void,
 
-  delete: _fnObject.delete as <T extends object, K extends keyof T>(target: T, key: K) => boolean,
+  delete: _objectActions.delete as <T extends object, K extends keyof T>(
+    target: T,
+    key: K
+  ) => boolean,
 
-  call: _fnObject.call as <T extends object, K extends keyof T>(
+  call: _objectActions.call as <T extends object, K extends keyof T>(
     target: T,
     methodName: K,
     ...args: T[K] extends (...args: any[]) => any ? Parameters<T[K]> : never
   ) => T[K] extends (...args: any[]) => any ? ReturnType<T[K]> : never,
 
-  create: _fnObject.create as <T>(data: T) => T,
+  create: _objectActions.create as <T>(data: T) => T,
 }

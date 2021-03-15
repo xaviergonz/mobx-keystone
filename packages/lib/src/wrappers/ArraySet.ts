@@ -1,7 +1,7 @@
 import { values } from "mobx"
 import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
-import { model } from "../model/modelDecorator"
+import { model } from "../modelShared/modelDecorator"
 import { typesArray } from "../typeChecking/array"
 import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"

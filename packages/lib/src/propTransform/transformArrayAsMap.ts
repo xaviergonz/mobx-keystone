@@ -1,4 +1,9 @@
-import { MaybeOptionalModelProp, OnlyPrimitives, OptionalModelProp, prop } from "../model/prop"
+import {
+  MaybeOptionalModelProp,
+  OnlyPrimitives,
+  OptionalModelProp,
+  prop,
+} from "../modelShared/prop"
 import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { isArray, isMap } from "../utils"
@@ -9,15 +14,11 @@ const arrayAsMapInnerTransform: PropTransform<
   [string, any][] | unknown,
   Map<string, any> | unknown
 > = {
-  propToData(arr) {
-    return isArray(arr) ? asMap(arr) : arr
+  propToData(arrayOrMap) {
+    return isArray(arrayOrMap) ? asMap(arrayOrMap) : arrayOrMap
   },
-  dataToProp(newMap) {
-    if (!isMap(newMap)) {
-      return newMap
-    }
-
-    return mapToArray(newMap)
+  dataToProp(mapOrArray) {
+    return isMap(mapOrArray) ? mapToArray(mapOrArray) : mapOrArray
   },
 }
 
@@ -46,7 +47,7 @@ export function prop_mapArray<TValue>(
 ): OptionalModelProp<TransformMapToArray<TValue>, TValue>
 
 export function prop_mapArray(def?: any) {
-  return transformedProp(prop(def), arrayAsMapInnerTransform, true)
+  return transformedProp(arguments.length >= 1 ? prop(def) : prop(), arrayAsMapInnerTransform, true)
 }
 
 export function tProp_mapArray<TType extends AnyType>(
@@ -64,5 +65,9 @@ export function tProp_mapArray<TType extends AnyType>(
 ): OptionalModelProp<TypeToData<TType>, TransformArrayToMap<TypeToData<TType>>>
 
 export function tProp_mapArray(typeOrDefaultValue: any, def?: any) {
-  return transformedProp(tProp(typeOrDefaultValue, def), arrayAsMapInnerTransform, true)
+  return transformedProp(
+    arguments.length >= 2 ? tProp(typeOrDefaultValue, def) : tProp(typeOrDefaultValue),
+    arrayAsMapInnerTransform,
+    true
+  )
 }

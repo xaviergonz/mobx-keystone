@@ -7,6 +7,10 @@ export enum HookAction {
    */
   OnInit = "$$onInit",
   /**
+   * onLazyInit hook
+   */
+  OnLazyInit = "$$onLazyInit",
+  /**
    * onAttachedToRootStore hook
    */
   OnAttachedToRootStore = "$$onAttachedToRootStore",
@@ -21,6 +25,7 @@ const hookActionValues = new Set(Object.values(HookAction))
 /**
  * Returns if a given action name corresponds to a hook, this is, one of:
  * - onInit() hook
+ * - onLazyInit() hook
  * - onAttachedToRootStore() hook
  * - disposer returned by a onAttachedToRootStore() hook
  *

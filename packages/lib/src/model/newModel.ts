@@ -1,17 +1,18 @@
 import { action, set } from "mobx"
 import type { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
+import type { ModelPropsCreationData } from "../modelShared/BaseModelShared"
+import { modelInfoByClass } from "../modelShared/modelInfo"
+import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
+import { applyModelInitializers } from "../modelShared/newModel"
+import { noDefaultValue } from "../modelShared/prop"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
-import type { AnyModel, ModelPropsCreationData } from "./BaseModel"
+import type { AnyModel } from "./BaseModel"
 import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
 import { modelTypeKey } from "./metadata"
-import { getModelClassInitializers } from "./modelClassInitializer"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
-import { modelInfoByClass } from "./modelInfo"
-import { getInternalModelClassPropsInfo } from "./modelPropsInfo"
-import { noDefaultValue } from "./prop"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -119,14 +120,7 @@ export const internalNewModel = action(
     }
 
     // run any extra initializers for the class as needed
-    const initializers = getModelClassInitializers(modelClass)
-    if (initializers) {
-      const len = initializers.length
-      for (let i = 0; i < len; i++) {
-        const init = initializers[i]
-        init(modelObj)
-      }
-    }
+    applyModelInitializers(modelClass, modelObj)
 
     return modelObj as M
   }

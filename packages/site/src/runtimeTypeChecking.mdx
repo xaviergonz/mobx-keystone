@@ -199,6 +199,17 @@ const someModelType = types.model<SomeModel>(SomeModel)
 const someModelType = types.model<SomeModel>(() => SomeModel)
 ```
 
+### `types.dataModelData<M>(dataModelClass)`
+
+A type that represents the data of a data model. The type referenced in the model decorator will be used for type checking.
+If you use recursive / cross referencing models and get Typescript errors then consider using the lambda parameter instead.
+
+```ts
+const someModelDataType = types.dataModelData<SomeModel>(SomeModel)
+// or for recursive models
+const someModelDataType = types.dataModelData<SomeModel>(() => SomeModel)
+```
+
 ### `types.unchecked<T>()`
 
 A type that represents a given value that won't be type-checked.

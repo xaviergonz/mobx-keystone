@@ -1,31 +1,31 @@
-import { fnObject, Model, model, modelAction, prop } from "../../src"
+import { Model, model, modelAction, objectActions, prop } from "../../src"
 import "../commonSetup"
 
 test("typed object", () => {
-  const obj = fnObject.create({ a: 1 })
+  const obj = objectActions.create({ a: 1 })
   expect(obj.a).toBe(1)
 
-  fnObject.set(obj, "a", 2)
+  objectActions.set(obj, "a", 2)
   expect(obj.a).toBe(2)
 
-  fnObject.delete(obj, "a")
+  objectActions.delete(obj, "a")
   expect(obj.a).toBe(undefined)
 
-  fnObject.assign(obj, { a: 3 })
+  objectActions.assign(obj, { a: 3 })
   expect(obj.a).toBe(3)
 })
 
 test("untyped object", () => {
-  const obj = fnObject.create<any>({ a: 1 })
+  const obj = objectActions.create<any>({ a: 1 })
   expect(obj.a).toBe(1)
 
-  fnObject.set(obj, "b", 2)
+  objectActions.set(obj, "b", 2)
   expect(obj.b).toBe(2)
 
-  fnObject.delete(obj, "b")
+  objectActions.delete(obj, "b")
   expect(obj.b).toBe(undefined)
 
-  fnObject.assign(obj, { b: 3 })
+  objectActions.assign(obj, { b: 3 })
   expect(obj.b).toBe(3)
 })
 
@@ -47,12 +47,12 @@ test("over a model", () => {
 
   const m = new M({})
 
-  expect(fnObject.call(m, "setXNoAction", 20)).toBe(20)
+  expect(objectActions.call(m, "setXNoAction", 20)).toBe(20)
   expect(m.x).toBe(20)
 
-  expect(fnObject.call(m, "setXAction", 30)).toBe(30)
+  expect(objectActions.call(m, "setXAction", 30)).toBe(30)
   expect(m.x).toBe(30)
 
-  fnObject.set(m, "x", 40)
+  objectActions.set(m, "x", 40)
   expect(m.x).toBe(40)
 })
