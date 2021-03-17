@@ -1,5 +1,6 @@
 # Change Log
 
+- [BREAKING CHANGE] `setterAction` has been renamed to `setter`.
 - [BREAKING CHANGE] Functional models have now been removed in favor of Data models, which serve a similar function while having a syntax really close to standard class models. See the relevant section in the docs for more info.
 
 ## 0.54.0

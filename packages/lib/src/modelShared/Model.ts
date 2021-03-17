@@ -16,7 +16,7 @@ import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
 import type { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
-import { assertIsObject, failure, propNameToSetterActionName } from "../utils"
+import { assertIsObject, failure, propNameToSetterName } from "../utils"
 import { ModelClass, modelInitializedSymbol, ModelInstanceData } from "./BaseModelShared"
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
@@ -83,7 +83,7 @@ export function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   modelPropName: keyof ModelInstanceData<M>,
   value: ModelInstanceData<M>[typeof modelPropName]
 ): void {
-  if (modelProp?.options.setterAction === "assign" && !getCurrentActionContext()) {
+  if (modelProp?.options.setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     if (isDataModel(model)) {
       applySet(model.$, modelPropName as any, value)
@@ -267,20 +267,20 @@ export function sharedInternalModel<
 
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
-    if (propData.options.setterAction) {
-      const setterActionName = propNameToSetterActionName(propName)
+    if (propData.options.setter) {
+      const setterName = propNameToSetterName(propName)
 
-      CustomBaseModel.prototype[setterActionName] = function (this: any, value: any) {
+      CustomBaseModel.prototype[setterName] = function (this: any, value: any) {
         this[propName] = value
       }
 
       const newPropDescriptor: any = modelAction(
         CustomBaseModel.prototype,
-        setterActionName,
-        Object.getOwnPropertyDescriptor(CustomBaseModel.prototype, setterActionName)
+        setterName,
+        Object.getOwnPropertyDescriptor(CustomBaseModel.prototype, setterName)
       )
 
-      Object.defineProperty(CustomBaseModel.prototype, setterActionName, newPropDescriptor)
+      Object.defineProperty(CustomBaseModel.prototype, setterName, newPropDescriptor)
     }
   }
 

@@ -424,7 +424,7 @@ export const mobx6 = {
  * @ignore
  * @internal
  */
-export function propNameToSetterActionName(propName: string): string {
+export function propNameToSetterName(propName: string): string {
   return `set${propName[0].toUpperCase()}${propName.slice(1)}`
 }
 

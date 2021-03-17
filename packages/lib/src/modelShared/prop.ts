@@ -12,17 +12,17 @@ export interface ModelPropOptions {
    * Set to `true` to automatically generate a property setter in a model action (defaults to `false`).
    * Set to `assign` to get the old behaviour of making the property assignable.
    */
-  readonly setterAction?: boolean | "assign"
+  readonly setter?: boolean | "assign"
 }
 
 /**
- * Model property options with setterAction set to true.
+ * Model property options with setter set to true.
  */
-export interface ModelPropOptionsWithSetterAction extends ModelPropOptions {
+export interface ModelPropOptionsWithSetter extends ModelPropOptions {
   /**
    * Set to `true` to automatically generate a property setter in a model action (defaults to `false`).
    */
-  readonly setterAction: true
+  readonly setter: true
 }
 
 /**
@@ -40,7 +40,7 @@ export interface ModelProp<
   TInstanceValue = TPropValue,
   TInstanceCreationValue = TPropCreationValue,
   TIsId extends boolean = false,
-  THasSetterAction = never
+  THasSetter = never
 > {
   $propValueType: TPropValue
   $propCreationValueType: TPropCreationValue
@@ -48,7 +48,7 @@ export interface ModelProp<
   $instanceCreationValueType: TInstanceCreationValue
   $isOptional: TIsOptional
   $isId: TIsId
-  $hasSetterAction: THasSetterAction
+  $hasSetter: THasSetter
 
   defaultFn: (() => TPropValue) | typeof noDefaultValue
   defaultValue: TPropValue | typeof noDefaultValue
@@ -95,8 +95,8 @@ export type ModelPropsToInstanceCreationData<MP extends ModelProps> = O.Optional
   OptionalModelProps<MP>
 >
 
-export type ModelPropsToSetterActions<MP extends ModelProps> = {
-  [k in keyof MP as MP[k]["$hasSetterAction"] & `set${Capitalize<k & string>}`]: (
+export type ModelPropsToSetter<MP extends ModelProps> = {
+  [k in keyof MP as MP[k]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
     value: MP[k]["$instanceValueType"]
   ) => void
 }
@@ -133,10 +133,7 @@ export type MaybeOptionalModelProp<TPropValue, TInstanceValue = TPropValue> = Mo
 /**
  * A model prop that maybe / maybe not is optional, depending on if the value can take undefined, with a setter action.
  */
-export type MaybeOptionalModelPropWithSetterAction<
-  TPropValue,
-  TInstanceValue = TPropValue
-> = ModelProp<
+export type MaybeOptionalModelPropWithSetter<TPropValue, TInstanceValue = TPropValue> = ModelProp<
   TPropValue,
   TPropValue,
   IsOptionalValue<TPropValue, string, never>,
@@ -160,7 +157,7 @@ export type OptionalModelProp<TPropValue, TInstanceValue = TPropValue> = ModelPr
 /**
  * A model prop that is definitely optional, with a setter action.
  */
-export type OptionalModelPropWithSetterAction<TPropValue, TInstanceValue = TPropValue> = ModelProp<
+export type OptionalModelPropWithSetter<TPropValue, TInstanceValue = TPropValue> = ModelProp<
   TPropValue,
   TPropValue | null | undefined,
   string,
@@ -187,8 +184,8 @@ export type OptionalModelPropWithSetterAction<TPropValue, TInstanceValue = TProp
  */
 export function prop<TValue>(
   defaultFn: () => TValue,
-  options: ModelPropOptionsWithSetterAction
-): OptionalModelPropWithSetterAction<TValue>
+  options: ModelPropOptionsWithSetter
+): OptionalModelPropWithSetter<TValue>
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -228,8 +225,8 @@ export function prop<TValue>(
  */
 export function prop<TValue>(
   defaultValue: OnlyPrimitives<TValue>,
-  options: ModelPropOptionsWithSetterAction
-): OptionalModelPropWithSetterAction<TValue>
+  options: ModelPropOptionsWithSetter
+): OptionalModelPropWithSetter<TValue>
 
 /**
  * Defines a model property, with an optional default value
@@ -266,8 +263,8 @@ export function prop<TValue>(
  * @returns
  */
 export function prop<TValue>(
-  options: ModelPropOptionsWithSetterAction
-): MaybeOptionalModelPropWithSetterAction<TValue>
+  options: ModelPropOptionsWithSetter
+): MaybeOptionalModelPropWithSetter<TValue>
 
 /**
  * Defines a model property with no default value.
@@ -319,7 +316,7 @@ export function prop<TValue>(
     $instanceValueType: null as any,
     $instanceCreationValueType: null as any,
     $isId: null as never,
-    $hasSetterAction: null as any,
+    $hasSetter: null as any,
 
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,

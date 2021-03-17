@@ -7,7 +7,7 @@ import {
   ModelPropsToInstanceData,
   ModelPropsToPropsCreationData,
   ModelPropsToPropsData,
-  ModelPropsToSetterActions,
+  ModelPropsToSetter,
 } from "../modelShared/prop"
 import type { AnyModel, BaseModel } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
@@ -46,7 +46,7 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
       ExtractModelIdProp<TProps> & string
     > &
     Omit<this[typeof instanceDataSymbol], keyof AnyModel> &
-    ModelPropsToSetterActions<TProps>
+    ModelPropsToSetter<TProps>
 }
 
 /**

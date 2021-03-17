@@ -4,7 +4,7 @@ import {
   ModelProps,
   ModelPropsToInstanceData,
   ModelPropsToPropsData,
-  ModelPropsToSetterActions,
+  ModelPropsToSetter,
 } from "../modelShared/prop"
 import { AnyDataModel, BaseDataModel } from "./BaseDataModel"
 import { assertIsDataModelClass } from "./utils"
@@ -25,7 +25,7 @@ export interface _DataModel<SuperModel, TProps extends ModelProps> {
   new (data: this[typeof composedPropsDataSymbol]): SuperModel &
     BaseDataModel<this[typeof propsDataSymbol], this[typeof instanceDataSymbol]> &
     Omit<this[typeof instanceDataSymbol], keyof AnyDataModel> &
-    ModelPropsToSetterActions<TProps>
+    ModelPropsToSetter<TProps>
 }
 
 /**

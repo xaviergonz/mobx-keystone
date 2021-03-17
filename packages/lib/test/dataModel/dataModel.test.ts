@@ -29,7 +29,7 @@ test("without type", async () => {
 
   @model("myApp/Todo1")
   class Todo extends DataModel({
-    done: prop<boolean>({ setterAction: true }),
+    done: prop<boolean>({ setter: true }),
     text: prop<string>(),
   }) {
     ten = 10
@@ -377,7 +377,7 @@ test("with type", async () => {
 
   @model("myApp/Todo2")
   class Todo extends DataModel({
-    done: tProp(types.boolean, { setterAction: true }),
+    done: tProp(types.boolean, { setter: true }),
     text: tProp(types.string),
   }) {
     ten = 10
@@ -820,7 +820,7 @@ test("parent/child", () => {
 
   @model("test/ParentModel")
   class ParentModel extends Model({
-    subObj: tProp(types.maybe(types.dataModelData<ChildModel>(ChildModel)), { setterAction: true }),
+    subObj: tProp(types.maybe(types.dataModelData<ChildModel>(ChildModel)), { setter: true }),
   }) {}
 
   const pm = new ParentModel({})
@@ -850,7 +850,7 @@ test("two different classes over the same data return different instances", () =
 
 test("extends works", () => {
   @model("test/extends/base")
-  class Base extends DataModel({ x: prop<number>({ setterAction: true }) }) {}
+  class Base extends DataModel({ x: prop<number>({ setter: true }) }) {}
 
   const bm = new Base({ x: 10 })
   expect(bm.x).toBe(10)
@@ -920,7 +920,7 @@ test("extends works", () => {
 
   @model("test/extends/extended")
   class Extended extends ExtendedDataModel(Base, {
-    y: prop<number>({ setterAction: true }),
+    y: prop<number>({ setter: true }),
   }) {}
 
   const m = new Extended({ x: 10, y: 20 })

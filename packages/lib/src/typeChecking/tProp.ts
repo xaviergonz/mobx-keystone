@@ -1,13 +1,13 @@
 import {
   AnyModelProp,
   MaybeOptionalModelProp,
-  MaybeOptionalModelPropWithSetterAction,
+  MaybeOptionalModelPropWithSetter,
   ModelPropOptions,
-  ModelPropOptionsWithSetterAction,
+  ModelPropOptionsWithSetter,
   noDefaultValue,
   OnlyPrimitives,
   OptionalModelProp,
-  OptionalModelPropWithSetterAction,
+  OptionalModelPropWithSetter,
 } from "../modelShared/prop"
 import { isObject } from "../utils"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
@@ -29,8 +29,8 @@ import type { AnyType, TypeToData } from "./schemas"
  */
 export function tProp(
   defaultValue: string,
-  options: ModelPropOptionsWithSetterAction
-): OptionalModelPropWithSetterAction<string>
+  options: ModelPropOptionsWithSetter
+): OptionalModelPropWithSetter<string>
 
 /**
  * Defines a string model property with a default value.
@@ -62,8 +62,8 @@ export function tProp(defaultValue: string, options?: ModelPropOptions): Optiona
  */
 export function tProp(
   defaultValue: number,
-  options: ModelPropOptionsWithSetterAction
-): OptionalModelPropWithSetterAction<number>
+  options: ModelPropOptionsWithSetter
+): OptionalModelPropWithSetter<number>
 
 /**
  * Defines a number model property with a default value.
@@ -95,8 +95,8 @@ export function tProp(defaultValue: number, options?: ModelPropOptions): Optiona
  */
 export function tProp(
   defaultValue: boolean,
-  options: ModelPropOptionsWithSetterAction
-): OptionalModelPropWithSetterAction<boolean>
+  options: ModelPropOptionsWithSetter
+): OptionalModelPropWithSetter<boolean>
 
 /**
  * Defines a boolean model property with a default value.
@@ -132,8 +132,8 @@ export function tProp(defaultValue: boolean, options?: ModelPropOptions): Option
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultFn: () => TypeToData<TType>,
-  options: ModelPropOptionsWithSetterAction
-): OptionalModelPropWithSetterAction<TypeToData<TType>>
+  options: ModelPropOptionsWithSetter
+): OptionalModelPropWithSetter<TypeToData<TType>>
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -178,8 +178,8 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultValue: OnlyPrimitives<TypeToData<TType>>,
-  options: ModelPropOptionsWithSetterAction
-): OptionalModelPropWithSetterAction<TypeToData<TType>>
+  options: ModelPropOptionsWithSetter
+): OptionalModelPropWithSetter<TypeToData<TType>>
 
 /**
  * Defines a model property, with an optional default value
@@ -221,8 +221,8 @@ export function tProp<TType extends AnyType>(
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  options: ModelPropOptionsWithSetterAction
-): MaybeOptionalModelPropWithSetterAction<TypeToData<TType>>
+  options: ModelPropOptionsWithSetter
+): MaybeOptionalModelPropWithSetter<TypeToData<TType>>
 
 /**
  * Defines a model property with no default value and an associated type checker.
@@ -283,7 +283,7 @@ export function tProp(typeOrDefaultValue: any, arg1?: any, arg2?: any): AnyModel
     $instanceValueType: null as any,
     $instanceCreationValueType: null as any,
     $isId: null as never,
-    $hasSetterAction: null as any,
+    $hasSetter: null as any,
 
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
