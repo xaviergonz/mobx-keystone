@@ -83,7 +83,7 @@ export function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   modelPropName: keyof ModelInstanceData<M>,
   value: ModelInstanceData<M>[typeof modelPropName]
 ): void {
-  if (modelProp?.options.setter === "assign" && !getCurrentActionContext()) {
+  if (modelProp?.setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     if (isDataModel(model)) {
       applySet(model.$, modelPropName as any, value)
@@ -267,7 +267,7 @@ export function sharedInternalModel<
 
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
-    if (propData.options.setter) {
+    if (propData.setter === true) {
       const setterName = propNameToSetterName(propName)
 
       CustomBaseModel.prototype[setterName] = function (this: any, value: any) {

@@ -5,10 +5,10 @@ import { autoDispose } from "../utils"
 
 @model("P")
 export class P extends Model({
-  y: prop(0, { setter: true }),
-  z: tProp(0, { setter: true }),
-  sy: prop(0, { setter: "assign" }),
-  sz: tProp(0, { setter: "assign" }),
+  y: prop(0).withSetter(),
+  z: tProp(0).withSetter(),
+  sy: prop(0).withSetter("assign"),
+  sz: tProp(0).withSetter("assign"),
 }) {
   @computed
   get cy() {

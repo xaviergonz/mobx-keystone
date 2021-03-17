@@ -1,29 +1,7 @@
 import type { O } from "ts-toolbelt"
 import type { PropTransform } from "../propTransform/propTransform"
 import type { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
-import { isObject } from "../utils"
 import type { IsOptionalValue } from "../utils/types"
-
-/**
- * Model property options.
- */
-export interface ModelPropOptions {
-  /**
-   * Set to `true` to automatically generate a property setter in a model action (defaults to `false`).
-   * Set to `assign` to get the old behaviour of making the property assignable.
-   */
-  readonly setter?: boolean | "assign"
-}
-
-/**
- * Model property options with setter set to true.
- */
-export interface ModelPropOptionsWithSetter extends ModelPropOptions {
-  /**
-   * Set to `true` to automatically generate a property setter in a model action (defaults to `false`).
-   */
-  readonly setter: true
-}
 
 /**
  * @ignore
@@ -54,7 +32,9 @@ export interface ModelProp<
   defaultValue: TPropValue | typeof noDefaultValue
   typeChecker: TypeChecker | LateTypeChecker | undefined
   transform: PropTransform<any, any> | undefined
-  options: ModelPropOptions
+  setter: boolean | "assign"
+
+  withSetter(mode?: boolean | "assign"): ModelPropWithSetter<this>
 }
 
 /**
@@ -131,19 +111,6 @@ export type MaybeOptionalModelProp<TPropValue, TInstanceValue = TPropValue> = Mo
 >
 
 /**
- * A model prop that maybe / maybe not is optional, depending on if the value can take undefined, with a setter action.
- */
-export type MaybeOptionalModelPropWithSetter<TPropValue, TInstanceValue = TPropValue> = ModelProp<
-  TPropValue,
-  TPropValue,
-  IsOptionalValue<TPropValue, string, never>,
-  TInstanceValue,
-  TInstanceValue,
-  false,
-  string
->
-
-/**
  * A model prop that is definitely optional.
  */
 export type OptionalModelProp<TPropValue, TInstanceValue = TPropValue> = ModelProp<
@@ -155,17 +122,11 @@ export type OptionalModelProp<TPropValue, TInstanceValue = TPropValue> = ModelPr
 >
 
 /**
- * A model prop that is definitely optional, with a setter action.
+ * A model prop with a generated setter.
  */
-export type OptionalModelPropWithSetter<TPropValue, TInstanceValue = TPropValue> = ModelProp<
-  TPropValue,
-  TPropValue | null | undefined,
-  string,
-  TInstanceValue,
-  TInstanceValue | null | undefined,
-  false,
-  string
->
+export type ModelPropWithSetter<MP extends AnyModelProp> = Omit<MP, "$hasSetter"> & {
+  $hasSetter: string
+}
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -179,33 +140,9 @@ export type OptionalModelPropWithSetter<TPropValue, TInstanceValue = TPropValue>
  *
  * @typeparam TValue Value type.
  * @param defaultFn Default value generator function.
- * @param options Model property options.
  * @returns
  */
-export function prop<TValue>(
-  defaultFn: () => TValue,
-  options: ModelPropOptionsWithSetter
-): OptionalModelPropWithSetter<TValue>
-
-/**
- * Defines a model property, with an optional function to generate a default value
- * if the input snapshot / model creation data is `null` or `undefined`.
- *
- * Example:
- * ```ts
- * x: prop(() => 10) // an optional number, with a default value of 10
- * x: prop<number[]>(() => []) // an optional number array, with a default empty array
- * ```
- *
- * @typeparam TValue Value type.
- * @param defaultFn Default value generator function.
- * @param options Model property options.
- * @returns
- */
-export function prop<TValue>(
-  defaultFn: () => TValue,
-  options?: ModelPropOptions
-): OptionalModelProp<TValue>
+export function prop<TValue>(defaultFn: () => TValue): OptionalModelProp<TValue>
 
 /**
  * Defines a model property, with an optional default value
@@ -220,34 +157,9 @@ export function prop<TValue>(
  *
  * @typeparam TValue Value type.
  * @param defaultValue Default primitive value.
- * @param options Model property options.
  * @returns
  */
-export function prop<TValue>(
-  defaultValue: OnlyPrimitives<TValue>,
-  options: ModelPropOptionsWithSetter
-): OptionalModelPropWithSetter<TValue>
-
-/**
- * Defines a model property, with an optional default value
- * if the input snapshot / model creation data is `null` or `undefined`.
- * You should only use this with primitive values and never with object values
- * (array, model, object, etc).
- *
- * Example:
- * ```ts
- * x: prop(10) // an optional number, with a default value of 10
- * ```
- *
- * @typeparam TValue Value type.
- * @param defaultValue Default primitive value.
- * @param options Model property options.
- * @returns
- */
-export function prop<TValue>(
-  defaultValue: OnlyPrimitives<TValue>,
-  options?: ModelPropOptions
-): OptionalModelProp<TValue>
+export function prop<TValue>(defaultValue: OnlyPrimitives<TValue>): OptionalModelProp<TValue>
 
 /**
  * Defines a model property with no default value.
@@ -259,69 +171,39 @@ export function prop<TValue>(
  * ```
  *
  * @typeparam TValue Value type.
- * @param options Model property options.
  * @returns
  */
-export function prop<TValue>(
-  options: ModelPropOptionsWithSetter
-): MaybeOptionalModelPropWithSetter<TValue>
-
-/**
- * Defines a model property with no default value.
- *
- * Example:
- * ```ts
- * x: prop<number>() // a required number
- * x: prop<number | undefined>() // an optional number, which defaults to undefined
- * ```
- *
- * @typeparam TValue Value type.
- * @param options Model property options.
- * @returns
- */
-export function prop<TValue>(options?: ModelPropOptions): MaybeOptionalModelProp<TValue>
+export function prop<TValue>(): MaybeOptionalModelProp<TValue>
 
 // base
-export function prop<TValue>(
-  arg1?: any,
-  arg2?: any
-): ModelProp<TValue, any, any, TValue, any, any, any> {
-  let def: any
-  let opts: ModelPropOptions = {}
+export function prop<TValue>(def?: any): ModelProp<TValue, any, any, TValue, any, any, any> {
   let hasDefaultValue = false
 
-  if (arguments.length >= 2) {
-    // default, options
-    def = arg1
+  // default
+  if (arguments.length >= 1) {
     hasDefaultValue = true
-    opts = { ...arg2 }
-  } else if (arguments.length === 1) {
-    // default | options
-    if (isObject(arg1)) {
-      // options
-      opts = { ...arg1 }
-    } else {
-      // default
-      def = arg1
-      hasDefaultValue = true
-    }
   }
 
   const isDefFn = typeof def === "function"
 
-  return {
+  const obj: ReturnType<typeof prop> = {
     $propValueType: null as any,
     $propCreationValueType: null as any,
     $isOptional: null as any,
     $instanceValueType: null as any,
     $instanceCreationValueType: null as any,
     $isId: null as never,
-    $hasSetter: null as any,
+    $hasSetter: null as never,
 
     defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
     typeChecker: undefined,
     transform: undefined,
-    options: opts,
+    setter: false,
+
+    withSetter(mode) {
+      return { ...obj, setter: mode ?? true }
+    },
   }
+  return obj as any
 }
