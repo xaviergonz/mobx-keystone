@@ -24,10 +24,13 @@ import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import { AnyModelProp, idProp, ModelProps, noDefaultValue, prop } from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
-export function _inheritsLoose(subClass: any, superClass: any) {
-  subClass.prototype = Object.create(superClass.prototype)
-  subClass.prototype.constructor = subClass
-  subClass.__proto__ = superClass
+function __extends(subClass: any, superClass: any) {
+  Object.setPrototypeOf(subClass, superClass)
+  function __(this: any) {
+    this.constructor = subClass
+  }
+  __.prototype = superClass.prototype
+  subClass.prototype = new (__ as any)()
 }
 
 export function createModelPropDescriptor(
@@ -214,27 +217,19 @@ export function sharedInternalModel<
   // in order to work around problems with ES5 classes extending ES6 classes
   // see https://github.com/xaviergonz/mobx-keystone/issues/15
   const CustomBaseModel: any = (function (_base) {
-    _inheritsLoose(CustomBaseModel, _base)
+    __extends(CustomBaseModel, _base)
 
     function CustomBaseModel(
       this: any,
       initialData: any,
       constructorOptions?: ModelConstructorOptions | DataModelConstructorOptions
     ) {
-      let baseModel
       const modelClass = constructorOptions?.modelClass ?? this.constructor
-      if (type === "class") {
-        baseModel = new base(initialData, {
-          ...constructorOptions,
-          modelClass,
-          propsWithTransforms,
-        } as ModelConstructorOptions)
-      } else {
-        baseModel = new base(initialData, {
-          ...constructorOptions,
-          modelClass,
-        } as DataModelConstructorOptions)
-      }
+      const baseModel = new _base(initialData, {
+        ...constructorOptions,
+        modelClass,
+        propsWithTransforms,
+      } as ModelConstructorOptions & DataModelConstructorOptions)
 
       // make sure abstract classes do not override prototype props
       for (let i = 0; i < extraPropNamesLen; i++) {
