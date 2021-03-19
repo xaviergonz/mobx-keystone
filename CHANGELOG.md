@@ -3,6 +3,7 @@
 - [BREAKING CHANGE] `setterAction: true` prop option is now `prop().withSetter()`
 - [BREAKING CHANGE] `setterAction: "assign"` prop option is now `prop().withSetter("assign")`
 - [BREAKING CHANGE] Functional models have now been removed in favor of Data models, which serve a similar function while having a syntax really close to standard class models. See the relevant section in the docs for more info.
+- [BREAKING CHANGE] Property transform decorators have been removed.
 
 ## 0.54.0
 

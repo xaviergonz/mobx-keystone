@@ -7,13 +7,13 @@ import {
 import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { immutableDate } from "./ImmutableDate"
-import { propTransform, transformedProp } from "./propTransform"
+import { PropTransform, transformedProp } from "./propTransform"
 
 /**
  * Property transform for number timestamps to Date objects and vice-versa.
  * If a model property, consider using `prop_dateTimestamp` or `tProp_dateTimestamp` instead.
  */
-export const timestampAsDate = propTransform<number | null | undefined, Date | null | undefined>({
+export const timestampAsDate: PropTransform<number | null | undefined, Date | null | undefined> = {
   propToData(prop) {
     if (typeof prop !== "number") {
       return prop
@@ -23,7 +23,7 @@ export const timestampAsDate = propTransform<number | null | undefined, Date | n
   dataToProp(date) {
     return date instanceof Date ? date.getTime() : date
   },
-})
+}
 
 /**
  * Transforms dates into timestamps.

@@ -32,7 +32,6 @@ export default {
     "References",
     "Frozen Data",
     "Runtime Type Checking",
-    "Property Transforms",
     "Drafts",
     "Sandboxes",
     "Redux Compatibility",

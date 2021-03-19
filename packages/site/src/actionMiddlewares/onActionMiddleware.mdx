@@ -58,3 +58,49 @@ const disposer = onActionMiddleware(myTodoList, {
   },
 })
 ```
+
+## Action serialization with custom types as arguments
+
+Action serialization (via `serializeActionCall` and `deserializeActionCall`) supports many cases by default:
+
+- Primitives.
+- Tree nodes as paths if they are under the same root node as the model that holds the action being called.
+- Tree nodes as snapshots if not.
+- Arrays and observable arrays.
+- `Date` objects as timestamps.
+- Maps and observable maps.
+- Sets and observable sets.
+- Plain objects, observable or not.
+
+However, you might want to serialize an action that passes your custom type as an argument. In this case you can register a custom action seralizer:
+
+```ts
+const myTypeSerializer: ActionCallArgumentSerializer<MyType, JsonCompatibleType> = {
+  id: "someSerializerUniqueId",
+
+  serialize(valueToSerialize, serializeChild, targetRoot) {
+    if (valueToSerialize instanceof MyType) {
+      return someJsonCompatibleValue
+    }
+    // let other serializer handle it
+    return cannotSerialize
+  },
+
+  deserialize(someJsonCompatibleValue, deserializeChild, targetRoot) {
+    // return back MyType from the JSON compatible value
+  },
+}
+
+registerActionCallArgumentSerializer(myTypeSerializer)
+```
+
+In this case, whenever an instance of `MyType` is found as an action argument, then (after using `serializeActionCall` on the action call) the action argument will be serialized as a `SerializedActionCallArgument`:
+
+```ts
+{
+  $mobxKeystoneSerializer: "someSerializerUniqueId",
+  value: someJsonCompatibleValue
+}
+```
+
+Likewise, using `deserializeActionCall` will transform it back to an instance of `MyType`.

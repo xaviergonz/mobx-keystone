@@ -7,13 +7,13 @@ import {
 import type { AnyType, TypeToData } from "../typeChecking/schemas"
 import { tProp } from "../typeChecking/tProp"
 import { immutableDate } from "./ImmutableDate"
-import { propTransform, transformedProp } from "./propTransform"
+import { PropTransform, transformedProp } from "./propTransform"
 
 /**
  * Property transform for ISO date strings to Date objects and vice-versa.
  * If a model property, consider using `prop_dateString` or `tProp_dateString` instead.
  */
-export const stringAsDate = propTransform<string | null | undefined, Date | null | undefined>({
+export const stringAsDate: PropTransform<string | null | undefined, Date | null | undefined> = {
   propToData(stringOrDate) {
     if (typeof stringOrDate !== "string") {
       return stringOrDate
@@ -23,7 +23,7 @@ export const stringAsDate = propTransform<string | null | undefined, Date | null
   dataToProp(dateOrString) {
     return dateOrString instanceof Date ? dateOrString.toJSON() : dateOrString
   },
-})
+}
 
 /**
  * Transforms dates into strings.

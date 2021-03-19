@@ -1,4 +1,4 @@
-export { PropTransform, propTransform, PropTransformDecorator } from "./propTransform"
+export { PropTransform } from "./propTransform"
 export * from "./transformArrayAsMap"
 export * from "./transformArrayAsSet"
 export * from "./transformObjectAsMap"
