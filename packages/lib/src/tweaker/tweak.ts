@@ -73,14 +73,14 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
   // unsupported
   if (isMap(value)) {
     throw failure(
-      "maps are not directly supported. consider applying 'transformObjectAsMap' over a '{[k: string]: V}' property, or 'transformArrayAsMap' over a '[string, V][]' property instead."
+      "maps are not directly supported. consider using 'prop_mapObject' / 'tProp_mapObject' to map a '{[k: string]: V}' property, or 'prop_mapArray' / 'tProp_mapArray' to map a '[string, V][]' property instead."
     )
   }
 
   // unsupported
   if (isSet(value)) {
     throw failure(
-      "sets are not directly supported. consider applying 'transformArrayAsSet' over a 'V[]' property instead."
+      "sets are not directly supported. consider using 'prop_setArray' / 'tProp_setArray' to map a 'V[]' property instead."
     )
   }
 
