@@ -17,7 +17,7 @@ jobs:
       - restore_cache:
           name: restore .yarn/cache
           keys:
-            - yarn-cache-{{ arch }}
+            - yarn-v2-cache-{{ arch }}
       - restore_cache:
           name: restore node_modules
           keys:
@@ -29,7 +29,7 @@ jobs:
 
       - save_cache:
           name: cache .yarn/cache
-          key: yarn-cache-{{ arch }}
+          key: yarn-v2-cache-{{ arch }}
           paths:
             - .yarn/cache
       - save_cache:
