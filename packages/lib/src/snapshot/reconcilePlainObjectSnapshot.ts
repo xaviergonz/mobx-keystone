@@ -4,6 +4,7 @@ import type { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
 import type { SnapshotInOfObject } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function reconcilePlainObjectSnapshot(
   value: any,
@@ -46,7 +47,7 @@ function reconcilePlainObjectSnapshot(
   return plainObj
 }
 
-registerReconciler(4, (value, sn, modelPool) => {
+registerReconciler(SnapshotterAndReconcilerPriority.PlainObject, (value, sn, modelPool) => {
   if (isPlainObject(sn)) {
     return reconcilePlainObjectSnapshot(value, sn, modelPool)
   }

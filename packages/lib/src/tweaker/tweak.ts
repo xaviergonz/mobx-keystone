@@ -50,7 +50,13 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 
   // already tweaked
   if (isTweakedObject(value as any, true)) {
-    setParent(value, parentPath, false, false)
+    value = setParent({
+      value,
+      parentPath,
+      indexChangeAllowed: false,
+      isDataObject: false,
+      cloneIfApplicable: true,
+    })
     return value
   }
 
@@ -122,8 +128,14 @@ export function tryUntweak(value: any) {
   }
 
   for (let i = 0; i < children.length; i++) {
-    const v = children[i]
-    setParent(v, undefined, false, false)
+    setParent({
+      value: children[i],
+      parentPath: undefined,
+      indexChangeAllowed: false,
+      isDataObject: false,
+      // no need to clone if unsetting the parent
+      cloneIfApplicable: false,
+    })
   }
 
   untweaker()

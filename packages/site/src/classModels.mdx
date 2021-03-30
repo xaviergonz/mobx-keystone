@@ -299,6 +299,42 @@ const myBookStore = new BookStore({})
 await myBookStore.fetchMyBooksAsync("someToken")
 ```
 
+## Value-type class models
+
+Sometimes it is useful to have models that act like a primitive. This is, models that would get automatically cloned when attached to a tree rather than relying on having a single instance of it in the whole tree.
+For example, say that you have a model for a RGB color:
+
+```ts
+@model("myApp/Color")
+class Color extends Model(
+  {
+    r: prop<number>(),
+    g: prop<number>(),
+    b: prop<number>(),
+  },
+  {
+    valueType: true,
+  }
+) {}
+```
+
+Usually, without `valueType: true`, whenever we wanted to use a same color in two separate paths of the tree we would need to clone it first, or else we would get an error about the node trying to have to parents at once. With `valueType` set this would be no longer the case, since the node would get cloned automatically:
+
+```ts
+class MyColors extends Model({
+  primary: prop<Color>(),
+  secondary: prop<Color>(),
+}) {
+  // ...
+}
+
+// without `valueType: true` this would throw an error
+// but with it primary is now a clone of secondary
+myColors.setPrimary(myColors.secondary)
+```
+
+Note that it is an actual clone, this is, changing the primary color won't change the secondary one.
+
 ## Factory pattern
 
 It is possible to use a factory pattern with class models. For example:

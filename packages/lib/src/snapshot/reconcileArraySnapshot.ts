@@ -4,6 +4,7 @@ import { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
 import type { SnapshotInOfObject } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function reconcileArraySnapshot(
   value: any,
@@ -38,7 +39,7 @@ function reconcileArraySnapshot(
   return value
 }
 
-registerReconciler(1, (value, sn, modelPool) => {
+registerReconciler(SnapshotterAndReconcilerPriority.Array, (value, sn, modelPool) => {
   if (isArray(sn)) {
     return reconcileArraySnapshot(value, sn, modelPool)
   }

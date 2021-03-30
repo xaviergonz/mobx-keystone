@@ -17,6 +17,7 @@ import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, isPlainObject, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { registerTweaker, tryUntweak, tweak } from "./tweak"
+import { TweakerPriority } from "./TweakerPriority"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -43,7 +44,14 @@ export function tweakPlainObject<T>(
   }
 
   tweakedObjects.set(tweakedObj, untweak)
-  setParent(tweakedObj, parentPath, false, isDataObject)
+  setParent({
+    value: tweakedObj,
+    parentPath,
+    indexChangeAllowed: false,
+    isDataObject,
+    // an object shouldn't be cloned
+    cloneIfApplicable: false,
+  })
 
   const standardSn: any = {}
 
@@ -65,7 +73,14 @@ export function tweakPlainObject<T>(
       let tweakedValue
       if (doNotTweakChildren) {
         tweakedValue = v
-        setParent(tweakedValue, path, false, false)
+        setParent({
+          value: tweakedValue,
+          parentPath: path,
+          indexChangeAllowed: false,
+          isDataObject: false,
+          // the value is already a new value (the result of a fromSnapshot)
+          cloneIfApplicable: false,
+        })
       } else {
         tweakedValue = tweak(v, path)
         set(tweakedObj, k, tweakedValue)
@@ -226,7 +241,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
   return change
 }
 
-registerTweaker(4, (value, parentPath) => {
+registerTweaker(TweakerPriority.PlainObject, (value, parentPath) => {
   // plain object
   if (isObservableObject(value) || isPlainObject(value)) {
     return tweakPlainObject(value, parentPath, undefined, false, false)

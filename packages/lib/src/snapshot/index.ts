@@ -1,4 +1,8 @@
-// make sure reconcilers are imported
+// make sure snapshotters/reconcilers are imported
+import "./fromArraySnapshot"
+import "./fromFrozenSnapshot"
+import "./fromModelSnapshot"
+import "./fromPlainObjectSnapshot"
 import "./reconcileArraySnapshot"
 import "./reconcileFrozenSnapshot"
 import "./reconcileModelSnapshot"

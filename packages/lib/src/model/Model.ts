@@ -65,15 +65,17 @@ export type ExtractModelIdProp<TProps extends ModelProps> = {
  * @typeparam TModel Model type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
+ * @param modelOptions Model options.
  * @returns
  */
 export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel>(
   baseModel: AbstractModelClass<TModel>,
-  modelProps: TProps
+  modelProps: TProps,
+  modelOptions?: ModelOptions
 ): _Model<TModel, AddModelIdPropIfNeeded<TProps>> {
   assertIsModelClass(baseModel, "baseModel")
 
-  return internalModel(modelProps, baseModel as any)
+  return internalModel(modelProps, baseModel as any, modelOptions)
 }
 
 /**
@@ -83,16 +85,35 @@ export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel
  *
  * @typeparam TProps Model properties type.
  * @param modelProps Model properties.
+ * @param modelOptions Model options.
  */
 export function Model<TProps extends ModelProps>(
-  modelProps: TProps
+  modelProps: TProps,
+  modelOptions?: ModelOptions
 ): _Model<unknown, AddModelIdPropIfNeeded<TProps>> {
-  return internalModel(modelProps, undefined)
+  return internalModel(modelProps, undefined, modelOptions)
 }
 
 function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   modelProps: TProps,
-  baseModel: ModelClass<TBaseModel> | undefined
+  baseModel: ModelClass<TBaseModel> | undefined,
+  modelOptions?: ModelOptions
 ): _Model<TBaseModel, AddModelIdPropIfNeeded<TProps>> {
-  return sharedInternalModel(modelProps, baseModel, "class")
+  return sharedInternalModel({
+    modelProps,
+    baseModel,
+    type: "class",
+    valueType: modelOptions?.valueType ?? false,
+  })
+}
+
+/**
+ * Model options.
+ */
+export interface ModelOptions {
+  /**
+   * A value type will be cloned automatically when being attached to a new tree.
+   * The default is `false`.
+   */
+  valueType?: boolean
 }

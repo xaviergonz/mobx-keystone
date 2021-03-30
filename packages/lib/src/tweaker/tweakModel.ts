@@ -3,13 +3,20 @@ import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { tweakedObjects } from "./core"
 import { registerTweaker } from "./tweak"
+import { TweakerPriority } from "./TweakerPriority"
 
 /**
  * @ignore
  */
 export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   tweakedObjects.set(value, undefined)
-  setParent(value, parentPath, false, false)
+  setParent({
+    value,
+    parentPath,
+    indexChangeAllowed: false,
+    isDataObject: false,
+    cloneIfApplicable: true,
+  })
 
   // nothing to do for models, data is already proxified and its parent is set
   // for snapshots we will use its "$" object snapshot directly
@@ -17,7 +24,7 @@ export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined)
   return value
 }
 
-registerTweaker(2, (value, parentPath) => {
+registerTweaker(TweakerPriority.Model, (value, parentPath) => {
   if (isModel(value)) {
     return tweakModel(value, parentPath)
   }

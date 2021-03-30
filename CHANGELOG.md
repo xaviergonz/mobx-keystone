@@ -7,6 +7,7 @@
 - [BREAKING CHANGE] Property transform decorators have been removed.
 - [BREAKING CHANGE - types] Some type helpers have been renamed: `ModelPropsData` / `ModelInstanceData` -> `ModelData`, `ModelPropsCreationData` / `ModelInstanceCreationData` -> `ModelCreationData`.
 - `onSnapshot` now also takes a function that returns a node.
+- Added `valueType` option to `Model`/`ExtendedModel` so that class models of that kind automatically get auto-cloned when assigned to a property/array/etc., useful for example for primitive data structures such as points, colors, etc. Check the relevant section of the docs for more info
 
 ## 0.54.0
 

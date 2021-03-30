@@ -57,5 +57,5 @@ function internalDataModel<TProps extends ModelProps, TBaseModel extends AnyData
   modelProps: TProps,
   baseModel: ModelClass<TBaseModel> | undefined
 ): _DataModel<TBaseModel, TProps> {
-  return sharedInternalModel(modelProps, baseModel, "data")
+  return sharedInternalModel({ modelProps, baseModel, type: "data", valueType: false })
 }

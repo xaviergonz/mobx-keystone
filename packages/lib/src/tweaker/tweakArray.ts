@@ -18,6 +18,7 @@ import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { registerTweaker, tryUntweak, tweak } from "./tweak"
+import { TweakerPriority } from "./TweakerPriority"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -46,7 +47,14 @@ export function tweakArray<T extends any[]>(
   }
 
   tweakedObjects.set(tweakedArr, untweak)
-  setParent(tweakedArr, parentPath, false, false)
+  setParent({
+    value: tweakedArr,
+    parentPath,
+    indexChangeAllowed: false,
+    isDataObject: false,
+    // arrays shouldn't be cloned anyway
+    cloneIfApplicable: false,
+  })
 
   const standardSn: any[] = []
   standardSn.length = arrLn
@@ -67,7 +75,14 @@ export function tweakArray<T extends any[]>(
       let tweakedValue
       if (doNotTweakChildren) {
         tweakedValue = v
-        setParent(tweakedValue, path, false, false)
+        setParent({
+          value: tweakedValue,
+          parentPath: path,
+          indexChangeAllowed: false,
+          isDataObject: false,
+          // the value is already a new value (the result of a fromSnapshot)
+          cloneIfApplicable: false,
+        })
       } else {
         tweakedValue = tweak(v, path)
         set(tweakedArr, i, tweakedValue)
@@ -300,15 +315,17 @@ function interceptArrayMutation(
 
         if (oldNextIndex !== newNextIndex) {
           for (let i = oldNextIndex, j = newNextIndex; i < change.object.length; i++, j++) {
-            setParent(
-              change.object[i],
-              {
+            setParent({
+              value: change.object[i],
+              parentPath: {
                 parent: change.object,
                 path: j,
               },
-              true,
-              false
-            )
+              indexChangeAllowed: true,
+              isDataObject: false,
+              // just re-indexing
+              cloneIfApplicable: false,
+            })
           }
         }
       }
@@ -334,7 +351,7 @@ function interceptArrayMutation(
   return change
 }
 
-registerTweaker(3, (value, parentPath) => {
+registerTweaker(TweakerPriority.Array, (value, parentPath) => {
   if (isArray(value)) {
     return tweakArray(value, parentPath, false)
   }

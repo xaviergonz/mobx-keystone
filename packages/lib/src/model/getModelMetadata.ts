@@ -18,6 +18,11 @@ export interface ModelMetadata {
    * Property used as model id (usually `$modelId` unless overridden).
    */
   modelIdProperty: string
+
+  /**
+   * A value type will be cloned automatically when being attached to a new tree.
+   */
+  valueType: boolean
 }
 
 /**

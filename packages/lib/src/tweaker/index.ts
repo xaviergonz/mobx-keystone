@@ -1,4 +1,4 @@
-// make sure tweakes are imported
+// make sure tweakers are imported
 import "./tweakArray"
 import "./tweakFrozen"
 import "./tweakModel"

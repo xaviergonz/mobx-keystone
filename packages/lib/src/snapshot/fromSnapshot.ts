@@ -1,21 +1,25 @@
 import { action, observable, set } from "mobx"
-import { frozen, isFrozenSnapshot } from "../frozen/Frozen"
 import type { AnyModel } from "../model/BaseModel"
-import { getModelIdPropertyName } from "../model/getModelMetadata"
-import { isReservedModelKey, modelTypeKey } from "../model/metadata"
-import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
-import { isModelSnapshot } from "../model/utils"
-import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName } from "../modelShared/modelInfo"
-import { tweakArray } from "../tweaker/tweakArray"
-import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { failure, isArray, isMap, isPlainObject, isPrimitive, isSet } from "../utils"
-import type {
-  SnapshotInOf,
-  SnapshotInOfModel,
-  SnapshotInOfObject,
-  SnapshotOutOf,
-} from "./SnapshotOf"
+import { isReservedModelKey } from "../model/metadata"
+import { failure, isMap, isPrimitive, isSet } from "../utils"
+import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
+
+/**
+ * @ignore
+ * @internal
+ */
+export type Snapshotter = (sn: any, ctx: FromSnapshotContext) => any | undefined
+
+const snapshotters: { priority: number; snapshotter: Snapshotter }[] = []
+
+/**
+ * @ignore
+ * @internal
+ */
+export function registerSnapshotter(priority: number, snapshotter: Snapshotter): void {
+  snapshotters.push({ priority, snapshotter })
+  snapshotters.sort((a, b) => a.priority - b.priority)
+}
 
 /**
  * From snapshot options.
@@ -27,7 +31,11 @@ export interface FromSnapshotOptions {
   generateNewIds: boolean
 }
 
-interface FromSnapshotContext {
+/**
+ * @ignore
+ * @internal
+ */
+export interface FromSnapshotContext {
   options: FromSnapshotOptions
   snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any
 }
@@ -59,7 +67,11 @@ export let fromSnapshot = <T>(
 }
 fromSnapshot = action("fromSnapshot", fromSnapshot) as any
 
-function internalFromSnapshot<T>(
+/**
+ * @ignore
+ * @internal
+ */
+export function internalFromSnapshot<T>(
   sn: SnapshotInOf<T> | SnapshotOutOf<T>,
   ctx: FromSnapshotContext
 ): T {
@@ -67,20 +79,13 @@ function internalFromSnapshot<T>(
     return sn as any
   }
 
-  if (isArray(sn)) {
-    return fromArraySnapshot(sn, ctx) as any
-  }
-
-  if (isFrozenSnapshot(sn)) {
-    return frozen(sn.data) as any
-  }
-
-  if (isModelSnapshot(sn)) {
-    return fromModelSnapshot(sn, ctx) as any
-  }
-
-  if (isPlainObject(sn)) {
-    return fromPlainObjectSnapshot(sn, ctx) as any
+  const snapshotterLen = snapshotters.length
+  for (let i = 0; i < snapshotterLen; i++) {
+    const { snapshotter } = snapshotters[i]
+    const ret = snapshotter(sn, ctx)
+    if (ret !== undefined) {
+      return ret
+    }
   }
 
   if (isMap(sn)) {
@@ -92,43 +97,6 @@ function internalFromSnapshot<T>(
   }
 
   throw failure(`unsupported snapshot - ${sn}`)
-}
-
-function fromArraySnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): any[] {
-  const arr = observable.array([] as any[], observableOptions)
-  const ln = sn.length
-  for (let i = 0; i < ln; i++) {
-    arr.push(internalFromSnapshot(sn[i], ctx))
-  }
-  return tweakArray(arr, undefined, true)
-}
-
-function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotContext): AnyModel {
-  const type = sn[modelTypeKey]
-
-  if (!type) {
-    throw failure(`a model snapshot must contain a type key (${modelTypeKey}), but none was found`)
-  }
-
-  const modelInfo = getModelInfoForName(type)
-  if (!modelInfo) {
-    throw failure(`model with name "${type}" not found in the registry`)
-  }
-
-  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-  if (!sn[modelIdPropertyName]) {
-    throw failure(
-      `a model snapshot of type '${type}' must contain an id key (${modelIdPropertyName}), but none was found`
-    )
-  }
-
-  return new (modelInfo.class as any)(undefined, {
-    snapshotInitialData: {
-      unprocessedSnapshot: sn,
-      snapshotToInitialData: ctx.snapshotToInitialData,
-    },
-    generateNewIds: ctx.options.generateNewIds,
-  } as ModelConstructorOptions)
 }
 
 function snapshotToInitialData(
@@ -149,19 +117,6 @@ function snapshotToInitialData(
   return initialData
 }
 
-function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): object {
-  const plainObj = observable.object({}, undefined, observableOptions)
-
-  const snKeys = Object.keys(sn)
-  const snKeysLen = snKeys.length
-  for (let i = 0; i < snKeysLen; i++) {
-    const k = snKeys[i]
-    const v = sn[k]
-    set(plainObj, k, internalFromSnapshot(v, ctx))
-  }
-  return tweakPlainObject(plainObj, undefined, undefined, true, false)
-}
-
-const observableOptions = {
+export const observableOptions = {
   deep: false,
 }
