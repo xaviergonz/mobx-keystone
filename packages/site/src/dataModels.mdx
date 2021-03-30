@@ -106,7 +106,7 @@ All this means that usually you will just pass the data around and only do a `ne
 Some examples:
 
 ```ts
-const todoList: DataModelData<Todo> = [...];
+const todoList: ModelData<Todo> = [...];
 // usually we would use todoList[x] to access the data...
 
 // until the moment we want to edit a particular todo
@@ -116,7 +116,7 @@ editableTodo.setText("hi there")
 ```
 
 ```ts
-const todoList: DataModelData<Todo> = [...];
+const todoList: ModelData<Todo> = [...];
 
 const newTodo = new Todo({ done: false, text: "" })
 // ...
@@ -182,11 +182,9 @@ Note that this runtime data holds to the same lazy creation rules than the data 
 
 ## Getting the Typescript types for model Data
 
-- `DataModelData<Model>` returns the data type associated to the given model. In fact it is really an alias for the one below.
-- `ModelPropsData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
-- `ModelInstanceData<Model>` is the type of the model props with transformations (as accessible via `this`).
+- `ModelData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
 
-For example `DataModelData<Todo>` would return `{ text: string; done: boolean; }`.
+For example `ModelData<Todo>` would return `{ text: string; done: boolean; }`.
 
 ## Flows (async actions)
 

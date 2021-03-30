@@ -1,8 +1,8 @@
 import type { O } from "ts-toolbelt"
-import type { AnyDataModel, DataModelData } from "../dataModel/BaseDataModel"
+import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import { getDataModelMetadata } from "../dataModel/getDataModelMetadata"
 import { isDataModelClass } from "../dataModel/utils"
-import type { ModelClass } from "../modelShared/BaseModelShared"
+import type { ModelClass, ModelData } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../modelShared/prop"
@@ -31,7 +31,7 @@ const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChe
  */
 export function typesDataModelData<M = never>(
   modelClass: object
-): M extends AnyDataModel ? IdentityType<DataModelData<M>> : never {
+): M extends AnyDataModel ? IdentityType<ModelData<M>> : never {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isDataModelClass(modelClass) && typeof modelClass === "function") {
@@ -52,19 +52,15 @@ export function typesDataModelData<M = never>(
       const modelInfo = modelInfoByClass.get(modelClazz)!
       const typeName = `DataModelData(${modelInfo.name})`
 
+      const dataTypeChecker = getDataModelMetadata(modelClazz).dataType
+      if (!dataTypeChecker) {
+        throw failure(
+          `type checking cannot be performed over data model data of type '${modelInfo.name}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
+        )
+      }
+
       return new TypeChecker(
         (value, path) => {
-          const dataTypeChecker = getDataModelMetadata(modelClazz).dataType
-          if (!dataTypeChecker) {
-            throw failure(
-              `type checking cannot be performed over data model data of type '${
-                modelInfo.name
-              }' at path '${path.join(
-                "/"
-              )}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
-            )
-          }
-
           const resolvedTc = resolveTypeChecker(dataTypeChecker)
           if (!resolvedTc.unchecked) {
             return resolvedTc.check(value, path)

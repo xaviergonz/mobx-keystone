@@ -1,7 +1,7 @@
 import { action, set } from "mobx"
 import type { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
-import type { ModelPropsCreationData } from "../modelShared/BaseModelShared"
+import type { ModelCreationData } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
@@ -23,7 +23,7 @@ export const internalNewModel = action(
   "newModel",
   <M extends AnyModel>(
     origModelObj: M,
-    initialData: ModelPropsCreationData<M> | undefined,
+    initialData: ModelCreationData<M> | undefined,
     options: Pick<ModelConstructorOptions, "modelClass" | "snapshotInitialData" | "generateNewIds">
   ): M => {
     const { modelClass: _modelClass, snapshotInitialData, generateNewIds } = options

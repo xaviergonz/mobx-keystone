@@ -42,11 +42,11 @@ export function typesOr<T extends AnyType[]>(...orTypes: T): T[number] {
 
     const thisTc: TypeChecker = new TypeChecker(
       (value, path) => {
-        const noMatchingType = checkers.every((tc) => !!tc.check(value, path))
-        if (noMatchingType) {
-          return new TypeCheckError(path, getTypeName(thisTc), value)
-        } else {
+        const someMatchingType = checkers.some((tc) => !tc.check(value, path))
+        if (someMatchingType) {
           return null
+        } else {
+          return new TypeCheckError(path, getTypeName(thisTc), value)
         }
       },
       getTypeName,

@@ -6,7 +6,7 @@ import { tweakedObjects } from "./core"
 import { registerTweaker } from "./tweak"
 
 /**
- * @ingore
+ * @ignore
  */
 export function tweakFrozen<T extends Frozen<any>>(
   frozenObj: T,

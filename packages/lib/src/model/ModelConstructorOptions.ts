@@ -1,5 +1,4 @@
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import type { PropTransform } from "../propTransform/propTransform"
 import type { AnyModel } from "./BaseModel"
 
 /**
@@ -14,5 +13,4 @@ export interface ModelConstructorOptions {
   }
   modelClass?: ModelClass<AnyModel>
   generateNewIds?: boolean
-  propsWithTransforms?: ReadonlyArray<readonly [string, PropTransform<any, any>]>
 }

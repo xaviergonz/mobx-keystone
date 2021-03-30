@@ -1,30 +1,23 @@
 import { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
 import { sharedInternalModel } from "../modelShared/Model"
-import {
-  ModelProps,
-  ModelPropsToInstanceData,
-  ModelPropsToPropsData,
-  ModelPropsToSetter,
-} from "../modelShared/prop"
+import { ModelProps, ModelPropsToData, ModelPropsToSetter } from "../modelShared/prop"
 import { AnyDataModel, BaseDataModel } from "./BaseDataModel"
 import { assertIsDataModelClass } from "./utils"
 
-declare const propsDataSymbol: unique symbol
-declare const instanceDataSymbol: unique symbol
+declare const dataSymbol: unique symbol
 
-declare const composedPropsDataSymbol: unique symbol
+declare const composedDataSymbol: unique symbol
 
 export interface _DataModel<SuperModel, TProps extends ModelProps> {
-  [propsDataSymbol]: ModelPropsToPropsData<TProps>
-  [instanceDataSymbol]: ModelPropsToInstanceData<TProps>
+  [dataSymbol]: ModelPropsToData<TProps>
 
-  [composedPropsDataSymbol]: SuperModel extends BaseDataModel<infer PD, any>
-    ? this[typeof propsDataSymbol] & PD
-    : this[typeof propsDataSymbol]
+  [composedDataSymbol]: SuperModel extends BaseDataModel<infer D>
+    ? this[typeof dataSymbol] & D
+    : this[typeof dataSymbol]
 
-  new (data: this[typeof composedPropsDataSymbol]): SuperModel &
-    BaseDataModel<this[typeof propsDataSymbol], this[typeof instanceDataSymbol]> &
-    Omit<this[typeof instanceDataSymbol], keyof AnyDataModel> &
+  new (data: this[typeof composedDataSymbol]): SuperModel &
+    BaseDataModel<this[typeof dataSymbol]> &
+    Omit<this[typeof dataSymbol], keyof AnyDataModel> &
     ModelPropsToSetter<TProps>
 }
 

@@ -4,22 +4,12 @@ import type { AnyModel } from "../model/BaseModel"
 /**
  * @ignore
  */
-export const propsDataTypeSymbol = Symbol()
+export const dataTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export const propsCreationDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const instanceDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const instanceCreationDataTypeSymbol = Symbol()
+export const creationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
@@ -40,28 +30,16 @@ export const modelInitializedSymbol = Symbol("modelInitialized")
  export type AbstractModelClass<M extends AnyModel|AnyDataModel> = abstract new (initialData: any) => M;
 
 /**
- * The props data type of a model.
+ * The data type of a model.
  */
-export type ModelPropsData<M extends AnyModel | AnyDataModel> = M["$"]
+export type ModelData<M extends AnyModel | AnyDataModel> = M["$"]
 
 /**
- * The props creation data type of a model.
+ * The creation data type of a model.
  */
-export type ModelPropsCreationData<
+export type ModelCreationData<
   M extends AnyModel
-> = M[typeof propsCreationDataTypeSymbol]
-
-/**
- * The instance data type of a model.
- */
-export type ModelInstanceData<M extends AnyModel | AnyDataModel> = M[typeof instanceDataTypeSymbol]
-
-/**
- * The transformed creation data type of a model.
- */
-export type ModelInstanceCreationData<
-  M extends AnyModel
-> = M[typeof instanceCreationDataTypeSymbol]
+> = M[typeof creationDataTypeSymbol]
 
 /**
  * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.

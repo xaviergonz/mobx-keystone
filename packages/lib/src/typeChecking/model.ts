@@ -50,21 +50,17 @@ export function typesModel<M = never>(modelClass: object): IdentityType<M> {
       const modelInfo = modelInfoByClass.get(modelClazz)!
       const typeName = `Model(${modelInfo.name})`
 
+      const dataTypeChecker = getModelMetadata(modelClazz).dataType
+      if (!dataTypeChecker) {
+        throw failure(
+          `type checking cannot be performed over model of type '${modelInfo.name}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
+        )
+      }
+
       return new TypeChecker(
         (value, path) => {
           if (!(value instanceof modelClazz)) {
             return new TypeCheckError(path, typeName, value)
-          }
-
-          const dataTypeChecker = getModelMetadata(value as AnyModel).dataType
-          if (!dataTypeChecker) {
-            throw failure(
-              `type checking cannot be performed over model of type '${
-                modelInfo.name
-              }' at path '${path.join(
-                "/"
-              )}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
-            )
           }
 
           const resolvedTc = resolveTypeChecker(dataTypeChecker)

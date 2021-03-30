@@ -126,7 +126,7 @@ const disposer = reaction(
 )
 ```
 
-### `onSnapshot<T extends object>(obj: T, listener: (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void): () => void`
+### `onSnapshot<T extends object>(obj: T | () => T, listener: (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void): () => void`
 
 Since that is a very common pattern, `mobx-keystone` offers an `onSnapshot` function that will call a listener with the new snapshot and the previous snapshot every time it changes.
 

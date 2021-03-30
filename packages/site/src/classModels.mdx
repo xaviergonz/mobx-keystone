@@ -222,10 +222,8 @@ If for some reason you do not want to have/require these extra properties in you
 
 ## Getting the Typescript types for model data and model creation data
 
-- `ModelPropsData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
-- `ModelInstanceData<Model>` is the type of the model props with transformations (as accessible via `this`).
-- `ModelPropsCreationData<Model>` is the the type of the creation model props without transformations (like `SnapshotIn<Model>` excluding `$modelId` and `$modelType`).
-- `ModelInstanceCreationData<Model>` is the type of the first parameter passed to `new Model(...)`.
+- `ModelData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
+- `ModelCreationData<Model>` is the type of the first parameter passed to `new Model(...)`.
 
 For example, given:
 
@@ -237,7 +235,7 @@ export class Todo extends Model({
 }) {}
 ```
 
-`ModelInstanceCreationData<Todo>` would be:
+`ModelCreationData<Todo>` would be:
 
 ```ts
 {
@@ -246,7 +244,7 @@ export class Todo extends Model({
 }
 ```
 
-and `ModelInstanceData<Todo>` would be:
+and `ModelData<Todo>` would be:
 
 ```ts
 {

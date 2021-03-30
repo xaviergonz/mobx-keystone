@@ -9,9 +9,9 @@ import {
   modelAction,
   modelClass,
   ModelClassDeclaration,
+  ModelCreationData,
+  ModelData,
   modelIdKey,
-  ModelPropsCreationData,
-  ModelPropsData,
   prop,
   tProp,
   types,
@@ -62,8 +62,8 @@ test("subclassing with additional props", () => {
     }
   }
 
-  type D = ModelPropsData<P2>
-  type CD = ModelPropsCreationData<P2>
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(
     _ as D,
     _ as {
@@ -140,8 +140,8 @@ test("subclassing without additional props", () => {
     }
   }
 
-  type D = ModelPropsData<P2>
-  type CD = ModelPropsCreationData<P2>
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(
     _ as D,
     _ as {
@@ -199,8 +199,8 @@ test("subclassing without anything new", () => {
   @model("P2_nothingNew")
   class P2 extends ExtendedModel(P, {}) {}
 
-  type D = ModelPropsData<P2>
-  type CD = ModelPropsCreationData<P2>
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(
     _ as D,
     _ as {
@@ -284,8 +284,8 @@ test("three level subclassing", () => {
     }
   }
 
-  type D = ModelPropsData<P2>
-  type CD = ModelPropsCreationData<P2>
+  type D = ModelData<P2>
+  type CD = ModelCreationData<P2>
   assert(
     _ as D,
     _ as {

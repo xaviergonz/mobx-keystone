@@ -3,23 +3,19 @@ import { sharedInternalModel } from "../modelShared/Model"
 import {
   idProp,
   ModelProps,
-  ModelPropsToInstanceCreationData,
-  ModelPropsToInstanceData,
-  ModelPropsToPropsCreationData,
-  ModelPropsToPropsData,
+  ModelPropsToCreationData,
+  ModelPropsToData,
   ModelPropsToSetter,
 } from "../modelShared/prop"
 import type { AnyModel, BaseModel } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { assertIsModelClass } from "./utils"
 
-declare const propsDataSymbol: unique symbol
-declare const instanceDataSymbol: unique symbol
+declare const dataSymbol: unique symbol
 
-declare const propsCreationDataSymbol: unique symbol
-declare const instanceCreationDataSymbol: unique symbol
+declare const creationDataSymbol: unique symbol
 
-declare const composedInstanceCreationDataSymbol: unique symbol
+declare const composedCreationDataSymbol: unique symbol
 
 export interface _Model<SuperModel, TProps extends ModelProps> {
   /**
@@ -27,25 +23,21 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
    */
   readonly [modelTypeKey]: string | undefined
 
-  [propsDataSymbol]: ModelPropsToPropsData<TProps>
-  [instanceDataSymbol]: ModelPropsToInstanceData<TProps>
+  [dataSymbol]: ModelPropsToData<TProps>
 
-  [propsCreationDataSymbol]: ModelPropsToPropsCreationData<TProps>
-  [instanceCreationDataSymbol]: ModelPropsToInstanceCreationData<TProps>
+  [creationDataSymbol]: ModelPropsToCreationData<TProps>
 
-  [composedInstanceCreationDataSymbol]: SuperModel extends BaseModel<any, any, any, infer ICD, any>
-    ? this[typeof instanceCreationDataSymbol] & ICD
-    : this[typeof instanceCreationDataSymbol]
+  [composedCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD, any>
+    ? this[typeof creationDataSymbol] & CD
+    : this[typeof creationDataSymbol]
 
-  new (data: this[typeof composedInstanceCreationDataSymbol]): SuperModel &
+  new (data: this[typeof composedCreationDataSymbol]): SuperModel &
     BaseModel<
-      this[typeof propsDataSymbol],
-      this[typeof propsCreationDataSymbol],
-      this[typeof instanceDataSymbol],
-      this[typeof instanceCreationDataSymbol],
+      this[typeof dataSymbol],
+      this[typeof creationDataSymbol],
       ExtractModelIdProp<TProps> & string
     > &
-    Omit<this[typeof instanceDataSymbol], keyof AnyModel> &
+    Omit<this[typeof dataSymbol], keyof AnyModel> &
     ModelPropsToSetter<TProps>
 }
 

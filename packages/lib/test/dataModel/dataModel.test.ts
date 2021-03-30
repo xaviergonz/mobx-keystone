@@ -10,10 +10,9 @@ import {
   Model,
   model,
   modelAction,
+  ModelData,
   modelFlow,
-  ModelPropsData,
   prop,
-  prop_dateTimestamp,
   registerRootStore,
   toTreeNode,
   tProp,
@@ -77,7 +76,7 @@ test("without type", async () => {
   }
 
   assert(
-    _ as ModelPropsData<Todo>,
+    _ as ModelData<Todo>,
     _ as {
       done: boolean
       text: string
@@ -425,7 +424,7 @@ test("with type", async () => {
   }
 
   assert(
-    _ as ModelPropsData<Todo>,
+    _ as ModelData<Todo>,
     _ as {
       done: boolean
       text: string
@@ -735,35 +734,6 @@ test("idProp is not allowed", () => {
       id: idProp,
     })
   ).toThrow('expected no idProp but got some: ["id"]')
-})
-
-test("transforms work, but do not do intial transformations", () => {
-  @model("test/Trans")
-  class Trans extends DataModel({
-    date: prop_dateTimestamp<Date>(),
-  }) {
-    @modelAction
-    setDate(date: Date) {
-      this.date = date
-    }
-  }
-
-  const trans = new Trans({ date: 100000 })
-  expect(trans.date instanceof Date).toBe(true)
-  expect(+trans.date).toBe(100000)
-  expect(trans.$.date).toBe(100000)
-
-  trans.setDate(new Date(400000))
-  expect(trans.date instanceof Date).toBe(true)
-  expect(+trans.date).toBe(400000)
-  expect(trans.$.date).toBe(400000)
-
-  expect(
-    () =>
-      new Trans({
-        date: new Date() as any,
-      })
-  ).toThrow()
 })
 
 test("onLazyInit gets called", () => {

@@ -1,15 +1,8 @@
 import { observable } from "mobx"
 import type { O } from "ts-toolbelt"
 import { getGlobalConfig } from "../globalConfig"
-import {
-  instanceCreationDataTypeSymbol,
-  instanceDataTypeSymbol,
-  ModelClass,
-  propsCreationDataTypeSymbol,
-  propsDataTypeSymbol,
-} from "../modelShared/BaseModelShared"
+import { creationDataTypeSymbol, dataTypeSymbol, ModelClass } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
-import { memoTransformCache } from "../propTransform/propTransform"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import type {
   SnapshotInOfModel,
@@ -37,24 +30,18 @@ export const modelIdPropertyNameSymbol = Symbol()
  *
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
- * @typeparam PropsData Props data type.
- * @typeparam PropsCreationData Props creation data type.
- * @typeparam InstanceData Instace data type.
- * @typeparam InstanceCreationData Instance creation data type.
+ * @typeparam Data Data type.
+ * @typeparam CreationData Creation data type.
  * @typeparam ModelIdPropertyName Model id property name.
  */
 export abstract class BaseModel<
-  PropsData extends { [k: string]: any },
-  PropsCreationData extends { [k: string]: any },
-  InstanceData extends { [k: string]: any } = PropsData,
-  InstanceCreationData extends { [k: string]: any } = PropsCreationData,
+  Data extends { [k: string]: any },
+  CreationData extends { [k: string]: any },
   ModelIdPropertyName extends string = never
 > {
   // just to make typing work properly
-  [propsDataTypeSymbol]: PropsData;
-  [propsCreationDataTypeSymbol]: PropsCreationData;
-  [instanceDataTypeSymbol]: InstanceData;
-  [instanceCreationDataTypeSymbol]: InstanceCreationData;
+  [dataTypeSymbol]: Data;
+  [creationDataTypeSymbol]: CreationData;
   [modelIdPropertyNameSymbol]: ModelIdPropertyName;
 
   /**
@@ -89,9 +76,8 @@ export abstract class BaseModel<
   /**
    * Data part of the model, which is observable and will be serialized in snapshots.
    * Use it if one of the data properties matches one of the model properties/functions.
-   * This also allows access to the backed values of transformed properties.
    */
-  readonly $!: PropsData
+  readonly $!: Data
 
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as
@@ -116,7 +102,7 @@ export abstract class BaseModel<
    */
   fromSnapshot?(snapshot: {
     [k: string]: any
-  }): SnapshotInOfObject<PropsCreationData> & {
+  }): SnapshotInOfObject<CreationData> & {
     [modelTypeKey]?: string
   }
 
@@ -134,12 +120,11 @@ export abstract class BaseModel<
   /**
    * Creates an instance of a model.
    */
-  constructor(data: InstanceCreationData) {
+  constructor(data: CreationData) {
     let initialData = data as any
     const {
       snapshotInitialData,
       modelClass,
-      propsWithTransforms,
       generateNewIds,
     }: ModelConstructorOptions = arguments[1] as any
 
@@ -148,35 +133,15 @@ export abstract class BaseModel<
     const self = this as any
 
     // delete unnecessary props
-    delete self[propsDataTypeSymbol]
-    delete self[propsCreationDataTypeSymbol]
-    delete self[instanceDataTypeSymbol]
-    delete self[instanceCreationDataTypeSymbol]
+    delete self[dataTypeSymbol]
+    delete self[creationDataTypeSymbol]
     delete self[modelIdPropertyNameSymbol]
 
     if (!snapshotInitialData) {
       // plain new
       assertIsObject(initialData, "initialData")
 
-      // apply transforms to initial data if needed
-      const propsWithTransformsLen = propsWithTransforms!.length
-      if (propsWithTransformsLen > 0) {
-        initialData = Object.assign(initialData)
-        for (let i = 0; i < propsWithTransformsLen; i++) {
-          const propWithTransform = propsWithTransforms![i]
-          const propName = propWithTransform[0]
-          const propTransform = propWithTransform[1]
-
-          const memoTransform = memoTransformCache.getOrCreateMemoTransform(
-            this,
-            propName,
-            propTransform
-          )
-          initialData[propName] = memoTransform.dataToProp(initialData[propName])
-        }
-      }
-
-      internalNewModel(this, observable.object(initialData, undefined, { deep: false }), {
+      internalNewModel(this, observable.object(initialData as any, undefined, { deep: false }), {
         modelClass,
         generateNewIds: true,
       })
@@ -220,7 +185,7 @@ export const baseModelPropNames = new Set<keyof AnyModel>([
 /**
  * Any kind of model instance.
  */
-export interface AnyModel extends BaseModel<any, any, any, any, any> {}
+export interface AnyModel extends BaseModel<any, any, any> {}
 
 /**
  * @deprecated Should not be needed anymore.

@@ -30,15 +30,15 @@ export function typesArraySet<T extends AnyType>(
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `ArraySet<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
+    const dataTypeChecker = typesObject(() => ({
+      items: typesArray(valueChecker as any),
+    }))
+
     const thisTc: TypeChecker = new TypeChecker(
       (obj, path) => {
         if (!(obj instanceof ArraySet)) {
           return new TypeCheckError(path, getTypeName(thisTc), obj)
         }
-
-        const dataTypeChecker = typesObject(() => ({
-          items: typesArray(valueChecker as any),
-        }))
 
         const resolvedTc = resolveTypeChecker(dataTypeChecker)
         return resolvedTc.check(obj.$, path)

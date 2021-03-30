@@ -2,9 +2,9 @@ import { assert, _ } from "spec.ts"
 import {
   Model,
   model,
+  ModelCreationData,
+  ModelData,
   modelIdKey,
-  ModelPropsCreationData,
-  ModelPropsData,
   prop,
   tProp,
   types,
@@ -34,7 +34,7 @@ class M extends Model({
 
 test("default props", () => {
   assert(
-    _ as ModelPropsCreationData<M>,
+    _ as ModelCreationData<M>,
     _ as {
       [modelIdKey]?: string
 
@@ -59,7 +59,7 @@ test("default props", () => {
   )
 
   assert(
-    _ as ModelPropsData<M>,
+    _ as ModelData<M>,
     _ as {
       [modelIdKey]: string
 

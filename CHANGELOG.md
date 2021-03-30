@@ -2,8 +2,11 @@
 
 - [BREAKING CHANGE] `setterAction: true` prop option is now `prop().withSetter()`
 - [BREAKING CHANGE] `setterAction: "assign"` prop option is now `prop().withSetter("assign")`
-- [BREAKING CHANGE] Functional models have now been removed in favor of Data models, which serve a similar function while having a syntax really close to standard class models. See the relevant section in the docs for more info.
+- [BREAKING CHANGE] Functional models have now been removed in favor of Data models, which serve a similar function while having a syntax closer to standard class models. See the relevant new section in the docs for more info.
+- [BREAKING CHANGE] Property transforms have been removed (including 'prop_mapArray', 'prop_setArray', ...). Consider switching to 'objectMap', 'asMap', etc. or a getter/setter with a transform inside pattern.
 - [BREAKING CHANGE] Property transform decorators have been removed.
+- [BREAKING CHANGE - types] Some type helpers have been renamed: `ModelPropsData` / `ModelInstanceData` -> `ModelData`, `ModelPropsCreationData` / `ModelInstanceCreationData` -> `ModelCreationData`.
+- `onSnapshot` now also takes a function that returns a node.
 
 ## 0.54.0
 

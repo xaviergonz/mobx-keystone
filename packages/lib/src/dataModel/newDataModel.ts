@@ -1,7 +1,7 @@
 import { action } from "mobx"
 import type { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
-import type { ModelPropsData } from "../modelShared/BaseModelShared"
+import type { ModelData } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
 import { failure, inDevMode, makePropReadonly } from "../utils"
@@ -18,7 +18,7 @@ export const internalNewDataModel = action(
   "newModel",
   <M extends AnyDataModel>(
     origModelObj: M,
-    tweakedData: ModelPropsData<M>,
+    tweakedData: ModelData<M>,
     options: Pick<DataModelConstructorOptions, "modelClass">
   ): M => {
     const { modelClass: _modelClass } = options

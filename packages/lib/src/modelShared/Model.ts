@@ -10,14 +10,13 @@ import { AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
 import type { ModelMetadata } from "../model/getModelMetadata"
 import { modelIdKey } from "../model/metadata"
 import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
-import { memoTransformCache } from "../propTransform/propTransform"
 import { typesObject } from "../typeChecking/object"
 import { typesString } from "../typeChecking/primitives"
 import { tProp } from "../typeChecking/tProp"
 import type { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure, propNameToSetterName } from "../utils"
-import { ModelClass, modelInitializedSymbol, ModelInstanceData } from "./BaseModelShared"
+import { ModelClass, ModelData, modelInitializedSymbol } from "./BaseModelShared"
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
@@ -58,30 +57,18 @@ export function createModelPropDescriptor(
 
 export function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
-  modelProp: AnyModelProp | undefined,
-  modelPropName: keyof ModelInstanceData<M>
-): ModelInstanceData<M>[typeof modelPropName] {
-  const transform = modelProp ? modelProp.transform : undefined
-
-  if (transform) {
-    // no need to use get since these vars always get on the initial $
-    const memoTransform = memoTransformCache.getOrCreateMemoTransform(
-      model,
-      modelPropName as string,
-      transform
-    )
-    return memoTransform.propToData(model.$[modelPropName])
-  } else {
-    // no need to use get since these vars always get on the initial $
-    return model.$[modelPropName]
-  }
+  _modelProp: AnyModelProp | undefined,
+  modelPropName: keyof ModelData<M>
+): ModelData<M>[typeof modelPropName] {
+  // no need to use get since these vars always get on the initial $
+  return model.$[modelPropName]
 }
 
 export function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
   modelProp: AnyModelProp | undefined,
-  modelPropName: keyof ModelInstanceData<M>,
-  value: ModelInstanceData<M>[typeof modelPropName]
+  modelPropName: keyof ModelData<M>,
+  value: ModelData<M>[typeof modelPropName]
 ): void {
   if (modelProp?.setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
@@ -93,20 +80,8 @@ export function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
     return
   }
 
-  const transform = modelProp?.transform
-
-  if (transform) {
-    // no need to use set since these vars always get on the initial $
-    const memoTransform = memoTransformCache.getOrCreateMemoTransform(
-      model,
-      modelPropName as string,
-      transform
-    )
-    model.$[modelPropName] = memoTransform.dataToProp(value)
-  } else {
-    // no need to use set since these vars always get on the initial $
-    model.$[modelPropName] = value
-  }
+  // no need to use set since these vars always get on the initial $
+  model.$[modelPropName] = value
 }
 
 export function sharedInternalModel<
@@ -209,10 +184,6 @@ export function sharedInternalModel<
 
   const base: any = baseModel ?? (type === "class" ? BaseModel : BaseDataModel)
 
-  const propsWithTransforms = Object.entries(modelProps)
-    .filter(([_propName, prop]) => !!prop.transform)
-    .map(([propName, prop]) => [propName, prop.transform!] as const)
-
   // we use this weird hack rather than just class CustomBaseModel extends base {}
   // in order to work around problems with ES5 classes extending ES6 classes
   // see https://github.com/xaviergonz/mobx-keystone/issues/15
@@ -228,7 +199,6 @@ export function sharedInternalModel<
       const baseModel = new _base(initialData, {
         ...constructorOptions,
         modelClass,
-        propsWithTransforms,
       } as ModelConstructorOptions & DataModelConstructorOptions)
 
       // make sure abstract classes do not override prototype props

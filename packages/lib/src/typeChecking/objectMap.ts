@@ -30,15 +30,15 @@ export function typesObjectMap<T extends AnyType>(
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `ObjectMap<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
+    const dataTypeChecker = typesObject(() => ({
+      items: typesRecord(valueChecker as any),
+    }))
+
     const thisTc: TypeChecker = new TypeChecker(
       (obj, path) => {
         if (!(obj instanceof ObjectMap)) {
           return new TypeCheckError(path, getTypeName(thisTc), obj)
         }
-
-        const dataTypeChecker = typesObject(() => ({
-          items: typesRecord(valueChecker as any),
-        }))
 
         const resolvedTc = resolveTypeChecker(dataTypeChecker)
         return resolvedTc.check(obj.$, path)
