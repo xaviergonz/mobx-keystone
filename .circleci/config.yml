@@ -21,9 +21,9 @@ jobs:
       - restore_cache:
           name: restore node_modules
           keys:
-            - node-modules-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - node-modules-{{ arch }}-{{ .Branch }}
-            - node-modules-{{ arch }}
+            - node-modules-v2-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - node-modules-v2-{{ arch }}-{{ .Branch }}
+            - node-modules-v2-{{ arch }}
 
       - run: yarn install --immutable
 
@@ -34,7 +34,7 @@ jobs:
             - .yarn/cache
       - save_cache:
           name: cache node_modules
-          key: node-modules-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: node-modules-v2-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
 
