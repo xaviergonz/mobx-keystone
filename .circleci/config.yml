@@ -15,7 +15,7 @@ jobs:
       - checkout
 
       - restore_cache:
-          name: restore .cache/yarn
+          name: restore .yarn/cache
           keys:
             - yarn-cache-{{ arch }}
       - restore_cache:
@@ -25,13 +25,13 @@ jobs:
             - node-modules-{{ arch }}-{{ .Branch }}
             - node-modules-{{ arch }}
 
-      - run: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run: yarn install --immutable
 
       - save_cache:
-          name: cache .cache/yarn
+          name: cache .yarn/cache
           key: yarn-cache-{{ arch }}
           paths:
-            - ~/.cache/yarn
+            - .yarn/cache
       - save_cache:
           name: cache node_modules
           key: node-modules-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
