@@ -127,13 +127,13 @@ todoList.push(newTodo.$);
 
 ## Automatic class model actions for property setters
 
-Most times, the only action we need for a property is a setter we can use the model option `setter` to reduce boilerplace and generate property setters. For example, the model above could be written as:
+Most times, the only action we need for a property is a setter we can use the prop modifier `withSetter()` to reduce boilerplace and generate property setters. For example, the model above could be written as:
 
 ```ts
 @model("myCoolApp/Todo")
 export class Todo extends Model({
-  text: prop<string>({ setter: true }),
-  done: prop<boolean>({ setter: true }),
+  text: prop<string>().withSetter(),
+  done: prop<boolean>().withSetter(),
 }) {}
 
 const myTodo = new Todo({ text: "buy some coffee", done: false })
