@@ -1,8 +1,5 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
@@ -19,6 +16,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
@@ -41,26 +39,29 @@ jobs:
             ${{ runner.os }}-          
 
       - run: yarn install --immutable
-      
-      - uses: actions/upload-artifact@v2
-        with:
-          name: install-artifact
-          path: ./
 
   lib-site-build:
     needs: install
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/download-artifact@v2
+      - name: Restore node_modules
+        uses: actions/cache@v2
         with:
-          name: install-artifact      
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+      
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
   
   lib-test:
     needs: install
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/download-artifact@v2
+      - name: Restore node_modules
+        uses: actions/cache@v2
         with:
-          name: install-artifact      
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
