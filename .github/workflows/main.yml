@@ -45,6 +45,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+      
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Restore node_modules
         uses: actions/cache@v2
         with:
@@ -58,6 +64,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v2
+      
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Restore node_modules
         uses: actions/cache@v2
         with:
