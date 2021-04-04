@@ -23,8 +23,16 @@
   "author": "Javier González Garcés",
   "source": "./src/index.ts",
   "main": "./dist/index.js",
-  "exports": "./dist/index.modern.js",
-  "esmodule": "./dist/index.modern.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "umd": "./dist/index.umd.js",
+      "browser": "./dist/index.mjs",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "esmodule": "./dist/index.mjs",
   "module": "./dist/index.esm.js",
   "jsnext:main": "./dist/index.esm.js",
   "react-native": "./dist/index.esm.js",
@@ -44,7 +52,7 @@
     "start": "microbundle watch",
     "quick-build": "tsc -p . --noEmit",
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
-    "build": "yarn quick-build && yarn copy-root-files && microbundle build --name mobxKeystone --globals fast-deep-equal/es6=fast-deep-equal/es6",
+    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && microbundle build --name mobxKeystone --globals fast-deep-equal/es6=fast-deep-equal/es6",
     "test": "jest",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
