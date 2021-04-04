@@ -1341,7 +1341,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-env@npm:^7.11.5, @babel/preset-env@npm:^7.12.1, @babel/preset-env@npm:^7.12.11, @babel/preset-env@npm:^7.5.5":
+"@babel/preset-env@npm:^7.11.5, @babel/preset-env@npm:^7.12.1, @babel/preset-env@npm:^7.12.11, @babel/preset-env@npm:^7.13.12, @babel/preset-env@npm:^7.5.5":
   version: 7.13.12
   resolution: "@babel/preset-env@npm:7.13.12"
   dependencies:
@@ -1684,7 +1684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/core@npm:^10.0.14, @emotion/core@npm:^10.0.16":
+"@emotion/core@npm:^10.0.0, @emotion/core@npm:^10.0.14, @emotion/core@npm:^10.0.16":
   version: 10.1.1
   resolution: "@emotion/core@npm:10.1.1"
   dependencies:
@@ -2344,7 +2344,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/mdx@npm:^1.1.0":
+"@mdx-js/mdx@npm:^1.1.0, @mdx-js/mdx@npm:^1.6.22":
   version: 1.6.22
   resolution: "@mdx-js/mdx@npm:1.6.22"
   dependencies:
@@ -2371,7 +2371,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/react@npm:^1.0.27":
+"@mdx-js/react@npm:^1.0.27, @mdx-js/react@npm:^1.6.22":
   version: 1.6.22
   resolution: "@mdx-js/react@npm:1.6.22"
   peerDependencies:
@@ -3760,7 +3760,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>= 8, @types/node@npm:^14.0.27, @types/node@npm:^14.14.10":
+"@types/node@npm:*, @types/node@npm:>= 8, @types/node@npm:^14.0.27, @types/node@npm:^14.14.10, @types/node@npm:^14.14.37":
   version: 14.14.37
   resolution: "@types/node@npm:14.14.37"
   checksum: 5e2d9baf7594ebacaf016716515f30de0765169412787f981481c2fb8b468923149bb9e2e3219ee672399811672ceddc339a7372a61cf15bc656836a5494d991
@@ -5785,8 +5785,10 @@ __metadata:
     chalk: ^4.1.0
     cross-env: ^7.0.3
     mobx: ^6.1.8
+    mobx-keystone: "workspace:packages/lib"
     mobx-state-tree: ^5.0.1
     shx: ^0.3.3
+    tslib: ^2.1.0
     typescript: ^4.2.3
   languageName: unknown
   linkType: soft
@@ -10942,7 +10944,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-type@npm:^16.0.0":
+"file-type@npm:^16.0.0, file-type@npm:^16.2.0":
   version: 16.3.0
   resolution: "file-type@npm:16.3.0"
   dependencies:
@@ -11568,6 +11570,22 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"gatsby-core-utils@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "gatsby-core-utils@npm:2.2.0"
+  dependencies:
+    ci-info: 2.0.0
+    configstore: ^5.0.1
+    file-type: ^16.2.0
+    fs-extra: ^8.1.0
+    node-object-hash: ^2.0.0
+    proper-lockfile: ^4.1.1
+    tmp: ^0.2.1
+    xdg-basedir: ^4.0.0
+  checksum: 7c01ae889a731574bc39626297eb424ed28389ac1ceab6a5fcf539144cdedf4016a2608ef459f5fde8ae71260d7973341261d668ed8d5c39e794af4f91e3ff05
+  languageName: node
+  linkType: hard
+
 "gatsby-graphiql-explorer@npm:^0.11.0":
   version: 0.11.0
   resolution: "gatsby-graphiql-explorer@npm:0.11.0"
@@ -11712,6 +11730,55 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"gatsby-plugin-mdx@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "gatsby-plugin-mdx@npm:2.2.0"
+  dependencies:
+    "@babel/core": ^7.12.3
+    "@babel/generator": ^7.12.5
+    "@babel/helper-plugin-utils": ^7.10.4
+    "@babel/plugin-proposal-object-rest-spread": ^7.12.1
+    "@babel/preset-env": ^7.12.1
+    "@babel/preset-react": ^7.12.5
+    "@babel/types": ^7.12.6
+    camelcase-css: ^2.0.1
+    change-case: ^3.1.0
+    core-js: ^3.6.5
+    dataloader: ^1.4.0
+    debug: ^4.3.1
+    escape-string-regexp: ^1.0.5
+    eval: ^0.1.4
+    fs-extra: ^8.1.0
+    gatsby-core-utils: ^2.2.0
+    gray-matter: ^4.0.2
+    json5: ^2.1.3
+    loader-utils: ^1.4.0
+    lodash: ^4.17.21
+    mdast-util-to-string: ^1.1.0
+    mdast-util-toc: ^3.1.0
+    mime: ^2.4.6
+    p-queue: ^6.6.2
+    pretty-bytes: ^5.3.0
+    remark: ^10.0.1
+    remark-retext: ^3.1.3
+    retext-english: ^3.0.4
+    slugify: ^1.4.4
+    static-site-generator-webpack-plugin: ^3.4.2
+    style-to-object: ^0.3.0
+    underscore.string: ^3.3.5
+    unified: ^8.4.2
+    unist-util-map: ^1.0.5
+    unist-util-remove: ^1.0.3
+    unist-util-visit: ^1.4.1
+  peerDependencies:
+    "@mdx-js/mdx": ^1.0.0
+    "@mdx-js/react": ^1.0.0
+    react: ^16.9.0 || ^17.0.0
+    react-dom: ^16.9.0 || ^17.0.0
+  checksum: 14e44923f2a2a9eecabf1a37d5633ebb60dcd1d746fffd4863d0eea6a830a8c551c86abeeb05a4700b8515695ac3cad5dc14ee50a7abbcd18b693038c50bc57d
+  languageName: node
+  linkType: hard
+
 "gatsby-plugin-page-creator@npm:^2.10.1":
   version: 2.10.1
   resolution: "gatsby-plugin-page-creator@npm:2.10.1"
@@ -11751,7 +11818,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"gatsby-plugin-typescript@npm:^2.1.6, gatsby-plugin-typescript@npm:^2.12.1":
+"gatsby-plugin-typescript@npm:^2.0.0, gatsby-plugin-typescript@npm:^2.1.6, gatsby-plugin-typescript@npm:^2.12.1":
   version: 2.12.1
   resolution: "gatsby-plugin-typescript@npm:2.12.1"
   dependencies:
@@ -17568,11 +17635,21 @@ fsevents@^1.2.7:
   resolution: "mobx-keystone@workspace:packages/lib"
   dependencies:
     "@types/jest": ^26.0.22
+    "@types/node": ^14.14.37
+    "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": ^4.20.0
     "@typescript-eslint/parser": ^4.20.0
+    babel-eslint: 10.1.0
     eslint: ^7.23.0
+    eslint-config-prettier: ^8.1.0
+    eslint-config-react-app: ^6.0.0
     eslint-plugin-flowtype: ^5.4.0
+    eslint-plugin-import: ^2.22.1
     eslint-plugin-jest: ^24.3.3
+    eslint-plugin-jsx-a11y: ^6.4.1
+    eslint-plugin-react: ^7.23.1
+    eslint-plugin-react-hooks: ^4.2.0
+    eslint-plugin-testing-library: ^3.10.2
     eslint-webpack-plugin: ^2.5.3
     fast-deep-equal: ^3.1.3
     jest: ^26.6.3
@@ -22125,21 +22202,7 @@ resolve@1.17.0:
   version: 0.0.0-use.local
   resolution: "root@workspace:."
   dependencies:
-    "@typescript-eslint/eslint-plugin": ^4.20.0
-    "@typescript-eslint/parser": ^4.20.0
-    babel-eslint: 10.1.0
     codecov: ^3.8.1
-    eslint: ^7.23.0
-    eslint-config-prettier: ^8.1.0
-    eslint-config-react-app: ^6.0.0
-    eslint-plugin-flowtype: ^5.4.0
-    eslint-plugin-import: ^2.22.1
-    eslint-plugin-jest: ^24.3.3
-    eslint-plugin-jsx-a11y: ^6.4.1
-    eslint-plugin-react: ^7.23.1
-    eslint-plugin-react-hooks: ^4.2.0
-    eslint-plugin-testing-library: ^3.10.2
-    eslint-webpack-plugin: ^2.5.3
     netlify-cli: ^3.14.0
     prettier: ^2.2.1
     typescript: ^4.2.3
@@ -22770,19 +22833,30 @@ resolve@1.17.0:
     "@babel/plugin-proposal-class-properties": ^7.13.0
     "@babel/plugin-proposal-decorators": ^7.13.5
     "@babel/plugin-transform-classes": ^7.13.0
+    "@babel/preset-env": ^7.13.12
+    "@emotion/core": ^10.0.0
+    "@mdx-js/mdx": ^1.6.22
+    "@mdx-js/react": ^1.6.22
     "@types/react": ^17.0.3
     "@types/react-dom": ^17.0.3
     "@types/uuid": ^8.3.0
     docz: ^2.3.1
+    docz-utils: ^2.3.0
+    fs-extra: ^9.1.0
     gatsby: ^2.32.11
+    gatsby-plugin-mdx: ^2.2.0
+    gatsby-plugin-typescript: ^2.0.0
     gatsby-theme-docz: ^2.3.1
     mobx: ^6.1.8
+    mobx-keystone: "workspace:packages/lib"
     mobx-react: ^7.1.0
     raw-loader: ^4.0.2
     react: ^17.0.2
     react-dom: ^17.0.2
     react-feather: ^2.0.9
     remotedev: ^0.2.9
+    theme-ui: ^0.2.0
+    tslib: ^2.1.0
     typescript: ^4.2.3
     uuid: ^8.3.2
   languageName: unknown
@@ -24185,7 +24259,7 @@ resolve@1.17.0:
   languageName: node
   linkType: hard
 
-"theme-ui@npm:^0.2.38":
+"theme-ui@npm:^0.2.0, theme-ui@npm:^0.2.38":
   version: 0.2.52
   resolution: "theme-ui@npm:0.2.52"
   dependencies:

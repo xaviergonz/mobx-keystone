@@ -4,6 +4,15 @@ dist/
 /packages/lib/coverage/
 /packages/lib/README.md
 /packages/lib/LICENSE
+/packages/lib/CHANGELOG.md
 
 /packages/site/.docz/
 /packages/site/public/api/
+
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

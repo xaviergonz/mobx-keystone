@@ -14,7 +14,9 @@
     "benchmark": "^2.1.4",
     "chalk": "^4.1.0",
     "mobx": "^6.1.8",
-    "mobx-state-tree": "^5.0.1"
+    "mobx-keystone": "workspace:packages/lib",
+    "mobx-state-tree": "^5.0.1",
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.0",
