@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.55.1
+
+- Changed build tooling.
+
 ## 0.55.0
 
 - [BREAKING CHANGE] `setterAction: true` prop option is now `prop().withSetter()`
