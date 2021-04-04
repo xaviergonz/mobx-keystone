@@ -29,13 +29,13 @@
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-flowtype": "^5.4.0",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^24.3.2",
+    "eslint-plugin-jest": "^24.3.3",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.23.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-testing-library": "^3.10.2",
     "eslint-webpack-plugin": "^2.5.3",
-    "netlify-cli": "^3.13.10",
+    "netlify-cli": "^3.14.0",
     "prettier": "^2.2.1",
     "typescript": "^4.2.3"
   }
