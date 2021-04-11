@@ -410,14 +410,16 @@ export function lazy<V>(valueGen: () => V): () => V {
   }
 }
 
-// just to ensure import * is kept properly
 /**
  * @ignore
  * @internal
  */
 export const mobx6 = {
   // eslint-disable-next-line no-useless-concat
-  makeObservable: (mobx as any)["makeObservable" + ""] as typeof mobx["makeObservable"],
+  makeObservable: (mobx as any)[
+    // just to ensure import * is kept properly
+    String.fromCharCode("l".charCodeAt(0) + 1) + "akeObservable"
+  ] as typeof mobx["makeObservable"],
 }
 
 /**
