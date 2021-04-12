@@ -14,13 +14,16 @@ import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeCheck
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
 
+type _Class<T> = abstract new (...args: any[]) => T
+type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
+
 /**
  * A type that represents a data model data.
  * The type referenced in the model decorator will be used for type checking.
  *
  * Example:
  * ```ts
- * const someDataModelDataType = types.dataModelData<SomeModel>(SomeModel)
+ * const someDataModelDataType = types.dataModelData(SomeModel)
  * // or for recursive models
  * const someDataModelDataType = types.dataModelData<SomeModel>(() => SomeModel)
  * ```
@@ -29,15 +32,16 @@ const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChe
  * @param modelClass Model class.
  * @returns
  */
-export function typesDataModelData<M = never>(
-  modelClass: object
-): M extends AnyDataModel ? IdentityType<ModelData<M>> : never {
+export function typesDataModelData<M = never, K = M>(
+  modelClass: _ClassOrObject<M, K>
+): IdentityType<ModelData<K extends M ? (M extends AnyDataModel ? M : never) : (K extends AnyDataModel ? K : never)>> {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isDataModelClass(modelClass) && typeof modelClass === "function") {
     // resolve later
-    const typeInfoGen: TypeInfoGen = (t) => new DataModelDataTypeInfo(t, modelClass())
-    return lateTypeChecker(() => typesDataModelData(modelClass()) as any, typeInfoGen) as any
+    const modelClassFn = modelClass as () => ModelClass<AnyDataModel>; 
+    const typeInfoGen: TypeInfoGen = (t) => new DataModelDataTypeInfo(t, modelClassFn())
+    return lateTypeChecker(() => typesDataModelData(modelClassFn()) as any, typeInfoGen) as any
   } else {
     const modelClazz: ModelClass<AnyDataModel> = modelClass as any
 

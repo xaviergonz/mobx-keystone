@@ -790,7 +790,7 @@ test("parent/child", () => {
 
   @model("test/ParentModel")
   class ParentModel extends Model({
-    subObj: tProp(types.maybe(types.dataModelData<ChildModel>(ChildModel))).withSetter(),
+    subObj: tProp(types.maybe(types.dataModelData(ChildModel))).withSetter(),
   }) {}
 
   const pm = new ParentModel({})

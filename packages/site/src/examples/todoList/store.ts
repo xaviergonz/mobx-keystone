@@ -52,7 +52,7 @@ export class Todo extends Model({
 export class TodoList extends Model({
   // in this case the default uses an arrow function to create the object since it is not a primitive
   // and we need a different array for each model instane
-  todos: tProp(types.array(types.model<Todo>(Todo)), () => []),
+  todos: tProp(types.array(types.model(Todo)), () => []),
 
   // if we didn't require runtime type checking
   // todos: prop<Todo[]>(() => [])

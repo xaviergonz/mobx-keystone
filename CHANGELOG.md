@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.56.0
+
+- `types.model` and `types.dataModelData` no longer require the type as a generic argument in TypeScript for non-recursive cases.
+
 ## 0.55.1
 
 - Changed build tooling.

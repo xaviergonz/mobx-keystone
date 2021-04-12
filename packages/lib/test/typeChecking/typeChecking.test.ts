@@ -440,7 +440,7 @@ class M extends Model({
 
 test("model", () => {
   const m = new M({ y: "6" })
-  const type = types.model<M>(M)
+  const type = types.model(M)
   assert(_ as TypeToData<typeof type>, _ as M)
 
   expectTypeCheckOk(type, m)
@@ -492,7 +492,7 @@ test("model", () => {
 
 test("model typechecking", () => {
   const m = new M({ y: "6" })
-  const type = types.model<M>(M)
+  const type = types.model(M)
   assert(_ as TypeToData<typeof type>, _ as M)
 
   expectTypeCheckOk(type, m)
@@ -786,7 +786,7 @@ class MR extends Model({
 }
 
 test("recursive model", () => {
-  const type = types.model<MR>(MR)
+  const type = types.model(MR)
 
   const mr = new MR({ rec: new MR({}) })
   assert(_ as TypeToData<typeof type>, _ as MR)
@@ -827,7 +827,7 @@ class MA extends Model({
 @model("MB")
 class MB extends Model({
   y: tProp(types.number, 20),
-  a: tProp(types.maybe(types.model<MA>(MA))),
+  a: tProp(types.maybe(types.model(MA))),
 }) {
   @modelAction
   setA(r: MA | undefined) {
@@ -836,7 +836,7 @@ class MB extends Model({
 }
 
 test("cross referenced model", () => {
-  const type = types.model<MA>(MA)
+  const type = types.model(MA)
 
   const ma = new MA({ b: new MB({ a: new MA({}) }) })
   assert(_ as TypeToData<typeof type>, _ as MA)
@@ -1208,7 +1208,7 @@ test("syntax sugar for primitives in tProp", () => {
   }
 
   const ss = new SS({ nul: null, undef: undefined, or: 5, arr: [1, "2", 3] })
-  const type = types.model<SS>(SS)
+  const type = types.model(SS)
   assert(_ as TypeToData<typeof type>, _ as SS)
 
   assert(ss.n, _ as number)

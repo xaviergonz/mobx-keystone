@@ -45,10 +45,10 @@ export class TcSmallModel extends Model({
 
 @model("TcBigModel")
 export class TcBigModel extends Model({
-  aa: tProp(types.model<TcSmallModel>(TcSmallModel), () => new TcSmallModel({})),
-  bb: tProp(types.model<TcSmallModel>(TcSmallModel), () => new TcSmallModel({})),
-  cc: tProp(types.model<TcSmallModel>(TcSmallModel), () => new TcSmallModel({})),
-  dd: tProp(types.model<TcSmallModel>(TcSmallModel), () => new TcSmallModel({})),
+  aa: tProp(types.model(TcSmallModel), () => new TcSmallModel({})),
+  bb: tProp(types.model(TcSmallModel), () => new TcSmallModel({})),
+  cc: tProp(types.model(TcSmallModel), () => new TcSmallModel({})),
+  dd: tProp(types.model(TcSmallModel), () => new TcSmallModel({})),
   a: tProp(types.string, "a"),
   b: tProp(types.string, "b"),
   c: tProp(types.string, "c"),

@@ -2429,7 +2429,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:^10.2.5":
+"@netlify/build@npm:^10.2.7":
   version: 10.2.7
   resolution: "@netlify/build@npm:10.2.7"
   dependencies:
@@ -2509,7 +2509,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/config@npm:^5.1.0, @netlify/config@npm:^5.6.0, @netlify/config@npm:^5.9.0":
+"@netlify/config@npm:^5.1.0, @netlify/config@npm:^5.6.0":
   version: 5.11.0
   resolution: "@netlify/config@npm:5.11.0"
   dependencies:
@@ -2537,6 +2537,37 @@ __metadata:
   bin:
     netlify-config: src/bin/main.js
   checksum: d64a6205a9510992ebdd9be0fd1cf65f2d11b6627a702401ad817c3b9d9faac23fdd677377c6e8f9bfc1bc959c5f8b17f2bdf2c025f546afc7ace20064b9d494
+  languageName: node
+  linkType: hard
+
+"@netlify/config@npm:^5.11.0":
+  version: 5.12.0
+  resolution: "@netlify/config@npm:5.12.0"
+  dependencies:
+    "@ungap/from-entries": ^0.2.1
+    array-flat-polyfill: ^1.0.1
+    chalk: ^3.0.0
+    deepmerge: ^4.2.2
+    execa: ^3.4.0
+    fast-safe-stringify: ^2.0.7
+    figures: ^3.2.0
+    filter-obj: ^2.0.1
+    find-up: ^4.1.0
+    indent-string: ^4.0.0
+    is-plain-obj: ^2.1.0
+    js-yaml: ^4.0.0
+    netlify: ^6.1.17
+    omit.js: ^2.0.2
+    p-locate: ^4.1.0
+    path-exists: ^4.0.0
+    path-type: ^4.0.0
+    toml: ^3.0.0
+    tomlify-j0.4: ^3.0.0
+    validate-npm-package-name: ^3.0.0
+    yargs: ^15.3.0
+  bin:
+    netlify-config: src/bin/main.js
+  checksum: ece105b2c436022135e38edd398b484e8fa399a4c773aa1162967a4f3007ce47e436dd4141b035f077c2073c2dee6912fde03720976b77bf2dc6b2c19cc027fb
   languageName: node
   linkType: hard
 
@@ -4025,12 +4056,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^4.21.0":
-  version: 4.21.0
-  resolution: "@typescript-eslint/eslint-plugin@npm:4.21.0"
+"@typescript-eslint/eslint-plugin@npm:^4.22.0":
+  version: 4.22.0
+  resolution: "@typescript-eslint/eslint-plugin@npm:4.22.0"
   dependencies:
-    "@typescript-eslint/experimental-utils": 4.21.0
-    "@typescript-eslint/scope-manager": 4.21.0
+    "@typescript-eslint/experimental-utils": 4.22.0
+    "@typescript-eslint/scope-manager": 4.22.0
     debug: ^4.1.1
     functional-red-black-tree: ^1.0.1
     lodash: ^4.17.15
@@ -4043,7 +4074,7 @@ __metadata:
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 6c87bf0cc83e1ad7069d8027ebb249d7d9bc8740e2e5ee9899da0d39571ef230a0358d6aad90ae3daaf14c1084ef34184d250e5fdec08ad0f8c1e5d5ff743936
+  checksum: 40485bbf51283616b5098b33fa5285104a80419c4dcf75659442ae780352289bc238a64591939012ebc47823485497ae6ba8a35e653b0e33ff7f58743b46c34e
   languageName: node
   linkType: hard
 
@@ -4061,7 +4092,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/experimental-utils@npm:4.21.0, @typescript-eslint/experimental-utils@npm:^4.0.1, @typescript-eslint/experimental-utils@npm:^4.21.0":
+"@typescript-eslint/experimental-utils@npm:4.22.0":
+  version: 4.22.0
+  resolution: "@typescript-eslint/experimental-utils@npm:4.22.0"
+  dependencies:
+    "@types/json-schema": ^7.0.3
+    "@typescript-eslint/scope-manager": 4.22.0
+    "@typescript-eslint/types": 4.22.0
+    "@typescript-eslint/typescript-estree": 4.22.0
+    eslint-scope: ^5.0.0
+    eslint-utils: ^2.0.0
+  peerDependencies:
+    eslint: "*"
+  checksum: afabf0d6f9e70b910575d8bc2e8ccd3416e8d05ed968296fc56379f71f8cf3a27107598b98f7c76a91e6b0be796dc102c866381a3af5bf24799a333532d1e997
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/experimental-utils@npm:^4.0.1, @typescript-eslint/experimental-utils@npm:^4.21.0":
   version: 4.21.0
   resolution: "@typescript-eslint/experimental-utils@npm:4.21.0"
   dependencies:
@@ -4094,20 +4141,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^4.21.0":
-  version: 4.21.0
-  resolution: "@typescript-eslint/parser@npm:4.21.0"
+"@typescript-eslint/parser@npm:^4.22.0":
+  version: 4.22.0
+  resolution: "@typescript-eslint/parser@npm:4.22.0"
   dependencies:
-    "@typescript-eslint/scope-manager": 4.21.0
-    "@typescript-eslint/types": 4.21.0
-    "@typescript-eslint/typescript-estree": 4.21.0
+    "@typescript-eslint/scope-manager": 4.22.0
+    "@typescript-eslint/types": 4.22.0
+    "@typescript-eslint/typescript-estree": 4.22.0
     debug: ^4.1.1
   peerDependencies:
     eslint: ^5.0.0 || ^6.0.0 || ^7.0.0
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 1e484d877b2491d64f4dcf18b8458673084b4e916660d5990028a7553ca20b1f45921f360f417556e051c63c28736210e00f579219174ddd46b74efd678305f8
+  checksum: 679e14a5cec5bae3b392b1736f5d919897fd1a269a9d25366babfd12c1d275b320ae36a0b8be215ba14780cb1feec2b386001b4e0225ef82bd0040bf5dbaf99f
   languageName: node
   linkType: hard
 
@@ -4121,10 +4168,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript-eslint/scope-manager@npm:4.22.0":
+  version: 4.22.0
+  resolution: "@typescript-eslint/scope-manager@npm:4.22.0"
+  dependencies:
+    "@typescript-eslint/types": 4.22.0
+    "@typescript-eslint/visitor-keys": 4.22.0
+  checksum: c6f5565f517373cba61d29be919c69ad0e178f2a007eed6f1d8f80518853c3c4e6a3a059e492920b71675f0828e093eb36ec9eef318b9e2b4e9e65b0e93f03b6
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/types@npm:4.21.0":
   version: 4.21.0
   resolution: "@typescript-eslint/types@npm:4.21.0"
   checksum: 180dd081f40185d07247b8c6b114929d72796f7d78b2779e6f043b26dad895a9ae4e95d31b261d7f7117cda31b1e423cae0c1e6d2ffda66b1bce0a9bd460d6e7
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/types@npm:4.22.0":
+  version: 4.22.0
+  resolution: "@typescript-eslint/types@npm:4.22.0"
+  checksum: db2717132540feba39b002cdb2483aa822e0b50c17f9deff918a52609178df071444188a1e76c07c51018c353b01509dd741272b6d482edf7d9e7d60adc6c70e
   languageName: node
   linkType: hard
 
@@ -4164,6 +4228,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript-eslint/typescript-estree@npm:4.22.0":
+  version: 4.22.0
+  resolution: "@typescript-eslint/typescript-estree@npm:4.22.0"
+  dependencies:
+    "@typescript-eslint/types": 4.22.0
+    "@typescript-eslint/visitor-keys": 4.22.0
+    debug: ^4.1.1
+    globby: ^11.0.1
+    is-glob: ^4.0.1
+    semver: ^7.3.2
+    tsutils: ^3.17.1
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 538d932361d1463c9450c155fc5696f4cc1a07db2bfd4ca9079e1f919e5062fd95d8dc128fc2fa8368c9582787cfc97ee6284083b94fe8d580cd1a9fca688efa
+  languageName: node
+  linkType: hard
+
 "@typescript-eslint/visitor-keys@npm:4.21.0":
   version: 4.21.0
   resolution: "@typescript-eslint/visitor-keys@npm:4.21.0"
@@ -4171,6 +4253,16 @@ __metadata:
     "@typescript-eslint/types": 4.21.0
     eslint-visitor-keys: ^2.0.0
   checksum: d2cbe41fa33189a5acb37c27d33bb22bd883e4f471f651778c74b241a39e19581208bae5931efac34a336b570a10ba9386f3dbe1da74417f6314edaaa1076b88
+  languageName: node
+  linkType: hard
+
+"@typescript-eslint/visitor-keys@npm:4.22.0":
+  version: 4.22.0
+  resolution: "@typescript-eslint/visitor-keys@npm:4.22.0"
+  dependencies:
+    "@typescript-eslint/types": 4.22.0
+    eslint-visitor-keys: ^2.0.0
+  checksum: 645896d05aa757fac02d952574ecda0eecd0be120162e28533c4528bb70d2162e9df62c3547217c69f18a72ceecaf212ea585afd20f976db64b59ac6de0d1ec8
   languageName: node
   linkType: hard
 
@@ -17643,8 +17735,8 @@ fsevents@^1.2.7:
     "@types/jest": ^26.0.22
     "@types/node": ^14.14.37
     "@types/uuid": ^8.3.0
-    "@typescript-eslint/eslint-plugin": ^4.21.0
-    "@typescript-eslint/parser": ^4.21.0
+    "@typescript-eslint/eslint-plugin": ^4.22.0
+    "@typescript-eslint/parser": ^4.22.0
     babel-eslint: 10.1.0
     eslint: ^7.24.0
     eslint-config-prettier: ^8.1.0
@@ -17661,7 +17753,7 @@ fsevents@^1.2.7:
     jest: ^26.6.3
     microbundle: ^0.13.0
     mobx: ^6.2.0
-    netlify-cli: ^3.17.0
+    netlify-cli: ^3.17.1
     shx: ^0.3.3
     spec.ts: ^1.1.3
     ts-jest: ^26.5.4
@@ -17965,12 +18057,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^3.17.0":
-  version: 3.17.0
-  resolution: "netlify-cli@npm:3.17.0"
+"netlify-cli@npm:^3.17.1":
+  version: 3.17.1
+  resolution: "netlify-cli@npm:3.17.1"
   dependencies:
-    "@netlify/build": ^10.2.5
-    "@netlify/config": ^5.9.0
+    "@netlify/build": ^10.2.7
+    "@netlify/config": ^5.11.0
     "@netlify/framework-info": ^3.3.0
     "@netlify/plugin-edge-handlers": ^1.11.6
     "@netlify/plugins-list": ^2.6.0
@@ -18069,7 +18161,7 @@ fsevents@^1.2.7:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: 1749fa55740a1ce3b812629aef273d69189e0182884e1e1d7c884150a31512e3c4858c5e1720ef7a99a972bed3a08aad3507a24d6a1c80997695904d32650c9f
+  checksum: c7cf026450dd8dd7af7e49f5b71b0a8674ce928906fae66b2959b25ab9e5aab6660b5ed1c219fe2e851be9b208d45292ba5f6c67a8f276dcfc6a227ff6de5851
   languageName: node
   linkType: hard
 
@@ -18116,6 +18208,35 @@ fsevents@^1.2.7:
     through2-filter: ^3.0.0
     through2-map: ^3.0.0
   checksum: 802cd6af52d8e7a7999b06b904311f2e50adc7a90b364bcebf015579d16d5cfd00b1a70499dd4ff1f1426c01304f7251f3b5e7aff6cdc0e06ed5ede18d318524
+  languageName: node
+  linkType: hard
+
+"netlify@npm:^6.1.17":
+  version: 6.1.17
+  resolution: "netlify@npm:6.1.17"
+  dependencies:
+    "@netlify/open-api": ^1.3.0
+    "@netlify/zip-it-and-ship-it": ^3.2.0
+    backoff: ^2.5.0
+    clean-deep: ^3.4.0
+    flush-write-stream: ^2.0.0
+    folder-walker: ^3.2.0
+    from2-array: 0.0.4
+    hasha: ^5.2.2
+    lodash.camelcase: ^4.3.0
+    micro-api-client: ^3.3.0
+    node-fetch: ^2.6.1
+    omit.js: ^2.0.2
+    p-map: ^3.0.0
+    p-wait-for: ^3.2.0
+    parallel-transform: ^1.2.0
+    pump: ^3.0.0
+    qs: ^6.9.6
+    rimraf: ^3.0.2
+    tempy: ^0.3.0
+    through2-filter: ^3.0.0
+    through2-map: ^3.0.0
+  checksum: ecb0929c4c440460c568a12b7337b8e10b3e916c1b87b694492c217499148c4768e02af9e344a1d8bb6456f7e95a9b8496cc798eaac9c9ac2ce042f46cd2da10
   languageName: node
   linkType: hard
 
@@ -22209,7 +22330,7 @@ resolve@1.17.0:
   resolution: "root@workspace:."
   dependencies:
     codecov: ^3.8.1
-    netlify-cli: ^3.17.0
+    netlify-cli: ^3.17.1
     prettier: ^2.2.1
     typescript: ^4.2.4
   languageName: unknown

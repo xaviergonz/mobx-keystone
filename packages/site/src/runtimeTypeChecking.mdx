@@ -55,7 +55,7 @@ It is also possible to trigger type checking manually:
 const myTodo = new Todo({ text: "hi" })
 const checkError = myTodo.typeCheck()
 // or
-const todoType = types.model<Todo>(Todo)
+const todoType = types.model(Todo)
 const checkError = typeCheck(todoType, myTodo)
 
 // also possible with non-models
@@ -194,7 +194,7 @@ A type that represents a model. The type referenced in the model decorator will 
 If you use recursive / cross referencing models and get Typescript errors then consider using the lambda parameter instead.
 
 ```ts
-const someModelType = types.model<SomeModel>(SomeModel)
+const someModelType = types.model(SomeModel)
 // or for recursive models
 const someModelType = types.model<SomeModel>(() => SomeModel)
 ```
@@ -205,7 +205,7 @@ A type that represents the data of a data model. The type referenced in the mode
 If you use recursive / cross referencing models and get Typescript errors then consider using the lambda parameter instead.
 
 ```ts
-const someModelDataType = types.dataModelData<SomeModel>(SomeModel)
+const someModelDataType = types.dataModelData(SomeModel)
 // or for recursive models
 const someModelDataType = types.dataModelData<SomeModel>(() => SomeModel)
 ```
@@ -272,7 +272,7 @@ const integerType = types.refinement(
   "integer"
 )
 
-const sumModelType = types.refinement(types.model<Sum>(Sum), (sum) => {
+const sumModelType = types.refinement(types.model(Sum), (sum) => {
   // imagine that for some reason sum includes a number 'a', a number 'b'
   // and the result
 

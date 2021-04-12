@@ -15,12 +15,15 @@ import { TypeCheckError } from "./TypeCheckError"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
 
+type _Class<T> = abstract new (...args: any[]) => T
+type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
+
 /**
  * A type that represents a model. The type referenced in the model decorator will be used for type checking.
  *
  * Example:
  * ```ts
- * const someModelType = types.model<SomeModel>(SomeModel)
+ * const someModelType = types.model(SomeModel)
  * // or for recursive models
  * const someModelType = types.model<SomeModel>(() => SomeModel)
  * ```
@@ -29,13 +32,16 @@ const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
  * @param modelClass Model class.
  * @returns
  */
-export function typesModel<M = never>(modelClass: object): IdentityType<M> {
+export function typesModel<M = never, K = M>(
+  modelClass: _ClassOrObject<M, K>
+): IdentityType<K extends M ? M : K> {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isModelClass(modelClass) && typeof modelClass === "function") {
     // resolve later
-    const typeInfoGen: TypeInfoGen = (t) => new ModelTypeInfo(t, modelClass())
-    return lateTypeChecker(() => typesModel(modelClass()) as any, typeInfoGen) as any
+    const modelClassFn = modelClass as () => ModelClass<AnyModel>; 
+    const typeInfoGen: TypeInfoGen = (t) => new ModelTypeInfo(t, modelClassFn())
+    return lateTypeChecker(() => typesModel(modelClassFn()) as any, typeInfoGen) as any
   } else {
     const modelClazz: ModelClass<AnyModel> = modelClass as any
 

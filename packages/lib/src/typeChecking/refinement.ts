@@ -14,7 +14,7 @@ import { TypeCheckError } from "./TypeCheckError"
  *   return Number.isInteger(n)
  * }, "integer")
  *
- * const sumModelType = types.refinement(types.model<Sum>(Sum), (sum) => {
+ * const sumModelType = types.refinement(types.model(Sum), (sum) => {
  *   // imagine that for some reason sum includes a number 'a', a number 'b'
  *   // and the result
  *
