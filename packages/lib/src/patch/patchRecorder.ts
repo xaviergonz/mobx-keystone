@@ -46,7 +46,7 @@ export interface PatchRecorder {
  */
 export interface PatchRecorderOptions {
   /**
-   * If the patch recorder is initilly recording when created.
+   * If the patch recorder is initially recording when created.
    */
   recording?: boolean
 
