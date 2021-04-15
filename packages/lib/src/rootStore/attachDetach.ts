@@ -21,9 +21,9 @@ export const attachToRootStore = action(
     walkTree(
       child,
       (ch) => {
-        if (ch instanceof _BaseModel && ch.onAttachedToRootStore) {
+        if (ch instanceof _BaseModel && (ch as any).onAttachedToRootStore) {
           wrapModelMethodInActionIfNeeded(
-            ch as AnyModel,
+            ch as any,
             "onAttachedToRootStore",
             HookAction.OnAttachedToRootStore
           )
@@ -37,7 +37,7 @@ export const attachToRootStore = action(
     for (let i = 0; i < childrenToCallLen; i++) {
       const ch = childrenToCall[i]
 
-      const disposer = ch.onAttachedToRootStore!(rootStore)
+      const disposer = (ch as any).onAttachedToRootStore!(rootStore)
       if (disposer) {
         onAttachedDisposers.set(ch, disposer)
       }

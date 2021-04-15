@@ -1,4 +1,4 @@
-import { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
+import type { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
 import { sharedInternalModel } from "../modelShared/Model"
 import {
   idProp,
@@ -7,7 +7,7 @@ import {
   ModelPropsToData,
   ModelPropsToSetter,
 } from "../modelShared/prop"
-import type { AnyModel, BaseModel } from "./BaseModel"
+import type { AnyModel, BaseModel, BaseModelKeys } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
 import { assertIsModelClass } from "./utils"
 
@@ -37,7 +37,7 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
       this[typeof creationDataSymbol],
       ExtractModelIdProp<TProps> & string
     > &
-    Omit<this[typeof dataSymbol], keyof AnyModel> &
+    Omit<this[typeof dataSymbol], BaseModelKeys> &
     ModelPropsToSetter<TProps>
 }
 

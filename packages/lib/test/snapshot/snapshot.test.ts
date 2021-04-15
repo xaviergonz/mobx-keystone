@@ -541,7 +541,7 @@ test("snapshot with reserved property names", () => {
 
   const p = new M({})
   const sn = getSnapshot(p)
-  expect(p.onInit).toBeUndefined()
+  expect((p as any).onInit).toBeUndefined()
 
   expect(sn).toMatchInlineSnapshot(`
     Object {
@@ -552,7 +552,7 @@ test("snapshot with reserved property names", () => {
   `)
 
   const p2 = fromSnapshot<M>(sn)
-  expect(p2.onInit).toBeUndefined()
+  expect((p2 as any).onInit).toBeUndefined()
   expect(p2.$.onInit).toBe(p.$.onInit)
 
   applySnapshot(p2, {
@@ -560,5 +560,5 @@ test("snapshot with reserved property names", () => {
     onInit: 10,
   })
   expect(p2.$.onInit).toBe(10)
-  expect(p2.onInit).toBeUndefined()
+  expect((p2 as any).onInit).toBeUndefined()
 })

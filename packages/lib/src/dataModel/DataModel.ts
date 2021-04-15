@@ -1,7 +1,7 @@
-import { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
+import type { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
 import { sharedInternalModel } from "../modelShared/Model"
-import { ModelProps, ModelPropsToData, ModelPropsToSetter } from "../modelShared/prop"
-import { AnyDataModel, BaseDataModel } from "./BaseDataModel"
+import type { ModelProps, ModelPropsToData, ModelPropsToSetter } from "../modelShared/prop"
+import type { AnyDataModel, BaseDataModel, BaseDataModelKeys } from "./BaseDataModel"
 import { assertIsDataModelClass } from "./utils"
 
 declare const dataSymbol: unique symbol
@@ -17,7 +17,7 @@ export interface _DataModel<SuperModel, TProps extends ModelProps> {
 
   new (data: this[typeof composedDataSymbol]): SuperModel &
     BaseDataModel<this[typeof dataSymbol]> &
-    Omit<this[typeof dataSymbol], keyof AnyDataModel> &
+    Omit<this[typeof dataSymbol], BaseDataModelKeys> &
     ModelPropsToSetter<TProps>
 }
 

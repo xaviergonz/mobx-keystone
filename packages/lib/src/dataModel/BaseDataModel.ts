@@ -26,7 +26,7 @@ export abstract class BaseDataModel<Data extends { [k: string]: any }> {
   /**
    * Called after the instance is created when there's the first call to `fn(M, data)`.
    */
-  onLazyInit?(): void
+  protected onLazyInit?(): void
 
   /**
    * Data part of the model, which is observable and will be serialized in snapshots.
@@ -101,11 +101,16 @@ export abstract class BaseDataModel<Data extends { [k: string]: any }> {
 
 setBaseDataModel(BaseDataModel)
 
+/**
+ * @internal
+ */
+export type BaseDataModelKeys = keyof AnyDataModel | "onLazyInit"
+
 // these props will never be hoisted to this
 /**
  * @internal
  */
-export const baseDataModelPropNames = new Set<keyof AnyDataModel>(["onLazyInit", "$", "typeCheck"])
+export const baseDataModelPropNames = new Set<BaseDataModelKeys>(["onLazyInit", "$", "typeCheck"])
 
 /**
  * Any kind of data model instance.

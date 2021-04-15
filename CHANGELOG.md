@@ -1,5 +1,7 @@
 # Change Log
 
+- Made `onInit`, `onAttachedToRootStore` and `onLazyInit` protected.
+
 ## 0.56.0
 
 - `types.model` and `types.dataModelData` no longer require the type as a generic argument in TypeScript for non-recursive cases.

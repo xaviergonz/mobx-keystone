@@ -71,7 +71,7 @@ export abstract class BaseModel<
   /**
    * Called after the model has been created.
    */
-  onInit?(): void
+  protected onInit?(): void
 
   /**
    * Data part of the model, which is observable and will be serialized in snapshots.
@@ -91,7 +91,7 @@ export abstract class BaseModel<
    * @param rootStore
    * @returns
    */
-  onAttachedToRootStore?(rootStore: object): (() => void) | void
+  protected onAttachedToRootStore?(rootStore: object): (() => void) | void
 
   /**
    * Optional transformation that will be run when converting from a snapshot to the data part of the model.
@@ -167,11 +167,16 @@ export abstract class BaseModel<
 
 setBaseModel(BaseModel)
 
+/**
+ * @internal
+ */
+export type BaseModelKeys = keyof AnyModel | "onInit" | "onAttachedToRootStore"
+
 // these props will never be hoisted to this (except for model id)
 /**
  * @internal
  */
-export const baseModelPropNames = new Set<keyof AnyModel>([
+export const baseModelPropNames = new Set<BaseModelKeys>([
   modelTypeKey,
   modelIdKey,
   "onInit",
