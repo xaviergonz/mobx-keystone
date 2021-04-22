@@ -16,6 +16,7 @@ import {
   Patch,
   prop,
   Ref,
+  registerRootStore,
   rootRef,
   runUnprotected,
   undoMiddleware,
@@ -674,6 +675,7 @@ test("backrefs can be updated in the middle of an action", () => {
   const c = new Countries({
     countries: initialCountries(),
   })
+  registerRootStore(c)
   const cSpain = c.countries["spain"]
 
   const ref = countryRef2(cSpain)
@@ -683,16 +685,18 @@ test("backrefs can be updated in the middle of an action", () => {
   })
 
   runInAction(() => {
-    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(true)
+    expect(
+      getRefsResolvingTo(cSpain, undefined, { updateAllReferencesIfNeeded: true }).has(ref)
+    ).toBe(true)
     c.removeCountry("spain")
 
-    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(true)
-    ref.forceUpdateBackRefs()
-    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(false)
+    expect(
+      getRefsResolvingTo(cSpain, undefined, { updateAllReferencesIfNeeded: true }).has(ref)
+    ).toBe(false)
 
     c.addCountry(cSpain)
-    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(false)
-    ref.forceUpdateBackRefs()
-    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(true)
+    expect(
+      getRefsResolvingTo(cSpain, undefined, { updateAllReferencesIfNeeded: true }).has(ref)
+    ).toBe(true)
   })
 })

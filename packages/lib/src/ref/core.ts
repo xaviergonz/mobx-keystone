@@ -182,18 +182,22 @@ function getBackRefs(target: object, refType?: RefConstructor<object>): Observab
  *
  * @typeparam T Referenced object type.
  * @param target Node the references point to.
- * @param [refType] Pass it to filter by only references of a given type, or do not to get references of any type.
+ * @param refType Pass it to filter by only references of a given type, or do not to get references of any type.
+ * @param options Options.
  * @returns An observable set with all reference objects that point to the given object.
  */
 export function getRefsResolvingTo<T extends object>(
   target: T,
-  refType?: RefConstructor<T>
+  refType?: RefConstructor<T>,
+  options?: {
+    updateAllReferencesIfNeeded?: boolean
+  }
 ): ObservableSet<Ref<T>> {
   assertTweakedObject(target, "target")
 
   const refTypeObject = refType as RefConstructor<object> | undefined
 
-  if (isReactionDelayed()) {
+  if (options?.updateAllReferencesIfNeeded && isReactionDelayed()) {
     // in this case the reference update might have been delayed
     // so we will make a best effort to update them
     allRefs.forEach((ref) => ref.forceUpdateBackRefs())
