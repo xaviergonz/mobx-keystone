@@ -1,4 +1,4 @@
-import { computed, reaction, remove, set } from "mobx"
+import { computed, reaction, remove, runInAction, set } from "mobx"
 import {
   applyPatches,
   applySnapshot,
@@ -668,4 +668,31 @@ test("undo manager can undo removal of a referenced object in a single step", ()
   expect(manager.redoQueue).toMatchInlineSnapshot(`Array []`)
 
   expect(c.selectedCountryRef?.maybeCurrent).toBe(undefined)
+})
+
+test("backrefs can be updated in the middle of an action", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const cSpain = c.countries["spain"]
+
+  const ref = countryRef2(cSpain)
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  runInAction(() => {
+    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(true)
+    c.removeCountry("spain")
+
+    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(true)
+    ref.forceUpdateBackRefs()
+    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(false)
+
+    c.addCountry(cSpain)
+    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(false)
+    ref.forceUpdateBackRefs()
+    expect(getRefsResolvingTo(cSpain).has(ref)).toBe(true)
+  })
 })

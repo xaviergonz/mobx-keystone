@@ -1,4 +1,4 @@
-import { observable, ObservableSet, reaction } from "mobx"
+import { action, observable, ObservableSet, reaction, when } from "mobx"
 import { isModel } from "../model/utils"
 import { model } from "../modelShared/modelDecorator"
 import { assertTweakedObject } from "../tweaker/core"
@@ -14,6 +14,12 @@ interface BackRefs<T extends object> {
  * Back-references from object to the references that point to it.
  */
 const objectBackRefs = new WeakMap<object, BackRefs<object>>()
+
+/**
+ * List of all refs currently attached to a root store.
+ * Just to be able to properly update back-refs when in the middle of an action.
+ */
+const allRefs = new Set<Ref<any>>()
 
 /**
  * Reference resolver type.
@@ -56,6 +62,28 @@ export function internalCustomRef<T extends object>(
       return this.resolver(this)
     }
 
+    onAttachedToRootStore() {
+      allRefs.add(this)
+
+      return () => {
+        allRefs.delete(this)
+      }
+    }
+
+    #savedOldTarget: T | undefined
+
+    #internalForceUpdateBackRefs = action("forceUpdateBackRefs", (newTarget: T | undefined) => {
+      const oldTarget = this.#savedOldTarget
+      // update early in case of thrown exceptions
+      this.#savedOldTarget = newTarget
+
+      updateBackRefs(this, fn as any, newTarget, oldTarget)
+    })
+
+    forceUpdateBackRefs() {
+      this.#internalForceUpdateBackRefs(this.maybeCurrent)
+    }
+
     onInit() {
       // listen to changes
 
@@ -66,13 +94,13 @@ export function internalCustomRef<T extends object>(
       reaction(
         () => this.maybeCurrent,
         (newTarget) => {
+          this.#internalForceUpdateBackRefs(newTarget)
+
           const oldTarget = savedOldTarget
           const firstTime = savedFirstTime
           // update early in case of thrown exceptions
           savedOldTarget = newTarget
           savedFirstTime = false
-
-          updateBackRefs(this, fn as any, newTarget, oldTarget)
 
           if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
             onResolvedValueChange(this, newTarget, oldTarget)
@@ -164,25 +192,47 @@ export function getRefsResolvingTo<T extends object>(
   assertTweakedObject(target, "target")
 
   const refTypeObject = refType as RefConstructor<object> | undefined
+
+  if (isReactionDelayed()) {
+    // in this case the reference update might have been delayed
+    // so we will make a best effort to update them
+    allRefs.forEach((ref) => ref.forceUpdateBackRefs())
+  }
+
   return getBackRefs(target, refTypeObject) as ObservableSet<Ref<T>>
 }
 
-function updateBackRefs<T extends object>(
-  ref: Ref<T>,
-  refClass: RefConstructor<T>,
-  newTarget: T | undefined,
-  oldTarget: T | undefined
-) {
-  if (newTarget === oldTarget) {
-    return
-  }
+const updateBackRefs = action(
+  "updateBackRefs",
+  <T extends object>(
+    ref: Ref<T>,
+    refClass: RefConstructor<T>,
+    newTarget: T | undefined,
+    oldTarget: T | undefined
+  ) => {
+    if (newTarget === oldTarget) {
+      return
+    }
 
-  if (oldTarget) {
-    getBackRefs(oldTarget).delete(ref)
-    getBackRefs(oldTarget, refClass as RefConstructor<any>).delete(ref)
+    if (oldTarget) {
+      getBackRefs(oldTarget).delete(ref)
+      getBackRefs(oldTarget, refClass as RefConstructor<any>).delete(ref)
+    }
+    if (newTarget) {
+      getBackRefs(newTarget).add(ref)
+      getBackRefs(newTarget, refClass as RefConstructor<any>).add(ref)
+    }
   }
-  if (newTarget) {
-    getBackRefs(newTarget).add(ref)
-    getBackRefs(newTarget, refClass as RefConstructor<any>).add(ref)
-  }
+)
+
+function isReactionDelayed() {
+  let reactionDelayed = true
+  const dispose = when(
+    () => true,
+    () => {
+      reactionDelayed = false
+    }
+  )
+  dispose()
+  return reactionDelayed
 }
