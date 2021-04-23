@@ -4,6 +4,10 @@
 
 - Made `getRefsResolvingTo` able to get updated results when called inside an action (as long as the reference being back-traced is part of a root store).
 
+## 0.56.2
+
+- Fixed an issue with typings not working properly for model properties (probably introduced in v0.55.0).
+
 ## 0.56.1
 
 - Fixed webpack import section in `package.json`.

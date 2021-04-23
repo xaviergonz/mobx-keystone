@@ -168,7 +168,7 @@ export abstract class BaseModel<
 setBaseModel(BaseModel)
 
 /**
- * @internal
+ * @ignore
  */
 export type BaseModelKeys = keyof AnyModel | "onInit" | "onAttachedToRootStore"
 
