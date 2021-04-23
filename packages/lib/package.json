@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.56.0",
+  "version": "0.56.1",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -22,23 +22,25 @@
   "license": "MIT",
   "author": "Javier González Garcés",
   "source": "./src/index.ts",
-  "main": "./dist/index.js",
   "exports": {
     ".": {
+      "import": {
+        "webpack": "./dist/index.import.js",
+        "default": "./dist/index.import.mjs"
+      },
       "require": "./dist/index.js",
-      "umd": "./dist/index.umd.js",
-      "browser": "./dist/index.mjs",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.mjs"
+      "script": "./dist/index.umd.js",
+      "default": "./dist/index.import.mjs"
     }
   },
-  "esmodule": "./dist/index.mjs",
-  "module": "./dist/index.esm.js",
-  "jsnext:main": "./dist/index.esm.js",
-  "react-native": "./dist/index.esm.js",
+  "esmodule": "./dist/index.import.mjs",
+  "module": "./dist/index.import.js",
+  "jsnext:main": "./dist/index.import.js",
+  "react-native": "./dist/index.import.js",
   "umd:main": "./dist/index.umd.js",
   "unpkg": "./dist/index.umd.js",
   "jsdelivr": "./dist/index.umd.js",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
   "files": [
@@ -52,7 +54,7 @@
     "start": "microbundle watch",
     "quick-build": "tsc -p . --noEmit",
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
-    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && microbundle build --name mobxKeystone --globals fast-deep-equal/es6=fast-deep-equal/es6",
+    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && microbundle build -f es,cjs,umd --name mobxKeystone --globals fast-deep-equal/es6=fast-deep-equal/es6 && shx cp dist/index.import.js dist/index.import.mjs",
     "test": "jest",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",

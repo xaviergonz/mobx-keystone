@@ -1,6 +1,12 @@
 # Change Log
 
+## 0.57.0
+
 - Made `getRefsResolvingTo` able to get updated results when called inside an action (as long as the reference being back-traced is part of a root store).
+
+## 0.56.1
+
+- Fixed webpack import section in `package.json`.
 - Made `onInit`, `onAttachedToRootStore` and `onLazyInit` protected.
 
 ## 0.56.0
