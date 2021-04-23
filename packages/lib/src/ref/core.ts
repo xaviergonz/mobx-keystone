@@ -19,7 +19,7 @@ const objectBackRefs = new WeakMap<object, BackRefs<object>>()
  * List of all refs currently attached to a root store.
  * Just to be able to properly update back-refs when in the middle of an action.
  */
-const allRefs = new Set<Ref<any>>()
+const allRefs = { all: new Set<Ref<any>>(), byType: new Map<RefConstructor<any>, Set<Ref<any>>>() }
 
 /**
  * Reference resolver type.
@@ -62,11 +62,24 @@ export function internalCustomRef<T extends object>(
       return this.resolver(this)
     }
 
-    onAttachedToRootStore() {
-      allRefs.add(this)
+    protected onAttachedToRootStore() {
+      allRefs.all.add(this)
+      let byThisType = allRefs.byType.get(thisRefConstructor)
+      if (!byThisType) {
+        byThisType = new Set()
+        allRefs.byType.set(thisRefConstructor, byThisType)
+      }
+      byThisType.add(this)
 
       return () => {
-        allRefs.delete(this)
+        allRefs.all.delete(this)
+        const byThisType = allRefs.byType.get(thisRefConstructor)
+        if (byThisType) {
+          byThisType.delete(this)
+          if (byThisType!.size <= 0) {
+            allRefs.byType.delete(thisRefConstructor)
+          }
+        }
       }
     }
 
@@ -77,7 +90,7 @@ export function internalCustomRef<T extends object>(
       // update early in case of thrown exceptions
       this.#savedOldTarget = newTarget
 
-      updateBackRefs(this, fn as any, newTarget, oldTarget)
+      updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
     })
 
     forceUpdateBackRefs() {
@@ -132,7 +145,9 @@ export function internalCustomRef<T extends object>(
   }
   fn.refClass = CustomRef
 
-  return (fn as any) as RefConstructor<T>
+  const thisRefConstructor = (fn as any) as RefConstructor<T>
+
+  return thisRefConstructor
 }
 
 /**
@@ -190,17 +205,18 @@ export function getRefsResolvingTo<T extends object>(
   target: T,
   refType?: RefConstructor<T>,
   options?: {
-    updateAllReferencesIfNeeded?: boolean
+    updateAllRefsIfNeeded?: boolean
   }
 ): ObservableSet<Ref<T>> {
   assertTweakedObject(target, "target")
 
   const refTypeObject = refType as RefConstructor<object> | undefined
 
-  if (options?.updateAllReferencesIfNeeded && isReactionDelayed()) {
+  if (options?.updateAllRefsIfNeeded && isReactionDelayed()) {
     // in this case the reference update might have been delayed
     // so we will make a best effort to update them
-    allRefs.forEach((ref) => ref.forceUpdateBackRefs())
+    const refsToUpdate = refType ? allRefs.byType.get(refType) : allRefs.all
+    refsToUpdate?.forEach((ref) => ref.forceUpdateBackRefs())
   }
 
   return getBackRefs(target, refTypeObject) as ObservableSet<Ref<T>>

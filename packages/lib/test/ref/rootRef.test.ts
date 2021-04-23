@@ -685,18 +685,20 @@ test("backrefs can be updated in the middle of an action", () => {
   })
 
   runInAction(() => {
-    expect(
-      getRefsResolvingTo(cSpain, undefined, { updateAllReferencesIfNeeded: true }).has(ref)
-    ).toBe(true)
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      true
+    )
     c.removeCountry("spain")
 
-    expect(
-      getRefsResolvingTo(cSpain, undefined, { updateAllReferencesIfNeeded: true }).has(ref)
-    ).toBe(false)
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
 
     c.addCountry(cSpain)
     expect(
-      getRefsResolvingTo(cSpain, undefined, { updateAllReferencesIfNeeded: true }).has(ref)
+      getRefsResolvingTo(cSpain, countryRef2, {
+        updateAllRefsIfNeeded: true,
+      }).has(ref)
     ).toBe(true)
   })
 })
