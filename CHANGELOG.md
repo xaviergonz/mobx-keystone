@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.56.2
+
+- Fixed an issue with typings not working properly for model properties (probably introduced in v0.55.0).
+
+## 0.56.1
+
 - Fixed webpack import section in `package.json`.
 - Made `onInit`, `onAttachedToRootStore` and `onLazyInit` protected.
 
