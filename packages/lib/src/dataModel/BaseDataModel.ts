@@ -102,7 +102,7 @@ export abstract class BaseDataModel<Data extends { [k: string]: any }> {
 setBaseDataModel(BaseDataModel)
 
 /**
- * @internal
+ * @ignore
  */
 export type BaseDataModelKeys = keyof AnyDataModel | "onLazyInit"
 
