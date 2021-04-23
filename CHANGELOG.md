@@ -1,5 +1,6 @@
 # Change Log
 
+- Fixed webpack import section in `package.json`.
 - Made `onInit`, `onAttachedToRootStore` and `onLazyInit` protected.
 
 ## 0.56.0
