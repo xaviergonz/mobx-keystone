@@ -7,7 +7,7 @@ import {
   fromSnapshot,
   getParent,
   getRefsResolvingTo,
-  getRootStore,
+  getRoot,
   getSnapshot,
   isRefOfType,
   model,
@@ -17,7 +17,6 @@ import {
   Patch,
   prop,
   Ref,
-  registerRootStore,
   rootRef,
   runUnprotected,
   undoMiddleware,
@@ -681,14 +680,13 @@ test("backrefs can be updated in the middle of an action if the target and ref a
   const c = new Countries({
     countries: initialCountries(),
   })
-  registerRootStore(c)
   const cSpain = c.countries["spain"]
 
   c.setSelectedCountryRef(countryRef2(cSpain))
   const ref = c.selectedCountryRef!
 
-  expect(getRootStore(cSpain)).toBe(c)
-  expect(getRootStore(ref)).toBe(c)
+  expect(getRoot(cSpain)).toBe(c)
+  expect(getRoot(ref)).toBe(c)
 
   c.removeCountry("spain")
 

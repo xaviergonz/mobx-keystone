@@ -61,6 +61,14 @@ const internalModel = (name: string) => <MC extends ModelClass<AnyModel | AnyDat
   const newClazz: any = function (this: any, initialData: any, modelConstructorOptions: any) {
     const instance = new (clazz as any)(initialData, modelConstructorOptions)
 
+    // set or else it points to the undecorated class
+    Object.defineProperty(instance, "constructor", {
+      configurable: true,
+      writable: true,
+      enumerable: false,
+      value: newClazz,
+    })
+
     runLateInitializationFunctions(instance, runAfterNewSymbol)
 
     // compatibility with mobx 6

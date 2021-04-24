@@ -2,7 +2,7 @@
 
 ## 0.57.0
 
-- Made `getRefsResolvingTo` able to get updated results when called inside an action (as long as the reference being back-traced and the target are part of the same root store).
+- Made `getRefsResolvingTo` able to get updated results when called inside an action (as long as the reference being back-traced and the target are children of the same root).
 
 ## 0.56.2
 
