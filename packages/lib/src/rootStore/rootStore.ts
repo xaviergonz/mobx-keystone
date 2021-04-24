@@ -2,6 +2,7 @@ import { action, createAtom, IAtom } from "mobx"
 import { fastGetRoot, isRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
 const rootStores = new WeakSet<object>()
@@ -101,10 +102,5 @@ export function fastGetRootStore<T extends object>(node: object): T | undefined 
 }
 
 function getOrCreateRootStoreAtom(node: object): IAtom {
-  let atom = rootStoreAtoms.get(node)
-  if (!atom) {
-    atom = createAtom("rootStore")
-    rootStoreAtoms.set(node, atom)
-  }
-  return atom
+  return getOrCreate(rootStoreAtoms, node, () => createAtom("rootStore"))
 }

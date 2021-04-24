@@ -2,6 +2,7 @@ import type { ModelClass } from "../modelShared/BaseModelShared"
 import { modelMetadataSymbol } from "../modelShared/modelSymbols"
 import type { AnyType } from "../typeChecking/schemas"
 import { failure } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import type { AnyModel } from "./BaseModel"
 import { isModel, isModelClass } from "./utils"
 
@@ -50,10 +51,9 @@ const modelIdPropertyNameCache = new WeakMap<object, string>()
  * @internal
  */
 export function getModelIdPropertyName(modelClass: ModelClass<AnyModel>): string {
-  let realKey = modelIdPropertyNameCache.get(modelClass)
-  if (!realKey) {
-    realKey = getModelMetadata(modelClass).modelIdProperty
-    modelIdPropertyNameCache.set(modelClass, realKey)
-  }
-  return realKey
+  return getOrCreate(
+    modelIdPropertyNameCache,
+    modelClass,
+    () => getModelMetadata(modelClass).modelIdProperty
+  )
 }

@@ -3,6 +3,7 @@ import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { isArray, isObject } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import {
   dataObjectParent,
   dataToModelNode,
@@ -187,14 +188,11 @@ function internalGetRootPath<T extends object = any>(value: object): RootPath<T>
  * @internal
  */
 export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
-  let computedGetRootPathForNode = computedsGetRootPath.get(value)
-  if (!computedGetRootPathForNode) {
-    computedGetRootPathForNode = computed(() => {
+  return getOrCreate(computedsGetRootPath, value, () =>
+    computed(() => {
       return internalGetRootPath(value)
     })
-    computedsGetRootPath.set(value, computedGetRootPathForNode)
-  }
-  return computedGetRootPathForNode.get()
+  ).get()
 }
 
 /**
