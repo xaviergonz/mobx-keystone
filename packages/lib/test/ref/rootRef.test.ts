@@ -676,7 +676,7 @@ test("undo manager can undo removal of a referenced object in a single step", ()
   expect(c.selectedCountryRef?.maybeCurrent).toBe(undefined)
 })
 
-test("backrefs can be updated in the middle of an action if the target and ref are in the same root store", () => {
+test("backrefs can be updated in the middle of an action if the target and ref are under the same root", () => {
   const c = new Countries({
     countries: initialCountries(),
   })
