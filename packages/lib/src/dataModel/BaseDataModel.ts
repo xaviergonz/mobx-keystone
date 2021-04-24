@@ -6,6 +6,7 @@ import { typesDataModelData } from "../typeChecking/dataModelData"
 import { typeCheck } from "../typeChecking/typeCheck"
 import type { TypeCheckError } from "../typeChecking/TypeCheckError"
 import { failure, isObject } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
 import { internalNewDataModel } from "./newDataModel"
 import { setBaseDataModel } from "./_BaseDataModel"
@@ -58,11 +59,11 @@ export abstract class BaseDataModel<Data extends { [k: string]: any }> {
     const { modelClass: _modelClass }: DataModelConstructorOptions = arguments[1] as any
     const modelClass = _modelClass!
 
-    let instancesForModelClass = dataModelInstanceCache.get(modelClass)
-    if (!instancesForModelClass) {
-      instancesForModelClass = new WeakMap()
-      dataModelInstanceCache.set(modelClass, instancesForModelClass)
-    }
+    const instancesForModelClass = getOrCreate(
+      dataModelInstanceCache,
+      modelClass,
+      () => new WeakMap()
+    )
 
     const instance = instancesForModelClass.get(tweakedData)
     if (instance) {

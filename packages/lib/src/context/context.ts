@@ -2,6 +2,7 @@ import { action, computed, createAtom, IAtom, IComputedValue, observable } from 
 import { fastGetParent } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { getMobxVersion, mobx6 } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 
 /**
  * A context.
@@ -86,12 +87,7 @@ class ContextClass<T> implements Context<T> {
   private readonly nodeAtom = new WeakMap<object, IAtom>()
 
   private getNodeAtom(node: object) {
-    let atomPerNode = this.nodeAtom.get(node)
-    if (!atomPerNode) {
-      atomPerNode = createAtom("contextValue")
-      this.nodeAtom.set(node, atomPerNode)
-    }
-    return atomPerNode
+    return getOrCreate(this.nodeAtom, node, () => createAtom("contextValue"))
   }
 
   private fastGet(node: object): T {

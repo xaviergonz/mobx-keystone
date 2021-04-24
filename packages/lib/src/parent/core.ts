@@ -1,5 +1,6 @@
 import { createAtom, IAtom } from "mobx"
 import { isModel } from "../model/utils"
+import { getOrCreate } from "../utils/mapUtils"
 import type { ParentPath } from "./path"
 
 /**
@@ -28,12 +29,7 @@ export function parentPathEquals(
 }
 
 function createParentPathAtom(obj: object) {
-  let atom = objectParentsAtoms.get(obj)
-  if (!atom) {
-    atom = createAtom("parentAtom")
-    objectParentsAtoms.set(obj, atom)
-  }
-  return atom
+  return getOrCreate(objectParentsAtoms, obj, () => createAtom("parentAtom"))
 }
 
 /**

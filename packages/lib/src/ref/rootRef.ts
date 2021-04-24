@@ -1,6 +1,7 @@
 import { action } from "mobx"
 import { fastGetRoot } from "../parent/path"
 import { computedWalkTreeAggregate, ComputedWalkTreeAggregate } from "../parent/walkTree"
+import { getOrCreate } from "../utils/mapUtils"
 import {
   getModelRefId,
   internalCustomRef,
@@ -57,11 +58,9 @@ export const rootRef: <T extends object>(
     const onResolvedValueChange = options?.onResolvedValueChange
 
     // cache/reuse computedIdTrees for same getId function
-    let computedIdTree = computedIdTrees.get(getId)
-    if (!computedIdTree) {
-      computedIdTree = computedWalkTreeAggregate<string>(getId)
-      computedIdTrees.set(getId, computedIdTree)
-    }
+    const computedIdTree = getOrCreate(computedIdTrees, getId, () =>
+      computedWalkTreeAggregate<string>(getId)
+    )
 
     const resolverGen = (ref: Ref<T>): RefResolver<T> => {
       let cachedTarget: T | undefined
