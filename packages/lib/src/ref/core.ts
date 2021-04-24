@@ -1,8 +1,10 @@
 import { action, observable, ObservableSet, reaction, when } from "mobx"
 import { isModel } from "../model/utils"
 import { model } from "../modelShared/modelDecorator"
+import { getRootStore } from "../rootStore/rootStore"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import { Ref, RefConstructor } from "./Ref"
 
 interface BackRefs<T extends object> {
@@ -19,7 +21,10 @@ const objectBackRefs = new WeakMap<object, BackRefs<object>>()
  * List of all refs currently attached to a root store.
  * Just to be able to properly update back-refs when in the middle of an action.
  */
-const allRefs = { all: new Set<Ref<any>>(), byType: new Map<RefConstructor<any>, Set<Ref<any>>>() }
+const allRefs = new WeakMap<
+  object,
+  { all: Set<Ref<any>>; byType: Map<RefConstructor<any>, Set<Ref<any>>> }
+>()
 
 /**
  * Reference resolver type.
@@ -62,22 +67,38 @@ export function internalCustomRef<T extends object>(
       return this.resolver(this)
     }
 
-    protected onAttachedToRootStore() {
-      allRefs.all.add(this)
-      let byThisType = allRefs.byType.get(thisRefConstructor)
-      if (!byThisType) {
-        byThisType = new Set()
-        allRefs.byType.set(thisRefConstructor, byThisType)
-      }
+    protected onAttachedToRootStore(rootStore: object) {
+      const allRefsForRootStore = getOrCreate(allRefs, rootStore, () => ({
+        all: new Set(),
+        byType: new Map(),
+      }))
+
+      allRefsForRootStore.all.add(this)
+
+      const byThisType = getOrCreate(
+        allRefsForRootStore.byType,
+        thisRefConstructor,
+        () => new Set()
+      )
       byThisType.add(this)
 
       return () => {
-        allRefs.all.delete(this)
-        const byThisType = allRefs.byType.get(thisRefConstructor)
-        if (byThisType) {
-          byThisType.delete(this)
-          if (byThisType!.size <= 0) {
-            allRefs.byType.delete(thisRefConstructor)
+        const allRefsForRootStore = allRefs.get(rootStore)
+
+        if (allRefsForRootStore) {
+          const byThisType = allRefsForRootStore.byType.get(thisRefConstructor)
+
+          if (byThisType) {
+            byThisType.delete(this)
+            if (byThisType.size <= 0) {
+              allRefsForRootStore.byType.delete(thisRefConstructor)
+            }
+          }
+
+          allRefsForRootStore.all.delete(this)
+
+          if (allRefsForRootStore.all.size <= 0) {
+            allRefs.delete(rootStore)
           }
         }
       }
@@ -215,8 +236,25 @@ export function getRefsResolvingTo<T extends object>(
   if (options?.updateAllRefsIfNeeded && isReactionDelayed()) {
     // in this case the reference update might have been delayed
     // so we will make a best effort to update them
-    const refsToUpdate = refType ? allRefs.byType.get(refType) : allRefs.all
-    refsToUpdate?.forEach((ref) => ref.forceUpdateBackRefs())
+    const refsUpdated = new Set<Ref<object>>()
+    const updateRef = (r: Ref<any>) => {
+      if (!refsUpdated.has(r)) {
+        r.forceUpdateBackRefs()
+        refsUpdated.add(r)
+      }
+    }
+
+    const oldBackRefs = getBackRefs(target, refTypeObject) as ObservableSet<Ref<T>>
+    oldBackRefs.forEach(updateRef)
+
+    const rootStore = getRootStore(target)
+    if (rootStore) {
+      const allRefsByRootStore = allRefs.get(rootStore)
+      if (allRefsByRootStore) {
+        const refs = refType ? allRefsByRootStore.byType.get(refType) : allRefsByRootStore.all
+        refs?.forEach(updateRef)
+      }
+    }
   }
 
   return getBackRefs(target, refTypeObject) as ObservableSet<Ref<T>>
