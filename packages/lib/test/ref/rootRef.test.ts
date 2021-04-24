@@ -64,12 +64,13 @@ class Countries extends Model({
   }
 
   @modelAction
-  setSelectedCountry(country: Country | undefined, disposeWhenDead = true) {
-    this.selectedCountryRef = country
-      ? disposeWhenDead
-        ? countryRef(country)
-        : countryRef2(country)
-      : undefined
+  setSelectedCountry(country: Country | undefined) {
+    this.selectedCountryRef = country ? countryRef(country) : undefined
+  }
+
+  @modelAction
+  setSelectedCountryRef(ref: Ref<Country> | undefined) {
+    this.selectedCountryRef = ref
   }
 
   @modelAction
@@ -683,7 +684,7 @@ test("backrefs can be updated in the middle of an action if the target and ref a
   registerRootStore(c)
   const cSpain = c.countries["spain"]
 
-  c.setSelectedCountry(cSpain, false)
+  c.setSelectedCountryRef(countryRef2(cSpain))
   const ref = c.selectedCountryRef!
 
   expect(getRootStore(cSpain)).toBe(c)
@@ -719,6 +720,47 @@ test("backrefs can be updated in the middle of an action if the target and ref a
     )
 
     c.addCountry(cSpain)
+
+    expect(
+      getRefsResolvingTo(cSpain, countryRef2, {
+        updateAllRefsIfNeeded: true,
+      }).has(ref)
+    ).toBe(true)
+    expect(
+      getRefsResolvingTo(cSpain, countryRef2, {
+        updateAllRefsIfNeeded: true,
+      }).has(ref)
+    ).toBe(true)
+
+    // now remove and readd the reference
+    c.setSelectedCountryRef(undefined)
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+
+    c.setSelectedCountryRef(ref)
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      true
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      true
+    )
+
+    c.setSelectedCountryRef(undefined)
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+
+    c.setSelectedCountryRef(ref)
 
     expect(
       getRefsResolvingTo(cSpain, countryRef2, {
