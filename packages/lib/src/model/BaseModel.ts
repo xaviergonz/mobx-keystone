@@ -129,7 +129,6 @@ export abstract class BaseModel<
     }: ModelConstructorOptions = arguments[1] as any
 
     Object.setPrototypeOf(this, modelClass!.prototype)
-    this.constructor = modelClass!
 
     const self = this as any
 
