@@ -65,16 +65,17 @@ export function internalCustomRef<T extends object>(
 
     #savedOldTarget: T | undefined
 
-    #internalForceUpdateBackRefs = action("forceUpdateBackRefs", (newTarget: T | undefined) => {
+    private internalForceUpdateBackRefs(newTarget: T | undefined) {
       const oldTarget = this.#savedOldTarget
       // update early in case of thrown exceptions
       this.#savedOldTarget = newTarget
 
       updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
-    })
+    }
 
+    @action
     forceUpdateBackRefs() {
-      this.#internalForceUpdateBackRefs(this.maybeCurrent)
+      this.internalForceUpdateBackRefs(this.maybeCurrent)
     }
 
     onInit() {
@@ -87,7 +88,7 @@ export function internalCustomRef<T extends object>(
       reaction(
         () => this.maybeCurrent,
         (newTarget) => {
-          this.#internalForceUpdateBackRefs(newTarget)
+          this.internalForceUpdateBackRefs(newTarget)
 
           const oldTarget = savedOldTarget
           const firstTime = savedFirstTime
