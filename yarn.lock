@@ -2429,9 +2429,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:^11.2.2":
-  version: 11.2.3
-  resolution: "@netlify/build@npm:11.2.3"
+"@netlify/build@npm:^11.2.5":
+  version: 11.2.5
+  resolution: "@netlify/build@npm:11.2.5"
   dependencies:
     "@bugsnag/js": ^7.0.0
     "@netlify/cache-utils": ^1.0.7
@@ -2460,7 +2460,7 @@ __metadata:
     log-process-errors: ^5.1.2
     make-dir: ^3.0.2
     map-obj: ^4.1.0
-    memoize-one: ^5.1.1
+    memoize-one: ^5.2.1
     os-name: ^3.1.0
     p-event: ^4.1.0
     p-every: ^2.0.0
@@ -2486,7 +2486,7 @@ __metadata:
     yargs: ^15.3.1
   bin:
     netlify-build: src/core/bin.js
-  checksum: 3d2defa89261dea2e1cd98420e06cdd6d97c898807a3944c93c8e0db31a7602ff1abea8041f53ee61b5e37f48eab3362adf376a47c93446598d3f3ab44c4b7ee
+  checksum: cb8baec69a424ca66993b3be9391d3998ba0a8eaca695e6d22931098267bee6097ed0c28b70ae7e523c53448ddd71683e1f61c6eb49b02e3724102b4c5f1983d
   languageName: node
   linkType: hard
 
@@ -2509,9 +2509,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/config@npm:^6.0.0":
-  version: 6.0.1
-  resolution: "@netlify/config@npm:6.0.1"
+"@netlify/config@npm:^6.0.0, @netlify/config@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "@netlify/config@npm:6.2.0"
   dependencies:
     "@ungap/from-entries": ^0.2.1
     array-flat-polyfill: ^1.0.1
@@ -2525,37 +2525,7 @@ __metadata:
     indent-string: ^4.0.0
     is-plain-obj: ^2.1.0
     js-yaml: ^4.0.0
-    netlify: ^6.1.18
-    omit.js: ^2.0.2
-    p-locate: ^4.1.0
-    path-exists: ^4.0.0
-    path-type: ^4.0.0
-    toml: ^3.0.0
-    tomlify-j0.4: ^3.0.0
-    validate-npm-package-name: ^3.0.0
-    yargs: ^15.3.0
-  bin:
-    netlify-config: src/bin/main.js
-  checksum: eeb5001a298bce76f9c272b6d3c6818d0bb8bec74625be773ba3c8556516128e07d4759bc9aeeda0fb46943a0dbb402754b1e4f5006faa824f29ca396d5e8d60
-  languageName: node
-  linkType: hard
-
-"@netlify/config@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "@netlify/config@npm:6.0.2"
-  dependencies:
-    "@ungap/from-entries": ^0.2.1
-    array-flat-polyfill: ^1.0.1
-    chalk: ^3.0.0
-    deepmerge: ^4.2.2
-    execa: ^3.4.0
-    fast-safe-stringify: ^2.0.7
-    figures: ^3.2.0
-    filter-obj: ^2.0.1
-    find-up: ^4.1.0
-    indent-string: ^4.0.0
-    is-plain-obj: ^2.1.0
-    js-yaml: ^4.0.0
+    map-obj: ^4.2.1
     netlify: ^6.1.20
     omit.js: ^2.0.2
     p-locate: ^4.1.0
@@ -2567,7 +2537,7 @@ __metadata:
     yargs: ^15.3.0
   bin:
     netlify-config: src/bin/main.js
-  checksum: 441227f9279a0b199b18ef2e50f913e1f953e415778d184c9feb6c44f285a05edb3150dcb9f7563ef505ee0ef43fd27b054fa6787b2a9bf69162cc1c512d9f14
+  checksum: e0685a8b6a7e8e60892617630154ef9efa8ec13f4b18d7609f307f078723748b2c88d42071ded5041469daf0f18eb4844478ed9d65e8833eb1c287f678f78544
   languageName: node
   linkType: hard
 
@@ -2704,43 +2674,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/zip-it-and-ship-it@npm:^3.0.1, @netlify/zip-it-and-ship-it@npm:^3.5.0":
-  version: 3.5.0
-  resolution: "@netlify/zip-it-and-ship-it@npm:3.5.0"
-  dependencies:
-    archiver: ^4.0.0
-    array-flat-polyfill: ^1.0.1
-    common-path-prefix: ^2.0.0
-    cp-file: ^7.0.0
-    del: ^5.1.0
-    elf-cam: ^0.1.1
-    end-of-stream: ^1.4.4
-    esbuild: ^0.11.0
-    filter-obj: ^2.0.1
-    find-up: ^4.1.0
-    glob: ^7.1.6
-    junk: ^3.1.0
-    locate-path: ^5.0.0
-    make-dir: ^3.1.0
-    merge-options: ^3.0.4
-    minimatch: ^3.0.4
-    p-map: ^3.0.0
-    path-exists: ^4.0.0
-    pkg-dir: ^4.2.0
-    precinct: ^6.3.1
-    read-package-json-fast: ^2.0.2
-    require-package-name: ^2.0.1
-    resolve: ^2.0.0-next.1
-    semver: ^6.3.0
-    unixify: ^1.0.0
-    yargs: ^15.4.1
-  bin:
-    zip-it-and-ship-it: src/bin.js
-  checksum: aaadc0ebb503d56902e96a0b5ff7e23faa4cad803ea6e9840d71c1f359dc57bd8b20913b9bf02f994a11f3d7c991a226e823c18406d7611891b5168026cb7770
-  languageName: node
-  linkType: hard
-
-"@netlify/zip-it-and-ship-it@npm:^3.7.0":
+"@netlify/zip-it-and-ship-it@npm:^3.0.1, @netlify/zip-it-and-ship-it@npm:^3.5.0, @netlify/zip-it-and-ship-it@npm:^3.7.0":
   version: 3.7.0
   resolution: "@netlify/zip-it-and-ship-it@npm:3.7.0"
   dependencies:
@@ -5826,7 +5760,7 @@ __metadata:
     benchmark: ^2.1.4
     chalk: ^4.1.1
     cross-env: ^7.0.3
-    mobx: ^6.2.0
+    mobx: ^6.3.0
     mobx-keystone: "workspace:packages/lib"
     mobx-state-tree: ^5.0.1
     shx: ^0.3.3
@@ -6727,17 +6661,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^4.0.0, chalk@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "chalk@npm:4.1.0"
-  dependencies:
-    ansi-styles: ^4.1.0
-    supports-color: ^7.1.0
-  checksum: f860285b419f9e925c2db0f45ffa88aa8794c14b80cc5d01ff30930bcfc384996606362706f0829cf557f6d36152a5fb2d227ad63c4bc90e2ec9e9dbed4a3c07
-  languageName: node
-  linkType: hard
-
-"chalk@npm:^4.1.1":
+"chalk@npm:^4.0.0, chalk@npm:^4.1.0, chalk@npm:^4.1.1":
   version: 4.1.1
   resolution: "chalk@npm:4.1.1"
   dependencies:
@@ -9833,14 +9757,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^8.2.0":
-  version: 8.2.0
-  resolution: "eslint-config-prettier@npm:8.2.0"
+"eslint-config-prettier@npm:^8.3.0":
+  version: 8.3.0
+  resolution: "eslint-config-prettier@npm:8.3.0"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: bin/cli.js
-  checksum: 0fe60cc42dd84fd878ee437dfe73340ba8b18f41ba2538878c54ff15f24a6855bf7e048b36290022b21e0e050ee6cf61d66bfdf39bedb5ccc15c28997cda7016
+  checksum: 94ccbb50fb67e5e47e8ba6cfa257b5cbf53619990ab13f46b99518cfe9b900394b93bdf6ffedbde1a8e2997d301b0fbd73a6b4202146bc53475dfb30a8c812f2
   languageName: node
   linkType: hard
 
@@ -9936,15 +9860,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-flowtype@npm:^5.7.1":
-  version: 5.7.1
-  resolution: "eslint-plugin-flowtype@npm:5.7.1"
+"eslint-plugin-flowtype@npm:^5.7.2":
+  version: 5.7.2
+  resolution: "eslint-plugin-flowtype@npm:5.7.2"
   dependencies:
     lodash: ^4.17.15
     string-natural-compare: ^3.0.1
   peerDependencies:
     eslint: ^7.1.0
-  checksum: 94feb3db34b6b29582d84b1c0ed8505b99356f9fe5bece4a2adb0a03739086ed55daef200538f4efbe904621441c54b61da26534e8dc9b5b6b1d26af7dd3c108
+  checksum: 7a522a62783c4a155995b3c599fd8a452dfad2e09dafbcae619111df841fb41d4db489e2036ab582e862ac13a0d5568e0b895b5d1b1e883a4b3bcbf5a173f517
   languageName: node
   linkType: hard
 
@@ -10061,14 +9985,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "eslint-plugin-testing-library@npm:4.1.1"
+"eslint-plugin-testing-library@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "eslint-plugin-testing-library@npm:4.1.2"
   dependencies:
     "@typescript-eslint/experimental-utils": ^4.21.0
   peerDependencies:
     eslint: ^7.5.0
-  checksum: 7572ad0178c0d5b32d2bb195cdd2dc4abc99c3b2d1988abe7336ebd6159075b8b30ed2dabab7c94bc54faf7d2d66951fc7942607bd252700f1e6a412d54facd6
+  checksum: cacec6d3efb4ed55397493cd59b52055fd9b5cb079709785b3c73363a11337e0d854a587772b99fdf0ac4f095bfdfee212338761e284319fc826b68d44323da4
   languageName: node
   linkType: hard
 
@@ -10188,9 +10112,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^7.24.0":
-  version: 7.24.0
-  resolution: "eslint@npm:7.24.0"
+"eslint@npm:^7.25.0":
+  version: 7.25.0
+  resolution: "eslint@npm:7.25.0"
   dependencies:
     "@babel/code-frame": 7.12.11
     "@eslint/eslintrc": ^0.4.0
@@ -10231,7 +10155,7 @@ __metadata:
     v8-compile-cache: ^2.0.3
   bin:
     eslint: bin/eslint.js
-  checksum: 8130aacc3698a730ba8fa10ac9e1436151181c34cad265c21c97708e62dba714b6f3cc4cb7a1d343918da3d35a5913505ccf53cfbdc1fa8d62d326b7e35b7aae
+  checksum: 6e1782e2264ebf987504746ee82e996bf0ef2c29a2eaea869b54cb8aa1eaf10945b1d563618515e65ac934ca626f3609282127773f45868ad4a98744458a3c62
   languageName: node
   linkType: hard
 
@@ -16787,10 +16711,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"map-obj@npm:^4.0.0, map-obj@npm:^4.1.0":
-  version: 4.2.0
-  resolution: "map-obj@npm:4.2.0"
-  checksum: 0ee5029e6d4482f378292565e3da1b70364f360e141295c6b3bd9164c916d31dcd43be126085dddd2f10d70846660728657d4ea5fa96baa5b40b03b135068600
+"map-obj@npm:^4.0.0, map-obj@npm:^4.1.0, map-obj@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "map-obj@npm:4.2.1"
+  checksum: 59c2f09ffccf8878cdb67dc46d0dd73a55bcfb27c20afc2fb87250ac95f2b19e3187c8de887c40f41b96b0200aac3dfdbc31759615cb666b35864a307885c896
   languageName: node
   linkType: hard
 
@@ -16835,12 +16759,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"marked@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "marked@npm:2.0.1"
+"marked@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "marked@npm:2.0.3"
   bin:
     marked: bin/marked
-  checksum: dd6f468a96ddfd6efbfdaa2f0fa61899b2ce1f8dac0a93c13d847d0fca6872d1f32362d7fe097932aeabc1dfbd83e33bb009a159860f60551d4c6adbdc5a0faf
+  checksum: 18940065203f4eacf84538d57478cdab170ca024c01e8cb992871f48fedb8a534bb69a908edd5b2c4d0468fb751ed4da52996cda5a45f063e71e433bbb7f04f7
   languageName: node
   linkType: hard
 
@@ -17119,10 +17043,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"memoize-one@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "memoize-one@npm:5.1.1"
-  checksum: e7c4a9cceca71334bf09c38818c375a280dc6e8ec03a92701c16199763269ce756b7b0b370f4b464c071045349fb7b3e4a3cc7460a3f46a277f394d8634a6eb5
+"memoize-one@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "memoize-one@npm:5.2.1"
+  checksum: 6b7dab7d8d9dca696d500dbc7f6b1445cbc4168d8208ee2746dd1a7f75378445d9bc6a2def7868afee81c87e630294456310f33f3f1eb738f69d748c797d87d5
   languageName: node
   linkType: hard
 
@@ -17701,29 +17625,29 @@ fsevents@^1.2.7:
     "@typescript-eslint/eslint-plugin": ^4.22.0
     "@typescript-eslint/parser": ^4.22.0
     babel-eslint: 10.1.0
-    eslint: ^7.24.0
-    eslint-config-prettier: ^8.2.0
+    eslint: ^7.25.0
+    eslint-config-prettier: ^8.3.0
     eslint-config-react-app: ^6.0.0
-    eslint-plugin-flowtype: ^5.7.1
+    eslint-plugin-flowtype: ^5.7.2
     eslint-plugin-import: ^2.22.1
     eslint-plugin-jest: ^24.3.5
     eslint-plugin-jsx-a11y: ^6.4.1
     eslint-plugin-react: ^7.23.2
     eslint-plugin-react-hooks: ^4.2.0
-    eslint-plugin-testing-library: ^4.1.1
+    eslint-plugin-testing-library: ^4.1.2
     eslint-webpack-plugin: ^2.5.4
     fast-deep-equal: ^3.1.3
     jest: ^26.6.3
     microbundle: ^0.13.0
-    mobx: ^6.2.0
-    netlify-cli: ^3.21.5
+    mobx: ^6.3.0
+    netlify-cli: ^3.21.10
     shx: ^0.3.3
     spec.ts: ^1.1.3
     ts-jest: ^26.5.5
     ts-node: ^9.1.1
     ts-toolbelt: ^9.6.0
     tslib: ^2.2.0
-    typedoc: ^0.20.35
+    typedoc: ^0.20.36
     typescript: ^4.2.4
     uuid: ^8.3.2
   peerDependencies:
@@ -17772,10 +17696,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mobx@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "mobx@npm:6.2.0"
-  checksum: e302444ea18ed873b4188417103b5c47e70656d0050733d8e400f9b408c43cfa03422974820058458cb7f429f70042ceb35c10241f324e82ba87bd2159408b01
+"mobx@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "mobx@npm:6.3.0"
+  checksum: 1f4e54c889777f2f37228c5c8962bd8e21beec7a9689740b01c1f295a319f30e2cb900ffd79d7c6c17ad5b5a9693bfb6562f7a54ce18e90e564554bad17f5168
   languageName: node
   linkType: hard
 
@@ -18020,12 +17944,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^3.21.5":
-  version: 3.21.5
-  resolution: "netlify-cli@npm:3.21.5"
+"netlify-cli@npm:^3.21.10":
+  version: 3.21.10
+  resolution: "netlify-cli@npm:3.21.10"
   dependencies:
-    "@netlify/build": ^11.2.2
-    "@netlify/config": ^6.0.2
+    "@netlify/build": ^11.2.5
+    "@netlify/config": ^6.2.0
     "@netlify/framework-info": ^3.3.0
     "@netlify/plugin-edge-handlers": ^1.11.6
     "@netlify/plugins-list": ^2.8.0
@@ -18089,11 +18013,11 @@ fsevents@^1.2.7:
     lodash: ^4.17.20
     log-symbols: ^4.0.0
     make-dir: ^3.0.0
-    memoize-one: ^5.1.1
+    memoize-one: ^5.2.1
     minimist: ^1.2.5
     multiparty: ^4.2.1
     netlify: ^6.1.20
-    netlify-redirect-parser: ^3.0.16
+    netlify-redirect-parser: ^3.0.17
     netlify-redirector: ^0.2.1
     node-fetch: ^2.6.0
     node-version-alias: ^1.0.1
@@ -18127,17 +18051,17 @@ fsevents@^1.2.7:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: c1fed307440b8d3da003903a2a67328ee9eb7c694ba6f4a0d2ab75d75c5f4a841bba080c6bfe8d1ca3ce1762f991b6fea8f3cd33811f5fd78862db3b6acc9b0e
+  checksum: 2172d4bcf27b1eb95b7989b8db3f7f2048acc38ef3e1ee734b522827e7eb641c7fac0d1a81a302ad72b6ee52d608ab000fa98edc2a8851fb92fa5cc38433355f
   languageName: node
   linkType: hard
 
-"netlify-redirect-parser@npm:^3.0.16":
-  version: 3.0.16
-  resolution: "netlify-redirect-parser@npm:3.0.16"
+"netlify-redirect-parser@npm:^3.0.17":
+  version: 3.0.17
+  resolution: "netlify-redirect-parser@npm:3.0.17"
   dependencies:
-    "@netlify/config": ^6.0.2
+    "@netlify/config": ^6.2.0
     lodash.isplainobject: ^4.0.6
-  checksum: e8a631c416e672cd25776045c49e2867b68279ea2a5074245ca12d47fe9d827a951e1353f224a8aabb98f0e71ab15c6947ec9bac09c06f295627ce873a1ec55b
+  checksum: af67838a88f395bae97e4671766e8a470263383d2848521fbbadaf6f7e279a636d66cbb9c70d2779a3a134d9588d7b23b7bc013ee68e5d2ef429530a66456b1d
   languageName: node
   linkType: hard
 
@@ -18148,7 +18072,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"netlify@npm:^6.1.18, netlify@npm:^6.1.20":
+"netlify@npm:^6.1.20":
   version: 6.1.20
   resolution: "netlify@npm:6.1.20"
   dependencies:
@@ -22284,7 +22208,7 @@ resolve@1.17.0:
   resolution: "root@workspace:."
   dependencies:
     codecov: ^3.8.1
-    netlify-cli: ^3.21.5
+    netlify-cli: ^3.21.10
     prettier: ^2.2.1
     typescript: ^4.2.4
   languageName: unknown
@@ -22928,7 +22852,7 @@ resolve@1.17.0:
     gatsby-plugin-mdx: ^2.2.0
     gatsby-plugin-typescript: ^2.12.1
     gatsby-theme-docz: ^2.3.1
-    mobx: ^6.2.0
+    mobx: ^6.3.0
     mobx-keystone: "workspace:packages/lib"
     mobx-react: ^7.1.0
     raw-loader: ^4.0.2
@@ -24974,33 +24898,33 @@ resolve@1.17.0:
   languageName: node
   linkType: hard
 
-"typedoc-default-themes@npm:^0.12.9":
+"typedoc-default-themes@npm:^0.12.10":
   version: 0.12.10
   resolution: "typedoc-default-themes@npm:0.12.10"
   checksum: 3a420c405b00122c20018762ce145186219f26651a051216b1d4dafa1b3756a7e47290bf27898d3e2769af3a0da44591e3c93268c2a6503fcf28eb8b0f32980b
   languageName: node
   linkType: hard
 
-"typedoc@npm:^0.20.35":
-  version: 0.20.35
-  resolution: "typedoc@npm:0.20.35"
+"typedoc@npm:^0.20.36":
+  version: 0.20.36
+  resolution: "typedoc@npm:0.20.36"
   dependencies:
     colors: ^1.4.0
     fs-extra: ^9.1.0
     handlebars: ^4.7.7
     lodash: ^4.17.21
     lunr: ^2.3.9
-    marked: ^2.0.1
+    marked: ^2.0.3
     minimatch: ^3.0.0
     progress: ^2.0.3
     shelljs: ^0.8.4
     shiki: ^0.9.3
-    typedoc-default-themes: ^0.12.9
+    typedoc-default-themes: ^0.12.10
   peerDependencies:
     typescript: 3.9.x || 4.0.x || 4.1.x || 4.2.x
   bin:
     typedoc: bin/typedoc
-  checksum: 107295014bc223dc789f99bb01ddebd9756ef5f624e21eb13bbdda974b17a1ccf125b87a8ab77520dae4399b3ec2791f5aa825cf470b73d7fdebae0a936039d7
+  checksum: 362a576deee8225e7f0e2722c91f9de553d8d821f0a7b07ac4bf9b9fa704452f495aba035e7c73af415b7363c88e80689f666e0b2dab3f29bb42eb5f2d7ae93c
   languageName: node
   linkType: hard
 
