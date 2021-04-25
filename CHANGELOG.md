@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.57.0
+
+- Made `getRefsResolvingTo` able to get updated results when called inside an action (as long as the reference being back-traced and the target are children of the same root).
+
 ## 0.56.2
 
 - Fixed an issue with typings not working properly for model properties (probably introduced in v0.55.0).

@@ -1,8 +1,15 @@
-import { observable, ObservableSet, reaction } from "mobx"
+import { action, observable, ObservableSet, reaction, when } from "mobx"
 import { isModel } from "../model/utils"
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import { model } from "../modelShared/modelDecorator"
+import {
+  getDeepObjectChildren,
+  registerDeepObjectChildrenExtension,
+} from "../parent/coreObjectChildren"
+import { getRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import { Ref, RefConstructor } from "./Ref"
 
 interface BackRefs<T extends object> {
@@ -13,7 +20,7 @@ interface BackRefs<T extends object> {
 /**
  * Back-references from object to the references that point to it.
  */
-const objectBackRefs = new WeakMap<object, BackRefs<object>>()
+const objectBackRefs = new WeakMap<object, BackRefs<any>>()
 
 /**
  * Reference resolver type.
@@ -56,6 +63,21 @@ export function internalCustomRef<T extends object>(
       return this.resolver(this)
     }
 
+    #savedOldTarget: T | undefined
+
+    private internalForceUpdateBackRefs(newTarget: T | undefined) {
+      const oldTarget = this.#savedOldTarget
+      // update early in case of thrown exceptions
+      this.#savedOldTarget = newTarget
+
+      updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
+    }
+
+    @action
+    forceUpdateBackRefs() {
+      this.internalForceUpdateBackRefs(this.maybeCurrent)
+    }
+
     onInit() {
       // listen to changes
 
@@ -66,13 +88,13 @@ export function internalCustomRef<T extends object>(
       reaction(
         () => this.maybeCurrent,
         (newTarget) => {
+          this.internalForceUpdateBackRefs(newTarget)
+
           const oldTarget = savedOldTarget
           const firstTime = savedFirstTime
           // update early in case of thrown exceptions
           savedOldTarget = newTarget
           savedFirstTime = false
-
-          updateBackRefs(this, fn as any, newTarget, oldTarget)
 
           if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
             onResolvedValueChange(this, newTarget, oldTarget)
@@ -104,7 +126,9 @@ export function internalCustomRef<T extends object>(
   }
   fn.refClass = CustomRef
 
-  return (fn as any) as RefConstructor<T>
+  const thisRefConstructor = (fn as any) as RefConstructor<T>
+
+  return thisRefConstructor
 }
 
 /**
@@ -127,7 +151,10 @@ export function getModelRefId(target: object): string | undefined {
   return undefined
 }
 
-function getBackRefs(target: object, refType?: RefConstructor<object>): ObservableSet<Ref<object>> {
+function getBackRefs<T extends object>(
+  target: T,
+  refType?: RefConstructor<T>
+): ObservableSet<Ref<T>> {
   let backRefs = objectBackRefs.get(target)
   if (!backRefs) {
     backRefs = {
@@ -154,35 +181,101 @@ function getBackRefs(target: object, refType?: RefConstructor<object>): Observab
  *
  * @typeparam T Referenced object type.
  * @param target Node the references point to.
- * @param [refType] Pass it to filter by only references of a given type, or do not to get references of any type.
+ * @param refType Pass it to filter by only references of a given type, or omit / pass `undefined` to get references of any type.
+ * @param options Options.
  * @returns An observable set with all reference objects that point to the given object.
  */
 export function getRefsResolvingTo<T extends object>(
   target: T,
-  refType?: RefConstructor<T>
+  refType?: RefConstructor<T>,
+  options?: {
+    updateAllRefsIfNeeded?: boolean
+  }
 ): ObservableSet<Ref<T>> {
   assertTweakedObject(target, "target")
 
-  const refTypeObject = refType as RefConstructor<object> | undefined
-  return getBackRefs(target, refTypeObject) as ObservableSet<Ref<T>>
+  if (options?.updateAllRefsIfNeeded && isReactionDelayed()) {
+    // in this case the reference update might have been delayed
+    // so we will make a best effort to update them
+    const refsChecked = new Set<Ref<object>>()
+    const updateRef = (ref: Ref<any>) => {
+      if (!refsChecked.has(ref)) {
+        if (!refType || ref instanceof refType.refClass) {
+          ref.forceUpdateBackRefs()
+        }
+        refsChecked.add(ref)
+      }
+    }
+
+    const oldBackRefs = getBackRefs(target, refType)
+    oldBackRefs.forEach(updateRef)
+
+    const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(getRoot(target)))
+    let refs: Set<Ref<object>> | undefined
+    if (refType) {
+      refs = refsChildrenOfRoot.byType.get(refType.refClass)
+    } else {
+      refs = refsChildrenOfRoot.all
+    }
+    refs?.forEach(updateRef)
+  }
+
+  return getBackRefs(target, refType)
 }
 
-function updateBackRefs<T extends object>(
-  ref: Ref<T>,
-  refClass: RefConstructor<T>,
-  newTarget: T | undefined,
-  oldTarget: T | undefined
-) {
-  if (newTarget === oldTarget) {
-    return
-  }
+const updateBackRefs = action(
+  "updateBackRefs",
+  <T extends object>(
+    ref: Ref<T>,
+    refClass: RefConstructor<T>,
+    newTarget: T | undefined,
+    oldTarget: T | undefined
+  ) => {
+    if (newTarget === oldTarget) {
+      return
+    }
 
-  if (oldTarget) {
-    getBackRefs(oldTarget).delete(ref)
-    getBackRefs(oldTarget, refClass as RefConstructor<any>).delete(ref)
+    if (oldTarget) {
+      getBackRefs(oldTarget).delete(ref)
+      getBackRefs(oldTarget, refClass as RefConstructor<any>).delete(ref)
+    }
+    if (newTarget) {
+      getBackRefs(newTarget).add(ref)
+      getBackRefs(newTarget, refClass as RefConstructor<any>).add(ref)
+    }
   }
-  if (newTarget) {
-    getBackRefs(newTarget).add(ref)
-    getBackRefs(newTarget, refClass as RefConstructor<any>).add(ref)
-  }
+)
+
+function isReactionDelayed() {
+  let reactionDelayed = true
+  const dispose = when(
+    () => true,
+    () => {
+      reactionDelayed = false
+    }
+  )
+  dispose()
+  return reactionDelayed
 }
+
+interface DeepChildrenRefs {
+  all: Set<Ref<any>>
+  byType: WeakMap<ModelClass<Ref<any>>, Set<Ref<any>>>
+}
+
+const getDeepChildrenRefs = registerDeepObjectChildrenExtension<DeepChildrenRefs>({
+  initData() {
+    return {
+      all: new Set(),
+      byType: new WeakMap(),
+    }
+  },
+
+  addNode(node, data) {
+    if (node instanceof Ref) {
+      data.all.add(node)
+      const refsByThisType = getOrCreate(data.byType, node.constructor, () => new Set())
+      refsByThisType.add(node)
+    }
+  },
+})

@@ -1,4 +1,4 @@
-import { computed, reaction, remove, set } from "mobx"
+import { computed, reaction, remove, runInAction, set } from "mobx"
 import {
   applyPatches,
   applySnapshot,
@@ -7,6 +7,7 @@ import {
   fromSnapshot,
   getParent,
   getRefsResolvingTo,
+  getRoot,
   getSnapshot,
   isRefOfType,
   model,
@@ -64,6 +65,11 @@ class Countries extends Model({
   @modelAction
   setSelectedCountry(country: Country | undefined) {
     this.selectedCountryRef = country ? countryRef(country) : undefined
+  }
+
+  @modelAction
+  setSelectedCountryRef(ref: Ref<Country> | undefined) {
+    this.selectedCountryRef = ref
   }
 
   @modelAction
@@ -668,4 +674,101 @@ test("undo manager can undo removal of a referenced object in a single step", ()
   expect(manager.redoQueue).toMatchInlineSnapshot(`Array []`)
 
   expect(c.selectedCountryRef?.maybeCurrent).toBe(undefined)
+})
+
+test("backrefs can be updated in the middle of an action if the target and ref are under the same root", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const cSpain = c.countries["spain"]
+
+  c.setSelectedCountryRef(countryRef2(cSpain))
+  const ref = c.selectedCountryRef!
+
+  expect(getRoot(cSpain)).toBe(c)
+  expect(getRoot(ref)).toBe(c)
+
+  c.removeCountry("spain")
+
+  runInAction(() => {
+    // double calls are on purpose
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+
+    c.addCountry(cSpain)
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      true
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      true
+    )
+
+    c.removeCountry("spain")
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+
+    c.addCountry(cSpain)
+
+    expect(
+      getRefsResolvingTo(cSpain, countryRef2, {
+        updateAllRefsIfNeeded: true,
+      }).has(ref)
+    ).toBe(true)
+    expect(
+      getRefsResolvingTo(cSpain, countryRef2, {
+        updateAllRefsIfNeeded: true,
+      }).has(ref)
+    ).toBe(true)
+
+    // now remove and readd the reference
+    c.setSelectedCountryRef(undefined)
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+
+    c.setSelectedCountryRef(ref)
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      true
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      true
+    )
+
+    c.setSelectedCountryRef(undefined)
+
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+    expect(getRefsResolvingTo(cSpain, undefined, { updateAllRefsIfNeeded: true }).has(ref)).toBe(
+      false
+    )
+
+    c.setSelectedCountryRef(ref)
+
+    expect(
+      getRefsResolvingTo(cSpain, countryRef2, {
+        updateAllRefsIfNeeded: true,
+      }).has(ref)
+    ).toBe(true)
+    expect(
+      getRefsResolvingTo(cSpain, countryRef2, {
+        updateAllRefsIfNeeded: true,
+      }).has(ref)
+    ).toBe(true)
+  })
 })

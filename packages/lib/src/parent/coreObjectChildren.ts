@@ -1,15 +1,17 @@
 import { action, createAtom, IAtom, observable, ObservableSet } from "mobx"
-import type { AnyModel } from "../model/BaseModel"
-import { modelIdKey, modelTypeKey } from "../model/metadata"
-import { isModel } from "../model/utils"
 import { fastGetParent } from "./path"
 
 const defaultObservableSetOptions = { deep: false }
 
-interface ObjectChildrenData {
+interface DeepObjectChildren {
+  deep: Set<object>
+
+  extensionsData: WeakMap<Symbol, any>
+}
+
+interface ObjectChildrenData extends DeepObjectChildren {
   shallow: ObservableSet<object>
-  deep: ReadonlySet<object>
-  deepByModelTypeAndId: ReadonlyMap<string, AnyModel>
+
   deepDirty: boolean
   deepAtom: IAtom
 }
@@ -27,8 +29,10 @@ export function initializeObjectChildren(node: object) {
 
   objectChildren.set(node, {
     shallow: observable.set(undefined, defaultObservableSetOptions),
+
     deep: new Set(),
-    deepByModelTypeAndId: new Map(),
+    extensionsData: initExtensionsData(),
+
     deepDirty: true,
     deepAtom: createAtom("deepChildrenAtom"),
   })
@@ -38,7 +42,7 @@ export function initializeObjectChildren(node: object) {
  * @ignore
  * @internal
  */
-export function getObjectChildren(node: object) {
+export function getObjectChildren(node: object): ObjectChildrenData["shallow"] {
   return objectChildren.get(node)!.shallow
 }
 
@@ -46,60 +50,61 @@ export function getObjectChildren(node: object) {
  * @ignore
  * @internal
  */
-export function getDeepObjectChildren(node: object) {
+export function getDeepObjectChildren(node: object): DeepObjectChildren {
   const obj = objectChildren.get(node)!
+
   if (obj.deepDirty) {
     updateDeepObjectChildren(node)
   }
+
   obj.deepAtom.reportObserved()
-  return { deep: obj.deep, deepByModelTypeAndId: obj.deepByModelTypeAndId }
+
+  return obj
 }
 
-function addNodeToDeepLists(
-  node: any,
-  deep: Set<object>,
-  deepByModelTypeAndId: Map<string, AnyModel>
-) {
-  deep.add(node)
-  if (isModel(node)) {
-    deepByModelTypeAndId.set(byModelTypeAndIdKey(node[modelTypeKey], node[modelIdKey]), node)
-  }
+function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
+  data.deep.add(node)
+  extensions.forEach((extension, dataSymbol) => {
+    extension.addNode(node, data.extensionsData.get(dataSymbol))
+  })
 }
 
-const updateDeepObjectChildren = action((node: object) => {
-  const obj = objectChildren.get(node)!
-  if (!obj.deepDirty) {
-    return {
-      deep: obj.deep,
-      deepByModelTypeAndId: obj.deepByModelTypeAndId,
-    }
-  }
-
-  const deep = new Set<object>()
-  const deepByModelTypeAndId = new Map<string, AnyModel>()
-
-  const childrenIter = getObjectChildren(node)!.values()
-  let ch = childrenIter.next()
-  while (!ch.done) {
-    addNodeToDeepLists(ch.value, deep, deepByModelTypeAndId)
-
-    const ret = updateDeepObjectChildren(ch.value).deep
-    const retIter = ret.values()
-    let retCur = retIter.next()
-    while (!retCur.done) {
-      addNodeToDeepLists(retCur.value, deep, deepByModelTypeAndId)
-      retCur = retIter.next()
+const updateDeepObjectChildren = action(
+  (node: object): DeepObjectChildren => {
+    const obj = objectChildren.get(node)!
+    if (!obj.deepDirty) {
+      return obj
     }
 
-    ch = childrenIter.next()
-  }
+    const data: DeepObjectChildren = {
+      deep: new Set(),
+      extensionsData: initExtensionsData(),
+    }
 
-  obj.deep = deep
-  obj.deepByModelTypeAndId = deepByModelTypeAndId
-  obj.deepDirty = false
-  obj.deepAtom.reportChanged()
-  return { deep, deepByModelTypeAndId }
-})
+    const childrenIter = getObjectChildren(node)!.values()
+    let ch = childrenIter.next()
+    while (!ch.done) {
+      addNodeToDeepLists(ch.value, data)
+
+      const ret = updateDeepObjectChildren(ch.value).deep
+      const retIter = ret.values()
+      let retCur = retIter.next()
+      while (!retCur.done) {
+        addNodeToDeepLists(retCur.value, data)
+        retCur = retIter.next()
+      }
+
+      ch = childrenIter.next()
+    }
+
+    Object.assign(obj, data)
+
+    obj.deepDirty = false
+    obj.deepAtom.reportChanged()
+
+    return obj
+  }
+)
 
 /**
  * @ignore
@@ -143,4 +148,38 @@ function invalidateDeepChildren(node: object) {
  */
 export function byModelTypeAndIdKey(modelType: string, modelId: string) {
   return modelType + " " + modelId
+}
+
+const extensions = new Map<Symbol, DeepObjectChildrenExtension<any>>()
+
+/**
+ * @ignore
+ * @internal
+ */
+export interface DeepObjectChildrenExtension<D> {
+  initData(): D
+  addNode(node: any, data: D): void
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChildrenExtension<D>) {
+  const dataSymbol = Symbol("deepObjectChildrenExtension")
+  extensions.set(dataSymbol, extension)
+
+  return (data: DeepObjectChildren): D => {
+    return data.extensionsData.get(dataSymbol) as D
+  }
+}
+
+function initExtensionsData() {
+  const extensionsData = new Map<Symbol, any>()
+
+  extensions.forEach((extension, dataSymbol) => {
+    extensionsData.set(dataSymbol, extension.initData())
+  })
+
+  return extensionsData
 }

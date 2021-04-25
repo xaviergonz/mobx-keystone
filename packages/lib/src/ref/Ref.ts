@@ -49,6 +49,14 @@ export abstract class Ref<T extends object> extends Model({
 
     return current
   }
+
+  /**
+   * Ensures back references for this ref are up to date.
+   * This only needs to be called if you need to get the most up to date
+   * back references while both still inside an action and while the reference
+   * is not a child of the same root than the target.
+   */
+  abstract forceUpdateBackRefs(): void
 }
 
 /**
