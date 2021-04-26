@@ -6,6 +6,13 @@ import { Box, Flex, jsx, useColorMode } from "theme-ui"
 import logoImage from "./lib-logo.png"
 import * as styles from "./styles"
 
+const headerButtonStyle = {
+  backgroundColor: "#0085f9",
+  paddingLeft: 16,
+  paddingRight: 16,
+  borderRadius: 8,
+}
+
 export const Header = (props) => {
   const { onOpen } = props
   const {
@@ -37,14 +44,26 @@ export const Header = (props) => {
         <Flex>
           {apiRef && (
             <Box sx={{ mr: 2 }}>
-              <a href={apiRef} sx={styles.headerButton} target="_blank" rel="noopener noreferrer">
+              <a
+                href={apiRef}
+                sx={styles.headerButton}
+                style={headerButtonStyle}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span>API Ref</span> <Code style={{ marginLeft: 8 }} size={15} />
               </a>
             </Box>
           )}
           {npm && (
             <Box sx={{ mr: 2 }}>
-              <a href={npm} sx={styles.headerButton} target="_blank" rel="noopener noreferrer">
+              <a
+                href={npm}
+                sx={styles.headerButton}
+                style={headerButtonStyle}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span>NPM</span> <Package style={{ marginLeft: 8 }} size={15} />
               </a>
             </Box>
@@ -54,6 +73,7 @@ export const Header = (props) => {
               <a
                 href={repository}
                 sx={styles.headerButton}
+                style={headerButtonStyle}
                 target="_blank"
                 rel="noopener noreferrer"
               >
