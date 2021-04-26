@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { useConfig, useCurrentDoc } from "docz"
-import { Code, Edit, Github, Menu, Sun } from "gatsby-theme-docz/src/components/Icons"
+import { Edit, Github, Menu, Sun } from "gatsby-theme-docz/src/components/Icons"
 import { default as Package } from "react-feather/dist/icons/package"
 import { Box, Flex, jsx, useColorMode } from "theme-ui"
 import logoImage from "./lib-logo.png"
@@ -51,7 +51,7 @@ export const Header = (props) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span>API Ref</span> <Code style={{ marginLeft: 8 }} size={15} />
+                <span>API</span>
               </a>
             </Box>
           )}
@@ -64,7 +64,7 @@ export const Header = (props) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span>NPM</span> <Package style={{ marginLeft: 8 }} size={15} />
+                <Package style={{ minWidth: 15 }} size={15} />
               </a>
             </Box>
           )}
@@ -77,7 +77,7 @@ export const Header = (props) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span>GitHub</span> <Github style={{ marginLeft: 8 }} size={15} />
+                <Github style={{ minWidth: 15 }} size={15} />
               </a>
             </Box>
           )}
