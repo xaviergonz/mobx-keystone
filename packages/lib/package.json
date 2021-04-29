@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.57.0",
+  "version": "0.57.1",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -54,7 +54,7 @@
     "start": "microbundle watch",
     "quick-build": "tsc -p . --noEmit",
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
-    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && microbundle build -f es,cjs,umd --name mobxKeystone --globals fast-deep-equal/es6=fast-deep-equal/es6 && shx cp dist/index.import.js dist/index.import.mjs",
+    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && microbundle build -f es,cjs,umd --name mobxKeystone --globals fast-deep-equal/es6=fast-deep-equal/es6 --no-compress && shx cp dist/index.import.js dist/index.import.mjs",
     "test": "jest",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
