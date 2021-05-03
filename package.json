@@ -19,8 +19,8 @@
     "packages/benchmark"
   ],
   "devDependencies": {
-    "codecov": "^3.8.1",
-    "netlify-cli": "^3.21.10",
+    "codecov": "^3.8.2",
+    "netlify-cli": "^3.25.0",
     "prettier": "^2.2.1",
     "typescript": "^4.2.4"
   }
