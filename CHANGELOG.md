@@ -1,5 +1,7 @@
 # Change Log
 
+- Added a simpler pattern for generic models when using `prop`.
+
 ## 0.57.1
 
 - Fixed an issue when importing the package with expo.

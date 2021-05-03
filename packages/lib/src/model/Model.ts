@@ -8,36 +8,23 @@ import {
   ModelPropsToSetter,
 } from "../modelShared/prop"
 import type { AnyModel, BaseModel, BaseModelKeys } from "./BaseModel"
-import { modelTypeKey } from "./metadata"
-import { assertIsModelClass } from "./utils"
+import { assertIsModelClass, isModelClass } from "./utils"
 
-declare const dataSymbol: unique symbol
-
-declare const creationDataSymbol: unique symbol
-
-declare const composedCreationDataSymbol: unique symbol
+export type _ComposedCreationData<
+  SuperModel,
+  TProps extends ModelProps
+> = SuperModel extends BaseModel<any, infer CD, any>
+  ? ModelPropsToCreationData<TProps> & CD
+  : ModelPropsToCreationData<TProps>
 
 export interface _Model<SuperModel, TProps extends ModelProps> {
-  /**
-   * Model type name assigned to this class, or undefined if none.
-   */
-  readonly [modelTypeKey]: string | undefined
-
-  [dataSymbol]: ModelPropsToData<TProps>
-
-  [creationDataSymbol]: ModelPropsToCreationData<TProps>
-
-  [composedCreationDataSymbol]: SuperModel extends BaseModel<any, infer CD, any>
-    ? this[typeof creationDataSymbol] & CD
-    : this[typeof creationDataSymbol]
-
-  new (data: this[typeof composedCreationDataSymbol]): SuperModel &
+  new (data: _ComposedCreationData<SuperModel, TProps>): SuperModel &
     BaseModel<
-      this[typeof dataSymbol],
-      this[typeof creationDataSymbol],
+      ModelPropsToData<TProps>,
+      ModelPropsToCreationData<TProps>,
       ExtractModelIdProp<TProps> & string
     > &
-    Omit<this[typeof dataSymbol], BaseModelKeys> &
+    Omit<ModelPropsToData<TProps>, BaseModelKeys> &
     ModelPropsToSetter<TProps>
 }
 
@@ -63,6 +50,25 @@ export type ExtractModelIdProp<TProps extends ModelProps> = {
  *
  * @typeparam TProps New model properties type.
  * @typeparam TModel Model type.
+ * @param genFn Function that returns the base model and model properties.
+ * @param modelOptions Model options.
+ * @returns
+ */
+export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel, A extends []>(
+  genFn: (
+    ...args: A
+  ) => {
+    baseModel: AbstractModelClass<TModel>
+    props: TProps
+  },
+  modelOptions?: ModelOptions
+): _Model<TModel, AddModelIdPropIfNeeded<TProps>>
+
+/**
+ * Base abstract class for models that extends another model.
+ *
+ * @typeparam TProps New model properties type.
+ * @typeparam TModel Model type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @param modelOptions Model options.
@@ -72,11 +78,45 @@ export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel
   baseModel: AbstractModelClass<TModel>,
   modelProps: TProps,
   modelOptions?: ModelOptions
+): _Model<TModel, AddModelIdPropIfNeeded<TProps>>
+
+// base
+export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel>(
+  ...args: any[]
 ): _Model<TModel, AddModelIdPropIfNeeded<TProps>> {
+  let baseModel
+  let modelProps
+  let modelOptions
+  if (isModelClass(args[0])) {
+    baseModel = args[0]
+    modelProps = args[1]
+    modelOptions = args[2]
+  } else {
+    const gen = args[0]()
+
+    baseModel = gen.baseModel
+    modelProps = gen.props
+    modelOptions = args[1]
+  }
+
   assertIsModelClass(baseModel, "baseModel")
 
   return internalModel(modelProps, baseModel as any, modelOptions)
 }
+
+/**
+ * Base abstract class for models.
+ *
+ * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
+ *
+ * @typeparam TProps Model properties type.
+ * @param fnModelProps Function that generates model properties.
+ * @param modelOptions Model options.
+ */
+export function Model<TProps extends ModelProps, A extends []>(
+  fnModelProps: (...args: A) => TProps,
+  modelOptions?: ModelOptions
+): _Model<unknown, AddModelIdPropIfNeeded<TProps>>
 
 /**
  * Base abstract class for models.
@@ -90,7 +130,17 @@ export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel
 export function Model<TProps extends ModelProps>(
   modelProps: TProps,
   modelOptions?: ModelOptions
+): _Model<unknown, AddModelIdPropIfNeeded<TProps>>
+
+// base
+export function Model<TProps extends ModelProps>(
+  fnModelPropsOrModelProps: (() => TProps) | TProps,
+  modelOptions?: ModelOptions
 ): _Model<unknown, AddModelIdPropIfNeeded<TProps>> {
+  const modelProps =
+    typeof fnModelPropsOrModelProps === "function"
+      ? fnModelPropsOrModelProps()
+      : fnModelPropsOrModelProps
   return internalModel(modelProps, undefined, modelOptions)
 }
 

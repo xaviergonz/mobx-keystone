@@ -63,13 +63,13 @@ test("model decorator sets model type static prop and toString methods", () => {
     x: number = 1 // not-stored-properties not rendered
   }
 
-  expect(MyModel[modelTypeKey]).toBeUndefined()
+  expect((MyModel as any)[modelTypeKey]).toBeUndefined()
 
   const type = "com/myModel"
   const MyModel2 = model(type)(MyModel)
 
-  expect(MyModel[modelTypeKey]).toBe(type)
-  expect(MyModel2[modelTypeKey]).toBe(type)
+  expect((MyModel as any)[modelTypeKey]).toBe(type)
+  expect((MyModel2 as any)[modelTypeKey]).toBe(type)
 
   expect(`${MyModel}`).toBe(`class MyModel#${type}`)
   expect(`${MyModel2}`).toBe(`class MyModel#${type}`)

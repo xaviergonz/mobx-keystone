@@ -10,6 +10,7 @@ import {
   Model,
   model,
   modelAction,
+  modelClass,
   ModelData,
   modelFlow,
   prop,
@@ -956,4 +957,35 @@ test("extends works", () => {
       },
     ]
   `)
+})
+
+test("new pattern for generics", () => {
+  @model("GenericModel")
+  class GenericModel<T1, T2> extends DataModel(<U1, U2>() => ({
+    v1: prop<U1>(),
+    v2: prop<U2>(),
+    v3: prop<number>(),
+  }))<T1, T2> {}
+
+  assert(_ as ModelData<GenericModel<string, number>>, _ as { v1: string; v2: number; v3: number })
+  assert(_ as ModelData<GenericModel<number, string>>, _ as { v1: number; v2: string; v3: number })
+
+  const s = new GenericModel<string, number>({ v1: "1", v2: 2, v3: 3 })
+  expect(s.v1).toBe("1")
+  expect(s.v2).toBe(2)
+  expect(s.v3).toBe(3)
+
+  @model("ExtendedGenericModel")
+  class ExtendedGenericModel<T1, T2> extends ExtendedDataModel(<T1, T2>() => ({
+    baseModel: modelClass<GenericModel<T1, T2>>(GenericModel),
+    props: {
+      v4: prop<T2>(),
+    },
+  }))<T1, T2> {}
+
+  const e = new ExtendedGenericModel<string, number>({ v1: "1", v2: 2, v3: 3, v4: 4 })
+  expect(e.v1).toBe("1")
+  expect(e.v2).toBe(2)
+  expect(e.v3).toBe(3)
+  expect(e.v4).toBe(4)
 })

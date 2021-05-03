@@ -2,24 +2,41 @@ import type { AbstractModelClass, ModelClass } from "../modelShared/BaseModelSha
 import { sharedInternalModel } from "../modelShared/Model"
 import type { ModelProps, ModelPropsToData, ModelPropsToSetter } from "../modelShared/prop"
 import type { AnyDataModel, BaseDataModel, BaseDataModelKeys } from "./BaseDataModel"
-import { assertIsDataModelClass } from "./utils"
+import { assertIsDataModelClass, isDataModelClass } from "./utils"
 
-declare const dataSymbol: unique symbol
-
-declare const composedDataSymbol: unique symbol
+export type _ComposedData<SuperModel, TProps extends ModelProps> = SuperModel extends BaseDataModel<
+  infer D
+>
+  ? ModelPropsToData<TProps> & D
+  : ModelPropsToData<TProps>
 
 export interface _DataModel<SuperModel, TProps extends ModelProps> {
-  [dataSymbol]: ModelPropsToData<TProps>
-
-  [composedDataSymbol]: SuperModel extends BaseDataModel<infer D>
-    ? this[typeof dataSymbol] & D
-    : this[typeof dataSymbol]
-
-  new (data: this[typeof composedDataSymbol]): SuperModel &
-    BaseDataModel<this[typeof dataSymbol]> &
-    Omit<this[typeof dataSymbol], BaseDataModelKeys> &
+  new (data: _ComposedData<SuperModel, TProps>): SuperModel &
+    BaseDataModel<ModelPropsToData<TProps>> &
+    Omit<ModelPropsToData<TProps>, BaseDataModelKeys> &
     ModelPropsToSetter<TProps>
 }
+
+/**
+ * Base abstract class for data models that extends another model.
+ *
+ * @typeparam TProps New model properties type.
+ * @typeparam TModel Model type.
+ * @param genFn Function that returns the base model and model properties.
+ * @returns
+ */
+export function ExtendedDataModel<
+  TProps extends ModelProps,
+  TModel extends AnyDataModel,
+  A extends []
+>(
+  genFn: (
+    ...args: A
+  ) => {
+    baseModel: AbstractModelClass<TModel>
+    props: TProps
+  }
+): _DataModel<TModel, TProps>
 
 /**
  * Base abstract class for data models that extends another model.
@@ -33,7 +50,24 @@ export interface _DataModel<SuperModel, TProps extends ModelProps> {
 export function ExtendedDataModel<TProps extends ModelProps, TModel extends AnyDataModel>(
   baseModel: AbstractModelClass<TModel>,
   modelProps: TProps
+): _DataModel<TModel, TProps>
+
+// base
+export function ExtendedDataModel<TProps extends ModelProps, TModel extends AnyDataModel>(
+  ...args: any[]
 ): _DataModel<TModel, TProps> {
+  let baseModel
+  let modelProps
+  if (isDataModelClass(args[0])) {
+    baseModel = args[0]
+    modelProps = args[1]
+  } else {
+    const gen = args[0]()
+
+    baseModel = gen.baseModel
+    modelProps = gen.props
+  }
+
   assertIsDataModelClass(baseModel, "baseModel")
 
   return internalDataModel(modelProps, baseModel as any)
@@ -45,11 +79,32 @@ export function ExtendedDataModel<TProps extends ModelProps, TModel extends AnyD
  * Never override the constructor, use `onLazyInit` or `onLazyAttachedToRootStore` instead.
  *
  * @typeparam TProps Model properties type.
+ * @param fnModelProps Function that generates model properties.
+ */
+export function DataModel<TProps extends ModelProps, A extends []>(
+  fnModelProps: (...args: A) => TProps
+): _DataModel<unknown, TProps>
+
+/**
+ * Base abstract class for data models.
+ *
+ * Never override the constructor, use `onLazyInit` or `onLazyAttachedToRootStore` instead.
+ *
+ * @typeparam TProps Model properties type.
  * @param modelProps Model properties.
  */
 export function DataModel<TProps extends ModelProps>(
   modelProps: TProps
+): _DataModel<unknown, TProps>
+
+// base
+export function DataModel<TProps extends ModelProps>(
+  fnModelPropsOrModelProps: (() => TProps) | TProps
 ): _DataModel<unknown, TProps> {
+  const modelProps =
+    typeof fnModelPropsOrModelProps === "function"
+      ? fnModelPropsOrModelProps()
+      : fnModelPropsOrModelProps
   return internalDataModel(modelProps, undefined)
 }
 

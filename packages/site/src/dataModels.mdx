@@ -232,9 +232,32 @@ const myBookStore = new BookStore({})
 await myBookStore.fetchMyBooksAsync("someToken")
 ```
 
-## Factory pattern
+## Factory pattern / Generics
 
-It is possible to use a factory pattern with data models. For example:
+If you are _not_ relying on `tProp` to do runtime type-checking it is possible to use this pattern to get generic classes:
+
+```ts
+@model("myApp/GenericPoint")
+class GenericPoint<T> extends DataModel(<T>() => ({
+  x: prop<T>(),
+  y: prop<T>(),
+}))<T> {
+  @modelAction
+  setXY(x: T, y: T) {
+    this.x = x
+    this.y = y
+  }
+}
+
+@model("myApp/Generic3dPoint")
+class Generic3dPoint<T> extends ExtendedDataModel(<T>() => ({
+  z: prop<T>(),
+}))<T> {
+  // ...
+}
+```
+
+If you rely on `tProp` (and also `prop` really) a different possibility is to use a factory pattern with data models. For example:
 
 ```ts
 function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {

@@ -51,12 +51,19 @@ export type ModelPropsToData<MP extends ModelProps> = {
   [k in keyof MP]: MP[k]["$valueType"]
 }
 
-export type ModelPropsToCreationData<MP extends ModelProps> = O.Optional<
+// we don't use O.Optional anymore since it generates unions too heavy
+export type ModelPropsToCreationData<MP extends ModelProps> = O.Pick<
   {
-    [k in keyof MP]: MP[k]["$creationValueType"]
+    [k in keyof MP]?: MP[k]["$creationValueType"]
   },
   OptionalModelProps<MP>
->
+> &
+  O.Omit<
+    {
+      [k in keyof MP]: MP[k]["$creationValueType"]
+    },
+    OptionalModelProps<MP>
+  >
 
 export type ModelPropsToSetter<MP extends ModelProps> = {
   [k in keyof MP as MP[k]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
