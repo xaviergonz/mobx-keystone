@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.58.0
+
 - Added a simpler pattern for generic models when using `prop`.
 - Added `resolveId` to be able to resolve a model given its ID.
 

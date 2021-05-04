@@ -26,7 +26,7 @@ export interface CustomRefOptions<T extends object> {
    *
    * @param target Target object.
    */
-  getId?: RefIdResolver<T>
+  getId?: RefIdResolver
 
   /**
    * What should happen when the resolved value changes.
