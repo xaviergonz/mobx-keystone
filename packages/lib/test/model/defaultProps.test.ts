@@ -46,15 +46,16 @@ test("default props", () => {
       yy?: number | null
       yyy?: number | null
 
-      a: number
       aa?: number
-      aaa: number | null
       aaaa?: number | null
 
-      b: number
       bb?: number
-      bbb: number | null
       bbbb?: number | null
+    } & {
+      a: number
+      aaa: number | null
+      b: number
+      bbb: number | null
     }
   )
 
