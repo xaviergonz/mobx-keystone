@@ -1,13 +1,12 @@
 import { action } from "mobx"
 import { fastGetRoot } from "../parent/path"
-import { computedWalkTreeAggregate, ComputedWalkTreeAggregate } from "../parent/walkTree"
-import { getOrCreate } from "../utils/mapUtils"
 import {
   getModelRefId,
   internalCustomRef,
   RefIdResolver,
   RefOnResolvedValueChange,
   RefResolver,
+  resolveId,
 } from "./core"
 import type { Ref, RefConstructor } from "./Ref"
 
@@ -21,7 +20,7 @@ export interface RootRefOptions<T extends object> {
    *
    * @param target Target object.
    */
-  getId?: RefIdResolver<unknown>
+  getId?: RefIdResolver
 
   /**
    * What should happen when the resolved value changes.
@@ -32,11 +31,6 @@ export interface RootRefOptions<T extends object> {
    */
   onResolvedValueChange?: RefOnResolvedValueChange<T>
 }
-
-const computedIdTrees = new WeakMap<
-  (node: object) => string | undefined,
-  ComputedWalkTreeAggregate<string>
->()
 
 /**
  * Creates a root ref to an object, which in its snapshot form has an id.
@@ -57,11 +51,6 @@ export const rootRef: <T extends object>(
     const getId = options?.getId ?? getModelRefId
     const onResolvedValueChange = options?.onResolvedValueChange
 
-    // cache/reuse computedIdTrees for same getId function
-    const computedIdTree = getOrCreate(computedIdTrees, getId, () =>
-      computedWalkTreeAggregate<string>(getId)
-    )
-
     const resolverGen = (ref: Ref<T>): RefResolver<T> => {
       let cachedTarget: T | undefined
 
@@ -74,8 +63,7 @@ export const rootRef: <T extends object>(
 
         // when not found, everytime a child is added/removed or its id changes we will perform another search
         // this search is only done once for every distinct getId function
-        const idMap = computedIdTree!.walk(refRoot)
-        const newTarget = idMap ? (idMap.get(ref.id) as T | undefined) : undefined
+        const newTarget = resolveId<T>(refRoot, ref.id, getId)
         if (newTarget) {
           cachedTarget = newTarget
         }
@@ -91,7 +79,7 @@ function isRefRootCachedTargetOk<T extends object>(
   ref: Ref<T>,
   refRoot: object,
   cachedTarget: T | undefined,
-  getId: RefIdResolver<T>
+  getId: RefIdResolver
 ): cachedTarget is T {
   if (!cachedTarget) return false
   if (ref.id !== getId(cachedTarget)) return false

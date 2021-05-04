@@ -7,6 +7,7 @@ import {
   registerDeepObjectChildrenExtension,
 } from "../parent/coreObjectChildren"
 import { getRoot } from "../parent/path"
+import { ComputedWalkTreeAggregate, computedWalkTreeAggregate } from "../parent/walkTree"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
@@ -30,7 +31,7 @@ export type RefResolver<T extends object> = (ref: Ref<T>) => T | undefined
 /**
  * Reference ID resolver type.
  */
-export type RefIdResolver<T extends object | unknown> = (target: T) => string | undefined
+export type RefIdResolver = (target: object) => string | undefined
 
 /**
  * Type for the callback called when a reference resolved value changes.
@@ -48,7 +49,7 @@ export type RefOnResolvedValueChange<T extends object> = (
 export function internalCustomRef<T extends object>(
   modelTypeId: string,
   resolverGen: (ref: Ref<T>) => RefResolver<T>,
-  getId: RefIdResolver<T>,
+  getId: RefIdResolver,
   onResolvedValueChange: RefOnResolvedValueChange<T> | undefined
 ): RefConstructor<T> {
   @model(modelTypeId)
@@ -149,6 +150,35 @@ export function getModelRefId(target: object): string | undefined {
     return id
   }
   return undefined
+}
+
+// one computed id tree per id function
+const computedIdTrees = new WeakMap<
+  (node: object) => string | undefined,
+  ComputedWalkTreeAggregate<string>
+>()
+
+/**
+ * Resolves a node given its ID.
+ *
+ * @typeparam T Target object type.
+ * @param root Node where to start the search. The search will be done on it and all its children.
+ * @param id ID to search for.
+ * @param getId Function that will be used to get the ID from an object (`getModelRefId` by default).
+ * @returns The node found or `undefined` if none.
+ */
+export function resolveId<T extends object>(
+  root: object,
+  id: string,
+  getId: RefIdResolver = getModelRefId
+): T | undefined {
+  // cache/reuse computedIdTrees for same getId function
+  const computedIdTree = getOrCreate(computedIdTrees, getId, () =>
+    computedWalkTreeAggregate<string>((node) => getId(node))
+  )
+
+  const idMap = computedIdTree.walk(root)
+  return idMap ? (idMap.get(id) as T | undefined) : undefined
 }
 
 function getBackRefs<T extends object>(
