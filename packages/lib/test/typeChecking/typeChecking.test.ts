@@ -872,7 +872,7 @@ test("ref", () => {
       return m
     },
     getId(target) {
-      return "" + target.y
+      return "" + (target as M).y
     },
   })
   const r = customR(m)
