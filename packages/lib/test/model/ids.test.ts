@@ -1,9 +1,12 @@
+import { assert, _ } from "spec.ts"
 import {
+  ExtendedModel,
   fromSnapshot,
   getSnapshot,
   idProp,
   model,
   Model,
+  ModelIdPropertyName,
   runUnprotected,
   SnapshotOutOf,
 } from "../../src"
@@ -155,4 +158,25 @@ test("ids with custom property", () => {
       $modelType: "ids-customProperty",
     } as SnapshotOutOf<M>)
   }
+})
+
+test("extended class from base with custom id", () => {
+  @model("IdOnBase")
+  class IdOnBase extends Model({
+    id: idProp,
+  }) {}
+
+  assert(_ as ModelIdPropertyName<IdOnBase>, _ as "id")
+
+  @model("ExtendedIdOnBase")
+  class ExtendedIdOnBase extends ExtendedModel(IdOnBase, {}) {}
+
+  assert(_ as ModelIdPropertyName<ExtendedIdOnBase>, _ as "id")
+
+  const m1 = new ExtendedIdOnBase({ id: "MY_ID" })
+  expect(m1.$modelId).toBe("MY_ID")
+  expect(m1.id).toBe(m1.$modelId)
+  expect(m1.getRefId()).toBe(m1.$modelId)
+  expect(m1.$.id).toBe("MY_ID")
+  expect((m1.$ as any).$modelId).toBe(undefined)
 })

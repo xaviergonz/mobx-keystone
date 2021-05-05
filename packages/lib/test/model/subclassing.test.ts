@@ -75,7 +75,6 @@ test("subclassing with additional props", () => {
       y: number
       z: number
     } & {
-      [modelIdKey]: string
       a: number
       b: number
     }
@@ -88,7 +87,6 @@ test("subclassing with additional props", () => {
       y?: number | null
       z?: number | null
     } & Empty & {
-        [modelIdKey]?: string
         a?: number | null
       } & {
         b: number
@@ -153,9 +151,7 @@ test("subclassing without additional props", () => {
       x: number
       y: number
       z: number
-    } & {
-      [modelIdKey]: string
-    }
+    } & Empty
   )
   assert(
     _ as CD,
@@ -164,9 +160,7 @@ test("subclassing without additional props", () => {
       x?: number | null
       y?: number | null
       z?: number | null
-    } & Empty & {
-        [modelIdKey]?: string
-      } & Empty
+    } & Empty
   )
 
   const p2 = new P2({ x: 20 })
@@ -212,9 +206,7 @@ test("subclassing without anything new", () => {
       x: number
       y: number
       z: number
-    } & {
-      [modelIdKey]: string
-    }
+    } & Empty
   )
   assert(
     _ as CD,
@@ -223,9 +215,7 @@ test("subclassing without anything new", () => {
       x?: number | null
       y?: number | null
       z?: number | null
-    } & Empty & {
-        [modelIdKey]?: string
-      } & Empty
+    } & Empty
   )
 
   const p2 = new P2({ x: 20 })
@@ -298,10 +288,8 @@ test("three level subclassing", () => {
       y: number
       z: number
     } & {
-      [modelIdKey]: string
       a: number
     } & {
-      [modelIdKey]: string
       b: number
     }
   )
@@ -313,10 +301,7 @@ test("three level subclassing", () => {
       y?: number | null | undefined
       z?: number | null | undefined
     } & Empty & {
-        [modelIdKey]?: string
         a?: number | null | undefined
-      } & {
-        [modelIdKey]?: string
       } & {
         b: number
       }

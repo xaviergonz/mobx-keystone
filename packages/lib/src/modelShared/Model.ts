@@ -85,6 +85,10 @@ export function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model.$[modelPropName] = value
 }
 
+const idGenerator = () => getGlobalConfig().modelIdGenerator()
+const tPropForId = tProp(typesString, idGenerator)
+const propForId = prop(idGenerator)
+
 export function sharedInternalModel<
   TProps extends ModelProps,
   TBaseModel extends AnyModel | AnyDataModel
@@ -127,7 +131,10 @@ export function sharedInternalModel<
   }
 
   // look for id keys
-  const idKeys = Object.keys(composedModelProps).filter((k) => composedModelProps[k] === idProp)
+  const idKeys = Object.keys(composedModelProps).filter((k) => {
+    const p = composedModelProps[k]
+    return p === idProp || p === propForId || p === tPropForId
+  })
   if (type === "class") {
     if (idKeys.length > 1) {
       throw failure(`expected at most one idProp but got many: ${JSON.stringify(idKeys)}`)
@@ -158,10 +165,7 @@ export function sharedInternalModel<
   let idKey: string | undefined
   if (idKeys.length >= 1) {
     idKey = idKeys[0]
-    const idGenerator = () => getGlobalConfig().modelIdGenerator()
-    composedModelProps[idKey] = needsTypeChecker
-      ? tProp(typesString, idGenerator)
-      : prop(idGenerator)
+    composedModelProps[idKey] = needsTypeChecker ? tPropForId : propForId
   }
 
   // create type checker if needed

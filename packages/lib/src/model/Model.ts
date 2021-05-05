@@ -7,7 +7,7 @@ import {
   ModelPropsToData,
   ModelPropsToSetter,
 } from "../modelShared/prop"
-import type { AnyModel, BaseModel, BaseModelKeys } from "./BaseModel"
+import type { AnyModel, BaseModel, BaseModelKeys, ModelIdPropertyName } from "./BaseModel"
 import { assertIsModelClass, isModelClass } from "./utils"
 
 export type _ComposedCreationData<
@@ -17,12 +17,16 @@ export type _ComposedCreationData<
   ? ModelPropsToCreationData<TProps> & CD
   : ModelPropsToCreationData<TProps>
 
+export type _ModelId<SuperModel, TProps extends ModelProps> = SuperModel extends AnyModel
+  ? ModelIdPropertyName<SuperModel>
+  : ExtractModelIdProp<TProps> & string
+
 export interface _Model<SuperModel, TProps extends ModelProps> {
   new (data: _ComposedCreationData<SuperModel, TProps>): SuperModel &
     BaseModel<
       ModelPropsToData<TProps>,
       ModelPropsToCreationData<TProps>,
-      ExtractModelIdProp<TProps> & string
+      _ModelId<SuperModel, TProps>
     > &
     Omit<ModelPropsToData<TProps>, BaseModelKeys> &
     ModelPropsToSetter<TProps>
@@ -62,7 +66,7 @@ export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel
     props: TProps
   },
   modelOptions?: ModelOptions
-): _Model<TModel, AddModelIdPropIfNeeded<TProps>>
+): _Model<TModel, TProps>
 
 /**
  * Base abstract class for models that extends another model.
@@ -78,12 +82,12 @@ export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel
   baseModel: AbstractModelClass<TModel>,
   modelProps: TProps,
   modelOptions?: ModelOptions
-): _Model<TModel, AddModelIdPropIfNeeded<TProps>>
+): _Model<TModel, TProps>
 
 // base
 export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel>(
   ...args: any[]
-): _Model<TModel, AddModelIdPropIfNeeded<TProps>> {
+): _Model<TModel, TProps> {
   let baseModel
   let modelProps
   let modelOptions

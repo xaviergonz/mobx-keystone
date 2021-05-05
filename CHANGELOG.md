@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.58.1
+
+- Fixed an issue where `idProp` on the base was not being picked up by `ExtendedModel`.
+
 ## 0.58.0
 
 - Added a simpler pattern for generic models when using `prop`.

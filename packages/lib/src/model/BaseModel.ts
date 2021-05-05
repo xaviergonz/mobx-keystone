@@ -37,7 +37,7 @@ export const modelIdPropertyNameSymbol = Symbol()
 export abstract class BaseModel<
   Data extends { [k: string]: any },
   CreationData extends { [k: string]: any },
-  ModelIdPropertyName extends string = never
+  ModelIdPropertyName extends string = typeof modelIdKey
 > {
   // just to make typing work properly
   [dataTypeSymbol]: Data;
