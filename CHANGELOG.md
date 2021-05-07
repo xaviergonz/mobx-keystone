@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.58.2
+
+- Generic types are now inferable from the constructor parameters
+
 ## 0.58.1
 
 - Fixed an issue where `idProp` on the base was not being picked up by `ExtendedModel`.

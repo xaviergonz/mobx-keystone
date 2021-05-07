@@ -52,12 +52,11 @@ export type ModelPropsToData<MP extends ModelProps> = {
 }
 
 // we don't use O.Optional anymore since it generates unions too heavy
-export type ModelPropsToCreationData<MP extends ModelProps> = O.Pick<
-  {
-    [k in keyof MP]?: MP[k]["$creationValueType"]
-  },
-  OptionalModelProps<MP>
-> &
+// also if we use pick over the optional props we will loose the ability
+// to infer generics
+export type ModelPropsToCreationData<MP extends ModelProps> = {
+  [k in keyof MP]?: MP[k]["$creationValueType"]
+} &
   O.Omit<
     {
       [k in keyof MP]: MP[k]["$creationValueType"]

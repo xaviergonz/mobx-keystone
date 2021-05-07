@@ -86,11 +86,12 @@ test("subclassing with additional props", () => {
       x?: number | null
       y?: number | null
       z?: number | null
-    } & Empty & {
-        a?: number | null
-      } & {
-        b: number
-      }
+    } & {
+      a?: number | null
+      b?: number
+    } & {
+      b: number
+    } & Empty
   )
 
   const p2 = new P2({ x: 20, b: 70 })
@@ -300,11 +301,11 @@ test("three level subclassing", () => {
       x?: number | null | undefined
       y?: number | null | undefined
       z?: number | null | undefined
-    } & Empty & {
-        a?: number | null | undefined
-      } & {
-        b: number
-      }
+    } & {
+      a?: number | null | undefined
+    } & { b?: number } & {
+      b: number
+    } & Empty
   )
 
   const p2 = new P2({ x: 20, b: 70 })
@@ -697,21 +698,22 @@ test("ExtendedModel should bring static / prototype properties", () => {
 test("new pattern for generics", () => {
   @model("GenericModel")
   class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
-    v1: prop<U1>(),
+    v1: prop<U1 | undefined>(),
     v2: prop<U2>(),
     v3: prop<number>(0),
   }))<T1, T2> {}
 
   assert(
     _ as ModelData<GenericModel<string, number>>,
-    _ as { [modelIdKey]: string; v1: string; v2: number; v3: number }
+    _ as { [modelIdKey]: string; v1: string | undefined; v2: number; v3: number }
   )
   assert(
     _ as ModelData<GenericModel<number, string>>,
-    _ as { [modelIdKey]: string; v1: number; v2: string; v3: number }
+    _ as { [modelIdKey]: string; v1: number | undefined; v2: string; v3: number }
   )
 
-  const s = new GenericModel<string, number>({ v1: "1", v2: 2, v3: 3 })
+  const s = new GenericModel({ v1: "1", v2: 2, v3: 3 })
+  assert(s, _ as GenericModel<string, number>)
   expect(s.v1).toBe("1")
   expect(s.v2).toBe(2)
   expect(s.v3).toBe(3)
@@ -720,11 +722,12 @@ test("new pattern for generics", () => {
   class ExtendedGenericModel<T1, T2> extends ExtendedModel(<T1, T2>() => ({
     baseModel: modelClass<GenericModel<T1, T2>>(GenericModel),
     props: {
-      v4: prop<T2>(),
+      v4: prop<T2 | undefined>(),
     },
   }))<T1, T2> {}
 
-  const e = new ExtendedGenericModel<string, number>({ v1: "1", v2: 2, v3: 3, v4: 4 })
+  const e = new ExtendedGenericModel({ v1: "1", v2: 2, v3: 3, v4: 4 })
+  assert(e, _ as ExtendedGenericModel<string, number>)
   expect(e.v1).toBe("1")
   expect(e.v2).toBe(2)
   expect(e.v3).toBe(3)
