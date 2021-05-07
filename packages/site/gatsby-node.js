@@ -8,6 +8,10 @@ exports.onCreateBabelConfig = ({ actions }) => {
     options: { loose: false },
   })
   actions.setBabelPlugin({
+    name: "@babel/plugin-proposal-private-methods",
+    options: { loose: false },
+  })
+  actions.setBabelPlugin({
     name: "@babel/plugin-transform-classes",
   })
 }
