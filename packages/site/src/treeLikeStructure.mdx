@@ -127,14 +127,14 @@ A max depth of 0 is infinite, but another one can be given.
 
 ### `findParentPath<T extends object = any>(child: object, predicate: (parent: object) => boolean, maxDepth = 0): FoundParentPath<T> | undefined`
 
-### `findChildren<T extends object = any>(root: object, predicate: (node: object) => boolean): ReadonlySet<T>`
-
-Iterates through all children and collects them in a set if the given predicate matches.
-
 Iterates through all the parents (from the nearest until the root) until one of them matches the given predicate.
 If the predicate is matched it will return the found node and the path from the parent to the child.
 If none is found it will return `undefined`.
 A max depth of 0 is infinite, but another one can be given.
+
+### `findChildren<T extends object = any>(root: object, predicate: (node: object) => boolean): ReadonlySet<T>`
+
+Iterates through all children and collects them in a set if the given predicate matches.
 
 ### `getChildrenObjects(node: object, options?: { deep?: boolean }): Set<object>`
 
