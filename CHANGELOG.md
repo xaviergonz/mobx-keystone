@@ -1,5 +1,7 @@
 # Change Log
 
+- Added `findChildren` to be able to find all children of a subtree root node for which a predicate matches.
+
 ## 0.58.2
 
 - Generic types are now inferable from the constructor parameters

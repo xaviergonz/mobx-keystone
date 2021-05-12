@@ -1,4 +1,5 @@
 export * from "./detach"
+export * from "./findChildren"
 export * from "./findParent"
 export * from "./getChildrenObjects"
 export * from "./onChildAttachedTo"
