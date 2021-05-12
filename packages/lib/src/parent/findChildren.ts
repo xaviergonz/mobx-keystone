@@ -6,13 +6,18 @@ import { getChildrenObjects } from "./getChildrenObjects"
  *
  * @param root Root object to get the matching children from.
  * @param predicate Function that will be run for every child of the root object.
+ * @param [options] An optional object with the `deep` option (defaults to `false`) set to `true` to
+ * get the children deeply or `false` to get them shallowly.
  * @returns A readonly observable set with the matching children.
  */
 export function findChildren<T extends object = any>(
   root: object,
-  predicate: (node: object) => boolean
+  predicate: (node: object) => boolean,
+  options?: {
+    deep?: boolean
+  }
 ): ReadonlySet<T> {
-  const children = getChildrenObjects(root, { deep: true })
+  const children = getChildrenObjects(root, options)
 
   const set = new Set<any>()
 
