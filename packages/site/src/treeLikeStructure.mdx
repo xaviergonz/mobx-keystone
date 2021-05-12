@@ -132,7 +132,7 @@ If the predicate is matched it will return the found node and the path from the 
 If none is found it will return `undefined`.
 A max depth of 0 is infinite, but another one can be given.
 
-### `getChildrenObjects(node: object, options?: { deep?: boolean }): Set<object>`
+### `getChildrenObjects(node: object, options?: { deep?: boolean }): ReadonlySet<object>`
 
 Returns an observable set with all the children objects (this is, excluding primitives) of an object.
 
