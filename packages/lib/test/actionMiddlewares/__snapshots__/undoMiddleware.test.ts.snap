@@ -6,6 +6,10 @@ Object {
   "undo": Array [
     Object {
       "actionName": "incX",
+      "attachedState": Object {
+        "afterEvent": undefined,
+        "beforeEvent": undefined,
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -43,6 +47,10 @@ Object {
     },
     Object {
       "actionName": "incY",
+      "attachedState": Object {
+        "afterEvent": undefined,
+        "beforeEvent": undefined,
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -86,6 +94,10 @@ exports[`undo-aware substore called from non undo-aware root store 1`] = `
 Array [
   Object {
     "actionName": "addValue",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "inversePatches": Array [
       Object {
         "op": "replace",
@@ -118,6 +130,10 @@ exports[`undo-aware substore called from non undo-aware root store 2`] = `
 Array [
   Object {
     "actionName": "addValue",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "inversePatches": Array [
       Object {
         "op": "replace",
@@ -152,6 +168,10 @@ Object {
   "undo": Array [
     Object {
       "actionName": "incX",
+      "attachedState": Object {
+        "afterEvent": undefined,
+        "beforeEvent": undefined,
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -179,6 +199,10 @@ Object {
     },
     Object {
       "actionName": "incX",
+      "attachedState": Object {
+        "afterEvent": undefined,
+        "beforeEvent": undefined,
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -206,6 +230,10 @@ Object {
     },
     Object {
       "actionName": "incY",
+      "attachedState": Object {
+        "afterEvent": undefined,
+        "beforeEvent": undefined,
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -236,6 +264,10 @@ Object {
     },
     Object {
       "actionName": "incXY",
+      "attachedState": Object {
+        "afterEvent": undefined,
+        "beforeEvent": undefined,
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -289,6 +321,10 @@ Object {
   "undo": Array [
     Object {
       "actionName": "incX",
+      "attachedState": Object {
+        "afterEvent": "afterIncX1",
+        "beforeEvent": "beforeIncX1",
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -316,6 +352,10 @@ Object {
     },
     Object {
       "actionName": "incX",
+      "attachedState": Object {
+        "afterEvent": "afterIncX2",
+        "beforeEvent": "beforeIncX2",
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -343,6 +383,10 @@ Object {
     },
     Object {
       "actionName": "incY",
+      "attachedState": Object {
+        "afterEvent": "afterIncY10",
+        "beforeEvent": "beforeIncY10",
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -373,6 +417,10 @@ Object {
     },
     Object {
       "actionName": "incXY",
+      "attachedState": Object {
+        "afterEvent": "afterIncXY3,20",
+        "beforeEvent": "beforeIncXY3,20",
+      },
       "inversePatches": Array [
         Object {
           "op": "replace",
@@ -424,6 +472,10 @@ exports[`undoMiddleware - sync 2`] = `
 Array [
   Object {
     "actionName": "pushArr",
+    "attachedState": Object {
+      "afterEvent": "beforeIncXY3,20",
+      "beforeEvent": "beforeIncXY3,20",
+    },
     "inversePatches": Array [
       Object {
         "op": "replace",
@@ -471,6 +523,10 @@ Array [
   },
   Object {
     "actionName": "pushArr",
+    "attachedState": Object {
+      "afterEvent": "beforeIncXY3,20",
+      "beforeEvent": "beforeIncXY3,20",
+    },
     "inversePatches": Array [
       Object {
         "op": "replace",
@@ -522,6 +578,10 @@ Array [
 exports[`withGroup 1`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -647,6 +707,10 @@ Array [
 exports[`withGroup 2`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -772,6 +836,10 @@ Array [
 exports[`withGroup 3`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -898,6 +966,10 @@ exports[`withGroupFlow - concurrent 1`] = `
 Array [
   Object {
     "actionName": "incY",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "inversePatches": Array [
       Object {
         "op": "replace",
@@ -927,6 +999,10 @@ Array [
     "type": "single",
   },
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -988,6 +1064,10 @@ Array [
   },
   Object {
     "actionName": "incY",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "inversePatches": Array [
       Object {
         "op": "replace",
@@ -1022,6 +1102,10 @@ Array [
 exports[`withGroupFlow - simple case 1`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -1147,6 +1231,10 @@ Array [
 exports[`withGroupFlow - simple case 2`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -1272,6 +1360,10 @@ Array [
 exports[`withGroupFlow - simple case 3`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -1397,6 +1489,10 @@ Array [
 exports[`withGroupFlow - throwing 1`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -1468,6 +1564,10 @@ Array [
 exports[`withGroupFlow - throwing 2`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",
@@ -1539,6 +1639,10 @@ Array [
 exports[`withGroupFlow - throwing 3`] = `
 Array [
   Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
     "events": Array [
       Object {
         "actionName": "incX",

@@ -14,9 +14,28 @@ import { failure, getMobxVersion, mobx6 } from "../utils"
 import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
 
 /**
+ * An undo/redo event without attached state.
+ */
+export type UndoEventWithoutAttachedState = UndoSingleEvent | UndoEventGroup
+
+/**
  * An undo/redo event.
  */
-export type UndoEvent = UndoSingleEvent | UndoEventGroup
+export type UndoEvent = UndoEventWithoutAttachedState & {
+  /**
+   * The state saved before the event actions started / after the event actions finished.
+   */
+  attachedState: {
+    /**
+     * The state saved before the event actions started.
+     */
+    beforeEvent?: unknown
+    /**
+     * The state saved after the event actions finished.
+     */
+    afterEvent?: unknown
+  }
+}
 
 /**
  * Undo event type.
@@ -69,10 +88,13 @@ export interface UndoEventGroup {
   /**
    * Events that conform this group (might be single events or other nested groups).
    */
-  readonly events: ReadonlyArray<UndoEvent>
+  readonly events: ReadonlyArray<UndoEventWithoutAttachedState>
 }
 
-function toSingleEvents(event: UndoEvent, reverse: boolean): ReadonlyArray<UndoSingleEvent> {
+function toSingleEvents(
+  event: UndoEventWithoutAttachedState,
+  reverse: boolean
+): ReadonlyArray<UndoSingleEvent> {
   if (event.type === UndoEventType.Single) return [event]
   else {
     const array: UndoSingleEvent[] = []
@@ -143,7 +165,7 @@ export class UndoStore extends Model({
    * @ignore
    */
   @modelAction
-  private _addUndo(event: UndoEvent) {
+  _addUndo(event: UndoEvent) {
     withoutUndo(() => {
       this.undoEvents.push(event)
       // once an undo event is added redo queue is no longer valid
@@ -156,25 +178,25 @@ export class UndoStore extends Model({
   /**
    * @ignore
    */
-  _addUndoToParentGroup(parentGroup: UndoEventGroup | undefined, event: UndoEvent) {
-    if (!parentGroup) {
-      this._addUndo(event)
-    } else {
-      ;(parentGroup.events as UndoEvent[]).push(event)
-    }
+  _addUndoToParentGroup(parentGroup: UndoEventGroup, event: UndoEventWithoutAttachedState) {
+    ;(parentGroup.events as UndoEventWithoutAttachedState[]).push(event)
   }
 
   /**
    * @ignore
    */
-  get _currentGroup() {
+  get _currentGroup(): UndoEventGroup | undefined {
     return this._groupStack[this._groupStack.length - 1]
   }
 
   /**
    * @ignore
    */
-  _startGroup(groupName: string | undefined, startRunning: boolean) {
+  _startGroup(
+    groupName: string | undefined,
+    startRunning: boolean,
+    options: UndoMiddlewareOptions<unknown> | undefined
+  ) {
     let running = false
     const parentGroup = this._currentGroup
 
@@ -183,6 +205,8 @@ export class UndoStore extends Model({
       groupName,
       events: [],
     }
+
+    const attachedStateBeforeEvent = parentGroup ? undefined : options?.attachedState?.save()
 
     const groupErrorMsg = "assertion failed: group out of order"
 
@@ -205,7 +229,17 @@ export class UndoStore extends Model({
         if (running) {
           api.pause()
         }
-        this._addUndoToParentGroup(parentGroup, group)
+        if (parentGroup) {
+          this._addUndoToParentGroup(parentGroup, group)
+        } else {
+          this._addUndo({
+            ...group,
+            attachedState: {
+              beforeEvent: attachedStateBeforeEvent,
+              afterEvent: options?.attachedState?.save(),
+            },
+          })
+        }
       },
     }
 
@@ -307,6 +341,11 @@ export class UndoManager {
       toSingleEvents(event, true).forEach((e) => {
         applyPatches(this.subtreeRoot, e.inversePatches, true)
       })
+
+      // restore the attached state before the operation was made
+      if (event.attachedState?.beforeEvent) {
+        this.options?.attachedState?.restore(event.attachedState.beforeEvent)
+      }
     })
 
     this.store._undo()
@@ -327,6 +366,11 @@ export class UndoManager {
       toSingleEvents(event, false).forEach((e) => {
         applyPatches(this.subtreeRoot, e.patches)
       })
+
+      // restore the attached state after the operation was made
+      if (event.attachedState?.afterEvent) {
+        this.options?.attachedState?.restore(event.attachedState.afterEvent)
+      }
     })
 
     this.store._redo()
@@ -394,7 +438,7 @@ export class UndoManager {
       fn = arg1
     }
 
-    const group = this.store._startGroup(groupName, true)
+    const group = this.store._startGroup(groupName, true, this.options)
     try {
       return fn()
     } finally {
@@ -433,7 +477,7 @@ export class UndoManager {
 
     const gen = fn()
 
-    const group = this.store._startGroup(groupName, false)
+    const group = this.store._startGroup(groupName, false, this.options)
 
     // use bound functions to fix es6 compilation
     const genNext = gen.next.bind(gen)
@@ -501,7 +545,8 @@ export class UndoManager {
   constructor(
     private readonly disposer: ActionMiddlewareDisposer,
     private readonly subtreeRoot: object,
-    store?: UndoStore
+    store: UndoStore | undefined,
+    private readonly options: UndoMiddlewareOptions<unknown> | undefined
   ) {
     if (getMobxVersion() >= 6) {
       mobx6.makeObservable(this)
@@ -512,14 +557,29 @@ export class UndoManager {
 }
 
 /**
+ * Undo middleware options.
+ */
+export interface UndoMiddlewareOptions<S> {
+  attachedState?: {
+    save(): S
+    restore(s: S): void
+  }
+}
+
+/**
  * Creates an undo middleware.
  *
  * @param subtreeRoot Subtree root target object.
- * @param [store] Optional `UndoStore` where to store the undo/redo queues. Use this if you want to
+ * @param store Optional `UndoStore` where to store the undo/redo queues. Use this if you want to
  * store such queues somewhere in your models. If none is provided it will reside in memory.
+ * @param options Extra options, such as how to save / restore certain snapshot of the state to be restored when undoing/redoing.
  * @returns An `UndoManager` which allows you to do the manage the undo/redo operations and dispose of the middleware.
  */
-export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoManager {
+export function undoMiddleware<S>(
+  subtreeRoot: object,
+  store?: UndoStore,
+  options?: UndoMiddlewareOptions<S>
+): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   let manager: UndoManager
@@ -529,12 +589,15 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
     recorderStack: number
     undoRootContext: SimpleActionContext
     group: UndoEventGroup | undefined
+    attachedStateBeforeEvent: S | undefined
   }
 
   const patchRecorderSymbol = Symbol("patchRecorder")
 
   function initPatchRecorder(ctx: SimpleActionContext) {
-    ctx.rootContext.data[patchRecorderSymbol] = {
+    const group = manager.store._currentGroup
+
+    const patchRecorderData: PatchRecorderData = {
       recorder: patchRecorder(subtreeRoot, {
         recording: false,
         filter: () => {
@@ -543,8 +606,12 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
       }),
       recorderStack: 0,
       undoRootContext: ctx,
-      group: manager.store._currentGroup,
-    } as PatchRecorderData
+      group,
+
+      attachedStateBeforeEvent: options?.attachedState?.save(),
+    }
+
+    ctx.rootContext.data[patchRecorderSymbol] = patchRecorderData
   }
 
   function getPatchRecorderData(ctx: SimpleActionContext): PatchRecorderData {
@@ -581,13 +648,27 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
             inversePatches.push(...event.inversePatches)
           }
 
-          manager.store._addUndoToParentGroup(patchRecorderData.group, {
+          const event = {
             type: UndoEventType.Single,
             targetPath: fastGetRootPath(ctx.target).path,
             actionName: ctx.actionName,
             patches,
             inversePatches,
-          })
+          } as const
+
+          const parentGroup = patchRecorderData.group
+
+          if (parentGroup) {
+            manager.store._addUndoToParentGroup(parentGroup, event)
+          } else {
+            manager.store._addUndo({
+              ...event,
+              attachedState: {
+                beforeEvent: patchRecorderData.attachedStateBeforeEvent,
+                afterEvent: options?.attachedState?.save(),
+              },
+            })
+          }
         }
 
         patchRecorder.dispose()
@@ -595,7 +676,7 @@ export function undoMiddleware(subtreeRoot: object, store?: UndoStore): UndoMana
     },
   })
 
-  manager = new UndoManager(middlewareDisposer, subtreeRoot, store)
+  manager = new UndoManager(middlewareDisposer, subtreeRoot, store, options)
   return manager
 }
 

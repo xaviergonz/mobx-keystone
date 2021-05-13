@@ -135,3 +135,28 @@ someUndoManager.withGroupFlow("optional group name", function* () {
 ```
 
 Now, once undo/redo is called all the actions will be undone/redone in a single call.
+
+## Adding attached state to each undo/redo step
+
+Imagine a text editor where you don't want to undo each single cursor position change, but you still want to move the cursor to wherever it was before (when undoing) / after (when redoing) an action is performed.
+
+For this use case you can use what is called an "attached state". This attached state gets saved before an undo/redo step is recorder, as well as after, and is restored after each undo/redo operation. In the case of the text editor, the "attached state" would be the cursor position.
+
+```ts
+interface TextEditorAttachedState {
+  cursorPosition: number
+}
+
+const undoManager = undoMiddleware(myRootStore, undefined, {
+  attachedState: {
+    save(): TextEditorAttachedState {
+      return {
+        cursorPosition, // get the cursor position
+      }
+    },
+    restore(attachedState: TextEditorAttachedState) {
+      // move the cursor position
+    },
+  },
+})
+```

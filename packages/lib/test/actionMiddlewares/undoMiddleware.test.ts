@@ -20,6 +20,12 @@ import {
 import "../commonSetup"
 import { autoDispose, timeMock } from "../utils"
 
+let attachedState = "initial"
+
+beforeEach(() => {
+  attachedState = "initial"
+})
+
 @model("P2")
 class P2 extends Model({
   y: prop(() => 0),
@@ -27,6 +33,7 @@ class P2 extends Model({
   @modelAction
   incY(n: number) {
     this.y += n
+    attachedState = `afterIncY${n}`
   }
 }
 
@@ -39,12 +46,14 @@ class P extends Model({
   @modelAction
   incX(n: number) {
     this.x += n
+    attachedState = `afterIncX${n}`
   }
 
   @modelAction
   incXY(x: number, y: number) {
     this.incX(x)
     this.p2.incY(y)
+    attachedState = `afterIncXY${x},${y}`
     throw new Error("incXY")
   }
 
@@ -82,7 +91,16 @@ test("undoMiddleware - sync", () => {
   const r = new R({})
   const p = r.p
 
-  const manager = undoMiddleware(r, r.undoData)
+  const manager = undoMiddleware(r, r.undoData, {
+    attachedState: {
+      save(): typeof attachedState {
+        return attachedState
+      },
+      restore(s: typeof attachedState) {
+        attachedState = s
+      },
+    },
+  })
   expect(manager instanceof UndoManager).toBeTruthy()
   autoDispose(() => manager.dispose())
 
@@ -103,15 +121,19 @@ test("undoMiddleware - sync", () => {
 
   snapshots.push(getSnapshot(p))
 
+  attachedState = "beforeIncX1"
   p.incX(1)
   snapshots.push(getSnapshot(p))
 
+  attachedState = "beforeIncX2"
   p.incX(2)
   snapshots.push(getSnapshot(p))
 
+  attachedState = "beforeIncY10"
   p.p2.incY(10)
   snapshots.push(getSnapshot(p))
 
+  attachedState = "beforeIncXY3,20"
   expect(() => p.incXY(3, 20)).toThrow("incXY")
   snapshots.push(getSnapshot(p))
 
@@ -126,16 +148,27 @@ test("undoMiddleware - sync", () => {
   expectUndoRedoToBe(4, 0)
   expect(getSnapshot(p)).toStrictEqual(snapshots[4])
 
+  const expectedUndoAttachedStates = [
+    "beforeIncX1",
+    "beforeIncX2",
+    "beforeIncY10",
+    "beforeIncXY3,20",
+  ]
+
   for (let i = 3; i >= 0; i--) {
     manager.undo()
     expectUndoRedoToBe(i, 4 - i)
     expect(getSnapshot(p)).toStrictEqual(snapshots[i])
+    expect(attachedState).toBe(expectedUndoAttachedStates[i])
   }
+
+  const expectedRedoAttachedStates = ["afterIncX1", "afterIncX2", "afterIncY10", "afterIncXY3,20"]
 
   for (let i = 1; i <= 4; i++) {
     manager.redo()
     expectUndoRedoToBe(i, 4 - i)
     expect(getSnapshot(p)).toStrictEqual(snapshots[i])
+    expect(attachedState).toBe(expectedRedoAttachedStates[i - 1])
   }
 
   // check that after an action the redo queue gets cleared

@@ -544,6 +544,10 @@ test("sandbox commit patches are grouped in a single undo item", () => {
     Array [
       Object {
         "actionName": "$$applyPatches",
+        "attachedState": Object {
+          "afterEvent": undefined,
+          "beforeEvent": undefined,
+        },
         "inversePatches": Array [
           Object {
             "op": "replace",
