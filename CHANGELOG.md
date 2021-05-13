@@ -1,5 +1,6 @@
 # Change Log
 
+- Improved support for generics when using references.
 - Added `findChildren` to be able to find all children of a subtree root node for which a predicate matches.
 
 ## 0.58.2
