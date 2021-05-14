@@ -589,6 +589,10 @@ test("undo manager can undo removal of a referenced object in a single step", ()
     Array [
       Object {
         "actionName": "setSelectedCountry",
+        "attachedState": Object {
+          "afterEvent": undefined,
+          "beforeEvent": undefined,
+        },
         "inversePatches": Array [
           Object {
             "op": "replace",
@@ -626,6 +630,10 @@ test("undo manager can undo removal of a referenced object in a single step", ()
     Array [
       Object {
         "actionName": "removeCountry",
+        "attachedState": Object {
+          "afterEvent": undefined,
+          "beforeEvent": undefined,
+        },
         "inversePatches": Array [
           Object {
             "op": "add",
