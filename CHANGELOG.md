@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.59.0
+
 - Added `attachedState` to the `undoMiddleware`. Useful to save/restore state related to actions but that shouldn't be part of the undo/redo event queue (e.g. selection, text editor cursor position, etc.).
 - Added `findChildren` to be able to find all children of a subtree root node for which a predicate matches.
 - Improved support for generics when using references.
