@@ -198,6 +198,7 @@ export class UndoStore extends Model({
     options: UndoMiddlewareOptions<unknown> | undefined
   ) {
     let running = false
+    let ended = false
     const parentGroup = this._currentGroup
 
     const group: UndoEventGroup = {
@@ -208,19 +209,26 @@ export class UndoStore extends Model({
 
     const attachedStateBeforeEvent = parentGroup ? undefined : options?.attachedState?.save()
 
-    const groupErrorMsg = "assertion failed: group out of order"
-
     const api = {
       pause: () => {
-        if (!running || this._currentGroup !== group) {
-          throw new Error(groupErrorMsg)
+        if (ended) {
+          throw failure("cannot pause a group when it is already ended")
+        }
+        if (!running) {
+          throw failure("cannot pause a group when it is not running")
+        }
+        if (this._currentGroup !== group) {
+          throw failure("group out of order")
         }
         this._groupStack.pop()
         running = false
       },
       resume: () => {
+        if (ended) {
+          throw failure("cannot resume a group when it is already ended")
+        }
         if (running) {
-          throw new Error(groupErrorMsg)
+          throw failure("cannot resume a group when it is already running")
         }
         this._groupStack.push(group)
         running = true
@@ -229,6 +237,7 @@ export class UndoStore extends Model({
         if (running) {
           api.pause()
         }
+        ended = true
         if (parentGroup) {
           this._addUndoToParentGroup(parentGroup, group)
         } else {
@@ -406,6 +415,30 @@ export class UndoManager {
       return fn()
     } finally {
       this._isUndoRecordingDisabled = savedUndoDisabled
+    }
+  }
+
+  /**
+   * Creates a custom group that can be continued multiple times and then ended.
+   * @param groupName Optional group name.
+   * @returns An API to continue/end the group.
+   */
+  createGroup(groupName?: string) {
+    const group = this.store._startGroup(groupName, false, this.options)
+
+    return {
+      continue<T>(fn: () => T): T {
+        group.resume()
+        try {
+          return fn()
+        } finally {
+          group.pause()
+        }
+      },
+
+      end() {
+        group.end()
+      },
     }
   }
 

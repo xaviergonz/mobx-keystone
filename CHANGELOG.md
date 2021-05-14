@@ -1,5 +1,7 @@
 # Change Log
 
+- Added `createGroup` to `undoMiddleware`, which allows to group several actions perform in separate code blocks.
+
 ## 0.59.0
 
 - Added `attachedState` to the `undoMiddleware`. Useful to save/restore state related to actions but that shouldn't be part of the undo/redo event queue (e.g. selection, text editor cursor position, etc.).

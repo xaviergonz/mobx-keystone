@@ -552,6 +552,71 @@ test("withGroup", () => {
   expect(manager.undoQueue).toMatchSnapshot()
 })
 
+test("createGroup", () => {
+  const r = new R({})
+  const p = r.p
+
+  const manager = undoMiddleware(r, r.undoData)
+  autoDispose(() => manager.dispose())
+
+  function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
+  }
+
+  expectUndoRedoToBe(0, 0)
+
+  const group1 = manager.createGroup("group1")
+  const ret1 = group1.continue(() => {
+    p.incX(1)
+    p.incX(2)
+    return "a"
+  })
+  expect(ret1).toBe("a")
+  expectUndoRedoToBe(0, 0)
+
+  p.p2.incY(100)
+  expectUndoRedoToBe(1, 0)
+
+  const ret2 = group1.continue(() => {
+    p.incX(3)
+    p.incX(4)
+    return "b"
+  })
+  expect(ret2).toBe("b")
+  expectUndoRedoToBe(1, 0)
+
+  group1.end()
+
+  expect(p.x).toBe(10)
+  expectUndoRedoToBe(2, 0)
+  expect(manager.undoQueue).toMatchSnapshot()
+  expect(p.p2.y).toBe(100)
+
+  manager.undo()
+  expectUndoRedoToBe(1, 1)
+  expect(p.x).toBe(0)
+  expect(manager.redoQueue).toMatchSnapshot()
+  expect(p.p2.y).toBe(100)
+
+  manager.undo()
+  expectUndoRedoToBe(0, 2)
+  expect(p.x).toBe(0)
+  expect(manager.redoQueue).toMatchSnapshot()
+  expect(p.p2.y).toBe(0)
+
+  manager.redo()
+  expectUndoRedoToBe(1, 1)
+  expect(p.x).toBe(0)
+  expect(manager.undoQueue).toMatchSnapshot()
+  expect(p.p2.y).toBe(100)
+
+  manager.redo()
+  expectUndoRedoToBe(2, 0)
+  expect(p.x).toBe(10)
+  expect(manager.undoQueue).toMatchSnapshot()
+  expect(p.p2.y).toBe(100)
+})
+
 test("withGroupFlow - simple case", async () => {
   const r = new RFlow({})
   const p = r.p

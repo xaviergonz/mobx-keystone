@@ -90,6 +90,639 @@ Object {
 }
 `;
 
+exports[`createGroup 1`] = `
+Array [
+  Object {
+    "actionName": "incY",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 0,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 100,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+      "p2",
+    ],
+    "type": "single",
+  },
+  Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 10,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`createGroup 2`] = `
+Array [
+  Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 10,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
+exports[`createGroup 3`] = `
+Array [
+  Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 10,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+  Object {
+    "actionName": "incY",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 0,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 100,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+      "p2",
+    ],
+    "type": "single",
+  },
+]
+`;
+
+exports[`createGroup 4`] = `
+Array [
+  Object {
+    "actionName": "incY",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 0,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 100,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+      "p2",
+    ],
+    "type": "single",
+  },
+]
+`;
+
+exports[`createGroup 5`] = `
+Array [
+  Object {
+    "actionName": "incY",
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "inversePatches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 0,
+      },
+    ],
+    "patches": Array [
+      Object {
+        "op": "replace",
+        "path": Array [
+          "p",
+          "p2",
+          "y",
+        ],
+        "value": 100,
+      },
+    ],
+    "targetPath": Array [
+      "p",
+      "p2",
+    ],
+    "type": "single",
+  },
+  Object {
+    "attachedState": Object {
+      "afterEvent": undefined,
+      "beforeEvent": undefined,
+    },
+    "events": Array [
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 0,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 1,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 3,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+      Object {
+        "actionName": "incX",
+        "inversePatches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 6,
+          },
+        ],
+        "patches": Array [
+          Object {
+            "op": "replace",
+            "path": Array [
+              "p",
+              "x",
+            ],
+            "value": 10,
+          },
+        ],
+        "targetPath": Array [
+          "p",
+        ],
+        "type": "single",
+      },
+    ],
+    "groupName": "group1",
+    "type": "group",
+  },
+]
+`;
+
 exports[`undo-aware substore called from non undo-aware root store 1`] = `
 Array [
   Object {

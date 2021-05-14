@@ -134,6 +134,22 @@ someUndoManager.withGroupFlow("optional group name", function* () {
 })
 ```
 
+Another possibility is to use `createGroup` to group sync actions in separated code blocks:
+
+```ts
+const group = someUndoManager.createGroup("optional group name")
+group.continue(() => {
+  someModel.firstSyncAction()
+})
+
+const asyncValue = await someService.someAsyncStuffInTheMiddle()
+
+group.continue(() => {
+  someModel.secondSyncAction(asyncValue)
+})
+group.end() // at this point is when the undo event will be created
+```
+
 Now, once undo/redo is called all the actions will be undone/redone in a single call.
 
 ## Adding attached state to each undo/redo step
