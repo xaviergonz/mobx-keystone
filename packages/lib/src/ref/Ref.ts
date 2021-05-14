@@ -66,7 +66,7 @@ export declare const customRefTypeSymbol: unique symbol
 
 /** A ref constructor for custom refs */
 export interface RefConstructor<T extends object> {
-  (valueOrID: T | string): Ref<T>
+  <TE extends T>(valueOrID: TE | string): Ref<TE>
 
   refClass: ModelClass<Ref<T>>
 

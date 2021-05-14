@@ -1,4 +1,5 @@
 import { computed, get, reaction, remove, set } from "mobx"
+import { assert, _ } from "spec.ts"
 import {
   clone,
   customRef,
@@ -349,4 +350,31 @@ test("isRefOfType", () => {
   // check generic is ok
   const refObj = ref as Ref<object>
   expect(isRefOfType(refObj, countryRef)).toBe(true)
+})
+
+test("generic typings", () => {
+  @model("GenericModel")
+  class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
+    v1: prop<U1 | undefined>(),
+    v2: prop<U2>(),
+    v3: prop<number>(0),
+  }))<T1, T2> {}
+
+  const genericRef = customRef<GenericModel<any, any>>("genericRef", {
+    resolve() {
+      return null as any
+    },
+  })
+
+  const ref = genericRef(new GenericModel({ v1: 1, v2: "2" }))
+  assert(ref, _ as Ref<GenericModel<number, string>>)
+
+  const genericRef2 = customRef<GenericModel<string, number>>("genericRef2", {
+    resolve() {
+      return null as any
+    },
+  })
+
+  // @ts-expect-error
+  genericRef2(new GenericModel({ v1: 1, v2: "2" }))
 })

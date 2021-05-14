@@ -1,4 +1,5 @@
 import { computed, reaction, remove, runInAction, set } from "mobx"
+import { assert, _ } from "spec.ts"
 import {
   applyPatches,
   applySnapshot,
@@ -779,4 +780,23 @@ test("backrefs can be updated in the middle of an action if the target and ref a
       }).has(ref)
     ).toBe(true)
   })
+})
+
+test("generic typings", () => {
+  @model("GenericModel")
+  class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
+    v1: prop<U1 | undefined>(),
+    v2: prop<U2>(),
+    v3: prop<number>(0),
+  }))<T1, T2> {}
+
+  const genericRef = rootRef<GenericModel<any, any>>("genericRef")
+
+  const ref = genericRef(new GenericModel({ v1: 1, v2: "2" }))
+  assert(ref, _ as Ref<GenericModel<number, string>>)
+
+  const genericRef2 = rootRef<GenericModel<string, number>>("genericRef2")
+
+  // @ts-expect-error
+  genericRef2(new GenericModel({ v1: 1, v2: "2" }))
 })
