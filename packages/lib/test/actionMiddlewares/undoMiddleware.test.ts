@@ -2,6 +2,7 @@ import { computed } from "mobx"
 import {
   getSnapshot,
   model,
+  arrayActions,
   Model,
   modelAction,
   modelFlow,
@@ -485,6 +486,23 @@ test("undo-aware substore called from non undo-aware root store", () => {
   expect(manager.undoLevels).toBe(1) // substore action indirectly called
   expect(manager.undoQueue).toMatchSnapshot()
   manager.clearUndo()
+})
+
+test("works with arrayActions ", () => {
+  const p = new P({})
+  const manager = undoMiddleware(p)
+  arrayActions.push(p.arr, 1)
+  arrayActions.push(p.arr, 2)
+  arrayActions.push(p.arr, 3)
+  arrayActions.swap(p.arr, 0, 1)
+  expect(p.arr[0]).toBe(2)
+  expect(p.arr[1]).toBe(1)
+  manager.undo()
+  expect(p.arr[0]).toBe(1)
+  expect(p.arr[1]).toBe(2)
+  manager.redo()
+  expect(p.arr[0]).toBe(2)
+  expect(p.arr[1]).toBe(1)
 })
 
 test("does not generate steps if using withoutUndo", () => {

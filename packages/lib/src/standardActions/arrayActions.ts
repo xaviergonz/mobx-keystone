@@ -17,7 +17,17 @@ const _arrayActions = fnModel<unknown[]>("mobx-keystone/arrayActions").actions({
   setLength(length: number): void {
     this.length = length
   },
-
+  swap(indexA, indexB: number): void {
+    if (indexA < 0 || indexB < 0 || indexA > this.length - 1 || indexB > this.length - 1) {
+      return
+    }
+    var tmp1 = this[indexA]
+    var tmp2 = this[indexB]
+    set(this, indexA, null)
+    set(this, indexB, null)
+    set(this, indexA, tmp2)
+    set(this, indexB, tmp1)
+  },
   concat(...items: ConcatArray<any>[]): any[] {
     return this.concat(...items)
   },
@@ -57,6 +67,8 @@ export const arrayActions = {
   delete: _arrayActions.delete as <T>(array: T[], index: number) => boolean,
 
   setLength: _arrayActions.setLength as <T>(array: T[], length: number) => void,
+
+  swap: _arrayActions.swap as <T>(array: T[], indexA: number, indexB: number) => void,
 
   concat: _arrayActions.concat as <T>(array: T[], ...items: ConcatArray<T>[]) => T[],
 
