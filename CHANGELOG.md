@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.60.2
+
+- Added `swap` to array actions.
+
 ## 0.60.1
 
 - Added `package.json` to the exports list to avoid issues with metro bundler from react native.

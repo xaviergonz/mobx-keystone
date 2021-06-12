@@ -15,9 +15,15 @@ Sometimes you might need to define a "model" action but without an associated mo
 const arraySwap = standaloneAction(
   "myApp/arraySwap",
   <T>(array: T[], index1: number, index2: number): void => {
-    const [v1, v2] = [array[index1], array[index2]]
-    array[index2] = v1
-    array[index1] = v2
+    if (index2 < index1) {
+      ;[index1, index2] = [index2, index1]
+    }
+    // since a same node cannot be in two places at once we will remove
+    // both then reinsert them
+    const [v1] = array.splice(index1, 1)
+    const [v2] = array.splice(index2 - 1, 1)
+    array.splice(index1, 0, v2)
+    array.splice(index2, 0, v1)
   }
 )
 ```
@@ -43,5 +49,6 @@ In order to work over object and arrays without requiring declaring custom actio
 - `set(array, index, value)` to set an index.
 - `delete(array, index)` to delete an index.
 - `setLength(array, length)` to set a new length.
+- `swap(array, index1, index2)` to swap to array elements.
 
 Plus the usual array mutation methods (`pop`, `push`, etc.).

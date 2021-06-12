@@ -85,5 +85,24 @@ export const arrayActions = {
     return array.unshift(...items)
   }),
 
+  swap: standaloneAction(
+    `${namespace}::swap`,
+    <T>(array: T[], index1: number, index2: number): boolean => {
+      if (index1 < 0 || index2 < 0 || index1 >= array.length || index2 >= array.length) {
+        return false
+      }
+      if (index2 < index1) {
+        ;[index1, index2] = [index2, index1]
+      }
+      // since a same node cannot be in two places at once we will remove
+      // both then reinsert them
+      const [v1] = array.splice(index1, 1)
+      const [v2] = array.splice(index2 - 1, 1)
+      array.splice(index1, 0, v2)
+      array.splice(index2, 0, v1)
+      return true
+    }
+  ),
+
   create: <T>(data: T[]): T[] => toTreeNode(data),
 }
