@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.60.0",
+  "version": "0.60.1",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -23,6 +23,7 @@
   "author": "Javier González Garcés",
   "source": "./src/index.ts",
   "exports": {
+    "./package.json": "./package.json",
     ".": {
       "import": {
         "webpack": "./dist/index.import.js",

@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.60.1
+
+- Added `package.json` to the exports list to avoid issues with metro bundler from react native.
+
 ## 0.60.0
 
 - Added `createGroup` to `undoMiddleware`, which allows to group several actions perform in separate code blocks.
