@@ -22,7 +22,7 @@
     "codecov": "^3.8.2",
     "eslint": "^7.28.0",
     "eslint-config-prettier": "^8.3.0",
-    "netlify-cli": "^3.37.6",
+    "netlify-cli": "^3.37.16",
     "prettier": "^2.3.1",
     "react-scripts": "^4.0.3",
     "typescript": "^4.2.4"
