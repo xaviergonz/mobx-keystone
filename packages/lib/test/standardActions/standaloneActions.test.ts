@@ -1,13 +1,13 @@
-import { assert, _ } from "spec.ts"
 import {
   addActionMiddleware,
   applyAction,
   registerRootStore,
+  standaloneAction,
   tag,
+  toTreeNode,
   types,
   TypeToData,
 } from "../../src"
-import { fnModel, FnModelData } from "../../src/standardActions/fnModel"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
@@ -23,31 +23,30 @@ test("without type", async () => {
       return !todo.done
     },
     toggleDone() {
-      todoModel.setDone(todo, !todo.done)
+      setDone(todo, !todo.done)
     },
   }))
 
-  const todoModel = fnModel<Todo>("myApp/Todo1").actions({
-    setDone(done: boolean) {
-      this.done = done
-    },
-    setText(text: string) {
-      this.text = text
-    },
-    setAll(done: boolean, text: string) {
-      // just to see we can use actions within actions
-      todoModel.setDone(this, done)
-
-      todo.text = text
-      return 32 + todoTag.for(this).ten
-    },
+  const setDone = standaloneAction("myApp/Todo1::setDone", (todo: Todo, done: boolean) => {
+    todo.done = done
   })
 
-  assert(_ as FnModelData<typeof todoModel>, _ as Todo)
+  const setText = standaloneAction("myApp/Todo1::setText", (todo: Todo, text: string) => {
+    todo.text = text
+  })
 
-  expect(todoModel.type).toBe(null)
+  const setAll = standaloneAction(
+    "myApp/Todo1::setAll",
+    (todo: Todo, done: boolean, text: string) => {
+      // just to see we can use actions within actions
+      setDone(todo, done)
 
-  const todo = todoModel.create({ done: true, text: "1" })
+      todo.text = text
+      return 32 + todoTag.for(todo).ten
+    }
+  )
+
+  const todo = toTreeNode<Todo>({ done: true, text: "1" })
   registerRootStore(todo)
 
   // tag
@@ -82,13 +81,13 @@ test("without type", async () => {
   )
   expect(events.length).toBe(0)
 
-  todoModel.setDone(todo, true)
+  setDone(todo, true)
   expect(todo.done).toBe(true)
 
-  todoModel.setText(todo, "2")
+  setText(todo, "2")
   expect(todo.text).toBe("2")
 
-  expect(todoModel.setAll(todo, false, "3")).toBe(42)
+  expect(setAll(todo, false, "3")).toBe(42)
   expect(todo.done).toBe(false)
   expect(todo.text).toBe("3")
 
@@ -98,6 +97,10 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             true,
           ],
           "data": Object {},
@@ -115,6 +118,10 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             true,
           ],
           "data": Object {},
@@ -133,6 +140,10 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setText",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             "2",
           ],
           "data": Object {},
@@ -150,6 +161,10 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setText",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             "2",
           ],
           "data": Object {},
@@ -168,6 +183,10 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setAll",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
             "3",
           ],
@@ -186,12 +205,20 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
           ],
           "data": Object {},
           "parentContext": Object {
             "actionName": "myApp/Todo1::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -207,6 +234,10 @@ test("without type", async () => {
           "rootContext": Object {
             "actionName": "myApp/Todo1::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -231,12 +262,20 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
           ],
           "data": Object {},
           "parentContext": Object {
             "actionName": "myApp/Todo1::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -252,6 +291,10 @@ test("without type", async () => {
           "rootContext": Object {
             "actionName": "myApp/Todo1::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -277,6 +320,10 @@ test("without type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo1::setAll",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
             "3",
           ],
@@ -313,28 +360,27 @@ test("with type", async () => {
     done: types.boolean,
     text: types.string,
   }))
+  type Todo = TypeToData<typeof todoType>
 
-  const todoModel = fnModel(todoType, "myApp/Todo2").actions({
-    setDone(done: boolean) {
-      this.done = done
-    },
-    setText(text: string) {
-      this.text = text
-    },
-    setAll(done: boolean, text: string) {
+  const setDone = standaloneAction("myApp/Todo2::setDone", (todo: Todo, done: boolean) => {
+    todo.done = done
+  })
+
+  const setText = standaloneAction("myApp/Todo2::setText", (todo: Todo, text: string) => {
+    todo.text = text
+  })
+
+  const setAll = standaloneAction(
+    "myApp/Todo2::setAll",
+    (todo: Todo, done: boolean, text: string) => {
       // just to see we can use actions within actions
-      todoModel.setDone(this, done)
+      setDone(todo, done)
 
       todo.text = text
       return 42
-    },
-  })
-
-  assert(_ as FnModelData<typeof todoModel>, _ as TypeToData<typeof todoType>)
-
-  expect(todoModel.type).toBe(todoType)
-
-  const todo = todoModel.create({ done: false, text: "1" })
+    }
+  )
+  const todo = toTreeNode(todoType, { done: false, text: "1" })
   registerRootStore(todo)
 
   const events: any = []
@@ -359,13 +405,13 @@ test("with type", async () => {
   )
   expect(events.length).toBe(0)
 
-  todoModel.setDone(todo, true)
+  setDone(todo, true)
   expect(todo.done).toBe(true)
 
-  todoModel.setText(todo, "2")
+  setText(todo, "2")
   expect(todo.text).toBe("2")
 
-  expect(todoModel.setAll(todo, false, "3")).toBe(42)
+  expect(setAll(todo, false, "3")).toBe(42)
   expect(todo.done).toBe(false)
   expect(todo.text).toBe("3")
 
@@ -375,6 +421,10 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             true,
           ],
           "data": Object {},
@@ -392,6 +442,10 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             true,
           ],
           "data": Object {},
@@ -410,6 +464,10 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setText",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             "2",
           ],
           "data": Object {},
@@ -427,6 +485,10 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setText",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             "2",
           ],
           "data": Object {},
@@ -445,6 +507,10 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setAll",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
             "3",
           ],
@@ -463,12 +529,20 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
           ],
           "data": Object {},
           "parentContext": Object {
             "actionName": "myApp/Todo2::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -484,6 +558,10 @@ test("with type", async () => {
           "rootContext": Object {
             "actionName": "myApp/Todo2::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -508,12 +586,20 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setDone",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
           ],
           "data": Object {},
           "parentContext": Object {
             "actionName": "myApp/Todo2::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -529,6 +615,10 @@ test("with type", async () => {
           "rootContext": Object {
             "actionName": "myApp/Todo2::setAll",
             "args": Array [
+              Object {
+                "done": false,
+                "text": "3",
+              },
               false,
               "3",
             ],
@@ -554,6 +644,10 @@ test("with type", async () => {
         "ctx": Object {
           "actionName": "myApp/Todo2::setAll",
           "args": Array [
+            Object {
+              "done": false,
+              "text": "3",
+            },
             false,
             "3",
           ],

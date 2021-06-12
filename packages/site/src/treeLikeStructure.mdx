@@ -73,6 +73,8 @@ To check if an non-primitive has been turned into a tree node you can use `isTre
 
 To turn a non-primitive into a tree node you can use `toTreeNode<T>(value: T): T`. If the object is already a tree node then the same object will be returned.
 
+Additionally, `toTreeNode<TType, V>(type: TType, value: V): V` can be used with a type checker which will be invoked to check the data (when auto model type checking is enabled) if desired.
+
 ## Traversal methods
 
 When a non-primitive value is turned into a tree node it gains access to certain methods that allow traversing the data tree:

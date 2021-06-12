@@ -13,7 +13,7 @@ export default {
     "Comparison with mobx-state-tree",
     "Class Models",
     "Data Models",
-    "Standard Actions",
+    "Standard and Standalone Actions",
     "Tree-Like Structure",
     "Root Stores",
     "Snapshots",

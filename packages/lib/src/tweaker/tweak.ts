@@ -1,11 +1,30 @@
 import { action } from "mobx"
 import { isDataModel } from "../dataModel/utils"
+import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { getObjectChildren } from "../parent/coreObjectChildren"
 import { fastGetParent, ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { unsetInternalSnapshot } from "../snapshot/internal"
+import type { AnyStandardType, TypeToData } from "../typeChecking/schemas"
+import { typeCheck } from "../typeChecking/typeCheck"
 import { failure, inDevMode, isMap, isObject, isPrimitive, isSet } from "../utils"
 import { isTweakedObject, tweakedObjects } from "./core"
+
+/**
+ * Turns an object (array, plain object) into a tree node,
+ * which then can accept calls to `getParent`, `getSnapshot`, etc.
+ * If a tree node is passed it will return the passed argument directly.
+ * Additionally this method will use the type passed to check the value
+ * conforms to the type when model auto type checking is enabled.
+ *
+ * @param type Type checker.
+ * @param value Object to turn into a tree node.
+ * @returns The object as a tree node.
+ */
+export function toTreeNode<TType extends AnyStandardType, V extends TypeToData<TType>>(
+  type: TType,
+  value: V
+): V
 
 /**
  * Turns an object (array, plain object) into a tree node,
@@ -15,9 +34,30 @@ import { isTweakedObject, tweakedObjects } from "./core"
  * @param value Object to turn into a tree node.
  * @returns The object as a tree node.
  */
-export function toTreeNode<T extends object>(value: T): T {
+export function toTreeNode<T extends object>(value: T): T
+
+// base
+export function toTreeNode(arg1: any, arg2?: any): any {
+  let value: object, type: AnyStandardType | undefined
+  let hasType
+  if (arguments.length === 1) {
+    hasType = false
+    value = arg1
+  } else {
+    type = arg1
+    hasType = true
+    value = arg2
+  }
+
   if (!isObject(value)) {
     throw failure("only objects can be turned into tree nodes")
+  }
+
+  if (hasType && isModelAutoTypeCheckingEnabled()) {
+    const errors = typeCheck(type, value)
+    if (errors) {
+      errors.throw(value)
+    }
   }
 
   if (!isTweakedObject(value, true)) {

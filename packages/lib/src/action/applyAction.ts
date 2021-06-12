@@ -4,7 +4,7 @@ import { resolvePathCheckingIds } from "../parent/path"
 import { Path } from "../parent/pathTypes"
 import { applyPatches } from "../patch/applyPatches"
 import { applySnapshot } from "../snapshot/applySnapshot"
-import { getFnModelLegacyAction } from "../standardActions/actions"
+import { getStandaloneAction } from "../standardActions/actions"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import { applyDelete } from "./applyDelete"
@@ -104,9 +104,9 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
     return instance[dataModelAction.fnName].apply(instance, call.args)
   }
 
-  const fnModelLegacyAction = getFnModelLegacyAction(call.actionName)
-  if (fnModelLegacyAction) {
-    return fnModelLegacyAction.apply(current, call.args as any)
+  const standaloneAction = getStandaloneAction(call.actionName)
+  if (standaloneAction) {
+    return standaloneAction.apply(current, call.args as any)
   }
 
   return (current as any)[call.actionName].apply(current, call.args)

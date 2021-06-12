@@ -1,103 +1,89 @@
 import { remove, set } from "mobx"
-import { fnModel } from "./fnModel"
+import { toTreeNode } from "../tweaker/tweak"
+import { standaloneAction } from "./standaloneActions"
 
-function _splice(this: any[], start: number, deleteCount?: number): any[]
-function _splice(this: any[], start: number, deleteCount: number, ...items: any[]): any[]
-function _splice(this: any[], ...args: any[]): any[] {
-  return (this.splice as any)(...args)
+function _splice(array: any[], start: number, deleteCount?: number): any[]
+function _splice(array: any[], start: number, deleteCount: number, ...items: any[]): any[]
+function _splice(array: any[], ...args: any[]): any[] {
+  return (array.splice as any)(...args)
 }
 
-const _arrayActions = fnModel<unknown[]>("mobx-keystone/arrayActions").actions({
-  set(index: number, value: any): void {
-    set(this, index, value)
-  },
-  delete(index: number): boolean {
-    return remove(this, "" + index)
-  },
-  setLength(length: number): void {
-    this.length = length
-  },
-
-  concat(...items: ConcatArray<any>[]): any[] {
-    return this.concat(...items)
-  },
-  copyWithin(target: number, start: number, end?: number | undefined): any[] {
-    return this.copyWithin(target, start, end)
-  },
-  fill(value: unknown, start?: number | undefined, end?: number | undefined): any[] {
-    return this.fill(value, start, end)
-  },
-  pop(): any | undefined {
-    return this.pop()
-  },
-  push(...items: any[]): number {
-    return this.push(...items)
-  },
-  reverse(): any[] {
-    return this.reverse()
-  },
-  shift(): any | undefined {
-    return this.shift()
-  },
-  slice(start?: number | undefined, end?: number | undefined): any[] {
-    return this.slice(start, end)
-  },
-  sort(compareFn?: ((a: any, b: any) => number) | undefined): any[] {
-    return this.sort(compareFn)
-  },
-  splice: _splice,
-  unshift(...items: any[]): number {
-    return this.unshift(...items)
-  },
-})
+const namespace = "mobx-keystone/arrayActions"
 
 export const arrayActions = {
-  set: _arrayActions.set as <T>(array: T[], index: number, value: T) => void,
+  set: standaloneAction(`${namespace}::set`, <T>(array: T[], index: number, value: any): void => {
+    set(array, index, value)
+  }),
 
-  delete: _arrayActions.delete as <T>(array: T[], index: number) => boolean,
+  delete: standaloneAction(`${namespace}::delete`, <T>(array: T[], index: number): boolean => {
+    return remove(array, "" + index)
+  }),
 
-  setLength: _arrayActions.setLength as <T>(array: T[], length: number) => void,
+  setLength: standaloneAction(`${namespace}::setLength`, <T>(array: T[], length: number): void => {
+    array.length = length
+  }),
 
-  concat: _arrayActions.concat as <T>(array: T[], ...items: ConcatArray<T>[]) => T[],
+  concat: standaloneAction(
+    `${namespace}::concat`,
+    <T>(array: T[], ...items: ConcatArray<T>[]): T[] => {
+      return array.concat(...items)
+    }
+  ),
 
-  copyWithin: _arrayActions.copyWithin as <T>(
-    array: T[],
-    target: number,
-    start: number,
-    end?: number | undefined
-  ) => T[],
+  copyWithin: standaloneAction(
+    `${namespace}::copyWithin`,
+    <T>(array: T[], target: number, start: number, end?: number | undefined): T[] => {
+      return array.copyWithin(target, start, end)
+    }
+  ),
 
-  fill: _arrayActions.fill as <T>(
-    array: T[],
-    value: T,
-    start?: number | undefined,
-    end?: number | undefined
-  ) => T[],
+  fill: standaloneAction(
+    `${namespace}::fill`,
+    <T>(array: T[], value: T, start?: number | undefined, end?: number | undefined): T[] => {
+      return array.fill(value, start, end)
+    }
+  ),
 
-  pop: _arrayActions.pop as <T>(array: T[]) => T | undefined,
+  pop: standaloneAction(`${namespace}::pop`, <T>(array: T[]): T | undefined => {
+    return array.pop()
+  }),
 
-  push: _arrayActions.push as <T>(array: T[], ...items: T[]) => number,
+  push: standaloneAction(`${namespace}::push`, <T>(array: T[], ...items: T[]): number => {
+    return array.push(...items)
+  }),
 
-  reverse: _arrayActions.reverse as <T>(array: T[]) => T[],
+  reverse: standaloneAction(`${namespace}::reverse`, <T>(array: T[]): T[] => {
+    return array.reverse()
+  }),
 
-  shift: _arrayActions.shift as <T>(array: T[]) => T | undefined,
+  shift: standaloneAction(`${namespace}::shift`, <T>(array: T[]): T | undefined => {
+    return array.shift()
+  }),
 
-  slice: _arrayActions.slice as <T>(
-    array: T[],
-    start?: number | undefined,
-    end?: number | undefined
-  ) => T[],
+  slice: standaloneAction(
+    `${namespace}::slice`,
+    <T>(array: T[], start?: number | undefined, end?: number | undefined): T[] => {
+      return array.slice(start, end)
+    }
+  ),
 
-  sort: _arrayActions.sort as <T>(
-    array: T[],
-    compareFn?: ((a: T, b: T) => number) | undefined
-  ) => T[],
+  sort: standaloneAction(
+    `${namespace}::sort`,
+    <T>(array: T[], compareFn?: ((a: T, b: T) => number) | undefined): T[] => {
+      return array.sort(compareFn)
+    }
+  ),
 
-  splice: _arrayActions.splice as
-    | (<T>(array: T[], start: number, deleteCount?: number) => T[])
-    | (<T>(array: T[], start: number, deleteCount: number, ...items: T[]) => T[]),
+  splice: standaloneAction(
+    `${namespace}::splice`,
+    _splice as
+      | (<T>(array: T[], start: number, deleteCount?: number) => T[])
+      | (<T>(array: T[], start: number, deleteCount: number, ...items: T[]) => T[])
+  ),
 
-  unshift: _arrayActions.unshift as <T>(array: T[], ...items: T[]) => number,
+  unshift: standaloneAction(`${namespace}::unshift`, <T>(array: T[], ...items: T[]): number => {
+    return array.unshift(...items)
+  }),
 
-  create: _arrayActions.create as <T>(data: T[]) => T[],
+  create: <T>(data: T[]): T[] => toTreeNode(data),
 }

@@ -1,11 +1,31 @@
 ---
-name: Standard Actions
-route: /standardActions
+name: Standard And Standalone Actions
+route: /standardAndStandaloneActions
 ---
 
 import { FixStyle } from "./components/FixStyle.tsx"
 
 <FixStyle />
+
+# Standalone Actions
+
+Sometimes you might need to define a "model" action but without an associated model. Say for example that you need an array swap method that needs the be processed by middlewares (undoable, etc.). One way to achieve this is to use standalone actions like this:
+
+```ts
+const arraySwap = standaloneAction(
+  "myApp/arraySwap",
+  <T>(array: T[], index1: number, index2: number): void => {
+    const [v1, v2] = [array[index1], array[index2]]
+    array[index2] = v1
+    array[index1] = v2
+  }
+)
+```
+
+Note the following pre-requisites apply to standalone actions:
+
+- The name provided must be unique across your whole application.
+- The first argument (the target) must always be an existing tree node.
 
 # Standard Actions
 

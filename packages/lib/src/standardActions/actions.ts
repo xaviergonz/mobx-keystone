@@ -2,93 +2,36 @@ import { ActionContextActionType } from "../action/context"
 import { isModelAction } from "../action/isModelAction"
 import { flow, isModelFlow } from "../action/modelFlow"
 import { wrapInAction } from "../action/wrapInAction"
+import { assertIsTreeNode } from "../tweaker/core"
 import { assertIsFunction, failure, logWarning } from "../utils"
 
 /**
  * A function with an object as target.
  */
-export type FnModelFn<T extends object, FN extends (...args: any[]) => any> = (
-  target: T,
-  ...args: Parameters<FN>
-) => ReturnType<FN>
+type TargetedAction = (target: any, ...args: any[]) => any
+
+const standaloneActionRegistry = new Map<string, TargetedAction>()
 
 /**
  * @ignore
  * @internal
  */
-export function assertFnModelKeyNotInUse(fnModelObj: any, key: string) {
-  if (fnModelObj[key] !== undefined) {
-    throw failure(`key '${key}' cannot be redeclared`)
-  }
-}
-
-const fnModelActionRegistry = new Map<string, FnModelFn<any, FnModelActionDef>>()
-
-/**
- * @ignore
- * @internal
- */
-export function getFnModelLegacyAction(actionName: string) {
-  return fnModelActionRegistry.get(actionName)
-}
-
-/**
- * Functional model action definition.
- */
-export type FnModelActionDef = (...args: any[]) => any
-
-/**
- * An object with functional model action definitions.
- */
-export interface FnModelActionsDef {
-  [k: string]: FnModelActionDef
-}
-
-/**
- * Functional model actions.
- */
-export type FnModelActions<Data extends object, ActionsDef extends FnModelActionsDef> = {
-  [k in keyof ActionsDef]: FnModelFn<Data, ActionsDef[k]>
+export function getStandaloneAction(actionName: string) {
+  return standaloneActionRegistry.get(actionName)
 }
 
 /**
  * @ignore
  * @internal
  */
-export function extendFnModelActions(
-  fnModelObj: any,
-  namespace: string,
-  actions: FnModelActionsDef
-): any {
-  for (const [name, fn] of Object.entries(actions)) {
-    addActionToFnModel(fnModelObj, namespace, name, fn, false)
-  }
-
-  return fnModelObj
-}
-
-/**
- * @ignore
- * @internal
- */
-export function addActionToFnModel<Data>(
-  fnModelObj: any,
-  namespace: string,
-  name: string,
-  fn: (...args: any[]) => any,
-  isFlow: boolean
-): void {
-  assertFnModelKeyNotInUse(fnModelObj, name)
-
-  const fullActionName = `${namespace}::${name}`
-
+export function addStandaloneAction(fullActionName: string, fn: TargetedAction, isFlow: boolean) {
   assertIsFunction(fn, fullActionName)
 
-  if (fnModelActionRegistry.has(fullActionName)) {
+  if (standaloneActionRegistry.has(fullActionName)) {
     logWarning(
       "warn",
       `an standalone action with name "${fullActionName}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
-      `duplicateActionName - ${name}`
+      `duplicateActionName - ${fullActionName}`
     )
   }
 
@@ -107,6 +50,13 @@ export function addActionToFnModel<Data>(
         actionType: ActionContextActionType.Sync,
       })
 
-  fnModelObj[name] = (target: Data, ...args: any[]) => wrappedAction.apply(target, args)
-  fnModelActionRegistry.set(fullActionName, fnModelObj[name])
+  const finalAction = (target: any, ...args: any[]) => {
+    assertIsTreeNode(target, "target")
+
+    // we need to put the target into this
+    return wrappedAction.call(target, target, ...args)
+  }
+
+  standaloneActionRegistry.set(fullActionName, finalAction)
+  return finalAction
 }

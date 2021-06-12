@@ -1,6 +1,10 @@
 # Change Log
 
+## 0.60.0
+
 - Added `createGroup` to `undoMiddleware`, which allows to group several actions perform in separate code blocks.
+- Added an overload to `toTreeNode` that accepts a type checker as first argument.
+- Added standalone actions. See the relevant section of the docs for more info.
 
 ## 0.59.0
 
