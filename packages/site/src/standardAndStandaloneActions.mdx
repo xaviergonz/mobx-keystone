@@ -9,7 +9,7 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 # Standalone Actions
 
-Sometimes you might need to define a "model" action but without an associated model. Say for example that you need an array swap method that needs the be processed by middlewares (undoable, etc.). One way to achieve this is to use standalone actions like this:
+Sometimes you might need to define a "model" action but without an associated model. Say for example that you need an array swap method that needs to be processed by middlewares (undoable, etc.). One way to achieve this is to use standalone actions like this:
 
 ```ts
 const arraySwap = standaloneAction(
@@ -28,7 +28,7 @@ const arraySwap = standaloneAction(
 )
 ```
 
-Note the following pre-requisites apply to standalone actions:
+Note the following prerequisites apply to standalone actions:
 
 - The name provided must be unique across your whole application.
 - The first argument (the target) must always be an existing tree node.
