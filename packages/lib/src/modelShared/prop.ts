@@ -28,7 +28,11 @@ export interface ModelProp<
   typeChecker: TypeChecker | LateTypeChecker | undefined
   setter: boolean | "assign"
 
-  withSetter(mode?: boolean | "assign"): ModelPropWithSetter<this>
+  withSetter(mode?: boolean): ModelPropWithSetter<this>
+  /**
+   * @deprecated Setter methods are preferred.
+   */
+  withSetter(mode: "assign"): ModelPropWithSetter<this>
 }
 
 /**
@@ -176,7 +180,7 @@ export function prop<TValue>(def?: any): ModelProp<TValue, any, any, any, any> {
     typeChecker: undefined,
     setter: false,
 
-    withSetter(mode) {
+    withSetter(mode?: boolean | "assign") {
       return { ...obj, setter: mode ?? true }
     },
   }

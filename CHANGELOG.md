@@ -1,5 +1,7 @@
 # Change Log
 
+- Deprecated prop modifier variant `withSetter("assign")`, use `withSetter()` instead.
+
 ## 0.60.2
 
 - Added `swap` to array actions.
