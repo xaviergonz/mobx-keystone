@@ -1,6 +1,5 @@
-import { v4 as uuidv4 } from "uuid"
+import { nanoid } from "nanoid"
 import { failure, inDevMode } from "../utils"
-import { toBase64 } from "../utils/toBase64"
 
 /**
  * Model auto type-checking mode.
@@ -47,7 +46,7 @@ export interface GlobalConfig {
 }
 
 let localId = 0
-const localBaseId = shortenUuid(uuidv4())
+const localBaseId = nanoid()
 
 function defaultModelIdGenerator(): string {
   // we use base 36 for local id since it is short and fast
@@ -106,18 +105,4 @@ export function isModelAutoTypeCheckingEnabled() {
         `invalid 'modelAutoTypeChecking' config value - ${globalConfig.modelAutoTypeChecking}`
       )
   }
-}
-
-function shortenUuid(uuid: string): string {
-  // remove non-hex chars
-  const hex = uuid.split("-").join("")
-
-  // convert to base64
-  const hexMatch = hex.match(/\w{2}/g)!
-  const str = String.fromCharCode.apply(
-    null,
-    hexMatch.map((a) => parseInt(a, 16))
-  )
-
-  return toBase64(str)
 }

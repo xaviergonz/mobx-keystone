@@ -1,5 +1,7 @@
 # Change Log
 
+- Changed to nanoid from uuid for model id generation.
+
 ## 0.60.2
 
 - Added `swap` to array actions.
