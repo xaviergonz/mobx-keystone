@@ -1,12 +1,16 @@
 {
-  "include": ["src", "types"],
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
     "lib": ["dom", "esnext"],
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noEmit": true,
     "importHelpers": true,
     "declaration": true,
-    "sourceMap": true,
+    "declarationDir": "./dist",
     "rootDir": "./src",
     "strict": true,
     "noImplicitAny": true,
@@ -19,18 +23,17 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
       "*": ["src/*", "node_modules/*"]
     },
     "jsx": "react",
-    "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "skipLibCheck": true,
-    "noEmit": true,
     "stripInternal": true,
-    "useDefineForClassFields": true
-  }
+    "useDefineForClassFields": true,
+    "isolatedModules": true
+  },
+  "include": ["./src"]
 }

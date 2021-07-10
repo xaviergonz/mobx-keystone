@@ -34,6 +34,7 @@ import { TupleTypeInfo, typesTuple } from "./tuple"
 import { typesUnchecked, UncheckedTypeInfo } from "./unchecked"
 export { getTypeInfo } from "./getTypeInfo"
 export { TypeInfo } from "./TypeChecker"
+export type { ObjectTypeInfoProps, ModelTypeInfoProps }
 export {
   BooleanTypeInfo,
   LiteralTypeInfo,
@@ -46,11 +47,9 @@ export {
   RefTypeInfo,
   UncheckedTypeInfo,
   ObjectTypeInfo,
-  ObjectTypeInfoProps,
   ArraySetTypeInfo,
   ArrayTypeInfo,
   ModelTypeInfo,
-  ModelTypeInfoProps,
   OrTypeInfo,
   TupleTypeInfo,
 }

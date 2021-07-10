@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.60.3
+
+- Switched bundler from microbundle to vite.
 - Deprecated prop modifier variant `withSetter("assign")`, use `withSetter()` instead.
 - Changed to nanoid from uuid for model id generation.
 

@@ -1,9 +1,11 @@
 /*.log
-/.DS_Store
+/**/.DS_Store
 /node_modules/
 /.rts2_cache_*/
 /dist/
+/dist-ssr/
 /coverage/
 /README.md
 /LICENSE
 /CHANGELOG.md
+/*.local
