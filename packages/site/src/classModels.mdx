@@ -101,7 +101,7 @@ const myTodo2 = new Todo({ text: "buy some coffee" })
 
 ## Automatic class model actions for property setters
 
-Most times, the only action we need for a property is a setter we can use the prop modifier `withSetter()` to reduce boilerplace and generate property setters. For example, the model above could be written as:
+Most times, the only action we need for a property is a setter. We can use the prop modifier `withSetter()` (`withSetter("assign")` has been deprecated) to reduce boilerplate and generate property setters. For example, the model above could be written as:
 
 ```ts
 @model("myCoolApp/Todo")
