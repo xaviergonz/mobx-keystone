@@ -28,7 +28,7 @@ export interface ModelProp<
   typeChecker: TypeChecker | LateTypeChecker | undefined
   setter: boolean | "assign"
 
-  withSetter(mode?: boolean): ModelPropWithSetter<this>
+  withSetter(): ModelPropWithSetter<this>
   /**
    * @deprecated Setter methods are preferred.
    */
@@ -78,7 +78,7 @@ export type ModelPropsToSetter<MP extends ModelProps> = {
  * A property that will be used as model id, replacing $modelId.
  * Can only be used in models and there can be only one per model.
  */
-export const idProp = (Symbol("idProp") as any) as ModelProp<string, string, string, true>
+export const idProp = Symbol("idProp") as any as ModelProp<string, string, string, true>
 
 /**
  * @ignore
