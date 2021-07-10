@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.60.3",
+  "version": "0.60.4",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -22,15 +22,26 @@
   "license": "MIT",
   "author": "Javier González Garcés",
   "source": "./src/index.ts",
-  "main": "./dist/mobx-keystone.umd.js",
-  "module": "./dist/mobx-keystone.es.js",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/mobx-keystone.es.js",
-      "require": "./dist/mobx-keystone.umd.js"
+      "import": {
+        "webpack": "./dist/mobx-keystone.es.js",
+        "default": "./dist/mobx-keystone.es.mjs"
+      },
+      "require": "./dist/mobx-keystone.umd.js",
+      "script": "./dist/mobx-keystone.umd.js",
+      "default": "./dist/mobx-keystone.es.mjs"
     }
   },
+  "esmodule": "./dist/mobx-keystone.es.mjs",
+  "module": "./dist/mobx-keystone.es.js",
+  "jsnext:main": "./dist/mobx-keystone.es.js",
+  "react-native": "./dist/mobx-keystone.es.js",
+  "umd:main": "./dist/mobx-keystone.umd.js",
+  "unpkg": "./dist/mobx-keystone.umd.js",
+  "jsdelivr": "./dist/mobx-keystone.umd.js",
+  "main": "./dist/mobx-keystone.umd.js",
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
   "files": [
@@ -43,7 +54,7 @@
   "scripts": {
     "quick-build": "tsc",
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
-    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build",
+    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp ./dist/mobx-keystone.es.js ./dist/mobx-keystone.es.mjs",
     "test": "jest",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
