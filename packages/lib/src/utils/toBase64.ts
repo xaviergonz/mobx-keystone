@@ -1,7 +1,7 @@
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
 
 export function toBase64(input: string): string {
-  if (typeof global === "object" && typeof global.Buffer === "function") {
+  if (typeof global === "object" && typeof Buffer === "function") {
     // node
     return Buffer.from(input).toString("base64")
   }

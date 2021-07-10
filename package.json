@@ -20,9 +20,9 @@
   ],
   "devDependencies": {
     "codecov": "^3.8.2",
-    "eslint": "^7.29.0",
+    "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
-    "netlify-cli": "^3.39.4",
+    "netlify-cli": "^4.1.18",
     "prettier": "^2.3.2",
     "react-scripts": "^4.0.3",
     "typescript": "^4.2.4"
