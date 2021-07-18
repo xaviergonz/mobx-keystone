@@ -251,7 +251,10 @@ class GenericPoint<T> extends DataModel(<T>() => ({
 
 @model("myApp/Generic3dPoint")
 class Generic3dPoint<T> extends ExtendedDataModel(<T>() => ({
-  z: prop<T>(),
+  baseModel: modelClass<GenericPoint<T>>(GenericPoint),
+  props: {
+    z: prop<T>(),
+  },
 }))<T> {
   // ...
 }
