@@ -35,7 +35,7 @@ jobs:
       - name: Cache node_modules
         uses: actions/cache@v2
         with:
-          path: node_modules
+          path: "**/node_modules/**"
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-node_modules-
@@ -57,7 +57,7 @@ jobs:
       - name: Restore node_modules
         uses: actions/cache@v2
         with:
-          path: node_modules
+          path: "**/node_modules/**"
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
       
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
@@ -76,7 +76,7 @@ jobs:
       - name: Restore node_modules
         uses: actions/cache@v2
         with:
-          path: node_modules
+          path: "**/node_modules/**"
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
