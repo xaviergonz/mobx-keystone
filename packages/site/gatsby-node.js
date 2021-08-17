@@ -12,6 +12,10 @@ exports.onCreateBabelConfig = ({ actions }) => {
     options: { loose: false },
   })
   actions.setBabelPlugin({
+    name: "@babel/plugin-proposal-private-property-in-object",
+    options: { loose: false },
+  })
+  actions.setBabelPlugin({
     name: "@babel/plugin-transform-classes",
   })
 }

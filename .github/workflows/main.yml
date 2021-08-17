@@ -43,7 +43,7 @@ jobs:
             ${{ runner.os }}-node_modules-
             ${{ runner.os }}-          
 
-      - run: yarn install
+      - run: yarn install --immutable
 
   lib-site-build:
     needs: install
