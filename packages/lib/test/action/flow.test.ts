@@ -220,7 +220,7 @@ test("flow", async () => {
   try {
     await p.throwFlow(10)
     fail("flow must throw")
-  } catch (err) {
+  } catch (err: any) {
     expect(err.message).toBe("flow failed")
   } finally {
     expect(p.x).toBe(oldX + 10)

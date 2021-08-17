@@ -29,113 +29,114 @@ import {
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model = (name: string) => <MC extends ModelClass<AnyModel | AnyDataModel>>(
-  clazz: MC
-): MC => {
-  return internalModel(name)(clazz)
-}
-
-const internalModel = (name: string) => <MC extends ModelClass<AnyModel | AnyDataModel>>(
-  clazz: MC
-): MC => {
-  const type = isModelClass(clazz) ? "class" : isDataModelClass(clazz) ? "data" : undefined
-  if (!type) {
-    throw failure(`clazz must be a class that extends from Model/DataModel`)
+export const model =
+  (name: string) =>
+  <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC): MC => {
+    return internalModel(name)(clazz)
   }
 
-  if (modelInfoByName[name]) {
-    if (getGlobalConfig().showDuplicateModelNameWarnings) {
-      logWarning(
-        "warn",
-        `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
-        `duplicateModelName - ${name}`
-      )
+const internalModel =
+  (name: string) =>
+  <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC): MC => {
+    const type = isModelClass(clazz) ? "class" : isDataModelClass(clazz) ? "data" : undefined
+    if (!type) {
+      throw failure(`clazz must be a class that extends from Model/DataModel`)
     }
-  }
 
-  if ((clazz as any)[modelUnwrappedClassSymbol]) {
-    throw failure("a class already decorated with `@model` cannot be re-decorated")
-  }
-
-  // trick so plain new works
-  const newClazz: any = function (this: any, initialData: any, modelConstructorOptions: any) {
-    const instance = new (clazz as any)(initialData, modelConstructorOptions)
-
-    // set or else it points to the undecorated class
-    Object.defineProperty(instance, "constructor", {
-      configurable: true,
-      writable: true,
-      enumerable: false,
-      value: newClazz,
-    })
-
-    runLateInitializationFunctions(instance, runAfterNewSymbol)
-
-    // compatibility with mobx 6
-    if (getMobxVersion() >= 6) {
-      try {
-        mobx6.makeObservable(instance)
-      } catch (err) {
-        // sadly we need to use this hack since the PR to do this the proper way
-        // was rejected on the mobx side
-        if (
-          err.message !==
-            "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
-          err.message !==
-            "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
-        ) {
-          throw err
-        }
+    if (modelInfoByName[name]) {
+      if (getGlobalConfig().showDuplicateModelNameWarnings) {
+        logWarning(
+          "warn",
+          `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
+          `duplicateModelName - ${name}`
+        )
       }
     }
 
-    // the object is ready
-    addHiddenProp(instance, modelInitializedSymbol, true, false)
-
-    if (type === "class" && instance.onInit) {
-      wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
-
-      instance.onInit()
+    if ((clazz as any)[modelUnwrappedClassSymbol]) {
+      throw failure("a class already decorated with `@model` cannot be re-decorated")
     }
 
-    if (type === "data" && instance.onLazyInit) {
-      wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
+    // trick so plain new works
+    const newClazz: any = function (this: any, initialData: any, modelConstructorOptions: any) {
+      const instance = new (clazz as any)(initialData, modelConstructorOptions)
 
-      instance.onLazyInit()
+      // set or else it points to the undecorated class
+      Object.defineProperty(instance, "constructor", {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: newClazz,
+      })
+
+      runLateInitializationFunctions(instance, runAfterNewSymbol)
+
+      // compatibility with mobx 6
+      if (getMobxVersion() >= 6) {
+        try {
+          mobx6.makeObservable(instance)
+        } catch (e) {
+          const err = e as Error
+          // sadly we need to use this hack since the PR to do this the proper way
+          // was rejected on the mobx side
+          if (
+            err.message !==
+              "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
+            err.message !==
+              "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
+          ) {
+            throw err
+          }
+        }
+      }
+
+      // the object is ready
+      addHiddenProp(instance, modelInitializedSymbol, true, false)
+
+      if (type === "class" && instance.onInit) {
+        wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
+
+        instance.onInit()
+      }
+
+      if (type === "data" && instance.onLazyInit) {
+        wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
+
+        instance.onLazyInit()
+      }
+
+      return instance
     }
 
-    return instance
+    clazz.toString = () => `class ${clazz.name}#${name}`
+    if (type === "class") {
+      ;(clazz as any)[modelTypeKey] = name
+    }
+
+    // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
+    Object.setPrototypeOf(newClazz, clazz)
+    newClazz.prototype = clazz.prototype
+
+    Object.defineProperty(newClazz, "name", {
+      ...Object.getOwnPropertyDescriptor(newClazz, "name"),
+      value: clazz.name,
+    })
+    newClazz[modelUnwrappedClassSymbol] = clazz
+
+    const modelInfo = {
+      name,
+      class: newClazz,
+    }
+
+    modelInfoByName[name] = modelInfo
+
+    modelInfoByClass.set(newClazz, modelInfo)
+    modelInfoByClass.set(clazz, modelInfo)
+
+    runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
+
+    return newClazz
   }
-
-  clazz.toString = () => `class ${clazz.name}#${name}`
-  if (type === "class") {
-    ;(clazz as any)[modelTypeKey] = name
-  }
-
-  // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
-  Object.setPrototypeOf(newClazz, clazz)
-  newClazz.prototype = clazz.prototype
-
-  Object.defineProperty(newClazz, "name", {
-    ...Object.getOwnPropertyDescriptor(newClazz, "name"),
-    value: clazz.name,
-  })
-  newClazz[modelUnwrappedClassSymbol] = clazz
-
-  const modelInfo = {
-    name,
-    class: newClazz,
-  }
-
-  modelInfoByName[name] = modelInfo
-
-  modelInfoByClass.set(newClazz, modelInfo)
-  modelInfoByClass.set(clazz, modelInfo)
-
-  runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
-
-  return newClazz
-}
 
 // basically taken from TS
 function tsDecorate(decorators: any, target: any, key: any, desc: any) {

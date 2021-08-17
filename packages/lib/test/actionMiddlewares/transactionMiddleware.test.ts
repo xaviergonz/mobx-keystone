@@ -188,7 +188,7 @@ describe("transactionMiddleware - async", () => {
     try {
       await p.addX(20, true)
       fail("should have thrown")
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toBe("addX - Error")
     }
     expect(p.x).toBe(10)
@@ -208,7 +208,7 @@ describe("transactionMiddleware - async", () => {
 
       await promise
       fail("should have thrown")
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toBe("addY - Error")
     }
     expect(p.p2.y).toBe(10)
@@ -223,7 +223,7 @@ describe("transactionMiddleware - async", () => {
     try {
       await p.p2.addY(20, true)
       fail("should have thrown")
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toBe("addY - Error")
     }
     expect(p.p2.y).toBe(10 + 20)
@@ -235,7 +235,7 @@ describe("transactionMiddleware - async", () => {
     try {
       await p.p2.addParentX(20, true)
       fail("should have thrown")
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toBe("addX - Error")
     }
 

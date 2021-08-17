@@ -298,7 +298,7 @@ test("undoMiddleware - async", async () => {
   try {
     await p.incXY(3, 20)
     fail("should have thrown")
-  } catch (e) {
+  } catch (e: any) {
     expect(e.message).toBe("incXY")
   }
   snapshots.push(getSnapshot(p))

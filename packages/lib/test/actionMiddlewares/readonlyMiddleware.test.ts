@@ -115,7 +115,7 @@ test("root node (async)", async () => {
   try {
     await p.setXYAsync(5, 10)
     fail("should have failed")
-  } catch (e) {
+  } catch (e: any) {
     expect(e.message).toBe("tried to invoke action 'setXYAsync' over a readonly node")
   }
   await delay(100) // just to make sure it didn't mutate later

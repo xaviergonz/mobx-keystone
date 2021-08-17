@@ -537,7 +537,7 @@ test("abstract model classes without factory", () => {
 
 test("issue #18", () => {
   abstract class A extends Model({}) {
-    public abstract value: number = void 0 as any // similiar to what babel does when using an abstract prop without default value
+    public /* abstract */ value: number = void 0 as any // similiar to what babel does when using an abstract prop without default value
   }
 
   @model("B#18")
