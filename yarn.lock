@@ -19460,16 +19460,16 @@ fsevents@^1.2.7:
     jest: ^27.0.6
     mobx: ^6.3.2
     nanoid: ^3.1.25
-    netlify-cli: ^6.5.3
+    netlify-cli: ^6.3.5
     shx: ^0.3.3
     spec.ts: ^1.1.3
-    ts-jest: ^27.0.5
+    ts-jest: ^27.0.4
     ts-node: ^10.2.0
     ts-toolbelt: ^9.6.0
     tslib: ^2.3.1
     typedoc: ^0.21.5
     typescript: ^4.2.4
-    vite: ^2.5.0
+    vite: ^2.4.4
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
@@ -19755,9 +19755,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^6.5.3":
-  version: 6.5.3
-  resolution: "netlify-cli@npm:6.5.3"
+"netlify-cli@npm:^6.3.5":
+  version: 6.5.4
+  resolution: "netlify-cli@npm:6.5.4"
   dependencies:
     "@netlify/build": ^18.2.10
     "@netlify/config": ^15.3.4
@@ -19874,7 +19874,7 @@ fsevents@^1.2.7:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: 01db6df7009ba90d4342f0fdd10f16b3d9eb32504412088ee2414636a819982c27df91ed4ac83459e87384a025ab80abeaaf70ab38e5244b26f88b0a1359af58
+  checksum: 63e5d4624c614812423c31a224407c7102ec06786ef50003d5fa8b6249afb32aa653d1a69509a3e8e28167f3630a9d4b171946e2c32be45fcfa4344829e447c9
   languageName: node
   linkType: hard
 
@@ -24584,7 +24584,7 @@ resolve@1.18.1:
     codecov: ^3.8.3
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
-    netlify-cli: ^6.5.3
+    netlify-cli: ^6.3.5
     prettier: ^2.3.2
     react-scripts: ^4.0.3
     typescript: ^4.2.4
@@ -27117,7 +27117,7 @@ resolve@1.18.1:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^27.0.5":
+"ts-jest@npm:^27.0.4":
   version: 27.0.5
   resolution: "ts-jest@npm:27.0.5"
   dependencies:
@@ -28412,7 +28412,7 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.5.0":
+"vite@npm:^2.4.4":
   version: 2.5.0
   resolution: "vite@npm:2.5.0"
   dependencies:
