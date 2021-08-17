@@ -6881,7 +6881,7 @@ __metadata:
     mobx-state-tree: ^5.0.2
     shx: ^0.3.3
     tslib: ^2.3.1
-    typescript: ^4.2.4
+    typescript: ~4.2.4
   languageName: unknown
   linkType: soft
 
@@ -19468,7 +19468,7 @@ fsevents@^1.2.7:
     ts-toolbelt: ^9.6.0
     tslib: ^2.3.1
     typedoc: ^0.21.5
-    typescript: ^4.2.4
+    typescript: ~4.2.4
     vite: ^2.4.4
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
@@ -24587,7 +24587,7 @@ resolve@1.18.1:
     netlify-cli: ^6.3.5
     prettier: ^2.3.2
     react-scripts: ^4.0.3
-    typescript: ^4.2.4
+    typescript: ~4.2.4
   languageName: unknown
   linkType: soft
 
@@ -25268,7 +25268,7 @@ resolve@1.18.1:
     react-feather: ^2.0.9
     remotedev: ^0.2.9
     tslib: ^2.3.1
-    typescript: ^4.2.4
+    typescript: ~4.2.4
     uuid: ^8.3.2
   languageName: unknown
   linkType: soft
@@ -27477,7 +27477,7 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"typescript@^4.1.5, typescript@^4.2.4":
+typescript@^4.1.5:
   version: 4.3.5
   resolution: "typescript@npm:4.3.5"
   bin:
@@ -27507,13 +27507,33 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.1.5#~builtin<compat/typescript>, typescript@patch:typescript@^4.2.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.1.5#~builtin<compat/typescript>":
   version: 4.3.5
   resolution: "typescript@patch:typescript@npm%3A4.3.5#~builtin<compat/typescript>::version=4.3.5&hash=d8b4e7"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: bc2c4fdf0f1557fdafe4ef74848c72ebd9c8c60829568248f869121aea2bb20e16649a252431d0acb185ec118143be22bed73d08f64379557810d82756afedde
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@~4.2.4#~builtin<compat/typescript>":
+  version: 4.2.4
+  resolution: "typescript@patch:typescript@npm%3A4.2.4#~builtin<compat/typescript>::version=4.2.4&hash=d8b4e7"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 3d8ac56cd91f6f60e69aff212cb3601c8affd8dd7b3fac115b836b7d59ab8c7b21778635f07971cbcb6035019df1abefe3047c1d46f3d42d087ceb0552af0206
+  languageName: node
+  linkType: hard
+
+typescript@~4.2.4:
+  version: 4.2.4
+  resolution: "typescript@npm:4.2.4"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 89c397df192f239359ad798b96d8e8d552e12c0c189ac5676cec4c20c410d6eec636b8e59a88f2aef0a56d961a9678d99c400099be9b7cae2f7b062eb4b7b171
   languageName: node
   linkType: hard
 
