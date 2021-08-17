@@ -21,7 +21,7 @@ import { ModelClass, ModelData, modelInitializedSymbol } from "./BaseModelShared
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
-import { AnyModelProp, idProp, ModelProps, noDefaultValue, prop } from "./prop"
+import { AnyModelProp, ModelProps, noDefaultValue, prop } from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
 function __extends(subClass: any, superClass: any) {
@@ -87,7 +87,9 @@ export function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
 
 const idGenerator = () => getGlobalConfig().modelIdGenerator()
 const tPropForId = tProp(typesString, idGenerator)
+tPropForId.isId = true
 const propForId = prop(idGenerator)
+propForId.isId = true
 
 export function sharedInternalModel<
   TProps extends ModelProps,
@@ -133,7 +135,7 @@ export function sharedInternalModel<
   // look for id keys
   const idKeys = Object.keys(composedModelProps).filter((k) => {
     const p = composedModelProps[k]
-    return p === idProp || p === propForId || p === tPropForId
+    return p.isId
   })
   if (type === "class") {
     if (idKeys.length > 1) {
@@ -165,7 +167,19 @@ export function sharedInternalModel<
   let idKey: string | undefined
   if (idKeys.length >= 1) {
     idKey = idKeys[0]
-    composedModelProps[idKey] = needsTypeChecker ? tPropForId : propForId
+    const idProp = composedModelProps[idKey]
+    let baseProp: AnyModelProp = needsTypeChecker ? tPropForId : propForId
+    switch (idProp?.setter) {
+      case true:
+        baseProp = baseProp.withSetter()
+        break
+      case "assign":
+        baseProp = baseProp.withSetter("assign")
+        break
+      default:
+        break
+    }
+    composedModelProps[idKey] = baseProp
   }
 
   // create type checker if needed
@@ -239,14 +253,14 @@ export function sharedInternalModel<
 
   if (type === "class") {
     const metadata: ModelMetadata = {
-      dataType: (dataTypeChecker as unknown) as AnyType | undefined,
+      dataType: dataTypeChecker as unknown as AnyType | undefined,
       modelIdProperty: idKey!,
       valueType,
     }
     CustomBaseModel[modelMetadataSymbol] = metadata
   } else {
     const metadata: DataModelMetadata = {
-      dataType: (dataTypeChecker as unknown) as AnyType | undefined,
+      dataType: dataTypeChecker as unknown as AnyType | undefined,
     }
     CustomBaseModel[modelMetadataSymbol] = metadata
   }

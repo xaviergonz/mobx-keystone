@@ -84,7 +84,7 @@ test("ids", () => {
 test("ids with custom property", () => {
   @model("ids-customProperty")
   class M extends Model({
-    id: idProp,
+    id: idProp.withSetter(),
   }) {}
 
   // auto generated id
@@ -152,6 +152,17 @@ test("ids with custom property", () => {
     expect(m1.id).toBe(m1.$modelId)
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(m1.$.id).toBe("MY_ID")
+    expect((m1.$ as any).$modelId).toBe(undefined)
+    expect(getSnapshot(m1)).toEqual({
+      id: m1.$modelId,
+      $modelType: "ids-customProperty",
+    } as SnapshotOutOf<M>)
+
+    m1.setId("MY_ID2")
+    expect(m1.$modelId).toBe("MY_ID2")
+    expect(m1.id).toBe(m1.$modelId)
+    expect(m1.getRefId()).toBe(m1.$modelId)
+    expect(m1.$.id).toBe("MY_ID2")
     expect((m1.$ as any).$modelId).toBe(undefined)
     expect(getSnapshot(m1)).toEqual({
       id: m1.$modelId,

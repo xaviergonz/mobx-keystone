@@ -27,6 +27,7 @@ export interface ModelProp<
   defaultValue: TPropValue | typeof noDefaultValue
   typeChecker: TypeChecker | LateTypeChecker | undefined
   setter: boolean | "assign"
+  isId: boolean
 
   withSetter(): ModelPropWithSetter<this>
   /**
@@ -78,7 +79,14 @@ export type ModelPropsToSetter<MP extends ModelProps> = {
  * A property that will be used as model id, replacing $modelId.
  * Can only be used in models and there can be only one per model.
  */
-export const idProp = Symbol("idProp") as any as ModelProp<string, string, string, true>
+export const idProp = {
+  setter: false,
+  isId: true,
+
+  withSetter(mode?: boolean | "assign") {
+    return { ...this, setter: mode ?? true }
+  },
+} as any as ModelProp<string, string, string, true>
 
 /**
  * @ignore
@@ -179,9 +187,10 @@ export function prop<TValue>(def?: any): ModelProp<TValue, any, any, any, any> {
     defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
     typeChecker: undefined,
     setter: false,
+    isId: false,
 
     withSetter(mode?: boolean | "assign") {
-      return { ...obj, setter: mode ?? true }
+      return { ...this, setter: mode ?? true }
     },
   }
   return obj as any

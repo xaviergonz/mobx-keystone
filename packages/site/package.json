@@ -28,7 +28,7 @@
     "@babel/plugin-proposal-decorators": "^7.14.5",
     "@babel/plugin-transform-classes": "^7.14.9",
     "@babel/preset-env": "^7.15.0",
-    "@types/react": "^17.0.17",
+    "@types/react": "^17.0.18",
     "@types/react-dom": "^17.0.9",
     "@types/uuid": "^8.3.1",
     "docz": "^2.3.1",

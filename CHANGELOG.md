@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.60.7
+
+- `idProp` now correctly handles `withSetter`.
+
 ## 0.60.3
 
 - Switched bundler from microbundle to vite.
