@@ -67,3 +67,27 @@ The returned context object has the following methods:
 - `setComputed(node, () => value)` - Sets the (computed) value a node will provide for itself and its children. Usually called in `onInit`.
 - `unset(node)` - Make the node no longer provide a context value.
 - `getProviderNode(node)` - Gets the node that will provide the value, or undefined if it will come from the default value.
+- `apply(fn, value)` - Applies a value override while the given function is running and, if a node is returned, sets the node as a provider of the value.
+- `applyComputed(fn, () => value)` - Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the comptued value.
+
+In particular, `apply` is more useful than it may seem, since it allows you to pass volatile (non property) data to your nodes at construction time (be it through `new`, `fromSnapshot`, `clone`, `toTreeNode`, etc.).
+For example:
+
+```ts
+const envCtx = createContext({something: 0})
+
+@model(...)
+class M extends Model({...}) {
+  onInit() {
+    const { something } = envCtx.get(this)
+  }
+
+  get something() {
+    return envCtx.get(this).something
+  }
+}
+
+const m = envCtx.apply(() => new M({...}), { something: 10 })
+// onInit's "something" will be 10
+m.something // this will also be 10
+```

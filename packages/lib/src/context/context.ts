@@ -1,6 +1,6 @@
 import { action, computed, createAtom, IAtom, IComputedValue, observable } from "mobx"
 import { fastGetParent } from "../parent/path"
-import { assertTweakedObject } from "../tweaker/core"
+import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { getMobxVersion, mobx6 } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 
@@ -59,6 +59,28 @@ export interface Context<T> {
    * @param node
    */
   unset(node: object): void
+
+  /**
+   * Applies a value override while the given function is running and, if a node is returned,
+   * sets the node as a provider of the value.
+   *
+   * @typeparam R
+   * @param fn Function to run.
+   * @param value Value to apply.
+   * @returns The value returned from the function.
+   */
+  apply<R>(fn: () => R, value: T): R
+
+  /**
+   * Applies a computed value override while the given function is running and, if a node is returned,
+   * sets the node as a provider of the comptued value.
+   *
+   * @typeparam R
+   * @param fn Function to run.
+   * @param value Value to apply.
+   * @returns The value returned from the function.
+   */
+  applyComputed<R>(fn: () => R, valueFn: () => T): R
 }
 
 type ContextValue<T> =
@@ -71,7 +93,7 @@ type ContextValue<T> =
       value: IComputedValue<T>
     }
 
-function getContextValue<T>(contextValue: ContextValue<T>): T {
+function resolveContextValue<T>(contextValue: ContextValue<T>): T {
   if (contextValue.type === "value") {
     return contextValue.value
   } else {
@@ -82,6 +104,9 @@ function getContextValue<T>(contextValue: ContextValue<T>): T {
 class ContextClass<T> implements Context<T> {
   @observable.ref
   private defaultContextValue!: ContextValue<T>
+
+  @observable.ref
+  private overrideContextValue: ContextValue<T> | undefined
 
   private readonly nodeContextValue = new WeakMap<object, ContextValue<T>>()
   private readonly nodeAtom = new WeakMap<object, IAtom>()
@@ -95,11 +120,14 @@ class ContextClass<T> implements Context<T> {
 
     const obsForNode = this.nodeContextValue.get(node)
     if (obsForNode) {
-      return getContextValue(obsForNode)
+      return resolveContextValue(obsForNode)
     }
 
     const parent = fastGetParent(node)
     if (!parent) {
+      if (this.overrideContextValue) {
+        return resolveContextValue(this.overrideContextValue)
+      }
       return this.getDefault()
     }
 
@@ -135,7 +163,7 @@ class ContextClass<T> implements Context<T> {
   }
 
   getDefault(): T {
-    return getContextValue(this.defaultContextValue)
+    return resolveContextValue(this.defaultContextValue)
   }
 
   @action
@@ -165,12 +193,16 @@ class ContextClass<T> implements Context<T> {
     this.getNodeAtom(node).reportChanged()
   }
 
-  @action
-  setComputed(node: object, valueFn: () => T) {
+  private _setComputed(node: object, computedValueFn: IComputedValue<T>) {
     assertTweakedObject(node, "node")
 
-    this.nodeContextValue.set(node, { type: "computed", value: computed(valueFn) })
+    this.nodeContextValue.set(node, { type: "computed", value: computedValueFn })
     this.getNodeAtom(node).reportChanged()
+  }
+
+  @action
+  setComputed(node: object, valueFn: () => T) {
+    this._setComputed(node, computed(valueFn))
   }
 
   @action
@@ -179,6 +211,46 @@ class ContextClass<T> implements Context<T> {
 
     this.nodeContextValue.delete(node)
     this.getNodeAtom(node).reportChanged()
+  }
+
+  @action
+  apply<R>(fn: () => R, value: T): R {
+    const old = this.overrideContextValue
+    this.overrideContextValue = {
+      type: "value",
+      value,
+    }
+
+    try {
+      const ret = fn()
+      if (isTweakedObject(ret, true)) {
+        this.set(ret, value)
+      }
+      return ret
+    } finally {
+      this.overrideContextValue = old
+    }
+  }
+
+  @action
+  applyComputed<R>(fn: () => R, valueFn: () => T): R {
+    const computedValueFn = computed(valueFn)
+
+    const old = this.overrideContextValue
+    this.overrideContextValue = {
+      type: "computed",
+      value: computedValueFn,
+    }
+
+    try {
+      const ret = fn()
+      if (isTweakedObject(ret, true)) {
+        this._setComputed(ret, computedValueFn)
+      }
+      return ret
+    } finally {
+      this.overrideContextValue = old
+    }
   }
 
   constructor(defaultValue?: T) {
