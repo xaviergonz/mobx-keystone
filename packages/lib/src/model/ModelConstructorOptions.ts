@@ -5,7 +5,6 @@ import type { AnyModel } from "./BaseModel"
  * @internal
  * @ignore
  */
-
 export interface ModelConstructorOptions {
   snapshotInitialData?: {
     unprocessedSnapshot: any
