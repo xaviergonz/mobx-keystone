@@ -28,9 +28,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .yarn/cache
-          key: ${{ runner.os }}-yarn_cache
+          key: v2-${{ runner.os }}-yarn_cache
           restore-keys: |
-            ${{ runner.os }}-          
+            v2-${{ runner.os }}-          
       
       - name: Cache node_modules
         uses: actions/cache@v2
@@ -38,10 +38,10 @@ jobs:
           path: |
             node_modules/**
             packages/*/node_modules/**
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node_modules-
-            ${{ runner.os }}-          
+            v2-${{ runner.os }}-node_modules-
+            v2-${{ runner.os }}-          
 
       - run: yarn install --immutable
 
@@ -62,7 +62,7 @@ jobs:
           path: |
             node_modules/**
             packages/*/node_modules/**
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
       
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
   
@@ -83,6 +83,6 @@ jobs:
           path: |
             node_modules/**
             packages/*/node_modules/**
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
