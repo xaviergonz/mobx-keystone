@@ -74,20 +74,20 @@ In particular, `apply` is more useful than it may seem, since it allows you to p
 For example:
 
 ```ts
-const envCtx = createContext({something: 0})
+const envCtx = createContext(0)
 
 @model(...)
 class M extends Model({...}) {
   onInit() {
-    const { something } = envCtx.get(this)
+    const value = envCtx.get(this)
   }
 
-  get something() {
-    return envCtx.get(this).something
+  get value() {
+    return envCtx.get(this)
   }
 }
 
-const m = envCtx.apply(() => new M({...}), { something: 10 })
-// onInit's "something" will be 10
-m.something // this will also be 10
+const m = envCtx.apply(() => new M({...}), 9000)
+// onInit's "value" will be 9000
+m.value // this will also be 9000
 ```
