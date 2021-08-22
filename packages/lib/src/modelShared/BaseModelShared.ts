@@ -20,14 +20,16 @@ export const modelInitializedSymbol = Symbol("modelInitialized")
 /**
  * Extracts the instance type of a model class.
  */
- export type ModelClass<M extends AnyModel | AnyDataModel> = {
+export type ModelClass<M extends AnyModel | AnyDataModel> = {
   new (initialData: any): M
 }
 
 /**
  * Extracts the instance type of an abstract model class.
  */
- export type AbstractModelClass<M extends AnyModel|AnyDataModel> = abstract new (initialData: any) => M;
+export type AbstractModelClass<M extends AnyModel | AnyDataModel> = abstract new (
+  initialData: any
+) => M
 
 /**
  * The data type of a model.
@@ -37,9 +39,7 @@ export type ModelData<M extends AnyModel | AnyDataModel> = M["$"]
 /**
  * The creation data type of a model.
  */
-export type ModelCreationData<
-  M extends AnyModel
-> = M[typeof creationDataTypeSymbol]
+export type ModelCreationData<M extends AnyModel> = M[typeof creationDataTypeSymbol]
 
 /**
  * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.
@@ -49,6 +49,8 @@ export type ModelCreationData<
  * @param type Generic model class.
  * @returns
  */
-export function modelClass<T extends AnyModel | AnyDataModel>(type: { prototype: T }): ModelClass<T> {
+export function modelClass<T extends AnyModel | AnyDataModel>(type: {
+  prototype: T
+}): ModelClass<T> {
   return type as any
 }
