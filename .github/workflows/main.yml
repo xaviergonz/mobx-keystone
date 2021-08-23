@@ -14,36 +14,6 @@ env:
   NODE_VERSION: "16"
 
 jobs:
-  install:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      
-      - uses: actions/setup-node@v2
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          
-      - name: Cache .yarn/cache
-        uses: actions/cache@v2
-        with:
-          path: .yarn/cache
-          key: v2-${{ runner.os }}-yarn_cache
-          restore-keys: |
-            v2-${{ runner.os }}-          
-      
-      - name: Cache node_modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules/**
-            packages/*/node_modules/**
-          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            v2-${{ runner.os }}-node_modules-
-            v2-${{ runner.os }}-          
-
-      - run: yarn install --immutable
 
   lib-site-build:
     needs: install
@@ -56,14 +26,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Restore node_modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules/**
-            packages/*/node_modules/**
-          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-      
+      - run: yarn install --immutable
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
   
   lib-test:
@@ -77,12 +40,5 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Restore node_modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules/**
-            packages/*/node_modules/**
-          key: v2-${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-
+      - run: yarn install --immutable
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
