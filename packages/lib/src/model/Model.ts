@@ -6,6 +6,8 @@ import {
   ModelPropsToCreationData,
   ModelPropsToData,
   ModelPropsToSetter,
+  ModelPropsToTransformedCreationData,
+  ModelPropsToTransformedData,
 } from "../modelShared/prop"
 import type { AnyModel, BaseModel, BaseModelKeys, ModelIdPropertyName } from "./BaseModel"
 import { assertIsModelClass, isModelClass } from "./utils"
@@ -13,9 +15,9 @@ import { assertIsModelClass, isModelClass } from "./utils"
 export type _ComposedCreationData<
   SuperModel,
   TProps extends ModelProps
-> = SuperModel extends BaseModel<any, infer CD, any>
-  ? ModelPropsToCreationData<TProps> & CD
-  : ModelPropsToCreationData<TProps>
+> = SuperModel extends BaseModel<any, any, any, infer TCD>
+  ? ModelPropsToTransformedCreationData<TProps> & TCD
+  : ModelPropsToTransformedCreationData<TProps>
 
 export type _ModelId<SuperModel, TProps extends ModelProps> = SuperModel extends AnyModel
   ? ModelIdPropertyName<SuperModel>
@@ -26,9 +28,11 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
     BaseModel<
       ModelPropsToData<TProps>,
       ModelPropsToCreationData<TProps>,
+      ModelPropsToTransformedData<TProps>,
+      ModelPropsToTransformedCreationData<TProps>,
       _ModelId<SuperModel, TProps>
     > &
-    Omit<ModelPropsToData<TProps>, BaseModelKeys> &
+    Omit<ModelPropsToTransformedData<TProps>, BaseModelKeys> &
     ModelPropsToSetter<TProps>
 }
 
@@ -36,11 +40,10 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
  * @ignore
  * Ensures that a $modelId property is present if no idProp is provided.
  */
-export type AddModelIdPropIfNeeded<
-  TProps extends ModelProps
-> = ExtractModelIdProp<TProps> extends never
-  ? TProps & { $modelId: typeof idProp } // we use the actual name here to avoid having to re-export the original
-  : TProps
+export type AddModelIdPropIfNeeded<TProps extends ModelProps> =
+  ExtractModelIdProp<TProps> extends never
+    ? TProps & { $modelId: typeof idProp } // we use the actual name here to avoid having to re-export the original
+    : TProps
 
 /**
  * Extract the model id property from the model props.
@@ -59,9 +62,7 @@ export type ExtractModelIdProp<TProps extends ModelProps> = {
  * @returns
  */
 export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel, A extends []>(
-  genFn: (
-    ...args: A
-  ) => {
+  genFn: (...args: A) => {
     baseModel: AbstractModelClass<TModel>
     props: TProps
   },

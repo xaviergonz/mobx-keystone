@@ -13,7 +13,6 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 Data models, like class models, define the behaviors (actions/views) that can be performed over data, but without tainting the data itself with `$modelType` / `$modelId`. This however comes with some disadvantages as well, namely:
 
-- They cannot have default initializers for their properties, since they use actual data objects as data.
 - The model instances are created lazily and when needed rathern than eagerly.
 - The only life-cycle event hook available, `onLazyInit`, is run lazily, this is, the first time the data model wrapper is created, rather than eagerly.
 - Reconciliation is somewhat worse due to the lack of a `$modelId` to uniquely identify the instances.
@@ -22,7 +21,7 @@ That being said, they have some use cases (for example to represent a backend re
 
 ## Your first data model
 
-Data models are defined in a similar way to class models, except that they use `DataModel` instead of `Model`. One thing to note though is that default values for properties are _not_ supported:
+Data models are defined in a similar way to class models, except that they use `DataModel` instead of `Model`. One thing to note though is that default values for properties are only applied when using `new` over plain objects (this is not tree nodes):
 
 ```ts
 // the model decorator marks this class as a model, an object with actions, etc.
@@ -34,12 +33,12 @@ export class Todo extends DataModel({
 
   // in this case we don't use runtime type checking
   text: prop<string>(), // a required string
-  done: prop<boolean>(), // a required boolean
-  // if you want to make an optional property then use x: prop<TYPE | undefined>()
+  done: prop(false), // an optional boolean that will default to false when the input is null or undefined
+  // if you want to make a property truly optional then use x: prop<TYPE | undefined>()
 
   // if we required runtime type checking we could do this
   // text: tProp(types.string),
-  // done: tProp(types.boolean),
+  // done: tProp(types.boolean, false),
   // if you want to make an optional property then use x: tProp(types.maybe(TYPE))
 }) {
   // the modelAction decorator marks the function as a model action, giving it access
@@ -66,11 +65,15 @@ Note that there are several ways to define properties.
 
 Without runtime type checking:
 
-- `prop<T>(options?: ModelOptions)` - A property of a given type, with no default set if it is `null` or `undefined` in the initial data.
+- `prop<T>(options?: ModelOptions)` - A property of a given type, with no default set if it is `null` or `undefined` in the initial data passed to `new`.
+- `prop<T>(defaultValue: T, options?: ModelOptions)` - A property of a given type, with a default set if it is `null` or `undefined` in the initial data passed to `new`. Use this only for default primitives.
+- `prop<T>(defaultFn: () => T, options?: ModelOptions)` - A property of a given type, with a default value generator if it is `null` or `undefined` in the initial data passed to `new`. Usually used for default objects / arrays / models.
 
 With runtime type checking (check the relevant section for more info):
 
-- `tProp(type, options?: ModelOptions)` - A property of a given runtime checked type, with no default set if it is `null` or `undefined` in the initial data.
+- `tProp(type, options?: ModelOptions)` - A property of a given runtime checked type, with no default set if it is `null` or `undefined` in the initial data passed to `new`.
+- `tProp<T>(type, defaultValue: T, options?: ModelOptions)` - A property of a given runtime checked type, with a default set if it is `null` or `undefined` in the initial data passed to `new`. Use this only for default primitives.
+- `tProp<T>(type, defaultFn: () => T, options?: ModelOptions)` - A property of a given runtime checked type, with a default value generator if it is `null` or `undefined` in the initial data passed to `new`. Usually used for default objects / arrays / models.
 
 ## Data model rules
 
@@ -86,7 +89,7 @@ Of course primitives are not the only kinds of data that a class model can hold.
 
 Note that there is one more rule that really sets it apart from class models.
 
-Data models are conceptually wrappers around actual data object nodes. This means that when creating an instance via `new` you are really creating a wrapper over the data node. Also this means that you can't insert the model itself into a tree, but that you must insert the data being wrapped instead (accessible through `model.$`).
+Data models are conceptually wrappers around actual data object nodes. This means that when creating an instance via `new` you are really creating a wrapper over the data node (or a new data node if it was not one). Also this means that you can't insert the model itself into a tree, but that you must insert the data being wrapped instead (accessible through `model.$`).
 
 ## Creating a data model instance
 

@@ -1,5 +1,6 @@
 import type { O } from "ts-toolbelt"
 import type { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
+import { getOrCreate } from "../utils/mapUtils"
 import type { IsOptionalValue } from "../utils/types"
 
 /**
@@ -13,12 +14,16 @@ export const noDefaultValue = Symbol("noDefaultValue")
 export interface ModelProp<
   TPropValue,
   TPropCreationValue,
+  TTransformedValue,
+  TTransformedCreationValue,
   TIsOptional,
   TIsId extends boolean = false,
   THasSetter = never
 > {
   $valueType: TPropValue
   $creationValueType: TPropCreationValue
+  $transformedValueType: TTransformedValue
+  $transformedCreationValueType: TTransformedCreationValue
   $isOptional: TIsOptional
   $isId: TIsId
   $hasSetter: THasSetter
@@ -28,18 +33,79 @@ export interface ModelProp<
   typeChecker: TypeChecker | LateTypeChecker | undefined
   setter: boolean | "assign"
   isId: boolean
+  transform:
+    | {
+        transform(
+          original: unknown,
+          model: object,
+          propName: PropertyKey,
+          setOriginalValue: (newOriginalValue: unknown) => void
+        ): unknown
+        untransform(transformed: unknown, model: object, propName: PropertyKey): unknown
+      }
+    | undefined
 
-  withSetter(): ModelPropWithSetter<this>
+  withSetter(): ModelProp<
+    TPropValue,
+    TPropCreationValue,
+    TTransformedValue,
+    TTransformedCreationValue,
+    TIsOptional,
+    TIsId,
+    string
+  >
   /**
    * @deprecated Setter methods are preferred.
    */
-  withSetter(mode: "assign"): ModelPropWithSetter<this>
+  withSetter(
+    mode: "assign"
+  ): ModelProp<
+    TPropValue,
+    TPropCreationValue,
+    TTransformedValue,
+    TTransformedCreationValue,
+    TIsOptional,
+    TIsId,
+    string
+  >
+
+  /**
+   * Sets a transform for the property.
+   *
+   * @typeparam TTV Transformed value type.
+   * @param transform Transform to be used.
+   * @returns
+   */
+  withTransform<TTV>(
+    transform: ModelPropTransform<NonNullable<TPropValue>, TTV>
+  ): ModelProp<
+    TPropValue,
+    TPropCreationValue,
+    TTV | Extract<TPropValue, null | undefined>,
+    TTV | Extract<TPropCreationValue, null | undefined>,
+    TIsOptional,
+    TIsId,
+    THasSetter
+  >
+}
+
+/**
+ * A model prop transform.
+ */
+export type ModelPropTransform<TOriginal, TTransformed> = {
+  transform(params: {
+    originalValue: TOriginal
+    cachedTransformedValue: TTransformed | undefined
+    setOriginalValue(value: TOriginal): void
+  }): TTransformed
+
+  untransform(params: { transformedValue: TTransformed; cacheTransformedValue(): void }): TOriginal
 }
 
 /**
  * Any model property.
  */
-export type AnyModelProp = ModelProp<any, any, any, any, any>
+export type AnyModelProp = ModelProp<any, any, any, any, any, any, any>
 
 /**
  * Model properties.
@@ -69,9 +135,26 @@ export type ModelPropsToCreationData<MP extends ModelProps> = {
     OptionalModelProps<MP>
   >
 
+export type ModelPropsToTransformedData<MP extends ModelProps> = {
+  [k in keyof MP]: MP[k]["$transformedValueType"]
+}
+
+// we don't use O.Optional anymore since it generates unions too heavy
+// also if we use pick over the optional props we will loose the ability
+// to infer generics
+export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
+  [k in keyof MP]?: MP[k]["$transformedCreationValueType"]
+} &
+  O.Omit<
+    {
+      [k in keyof MP]: MP[k]["$transformedCreationValueType"]
+    },
+    OptionalModelProps<MP>
+  >
+
 export type ModelPropsToSetter<MP extends ModelProps> = {
   [k in keyof MP as MP[k]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
-    value: MP[k]["$valueType"]
+    value: MP[k]["$transformedValueType"]
   ) => void
 }
 
@@ -86,7 +169,7 @@ export const idProp = {
   withSetter(mode?: boolean | "assign") {
     return { ...this, setter: mode ?? true }
   },
-} as any as ModelProp<string, string, string, true>
+} as any as ModelProp<string, string, string, string, string, true>
 
 /**
  * @ignore
@@ -99,6 +182,8 @@ export type OnlyPrimitives<T> = Exclude<T, object>
 export type MaybeOptionalModelProp<TPropValue> = ModelProp<
   TPropValue,
   TPropValue,
+  TPropValue,
+  TPropValue,
   IsOptionalValue<TPropValue, string, never>
 >
 
@@ -108,15 +193,10 @@ export type MaybeOptionalModelProp<TPropValue> = ModelProp<
 export type OptionalModelProp<TPropValue> = ModelProp<
   TPropValue,
   TPropValue | null | undefined,
+  TPropValue,
+  TPropValue | null | undefined,
   string
 >
-
-/**
- * A model prop with a generated setter.
- */
-export type ModelPropWithSetter<MP extends AnyModelProp> = Omit<MP, "$hasSetter"> & {
-  $hasSetter: string
-}
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -166,7 +246,7 @@ export function prop<TValue>(defaultValue: OnlyPrimitives<TValue>): OptionalMode
 export function prop<TValue>(): MaybeOptionalModelProp<TValue>
 
 // base
-export function prop<TValue>(def?: any): ModelProp<TValue, any, any, any, any> {
+export function prop(def?: any): AnyModelProp {
   let hasDefaultValue = false
 
   // default
@@ -176,9 +256,11 @@ export function prop<TValue>(def?: any): ModelProp<TValue, any, any, any, any> {
 
   const isDefFn = typeof def === "function"
 
-  const obj: ReturnType<typeof prop> = {
+  const obj: AnyModelProp = {
     $valueType: null as any,
     $creationValueType: null as any,
+    $transformedValueType: null as any,
+    $transformedCreationValueType: null as any,
     $isOptional: null as any,
     $isId: null as never,
     $hasSetter: null as never,
@@ -188,10 +270,85 @@ export function prop<TValue>(def?: any): ModelProp<TValue, any, any, any, any> {
     typeChecker: undefined,
     setter: false,
     isId: false,
+    transform: undefined,
 
     withSetter(mode?: boolean | "assign") {
       return { ...this, setter: mode ?? true }
     },
+
+    withTransform(transform: ModelPropTransform<unknown, unknown>) {
+      return { ...this, transform: toFullTransform(transform) }
+    },
   }
-  return obj as any
+
+  return obj
+}
+
+let cacheTransformResult = false
+const cacheTransformedValueFn = () => {
+  cacheTransformResult = true
+}
+
+function toFullTransform(transformObject: ModelPropTransform<unknown, unknown>) {
+  const cache = new WeakMap<
+    object,
+    Map<PropertyKey, { originalValue: unknown; transformedValue: unknown }>
+  >()
+
+  const transform = (params: {
+    originalValue: unknown
+    cachedTransformedValue: unknown
+    setOriginalValue(newOriginalValue: unknown): void
+  }) => (params.originalValue == null ? params.originalValue : transformObject.transform(params))
+
+  const untransform = (params: { transformedValue: unknown; cacheTransformedValue(): void }) =>
+    params.transformedValue == null ? params.transformedValue : transformObject.untransform(params)
+
+  return {
+    transform(
+      originalValue: unknown,
+      model: object,
+      propName: PropertyKey,
+      setOriginalValue: (newOriginalValue: unknown) => void
+    ) {
+      const modelCache = getOrCreate(cache, model, () => new Map())
+
+      let propCache = modelCache.get(propName)
+      if (propCache?.originalValue !== originalValue) {
+        // original changed, invalidate cache
+        modelCache.delete(propName)
+        propCache = undefined
+      }
+
+      const transformedValue = transform({
+        originalValue,
+        cachedTransformedValue: propCache?.transformedValue,
+        setOriginalValue,
+      })
+
+      modelCache.set(propName, {
+        originalValue,
+        transformedValue,
+      })
+
+      return transformedValue
+    },
+
+    untransform(transformedValue: unknown, model: object, propName: PropertyKey) {
+      const modelCache = getOrCreate(cache, model, () => new Map())
+
+      cacheTransformResult = false
+      const originalValue = untransform({
+        transformedValue,
+        cacheTransformedValue: cacheTransformedValueFn,
+      })
+      if (cacheTransformResult) {
+        modelCache.set(propName, { originalValue, transformedValue })
+      } else {
+        modelCache.delete(propName)
+      }
+
+      return originalValue
+    },
+  }
 }

@@ -1,5 +1,9 @@
 # Change Log
 
+- Added `withTransform()`, a new way to do property transforms, as well as the pre-made transforms `timestampToDateTransform`, `isoStringToDateTransform`, `objectToMapTransform`, `arrayToMapTransform` and `arrayToSetTransform`.
+- Fixed an issue with `asMap` where the map would not get updated when the backing array/object changed.
+- Fixed an issue with `asSet` where the set would not get updated when the backing array changed.
+
 ## 0.60.7
 
 - `idProp` now correctly handles `withSetter`.

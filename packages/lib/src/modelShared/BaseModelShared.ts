@@ -13,6 +13,16 @@ export const creationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
+ */
+export const transformedDataTypeSymbol = Symbol()
+
+/**
+ * @ignore
+ */
+export const transformedCreationDataTypeSymbol = Symbol()
+
+/**
+ * @ignore
  * @internal
  */
 export const modelInitializedSymbol = Symbol("modelInitialized")
@@ -39,7 +49,19 @@ export type ModelData<M extends AnyModel | AnyDataModel> = M["$"]
 /**
  * The creation data type of a model.
  */
-export type ModelCreationData<M extends AnyModel> = M[typeof creationDataTypeSymbol]
+export type ModelCreationData<M extends AnyModel | AnyDataModel> = M[typeof creationDataTypeSymbol]
+
+/**
+ * The transformed data type of a model.
+ */
+export type ModelTransformedData<M extends AnyModel | AnyDataModel> =
+  M[typeof transformedDataTypeSymbol]
+
+/**
+ * The transformed creation data type of a model.
+ */
+export type ModelTransformedCreationData<M extends AnyModel | AnyDataModel> =
+  M[typeof transformedCreationDataTypeSymbol]
 
 /**
  * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.

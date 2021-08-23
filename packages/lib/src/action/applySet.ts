@@ -18,7 +18,7 @@ export function applySet<O extends object, K extends keyof O, V extends O[K]>(
   fieldName: K,
   value: V
 ): void {
-  assertTweakedObject(node, "node")
+  assertTweakedObject(node, "node", true)
 
   wrappedInternalApplySet().call(node, fieldName as string | number, value)
 }

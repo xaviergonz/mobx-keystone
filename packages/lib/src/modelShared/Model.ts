@@ -4,7 +4,6 @@ import { modelAction } from "../action/modelAction"
 import { AnyDataModel, BaseDataModel, baseDataModelPropNames } from "../dataModel/BaseDataModel"
 import type { DataModelConstructorOptions } from "../dataModel/DataModelConstructorOptions"
 import type { DataModelMetadata } from "../dataModel/getDataModelMetadata"
-import { isDataModel } from "../dataModel/utils"
 import { getGlobalConfig } from "../globalConfig/globalConfig"
 import { AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
 import type { ModelMetadata } from "../model/getModelMetadata"
@@ -17,11 +16,11 @@ import { tProp } from "../typeChecking/tProp"
 import type { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure, propNameToSetterName } from "../utils"
-import { ModelClass, ModelData, modelInitializedSymbol } from "./BaseModelShared"
+import { ModelClass, modelInitializedSymbol, ModelTransformedData } from "./BaseModelShared"
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
-import { AnyModelProp, ModelProps, noDefaultValue, prop } from "./prop"
+import { AnyModelProp, ModelProps, prop } from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
 function __extends(subClass: any, superClass: any) {
@@ -56,33 +55,42 @@ export function createModelPropDescriptor(
   }
 }
 
-export function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
-  model: M,
-  _modelProp: AnyModelProp | undefined,
-  modelPropName: keyof ModelData<M>
-): ModelData<M>[typeof modelPropName] {
-  // no need to use get since these vars always get on the initial $
-  return model.$[modelPropName]
-}
-
-export function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
+function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
   modelProp: AnyModelProp | undefined,
-  modelPropName: keyof ModelData<M>,
-  value: ModelData<M>[typeof modelPropName]
+  modelPropName: keyof ModelTransformedData<M>
+): ModelTransformedData<M>[typeof modelPropName] {
+  // no need to use get since these vars always get on the initial $
+  const value = model.$[modelPropName]
+
+  if (modelProp?.transform) {
+    return modelProp.transform.transform(value, model, modelPropName, (newValue) => {
+      // use apply set instead to wrap it in an action
+      // set the $ object to set the original value directly
+      applySet(model.$, modelPropName, newValue)
+    })
+  }
+
+  return value
+}
+
+function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
+  model: M,
+  modelProp: AnyModelProp | undefined,
+  modelPropName: keyof ModelTransformedData<M>,
+  value: ModelTransformedData<M>[typeof modelPropName]
 ): void {
   if (modelProp?.setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
-    if (isDataModel(model)) {
-      applySet(model.$, modelPropName as any, value)
-    } else {
-      applySet(model, modelPropName as any, value)
-    }
+    applySet(model, modelPropName, value)
     return
   }
 
+  const transformedValue = modelProp?.transform
+    ? modelProp.transform.untransform(value, model, modelPropName)
+    : value
   // no need to use set since these vars always get on the initial $
-  model.$[modelPropName] = value
+  model.$[modelPropName] = transformedValue
 }
 
 const idGenerator = () => getGlobalConfig().modelIdGenerator()
@@ -147,17 +155,6 @@ export function sharedInternalModel<
   } else {
     if (idKeys.length >= 1) {
       throw failure(`expected no idProp but got some: ${JSON.stringify(idKeys)}`)
-    }
-  }
-
-  if (type === "data") {
-    // make sure props have no defaults
-    for (const [k, mp] of Object.entries(composedModelProps)) {
-      if (mp.defaultValue !== noDefaultValue || mp.defaultFn !== noDefaultValue) {
-        throw failure(
-          `data models do not support properties with default values, but property '${k}' has one`
-        )
-      }
     }
   }
 

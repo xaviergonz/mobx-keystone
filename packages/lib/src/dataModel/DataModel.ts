@@ -1,19 +1,34 @@
 import type { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
 import { sharedInternalModel } from "../modelShared/Model"
-import type { ModelProps, ModelPropsToData, ModelPropsToSetter } from "../modelShared/prop"
+import type {
+  ModelProps,
+  ModelPropsToCreationData,
+  ModelPropsToData,
+  ModelPropsToSetter,
+  ModelPropsToTransformedCreationData,
+  ModelPropsToTransformedData,
+} from "../modelShared/prop"
 import type { AnyDataModel, BaseDataModel, BaseDataModelKeys } from "./BaseDataModel"
 import { assertIsDataModelClass, isDataModelClass } from "./utils"
 
 export type _ComposedData<SuperModel, TProps extends ModelProps> = SuperModel extends BaseDataModel<
-  infer D
+  any,
+  infer CD,
+  any,
+  infer CTD
 >
-  ? ModelPropsToData<TProps> & D
-  : ModelPropsToData<TProps>
+  ? (ModelPropsToCreationData<TProps> & CD) | (ModelPropsToTransformedCreationData<TProps> & CTD)
+  : ModelPropsToCreationData<TProps> | ModelPropsToTransformedCreationData<TProps>
 
 export interface _DataModel<SuperModel, TProps extends ModelProps> {
   new (data: _ComposedData<SuperModel, TProps>): SuperModel &
-    BaseDataModel<ModelPropsToData<TProps>> &
-    Omit<ModelPropsToData<TProps>, BaseDataModelKeys> &
+    BaseDataModel<
+      ModelPropsToData<TProps>,
+      ModelPropsToCreationData<TProps>,
+      ModelPropsToTransformedData<TProps>,
+      ModelPropsToTransformedCreationData<TProps>
+    > &
+    Omit<ModelPropsToTransformedData<TProps>, BaseDataModelKeys> &
     ModelPropsToSetter<TProps>
 }
 
@@ -30,9 +45,7 @@ export function ExtendedDataModel<
   TModel extends AnyDataModel,
   A extends []
 >(
-  genFn: (
-    ...args: A
-  ) => {
+  genFn: (...args: A) => {
     baseModel: AbstractModelClass<TModel>
     props: TProps
   }
