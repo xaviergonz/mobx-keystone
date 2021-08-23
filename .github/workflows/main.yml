@@ -16,7 +16,6 @@ env:
 jobs:
 
   lib-site-build:
-    needs: install
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +29,6 @@ jobs:
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
   
   lib-test:
-    needs: install
     runs-on: ubuntu-latest
 
     steps:
