@@ -25,6 +25,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Cache .yarn/cache
+        uses: actions/cache@v2
+        with:
+          path: .yarn/cache
+          key: v3-${{ runner.os }}-yarn_cache
+          restore-keys: |
+            v3-${{ runner.os }}-          
+
       - run: yarn install --immutable
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
   
@@ -37,6 +45,14 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache .yarn/cache
+        uses: actions/cache@v2
+        with:
+          path: .yarn/cache
+          key: v3-${{ runner.os }}-yarn_cache
+          restore-keys: |
+            v3-${{ runner.os }}-          
 
       - run: yarn install --immutable
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
