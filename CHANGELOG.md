@@ -1,5 +1,7 @@
 # Change Log
 
+- Added `apply` and `applyComputed` to contexts so that they can be used to share information with models on creation time (kind of like `envs` in Mobx-state-tree). See the context docs for more details.
+
 ## 0.60.7
 
 - `idProp` now correctly handles `withSetter`.
