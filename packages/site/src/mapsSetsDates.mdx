@@ -96,6 +96,7 @@ const _timestampToDateTransform: ModelPropTransform<number, Date> = {
 }
 
 // we need to export it as a function that returns the transform to keep TS happy
+// whenever a generic is involed (e.g. see the source code of `arrayToSetTransform`)
 // we will always return the same instance though instead of recreating it every time
 export const timestampToDateTransform = () => _timestampToDateTransform
 ```
