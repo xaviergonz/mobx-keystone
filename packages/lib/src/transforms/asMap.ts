@@ -1,4 +1,4 @@
-import { ModelPropTransform } from "../modelShared/prop"
+import type { ModelPropTransform } from "../modelShared/prop"
 import { asMap } from "../wrappers/asMap"
 
 const _objectToMapTransform: ModelPropTransform<Record<string, unknown>, Map<string, unknown>> = {

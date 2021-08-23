@@ -1,4 +1,4 @@
-import { ModelPropTransform } from "../modelShared/prop"
+import type { ModelPropTransform } from "../modelShared/prop"
 import { asSet } from "../wrappers/asSet"
 
 const _arrayToSetTransform: ModelPropTransform<Array<unknown>, Set<unknown>> = {

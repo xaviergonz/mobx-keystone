@@ -1,4 +1,4 @@
-import { ModelPropTransform } from "../modelShared/prop"
+import type { ModelPropTransform } from "../modelShared/prop"
 import { ImmutableDate } from "./ImmutableDate"
 
 const _timestampToDateTransform: ModelPropTransform<number, Date> = {
