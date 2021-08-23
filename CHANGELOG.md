@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.61.0
+
 - Added `withTransform()`, a new way to do property transforms, as well as the pre-made transforms `timestampToDateTransform`, `isoStringToDateTransform`, `objectToMapTransform`, `arrayToMapTransform` and `arrayToSetTransform`. See the docs `Maps, Sets, Dates` section for more info.
 - Data models can now use default property initializers.
 - Added `apply` and `applyComputed` to contexts so that they can be used to share information with models on creation time (kind of like `envs` in Mobx-state-tree). See the context docs for more details.
