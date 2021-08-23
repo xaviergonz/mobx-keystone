@@ -1,6 +1,14 @@
 import { observable, reaction, runInAction } from "mobx"
 import { assert, _ } from "spec.ts"
-import { createContext, runUnprotected } from "../../src"
+import {
+  createContext,
+  fromSnapshot,
+  getSnapshot,
+  model,
+  Model,
+  prop,
+  runUnprotected,
+} from "../../src"
 import "../commonSetup"
 import { createP } from "../testbed"
 import { autoDispose } from "../utils"
@@ -267,4 +275,75 @@ test("context typings", () => {
   assert(_ as typeof ctx3.setDefault, _ as (v: number) => void)
   assert(_ as typeof ctx3.set, _ as (n: object, v: number) => void)
   assert(_ as typeof ctx3.setComputed, _ as (n: object, v: () => number) => void)
+})
+
+test("context apply", () => {
+  const ctx = createContext(1)
+
+  let val = 2
+
+  @model("context apply / M")
+  class M extends Model({
+    children: prop<M[]>(() => []),
+  }) {
+    onInit() {
+      expect(ctx.getDefault()).toBe(1)
+      expect(ctx.get(this)).toBe(val)
+    }
+
+    method() {
+      expect(ctx.getDefault()).toBe(1)
+      return ctx.get(this)
+    }
+  }
+
+  const m = ctx.apply(() => new M({ children: [new M({})] }), val)
+  expect(m.method()).toBe(val)
+  expect(m.children[0].method()).toBe(val)
+
+  const sn = getSnapshot(m)
+
+  val = 3
+  const m2 = ctx.apply(() => fromSnapshot<M>(sn), val)
+  expect(m2.method()).toBe(val)
+  expect(m2.children[0].method()).toBe(val)
+})
+
+test("context applyComputed", () => {
+  const ctx = createContext<number>()
+  ctx.setDefaultComputed(() => 1)
+
+  let val = 2
+
+  @model("context applyComputed / M")
+  class M extends Model({
+    children: prop<M[]>(() => []),
+  }) {
+    onInit() {
+      expect(ctx.getDefault()).toBe(1)
+      expect(ctx.get(this)).toBe(val)
+    }
+
+    method() {
+      expect(ctx.getDefault()).toBe(1)
+      return ctx.get(this)
+    }
+  }
+
+  const m = ctx.applyComputed(
+    () => new M({ children: [new M({})] }),
+    () => val
+  )
+  expect(m.method()).toBe(val)
+  expect(m.children[0].method()).toBe(val)
+
+  const sn = getSnapshot(m)
+
+  val = 3
+  const m2 = ctx.applyComputed(
+    () => fromSnapshot<M>(sn),
+    () => val
+  )
+  expect(m2.method()).toBe(val)
+  expect(m2.children[0].method()).toBe(val)
 })
