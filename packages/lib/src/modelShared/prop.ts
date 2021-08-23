@@ -92,7 +92,7 @@ export interface ModelProp<
 /**
  * A model prop transform.
  */
-export type ModelPropTransform<TOriginal, TTransformed> = {
+export interface ModelPropTransform<TOriginal, TTransformed> {
   transform(params: {
     originalValue: TOriginal
     cachedTransformedValue: TTransformed | undefined
