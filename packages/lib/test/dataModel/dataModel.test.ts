@@ -721,14 +721,6 @@ test("with type", async () => {
   expect(newDone).toBe(false)
 })
 
-test("no defaults can be used for props", () => {
-  expect(() =>
-    DataModel({
-      x: prop(5),
-    })
-  ).toThrow("data models do not support properties with default values, but property 'x' has one")
-})
-
 test("idProp is not allowed", () => {
   expect(() =>
     DataModel({

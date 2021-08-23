@@ -595,16 +595,15 @@ test("undo manager can undo removal of a referenced object in a single step", ()
         },
         "inversePatches": Array [
           Object {
-            "op": "replace",
+            "op": "remove",
             "path": Array [
               "selectedCountryRef",
             ],
-            "value": undefined,
           },
         ],
         "patches": Array [
           Object {
-            "op": "replace",
+            "op": "add",
             "path": Array [
               "selectedCountryRef",
             ],

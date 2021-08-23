@@ -9,7 +9,6 @@ import {
   observe,
 } from "mobx"
 import { assertIsObservableArray, assertIsSet, failure, inDevMode } from "../utils"
-import { Lock } from "../utils/lock"
 import { tag } from "../utils/tag"
 
 const observableSetBackedByObservableArray = action(
@@ -27,15 +26,22 @@ const observableSetBackedByObservableArray = action(
       throw failure("arrays backing a set cannot contain duplicate values")
     }
 
-    const mutationLock = new Lock()
+    let setAlreadyChanged = false
+    let arrayAlreadyChanged = false
 
     // for speed reasons we will just assume distinct values are only once in the array
 
     // when the array changes the set changes
     observe(
       array,
-      action(
-        mutationLock.unlockedFn((change: any /*IArrayDidChange<T>*/) => {
+      action((change: any /*IArrayDidChange<T>*/) => {
+        if (setAlreadyChanged) {
+          return
+        }
+
+        arrayAlreadyChanged = true
+
+        try {
           switch (change.type) {
             case "splice": {
               {
@@ -61,34 +67,46 @@ const observableSetBackedByObservableArray = action(
               break
             }
           }
-        })
-      )
+        } finally {
+          arrayAlreadyChanged = false
+        }
+      })
     )
 
     // when the set changes also change the array
     intercept(
       set,
       action((change: ISetWillChange<T>) => {
-        if (!mutationLock.isLocked) {
-          return null // already changed
+        if (setAlreadyChanged) {
+          return null
         }
 
-        switch (change.type) {
-          case "add": {
-            array.push(change.newValue)
-            break
-          }
+        if (arrayAlreadyChanged) {
+          return change
+        }
 
-          case "delete": {
-            const i = array.indexOf(change.oldValue)
-            if (i >= 0) {
-              array.splice(i, 1)
+        setAlreadyChanged = true
+
+        try {
+          switch (change.type) {
+            case "add": {
+              array.push(change.newValue)
+              break
             }
-            break
-          }
-        }
 
-        return change
+            case "delete": {
+              const i = array.indexOf(change.oldValue)
+              if (i >= 0) {
+                array.splice(i, 1)
+              }
+              break
+            }
+          }
+
+          return change
+        } finally {
+          setAlreadyChanged = false
+        }
       })
     )
 

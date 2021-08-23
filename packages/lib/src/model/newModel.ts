@@ -1,7 +1,7 @@
 import { action, set } from "mobx"
 import type { O } from "ts-toolbelt"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
-import type { ModelCreationData } from "../modelShared/BaseModelShared"
+import type { ModelTransformedCreationData } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
@@ -23,9 +23,10 @@ export const internalNewModel = action(
   "newModel",
   <M extends AnyModel>(
     origModelObj: M,
-    initialData: ModelCreationData<M> | undefined,
+    initialData: ModelTransformedCreationData<M> | undefined,
     options: Pick<ModelConstructorOptions, "modelClass" | "snapshotInitialData" | "generateNewIds">
   ): M => {
+    const mode = initialData ? "new" : "fromSnapshot"
     const { modelClass: _modelClass, snapshotInitialData, generateNewIds } = options
     const modelClass = _modelClass!
 
@@ -76,19 +77,36 @@ export const internalNewModel = action(
     const modelPropsKeys = Object.keys(modelProps)
     for (let i = 0; i < modelPropsKeys.length; i++) {
       const k = modelPropsKeys[i]
+
       // id is already initialized above
-      if (k !== modelIdPropertyName) {
-        const v = (initialData as any)[k]
-        if (v === undefined || v === null) {
-          let newValue: any = v
-          const propData = modelProps[k]
-          if (propData.defaultFn !== noDefaultValue) {
-            newValue = propData.defaultFn()
-          } else if (propData.defaultValue !== noDefaultValue) {
-            newValue = propData.defaultValue
-          }
-          set(initialData as any, k, newValue)
+      if (k === modelIdPropertyName) {
+        continue
+      }
+
+      const propData = modelProps[k]
+
+      let newValue = initialData![k]
+      let changed = false
+
+      // apply untransform (if any)
+      if (mode === "new" && propData.transform) {
+        changed = true
+        newValue = propData.transform.untransform(newValue, modelObj, k)
+      }
+
+      // apply default value (if needed)
+      if (newValue == null) {
+        if (propData.defaultFn !== noDefaultValue) {
+          changed = true
+          newValue = propData.defaultFn()
+        } else if (propData.defaultValue !== noDefaultValue) {
+          changed = true
+          newValue = propData.defaultValue
         }
+      }
+
+      if (changed) {
+        set(initialData as any, k, newValue)
       }
     }
 

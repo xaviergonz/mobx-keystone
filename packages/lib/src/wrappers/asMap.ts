@@ -20,77 +20,99 @@ import {
   inDevMode,
   isArray,
 } from "../utils"
-import { Lock } from "../utils/lock"
 import { tag } from "../utils/tag"
 
-const observableMapBackedByObservableObject = action(<T>(obj: object): ObservableMap<string, T> & {
-  dataObject: typeof obj
-} => {
-  if (inDevMode()) {
-    if (!isObservableObject(obj)) {
-      throw failure("assertion failed: expected an observable object")
+const observableMapBackedByObservableObject = action(
+  <T>(
+    obj: object
+  ): ObservableMap<string, T> & {
+    dataObject: typeof obj
+  } => {
+    if (inDevMode()) {
+      if (!isObservableObject(obj)) {
+        throw failure("assertion failed: expected an observable object")
+      }
     }
-  }
 
-  const map = observable.map()
-  ;(map as any).dataObject = obj
+    const map = observable.map()
+    ;(map as any).dataObject = obj
 
-  const keys = Object.keys(obj)
-  for (let i = 0; i < keys.length; i++) {
-    const k = keys[i]
-    map.set(k, (obj as any)[k])
-  }
+    const keys = Object.keys(obj)
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i]
+      map.set(k, (obj as any)[k])
+    }
 
-  const mutationLock = new Lock()
+    let mapAlreadyChanged = false
+    let objectAlreadyChanged = false
 
-  // when the object changes the map changes
-  observe(
-    obj,
-    action(
-      mutationLock.unlockedFn((change: IObjectDidChange) => {
-        switch (change.type) {
-          case "add":
-          case "update": {
-            map.set(change.name, change.newValue)
-            break
+    // when the object changes the map changes
+    observe(
+      obj,
+      action((change: IObjectDidChange) => {
+        if (mapAlreadyChanged) {
+          return
+        }
+
+        objectAlreadyChanged = true
+
+        try {
+          switch (change.type) {
+            case "add":
+            case "update": {
+              map.set(change.name, change.newValue)
+              break
+            }
+
+            case "remove": {
+              map.delete(change.name)
+              break
+            }
           }
-
-          case "remove": {
-            map.delete(change.name)
-            break
-          }
+        } finally {
+          objectAlreadyChanged = false
         }
       })
     )
-  )
 
-  // when the map changes also change the object
-  intercept(
-    map,
-    action((change: IMapWillChange<string, T>) => {
-      if (!mutationLock.isLocked) {
-        return null // already changed
-      }
-
-      switch (change.type) {
-        case "add":
-        case "update": {
-          set(obj, change.name, change.newValue)
-          break
+    // when the map changes also change the object
+    intercept(
+      map,
+      action((change: IMapWillChange<string, T>) => {
+        if (mapAlreadyChanged) {
+          return null
         }
 
-        case "delete": {
-          remove(obj, change.name)
-          break
+        if (objectAlreadyChanged) {
+          return change
         }
-      }
 
-      return change
-    })
-  )
+        mapAlreadyChanged = true
 
-  return map as any
-})
+        try {
+          switch (change.type) {
+            case "add":
+            case "update": {
+              set(obj, change.name, change.newValue)
+              break
+            }
+
+            case "delete": {
+              remove(obj, change.name)
+              break
+            }
+          }
+
+          return change
+        } finally {
+          mapAlreadyChanged = false
+        }
+      })
+    )
+
+    return map as any
+  }
+)
 
 const observableMapBackedByObservableArray = action(
   <T>(
@@ -109,7 +131,8 @@ const observableMapBackedByObservableArray = action(
       throw failure("arrays backing a map cannot contain duplicate keys")
     }
 
-    const mutationLock = new Lock()
+    let mapAlreadyChanged = false
+    let arrayAlreadyChanged = false
 
     // for speed reasons we will just assume distinct values are only once in the array
     // also we assume tuples themselves are immutable
@@ -117,8 +140,13 @@ const observableMapBackedByObservableArray = action(
     // when the array changes the map changes
     observe(
       array,
-      action(
-        mutationLock.unlockedFn((change: any /*IArrayDidChange<[string, T]>*/) => {
+      action((change: any /*IArrayDidChange<[string, T]>*/) => {
+        if (mapAlreadyChanged) {
+          return
+        }
+
+        arrayAlreadyChanged = true
+        try {
           switch (change.type) {
             case "splice": {
               {
@@ -144,41 +172,53 @@ const observableMapBackedByObservableArray = action(
               break
             }
           }
-        })
-      )
+        } finally {
+          arrayAlreadyChanged = false
+        }
+      })
     )
 
     // when the map changes also change the array
     intercept(
       map,
       action((change: IMapWillChange<string, T>) => {
-        if (!mutationLock.isLocked) {
-          return null // already changed
+        if (mapAlreadyChanged) {
+          return null
         }
 
-        switch (change.type) {
-          case "update": {
-            // replace the whole tuple to keep tuple immutability
-            const i = array.findIndex((i) => i[0] === change.name)
-            array[i] = [change.name, change.newValue!]
-            break
-          }
+        if (arrayAlreadyChanged) {
+          return change
+        }
 
-          case "add": {
-            array.push([change.name, change.newValue!])
-            break
-          }
+        mapAlreadyChanged = true
 
-          case "delete": {
-            const i = array.findIndex((i) => i[0] === change.name)
-            if (i >= 0) {
-              array.splice(i, 1)
+        try {
+          switch (change.type) {
+            case "update": {
+              // replace the whole tuple to keep tuple immutability
+              const i = array.findIndex((i) => i[0] === change.name)
+              array[i] = [change.name, change.newValue!]
+              break
             }
-            break
-          }
-        }
 
-        return change
+            case "add": {
+              array.push([change.name, change.newValue!])
+              break
+            }
+
+            case "delete": {
+              const i = array.findIndex((i) => i[0] === change.name)
+              if (i >= 0) {
+                array.splice(i, 1)
+              }
+              break
+            }
+          }
+
+          return change
+        } finally {
+          mapAlreadyChanged = false
+        }
       })
     )
 
@@ -201,9 +241,9 @@ const asMapTag = tag((objOrArray: Record<string, any> | Array<[string, any]>) =>
  *
  * @param array Array.
  */
-export function asMap<T>(
-  array: Array<[string, T]>
-): ObservableMap<string, T> & { dataObject: Array<[string, T]> }
+export function asMap<K, V>(
+  array: Array<[K, V]>
+): ObservableMap<K, V> & { dataObject: Array<[K, V]> }
 
 /**
  * Wraps an observable object or a tuple array to offer a map like interface.
@@ -219,9 +259,9 @@ export function asMap<T>(
  *
  * @param objOrArray Object or array.
  */
-export function asMap<T>(
-  objOrArray: Record<string, T> | Array<[string, T]>
-): ObservableMap<string, T> & { dataObject: typeof objOrArray } {
+export function asMap(
+  objOrArray: Record<string, unknown> | Array<[unknown, unknown]>
+): ObservableMap<unknown, unknown> & { dataObject: typeof objOrArray } {
   return asMapTag.for(objOrArray) as any
 }
 
@@ -251,7 +291,7 @@ export function mapToObject<T>(map: Map<string, T>): Record<string, T> {
  *
  * @param map
  */
-export function mapToArray<T>(map: Map<string, T>): Array<[string, T]> {
+export function mapToArray<K, V>(map: Map<K, V>): Array<[K, V]> {
   assertIsMap(map, "map")
 
   const dataObject = (map as any).dataObject
@@ -259,9 +299,9 @@ export function mapToArray<T>(map: Map<string, T>): Array<[string, T]> {
     return dataObject
   }
 
-  const arr: [string, any][] = []
+  const arr: [K, V][] = []
   for (const k of map.keys()) {
-    arr.push([k, map.get(k)])
+    arr.push([k, map.get(k)!])
   }
 
   return arr

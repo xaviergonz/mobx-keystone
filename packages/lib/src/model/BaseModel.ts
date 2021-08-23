@@ -1,7 +1,13 @@
 import { observable } from "mobx"
 import type { O } from "ts-toolbelt"
 import { getGlobalConfig } from "../globalConfig"
-import { creationDataTypeSymbol, dataTypeSymbol, ModelClass } from "../modelShared/BaseModelShared"
+import {
+  creationDataTypeSymbol,
+  dataTypeSymbol,
+  ModelClass,
+  transformedCreationDataTypeSymbol,
+  transformedDataTypeSymbol,
+} from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import type {
@@ -37,11 +43,15 @@ export const modelIdPropertyNameSymbol = Symbol()
 export abstract class BaseModel<
   Data extends { [k: string]: any },
   CreationData extends { [k: string]: any },
+  TransformedData extends { [k: string]: any },
+  TransformedCreationData extends { [k: string]: any },
   ModelIdPropertyName extends string = typeof modelIdKey
 > {
   // just to make typing work properly
   [dataTypeSymbol]: Data;
   [creationDataTypeSymbol]: CreationData;
+  [transformedDataTypeSymbol]: TransformedData;
+  [transformedCreationDataTypeSymbol]: TransformedCreationData;
   [modelIdPropertyNameSymbol]: ModelIdPropertyName;
 
   /**
@@ -100,9 +110,7 @@ export abstract class BaseModel<
    * @param snapshot The custom input snapshot.
    * @returns An input snapshot that must match the current model input snapshot.
    */
-  fromSnapshot?(snapshot: {
-    [k: string]: any
-  }): SnapshotInOfObject<CreationData> & {
+  fromSnapshot?(snapshot: { [k: string]: any }): SnapshotInOfObject<CreationData> & {
     [modelTypeKey]?: string
   }
 
@@ -120,13 +128,10 @@ export abstract class BaseModel<
   /**
    * Creates an instance of a model.
    */
-  constructor(data: CreationData) {
+  constructor(data: TransformedCreationData) {
     let initialData = data as any
-    const {
-      snapshotInitialData,
-      modelClass,
-      generateNewIds,
-    }: ModelConstructorOptions = arguments[1] as any
+    const { snapshotInitialData, modelClass, generateNewIds }: ModelConstructorOptions =
+      arguments[1] as any
 
     Object.setPrototypeOf(this, modelClass!.prototype)
 
@@ -135,6 +140,8 @@ export abstract class BaseModel<
     // delete unnecessary props
     delete self[dataTypeSymbol]
     delete self[creationDataTypeSymbol]
+    delete self[transformedDataTypeSymbol]
+    delete self[transformedCreationDataTypeSymbol]
     delete self[modelIdPropertyNameSymbol]
 
     if (!snapshotInitialData) {
@@ -190,7 +197,7 @@ export const baseModelPropNames = new Set<BaseModelKeys>([
 /**
  * Any kind of model instance.
  */
-export interface AnyModel extends BaseModel<any, any, any> {}
+export interface AnyModel extends BaseModel<any, any, any, any, any> {}
 
 /**
  * @deprecated Should not be needed anymore.

@@ -18,7 +18,7 @@ export default {
     "Root Stores",
     "Snapshots",
     "Patches",
-    "Maps, Sets",
+    "Maps, Sets, Dates",
     {
       name: "Action Middlewares",
       menu: [

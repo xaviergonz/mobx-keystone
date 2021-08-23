@@ -12,7 +12,7 @@ import { wrapInAction } from "./wrapInAction"
  * @param fieldName Field name.
  */
 export function applyDelete<O extends object, K extends keyof O>(node: O, fieldName: K): void {
-  assertTweakedObject(node, "node")
+  assertTweakedObject(node, "node", true)
 
   wrappedInternalApplyDelete().call(node, fieldName as string | number)
 }

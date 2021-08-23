@@ -1,5 +1,5 @@
 import { computed, reaction } from "mobx"
-import { asSet, Model, model, modelAction, prop, setToArray } from "../../src"
+import { asSet, Model, model, modelAction, prop, runUnprotected, setToArray } from "../../src"
 import "../commonSetup"
 
 test("asSet", () => {
@@ -46,4 +46,9 @@ test("asSet", () => {
   m.setSet(new Set([5, 6, 7]))
   expect(m.set).not.toBe(s) // should be a new one
   expect(setToArray(m.set)).toEqual([5, 6, 7])
+
+  runUnprotected(() => {
+    m.arr.push(8)
+    expect(m.set.has(8)).toBe(true)
+  })
 })
