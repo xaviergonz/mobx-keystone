@@ -2,6 +2,7 @@ import { assert, _ } from "spec.ts"
 import {
   arrayToMapTransform,
   arrayToSetTransform,
+  ExtendedModel,
   fromSnapshot,
   getSnapshot,
   model,
@@ -345,3 +346,23 @@ test("prop with arr->set transform", () => {
   expect(t.$.set).toEqual([4])
   expect(t.set).toBe(t.set) // should be cached
 })
+
+@model("MyApp/Point")
+class Point extends Model({
+  x: prop<number>(),
+  y: prop<number>(),
+}) {
+  get sum() {
+    return this.x + this.y
+  }
+}
+
+// note how ExtendedModel is used
+@model("MyApp/Point3d")
+class Point3d extends ExtendedModel(Point, {
+  z: prop<number>(),
+}) {
+  get sum() {
+    return super.sum + this.z
+  }
+}
