@@ -341,7 +341,7 @@ class Point extends DataModel({
 
 // note how ExtendedModel is used
 @model("MyApp/Point3d")
-class Point3d extends ExtendedDataModel(BasePoint, {
+class Point3d extends ExtendedDataModel(Point, {
   z: prop<number>(),
 }) {
   get sum() {
