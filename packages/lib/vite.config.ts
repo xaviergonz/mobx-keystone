@@ -1,5 +1,5 @@
-import typescript from "@rollup/plugin-typescript"
 import path from "path"
+import typescript2 from "rollup-plugin-typescript2"
 import { defineConfig } from "vite"
 
 const resolvePath = (str: string) => path.resolve(__dirname, str)
@@ -20,7 +20,7 @@ export default defineConfig({
           mobx: "mobx",
         },
       },
-      plugins: [typescript({})],
     },
   },
+  plugins: [{ ...typescript2({}), apply: "build", enforce: "pre" }],
 })
