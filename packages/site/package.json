@@ -9,7 +9,7 @@
     "build": "docz build"
   },
   "dependencies": {
-    "mobx": "^6.3.2",
+    "mobx": "^6.3.3",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-react": "^7.2.0",
     "react": "^17.0.2",

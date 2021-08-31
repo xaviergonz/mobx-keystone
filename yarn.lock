@@ -3001,7 +3001,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:^18.7.1":
+"@netlify/build@npm:^18.7.2":
   version: 18.7.2
   resolution: "@netlify/build@npm:18.7.2"
   dependencies:
@@ -4685,10 +4685,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^16.7.3":
-  version: 16.7.3
-  resolution: "@types/node@npm:16.7.3"
-  checksum: 615d65c40131c7b987d9728d42835a35873117bc5840090bca9d3665ef4a32fd11522681c5a5babc6e2ed1ba27b7d57eb268d0a8a2125e3a4e926bf5f992aa69
+"@types/node@npm:*, @types/node@npm:^16.7.9":
+  version: 16.7.9
+  resolution: "@types/node@npm:16.7.9"
+  checksum: dd8970adbb82a188c4b253df8303b9e4e5e3423ff8c35243b240bb448b056a2723f58fe17228e4bcb1b1f98b3f37108c0bdfda7efd88ed839e098502cf73992f
   languageName: node
   linkType: hard
 
@@ -6852,7 +6852,7 @@ __metadata:
     benchmark: ^2.1.4
     chalk: ^4.1.2
     cross-env: ^7.0.3
-    mobx: ^6.3.2
+    mobx: ^6.3.3
     mobx-keystone: "workspace:packages/lib"
     mobx-state-tree: ^5.0.2
     shx: ^0.3.3
@@ -18586,12 +18586,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"marked@npm:^2.1.1":
-  version: 2.1.3
-  resolution: "marked@npm:2.1.3"
+"marked@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "marked@npm:3.0.2"
   bin:
     marked: bin/marked
-  checksum: 21a5ecd4941bc760aba21dfd97185853ec3b464cf707ad971e3ddb3aeb2f44d0deeb36b0889932afdb6f734975a994d92f18815dd0fabadbd902bdaff997cc5b
+  checksum: 6f88083a7e50494f97af9f92f1b03a299ecde78055f7378dd0837f12aa2e192db84b7ed528d3e7008fd8d26d39f23a2a07af2a349899917171531574798563b5
   languageName: node
   linkType: hard
 
@@ -19391,12 +19391,12 @@ fsevents@^1.2.7:
   resolution: "mobx-keystone@workspace:packages/lib"
   dependencies:
     "@types/jest": ^27.0.1
-    "@types/node": ^16.7.3
+    "@types/node": ^16.7.9
     fast-deep-equal: ^3.1.3
     jest: ^27.1.0
-    mobx: ^6.3.2
+    mobx: ^6.3.3
     nanoid: ^3.1.25
-    netlify-cli: ^6.7.7
+    netlify-cli: ^6.8.1
     rollup-plugin-typescript2: ^0.30.0
     shx: ^0.3.3
     spec.ts: ^1.1.3
@@ -19404,9 +19404,9 @@ fsevents@^1.2.7:
     ts-node: ^10.2.1
     ts-toolbelt: ^9.6.0
     tslib: ^2.3.1
-    typedoc: ^0.21.6
+    typedoc: ^0.21.9
     typescript: ^4.4.2
-    vite: ^2.5.1
+    vite: ^2.5.2
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
@@ -19453,10 +19453,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mobx@npm:^6.3.2":
-  version: 6.3.2
-  resolution: "mobx@npm:6.3.2"
-  checksum: da853901ddd9bc5347f778b1aebfcbf5215d0cb0909fa17a9580dec2915b034b385e8cea6f2a85bd917078a29fcbb129c28be10e61db06c59bd3c94ace15f4a9
+"mobx@npm:^6.3.3":
+  version: 6.3.3
+  resolution: "mobx@npm:6.3.3"
+  checksum: f281068f1d98c7f4182f8a2d4a4040cedfe48eae16b951746f6d4bd02d7c4f182d906f6ad31526540c41ba08ce0f1ff137a769213cd2c1c5181bd9e9fa76652f
   languageName: node
   linkType: hard
 
@@ -19681,11 +19681,11 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^6.7.7":
-  version: 6.7.7
-  resolution: "netlify-cli@npm:6.7.7"
+"netlify-cli@npm:^6.8.1":
+  version: 6.8.1
+  resolution: "netlify-cli@npm:6.8.1"
   dependencies:
-    "@netlify/build": ^18.7.1
+    "@netlify/build": ^18.7.2
     "@netlify/config": ^15.5.0
     "@netlify/framework-info": ^5.9.1
     "@netlify/local-functions-proxy": ^1.1.1
@@ -19800,7 +19800,7 @@ fsevents@^1.2.7:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: 7c51b8ef49940d0a69f8e013578ed8bfe054edce635865abcbbbe2cbccaa9c71ae58171bd5aa08243dcd352dac8afea3d8bcead7e51c541c39920a233e00b813
+  checksum: 52ddafd464227bb48076dcd03535b82120b4c941551a5243f2e62bb37633e7cf97049df84617f60412a240f2c9b6da98b8a6db0fc9770667d0263827d17e058b
   languageName: node
   linkType: hard
 
@@ -24515,7 +24515,7 @@ resolve@1.18.1:
     codecov: ^3.8.3
     eslint: ^7.32.0
     eslint-config-prettier: ^8.3.0
-    netlify-cli: ^6.7.7
+    netlify-cli: ^6.8.1
     prettier: ^2.3.2
     react-scripts: ^4.0.3
     typescript: ^4.4.2
@@ -25099,14 +25099,14 @@ resolve@1.18.1:
   languageName: node
   linkType: hard
 
-"shiki@npm:^0.9.3":
-  version: 0.9.6
-  resolution: "shiki@npm:0.9.6"
+"shiki@npm:^0.9.8":
+  version: 0.9.9
+  resolution: "shiki@npm:0.9.9"
   dependencies:
     json5: ^2.2.0
     onigasm: ^2.2.5
     vscode-textmate: 5.2.0
-  checksum: cf8846f8e8b196c74268cc3dd28501ed3a5f1df57a77f6496b18d338426392872d2beef425d84ecc4453d85e6cc383a2aa209d38b75edaa68999ce38b1430677
+  checksum: 404edc41cc0806e95c195442ef3ec9421b7279b9373cf439273af87f83aa56f4404828b6c476405f9e90e1b9db16993607a25dd61ee093c63a261db88e6b7826
   languageName: node
   linkType: hard
 
@@ -25190,7 +25190,7 @@ resolve@1.18.1:
     "@types/uuid": ^8.3.1
     docz: ^2.3.1
     gatsby-theme-docz: ^2.3.1
-    mobx: ^6.3.2
+    mobx: ^6.3.3
     mobx-keystone: "workspace:packages/lib"
     mobx-react: ^7.2.0
     raw-loader: ^4.0.2
@@ -27368,23 +27368,23 @@ resolve@1.18.1:
   languageName: node
   linkType: hard
 
-"typedoc@npm:^0.21.6":
-  version: 0.21.6
-  resolution: "typedoc@npm:0.21.6"
+"typedoc@npm:^0.21.9":
+  version: 0.21.9
+  resolution: "typedoc@npm:0.21.9"
   dependencies:
     glob: ^7.1.7
     handlebars: ^4.7.7
     lunr: ^2.3.9
-    marked: ^2.1.1
+    marked: ^3.0.2
     minimatch: ^3.0.0
     progress: ^2.0.3
-    shiki: ^0.9.3
+    shiki: ^0.9.8
     typedoc-default-themes: ^0.12.10
   peerDependencies:
-    typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x
+    typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x || 4.4.x
   bin:
     typedoc: bin/typedoc
-  checksum: 0c24e6566492b8e7dd92dd201c10cecf09cb8b828a8c8e9b09fe091d47cee9d559d7eb2745a7137462bdd84726eb25208a2c594987d98fa9c8913118589993cc
+  checksum: 5079e55f7d233874aedd5be4acc9ad9deab4b1cacee9a5c950baa19a6990003945e0eccc792f288cbac9d0e900d1f7b7856fc40318bdfef413ed94b7e7690406
   languageName: node
   linkType: hard
 
@@ -28343,9 +28343,9 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.5.1":
-  version: 2.5.1
-  resolution: "vite@npm:2.5.1"
+"vite@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "vite@npm:2.5.2"
   dependencies:
     esbuild: ^0.12.17
     fsevents: ~2.3.2
@@ -28357,7 +28357,7 @@ typescript@^3.9.7:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 31dfd00615143f79b30a95bd709951646448ddc552a1de3da0c3151f93e1de5ded9ddc97704d75518bf06f111e51cb37c547c4c84b598be45bc566d1e41cb599
+  checksum: ba328352374c6c78eb03b6d3df9a692a73f2e360a2fc19ecb04a1158834670983e7e7bc730d438a0b223ad35bfd1cc5b26453975d51798b6c13a98ec8fd1a84c
   languageName: node
   linkType: hard
 
