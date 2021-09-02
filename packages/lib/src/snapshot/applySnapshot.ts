@@ -29,7 +29,11 @@ export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf
   wrappedInternalApplySnapshot().call(node, snapshot)
 }
 
-function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>): void {
+/**
+ * @ignore
+ * @internal
+ */
+export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>): void {
   const obj = this
 
   const reconcile = () => {

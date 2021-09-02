@@ -1,7 +1,10 @@
 import { set } from "mobx"
+import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
+import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isArray } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
+import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
 import type { SnapshotInOfObject } from "./SnapshotOf"
 import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
@@ -16,25 +19,31 @@ function reconcileArraySnapshot(
     return fromSnapshot(sn)
   }
 
-  // remove excess items
-  if (value.length > sn.length) {
-    value.splice(sn.length, value.length - sn.length)
-  }
+  const snapshotBeforeChanges = getSnapshot(value)
 
-  // reconcile present items
-  for (let i = 0; i < value.length; i++) {
-    const oldValue = value[i]
-    const newValue = reconcileSnapshot(oldValue, sn[i], modelPool)
+  withoutTypeChecking(() => {
+    // remove excess items
+    if (value.length > sn.length) {
+      value.splice(sn.length, value.length - sn.length)
+    }
 
-    detachIfNeeded(newValue, oldValue, modelPool)
+    // reconcile present items
+    for (let i = 0; i < value.length; i++) {
+      const oldValue = value[i]
+      const newValue = reconcileSnapshot(oldValue, sn[i], modelPool)
 
-    set(value, i as any, newValue)
-  }
+      detachIfNeeded(newValue, oldValue, modelPool)
 
-  // add excess items
-  for (let i = value.length; i < sn.length; i++) {
-    value.push(reconcileSnapshot(undefined, sn[i], modelPool))
-  }
+      set(value, i as any, newValue)
+    }
+
+    // add excess items
+    for (let i = value.length; i < sn.length; i++) {
+      value.push(reconcileSnapshot(undefined, sn[i], modelPool))
+    }
+  })
+
+  runTypeCheckingAfterChange(value, undefined, snapshotBeforeChanges)
 
   return value
 }

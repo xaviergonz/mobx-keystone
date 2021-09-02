@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.61.1
+
+- Fixed `types.model` sometimes picking any as the model type.
+- Fixed type checking sometimes giving false errors upon reconciliation.
+
 ## 0.61.0
 
 - Added `withTransform()`, a new way to do property transforms, as well as the pre-made transforms `timestampToDateTransform`, `isoStringToDateTransform`, `objectToMapTransform`, `arrayToMapTransform` and `arrayToSetTransform`. See the docs `Maps, Sets, Dates` section for more info.

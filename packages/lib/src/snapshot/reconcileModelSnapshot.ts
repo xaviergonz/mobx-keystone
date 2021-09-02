@@ -5,9 +5,12 @@ import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel, isModelSnapshot } from "../model/utils"
 import { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
+import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
+import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { failure } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
+import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
 import type { SnapshotInOfModel } from "./SnapshotOf"
 import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
@@ -40,39 +43,45 @@ function reconcileModelSnapshot(
   }
 
   const modelObj: AnyModel = value
-  let processedSn: any = sn
-  if (modelObj.fromSnapshot) {
-    processedSn = modelObj.fromSnapshot(sn)
-  }
+  const snapshotBeforeChanges = getSnapshot(modelObj)
 
-  const data = modelObj.$
-
-  // remove excess props
-  const dataKeys = Object.keys(data)
-  const dataKeysLen = dataKeys.length
-  for (let i = 0; i < dataKeysLen; i++) {
-    const k = dataKeys[i]
-    if (!(k in processedSn)) {
-      remove(data, k)
+  withoutTypeChecking(() => {
+    let processedSn: any = sn
+    if (modelObj.fromSnapshot) {
+      processedSn = modelObj.fromSnapshot(sn)
     }
-  }
 
-  // reconcile the rest
-  const processedSnKeys = Object.keys(processedSn)
-  const processedSnKeysLen = processedSnKeys.length
-  for (let i = 0; i < processedSnKeysLen; i++) {
-    const k = processedSnKeys[i]
-    if (!isReservedModelKey(k)) {
-      const v = processedSn[k]
+    const data = modelObj.$
 
-      const oldValue = data[k]
-      const newValue = reconcileSnapshot(oldValue, v, modelPool)
-
-      detachIfNeeded(newValue, oldValue, modelPool)
-
-      set(data, k, newValue)
+    // remove excess props
+    const dataKeys = Object.keys(data)
+    const dataKeysLen = dataKeys.length
+    for (let i = 0; i < dataKeysLen; i++) {
+      const k = dataKeys[i]
+      if (!(k in processedSn)) {
+        remove(data, k)
+      }
     }
-  }
+
+    // reconcile the rest
+    const processedSnKeys = Object.keys(processedSn)
+    const processedSnKeysLen = processedSnKeys.length
+    for (let i = 0; i < processedSnKeysLen; i++) {
+      const k = processedSnKeys[i]
+      if (!isReservedModelKey(k)) {
+        const v = processedSn[k]
+
+        const oldValue = data[k]
+        const newValue = reconcileSnapshot(oldValue, v, modelPool)
+
+        detachIfNeeded(newValue, oldValue, modelPool)
+
+        set(data, k, newValue)
+      }
+    }
+  })
+
+  runTypeCheckingAfterChange(modelObj, undefined, snapshotBeforeChanges)
 
   return modelObj
 }

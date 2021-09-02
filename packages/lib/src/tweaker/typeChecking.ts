@@ -6,14 +6,24 @@ import { dataToModelNode } from "../parent/core"
 import { findParent } from "../parent/findParent"
 import { internalApplyPatches } from "../patch/applyPatches"
 import { InternalPatchRecorder } from "../patch/emitPatch"
+import { internalApplySnapshot } from "../snapshot/applySnapshot"
 import { invalidateCachedTypeCheckerResult } from "../typeChecking/TypeChecker"
 import { runWithoutSnapshotOrPatches } from "./core"
+import { isTypeCheckingAllowed } from "./withoutTypeChecking"
 
 /**
  * @ignore
  * @internal
  */
-export function runTypeCheckingAfterChange(obj: object, patchRecorder: InternalPatchRecorder) {
+export function runTypeCheckingAfterChange(
+  obj: object,
+  patchRecorder: InternalPatchRecorder | undefined,
+  snapshotBeforeChanges?: object
+) {
+  if (!isTypeCheckingAllowed()) {
+    return
+  }
+
   // invalidate type check cached result
   invalidateCachedTypeCheckerResult(obj)
 
@@ -24,7 +34,11 @@ export function runTypeCheckingAfterChange(obj: object, patchRecorder: InternalP
       if (err) {
         // quietly apply inverse patches (do not generate patches, snapshots, actions, etc)
         runWithoutSnapshotOrPatches(() => {
-          internalApplyPatches.call(obj, patchRecorder.invPatches, true)
+          if (patchRecorder) {
+            internalApplyPatches.call(obj, patchRecorder.invPatches, true)
+          } else if (snapshotBeforeChanges) {
+            internalApplySnapshot.call(obj, snapshotBeforeChanges)
+          }
         })
         // at the end of apply patches it will be type checked again and its result cached once more
         err.throw(parentModelWithTypeChecker)
