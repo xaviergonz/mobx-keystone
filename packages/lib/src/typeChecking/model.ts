@@ -34,7 +34,7 @@ type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
  */
 export function typesModel<M = never, K = M>(
   modelClass: _ClassOrObject<M, K>
-): IdentityType<K extends M ? M : K> {
+): IdentityType<K> {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isModelClass(modelClass) && typeof modelClass === "function") {
