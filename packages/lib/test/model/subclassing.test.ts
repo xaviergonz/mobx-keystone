@@ -5,6 +5,7 @@ import {
   ExtendedModel,
   fromSnapshot,
   getSnapshot,
+  idProp,
   model,
   Model,
   modelAction,
@@ -732,4 +733,22 @@ test("new pattern for generics", () => {
   expect(e.v2).toBe(2)
   expect(e.v3).toBe(3)
   expect(e.v4).toBe(4)
+})
+
+test("issue #310", () => {
+  abstract class MyBaseModelWithId extends Model({
+    id: idProp,
+    name: prop<string>().withSetter(),
+  }) {}
+
+  @model("issue #310/MyExtendedModelWithoutId")
+  class MyExtendedModelWithoutId extends ExtendedModel(MyBaseModelWithId, {
+    extendedProp: prop<boolean>(),
+  }) {}
+
+  new MyExtendedModelWithoutId({
+    id: "some id",
+    name: "name",
+    extendedProp: true,
+  })
 })

@@ -15,7 +15,7 @@ import { assertIsModelClass, isModelClass } from "./utils"
 export type _ComposedCreationData<
   SuperModel,
   TProps extends ModelProps
-> = SuperModel extends BaseModel<any, any, any, infer TCD>
+> = SuperModel extends BaseModel<any, any, any, infer TCD, any>
   ? ModelPropsToTransformedCreationData<TProps> & TCD
   : ModelPropsToTransformedCreationData<TProps>
 

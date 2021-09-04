@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.61.2
+
+- Fixed a typing issue related to extending a class model with an `idProp`.
+
 ## 0.61.1
 
 - Fixed `types.model` sometimes picking any as the model type.
