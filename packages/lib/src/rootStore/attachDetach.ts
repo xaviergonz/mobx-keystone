@@ -7,6 +7,7 @@ import { _BaseModel } from "../model/_BaseModel"
 import { walkTree, WalkTreeMode } from "../parent/walkTree"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
+const attachedToRootStore = new WeakSet<object>()
 
 /**
  * @ignore
@@ -21,12 +22,20 @@ export const attachToRootStore = action(
     walkTree(
       child,
       (ch) => {
+        // we use this to avoid calling onAttachedToRootStore
+        // twice
+        if (attachedToRootStore.has(ch)) {
+          return
+        }
+        attachedToRootStore.add(ch)
+
         if (ch instanceof _BaseModel && (ch as any).onAttachedToRootStore) {
           wrapModelMethodInActionIfNeeded(
             ch as any,
             "onAttachedToRootStore",
             HookAction.OnAttachedToRootStore
           )
+
           childrenToCall.push(ch as AnyModel)
         }
       },
@@ -56,6 +65,10 @@ export const detachFromRootStore = action("detachFromRootStore", (child: object)
   walkTree(
     child,
     (ch) => {
+      if (!attachedToRootStore.delete(ch)) {
+        return
+      }
+
       const disposer = onAttachedDisposers.get(ch)
       if (disposer) {
         // wrap disposer in action

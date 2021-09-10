@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.61.3
+
+- Fix to avoid calling `onAttachedToRootStore` more more often than it should.
+
 ## 0.61.2
 
 - Fixed a typing issue related to extending a class model with an `idProp`.

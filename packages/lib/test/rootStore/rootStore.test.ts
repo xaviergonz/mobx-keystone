@@ -280,3 +280,59 @@ test("isRootStore is reactive", () => {
   expect(events).toEqual([false])
   events.length = 0
 })
+
+test("issue #316", () => {
+  let mountCount = 0
+  let unmountCount = 0
+
+  @model("316/track")
+  class Track extends Model({
+    nodes: prop<TrackNode[]>(),
+  }) {}
+
+  @model("316/node")
+  class TrackNode extends Model({
+    name: prop<string>(),
+  }) {
+    counter: number = 0
+    onAttachedToRootStore() {
+      mountCount++
+      return () => {
+        unmountCount++
+      }
+    }
+  }
+
+  @model("316/app")
+  class App extends Model({
+    tracks: prop<Track[]>(),
+  }) {
+    @modelAction
+    moveNode() {
+      const track = new Track({ nodes: [] })
+      this.tracks.push(track)
+      // second onAttachedToRootStore
+      // but we got three output
+      track.nodes.push(
+        new TrackNode({
+          name: "node2",
+        })
+      )
+    }
+  }
+
+  const track1 = new Track({ nodes: [] })
+  const app = new App({ tracks: [track1] })
+  registerRootStore(app)
+
+  expect(mountCount).toBe(0)
+  expect(unmountCount).toBe(0)
+
+  app.moveNode()
+  expect(unmountCount).toBe(0)
+  expect(mountCount).toBe(1)
+
+  unregisterRootStore(app)
+  expect(mountCount).toBe(1)
+  expect(unmountCount).toBe(1)
+})
