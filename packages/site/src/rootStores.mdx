@@ -127,7 +127,7 @@ formPreferences.setTheme("dark")
 ... but it should be saved once the save button is clicked:
 
 ```ts
-myRootStore.setUserPreferences = formPreferences
+myRootStore.setUserPreferences(formPreferences)
 ```
 
 After that last line, the old preferences object (`myPreferences`) will become detached from the root store tree and therefore will stop saving changes (by running the disposer).
