@@ -137,17 +137,16 @@ function deepScanValueForModelIdChanges(
 
 /**
  * Applies (runs) a serialized action over a target object.
- * In this mode newly generated / modified model IDs will be tracked
- * so they can be later synchronized when applying it on another machine
- * via `applySerializedActionAndSyncNewModelIds`.
- * This means this method is usually used on the server side.
+ * In this mode newly generated / modified model IDs previously tracked
+ * by `applySerializedActionAndTrackNewModelIds` will be synchronized after
+ * the action is applied.
+ * This means this method is usually used on the client side.
  *
  * If you intend to apply non-serialized actions check `applyAction` instead.
  *
  * @param subtreeRoot Subtree root target object to run the action over.
  * @param call The serialized action, usually as coming from the server/client.
- * @returns The return value of the action, if any, plus a new serialized action
- * with model overrides.
+ * @returns The return value of the action, if any.
  */
 export function applySerializedActionAndSyncNewModelIds<TRet = any>(
   subtreeRoot: object,
