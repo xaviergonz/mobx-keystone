@@ -276,11 +276,13 @@ export function resolvePath<T = any>(
 
 /**
  * @ignore
+ * @internal
  */
 export const skipIdChecking = Symbol("skipIdChecking")
 
 /**
  * @ignore
+ * @internal
  *
  * Tries to resolve a path from an object while checking ids.
  *
