@@ -59,7 +59,6 @@ test("applySet", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "ch": undefined,
               "obj": undefined,
               "y": 5,
@@ -82,7 +81,6 @@ test("applySet", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "ch": undefined,
               "obj": undefined,
               "y": 5,
@@ -121,7 +119,6 @@ test("applySet", () => {
             "ch",
             P {
               "$": Object {
-                "$modelId": "id-2",
                 "ch": undefined,
                 "obj": undefined,
                 "y": 1,
@@ -134,10 +131,8 @@ test("applySet", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "ch": P {
                 "$": Object {
-                  "$modelId": "id-2",
                   "ch": undefined,
                   "obj": undefined,
                   "y": 1,
@@ -160,7 +155,6 @@ test("applySet", () => {
             "ch",
             P {
               "$": Object {
-                "$modelId": "id-2",
                 "ch": undefined,
                 "obj": undefined,
                 "y": 1,
@@ -173,10 +167,8 @@ test("applySet", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "ch": P {
                 "$": Object {
-                  "$modelId": "id-2",
                   "ch": undefined,
                   "obj": undefined,
                   "y": 1,

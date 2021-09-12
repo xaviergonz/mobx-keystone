@@ -83,10 +83,14 @@ export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOut
     }
 
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-    const id = sn[modelIdPropertyName]
-    if (obj[modelIdKey] !== id) {
-      // different id, no reconciliation possible
-      throw failure(`snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`)
+    if (modelIdPropertyName) {
+      const id = sn[modelIdPropertyName]
+      if (obj[modelIdKey] !== id) {
+        // different id, no reconciliation possible
+        throw failure(
+          `snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`
+        )
+      }
     }
 
     return reconcile()

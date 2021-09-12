@@ -155,35 +155,21 @@ class SomeModel extends Model({...}) {
 
 ## Accessing the type and ID of a class model
 
-It is interesting to observe that class models include the properties named `$modelType` and `$modelId`:
+It is interesting to observe that class models include a property named `$modelType`:
 
 ```ts
 myTodo1.$modelType // "myCoolApp/Todo"
-myTodo1.$modelId // "Td244..."
 ```
 
-These properties will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
+This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
 
-Note that while `$modelId` is usually auto-generated, you can override this behaviour when creating the object by specifying it as a property:
+## Setting an ID property
 
-```ts
-const myTodo = new Todo({
-  $modelId: "my custom id",
-})
-```
+Note that it is also possible to assign a property as the ID property using `idProp`. Having a dedicated ID property set has some advatages:
 
-as well as writing to it inside a model action:
-
-```ts
-// inside some model action
-this.$modelId = "my new custom id"
-```
-
-Just make sure that ID is unique for every model object (no matter its type).
-
-## Customizing the ID property
-
-It is possible to use any other custom property as ID source by assigning to it the `idProp` value. For example:
+- Improved reconciliation when applying snapshots.
+- Resolving the target of serialized actions will be less likely to hit the wrong node (thanks to ID checking).
+- Root references will be able to resolve the nodes without any extra configuration.
 
 ```ts
 @model("myApp/ModelWithCustomId")
@@ -195,13 +181,31 @@ class ModelWithCustomId extends Model({
 ```
 
 In this case either `customId` (both in snapshots and instances) or `$modelId` (only in instances) can be used to read / write the ID property.
+Just make sure that ID is unique for every model object (no matter its type).
+
+Note that when using the `new` operator to create a new instance you can either not specify the property so it will be auto-generated, or you can specify it directly:
+
+```ts
+const myTodo = new Todo({
+  myId: "my custom id",
+})
+```
+
+as well as writing to it at a later time inside a model action:
+
+```ts
+// inside some model action
+this.myId = "my new custom id"
+// or alternatively
+this.$modelId = "my new custom id"
+```
 
 ## Customizing the ID generator function
 
 The default model ID generator function is tuned up to be fast and works like this:
 
 ```ts
-const baseLocalId = base64WithoutDashes(uuid.v4())
+const baseLocalId = nanoid()
 let localId = 0
 function generateModelId() {
   return localId.toString(36) + "-" + baseLocalId

@@ -1,7 +1,6 @@
 import type { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
 import { sharedInternalModel } from "../modelShared/Model"
 import {
-  idProp,
   ModelProps,
   ModelPropsToCreationData,
   ModelPropsToData,
@@ -35,15 +34,6 @@ export interface _Model<SuperModel, TProps extends ModelProps> {
     Omit<ModelPropsToTransformedData<TProps>, BaseModelKeys> &
     ModelPropsToSetter<TProps>
 }
-
-/**
- * @ignore
- * Ensures that a $modelId property is present if no idProp is provided.
- */
-export type AddModelIdPropIfNeeded<TProps extends ModelProps> =
-  ExtractModelIdProp<TProps> extends never
-    ? TProps & { $modelId: typeof idProp } // we use the actual name here to avoid having to re-export the original
-    : TProps
 
 /**
  * Extract the model id property from the model props.
@@ -121,7 +111,7 @@ export function ExtendedModel<TProps extends ModelProps, TModel extends AnyModel
 export function Model<TProps extends ModelProps, A extends []>(
   fnModelProps: (...args: A) => TProps,
   modelOptions?: ModelOptions
-): _Model<unknown, AddModelIdPropIfNeeded<TProps>>
+): _Model<unknown, TProps>
 
 /**
  * Base abstract class for models.
@@ -135,13 +125,13 @@ export function Model<TProps extends ModelProps, A extends []>(
 export function Model<TProps extends ModelProps>(
   modelProps: TProps,
   modelOptions?: ModelOptions
-): _Model<unknown, AddModelIdPropIfNeeded<TProps>>
+): _Model<unknown, TProps>
 
 // base
 export function Model<TProps extends ModelProps>(
   fnModelPropsOrModelProps: (() => TProps) | TProps,
   modelOptions?: ModelOptions
-): _Model<unknown, AddModelIdPropIfNeeded<TProps>> {
+): _Model<unknown, TProps> {
   const modelProps =
     typeof fnModelPropsOrModelProps === "function"
       ? fnModelPropsOrModelProps()
@@ -153,7 +143,7 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
   modelProps: TProps,
   baseModel: ModelClass<TBaseModel> | undefined,
   modelOptions?: ModelOptions
-): _Model<TBaseModel, AddModelIdPropIfNeeded<TProps>> {
+): _Model<TBaseModel, TProps> {
   return sharedInternalModel({
     modelProps,
     baseModel,

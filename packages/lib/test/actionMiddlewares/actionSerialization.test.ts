@@ -5,9 +5,11 @@ import {
   deserializeActionCall,
   deserializeActionCallArgument,
   getSnapshot,
+  idProp,
   model,
   Model,
   modelAction,
+  modelIdKey,
   onActionMiddleware,
   prop,
   serializeActionCall,
@@ -109,6 +111,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   // model without shared root ref
   @model("SACM")
   class SACM extends Model({
+    [modelIdKey]: idProp,
     child: prop<SACM | undefined>(),
   }) {}
 
@@ -172,6 +175,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
 describe("concurrency", () => {
   @model("TodoList")
   class TodoList extends Model({
+    [modelIdKey]: idProp,
     list: prop<Todo[]>(() => []),
   }) {
     @modelAction
@@ -198,6 +202,7 @@ describe("concurrency", () => {
 
   @model("Todo")
   class Todo extends Model({
+    [modelIdKey]: idProp,
     text: prop<string>(),
     done: prop(false),
   }) {

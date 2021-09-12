@@ -8,10 +8,12 @@ import {
   getParent,
   getParentPath,
   getSnapshot,
+  idProp,
   isRefOfType,
   model,
   Model,
   modelAction,
+  modelIdKey,
   prop,
   Ref,
   runUnprotected,
@@ -111,7 +113,6 @@ test("single ref works", () => {
   const r = c.selectedCountryRef!
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-2",
       "$modelType": "countryRef",
       "id": "spain",
     }
@@ -161,12 +162,10 @@ test("array ref works", () => {
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Array [
       Object {
-        "$modelId": "id-2",
         "$modelType": "countryRef",
         "id": "spain",
       },
       Object {
-        "$modelId": "id-3",
         "$modelType": "countryRef",
         "id": "uk",
       },
@@ -355,6 +354,7 @@ test("isRefOfType", () => {
 test("generic typings", () => {
   @model("GenericModel")
   class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
+    [modelIdKey]: idProp,
     v1: prop<U1 | undefined>(),
     v2: prop<U2>(),
     v3: prop<number>(0),

@@ -4,8 +4,10 @@ import "../commonSetup"
 import { P, P2 } from "../testbed"
 
 const snapshot = modelSnapshotInWithMetadata(P, {
+  $modelId: "id-2",
   arr: [1, 2, 3],
   p2: modelSnapshotInWithMetadata(P2, {
+    $modelId: "id-1",
     y: 12,
   }),
 })

@@ -74,7 +74,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -97,7 +96,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -132,7 +130,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -155,7 +152,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -191,7 +187,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 5,
               "sz": 0,
               "y": 5,
@@ -215,7 +210,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 5,
               "sz": 0,
               "y": 5,
@@ -251,7 +245,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 5,
               "sz": 5,
               "y": 5,
@@ -275,7 +268,6 @@ test("setter", () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "sy": 5,
               "sz": 5,
               "y": 5,

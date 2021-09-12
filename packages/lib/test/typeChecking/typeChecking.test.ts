@@ -13,6 +13,7 @@ import {
   frozen,
   FrozenTypeInfo,
   getTypeInfo,
+  idProp,
   LiteralTypeInfo,
   model,
   Model,
@@ -417,6 +418,7 @@ const mArrDefault = () => []
 
 @model("M")
 class M extends Model({
+  [modelIdKey]: idProp,
   x: tProp(types.number, 10),
   y: tProp(types.string),
   arr: tProp(mArrType, mArrDefault),
@@ -1065,16 +1067,8 @@ test("objectMap", () => {
 
   assert(_ as TypeToData<typeof type>, _ as ObjectMap<number>)
 
-  expectTypeCheckOk(
-    type,
-    objectMap<number>([["1", 10]])
-  )
-  expectTypeCheckFail(
-    type,
-    objectMap<string>([["1", "10"]]),
-    ["items", "1"],
-    "number"
-  )
+  expectTypeCheckOk(type, objectMap<number>([["1", 10]]))
+  expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["items", "1"], "number")
 
   const typeInfo = expectValidTypeInfo(type, ObjectMapTypeInfo)
   expect(typeInfo.valueType).toBe(types.number)
@@ -1086,16 +1080,8 @@ test("arraySet", () => {
 
   assert(_ as TypeToData<typeof type>, _ as ArraySet<number>)
 
-  expectTypeCheckOk(
-    type,
-    arraySet<number>([1, 2, 3])
-  )
-  expectTypeCheckFail(
-    type,
-    arraySet<string | number>([1, 2, "3"]),
-    ["items", 2],
-    "number"
-  )
+  expectTypeCheckOk(type, arraySet<number>([1, 2, 3]))
+  expectTypeCheckFail(type, arraySet<string | number>([1, 2, "3"]), ["items", 2], "number")
 
   const typeInfo = expectValidTypeInfo(type, ArraySetTypeInfo)
   expect(typeInfo.valueType).toBe(types.number)

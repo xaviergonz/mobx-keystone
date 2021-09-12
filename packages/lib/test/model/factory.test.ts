@@ -1,5 +1,6 @@
 import { assert, _ } from "spec.ts"
 import {
+  idProp,
   model,
   Model,
   modelAction,
@@ -15,6 +16,7 @@ test("factory pattern", () => {
   function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
     @model(`myApp/${modelName}`)
     class MyModel extends Model({
+      [modelIdKey]: idProp,
       x: prop<TX>(() => initialX),
       y: prop<TY>(() => initialY),
     }) {

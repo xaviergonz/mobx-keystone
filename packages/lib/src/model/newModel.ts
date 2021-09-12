@@ -45,16 +45,18 @@ export const internalNewModel = action(
 
     const modelIdPropertyName = getModelIdPropertyName(modelClass)
     const modelProps = getInternalModelClassPropsInfo(modelClass)
-    const modelIdPropData = modelProps[modelIdPropertyName]!
+    const modelIdPropData = modelIdPropertyName ? modelProps[modelIdPropertyName]! : undefined
 
-    let id
+    let id: string | undefined
     if (snapshotInitialData) {
       let sn = snapshotInitialData.unprocessedSnapshot
 
-      if (generateNewIds) {
-        id = (modelIdPropData.defaultFn as () => string)()
-      } else {
-        id = sn[modelIdPropertyName]
+      if (modelIdPropData && modelIdPropertyName) {
+        if (generateNewIds) {
+          id = (modelIdPropData.defaultFn as () => string)()
+        } else {
+          id = sn[modelIdPropertyName]
+        }
       }
 
       if (modelObj.fromSnapshot) {
@@ -64,10 +66,12 @@ export const internalNewModel = action(
       initialData = snapshotInitialData.snapshotToInitialData(sn)
     } else {
       // use symbol if provided
-      if (initialData![modelIdPropertyName]) {
-        id = initialData![modelIdPropertyName]
-      } else {
-        id = (modelIdPropData.defaultFn as () => string)()
+      if (modelIdPropData && modelIdPropertyName) {
+        if (initialData![modelIdPropertyName]) {
+          id = initialData![modelIdPropertyName]
+        } else {
+          id = (modelIdPropData.defaultFn as () => string)()
+        }
       }
     }
 
@@ -110,7 +114,9 @@ export const internalNewModel = action(
       }
     }
 
-    set(initialData as any, modelIdPropertyName, id)
+    if (modelIdPropertyName) {
+      set(initialData as any, modelIdPropertyName, id)
+    }
 
     tweakModel(modelObj, undefined)
 

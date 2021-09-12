@@ -6,10 +6,13 @@ import { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { dataObjectParent } from "../parent/core"
 import {
-  byModelTypeAndIdKey,
   getDeepObjectChildren,
   registerDeepObjectChildrenExtension,
 } from "../parent/coreObjectChildren"
+
+function byModelTypeAndIdKey(modelType: string, modelId: string) {
+  return modelType + " " + modelId
+}
 
 export class ModelPool {
   private pool: ReadonlyMap<string, AnyModel>
@@ -21,8 +24,8 @@ export class ModelPool {
     this.pool = getDeepChildrenModels(getDeepObjectChildren(root))
   }
 
-  findModelByTypeAndId(modelType: string, modelId: string): AnyModel | undefined {
-    return this.pool.get(byModelTypeAndIdKey(modelType, modelId))
+  findModelByTypeAndId(modelType: string, modelId: string | undefined): AnyModel | undefined {
+    return modelId ? this.pool.get(byModelTypeAndIdKey(modelType, modelId)) : undefined
   }
 
   findModelForSnapshot(sn: any): AnyModel | undefined {
@@ -34,7 +37,9 @@ export class ModelPool {
     const modelInfo = getModelInfoForName(modelType)!
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
 
-    return this.findModelByTypeAndId(sn[modelTypeKey], sn[modelIdPropertyName])
+    return modelIdPropertyName
+      ? this.findModelByTypeAndId(sn[modelTypeKey], sn[modelIdPropertyName])
+      : undefined
   }
 }
 
@@ -45,7 +50,10 @@ const getDeepChildrenModels = registerDeepObjectChildrenExtension<Map<string, An
 
   addNode(node, data) {
     if (isModel(node)) {
-      data.set(byModelTypeAndIdKey(node[modelTypeKey], node[modelIdKey]), node)
+      const id = node[modelIdKey]
+      if (id) {
+        data.set(byModelTypeAndIdKey(node[modelTypeKey], id), node)
+      }
     }
   },
 })

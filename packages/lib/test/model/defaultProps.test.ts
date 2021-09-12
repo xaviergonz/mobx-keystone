@@ -1,5 +1,6 @@
 import { assert, _ } from "spec.ts"
 import {
+  idProp,
   Model,
   model,
   ModelCreationData,
@@ -13,6 +14,8 @@ import "../commonSetup"
 
 @model("M")
 class M extends Model({
+  [modelIdKey]: idProp,
+
   x: prop(42),
   xx: prop<number | undefined>(undefined),
   xxx: prop<number | null>(null),

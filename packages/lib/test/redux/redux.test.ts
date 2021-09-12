@@ -57,12 +57,10 @@ describe("asReduxStore", () => {
             Array [
               Object {
                 "prevSn": Object {
-                  "$modelId": "id-1",
                   "$modelType": "P",
                   "x": 0,
                 },
                 "sn": Object {
-                  "$modelId": "id-1",
                   "$modelType": "P",
                   "x": 5,
                 },
@@ -139,12 +137,10 @@ describe("asReduxStore", () => {
       Array [
         Object {
           "prevSn": Object {
-            "$modelId": "id-1",
             "$modelType": "P",
             "x": 0,
           },
           "sn": Object {
-            "$modelId": "id-1",
             "$modelType": "P",
             "x": 12,
           },

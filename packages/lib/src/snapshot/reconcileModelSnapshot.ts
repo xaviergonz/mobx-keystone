@@ -27,9 +27,6 @@ function reconcileModelSnapshot(
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-  const id = sn[modelIdPropertyName]
-
   // try to use model from pool if possible
   const modelInPool = modelPool.findModelForSnapshot(sn)
   if (modelInPool) {
@@ -37,9 +34,19 @@ function reconcileModelSnapshot(
   }
 
   // we don't check by actual instance since the class might be a different one due to hot reloading
-  if (!isModel(value) || value[modelTypeKey] !== type || value[modelIdKey] !== id) {
-    // different kind of model / model instance, no reconciliation possible
+  if (!isModel(value) || value[modelTypeKey] !== type) {
+    // different kind of model type, no reconciliation possible
     return fromSnapshot<AnyModel>(sn)
+  }
+
+  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
+  if (modelIdPropertyName) {
+    const id = sn[modelIdPropertyName]
+
+    if (value[modelIdKey] !== id) {
+      // different id, no reconciliation possible
+      return fromSnapshot<AnyModel>(sn)
+    }
   }
 
   const modelObj: AnyModel = value

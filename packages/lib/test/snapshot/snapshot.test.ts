@@ -545,7 +545,6 @@ test("snapshot with reserved property names", () => {
 
   expect(sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-1",
       "$modelType": "test/snapshotWithReservedPropNames",
       "onInit": 4,
     }

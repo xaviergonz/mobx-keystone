@@ -1,13 +1,15 @@
 import { computed } from "mobx"
-import { model, Model, modelAction, prop } from "../src"
+import { idProp, model, Model, modelAction, modelIdKey, prop } from "../src"
 
 @model("P2")
 export class P2 extends Model({
+  [modelIdKey]: idProp,
   y: prop(() => 10),
 }) {}
 
 @model("P")
 export class P extends Model({
+  [modelIdKey]: idProp,
   x: prop(() => 5),
   arr: prop<number[]>(() => []),
   p2: prop<P2 | undefined>(),

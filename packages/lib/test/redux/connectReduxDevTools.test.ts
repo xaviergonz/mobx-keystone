@@ -1,10 +1,12 @@
 import {
   applySnapshot,
   connectReduxDevTools,
+  idProp,
   model,
   Model,
   modelAction,
   modelFlow,
+  modelIdKey,
   modelSnapshotOutWithMetadata,
   prop,
   _async,
@@ -45,6 +47,7 @@ class M2 extends Model({
 
 @model("TestModel")
 class M extends Model({
+  [modelIdKey]: idProp,
   x: prop(() => "uninitializedX"),
   y: prop(() => ""),
   array: prop<M2[]>(() => []),
@@ -268,11 +271,12 @@ function addStandardTests() {
   })
 
   test('applySnapshot(m, { x: "snapshotX", y: "snapshotY", array: [] })', () => {
-    const snapshot = modelSnapshotOutWithMetadata(
-      M,
-      { x: "snapshotX", y: "snapshotY", array: [] },
-      m.$modelId
-    )
+    const snapshot = modelSnapshotOutWithMetadata(M, {
+      x: "snapshotX",
+      y: "snapshotY",
+      array: [],
+      [modelIdKey]: m.$modelId!,
+    })
     applySnapshot(m, snapshot)
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })

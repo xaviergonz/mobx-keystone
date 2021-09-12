@@ -1,10 +1,12 @@
 import { computed } from "mobx"
 import {
   getSnapshot,
+  idProp,
   model,
   Model,
   modelAction,
   modelFlow,
+  modelIdKey,
   prop,
   Ref,
   registerRootStore,
@@ -351,6 +353,7 @@ test("issue #115", () => {
 
   @model("toryjs/ElementModel")
   class ElementModel extends Model({
+    [modelIdKey]: idProp,
     name: prop<string>(),
     selected: prop<boolean>(),
   }) {

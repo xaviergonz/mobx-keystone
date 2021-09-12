@@ -60,13 +60,11 @@ const todoSnapshot = getSnapshot(todo)
 {
   done: false,
   text: "buy some milk",
-  $modelType: "myApp/Todo",
-  $modelId: "Td244..."
+  $modelType: "myApp/Todo"
 }
 ```
 
 The additional `$modelType` property is used to allow `fromSnapshot` to recognize the original class and faithfully recreate it, rather than assume it is a plain object.
-The additional `$modelId` property is used when serializing actions to ensure that targets are still the same when using concurrency amongst different clients and can be used as a possible source of reference id.
 This metadata is only required for models, in other words, arrays, plain objects and primitives don't have this extra field.
 
 The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
@@ -77,7 +75,6 @@ type SnapshotOutOf<Todo> = {
   type: string;
 
   $modelType: string;
-  $modelId: string;
 }
 ```
 
@@ -101,7 +98,6 @@ type SnapshotInOf<Todo> = {
   type: string;
 
   $modelType: string;
-  $modelId: string;
 }
 ```
 
@@ -151,7 +147,6 @@ applySnapshot(todo, {
   done: true,
   text: "buy some milk",
   $modelType: todo.$modelType,
-  $modelId: todo.$modelId,
 })
 ```
 

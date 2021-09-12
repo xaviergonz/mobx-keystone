@@ -127,7 +127,7 @@ export function internalCustomRef<T extends object>(
   }
   fn.refClass = CustomRef
 
-  const thisRefConstructor = (fn as any) as RefConstructor<T>
+  const thisRefConstructor = fn as any as RefConstructor<T>
 
   return thisRefConstructor
 }
@@ -144,8 +144,8 @@ export function internalCustomRef<T extends object>(
 export function getModelRefId(target: object): string | undefined {
   if (isModel(target) && target.getRefId) {
     const id = target.getRefId()
-    if (typeof id !== "string") {
-      throw failure("'getRefId()' must return a string when present")
+    if (id !== undefined && typeof id !== "string") {
+      throw failure("'getRefId()' must return a string or undefined when present")
     }
     return id
   }

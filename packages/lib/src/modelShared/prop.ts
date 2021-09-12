@@ -127,13 +127,12 @@ export type ModelPropsToData<MP extends ModelProps> = {
 // to infer generics
 export type ModelPropsToCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["$creationValueType"]
-} &
-  O.Omit<
-    {
-      [k in keyof MP]: MP[k]["$creationValueType"]
-    },
-    OptionalModelProps<MP>
-  >
+} & O.Omit<
+  {
+    [k in keyof MP]: MP[k]["$creationValueType"]
+  },
+  OptionalModelProps<MP>
+>
 
 export type ModelPropsToTransformedData<MP extends ModelProps> = {
   [k in keyof MP]: MP[k]["$transformedValueType"]
@@ -144,13 +143,12 @@ export type ModelPropsToTransformedData<MP extends ModelProps> = {
 // to infer generics
 export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["$transformedCreationValueType"]
-} &
-  O.Omit<
-    {
-      [k in keyof MP]: MP[k]["$transformedCreationValueType"]
-    },
-    OptionalModelProps<MP>
-  >
+} & O.Omit<
+  {
+    [k in keyof MP]: MP[k]["$transformedCreationValueType"]
+  },
+  OptionalModelProps<MP>
+>
 
 export type ModelPropsToSetter<MP extends ModelProps> = {
   [k in keyof MP as MP[k]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
@@ -159,7 +157,7 @@ export type ModelPropsToSetter<MP extends ModelProps> = {
 }
 
 /**
- * A property that will be used as model id, replacing $modelId.
+ * A property that will be used as model id, accessible through $modelId.
  * Can only be used in models and there can be only one per model.
  */
 export const idProp = {

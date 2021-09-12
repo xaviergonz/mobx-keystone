@@ -329,7 +329,7 @@ export function resolvePathCheckingIds<T = any>(
 
     const expectedId = pathIds[i]
     if (expectedId !== skipIdChecking) {
-      const currentId = isModel(currentMaybeModel) ? currentMaybeModel[modelIdKey] : null
+      const currentId = isModel(currentMaybeModel) ? currentMaybeModel[modelIdKey] ?? null : null
       if (expectedId !== currentId) {
         return { resolved: false }
       }

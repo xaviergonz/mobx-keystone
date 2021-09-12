@@ -1,9 +1,11 @@
 import {
   getSnapshot,
+  idProp,
   isTreeNode,
   model,
   Model,
   modelAction,
+  modelIdKey,
   onPatches,
   Patch,
   prop,
@@ -13,11 +15,13 @@ import "../commonSetup"
 test("reassigning an array via spreading", () => {
   @model("SpreadArr_Obj")
   class Obj extends Model({
+    [modelIdKey]: idProp,
     x: prop(),
   }) {}
 
   @model("SpreadArr")
   class SpreadArr extends Model({
+    [modelIdKey]: idProp,
     arr: prop<Obj[]>(() => []),
   }) {
     @modelAction
@@ -278,11 +282,13 @@ test("reassigning an array via spreading", () => {
 test("reassigning an object via spreading", () => {
   @model("SpreadObj_Obj")
   class Obj extends Model({
+    [modelIdKey]: idProp,
     x: prop(),
   }) {}
 
   @model("SpreadObj")
   class SpreadObj extends Model({
+    [modelIdKey]: idProp,
     spreadObj: prop<{ [k: string]: Obj }>(() => ({})),
   }) {
     @modelAction

@@ -4,6 +4,7 @@ import {
   decoratedModel,
   ExtendedModel,
   getSnapshot,
+  idProp,
   isModelAction,
   model,
   Model,
@@ -83,6 +84,7 @@ test("decoratedModel", () => {
   let initCalls = 0
 
   class _Point<N> extends Model({
+    [modelIdKey]: idProp,
     x: prop<number>(5),
     y: prop<number>(),
   }) {

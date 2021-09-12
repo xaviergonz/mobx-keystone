@@ -4,9 +4,11 @@ import {
   applyAction,
   applySnapshot,
   getSnapshot,
+  idProp,
   model,
   Model,
   modelAction,
+  modelIdKey,
   prop,
 } from "../../src"
 import "../commonSetup"
@@ -14,6 +16,7 @@ import { autoDispose } from "../utils"
 
 @model("P2")
 export class P2 extends Model({
+  [modelIdKey]: idProp,
   y: prop(0),
 }) {
   @modelAction
@@ -25,6 +28,7 @@ export class P2 extends Model({
 
 @model("P")
 export class P extends Model({
+  [modelIdKey]: idProp,
   p2: prop(() => new P2({})),
   x: prop(0),
   arr: prop<number[]>(() => []),
@@ -659,7 +663,7 @@ test("applyAction", () => {
     const ra = pa.p2.addY(15)
     const rb = applyAction(pb, {
       targetPath: ["p2"],
-      targetPathIds: [pb.p2.$modelId],
+      targetPathIds: [pb.p2.$modelId!],
       actionName: "addY",
       args: [15],
     })
@@ -674,7 +678,7 @@ test("applyAction", () => {
   })
   applyAction(pb, {
     targetPath: ["p2"],
-    targetPathIds: [pb.p2.$modelId],
+    targetPathIds: [pb.p2.$modelId!],
     actionName: "$$applySnapshot",
     args: [{ ...getSnapshot(pb.p2), y: 100 }],
   })
