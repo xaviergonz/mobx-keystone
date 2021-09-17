@@ -38,7 +38,7 @@ export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOut
 
   const reconcile = () => {
     const modelPool = new ModelPool(obj)
-    const ret = reconcileSnapshot(obj, sn, modelPool)
+    const ret = reconcileSnapshot(obj, sn, modelPool, undefined)
 
     if (inDevMode()) {
       if (ret !== obj) {

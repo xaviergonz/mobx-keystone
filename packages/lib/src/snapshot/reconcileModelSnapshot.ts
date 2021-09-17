@@ -7,7 +7,7 @@ import { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
-import { failure } from "../utils"
+import { failure, isArray } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
@@ -18,7 +18,8 @@ import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPrio
 function reconcileModelSnapshot(
   value: any,
   sn: SnapshotInOfModel<AnyModel>,
-  modelPool: ModelPool
+  modelPool: ModelPool,
+  parent: any
 ): AnyModel {
   const type = sn[modelTypeKey]
 
@@ -47,6 +48,9 @@ function reconcileModelSnapshot(
       // different id, no reconciliation possible
       return fromSnapshot<AnyModel>(sn)
     }
+  } else if (isArray(parent)) {
+    // no id inside an array, no reconciliation possible
+    return fromSnapshot<AnyModel>(sn)
   }
 
   const modelObj: AnyModel = value
@@ -79,7 +83,7 @@ function reconcileModelSnapshot(
         const v = processedSn[k]
 
         const oldValue = data[k]
-        const newValue = reconcileSnapshot(oldValue, v, modelPool)
+        const newValue = reconcileSnapshot(oldValue, v, modelPool, modelObj)
 
         detachIfNeeded(newValue, oldValue, modelPool)
 
@@ -93,9 +97,9 @@ function reconcileModelSnapshot(
   return modelObj
 }
 
-registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool) => {
+registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool, parent) => {
   if (isModelSnapshot(sn)) {
-    return reconcileModelSnapshot(value, sn, modelPool)
+    return reconcileModelSnapshot(value, sn, modelPool, parent)
   }
   return undefined
 })

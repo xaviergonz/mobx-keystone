@@ -6,10 +6,12 @@ import {
   clone,
   fromSnapshot,
   getSnapshot,
+  idProp,
   Model,
   model,
   modelAction,
   modelIdKey,
+  modelSnapshotOutWithMetadata,
   modelTypeKey,
   ObjectMap,
   onPatches,
@@ -560,4 +562,81 @@ test("snapshot with reserved property names", () => {
   })
   expect(p2.$.onInit).toBe(10)
   expect((p2 as any).onInit).toBeUndefined()
+})
+
+test("id-less reconciliation", () => {
+  let id = 0
+
+  @model("idlr/i")
+  class I extends Model({}) {
+    id = id++
+  }
+
+  @model("idlr/r")
+  class R extends Model({
+    arr: prop<I[]>(),
+    m: prop<I>(),
+  }) {}
+
+  const r = new R({
+    arr: [new I({}), new I({})],
+    m: new I({}),
+  })
+
+  expect(r.arr[0].id).toBe(0)
+  expect(r.arr[1].id).toBe(1)
+  expect(r.m.id).toBe(2)
+
+  applySnapshot(
+    r,
+    modelSnapshotOutWithMetadata(R, {
+      arr: [modelSnapshotOutWithMetadata(I, {}), modelSnapshotOutWithMetadata(I, {})],
+      m: modelSnapshotOutWithMetadata(I, {}),
+    })
+  )
+
+  expect(r.m.id).toBe(2)
+  // no reconciliation inside an array
+  expect(r.arr[0].id).toBe(3)
+  expect(r.arr[1].id).toBe(4)
+})
+
+test("id-full reconciliation", () => {
+  let id = 0
+  @model("idfr/i")
+  class I extends Model({
+    id2: idProp,
+  }) {
+    id = id++
+  }
+
+  @model("idfr/r")
+  class R extends Model({
+    arr: prop<I[]>(),
+    m: prop<I>(),
+  }) {}
+
+  const r = new R({
+    arr: [new I({ id2: "0" }), new I({ id2: "1" })],
+    m: new I({ id2: "2" }),
+  })
+
+  expect(r.arr[0].id).toBe(0)
+  expect(r.arr[1].id).toBe(1)
+  expect(r.m.id).toBe(2)
+
+  applySnapshot(
+    r,
+    modelSnapshotOutWithMetadata(R, {
+      arr: [
+        modelSnapshotOutWithMetadata(I, { id2: "0" }),
+        modelSnapshotOutWithMetadata(I, { id2: "1" }),
+      ],
+      m: modelSnapshotOutWithMetadata(I, { id2: "2" }),
+    })
+  )
+
+  expect(r.arr[0].id).toBe(0)
+  expect(r.arr[1].id).toBe(1)
+  expect(r.m.id).toBe(2)
 })

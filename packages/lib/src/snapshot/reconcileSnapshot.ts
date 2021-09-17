@@ -9,7 +9,7 @@ import type { ModelPool } from "../utils/ModelPool"
  * @ignore
  * @internal
  */
-export type Reconciler = (value: any, sn: any, modelPool: ModelPool) => any | undefined
+export type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any | undefined
 
 const reconcilers: { priority: number; reconciler: Reconciler }[] = []
 
@@ -26,7 +26,7 @@ export function registerReconciler(priority: number, reconciler: Reconciler): vo
  * @ignore
  * @internal
  */
-export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool): any {
+export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, parent: any): any {
   if (isPrimitive(sn)) {
     return sn
   }
@@ -34,7 +34,7 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool): an
   const reconcilersLen = reconcilers.length
   for (let i = 0; i < reconcilersLen; i++) {
     const { reconciler } = reconcilers[i]
-    const ret = reconciler(value, sn, modelPool)
+    const ret = reconciler(value, sn, modelPool, parent)
     if (ret !== undefined) {
       return ret
     }
