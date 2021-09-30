@@ -8,13 +8,15 @@ import {
   ModelPropsToTransformedCreationData,
   ModelPropsToTransformedData,
 } from "../modelShared/prop"
+import type { SnapshotInOfObject, SnapshotOutOfObject } from "../snapshot/SnapshotOf"
 import type { AnyModel, BaseModel, BaseModelKeys, ModelIdPropertyName } from "./BaseModel"
+import type { modelTypeKey } from "./metadata"
 import { assertIsModelClass, isModelClass } from "./utils"
 
 export type _ComposedCreationData<
   SuperModel,
   TProps extends ModelProps
-> = SuperModel extends BaseModel<any, any, any, infer TCD, any>
+> = SuperModel extends BaseModel<any, any, any, infer TCD, any, any, any>
   ? ModelPropsToTransformedCreationData<TProps> & TCD
   : ModelPropsToTransformedCreationData<TProps>
 
@@ -22,17 +24,69 @@ export type _ModelId<SuperModel, TProps extends ModelProps> = SuperModel extends
   ? ModelIdPropertyName<SuperModel>
   : ExtractModelIdProp<TProps> & string
 
-export interface _Model<SuperModel, TProps extends ModelProps> {
+export interface _Model<
+  SuperModel,
+  TProps extends ModelProps,
+  FromSnapshot = SnapshotInOfObject<ModelPropsToCreationData<TProps>>,
+  ToSnapshot = SnapshotOutOfObject<ModelPropsToData<TProps>>
+> {
   new (data: _ComposedCreationData<SuperModel, TProps>): SuperModel &
     BaseModel<
       ModelPropsToData<TProps>,
       ModelPropsToCreationData<TProps>,
       ModelPropsToTransformedData<TProps>,
       ModelPropsToTransformedCreationData<TProps>,
+      FromSnapshot & {
+        [modelTypeKey]: string
+      },
+      ToSnapshot & {
+        [modelTypeKey]: string
+      },
       _ModelId<SuperModel, TProps>
     > &
     Omit<ModelPropsToTransformedData<TProps>, BaseModelKeys> &
     ModelPropsToSetter<TProps>
+}
+
+/**
+ * Optional transformation that will be run when converting from a snapshot to the data part of the model.
+ * Useful for example to do versioning and keep the data part up to date with the latest version of the model.
+ *
+ * @param model The model to apply the transformation over.
+ * @param fn The function that will convert the custom input snapshot. Returns an input snapshot that must
+ * match the current model input snapshot.
+ * @returns The model with the transform.
+ */
+export function fromSnapshotProcessor<
+  FS,
+  SuperModel,
+  TProps extends ModelProps,
+  FromSnapshot,
+  ToSnapshot
+>(
+  model: _Model<SuperModel, TProps, FromSnapshot, ToSnapshot>,
+  fn: (sn: FS) => FromSnapshot
+): _Model<SuperModel, TProps, FS, ToSnapshot> {
+  return (model as any).withFromSnapshotProcessor(fn)
+}
+
+/**
+ * Optional transformation that will be run when converting the data part of the model into a snapshot.
+ *
+ * @param fn The function that will convert the output snapshot. Returns a custom output snapshot.
+ * @returns  The model with the transform.
+ */
+export function toSnapshotProcessor<
+  TS,
+  SuperModel,
+  TProps extends ModelProps,
+  FromSnapshot,
+  ToSnapshot
+>(
+  model: _Model<SuperModel, TProps, FromSnapshot, ToSnapshot>,
+  fn: (sn: ToSnapshot, modelInstance: any) => TS
+): _Model<SuperModel, TProps, FromSnapshot, TS> {
+  return (model as any).withToSnapshotProcessor(fn)
 }
 
 /**
@@ -149,6 +203,8 @@ function internalModel<TProps extends ModelProps, TBaseModel extends AnyModel>(
     baseModel,
     type: "class",
     valueType: modelOptions?.valueType ?? false,
+    fromSnapshotProcessor: undefined,
+    toSnapshotProcessor: undefined,
   })
 }
 

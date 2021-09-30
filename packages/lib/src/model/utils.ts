@@ -1,5 +1,4 @@
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import type { SnapshotInOfModel } from "../snapshot/SnapshotOf"
 import { failure, isPlainObject } from "../utils"
 import type { AnyModel } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
@@ -71,6 +70,6 @@ export function assertIsModelClass(
  * @ignore
  * @internal
  */
-export function isModelSnapshot(sn: any): sn is SnapshotInOfModel<AnyModel> {
+export function isModelSnapshot(sn: any): sn is { [modelTypeKey]: string } {
   return isPlainObject(sn) && !!sn[modelTypeKey]
 }

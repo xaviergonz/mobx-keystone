@@ -59,8 +59,8 @@ export const internalNewModel = action(
         }
       }
 
-      if (modelObj.fromSnapshot) {
-        sn = modelObj.fromSnapshot(sn)
+      if (modelClass.fromSnapshotProcessor) {
+        sn = modelClass.fromSnapshotProcessor(sn)
       }
 
       initialData = snapshotInitialData.snapshotToInitialData(sn)

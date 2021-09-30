@@ -231,6 +231,7 @@ test("decoratedModel", () => {
         [modelIdKey]?: string
         x?: number | null
         y: number
+      } & {
         z: number
       } & {
         [modelTypeKey]: string
@@ -243,6 +244,7 @@ test("decoratedModel", () => {
         [modelIdKey]: string
         x: number
         y: number
+      } & {
         z: number
       } & {
         [modelTypeKey]: string

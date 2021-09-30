@@ -1,7 +1,7 @@
 import type { Frozen, frozenKey } from "../frozen/Frozen"
 import type { AnyModel } from "../model/BaseModel"
 import type { modelIdKey, modelTypeKey } from "../model/metadata"
-import type { ModelCreationData, ModelData } from "../modelShared/BaseModelShared"
+import type { ModelFromSnapshot, ModelToSnapshot } from "../modelShared/BaseModelShared"
 import type { ArraySet, ObjectMap } from "../wrappers"
 
 // snapshot out
@@ -12,9 +12,7 @@ export type SnapshotOutOfObject<T> = {
   [k in keyof T]: SnapshotOutOf<T[k]> extends infer R ? R : never
 }
 
-export type SnapshotOutOfModel<M extends AnyModel> = SnapshotOutOfObject<ModelData<M>> & {
-  [modelTypeKey]: string
-}
+export type SnapshotOutOfModel<M extends AnyModel> = ModelToSnapshot<M>
 
 export type SnapshotOutOfFrozen<F extends Frozen<any>> = {
   [frozenKey]: true
@@ -61,11 +59,7 @@ export type SnapshotInOfObject<T> = {
   [k in keyof T]: SnapshotInOf<T[k]> extends infer R ? R : never
 }
 
-export type SnapshotInOfModel<M extends AnyModel> = SnapshotInOfObject<
-  M extends { fromSnapshot(sn: infer S): any } ? S : ModelCreationData<M>
-> & {
-  [modelTypeKey]: string
-}
+export type SnapshotInOfModel<M extends AnyModel> = ModelFromSnapshot<M>
 
 export type SnapshotInOfFrozen<F extends Frozen<any>> = {
   [frozenKey]: true

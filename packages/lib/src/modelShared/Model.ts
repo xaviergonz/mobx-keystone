@@ -7,6 +7,7 @@ import type { DataModelMetadata } from "../dataModel/getDataModelMetadata"
 import { getGlobalConfig } from "../globalConfig/globalConfig"
 import { AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
 import type { ModelMetadata } from "../model/getModelMetadata"
+import { modelTypeKey } from "../model/metadata"
 import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { typesObject } from "../typeChecking/object"
 import { typesString } from "../typeChecking/primitives"
@@ -106,11 +107,15 @@ export function sharedInternalModel<
   baseModel,
   type,
   valueType,
+  fromSnapshotProcessor,
+  toSnapshotProcessor,
 }: {
   modelProps: TProps
   baseModel: ModelClass<TBaseModel> | undefined
   type: "class" | "data"
   valueType: boolean
+  fromSnapshotProcessor: ((sn: any) => any) | undefined
+  toSnapshotProcessor: ((sn: any, instance: any) => any) | undefined
 }): any {
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
@@ -276,6 +281,41 @@ export function sharedInternalModel<
       )
 
       Object.defineProperty(CustomBaseModel.prototype, setterName, newPropDescriptor)
+    }
+  }
+
+  CustomBaseModel.fromSnapshotProcessor = fromSnapshotProcessor
+  CustomBaseModel.toSnapshotProcessor = toSnapshotProcessor
+
+  if (type === "class") {
+    CustomBaseModel.withFromSnapshotProcessor = (fn: any) => {
+      const composedFn = (sn: any) =>
+        fromSnapshotProcessor
+          ? { ...fromSnapshotProcessor(fn(sn)), [modelTypeKey]: sn[modelTypeKey] }
+          : { ...fn(sn), [modelTypeKey]: sn[modelTypeKey] }
+      return sharedInternalModel({
+        modelProps,
+        baseModel,
+        type,
+        valueType,
+        fromSnapshotProcessor: composedFn,
+        toSnapshotProcessor,
+      })
+    }
+
+    CustomBaseModel.withToSnapshotProcessor = (fn: any) => {
+      const composedFn = (sn: any, instance: any) =>
+        toSnapshotProcessor
+          ? { ...fn(toSnapshotProcessor(sn, instance), instance), [modelTypeKey]: sn[modelTypeKey] }
+          : { ...fn(sn, instance), [modelTypeKey]: sn[modelTypeKey] }
+      return sharedInternalModel({
+        modelProps,
+        baseModel,
+        type,
+        valueType,
+        fromSnapshotProcessor,
+        toSnapshotProcessor: composedFn,
+      })
     }
   }
 

@@ -38,7 +38,7 @@ export class ModelPool {
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
 
     return modelIdPropertyName
-      ? this.findModelByTypeAndId(sn[modelTypeKey], sn[modelIdPropertyName])
+      ? this.findModelByTypeAndId(sn[modelTypeKey], (sn as any)[modelIdPropertyName])
       : undefined
   }
 }

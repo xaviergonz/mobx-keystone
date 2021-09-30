@@ -25,5 +25,5 @@ export function getSnapshot<T>(nodeOrPrimitive: T): SnapshotOutOf<T> {
   }
 
   reportInternalSnapshotObserved(snapshot)
-  return snapshot.standard
+  return snapshot.transformed
 }

@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.63.0
+
+- [BREAKING CHANGE] The model override `fromSnapshot` has been removed in favor of `fromSnapshotProcessor` / `toSnapshotProcessor` for `Model` / `ExtendedModel`. These allow you to set up pre/post snapshot processors for models.
+
 ## 0.62.0
 
 - [BREAKING CHANGE] `$modelId` is no longer a requirement and will be no longer automatically added to models. If you want your models to keep using the old behavior (having a `$modelId` property) then add a `[modelIdKey]: idProp` or a `$modelId: idProp` property to them. Note that `$modelId` can still be used in instances to get/set the current ID property, just that it might be undefined (get) / throw (set) when there is none.
