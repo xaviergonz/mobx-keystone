@@ -4,12 +4,14 @@ import {
   customRef,
   getNodeSandboxManager,
   getParent,
+  idProp,
   isRootStore,
   isSandboxedNode,
   isTweakedObject,
   model,
   Model,
   modelAction,
+  modelIdKey,
   prop,
   Ref,
   registerRootStore,
@@ -24,11 +26,13 @@ import { autoDispose } from "../utils"
 
 @model("A")
 class A extends Model({
+  [modelIdKey]: idProp,
   b: prop<B>(),
 }) {}
 
 @model("B")
 class B extends Model({
+  [modelIdKey]: idProp,
   value: prop<number>(),
 }) {
   @modelAction

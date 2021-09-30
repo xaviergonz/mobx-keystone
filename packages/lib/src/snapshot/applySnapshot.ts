@@ -38,7 +38,7 @@ export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOut
 
   const reconcile = () => {
     const modelPool = new ModelPool(obj)
-    const ret = reconcileSnapshot(obj, sn, modelPool)
+    const ret = reconcileSnapshot(obj, sn, modelPool, undefined)
 
     if (inDevMode()) {
       if (ret !== obj) {
@@ -83,10 +83,14 @@ export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOut
     }
 
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-    const id = sn[modelIdPropertyName]
-    if (obj[modelIdKey] !== id) {
-      // different id, no reconciliation possible
-      throw failure(`snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`)
+    if (modelIdPropertyName) {
+      const id = sn[modelIdPropertyName]
+      if (obj[modelIdKey] !== id) {
+        // different id, no reconciliation possible
+        throw failure(
+          `snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`
+        )
+      }
     }
 
     return reconcile()

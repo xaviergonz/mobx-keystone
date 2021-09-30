@@ -3,7 +3,6 @@ import {
   fromSnapshot,
   model,
   Model,
-  modelIdKey,
   modelSnapshotInWithMetadata,
   modelTypeKey,
   prop,
@@ -36,7 +35,6 @@ test("input snapshot processor", () => {
   assert(
     _ as SnapshotOutOf<P3>,
     _ as {
-      [modelIdKey]: string
       arr: number[]
     } & {
       [modelTypeKey]: string

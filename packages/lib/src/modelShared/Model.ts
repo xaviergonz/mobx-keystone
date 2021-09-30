@@ -7,7 +7,6 @@ import type { DataModelMetadata } from "../dataModel/getDataModelMetadata"
 import { getGlobalConfig } from "../globalConfig/globalConfig"
 import { AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
 import type { ModelMetadata } from "../model/getModelMetadata"
-import { modelIdKey } from "../model/metadata"
 import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { typesObject } from "../typeChecking/object"
 import { typesString } from "../typeChecking/primitives"
@@ -149,9 +148,6 @@ export function sharedInternalModel<
     if (idKeys.length > 1) {
       throw failure(`expected at most one idProp but got many: ${JSON.stringify(idKeys)}`)
     }
-    if (idKeys.length <= 0) {
-      idKeys.push(modelIdKey)
-    }
   } else {
     if (idKeys.length >= 1) {
       throw failure(`expected no idProp but got some: ${JSON.stringify(idKeys)}`)
@@ -251,7 +247,7 @@ export function sharedInternalModel<
   if (type === "class") {
     const metadata: ModelMetadata = {
       dataType: dataTypeChecker as unknown as AnyType | undefined,
-      modelIdProperty: idKey!,
+      modelIdProperty: idKey,
       valueType,
     }
     CustomBaseModel[modelMetadataSymbol] = metadata

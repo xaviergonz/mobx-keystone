@@ -134,10 +134,8 @@ test("flow", async () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
-                  "$modelId": "id-2",
                   "y": 0,
                 },
                 "$modelType": "P2",
@@ -192,10 +190,8 @@ test("flow", async () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
-                  "$modelId": "id-2",
                   "y": 4,
                 },
                 "$modelType": "P2",
@@ -252,10 +248,8 @@ test("flow", async () => {
           "rootContext": [Circular],
           "target": P {
             "$": Object {
-              "$modelId": "id-1",
               "p2": P2 {
                 "$": Object {
-                  "$modelId": "id-2",
                   "y": 4,
                 },
                 "$modelType": "P2",

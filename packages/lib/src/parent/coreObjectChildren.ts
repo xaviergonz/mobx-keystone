@@ -69,42 +69,40 @@ function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
   })
 }
 
-const updateDeepObjectChildren = action(
-  (node: object): DeepObjectChildren => {
-    const obj = objectChildren.get(node)!
-    if (!obj.deepDirty) {
-      return obj
-    }
-
-    const data: DeepObjectChildren = {
-      deep: new Set(),
-      extensionsData: initExtensionsData(),
-    }
-
-    const childrenIter = getObjectChildren(node)!.values()
-    let ch = childrenIter.next()
-    while (!ch.done) {
-      addNodeToDeepLists(ch.value, data)
-
-      const ret = updateDeepObjectChildren(ch.value).deep
-      const retIter = ret.values()
-      let retCur = retIter.next()
-      while (!retCur.done) {
-        addNodeToDeepLists(retCur.value, data)
-        retCur = retIter.next()
-      }
-
-      ch = childrenIter.next()
-    }
-
-    Object.assign(obj, data)
-
-    obj.deepDirty = false
-    obj.deepAtom.reportChanged()
-
+const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
+  const obj = objectChildren.get(node)!
+  if (!obj.deepDirty) {
     return obj
   }
-)
+
+  const data: DeepObjectChildren = {
+    deep: new Set(),
+    extensionsData: initExtensionsData(),
+  }
+
+  const childrenIter = getObjectChildren(node)!.values()
+  let ch = childrenIter.next()
+  while (!ch.done) {
+    addNodeToDeepLists(ch.value, data)
+
+    const ret = updateDeepObjectChildren(ch.value).deep
+    const retIter = ret.values()
+    let retCur = retIter.next()
+    while (!retCur.done) {
+      addNodeToDeepLists(retCur.value, data)
+      retCur = retIter.next()
+    }
+
+    ch = childrenIter.next()
+  }
+
+  Object.assign(obj, data)
+
+  obj.deepDirty = false
+  obj.deepAtom.reportChanged()
+
+  return obj
+})
 
 /**
  * @ignore
@@ -140,14 +138,6 @@ function invalidateDeepChildren(node: object) {
   if (parent) {
     invalidateDeepChildren(parent)
   }
-}
-
-/**
- * @ignore
- * @internal
- */
-export function byModelTypeAndIdKey(modelType: string, modelId: string) {
-  return modelType + " " + modelId
 }
 
 const extensions = new Map<Symbol, DeepObjectChildrenExtension<any>>()

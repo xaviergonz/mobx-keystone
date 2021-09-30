@@ -1,7 +1,9 @@
 import { entries, get, has, keys, remove, set, values } from "mobx"
 import { modelAction } from "../action/modelAction"
+import { modelIdKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
+import { idProp } from "../modelShared/prop"
 import { typesRecord } from "../typeChecking/record"
 import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"
@@ -13,9 +15,11 @@ import { typesUnchecked } from "../typeChecking/unchecked"
 @model("mobx-keystone/ObjectMap")
 export class ObjectMap<V>
   extends Model({
+    [modelIdKey]: idProp,
     items: tProp(typesRecord(typesUnchecked<any>()), () => ({})), // will be properly checked by types.objectMap(subType)
   })
-  implements Map<string, V> {
+  implements Map<string, V>
+{
   @modelAction
   clear(): void {
     const items = this.items

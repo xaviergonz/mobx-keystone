@@ -14,7 +14,7 @@ Array [
         },
       ],
       "path": Array [],
-      "type": "[/] $$applySnapshot({\\"x\\":\\"snapshotX\\",\\"y\\":\\"snapshotY\\",\\"array\\":[],\\"$modelType\\":\\"TestMo...) (id 0)",
+      "type": "[/] $$applySnapshot({\\"x\\":\\"snapshotX\\",\\"y\\":\\"snapshotY\\",\\"array\\":[],\\"$modelId\\":\\"id-1\\",\\"$...) (id 0)",
     },
     Object {
       "$modelId": "id-1",
@@ -95,21 +95,19 @@ Array [
       "args": Array [
         M2 {
           "$": Object {
-            "$modelId": "id-2",
             "a": "setA",
           },
           "$modelType": "SubModel",
         },
       ],
       "path": Array [],
-      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$\\":{\\"a\\":\\"otherA\\",\\"$modelId\\":\\"id-2\\"}}) (id 0)",
+      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$\\":{\\"a\\":\\"otherA\\"}}) (id 0)",
     },
     Object {
       "$modelId": "id-1",
       "$modelType": "TestModel",
       "array": Array [
         Object {
-          "$modelId": "id-2",
           "$modelType": "SubModel",
           "a": "otherA",
         },
@@ -132,7 +130,6 @@ Array [
       "$modelType": "TestModel",
       "array": Array [
         Object {
-          "$modelId": "id-2",
           "$modelType": "SubModel",
           "a": "setA",
         },

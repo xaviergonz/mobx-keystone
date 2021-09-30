@@ -1,6 +1,7 @@
 import { computed } from "mobx"
 import {
   connectReduxDevTools,
+  idProp,
   model,
   Model,
   modelAction,
@@ -10,7 +11,6 @@ import {
   tProp,
   types,
 } from "mobx-keystone"
-import { v4 as uuidv4 } from "uuid"
 
 // for this example we will enable runtime data checking even in production mode
 setGlobalConfig({
@@ -25,12 +25,12 @@ export class Todo extends Model({
   // and also part of the required initialization data of the model
 
   // in this case we use runtime type checking,
-  id: tProp(types.string, () => uuidv4()), // an optional string that will use a random id when not provided
+  id: idProp, // an optional string that will use a random id when not provided
   text: tProp(types.string), // a required string
   done: tProp(types.boolean, false), // an optional boolean that will default to false
 
   // if we didn't require runtime type checking we could do this
-  // id: prop(() => uuidv4())
+  // id: idProp,
   // text: prop<string>(),
   // done: prop(false)
 }) {

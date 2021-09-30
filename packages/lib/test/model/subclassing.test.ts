@@ -13,7 +13,6 @@ import {
   ModelClassDeclaration,
   ModelCreationData,
   ModelData,
-  modelIdKey,
   prop,
   tProp,
   types,
@@ -71,7 +70,6 @@ test("subclassing with additional props", () => {
   assert(
     _ as D,
     _ as {
-      [modelIdKey]: string
       x: number
       y: number
       z: number
@@ -83,7 +81,6 @@ test("subclassing with additional props", () => {
   assert(
     _ as CD,
     _ as {
-      [modelIdKey]?: string
       x?: number | null
       y?: number | null
       z?: number | null
@@ -117,7 +114,6 @@ test("subclassing with additional props", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-1",
       "$modelType": "P2_props",
       "a": 50,
       "b": 70,
@@ -149,7 +145,6 @@ test("subclassing without additional props", () => {
   assert(
     _ as D,
     _ as {
-      [modelIdKey]: string
       x: number
       y: number
       z: number
@@ -158,7 +153,6 @@ test("subclassing without additional props", () => {
   assert(
     _ as CD,
     _ as {
-      [modelIdKey]?: string
       x?: number | null
       y?: number | null
       z?: number | null
@@ -182,7 +176,6 @@ test("subclassing without additional props", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-1",
       "$modelType": "P2_noprops",
       "x": 20,
       "y": 10,
@@ -204,7 +197,6 @@ test("subclassing without anything new", () => {
   assert(
     _ as D,
     _ as {
-      [modelIdKey]: string
       x: number
       y: number
       z: number
@@ -213,7 +205,6 @@ test("subclassing without anything new", () => {
   assert(
     _ as CD,
     _ as {
-      [modelIdKey]?: string
       x?: number | null
       y?: number | null
       z?: number | null
@@ -236,7 +227,6 @@ test("subclassing without anything new", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-1",
       "$modelType": "P2_nothingNew",
       "x": 20,
       "y": 10,
@@ -285,7 +275,6 @@ test("three level subclassing", () => {
   assert(
     _ as D,
     _ as {
-      [modelIdKey]: string
       x: number
       y: number
       z: number
@@ -298,7 +287,6 @@ test("three level subclassing", () => {
   assert(
     _ as CD,
     _ as {
-      [modelIdKey]?: string
       x?: number | null | undefined
       y?: number | null | undefined
       z?: number | null | undefined
@@ -330,7 +318,6 @@ test("three level subclassing", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-1",
       "$modelType": "P2_threeLevels",
       "a": 50,
       "b": 70,
@@ -706,11 +693,11 @@ test("new pattern for generics", () => {
 
   assert(
     _ as ModelData<GenericModel<string, number>>,
-    _ as { [modelIdKey]: string; v1: string | undefined; v2: number; v3: number }
+    _ as { v1: string | undefined; v2: number; v3: number }
   )
   assert(
     _ as ModelData<GenericModel<number, string>>,
-    _ as { [modelIdKey]: string; v1: number | undefined; v2: string; v3: number }
+    _ as { v1: number | undefined; v2: string; v3: number }
   )
 
   const s = new GenericModel({ v1: "1", v2: 2, v3: 3 })

@@ -7,6 +7,7 @@ describe("create with extra properties", () => {
   test("with unchecked props", () => {
     @model("M-unchecked")
     class M extends Model({
+      [modelIdKey]: idProp,
       value: prop<number>(),
     }) {}
 

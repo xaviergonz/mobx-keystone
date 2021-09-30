@@ -4,9 +4,11 @@ import {
   applySerializedActionAndTrackNewModelIds,
   clone,
   getSnapshot,
+  idProp,
   model,
   Model,
   modelAction,
+  modelIdKey,
   onActionMiddleware,
   prop,
   serializeActionCall,
@@ -17,6 +19,7 @@ import "../commonSetup"
 describe("concurrency", () => {
   @model("Root")
   class Root extends Model({
+    [modelIdKey]: idProp,
     list: prop<ChildA[]>(() => []),
   }) {
     @modelAction
@@ -52,11 +55,14 @@ describe("concurrency", () => {
 
   @model("ChildA")
   class ChildA extends Model({
+    [modelIdKey]: idProp,
     childB: prop(() => new ChildB({})),
   }) {}
 
   @model("ChildB")
-  class ChildB extends Model({}) {}
+  class ChildB extends Model({
+    [modelIdKey]: idProp,
+  }) {}
 
   let rootClient!: Root
   let rootServer!: Root

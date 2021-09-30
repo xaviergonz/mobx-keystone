@@ -4,7 +4,7 @@
 export const modelTypeKey = "$modelType"
 
 /**
- * Key where model snapshots usually will store model internal IDs metadata (unless overridden).
+ * Key that serves as proxy to the model property designed as 'idProp' (if any).
  */
 export const modelIdKey = "$modelId"
 

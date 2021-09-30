@@ -6,15 +6,18 @@ import {
   idProp,
   model,
   Model,
+  modelIdKey,
   ModelIdPropertyName,
   runUnprotected,
-  SnapshotOutOf,
+  SnapshotOutOf
 } from "../../src"
 import "../commonSetup"
 
 test("ids", () => {
   @model("ids")
-  class M extends Model({}) {}
+  class M extends Model({
+    [modelIdKey]: idProp,
+  }) {}
 
   // auto generated id
   {

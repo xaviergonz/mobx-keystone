@@ -16,9 +16,9 @@ export interface ModelMetadata {
   dataType?: AnyType
 
   /**
-   * Property used as model id (usually `$modelId` unless overridden).
+   * Property used as model id.
    */
-  modelIdProperty: string
+  modelIdProperty: string | undefined
 
   /**
    * A value type will be cloned automatically when being attached to a new tree.
@@ -44,13 +44,13 @@ export function getModelMetadata(
   }
 }
 
-const modelIdPropertyNameCache = new WeakMap<object, string>()
+const modelIdPropertyNameCache = new WeakMap<object, string | undefined>()
 
 /**
  * @ignore
  * @internal
  */
-export function getModelIdPropertyName(modelClass: ModelClass<AnyModel>): string {
+export function getModelIdPropertyName(modelClass: ModelClass<AnyModel>): string | undefined {
   return getOrCreate(
     modelIdPropertyNameCache,
     modelClass,

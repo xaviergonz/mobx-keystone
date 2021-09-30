@@ -1,9 +1,11 @@
 import {
   applyPatches,
   getSnapshot,
+  idProp,
   model,
   Model,
   modelAction,
+  modelIdKey,
   onPatches,
   Patch,
   prop,
@@ -75,14 +77,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("increment numbers", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup()
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup()
 
     runUnprotected(() => {
       p.x++
@@ -169,14 +165,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("remove subobj", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup()
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup()
 
     runUnprotected(() => {
       p.p2 = undefined
@@ -222,14 +212,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("swap items around", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
     runUnprotected(() => {
       p.arr = [3, 2, 1]
     })
@@ -278,14 +262,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("splice items (less items)", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.splice(1, 2, 5) // [1, 5]
@@ -353,14 +331,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("splice items (more items)", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.splice(1, 2, 5, 6, 7) // [1, 5, 6, 7]
@@ -444,14 +416,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("splice items (same items)", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.splice(1, 2, 5, 3) // [1, 5, 3]
@@ -495,14 +461,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("splice one in the middle", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.splice(1, 1) // [1, 3]
@@ -545,14 +505,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("splice items at the end that do not exist", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.splice(3, 2, 5) // [1, 2, 3, 5]
@@ -596,14 +550,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("splice items over the end that do not exist", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.splice(8, 2, 5) // [1, 2, 3, 5]
@@ -647,14 +595,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("unshift items", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.unshift(10, 11) // [10, 11, 1, 2, 3]
@@ -712,14 +654,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("unshift items (empty array)", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(false)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(false)
 
     runUnprotected(() => {
       p.arr.unshift(10, 11) // [10, 11]
@@ -771,14 +707,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("push items", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(true)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
 
     runUnprotected(() => {
       p.arr.push(10, 11) // [1, 2, 3, 10, 11]
@@ -830,14 +760,8 @@ describe("onPatches and applyPatches", () => {
   })
 
   test("push items (empty array)", () => {
-    const {
-      p,
-      pPatches,
-      pInvPatches,
-      p2Patches,
-      p2InvPatches,
-      expectSameSnapshotOnceReverted,
-    } = setup(false)
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(false)
 
     runUnprotected(() => {
       p.arr.push(10, 11) // [10, 11]
@@ -891,7 +815,10 @@ describe("onPatches and applyPatches", () => {
 
 test("patches with reserved prop names", () => {
   @model("test/patchesWithReservedPropNames")
-  class M extends Model({ onInit: prop(4) }) {
+  class M extends Model({
+    [modelIdKey]: idProp,
+    onInit: prop(4),
+  }) {
     @modelAction
     setOnInit(n: number) {
       this.$.onInit = n
@@ -972,7 +899,10 @@ test("patches with reserved prop names", () => {
 
 test("patches with action in onAttachedToRootStore", () => {
   @model("test/patchesWithActionInOnAttachedToRootStore/M")
-  class M extends Model({ value: prop<number>(0) }) {
+  class M extends Model({
+    [modelIdKey]: idProp,
+    value: prop<number>(0),
+  }) {
     onAttachedToRootStore() {
       this.setValue(1)
     }
@@ -984,7 +914,10 @@ test("patches with action in onAttachedToRootStore", () => {
   }
 
   @model("test/patchesWithActionInOnAttachedToRootStore/R")
-  class R extends Model({ ms: prop<M[]>(() => []) }) {
+  class R extends Model({
+    [modelIdKey]: idProp,
+    ms: prop<M[]>(() => []),
+  }) {
     @modelAction
     addM(m: M) {
       this.ms.push(m)

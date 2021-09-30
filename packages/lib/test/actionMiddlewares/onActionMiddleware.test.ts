@@ -4,9 +4,11 @@ import {
   ActionContext,
   applySnapshot,
   getSnapshot,
+  idProp,
   model,
   Model,
   modelAction,
+  modelIdKey,
   onActionMiddleware,
   prop,
 } from "../../src"
@@ -15,6 +17,7 @@ import { autoDispose } from "../utils"
 
 @model("P2")
 export class P2 extends Model({
+  [modelIdKey]: idProp,
   y: prop(() => 0),
 }) {
   @modelAction
@@ -26,6 +29,7 @@ export class P2 extends Model({
 
 @model("P")
 export class P extends Model({
+  [modelIdKey]: idProp,
   p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {

@@ -7,7 +7,7 @@ import { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
-import { failure } from "../utils"
+import { failure, isArray } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
@@ -18,7 +18,8 @@ import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPrio
 function reconcileModelSnapshot(
   value: any,
   sn: SnapshotInOfModel<AnyModel>,
-  modelPool: ModelPool
+  modelPool: ModelPool,
+  parent: any
 ): AnyModel {
   const type = sn[modelTypeKey]
 
@@ -27,9 +28,6 @@ function reconcileModelSnapshot(
     throw failure(`model with name "${type}" not found in the registry`)
   }
 
-  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-  const id = sn[modelIdPropertyName]
-
   // try to use model from pool if possible
   const modelInPool = modelPool.findModelForSnapshot(sn)
   if (modelInPool) {
@@ -37,8 +35,21 @@ function reconcileModelSnapshot(
   }
 
   // we don't check by actual instance since the class might be a different one due to hot reloading
-  if (!isModel(value) || value[modelTypeKey] !== type || value[modelIdKey] !== id) {
-    // different kind of model / model instance, no reconciliation possible
+  if (!isModel(value) || value[modelTypeKey] !== type) {
+    // different kind of model type, no reconciliation possible
+    return fromSnapshot<AnyModel>(sn)
+  }
+
+  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
+  if (modelIdPropertyName) {
+    const id = sn[modelIdPropertyName]
+
+    if (value[modelIdKey] !== id) {
+      // different id, no reconciliation possible
+      return fromSnapshot<AnyModel>(sn)
+    }
+  } else if (isArray(parent)) {
+    // no id inside an array, no reconciliation possible
     return fromSnapshot<AnyModel>(sn)
   }
 
@@ -72,7 +83,7 @@ function reconcileModelSnapshot(
         const v = processedSn[k]
 
         const oldValue = data[k]
-        const newValue = reconcileSnapshot(oldValue, v, modelPool)
+        const newValue = reconcileSnapshot(oldValue, v, modelPool, modelObj)
 
         detachIfNeeded(newValue, oldValue, modelPool)
 
@@ -86,9 +97,9 @@ function reconcileModelSnapshot(
   return modelObj
 }
 
-registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool) => {
+registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool, parent) => {
   if (isModelSnapshot(sn)) {
-    return reconcileModelSnapshot(value, sn, modelPool)
+    return reconcileModelSnapshot(value, sn, modelPool, parent)
   }
   return undefined
 })

@@ -1,7 +1,9 @@
 import { values } from "mobx"
 import { modelAction } from "../action/modelAction"
+import { modelIdKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
+import { idProp } from "../modelShared/prop"
 import { typesArray } from "../typeChecking/array"
 import { tProp } from "../typeChecking/tProp"
 import { typesUnchecked } from "../typeChecking/unchecked"
@@ -13,9 +15,11 @@ import { typesUnchecked } from "../typeChecking/unchecked"
 @model("mobx-keystone/ArraySet")
 export class ArraySet<V>
   extends Model({
+    [modelIdKey]: idProp,
     items: tProp(typesArray(typesUnchecked<any>()), () => []), // will be properly checked by types.arraySet(subType)
   })
-  implements Set<V> {
+  implements Set<V>
+{
   @modelAction
   add(value: V): this {
     const items = this.items

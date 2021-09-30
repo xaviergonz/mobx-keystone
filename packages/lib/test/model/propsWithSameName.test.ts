@@ -1,9 +1,10 @@
 import { assert, _ } from "spec.ts"
-import { Model, model, prop, runUnprotected } from "../../src"
+import { idProp, Model, model, modelIdKey, prop, runUnprotected } from "../../src"
 import "../commonSetup"
 
 @model("M")
 class M extends Model({
+  [modelIdKey]: idProp,
   $modelType: prop<number>(),
   onInit: prop(() => 10),
   x: prop(() => 20),

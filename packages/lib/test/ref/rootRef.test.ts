@@ -10,10 +10,12 @@ import {
   getRefsResolvingTo,
   getRoot,
   getSnapshot,
+  idProp,
   isRefOfType,
   model,
   Model,
   modelAction,
+  modelIdKey,
   onPatches,
   Patch,
   prop,
@@ -118,7 +120,6 @@ test("single ref works", () => {
   const r = c.selectedCountryRef!
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Object {
-      "$modelId": "id-5",
       "$modelType": "countryRef",
       "id": "spain",
     }
@@ -169,12 +170,10 @@ test("array ref works", () => {
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
     Array [
       Object {
-        "$modelId": "id-5",
         "$modelType": "countryRef",
         "id": "spain",
       },
       Object {
-        "$modelId": "id-6",
         "$modelType": "countryRef",
         "id": "uk",
       },
@@ -431,7 +430,9 @@ test("getRefsResolvingTo after loading from snapshot", () => {
   }) {}
 
   @model("#56/A")
-  class A extends Model({}) {
+  class A extends Model({
+    [modelIdKey]: idProp,
+  }) {
     @computed
     public get bs(): B[] {
       return Array.from(getRefsResolvingTo(this), (ref) => getParent<B>(ref)!)
@@ -440,6 +441,7 @@ test("getRefsResolvingTo after loading from snapshot", () => {
 
   @model("#56/B")
   class B extends Model({
+    [modelIdKey]: idProp,
     a: prop<Ref<A>>(),
   }) {}
 
@@ -469,13 +471,22 @@ test("applySnapshot - applyPatches - ref", () => {
   })
 
   @model("A")
-  class A extends Model({ b: prop<Ref<B>>() }) {}
+  class A extends Model({
+    [modelIdKey]: idProp,
+    b: prop<Ref<B>>(),
+  }) {}
 
   @model("B")
-  class B extends Model({ x: prop<number>() }) {}
+  class B extends Model({
+    [modelIdKey]: idProp,
+    x: prop<number>(),
+  }) {}
 
   @model("R")
-  class R extends Model({ as: prop<A[]>(), bs: prop<B[]>() }) {
+  class R extends Model({
+    as: prop<A[]>(),
+    bs: prop<B[]>(),
+  }) {
     @modelAction
     moveToEnd(index: number) {
       const a = this.as.splice(index, 1)[0]
@@ -521,10 +532,9 @@ test("applySnapshot - applyPatches - ref", () => {
             1,
           ],
           "value": Object {
-            "$modelId": "id-3",
+            "$modelId": "id-2",
             "$modelType": "A",
             "b": Object {
-              "$modelId": "id-2",
               "$modelType": "bRef",
               "id": "id-1",
             },
@@ -608,7 +618,6 @@ test("undo manager can undo removal of a referenced object in a single step", ()
               "selectedCountryRef",
             ],
             "value": Object {
-              "$modelId": "id-6",
               "$modelType": "countryRef",
               "id": "spain",
             },
@@ -641,7 +650,6 @@ test("undo manager can undo removal of a referenced object in a single step", ()
               "spain",
             ],
             "value": Object {
-              "$modelId": "id-1",
               "$modelType": "Country",
               "id": "spain",
               "weather": "sunny",
@@ -653,7 +661,6 @@ test("undo manager can undo removal of a referenced object in a single step", ()
               "selectedCountryRef",
             ],
             "value": Object {
-              "$modelId": "id-6",
               "$modelType": "countryRef",
               "id": "spain",
             },
@@ -784,6 +791,7 @@ test("backrefs can be updated in the middle of an action if the target and ref a
 test("generic typings", () => {
   @model("GenericModel")
   class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
+    [modelIdKey]: idProp,
     v1: prop<U1 | undefined>(),
     v2: prop<U2>(),
     v3: prop<number>(0),

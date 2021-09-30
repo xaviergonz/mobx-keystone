@@ -1,6 +1,5 @@
 import { observable } from "mobx"
 import type { O } from "ts-toolbelt"
-import { getGlobalConfig } from "../globalConfig"
 import {
   creationDataTypeSymbol,
   dataTypeSymbol,
@@ -18,7 +17,7 @@ import type {
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import type { TypeCheckError } from "../typeChecking/TypeCheckError"
-import { assertIsObject } from "../utils"
+import { assertIsObject, failure } from "../utils"
 import { getModelIdPropertyName } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
@@ -45,7 +44,7 @@ export abstract class BaseModel<
   CreationData extends { [k: string]: any },
   TransformedData extends { [k: string]: any },
   TransformedCreationData extends { [k: string]: any },
-  ModelIdPropertyName extends string = typeof modelIdKey
+  ModelIdPropertyName extends string = never
 > {
   // just to make typing work properly
   [dataTypeSymbol]: Data;
@@ -61,20 +60,26 @@ export abstract class BaseModel<
 
   /**
    * Model internal id. Can be modified inside a model action.
+   * It will return `undefined` if there's no id prop set.
    */
-  get [modelIdKey](): string {
-    return this.$[getModelIdPropertyName(this.constructor as any)]
+  get [modelIdKey](): string | undefined {
+    const idProp = getModelIdPropertyName(this.constructor as any)
+    return idProp ? this.$[idProp] : undefined
   }
 
-  set [modelIdKey](newId: string) {
-    ;(this.$ as any)[getModelIdPropertyName(this.constructor as any)] = newId
+  set [modelIdKey](newId: string | undefined) {
+    const idProp = getModelIdPropertyName(this.constructor as any)
+    if (!idProp) {
+      throw failure("$modelId cannot be set when there is no idProp set in the model")
+    }
+    ;(this.$ as any)[idProp] = newId
   }
 
   /**
    * Can be overriden to offer a reference id to be used in reference resolution.
-   * By default it will use the model id property (usually `$modelId` unless overridden).
+   * By default it will use the `idProp` if available or return `undefined` otherwise.
    */
-  getRefId(): string {
+  getRefId(): string | undefined {
     return this[modelIdKey]
   }
 
@@ -225,24 +230,20 @@ export type ModelIdPropertyName<M extends AnyModel> = M[typeof modelIdPropertyNa
  * @typeparam M Model type.
  * @param modelClass Model class.
  * @param snapshot Model creation snapshot without metadata.
- * @param [internalId] Model internal ID, or `undefined` to generate a new one.
  * @returns The model snapshot (including metadata).
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotInOfModel<M>, ModelIdPropertyName<M> | typeof modelTypeKey>,
-  internalId: string = getGlobalConfig().modelIdGenerator()
+  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelTypeKey>
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
 
   const modelInfo = modelInfoByClass.get(modelClass)!
-  const modelIdPropertyName = getModelIdPropertyName(modelClass)
 
   return {
     ...snapshot,
     [modelTypeKey]: modelInfo.name,
-    [modelIdPropertyName]: internalId,
   } as any
 }
 
@@ -253,24 +254,20 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  * @typeparam M Model type.
  * @param modelClass Model class.
  * @param snapshot Model output snapshot without metadata.
- * @param [internalId] Model internal ID, or `undefined` to generate a new one.
  * @returns The model snapshot (including metadata).
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotOutOfModel<M>, ModelIdPropertyName<M> | typeof modelTypeKey>,
-  internalId: string = getGlobalConfig().modelIdGenerator()
+  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelTypeKey>
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
 
   const modelInfo = modelInfoByClass.get(modelClass)!
-  const modelIdPropertyName = getModelIdPropertyName(modelClass)
 
   return {
     ...snapshot,
     [modelTypeKey]: modelInfo.name,
-    [modelIdPropertyName]: internalId,
   } as any
 }
 
