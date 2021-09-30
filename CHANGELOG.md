@@ -2,7 +2,7 @@
 
 ## 0.62.0
 
-- [BREAKING CHANGE] `$modelId` is no longer a requirement and will no longer be automatically added to models. If you want your models to keep using the old behavior (having a `$modelId` property) then add a `[modelIdKey]: idProp` or a `$modelId: idProp` property to them. Note that `$modelId` can still be used in instances to get/set the current ID property, just that it might be undefined (get) / throw (set) when there is none.
+- [BREAKING CHANGE] `$modelId` is no longer a requirement and will be no longer automatically added to models. If you want your models to keep using the old behavior (having a `$modelId` property) then add a `[modelIdKey]: idProp` or a `$modelId: idProp` property to them. Note that `$modelId` can still be used in instances to get/set the current ID property, just that it might be undefined (get) / throw (set) when there is none.
 
 ## 0.61.3
 
