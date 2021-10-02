@@ -2,7 +2,7 @@
 
 ## 0.63.0
 
-- [BREAKING CHANGE] The model override `fromSnapshot` has been removed in favor of `fromSnapshotProcessor` / `toSnapshotProcessor` for `Model` / `ExtendedModel`. These allow you to set up pre/post snapshot processors for models.
+- [BREAKING CHANGE] The model override `fromSnapshot` has been removed in favor of `fromSnapshotProcessor` / `toSnapshotProcessor` options of `Model` / `ExtendedModel`. These allow you to set up pre/post snapshot processors for models.
 
 ## 0.62.0
 

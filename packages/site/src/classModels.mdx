@@ -472,27 +472,29 @@ Note that the `$modelType` property will always be there and will remain unchang
 
 ```ts
 @model("name")
-class Name extends fromSnapshotProcessor(
-  Model({
+class Name extends Model(
+  {
     // in version 2 we split fullName into firstName and lastName
     _version: prop(2),
     firstName: prop<string>(),
     lastName: prop<string>(),
   },
-  (
-    sn: { _version: 2; firstName: string; lastName: string } | { _version: 1; fullName: string }
-  ) => {
-    if (sn._version === 2) {
-      return sn
-    }
+  {
+    fromSnapshotProcessor(
+      sn: { _version: 2; firstName: string; lastName: string } | { _version: 1; fullName: string }
+    ) {
+      if (sn._version === 2) {
+        return sn
+      }
 
-    const [firstName, lastName] = sn.fullName.split(" ")
+      const [firstName, lastName] = sn.fullName.split(" ")
 
-    return {
-      _version: 2,
-      firstName,
-      lastName,
-    }
+      return {
+        _version: 2,
+        firstName,
+        lastName,
+      }
+    },
   }
 ) {
   // ...
@@ -504,18 +506,21 @@ Note that the `$modelType` property will always be there and will remain unchang
 
 ```ts
 @model("name")
-class Name extends toSnapshotProcessor(
-  Model({
+class Name extends Model(
+  {
     firstName: prop<string>(),
     lastName: prop<string>(),
   },
-  (sn, modelInstance) => {
-  // we want to also keep fullName for backwards compatibility
-  return {
-    ...sn,
-    fullName: `${sn.firstName} ${sn.lastName}`,
+  {
+    toSnapshotProcessor(sn, modelInstance) {
+      // we want to also keep fullName for backwards compatibility
+      return {
+        ...sn,
+        fullName: `${sn.firstName} ${sn.lastName}`,
+      }
+    },
   }
-}) {
+) {
   // ...
 }
 ```

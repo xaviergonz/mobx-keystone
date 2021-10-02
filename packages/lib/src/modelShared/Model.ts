@@ -284,40 +284,21 @@ export function sharedInternalModel<
     }
   }
 
+  if (fromSnapshotProcessor) {
+    const fn = fromSnapshotProcessor
+    fromSnapshotProcessor = (sn) => ({ ...fn(sn), [modelTypeKey]: sn[modelTypeKey] })
+  }
+
+  if (toSnapshotProcessor) {
+    const fn = toSnapshotProcessor
+    toSnapshotProcessor = (sn: any, instance: any) => ({
+      ...fn(sn, instance),
+      [modelTypeKey]: sn[modelTypeKey],
+    })
+  }
+
   CustomBaseModel.fromSnapshotProcessor = fromSnapshotProcessor
   CustomBaseModel.toSnapshotProcessor = toSnapshotProcessor
-
-  if (type === "class") {
-    CustomBaseModel.withFromSnapshotProcessor = (fn: any) => {
-      const composedFn = (sn: any) =>
-        fromSnapshotProcessor
-          ? { ...fromSnapshotProcessor(fn(sn)), [modelTypeKey]: sn[modelTypeKey] }
-          : { ...fn(sn), [modelTypeKey]: sn[modelTypeKey] }
-      return sharedInternalModel({
-        modelProps,
-        baseModel,
-        type,
-        valueType,
-        fromSnapshotProcessor: composedFn,
-        toSnapshotProcessor,
-      })
-    }
-
-    CustomBaseModel.withToSnapshotProcessor = (fn: any) => {
-      const composedFn = (sn: any, instance: any) =>
-        toSnapshotProcessor
-          ? { ...fn(toSnapshotProcessor(sn, instance), instance), [modelTypeKey]: sn[modelTypeKey] }
-          : { ...fn(sn, instance), [modelTypeKey]: sn[modelTypeKey] }
-      return sharedInternalModel({
-        modelProps,
-        baseModel,
-        type,
-        valueType,
-        fromSnapshotProcessor,
-        toSnapshotProcessor: composedFn,
-      })
-    }
-  }
 
   return CustomBaseModel
 }
