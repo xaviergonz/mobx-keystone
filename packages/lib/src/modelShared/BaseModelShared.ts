@@ -23,6 +23,16 @@ export const transformedCreationDataTypeSymbol = Symbol()
 
 /**
  * @ignore
+ */
+export const fromSnapshotTypeSymbol = Symbol()
+
+/**
+ * @ignore
+ */
+export const toSnapshotTypeSymbol = Symbol()
+
+/**
+ * @ignore
  * @internal
  */
 export const modelInitializedSymbol = Symbol("modelInitialized")
@@ -32,6 +42,9 @@ export const modelInitializedSymbol = Symbol("modelInitialized")
  */
 export type ModelClass<M extends AnyModel | AnyDataModel> = {
   new (initialData: any): M
+
+  fromSnapshotProcessor?(sn: any): any
+  toSnapshotProcessor?(sn: any, modelInstance: any): any
 }
 
 /**
@@ -62,6 +75,18 @@ export type ModelTransformedData<M extends AnyModel | AnyDataModel> =
  */
 export type ModelTransformedCreationData<M extends AnyModel | AnyDataModel> =
   M[typeof transformedCreationDataTypeSymbol]
+
+/**
+ * The from snapshot type of a model.
+ * Use SnapshotInOf<Model> instead.
+ */
+export type ModelFromSnapshot<M extends AnyModel> = M[typeof fromSnapshotTypeSymbol]
+
+/**
+ * The to snapshot type of a model.
+ * Use SnapshotOutOf<Model> instead.
+ */
+export type ModelToSnapshot<M extends AnyModel> = M[typeof toSnapshotTypeSymbol]
 
 /**
  * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.

@@ -7,6 +7,7 @@ import type { DataModelMetadata } from "../dataModel/getDataModelMetadata"
 import { getGlobalConfig } from "../globalConfig/globalConfig"
 import { AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
 import type { ModelMetadata } from "../model/getModelMetadata"
+import { modelTypeKey } from "../model/metadata"
 import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { typesObject } from "../typeChecking/object"
 import { typesString } from "../typeChecking/primitives"
@@ -106,11 +107,15 @@ export function sharedInternalModel<
   baseModel,
   type,
   valueType,
+  fromSnapshotProcessor,
+  toSnapshotProcessor,
 }: {
   modelProps: TProps
   baseModel: ModelClass<TBaseModel> | undefined
   type: "class" | "data"
   valueType: boolean
+  fromSnapshotProcessor: ((sn: any) => any) | undefined
+  toSnapshotProcessor: ((sn: any, instance: any) => any) | undefined
 }): any {
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
@@ -278,6 +283,22 @@ export function sharedInternalModel<
       Object.defineProperty(CustomBaseModel.prototype, setterName, newPropDescriptor)
     }
   }
+
+  if (fromSnapshotProcessor) {
+    const fn = fromSnapshotProcessor
+    fromSnapshotProcessor = (sn) => ({ ...fn(sn), [modelTypeKey]: sn[modelTypeKey] })
+  }
+
+  if (toSnapshotProcessor) {
+    const fn = toSnapshotProcessor
+    toSnapshotProcessor = (sn: any, instance: any) => ({
+      ...fn(sn, instance),
+      [modelTypeKey]: sn[modelTypeKey],
+    })
+  }
+
+  CustomBaseModel.fromSnapshotProcessor = fromSnapshotProcessor
+  CustomBaseModel.toSnapshotProcessor = toSnapshotProcessor
 
   return CustomBaseModel
 }

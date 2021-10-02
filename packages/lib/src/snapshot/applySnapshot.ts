@@ -13,7 +13,7 @@ import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
-import type { SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotInOf } from "./SnapshotOf"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -22,7 +22,7 @@ import type { SnapshotOutOf } from "./SnapshotOf"
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf<T>): void {
+export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<T>): void {
   assertTweakedObject(node, "node")
   assertIsObject(snapshot, "snapshot")
 
@@ -33,7 +33,7 @@ export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf
  * @ignore
  * @internal
  */
-export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOutOf<T>): void {
+export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotInOf<T>): void {
   const obj = this
 
   const reconcile = () => {
@@ -84,7 +84,7 @@ export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotOut
 
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
     if (modelIdPropertyName) {
-      const id = sn[modelIdPropertyName]
+      const id = (sn as any)[modelIdPropertyName]
       if (obj[modelIdKey] !== id) {
         // different id, no reconciliation possible
         throw failure(

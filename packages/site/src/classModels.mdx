@@ -464,6 +464,67 @@ class X extends ExtendedModel(modelClass<SomeGenericClass<string>>(SomeGenericCl
 
 If you don't it will still compile, but the generic will be assumed to have unknown for all its generic parameters.
 
+## Snapshot pre/post-processors: `fromSnapshotProcessor` / `toSnapshotProcessor`
+
+`fromSnapshotProcessor` might be used to transform an input snapshot into the model expected input snapshot.
+This is useful for example for versioning.
+Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.
+
+```ts
+@model("name")
+class Name extends Model(
+  {
+    // in version 2 we split fullName into firstName and lastName
+    _version: prop(2),
+    firstName: prop<string>(),
+    lastName: prop<string>(),
+  },
+  {
+    fromSnapshotProcessor(
+      sn: { _version: 2; firstName: string; lastName: string } | { _version: 1; fullName: string }
+    ) {
+      if (sn._version === 2) {
+        return sn
+      }
+
+      const [firstName, lastName] = sn.fullName.split(" ")
+
+      return {
+        _version: 2,
+        firstName,
+        lastName,
+      }
+    },
+  }
+) {
+  // ...
+}
+```
+
+`toSnapshotProcessor` is the opposite and might be used to transform the model expected output snapshot into another kind of object snapshot.
+Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.
+
+```ts
+@model("name")
+class Name extends Model(
+  {
+    firstName: prop<string>(),
+    lastName: prop<string>(),
+  },
+  {
+    toSnapshotProcessor(sn, modelInstance) {
+      // we want to also keep fullName for backwards compatibility
+      return {
+        ...sn,
+        fullName: `${sn.firstName} ${sn.lastName}`,
+      }
+    },
+  }
+) {
+  // ...
+}
+```
+
 ## Usage without decorators
 
 Although this library was primarily intented to be used with decorators it is also possible to use it without them.

@@ -3,17 +3,15 @@ import type { O } from "ts-toolbelt"
 import {
   creationDataTypeSymbol,
   dataTypeSymbol,
+  fromSnapshotTypeSymbol,
   ModelClass,
+  toSnapshotTypeSymbol,
   transformedCreationDataTypeSymbol,
   transformedDataTypeSymbol,
 } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getSnapshot } from "../snapshot/getSnapshot"
-import type {
-  SnapshotInOfModel,
-  SnapshotInOfObject,
-  SnapshotOutOfModel,
-} from "../snapshot/SnapshotOf"
+import type { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
 import { typeCheck } from "../typeChecking/typeCheck"
 import type { TypeCheckError } from "../typeChecking/TypeCheckError"
@@ -44,6 +42,8 @@ export abstract class BaseModel<
   CreationData extends { [k: string]: any },
   TransformedData extends { [k: string]: any },
   TransformedCreationData extends { [k: string]: any },
+  FromSnapshot extends { [k: string]: any },
+  ToSnapshot extends { [k: string]: any },
   ModelIdPropertyName extends string = never
 > {
   // just to make typing work properly
@@ -51,6 +51,8 @@ export abstract class BaseModel<
   [creationDataTypeSymbol]: CreationData;
   [transformedDataTypeSymbol]: TransformedData;
   [transformedCreationDataTypeSymbol]: TransformedCreationData;
+  [fromSnapshotTypeSymbol]: FromSnapshot;
+  [toSnapshotTypeSymbol]: ToSnapshot;
   [modelIdPropertyNameSymbol]: ModelIdPropertyName;
 
   /**
@@ -109,17 +111,6 @@ export abstract class BaseModel<
   protected onAttachedToRootStore?(rootStore: object): (() => void) | void
 
   /**
-   * Optional transformation that will be run when converting from a snapshot to the data part of the model.
-   * Useful for example to do versioning and keep the data part up to date with the latest version of the model.
-   *
-   * @param snapshot The custom input snapshot.
-   * @returns An input snapshot that must match the current model input snapshot.
-   */
-  fromSnapshot?(snapshot: { [k: string]: any }): SnapshotInOfObject<CreationData> & {
-    [modelTypeKey]?: string
-  }
-
-  /**
    * Performs a type check over the model instance.
    * For this to work a data type has to be declared as part of the model properties.
    *
@@ -147,6 +138,8 @@ export abstract class BaseModel<
     delete self[creationDataTypeSymbol]
     delete self[transformedDataTypeSymbol]
     delete self[transformedCreationDataTypeSymbol]
+    delete self[fromSnapshotTypeSymbol]
+    delete self[toSnapshotTypeSymbol]
     delete self[modelIdPropertyNameSymbol]
 
     if (!snapshotInitialData) {
@@ -195,14 +188,13 @@ export const baseModelPropNames = new Set<BaseModelKeys>([
   "$",
   "getRefId",
   "onAttachedToRootStore",
-  "fromSnapshot",
   "typeCheck",
 ])
 
 /**
  * Any kind of model instance.
  */
-export interface AnyModel extends BaseModel<any, any, any, any, any> {}
+export interface AnyModel extends BaseModel<any, any, any, any, any, any, any> {}
 
 /**
  * @deprecated Should not be needed anymore.

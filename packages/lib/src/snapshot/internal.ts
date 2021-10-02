@@ -1,14 +1,21 @@
 import { action, createAtom, IAtom, untracked } from "mobx"
 import { fastGetParentPath, ParentPath } from "../parent/path"
-import { debugFreeze } from "../utils"
-import type { SnapshotOutOf } from "./SnapshotOf"
+import { debugFreeze, failure, inDevMode } from "../utils"
 
-interface SnapshotData<T extends object> {
-  standard: SnapshotOutOf<T>
+/**
+ * @ignore
+ * @internal
+ */
+export type SnapshotTransformFn = (sn: unknown) => unknown
+
+interface SnapshotData {
+  untransformed: any
+  transformFn: SnapshotTransformFn | undefined
+  transformed: any
   readonly atom: IAtom
 }
 
-const snapshots = new WeakMap<Object, SnapshotData<any>>()
+const snapshots = new WeakMap<Object, SnapshotData>()
 
 /**
  * @ignore
@@ -16,14 +23,14 @@ const snapshots = new WeakMap<Object, SnapshotData<any>>()
  */
 export function getInternalSnapshot<T extends object>(
   value: T
-): Readonly<SnapshotData<T>> | undefined {
+): Readonly<SnapshotData> | undefined {
   return snapshots.get(value) as any
 }
 
 function getInternalSnapshotParent(
-  sn: SnapshotData<any>,
+  sn: Readonly<SnapshotData> | undefined,
   parentPath: ParentPath<any> | undefined
-): { parentSnapshot: SnapshotData<any>; parentPath: ParentPath<any> } | undefined {
+): { parentSnapshot: SnapshotData; parentPath: ParentPath<any> } | undefined {
   return untracked(() => {
     if (!parentPath) {
       return undefined
@@ -48,7 +55,7 @@ function getInternalSnapshotParent(
  * @internal
  */
 export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any) => {
-  const oldSn = getInternalSnapshot(value) as SnapshotData<any>
+  const oldSn = getInternalSnapshot(value)
 
   if (oldSn) {
     snapshots.delete(value)
@@ -62,27 +69,44 @@ export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any
  */
 export const setInternalSnapshot = action(
   "setInternalSnapshot",
-  <T extends object>(value: any, standard: T): void => {
-    const oldSn = getInternalSnapshot(value) as SnapshotData<any>
+  <T extends object>(
+    value: any,
+    untransformed: T,
+    transformFn: SnapshotTransformFn | undefined
+  ): void => {
+    const oldSn = getInternalSnapshot(value)
 
     // do not actually update if not needed
-    if (oldSn && oldSn.standard === standard) {
+    if (oldSn && oldSn.untransformed === untransformed) {
       return
     }
 
-    debugFreeze(standard)
+    debugFreeze(untransformed)
 
-    let sn: SnapshotData<any>
+    let sn: SnapshotData
     if (oldSn) {
+      if (inDevMode() && transformFn) {
+        throw failure(
+          "assertion error: a transform function cannot be set when we are updating an old internal snapshot"
+        )
+      }
+
       sn = oldSn
-      sn.standard = standard
+      sn.untransformed = untransformed
+      sn.transformed = sn.transformFn ? sn.transformFn(untransformed) : untransformed
     } else {
       sn = {
-        standard,
+        untransformed,
+        transformFn,
+        transformed: transformFn ? transformFn(untransformed) : untransformed,
         atom: createAtom("snapshot"),
       }
 
       snapshots.set(value, sn)
+    }
+
+    if (sn.untransformed !== sn.transformed) {
+      debugFreeze(sn.transformed)
     }
 
     sn.atom.reportChanged()
@@ -96,16 +120,16 @@ export const setInternalSnapshot = action(
         const path = parentPath.path
 
         // patches for parent changes should not be emitted
-        let parentStandardSn = parentSnapshot.standard
-        if (parentStandardSn[path] !== sn.standard) {
-          if (Array.isArray(parentStandardSn)) {
-            parentStandardSn = parentStandardSn.slice()
+        let parentUntransformedSn = parentSnapshot.untransformed
+        if (parentUntransformedSn[path] !== sn.transformed) {
+          if (Array.isArray(parentUntransformedSn)) {
+            parentUntransformedSn = parentUntransformedSn.slice()
           } else {
-            parentStandardSn = Object.assign({}, parentStandardSn)
+            parentUntransformedSn = Object.assign({}, parentUntransformedSn)
           }
-          parentStandardSn[path] = sn.standard
+          parentUntransformedSn[path] = sn.transformed
 
-          setInternalSnapshot(parentPath.parent, parentStandardSn)
+          setInternalSnapshot(parentPath.parent, parentUntransformedSn, undefined)
         }
       }
     }
@@ -115,6 +139,6 @@ export const setInternalSnapshot = action(
 /**
  * @ignore
  */
-export function reportInternalSnapshotObserved(sn: Readonly<SnapshotData<any>>) {
+export function reportInternalSnapshotObserved(sn: Readonly<SnapshotData>) {
   sn.atom.reportObserved()
 }

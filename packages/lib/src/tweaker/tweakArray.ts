@@ -56,8 +56,8 @@ export function tweakArray<T extends any[]>(
     cloneIfApplicable: false,
   })
 
-  const standardSn: any[] = []
-  standardSn.length = arrLn
+  const untransformedSn: any[] = []
+  untransformedSn.length = arrLn
 
   // substitute initial values by proxied values
   for (let i = 0; i < arrLn; i++) {
@@ -68,7 +68,7 @@ export function tweakArray<T extends any[]>(
         set(tweakedArr, i, v)
       }
 
-      standardSn[i] = v
+      untransformedSn[i] = v
     } else {
       const path = { parent: tweakedArr, path: i }
 
@@ -89,11 +89,11 @@ export function tweakArray<T extends any[]>(
       }
 
       const valueSn = getInternalSnapshot(tweakedValue)!
-      standardSn[i] = valueSn.standard
+      untransformedSn[i] = valueSn.transformed
     }
   }
 
-  setInternalSnapshot(tweakedArr, standardSn)
+  setInternalSnapshot(tweakedArr, untransformedSn, undefined)
 
   interceptDisposer = intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
   observeDisposer = observe(tweakedArr, arrayDidChange)
@@ -103,7 +103,7 @@ export function tweakArray<T extends any[]>(
 
 function arrayDidChange(change: any /*IArrayDidChange*/) {
   const arr = change.object
-  let { standard: oldSnapshot } = getInternalSnapshot(arr as Array<any>)!
+  let { untransformed: oldSnapshot } = getInternalSnapshot(arr as Array<any>)!
 
   const patchRecorder = new InternalPatchRecorder()
 
@@ -123,7 +123,7 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
           if (isPrimitive(v)) {
             addedItems[i] = v
           } else {
-            addedItems[i] = getInternalSnapshot(v)!.standard
+            addedItems[i] = getInternalSnapshot(v)!.transformed
           }
         }
 
@@ -240,7 +240,7 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
           newSnapshot[k] = val
         } else {
           const valueSn = getInternalSnapshot(val)!
-          newSnapshot[k] = valueSn.standard
+          newSnapshot[k] = valueSn.transformed
         }
 
         const path = [k]
@@ -268,7 +268,7 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
   runTypeCheckingAfterChange(arr, patchRecorder)
 
   if (!runningWithoutSnapshotOrPatches) {
-    setInternalSnapshot(arr, newSnapshot)
+    setInternalSnapshot(arr, newSnapshot, undefined)
     patchRecorder.emit(arr)
   }
 }

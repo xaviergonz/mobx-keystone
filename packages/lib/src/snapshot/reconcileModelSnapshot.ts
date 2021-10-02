@@ -3,7 +3,7 @@ import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel, isModelSnapshot } from "../model/utils"
-import { ModelClass } from "../modelShared/BaseModelShared"
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
@@ -58,8 +58,9 @@ function reconcileModelSnapshot(
 
   withoutTypeChecking(() => {
     let processedSn: any = sn
-    if (modelObj.fromSnapshot) {
-      processedSn = modelObj.fromSnapshot(sn)
+    const modelClass: ModelClass<AnyModel> = (modelObj as any).constructor
+    if (modelClass.fromSnapshotProcessor) {
+      processedSn = modelClass.fromSnapshotProcessor(sn)
     }
 
     const data = modelObj.$
