@@ -20,11 +20,19 @@ export type _ComposedCreationData<
   ? ModelPropsToTransformedCreationData<TProps> & TCD
   : ModelPropsToTransformedCreationData<TProps>
 
-export type _FromSnapshot<TProps extends ModelProps> = SnapshotInOfObject<
+/**
+ * The default type used by fromSnapshot before processors are applied.
+ */
+export type FromSnapshotDefaultType<TProps extends ModelProps> = SnapshotInOfObject<
   ModelPropsToCreationData<TProps>
 >
 
-export type _ToSnapshot<TProps extends ModelProps> = SnapshotOutOfObject<ModelPropsToData<TProps>>
+/**
+ * The default type used by getSnapshot before processors are applied.
+ */
+export type ToSnapshotDefaultType<TProps extends ModelProps> = SnapshotOutOfObject<
+  ModelPropsToData<TProps>
+>
 
 export type _ModelId<SuperModel, TProps extends ModelProps> = SuperModel extends AnyModel
   ? ModelIdPropertyName<SuperModel>
@@ -69,8 +77,8 @@ export function ExtendedModel<
   TProps extends ModelProps,
   TModel extends AnyModel,
   A extends [],
-  FS = _FromSnapshot<TProps>,
-  TS = _ToSnapshot<TProps>
+  FS = FromSnapshotDefaultType<TProps>,
+  TS = ToSnapshotDefaultType<TProps>
 >(
   genFn: (...args: A) => {
     baseModel: AbstractModelClass<TModel>
@@ -92,8 +100,8 @@ export function ExtendedModel<
 export function ExtendedModel<
   TProps extends ModelProps,
   TModel extends AnyModel,
-  FS = _FromSnapshot<TProps>,
-  TS = _ToSnapshot<TProps>
+  FS = FromSnapshotDefaultType<TProps>,
+  TS = ToSnapshotDefaultType<TProps>
 >(
   baseModel: AbstractModelClass<TModel>,
   modelProps: TProps,
@@ -104,8 +112,8 @@ export function ExtendedModel<
 export function ExtendedModel<
   TProps extends ModelProps,
   TModel extends AnyModel,
-  FS = _FromSnapshot<TProps>,
-  TS = _ToSnapshot<TProps>
+  FS = FromSnapshotDefaultType<TProps>,
+  TS = ToSnapshotDefaultType<TProps>
 >(...args: any[]): _Model<TModel, TProps, FS, TS> {
   let baseModel
   let modelProps
@@ -139,8 +147,8 @@ export function ExtendedModel<
 export function Model<
   TProps extends ModelProps,
   A extends [],
-  FS = _FromSnapshot<TProps>,
-  TS = _ToSnapshot<TProps>
+  FS = FromSnapshotDefaultType<TProps>,
+  TS = ToSnapshotDefaultType<TProps>
 >(
   fnModelProps: (...args: A) => TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
@@ -157,15 +165,15 @@ export function Model<
  */
 export function Model<
   TProps extends ModelProps,
-  FS = _FromSnapshot<TProps>,
-  TS = _ToSnapshot<TProps>
+  FS = FromSnapshotDefaultType<TProps>,
+  TS = ToSnapshotDefaultType<TProps>
 >(modelProps: TProps, modelOptions?: ModelOptions<TProps, FS, TS>): _Model<unknown, TProps, FS, TS>
 
 // base
 export function Model<
   TProps extends ModelProps,
-  FS = _FromSnapshot<TProps>,
-  TS = _ToSnapshot<TProps>
+  FS = FromSnapshotDefaultType<TProps>,
+  TS = ToSnapshotDefaultType<TProps>
 >(
   fnModelPropsOrModelProps: (() => TProps) | TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
@@ -180,8 +188,8 @@ export function Model<
 function internalModel<
   TProps extends ModelProps,
   TBaseModel extends AnyModel,
-  FS = _FromSnapshot<TProps>,
-  TS = _ToSnapshot<TProps>
+  FS = FromSnapshotDefaultType<TProps>,
+  TS = ToSnapshotDefaultType<TProps>
 >(
   modelProps: TProps,
   baseModel: ModelClass<TBaseModel> | undefined,
@@ -214,7 +222,7 @@ export interface ModelOptions<TProps extends ModelProps, FS, TS> {
    * @param sn The custom input snapshot.
    * @returns An input snapshot that must match the expected model input snapshot.
    */
-  fromSnapshotProcessor?(sn: FS): _FromSnapshot<TProps>
+  fromSnapshotProcessor?(sn: FS): FromSnapshotDefaultType<TProps>
 
   /**
    * Optional transformation that will be run when converting the data part of the model into a snapshot.
@@ -223,5 +231,5 @@ export interface ModelOptions<TProps extends ModelProps, FS, TS> {
    * @param modelInstance The model instance.
    * @returns  a custom output snapshot.
    */
-  toSnapshotProcessor?(sn: _ToSnapshot<TProps>, modelInstance: any): TS
+  toSnapshotProcessor?(sn: ToSnapshotDefaultType<TProps>, modelInstance: any): TS
 }

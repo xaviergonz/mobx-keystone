@@ -3,6 +3,7 @@ import {
   applyPatches,
   applySnapshot,
   fromSnapshot,
+  FromSnapshotDefaultType,
   getSnapshot,
   model,
   Model,
@@ -71,6 +72,76 @@ test("input snapshot processor", () => {
     p,
     modelSnapshotInWithMetadata(P3, {
       y: "100,200",
+    })
+  )
+
+  expect(p.arr).toEqual([100, 200])
+
+  applySnapshot(p.arr, [300, 400])
+
+  expect(p.arr).toEqual([300, 400])
+})
+
+test("input snapshot processor with original type", () => {
+  const props = {
+    arr: prop<number[]>(() => []),
+  }
+
+  @model("customInputSnapshotWithOriginalType")
+  class P3 extends Model(props, {
+    fromSnapshotProcessor(sn: FromSnapshotDefaultType<typeof props> | { arr: string[] }) {
+      return {
+        arr: sn.arr?.map((x) => +x),
+      }
+    },
+  }) {}
+
+  assert(
+    _ as SnapshotInOf<P3>,
+    _ as
+      | ({
+          arr?: number[] | null | undefined
+        } & {
+          [modelTypeKey]: string
+        })
+      | ({
+          arr: string[]
+        } & {
+          [modelTypeKey]: string
+        })
+  )
+
+  assert(
+    _ as SnapshotOutOf<P3>,
+    _ as {
+      arr: number[]
+    } & {
+      [modelTypeKey]: string
+    }
+  )
+
+  const p = fromSnapshot<P3>(
+    modelSnapshotInWithMetadata(P3, {
+      arr: ["30", "40", "50"],
+    })
+  )
+
+  expect(p.arr).toEqual([30, 40, 50])
+
+  applyPatches(p, [
+    {
+      path: ["arr"],
+      op: "replace",
+      value: [10, 20],
+    },
+  ])
+
+  expect(p.arr).toEqual([10, 20])
+
+  applySnapshot(
+    p,
+    modelSnapshotInWithMetadata(P3, {
+      arr: ["100", "200"],
     })
   )
 

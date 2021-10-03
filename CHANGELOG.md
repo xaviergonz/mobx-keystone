@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.63.1
+
+- Added `FromSnapshotDefaultType<typeof props>` and `ToSnapshotDefaultType<typeof props>` so the default type does not need to be repeated when using `fromSnapshotProcessor` / `toSnapshotProcessor`.
+
 ## 0.63.0
 
 - [BREAKING CHANGE] The model override `fromSnapshot` has been removed in favor of `fromSnapshotProcessor` / `toSnapshotProcessor` options of `Model` / `ExtendedModel`. These allow you to set up pre/post snapshot processors for models.

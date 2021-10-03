@@ -471,32 +471,32 @@ This is useful for example for versioning.
 Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.
 
 ```ts
+// we split it here so it is accessible to FromSnapshotDefaultType<>
+const modelProps = {
+  // in version 2 we split fullName into firstName and lastName
+  _version: prop(2),
+  firstName: prop<string>(),
+  lastName: prop<string>(),
+}
+
 @model("name")
-class Name extends Model(
-  {
-    // in version 2 we split fullName into firstName and lastName
-    _version: prop(2),
-    firstName: prop<string>(),
-    lastName: prop<string>(),
+class Name extends Model(modelProps, {
+  fromSnapshotProcessor(
+    sn: FromSnapshotDefaultType<typeof modelProps> | { _version: 1; fullName: string }
+  ) {
+    if (sn._version === 2) {
+      return sn
+    }
+
+    const [firstName, lastName] = sn.fullName.split(" ")
+
+    return {
+      _version: 2,
+      firstName,
+      lastName,
+    }
   },
-  {
-    fromSnapshotProcessor(
-      sn: { _version: 2; firstName: string; lastName: string } | { _version: 1; fullName: string }
-    ) {
-      if (sn._version === 2) {
-        return sn
-      }
-
-      const [firstName, lastName] = sn.fullName.split(" ")
-
-      return {
-        _version: 2,
-        firstName,
-        lastName,
-      }
-    },
-  }
-) {
+}) {
   // ...
 }
 ```
