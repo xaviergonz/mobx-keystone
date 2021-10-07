@@ -70,7 +70,7 @@ export interface ModelProp<
   >
 
   /**
-   * Sets a transform for the property.
+   * Sets a transform for the property instance value.
    *
    * @typeparam TTV Transformed value type.
    * @param transform Transform to be used.
@@ -156,6 +156,8 @@ export type ModelPropsToSetter<MP extends ModelProps> = {
   ) => void
 }
 
+export type ModelIdProp = ModelProp<string, string, string, string, string, true>
+
 /**
  * A property that will be used as model id, accessible through $modelId.
  * Can only be used in models and there can be only one per model.
@@ -167,7 +169,7 @@ export const idProp = {
   withSetter(mode?: boolean | "assign") {
     return { ...this, setter: mode ?? true }
   },
-} as any as ModelProp<string, string, string, string, string, true>
+} as any as ModelIdProp
 
 /**
  * @ignore
