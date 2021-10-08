@@ -32,14 +32,12 @@ type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
  * @param modelClass Model class.
  * @returns
  */
-export function typesModel<M = never, K = M>(
-  modelClass: _ClassOrObject<M, K>
-): IdentityType<K> {
+export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): IdentityType<K> {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isModelClass(modelClass) && typeof modelClass === "function") {
     // resolve later
-    const modelClassFn = modelClass as () => ModelClass<AnyModel>; 
+    const modelClassFn = modelClass as () => ModelClass<AnyModel>
     const typeInfoGen: TypeInfoGen = (t) => new ModelTypeInfo(t, modelClassFn())
     return lateTypeChecker(() => typesModel(modelClassFn()) as any, typeInfoGen) as any
   } else {
@@ -110,7 +108,7 @@ export class ModelTypeInfo extends TypeInfo {
     Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
-      const type = (propData.typeChecker as any) as AnyStandardType
+      const type = propData._internal.typeChecker as any as AnyStandardType
 
       let typeInfo: TypeInfo | undefined
       if (type) {
@@ -119,11 +117,11 @@ export class ModelTypeInfo extends TypeInfo {
 
       let hasDefault = false
       let defaultValue: any
-      if (propData.defaultFn !== noDefaultValue) {
-        defaultValue = propData.defaultFn
+      if (propData._internal.defaultFn !== noDefaultValue) {
+        defaultValue = propData._internal.defaultFn
         hasDefault = true
-      } else if (propData.defaultValue !== noDefaultValue) {
-        defaultValue = propData.defaultValue
+      } else if (propData._internal.defaultValue !== noDefaultValue) {
+        defaultValue = propData._internal.defaultValue
         hasDefault = true
       }
 

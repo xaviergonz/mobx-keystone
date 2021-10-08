@@ -53,7 +53,7 @@ export const internalNewModel = action(
 
       if (modelIdPropData && modelIdPropertyName) {
         if (generateNewIds) {
-          id = (modelIdPropData.defaultFn as () => string)()
+          id = (modelIdPropData._internal.defaultFn as () => string)()
         } else {
           id = sn[modelIdPropertyName]
         }
@@ -70,7 +70,7 @@ export const internalNewModel = action(
         if (initialData![modelIdPropertyName]) {
           id = initialData![modelIdPropertyName]
         } else {
-          id = (modelIdPropData.defaultFn as () => string)()
+          id = (modelIdPropData._internal.defaultFn as () => string)()
         }
       }
     }
@@ -93,19 +93,19 @@ export const internalNewModel = action(
       let changed = false
 
       // apply untransform (if any)
-      if (mode === "new" && propData.transform) {
+      if (mode === "new" && propData._internal.transform) {
         changed = true
-        newValue = propData.transform.untransform(newValue, modelObj, k)
+        newValue = propData._internal.transform.untransform(newValue, modelObj, k)
       }
 
       // apply default value (if needed)
       if (newValue == null) {
-        if (propData.defaultFn !== noDefaultValue) {
+        if (propData._internal.defaultFn !== noDefaultValue) {
           changed = true
-          newValue = propData.defaultFn()
-        } else if (propData.defaultValue !== noDefaultValue) {
+          newValue = propData._internal.defaultFn()
+        } else if (propData._internal.defaultValue !== noDefaultValue) {
           changed = true
-          newValue = propData.defaultValue
+          newValue = propData._internal.defaultValue
         }
       }
 

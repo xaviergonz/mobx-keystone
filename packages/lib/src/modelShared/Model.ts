@@ -63,8 +63,8 @@ function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   // no need to use get since these vars always get on the initial $
   const value = model.$[modelPropName]
 
-  if (modelProp?.transform) {
-    return modelProp.transform.transform(value, model, modelPropName, (newValue) => {
+  if (modelProp?._internal.transform) {
+    return modelProp._internal.transform.transform(value, model, modelPropName, (newValue) => {
       // use apply set instead to wrap it in an action
       // set the $ object to set the original value directly
       applySet(model.$, modelPropName, newValue)
@@ -80,14 +80,14 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   modelPropName: keyof ModelTransformedData<M>,
   value: ModelTransformedData<M>[typeof modelPropName]
 ): void {
-  if (modelProp?.setter === "assign" && !getCurrentActionContext()) {
+  if (modelProp?._internal.setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     applySet(model, modelPropName, value)
     return
   }
 
-  const transformedValue = modelProp?.transform
-    ? modelProp.transform.untransform(value, model, modelPropName)
+  const transformedValue = modelProp?._internal.transform
+    ? modelProp._internal.transform.untransform(value, model, modelPropName)
     : value
   // no need to use set since these vars always get on the initial $
   model.$[modelPropName] = transformedValue
@@ -95,9 +95,12 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
 
 const idGenerator = () => getGlobalConfig().modelIdGenerator()
 const tPropForId = tProp(typesString, idGenerator)
-tPropForId.isId = true
+tPropForId._internal.isId = true
 const propForId = prop(idGenerator)
-propForId.isId = true
+propForId._internal.isId = true
+
+type FromSnapshotProcessorFn = (sn: any) => any
+type ToSnapshotProcessorFn = (sn: any, instance: any) => any
 
 export function sharedInternalModel<
   TProps extends ModelProps,
@@ -114,8 +117,8 @@ export function sharedInternalModel<
   baseModel: ModelClass<TBaseModel> | undefined
   type: "class" | "data"
   valueType: boolean
-  fromSnapshotProcessor: ((sn: any) => any) | undefined
-  toSnapshotProcessor: ((sn: any, instance: any) => any) | undefined
+  fromSnapshotProcessor: FromSnapshotProcessorFn | undefined
+  toSnapshotProcessor: ToSnapshotProcessorFn | undefined
 }): any {
   assertIsObject(modelProps, "modelProps")
   if (baseModel) {
@@ -147,7 +150,7 @@ export function sharedInternalModel<
   // look for id keys
   const idKeys = Object.keys(composedModelProps).filter((k) => {
     const p = composedModelProps[k]
-    return p.isId
+    return p._internal.isId
   })
   if (type === "class") {
     if (idKeys.length > 1) {
@@ -159,7 +162,9 @@ export function sharedInternalModel<
     }
   }
 
-  const needsTypeChecker = Object.values(composedModelProps).some((mp) => !!mp.typeChecker)
+  const needsTypeChecker = Object.values(composedModelProps).some(
+    (mp) => !!mp._internal.typeChecker
+  )
 
   // transform id keys (only one really)
   let idKey: string | undefined
@@ -167,7 +172,7 @@ export function sharedInternalModel<
     idKey = idKeys[0]
     const idProp = composedModelProps[idKey]
     let baseProp: AnyModelProp = needsTypeChecker ? tPropForId : propForId
-    switch (idProp?.setter) {
+    switch (idProp?._internal.setter) {
       case true:
         baseProp = baseProp.withSetter()
         break
@@ -187,7 +192,7 @@ export function sharedInternalModel<
       [k: string]: any
     } = {}
     for (const [k, mp] of Object.entries(composedModelProps)) {
-      typeCheckerObj[k] = !mp.typeChecker ? typesUnchecked() : mp.typeChecker
+      typeCheckerObj[k] = !mp._internal.typeChecker ? typesUnchecked() : mp._internal.typeChecker
     }
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
   }
@@ -267,7 +272,7 @@ export function sharedInternalModel<
 
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
-    if (propData.setter === true) {
+    if (propData._internal.setter === true) {
       const setterName = propNameToSetterName(propName)
 
       CustomBaseModel.prototype[setterName] = function (this: any, value: any) {
@@ -284,21 +289,82 @@ export function sharedInternalModel<
     }
   }
 
+  let modelPropsFromSnapshotProcessor: FromSnapshotProcessorFn | undefined
+
+  const propsWithFromSnapshotProcessor = Object.entries(composedModelProps).filter(
+    ([_propName, propData]) => propData._internal.fromSnapshotProcessor
+  )
+  if (propsWithFromSnapshotProcessor.length > 0) {
+    modelPropsFromSnapshotProcessor = (sn) => {
+      const newSn = { ...sn }
+      for (const [propName, propData] of propsWithFromSnapshotProcessor) {
+        if (propData._internal.fromSnapshotProcessor) {
+          newSn[propName] = propData._internal.fromSnapshotProcessor(sn[propName])
+        }
+      }
+      return newSn
+    }
+  }
+
+  let modelPropsToSnapshotProcessor: ToSnapshotProcessorFn | undefined
+
+  const propsWithToSnapshotProcessor = Object.entries(composedModelProps).filter(
+    ([_propName, propData]) => propData._internal.toSnapshotProcessor
+  )
+  if (propsWithToSnapshotProcessor.length > 0) {
+    modelPropsToSnapshotProcessor = (sn) => {
+      const newSn = { ...sn }
+      for (const [propName, propData] of propsWithToSnapshotProcessor) {
+        if (propData._internal.toSnapshotProcessor) {
+          newSn[propName] = propData._internal.toSnapshotProcessor(sn[propName])
+        }
+      }
+      return newSn
+    }
+  }
+
   if (fromSnapshotProcessor) {
     const fn = fromSnapshotProcessor
-    fromSnapshotProcessor = (sn) => ({ ...fn(sn), [modelTypeKey]: sn[modelTypeKey] })
+    fromSnapshotProcessor = (sn) => {
+      return {
+        ...fn(sn),
+        [modelTypeKey]: sn[modelTypeKey],
+      }
+    }
   }
 
   if (toSnapshotProcessor) {
     const fn = toSnapshotProcessor
-    toSnapshotProcessor = (sn: any, instance: any) => ({
-      ...fn(sn, instance),
-      [modelTypeKey]: sn[modelTypeKey],
-    })
+    toSnapshotProcessor = (sn, modelInstance) => {
+      return {
+        ...fn(sn, modelInstance),
+        [modelTypeKey]: sn[modelTypeKey],
+      }
+    }
   }
 
-  CustomBaseModel.fromSnapshotProcessor = fromSnapshotProcessor
-  CustomBaseModel.toSnapshotProcessor = toSnapshotProcessor
+  CustomBaseModel.fromSnapshotProcessor = chainFns(
+    fromSnapshotProcessor,
+    modelPropsFromSnapshotProcessor
+  )
+  CustomBaseModel.toSnapshotProcessor = chainFns(modelPropsToSnapshotProcessor, toSnapshotProcessor)
 
   return CustomBaseModel
+}
+
+function chainFns<F extends Function>(...fns: (F | undefined)[]): F | undefined {
+  const definedFns = fns.filter((fn) => !!fn)
+  if (definedFns.length <= 0) return undefined
+
+  const chainedFn = (v: any, ...args: any[]) => {
+    let ret = definedFns[0]!(v, ...args)
+
+    for (let i = 1; i < definedFns.length; i++) {
+      ret = definedFns[i]!(ret, ...args)
+    }
+
+    return ret
+  }
+
+  return chainedFn as unknown as F
 }

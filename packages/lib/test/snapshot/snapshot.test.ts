@@ -1,4 +1,5 @@
 import { assert, _ } from "spec.ts"
+import { O } from "ts-toolbelt"
 import {
   applySnapshot,
   ArraySet,
@@ -25,6 +26,8 @@ import {
 import "../commonSetup"
 import { createP, P, P2 } from "../testbed"
 import { autoDispose } from "../utils"
+
+type Empty = O.Omit<{}, "">
 
 test("onSnapshot and applySnapshot", () => {
   const p = createP()
@@ -452,9 +455,9 @@ test("types", () => {
     _ as {
       [modelIdKey]?: string
       y?: number | null
-    } & {
-      [modelTypeKey]: string
-    }
+    } & Empty & {
+        [modelTypeKey]: string
+      }
   )
 
   assert(
@@ -474,9 +477,9 @@ test("types", () => {
       x?: number | null
       arr?: number[] | null
       p2?: SnapshotInOf<P2>
-    } & {
-      [modelTypeKey]: string
-    }
+    } & Empty & {
+        [modelTypeKey]: string
+      }
   )
 
   assert(

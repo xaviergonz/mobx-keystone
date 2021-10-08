@@ -1,4 +1,5 @@
 import type { O } from "ts-toolbelt"
+import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
 import type { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
 import { getOrCreate } from "../utils/mapUtils"
 import type { IsOptionalValue } from "../utils/types"
@@ -18,32 +19,40 @@ export interface ModelProp<
   TTransformedCreationValue,
   TIsOptional,
   TIsId extends boolean = false,
-  THasSetter = never
+  THasSetter = never,
+  TFromSnapshotOverride = never,
+  TToSnapshotOverride = never
 > {
-  $valueType: TPropValue
-  $creationValueType: TPropCreationValue
-  $transformedValueType: TTransformedValue
-  $transformedCreationValueType: TTransformedCreationValue
-  $isOptional: TIsOptional
-  $isId: TIsId
-  $hasSetter: THasSetter
+  _internal: {
+    $valueType: TPropValue
+    $creationValueType: TPropCreationValue
+    $transformedValueType: TTransformedValue
+    $transformedCreationValueType: TTransformedCreationValue
+    $isOptional: TIsOptional
+    $isId: TIsId
+    $hasSetter: THasSetter
+    $fromSnapshotOverride: TFromSnapshotOverride
+    $toSnapshotOverride: TToSnapshotOverride
 
-  defaultFn: (() => TPropValue) | typeof noDefaultValue
-  defaultValue: TPropValue | typeof noDefaultValue
-  typeChecker: TypeChecker | LateTypeChecker | undefined
-  setter: boolean | "assign"
-  isId: boolean
-  transform:
-    | {
-        transform(
-          original: unknown,
-          model: object,
-          propName: PropertyKey,
-          setOriginalValue: (newOriginalValue: unknown) => void
-        ): unknown
-        untransform(transformed: unknown, model: object, propName: PropertyKey): unknown
-      }
-    | undefined
+    defaultFn: (() => TPropValue) | typeof noDefaultValue
+    defaultValue: TPropValue | typeof noDefaultValue
+    typeChecker: TypeChecker | LateTypeChecker | undefined
+    setter: boolean | "assign"
+    isId: boolean
+    transform:
+      | {
+          transform(
+            original: unknown,
+            model: object,
+            propName: PropertyKey,
+            setOriginalValue: (newOriginalValue: unknown) => void
+          ): unknown
+          untransform(transformed: unknown, model: object, propName: PropertyKey): unknown
+        }
+      | undefined
+    fromSnapshotProcessor?(sn: unknown): unknown
+    toSnapshotProcessor?(sn: unknown): unknown
+  }
 
   withSetter(): ModelProp<
     TPropValue,
@@ -52,7 +61,9 @@ export interface ModelProp<
     TTransformedCreationValue,
     TIsOptional,
     TIsId,
-    string
+    string,
+    TFromSnapshotOverride,
+    TToSnapshotOverride
   >
   /**
    * @deprecated Setter methods are preferred.
@@ -66,7 +77,9 @@ export interface ModelProp<
     TTransformedCreationValue,
     TIsOptional,
     TIsId,
-    string
+    string,
+    TFromSnapshotOverride,
+    TToSnapshotOverride
   >
 
   /**
@@ -85,9 +98,46 @@ export interface ModelProp<
     TTV | Extract<TPropCreationValue, null | undefined>,
     TIsOptional,
     TIsId,
-    THasSetter
+    THasSetter,
+    TFromSnapshotOverride,
+    TToSnapshotOverride
+  >
+
+  withSnapshotProcessor<
+    FS = TFromSnapshotOverride,
+    TS = TToSnapshotOverride,
+    This extends AnyModelProp = this
+  >(processor: {
+    fromSnapshot?(sn: FS): ModelPropFromSnapshot<This>
+    toSnapshot?(sn: ModelPropToSnapshot<This>): TS
+  }): ModelProp<
+    TPropValue,
+    TPropCreationValue,
+    TTransformedValue,
+    TTransformedCreationValue,
+    TIsOptional,
+    TIsId,
+    THasSetter,
+    FS,
+    TS
   >
 }
+
+/**
+ * The snapshot in type of a model property.
+ */
+export type ModelPropFromSnapshot<MP extends AnyModelProp> =
+  MP["_internal"]["$fromSnapshotOverride"] extends never
+    ? SnapshotInOf<MP["_internal"]["$creationValueType"]>
+    : MP["_internal"]["$fromSnapshotOverride"]
+
+/**
+ * The snapshot out type of a model property.
+ */
+export type ModelPropToSnapshot<MP extends AnyModelProp> =
+  MP["_internal"]["$toSnapshotOverride"] extends never
+    ? SnapshotOutOf<MP["_internal"]["$valueType"]>
+    : MP["_internal"]["$toSnapshotOverride"]
 
 /**
  * A model prop transform.
@@ -105,7 +155,7 @@ export interface ModelPropTransform<TOriginal, TTransformed> {
 /**
  * Any model property.
  */
-export type AnyModelProp = ModelProp<any, any, any, any, any, any, any>
+export type AnyModelProp = ModelProp<any, any, any, any, any, any, any, any, any>
 
 /**
  * Model properties.
@@ -115,59 +165,88 @@ export interface ModelProps {
 }
 
 export type OptionalModelProps<MP extends ModelProps> = {
-  [K in keyof MP]: MP[K]["$isOptional"] & K
+  [K in keyof MP]: MP[K]["_internal"]["$isOptional"] & K
 }[keyof MP]
 
 export type ModelPropsToData<MP extends ModelProps> = {
-  [k in keyof MP]: MP[k]["$valueType"]
+  [k in keyof MP]: MP[k]["_internal"]["$valueType"]
+}
+
+export type ModelPropsToSnapshotData<MP extends ModelProps> = {
+  [k in keyof MP]: ModelPropToSnapshot<MP[k]> extends infer R ? R : never
 }
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
 export type ModelPropsToCreationData<MP extends ModelProps> = {
-  [k in keyof MP]?: MP[k]["$creationValueType"]
+  [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
 } & O.Omit<
   {
-    [k in keyof MP]: MP[k]["$creationValueType"]
+    [k in keyof MP]: MP[k]["_internal"]["$creationValueType"]
   },
   OptionalModelProps<MP>
 >
 
+// we don't use O.Optional anymore since it generates unions too heavy
+// also if we use pick over the optional props we will loose the ability
+// to infer generics
+export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = {
+  [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
+} & O.Omit<
+  {
+    [k in keyof MP]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
+  },
+  {
+    [K in keyof MP]: MP[K]["_internal"]["$fromSnapshotOverride"] extends never
+      ? MP[K]["_internal"]["$isOptional"] & K
+      : IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
+  }[keyof MP]
+>
+
 export type ModelPropsToTransformedData<MP extends ModelProps> = {
-  [k in keyof MP]: MP[k]["$transformedValueType"]
+  [k in keyof MP]: MP[k]["_internal"]["$transformedValueType"]
 }
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
 export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
-  [k in keyof MP]?: MP[k]["$transformedCreationValueType"]
+  [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
 } & O.Omit<
   {
-    [k in keyof MP]: MP[k]["$transformedCreationValueType"]
+    [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
   },
   OptionalModelProps<MP>
 >
 
 export type ModelPropsToSetter<MP extends ModelProps> = {
-  [k in keyof MP as MP[k]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
-    value: MP[k]["$transformedValueType"]
+  [k in keyof MP as MP[k]["_internal"]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
+    value: MP[k]["_internal"]["$transformedValueType"]
   ) => void
 }
 
-export type ModelIdProp = ModelProp<string, string, string, string, string, true>
+export type ModelIdProp = ModelProp<
+  string,
+  string | undefined,
+  string,
+  string | undefined,
+  string,
+  true
+>
 
 /**
  * A property that will be used as model id, accessible through $modelId.
  * Can only be used in models and there can be only one per model.
  */
 export const idProp = {
-  setter: false,
-  isId: true,
+  _internal: {
+    setter: false,
+    isId: true,
+  },
 
   withSetter(mode?: boolean | "assign") {
-    return { ...this, setter: mode ?? true }
+    return { ...this, _internal: { ...this._internal, setter: mode ?? true } }
   },
 } as any as ModelIdProp
 
@@ -257,27 +336,68 @@ export function prop(def?: any): AnyModelProp {
   const isDefFn = typeof def === "function"
 
   const obj: AnyModelProp = {
-    $valueType: null as any,
-    $creationValueType: null as any,
-    $transformedValueType: null as any,
-    $transformedCreationValueType: null as any,
-    $isOptional: null as any,
-    $isId: null as never,
-    $hasSetter: null as never,
+    _internal: {
+      $valueType: null as any,
+      $creationValueType: null as any,
+      $transformedValueType: null as any,
+      $transformedCreationValueType: null as any,
+      $isOptional: null as any,
+      $isId: null as never,
+      $hasSetter: null as never,
+      $fromSnapshotOverride: null as never,
+      $toSnapshotOverride: null as never,
 
-    defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
-    defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
-    typeChecker: undefined,
-    setter: false,
-    isId: false,
-    transform: undefined,
+      defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
+      defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
+      typeChecker: undefined,
+      setter: false,
+      isId: false,
+      transform: undefined,
+      fromSnapshotProcessor: undefined,
+      toSnapshotProcessor: undefined,
+    },
 
     withSetter(mode?: boolean | "assign") {
-      return { ...this, setter: mode ?? true }
+      return { ...this, _internal: { ...this._internal, setter: mode ?? true } }
     },
 
     withTransform(transform: ModelPropTransform<unknown, unknown>) {
-      return { ...this, transform: toFullTransform(transform) }
+      return { ...this, _internal: { ...this._internal, transform: toFullTransform(transform) } }
+    },
+
+    withSnapshotProcessor({ fromSnapshot, toSnapshot }) {
+      let newFromSnapshot
+
+      if (this._internal.fromSnapshotProcessor && fromSnapshot) {
+        const oldFn = this._internal.fromSnapshotProcessor
+        const newFn = fromSnapshot
+        newFromSnapshot = (sn: any) => oldFn(newFn(sn))
+      } else if (fromSnapshot) {
+        newFromSnapshot = fromSnapshot
+      } else {
+        newFromSnapshot = this._internal.fromSnapshotProcessor
+      }
+
+      let newToSnapshot
+
+      if (this._internal.toSnapshotProcessor && toSnapshot) {
+        const oldFn: any = this._internal.toSnapshotProcessor
+        const newFn = toSnapshot
+        newToSnapshot = (sn: any) => newFn(oldFn(sn))
+      } else if (toSnapshot) {
+        newToSnapshot = toSnapshot
+      } else {
+        newToSnapshot = this._internal.toSnapshotProcessor
+      }
+
+      return {
+        ...this,
+        _internal: {
+          ...this._internal,
+          fromSnapshotProcessor: newFromSnapshot,
+          toSnapshotProcessor: newToSnapshot,
+        },
+      }
     },
   }
 

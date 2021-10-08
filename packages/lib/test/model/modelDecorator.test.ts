@@ -1,5 +1,6 @@
 import { computed, isComputedProp } from "mobx"
 import { assert, _ } from "spec.ts"
+import { O } from "ts-toolbelt"
 import {
   decoratedModel,
   ExtendedModel,
@@ -151,10 +152,10 @@ test("decoratedModel", () => {
       _ as {
         [modelIdKey]?: string
         x?: number | null
-        y: number
-      } & {
-        [modelTypeKey]: string
-      }
+        y?: number
+      } & O.Omit<{ x: number | null; y: number }, "x"> & {
+          [modelTypeKey]: string
+        }
     )
 
     assert(
@@ -230,12 +231,12 @@ test("decoratedModel", () => {
       _ as {
         [modelIdKey]?: string
         x?: number | null
-        y: number
-      } & {
-        z: number
-      } & {
-        [modelTypeKey]: string
-      }
+        y?: number
+      } & O.Omit<{ [modelIdKey]: string; x: number | null; y: number }, typeof modelIdKey | "x"> & {
+          z?: number
+        } & O.Omit<{ z: number }, never> & {
+          [modelTypeKey]: string
+        }
     )
 
     assert(

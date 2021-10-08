@@ -100,19 +100,19 @@ export abstract class BaseDataModel<
         let changed = false
 
         // apply untransform (if any)
-        if (propData.transform) {
+        if (propData._internal.transform) {
           changed = true
-          newValue = propData.transform.untransform(newValue, this, k)
+          newValue = propData._internal.transform.untransform(newValue, this, k)
         }
 
         // apply default value (if needed)
         if (newValue == null) {
-          if (propData.defaultFn !== noDefaultValue) {
+          if (propData._internal.defaultFn !== noDefaultValue) {
             changed = true
-            newValue = propData.defaultFn()
-          } else if (propData.defaultValue !== noDefaultValue) {
+            newValue = propData._internal.defaultFn()
+          } else if (propData._internal.defaultValue !== noDefaultValue) {
             changed = true
-            newValue = propData.defaultValue
+            newValue = propData._internal.defaultValue
           }
         }
 

@@ -5,10 +5,11 @@ import {
   ModelPropsToCreationData,
   ModelPropsToData,
   ModelPropsToSetter,
+  ModelPropsToSnapshotCreationData,
+  ModelPropsToSnapshotData,
   ModelPropsToTransformedCreationData,
   ModelPropsToTransformedData,
 } from "../modelShared/prop"
-import type { SnapshotInOfObject, SnapshotOutOfObject } from "../snapshot/SnapshotOf"
 import type { AnyModel, BaseModel, BaseModelKeys, ModelIdPropertyName } from "./BaseModel"
 import type { modelTypeKey } from "./metadata"
 import { assertIsModelClass, isModelClass } from "./utils"
@@ -23,16 +24,13 @@ export type _ComposedCreationData<
 /**
  * The default type used by fromSnapshot before processors are applied.
  */
-export type FromSnapshotDefaultType<TProps extends ModelProps> = SnapshotInOfObject<
-  ModelPropsToCreationData<TProps>
->
+export type FromSnapshotDefaultType<TProps extends ModelProps> =
+  ModelPropsToSnapshotCreationData<TProps>
 
 /**
  * The default type used by getSnapshot before processors are applied.
  */
-export type ToSnapshotDefaultType<TProps extends ModelProps> = SnapshotOutOfObject<
-  ModelPropsToData<TProps>
->
+export type ToSnapshotDefaultType<TProps extends ModelProps> = ModelPropsToSnapshotData<TProps>
 
 export type _ModelId<SuperModel, TProps extends ModelProps> = SuperModel extends AnyModel
   ? ModelIdPropertyName<SuperModel>
@@ -61,7 +59,7 @@ export interface _Model<SuperModel, TProps extends ModelProps, FromSnapshot, ToS
  * Extract the model id property from the model props.
  */
 export type ExtractModelIdProp<TProps extends ModelProps> = {
-  [K in keyof TProps]: TProps[K]["$isId"] extends true ? K : never
+  [K in keyof TProps]: TProps[K]["_internal"]["$isId"] extends true ? K : never
 }[keyof TProps]
 
 /**

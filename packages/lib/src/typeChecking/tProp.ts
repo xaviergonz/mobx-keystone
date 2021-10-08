@@ -128,8 +128,13 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
     hasDefaultValue = true
   }
 
+  const newProp = hasDefaultValue ? prop(def) : prop()
+
   return {
-    ...(hasDefaultValue ? prop(def) : prop()),
-    typeChecker: resolveStandardType(typeOrDefaultValue) as any,
+    ...newProp,
+    _internal: {
+      ...newProp._internal,
+      typeChecker: resolveStandardType(typeOrDefaultValue) as any,
+    },
   }
 }
