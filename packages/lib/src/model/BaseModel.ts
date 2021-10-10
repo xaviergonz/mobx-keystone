@@ -1,15 +1,17 @@
 import { observable } from "mobx"
 import type { O } from "ts-toolbelt"
 import {
-  creationDataTypeSymbol,
-  dataTypeSymbol,
-  fromSnapshotTypeSymbol,
+  fromSnapshotOverrideTypeSymbol,
   ModelClass,
-  toSnapshotTypeSymbol,
-  transformedCreationDataTypeSymbol,
-  transformedDataTypeSymbol,
+  propsTypeSymbol,
+  toSnapshotOverrideTypeSymbol,
 } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
+import type {
+  ModelProps,
+  ModelPropsToData,
+  ModelPropsToTransformedCreationData,
+} from "../modelShared/prop"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import type { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../typeChecking/model"
@@ -38,21 +40,15 @@ export const modelIdPropertyNameSymbol = Symbol()
  * @typeparam ModelIdPropertyName Model id property name.
  */
 export abstract class BaseModel<
-  Data extends { [k: string]: any },
-  CreationData extends { [k: string]: any },
-  TransformedData extends { [k: string]: any },
-  TransformedCreationData extends { [k: string]: any },
-  FromSnapshot extends { [k: string]: any },
-  ToSnapshot extends { [k: string]: any },
+  TProps extends ModelProps,
+  FromSnapshotOverride extends { [k: string]: any },
+  ToSnapshotOverride extends { [k: string]: any },
   ModelIdPropertyName extends string = never
 > {
   // just to make typing work properly
-  [dataTypeSymbol]: Data;
-  [creationDataTypeSymbol]: CreationData;
-  [transformedDataTypeSymbol]: TransformedData;
-  [transformedCreationDataTypeSymbol]: TransformedCreationData;
-  [fromSnapshotTypeSymbol]: FromSnapshot;
-  [toSnapshotTypeSymbol]: ToSnapshot;
+  [propsTypeSymbol]: TProps;
+  [fromSnapshotOverrideTypeSymbol]: FromSnapshotOverride;
+  [toSnapshotOverrideTypeSymbol]: ToSnapshotOverride;
   [modelIdPropertyNameSymbol]: ModelIdPropertyName;
 
   /**
@@ -94,7 +90,7 @@ export abstract class BaseModel<
    * Data part of the model, which is observable and will be serialized in snapshots.
    * Use it if one of the data properties matches one of the model properties/functions.
    */
-  readonly $!: Data
+  readonly $!: ModelPropsToData<TProps>
 
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as
@@ -124,7 +120,7 @@ export abstract class BaseModel<
   /**
    * Creates an instance of a model.
    */
-  constructor(data: TransformedCreationData) {
+  constructor(data: ModelPropsToTransformedCreationData<TProps>) {
     let initialData = data as any
     const { snapshotInitialData, modelClass, generateNewIds }: ModelConstructorOptions =
       arguments[1] as any
@@ -134,12 +130,9 @@ export abstract class BaseModel<
     const self = this as any
 
     // delete unnecessary props
-    delete self[dataTypeSymbol]
-    delete self[creationDataTypeSymbol]
-    delete self[transformedDataTypeSymbol]
-    delete self[transformedCreationDataTypeSymbol]
-    delete self[fromSnapshotTypeSymbol]
-    delete self[toSnapshotTypeSymbol]
+    delete self[propsTypeSymbol]
+    delete self[fromSnapshotOverrideTypeSymbol]
+    delete self[toSnapshotOverrideTypeSymbol]
     delete self[modelIdPropertyNameSymbol]
 
     if (!snapshotInitialData) {
@@ -194,7 +187,7 @@ export const baseModelPropNames = new Set<BaseModelKeys>([
 /**
  * Any kind of model instance.
  */
-export interface AnyModel extends BaseModel<any, any, any, any, any, any, any> {}
+export interface AnyModel extends BaseModel<any, any, any, any> {}
 
 /**
  * @deprecated Should not be needed anymore.

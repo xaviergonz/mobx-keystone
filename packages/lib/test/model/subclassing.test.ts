@@ -81,15 +81,21 @@ test("subclassing with additional props", () => {
   assert(
     _ as CD,
     _ as {
-      x?: number | null
-      y?: number | null
-      z?: number | null
-    } & {
-      a?: number | null
-      b?: number
-    } & {
-      b: number
-    } & Empty
+      x?: number | null | undefined
+      y?: number | null | undefined
+      z?: number | null | undefined
+      a?: number | null | undefined
+      b?: number | undefined
+    } & O.Omit<
+      {
+        x: number | null | undefined
+        y: number | null | undefined
+        z: number | null | undefined
+        a: number | null | undefined
+        b: number
+      },
+      "x" | "y" | "z" | "a"
+    >
   )
 
   const p2 = new P2({ x: 20, b: 70 })
@@ -290,11 +296,18 @@ test("three level subclassing", () => {
       x?: number | null | undefined
       y?: number | null | undefined
       z?: number | null | undefined
-    } & {
       a?: number | null | undefined
-    } & { b?: number } & {
-      b: number
-    } & Empty
+      b?: number | undefined
+    } & O.Omit<
+      {
+        x: number | null | undefined
+        y: number | null | undefined
+        z: number | null | undefined
+        a: number | null | undefined
+        b: number
+      },
+      "x" | "y" | "z" | "a"
+    >
   )
 
   const p2 = new P2({ x: 20, b: 70 })

@@ -1,9 +1,11 @@
-import type { AbstractModelClass, ModelClass } from "../modelShared/BaseModelShared"
+import type {
+  AbstractModelClass,
+  ModelClass,
+  ModelTransformedCreationData,
+} from "../modelShared/BaseModelShared"
 import { sharedInternalModel } from "../modelShared/Model"
-import {
+import type {
   ModelProps,
-  ModelPropsToCreationData,
-  ModelPropsToData,
   ModelPropsToSetter,
   ModelPropsToSnapshotCreationData,
   ModelPropsToSnapshotData,
@@ -11,14 +13,13 @@ import {
   ModelPropsToTransformedData,
 } from "../modelShared/prop"
 import type { AnyModel, BaseModel, BaseModelKeys, ModelIdPropertyName } from "./BaseModel"
-import type { modelTypeKey } from "./metadata"
 import { assertIsModelClass, isModelClass } from "./utils"
 
 export type _ComposedCreationData<
   SuperModel,
   TProps extends ModelProps
-> = SuperModel extends BaseModel<any, any, any, infer TCD, any, any, any>
-  ? ModelPropsToTransformedCreationData<TProps> & TCD
+> = SuperModel extends AnyModel
+  ? ModelPropsToTransformedCreationData<TProps> & ModelTransformedCreationData<SuperModel>
   : ModelPropsToTransformedCreationData<TProps>
 
 /**
@@ -36,21 +37,14 @@ export type _ModelId<SuperModel, TProps extends ModelProps> = SuperModel extends
   ? ModelIdPropertyName<SuperModel>
   : ExtractModelIdProp<TProps> & string
 
-export interface _Model<SuperModel, TProps extends ModelProps, FromSnapshot, ToSnapshot> {
+export interface _Model<
+  SuperModel,
+  TProps extends ModelProps,
+  FromSnapshotOverride,
+  ToSnapshotOverride
+> {
   new (data: _ComposedCreationData<SuperModel, TProps>): SuperModel &
-    BaseModel<
-      ModelPropsToData<TProps>,
-      ModelPropsToCreationData<TProps>,
-      ModelPropsToTransformedData<TProps>,
-      ModelPropsToTransformedCreationData<TProps>,
-      FromSnapshot & {
-        [modelTypeKey]: string
-      },
-      ToSnapshot & {
-        [modelTypeKey]: string
-      },
-      _ModelId<SuperModel, TProps>
-    > &
+    BaseModel<TProps, FromSnapshotOverride, ToSnapshotOverride, _ModelId<SuperModel, TProps>> &
     Omit<ModelPropsToTransformedData<TProps>, BaseModelKeys> &
     ModelPropsToSetter<TProps>
 }
@@ -75,8 +69,8 @@ export function ExtendedModel<
   TProps extends ModelProps,
   TModel extends AnyModel,
   A extends [],
-  FS = FromSnapshotDefaultType<TProps>,
-  TS = ToSnapshotDefaultType<TProps>
+  FS = never,
+  TS = never
 >(
   genFn: (...args: A) => {
     baseModel: AbstractModelClass<TModel>
@@ -98,8 +92,8 @@ export function ExtendedModel<
 export function ExtendedModel<
   TProps extends ModelProps,
   TModel extends AnyModel,
-  FS = FromSnapshotDefaultType<TProps>,
-  TS = ToSnapshotDefaultType<TProps>
+  FS = never,
+  TS = never
 >(
   baseModel: AbstractModelClass<TModel>,
   modelProps: TProps,
@@ -110,8 +104,8 @@ export function ExtendedModel<
 export function ExtendedModel<
   TProps extends ModelProps,
   TModel extends AnyModel,
-  FS = FromSnapshotDefaultType<TProps>,
-  TS = ToSnapshotDefaultType<TProps>
+  FS = never,
+  TS = never
 >(...args: any[]): _Model<TModel, TProps, FS, TS> {
   let baseModel
   let modelProps
@@ -142,12 +136,7 @@ export function ExtendedModel<
  * @param fnModelProps Function that generates model properties.
  * @param modelOptions Model options.
  */
-export function Model<
-  TProps extends ModelProps,
-  A extends [],
-  FS = FromSnapshotDefaultType<TProps>,
-  TS = ToSnapshotDefaultType<TProps>
->(
+export function Model<TProps extends ModelProps, A extends [], FS = never, TS = never>(
   fnModelProps: (...args: A) => TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
 ): _Model<unknown, TProps, FS, TS>
@@ -161,18 +150,13 @@ export function Model<
  * @param modelProps Model properties.
  * @param modelOptions Model options.
  */
-export function Model<
-  TProps extends ModelProps,
-  FS = FromSnapshotDefaultType<TProps>,
-  TS = ToSnapshotDefaultType<TProps>
->(modelProps: TProps, modelOptions?: ModelOptions<TProps, FS, TS>): _Model<unknown, TProps, FS, TS>
+export function Model<TProps extends ModelProps, FS = never, TS = never>(
+  modelProps: TProps,
+  modelOptions?: ModelOptions<TProps, FS, TS>
+): _Model<unknown, TProps, FS, TS>
 
 // base
-export function Model<
-  TProps extends ModelProps,
-  FS = FromSnapshotDefaultType<TProps>,
-  TS = ToSnapshotDefaultType<TProps>
->(
+export function Model<TProps extends ModelProps, FS = never, TS = never>(
   fnModelPropsOrModelProps: (() => TProps) | TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
 ): _Model<unknown, TProps, FS, TS> {
@@ -186,8 +170,8 @@ export function Model<
 function internalModel<
   TProps extends ModelProps,
   TBaseModel extends AnyModel,
-  FS = FromSnapshotDefaultType<TProps>,
-  TS = ToSnapshotDefaultType<TProps>
+  FS = never,
+  TS = never
 >(
   modelProps: TProps,
   baseModel: ModelClass<TBaseModel> | undefined,

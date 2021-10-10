@@ -202,7 +202,13 @@ test("output snapshot processor", () => {
     _ as {
       arr?: number[] | null
       child?: SnapshotInOf<IP4>
-    } & Empty & {
+    } & O.Omit<
+      {
+        arr: number[] | null | undefined
+        child: SnapshotInOf<IP4> | undefined
+      },
+      "arr" | "child"
+    > & {
         [modelTypeKey]: string
       }
   )

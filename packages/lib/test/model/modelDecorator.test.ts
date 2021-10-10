@@ -229,25 +229,26 @@ test("decoratedModel", () => {
     assert(
       _ as SnapshotInOf<Point3d>,
       _ as {
-        [modelIdKey]?: string
-        x?: number | null
-        y?: number
-      } & O.Omit<{ [modelIdKey]: string; x: number | null; y: number }, typeof modelIdKey | "x"> & {
-          z?: number
-        } & O.Omit<{ z: number }, never> & {
+        [modelIdKey]?: string | undefined
+        x?: number | null | undefined
+        y?: number | undefined
+        z?: number | undefined
+      } & O.Omit<
+        {
+          [modelIdKey]: string | undefined
+          x: number | null | undefined
+          y: number
+          z: number
+        },
+        typeof modelIdKey | "x"
+      > & {
           [modelTypeKey]: string
         }
     )
 
     assert(
       _ as SnapshotOutOf<Point3d>,
-      _ as {
-        [modelIdKey]: string
-        x: number
-        y: number
-      } & {
-        z: number
-      } & {
+      _ as O.Omit<{ [modelIdKey]: string; x: number; y: number; z: number }, never> & {
         [modelTypeKey]: string
       }
     )
