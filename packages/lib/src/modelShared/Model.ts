@@ -16,6 +16,7 @@ import { tProp } from "../typeChecking/tProp"
 import type { LateTypeChecker } from "../typeChecking/TypeChecker"
 import { typesUnchecked } from "../typeChecking/unchecked"
 import { assertIsObject, failure, propNameToSetterName } from "../utils"
+import { chainFns } from "../utils/chainFns"
 import { ModelClass, modelInitializedSymbol, ModelTransformedData } from "./BaseModelShared"
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
@@ -363,21 +364,4 @@ function getModelPropsToSnapshotProcessor(
     }
     return newSn
   }
-}
-
-function chainFns<F extends Function>(...fns: (F | undefined)[]): F | undefined {
-  const definedFns = fns.filter((fn) => !!fn)
-  if (definedFns.length <= 0) return undefined
-
-  const chainedFn = (v: any, ...args: any[]) => {
-    let ret = definedFns[0]!(v, ...args)
-
-    for (let i = 1; i < definedFns.length; i++) {
-      ret = definedFns[i]!(ret, ...args)
-    }
-
-    return ret
-  }
-
-  return chainedFn as unknown as F
 }
