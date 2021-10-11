@@ -289,39 +289,9 @@ export function sharedInternalModel<
     }
   }
 
-  let modelPropsFromSnapshotProcessor: FromSnapshotProcessorFn | undefined
+  const modelPropsFromSnapshotProcessor = getModelPropsFromSnapshotProcessor(composedModelProps)
 
-  const propsWithFromSnapshotProcessor = Object.entries(composedModelProps).filter(
-    ([_propName, propData]) => propData._internal.fromSnapshotProcessor
-  )
-  if (propsWithFromSnapshotProcessor.length > 0) {
-    modelPropsFromSnapshotProcessor = (sn) => {
-      const newSn = { ...sn }
-      for (const [propName, propData] of propsWithFromSnapshotProcessor) {
-        if (propData._internal.fromSnapshotProcessor) {
-          newSn[propName] = propData._internal.fromSnapshotProcessor(sn[propName])
-        }
-      }
-      return newSn
-    }
-  }
-
-  let modelPropsToSnapshotProcessor: ToSnapshotProcessorFn | undefined
-
-  const propsWithToSnapshotProcessor = Object.entries(composedModelProps).filter(
-    ([_propName, propData]) => propData._internal.toSnapshotProcessor
-  )
-  if (propsWithToSnapshotProcessor.length > 0) {
-    modelPropsToSnapshotProcessor = (sn) => {
-      const newSn = { ...sn }
-      for (const [propName, propData] of propsWithToSnapshotProcessor) {
-        if (propData._internal.toSnapshotProcessor) {
-          newSn[propName] = propData._internal.toSnapshotProcessor(sn[propName])
-        }
-      }
-      return newSn
-    }
-  }
+  const modelPropsToSnapshotProcessor = getModelPropsToSnapshotProcessor(composedModelProps)
 
   if (fromSnapshotProcessor) {
     const fn = fromSnapshotProcessor
@@ -350,6 +320,49 @@ export function sharedInternalModel<
   CustomBaseModel.toSnapshotProcessor = chainFns(modelPropsToSnapshotProcessor, toSnapshotProcessor)
 
   return CustomBaseModel
+}
+
+function getModelPropsFromSnapshotProcessor(
+  composedModelProps: ModelProps
+): FromSnapshotProcessorFn | undefined {
+  const propsWithFromSnapshotProcessor = Object.entries(composedModelProps).filter(
+    ([_propName, propData]) => propData._internal.fromSnapshotProcessor
+  )
+  if (propsWithFromSnapshotProcessor.length <= 0) {
+    return undefined
+  }
+
+  return (sn) => {
+    const newSn = { ...sn }
+    for (const [propName, propData] of propsWithFromSnapshotProcessor) {
+      if (propData._internal.fromSnapshotProcessor) {
+        newSn[propName] = propData._internal.fromSnapshotProcessor(sn[propName])
+      }
+    }
+    return newSn
+  }
+}
+
+function getModelPropsToSnapshotProcessor(
+  composedModelProps: ModelProps
+): ToSnapshotProcessorFn | undefined {
+  const propsWithToSnapshotProcessor = Object.entries(composedModelProps).filter(
+    ([_propName, propData]) => propData._internal.toSnapshotProcessor
+  )
+
+  if (propsWithToSnapshotProcessor.length <= 0) {
+    return undefined
+  }
+
+  return (sn) => {
+    const newSn = { ...sn }
+    for (const [propName, propData] of propsWithToSnapshotProcessor) {
+      if (propData._internal.toSnapshotProcessor) {
+        newSn[propName] = propData._internal.toSnapshotProcessor(sn[propName])
+      }
+    }
+    return newSn
+  }
 }
 
 function chainFns<F extends Function>(...fns: (F | undefined)[]): F | undefined {
