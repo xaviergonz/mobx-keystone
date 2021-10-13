@@ -1,16 +1,23 @@
 import type { O } from "ts-toolbelt"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
+import { modelTypeKey } from "../model/metadata"
 import { isModelClass } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../modelShared/prop"
-import { failure, lateVal } from "../utils"
+import { isObject, lateVal } from "../utils"
 import { getTypeInfo } from "./getTypeInfo"
 import { resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import {
+  lateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
@@ -55,28 +62,58 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
       const typeName = `Model(${modelInfo.name})`
 
       const dataTypeChecker = getModelMetadata(modelClazz).dataType
-      if (!dataTypeChecker) {
-        throw failure(
-          `type checking cannot be performed over model of type '${modelInfo.name}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
-        )
-      }
+      const resolvedDataTypeChecker = dataTypeChecker
+        ? resolveTypeChecker(dataTypeChecker)
+        : undefined
 
-      return new TypeChecker(
+      const thisTc: TypeChecker = new TypeChecker(
+        TypeCheckerBaseType.Object,
+
         (value, path) => {
           if (!(value instanceof modelClazz)) {
             return new TypeCheckError(path, typeName, value)
           }
 
-          const resolvedTc = resolveTypeChecker(dataTypeChecker)
-          if (!resolvedTc.unchecked) {
-            return resolvedTc.check(value.$, path)
+          if (resolvedDataTypeChecker) {
+            return resolvedDataTypeChecker.check(value.$, path)
           }
 
           return null
         },
         () => typeName,
-        typeInfoGen
+        typeInfoGen,
+
+        (value) => {
+          if (!isObject(value)) {
+            return null
+          }
+
+          if (value[modelTypeKey] !== undefined) {
+            // fast check
+            return value[modelTypeKey] === modelInfo.name ? thisTc : null
+          }
+
+          if (resolvedDataTypeChecker) {
+            return resolvedDataTypeChecker.snapshotType(value) ? thisTc : null
+          }
+
+          // not enough info to be able to tell
+          return null
+        },
+
+        (sn) => {
+          if (sn[modelTypeKey]) {
+            return sn
+          } else {
+            return {
+              ...sn,
+              [modelTypeKey]: modelInfo.name,
+            }
+          }
+        }
       )
+
+      return thisTc
     }, typeInfoGen) as any
 
     cachedModelTypeChecker.set(modelClazz, tc)

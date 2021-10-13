@@ -2,7 +2,7 @@ import { assertIsPrimitive } from "../utils"
 import type { PrimitiveValue } from "../utils/types"
 import { registerStandardType } from "./resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "./schemas"
-import { TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -35,11 +35,19 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
 
   const typeInfoGen: TypeInfoGen = (t) => new LiteralTypeInfo(t, literal)
 
-  return new TypeChecker(
+  const thisTc: TypeChecker = new TypeChecker(
+    TypeCheckerBaseType.Primitive,
+
     (value, path) => (value === literal ? null : new TypeCheckError(path, typeName, value)),
+
     () => typeName,
-    typeInfoGen
-  ) as any
+    typeInfoGen,
+
+    (value) => (value === literal ? thisTc : null),
+    (sn) => sn
+  )
+
+  return thisTc as any
 }
 
 /**
@@ -83,9 +91,15 @@ registerStandardType(null, typesNull)
  * ```
  */
 export const typesBoolean: IdentityType<boolean> = new TypeChecker(
+  TypeCheckerBaseType.Primitive,
+
   (value, path) => (typeof value === "boolean" ? null : new TypeCheckError(path, "boolean", value)),
+
   () => "boolean",
-  (t) => new BooleanTypeInfo(t)
+  (t) => new BooleanTypeInfo(t),
+
+  (value) => (typeof value === "boolean" ? (typesBoolean as any) : null),
+  (sn) => sn
 ) as any
 
 registerStandardType(Boolean, typesBoolean)
@@ -103,9 +117,15 @@ export class BooleanTypeInfo extends TypeInfo {}
  * ```
  */
 export const typesNumber: IdentityType<number> = new TypeChecker(
+  TypeCheckerBaseType.Primitive,
+
   (value, path) => (typeof value === "number" ? null : new TypeCheckError(path, "number", value)),
+
   () => "number",
-  (t) => new NumberTypeInfo(t)
+  (t) => new NumberTypeInfo(t),
+
+  (value) => (typeof value === "number" ? (typesNumber as any) : null),
+  (sn) => sn
 ) as any
 
 registerStandardType(Number, typesNumber)
@@ -123,9 +143,15 @@ export class NumberTypeInfo extends TypeInfo {}
  * ```
  */
 export const typesString: IdentityType<string> = new TypeChecker(
+  TypeCheckerBaseType.Primitive,
+
   (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
+
   () => "string",
-  (t) => new StringTypeInfo(t)
+  (t) => new StringTypeInfo(t),
+
+  (value) => (typeof value === "string" ? (typesString as any) : null),
+  (sn) => sn
 ) as any
 
 registerStandardType(String, typesString)

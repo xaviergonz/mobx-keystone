@@ -1,6 +1,9 @@
 import { action, observable, set } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
+import { resolveTypeChecker } from "../typeChecking/resolveTypeChecker"
+import type { AnyStandardType, TypeToData } from "../typeChecking/schemas"
+import { isLateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 
@@ -41,31 +44,66 @@ export interface FromSnapshotContext {
 }
 
 /**
- * Deserializers a data structure from its snapshot form.
+ * Given a type deserializes a data structure from its snapshot form.
+ *
+ * @typeparam TType Object type.
+ * @param type Type.
+ * @param snapshot Snapshot, even if a primitive.
+ * @param options Options.
+ * @returns The deserialized object.
+ */
+export function fromSnapshot<TType extends AnyStandardType>(
+  type: TType,
+  snapshot: SnapshotInOf<TypeToData<TType>> | SnapshotOutOf<TypeToData<TType>>,
+  options?: Partial<FromSnapshotOptions>
+): TypeToData<TType>
+
+/**
+ * Deserializes a data structure from its snapshot form.
  *
  * @typeparam T Object type.
  * @param snapshot Snapshot, even if a primitive.
- * @param [options] Options.
+ * @param options Options.
  * @returns The deserialized object.
  */
-export let fromSnapshot = <T>(
+export function fromSnapshot<T>(
   snapshot: SnapshotInOf<T> | SnapshotOutOf<T>,
   options?: Partial<FromSnapshotOptions>
-): T => {
-  const opts = {
-    generateNewIds: false,
-    overrideRootModelId: undefined,
-    ...options,
+): T
+
+export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
+  let snapshot: any
+  let options: Partial<FromSnapshotOptions> | undefined
+
+  if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker) {
+    const typeChecker = resolveTypeChecker(arg1)
+    snapshot = typeChecker.fromSnapshotProcessor ? typeChecker.fromSnapshotProcessor(arg2) : arg2
+    options = arg3
+  } else {
+    snapshot = arg1
+    options = arg2
   }
 
-  const ctx: Partial<FromSnapshotContext> = {
-    options: opts,
-  }
-  ctx.snapshotToInitialData = snapshotToInitialData.bind(undefined, ctx as FromSnapshotContext)
-
-  return internalFromSnapshot<T>(snapshot, ctx as FromSnapshotContext)
+  return fromSnapshotAction(snapshot, options)
 }
-fromSnapshot = action("fromSnapshot", fromSnapshot) as any
+
+const fromSnapshotAction = action(
+  "fromSnapshot",
+  <T>(snapshot: SnapshotInOf<T> | SnapshotOutOf<T>, options?: Partial<FromSnapshotOptions>): T => {
+    const opts = {
+      generateNewIds: false,
+      overrideRootModelId: undefined,
+      ...options,
+    }
+
+    const ctx: Partial<FromSnapshotContext> = {
+      options: opts,
+    }
+    ctx.snapshotToInitialData = snapshotToInitialData.bind(undefined, ctx as FromSnapshotContext)
+
+    return internalFromSnapshot<T>(snapshot, ctx as FromSnapshotContext)
+  }
+)
 
 /**
  * @ignore

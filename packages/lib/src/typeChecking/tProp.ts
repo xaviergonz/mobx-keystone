@@ -6,8 +6,9 @@ import {
   prop,
 } from "../modelShared/prop"
 import { typesBoolean, typesNumber, typesString } from "./primitives"
-import { resolveStandardType } from "./resolveTypeChecker"
+import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyType, TypeToData } from "./schemas"
+import { LateTypeChecker, TypeChecker } from "./TypeChecker"
 
 /**
  * Defines a string model property with a default value.
@@ -129,12 +130,26 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
   }
 
   const newProp = hasDefaultValue ? prop(def) : prop()
+  const typeChecker = resolveStandardType(typeOrDefaultValue) as unknown as
+    | TypeChecker
+    | LateTypeChecker
 
   return {
     ...newProp,
     _internal: {
       ...newProp._internal,
-      typeChecker: resolveStandardType(typeOrDefaultValue) as any,
+
+      typeChecker,
+
+      fromSnapshotProcessor: (sn) => {
+        const fsnp = resolveTypeChecker(typeChecker).fromSnapshotProcessor
+        return fsnp ? fsnp(sn) : sn
+      },
+
+      toSnapshotProcessor: (sn) => {
+        const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
+        return tsnp ? tsnp(sn) : sn
+      },
     },
   }
 }

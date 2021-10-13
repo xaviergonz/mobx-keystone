@@ -53,6 +53,8 @@ export function typesRefinement<T extends AnyType>(
     }
 
     const thisTc: TypeChecker = new TypeChecker(
+      baseChecker.baseType,
+
       (data, path) => {
         const baseErr = baseChecker.check(data, path)
         if (baseErr) {
@@ -69,8 +71,14 @@ export function typesRefinement<T extends AnyType>(
           return refinementErr ?? null
         }
       },
+
       getTypeName,
-      typeInfoGen
+      typeInfoGen,
+
+      // we cannot check refinement here since it checks data instances, not snapshots
+      (sn) => baseChecker.snapshotType(sn),
+
+      (sn) => baseChecker.fromSnapshotProcessor(sn)
     )
 
     return thisTc

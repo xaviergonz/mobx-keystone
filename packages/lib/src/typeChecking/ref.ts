@@ -1,9 +1,12 @@
-import { Ref } from "../ref/Ref"
+import { modelTypeKey } from "../model/metadata"
+import { modelInfoByClass } from "../modelShared/modelInfo"
+import { Ref, RefConstructor } from "../ref/Ref"
+import { isObject } from "../utils"
 import { typesObject } from "./object"
 import { typesString } from "./primitives"
 import { resolveTypeChecker } from "./resolveTypeChecker"
 import type { IdentityType } from "./schemas"
-import { TypeChecker, TypeInfo } from "./TypeChecker"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -15,30 +18,63 @@ import { TypeCheckError } from "./TypeCheckError"
  * ```
  *
  * @typeparam O Object or model type.
+ * @param refConstructor Ref object type.
  * @returns
  */
-export function typesRef<O extends object>(): IdentityType<Ref<O>> {
-  return refTypeChecker as any
-}
+export function typesRef<O extends object>(
+  refConstructor: RefConstructor<O>
+): IdentityType<Ref<O>> {
+  const typeName = "Ref"
 
-const typeName = "Ref"
+  const modelInfo = modelInfoByClass.get(refConstructor as any)!
 
-const refDataTypeChecker = typesObject(() => ({
-  id: typesString,
-}))
+  const refDataTypeChecker = resolveTypeChecker(
+    typesObject(() => ({
+      id: typesString,
+    }))
+  )
 
-const refTypeChecker = new TypeChecker(
-  (value, path) => {
-    if (!(value instanceof Ref)) {
-      return new TypeCheckError(path, typeName, value)
+  const thisTc: TypeChecker = new TypeChecker(
+    TypeCheckerBaseType.Object,
+
+    (value, path) => {
+      if (!(value instanceof Ref)) {
+        return new TypeCheckError(path, typeName, value)
+      }
+
+      return refDataTypeChecker.check(value.$, path)
+    },
+
+    () => typeName,
+    (t) => new RefTypeInfo(t),
+
+    (obj) => {
+      if (!isObject(obj)) {
+        return null
+      }
+
+      if (obj[modelTypeKey] !== undefined) {
+        // fast check
+        return obj[modelTypeKey] === modelInfo.name ? thisTc : null
+      }
+
+      return refDataTypeChecker.snapshotType(obj) ? thisTc : null
+    },
+
+    (sn: Record<string, unknown>) => {
+      if (sn[modelTypeKey]) {
+        return sn
+      } else {
+        return {
+          ...sn,
+          [modelTypeKey]: modelInfo.name,
+        }
+      }
     }
+  )
 
-    const resolvedTc = resolveTypeChecker(refDataTypeChecker)
-    return resolvedTc.check(value.$, path)
-  },
-  () => typeName,
-  (t) => new RefTypeInfo(t)
-)
+  return thisTc as any
+}
 
 /**
  * `types.ref` type info.

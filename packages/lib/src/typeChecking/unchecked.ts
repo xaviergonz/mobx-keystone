@@ -1,10 +1,14 @@
 import type { IdentityType } from "./schemas"
-import { TypeChecker, TypeInfo } from "./TypeChecker"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "./TypeChecker"
 
 const unchecked: IdentityType<any> = new TypeChecker(
+  TypeCheckerBaseType.Any,
   null,
   () => "any",
-  (t) => new UncheckedTypeInfo(t)
+  (t) => new UncheckedTypeInfo(t),
+
+  () => unchecked as any,
+  (sn) => sn
 ) as any
 
 /**

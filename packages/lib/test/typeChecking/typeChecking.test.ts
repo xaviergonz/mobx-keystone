@@ -866,8 +866,6 @@ test("cross referenced model", () => {
 })
 
 test("ref", () => {
-  const type = types.ref<M>()
-
   const m = new M({ y: "6" })
   const customR = customRef<M>("customRefM", {
     resolve() {
@@ -878,6 +876,7 @@ test("ref", () => {
     },
   })
   const r = customR(m)
+  const type = types.ref(customR)
   assert(_ as TypeToData<typeof type>, _ as Ref<M>)
 
   expectTypeCheckOk(type, r)

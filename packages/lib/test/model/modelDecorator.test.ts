@@ -154,7 +154,7 @@ test("decoratedModel", () => {
         x?: number | null
         y?: number
       } & O.Omit<{ x: number | null; y: number }, "x"> & {
-          [modelTypeKey]: string
+          [modelTypeKey]?: string
         }
     )
 
@@ -165,7 +165,7 @@ test("decoratedModel", () => {
         x: number
         y: number
       } & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
     )
   }
@@ -242,14 +242,14 @@ test("decoratedModel", () => {
         },
         typeof modelIdKey | "x"
       > & {
-          [modelTypeKey]: string
+          [modelTypeKey]?: string
         }
     )
 
     assert(
       _ as SnapshotOutOf<Point3d>,
       _ as O.Omit<{ [modelIdKey]: string; x: number; y: number; z: number }, never> & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
     )
   }

@@ -456,7 +456,7 @@ test("types", () => {
       [modelIdKey]?: string
       y?: number | null
     } & Empty & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
   )
 
@@ -466,7 +466,7 @@ test("types", () => {
       [modelIdKey]: string
       y: number
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -478,7 +478,7 @@ test("types", () => {
       arr?: number[] | null
       p2?: SnapshotInOf<P2>
     } & Empty & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
   )
 
@@ -490,7 +490,7 @@ test("types", () => {
       arr: number[]
       p2: SnapshotOutOf<P2> | undefined
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -500,7 +500,7 @@ test("types", () => {
       items?: {
         [k: string]: number
       }
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )
@@ -511,7 +511,7 @@ test("types", () => {
       items: {
         [k: string]: number
       }
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )
@@ -520,7 +520,7 @@ test("types", () => {
     _ as SnapshotInOf<ArraySet<number>>,
     _ as {
       items?: number[]
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )
@@ -529,7 +529,7 @@ test("types", () => {
     _ as SnapshotOutOf<ArraySet<number>>,
     _ as {
       items: number[]
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )

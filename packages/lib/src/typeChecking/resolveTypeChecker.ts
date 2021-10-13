@@ -6,6 +6,7 @@ const registeredStandardTypes = new Map<any, AnyStandardType>()
 
 /**
  * @ignore
+ * @internal
  */
 export function registerStandardType(value: any, typeChecker: AnyStandardType) {
   registeredStandardTypes.set(value, typeChecker)
@@ -13,6 +14,7 @@ export function registerStandardType(value: any, typeChecker: AnyStandardType) {
 
 /**
  * @ignore
+ * @internal
  */
 export function resolveTypeChecker(v: AnyType | TypeChecker | LateTypeChecker): TypeChecker {
   let next: TypeChecker | LateTypeChecker = v as any
@@ -33,8 +35,11 @@ export function resolveTypeChecker(v: AnyType | TypeChecker | LateTypeChecker): 
 
 /**
  * @ignore
+ * @internal
  */
-export function resolveStandardType(v: AnyType | TypeChecker | LateTypeChecker): AnyStandardType {
+export function resolveStandardTypeNoThrow(
+  v: AnyType | TypeChecker | LateTypeChecker
+): AnyStandardType | undefined {
   if (v instanceof TypeChecker || isLateTypeChecker(v)) {
     return v as any
   } else {
@@ -42,6 +47,18 @@ export function resolveStandardType(v: AnyType | TypeChecker | LateTypeChecker):
     if (tc) {
       return tc
     }
-    throw failure("standard type could not be resolved")
+    return undefined
   }
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function resolveStandardType(v: AnyType | TypeChecker | LateTypeChecker): AnyStandardType {
+  const tc = resolveStandardTypeNoThrow(v)
+  if (tc) {
+    return tc
+  }
+  throw failure("standard type could not be resolved")
 }

@@ -40,7 +40,7 @@ test("input snapshot processor", () => {
     _ as {
       y: string
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -49,7 +49,7 @@ test("input snapshot processor", () => {
     _ as {
       arr: number[]
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -109,7 +109,7 @@ test("input snapshot processor with original type", () => {
           arr: string[]
         }
     ) & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -118,7 +118,7 @@ test("input snapshot processor with original type", () => {
     _ as {
       arr: number[]
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -209,7 +209,7 @@ test("output snapshot processor", () => {
       },
       "arr" | "child"
     > & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
   )
 
@@ -219,7 +219,7 @@ test("output snapshot processor", () => {
       y: string
       child: SnapshotOutOf<IP4> | undefined
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 

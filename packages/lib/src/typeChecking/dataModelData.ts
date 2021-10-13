@@ -10,7 +10,13 @@ import { failure, lateVal } from "../utils"
 import { getTypeInfo } from "./getTypeInfo"
 import { resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import {
+  lateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "./TypeChecker"
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
 
@@ -65,18 +71,28 @@ export function typesDataModelData<M = never, K = M>(
         )
       }
 
-      return new TypeChecker(
-        (value, path) => {
-          const resolvedTc = resolveTypeChecker(dataTypeChecker)
-          if (!resolvedTc.unchecked) {
-            return resolvedTc.check(value, path)
-          }
+      const resolvedDataTypeChecker = resolveTypeChecker(dataTypeChecker)
 
-          return null
+      const thisTc: TypeChecker = new TypeChecker(
+        TypeCheckerBaseType.Object,
+
+        (value, path) => {
+          return resolvedDataTypeChecker.check(value, path)
         },
+
         () => typeName,
-        typeInfoGen
+        typeInfoGen,
+
+        (value) => {
+          return resolvedDataTypeChecker.snapshotType(value) ? thisTc : null
+        },
+
+        (sn: Record<string, unknown>) => {
+          return resolvedDataTypeChecker.fromSnapshotProcessor(sn)
+        }
       )
+
+      return thisTc
     }, typeInfoGen) as any
 
     cachedDataModelTypeChecker.set(modelClazz, tc)

@@ -2,7 +2,13 @@ import { isObject } from "../utils"
 import { getTypeInfo } from "./getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyStandardType, AnyType, RecordType } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import {
+  lateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -28,8 +34,12 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       `Record<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
     const thisTc: TypeChecker = new TypeChecker(
+      TypeCheckerBaseType.Object,
+
       (obj, path) => {
-        if (!isObject(obj)) return new TypeCheckError(path, getTypeName(thisTc), obj)
+        if (!isObject(obj)) {
+          return new TypeCheckError(path, getTypeName(thisTc), obj)
+        }
 
         if (!valueChecker.unchecked) {
           const keys = Object.keys(obj)
@@ -45,8 +55,44 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
 
         return null
       },
+
       getTypeName,
-      typeInfoGen
+      typeInfoGen,
+
+      (obj) => {
+        if (!isObject(obj)) return null
+
+        if (!valueChecker.unchecked) {
+          const keys = Object.keys(obj)
+          for (let i = 0; i < keys.length; i++) {
+            const k = keys[i]
+            const v = obj[k]
+            const valueActualChecker = valueChecker.snapshotType(v)
+            if (!valueActualChecker) {
+              return null
+            }
+          }
+        }
+
+        return thisTc
+      },
+
+      (obj: Record<string, unknown>) => {
+        if (valueChecker.unchecked) {
+          return obj
+        }
+
+        const newObj: typeof obj = {}
+
+        const keys = Object.keys(obj)
+        for (let i = 0; i < keys.length; i++) {
+          const k = keys[i]
+          const v = valueChecker.fromSnapshotProcessor(obj[k])
+          newObj[k] = v
+        }
+
+        return newObj
+      }
     )
 
     return thisTc

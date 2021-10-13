@@ -1,10 +1,19 @@
+import { modelTypeKey } from "../model/metadata"
+import { modelInfoByClass } from "../modelShared/modelInfo"
+import { isObject } from "../utils"
 import { ArraySet } from "../wrappers/ArraySet"
 import { typesArray } from "./array"
 import { getTypeInfo } from "./getTypeInfo"
 import { typesObject } from "./object"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import {
+  lateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -25,6 +34,8 @@ export function typesArraySet<T extends AnyType>(
   const typeInfoGen: TypeInfoGen = (t) => new ArraySetTypeInfo(t, resolveStandardType(valueType))
 
   return lateTypeChecker(() => {
+    const modelInfo = modelInfoByClass.get(ArraySet)!
+
     const valueChecker = resolveTypeChecker(valueType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
@@ -35,6 +46,8 @@ export function typesArraySet<T extends AnyType>(
     }))
 
     const thisTc: TypeChecker = new TypeChecker(
+      TypeCheckerBaseType.Object, // because it is really a model
+
       (obj, path) => {
         if (!(obj instanceof ArraySet)) {
           return new TypeCheckError(path, getTypeName(thisTc), obj)
@@ -43,8 +56,31 @@ export function typesArraySet<T extends AnyType>(
         const resolvedTc = resolveTypeChecker(dataTypeChecker)
         return resolvedTc.check(obj.$, path)
       },
+
       getTypeName,
-      typeInfoGen
+      typeInfoGen,
+
+      (obj) => {
+        if (!isObject(obj)) {
+          return null
+        }
+
+        if (obj[modelTypeKey] !== undefined) {
+          // fast check
+          return obj[modelTypeKey] === modelInfo.name ? thisTc : null
+        }
+
+        const resolvedTc = resolveTypeChecker(dataTypeChecker)
+        return resolvedTc.snapshotType(obj) ? thisTc : null
+      },
+
+      (sn: { items: unknown[] }) => {
+        return {
+          ...sn,
+          [modelTypeKey]: modelInfo.name,
+          items: sn.items.map((v) => valueChecker.fromSnapshotProcessor(v)),
+        }
+      }
     )
 
     return thisTc

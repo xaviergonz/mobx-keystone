@@ -84,7 +84,7 @@ export type ModelTransformedCreationData<M extends AnyModel | AnyDataModel> =
 export type ModelFromSnapshot<M extends AnyModel> =
   (M[typeof fromSnapshotOverrideTypeSymbol] extends never
     ? ModelPropsToSnapshotCreationData<ModelPropsOf<M>>
-    : M[typeof fromSnapshotOverrideTypeSymbol]) & { [modelTypeKey]: string }
+    : M[typeof fromSnapshotOverrideTypeSymbol]) & { [modelTypeKey]?: string }
 
 /**
  * The to snapshot type of a model.
@@ -93,7 +93,7 @@ export type ModelFromSnapshot<M extends AnyModel> =
 export type ModelToSnapshot<M extends AnyModel> =
   (M[typeof toSnapshotOverrideTypeSymbol] extends never
     ? ModelPropsToSnapshotData<ModelPropsOf<M>>
-    : M[typeof toSnapshotOverrideTypeSymbol]) & { [modelTypeKey]: string }
+    : M[typeof toSnapshotOverrideTypeSymbol]) & { [modelTypeKey]?: string }
 
 /**
  * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.

@@ -57,7 +57,7 @@ test("factory pattern", () => {
       x?: string | null
       y?: string | null
     } & Empty & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
   )
 
@@ -69,7 +69,7 @@ test("factory pattern", () => {
       x: string
       y: string
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -89,7 +89,7 @@ test("factory pattern", () => {
       x?: number | null
       y?: number | null
     } & Empty & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
   )
 
@@ -101,7 +101,7 @@ test("factory pattern", () => {
       x: number
       y: number
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 })

@@ -1,7 +1,7 @@
 import { fastGetParentIncludingDataObjects } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
-import { failure, lateVal } from "../utils"
+import { failure, isArray, isObject, isPrimitive, lateVal } from "../utils"
 import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
 
@@ -16,6 +16,29 @@ const typeCheckersWithCachedResultsOfObject = new WeakMap<object, Set<TypeChecke
 
 /**
  * @ignore
+ * @internal
+ */
+export enum TypeCheckerBaseType {
+  Object = "object",
+  Array = "array",
+  Primitive = "primitive",
+  Any = "any",
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType {
+  if (isObject(value)) return TypeCheckerBaseType.Object
+  else if (isArray(value)) return TypeCheckerBaseType.Array
+  else if (isPrimitive(value)) return TypeCheckerBaseType.Primitive
+  else return TypeCheckerBaseType.Any
+}
+
+/**
+ * @ignore
+ * @internal
  */
 export function invalidateCachedTypeCheckerResult(obj: object) {
   // we need to invalidate it for the object and all its parents
@@ -108,9 +131,14 @@ export class TypeChecker {
   }
 
   constructor(
+    readonly baseType: TypeCheckerBaseType,
     private readonly _check: CheckFunction | null,
     readonly getTypeName: (...recursiveTypeCheckers: TypeChecker[]) => string,
-    typeInfoGen: TypeInfoGen
+    readonly typeInfoGen: TypeInfoGen,
+    readonly snapshotType: (sn: unknown) => TypeChecker | null,
+    readonly fromSnapshotProcessor: (sn: any) => unknown,
+    // TODO: do we need a toSnapshotProcessor?
+    readonly toSnapshotProcessor?: (sn: any) => unknown
   ) {
     this.unchecked = !_check
     this._cachedTypeInfoGen = lateVal(typeInfoGen)
@@ -118,8 +146,8 @@ export class TypeChecker {
 }
 
 /**
- * @internal
  * @ignore
+ * @internal
  */
 export function assertIsTypeChecker(value: unknown): asserts value is TypeChecker {
   if (!(value instanceof TypeChecker)) {
@@ -131,6 +159,7 @@ const lateTypeCheckerSymbol = Symbol("lateTypeCheker")
 
 /**
  * @ignore
+ * @internal
  */
 export interface LateTypeChecker {
   [lateTypeCheckerSymbol]: true
@@ -140,6 +169,7 @@ export interface LateTypeChecker {
 
 /**
  * @ignore
+ * @internal
  */
 export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen): LateTypeChecker {
   let cached: TypeChecker | undefined
@@ -168,6 +198,7 @@ export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen)
 
 /**
  * @ignore
+ * @internal
  */
 export function isLateTypeChecker(ltc: any): ltc is LateTypeChecker {
   return typeof ltc === "function" && ltc[lateTypeCheckerSymbol]
@@ -182,5 +213,6 @@ export class TypeInfo {
 
 /**
  * @ignore
+ * @internal
  */
 export type TypeInfoGen = (t: AnyStandardType) => TypeInfo

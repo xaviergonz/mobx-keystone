@@ -2,7 +2,13 @@ import { isArray, lateVal } from "../utils"
 import { getTypeInfo } from "./getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import {
+  lateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -35,25 +41,46 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
     }
 
     const thisTc: TypeChecker = new TypeChecker(
+      TypeCheckerBaseType.Array,
+
       (array, path) => {
         if (!isArray(array) || array.length !== itemTypes.length) {
           return new TypeCheckError(path, getTypeName(thisTc), array)
         }
 
         for (let i = 0; i < array.length; i++) {
-          const itemChecker = checkers[i]
-          if (!itemChecker.unchecked) {
-            const itemError = itemChecker.check(array[i], [...path, i])
-            if (itemError) {
-              return itemError
-            }
+          const itemError = checkers[i].check(array[i], [...path, i])
+          if (itemError) {
+            return itemError
           }
         }
 
         return null
       },
+
       getTypeName,
-      typeInfoGen
+      typeInfoGen,
+
+      (array) => {
+        if (!isArray(array) || array.length !== itemTypes.length) {
+          return null
+        }
+
+        for (let i = 0; i < array.length; i++) {
+          const itemActualChecker = checkers[i].snapshotType(array[i])
+          if (!itemActualChecker) {
+            return null
+          }
+        }
+
+        return thisTc
+      },
+
+      (array: unknown[]) => {
+        return array.map((item, i) => {
+          return checkers[i].fromSnapshotProcessor(item)
+        })
+      }
     )
 
     return thisTc

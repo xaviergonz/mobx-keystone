@@ -30,7 +30,7 @@ test("input snapshot processor", () => {
     _ as {
       arr?: string
     } & O.Omit<{ arr: string }, never> & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
   )
 
@@ -39,7 +39,7 @@ test("input snapshot processor", () => {
     _ as {
       arr: number[]
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -117,7 +117,7 @@ test("output snapshot processor", () => {
       arr?: number[] | null
       child?: SnapshotInOf<IP4>
     } & O.Omit<{ arr: number[] | null; child: SnapshotInOf<IP4> }, "arr" | "child"> & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
   )
 
@@ -127,7 +127,7 @@ test("output snapshot processor", () => {
       arr: string
       child: SnapshotOutOf<IP4> | undefined
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
