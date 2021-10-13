@@ -1,3 +1,4 @@
+import { getGlobalConfig } from "../globalConfig/globalConfig"
 import { modelTypeKey } from "../model/metadata"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { Ref, RefConstructor } from "../ref/Ref"
@@ -70,6 +71,20 @@ export function typesRef<O extends object>(
           [modelTypeKey]: modelInfo.name,
         }
       }
+    },
+
+    (sn) => {
+      if (!getGlobalConfig().avoidModelTypeInTypedModelSnapshotsIfPossible) {
+        return sn
+      }
+
+      const snCopy = {
+        ...sn,
+      }
+
+      delete snCopy[modelTypeKey]
+
+      return snCopy
     }
   )
 

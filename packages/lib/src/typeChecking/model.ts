@@ -1,4 +1,5 @@
 import type { O } from "ts-toolbelt"
+import { getGlobalConfig } from "../globalConfig/globalConfig"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
 import { modelTypeKey } from "../model/metadata"
@@ -110,6 +111,20 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
               [modelTypeKey]: modelInfo.name,
             }
           }
+        },
+
+        (sn) => {
+          if (!getGlobalConfig().avoidModelTypeInTypedModelSnapshotsIfPossible) {
+            return sn
+          }
+
+          const snCopy = {
+            ...sn,
+          }
+
+          delete snCopy[modelTypeKey]
+
+          return snCopy
         }
       )
 

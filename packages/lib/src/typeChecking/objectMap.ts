@@ -1,3 +1,4 @@
+import { getGlobalConfig } from "../globalConfig/globalConfig"
 import { modelTypeKey } from "../model/metadata"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { isObject } from "../utils"
@@ -85,6 +86,25 @@ export function typesObjectMap<T extends AnyType>(
           [modelTypeKey]: modelInfo.name,
           items: newItems,
         }
+      },
+
+      (sn: { items: Record<string, unknown>; [modelTypeKey]?: string }) => {
+        const newItems: typeof sn["items"] = {}
+
+        for (const k of Object.keys(sn.items)) {
+          newItems[k] = valueChecker.toSnapshotProcessor(sn.items[k])
+        }
+
+        const snCopy = {
+          ...sn,
+          items: newItems,
+        }
+
+        if (getGlobalConfig().avoidModelTypeInTypedModelSnapshotsIfPossible) {
+          delete snCopy[modelTypeKey]
+        }
+
+        return snCopy
       }
     )
 

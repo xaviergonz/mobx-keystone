@@ -78,7 +78,8 @@ export function typesRefinement<T extends AnyType>(
       // we cannot check refinement here since it checks data instances, not snapshots
       (sn) => baseChecker.snapshotType(sn),
 
-      (sn) => baseChecker.fromSnapshotProcessor(sn)
+      (sn) => baseChecker.fromSnapshotProcessor(sn),
+      (sn) => baseChecker.toSnapshotProcessor(sn)
     )
 
     return thisTc

@@ -33,6 +33,26 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Record<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
+    const applySnapshotProcessor = (obj: Record<string, unknown>, mode: "from" | "to") => {
+      if (valueChecker.unchecked) {
+        return obj
+      }
+
+      const newObj: typeof obj = {}
+
+      const keys = Object.keys(obj)
+      for (let i = 0; i < keys.length; i++) {
+        const k = keys[i]
+        const v =
+          mode === "from"
+            ? valueChecker.fromSnapshotProcessor(obj[k])
+            : valueChecker.toSnapshotProcessor(obj[k])
+        newObj[k] = v
+      }
+
+      return newObj
+    }
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
@@ -78,20 +98,11 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       },
 
       (obj: Record<string, unknown>) => {
-        if (valueChecker.unchecked) {
-          return obj
-        }
+        return applySnapshotProcessor(obj, "from")
+      },
 
-        const newObj: typeof obj = {}
-
-        const keys = Object.keys(obj)
-        for (let i = 0; i < keys.length; i++) {
-          const k = keys[i]
-          const v = valueChecker.fromSnapshotProcessor(obj[k])
-          newObj[k] = v
-        }
-
-        return newObj
+      (obj: Record<string, unknown>) => {
+        return applySnapshotProcessor(obj, "to")
       }
     )
 

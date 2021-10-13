@@ -136,12 +136,34 @@ export class TypeChecker {
     readonly getTypeName: (...recursiveTypeCheckers: TypeChecker[]) => string,
     readonly typeInfoGen: TypeInfoGen,
     readonly snapshotType: (sn: unknown) => TypeChecker | null,
-    readonly fromSnapshotProcessor: (sn: any) => unknown,
-    // TODO: do we need a toSnapshotProcessor?
-    readonly toSnapshotProcessor?: (sn: any) => unknown
+    private readonly _fromSnapshotProcessor: (sn: any) => unknown,
+    private readonly _toSnapshotProcessor: (sn: any) => unknown
   ) {
     this.unchecked = !_check
     this._cachedTypeInfoGen = lateVal(typeInfoGen)
+  }
+
+  fromSnapshotProcessor = (sn: any): unknown => {
+    // we cannot cache fromSnapshotProcessor since nobody ensures us
+    // the original snapshot won't be tweaked after use
+    return this._fromSnapshotProcessor(sn)
+  }
+
+  private readonly _toSnapshotProcessorCache = new WeakMap<object, unknown>()
+
+  toSnapshotProcessor = (sn: any): unknown => {
+    if (typeof sn !== "object" || sn === null) {
+      // not cacheable
+      return this._toSnapshotProcessor(sn)
+    }
+
+    if (this._toSnapshotProcessorCache.has(sn)) {
+      return this._toSnapshotProcessorCache.get(sn)
+    }
+
+    const val = this._toSnapshotProcessor(sn)
+    this._toSnapshotProcessorCache.set(sn, val)
+    return val
   }
 }
 

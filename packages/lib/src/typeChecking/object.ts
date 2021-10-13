@@ -39,6 +39,27 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       return `{ ${propsMsg.join(" ")} }`
     }
 
+    const applySnapshotProcessor = (obj: Record<string, unknown>, mode: "from" | "to") => {
+      const newObj: typeof obj = {}
+
+      // note: we allow excess properties when checking objects
+      const keys = Object.keys(obj)
+      for (let i = 0; i < keys.length; i++) {
+        const k = keys[i]
+        const unresolvedTc = objectSchema[k]
+        if (unresolvedTc) {
+          const tc = resolveTypeChecker(unresolvedTc)
+          newObj[k] =
+            mode === "from" ? tc.fromSnapshotProcessor(obj[k]) : tc.toSnapshotProcessor(obj[k])
+        } else {
+          // unknown prop, copy as is
+          newObj[k] = obj[k]
+        }
+      }
+
+      return newObj
+    }
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
@@ -84,23 +105,11 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       },
 
       (obj: Record<string, unknown>) => {
-        const newObj: typeof obj = {}
+        return applySnapshotProcessor(obj, "from")
+      },
 
-        // note: we allow excess properties when checking objects
-        const keys = Object.keys(obj)
-        for (let i = 0; i < keys.length; i++) {
-          const k = keys[i]
-          const unresolvedTc = objectSchema[k]
-          if (unresolvedTc) {
-            const tc = resolveTypeChecker(unresolvedTc)
-            newObj[k] = tc.fromSnapshotProcessor(obj[k])
-          } else {
-            // unknown prop, copy as is
-            newObj[k] = obj[k]
-          }
-        }
-
-        return newObj
+      (obj: Record<string, unknown>) => {
+        return applySnapshotProcessor(obj, "to")
       }
     )
 

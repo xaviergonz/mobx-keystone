@@ -5,6 +5,8 @@ import type { AnyStandardType, IdentityType } from "./schemas"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "./TypeChecker"
 import { TypeCheckError } from "./TypeCheckError"
 
+const identityFn = (x: any) => x
+
 /**
  * A type that represents a certain value of a primitive (for example an *exact* number or string).
  *
@@ -44,7 +46,8 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
     typeInfoGen,
 
     (value) => (value === literal ? thisTc : null),
-    (sn) => sn
+    identityFn,
+    identityFn
   )
 
   return thisTc as any
@@ -99,7 +102,8 @@ export const typesBoolean: IdentityType<boolean> = new TypeChecker(
   (t) => new BooleanTypeInfo(t),
 
   (value) => (typeof value === "boolean" ? (typesBoolean as any) : null),
-  (sn) => sn
+  identityFn,
+  identityFn
 ) as any
 
 registerStandardType(Boolean, typesBoolean)
@@ -125,7 +129,8 @@ export const typesNumber: IdentityType<number> = new TypeChecker(
   (t) => new NumberTypeInfo(t),
 
   (value) => (typeof value === "number" ? (typesNumber as any) : null),
-  (sn) => sn
+  identityFn,
+  identityFn
 ) as any
 
 registerStandardType(Number, typesNumber)
@@ -151,7 +156,8 @@ export const typesString: IdentityType<string> = new TypeChecker(
   (t) => new StringTypeInfo(t),
 
   (value) => (typeof value === "string" ? (typesString as any) : null),
-  (sn) => sn
+  identityFn,
+  identityFn
 ) as any
 
 registerStandardType(String, typesString)

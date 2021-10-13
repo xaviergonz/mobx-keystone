@@ -89,6 +89,10 @@ export function typesDataModelData<M = never, K = M>(
 
         (sn: Record<string, unknown>) => {
           return resolvedDataTypeChecker.fromSnapshotProcessor(sn)
+        },
+
+        (sn: Record<string, unknown>) => {
+          return resolvedDataTypeChecker.toSnapshotProcessor(sn)
         }
       )
 

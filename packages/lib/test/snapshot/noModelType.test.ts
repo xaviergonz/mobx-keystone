@@ -7,13 +7,24 @@ import {
   modelSnapshotInWithMetadata,
   modelSnapshotOutWithMetadata,
   prop,
+  setGlobalConfig,
   SnapshotInOf,
   tProp,
   types,
 } from "../../src"
 import "../commonSetup"
 
+beforeEach(() => {
+  setGlobalConfig({
+    avoidModelTypeInTypedModelSnapshotsIfPossible: false,
+  })
+})
+
 test("model without model type thanks to a tProp", () => {
+  setGlobalConfig({
+    avoidModelTypeInTypedModelSnapshotsIfPossible: true,
+  })
+
   @model("m1/1")
   class M1 extends Model({
     x: prop<number>(),
@@ -35,7 +46,7 @@ test("model without model type thanks to a tProp", () => {
 
   expect(getSnapshot(m2)).toStrictEqual(
     modelSnapshotOutWithMetadata(M2, {
-      m1: modelSnapshotOutWithMetadata(M1, { x: 6 }),
+      m1: { x: 6 },
     })
   )
 
@@ -44,6 +55,24 @@ test("model without model type thanks to a tProp", () => {
       x: 6,
     })
   )
+
+  // getSnapshot with a type
+
+  const sn2 = getSnapshot(types.model(M2), m2)
+  // multiple calls should yield the same result
+  expect(getSnapshot(types.model(M2), m2)).toBe(sn2)
+
+  expect(sn2).toStrictEqual({
+    m1: { x: 6 },
+  })
+
+  const sn1 = getSnapshot(types.model(M1), m2.m1!)
+  // multiple calls should yield the same result
+  expect(getSnapshot(types.model(M1), m2.m1!)).toBe(sn1)
+
+  expect(sn1).toStrictEqual({
+    x: 6,
+  })
 })
 
 test("model without model type thanks to a type passed to fromSnapshot", () => {

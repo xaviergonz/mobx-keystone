@@ -141,10 +141,27 @@ export function typesOr(
       (sn) => {
         const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
         if (!type) {
-          throw failure(`snapshot does not match the following type: ${getTypeName(thisTc)}`)
+          throw failure(
+            `snapshot '${JSON.stringify(sn)}' does not match the following type: ${getTypeName(
+              thisTc
+            )}`
+          )
         }
 
         return type.fromSnapshotProcessor(sn)
+      },
+
+      (sn) => {
+        const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
+        if (!type) {
+          throw failure(
+            `snapshot '${JSON.stringify(sn)}' does not match the following type: ${getTypeName(
+              thisTc
+            )}`
+          )
+        }
+
+        return type.toSnapshotProcessor(sn)
       }
     )
 

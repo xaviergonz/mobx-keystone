@@ -77,6 +77,14 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
         }
 
         return sn.map((item) => itemChecker.fromSnapshotProcessor(item))
+      },
+
+      (sn: unknown[]) => {
+        if (itemChecker.unchecked) {
+          return sn
+        }
+
+        return sn.map((item) => itemChecker.toSnapshotProcessor(item))
       }
     )
 

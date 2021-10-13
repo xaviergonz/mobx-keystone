@@ -1252,7 +1252,9 @@ test("syntax sugar for primitives in tProp", () => {
   expectTypeCheckFail(type, ss, ["undef"], "undefined")
   ss.setUndef(undefined)
 
-  ss.setOr({} as any)
-  expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
+  expect(() => {
+    ss.setOr({} as any)
+    // expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
+  }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
   ss.setOr(5)
 })

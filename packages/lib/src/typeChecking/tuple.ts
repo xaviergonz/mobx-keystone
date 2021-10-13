@@ -80,6 +80,12 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
         return array.map((item, i) => {
           return checkers[i].fromSnapshotProcessor(item)
         })
+      },
+
+      (array: unknown[]) => {
+        return array.map((item, i) => {
+          return checkers[i].toSnapshotProcessor(item)
+        })
       }
     )
 
