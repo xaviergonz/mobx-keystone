@@ -5,23 +5,23 @@ import type { IsOptionalValue } from "../utils/types"
 
 // infer is there just to cache type generation
 
-export interface IdentityType<T> {
+export interface Type<Name, Data> {
   /** @ignore */
-  $$type: "identity"
+  $$type: Name
 
   /** @ignore */
-  $$data: T
+  $$data: Data
 }
 
-export interface ArrayType<S> {
-  /** @ignore */
-  $$type: "array"
+export interface IdentityType<T> extends Type<"identity", T> {}
 
-  /** @ignore */
-  $$data: {
-    [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never
-  }
-}
+export interface ArrayType<S>
+  extends Type<
+    "array",
+    {
+      [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never
+    }
+  > {}
 
 export interface ObjectOfTypes {
   /** @ignore */
@@ -35,36 +35,26 @@ type UndefinablePropsNames<T> = {
   [K in keyof T]: IsOptionalValue<T[K], K, never>
 }[keyof T]
 
-export interface ObjectType<S> {
-  /** @ignore */
-  $$type: "object"
-
-  /** @ignore */
-  $$dataFull: { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never }
-
-  /** @ignore */
-  $$dataOpt: { [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never }
-
-  /** @ignore */
-  $$dataUndefinablePropNames: UndefinablePropsNames<this["$$dataOpt"]>
-
-  /** @ignore */
-  $$data: O.Optional<this["$$dataFull"], this["$$dataUndefinablePropNames"]>
-}
+export interface ObjectType<S>
+  extends Type<
+    "object",
+    O.Optional<
+      { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never },
+      UndefinablePropsNames<{ [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never }>
+    >
+  > {}
 
 export interface ObjectTypeFunction {
   (): ObjectOfTypes
 }
 
-export interface RecordType<S> {
-  /** @ignore */
-  $$type: "record"
-
-  /** @ignore */
-  $$data: {
-    [k: string]: TypeToData<S> extends infer R ? R : never
-  }
-}
+export interface RecordType<S>
+  extends Type<
+    "record",
+    {
+      [k: string]: TypeToData<S> extends infer R ? R : never
+    }
+  > {}
 
 export type AnyStandardType =
   | IdentityType<any>
