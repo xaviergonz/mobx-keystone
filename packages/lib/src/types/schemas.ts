@@ -7,12 +7,18 @@ import type { IsOptionalValue } from "../utils/types"
 
 export interface IdentityType<T> {
   /** @ignore */
-  $$identityType: T
+  $$type: "identity"
+
+  /** @ignore */
+  $$data: T
 }
 
 export interface ArrayType<S> {
   /** @ignore */
-  $$arrayType: {
+  $$type: "array"
+
+  /** @ignore */
+  $$data: {
     [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never
   }
 }
@@ -31,16 +37,19 @@ type UndefinablePropsNames<T> = {
 
 export interface ObjectType<S> {
   /** @ignore */
-  $$objectTypeData: { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never }
+  $$type: "object"
 
   /** @ignore */
-  $$objectTypeOpt: { [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never }
+  $$dataFull: { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never }
 
   /** @ignore */
-  $$objectUndefinablePropNames: UndefinablePropsNames<this["$$objectTypeOpt"]>
+  $$dataOpt: { [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never }
 
   /** @ignore */
-  $$objectType: O.Optional<this["$$objectTypeData"], this["$$objectUndefinablePropNames"]>
+  $$dataUndefinablePropNames: UndefinablePropsNames<this["$$dataOpt"]>
+
+  /** @ignore */
+  $$data: O.Optional<this["$$dataFull"], this["$$dataUndefinablePropNames"]>
 }
 
 export interface ObjectTypeFunction {
@@ -49,7 +58,10 @@ export interface ObjectTypeFunction {
 
 export interface RecordType<S> {
   /** @ignore */
-  $$recordType: {
+  $$type: "record"
+
+  /** @ignore */
+  $$data: {
     [k: string]: TypeToData<S> extends infer R ? R : never
   }
 }
@@ -72,36 +84,30 @@ export type AnyType =
 // type schemas to actual types
 
 export type TypeToData<S> = S extends ObjectTypeFunction
-  ? ObjectType<ReturnType<S>>["$$objectType"] extends infer R
+  ? ObjectType<ReturnType<S>>["$$data"] extends infer R
     ? R
     : never
-  : S extends ObjectType<any>
-  ? S["$$objectType"] extends infer R
+  : S extends { $$data: any }
+  ? S["$$data"] extends infer R
     ? R
     : never
-  : S extends RecordType<any>
-  ? S["$$recordType"] extends infer R
-    ? R
-    : never
-  : S extends ArrayType<any>
-  ? S["$$arrayType"] extends infer R
-    ? R
-    : never
-  : S extends IdentityType<any>
-  ? S["$$identityType"] extends infer R
-    ? R
-    : never
-  : S extends StringConstructor // String
+  : // String
+  S extends StringConstructor
   ? string
-  : S extends NumberConstructor // Number
+  : // Number
+  S extends NumberConstructor
   ? number
-  : S extends BooleanConstructor // Boolean
+  : // Boolean
+  S extends BooleanConstructor
   ? boolean
-  : S extends null // null
+  : // null
+  S extends null
   ? null
-  : S extends undefined // undefined
+  : // undefined
+  S extends undefined
   ? undefined
-  : never // anything else
+  : // anything else
+    never
 
 /** @ignore */
-export type TypeToDataOpt<S> = S extends IdentityType<any> ? S["$$identityType"] & undefined : never
+export type TypeToDataOpt<S> = S extends IdentityType<any> ? S["$$data"] & undefined : never
