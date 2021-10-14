@@ -1,6 +1,6 @@
 import { ArrayTypeInfo, typesArray } from "./arrayBased/array"
-import { ArraySetTypeInfo, typesArraySet } from "./arrayBased/arraySet"
 import { TupleTypeInfo, typesTuple } from "./arrayBased/tuple"
+import { ArraySetTypeInfo, typesArraySet } from "./objectBased/arraySet"
 import { typesDataModelData } from "./objectBased/dataModelData"
 import { ModelTypeInfo, ModelTypeInfoProps, typesModel } from "./objectBased/model"
 import {
