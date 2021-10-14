@@ -1,15 +1,15 @@
-import { isArray } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType, ArrayType } from "./schemas"
+import { isArray } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-} from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 /**
  * A type that represents an array of values of a given type.

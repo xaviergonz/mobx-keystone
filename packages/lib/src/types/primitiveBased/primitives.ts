@@ -1,9 +1,9 @@
-import { assertIsPrimitive } from "../utils"
-import type { PrimitiveValue } from "../utils/types"
-import { registerStandardType } from "./resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "./schemas"
-import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { assertIsPrimitive } from "../../utils"
+import type { PrimitiveValue } from "../../utils/types"
+import { registerStandardType } from "../resolveTypeChecker"
+import type { AnyStandardType, IdentityType } from "../schemas"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 const identityFn = (x: any) => x
 

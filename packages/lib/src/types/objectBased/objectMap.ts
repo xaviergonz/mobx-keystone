@@ -1,21 +1,21 @@
-import { getGlobalConfig } from "../globalConfig/globalConfig"
-import { modelTypeKey } from "../model/metadata"
-import { modelInfoByClass } from "../modelShared/modelInfo"
-import { isObject } from "../utils"
-import { ObjectMap } from "../wrappers/ObjectMap"
-import { getTypeInfo } from "./getTypeInfo"
-import { typesObject } from "./object"
-import { typesRecord } from "./record"
-import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "./schemas"
+import { getGlobalConfig } from "../../globalConfig/globalConfig"
+import { modelTypeKey } from "../../model/metadata"
+import { modelInfoByClass } from "../../modelShared/modelInfo"
+import { isObject } from "../../utils"
+import { ObjectMap } from "../../wrappers/ObjectMap"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-} from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
+import { typesObject } from "./object"
+import { typesRecord } from "./record"
 
 /**
  * A type that represents an object-like map ObjectMap.

@@ -4,9 +4,9 @@ import { modelIdKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { idProp } from "../modelShared/prop"
-import { typesArray } from "../typeChecking/array"
-import { tProp } from "../typeChecking/tProp"
-import { typesUnchecked } from "../typeChecking/unchecked"
+import { typesArray } from "../types/arrayBased/array"
+import { tProp } from "../types/tProp"
+import { typesUnchecked } from "../types/utility/unchecked"
 
 /**
  * A set that is backed by an array.

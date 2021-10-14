@@ -1,6 +1,6 @@
 import type { O } from "ts-toolbelt"
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
-import type { LateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
+import type { LateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { getOrCreate } from "../utils/mapUtils"
 import type { IsOptionalValue } from "../utils/types"
 

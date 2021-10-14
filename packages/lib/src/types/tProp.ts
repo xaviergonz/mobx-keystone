@@ -5,7 +5,7 @@ import {
   OptionalModelProp,
   prop,
 } from "../modelShared/prop"
-import { typesBoolean, typesNumber, typesString } from "./primitives"
+import { typesBoolean, typesNumber, typesString } from "./primitiveBased/primitives"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyType, TypeToData } from "./schemas"
 import { LateTypeChecker, TypeChecker } from "./TypeChecker"

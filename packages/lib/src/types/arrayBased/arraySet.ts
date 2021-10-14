@@ -1,21 +1,21 @@
-import { getGlobalConfig } from "../globalConfig/globalConfig"
-import { modelTypeKey } from "../model/metadata"
-import { modelInfoByClass } from "../modelShared/modelInfo"
-import { isObject } from "../utils"
-import { ArraySet } from "../wrappers/ArraySet"
-import { typesArray } from "./array"
-import { getTypeInfo } from "./getTypeInfo"
-import { typesObject } from "./object"
-import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "./schemas"
+import { getGlobalConfig } from "../../globalConfig/globalConfig"
+import { modelTypeKey } from "../../model/metadata"
+import { modelInfoByClass } from "../../modelShared/modelInfo"
+import { isObject } from "../../utils"
+import { ArraySet } from "../../wrappers/ArraySet"
+import { getTypeInfo } from "../getTypeInfo"
+import { typesObject } from "../objectBased/object"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-} from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
+import { typesArray } from "./array"
 
 /**
  * A type that represents an array backed set ArraySet.

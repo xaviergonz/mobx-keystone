@@ -1,9 +1,9 @@
 import { action, observable, set } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
-import { resolveTypeChecker } from "../typeChecking/resolveTypeChecker"
-import type { AnyStandardType, TypeToData } from "../typeChecking/schemas"
-import { isLateTypeChecker, TypeChecker } from "../typeChecking/TypeChecker"
+import { resolveTypeChecker } from "../types/resolveTypeChecker"
+import type { AnyStandardType, TypeToData } from "../types/schemas"
+import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 

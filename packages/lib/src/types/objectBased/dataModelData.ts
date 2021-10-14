@@ -1,22 +1,22 @@
 import type { O } from "ts-toolbelt"
-import type { AnyDataModel } from "../dataModel/BaseDataModel"
-import { getDataModelMetadata } from "../dataModel/getDataModelMetadata"
-import { isDataModelClass } from "../dataModel/utils"
-import type { ModelClass, ModelData } from "../modelShared/BaseModelShared"
-import { modelInfoByClass } from "../modelShared/modelInfo"
-import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
-import { noDefaultValue } from "../modelShared/prop"
-import { failure, lateVal } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "./schemas"
+import type { AnyDataModel } from "../../dataModel/BaseDataModel"
+import { getDataModelMetadata } from "../../dataModel/getDataModelMetadata"
+import { isDataModelClass } from "../../dataModel/utils"
+import type { ModelClass, ModelData } from "../../modelShared/BaseModelShared"
+import { modelInfoByClass } from "../../modelShared/modelInfo"
+import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
+import { noDefaultValue } from "../../modelShared/prop"
+import { failure, lateVal } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, IdentityType } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-} from "./TypeChecker"
+} from "../TypeChecker"
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
 

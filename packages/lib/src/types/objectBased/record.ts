@@ -1,15 +1,15 @@
-import { isObject } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType, RecordType } from "./schemas"
+import { isObject } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType, RecordType } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-} from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 /**
  * A type that represents an object-like map, an object with string keys and values all of a same given type.

@@ -1,11 +1,11 @@
-import { failure, lateVal } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
+import { failure, lateVal } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
 import {
   resolveStandardType,
   resolveStandardTypeNoThrow,
   resolveTypeChecker,
-} from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType } from "./schemas"
+} from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType } from "../schemas"
 import {
   getTypeCheckerBaseTypeFromValue,
   lateTypeChecker,
@@ -13,8 +13,8 @@ import {
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-} from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 import { typesUnchecked } from "./unchecked"
 
 /**

@@ -49,7 +49,7 @@ import {
   TypeToData,
   UncheckedTypeInfo,
 } from "../../src"
-import { resolveStandardType } from "../../src/typeChecking/resolveTypeChecker"
+import { resolveStandardType } from "../../src/types/resolveTypeChecker"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 

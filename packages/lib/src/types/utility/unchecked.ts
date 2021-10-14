@@ -1,5 +1,5 @@
-import type { IdentityType } from "./schemas"
-import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "./TypeChecker"
+import type { IdentityType } from "../schemas"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
 
 const identityFn = (x: any) => x
 

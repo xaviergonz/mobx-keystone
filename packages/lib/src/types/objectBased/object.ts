@@ -1,9 +1,9 @@
 import type { O } from "ts-toolbelt"
-import { Frozen } from "../frozen/Frozen"
-import { assertIsFunction, assertIsObject, isObject, lateVal } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType, ObjectType, ObjectTypeFunction } from "./schemas"
+import { Frozen } from "../../frozen/Frozen"
+import { assertIsFunction, assertIsObject, isObject, lateVal } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType, ObjectType, ObjectTypeFunction } from "../schemas"
 import {
   lateTypeChecker,
   LateTypeChecker,
@@ -11,8 +11,8 @@ import {
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-} from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")

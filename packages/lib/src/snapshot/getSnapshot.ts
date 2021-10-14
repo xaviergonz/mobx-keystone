@@ -1,6 +1,6 @@
 import { assertTweakedObject } from "../tweaker/core"
-import { resolveTypeChecker } from "../typeChecking/resolveTypeChecker"
-import { AnyType, TypeToData } from "../typeChecking/schemas"
+import { resolveTypeChecker } from "../types/resolveTypeChecker"
+import { AnyType, TypeToData } from "../types/schemas"
 import { failure, isPrimitive } from "../utils"
 import { getInternalSnapshot, reportInternalSnapshotObserved } from "./internal"
 import type { SnapshotOutOf } from "./SnapshotOf"

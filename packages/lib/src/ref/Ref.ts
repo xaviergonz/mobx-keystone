@@ -2,8 +2,8 @@ import { computed } from "mobx"
 import { modelTypeKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { typesString } from "../typeChecking/primitives"
-import { tProp } from "../typeChecking/tProp"
+import { typesString } from "../types/primitiveBased/primitives"
+import { tProp } from "../types/tProp"
 import { failure } from "../utils"
 
 /**

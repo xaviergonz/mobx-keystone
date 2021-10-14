@@ -4,9 +4,9 @@ import { modelIdKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { idProp } from "../modelShared/prop"
-import { typesRecord } from "../typeChecking/record"
-import { tProp } from "../typeChecking/tProp"
-import { typesUnchecked } from "../typeChecking/unchecked"
+import { typesRecord } from "../types/objectBased/record"
+import { tProp } from "../types/tProp"
+import { typesUnchecked } from "../types/utility/unchecked"
 
 /**
  * A map that is backed by an object-like map.
