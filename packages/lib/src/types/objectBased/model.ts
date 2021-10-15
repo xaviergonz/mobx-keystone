@@ -11,7 +11,7 @@ import { noDefaultValue } from "../../modelShared/prop"
 import { isObject, lateVal } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "../schemas"
+import type { AnyStandardType, ModelType } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -40,7 +40,7 @@ type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
  * @param modelClass Model class.
  * @returns
  */
-export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): IdentityType<K> {
+export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): ModelType<K> {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isModelClass(modelClass) && typeof modelClass === "function") {

@@ -15,6 +15,8 @@ export interface Type<Name, Data> {
 
 export interface IdentityType<T> extends Type<"identity", T> {}
 
+export interface ModelType<M> extends Type<"model", M> {}
+
 export interface ArrayType<S>
   extends Type<
     "array",
@@ -58,6 +60,7 @@ export interface RecordType<S>
 
 export type AnyStandardType =
   | IdentityType<any>
+  | ModelType<any>
   | ArrayType<any>
   | ObjectType<any>
   | RecordType<any>

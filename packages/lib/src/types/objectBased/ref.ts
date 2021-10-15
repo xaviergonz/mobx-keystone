@@ -5,7 +5,7 @@ import { Ref, RefConstructor } from "../../ref/Ref"
 import { isObject } from "../../utils"
 import { typesString } from "../primitiveBased/primitives"
 import { resolveTypeChecker } from "../resolveTypeChecker"
-import type { IdentityType } from "../schemas"
+import type { ModelType } from "../schemas"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
 import { typesObject } from "./object"
@@ -22,9 +22,7 @@ import { typesObject } from "./object"
  * @param refConstructor Ref object type.
  * @returns
  */
-export function typesRef<O extends object>(
-  refConstructor: RefConstructor<O>
-): IdentityType<Ref<O>> {
+export function typesRef<O extends object>(refConstructor: RefConstructor<O>): ModelType<Ref<O>> {
   const typeName = "Ref"
 
   const modelInfo = modelInfoByClass.get(refConstructor as any)!

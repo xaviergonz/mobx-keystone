@@ -5,7 +5,7 @@ import { isObject } from "../../utils"
 import { ObjectMap } from "../../wrappers/ObjectMap"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "../schemas"
+import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -31,7 +31,7 @@ import { typesRecord } from "./record"
  */
 export function typesObjectMap<T extends AnyType>(
   valueType: T
-): IdentityType<ObjectMap<TypeToData<T>>> {
+): ModelType<ObjectMap<TypeToData<T>>> {
   const typeInfoGen: TypeInfoGen = (t) => new ObjectMapTypeInfo(t, resolveStandardType(valueType))
 
   return lateTypeChecker(() => {

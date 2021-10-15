@@ -6,7 +6,7 @@ import { ArraySet } from "../../wrappers/ArraySet"
 import { typesArray } from "../arrayBased/array"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType, AnyType, IdentityType, TypeToData } from "../schemas"
+import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -29,9 +29,7 @@ import { typesObject } from "./object"
  * @param valueType Value type.
  * @returns
  */
-export function typesArraySet<T extends AnyType>(
-  valueType: T
-): IdentityType<ArraySet<TypeToData<T>>> {
+export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArraySet<TypeToData<T>>> {
   const typeInfoGen: TypeInfoGen = (t) => new ArraySetTypeInfo(t, resolveStandardType(valueType))
 
   return lateTypeChecker(() => {
