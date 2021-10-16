@@ -1,6 +1,7 @@
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
 import type { modelTypeKey } from "../model/metadata"
+import type { IsNeverType } from "../utils/types"
 import type {
   ModelPropsToCreationData,
   ModelPropsToSnapshotCreationData,
@@ -81,19 +82,21 @@ export type ModelTransformedCreationData<M extends AnyModel | AnyDataModel> =
  * The from snapshot type of a model.
  * Use SnapshotInOf<Model> instead.
  */
-export type ModelFromSnapshot<M extends AnyModel> =
-  (M[typeof fromSnapshotOverrideTypeSymbol] extends never
-    ? ModelPropsToSnapshotCreationData<ModelPropsOf<M>>
-    : M[typeof fromSnapshotOverrideTypeSymbol]) & { [modelTypeKey]?: string }
+export type ModelFromSnapshot<M extends AnyModel> = IsNeverType<
+  M[typeof fromSnapshotOverrideTypeSymbol],
+  ModelPropsToSnapshotCreationData<ModelPropsOf<M>>,
+  M[typeof fromSnapshotOverrideTypeSymbol]
+> & { [modelTypeKey]?: string }
 
 /**
  * The to snapshot type of a model.
  * Use SnapshotOutOf<Model> instead.
  */
-export type ModelToSnapshot<M extends AnyModel> =
-  (M[typeof toSnapshotOverrideTypeSymbol] extends never
-    ? ModelPropsToSnapshotData<ModelPropsOf<M>>
-    : M[typeof toSnapshotOverrideTypeSymbol]) & { [modelTypeKey]?: string }
+export type ModelToSnapshot<M extends AnyModel> = IsNeverType<
+  M[typeof toSnapshotOverrideTypeSymbol],
+  ModelPropsToSnapshotData<ModelPropsOf<M>>,
+  M[typeof toSnapshotOverrideTypeSymbol]
+> & { [modelTypeKey]?: string }
 
 /**
  * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.

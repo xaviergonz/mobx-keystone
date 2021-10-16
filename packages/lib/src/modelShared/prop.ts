@@ -2,7 +2,7 @@ import type { O } from "ts-toolbelt"
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
 import type { LateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { getOrCreate } from "../utils/mapUtils"
-import type { IsOptionalValue } from "../utils/types"
+import type { IsNeverType, IsOptionalValue } from "../utils/types"
 
 /**
  * @ignore
@@ -126,18 +126,20 @@ export interface ModelProp<
 /**
  * The snapshot in type of a model property.
  */
-export type ModelPropFromSnapshot<MP extends AnyModelProp> =
-  MP["_internal"]["$fromSnapshotOverride"] extends never
-    ? SnapshotInOf<MP["_internal"]["$creationValueType"]>
-    : MP["_internal"]["$fromSnapshotOverride"]
+export type ModelPropFromSnapshot<MP extends AnyModelProp> = IsNeverType<
+  MP["_internal"]["$fromSnapshotOverride"],
+  SnapshotInOf<MP["_internal"]["$creationValueType"]>,
+  MP["_internal"]["$fromSnapshotOverride"]
+>
 
 /**
  * The snapshot out type of a model property.
  */
-export type ModelPropToSnapshot<MP extends AnyModelProp> =
-  MP["_internal"]["$toSnapshotOverride"] extends never
-    ? SnapshotOutOf<MP["_internal"]["$valueType"]>
-    : MP["_internal"]["$toSnapshotOverride"]
+export type ModelPropToSnapshot<MP extends AnyModelProp> = IsNeverType<
+  MP["_internal"]["$toSnapshotOverride"],
+  SnapshotOutOf<MP["_internal"]["$valueType"]>,
+  MP["_internal"]["$toSnapshotOverride"]
+>
 
 /**
  * A model prop transform.
@@ -198,9 +200,11 @@ export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = {
     [k in keyof MP]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
   },
   {
-    [K in keyof MP]: MP[K]["_internal"]["$fromSnapshotOverride"] extends never
-      ? MP[K]["_internal"]["$isOptional"] & K
-      : IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
+    [K in keyof MP]: IsNeverType<
+      MP[K]["_internal"]["$fromSnapshotOverride"],
+      MP[K]["_internal"]["$isOptional"] & K,
+      IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
+    >
   }[keyof MP]
 >
 

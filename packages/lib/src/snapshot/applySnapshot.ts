@@ -13,7 +13,7 @@ import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
-import type { SnapshotInOf } from "./SnapshotOf"
+import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -22,7 +22,18 @@ import type { SnapshotInOf } from "./SnapshotOf"
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<T>): void {
+export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<T>): void
+
+/**
+ * Applies a full snapshot over an object, reconciling it with the current contents of the object.
+ *
+ * @typeparam T Object type.
+ * @param node Target object (model object, object or array).
+ * @param snapshot Snapshot to apply.
+ */
+export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf<T>): void
+
+export function applySnapshot<T extends object>(node: T, snapshot: unknown): void {
   assertTweakedObject(node, "node")
   assertIsObject(snapshot, "snapshot")
 
@@ -33,7 +44,10 @@ export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<
  * @ignore
  * @internal
  */
-export function internalApplySnapshot<T extends object>(this: T, sn: SnapshotInOf<T>): void {
+export function internalApplySnapshot<T extends object>(
+  this: T,
+  sn: SnapshotInOf<T> | SnapshotOutOf<T>
+): void {
   const obj = this
 
   const reconcile = () => {

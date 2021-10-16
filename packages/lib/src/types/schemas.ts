@@ -1,5 +1,6 @@
 import type { O } from "ts-toolbelt"
-import type { IsOptionalValue } from "../utils/types"
+import type { snapshotInOverrideSymbol, snapshotOutOverrideSymbol } from "../snapshot/SnapshotOf"
+import type { IsNeverType, IsOptionalValue } from "../utils/types"
 
 // type schemas
 
@@ -12,12 +13,27 @@ export interface Type<Name, Data> {
   /** @ignore */
   $$data: Data
 }
+export interface SnapshotProcessorType<TType, SnapshotInOverride, SnapshotOutOverride>
+  extends Type<
+    "snapshotProcessor",
+    TypeToData<TType> &
+      IsNeverType<
+        SnapshotInOverride,
+        unknown,
+        { [snapshotInOverrideSymbol]?: { [snapshotInOverrideSymbol]: SnapshotInOverride } }
+      > &
+      IsNeverType<
+        SnapshotOutOverride,
+        unknown,
+        { [snapshotOutOverrideSymbol]?: { [snapshotOutOverrideSymbol]: SnapshotOutOverride } }
+      >
+  > {}
 
-export interface IdentityType<T> extends Type<"identity", T> {}
+export interface IdentityType<Data> extends Type<"identity", Data> {}
 
-export interface ModelType<M> extends Type<"model", M> {}
+export interface ModelType<Model> extends Type<"model", Model> {}
 
-export interface ArrayType<S>
+export interface ArrayType<S> // e.g. S = someType[] or [someType, someType]
   extends Type<
     "array",
     {
@@ -64,6 +80,7 @@ export type AnyStandardType =
   | ArrayType<any>
   | ObjectType<any>
   | RecordType<any>
+  | SnapshotProcessorType<any, any, any>
   | ObjectTypeFunction
 
 export type AnyType =
@@ -103,4 +120,4 @@ export type TypeToData<S> = S extends ObjectTypeFunction
     never
 
 /** @ignore */
-export type TypeToDataOpt<S> = S extends IdentityType<any> ? S["$$data"] & undefined : never
+export type TypeToDataOpt<S> = S extends { $$data: infer D } ? D & undefined : never

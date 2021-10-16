@@ -1,10 +1,4 @@
-import {
-  AnyModelProp,
-  MaybeOptionalModelProp,
-  OnlyPrimitives,
-  OptionalModelProp,
-  prop,
-} from "../modelShared/prop"
+import { AnyModelProp, MaybeOptionalModelProp, OptionalModelProp, prop } from "../modelShared/prop"
 import { typesBoolean, typesNumber, typesString } from "./primitiveBased/primitives"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyType, TypeToData } from "./schemas"
@@ -93,7 +87,7 @@ export function tProp<TType extends AnyType>(
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  defaultValue: OnlyPrimitives<TypeToData<TType>>
+  defaultValue: TypeToData<TType>
 ): OptionalModelProp<TypeToData<TType>>
 
 /**

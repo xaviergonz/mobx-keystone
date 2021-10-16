@@ -4,6 +4,12 @@ import type { modelIdKey, modelTypeKey } from "../model/metadata"
 import type { ModelFromSnapshot, ModelToSnapshot } from "../modelShared/BaseModelShared"
 import type { ArraySet, ObjectMap } from "../wrappers"
 
+/** @ignore */
+export declare const snapshotOutOverrideSymbol: unique symbol
+
+/** @ignore */
+export declare const snapshotInOverrideSymbol: unique symbol
+
 // snapshot out
 
 // infer is there just to cache type generation
@@ -31,7 +37,7 @@ export interface SnapshotOutOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type SnapshotOutOf<T> = T extends ObjectMap<infer V>
+type _SnapshotOutOf<T> = T extends ObjectMap<infer V>
   ? SnapshotOutOfObjectMap<V> extends infer R
     ? R
     : never
@@ -52,6 +58,12 @@ export type SnapshotOutOf<T> = T extends ObjectMap<infer V>
     ? R
     : never
   : T
+
+export type SnapshotOutOf<T> = T extends { [snapshotOutOverrideSymbol]?: infer O }
+  ? O extends { [snapshotOutOverrideSymbol]: infer O2 }
+    ? O2
+    : _SnapshotOutOf<T>
+  : _SnapshotOutOf<T>
 
 // snapshot in
 
@@ -78,7 +90,7 @@ export interface SnapshotInOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type SnapshotInOf<T> = T extends ObjectMap<infer V>
+type _SnapshotInOf<T> = T extends ObjectMap<infer V>
   ? SnapshotInOfObjectMap<V> extends infer R
     ? R
     : never
@@ -99,3 +111,9 @@ export type SnapshotInOf<T> = T extends ObjectMap<infer V>
     ? R
     : never
   : T
+
+export type SnapshotInOf<T> = T extends { [snapshotInOverrideSymbol]?: infer O }
+  ? O extends { [snapshotInOverrideSymbol]: infer O2 }
+    ? O2
+    : _SnapshotInOf<T>
+  : _SnapshotInOf<T>

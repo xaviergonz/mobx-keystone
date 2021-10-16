@@ -54,7 +54,7 @@ export interface FromSnapshotContext {
  */
 export function fromSnapshot<TType extends AnyStandardType>(
   type: TType,
-  snapshot: SnapshotInOf<TypeToData<TType>> | SnapshotOutOf<TypeToData<TType>>,
+  snapshot: SnapshotInOf<TypeToData<TType>>,
   options?: Partial<FromSnapshotOptions>
 ): TypeToData<TType>
 
