@@ -3,7 +3,7 @@ import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import { AnyType, TypeToData } from "../types/schemas"
 import { failure, isPrimitive } from "../utils"
 import { getInternalSnapshot, reportInternalSnapshotObserved } from "./internal"
-import type { SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotOutOf, _SnapshotOutOf } from "./SnapshotOf"
 
 const identityFn = (x: any) => x
 
@@ -30,7 +30,7 @@ export function getSnapshot<T extends AnyType>(
  * @param nodeOrPrimitive Data structure, including primtives.
  * @returns The snapshot.
  */
-export function getSnapshot<T>(nodeOrPrimitive: T): SnapshotOutOf<T>
+export function getSnapshot<T>(nodeOrPrimitive: T): _SnapshotOutOf<T>
 
 export function getSnapshot(arg1: any, arg2?: any): any {
   let toSnapshotProcessor = identityFn

@@ -5,7 +5,13 @@ import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
-import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
+import type {
+  SnapshotInOf,
+  SnapshotInOfModel,
+  SnapshotOutOf,
+  _SnapshotInOf,
+  _SnapshotOutOf,
+} from "./SnapshotOf"
 
 /**
  * @ignore
@@ -89,7 +95,10 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
 
 const fromSnapshotAction = action(
   "fromSnapshot",
-  <T>(snapshot: SnapshotInOf<T> | SnapshotOutOf<T>, options?: Partial<FromSnapshotOptions>): T => {
+  <T>(
+    snapshot: _SnapshotInOf<T> | _SnapshotOutOf<T>,
+    options?: Partial<FromSnapshotOptions>
+  ): T => {
     const opts = {
       generateNewIds: false,
       overrideRootModelId: undefined,

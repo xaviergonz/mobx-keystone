@@ -33,7 +33,7 @@ export interface SnapshotOutOfArraySet<V> {
   [modelIdKey]: string
 }
 
-type _SnapshotOutOf<T> = T extends ObjectMap<infer V>
+export type _SnapshotOutOf<T> = T extends ObjectMap<infer V>
   ? SnapshotOutOfObjectMap<V> extends infer R
     ? R
     : never
@@ -86,7 +86,7 @@ export interface SnapshotInOfArraySet<V> {
   [modelIdKey]: string
 }
 
-type _SnapshotInOf<T> = T extends ObjectMap<infer V>
+export type _SnapshotInOf<T> = T extends ObjectMap<infer V>
   ? SnapshotInOfObjectMap<V> extends infer R
     ? R
     : never

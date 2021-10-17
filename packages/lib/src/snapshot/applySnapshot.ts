@@ -8,12 +8,12 @@ import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel, isModelSnapshot } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName } from "../modelShared/modelInfo"
+import { getModelInfoForName, modelInfoByClass } from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
-import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotInOf, SnapshotOutOf, _SnapshotInOf, _SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -22,7 +22,7 @@ import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<T>): void
+export function applySnapshot<T extends object>(node: T, snapshot: _SnapshotInOf<T>): void
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -31,7 +31,7 @@ export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf<T>): void
+export function applySnapshot<T extends object>(node: T, snapshot: _SnapshotOutOf<T>): void
 
 export function applySnapshot(node: object, snapshot: unknown): void {
   assertTweakedObject(node, "node")
@@ -71,6 +71,12 @@ export function internalApplySnapshot<T extends object>(
 
   if (isFrozenSnapshot(sn)) {
     throw failure("applySnapshot cannot be used over frozen objects")
+  }
+
+  // adapt snapshot to target model if possible
+  if (isPlainObject(sn) && (sn as any)[modelTypeKey] === undefined && isModel(obj)) {
+    const modelInfo = modelInfoByClass.get((obj as any).constructor)!
+    sn = { ...(sn as any), [modelTypeKey]: modelInfo.name }
   }
 
   if (isModelSnapshot(sn)) {
