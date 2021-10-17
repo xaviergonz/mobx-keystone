@@ -3,7 +3,7 @@ import type { AnyModel } from "../model/BaseModel"
 import type { modelIdKey, modelTypeKey } from "../model/metadata"
 import type { ModelFromSnapshot, ModelToSnapshot } from "../modelShared/BaseModelShared"
 import type { ExtractTypeMeta } from "../types/typeMeta"
-import type { ElseIfNever } from "../utils/types"
+import type { IsNeverType } from "../utils/types"
 import type { ArraySet, ObjectMap } from "../wrappers"
 
 // snapshot out
@@ -55,9 +55,10 @@ type _SnapshotOutOf<T> = T extends ObjectMap<infer V>
     : never
   : T
 
-export type SnapshotOutOf<T> = ElseIfNever<
-  ExtractTypeMeta<T>["snapshotOutOverride"],
-  _SnapshotOutOf<T>
+export type SnapshotOutOf<T> = IsNeverType<
+  ExtractTypeMeta<T>,
+  _SnapshotOutOf<T>,
+  ExtractTypeMeta<T> extends { snapshotOutOverride: infer R } ? R : _SnapshotOutOf<T>
 >
 
 // snapshot in
@@ -107,7 +108,8 @@ type _SnapshotInOf<T> = T extends ObjectMap<infer V>
     : never
   : T
 
-export type SnapshotInOf<T> = ElseIfNever<
-  ExtractTypeMeta<T>["snapshotInOverride"],
-  _SnapshotInOf<T>
+export type SnapshotInOf<T> = IsNeverType<
+  ExtractTypeMeta<T>,
+  _SnapshotInOf<T>,
+  ExtractTypeMeta<T> extends { snapshotInOverride: infer R } ? R : _SnapshotInOf<T>
 >

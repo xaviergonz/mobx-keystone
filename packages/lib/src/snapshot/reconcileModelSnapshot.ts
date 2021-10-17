@@ -21,7 +21,7 @@ function reconcileModelSnapshot(
   modelPool: ModelPool,
   parent: any
 ): AnyModel {
-  const type = sn[modelTypeKey]
+  const type = sn[modelTypeKey]!
 
   const modelInfo = getModelInfoForName(type)
   if (!modelInfo) {
