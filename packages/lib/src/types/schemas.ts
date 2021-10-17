@@ -1,6 +1,6 @@
 import type { O } from "ts-toolbelt"
-import type { snapshotInOverrideSymbol, snapshotOutOverrideSymbol } from "../snapshot/SnapshotOf"
 import type { IsNeverType, IsOptionalValue } from "../utils/types"
+import type { TypeMeta } from "./typeMeta"
 
 // type schemas
 
@@ -20,12 +20,12 @@ export interface SnapshotProcessorType<TType, SnapshotInOverride, SnapshotOutOve
       IsNeverType<
         SnapshotInOverride,
         unknown,
-        { [snapshotInOverrideSymbol]?: { [snapshotInOverrideSymbol]: SnapshotInOverride } }
+        TypeMeta<{ snapshotInOverride: SnapshotInOverride }>
       > &
       IsNeverType<
         SnapshotOutOverride,
         unknown,
-        { [snapshotOutOverrideSymbol]?: { [snapshotOutOverrideSymbol]: SnapshotOutOverride } }
+        TypeMeta<{ snapshotOutOverride: SnapshotOutOverride }>
       >
   > {}
 

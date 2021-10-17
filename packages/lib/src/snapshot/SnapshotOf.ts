@@ -2,13 +2,9 @@ import type { Frozen, frozenKey } from "../frozen/Frozen"
 import type { AnyModel } from "../model/BaseModel"
 import type { modelIdKey, modelTypeKey } from "../model/metadata"
 import type { ModelFromSnapshot, ModelToSnapshot } from "../modelShared/BaseModelShared"
+import type { ExtractTypeMeta } from "../types/typeMeta"
+import type { ElseIfNever } from "../utils/types"
 import type { ArraySet, ObjectMap } from "../wrappers"
-
-/** @ignore */
-export declare const snapshotOutOverrideSymbol: unique symbol
-
-/** @ignore */
-export declare const snapshotInOverrideSymbol: unique symbol
 
 // snapshot out
 
@@ -59,11 +55,10 @@ type _SnapshotOutOf<T> = T extends ObjectMap<infer V>
     : never
   : T
 
-export type SnapshotOutOf<T> = T extends { [snapshotOutOverrideSymbol]?: infer O }
-  ? O extends { [snapshotOutOverrideSymbol]: infer O2 }
-    ? O2
-    : _SnapshotOutOf<T>
-  : _SnapshotOutOf<T>
+export type SnapshotOutOf<T> = ElseIfNever<
+  ExtractTypeMeta<T>["snapshotOutOverride"],
+  _SnapshotOutOf<T>
+>
 
 // snapshot in
 
@@ -112,8 +107,7 @@ type _SnapshotInOf<T> = T extends ObjectMap<infer V>
     : never
   : T
 
-export type SnapshotInOf<T> = T extends { [snapshotInOverrideSymbol]?: infer O }
-  ? O extends { [snapshotInOverrideSymbol]: infer O2 }
-    ? O2
-    : _SnapshotInOf<T>
-  : _SnapshotInOf<T>
+export type SnapshotInOf<T> = ElseIfNever<
+  ExtractTypeMeta<T>["snapshotInOverride"],
+  _SnapshotInOf<T>
+>

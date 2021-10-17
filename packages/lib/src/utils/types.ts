@@ -34,3 +34,8 @@ export type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
  * @ignore
  */
 export type IsNeverType<T, IfNever, IfNotNever> = [T] extends [never] ? IfNever : IfNotNever
+
+/**
+ * @ignore
+ */
+export type ElseIfNever<T, IfNever> = [T] extends [never] ? IfNever : T

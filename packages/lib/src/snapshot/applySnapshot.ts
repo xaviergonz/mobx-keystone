@@ -33,7 +33,7 @@ export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<
  */
 export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf<T>): void
 
-export function applySnapshot<T extends object>(node: T, snapshot: unknown): void {
+export function applySnapshot(node: object, snapshot: unknown): void {
   assertTweakedObject(node, "node")
   assertIsObject(snapshot, "snapshot")
 
