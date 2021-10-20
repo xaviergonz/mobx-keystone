@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.63.2
+
+- Fixed a typing issue that would type `$modelId` as `string | undefined`. Now it will be typed as `string` when there is an `idProp` and `never` when there is not.
+
 ## 0.63.1
 
 - Added `FromSnapshotDefaultType<typeof props>` and `ToSnapshotDefaultType<typeof props>` so the default type does not need to be repeated when using `fromSnapshotProcessor` / `toSnapshotProcessor`.

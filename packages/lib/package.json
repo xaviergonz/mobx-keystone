@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.63.1",
+  "version": "0.63.2",
   "description": "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -53,6 +53,7 @@
   ],
   "scripts": {
     "quick-build": "tsc",
+    "quick-build-tests": "tsc -p test",
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
     "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp ./dist/mobx-keystone.es.js ./dist/mobx-keystone.es.mjs",
     "test": "jest",

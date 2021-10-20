@@ -64,12 +64,12 @@ export abstract class BaseModel<
    * Model internal id. Can be modified inside a model action.
    * It will return `undefined` if there's no id prop set.
    */
-  get [modelIdKey](): string | undefined {
+  get [modelIdKey](): [ModelIdPropertyName] extends [never] ? never : string {
     const idProp = getModelIdPropertyName(this.constructor as any)
     return idProp ? this.$[idProp] : undefined
   }
 
-  set [modelIdKey](newId: string | undefined) {
+  set [modelIdKey](newId: [ModelIdPropertyName] extends [never] ? never : string) {
     const idProp = getModelIdPropertyName(this.constructor as any)
     if (!idProp) {
       throw failure("$modelId cannot be set when there is no idProp set in the model")
