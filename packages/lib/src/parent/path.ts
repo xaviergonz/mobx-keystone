@@ -268,7 +268,7 @@ export function resolvePath<T = any>(
       return unresolved
     }
 
-    current = modelToDataNode(current[p])
+    current = modelToDataNode(current[p] as object)
   }
 
   return { resolved: true, value: dataToModelNode(current) }
@@ -325,7 +325,7 @@ export function resolvePathCheckingIds<T = any>(
     }
 
     const currentMaybeModel = current[p]
-    current = modelToDataNode(currentMaybeModel)
+    current = modelToDataNode(currentMaybeModel as object)
 
     const expectedId = pathIds[i]
     if (expectedId !== skipIdChecking) {

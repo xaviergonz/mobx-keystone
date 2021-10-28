@@ -3,7 +3,6 @@ import {
   applyPatches,
   applySnapshot,
   fromSnapshot,
-  FromSnapshotDefaultType,
   getSnapshot,
   model,
   Model,
@@ -19,96 +18,19 @@ import "../commonSetup"
 
 test("input snapshot processor", () => {
   @model("customInputSnapshot")
-  class P3 extends Model(
-    {
-      arr: prop<number[]>(() => []),
-    },
-    {
-      fromSnapshotProcessor(sn: { y: string }) {
-        return {
-          arr: sn.y.split(",").map((x) => +x),
-        }
-      },
-    }
-  ) {}
-
-  assert(
-    _ as SnapshotInOf<P3>,
-    _ as {
-      y: string
-    } & {
-      [modelTypeKey]: string
-    }
-  )
-
-  assert(
-    _ as SnapshotOutOf<P3>,
-    _ as {
-      arr: number[]
-    } & {
-      [modelTypeKey]: string
-    }
-  )
-
-  const p = fromSnapshot<P3>(
-    modelSnapshotInWithMetadata(P3, {
-      y: "30,40,50",
-    })
-  )
-
-  expect(p.arr).toEqual([30, 40, 50])
-
-  applyPatches(p, [
-    {
-      path: ["arr"],
-      op: "replace",
-      value: [10, 20],
-    },
-  ])
-
-  expect(p.arr).toEqual([10, 20])
-
-  applySnapshot(
-    p,
-    modelSnapshotInWithMetadata(P3, {
-      y: "100,200",
-    })
-  )
-
-  expect(p.arr).toEqual([100, 200])
-
-  applySnapshot(p.arr, [300, 400])
-
-  expect(p.arr).toEqual([300, 400])
-})
-
-test("input snapshot processor with original type", () => {
-  const props = {
-    arr: prop<number[]>(() => []),
-  }
-
-  @model("customInputSnapshotWithOriginalType")
-  class P3 extends Model(props, {
-    fromSnapshotProcessor(sn: FromSnapshotDefaultType<typeof props> | { arr: string[] }) {
-      return {
-        arr: sn.arr?.map((x) => +x),
-      }
-    },
+  class P3 extends Model({
+    arr: prop<number[]>(() => []).withSnapshotProcessor({
+      fromSnapshot: (sn: string) => sn?.split(",").map((x) => +x),
+    }),
   }) {}
 
   assert(
     _ as SnapshotInOf<P3>,
-    _ as
-      | ({
-          arr?: number[] | null | undefined
-        } & {
-          [modelTypeKey]: string
-        })
-      | ({
-          arr: string[]
-        } & {
-          [modelTypeKey]: string
-        })
+    _ as {
+      arr: string
+    } & {
+      [modelTypeKey]?: string
+    }
   )
 
   assert(
@@ -116,13 +38,19 @@ test("input snapshot processor with original type", () => {
     _ as {
       arr: number[]
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
+  const p2 = new P3({
+    arr: [30, 40, 50],
+  })
+
+  expect(p2.arr).toEqual([30, 40, 50])
+
   const p = fromSnapshot<P3>(
     modelSnapshotInWithMetadata(P3, {
-      arr: ["30", "40", "50"],
+      arr: "30,40,50",
     })
   )
 
@@ -141,7 +69,7 @@ test("input snapshot processor with original type", () => {
   applySnapshot(
     p,
     modelSnapshotInWithMetadata(P3, {
-      arr: ["100", "200"],
+      arr: "100,200",
     })
   )
 
@@ -154,19 +82,13 @@ test("input snapshot processor with original type", () => {
 
 test("output snapshot processor", () => {
   @model("innerCustomOutputSnapshot")
-  class IP4 extends Model(
-    {
-      arr: prop<number[]>(() => []),
-    },
-    {
-      toSnapshotProcessor(sn, instance) {
-        expect(instance instanceof IP4).toBe(true)
-        return {
-          y: sn.arr.map((x) => "" + x).join(","),
-        }
+  class IP4 extends Model({
+    arr: prop<number[]>(() => []).withSnapshotProcessor({
+      toSnapshot: (sn) => {
+        return sn.map((x) => "" + x).join(",")
       },
-    }
-  ) {
+    }),
+  }) {
     @modelAction
     pop() {
       this.arr.pop()
@@ -174,21 +96,14 @@ test("output snapshot processor", () => {
   }
 
   @model("customOutputSnapshot")
-  class P4 extends Model(
-    {
-      arr: prop<number[]>(() => []),
-      child: prop<IP4 | undefined>(),
-    },
-    {
-      toSnapshotProcessor(sn, instance) {
-        expect(instance instanceof P4).toBe(true)
-        return {
-          y: sn.arr.map((x) => "" + x).join(","),
-          child: sn.child,
-        }
+  class P4 extends Model({
+    arr: prop<number[]>(() => []).withSnapshotProcessor({
+      toSnapshot: (sn) => {
+        return sn.map((x) => "" + x).join(",")
       },
-    }
-  ) {
+    }),
+    child: prop<IP4 | undefined>(),
+  }) {
     @modelAction
     pop() {
       this.arr.pop()
@@ -201,17 +116,17 @@ test("output snapshot processor", () => {
       arr?: number[] | null
       child?: SnapshotInOf<IP4>
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
   assert(
     _ as SnapshotOutOf<P4>,
     _ as {
-      y: string
+      arr: string
       child: SnapshotOutOf<IP4> | undefined
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -224,9 +139,9 @@ test("output snapshot processor", () => {
 
   expect(getSnapshot(p)).toEqual(
     modelSnapshotOutWithMetadata(P4, {
-      y: "30,40,50",
+      arr: "30,40,50",
       child: modelSnapshotOutWithMetadata(IP4, {
-        y: "1,2,3",
+        arr: "1,2,3",
       }),
     })
   )
@@ -236,9 +151,9 @@ test("output snapshot processor", () => {
 
   expect(getSnapshot(p)).toEqual(
     modelSnapshotOutWithMetadata(P4, {
-      y: "30,40",
+      arr: "30,40",
       child: modelSnapshotOutWithMetadata(IP4, {
-        y: "1,2",
+        arr: "1,2",
       }),
     })
   )
@@ -253,9 +168,9 @@ test("output snapshot processor", () => {
 
   expect(getSnapshot(p)).toEqual(
     modelSnapshotOutWithMetadata(P4, {
-      y: "10,40",
+      arr: "10,40",
       child: modelSnapshotOutWithMetadata(IP4, {
-        y: "1,2",
+        arr: "1,2",
       }),
     })
   )
@@ -271,10 +186,54 @@ test("output snapshot processor", () => {
 
   expect(getSnapshot(p)).toEqual(
     modelSnapshotOutWithMetadata(P4, {
-      y: "100,200",
+      arr: "100,200",
       child: modelSnapshotOutWithMetadata(IP4, {
-        y: "300,400",
+        arr: "300,400",
       }),
+    })
+  )
+})
+
+test("model without model type", () => {
+  @model("m1")
+  class M1 extends Model({
+    x: prop<number>(),
+  }) {}
+
+  @model("m2")
+  class M2 extends Model({
+    m1: prop<M1 | undefined>().withSnapshotProcessor({
+      fromSnapshot(sn: Omit<SnapshotInOf<M1>, typeof modelTypeKey>) {
+        return { ...sn, [modelTypeKey]: "m1" }
+      },
+      toSnapshot(sn): Omit<SnapshotOutOf<M1>, typeof modelTypeKey> | undefined {
+        if (!sn) return sn
+
+        const snCopy = { ...sn }
+        delete (snCopy as any)[modelTypeKey]
+        return snCopy
+      },
+    }),
+  }) {}
+
+  const m2 = fromSnapshot<M2>(
+    modelSnapshotInWithMetadata(M2, {
+      m1: { x: 6 }, // no model type!
+    })
+  )
+
+  expect(m2.m1 instanceof M1).toBe(true)
+  expect(m2.m1!.x).toBe(6)
+
+  expect(getSnapshot(m2)).toStrictEqual(
+    modelSnapshotOutWithMetadata(M2, {
+      m1: { x: 6 }, // no model type!
+    })
+  )
+
+  expect(getSnapshot(m2.m1)).toStrictEqual(
+    modelSnapshotOutWithMetadata(M1, {
+      x: 6,
     })
   )
 })

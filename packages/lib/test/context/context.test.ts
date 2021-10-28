@@ -304,7 +304,7 @@ test("context apply", () => {
   const sn = getSnapshot(m)
 
   val = 3
-  const m2 = ctx.apply(() => fromSnapshot<M>(sn), val)
+  const m2 = ctx.apply(() => fromSnapshot(M, sn), val)
   expect(m2.method()).toBe(val)
   expect(m2.children[0].method()).toBe(val)
 })
@@ -341,7 +341,7 @@ test("context applyComputed", () => {
 
   val = 3
   const m2 = ctx.applyComputed(
-    () => fromSnapshot<M>(sn),
+    () => fromSnapshot(M, sn),
     () => val
   )
   expect(m2.method()).toBe(val)

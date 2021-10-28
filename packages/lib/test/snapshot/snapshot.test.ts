@@ -453,7 +453,7 @@ test("types", () => {
       [modelIdKey]?: string
       y?: number | null
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -463,7 +463,7 @@ test("types", () => {
       [modelIdKey]: string
       y: number
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -475,7 +475,7 @@ test("types", () => {
       arr?: number[] | null
       p2?: SnapshotInOf<P2>
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -487,7 +487,7 @@ test("types", () => {
       arr: number[]
       p2: SnapshotOutOf<P2> | undefined
     } & {
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
     }
   )
 
@@ -497,7 +497,7 @@ test("types", () => {
       items?: {
         [k: string]: number
       }
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )
@@ -508,7 +508,7 @@ test("types", () => {
       items: {
         [k: string]: number
       }
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )
@@ -517,7 +517,7 @@ test("types", () => {
     _ as SnapshotInOf<ArraySet<number>>,
     _ as {
       items?: number[]
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )
@@ -526,7 +526,7 @@ test("types", () => {
     _ as SnapshotOutOf<ArraySet<number>>,
     _ as {
       items: number[]
-      [modelTypeKey]: string
+      [modelTypeKey]?: string
       [modelIdKey]: string
     }
   )
@@ -552,7 +552,7 @@ test("snapshot with reserved property names", () => {
     }
   `)
 
-  const p2 = fromSnapshot<M>(sn)
+  const p2 = fromSnapshot(M, sn)
   expect((p2 as any).onInit).toBeUndefined()
   expect(p2.$.onInit).toBe(p.$.onInit)
 

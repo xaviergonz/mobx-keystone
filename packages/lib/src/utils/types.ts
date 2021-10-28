@@ -29,3 +29,13 @@ export type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
 // type _D = IsOptionalValue<string & undefined, true, false> // false, but we don't care
 // type _E = IsOptionalValue<any, true, false> // true
 // type _F = IsOptionalValue<unknown, true, false> // true
+
+/**
+ * @ignore
+ */
+export type IsNeverType<T, IfNever, IfNotNever> = [T] extends [never] ? IfNever : IfNotNever
+
+/**
+ * @ignore
+ */
+export type Flatten<T> = T extends Record<any, any> ? { [P in keyof T]: T[P] } : T

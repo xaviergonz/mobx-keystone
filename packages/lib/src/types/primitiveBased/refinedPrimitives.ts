@@ -1,5 +1,5 @@
+import { typesRefinement } from "../utility/refinement"
 import { typesNumber, typesString } from "./primitives"
-import { typesRefinement } from "./refinement"
 
 /**
  * A type that represents any integer number value.

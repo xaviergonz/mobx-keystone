@@ -1,6 +1,5 @@
 import { computed } from "mobx"
 import { assert, _ } from "spec.ts"
-import { O } from "ts-toolbelt"
 import {
   ExtendedModel,
   fromSnapshot,
@@ -43,8 +42,6 @@ class P extends Model({
   }
 }
 
-type Empty = O.Omit<{}, "">
-
 test("subclassing with additional props", () => {
   @model("P2_props")
   class P2 extends ExtendedModel(P, {
@@ -73,7 +70,6 @@ test("subclassing with additional props", () => {
       x: number
       y: number
       z: number
-    } & {
       a: number
       b: number
     }
@@ -81,15 +77,12 @@ test("subclassing with additional props", () => {
   assert(
     _ as CD,
     _ as {
-      x?: number | null
-      y?: number | null
-      z?: number | null
-    } & {
-      a?: number | null
-      b?: number
-    } & {
+      x?: number | null | undefined
+      y?: number | null | undefined
+      z?: number | null | undefined
+      a?: number | null | undefined
       b: number
-    } & Empty
+    }
   )
 
   const p2 = new P2({ x: 20, b: 70 })
@@ -123,7 +116,7 @@ test("subclassing with additional props", () => {
     }
   `)
 
-  const newP2 = fromSnapshot<P2>(p2sn)
+  const newP2 = fromSnapshot(P2, p2sn)
   expect(newP2 instanceof P2).toBe(true)
   expect(newP2).not.toBe(p2)
 })
@@ -148,15 +141,15 @@ test("subclassing without additional props", () => {
       x: number
       y: number
       z: number
-    } & Empty
+    }
   )
   assert(
     _ as CD,
     _ as {
-      x?: number | null
-      y?: number | null
-      z?: number | null
-    } & Empty
+      x?: number | null | undefined
+      y?: number | null | undefined
+      z?: number | null | undefined
+    }
   )
 
   const p2 = new P2({ x: 20 })
@@ -183,7 +176,7 @@ test("subclassing without additional props", () => {
     }
   `)
 
-  const newP2 = fromSnapshot<P2>(p2sn)
+  const newP2 = fromSnapshot(P2, p2sn)
   expect(newP2 instanceof P2).toBe(true)
   expect(newP2).not.toBe(p2)
 })
@@ -200,7 +193,7 @@ test("subclassing without anything new", () => {
       x: number
       y: number
       z: number
-    } & Empty
+    }
   )
   assert(
     _ as CD,
@@ -208,7 +201,7 @@ test("subclassing without anything new", () => {
       x?: number | null
       y?: number | null
       z?: number | null
-    } & Empty
+    }
   )
 
   const p2 = new P2({ x: 20 })
@@ -234,7 +227,7 @@ test("subclassing without anything new", () => {
     }
   `)
 
-  const newP2 = fromSnapshot<P2>(p2sn)
+  const newP2 = fromSnapshot(P2, p2sn)
   expect(newP2 instanceof P2).toBe(true)
   expect(newP2).not.toBe(p2)
 })
@@ -278,9 +271,7 @@ test("three level subclassing", () => {
       x: number
       y: number
       z: number
-    } & {
       a: number
-    } & {
       b: number
     }
   )
@@ -290,11 +281,9 @@ test("three level subclassing", () => {
       x?: number | null | undefined
       y?: number | null | undefined
       z?: number | null | undefined
-    } & {
       a?: number | null | undefined
-    } & { b?: number } & {
       b: number
-    } & Empty
+    }
   )
 
   const p2 = new P2({ x: 20, b: 70 })
@@ -327,7 +316,7 @@ test("three level subclassing", () => {
     }
   `)
 
-  const newP2 = fromSnapshot<P2>(p2sn)
+  const newP2 = fromSnapshot(P2, p2sn)
   expect(newP2 instanceof P2).toBe(true)
   expect(newP2).not.toBe(p2)
 

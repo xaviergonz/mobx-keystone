@@ -1,13 +1,8 @@
-import {
-  AnyModelProp,
-  MaybeOptionalModelProp,
-  OnlyPrimitives,
-  OptionalModelProp,
-  prop,
-} from "../modelShared/prop"
-import { typesBoolean, typesNumber, typesString } from "./primitives"
-import { resolveStandardType } from "./resolveTypeChecker"
+import { AnyModelProp, MaybeOptionalModelProp, OptionalModelProp, prop } from "../modelShared/prop"
+import { typesBoolean, typesNumber, typesString } from "./primitiveBased/primitives"
+import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyType, TypeToData } from "./schemas"
+import { LateTypeChecker, TypeChecker } from "./TypeChecker"
 
 /**
  * Defines a string model property with a default value.
@@ -92,7 +87,7 @@ export function tProp<TType extends AnyType>(
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  defaultValue: OnlyPrimitives<TypeToData<TType>>
+  defaultValue: TypeToData<TType>
 ): OptionalModelProp<TypeToData<TType>>
 
 /**
@@ -128,8 +123,27 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
     hasDefaultValue = true
   }
 
+  const newProp = hasDefaultValue ? prop(def) : prop()
+  const typeChecker = resolveStandardType(typeOrDefaultValue) as unknown as
+    | TypeChecker
+    | LateTypeChecker
+
   return {
-    ...(hasDefaultValue ? prop(def) : prop()),
-    typeChecker: resolveStandardType(typeOrDefaultValue) as any,
+    ...newProp,
+    _internal: {
+      ...newProp._internal,
+
+      typeChecker,
+
+      fromSnapshotProcessor: (sn) => {
+        const fsnp = resolveTypeChecker(typeChecker).fromSnapshotProcessor
+        return fsnp ? fsnp(sn) : sn
+      },
+
+      toSnapshotProcessor: (sn) => {
+        const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
+        return tsnp ? tsnp(sn) : sn
+      },
+    },
   }
 }

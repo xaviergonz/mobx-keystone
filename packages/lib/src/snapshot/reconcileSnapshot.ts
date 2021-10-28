@@ -5,11 +5,7 @@ import { fastGetParentPathIncludingDataObjects } from "../parent"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 
-/**
- * @ignore
- * @internal
- */
-export type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any | undefined
+type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any | undefined
 
 const reconcilers: { priority: number; reconciler: Reconciler }[] = []
 

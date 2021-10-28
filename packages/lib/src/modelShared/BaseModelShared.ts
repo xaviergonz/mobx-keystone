@@ -1,35 +1,29 @@
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
+import type { modelTypeKey } from "../model/metadata"
+import type { Flatten, IsNeverType } from "../utils/types"
+import type {
+  ModelPropsToCreationData,
+  ModelPropsToSnapshotCreationData,
+  ModelPropsToSnapshotData,
+  ModelPropsToTransformedCreationData,
+  ModelPropsToTransformedData,
+} from "./prop"
 
 /**
  * @ignore
  */
-export const dataTypeSymbol = Symbol()
+export const propsTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export const creationDataTypeSymbol = Symbol()
+export const fromSnapshotOverrideTypeSymbol = Symbol()
 
 /**
  * @ignore
  */
-export const transformedDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const transformedCreationDataTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const fromSnapshotTypeSymbol = Symbol()
-
-/**
- * @ignore
- */
-export const toSnapshotTypeSymbol = Symbol()
+export const toSnapshotOverrideTypeSymbol = Symbol()
 
 /**
  * @ignore
@@ -55,38 +49,54 @@ export type AbstractModelClass<M extends AnyModel | AnyDataModel> = abstract new
 ) => M
 
 /**
+ * The props of a model.
+ */
+export type ModelPropsOf<M extends AnyModel | AnyDataModel> = M[typeof propsTypeSymbol]
+
+/**
  * The data type of a model.
  */
-export type ModelData<M extends AnyModel | AnyDataModel> = M["$"]
+export type ModelData<M extends AnyModel | AnyDataModel> = Flatten<M["$"]>
 
 /**
  * The creation data type of a model.
  */
-export type ModelCreationData<M extends AnyModel | AnyDataModel> = M[typeof creationDataTypeSymbol]
+export type ModelCreationData<M extends AnyModel | AnyDataModel> = ModelPropsToCreationData<
+  ModelPropsOf<M>
+>
 
 /**
  * The transformed data type of a model.
  */
-export type ModelTransformedData<M extends AnyModel | AnyDataModel> =
-  M[typeof transformedDataTypeSymbol]
+export type ModelTransformedData<M extends AnyModel | AnyDataModel> = ModelPropsToTransformedData<
+  ModelPropsOf<M>
+>
 
 /**
  * The transformed creation data type of a model.
  */
 export type ModelTransformedCreationData<M extends AnyModel | AnyDataModel> =
-  M[typeof transformedCreationDataTypeSymbol]
+  ModelPropsToTransformedCreationData<ModelPropsOf<M>>
 
 /**
  * The from snapshot type of a model.
  * Use SnapshotInOf<Model> instead.
  */
-export type ModelFromSnapshot<M extends AnyModel> = M[typeof fromSnapshotTypeSymbol]
+export type ModelFromSnapshot<M extends AnyModel> = IsNeverType<
+  M[typeof fromSnapshotOverrideTypeSymbol],
+  ModelPropsToSnapshotCreationData<ModelPropsOf<M>>,
+  M[typeof fromSnapshotOverrideTypeSymbol]
+> & { [modelTypeKey]?: string }
 
 /**
  * The to snapshot type of a model.
  * Use SnapshotOutOf<Model> instead.
  */
-export type ModelToSnapshot<M extends AnyModel> = M[typeof toSnapshotTypeSymbol]
+export type ModelToSnapshot<M extends AnyModel> = IsNeverType<
+  M[typeof toSnapshotOverrideTypeSymbol],
+  ModelPropsToSnapshotData<ModelPropsOf<M>>,
+  M[typeof toSnapshotOverrideTypeSymbol]
+> & { [modelTypeKey]?: string }
 
 /**
  * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.

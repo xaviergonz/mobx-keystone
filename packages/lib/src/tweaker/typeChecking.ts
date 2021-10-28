@@ -7,7 +7,7 @@ import { findParent } from "../parent/findParent"
 import { internalApplyPatches } from "../patch/applyPatches"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import { internalApplySnapshot } from "../snapshot/applySnapshot"
-import { invalidateCachedTypeCheckerResult } from "../typeChecking/TypeChecker"
+import { invalidateCachedTypeCheckerResult } from "../types/TypeChecker"
 import { runWithoutSnapshotOrPatches } from "./core"
 import { isTypeCheckingAllowed } from "./withoutTypeChecking"
 

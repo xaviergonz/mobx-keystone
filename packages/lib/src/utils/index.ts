@@ -86,7 +86,7 @@ export function isPlainObject(value: any): value is Object {
  * @ignore
  * @internal
  */
-export function isObject(value: any): value is Object {
+export function isObject(value: any): value is Record<PropertyKey, unknown> {
   return value !== null && typeof value === "object"
 }
 

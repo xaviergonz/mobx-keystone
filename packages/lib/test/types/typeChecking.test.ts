@@ -10,6 +10,7 @@ import {
   ArrayTypeInfo,
   BooleanTypeInfo,
   customRef,
+  Frozen,
   frozen,
   FrozenTypeInfo,
   getTypeInfo,
@@ -49,7 +50,7 @@ import {
   TypeToData,
   UncheckedTypeInfo,
 } from "../../src"
-import { resolveStandardType } from "../../src/typeChecking/resolveTypeChecker"
+import { resolveStandardType } from "../../src/types/resolveTypeChecker"
 import "../commonSetup"
 import { autoDispose } from "../utils"
 
@@ -323,7 +324,8 @@ test("tuple - simple types", () => {
 
 test("record - simple types", () => {
   const type = types.record(types.number)
-  assert(_ as TypeToData<typeof type>, _ as { [k: string]: number })
+  type T = TypeToData<typeof type>
+  assert(_ as T, _ as { [k: string]: number })
 
   expectTypeCheckOk(type, {})
   expectTypeCheckOk(type, { x: 5, y: 6 })
@@ -829,7 +831,7 @@ class MA extends Model({
 @model("MB")
 class MB extends Model({
   y: tProp(types.number, 20),
-  a: tProp(types.maybe(types.model(MA))),
+  a: tProp(types.maybe(MA)),
 }) {
   @modelAction
   setA(r: MA | undefined) {
@@ -866,8 +868,6 @@ test("cross referenced model", () => {
 })
 
 test("ref", () => {
-  const type = types.ref<M>()
-
   const m = new M({ y: "6" })
   const customR = customRef<M>("customRefM", {
     resolve() {
@@ -878,6 +878,7 @@ test("ref", () => {
     },
   })
   const r = customR(m)
+  const type = types.ref(customR)
   assert(_ as TypeToData<typeof type>, _ as Ref<M>)
 
   expectTypeCheckOk(type, r)
@@ -888,7 +889,8 @@ test("ref", () => {
 
 test("frozen - simple type", () => {
   const type = types.frozen(types.number)
-  assert(_ as TypeToData<typeof type>, _ as { data: number })
+  type T = TypeToData<typeof type>
+  assert(_ as T, _ as Frozen<number>)
 
   const fr = frozen<number>(5)
 
@@ -906,7 +908,8 @@ test("frozen - complex type", () => {
   }))
 
   const type = types.frozen(dataType)
-  assert(_ as TypeToData<typeof type>, _ as { data: { x: number } })
+  type T = TypeToData<typeof type>
+  assert(_ as T, _ as Frozen<{ x: number }>)
 
   const fr = frozen<{ x: number }>({ x: 5 })
 
@@ -1253,7 +1256,9 @@ test("syntax sugar for primitives in tProp", () => {
   expectTypeCheckFail(type, ss, ["undef"], "undefined")
   ss.setUndef(undefined)
 
-  ss.setOr({} as any)
-  expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
+  expect(() => {
+    ss.setOr({} as any)
+    // expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
+  }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
   ss.setOr(5)
 })

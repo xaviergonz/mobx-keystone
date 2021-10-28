@@ -8,10 +8,7 @@ import type { ParentPath } from "./path"
  */
 export const objectParents = new WeakMap<object, ParentPath<object> | undefined>()
 
-/**
- * @ignore
- */
-export const objectParentsAtoms = new WeakMap<object, IAtom>()
+const objectParentsAtoms = new WeakMap<object, IAtom>()
 
 /**
  * @ignore

@@ -1,6 +1,6 @@
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { modelMetadataSymbol } from "../modelShared/modelSymbols"
-import type { AnyType } from "../typeChecking/schemas"
+import type { AnyType } from "../types/schemas"
 import { failure } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { AnyModel } from "./BaseModel"

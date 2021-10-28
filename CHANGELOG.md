@@ -1,5 +1,11 @@
 # Change Log
 
+- [BREAKING CHANGE] `types.ref` now takes as an argument the reference constructor it needs to check for.
+- When `tProp` is used instead of `prop` then `$modelType` won't be needed in input model snapshot for that particular property. As a side effect, `$modelType` is now marked as optional in types. Note that for this to work for a root model instead of a sub-property you will need to use the new `fromSnapshot` overload that takes a type as first argument. For untyped compatibility reasons, `getSnapshot` will still return `$modelType` even for typed models.
+- Added `withSnapshotProcessor` to class model properties.
+- Model classes can now be directly used as types instead of having to wrap them inside `types.model(...)` (except in recursive / self-recursive cases).
+- Simplified some typings to make them faster.
+
 ## 0.63.2
 
 - Fixed a typing issue that would type `$modelId` as `string | undefined`. Now it will be typed as `string` when there is an `idProp` and `never` when there is not.

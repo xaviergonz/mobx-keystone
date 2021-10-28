@@ -21,13 +21,13 @@ export type SnapshotOutOfFrozen<F extends Frozen<any>> = {
 
 export interface SnapshotOutOfObjectMap<V> {
   items: { [k: string]: SnapshotOutOf<V> }
-  [modelTypeKey]: string
+  [modelTypeKey]?: string
   [modelIdKey]: string
 }
 
 export interface SnapshotOutOfArraySet<V> {
   items: SnapshotOutOf<V>[]
-  [modelTypeKey]: string
+  [modelTypeKey]?: string
   [modelIdKey]: string
 }
 
@@ -68,13 +68,13 @@ export type SnapshotInOfFrozen<F extends Frozen<any>> = {
 
 export interface SnapshotInOfObjectMap<V> {
   items?: { [k: string]: SnapshotOutOf<V> }
-  [modelTypeKey]: string
+  [modelTypeKey]?: string
   [modelIdKey]: string
 }
 
 export interface SnapshotInOfArraySet<V> {
   items?: SnapshotOutOf<V>[]
-  [modelTypeKey]: string
+  [modelTypeKey]?: string
   [modelIdKey]: string
 }
 

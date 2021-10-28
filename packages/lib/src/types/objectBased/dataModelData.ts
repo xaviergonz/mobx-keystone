@@ -1,16 +1,22 @@
 import type { O } from "ts-toolbelt"
-import type { AnyDataModel } from "../dataModel/BaseDataModel"
-import { getDataModelMetadata } from "../dataModel/getDataModelMetadata"
-import { isDataModelClass } from "../dataModel/utils"
-import type { ModelClass, ModelData } from "../modelShared/BaseModelShared"
-import { modelInfoByClass } from "../modelShared/modelInfo"
-import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
-import { noDefaultValue } from "../modelShared/prop"
-import { failure, lateVal } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
+import type { AnyDataModel } from "../../dataModel/BaseDataModel"
+import { getDataModelMetadata } from "../../dataModel/getDataModelMetadata"
+import { isDataModelClass } from "../../dataModel/utils"
+import type { ModelClass, ModelData } from "../../modelShared/BaseModelShared"
+import { modelInfoByClass } from "../../modelShared/modelInfo"
+import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
+import { noDefaultValue } from "../../modelShared/prop"
+import { failure, lateVal } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, IdentityType } from "../schemas"
+import {
+  lateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "../TypeChecker"
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
 
@@ -34,12 +40,14 @@ type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
  */
 export function typesDataModelData<M = never, K = M>(
   modelClass: _ClassOrObject<M, K>
-): IdentityType<ModelData<K extends M ? (M extends AnyDataModel ? M : never) : (K extends AnyDataModel ? K : never)>> {
+): IdentityType<
+  ModelData<K extends M ? (M extends AnyDataModel ? M : never) : K extends AnyDataModel ? K : never>
+> {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isDataModelClass(modelClass) && typeof modelClass === "function") {
     // resolve later
-    const modelClassFn = modelClass as () => ModelClass<AnyDataModel>; 
+    const modelClassFn = modelClass as () => ModelClass<AnyDataModel>
     const typeInfoGen: TypeInfoGen = (t) => new DataModelDataTypeInfo(t, modelClassFn())
     return lateTypeChecker(() => typesDataModelData(modelClassFn()) as any, typeInfoGen) as any
   } else {
@@ -63,18 +71,32 @@ export function typesDataModelData<M = never, K = M>(
         )
       }
 
-      return new TypeChecker(
-        (value, path) => {
-          const resolvedTc = resolveTypeChecker(dataTypeChecker)
-          if (!resolvedTc.unchecked) {
-            return resolvedTc.check(value, path)
-          }
+      const resolvedDataTypeChecker = resolveTypeChecker(dataTypeChecker)
 
-          return null
+      const thisTc: TypeChecker = new TypeChecker(
+        TypeCheckerBaseType.Object,
+
+        (value, path) => {
+          return resolvedDataTypeChecker.check(value, path)
         },
+
         () => typeName,
-        typeInfoGen
+        typeInfoGen,
+
+        (value) => {
+          return resolvedDataTypeChecker.snapshotType(value) ? thisTc : null
+        },
+
+        (sn: Record<string, unknown>) => {
+          return resolvedDataTypeChecker.fromSnapshotProcessor(sn)
+        },
+
+        (sn: Record<string, unknown>) => {
+          return resolvedDataTypeChecker.toSnapshotProcessor(sn)
+        }
       )
+
+      return thisTc
     }, typeInfoGen) as any
 
     cachedDataModelTypeChecker.set(modelClazz, tc)
@@ -106,7 +128,7 @@ export class DataModelDataTypeInfo extends TypeInfo {
     Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
-      const type = (propData.typeChecker as any) as AnyStandardType
+      const type = propData._internal.typeChecker as any as AnyStandardType
 
       let typeInfo: TypeInfo | undefined
       if (type) {
@@ -115,11 +137,11 @@ export class DataModelDataTypeInfo extends TypeInfo {
 
       let hasDefault = false
       let defaultValue: any
-      if (propData.defaultFn !== noDefaultValue) {
-        defaultValue = propData.defaultFn
+      if (propData._internal.defaultFn !== noDefaultValue) {
+        defaultValue = propData._internal.defaultFn
         hasDefault = true
-      } else if (propData.defaultValue !== noDefaultValue) {
-        defaultValue = propData.defaultValue
+      } else if (propData._internal.defaultValue !== noDefaultValue) {
+        defaultValue = propData._internal.defaultValue
         hasDefault = true
       }
 

@@ -1,10 +1,18 @@
-import type { IdentityType } from "./schemas"
-import { TypeChecker, TypeInfo } from "./TypeChecker"
+import type { IdentityType } from "../schemas"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
+
+const identityFn = (x: any) => x
 
 const unchecked: IdentityType<any> = new TypeChecker(
+  TypeCheckerBaseType.Any,
   null,
   () => "any",
-  (t) => new UncheckedTypeInfo(t)
+  (t) => new UncheckedTypeInfo(t),
+
+  () => unchecked as any,
+
+  identityFn,
+  identityFn
 ) as any
 
 /**

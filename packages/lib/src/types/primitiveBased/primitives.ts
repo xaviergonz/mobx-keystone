@@ -1,9 +1,11 @@
-import { assertIsPrimitive } from "../utils"
-import type { PrimitiveValue } from "../utils/types"
-import { registerStandardType } from "./resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "./schemas"
-import { TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { assertIsPrimitive } from "../../utils"
+import type { PrimitiveValue } from "../../utils/types"
+import { registerStandardTypeResolver } from "../resolveTypeChecker"
+import type { AnyStandardType, IdentityType } from "../schemas"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
+
+const identityFn = (x: any) => x
 
 /**
  * A type that represents a certain value of a primitive (for example an *exact* number or string).
@@ -35,11 +37,20 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
 
   const typeInfoGen: TypeInfoGen = (t) => new LiteralTypeInfo(t, literal)
 
-  return new TypeChecker(
+  const thisTc: TypeChecker = new TypeChecker(
+    TypeCheckerBaseType.Primitive,
+
     (value, path) => (value === literal ? null : new TypeCheckError(path, typeName, value)),
+
     () => typeName,
-    typeInfoGen
-  ) as any
+    typeInfoGen,
+
+    (value) => (value === literal ? thisTc : null),
+    identityFn,
+    identityFn
+  )
+
+  return thisTc as any
 }
 
 /**
@@ -61,7 +72,7 @@ export class LiteralTypeInfo extends TypeInfo {
  */
 export const typesUndefined = typesLiteral(undefined)
 
-registerStandardType(undefined, typesUndefined)
+registerStandardTypeResolver((v) => (v === undefined ? typesUndefined : undefined))
 
 /**
  * A type that represents the value null.
@@ -73,7 +84,7 @@ registerStandardType(undefined, typesUndefined)
  */
 export const typesNull = typesLiteral(null)
 
-registerStandardType(null, typesNull)
+registerStandardTypeResolver((v) => (v === null ? typesNull : undefined))
 
 /**
  * A type that represents any boolean value.
@@ -83,12 +94,19 @@ registerStandardType(null, typesNull)
  * ```
  */
 export const typesBoolean: IdentityType<boolean> = new TypeChecker(
+  TypeCheckerBaseType.Primitive,
+
   (value, path) => (typeof value === "boolean" ? null : new TypeCheckError(path, "boolean", value)),
+
   () => "boolean",
-  (t) => new BooleanTypeInfo(t)
+  (t) => new BooleanTypeInfo(t),
+
+  (value) => (typeof value === "boolean" ? (typesBoolean as any) : null),
+  identityFn,
+  identityFn
 ) as any
 
-registerStandardType(Boolean, typesBoolean)
+registerStandardTypeResolver((v) => (v === Boolean ? typesBoolean : undefined))
 
 /**
  * `types.boolean` type info.
@@ -103,12 +121,19 @@ export class BooleanTypeInfo extends TypeInfo {}
  * ```
  */
 export const typesNumber: IdentityType<number> = new TypeChecker(
+  TypeCheckerBaseType.Primitive,
+
   (value, path) => (typeof value === "number" ? null : new TypeCheckError(path, "number", value)),
+
   () => "number",
-  (t) => new NumberTypeInfo(t)
+  (t) => new NumberTypeInfo(t),
+
+  (value) => (typeof value === "number" ? (typesNumber as any) : null),
+  identityFn,
+  identityFn
 ) as any
 
-registerStandardType(Number, typesNumber)
+registerStandardTypeResolver((v) => (v === Number ? typesNumber : undefined))
 
 /**
  * `types.number` type info.
@@ -123,12 +148,19 @@ export class NumberTypeInfo extends TypeInfo {}
  * ```
  */
 export const typesString: IdentityType<string> = new TypeChecker(
+  TypeCheckerBaseType.Primitive,
+
   (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
+
   () => "string",
-  (t) => new StringTypeInfo(t)
+  (t) => new StringTypeInfo(t),
+
+  (value) => (typeof value === "string" ? (typesString as any) : null),
+  identityFn,
+  identityFn
 ) as any
 
-registerStandardType(String, typesString)
+registerStandardTypeResolver((v) => (v === String ? typesString : undefined))
 
 /**
  * `types.string` type info.

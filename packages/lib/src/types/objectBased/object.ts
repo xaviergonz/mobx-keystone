@@ -1,11 +1,24 @@
 import type { O } from "ts-toolbelt"
-import { Frozen } from "../frozen/Frozen"
-import { assertIsFunction, assertIsObject, isObject, lateVal } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType, ObjectType, ObjectTypeFunction } from "./schemas"
-import { lateTypeChecker, LateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { Frozen } from "../../frozen/Frozen"
+import { assertIsFunction, assertIsObject, isObject, lateVal } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type {
+  AnyStandardType,
+  AnyType,
+  ModelType,
+  ObjectTypeFunction,
+  TypeToData,
+} from "../schemas"
+import {
+  lateTypeChecker,
+  LateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
@@ -32,17 +45,41 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       return `{ ${propsMsg.join(" ")} }`
     }
 
+    const applySnapshotProcessor = (obj: Record<string, unknown>, mode: "from" | "to") => {
+      const newObj: typeof obj = {}
+
+      // note: we allow excess properties when checking objects
+      const keys = Object.keys(obj)
+      for (let i = 0; i < keys.length; i++) {
+        const k = keys[i]
+        const unresolvedTc = objectSchema[k]
+        if (unresolvedTc) {
+          const tc = resolveTypeChecker(unresolvedTc)
+          newObj[k] =
+            mode === "from" ? tc.fromSnapshotProcessor(obj[k]) : tc.toSnapshotProcessor(obj[k])
+        } else {
+          // unknown prop, copy as is
+          newObj[k] = obj[k]
+        }
+      }
+
+      return newObj
+    }
+
     const thisTc: TypeChecker = new TypeChecker(
+      TypeCheckerBaseType.Object,
+
       (obj, path) => {
-        if (!isObject(obj) || (frozen && !(obj instanceof Frozen)))
+        if (!isObject(obj) || (frozen && !(obj instanceof Frozen))) {
           return new TypeCheckError(path, getTypeName(thisTc), obj)
+        }
 
         // note: we allow excess properties when checking objects
         for (const [k, unresolvedTc] of schemaEntries) {
           const tc = resolveTypeChecker(unresolvedTc)
           const objVal = obj[k]
 
-          const valueError = !tc.unchecked ? tc.check(objVal, [...path, k]) : null
+          const valueError = tc.check(objVal, [...path, k])
           if (valueError) {
             return valueError
           }
@@ -50,8 +87,36 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
 
         return null
       },
+
       getTypeName,
-      typeInfoGen
+      typeInfoGen,
+
+      (obj) => {
+        if (!isObject(obj)) {
+          return null
+        }
+
+        // note: we allow excess properties when checking objects
+        for (const [k, unresolvedTc] of schemaEntries) {
+          const tc = resolveTypeChecker(unresolvedTc)
+          const objVal = obj[k]
+
+          const valueActualChecker = tc.snapshotType(objVal)
+          if (!valueActualChecker) {
+            return null
+          }
+        }
+
+        return thisTc
+      },
+
+      (obj: Record<string, unknown>) => {
+        return applySnapshotProcessor(obj, "from")
+      },
+
+      (obj: Record<string, unknown>) => {
+        return applySnapshotProcessor(obj, "to")
+      }
     )
 
     return thisTc
@@ -132,7 +197,7 @@ export class ObjectTypeInfo extends TypeInfo {
  * @param dataType Type of the frozen data.
  * @returns
  */
-export function typesFrozen<T extends AnyType>(dataType: T): ObjectType<{ data: T }> {
+export function typesFrozen<T extends AnyType>(dataType: T): ModelType<Frozen<TypeToData<T>>> {
   return typesObjectHelper(
     () => ({
       data: dataType,

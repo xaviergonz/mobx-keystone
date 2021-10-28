@@ -163,13 +163,11 @@ function tsDecorate(decorators: any, target: any, key: any, desc: any) {
  * @param clazz Model class.
  * @param decorators Decorators.
  */
-export function decoratedModel<MC extends ModelClass<AnyModel>>(
+export function decoratedModel<M, MC extends abstract new (...ags: any) => M>(
   name: string | undefined,
   clazz: MC,
   decorators: {
-    [k in keyof InstanceType<MC>]?:
-      | ((...args: any[]) => any)
-      | ReadonlyArray<(...args: any[]) => any>
+    [k in keyof M]?: ((...args: any[]) => any) | ReadonlyArray<(...args: any[]) => any>
   }
 ): MC {
   // decorate class members
@@ -185,5 +183,5 @@ export function decoratedModel<MC extends ModelClass<AnyModel>>(
     )
   }
 
-  return name ? model(name)(clazz) : clazz
+  return (name ? model(name)(clazz as unknown as ModelClass<AnyModel>) : clazz) as MC
 }

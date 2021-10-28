@@ -1,17 +1,24 @@
 import type { O } from "ts-toolbelt"
-import type { AnyModel } from "../model/BaseModel"
-import { getModelMetadata } from "../model/getModelMetadata"
-import { isModelClass } from "../model/utils"
-import type { ModelClass } from "../modelShared/BaseModelShared"
-import { modelInfoByClass } from "../modelShared/modelInfo"
-import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
-import { noDefaultValue } from "../modelShared/prop"
-import { failure, lateVal } from "../utils"
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import type { AnyModel } from "../../model/BaseModel"
+import { getModelMetadata } from "../../model/getModelMetadata"
+import { modelTypeKey } from "../../model/metadata"
+import { isModelClass } from "../../model/utils"
+import type { ModelClass } from "../../modelShared/BaseModelShared"
+import { modelInfoByClass } from "../../modelShared/modelInfo"
+import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
+import { noDefaultValue } from "../../modelShared/prop"
+import { isObject, lateVal } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, ModelType } from "../schemas"
+import {
+  lateTypeChecker,
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+  TypeInfoGen,
+} from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
 
@@ -32,14 +39,12 @@ type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
  * @param modelClass Model class.
  * @returns
  */
-export function typesModel<M = never, K = M>(
-  modelClass: _ClassOrObject<M, K>
-): IdentityType<K> {
+export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): ModelType<K> {
   // if we type it any stronger then recursive defs and so on stop working
 
   if (!isModelClass(modelClass) && typeof modelClass === "function") {
     // resolve later
-    const modelClassFn = modelClass as () => ModelClass<AnyModel>; 
+    const modelClassFn = modelClass as () => ModelClass<AnyModel>
     const typeInfoGen: TypeInfoGen = (t) => new ModelTypeInfo(t, modelClassFn())
     return lateTypeChecker(() => typesModel(modelClassFn()) as any, typeInfoGen) as any
   } else {
@@ -57,28 +62,60 @@ export function typesModel<M = never, K = M>(
       const typeName = `Model(${modelInfo.name})`
 
       const dataTypeChecker = getModelMetadata(modelClazz).dataType
-      if (!dataTypeChecker) {
-        throw failure(
-          `type checking cannot be performed over model of type '${modelInfo.name}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
-        )
-      }
+      const resolvedDataTypeChecker = dataTypeChecker
+        ? resolveTypeChecker(dataTypeChecker)
+        : undefined
 
-      return new TypeChecker(
+      const thisTc: TypeChecker = new TypeChecker(
+        TypeCheckerBaseType.Object,
+
         (value, path) => {
           if (!(value instanceof modelClazz)) {
             return new TypeCheckError(path, typeName, value)
           }
 
-          const resolvedTc = resolveTypeChecker(dataTypeChecker)
-          if (!resolvedTc.unchecked) {
-            return resolvedTc.check(value.$, path)
+          if (resolvedDataTypeChecker) {
+            return resolvedDataTypeChecker.check(value.$, path)
           }
 
           return null
         },
         () => typeName,
-        typeInfoGen
+        typeInfoGen,
+
+        (value) => {
+          if (!isObject(value)) {
+            return null
+          }
+
+          if (value[modelTypeKey] !== undefined) {
+            // fast check
+            return value[modelTypeKey] === modelInfo.name ? thisTc : null
+          }
+
+          if (resolvedDataTypeChecker) {
+            return resolvedDataTypeChecker.snapshotType(value) ? thisTc : null
+          }
+
+          // not enough info to be able to tell
+          return null
+        },
+
+        (sn) => {
+          if (sn[modelTypeKey]) {
+            return sn
+          } else {
+            return {
+              ...sn,
+              [modelTypeKey]: modelInfo.name,
+            }
+          }
+        },
+
+        (sn) => sn
       )
+
+      return thisTc
     }, typeInfoGen) as any
 
     cachedModelTypeChecker.set(modelClazz, tc)
@@ -110,7 +147,7 @@ export class ModelTypeInfo extends TypeInfo {
     Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
-      const type = (propData.typeChecker as any) as AnyStandardType
+      const type = propData._internal.typeChecker as any as AnyStandardType
 
       let typeInfo: TypeInfo | undefined
       if (type) {
@@ -119,11 +156,11 @@ export class ModelTypeInfo extends TypeInfo {
 
       let hasDefault = false
       let defaultValue: any
-      if (propData.defaultFn !== noDefaultValue) {
-        defaultValue = propData.defaultFn
+      if (propData._internal.defaultFn !== noDefaultValue) {
+        defaultValue = propData._internal.defaultFn
         hasDefault = true
-      } else if (propData.defaultValue !== noDefaultValue) {
-        defaultValue = propData.defaultValue
+      } else if (propData._internal.defaultValue !== noDefaultValue) {
+        defaultValue = propData._internal.defaultValue
         hasDefault = true
       }
 
@@ -150,3 +187,5 @@ export class ModelTypeInfo extends TypeInfo {
     super(thisType)
   }
 }
+
+registerStandardTypeResolver((v) => (isModelClass(v) ? typesModel(v) : undefined))

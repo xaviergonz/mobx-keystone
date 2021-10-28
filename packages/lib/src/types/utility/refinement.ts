@@ -1,8 +1,8 @@
-import { getTypeInfo } from "./getTypeInfo"
-import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyStandardType, AnyType, TypeToData } from "./schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "./TypeChecker"
-import { TypeCheckError } from "./TypeCheckError"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType, TypeToData } from "../schemas"
+import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 /**
  * A refinement over a given type. This allows you to do extra checks
@@ -53,6 +53,8 @@ export function typesRefinement<T extends AnyType>(
     }
 
     const thisTc: TypeChecker = new TypeChecker(
+      baseChecker.baseType,
+
       (data, path) => {
         const baseErr = baseChecker.check(data, path)
         if (baseErr) {
@@ -69,8 +71,15 @@ export function typesRefinement<T extends AnyType>(
           return refinementErr ?? null
         }
       },
+
       getTypeName,
-      typeInfoGen
+      typeInfoGen,
+
+      // we cannot check refinement here since it checks data instances, not snapshots
+      (sn) => baseChecker.snapshotType(sn),
+
+      (sn) => baseChecker.fromSnapshotProcessor(sn),
+      (sn) => baseChecker.toSnapshotProcessor(sn)
     )
 
     return thisTc

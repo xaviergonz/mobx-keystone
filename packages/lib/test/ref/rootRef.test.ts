@@ -454,7 +454,7 @@ test("getRefsResolvingTo after loading from snapshot", () => {
   expect(root.a.bs).toHaveLength(1)
   expect(root.a.bs[0]).toBe(root.b)
 
-  const newRoot = fromSnapshot<Root>(getSnapshot(root))
+  const newRoot = fromSnapshot(Root, getSnapshot(root))
   expect([...getRefsResolvingTo(newRoot.a)]).toEqual([newRoot.b.a])
   expect(newRoot.a.bs).toHaveLength(1)
   expect(newRoot.a.bs[0]).toBe(newRoot.b)

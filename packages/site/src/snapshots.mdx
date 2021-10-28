@@ -82,15 +82,17 @@ Note that `getSnapshot` can actually be used over any tree nodes (any model, or 
 
 ## Turning a snapshot back into an instance
 
-### `fromSnapshot<T>(sn: SnapshotInOf<T> | SnapshotOutOf<T>, options?: FromSnapshotOptions): T`
+### `fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T` / `fromSnapshot<TType>(type: TType, sn: SnapshotInOf<TypeToData<TType>>, options?: FromSnapshotOptions): T`
 
 Restoring a snapshot is pretty easy as well:
 
 ```ts
 const todo = fromSnapshot<Todo>(todoSnapshot)
+// or typed
+const todo = fromSnapshot(Todo, todoSnapshot)
 ```
 
-The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo> | SnapshotOutOf<T>` in this case, which in this particular case evaluates as:
+The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:
 
 ```
 type SnapshotInOf<Todo> = {
@@ -136,7 +138,7 @@ In both cases the returned disposer function can be called to cancel the effect.
 
 ## Applying snapshots
 
-### `applySnapshot<T extends object>(obj: T, sn: SnapshotInOf<T>): void`
+### `applySnapshot<T extends object>(obj: T, sn: SnapshotInOf<T> | SnapshotOutOf<T>): void`
 
 It is also possible to apply a snapshot over an object, reconciling the contents of the object and therefore ensuring that only the minimal set of snapshot changes / patches is triggered:
 

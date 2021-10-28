@@ -146,25 +146,27 @@ test("decoratedModel", () => {
     expect(p.y).toBe(30)
     expect(p.length).toBe(50)
 
+    type SIPn = SnapshotInOf<Point<number>>
     assert(
-      _ as SnapshotInOf<Point<number>>,
+      _ as SIPn,
       _ as {
-        [modelIdKey]?: string
-        x?: number | null
+        $modelId?: string | undefined
+        x?: number | null | undefined
         y: number
       } & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
     )
 
+    type SOPn = SnapshotOutOf<Point<number>>
     assert(
-      _ as SnapshotOutOf<Point<number>>,
+      _ as SOPn,
       _ as {
-        [modelIdKey]: string
+        $modelId: string
         x: number
         y: number
       } & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
     )
   }
@@ -225,29 +227,29 @@ test("decoratedModel", () => {
     expect(p2.z).toBe(40)
     expect(p2.length3d).toBe(90)
 
+    type SIP3d = SnapshotInOf<Point3d>
     assert(
-      _ as SnapshotInOf<Point3d>,
+      _ as SIP3d,
       _ as {
-        [modelIdKey]?: string
-        x?: number | null
+        $modelId?: string | undefined
+        x?: number | null | undefined
         y: number
-      } & {
         z: number
       } & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
     )
 
+    type SOP3d = SnapshotOutOf<Point3d>
     assert(
-      _ as SnapshotOutOf<Point3d>,
+      _ as SOP3d,
       _ as {
-        [modelIdKey]: string
+        $modelId: string
         x: number
         y: number
-      } & {
         z: number
       } & {
-        [modelTypeKey]: string
+        [modelTypeKey]?: string
       }
     )
   }

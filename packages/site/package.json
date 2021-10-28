@@ -9,9 +9,9 @@
     "build": "docz build"
   },
   "dependencies": {
-    "mobx": "^6.3.3",
+    "mobx": "^6.3.5",
     "mobx-keystone": "workspace:packages/lib",
-    "mobx-react": "^7.2.0",
+    "mobx-react": "^7.2.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-feather": "^2.0.9",
@@ -25,12 +25,12 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.15.4",
     "@babel/plugin-transform-classes": "^7.15.4",
     "@babel/preset-env": "^7.15.8",
-    "@types/react": "^17.0.27",
-    "@types/react-dom": "^17.0.9",
+    "@types/react": "^17.0.31",
+    "@types/react-dom": "^17.0.10",
     "@types/uuid": "^8.3.1",
     "docz": "^2.3.1",
     "gatsby-theme-docz": "^2.3.1",
     "raw-loader": "^4.0.2",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.4"
   }
 }
