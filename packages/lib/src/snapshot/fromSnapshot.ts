@@ -1,17 +1,14 @@
 import { action, observable, set } from "mobx"
+import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
+import { isModelClass } from "../model/utils"
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
-import type {
-  SnapshotInOf,
-  SnapshotInOfModel,
-  SnapshotOutOf,
-  _SnapshotInOf,
-  _SnapshotOutOf,
-} from "./SnapshotOf"
+import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * @ignore
@@ -58,7 +55,9 @@ export interface FromSnapshotContext {
  * @param options Options.
  * @returns The deserialized object.
  */
-export function fromSnapshot<TType extends AnyStandardType>(
+export function fromSnapshot<
+  TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>
+>(
   type: TType,
   snapshot: SnapshotInOf<TypeToData<TType>>,
   options?: Partial<FromSnapshotOptions>
@@ -81,7 +80,7 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
   let snapshot: any
   let options: Partial<FromSnapshotOptions> | undefined
 
-  if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker) {
+  if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || isModelClass(arg1)) {
     const typeChecker = resolveTypeChecker(arg1)
     snapshot = typeChecker.fromSnapshotProcessor ? typeChecker.fromSnapshotProcessor(arg2) : arg2
     options = arg3
@@ -95,10 +94,7 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
 
 const fromSnapshotAction = action(
   "fromSnapshot",
-  <T>(
-    snapshot: _SnapshotInOf<T> | _SnapshotOutOf<T>,
-    options?: Partial<FromSnapshotOptions>
-  ): T => {
+  <T>(snapshot: SnapshotInOf<T>, options?: Partial<FromSnapshotOptions>): T => {
     const opts = {
       generateNewIds: false,
       overrideRootModelId: undefined,

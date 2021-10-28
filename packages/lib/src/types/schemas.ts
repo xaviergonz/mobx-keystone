@@ -1,6 +1,7 @@
 import type { O } from "ts-toolbelt"
-import type { IsNeverType, IsOptionalValue } from "../utils/types"
-import type { TypeMeta } from "./typeMeta"
+import type { AnyModel } from "../model/BaseModel"
+import type { ModelClass } from "../modelShared/BaseModelShared"
+import type { IsOptionalValue } from "../utils/types"
 
 // type schemas
 
@@ -13,21 +14,6 @@ export interface Type<Name, Data> {
   /** @ignore */
   $$data: Data
 }
-export interface SnapshotProcessorType<TType, SnapshotInOverride, SnapshotOutOverride>
-  extends Type<
-    "snapshotProcessor",
-    TypeToData<TType> &
-      IsNeverType<
-        SnapshotInOverride,
-        unknown,
-        TypeMeta<{ snapshotInOverride: SnapshotInOverride }>
-      > &
-      IsNeverType<
-        SnapshotOutOverride,
-        unknown,
-        TypeMeta<{ snapshotOutOverride: SnapshotOutOverride }>
-      >
-  > {}
 
 export interface IdentityType<Data> extends Type<"identity", Data> {}
 
@@ -80,15 +66,15 @@ export type AnyStandardType =
   | ArrayType<any>
   | ObjectType<any>
   | RecordType<any>
-  | SnapshotProcessorType<any, any, any>
   | ObjectTypeFunction
 
-export type AnyType =
+export type AnyType = null | undefined | AnyNonValueType
+
+export type AnyNonValueType =
+  | ModelClass<AnyModel>
   | StringConstructor
   | NumberConstructor
   | BooleanConstructor
-  | null
-  | undefined
   | AnyStandardType
 
 // type schemas to actual types
@@ -97,10 +83,11 @@ export type TypeToData<S> = S extends ObjectTypeFunction
   ? ObjectType<ReturnType<S>>["$$data"] extends infer R
     ? R
     : never
-  : S extends { $$data: any }
-  ? S["$$data"] extends infer R
-    ? R
-    : never
+  : S extends { $$data: infer D }
+  ? D
+  : // AnyModel
+  S extends ModelClass<infer M>
+  ? M
   : // String
   S extends StringConstructor
   ? string

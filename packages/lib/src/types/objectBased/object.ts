@@ -3,7 +3,13 @@ import { Frozen } from "../../frozen/Frozen"
 import { assertIsFunction, assertIsObject, isObject, lateVal } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType, AnyType, ObjectType, ObjectTypeFunction } from "../schemas"
+import type {
+  AnyStandardType,
+  AnyType,
+  ModelType,
+  ObjectTypeFunction,
+  TypeToData,
+} from "../schemas"
 import {
   lateTypeChecker,
   LateTypeChecker,
@@ -191,7 +197,7 @@ export class ObjectTypeInfo extends TypeInfo {
  * @param dataType Type of the frozen data.
  * @returns
  */
-export function typesFrozen<T extends AnyType>(dataType: T): ObjectType<{ data: T }> {
+export function typesFrozen<T extends AnyType>(dataType: T): ModelType<Frozen<TypeToData<T>>> {
   return typesObjectHelper(
     () => ({
       data: dataType,

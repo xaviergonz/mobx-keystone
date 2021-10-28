@@ -9,6 +9,7 @@ import {
   Model,
   prop,
   runUnprotected,
+  types,
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
 import "../commonSetup"
@@ -22,6 +23,7 @@ class P extends Model({
 describe("frozen", () => {
   function basicTest<T>(name: string, data: T) {
     test(name, () => {
+      const frType = types.frozen(types.unchecked<T>())
       const fr = frozen(data)
 
       expect(fr instanceof Frozen).toBe(true)
@@ -31,7 +33,7 @@ describe("frozen", () => {
       expect(sn[frozenKey]).toBe(true)
       expect(sn.data).toStrictEqual(data)
 
-      const frBack = fromSnapshot<Frozen<T>>(sn)
+      const frBack = fromSnapshot(frType, sn)
       expect(frBack instanceof Frozen).toBe(true)
       expect(frBack).not.toBe(fr)
       expect(frBack.data).toBe(sn.data)

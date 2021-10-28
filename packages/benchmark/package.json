@@ -13,7 +13,7 @@
   "dependencies": {
     "benchmark": "^2.1.4",
     "chalk": "^4.1.2",
-    "mobx": "^6.3.3",
+    "mobx": "^6.3.5",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-state-tree": "^5.0.3",
     "tslib": "^2.3.1"
@@ -22,6 +22,6 @@
     "@types/benchmark": "^2.1.1",
     "cross-env": "^7.0.3",
     "shx": "^0.3.3",
-    "typescript": "^4.4.3"
+    "typescript": "^4.4.4"
   }
 }

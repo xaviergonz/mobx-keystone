@@ -1,7 +1,7 @@
 import { fastGetParentIncludingDataObjects } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
-import { failure, isArray, isObject, isPrimitive, lateVal } from "../utils"
+import { isArray, isObject, isPrimitive, lateVal } from "../utils"
 import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
 
@@ -164,16 +164,6 @@ export class TypeChecker {
     const val = this._toSnapshotProcessor(sn)
     this._toSnapshotProcessorCache.set(sn, val)
     return val
-  }
-}
-
-/**
- * @ignore
- * @internal
- */
-export function assertIsTypeChecker(value: unknown): asserts value is TypeChecker {
-  if (!(value instanceof TypeChecker)) {
-    throw failure("type checker expected")
   }
 }
 

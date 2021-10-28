@@ -17,7 +17,7 @@ import type { LateTypeChecker } from "../types/TypeChecker"
 import { typesUnchecked } from "../types/utility/unchecked"
 import { assertIsObject, failure, propNameToSetterName } from "../utils"
 import { chainFns } from "../utils/chainFns"
-import { ModelClass, modelInitializedSymbol, ModelTransformedData } from "./BaseModelShared"
+import { ModelClass, modelInitializedSymbol } from "./BaseModelShared"
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
@@ -33,7 +33,7 @@ function __extends(subClass: any, superClass: any) {
   subClass.prototype = new (__ as any)()
 }
 
-export function createModelPropDescriptor(
+function createModelPropDescriptor(
   modelPropName: string,
   modelProp: AnyModelProp | undefined,
   enumerable: boolean
@@ -59,8 +59,8 @@ export function createModelPropDescriptor(
 function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
   modelProp: AnyModelProp | undefined,
-  modelPropName: keyof ModelTransformedData<M>
-): ModelTransformedData<M>[typeof modelPropName] {
+  modelPropName: string
+): any {
   // no need to use get since these vars always get on the initial $
   const value = model.$[modelPropName]
 
@@ -69,7 +69,7 @@ function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
       // use apply set instead to wrap it in an action
       // set the $ object to set the original value directly
       applySet(model.$, modelPropName, newValue)
-    })
+    }) as any
   }
 
   return value
@@ -78,12 +78,12 @@ function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
 function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
   modelProp: AnyModelProp | undefined,
-  modelPropName: keyof ModelTransformedData<M>,
-  value: ModelTransformedData<M>[typeof modelPropName]
+  modelPropName: string,
+  value: any
 ): void {
   if (modelProp?._internal.setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
-    applySet(model, modelPropName, value)
+    applySet(model, modelPropName as any, value)
     return
   }
 

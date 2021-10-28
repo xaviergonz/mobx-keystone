@@ -1,11 +1,7 @@
 import { failure } from "../utils"
 import { getCurrentActionContext } from "./context"
 
-/**
- * @ignore
- * @internal
- */
-export function canWrite(): boolean {
+function canWrite(): boolean {
   return !getActionProtection() || !!getCurrentActionContext()
 }
 

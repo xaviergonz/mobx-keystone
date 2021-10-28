@@ -34,7 +34,8 @@ export class P extends Model({
 }) {}
 
 test("parent", () => {
-  const p = fromSnapshot<P>(
+  const p = fromSnapshot(
+    P,
     modelSnapshotInWithMetadata(P, {
       arr: [
         modelSnapshotInWithMetadata(P2, { y: 1 }),

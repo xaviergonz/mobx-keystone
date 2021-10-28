@@ -2,7 +2,7 @@ import type { O } from "ts-toolbelt"
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
 import type { LateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { getOrCreate } from "../utils/mapUtils"
-import type { IsNeverType, IsOptionalValue } from "../utils/types"
+import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
 
 /**
  * @ignore
@@ -170,65 +170,71 @@ export type OptionalModelProps<MP extends ModelProps> = {
   [K in keyof MP]: MP[K]["_internal"]["$isOptional"] & K
 }[keyof MP]
 
-export type ModelPropsToData<MP extends ModelProps> = {
+export type ModelPropsToData<MP extends ModelProps> = Flatten<{
   [k in keyof MP]: MP[k]["_internal"]["$valueType"]
-}
+}>
 
-export type ModelPropsToSnapshotData<MP extends ModelProps> = {
+export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
   [k in keyof MP]: ModelPropToSnapshot<MP[k]> extends infer R ? R : never
-}
+}>
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
-export type ModelPropsToCreationData<MP extends ModelProps> = {
-  [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
-} & O.Omit<
+export type ModelPropsToCreationData<MP extends ModelProps> = Flatten<
   {
-    [k in keyof MP]: MP[k]["_internal"]["$creationValueType"]
-  },
-  OptionalModelProps<MP>
+    [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
+  } & O.Omit<
+    {
+      [k in keyof MP]: MP[k]["_internal"]["$creationValueType"]
+    },
+    OptionalModelProps<MP>
+  >
 >
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
-export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = {
-  [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
-} & O.Omit<
+export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = Flatten<
   {
-    [k in keyof MP]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
-  },
-  {
-    [K in keyof MP]: IsNeverType<
-      MP[K]["_internal"]["$fromSnapshotOverride"],
-      MP[K]["_internal"]["$isOptional"] & K,
-      IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
-    >
-  }[keyof MP]
+    [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
+  } & O.Omit<
+    {
+      [k in keyof MP]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
+    },
+    {
+      [K in keyof MP]: IsNeverType<
+        MP[K]["_internal"]["$fromSnapshotOverride"],
+        MP[K]["_internal"]["$isOptional"] & K,
+        IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
+      >
+    }[keyof MP]
+  >
 >
 
-export type ModelPropsToTransformedData<MP extends ModelProps> = {
+export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
   [k in keyof MP]: MP[k]["_internal"]["$transformedValueType"]
-}
+}>
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
-export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
-  [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
-} & O.Omit<
+export type ModelPropsToTransformedCreationData<MP extends ModelProps> = Flatten<
   {
-    [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
-  },
-  OptionalModelProps<MP>
+    [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
+  } & O.Omit<
+    {
+      [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
+    },
+    OptionalModelProps<MP>
+  >
 >
 
-export type ModelPropsToSetter<MP extends ModelProps> = {
+export type ModelPropsToSetter<MP extends ModelProps> = Flatten<{
   [k in keyof MP as MP[k]["_internal"]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
     value: MP[k]["_internal"]["$transformedValueType"]
   ) => void
-}
+}>
 
 export type ModelIdProp = ModelProp<
   string,

@@ -55,11 +55,6 @@ test("default props", () => {
       bb?: number
       bbbb?: number | null
 
-      a?: number
-      aaa?: number | null
-      b?: number
-      bbb?: number | null
-    } & {
       a: number
       aaa: number | null
       b: number

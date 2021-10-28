@@ -1,7 +1,7 @@
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
 import type { modelTypeKey } from "../model/metadata"
-import type { IsNeverType } from "../utils/types"
+import type { Flatten, IsNeverType } from "../utils/types"
 import type {
   ModelPropsToCreationData,
   ModelPropsToSnapshotCreationData,
@@ -56,7 +56,7 @@ export type ModelPropsOf<M extends AnyModel | AnyDataModel> = M[typeof propsType
 /**
  * The data type of a model.
  */
-export type ModelData<M extends AnyModel | AnyDataModel> = M["$"]
+export type ModelData<M extends AnyModel | AnyDataModel> = Flatten<M["$"]>
 
 /**
  * The creation data type of a model.

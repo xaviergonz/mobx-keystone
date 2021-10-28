@@ -13,7 +13,7 @@ const snapshot = modelSnapshotInWithMetadata(P, {
 })
 
 test("basic", () => {
-  const p = fromSnapshot<P>(snapshot)
+  const p = fromSnapshot(P, snapshot)
 
   expect(p).toMatchInlineSnapshot(`
     P {

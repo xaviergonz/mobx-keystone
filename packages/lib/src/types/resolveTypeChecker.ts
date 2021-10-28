@@ -2,14 +2,24 @@ import { failure } from "../utils"
 import type { AnyStandardType, AnyType } from "./schemas"
 import { isLateTypeChecker, LateTypeChecker, TypeChecker } from "./TypeChecker"
 
-const registeredStandardTypes = new Map<any, AnyStandardType>()
+type StandardTypeResolverFn = (value: any) => AnyStandardType | undefined
+
+const standardTypeResolvers: StandardTypeResolverFn[] = []
 
 /**
  * @ignore
  * @internal
  */
-export function registerStandardType(value: any, typeChecker: AnyStandardType) {
-  registeredStandardTypes.set(value, typeChecker)
+export function registerStandardTypeResolver(resolverFn: StandardTypeResolverFn) {
+  standardTypeResolvers.push(resolverFn)
+}
+
+function findStandardType(value: any): AnyStandardType | undefined {
+  for (const resolverFn of standardTypeResolvers) {
+    const tc = resolverFn(value)
+    if (tc) return tc
+  }
+  return undefined
 }
 
 /**
@@ -24,9 +34,9 @@ export function resolveTypeChecker(v: AnyType | TypeChecker | LateTypeChecker): 
     } else if (isLateTypeChecker(next)) {
       next = next()
     } else {
-      const tc = registeredStandardTypes.get(v)
+      const tc = findStandardType(v)
       if (tc) {
-        return tc as any
+        return resolveTypeChecker(tc)
       }
       throw failure("type checker could not be resolved")
     }
@@ -43,7 +53,7 @@ export function resolveStandardTypeNoThrow(
   if (v instanceof TypeChecker || isLateTypeChecker(v)) {
     return v as any
   } else {
-    const tc = registeredStandardTypes.get(v)
+    const tc = findStandardType(v)
     if (tc) {
       return tc
     }

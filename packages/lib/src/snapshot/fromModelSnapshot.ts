@@ -23,7 +23,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   }
 
   const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-  if (modelIdPropertyName && !sn[modelIdPropertyName]) {
+  if (modelIdPropertyName && !(sn as any)[modelIdPropertyName]) {
     throw failure(
       `a model snapshot of type '${type}' must contain an id key (${modelIdPropertyName}), but none was found`
     )

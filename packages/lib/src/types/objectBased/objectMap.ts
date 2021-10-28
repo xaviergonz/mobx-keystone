@@ -1,4 +1,3 @@
-import { getGlobalConfig } from "../../globalConfig/globalConfig"
 import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { isObject } from "../../utils"
@@ -98,10 +97,6 @@ export function typesObjectMap<T extends AnyType>(
         const snCopy = {
           ...sn,
           items: newItems,
-        }
-
-        if (getGlobalConfig().avoidModelTypeInTypedModelSnapshotsIfPossible) {
-          delete snCopy[modelTypeKey]
         }
 
         return snCopy

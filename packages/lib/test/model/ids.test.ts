@@ -9,7 +9,7 @@ import {
   modelIdKey,
   ModelIdPropertyName,
   runUnprotected,
-  SnapshotOutOf
+  SnapshotOutOf,
 } from "../../src"
 import "../commonSetup"
 
@@ -43,7 +43,7 @@ test("ids", () => {
 
   // id on snapshot
   {
-    const m1 = fromSnapshot<M>({ $modelType: "ids", $modelId: "MY_ID2" })
+    const m1 = fromSnapshot(M, { $modelType: "ids", $modelId: "MY_ID2" })
     expect(m1.$modelId).toBe("MY_ID2")
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
@@ -51,7 +51,7 @@ test("ids", () => {
       $modelType: "ids",
     } as SnapshotOutOf<M>)
 
-    const m2 = fromSnapshot<M>(getSnapshot(m1))
+    const m2 = fromSnapshot(M, getSnapshot(m1))
     expect(m2.$modelId).toBe("MY_ID2")
     expect(m2.getRefId()).toBe(m2.$modelId)
     expect(getSnapshot(m2)).toEqual({
@@ -116,7 +116,7 @@ test("ids with custom property", () => {
 
   // id on snapshot
   {
-    const m1 = fromSnapshot<M>({ $modelType: "ids-customProperty", id: "MY_ID2" })
+    const m1 = fromSnapshot(M, { $modelType: "ids-customProperty", id: "MY_ID2" })
     expect(m1.$modelId).toBe("MY_ID2")
     expect(m1.id).toBe(m1.$modelId)
     expect(m1.getRefId()).toBe(m1.$modelId)
@@ -125,7 +125,7 @@ test("ids with custom property", () => {
       $modelType: "ids-customProperty",
     } as SnapshotOutOf<M>)
 
-    const m2 = fromSnapshot<M>(getSnapshot(m1))
+    const m2 = fromSnapshot(M, getSnapshot(m1))
     expect(m2.$modelId).toBe("MY_ID2")
     expect(m2.id).toBe(m2.$modelId)
     expect(m2.getRefId()).toBe(m2.$modelId)

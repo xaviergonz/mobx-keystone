@@ -51,7 +51,7 @@ test("prop with transform and required value", () => {
 
   const tsn = getSnapshot(t)
   assert(tsn.date, _ as number)
-  const tfsn = fromSnapshot<T>(tsn)
+  const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.date, _ as Date)
   expect(tfsn.date instanceof Date).toBe(true)
   expect(+tfsn.date).toBe(2000)
@@ -88,7 +88,7 @@ test("prop with transform and default value", () => {
 
   const tsn = getSnapshot(t)
   assert(tsn.date, _ as number)
-  const tfsn = fromSnapshot<T>(tsn)
+  const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.date, _ as Date)
   expect(tfsn.date instanceof Date).toBe(true)
   expect(+tfsn.date).toBe(2000)
@@ -125,7 +125,7 @@ test("prop with transform and can be null | undefined", () => {
 
   const tsn = getSnapshot(t)
   assert(tsn.date, _ as number | null | undefined)
-  const tfsn = fromSnapshot<T>(tsn)
+  const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.date, _ as Date | null | undefined)
   expect(tfsn.date).toBe(undefined)
 })
@@ -158,7 +158,7 @@ test("prop with transform and can be null", () => {
 
   const tsn = getSnapshot(t)
   assert(tsn.date, _ as number | null)
-  const tfsn = fromSnapshot<T>(tsn)
+  const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.date, _ as Date | null)
   expect(tfsn.date).toBe(null)
 })
@@ -211,7 +211,7 @@ test("prop with obj->map transform", () => {
 
   const tsn = getSnapshot(t)
   assert(tsn.map, _ as Record<string, number>)
-  const tfsn = fromSnapshot<T>(tsn)
+  const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.map, _ as Map<string, number>)
   expect(t.$.map).toEqual({ b: 2 })
 
@@ -278,7 +278,7 @@ test("prop with arr->map transform", () => {
 
   const tsn = getSnapshot(t)
   assert(tsn.map, _ as Array<[string, number]>)
-  const tfsn = fromSnapshot<T>(tsn)
+  const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.map, _ as Map<string, number>)
   expect(t.$.map).toEqual([["b", 2]])
 
@@ -336,7 +336,7 @@ test("prop with arr->set transform", () => {
 
   const tsn = getSnapshot(t)
   assert(tsn.set, _ as Array<number>)
-  const tfsn = fromSnapshot<T>(tsn)
+  const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.set, _ as Set<number>)
   expect(t.$.set).toEqual([2])
 

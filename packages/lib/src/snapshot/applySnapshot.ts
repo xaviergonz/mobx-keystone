@@ -13,7 +13,7 @@ import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
-import type { SnapshotInOf, SnapshotOutOf, _SnapshotInOf, _SnapshotOutOf } from "./SnapshotOf"
+import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -22,7 +22,7 @@ import type { SnapshotInOf, SnapshotOutOf, _SnapshotInOf, _SnapshotOutOf } from 
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(node: T, snapshot: _SnapshotInOf<T>): void
+export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<T>): void
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -31,7 +31,7 @@ export function applySnapshot<T extends object>(node: T, snapshot: _SnapshotInOf
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(node: T, snapshot: _SnapshotOutOf<T>): void
+export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf<T>): void
 
 export function applySnapshot(node: object, snapshot: unknown): void {
   assertTweakedObject(node, "node")

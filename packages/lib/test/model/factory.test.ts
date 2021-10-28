@@ -1,5 +1,4 @@
 import { assert, _ } from "spec.ts"
-import { O } from "ts-toolbelt"
 import {
   idProp,
   model,
@@ -12,8 +11,6 @@ import {
   SnapshotOutOf,
 } from "../../src"
 import "../commonSetup"
-
-type Empty = O.Omit<{}, "">
 
 test("factory pattern", () => {
   function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
@@ -56,9 +53,9 @@ test("factory pattern", () => {
       [modelIdKey]?: string
       x?: string | null
       y?: string | null
-    } & Empty & {
-        [modelTypeKey]?: string
-      }
+    } & {
+      [modelTypeKey]?: string
+    }
   )
 
   type SOutStr = SnapshotOutOf<StringMyModel>
@@ -88,9 +85,9 @@ test("factory pattern", () => {
       [modelIdKey]?: string
       x?: number | null
       y?: number | null
-    } & Empty & {
-        [modelTypeKey]?: string
-      }
+    } & {
+      [modelTypeKey]?: string
+    }
   )
 
   type SOutNum = SnapshotOutOf<NumberMyModel>

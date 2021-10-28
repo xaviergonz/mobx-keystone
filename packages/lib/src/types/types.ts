@@ -31,7 +31,6 @@ import type { AnyType } from "./schemas"
 import { typesMaybe, typesMaybeNull } from "./utility/maybe"
 import { OrTypeInfo, typesOr } from "./utility/or"
 import { RefinementTypeInfo, typesRefinement } from "./utility/refinement"
-import { SnapshotProcessorTypeInfo, typesSnapshotProcessor } from "./utility/snapshotProcessor"
 import { typesUnchecked, UncheckedTypeInfo } from "./utility/unchecked"
 export { getTypeInfo } from "./getTypeInfo"
 export { TypeInfo } from "./TypeChecker"
@@ -53,7 +52,6 @@ export {
   ModelTypeInfo,
   OrTypeInfo,
   TupleTypeInfo,
-  SnapshotProcessorTypeInfo,
 }
 
 export const types = {
@@ -81,7 +79,6 @@ export const types = {
   objectMap: typesObjectMap,
   arraySet: typesArraySet,
   tuple: typesTuple,
-  snapshotProcessor: typesSnapshotProcessor,
 
   mapArray<T extends AnyType>(valueType: T) {
     return typesArray(typesTuple(typesString, valueType))

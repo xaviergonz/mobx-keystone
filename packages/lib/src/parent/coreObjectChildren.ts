@@ -142,11 +142,7 @@ function invalidateDeepChildren(node: object) {
 
 const extensions = new Map<Symbol, DeepObjectChildrenExtension<any>>()
 
-/**
- * @ignore
- * @internal
- */
-export interface DeepObjectChildrenExtension<D> {
+interface DeepObjectChildrenExtension<D> {
   initData(): D
   addNode(node: any, data: D): void
 }

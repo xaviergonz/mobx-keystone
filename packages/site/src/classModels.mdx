@@ -161,7 +161,12 @@ It is interesting to observe that class models include a property named `$modelT
 myTodo1.$modelType // "myCoolApp/Todo"
 ```
 
-This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot.
+This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot, therefore it is usually required.
+
+That being said, there are actually two ways to skip this requirement (having `$modelType` in input snapshots):
+
+- If a property is typed using `tProp` then the model(s) in that property won't need `$modelType`.
+- If a model is constructed using the `fromSnapshot` overload that takes a type as first parameter then that snapshot won't need `$modelType`.
 
 ## Setting an ID property
 
@@ -523,6 +528,23 @@ class Name extends Model(
 ) {
   // ...
 }
+```
+
+## Snapshot pre/post-processors for model properties
+
+Model properties can have their own snapshot processors as well:
+
+In this example we use snapshot processors to serialize a string array property as a comma separated string.
+
+```ts
+class M extends Model({
+  names:
+    prop<string[]>(() => [])
+      .withSnapshotProcessor({
+        fromSnapshot: (sn: string) => sn.split(",")
+        toSnapshot: (sn) => sn.join(",")
+      })
+})
 ```
 
 ## Usage without decorators

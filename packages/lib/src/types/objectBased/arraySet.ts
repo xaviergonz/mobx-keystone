@@ -1,4 +1,3 @@
-import { getGlobalConfig } from "../../globalConfig/globalConfig"
 import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { isObject } from "../../utils"
@@ -85,10 +84,6 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
         const snCopy = {
           ...sn,
           items: sn.items.map((v) => valueChecker.toSnapshotProcessor(v)),
-        }
-
-        if (getGlobalConfig().avoidModelTypeInTypedModelSnapshotsIfPossible) {
-          delete snCopy[modelTypeKey]
         }
 
         return snCopy

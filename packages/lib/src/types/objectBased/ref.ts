@@ -1,4 +1,3 @@
-import { getGlobalConfig } from "../../globalConfig/globalConfig"
 import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { Ref, RefConstructor } from "../../ref/Ref"
@@ -15,7 +14,7 @@ import { typesObject } from "./object"
  *
  * Example:
  * ```ts
- * const refToSomeObject = types.ref<SomeObject>()
+ * const refToSomeObject = types.ref(SomeObject)
  * ```
  *
  * @typeparam O Object or model type.
@@ -71,19 +70,7 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
       }
     },
 
-    (sn) => {
-      if (!getGlobalConfig().avoidModelTypeInTypedModelSnapshotsIfPossible) {
-        return sn
-      }
-
-      const snCopy = {
-        ...sn,
-      }
-
-      delete snCopy[modelTypeKey]
-
-      return snCopy
-    }
+    (sn) => sn
   )
 
   return thisTc as any

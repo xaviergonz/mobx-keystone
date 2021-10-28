@@ -1,6 +1,5 @@
 import { computed, isComputedProp } from "mobx"
 import { assert, _ } from "spec.ts"
-import { O } from "ts-toolbelt"
 import {
   decoratedModel,
   ExtendedModel,
@@ -147,21 +146,23 @@ test("decoratedModel", () => {
     expect(p.y).toBe(30)
     expect(p.length).toBe(50)
 
+    type SIPn = SnapshotInOf<Point<number>>
     assert(
-      _ as SnapshotInOf<Point<number>>,
+      _ as SIPn,
       _ as {
-        [modelIdKey]?: string
-        x?: number | null
-        y?: number
-      } & O.Omit<{ x: number | null; y: number }, "x"> & {
-          [modelTypeKey]?: string
-        }
+        $modelId?: string | undefined
+        x?: number | null | undefined
+        y: number
+      } & {
+        [modelTypeKey]?: string
+      }
     )
 
+    type SOPn = SnapshotOutOf<Point<number>>
     assert(
-      _ as SnapshotOutOf<Point<number>>,
+      _ as SOPn,
       _ as {
-        [modelIdKey]: string
+        $modelId: string
         x: number
         y: number
       } & {
@@ -226,29 +227,28 @@ test("decoratedModel", () => {
     expect(p2.z).toBe(40)
     expect(p2.length3d).toBe(90)
 
+    type SIP3d = SnapshotInOf<Point3d>
     assert(
-      _ as SnapshotInOf<Point3d>,
+      _ as SIP3d,
       _ as {
-        [modelIdKey]?: string | undefined
+        $modelId?: string | undefined
         x?: number | null | undefined
-        y?: number | undefined
-        z?: number | undefined
-      } & O.Omit<
-        {
-          [modelIdKey]: string | undefined
-          x: number | null | undefined
-          y: number
-          z: number
-        },
-        typeof modelIdKey | "x"
-      > & {
-          [modelTypeKey]?: string
-        }
+        y: number
+        z: number
+      } & {
+        [modelTypeKey]?: string
+      }
     )
 
+    type SOP3d = SnapshotOutOf<Point3d>
     assert(
-      _ as SnapshotOutOf<Point3d>,
-      _ as O.Omit<{ [modelIdKey]: string; x: number; y: number; z: number }, never> & {
+      _ as SOP3d,
+      _ as {
+        $modelId: string
+        x: number
+        y: number
+        z: number
+      } & {
         [modelTypeKey]?: string
       }
     )

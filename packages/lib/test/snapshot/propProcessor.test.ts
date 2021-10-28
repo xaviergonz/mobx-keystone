@@ -1,5 +1,4 @@
 import { assert, _ } from "spec.ts"
-import { O } from "ts-toolbelt"
 import {
   applyPatches,
   applySnapshot,
@@ -28,10 +27,10 @@ test("input snapshot processor", () => {
   assert(
     _ as SnapshotInOf<P3>,
     _ as {
-      arr?: string
-    } & O.Omit<{ arr: string }, never> & {
-        [modelTypeKey]?: string
-      }
+      arr: string
+    } & {
+      [modelTypeKey]?: string
+    }
   )
 
   assert(
@@ -116,9 +115,9 @@ test("output snapshot processor", () => {
     _ as {
       arr?: number[] | null
       child?: SnapshotInOf<IP4>
-    } & O.Omit<{ arr: number[] | null; child: SnapshotInOf<IP4> }, "arr" | "child"> & {
-        [modelTypeKey]?: string
-      }
+    } & {
+      [modelTypeKey]?: string
+    }
   )
 
   assert(

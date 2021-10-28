@@ -199,6 +199,8 @@ const someModelType = types.model(SomeModel)
 const someModelType = types.model<SomeModel>(() => SomeModel)
 ```
 
+Note that most times just passing the model as type works (for example, `tProp(SomeModel)` and `tProp(types.model(SomeModel))` are equivalent).
+
 ### `types.dataModelData<M>(dataModelClass)`
 
 A type that represents the data of a data model. The type referenced in the model decorator will be used for type checking.
@@ -226,7 +228,7 @@ const customUncheckedType = types.unchecked<(A & B) | C>()
 A type that represents a reference to an object or model.
 
 ```ts
-const refToSomeObject = types.ref<SomeObject>()
+const refToSomeObject = types.ref(SomeObject)
 ```
 
 ### `types.frozen(type)`

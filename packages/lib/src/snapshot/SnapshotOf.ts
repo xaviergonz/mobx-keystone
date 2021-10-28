@@ -2,8 +2,6 @@ import type { Frozen, frozenKey } from "../frozen/Frozen"
 import type { AnyModel } from "../model/BaseModel"
 import type { modelIdKey, modelTypeKey } from "../model/metadata"
 import type { ModelFromSnapshot, ModelToSnapshot } from "../modelShared/BaseModelShared"
-import type { ExtractTypeMeta } from "../types/typeMeta"
-import type { IsNeverType } from "../utils/types"
 import type { ArraySet, ObjectMap } from "../wrappers"
 
 // snapshot out
@@ -33,7 +31,7 @@ export interface SnapshotOutOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type _SnapshotOutOf<T> = T extends ObjectMap<infer V>
+export type SnapshotOutOf<T> = T extends ObjectMap<infer V>
   ? SnapshotOutOfObjectMap<V> extends infer R
     ? R
     : never
@@ -54,12 +52,6 @@ export type _SnapshotOutOf<T> = T extends ObjectMap<infer V>
     ? R
     : never
   : T
-
-export type SnapshotOutOf<T> = IsNeverType<
-  ExtractTypeMeta<T>,
-  _SnapshotOutOf<T>,
-  ExtractTypeMeta<T> extends { snapshotOutOverride: infer R } ? R : _SnapshotOutOf<T>
->
 
 // snapshot in
 
@@ -86,7 +78,7 @@ export interface SnapshotInOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type _SnapshotInOf<T> = T extends ObjectMap<infer V>
+export type SnapshotInOf<T> = T extends ObjectMap<infer V>
   ? SnapshotInOfObjectMap<V> extends infer R
     ? R
     : never
@@ -107,9 +99,3 @@ export type _SnapshotInOf<T> = T extends ObjectMap<infer V>
     ? R
     : never
   : T
-
-export type SnapshotInOf<T> = IsNeverType<
-  ExtractTypeMeta<T>,
-  _SnapshotInOf<T>,
-  ExtractTypeMeta<T> extends { snapshotInOverride: infer R } ? R : _SnapshotInOf<T>
->

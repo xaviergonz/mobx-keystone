@@ -10,10 +10,9 @@ import {
   ArrayTypeInfo,
   BooleanTypeInfo,
   customRef,
-  fromSnapshot,
+  Frozen,
   frozen,
   FrozenTypeInfo,
-  getSnapshot,
   getTypeInfo,
   idProp,
   LiteralTypeInfo,
@@ -58,7 +57,6 @@ import { autoDispose } from "../utils"
 beforeEach(() => {
   setGlobalConfig({
     modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
-    avoidModelTypeInTypedModelSnapshotsIfPossible: false,
   })
 })
 
@@ -833,7 +831,7 @@ class MA extends Model({
 @model("MB")
 class MB extends Model({
   y: tProp(types.number, 20),
-  a: tProp(types.maybe(types.model(MA))),
+  a: tProp(types.maybe(MA)),
 }) {
   @modelAction
   setA(r: MA | undefined) {
@@ -891,7 +889,8 @@ test("ref", () => {
 
 test("frozen - simple type", () => {
   const type = types.frozen(types.number)
-  assert(_ as TypeToData<typeof type>, _ as { data: number })
+  type T = TypeToData<typeof type>
+  assert(_ as T, _ as Frozen<number>)
 
   const fr = frozen<number>(5)
 
@@ -909,7 +908,8 @@ test("frozen - complex type", () => {
   }))
 
   const type = types.frozen(dataType)
-  assert(_ as TypeToData<typeof type>, _ as { data: { x: number } })
+  type T = TypeToData<typeof type>
+  assert(_ as T, _ as Frozen<{ x: number }>)
 
   const fr = frozen<{ x: number }>({ x: 5 })
 
@@ -1261,140 +1261,4 @@ test("syntax sugar for primitives in tProp", () => {
     // expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
   }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
   ss.setOr(5)
-})
-
-describe("snapshotProcessor", () => {
-  test("simple", () => {
-    const numberAsStringType = types.snapshotProcessor(
-      types.number,
-      {
-        fromSnapshot(sn: string) {
-          return Number(sn)
-        },
-        toSnapshot(sn): string {
-          return String(sn)
-        },
-      },
-      "numberAsString"
-    )
-
-    const n = fromSnapshot(numberAsStringType, "2")
-    expect(n).toBe(2)
-    const n2 = getSnapshot(numberAsStringType, n)
-    expect(n2).toBe("2")
-  })
-
-  test("complex", () => {
-    const sumObjType = types.object(() => ({
-      a: types.number,
-      b: types.number,
-    }))
-
-    const complexSP = types.snapshotProcessor(
-      sumObjType,
-      {
-        fromSnapshot(sn: string) {
-          return { a: Number(sn) / 2, b: Number(sn) / 2 }
-        },
-        toSnapshot(sn): string {
-          return String(sn.a + sn.b)
-        },
-      },
-      "complexSP"
-    )
-
-    const n = fromSnapshot(complexSP, "4")
-    expect(n.a).toBe(2)
-    expect(n.b).toBe(2)
-    const n2 = getSnapshot(complexSP, n)
-    expect(n2).toBe("4")
-  })
-
-  test("as a model prop", () => {
-    setGlobalConfig({
-      avoidModelTypeInTypedModelSnapshotsIfPossible: true,
-    })
-
-    const numberAsStringType = types.snapshotProcessor(
-      types.number,
-      {
-        fromSnapshot(sn: string) {
-          return Number(sn)
-        },
-        toSnapshot(sn): string {
-          return String(sn)
-        },
-      },
-      "numberAsString"
-    )
-
-    @model("snapshotProcessor/3/M")
-    class M extends Model({
-      p: tProp(numberAsStringType, 10).withSetter(),
-    }) {}
-
-    const tm = types.model(M)
-
-    const m = new M({ p: 30 })
-    expect(getSnapshot(tm, m)).toStrictEqual({
-      p: "30",
-    })
-    m.setP(20)
-    expect(getSnapshot(tm, m)).toStrictEqual({
-      p: "20",
-    })
-
-    const m2 = fromSnapshot(tm, { p: "30" })
-    expect(getSnapshot(tm, m2)).toStrictEqual({
-      p: "30",
-    })
-    m2.setP(20)
-    expect(getSnapshot(tm, m2)).toStrictEqual({
-      p: "20",
-    })
-  })
-
-  test("over a model", () => {
-    setGlobalConfig({
-      avoidModelTypeInTypedModelSnapshotsIfPossible: true,
-    })
-
-    @model("snapshotProcessor/4/M")
-    class M extends Model({
-      p: tProp(types.number).withSetter(),
-    }) {}
-
-    const tm = types.model(M)
-
-    const modelProcessor = types.snapshotProcessor(
-      tm,
-      {
-        fromSnapshot(sn: { p2: string }) {
-          return { p: Number(sn.p2) }
-        },
-        toSnapshot(sn): { p2: string } {
-          return { p2: String(sn.p) }
-        },
-      },
-      "numberAsString"
-    )
-
-    const m = new M({ p: 30 })
-    expect(getSnapshot(modelProcessor, m)).toStrictEqual({
-      p2: "30",
-    })
-    m.setP(20)
-    expect(getSnapshot(modelProcessor, m)).toStrictEqual({
-      p2: "20",
-    })
-
-    const m2 = fromSnapshot(modelProcessor, { p2: "30" })
-    expect(getSnapshot(modelProcessor, m2)).toStrictEqual({
-      p2: "30",
-    })
-    m2.setP(20)
-    expect(getSnapshot(modelProcessor, m2)).toStrictEqual({
-      p2: "20",
-    })
-  })
 })

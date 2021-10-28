@@ -1,5 +1,4 @@
 import type { O } from "ts-toolbelt"
-import { getGlobalConfig } from "../../globalConfig/globalConfig"
 import type { AnyModel } from "../../model/BaseModel"
 import { getModelMetadata } from "../../model/getModelMetadata"
 import { modelTypeKey } from "../../model/metadata"
@@ -10,7 +9,7 @@ import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo
 import { noDefaultValue } from "../../modelShared/prop"
 import { isObject, lateVal } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
-import { resolveTypeChecker } from "../resolveTypeChecker"
+import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, ModelType } from "../schemas"
 import {
   lateTypeChecker,
@@ -113,19 +112,7 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
           }
         },
 
-        (sn) => {
-          if (!getGlobalConfig().avoidModelTypeInTypedModelSnapshotsIfPossible) {
-            return sn
-          }
-
-          const snCopy = {
-            ...sn,
-          }
-
-          delete snCopy[modelTypeKey]
-
-          return snCopy
-        }
+        (sn) => sn
       )
 
       return thisTc
@@ -200,3 +187,5 @@ export class ModelTypeInfo extends TypeInfo {
     super(thisType)
   }
 }
+
+registerStandardTypeResolver((v) => (isModelClass(v) ? typesModel(v) : undefined))
