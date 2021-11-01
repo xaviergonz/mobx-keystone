@@ -7,6 +7,6 @@ module.exports = {
     "plugin:import/typescript",
   ],
   rules: {
-    "import/no-cycle": ["error", { ignoreExternal: true }],
+    // "import/no-cycle": ["error", { ignoreExternal: true }],
   },
 }

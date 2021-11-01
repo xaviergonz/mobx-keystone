@@ -9,7 +9,7 @@
     "build": "docz build"
   },
   "dependencies": {
-    "mobx": "^6.3.5",
+    "mobx": "^6.3.6",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-react": "^7.2.1",
     "react": "^17.0.2",
@@ -20,12 +20,12 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.14.5",
-    "@babel/plugin-proposal-decorators": "^7.15.8",
-    "@babel/plugin-proposal-private-property-in-object": "^7.15.4",
-    "@babel/plugin-transform-classes": "^7.15.4",
-    "@babel/preset-env": "^7.15.8",
-    "@types/react": "^17.0.31",
+    "@babel/plugin-proposal-class-properties": "^7.16.0",
+    "@babel/plugin-proposal-decorators": "^7.16.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.0",
+    "@babel/plugin-transform-classes": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
+    "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "@types/uuid": "^8.3.1",
     "docz": "^2.3.1",
