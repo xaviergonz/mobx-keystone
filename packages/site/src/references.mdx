@@ -75,7 +75,9 @@ They can be created exactly the same way as root references and offer the exact 
 ## Back-references
 
 Sometimes it is useful to get back all references that currently resolve to a given node.
-For this you can use `getRefsResolvingTo(target, refType?)`, where `target` is the node the references are pointing to and `refType` is an optional argument that when provided will ensure only references of a given type are returned. It returns an observable set of reference objects that point to the target.
+For this you can use `getRefsResolvingTo(target, refType?, options?)`, where `target` is the node the references are pointing to, `refType` is an optional argument that when provided will ensure only references of a given type are returned, and `options` is an optional argument for providing additional options. It returns an observable set of reference objects that point to the target.
+
+By default, back-references are updated after the outermost action has completed. In case it is necessary to update back-references immediately, the option `updateAllRefsIfNeeded` can be set to `true`.
 
 ## Example: Reference to single selected Todo
 
