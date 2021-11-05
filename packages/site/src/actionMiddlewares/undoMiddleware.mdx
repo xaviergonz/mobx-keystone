@@ -19,6 +19,7 @@ For example, given this simple model:
 ```ts
 @model("MyApp/Counter")
 class Counter extends Model({ count: prop(0) }) {
+  @modelAction
   add(n: number) {
     this.count += n
   }
@@ -80,7 +81,7 @@ const undoManager = undoMiddleware(myRootStore, myRootStore.undoData)
 
 ## Making some changes skip undo/redo
 
-Sometimes you might want some changes / part of changes skip the undo/redo mechanism. To do so you can use the `withoutUndo` function like this:
+Sometimes you might want some changes / part of changes skip the undo/redo mechanism. To do so you can use the `withoutUndo` method like this:
 
 ```ts
 @modelAction
@@ -88,7 +89,7 @@ someAction() {
   // this change will be redone/undone when the action is redone/undone
   this.x++
 
-  // you may skip only in certain undo managers...
+  // you may skip only in certain undo managers ...
   someUndoManager.withoutUndo(() => {
     // this one won't
     this.y++
@@ -107,7 +108,7 @@ someAction() {
 
 ## Grouping multiple actions into a single undo/redo step
 
-Sometimes you might want multiple actions to be undone/redone in a single step. If they are sync actions you may use the `withGroup` function like this:
+Sometimes you might want multiple actions to be undone/redone in a single step. If they are sync actions you may use the `withGroup` method like this:
 
 ```ts
 someUndoManager.withGroup("optional group name", () => {
@@ -156,7 +157,7 @@ Now, once undo/redo is called all the actions will be undone/redone in a single 
 
 Imagine a text editor where you don't want to undo each single cursor position change, but you still want to move the cursor to wherever it was before (when undoing) / after (when redoing) an action is performed.
 
-For this use case you can use what is called an "attached state". This attached state gets saved before an undo/redo step is recorder, as well as after, and is restored after each undo/redo operation. In the case of the text editor, the "attached state" would be the cursor position.
+For this use case you can use what is called an "attached state". This attached state gets saved before an undo/redo step is recorded, as well as after, and is restored after each undo/redo operation. In the case of the text editor, the "attached state" would be the cursor position.
 
 ```ts
 interface TextEditorAttachedState {

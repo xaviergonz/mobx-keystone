@@ -1,6 +1,6 @@
 # mobx-keystone
 
-_A MobX powered state management solution based on data trees with first-class support for Typescript, snapshots, patches and much more_
+_A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more_
 
 [![npm](https://img.shields.io/npm/v/mobx-keystone.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/mobx-keystone)
 ![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=flat-square)
@@ -16,7 +16,7 @@ _A MobX powered state management solution based on data trees with first-class s
 
 ## Introduction
 
-`mobx-keystone` is a state container that combines the _simplicity and ease of mutable data_ with the _traceability of immutable data_ and the _reactiveness and performance of observable data_, all with a fully compatible Typescript syntax.
+`mobx-keystone` is a state container that combines the _simplicity and ease of mutable data_ with the _traceability of immutable data_ and the _reactiveness and performance of observable data_, all with a fully compatible TypeScript syntax.
 
 Simply put, it tries to combine the best features of both immutability (transactionality, traceability and composition) and mutability (discoverability, co-location and encapsulation) based approaches to state management; everything to provide the best developer experience possible.
 Unlike MobX itself, `mobx-keystone` is very opinionated about how data should be structured and updated.
@@ -25,7 +25,7 @@ This makes it possible to solve many common problems out of the box.
 Central in `mobx-keystone` is the concept of a _living tree_. The tree consists of mutable, but strictly protected objects (models, arrays and plain objects).
 From this living tree, immutable, structurally shared snapshots are automatically generated.
 
-Another core design goal of `mobx-keystone` is to offer a great Typescript syntax out of the box, be it for models (and other kinds of data such as plain objects and arrays) or for its generated snapshots.
+Another core design goal of `mobx-keystone` is to offer a great TypeScript syntax out of the box, be it for models (and other kinds of data such as plain objects and arrays) or for its generated snapshots.
 
 To see some code and get a glimpse of how it works check the [Todo List Example](https://mobx-keystone.js.org/examples/todoList).
 
@@ -46,7 +46,7 @@ Like React, `mobx-keystone` consists of composable components, called _models_, 
 
 ## Requirements
 
-This library requires a more or less modern Javascript environment to work, namely one with support for:
+This library requires a more or less modern JavaScript environment to work, namely one with support for:
 
 - MobX 6, 5, or 4 (with its gotchas)
 - Proxies (when using MobX 5, or MobX 6 with the proxies setting enabled)
@@ -55,7 +55,7 @@ This library requires a more or less modern Javascript environment to work, name
 
 In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
 
-If you are using Typescript, then version >= 4.2.0 is recommended, though it _might_ work with older versions.
+If you are using TypeScript, then version >= 4.2.0 is recommended, though it _might_ work with older versions.
 
 ## Installation
 

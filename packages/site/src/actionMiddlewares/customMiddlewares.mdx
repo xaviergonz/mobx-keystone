@@ -27,31 +27,31 @@ The `ActionTrackingMiddleware` object has the following structure:
 - `filter?(ctx: SimpleActionContext): boolean`
 
   Filter function called whenever each action starts, and only then.
+  Takes as parameter a simplified action context (more on that later).
+  Returns `true` to accept the action and `false` to skip it.
 
   If the action is accepted then `onStart`, `onResume`, `onSuspend` and `onFinish` for that particular action will be called.
 
   All actions are accepted by default if no filter function is present.
 
-  The param is a simplified action context (more on that later) and it returns `true` to accept the action, `false` to skip it.
-
 - `onStart?(ctx: SimpleActionContext): void | ActionTrackingReturn`
 
   Called when an action just started.
-  Takes as parameter a simplified action context.
+  Takes as parameter a simplified action context (more on that later).
   Can optionally return a result that will cancel the original action and finish it with the returned value / error to be thrown. In either case case resume / suspend / finish will still be called normally.
 
 - `onResume?(ctx: SimpleActionContext): void`
 
   Called when an action just resumed a synchronous piece of code execution.
   Gets called once for sync actions and multiple times for flows.
-  Takes as parameter a simplified action context.
+  Takes as parameter a simplified action context (more on that later).
 
 - `onSuspend?(ctx: SimpleActionContext): void`
 
   Called when an action just finished a synchronous pice of code execution.
   Note that this doesn't necessarily mean the action is finished.
   Gets called once for sync actions and multiple times for flows.
-  Takes as parameter a simplified action context.
+  Takes as parameter a simplified action context (more on that later).
 
 - `onFinish?(ctx: SimpleActionContext, ret: ActionTrackingReturn): void | ActionTrackingReturn`
 
@@ -59,8 +59,8 @@ The `ActionTrackingMiddleware` object has the following structure:
 
   Takes as parameters:
 
-  - `ctx` - Simplified action context.
-  - `ret: { result: ActionTackingResult; value: any }` - If the action finished normally or due to a thrown error and the return / thrown value.
+  - `ctx` - Simplified action context (more on that later).
+  - `ret: { result: ActionTackingResult; value: any }` - If the action finished normally or due to a thrown error and the returned / thrown value.
 
   Can optionally return a new return / error value to override the result of the action.
 
@@ -76,7 +76,7 @@ Simplified version of action context, which includes the following readonly data
 - `rootContext: SimpleActionContext` - Root action context, or itself if the root.
 - `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.
 
-It is simplified as in it treats all single synchronous steps of asynchronous actions as if they were same context, therefore eliminating the differences between the action contexts of sync actions and flows.
+It is simplified as in it treats all single synchronous steps of asynchronous actions as if they were in the same context, therefore eliminating the differences between the action contexts of sync actions and flows.
 
 ## `addActionMiddleware`
 
@@ -100,7 +100,7 @@ The `ActionMiddleware` object has the following structure:
 
 ### `ActionContext`
 
-Low level action context, which includes the following readonly data:
+Low-level action context, which includes the following readonly data:
 
 - `actionName: string` - Action name.
 - `type: ActionContextActionType` - Action type, sync or async.
@@ -108,7 +108,7 @@ Low level action context, which includes the following readonly data:
 - `args: ReadonlyArray<any>` - Array of action arguments.
 - `parentContext?: SimpleActionContext` - Parent action context, if any.
 - `rootContext: SimpleActionContext` - Root action context, or itself if the root.
-- `previousAsyncStepContext?: ActionContext` - Previous async step context, undefined for sync actions or the first action of a flow.
+- `previousAsyncStepContext?: ActionContext` - Previous async step context, `undefined` for sync actions or the first action of a flow.
 - `spawnAsyncStepContext?: ActionContext` - Spawn async step context, or `undefined` for sync actions.
 - `asyncStepType?: ActionContextAsyncStepType` - Async step type, or `undefined` for sync actions.
 - `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.

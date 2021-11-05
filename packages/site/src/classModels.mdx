@@ -14,7 +14,7 @@ import { FixStyle } from "./components/FixStyle.tsx"
 `mobx-keystone` supports the following kinds of data:
 
 - Class models, which are like objects but enhanced with local behaviors (actions/views) and life-cycle events (hooks).
-- Data models, which only define behaviors (actions/views) over "untainted" data and have a _very_ limited number life-cycle events (hooks).
+- Data models, which only define behaviors (actions/views) over "untainted" data and have a _very_ limited number of life-cycle events (hooks).
 - Objects, which serve as basic storages of data (kind of like class models, except without actions and life-cycle events), as well as key-value maps of other data.
 - Arrays.
 - Primitive values (`string`, `boolean`, `number`, `null`, `undefined`).
@@ -35,15 +35,15 @@ export class Todo extends Model({
 
   // in this case we don't use runtime type checking
   text: prop<string>(), // a required string
-  done: prop(false), // an optional boolean that will default to false when the input is null or undefined
-  // if you want to make a property truly optional then use x: prop<TYPE | undefined>()
+  done: prop(false), // an optional boolean that will default to `false` when the input is `null` or `undefined`
+  // if you want to make a property truly optional then use `x: prop<TYPE | undefined>()`
 
   // if we required runtime type checking we could do this
   // text: tProp(types.string),
   // done: tProp(types.boolean, false),
-  // if you want to make a property truly optional then use x: tProp(types.maybe(TYPE))
+  // if you want to make a property truly optional then use `x: tProp(types.maybe(TYPE))`
 }) {
-  // the modelAction decorator marks the function as a model action, giving it access
+  // the `modelAction` decorator marks the method as a model action, giving it access
   // to modify any model data and other superpowers such as action
   // middlewares, replication, etc.
   @modelAction
@@ -82,7 +82,7 @@ With runtime type checking (check the relevant section for more info):
 The rules that need to be followed to declare a class model are:
 
 - Class models have to be decorated with `@model` and require a unique across-application ID for the model type.
-- They have to extend `Model`, which in Typescript requires the type of the data that will become observable / snapshotable / patchable.
+- They have to extend `Model`, which in TypeScript requires the type of the data that will become observable / snapshotable / patchable.
 - This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
 - Model actions need to be used in order to be able to change such data.
 - Never declare your own constructor, there are life-cycle events for that (more on that later).
@@ -117,7 +117,7 @@ myTodo.setText("buy some milk")
 myTodo.setDone(true)
 ```
 
-If for some reason you still require to change these without using a `modelAction` consider using `objectActions.set`, `objectActions.delete`, `objectActions.call`, `arrayActions.push`, etc. if needed.
+If for some reason you still require to change these without using a `modelAction`, consider using `objectActions.set`, `objectActions.delete`, `objectActions.call`, `arrayActions.push`, etc. if needed.
 
 ## Life-cycle event hooks
 
@@ -170,7 +170,7 @@ That being said, there are actually two ways to skip this requirement (having `$
 
 ## Setting an ID property
 
-Note that it is also possible to assign a property as the ID property using `idProp`. Having a dedicated ID property set has some advatages:
+Note that it is also possible to assign a property as the ID property using `idProp`. Having a dedicated ID property set has some advantages:
 
 - Improved reconciliation when applying snapshots.
 - Resolving the target of serialized actions will be less likely to hit the wrong node (thanks to ID checking).
@@ -229,7 +229,7 @@ setGlobalConfig({
 
 If for some reason you do not want to have/require these extra properties in your snapshots please see [data models](./dataModels) instead.
 
-## Getting the Typescript types for model data and model creation data
+## Getting the TypeScript types for model data and model creation data
 
 - `ModelData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
 - `ModelCreationData<Model>` is the type of the first parameter passed to `new Model(...)`.
@@ -240,7 +240,7 @@ For example, given:
 @model("myCoolApp/Todo")
 export class Todo extends Model({
   text: prop<string>(), // a required string
-  done: prop(false), // an optional boolean that will default to false
+  done: prop(false), // an optional boolean that will default to `false`
 }) {}
 ```
 
@@ -248,8 +248,8 @@ export class Todo extends Model({
 
 ```ts
 {
-  text: string; // required when passing it to new Todo({...})
-  done?: boolean | null; // optional when passing it to new Todo({...})
+  text: string; // required when passing it to `new Todo({...})`
+  done?: boolean | null; // optional when passing it to `new Todo({...})`
 }
 ```
 
@@ -257,8 +257,8 @@ and `ModelData<Todo>` would be:
 
 ```ts
 {
-  text: string // since it will always be present when accessing todo.text
-  done: boolean // since it will always be present when accessing todo.done
+  text: string // since it will always be present when accessing `todo.text`
+  done: boolean // since it will always be present when accessing `todo.done`
 }
 ```
 
@@ -276,7 +276,7 @@ interface Book {
 class BookStore extends Model({
   books: prop<Book[]>(() => []),
 }) {
-  // typescript version
+  // TypeScript version
 
   @modelFlow
   // note: `_async` is a function that has to be imported, we have to use `this: THISCLASS`
@@ -289,10 +289,10 @@ class BookStore extends Model({
     this.books = myBooks
   });
 
-  // javascript version
+  // JavaScript version
 
   @modelFlow
-  // we use function* (a function generator) where we would use `async`
+  // we use `function*` (a function generator) where we would use `async`
   *fetchMyBooksAsync(token) {
     // we use `yield* _await(X)` where we would use `await X`
     // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
@@ -327,7 +327,7 @@ class Color extends Model(
 ) {}
 ```
 
-Usually, without `valueType: true`, whenever we wanted to use a same color in two separate paths of the tree we would need to clone it first, or else we would get an error about the node trying to have two parents at once. With `valueType` set this would be no longer the case, since the node would get cloned automatically:
+Usually, without `valueType: true`, whenever we wanted to use the same color in two separate paths of the tree we would need to clone it first, or else we would get an error about the node trying to have two parents at once. With `valueType` set this would be no longer the case, since the node would get cloned automatically:
 
 ```ts
 class MyColors extends Model({
@@ -338,7 +338,7 @@ class MyColors extends Model({
 }
 
 // without `valueType: true` this would throw an error
-// but with it primary is now a clone of secondary
+// but with it `primary` is now a clone of `secondary`
 myColors.setPrimary(myColors.secondary)
 ```
 
@@ -346,7 +346,7 @@ Note that it is an actual clone, this is, changing the primary color won't chang
 
 ## Factory pattern / Generics
 
-If you are _not_ relying on `tProp` to do runtime type-checking it is possible to use this pattern to get generic classes:
+If you are _not_ relying on `tProp` to do runtime type checking it is possible to use this pattern to get generic classes:
 
 ```ts
 @model("myApp/GenericPoint")
@@ -394,13 +394,13 @@ function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY)
 const NumberMyModel = createModelClass("NumberMyModel", 10, 20)
 type NumberMyModel = InstanceType<typeof NumberMyModel>
 
-const numberMyModelInstance = new NumberMyModel({}) // this will be of type NumberMyModel
+const numberMyModelInstance = new NumberMyModel({}) // this will be of type `NumberMyModel`
 numberMyModelInstance.setXY(50, 60)
 
 const StringMyModel = createModelClass("StringMyModel", "10", "20")
 type StringMyModel = InstanceType<typeof StringMyModel>
 
-const stringMyModelInstance = new StringMyModel({}) // this will be of type StringMyModel
+const stringMyModelInstance = new StringMyModel({}) // this will be of type `StringMyModel`
 stringMyModelInstance.setXY("50", "60")
 ```
 
@@ -448,7 +448,7 @@ class Point extends Model({
   }
 }
 
-// note how ExtendedModel is used
+// note how `ExtendedModel` is used
 @model("MyApp/Point3d")
 class Point3d extends ExtendedModel(Point, {
   z: prop<number>(),
@@ -467,18 +467,18 @@ If you want to extend a generic class, then you may want to use `modelClass` in 
 class X extends ExtendedModel(modelClass<SomeGenericClass<string>>(SomeGenericClass), { ... }) { ... }
 ```
 
-If you don't it will still compile, but the generic will be assumed to have unknown for all its generic parameters.
+If you don't it will still compile, but the generic will be assumed to have `unknown` for all its generic parameters.
 
 ## Snapshot pre/post-processors: `fromSnapshotProcessor` / `toSnapshotProcessor`
 
-`fromSnapshotProcessor` might be used to transform an input snapshot into the model expected input snapshot.
-This is useful for example for versioning.
+`fromSnapshotProcessor` might be used to transform an input snapshot into the model's expected input snapshot.
+This is useful, for example, for versioning.
 Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.
 
 ```ts
-// we split it here so it is accessible to FromSnapshotDefaultType<>
+// we split it here so it is accessible to `FromSnapshotDefaultType<>`
 const modelProps = {
-  // in version 2 we split fullName into firstName and lastName
+  // in version 2 we split `fullName` into `firstName` and `lastName`
   _version: prop(2),
   firstName: prop<string>(),
   lastName: prop<string>(),
@@ -506,7 +506,7 @@ class Name extends Model(modelProps, {
 }
 ```
 
-`toSnapshotProcessor` is the opposite and might be used to transform the model expected output snapshot into another kind of object snapshot.
+`toSnapshotProcessor` is the opposite and might be used to transform the model's expected output snapshot into another kind of object snapshot.
 Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.
 
 ```ts
@@ -518,7 +518,7 @@ class Name extends Model(
   },
   {
     toSnapshotProcessor(sn, modelInstance) {
-      // we want to also keep fullName for backwards compatibility
+      // we want to also keep `fullName` for backwards compatibility
       return {
         ...sn,
         fullName: `${sn.firstName} ${sn.lastName}`,
@@ -534,7 +534,7 @@ class Name extends Model(
 
 Model properties can have their own snapshot processors as well:
 
-In this example we use snapshot processors to serialize a string array property as a comma separated string.
+In this example we use snapshot processors to serialize a string array property as a comma-separated string.
 
 ```ts
 class M extends Model({
@@ -551,10 +551,10 @@ class M extends Model({
 
 Although this library was primarily intented to be used with decorators it is also possible to use it without them.
 
-To do so you can use the `decoratedModel` method as shown below:
+To do so you can use the `decoratedModel` function as shown below:
 
 ```ts
-// note the _ at the beginning of the name to distinguish it from the decorated version
+// note the `_` at the beginning of the name to distinguish it from the decorated version
 class _Todo extends Model({
   text: prop<string>(),
   done: prop(false),
@@ -584,16 +584,16 @@ const Todo = decoratedModel(
   ,
   // here we pass what we would use as decorators to the class methods/properties above
   // if we want to use multiple chained decorators we can pass an array of them instead
-  // note that any kind of Typescript compatible decorator is supported, not only the built-in ones!
+  // note that any kind of TypeScript-compatible decorator is supported, not only the built-in ones!
   {
     setDone: modelAction,
     setText: modelAction,
     fullText: computed,
   }
 )
-// needed to be able to do SnapshotInOf<Todo>, type a veriable as Todo, etc
+// needed to be able to do `SnapshotInOf<Todo>`, type a variable as `Todo`, etc.
 type Todo = _Todo
-// if _Todo was generic then it would be `type Todo<T> = _Todo<T>`
+// if `_Todo` was generic then it would be `type Todo<T> = _Todo<T>`
 
 const myTodo = new Todo({ done: false, text: "buy some milk" })
 ```

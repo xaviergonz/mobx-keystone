@@ -17,7 +17,7 @@ Attaches an action middleware that will throw when any action is started over th
 Example:
 
 ```ts
-// given a model instance named todo
+// given a model instance named `todo`
 const { dispose, allowWrite } = readonlyMiddleware(todo)
 
 // this will throw
@@ -26,6 +26,6 @@ await todo.setDoneAsync(false)
 
 // this will work
 allowWrite(() => todo.setDone(false))
-// note: for async always use one action invocation per allowWrite!
+// note: for async always use one action invocation per `allowWrite`!
 await allowWrite(() => todo.setDoneAsync(false))
 ```

@@ -28,14 +28,14 @@ Such store will have most of the usual Redux store methods:
 
 ## `connectReduxDevTools`
 
-It is also possible to connect a store to some Redux DevTools monitor thanks to the `connectReduxDevTools` method and the `remotedev` package.
+It is also possible to connect a store to some Redux DevTools monitor thanks to the `connectReduxDevTools` function and the `remotedev` package.
 
 ```ts
 import * as remotedev from "remotedev"
 // or
 const remotedev = require("remotedev")
 
-// create a connection to the monitor (for example with connectViaExtension)
+// create a connection to the monitor (for example with `connectViaExtension`)
 const connection = remotedev.connectViaExtension({
   name: "my cool store",
 })
@@ -43,7 +43,7 @@ const connection = remotedev.connectViaExtension({
 connectReduxDevTools(remotedev, connection, todoList)
 ```
 
-This function also accepts an optional options object with the following options:
+This function also accepts an optional options object with the following properties:
 
 - `logArgsNearName` - if it should show the arguments near the action name (default is `true`).
 

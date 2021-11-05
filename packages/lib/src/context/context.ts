@@ -73,7 +73,7 @@ export interface Context<T> {
 
   /**
    * Applies a computed value override while the given function is running and, if a node is returned,
-   * sets the node as a provider of the comptued value.
+   * sets the node as a provider of the computed value.
    *
    * @typeparam R
    * @param fn Function to run.

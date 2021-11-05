@@ -39,11 +39,11 @@ const m = new M({
   date: new Date()
 })
 
-m.date // Date
+m.date // `Date`
 m.setDate(new Date()) // ok
-m.$.date // number
+m.$.date // `number`
 
-getSnapshot(m) // { date: number, ... }
+getSnapshot(m) // `{ date: number, ... }`
 ```
 
 Another example:
@@ -58,34 +58,34 @@ const m = new M({
   map: new Map(...)
 })
 
-m.map // Map<string, number>
-m.$.map // Record<string, number>
+m.map // `Map<string, number>`
+m.$.map // `Record<string, number>`
 
-getSnapshot(m) // { map: Record<string, number>, ... }
+getSnapshot(m) // `{ map: Record<string, number>, ... }`
 ```
 
 ### Creating your own custom property transform
 
 ```ts
 // first we designate the transform, with the type
-// ModelPropTransform<TOriginalValue, TTransformedValue>
+// `ModelPropTransform<TOriginalValue, TTransformedValue>`
 const _timestampToDateTransform: ModelPropTransform<number, Date> = {
   transform({ originalValue, cachedTransformedValue, setOriginalValue }) {
-    // originalValue is the original (number) value to transform
+    `// `originalValue` is the original (number) value to transform
 
-    // cachedTransformedValue is previously transformed value (Date) related
+    // `cachedTransformedValue` is previously transformed value (`Date`) related
     // to that original value (if any)
 
-    // setOriginalValue can be called in case we want to change the original value
+    // `setOriginalValue` can be called in case we want to change the original value
 
     return cachedTransformedValue ?? new ImmutableDate(originalValue)
   },
 
   untransform({ transformedValue, cacheTransformedValue }) {
-    // transformedValue is the transformed value (Date)
+    // `transformedValue` is the transformed value (`Date`)
 
-    // cacheTransformedValue() can be called if we want to save into the cache
-    // that the current transformedValue can be cached and reused for that particular
+    // `cacheTransformedValue()` can be called if we want to save into the cache
+    // that the current `transformedValue` can be cached and reused for that particular
     // original value
 
     if (transformedValue instanceof ImmutableDate) {
@@ -155,7 +155,7 @@ All the usual set operations are available (clear, add, has, keys, values, ...),
 
 ### `asMap` collection wrapper
 
-`asMap` will wrap either an object of type `{ [k: string]: V }` or an array of type `[string, V][]` and wrap it into a `Map<string, V>` alike interface:
+`asMap` will wrap either an object of type `{ [k: string]: V }` or an array of type `[string, V][]` and wrap it into a `Map<string, V>` alike interface.
 
 If the backed property is an object operations should be as fast as usual.
 
@@ -166,7 +166,7 @@ If the backed property is an array the following operations will be slower than 
 
 ```ts
 class ... {
-  // given myRecord: prop<{ [k: string]: V }>(() => ({}))
+  // given `myRecord: prop<{ [k: string]: V }>(() => ({}))`
   get myMap() {
     return asMap(this.myRecord)
   }
@@ -179,7 +179,7 @@ class ... {
 }
 
 class ... {
-  // given myArrayMap: prop<[string, V][]>(() => [])
+  // given `myArrayMap: prop<[string, V][]>(() => [])`
   get myMap() {
     return asMap(this.myArrayMap)
   }
@@ -191,7 +191,7 @@ class ... {
   }
 }
 
-// then myMap can be used as a standard Map
+// then `myMap` can be used as a standard `Map`
 ```
 
 To convert it back to an object/array you can use `mapToObject(map)` or `mapToArray(map)`. When the map is a collection wrapper it will return the backed object rather than do a conversion.
@@ -206,7 +206,7 @@ Note that, currently, since the backed property is actually an array the followi
 
 ```ts
 class ... {
-  // given myArraySet: prop<V[]>(() => [])
+  // given `myArraySet: prop<V[]>(() => [])`
   get mySet() {
     return asSet(this.myArraySet)
   }
@@ -218,7 +218,7 @@ class ... {
   }
 }
 
-// then mySet can be used as a standard Set
+// then `mySet` can be used as a standard `Set`
 ```
 
 To convert it back to an array you can use `setToArray(set)`. When the map is a collection wrapper it will return the backed object rather than do a conversion.

@@ -192,7 +192,7 @@ export interface AnyModel extends BaseModel<any, any, any, any> {}
 /**
  * @deprecated Should not be needed anymore.
  *
- * Tricks Typescript into accepting abstract classes as a parameter for `ExtendedModel`.
+ * Tricks TypeScript into accepting abstract classes as a parameter for `ExtendedModel`.
  * Does nothing in runtime.
  *
  * @typeparam T Abstract model class type.

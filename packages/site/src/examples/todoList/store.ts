@@ -1,15 +1,15 @@
 import { computed } from "mobx"
 import {
-  connectReduxDevTools,
-  idProp,
-  model,
-  Model,
-  modelAction,
-  ModelAutoTypeCheckingMode,
-  registerRootStore,
-  setGlobalConfig,
-  tProp,
-  types,
+    connectReduxDevTools,
+    idProp,
+    model,
+    Model,
+    modelAction,
+    ModelAutoTypeCheckingMode,
+    registerRootStore,
+    setGlobalConfig,
+    tProp,
+    types
 } from "mobx-keystone"
 
 // for this example we will enable runtime data checking even in production mode
@@ -21,7 +21,7 @@ setGlobalConfig({
 // the string identifies this model type and must be unique across your whole application
 @model("todoSample/Todo")
 export class Todo extends Model({
-  // here we define the type of the model data, which is observable and snapshottable
+  // here we define the type of the model data, which is observable and snapshotable
   // and also part of the required initialization data of the model
 
   // in this case we use runtime type checking,

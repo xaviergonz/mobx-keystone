@@ -11,8 +11,8 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 ## Overview
 
-While `mobx-keystone` was built with first-class Typescript support in mind, it is also possible to enforce runtime type checking.
-This feature is, however, **completely optional**. This is, if you are happy with the type safety that Typescript offers at compilation time you are free to stick to it exclusively.
+While `mobx-keystone` was built with first-class TypeScript support in mind, it is also possible to enforce runtime type checking.
+This feature is, however, **completely optional**. This is, if you are happy with the type safety that TypeScript offers at compilation time you are free to stick to it exclusively.
 
 ## Type definitions
 
@@ -115,7 +115,7 @@ A type that represents any string value other than "".
 
 ### `types.enum<E>(enumObject)`
 
-An enum type, based on a Typescript alike enum object.
+An enum type, based on a TypeScript alike enum object.
 
 ```ts
 enum Color {
@@ -156,7 +156,7 @@ A type that represents a plain object.
 Note that the parameter must be a function that returns an object. This is done so objects can support self / cross types.
 
 ```ts
-// notice the ({ ... }), not just { ... }
+// notice the `({ ... })`, not just `{ ... }`
 const pointType = types.object(() => ({
   x: types.number,
   y: types.number,
@@ -184,14 +184,14 @@ const stringNumberTupleType = types.tuple(types.string, types.number)
 A type that represents an object-like map, an object with string keys and values all of a same given type.
 
 ```ts
-// { [k: string]: number }
+// `{ [k: string]: number }`
 const numberMapType = types.record(types.number)
 ```
 
 ### `types.model<M>(modelClass)`
 
 A type that represents a model. The type referenced in the model decorator will be used for type checking.
-If you use recursive / cross referencing models and get Typescript errors then consider using the lambda parameter instead.
+If you use recursive / cross referencing models and get TypeScript errors then consider using the lambda parameter instead.
 
 ```ts
 const someModelType = types.model(SomeModel)
@@ -204,7 +204,7 @@ Note that most times just passing the model as type works (for example, `tProp(S
 ### `types.dataModelData<M>(dataModelClass)`
 
 A type that represents the data of a data model. The type referenced in the model decorator will be used for type checking.
-If you use recursive / cross referencing models and get Typescript errors then consider using the lambda parameter instead.
+If you use recursive / cross-referencing models and get TypeScript errors then consider using the lambda parameter instead.
 
 ```ts
 const someModelDataType = types.dataModelData(SomeModel)
@@ -247,16 +247,16 @@ const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
 A type that represents an object-like map `ObjectMap`.
 
 ```ts
-// ObjectMap<number>
+// `ObjectMap<number>`
 const numberMapType = types.objectMap(types.number)
 ```
 
 ### `types.arraySet(valuesType)`
 
-A type that represents an array backed set `ArraySet`.
+A type that represents an array-backed set `ArraySet`.
 
 ```ts
-// ArraySet<number>
+// `ArraySet<number>`
 const numberSetType = types.arraySet(types.number)
 ```
 
@@ -275,8 +275,8 @@ const integerType = types.refinement(
 )
 
 const sumModelType = types.refinement(types.model(Sum), (sum) => {
-  // imagine that for some reason sum includes a number 'a', a number 'b'
-  // and the result
+  // imagine that for some reason `sum` includes a number `a`, a number `b`
+  // and the result `result`
 
   const rightResult = sum.a + sum.b === sum.result
 

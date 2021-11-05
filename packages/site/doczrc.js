@@ -2,7 +2,7 @@
 export default {
   title: "mobx-keystone",
   description:
-    "A MobX powered state management solution based on data trees with first class support for Typescript, snapshots, patches and much more",
+    "A MobX powered state management solution based on data trees with first class support for TypeScript, snapshots, patches and much more",
   repository: "https://github.com/xaviergonz/mobx-keystone",
   npm: "https://npmjs.com/package/mobx-keystone",
   apiRef: "/public/api",

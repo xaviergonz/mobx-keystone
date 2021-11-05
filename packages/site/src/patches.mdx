@@ -13,7 +13,7 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 As seen in the previous [snapshots](../snapshots) section, any change made to a tree node will generate a new snapshot, but this is only one of the three possible ways `mobx-keystone` offers to detect changes. The second way is "patches".
 
-Basically, every change will generate two kind of patches, patches from the previous to the new value (simply known as "patches") and patches from the new to the previous value (known as "inverse patches"). A patch object has this structure:
+Basically, every change will generate two kinds of patches, patches from the previous to the new value (simply known as "patches") and patches from the new to the previous value (known as "inverse patches"). A patch object has this structure:
 
 ```ts
 export interface Patch {
