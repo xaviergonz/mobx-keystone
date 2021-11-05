@@ -113,26 +113,26 @@ When changes made in nested `withSandbox` calls are to be committed, only the ou
 
 ```ts
 numSandbox.withSandbox([num], (numCopy1) => {
-  // numCopy1.value => 0
+  // `numCopy1.value` => 0
   numCopy1.setValue(1)
-  // numCopy1.value => 1
+  // `numCopy1.value` => 1
   numSandbox.withSandbox([numCopy1], (numCopy2) => {
-    // numCopy2.value => 1
+    // `numCopy2.value` => 1
     numCopy2.setValue(2)
-    // numCopy2.value => 2
+    // `numCopy2.value` => 2
     numSandbox.withSandbox([numCopy2], (numCopy3) => {
-      // numCopy3.value => 2
+      // `numCopy3.value` => 2
       numCopy3.setValue(3)
-      // numCopy3.value => 3
+      // `numCopy3.value` => 3
       return true
     })
-    // numCopy2.value => 3
+    // `numCopy2.value` => 3
     return false
   })
-  // numCopy1.value => 1
+  // `numCopy1.value` => 1
   return true
 })
-// num.value => 1
+// `num.value` => 1
 ```
 
 The sandbox copy of a subtree root node tracks the [root store](../rootStores) state of the original subtree root node, i.e. when the original subtree root node is registered as a root store, its corresponding sandbox copy becomes a root store as well and vice versa.
@@ -224,14 +224,14 @@ When the store does not yet contain an item of type `ItemA`, `canAddItem` return
 
 ```ts
 const item1 = new ItemA({})
-console.log(store.canAddItem(item1)) // => true
+console.log(store.canAddItem(item1)) // => `true`
 store.addItem(item1)
-console.log(store.errors) // => []
+console.log(store.errors) // => `[]`
 ```
 
 However, adding a second item of type `ItemA` would incur an error:
 
 ```ts
 const item2 = new ItemA({})
-console.log(store.canAddItem(item2)) // => ["only 1 instance of ItemA allowed"]
+console.log(store.canAddItem(item2)) // => `["only 1 instance of ItemA allowed"]`
 ```

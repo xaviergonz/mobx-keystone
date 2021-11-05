@@ -18,7 +18,7 @@ Its main use is to keep track of top-level actions that can be later replicated 
 
 There are two kinds of possible listeners, `onStart` and `onFinish` listeners.
 
-- `onStart` listeners are called before the action executes and allow cancellation by returning a new return value (which might be a return or a throw).
+- `onStart` listeners are called before the action executes and allow cancelation by returning a new return value (which might be a return or a throw).
 - `onFinish` listeners are called after the action executes, have access to the action's actual return value and allow overriding by returning a new return value (which might be a return or a throw).
 
 The actions passed as arguments to the listener are not in a serializable format. If you want to ensure that the actual action calls are serializable you should use `serializeActionCall` over the whole action before sending the action call over the wire / storing them and likewise use `applySerializedActionAndTrackNewModelIds` (for the server) / `applySerializedActionAndSyncNewModelIds` (for the clients) before applying it (as seen in the [Client/Server Example](../examples/clientServer)).
@@ -48,9 +48,9 @@ const disposer = onActionMiddleware(myTodoList, {
 
   onFinish(actionCall, actionContext, ret) {
     if (ret.result === ActionTrackingResult.Return) {
-      // the action succeeded and ret.value has the return value
+      // the action succeeded and `ret.value` has the return value
     } else if (ret.result === ActionTrackingResult.Throw) {
-      // the action threw and ret.value has the thrown value
+      // the action threw and `ret.value` has the thrown value
     }
 
     // as in above, we can either return an object with what to return / throw
@@ -72,7 +72,7 @@ Action serialization (via `serializeActionCall` and `deserializeActionCall`) sup
 - Sets and observable sets.
 - Plain objects, observable or not.
 
-However, you might want to serialize an action that passes your custom type as an argument. In this case you can register a custom action seralizer:
+However, you might want to serialize an action that passes your custom type as an argument. In this case you can register a custom action serializer:
 
 ```ts
 const myTypeSerializer: ActionCallArgumentSerializer<MyType, JsonCompatibleType> = {
@@ -87,7 +87,7 @@ const myTypeSerializer: ActionCallArgumentSerializer<MyType, JsonCompatibleType>
   },
 
   deserialize(someJsonCompatibleValue, deserializeChild, targetRoot) {
-    // return back MyType from the JSON compatible value
+    // return back `MyType` from the JSON compatible value
   },
 }
 

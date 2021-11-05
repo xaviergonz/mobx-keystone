@@ -13,7 +13,7 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 Data models, like class models, define the behaviors (actions/views) that can be performed over data, but without tainting the data itself with `$modelType`. This however comes with some disadvantages as well, namely:
 
-- The model instances are created lazily and when needed rathern than eagerly.
+- The model instances are created lazily and when needed rather than eagerly.
 - The only life-cycle event hook available, `onLazyInit`, is run lazily, this is, the first time the data model wrapper is created, rather than eagerly.
 - Reconciliation is somewhat worse due to the lack of an ID property to uniquely identify the instances.
 
@@ -21,7 +21,7 @@ That being said, they have some use cases (for example to represent a backend re
 
 ## Your first data model
 
-Data models are defined in a similar way to class models, except that they use `DataModel` instead of `Model`. One thing to note though is that default values for properties are only applied when using `new` over plain objects (this is not tree nodes):
+Data models are defined in a similar way to class models, except that they use `DataModel` instead of `Model`. One thing to note though is that default values for properties are only applied when using `new` over plain objects (i.e. not tree nodes):
 
 ```ts
 // the model decorator marks this class as a model, an object with actions, etc.
@@ -33,15 +33,15 @@ export class Todo extends DataModel({
 
   // in this case we don't use runtime type checking
   text: prop<string>(), // a required string
-  done: prop(false), // an optional boolean that will default to false when the input is null or undefined
-  // if you want to make a property truly optional then use x: prop<TYPE | undefined>()
+  done: prop(false), // an optional boolean that will default to `false` when the input is `null` or `undefined`
+  // if you want to make a property truly optional then use `x: prop<TYPE | undefined>()`
 
   // if we required runtime type checking we could do this
   // text: tProp(types.string),
   // done: tProp(types.boolean, false),
-  // if you want to make an optional property then use x: tProp(types.maybe(TYPE))
+  // if you want to make an optional property then use `x: tProp(types.maybe(TYPE))`
 }) {
-  // the modelAction decorator marks the function as a model action, giving it access
+  // the `modelAction` decorator marks the method as a model action, giving it access
   // to modify any model data and other superpowers such as action
   // middlewares, replication, etc.
   @modelAction
@@ -80,7 +80,7 @@ With runtime type checking (check the relevant section for more info):
 The rules that need to be followed to declare a data model are:
 
 - Data models have to be decorated with `@model` and require a unique across-application ID for the model type.
-- They have to extend `DataModel`, which in Typescript requires the type of the data that will become observable / snapshotable / patchable.
+- They have to extend `DataModel`, which in TypeScript requires the type of the data that will become observable / snapshotable / patchable.
 - This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
 - Model actions need to be used in order to be able to change such data.
 - Never declare your own constructor, there are life-cycle events for that (more on that later).
@@ -97,7 +97,7 @@ An instance of the todo data node plus its wrapper model can be created like thi
 
 ```ts
 const myTodo1 = new Todo({ done: true, text: "buy some milk" })
-// myTodo1.$ will hold the data object that can be inserted into a tree
+// `myTodo1.$` will hold the data object that can be inserted into a tree
 ```
 
 Note that if the input data is a tree node then `myTodo1.$` will be exactly that same data tree node passed in the constructor.
@@ -110,7 +110,7 @@ Some examples:
 
 ```ts
 const todoList: ModelData<Todo> = [...];
-// usually we would use todoList[x] to access the data...
+// usually we would use `todoList[x]` to access the data ...
 
 // until the moment we want to edit a particular todo
 const editableTodo = new Todo(todoList[x]);
@@ -181,9 +181,9 @@ class SomeModel extends Model({...}) {
 }
 ```
 
-Note that this runtime data holds to the same lazy creation rules than the data model wrapper instance itself.
+Note that this runtime data holds to the same lazy creation rules as the data model wrapper instance itself.
 
-## Getting the Typescript types for model Data
+## Getting the TypeScript types for model data
 
 - `ModelData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
 
@@ -203,7 +203,7 @@ interface Book {
 class BookStore extends DataModel({
   books: prop<Book[]>(() => []),
 }) {
-  // typescript version
+  // TypeScript version
 
   @modelFlow
   // note: `_async` is a function that has to be imported, we have to use `this: THISCLASS`
@@ -216,10 +216,10 @@ class BookStore extends DataModel({
     this.books = myBooks
   });
 
-  // javascript version
+  // JavaScript version
 
   @modelFlow
-  // we use function* (a function generator) where we would use `async`
+  // we use `function*` (a function generator) where we would use `async`
   *fetchMyBooksAsync(token) {
     // we use `yield* _await(X)` where we would use `await X`
     // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
@@ -237,7 +237,7 @@ await myBookStore.fetchMyBooksAsync("someToken")
 
 ## Factory pattern / Generics
 
-If you are _not_ relying on `tProp` to do runtime type-checking it is possible to use this pattern to get generic classes:
+If you are _not_ relying on `tProp` to do runtime type checking it is possible to use this pattern to get generic classes:
 
 ```ts
 @model("myApp/GenericPoint")
@@ -285,13 +285,13 @@ function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY)
 const NumberMyModel = createModelClass("NumberMyModel", 10, 20)
 type NumberMyModel = InstanceType<typeof NumberMyModel>
 
-const numberMyModelInstance = new NumberMyModel({}) // this will be of type NumberMyModel
+const numberMyModelInstance = new NumberMyModel({}) // this will be of type `NumberMyModel`
 numberMyModelInstance.setXY(50, 60)
 
 const StringMyModel = createModelClass("StringMyModel", "10", "20")
 type StringMyModel = InstanceType<typeof StringMyModel>
 
-const stringMyModelInstance = new StringMyModel({}) // this will be of type StringMyModel
+const stringMyModelInstance = new StringMyModel({}) // this will be of type`StringMyModel`
 stringMyModelInstance.setXY("50", "60")
 ```
 
@@ -326,7 +326,7 @@ export function createModelClass<TX, TY>(modelName: string, initialX: TX, initia
 
 Model inheritance is possible with a few gotchas.
 
-The first thing to bear in mind is that class models that extend from other class models must use `ExtendedDataModel` rather than the plain `DataModel`. For example:
+The first thing to bear in mind is that data models that extend from other data models must use `ExtendedDataModel` rather than the plain `DataModel`. For example:
 
 ```ts
 @model("MyApp/Point")
@@ -339,7 +339,7 @@ class Point extends DataModel({
   }
 }
 
-// note how ExtendedModel is used
+// note how `ExtendedModel` is used
 @model("MyApp/Point3d")
 class Point3d extends ExtendedDataModel(Point, {
   z: prop<number>(),
@@ -350,7 +350,7 @@ class Point3d extends ExtendedDataModel(Point, {
 }
 ```
 
-Also, remember that if your base model has `onLazyInit` and you redeclare them in your extended model you will need to call `super.onLazyInit(...)` in the extended model.
+Also, remember that if your base model has `onLazyInit` and you redeclare it in your extended model you will need to call `super.onLazyInit(...)` in the extended model.
 
 If you want to extend a generic class, then you may want to use `modelClass` in order to specify the exact generic like this:
 
@@ -358,16 +358,16 @@ If you want to extend a generic class, then you may want to use `modelClass` in 
 class X extends ExtendedDataModel(modelClass<SomeGenericClass<string>>(SomeGenericClass), { ... }) { ... }
 ```
 
-If you don't it will still compile, but the generic will be assumed to have unknown for all its generic parameters.
+If you don't it will still compile, but the generic will be assumed to have `unknown` for all its generic parameters.
 
 ## Usage without decorators
 
 Although this library was primarily intented to be used with decorators it is also possible to use it without them.
 
-To do so you can use the `decoratedModel` method as shown below:
+To do so you can use the `decoratedModel` function as shown below:
 
 ```ts
-// note the _ at the beginning of the name to distinguish it from the decorated version
+// note the `_` at the beginning of the name to distinguish it from the decorated version
 class _Todo extends DataModel({
   text: prop<string>(),
   done: prop<string>(),
@@ -397,16 +397,16 @@ const Todo = decoratedModel(
   ,
   // here we pass what we would use as decorators to the class methods/properties above
   // if we want to use multiple chained decorators we can pass an array of them instead
-  // note that any kind of Typescript compatible decorator is supported, not only the built-in ones!
+  // note that any kind of TypeScript-compatible decorator is supported, not only the built-in ones!
   {
     setDone: modelAction,
     setText: modelAction,
     fullText: computed,
   }
 )
-// needed to be able to do SnapshotInOf<Todo>, type a veriable as Todo, etc
+// needed to be able to do `SnapshotInOf<Todo>`, type a variable as `Todo`, etc
 type Todo = _Todo
-// if _Todo was generic then it would be `type Todo<T> = _Todo<T>`
+// if `_Todo` was generic then it would be `type Todo<T> = _Todo<T>`
 
 const myTodo = new Todo({ done: false, text: "buy some milk" })
 ```

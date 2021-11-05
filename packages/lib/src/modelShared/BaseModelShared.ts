@@ -99,7 +99,7 @@ export type ModelToSnapshot<M extends AnyModel> = IsNeverType<
 > & { [modelTypeKey]?: string }
 
 /**
- * Tricks Typescript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.
+ * Tricks TypeScript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.
  * Does nothing in runtime.
  *
  * @typeparam T Generic model class type.

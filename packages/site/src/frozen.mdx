@@ -13,9 +13,9 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 When performance is key and there are big chunks of data that don't change at all we can use `frozen`.
 
-`frozen` basically wraps a plain chunk of data (composed of plain objects, arrays, primitives, or a mix of them) inside a model-like structure, turns such data into immutable (in dev mode) and therefore keeps it still observable (by reference), snapshottable, patchable and reactive, but skipping the overhead of turning every single object inside the frozen data into separate tree nodes.
+`frozen` basically wraps a plain chunk of data (composed of plain objects, arrays, primitives, or a mix of them) inside a model-like structure, turns such data into immutable (in dev mode) and therefore keeps it still observable (by reference), snapshotable, patchable and reactive, but skipping the overhead of turning every single object inside the frozen data into separate tree nodes.
 
-Additionally, in dev mode only (for performance reasons), frozen will deeply freeze the object passed to it (ensuring it stays immutable) and will ensure the structure passed is compatible with JSON in order for it to be properly snapshottable.
+Additionally, in dev mode only (for performance reasons), frozen will deeply freeze the object passed to it (ensuring it stays immutable) and will ensure the structure passed is compatible with JSON in order for it to be properly snapshotable.
 
 As an example, say that your app uses lists of lots of points (polygons), and you know that once a polygon is added to your store the polygon itself won't change. In order to make it faster it could be modeled like this:
 
@@ -28,7 +28,7 @@ const myPolygon = [
   { x: 20, y: 10 },
 ]
 
-// now myPolygon will be frozen, in dev mode it cannot be changed anymore
+// now `myPolygon` will be frozen, in dev mode it cannot be changed anymore
 // and things like `getSnapshot` will work over it
 const myFrozenPolygon = frozen(myPolygon)
 

@@ -68,9 +68,9 @@ The returned context object has the following methods:
 - `unset(node)` - Make the node no longer provide a context value.
 - `getProviderNode(node)` - Gets the node that will provide the value, or undefined if it will come from the default value.
 - `apply(fn, value)` - Applies a value override while the given function is running and, if a node is returned, sets the node as a provider of the value.
-- `applyComputed(fn, () => value)` - Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the comptued value.
+- `applyComputed(fn, () => value)` - Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the computed value.
 
-In particular, `apply` is more useful than it may seem, since it allows you to pass volatile (non property) data to your nodes at construction time (be it through `new`, `fromSnapshot`, `clone`, `toTreeNode`, etc.).
+In particular, `apply` is more useful than it may seem, since it allows you to pass volatile (non-property) data to your nodes at construction time (be it through `new`, `fromSnapshot`, `clone`, `toTreeNode`, etc.).
 For example:
 
 ```ts

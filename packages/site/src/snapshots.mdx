@@ -11,29 +11,29 @@ import { FixStyle } from "./components/FixStyle.tsx"
 
 ## Overview
 
-Snapshots are the immutable, structurally shared, representation of tree nodes (models and their children).
+Snapshots are immutable, structurally shared, representations of tree nodes (models and their children).
 
 Snapshots in `mobx-keystone` mainly serve these two purposes:
 
 - As a serialization / deserialization mechanism (be it to store it or send it over the wire).
 - As a way to bridge data to non-`mobx-react`-enabled React components.
 
-Basically, when a change is performed over a tree node then a new immutable snapshot of it will be generated. Additionally, immutable snapshots for all parents will be generated as well. Any unchanged objects however will keep its snapshot unmodified.
+Basically, when a change is performed over a tree node then a new immutable snapshot of it will be generated. Additionally, immutable snapshots for all parents will be generated as well. Any unchanged objects however will keep their snapshots unmodified.
 
 For example, imagine a model `A` with two children (`B` and `C`), and let's call their initial snapshots `sA[0]`, `sB[0]` and `sC[0]`.
 
 ```
 A -> sA[0] = getSnapshot(A)
-- B -> sB[0] = getSnapshot(B)
-- C -> sC[0] = getSnapshot(C)
+B -> sB[0] = getSnapshot(B)
+C -> sC[0] = getSnapshot(C)
 ```
 
 If we change a property in `B` then a new snapshot will be generated for it, as well as for all its parents (`A`), but not for unaffected objects (`C` in this case), thus resulting in:
 
 ```
 A -> sA[1] = getSnapshot(A)
-- B -> sB[1] = getSnapshot(B)
-- C -> sC[0] = getSnapshot(C)
+B -> sB[1] = getSnapshot(B)
+C -> sC[0] = getSnapshot(C)
 ```
 
 This means, as mentioned before, that snapshots generation is automatically optimized to only change their references when the objects they represent (and their children) actually change.
@@ -105,11 +105,9 @@ type SnapshotInOf<Todo> = {
 
 Compared to the output snapshot note how `done` is now marked as optional since we declared a default value for it.
 
-Note that `fromSnapshot` can actually be used over any snapshot that represents a valid tree node (any model snapshot, or a plain object, array or primitive).
-
 As for the options object, these options are available:
 
-- `generateNewIds: boolean` - Pass `true` to generate new internal ids for models rather than reusing them (default is `false`).
+- `generateNewIds: boolean` - Pass `true` to generate new internal IDs for models rather than reusing them (default is `false`).
 
 ## Reacting to snapshot changes
 
@@ -143,7 +141,7 @@ In both cases the returned disposer function can be called to cancel the effect.
 It is also possible to apply a snapshot over an object, reconciling the contents of the object and therefore ensuring that only the minimal set of snapshot changes / patches is triggered:
 
 ```ts
-// given todo is a todo with { done: false, text: "buy some milk" }
+// given `todo` is a todo with `{ done: false, text: "buy some milk" }`
 
 applySnapshot(todo, {
   done: true,
@@ -152,7 +150,7 @@ applySnapshot(todo, {
 })
 ```
 
-In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused (since they have a same model id).
+In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused (since they have the same model ID).
 
 ## Cloning via snapshots
 

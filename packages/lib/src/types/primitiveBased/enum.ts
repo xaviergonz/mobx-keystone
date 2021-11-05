@@ -29,7 +29,7 @@ export type EnumValues<E> = E extends Record<
   : never
 
 /**
- * An enum type, based on a Typescript alike enum object.
+ * An enum type, based on a TypeScript alike enum object.
  * Syntactic sugar for `types.or(...enum_values.map(types.literal))`
  *
  * Example:
@@ -48,7 +48,7 @@ export type EnumValues<E> = E extends Record<
  */
 export function typesEnum<E extends object>(enumObject: E): IdentityType<EnumValues<E>>
 /**
- * An enum type, based on a Typescript alike enum object.
+ * An enum type, based on a TypeScript alike enum object.
  * Syntactic sugar for `types.or(...enum_values.map(types.literal))`
  *
  * Example:

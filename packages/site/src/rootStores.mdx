@@ -23,7 +23,7 @@ You can think of a tree node marked as a root store as the "live tree" of your a
 Registering/unregistering a model instance as a root store is as simple as:
 
 ```ts
-// given myTodoList is a model instance of a todo list...
+// given `myTodoList` is a model instance of a todo list ...
 registerRootStore(myTodoList)
 
 // unregistering
@@ -48,7 +48,7 @@ type Theme = "light" | "dark"
 
 @model("myApp/UserPreferences")
 class UserPreferences extends Model({ theme: prop<Theme>() }) {
-  // once we are part of the root store...
+  // once we are part of the root store ...
   onAttachedToRootStore() {
     // every time the snapshot of the configuration changes
     const reactionDisposer = reaction(
@@ -93,7 +93,7 @@ class RootStore extends Model({ userPreferences: prop<UserPreferences>() }) {
 ```ts
 const myPreferencesObj = JSON.parse(localStorage.get("myPreferences"))
 
-// this will create a UserPrefernces model instance, but won't save any changes yet
+// this will create a `UserPrefernces` model instance, but won't save any changes yet
 // since it is not yet part of a root store
 // this means we can manipulate it without fear of overwriting the
 // config in local storage
@@ -105,7 +105,7 @@ const myPreferences = fromSnapshot<UserPreferences>(myPreferencesObj)
 ```ts
 const myRootStore = new RootStore({ userPreferences: myPreferences })
 
-// after this next function is called, myPreferences will become part of a root store
+// after this next function is called, `myPreferences` will become part of a root store
 // and therefore start saving now and on changes
 registerRootStore(myRootStore)
 // the preferences get saved ...
@@ -137,7 +137,7 @@ As you can see, such hook is really a great place to manage side effects.
 
 ## Sharing contextual data
 
-Although usually contexts are preferred for this case (see the [contexts](./contexts) section), root stores can be also an alternative to store global contextual/environmental runtime data that doesn't really need to be serialized anywhere yet need to be shared across the whole application.
+Although usually contexts are preferred for this case (see the [contexts](./contexts) section), root stores can be also an alternative to store global contextual/environmental runtime data that doesn't really need to be serialized anywhere yet does need to be shared across the whole application.
 For this we would just need to follow a pattern like this one:
 
 ```ts
