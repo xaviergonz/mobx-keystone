@@ -66,17 +66,10 @@ Given the preferences example mentioned above, let's imagine we have a model (pa
 
 ```ts
 @model("myApp/Preferences")
-class Preferences extends Model({ username: prop<string>(), avatarUrl: prop<string>() }) {
-  @modelAction
-  setUsername(val: string) {
-    this.username = val
-  }
-
-  @modelAction
-  setAvatarUrl(val: string) {
-    this.avatarUrl = val
-  }
-
+class Preferences extends Model({
+  username: prop<string>().withSetter(),
+  avatarUrl: prop<string>().withSetter(),
+}) {
   // just as an example, some validation code
   @computed
   get usernameValidationError(): string | null {

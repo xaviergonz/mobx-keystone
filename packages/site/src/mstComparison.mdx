@@ -107,29 +107,14 @@ In `mobx-keystone` snapshots are usually only expected when dealing with `getSna
 ```ts
 @model("myApp/Todo")
 class Todo extends Model({
-  done: prop(false),
-  text: prop<string>(),
-}) {
-  @modelAction
-  setText(text: string) {
-    this.text = text
-  }
-
-  @modelAction
-  setDone(done: boolean) {
-    this.done = done
-  }
-}
+  done: prop(false).withSetter(),
+  text: prop<string>().withSetter(),
+}) {}
 
 @model("myApp/RootStore")
 class RootStore extends Model({
-  selected: prop<Todo | undefined>(undefined),
-}) {
-  @modelAction
-  setSelected(todo: Todo | undefined) {
-    this.selected = todo
-  }
-}
+  selected: prop<Todo | undefined>(undefined).withSetter(),
+}) {}
 ```
 
 ### Less confusion between this/self usages - use of standard computed decorators
