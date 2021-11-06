@@ -18,16 +18,11 @@ For example, consider this simple model:
 ```ts
 @model("MyApp/EvenNumber")
 class EvenNumber extends Model({
-  value: prop<number>(),
+  value: prop<number>().withSetter(),
 }) {
   @computed
   get isValid(): number {
     return value % 2 === 0
-  }
-
-  @modelAction
-  setValue(value: number): void {
-    this.value = value
   }
 }
 ```

@@ -47,7 +47,7 @@ First we need to define a model for the user preferences, as well as its desired
 type Theme = "light" | "dark"
 
 @model("myApp/UserPreferences")
-class UserPreferences extends Model({ theme: prop<Theme>() }) {
+class UserPreferences extends Model({ theme: prop<Theme>().withSetter() }) {
   // once we are part of the root store ...
   onAttachedToRootStore() {
     // every time the snapshot of the configuration changes
@@ -68,11 +68,6 @@ class UserPreferences extends Model({ theme: prop<Theme>() }) {
       reactionDisposer()
     }
   }
-
-  @modelAction
-  setTheme(theme: Theme) {
-    this.theme = theme
-  }
 }
 ```
 
@@ -80,12 +75,9 @@ class UserPreferences extends Model({ theme: prop<Theme>() }) {
 
 ```ts
 @model("myApp/RootStore")
-class RootStore extends Model({ userPreferences: prop<UserPreferences>() }) {
-  @modelAction
-  setUserPreferences(userPreferences: UserPreferences) {
-    this.userPreferences = userPreferences
-  }
-}
+class RootStore extends Model({
+  userPreferences: prop<UserPreferences>().withSetter(),
+}) {}
 ```
 
 ... then we will need some code to initialize our application, loading the preferences already stored in local storage ...
