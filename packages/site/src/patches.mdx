@@ -37,6 +37,8 @@ const disposer = onPatches(todo, (patches, inversePatches) => {
 })
 ```
 
+Note that the listener callback is called _immediately_ after an observable value has changed and before the outermost action has completed. This behavior differs from, e.g., `onSnapshot` or a MobX reaction.
+
 ### `patchRecorder(target: object, opts?: { recording?: boolean; filter?(patches: Patch[], inversePatches: Patch[]): boolean }; onPatches?: OnPatchesListener): PatchRecorder;`
 
 `patchRecorder` is an abstraction over `onPatches` that can be used like this:
