@@ -171,7 +171,7 @@ In the case multiple selection was possible we could reuse the `todoRef` created
 @model("myApp/TodoList")
 class TodoList extends Model({
   list: prop<Todo[]>(() => []),
-  selectedRefs: prop < Ref < Todo > [] >> (() => []),
+  selectedRefs: prop<Ref<Todo>[]>>(() => []),
 }) {
   // ...
 
