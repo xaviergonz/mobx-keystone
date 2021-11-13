@@ -1,0 +1,43 @@
+---
+title: Redux Compatibility
+---
+
+## `asReduxStore`
+
+It is possible to transform a `mobx-keystone` tree node into a Redux compatible store.
+
+```ts
+const todoListReduxStore = asReduxStore(todoList)
+
+// or with Redux middlewares
+const todoListReduxStore = asReduxStore(todoList, middleware1, middleware2)
+```
+
+Such store will have most of the usual Redux store methods:
+
+- `getState()` is a thin wrapper over `getSnapshot(storeTarget)`.
+- `dispatch(action)` accepts an action in the form `{ type: "applyAction"; payload: ActionCall }`, which can be constructed by using `actionCallToReduxAction(actionCall)` and will call `applyAction` with the store target and the action call from the payload.
+- `subscribe(listener)` will use `onSnapshot(storeTarget, listener)` and return a disposer.
+
+## `connectReduxDevTools`
+
+It is also possible to connect a store to some Redux DevTools monitor thanks to the `connectReduxDevTools` function and the `remotedev` package.
+
+```ts
+import * as remotedev from "remotedev"
+// or
+const remotedev = require("remotedev")
+
+// create a connection to the monitor (for example with `connectViaExtension`)
+const connection = remotedev.connectViaExtension({
+  name: "my cool store",
+})
+
+connectReduxDevTools(remotedev, connection, todoList)
+```
+
+This function also accepts an optional options object with the following properties:
+
+- `logArgsNearName` - if it should show the arguments near the action name (default is `true`).
+
+If you want to see it in action feel free to check the [Todo List Example](./examples/todoList), open the Redux DevTools and perform some actions.

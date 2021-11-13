@@ -1,0 +1,171 @@
+---
+name: undoMiddleware
+---
+
+## Overview
+
+The undo middleware allows you to keep a history of the changes performed to your data and travel back (undo) and forth (redo) between those changes.
+
+For example, given this simple model:
+
+```ts
+@model("MyApp/Counter")
+class Counter extends Model({ count: prop(0) }) {
+  @modelAction
+  add(n: number) {
+    this.count += n
+  }
+}
+
+const counter = new Counter({})
+```
+
+We can create an undo manager for it:
+
+```ts
+const undoManager = undoMiddleware(counter)
+```
+
+## `UndoManager`
+
+The returned `undoManager` offers the following data:
+
+- `store: UndoStore` - The store currently being used to store undo/redo action events.
+- `undoQueue: ReadonlyArray<UndoEvent>` - The undo stack, where the first operation to undo will be the last of the array.
+- `redoQueue: ReadonlyArray<UndoEvent>` - The redo stack, where the first operation to redo will be the last of the array.
+- `undoLevels: number` - The number of undo actions available.
+- `canUndo: boolean` - If undo can be performed (if there is at least one undo action available).
+- `redoLevels: number` - The number of redo actions available.
+- `canRedo: boolean` - If redo can be performed (if there is at least one redo action available).
+
+And the following actions:
+
+- `clearUndo()` - Clears the undo queue.
+- `clearRedo()` - Clears the redo queue.
+- `undo()` - Undoes the last action. Will throw if there is no action to undo.
+- `redo()` - Redoes the previous action. Will throw if there is no action to redo.
+- `dispose()` - Disposes of the undo middleware.
+
+## `UndoEvent`
+
+Each change is stored as an `UndoEvent`, which is a readonly structure like:
+
+- `targetPath: Path` - Path to the object that invoked the action from its root.
+- `actionName: string` - Name of the action that was invoked.
+- `patches: ReadonlyArray<Patch>` - Patches with changes done inside the action. Use `redo()` in the `UndoManager` to apply them.
+- `inversePatches: ReadonlyArray<Patch>` - Patches to undo the changes done inside the action. Use `undo()` in the `UndoManager` to apply them.
+
+## Storing the undo store inside your models
+
+`undoMiddleware` accepts a second optional parameter. When this parameter is omitted the event store will be just stored on some random model in memory, but if you want it to be stored inside one of your models (for example to persist it), you can do so by passing as second argument where it should be located.
+
+```ts
+@model("MyApp/MyRootStore")
+class MyRootStore extends Model({
+  undoData: prop<UndoStore>(() => new UndoStore({})),
+  counter: prop<Counter>(() => new Counter({})),
+}) {}
+
+const myRootStore = new MyRootStore({})
+
+const undoManager = undoMiddleware(myRootStore, myRootStore.undoData)
+```
+
+## Making some changes skip undo/redo
+
+Sometimes you might want some changes / part of changes skip the undo/redo mechanism. To do so you can use the `withoutUndo` method like this:
+
+```ts
+@modelAction
+someAction() {
+  // this change will be redone/undone when the action is redone/undone
+  this.x++
+
+  // you may skip only in certain undo managers ...
+  someUndoManager.withoutUndo(() => {
+    // this one won't
+    this.y++
+  })
+
+  // or for all of them
+  withoutUndo(() => {
+    // this one won't
+    this.y++
+  })
+
+  // this one will
+  this.z++
+}
+```
+
+## Grouping multiple actions into a single undo/redo step
+
+Sometimes you might want multiple actions to be undone/redone in a single step. If they are sync actions you may use the `withGroup` method like this:
+
+```ts
+someUndoManager.withGroup("optional group name", () => {
+  someModel.firstAction()
+  someOtherModel.secondAction()
+
+  // note how nested groups are allowed
+  someUndoManager.withGroup(() => {
+    someModel.thirdAction()
+    someOtherModel.fourthAction()
+  })
+})
+```
+
+If they are async actions then you may use `withGroupFlow` instead:
+
+```ts
+someUndoManager.withGroupFlow("optional group name", function* () {
+  yield* _await(someModel.firstAsyncAction())
+
+  yield* _await(someService.someAsyncStuffInTheMiddle())
+
+  yield* _await(someModel.secondAsyncAction())
+})
+```
+
+Another possibility is to use `createGroup` to group sync actions in separated code blocks:
+
+```ts
+const group = someUndoManager.createGroup("optional group name")
+group.continue(() => {
+  someModel.firstSyncAction()
+})
+
+const asyncValue = await someService.someAsyncStuffInTheMiddle()
+
+group.continue(() => {
+  someModel.secondSyncAction(asyncValue)
+})
+group.end() // at this point is when the undo event will be created
+```
+
+Now, once undo/redo is called all the actions will be undone/redone in a single call.
+
+## Adding attached state to each undo/redo step
+
+Imagine a text editor where you don't want to undo each single cursor position change, but you still want to move the cursor to wherever it was before (when undoing) / after (when redoing) an action is performed.
+
+For this use case you can use what is called an "attached state". This attached state gets saved before an undo/redo step is recorded, as well as after, and is restored after each undo/redo operation. In the case of the text editor, the "attached state" would be the cursor position.
+
+```ts
+interface TextEditorAttachedState {
+  cursorPosition: number
+}
+
+const undoManager = undoMiddleware(myRootStore, undefined, {
+  attachedState: {
+    save(): TextEditorAttachedState {
+      return {
+        cursorPosition, // get the cursor position
+      }
+    },
+    restore(attachedState: TextEditorAttachedState) {
+      // move the cursor position
+    },
+  },
+})
+```

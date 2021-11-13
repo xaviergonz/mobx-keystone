@@ -1,0 +1,330 @@
+---
+title: Runtime Type Checking
+---
+
+## Overview
+
+While `mobx-keystone` was built with first-class TypeScript support in mind, it is also possible to enforce runtime type checking.
+This feature is, however, **completely optional**. This is, if you are happy with the type safety that TypeScript offers at compilation time you are free to stick to it exclusively.
+
+## Type definitions
+
+Type definitions are like the schemas for your data. They are usually associated with models like this:
+
+```ts
+@model("TodoApp/Todo")
+class Todo extends Model({
+  text: tProp(types.string),
+  done: tProp(types.boolean, false),
+}) {
+  // ...
+}
+
+// ModelData<Todo> = {
+//   text: string,
+//   done: boolean
+// }
+```
+
+In this case whenever the model is created / changed it will be automatically type-checked in development mode and will throw an exception if the change results in a model that does not pass the checking.
+
+If you want to enforce checks no matter if `process.env.NODE_ENV` is set to "production" or not you can do so like this:
+
+```ts
+setGlobalConfig({
+  modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+})
+```
+
+The possible values are:
+
+- `ModelAutoTypeCheckingMode.DevModeOnly` - Auto type-check models only in dev mode
+- `ModelAutoTypeCheckingMode.AlwaysOn` - Auto type-check models no matter the current environment
+- `ModelAutoTypeCheckingMode.AlwaysOff` - Do not auto type-check models no matter the current environment
+
+It is also possible to trigger type checking manually:
+
+```ts
+const myTodo = new Todo({ text: "hi" })
+const checkError = myTodo.typeCheck()
+// or
+const todoType = types.model(Todo)
+const checkError = typeCheck(todoType, myTodo)
+
+// also possible with non-models
+const numberArrayType = types.array(types.number)
+const checkError = typeCheck(numberArrayType, [1, 2, 3])
+```
+
+In all cases the returned value will be `null` if there are no errors or an instance of `TypeCheckError`, which will include:
+
+- `path: Path` - Sub-path where the type-check failed, or an empty array if the actual object/value failed the type-check.
+- `expectedTypeName: string` - String representation of the expected type.
+- `actualValue: any` - The actual value/sub-value that failed the type-check
+- `throw(typeCheckedValue: any)` - Throws the error as an exception.
+
+While models are usually automatically type-checked, it is worth noting that other values (primitives, plain objects, arrays) are not until they become attached to some model. If you need to type-check those before they become attached to a model it is always possible to use `typeCheck(type, value)` as shown previously to trigger a manual validation.
+
+## Types
+
+These are the possible types:
+
+### `types.literal`
+
+A type that represents a certain value of a primitive (for example an _exact_ number or string).
+
+```ts
+const hiType = types.literal("hi") // the string with value "hi"
+const number5Type = types.literal(5) // the number with value 5
+```
+
+### `types.undefined` / `undefined`
+
+A type that represents the value `undefined`.
+
+### `types.null` / `null`
+
+A type that represents the value `null`.
+
+### `types.boolean` / `Boolean`
+
+A type that represents any boolean value.
+
+### `types.number` / `Number`
+
+A type that represents any number value.
+
+### `types.integer`
+
+A type that represents any integer number value.
+
+### `types.string` / `String`
+
+A type that represents any string value.
+
+### `types.nonEmptyString`
+
+A type that represents any string value other than "".
+
+### `types.enum<E>(enumObject)`
+
+An enum type, based on a TypeScript alike enum object.
+
+```ts
+enum Color {
+  Red = "red",
+  Green = "green",
+}
+
+const colorType = types.enum(Color)
+```
+
+### `types.or(...types)` (AKA union)
+
+A type that represents the union of several other types (`a | b | c | ...`).
+
+```ts
+const booleanOrNumberType = types.or(types.boolean, types.number)
+```
+
+### `types.maybe(type)`
+
+A type that represents either a type or `undefined`.
+
+```ts
+const numberOrUndefinedType = types.maybe(types.number)
+```
+
+### `types.maybeNull(type)`
+
+A type that represents either a type or `null`.
+
+```ts
+const numberOrNullType = types.maybeNull(types.number)
+```
+
+### `types.object(() => ({ ... })`
+
+A type that represents a plain object.
+Note that the parameter must be a function that returns an object. This is done so objects can support self / cross types.
+
+```ts
+// notice the `({ ... })`, not just `{ ... }`
+const pointType = types.object(() => ({
+  x: types.number,
+  y: types.number,
+}))
+```
+
+### `types.array(itemsType)`
+
+A type that represents an array of values of a given type.
+
+```ts
+const numberArrayType = types.array(types.number)
+```
+
+### `types.tuple(...itemTypes)`
+
+A type that represents a tuple of values of a given type.
+
+```ts
+const stringNumberTupleType = types.tuple(types.string, types.number)
+```
+
+### `types.record(valuesType)`
+
+A type that represents an object-like map, an object with string keys and values all of a same given type.
+
+```ts
+// `{ [k: string]: number }`
+const numberMapType = types.record(types.number)
+```
+
+### `types.model<M>(modelClass)`
+
+A type that represents a model. The type referenced in the model decorator will be used for type checking.
+If you use recursive / cross referencing models and get TypeScript errors then consider using the lambda parameter instead.
+
+```ts
+const someModelType = types.model(SomeModel)
+// or for recursive models
+const someModelType = types.model<SomeModel>(() => SomeModel)
+```
+
+Note that most times just passing the model as type works (for example, `tProp(SomeModel)` and `tProp(types.model(SomeModel))` are equivalent).
+
+### `types.dataModelData<M>(dataModelClass)`
+
+A type that represents the data of a data model. The type referenced in the model decorator will be used for type checking.
+If you use recursive / cross-referencing models and get TypeScript errors then consider using the lambda parameter instead.
+
+```ts
+const someModelDataType = types.dataModelData(SomeModel)
+// or for recursive models
+const someModelDataType = types.dataModelData<SomeModel>(() => SomeModel)
+```
+
+### `types.unchecked<T>()`
+
+A type that represents a given value that won't be type-checked.
+This is basically a way to bail out of the runtime type checking system.
+
+```ts
+const uncheckedSomeModel = types.unchecked<SomeModel>()
+const anyType = types.unchecked<any>()
+const customUncheckedType = types.unchecked<(A & B) | C>()
+```
+
+### `types.ref(refConstructor)`
+
+A type that represents a reference to an object or model.
+
+```ts
+const refToSomeObject = types.ref(SomeObject)
+```
+
+### `types.frozen(type)`
+
+A type that represents frozen data.
+
+```ts
+const frozenNumberType = types.frozen(types.number)
+const frozenAnyType = types.frozen(types.unchecked<any>())
+const frozenNumberArrayType = types.frozen(types.array(types.number))
+const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
+```
+
+### `types.objectMap(valuesType)`
+
+A type that represents an object-like map `ObjectMap`.
+
+```ts
+// `ObjectMap<number>`
+const numberMapType = types.objectMap(types.number)
+```
+
+### `types.arraySet(valuesType)`
+
+A type that represents an array-backed set `ArraySet`.
+
+```ts
+// `ArraySet<number>`
+const numberSetType = types.arraySet(types.number)
+```
+
+### `types.refinement(baseType, checkFn: (data) => boolean | TypeCheckError | null)`
+
+A refinement over a given type. This allows you to do extra checks
+over models, ensure numbers are integers, etc.
+
+```ts
+const integerType = types.refinement(
+  types.number,
+  (n) => {
+    return Number.isInteger(n)
+  },
+  "integer"
+)
+
+const sumModelType = types.refinement(types.model(Sum), (sum) => {
+  // imagine that for some reason `sum` includes a number `a`, a number `b`
+  // and the result `result`
+
+  const rightResult = sum.a + sum.b === sum.result
+
+  // simple mode that will just return that the whole model is incorrect
+  return rightResult
+
+  // this will return that the result field is wrong
+  return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
+})
+```
+
+### Syntactic sugar for optional primitives with a default value
+
+You can also do `tProp(defaultValue: string | number | boolean)`, which is equivalent to `tProp(types.string|number|boolean, defaultValue)`.
+In other words, if you use `tProp(42)`, then the property will be a number and take the default value `42` when the value on the snapshot / model creation data is `undefined`.
+
+### `TypeToData<type>`
+
+It is also possible to get the type represented by a type via `TypeToData`:
+
+```ts
+const t = types.object(() => {
+  x: types.number,
+  y: types.number
+})
+
+// TypeToData<typeof t> =
+// {
+//   x: number,
+//   y: number
+// }
+```
+
+### Reflection of runtime type info
+
+Thanks to `getTypeInfo(type: AnyType): TypeInfo` it is possible to get the runtime info of a type. `TypeInfo` is the base class for the following classes:
+
+- `LiteralTypeInfo` (`types.literal`, `types.undefined`, `types.null`)
+- `BooleanTypeInfo` (`types.boolean`)
+- `NumberTypeInfo` (`types.number`)
+- `StringTypeInfo` (`types.string`)
+- `OrTypeInfo` (`types.or`, `types.maybe`, `types.maybeNull`, `types.enum`)
+- `ArrayTypeInfo` (`types.array`)
+- `ModelTypeInfo` (`types.model`)
+- `ObjectTypeInfo` (`types.object`)
+- `RefinementTypeInfo` (`types.refinement`, `types.integer`, `types.nonEmptyString`)
+- `ObjectMapTypeInfo` (`types.objectMap`)
+- `ArraySetTypeInfo` (`types.arraySet`)
+- `RecordTypeInfo` (`types.record`)
+- `UncheckedTypeInfo` (`types.unchecked`)
+- `RefTypeInfo` (`types.ref`)
+- `FrozenTypeInfo` (`types.frozen`)
+
+## Notes for `mobx-state-tree` users
+
+- Type checking in `mobx-keystone` is performed over instances once they have been created, not over snapshots, so the type definitions should be based on that fact.
+- There is no `types.optional` since setting default values is already covered by the `tProp` default values.
+- While models will automatically type-check themselves upon changes, other types will be only type-checked when they get attached to nodes. If for some reason you need to type-check them before then manually use the `typeCheck` method.

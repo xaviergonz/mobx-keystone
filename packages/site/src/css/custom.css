@@ -1,0 +1,21 @@
+:root {
+  --ifm-color-primary: #ff4000;
+  --ifm-code-font-size: 85%;
+  --ifm-footer-background-color: #f5f6f7;
+  --collapse-button-bg-color-dark: rgba(255, 255, 255, 0.05) !important;
+}
+
+.navbar--dark {
+  --ifm-navbar-background-color: #000;
+  --ifm-menu-color-background-hover: rgba(255, 255, 255, 0.08);
+  --ifm-menu-color-background-active: rgba(255, 255, 255, 0.1);
+}
+
+.footer--dark {
+  --ifm-footer-background-color: #000;
+}
+
+svg.icon {
+  display: inline;
+  vertical-align: middle;
+}

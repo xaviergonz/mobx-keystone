@@ -1,0 +1,178 @@
+---
+title: Snapshots
+---
+
+## Overview
+
+Snapshots are immutable, structurally shared, representations of tree nodes (models and their children).
+
+Snapshots in `mobx-keystone` mainly serve these two purposes:
+
+- As a serialization / deserialization mechanism (be it to store it or send it over the wire).
+- As a way to bridge data to non-`mobx-react`-enabled React components.
+
+Basically, when a change is performed over a tree node then a new immutable snapshot of it will be generated. Additionally, immutable snapshots for all parents will be generated as well. Any unchanged objects however will keep their snapshots unmodified.
+
+For example, imagine a model `A` with two children (`B` and `C`), and let's call their initial snapshots `sA[0]`, `sB[0]` and `sC[0]`.
+
+```
+A -> sA[0] = getSnapshot(A)
+B -> sB[0] = getSnapshot(B)
+C -> sC[0] = getSnapshot(C)
+```
+
+If we change a property in `B` then a new snapshot will be generated for it, as well as for all its parents (`A`), but not for unaffected objects (`C` in this case), thus resulting in:
+
+```
+A -> sA[1] = getSnapshot(A)
+B -> sB[1] = getSnapshot(B)
+C -> sC[0] = getSnapshot(C)
+```
+
+This means, as mentioned before, that snapshots generation is automatically optimized to only change their references when the objects they represent (and their children) actually change.
+
+## Getting the snapshot of an instance
+
+### `getSnapshot`
+
+```ts
+getSnapshot<T>(value: T): SnapshotOutOf<T>
+```
+
+Getting the snapshot out of any tree node is as easy as this:
+
+```ts
+@model("myApp/Todo")
+class Todo extends Model({
+  done: prop(false),
+  text: prop<string>()
+}) {
+}
+
+const todo = new Todo({ text: "buy some milk" })
+
+const todoSnapshot = getSnapshot(todo)
+
+// this returns an object like
+{
+  done: false,
+  text: "buy some milk",
+  $modelType: "myApp/Todo"
+}
+```
+
+The additional `$modelType` property is used to allow `fromSnapshot` to recognize the original class and faithfully recreate it, rather than assume it is a plain object.
+This metadata is only required for models, in other words, arrays, plain objects and primitives don't have this extra field.
+
+The type returned by `getSnapshot` is strongly typed, and is `SnapshotOutOf<Todo>` in this case, which in this particular case evaluates as:
+
+```ts
+type SnapshotOutOf<Todo> = {
+  done: boolean
+  type: string
+
+  $modelType: string
+}
+```
+
+Note that `getSnapshot` can actually be used over any tree nodes (any model, or any plain object or array as long as at any point in time they become attached to a model or they are manually transformed into one via `toTreeNode`), as well as primitives (though in the case of primitives the primitive will be returned directly).
+
+## Turning a snapshot back into an instance
+
+### `fromSnapshot`
+
+```ts
+fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T
+// or typed
+fromSnapshot<TType>(type: TType, sn: SnapshotInOf<TypeToData<TType>>, options?: FromSnapshotOptions): TypeToData<TType>
+```
+
+Restoring a snapshot is pretty easy as well:
+
+```ts
+const todo = fromSnapshot<Todo>(todoSnapshot)
+// or typed
+const todo = fromSnapshot(Todo, todoSnapshot)
+```
+
+The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:
+
+```ts
+type SnapshotInOf<Todo> = {
+  done?: boolean
+  type: string
+
+  $modelType: string
+}
+```
+
+Compared to the output snapshot note how `done` is now marked as optional since we declared a default value for it.
+
+As for the options object, these options are available:
+
+- `generateNewIds: boolean` - Pass `true` to generate new internal IDs for models rather than reusing them (default is `false`).
+
+## Reacting to snapshot changes
+
+Snapshots are observable values in themselves, which means standard MobX reactions such as this one work:
+
+```ts
+const disposer = reaction(
+  () => getSnapshot(todo),
+  (todoSnapshot) => {
+    // do something
+  }
+)
+```
+
+### `onSnapshot`
+
+```ts
+onSnapshot<T extends object>(obj: T | () => T, listener: (sn: SnapshotOutOf<T>, prevSn: SnapshotOutOf<T>) => void): () => void
+```
+
+Since that is a very common pattern, `mobx-keystone` offers an `onSnapshot` function that will call a listener with the new snapshot and the previous snapshot every time it changes.
+
+```ts
+const disposer = onSnapshot(todo, (newSnapshot, previousSnapshot) => {
+  // do something
+})
+```
+
+In both cases the returned disposer function can be called to cancel the effect.
+
+## Applying snapshots
+
+### `applySnapshot`
+
+```ts
+applySnapshot<T extends object>(obj: T, sn: SnapshotInOf<T> | SnapshotOutOf<T>): void
+```
+
+It is also possible to apply a snapshot over an object, reconciling the contents of the object and therefore ensuring that only the minimal set of snapshot changes / patches is triggered:
+
+```ts
+// given `todo` is a todo with `{ done: false, text: "buy some milk" }`
+
+applySnapshot(todo, {
+  done: true,
+  text: "buy some milk",
+  $modelType: todo.$modelType,
+})
+```
+
+In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused (since they have the same model ID).
+
+## Cloning via snapshots
+
+### `clone`
+
+```ts
+clone<T extends object>(value: T, options?: CloneOptions): T
+```
+
+Snapshots can also be used to clone values. `clone` is just sugar syntax around `getSnapshot` and `fromSnapshot` with `generateNewIds` set to `true` by default.
+
+```ts
+const clonedTodo = clone(todo)
+```
