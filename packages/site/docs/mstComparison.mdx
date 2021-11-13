@@ -168,4 +168,4 @@ Likewise, you might want to call `getRoot` to access the root model, but it migh
 `mobx-keystone` solves this by only offering two life-cycle hooks:
 
 1. `onInit` which is _always_ called once the model has been created (and since there's no lazy initialization they will always be)
-1. `onAttachedToRootStore` (plus an optional disposer that gets executed when it is detached) which gets called once the model gets attached to the proper root node (a root store), thus ensuring that at that point `getRoot` will return the expected value and makes it a perfect place to set up effects (more info in the [class models](./classModels) section)
+1. `onAttachedToRootStore` (plus an optional disposer that gets executed when it is detached) which gets called once the model gets attached to the proper root node (a root store), thus ensuring that at that point `getRoot` will return the expected value and makes it a perfect place to set up effects (more info in the [class models](./classModels.mdx) section)

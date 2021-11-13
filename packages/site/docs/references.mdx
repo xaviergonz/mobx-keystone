@@ -4,7 +4,7 @@ title: References
 
 ## Overview
 
-As we saw in the [tree-like structure](./treeLikeStructure) section, a same non-primitve node can only be in a single tree and only once.
+As we saw in the [tree-like structure](./treeLikeStructure.mdx) section, a same non-primitve node can only be in a single tree and only once.
 This means that, for example, if we wanted to have a list of todos and a selected todo then, in theory, we would need to have the same node repeated twice (once in the list and then once again in a selected field).
 
 References allow us to work around this limitation by making a "fake" node that is just a pointer to another object given an ID.
@@ -164,7 +164,7 @@ In the case multiple selection was possible we could reuse the `todoRef` created
 @model("myApp/TodoList")
 class TodoList extends Model({
   list: prop<Todo[]>(() => []),
-  selectedRefs: prop<Ref<Todo>[]>>(() => []),
+  selectedRefs: prop < Ref < Todo > [] >> (() => []),
 }) {
   // ...
 

@@ -123,7 +123,7 @@ numSandbox.withSandbox([num], (numCopy1) => {
 // `num.value` => 1
 ```
 
-The sandbox copy of a subtree root node tracks the [root store](../rootStores) state of the original subtree root node, i.e. when the original subtree root node is registered as a root store, its corresponding sandbox copy becomes a root store as well and vice versa.
+The sandbox copy of a subtree root node tracks the [root store](./rootStores.mdx) state of the original subtree root node, i.e. when the original subtree root node is registered as a root store, its corresponding sandbox copy becomes a root store as well and vice versa.
 
 The `sandbox` function generates an instance with the following methods:
 
@@ -186,7 +186,7 @@ class ItemStore extends Model({
 }
 ```
 
-`canAddItem` requires access to the sandbox manager which is provided using a [context](../contexts).
+`canAddItem` requires access to the sandbox manager which is provided using a [context](./contexts.mdx).
 
 ```ts
 const store = new ItemStore({})

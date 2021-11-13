@@ -4,7 +4,7 @@ title: Standard and Standalone Actions
 
 ## Standalone Actions
 
-Sometimes you might need to define a "model" action but without an associated model. Say for example that you need an array swap method that needs to be processed by middlewares (e.g. [`undoMiddleware`](./actionMiddlewares/undoMiddleware)). One way to achieve this is to use standalone actions like this:
+Sometimes you might need to define a "model" action but without an associated model. Say for example that you need an array swap method that needs to be processed by middlewares (e.g. [`undoMiddleware`](./actionMiddlewares/undoMiddleware.mdx)). One way to achieve this is to use standalone actions like this:
 
 ```ts
 const arraySwap = standaloneAction(

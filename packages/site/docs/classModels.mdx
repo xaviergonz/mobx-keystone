@@ -119,7 +119,7 @@ Class models can optionally include an implementation for each of the life-cycle
 - `onInit()`, which serves as a replacement for the constructor and will fire as soon as the model is created.
   On most occasions, it is better to use the next hook.
 - `onAttachedToRootStore(rootStore)`, which fires once a class model becomes part of a root store tree and which can optionally return a disposer which will run once the model detaches from such root store tree.
-  It will be explained in detail in the [root stores](./rootStores) section.
+  It will be explained in detail in the [root stores](./rootStores.mdx) section.
 
 ## Runtime data
 
@@ -220,7 +220,7 @@ setGlobalConfig({
 })
 ```
 
-If for some reason you do not want to have/require these extra properties in your snapshots please see [data models](./dataModels) instead.
+If for some reason you do not want to have/require these extra properties in your snapshots please see [data models](./dataModels.mdx) instead.
 
 ## Getting the TypeScript types for model data and model creation data
 
