@@ -3,8 +3,8 @@ title: Client/Server
 slug: /example/clientServer
 ---
 
+import BrowserOnly from "@docusaurus/BrowserOnly"
 import CodeBlock from "@theme/CodeBlock"
-import { App } from "./app.tsx"
 
 import appSource from "!!raw-loader!./app.tsx"
 import serverSource from "!!raw-loader!./server.ts"
@@ -12,7 +12,12 @@ import appInstanceSource from "!!raw-loader!./appInstance.tsx"
 
 In this example we will be synchronizing two separate root stores via action capturing and applying, which will simulate how to instances of an app talk with a server to keep in sync. We will use pessimistic updates, this is, we will cancel the local action and then actually run the action when the server tells the client to do so.
 
-<App />
+<BrowserOnly>
+  {() => {
+    const { App } = require("./app.tsx")
+    return <App />
+  }}
+</BrowserOnly>
 
 ## Code
 

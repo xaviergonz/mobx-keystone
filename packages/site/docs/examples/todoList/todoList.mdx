@@ -3,14 +3,19 @@ title: Todo List
 slug: /examples/todoList
 ---
 
+import BrowserOnly from "@docusaurus/BrowserOnly"
 import CodeBlock from "@theme/CodeBlock"
-import { App } from "./app.tsx"
 
 import storeSource from "!!raw-loader!./store.ts"
 import appSource from "!!raw-loader!./app.tsx"
 import logsSource from "!!raw-loader!./logs.tsx"
 
-<App />
+<BrowserOnly>
+  {() => {
+    const { App } = require("./app.tsx")
+    return <App />
+  }}
+</BrowserOnly>
 
 ## Code
 
