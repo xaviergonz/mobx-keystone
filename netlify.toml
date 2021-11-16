@@ -5,9 +5,9 @@ redirects = [
 
 [build]
   command = "yarn build-netlify"
-  publish = "packages/site/.docz/dist"
+  publish = "packages/site/build"
   environment = { NODE_VERSION = "16.7.0", YARN_VERSION = "1.22.11" }
 
 [dev]
-  publish = "packages/site/.docz/dist"
-  port = 3000
+  publish = "packages/site/build"
+  port = 3333
