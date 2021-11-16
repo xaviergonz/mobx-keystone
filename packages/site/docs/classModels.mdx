@@ -1,0 +1,592 @@
+---
+title: Class Models
+---
+
+## Overview
+
+`mobx-keystone` supports the following kinds of data:
+
+- Class models, which are like objects but enhanced with local behaviors (actions/views) and life-cycle events (hooks).
+- Data models, which only define behaviors (actions/views) over "untainted" data and have a _very_ limited number of life-cycle events (hooks).
+- Objects, which serve as basic storages of data (kind of like class models, except without actions and life-cycle events), as well as key-value maps of other data.
+- Arrays.
+- Primitive values (`string`, `boolean`, `number`, `null`, `undefined`).
+
+In this section we will focus on class models, since the other types can be used as children in the usual way.
+
+## Your first class model
+
+A class model for a todo can be defined as follows:
+
+```ts
+// the model decorator marks this class as a model, an object with actions, etc.
+// the string identifies this model type and must be unique across your whole application
+@model("myCoolApp/Todo")
+export class Todo extends Model({
+  // here we define the type of the model data, which is observable and snapshotable
+  // and also part of the required initialization data of the model
+
+  // in this case we don't use runtime type checking
+  text: prop<string>(), // a required string
+  done: prop(false), // an optional boolean that will default to `false` when the input is `null` or `undefined`
+  // if you want to make a property truly optional then use `x: prop<TYPE | undefined>()`
+
+  // if we required runtime type checking we could do this
+  // text: tProp(types.string),
+  // done: tProp(types.boolean, false),
+  // if you want to make a property truly optional then use `x: tProp(types.maybe(TYPE))`
+}) {
+  // the `modelAction` decorator marks the method as a model action, giving it access
+  // to modify any model data and other superpowers such as action
+  // middlewares, replication, etc.
+  @modelAction
+  setDone(done: boolean) {
+    this.done = done
+  }
+
+  @modelAction
+  setText(text: string) {
+    this.text = text
+  }
+
+  @computed
+  get asString() {
+    return `${!this.done ? "TODO" : "DONE"} ${this.text}`
+  }
+}
+```
+
+Note that there are several ways to define properties.
+
+Without runtime type checking:
+
+- `prop<T>(options?: ModelOptions)` - A property of a given type, with no default set if it is `null` or `undefined` in the initial data.
+- `prop<T>(defaultValue: T, options?: ModelOptions)` - A property of a given type, with a default set if it is `null` or `undefined` in the initial data. Use this only for default primitives.
+- `prop<T>(defaultFn: () => T, options?: ModelOptions)` - A property of a given type, with a default value generator if it is `null` or `undefined` in the initial data. Usually used for default objects / arrays / models.
+
+With runtime type checking (check the relevant section for more info):
+
+- `tProp(type, options?: ModelOptions)` - A property of a given runtime checked type, with no default set if it is `null` or `undefined` in the initial data.
+- `tProp<T>(type, defaultValue: T, options?: ModelOptions)` - A property of a given runtime checked type, with a default set if it is `null` or `undefined` in the initial data. Use this only for default primitives.
+- `tProp<T>(type, defaultFn: () => T, options?: ModelOptions)` - A property of a given runtime checked type, with a default value generator if it is `null` or `undefined` in the initial data. Usually used for default objects / arrays / models.
+
+## Class model rules
+
+The rules that need to be followed to declare a class model are:
+
+- Class models have to be decorated with `@model` and require a unique across-application ID for the model type.
+- They have to extend `Model`, which in TypeScript requires the type of the data that will become observable / snapshotable / patchable.
+- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
+- Model actions need to be used in order to be able to change such data.
+- Never declare your own constructor, there are life-cycle events for that (more on that later).
+
+Of course primitives are not the only kinds of data that a class model can hold. Arrays, plain objects and other objects can be used as well.
+
+## Creating a class model instance
+
+An instance of the todo model above can be created like this:
+
+```ts
+const myTodo1 = new Todo({ done: true, text: "buy some milk" })
+// note how `done` can be skipped since it was declared with a default value
+const myTodo2 = new Todo({ text: "buy some coffee" })
+```
+
+## Automatic class model actions for property setters
+
+Most times, the only action we need for a property is a setter. We can use the prop modifier `withSetter()` (`withSetter("assign")` has been deprecated) to reduce boilerplate and generate property setters. For example, the model above could be written as:
+
+```ts
+@model("myCoolApp/Todo")
+export class Todo extends Model({
+  text: prop<string>().withSetter(),
+  done: prop(false).withSetter(),
+}) {}
+
+const myTodo = new Todo({ text: "buy some coffee" })
+
+// this is now allowed and properly wrapped in two respective actions
+myTodo.setText("buy some milk")
+myTodo.setDone(true)
+```
+
+If for some reason you still require to change these without using a `modelAction`, consider using `objectActions.set`, `objectActions.delete`, `objectActions.call`, `arrayActions.push`, etc. if needed.
+
+## Life-cycle event hooks
+
+Class models can optionally include an implementation for each of the life-cycle hooks:
+
+- `onInit()`, which serves as a replacement for the constructor and will fire as soon as the model is created.
+  On most occasions, it is better to use the next hook.
+- `onAttachedToRootStore(rootStore)`, which fires once a class model becomes part of a root store tree and which can optionally return a disposer which will run once the model detaches from such root store tree.
+  It will be explained in detail in the [root stores](./rootStores.mdx) section.
+
+## Runtime data
+
+Runtime data (data that doesn't need to be snapshotable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
+
+```ts
+@model("myApp/SomeModel")
+class SomeModel extends Model({...}) {
+  // non-observable runtime data
+  x = 10;
+
+  setX(x: number) {
+    this.x = x
+  }
+
+  // or observable in the usual MobX way
+  @observable
+  y = 20;
+
+  @action
+  setY(y: number) {
+    this.y = y
+  }
+}
+```
+
+## Accessing the type and ID of a class model
+
+It is interesting to observe that class models include a property named `$modelType`:
+
+```ts
+myTodo1.$modelType // "myCoolApp/Todo"
+```
+
+This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot, therefore it is usually required.
+
+That being said, there are actually two ways to skip this requirement (having `$modelType` in input snapshots):
+
+- If a property is typed using `tProp` then the model(s) in that property won't need `$modelType`.
+- If a model is constructed using the `fromSnapshot` overload that takes a type as first parameter then that snapshot won't need `$modelType`.
+
+## Setting an ID property
+
+Note that it is also possible to assign a property as the ID property using `idProp`. Having a dedicated ID property set has some advantages:
+
+- Improved reconciliation when applying snapshots.
+- Resolving the target of serialized actions will be less likely to hit the wrong node (thanks to ID checking).
+- Root references will be able to resolve the nodes without any extra configuration.
+
+```ts
+@model("myApp/ModelWithCustomId")
+class ModelWithCustomId extends Model({
+  customId: idProp
+}) {
+  ...
+}
+```
+
+In this case either `customId` (both in snapshots and instances) or `$modelId` (only in instances) can be used to read / write the ID property.
+Just make sure that ID is unique for every model object (no matter its type).
+
+Note that when using the `new` operator to create a new instance you can either not specify the property so it will be auto-generated, or you can specify it directly:
+
+```ts
+const myTodo = new Todo({
+  myId: "my custom id",
+})
+```
+
+as well as writing to it at a later time inside a model action:
+
+```ts
+// inside some model action
+this.myId = "my new custom id"
+// or alternatively
+this.$modelId = "my new custom id"
+```
+
+## Customizing the ID generator function
+
+The default model ID generator function is tuned up to be fast and works like this:
+
+```ts
+const baseLocalId = nanoid()
+let localId = 0
+function generateModelId() {
+  return localId.toString(36) + "-" + baseLocalId
+}
+```
+
+This has the implications however that every model ID generated by the same client / server session will have a different first part of the ID, yet share the same last part of such ID.
+
+That being said, it is possible to use a custom function to generate model IDs using `setGlobalConfig`:
+
+```ts
+setGlobalConfig({
+  modelIdGenerator: myModelIdGeneratorFunction,
+})
+```
+
+If for some reason you do not want to have/require these extra properties in your snapshots please see [data models](./dataModels.mdx) instead.
+
+## Getting the TypeScript types for model data and model creation data
+
+- `ModelData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
+- `ModelCreationData<Model>` is the type of the first parameter passed to `new Model(...)`.
+
+For example, given:
+
+```ts
+@model("myCoolApp/Todo")
+export class Todo extends Model({
+  text: prop<string>(), // a required string
+  done: prop(false), // an optional boolean that will default to `false`
+}) {}
+```
+
+`ModelCreationData<Todo>` would be:
+
+```ts
+{
+  text: string; // required when passing it to `new Todo({...})`
+  done?: boolean | null; // optional when passing it to `new Todo({...})`
+}
+```
+
+and `ModelData<Todo>` would be:
+
+```ts
+{
+  text: string // since it will always be present when accessing `todo.text`
+  done: boolean // since it will always be present when accessing `todo.done`
+}
+```
+
+## Flows (async actions)
+
+While `@modelAction` defines sync model actions, async model actions are possible as well with the use of `@modelFlow`:
+
+```ts
+interface Book {
+  title: string
+  price: number
+}
+
+@model("myApp/BookStore")
+class BookStore extends Model({
+  books: prop<Book[]>(() => []),
+}) {
+  // TypeScript version
+
+  @modelFlow
+  // note: `_async` is a function that has to be imported, we have to use `this: THISCLASS`
+  fetchMyBooksAsync = _async(function* (this: BookStore, token: string) {
+    // we use `yield* _await(X)` where we would use `await X`
+    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
+
+    const myBooks = yield* _await(myBackendClient.getBooks(token))
+
+    this.books = myBooks
+  });
+
+  // JavaScript version
+
+  @modelFlow
+  // we use `function*` (a function generator) where we would use `async`
+  *fetchMyBooksAsync(token) {
+    // we use `yield* _await(X)` where we would use `await X`
+    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
+
+    const myBooks = yield* _await(myBackendClient.getBooks(token))
+
+    this.books = myBooks
+  }
+}
+
+// in either case it can be used like this
+const myBookStore = new BookStore({})
+await myBookStore.fetchMyBooksAsync("someToken")
+```
+
+## Value-type class models
+
+Sometimes it is useful to have models that act like a primitive. This is, models that would get automatically cloned when attached to a tree rather than relying on having a single instance of it in the whole tree.
+For example, say that you have a model for a RGB color:
+
+```ts
+@model("myApp/Color")
+class Color extends Model(
+  {
+    r: prop<number>(),
+    g: prop<number>(),
+    b: prop<number>(),
+  },
+  {
+    valueType: true,
+  }
+) {}
+```
+
+Usually, without `valueType: true`, whenever we wanted to use the same color in two separate paths of the tree we would need to clone it first, or else we would get an error about the node trying to have two parents at once. With `valueType` set this would be no longer the case, since the node would get cloned automatically:
+
+```ts
+class MyColors extends Model({
+  primary: prop<Color>(),
+  secondary: prop<Color>(),
+}) {
+  // ...
+}
+
+// without `valueType: true` this would throw an error
+// but with it `primary` is now a clone of `secondary`
+myColors.setPrimary(myColors.secondary)
+```
+
+Note that it is an actual clone, this is, changing the primary color won't change the secondary one.
+
+## Factory pattern / Generics
+
+If you are _not_ relying on `tProp` to do runtime type checking it is possible to use this pattern to get generic classes:
+
+```ts
+@model("myApp/GenericPoint")
+class GenericPoint<T> extends Model(<T>() => ({
+  x: prop<T>(),
+  y: prop<T>(),
+}))<T> {
+  @modelAction
+  setXY(x: T, y: T) {
+    this.x = x
+    this.y = y
+  }
+}
+
+@model("myApp/Generic3dPoint")
+class Generic3dPoint<T> extends ExtendedModel(<T>() => ({
+  baseModel: modelClass<GenericPoint<T>>(GenericPoint),
+  props: {
+    z: prop<T>(),
+  },
+}))<T> {
+  // ...
+}
+```
+
+If you rely on `tProp` (and also `prop` really) a different possibility is to use a factory pattern with class models. For example:
+
+```ts
+function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
+  @model(`myApp/${modelName}`)
+  class MyModel extends Model({
+    x: prop<TX>(() => initialX),
+    y: prop<TY>(() => initialY),
+  }) {
+    @modelAction
+    setXY(x: TX, y: TY) {
+      this.x = x
+      this.y = y
+    }
+  }
+
+  return MyModel
+}
+
+const NumberMyModel = createModelClass("NumberMyModel", 10, 20)
+type NumberMyModel = InstanceType<typeof NumberMyModel>
+
+const numberMyModelInstance = new NumberMyModel({}) // this will be of type `NumberMyModel`
+numberMyModelInstance.setXY(50, 60)
+
+const StringMyModel = createModelClass("StringMyModel", "10", "20")
+type StringMyModel = InstanceType<typeof StringMyModel>
+
+const stringMyModelInstance = new StringMyModel({}) // this will be of type `StringMyModel`
+stringMyModelInstance.setXY("50", "60")
+```
+
+Note that the above will only work when not generating declaration maps. If you need to generate declarations (for example for a library) then it is a bit more tedious, but still possible:
+
+```ts
+export function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
+  const MyModelProps = Model({
+    x: prop<TX>(() => initialX),
+    y: prop<TY>(() => initialY),
+  })
+
+  @model(`myApp/${modelName}`)
+  class MyModel extends MyModelProps {
+    @modelAction
+    setXY(x: TX, y: TY) {
+      this.x = x
+      this.y = y
+    }
+  }
+
+  return MyModel as ModelClassDeclaration<
+    typeof MyModelProps,
+    {
+      setXY(x: TX, y: TY): void
+    }
+  >
+}
+```
+
+## Inheritance
+
+Model inheritance is possible with a few gotchas.
+
+The first thing to bear in mind is that class models that extend from other class models must use `ExtendedModel` rather than the plain `Model`. For example:
+
+```ts
+@model("MyApp/Point")
+class Point extends Model({
+  x: prop<number>(),
+  y: prop<number>(),
+}) {
+  get sum() {
+    return this.x + this.y
+  }
+}
+
+// note how `ExtendedModel` is used
+@model("MyApp/Point3d")
+class Point3d extends ExtendedModel(Point, {
+  z: prop<number>(),
+}) {
+  get sum() {
+    return super.sum + this.z
+  }
+}
+```
+
+Also, remember that if your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` in the extended model.
+
+If you want to extend a generic class, then you may want to use `modelClass` in order to specify the exact generic like this:
+
+```ts
+class X extends ExtendedModel(modelClass<SomeGenericClass<string>>(SomeGenericClass), { ... }) { ... }
+```
+
+If you don't it will still compile, but the generic will be assumed to have `unknown` for all its generic parameters.
+
+## Snapshot pre/post-processors: `fromSnapshotProcessor` / `toSnapshotProcessor`
+
+`fromSnapshotProcessor` might be used to transform an input snapshot into the model's expected input snapshot.
+This is useful, for example, for versioning.
+Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.
+
+```ts
+// we split it here so it is accessible to `FromSnapshotDefaultType<>`
+const modelProps = {
+  // in version 2 we split `fullName` into `firstName` and `lastName`
+  _version: prop(2),
+  firstName: prop<string>(),
+  lastName: prop<string>(),
+}
+
+@model("name")
+class Name extends Model(modelProps, {
+  fromSnapshotProcessor(
+    sn: FromSnapshotDefaultType<typeof modelProps> | { _version: 1; fullName: string }
+  ) {
+    if (sn._version === 2) {
+      return sn
+    }
+
+    const [firstName, lastName] = sn.fullName.split(" ")
+
+    return {
+      _version: 2,
+      firstName,
+      lastName,
+    }
+  },
+}) {
+  // ...
+}
+```
+
+`toSnapshotProcessor` is the opposite and might be used to transform the model's expected output snapshot into another kind of object snapshot.
+Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.
+
+```ts
+@model("name")
+class Name extends Model(
+  {
+    firstName: prop<string>(),
+    lastName: prop<string>(),
+  },
+  {
+    toSnapshotProcessor(sn, modelInstance) {
+      // we want to also keep `fullName` for backwards compatibility
+      return {
+        ...sn,
+        fullName: `${sn.firstName} ${sn.lastName}`,
+      }
+    },
+  }
+) {
+  // ...
+}
+```
+
+## Snapshot pre/post-processors for model properties
+
+Model properties can have their own snapshot processors as well:
+
+In this example we use snapshot processors to serialize a string array property as a comma-separated string.
+
+```ts
+class M extends Model({
+  names:
+    prop<string[]>(() => [])
+      .withSnapshotProcessor({
+        fromSnapshot: (sn: string) => sn.split(",")
+        toSnapshot: (sn) => sn.join(",")
+      })
+})
+```
+
+## Usage without decorators
+
+Although this library was primarily intented to be used with decorators it is also possible to use it without them.
+
+To do so you can use the `decoratedModel` function as shown below:
+
+```ts
+// note the `_` at the beginning of the name to distinguish it from the decorated version
+class _Todo extends Model({
+  text: prop<string>(),
+  done: prop(false),
+}) {
+  // note how here we don't decorate the method directly, but on the next parameter instead
+  // @modelAction
+  setDone(done: boolean) {
+    this.done = done
+  }
+
+  // @modelAction
+  setText(text: string) {
+    this.text = text
+  }
+
+  // @computed
+  get fullText() {
+    return `${this.done ? "DONE" : "TODO"} - ${this.text}`
+  }
+}
+
+const Todo = decoratedModel(
+  // the string identifies this model type and must be unique across your whole application
+  // you may pass `undefined` if you don't want the model to be registered yet (e.g. for a base class)
+  "myCoolApp/Todo",
+  _Todo,
+  ,
+  // here we pass what we would use as decorators to the class methods/properties above
+  // if we want to use multiple chained decorators we can pass an array of them instead
+  // note that any kind of TypeScript-compatible decorator is supported, not only the built-in ones!
+  {
+    setDone: modelAction,
+    setText: modelAction,
+    fullText: computed,
+  }
+)
+// needed to be able to do `SnapshotInOf<Todo>`, type a variable as `Todo`, etc.
+type Todo = _Todo
+// if `_Todo` was generic then it would be `type Todo<T> = _Todo<T>`
+
+const myTodo = new Todo({ done: false, text: "buy some milk" })
+```

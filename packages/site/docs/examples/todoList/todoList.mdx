@@ -1,0 +1,38 @@
+---
+title: Todo List
+slug: /examples/todoList
+---
+
+import BrowserOnly from "@docusaurus/BrowserOnly"
+import CodeBlock from "@theme/CodeBlock"
+
+import storeSource from "!!raw-loader!./store.ts"
+import appSource from "!!raw-loader!./app.tsx"
+import logsSource from "!!raw-loader!./logs.tsx"
+
+<BrowserOnly>
+  {() => {
+    const { App } = require("./app.tsx")
+    return <App />
+  }}
+</BrowserOnly>
+
+## Code
+
+### `store.ts`
+
+<CodeBlock className="language-ts" title="examples/todoList/store.ts">
+  {storeSource}
+</CodeBlock>
+
+### `app.tsx`
+
+<CodeBlock className="language-tsx" title="examples/todoList/app.tsx">
+  {appSource}
+</CodeBlock>
+
+### `logs.tsx`
+
+<CodeBlock className="language-tsx" title="examples/todoList/logs.tsx">
+  {logsSource}
+</CodeBlock>

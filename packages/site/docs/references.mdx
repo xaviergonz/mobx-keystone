@@ -1,0 +1,202 @@
+---
+title: References
+---
+
+## Overview
+
+As we saw in the [tree-like structure](./treeLikeStructure.mdx) section, a same non-primitve node can only be in a single tree and only once.
+This means that, for example, if we wanted to have a list of todos and a selected todo then, in theory, we would need to have the same node repeated twice (once in the list and then once again in a selected field).
+
+References allow us to work around this limitation by making a "fake" node that is just a pointer to another object given an ID.
+
+## Root references
+
+Root references are references that can be resolved as long as both the reference and the referenced object live under the same tree, this is, as long as they share a common root.
+
+They are created like this:
+
+```ts
+const myRef = rootRef<T>("some unique model type id", {
+  getId?(target: unknown): string | undefined {
+    // given an object (which could or could not be of the target type)
+    // what is its ID? or `undefined` if it has no ID
+    // note that we should only return IDs if our reference should be able to reference them
+  },
+  onResolvedValueChange?(ref: Ref<T>, newValue: T | undefined, oldValue: T | undefined) {
+    // what should happen when the resolved value changes?
+  },
+})
+```
+
+Note that if the reference points to a model and that model class specifies a custom method named `getRefId()` (or you want to use the `idProp` as reference ID, which is the default implementation of `getRefId()`) then `getId` can be omitted.
+
+Reference objects can then be created using `myRef(target: T)` or `myRef(id: string)` and offer the following properties:
+
+- `isValid` - If the reference is valid (can be currently resolved).
+- `current` - The object this reference points to, or throws if invalid.
+- `maybeCurrent` - The object this reference points to, or `undefined` if invalid.
+
+## Custom references
+
+Custom references are a bit more powerful than root references, but a bit harder to set up.
+
+They are created like this:
+
+```ts
+const myRef = customRef<T>("some unique model type id", {
+  getId?(target: T): string {
+    // given an object, what is its ID?
+  },
+  resolve(ref: Ref<T>): T | undefined {
+    // given the `ref` object (which includes the ID in `ref.id`),
+    // how do we get the object back?
+  },
+  onResolvedValueChange?(ref: Ref<T>, newValue: T | undefined, oldValue: T | undefined) {
+    // what should happen when the resolved value changes?
+  },
+})
+```
+
+Again, if the reference points to a model and that model class specifies a method named `getRefId()` then `getId` can be omitted.
+
+They can be created exactly the same way as root references and offer the exact same properties.
+
+## Checking if a reference is of a given type
+
+`isRefOfType(ref, refType)` can be used to check if a reference object is of a given type. For example, `isRefOfType(myRef(...), myRef)` will return `true`.
+
+## Back-references
+
+Sometimes it is useful to get back all references that currently resolve to a given node.
+For this you can use `getRefsResolvingTo(target, refType?, options?)`, where `target` is the node the references are pointing to, `refType` is an optional argument that when provided will ensure only references of a given type are returned, and `options` is an optional argument for providing additional options. It returns an observable set of reference objects that point to the target.
+
+By default, back-references are updated after the outermost action has completed. In case it is necessary to update back-references immediately, the option `updateAllRefsIfNeeded` can be set to `true`.
+
+## Example: Reference to single selected Todo
+
+Imagine that we had a todo list where each todo item had a unique `id: string` property, and we could select a single todo item or none.
+It could be done like this:
+
+```ts
+// we could use a root reference that makes use of `getRefId()` on models...
+const todoRef = rootRef<Todo>("myApp/TodoRef", {
+  // this works, but we will use `getRefId()` from the `Todo` class instead
+  // getId(maybeTodo) {
+  //   return maybeTodo instanceof Todo ? maybeTodo.id : undefined
+  // },
+
+  onResolvedValueChange(ref, newTodo, oldTodo) {
+    if (oldTodo && !newTodo) {
+      // if the todo value we were referencing disappeared then remove the reference
+      // from its parent
+      detach(ref)
+    }
+  },
+})
+
+// ... or a custom reference
+const todoRef = customRef<Todo>("myApp/TodoRef", {
+  // we could omit this since `getRefId()` is declared on the `Todo` class
+  // getId(todo) {
+  //   return todo.id
+  // },
+
+  resolve(ref) {
+    // get the todo list where this ref is
+    const todoList = findParent<TodoList>(ref, (n) => n instanceof TodoList)
+    // if the ref is not yet attached then it cannot be resolved
+    if (!todoList) return undefined
+    // but if it is attached then try to find it
+    return todoList.list.find((todo) => todo.id === ref.id)
+  },
+
+  onResolvedValueChange(ref, newTodo, oldTodo) {
+    if (oldTodo && !newTodo) {
+      // if the todo value we were referencing disappeared then remove the reference
+      // from its parent
+      detach(ref)
+    }
+  },
+})
+
+@model("myApp/Todo")
+class Todo extends Model({
+  id: prop<string>(),
+  // ...
+}) {
+  getRefId() {
+    // when `getId` is not specified in the custom reference it will use this as id
+    return this.id
+  }
+
+  // ...
+}
+
+@model("myApp/TodoList")
+class TodoList extends Model({
+  list: prop<Todo[]>(() => []),
+  selectedRef: prop<Ref<Todo> | undefined>(),
+}) {
+  // ...
+
+  // not strictly needed, but neat
+  @computed
+  get selectedTodo() {
+    return this.selectedRef ? this.selectedRef.current : undefined
+  }
+
+  @modelAction
+  selectTodo(todo: Todo | undefined) {
+    if (todo && !this.list.includes(todo)) throw new Error("unknown todo")
+
+    this.selectedRef = todo ? todoRef(todo) : undefined
+  }
+}
+```
+
+The good thing is that whenever a todo is removed from the list and it was the selected one, then the `selectedTodo` property will automatically become `undefined`.
+
+## Example: Reference to multiple selected Todos
+
+In the case multiple selection was possible we could reuse the `todoRef` created previously and model it like this instead:
+
+```ts
+@model("myApp/TodoList")
+class TodoList extends Model({
+  list: prop<Todo[]>(() => []),
+  selectedRefs: prop < Ref < Todo > [] >> (() => []),
+}) {
+  // ...
+
+  // not strictly needed, but neat
+  @computed
+  get selectedTodos() {
+    return this.selectedRefs.map((r) => r.current)
+  }
+
+  @modelAction
+  selectTodo(todo: Todo) {
+    if (!this.list.includes(todo)) throw new Error("unknown todo")
+
+    if (!this.selectedTodos.includes(todo)) {
+      this.selectedRefs.push(todoRef(todo))
+    }
+  }
+
+  @modelAction
+  unselectTodo(todo: Todo) {
+    if (!this.list.includes(todo)) throw new Error("unknown todo")
+
+    const todoRefIndex = this.selectedRefs.findIndex((todoRef) => todoRef.maybeCurrent === todo)
+
+    if (todoRefIndex >= 0) {
+      this.selectedRefs.splice(todoRefIndex, 1)
+    }
+  }
+}
+```
+
+Again, if a todo is removed from the list and it was a selected one then it will automatically disappear from the selected todos list.
+
+Passing a `Todo` object directly to the select/unselect methods is valid even when using action replication in remote servers, since the serialization of the argument will be automatically transformed to a path to the `Todo` object from the root, plus a path of IDs for validation.
+This means that when the `Todo` object is inside the same root store as the model parent of the action being called only a minimum set of data will be sent, while only if not, then the whole snapshot will be sent.

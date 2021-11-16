@@ -1,0 +1,151 @@
+---
+title: Root Stores
+---
+
+## Overview
+
+Usually an application has one or more store objects which are meant to represent the actual current state of such application. These objects are usually known as "root stores".
+
+In the case of `mobx-keystone`, root stores are tree nodes (model instances or arrays / plain objects turned into tree nodes with `toTreeNode`) from where the rest of the application state will be stored in a tree-like structure.
+While it is not strictly necessary to mark these instances as root stores, doing so opens up some benefits:
+
+- Root stores allow the usage of the `onAttachedToRootStore(rootStore)` hook inside models.
+
+You can think of a tree node marked as a root store as the "live tree" of your application state, meaning that any nodes attached to a root store are actually part of your running application, rather than a transient instance that might or might not end up as part of your actual application state.
+
+Registering/unregistering a model instance as a root store is as simple as:
+
+```ts
+// given `myTodoList` is a model instance of a todo list ...
+registerRootStore(myTodoList)
+
+// unregistering
+unregisterRootStore(myTodoList)
+```
+
+## `onAttachedToRootStore`
+
+By registering the instance above the first thing that will happen is that the `onAttachedToRootStore` hook will be invoked for the todo list model as well as any submodels that it might contain. Additionally, any models that eventually get added to the tree will invoke such hook too.
+This life-cycle hook also supports optionally returning a disposer function, which will execute when the model instance has just left the root store tree or when the root store itself is unregistered.
+
+This hook is a great place to actually register effects (e.g. MobX `reaction`, `when`, etc.), and its disposer is a great place to dispose of them.
+
+### Practical example
+
+As a practical example, say that you have some kind of application user preferences that have to be saved to / loaded from local storage, but we also want to use the same model in a form to edit them.
+
+First we need to define a model for the user preferences, as well as its desired side effects when it is part of the actual application state (when it is part of a root store tree) ...
+
+```ts
+type Theme = "light" | "dark"
+
+@model("myApp/UserPreferences")
+class UserPreferences extends Model({ theme: prop<Theme>().withSetter() }) {
+  // once we are part of the root store ...
+  onAttachedToRootStore() {
+    // every time the snapshot of the configuration changes
+    const reactionDisposer = reaction(
+      () => getSnapshot(this),
+      (sn) => {
+        // save the config to local storage
+        localStorage.set("myPreferences", JSON.stringify(sn))
+      },
+      {
+        // also run the reaction the first time
+        fireImmediately: true,
+      }
+    )
+
+    // when the model is no longer part of the root store stop saving
+    return () => {
+      reactionDisposer()
+    }
+  }
+}
+```
+
+... we also need to model the root store of our application ...
+
+```ts
+@model("myApp/RootStore")
+class RootStore extends Model({
+  userPreferences: prop<UserPreferences>().withSetter(),
+}) {}
+```
+
+... then we will need some code to initialize our application, loading the preferences already stored in local storage ...
+
+```ts
+const myPreferencesObj = JSON.parse(localStorage.get("myPreferences"))
+
+// this will create a `UserPrefernces` model instance, but won't save any changes yet
+// since it is not yet part of a root store
+// this means we can manipulate it without fear of overwriting the
+// config in local storage
+const myPreferences = fromSnapshot<UserPreferences>(myPreferencesObj)
+```
+
+... and finally creating the root store itself with the initial data ...
+
+```ts
+const myRootStore = new RootStore({ userPreferences: myPreferences })
+
+// after this next function is called, `myPreferences` will become part of a root store
+// and therefore start saving now and on changes
+registerRootStore(myRootStore)
+// the preferences get saved ...
+```
+
+Now we would like to have a form which will be able to edit a copy of the current user preferences ...
+
+```ts
+// we make a clone of the current preferences
+const formPreferences = clone(myRootStore.userPreferences)
+// since the clone is outside the root store it WON'T be auto-saved
+
+// the form eventually makes changes ...
+formPreferences.setTheme("dark")
+// but that's ok, it is not auto-saved since it is not part of a root store,
+// therefore living "outside" the actual application state
+```
+
+... but it should be saved once the save button is clicked:
+
+```ts
+myRootStore.setUserPreferences(formPreferences)
+```
+
+After that last line, the old preferences object (`myPreferences`) will become detached from the root store tree and therefore will stop saving changes (by running the disposer).
+At the same time the new preferences object (`formPreferences`) will become part of the root store tree, running the hook and therefore saving its data and reacting to changes by saving any future changes.
+
+As you can see, such hook is really a great place to manage side effects.
+
+## Sharing contextual data
+
+Although usually contexts are preferred for this case (see the [contexts](./contexts.mdx) section), root stores can be also an alternative to store global contextual/environmental runtime data that doesn't really need to be serialized anywhere yet does need to be shared across the whole application.
+For this we would just need to follow a pattern like this one:
+
+```ts
+@model("myApp/RootStore")
+class RootStore extends Model({...}) {
+  myEnvData!: { ... }
+}
+
+const rootStore = new RootStore({...})
+rootStore.myEnvData = { ... }
+registerRootStore(rootStore)
+
+// then on another model
+class ... extends Model({ ... }) {
+  // on some getter or method ...
+  something() {
+    const rootStore = getRootStore<RootStore>(someModel)
+    const myEnvData = rootStore && rootStore.myEnvData
+  }
+
+  // or ...
+  onAttachedToRootStore(rootStore) {
+    const myEnvData = rootStore.myEnvData
+  }
+}
+```

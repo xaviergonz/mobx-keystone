@@ -1,0 +1,109 @@
+---
+title: Drafts
+---
+
+## Overview
+
+Sometimes it is useful to get hold of a copy of part of the state in order to edit it (while still having the original part of the state unmodified) and only commit changes to the original state once some bulk editing is finished. For example, say that your state contains a preferences section that can be edited in a form, yet you want to be able to commit/reset changes to this form to the original state in a single operation. `draft` allows exactly this.
+
+To create a draft all that is needed is to do this:
+
+```ts
+const myDraftObject = draft(originalObject)
+```
+
+The `draft` function generates an instance with the following properties / methods:
+
+### `data: T`
+
+Draft data object (a copy of `myRootStore.preferences` in this case).
+
+### `originalData: T`
+
+Original data object (`myRootStore.preferences`).
+
+### `commit(): void`
+
+Commits current draft changes to the original object.
+
+### `commitByPath(path: Path): void`
+
+Partially commits current draft changes to the original object.
+If the path cannot be resolved in either the draft or the original object it will throw.
+Note that model IDs are checked to be the same when resolving the paths.
+
+### `reset(): void`
+
+Resets the draft to be an exact copy of the current state of the original object.
+
+### `resetByPath(path: Path): void`
+
+Partially resets current draft changes to be the same as the original object.
+If the path cannot be resolved in either the draft or the original object it will throw.
+Note that model IDs are checked to be the same when resolving the paths.
+
+### `isDirty: boolean`
+
+Returns `true` if the draft has changed compared to the original object, `false` otherwise.
+
+### `isDirtyByPath(path: Path): boolean`
+
+Returns `true` if the value at the given path of the draft has changed compared to the original object.
+If the path cannot be resolved in the draft it will throw.
+If the path cannot be resolved in the original object it will return `true`.
+Note that model IDs are checked to be the same when resolving the paths.
+
+## Example
+
+Given the preferences example mentioned above, let's imagine we have a model (part of our whole app state) such as this one:
+
+```ts
+@model("myApp/Preferences")
+class Preferences extends Model({
+  username: prop<string>().withSetter(),
+  avatarUrl: prop<string>().withSetter(),
+}) {
+  // just as an example, some validation code
+  @computed
+  get usernameValidationError(): string | null {
+    // ...
+  }
+
+  @computed
+  get avatarUrlValidationError(): string | null {
+    // ...
+  }
+
+  @computed
+  get hasValidationErrors() {
+    return !!(this.usernameValidationError || this.avatarUrlValidationError)
+  }
+}
+```
+
+Also let's imagine that we want a form that allows the user to change some preferences, and we want this form to have a "Save" and a "Reset" button. This is, we don't want any changes to the form to affect the app store preferences directly.
+
+To achieve this, first we will create a draft copy of the preferences:
+
+```ts
+const preferencesDraft = draft(myRootStore.preferences)
+```
+
+We could then pass the data and the actions as separate properties to our own form component:
+
+```tsx
+<PreferencesForm
+  data={preferencesDraft.data}
+  onSave={() => preferencesDraft.commit()}
+  onReset={() => preferencesDraft.reset()}
+  showValidationErrors={preferencesDraft.isDirty}
+  saveDisabled={!preferencesDraft.isDirty || preferencesDraft.data.hasValidationErrors}
+  resetDisabled={!preferencesDraft.isDirty}
+/>
+```
+
+Alternatively we could pass the draft itself and let the component use the draft properties / methods internally:
+
+```tsx
+<PreferencesForm draft={preferencesDraft} />
+```
