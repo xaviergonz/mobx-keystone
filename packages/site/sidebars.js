@@ -29,7 +29,7 @@ module.exports = {
     "frozen",
     "runtimeTypeChecking",
     "drafts",
-    "sandbox",
+    "sandboxes",
     "reduxCompatibility",
     {
       type: "category",
