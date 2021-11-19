@@ -6,7 +6,7 @@ _A MobX powered state management solution based on data trees with first-class s
 ![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=flat-square)
 ![types](https://img.shields.io/npm/types/mobx-keystone.svg?style=flat-square&logo=typescript)
 
-[![CircleCI](https://img.shields.io/circleci/build/github/xaviergonz/mobx-keystone.svg?style=flat-square&logo=circleci)](https://circleci.com/gh/xaviergonz/workflows/mobx-keystone)
+[![CI](https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml/badge.svg)](https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/xaviergonz/mobx-keystone/branch/master/graph/badge.svg?token=6MLRFUBK8V)](https://codecov.io/gh/xaviergonz/mobx-keystone)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429/deploy-status)](https://app.netlify.com/sites/mobx-keystone/deploys)
 
