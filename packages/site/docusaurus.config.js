@@ -53,7 +53,7 @@ const config = {
             label: "Documentation",
           },
           {
-            href: "/public/api/",
+            href: "/api/",
             target: "_blank",
             label: "API",
             position: "right",
