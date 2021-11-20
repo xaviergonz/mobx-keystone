@@ -4,4 +4,4 @@
 .DS_Store
 /build
 /node_modules/
-/static/public/api/
+/static/api/

@@ -59,7 +59,7 @@
     "test": "jest",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
-    "build-docs": "shx rm -rf ../site/static/public/api && typedoc --options ./typedocconfig.js src/index.ts",
+    "build-docs": "shx rm -rf ../site/static/api && typedoc --options ./typedocconfig.js src/index.ts",
     "lint": "cd ../.. && yarn eslint \"packages/lib/src/**/*.ts\" \"packages/lib/test/**/*.ts\""
   },
   "peerDependencies": {
