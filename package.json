@@ -9,6 +9,7 @@
     "lib:test": "cd packages && cd lib && yarn test",
     "site:start": "cd packages && cd site && yarn start",
     "site:build": "cd packages && cd site && yarn build",
+    "site:serve": "cd packages && cd site && yarn serve",
     "build-netlify": "yarn lib:build && yarn lib:build-docs && yarn site:build",
     "netlify-dev": "yarn build-netlify && netlify dev",
     "lint": "cd packages && cd lib && yarn lint"
