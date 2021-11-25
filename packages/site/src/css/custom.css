@@ -9,6 +9,11 @@
   --ifm-navbar-background-color: #000;
   --ifm-menu-color-background-hover: rgba(255, 255, 255, 0.08);
   --ifm-menu-color-background-active: rgba(255, 255, 255, 0.1);
+  --ifm-navbar-search-input-background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navbar__search-input:focus {
+  outline: var(--ifm-color-primary) solid 2px;
 }
 
 .footer--dark {
@@ -18,4 +23,8 @@
 svg.icon {
   display: inline;
   vertical-align: middle;
+}
+
+html[data-theme="dark"] input[type="search"] {
+  color: #000;
 }

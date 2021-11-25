@@ -6,8 +6,8 @@ dist/
 /packages/lib/LICENSE
 /packages/lib/CHANGELOG.md
 
-/packages/site/.docz/
-/packages/site/public/api/
+/packages/site/.docusaurus/
+/packages/site/build/
 
 .yarn/*
 !.yarn/patches

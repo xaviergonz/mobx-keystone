@@ -1,6 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+const docsRouteBasePath = "/"
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "mobx-keystone",
@@ -13,23 +15,34 @@ const config = {
   favicon: "img/favicon.ico",
   organizationName: "xaviergonz",
   projectName: "mobx-keystone",
-  themes: [
+  presets: [
     [
-      "@docusaurus/theme-classic",
-      /** @type {import('@docusaurus/theme-classic').Options} */
-      {
-        customCss: require.resolve("./src/css/custom.css"),
-      },
+      "@docusaurus/preset-classic",
+      /** @type {import('@docusaurus/preset-classic').Options} */
+      ({
+        docs: {
+          sidebarPath: require.resolve("./sidebars.js"),
+          editUrl: "https://github.com/xaviergonz/mobx-keystone/edit/master/packages/site/",
+          routeBasePath: docsRouteBasePath,
+        },
+        blog: false,
+        pages: false,
+        sitemap: false,
+        theme: {
+          customCss: require.resolve("./src/css/custom.css"),
+        },
+      }),
     ],
   ],
   plugins: [
     [
-      "@docusaurus/plugin-content-docs",
-      /** @type {import('@docusaurus/plugin-content-docs').Options} */
+      "@easyops-cn/docusaurus-search-local",
       {
-        sidebarPath: require.resolve("./sidebars.js"),
-        editUrl: "https://github.com/xaviergonz/mobx-keystone/edit/master/packages/site/",
-        routeBasePath: "/",
+        hashed: true,
+        indexDocs: true,
+        docsRouteBasePath,
+        indexBlog: false,
+        indexPages: false,
       },
     ],
   ],
