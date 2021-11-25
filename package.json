@@ -19,6 +19,10 @@
     "packages/site",
     "packages/benchmark"
   ],
+  "dependencies": {
+    "bufferutil": "^4.0.5",
+    "utf-8-validate": "^5.0.7"
+  },
   "devDependencies": {
     "codecov": "^3.8.3",
     "eslint": "^7.32.0",
@@ -28,9 +32,5 @@
     "react-scripts": "^4.0.3",
     "typescript": "^4.5.2"
   },
-  "packageManager": "yarn@3.1.0",
-  "dependencies": {
-    "bufferutil": "^4.0.5",
-    "utf-8-validate": "^5.0.7"
-  }
+  "packageManager": "yarn@3.1.0"
 }
