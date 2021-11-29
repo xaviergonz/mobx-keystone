@@ -27,7 +27,7 @@ const config = {
         },
         blog: false,
         pages: false,
-        sitemap: false,
+        sitemap: {},
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
