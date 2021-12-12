@@ -27,7 +27,7 @@ From this living tree, immutable, structurally shared snapshots are automaticall
 
 Another core design goal of `mobx-keystone` is to offer a great TypeScript syntax out of the box, be it for models (and other kinds of data such as plain objects and arrays) or for its generated snapshots.
 
-To see some code and get a glimpse of how it works check the [Todo List Example](https://mobx-keystone.js.org/examples/todoList).
+To see some code and get a glimpse of how it works check the [Todo List Example](https://mobx-keystone.js.org/examples/todo-list).
 
 Because state trees are living, mutable models, actions are straightforward to write; just modify local instance properties where appropriate. It is not necessary to produce a new state tree yourself, `mobx-keystone`'s snapshot functionality will derive one for you automatically.
 
