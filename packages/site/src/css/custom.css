@@ -24,7 +24,3 @@ svg.icon {
   display: inline;
   vertical-align: middle;
 }
-
-html[data-theme="dark"] input[type="search"] {
-  color: #000;
-}
