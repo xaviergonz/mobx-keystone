@@ -745,11 +745,12 @@ test("issue #358", () => {
     value: prop<V>(),
   }))<V, T> {}
 
-  expect(
-    new Container<Value<number>, number>({
-      value: new Value<number>({
-        data: 1,
-      }),
-    })
-  ).toBeTruthy()
+  const c = new Container<Value<number>, number>({
+    value: new Value<number>({
+      data: 1,
+    }),
+  })
+
+  assert(c.value, _ as Value<number>)
+  assert(c.value.data, _ as number)
 })
