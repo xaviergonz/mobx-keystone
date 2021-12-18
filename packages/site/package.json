@@ -12,10 +12,10 @@
   "dependencies": {
     "@docusaurus/core": "2.0.0-beta.13",
     "@docusaurus/preset-classic": "2.0.0-beta.13",
-    "@easyops-cn/docusaurus-search-local": "^0.21.2",
+    "@easyops-cn/docusaurus-search-local": "^0.21.4",
     "@mdx-js/react": "^1.6.22",
-    "bootstrap-icons": "^1.7.1",
-    "mobx": "^6.3.7",
+    "bootstrap-icons": "^1.7.2",
+    "mobx": "^6.3.9",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-react": "^7.2.1",
     "prism-react-renderer": "^1.2.1",
@@ -24,15 +24,15 @@
     "remotedev": "^0.2.9"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.16.4",
+    "@babel/plugin-proposal-decorators": "^7.16.5",
     "@docusaurus/module-type-aliases": "2.0.0-beta.13",
-    "@svgr/webpack": "^5.5.0",
+    "@svgr/webpack": "^6.1.2",
     "@tsconfig/docusaurus": "^1.0.4",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "@types/uuid": "^8.3.3",
     "raw-loader": "^4.0.2",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.4"
   },
   "browserslist": {
     "production": [
