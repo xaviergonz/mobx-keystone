@@ -8,7 +8,7 @@ export type PrimitiveValue = undefined | null | boolean | number | string | bigi
 /**
  * @ignore
  *
- * Checks if a value is optional (undefined, any or unknown).
+ * Checks if a value is optional (undefined or any).
  *
  * Examples:
  * - string = false
@@ -16,19 +16,19 @@ export type PrimitiveValue = undefined | null | boolean | number | string | bigi
  * - string | undefined = true
  * - string & undefined = false, but we don't care
  * - any = true
- * - unknown = true
+ * - unknown = false, but we don't care
  * - null = false
  * - string | null = false
  * - string & null = false
  */
-export type IsOptionalValue<C, TV, FV> = undefined extends C ? TV : FV
+export type IsOptionalValue<C, TV, FV> = IsNeverType<Extract<C, undefined>, FV, TV>
 
 // type _A = IsOptionalValue<string, true, false> // false
 // type _B = IsOptionalValue<undefined, true, false> // true
 // type _C = IsOptionalValue<string | undefined, true, false> // true
 // type _D = IsOptionalValue<string & undefined, true, false> // false, but we don't care
 // type _E = IsOptionalValue<any, true, false> // true
-// type _F = IsOptionalValue<unknown, true, false> // true
+// type _F = IsOptionalValue<unknown, true, false> // false, but we don't care
 
 /**
  * @ignore

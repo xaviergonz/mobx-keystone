@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.64.1
+
+- Fixed a typing issue related to models that use generics at multiple levels.
+
 ## 0.64.0
 
 - [BREAKING CHANGE] `types.ref` now takes as an argument the reference constructor it needs to check for.

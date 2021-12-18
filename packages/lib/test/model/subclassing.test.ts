@@ -728,3 +728,28 @@ test("issue #310", () => {
     extendedProp: true,
   })
 })
+
+test("issue #358", () => {
+  type DataType = number | string
+
+  @model("issue #358/Value")
+  class Value<T extends DataType> extends Model(<T extends DataType>() => ({
+    data: prop<T>(),
+  }))<T> {}
+
+  @model("issue #358/Container")
+  class Container<V extends Value<T>, T extends DataType> extends Model(<
+    V extends Value<T>,
+    T extends DataType
+  >() => ({
+    value: prop<V>(),
+  }))<V, T> {}
+
+  expect(
+    new Container<Value<number>, number>({
+      value: new Value<number>({
+        data: 1,
+      }),
+    })
+  ).toBeTruthy()
+})
