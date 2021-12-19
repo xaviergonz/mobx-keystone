@@ -754,3 +754,26 @@ test("issue #358", () => {
   assert(c.value, _ as Value<number>)
   assert(c.value.data, _ as number)
 })
+
+test("issue #358/2", () => {
+  type DataType = number | string
+
+  @model("issue #358/2/Value")
+  class Value<T extends DataType> extends Model(<T extends DataType>() => ({
+    data: prop<T>().withSetter(),
+  }))<T> {}
+
+  @model("issue #358/2/Container")
+  class Container<V extends Value<any>> extends Model(<V extends Value<DataType>>() => ({
+    value: prop<V>(),
+  }))<V> {}
+
+  const c = new Container<Value<number>>({
+    value: new Value<number>({
+      data: 1,
+    }),
+  })
+
+  assert(c.value, _ as Value<number>)
+  assert(c.value.data, _ as number)
+})
