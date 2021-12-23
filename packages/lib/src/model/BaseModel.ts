@@ -1,5 +1,4 @@
 import { observable } from "mobx"
-import type { O } from "ts-toolbelt"
 import {
   fromSnapshotOverrideTypeSymbol,
   ModelClass,
@@ -219,7 +218,7 @@ export type ModelIdPropertyName<M extends AnyModel> = M[typeof modelIdPropertyNa
  */
 export function modelSnapshotInWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotInOfModel<M>, typeof modelTypeKey>
+  snapshot: Omit<SnapshotInOfModel<M>, typeof modelTypeKey>
 ): SnapshotInOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
@@ -243,7 +242,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  */
 export function modelSnapshotOutWithMetadata<M extends AnyModel>(
   modelClass: ModelClass<M>,
-  snapshot: O.Omit<SnapshotOutOfModel<M>, typeof modelTypeKey>
+  snapshot: Omit<SnapshotOutOfModel<M>, typeof modelTypeKey>
 ): SnapshotOutOfModel<M> {
   assertIsModelClass(modelClass, "modelClass")
   assertIsObject(snapshot, "initialData")
