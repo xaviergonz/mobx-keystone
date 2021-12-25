@@ -1,4 +1,3 @@
-import type { O } from "ts-toolbelt"
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
 import type { LateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { getOrCreate } from "../utils/mapUtils"
@@ -184,7 +183,7 @@ export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
 export type ModelPropsToCreationData<MP extends ModelProps> = Flatten<
   {
     [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
-  } & O.Omit<
+  } & Omit<
     {
       [k in keyof MP]: MP[k]["_internal"]["$creationValueType"]
     },
@@ -198,7 +197,7 @@ export type ModelPropsToCreationData<MP extends ModelProps> = Flatten<
 export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = Flatten<
   {
     [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
-  } & O.Omit<
+  } & Omit<
     {
       [k in keyof MP]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
     },
@@ -222,7 +221,7 @@ export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
 export type ModelPropsToTransformedCreationData<MP extends ModelProps> = Flatten<
   {
     [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
-  } & O.Omit<
+  } & Omit<
     {
       [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
     },
