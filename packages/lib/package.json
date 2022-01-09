@@ -66,11 +66,11 @@
     "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.3",
-    "@types/node": "^17.0.5",
-    "jest": "^27.4.5",
-    "mobx": "^6.3.10",
-    "netlify-cli": "^8.6.0",
+    "@types/jest": "^27.4.0",
+    "@types/node": "^17.0.8",
+    "jest": "^27.4.7",
+    "mobx": "^6.3.12",
+    "netlify-cli": "^8.6.15",
     "rollup-plugin-typescript2": "^0.31.1",
     "shx": "^0.3.3",
     "spec.ts": "^1.1.3",
