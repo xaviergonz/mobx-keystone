@@ -1,1 +1,7 @@
-.gitignore
+*.log
+.cache-loader
+.docusaurus
+.DS_Store
+/build
+/node_modules/
+/static/api/
