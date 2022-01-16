@@ -64,28 +64,3 @@ export function assertIsDataModelClass(
     throw failure(`${argName} must extend DataModel`)
   }
 }
-
-/**
- * @ignore
- * @internal
- */
-export function checkDataModelDecoratorArgs(fnName: string, target: any, propertyKey: string) {
-  if (typeof propertyKey !== "string") {
-    throw failure(`${fnName} cannot be used over symbol properties`)
-  }
-
-  const errMessage = `${fnName} must be used over data model classes or instances`
-
-  if (!target) {
-    throw failure(errMessage)
-  }
-
-  // check target is a model object or extended class
-  if (
-    !(target instanceof _BaseDataModel) &&
-    target !== _BaseDataModel &&
-    !(target.prototype instanceof _BaseDataModel)
-  ) {
-    throw failure(errMessage)
-  }
-}
