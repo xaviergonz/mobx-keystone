@@ -1,5 +1,7 @@
 # Change Log
 
+- Added property transform `stringToBigIntTransform`.
+
 ## 0.64.1
 
 - Fixed a typing issue related to models that use generics at multiple levels.

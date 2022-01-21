@@ -1,11 +1,11 @@
 ---
-title: Maps, Sets, Dates
+title: Maps, Sets, Dates, BigInt
 slug: /maps-sets-dates
 ---
 
 ## Overview
 
-Although `mobx-keystone` doesn't support properties which are Maps/Sets/Dates directly (for JSON compatibility purposes), you can still simulate them in three ways:
+Although `mobx-keystone` doesn't support properties which are Maps/Sets/Dates/BigInt directly (for JSON compatibility purposes), you can still simulate them in three ways:
 
 1. The new property transforms.
 2. The `ObjectMap` and `ArraySet` collection models.
@@ -20,6 +20,7 @@ Although `mobx-keystone` doesn't support properties which are Maps/Sets/Dates di
 - `objectToMapTransform()` - Transforms between a `Record<string, V>` and a `Map<string, V>`. Note this uses `asMap` internally, so the same limitations described below apply.
 - `arrayToMapTransform()` - Transforms between a `Array<[K, V]>` and a `Map<[K, V]>`. Note this uses `asMap` internally, so the same limitations described below apply.
 - `arrayToSetTransform()` - Transforms between a `Array<V>` and a `Set<V>`. Note this uses `asSet` internally, so the same limitations described below apply.
+- `stringToBigIntTransform()` - Transforms between a `string` and a `bigint`.
 
 Using a transform is as easy as calling `.withTransform(transform)` as part of a model property definition. For example:
 
