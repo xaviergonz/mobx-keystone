@@ -1,5 +1,7 @@
 # Change Log
 
+- Added runtime type-checker for BigInt.
+
 ## 0.64.1
 
 - Fixed a typing issue related to models that use generics at multiple levels.

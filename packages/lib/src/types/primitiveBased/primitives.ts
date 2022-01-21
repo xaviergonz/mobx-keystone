@@ -141,6 +141,33 @@ registerStandardTypeResolver((v) => (v === Number ? typesNumber : undefined))
 export class NumberTypeInfo extends TypeInfo {}
 
 /**
+ * A type that represents any BigInt value.
+ *
+ * ```ts
+ * types.bigint
+ * ```
+ */
+ export const typesBigInt: IdentityType<bigint> = new TypeChecker(
+  TypeCheckerBaseType.Primitive,
+
+  (value, path) => (typeof value === "bigint" ? null : new TypeCheckError(path, "bigint", value)),
+
+  () => "bigint",
+  (t) => new BigIntTypeInfo(t),
+
+  (value) => (typeof value === "bigint" ? (typesBigInt as any) : null),
+  identityFn,
+  identityFn
+) as any
+
+registerStandardTypeResolver((v) => (v === BigInt ? typesBigInt : undefined))
+
+/**
+ * `types.bigint` type info.
+ */
+export class BigIntTypeInfo extends TypeInfo {}
+
+/**
  * A type that represents any string value.
  *
  * ```ts
