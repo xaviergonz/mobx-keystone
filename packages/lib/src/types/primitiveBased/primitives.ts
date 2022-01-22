@@ -5,7 +5,7 @@ import type { AnyStandardType, IdentityType } from "../schemas"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
 
-const identityFn = (x: any) => x
+const identityFn = <T>(x: T): T => x
 
 /**
  * A type that represents a certain value of a primitive (for example an *exact* number or string).
