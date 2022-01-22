@@ -3,7 +3,11 @@ import type { IdentityType } from "../schemas"
 import { typesOr } from "../utility/or"
 import { typesLiteral } from "./primitives"
 
-interface EnumLike {
+/**
+ * @ignore
+ * Enum like object.
+ */
+export interface EnumLike {
   [k: string]: number | string
   [v: number]: string
 }
