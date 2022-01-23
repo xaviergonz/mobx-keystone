@@ -10,9 +10,10 @@ import {
   objectToMapTransform,
   prop,
   runUnprotected,
+  stringToBigIntTransform,
   timestampToDateTransform,
   tProp,
-  types,
+  types
 } from "../../src"
 import "../commonSetup"
 
@@ -344,4 +345,45 @@ test("prop with arr->set transform", () => {
   expect(t.set.has(4)).toBe(true)
   expect(t.$.set).toEqual([4])
   expect(t.set).toBe(t.set) // should be cached
+})
+
+test("prop with string->bigint transform", () => {
+  @model("string->bigint")
+  class T extends Model({
+    int: tProp(types.string).withSetter().withTransform(stringToBigIntTransform()),
+  }) {
+    @modelAction
+    setIntString(str: string) {
+      this.$.int = str
+    }
+  }
+
+  const int1: bigint = 1n
+  const int2: bigint = 2n
+
+  const t = new T({
+    int: int1,
+  })
+
+  assert(t.int, _ as bigint)
+  expect(t.int).toBe(1n)
+
+  assert(t.$.int, _ as string)
+  expect(t.$.int).toBe("1")
+
+  t.setInt(int2)
+
+  assert(t.int, _ as bigint)
+  expect(t.int).toBe(2n)
+  expect(t.$.int).toBe("2")
+
+  const tsn = getSnapshot(t)
+  assert(tsn.int, _ as string)
+  const tfsn = fromSnapshot(T, tsn)
+  assert(tfsn.int, _ as bigint)
+  expect(t.$.int).toBe("2")
+
+  t.setIntString("3")
+  expect(t.int).toBe(3n)
+  expect(t.$.int).toBe("3")
 })
