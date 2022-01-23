@@ -1,6 +1,7 @@
 # Change Log
 
 - Added runtime type-checker for BigInt.
+- Added property transform `stringToBigIntTransform`.
 
 ## 0.64.1
 
