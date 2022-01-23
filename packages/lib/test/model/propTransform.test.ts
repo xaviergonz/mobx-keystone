@@ -13,7 +13,7 @@ import {
   stringToBigIntTransform,
   timestampToDateTransform,
   tProp,
-  types
+  types,
 } from "../../src"
 import "../commonSetup"
 
