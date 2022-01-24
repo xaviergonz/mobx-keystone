@@ -7,7 +7,7 @@ import type { PathElement } from "../parent/pathTypes"
 import type { Patch } from "../patch/Patch"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, inDevMode, isArray, lateVal } from "../utils"
+import { failure, inDevMode, isArray, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 
 /**
@@ -72,7 +72,7 @@ export function internalApplyPatches(
   }
 }
 
-const wrappedInternalApplyPatches = lateVal(() =>
+const wrappedInternalApplyPatches = lazy(() =>
   wrapInAction({
     nameOrNameFn: BuiltInAction.ApplyPatches,
     fn: internalApplyPatches,

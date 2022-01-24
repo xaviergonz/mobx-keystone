@@ -378,7 +378,7 @@ export function logWarning(type: "warn" | "error", msg: string, uniqueKey?: stri
  * @ignore
  * @internal
  */
-export function lateVal<A extends unknown[], R>(getter: (...args: A) => R): typeof getter {
+export function lazy<A extends unknown[], R>(getter: (...args: A) => R): typeof getter {
   let memoizedValue: R
   let memoized = false
 

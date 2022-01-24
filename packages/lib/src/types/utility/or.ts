@@ -1,4 +1,4 @@
-import { failure, lateVal } from "../../utils"
+import { failure, lazy } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import {
   resolveStandardType,
@@ -174,7 +174,7 @@ export function typesOr(
  */
 export class OrTypeInfo extends TypeInfo {
   // memoize to always return the same array on the getter
-  private _orTypeInfos = lateVal(() => this.orTypes.map(getTypeInfo))
+  private _orTypeInfos = lazy(() => this.orTypes.map(getTypeInfo))
 
   get orTypeInfos(): ReadonlyArray<TypeInfo> {
     return this._orTypeInfos()

@@ -3,7 +3,7 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, lateVal } from "../utils"
+import { failure, lazy } from "../utils"
 import { fastGetParentPathIncludingDataObjects } from "./path"
 
 /**
@@ -20,7 +20,7 @@ export function detach(node: object): void {
   wrappedInternalDetach().call(node)
 }
 
-const wrappedInternalDetach = lateVal(() =>
+const wrappedInternalDetach = lazy(() =>
   wrapInAction({
     nameOrNameFn: BuiltInAction.Detach,
     fn: internalDetach,

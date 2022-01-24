@@ -1,4 +1,4 @@
-import { isArray, lateVal } from "../../utils"
+import { isArray, lazy } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
@@ -98,7 +98,7 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
  */
 export class TupleTypeInfo extends TypeInfo {
   // memoize to always return the same array on the getter
-  private _itemTypeInfos = lateVal(() => this.itemTypes.map(getTypeInfo))
+  private _itemTypeInfos = lazy(() => this.itemTypes.map(getTypeInfo))
 
   get itemTypeInfos(): ReadonlyArray<TypeInfo> {
     return this._itemTypeInfos()

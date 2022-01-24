@@ -1,5 +1,5 @@
 import { assertTweakedObject } from "../tweaker/core"
-import { lateVal } from "../utils"
+import { lazy } from "../utils"
 import { BuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./wrapInAction"
@@ -30,7 +30,7 @@ export function internalApplyMethodCall(this: any, methodName: string | number, 
   return this[methodName](...args)
 }
 
-const wrappedInternalApplyMethodCall = lateVal(() =>
+const wrappedInternalApplyMethodCall = lazy(() =>
   wrapInAction({
     nameOrNameFn: BuiltInAction.ApplyMethodCall,
     fn: internalApplyMethodCall,

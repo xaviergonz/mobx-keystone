@@ -6,7 +6,7 @@ import type { ModelClass, ModelData } from "../../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
-import { failure, lateVal } from "../../utils"
+import { failure, lazy } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
@@ -121,7 +121,7 @@ export interface DataModelDataTypeInfoProps {
  * `types.dataModelData` type info.
  */
 export class DataModelDataTypeInfo extends TypeInfo {
-  private _props = lateVal(() => {
+  private _props = lazy(() => {
     const objSchema = getInternalModelClassPropsInfo(this.modelClass)
 
     const propTypes: O.Writable<DataModelDataTypeInfoProps> = {}
