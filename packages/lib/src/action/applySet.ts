@@ -1,7 +1,7 @@
 import { isObservable, set } from "mobx"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
-import { lazy } from "../utils"
+import { lateVal } from "../utils"
 import { BuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./wrapInAction"
@@ -33,7 +33,7 @@ function internalApplySet<O extends object>(this: O, fieldName: string | number,
   }
 }
 
-const wrappedInternalApplySet = lazy(() =>
+const wrappedInternalApplySet = lateVal(() =>
   wrapInAction({
     nameOrNameFn: BuiltInAction.ApplySet,
     fn: internalApplySet,

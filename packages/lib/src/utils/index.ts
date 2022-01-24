@@ -397,23 +397,6 @@ export function lateVal<TF extends (...args: any[]) => any>(getter: TF): TF {
  * @ignore
  * @internal
  */
-export function lazy<V>(valueGen: () => V): () => V {
-  let inited = false
-  let val: V | undefined
-
-  return (): V => {
-    if (!inited) {
-      val = valueGen()
-      inited = true
-    }
-    return val!
-  }
-}
-
-/**
- * @ignore
- * @internal
- */
 export const mobx6 = {
   // eslint-disable-next-line no-useless-concat
   makeObservable: (mobx as any)[

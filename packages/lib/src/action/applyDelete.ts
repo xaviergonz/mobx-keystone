@@ -1,6 +1,6 @@
 import { remove } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
-import { lazy } from "../utils"
+import { lateVal } from "../utils"
 import { BuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./wrapInAction"
@@ -25,7 +25,7 @@ export function internalApplyDelete<O extends object>(this: O, fieldName: string
   remove(this, "" + fieldName)
 }
 
-const wrappedInternalApplyDelete = lazy(() =>
+const wrappedInternalApplyDelete = lateVal(() =>
   wrapInAction({
     nameOrNameFn: BuiltInAction.ApplyDelete,
     fn: internalApplyDelete,

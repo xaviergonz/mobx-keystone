@@ -10,7 +10,7 @@ import { isModel, isModelSnapshot } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, modelInfoByClass } from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
+import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lateVal } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
@@ -128,7 +128,7 @@ export function internalApplySnapshot<T extends object>(
   throw failure(`unsupported snapshot - ${sn}`)
 }
 
-const wrappedInternalApplySnapshot = lazy(() =>
+const wrappedInternalApplySnapshot = lateVal(() =>
   wrapInAction({
     nameOrNameFn: BuiltInAction.ApplySnapshot,
     fn: internalApplySnapshot,
