@@ -374,23 +374,23 @@ export function logWarning(type: "warn" | "error", msg: string, uniqueKey?: stri
   }
 }
 
-const notMemoized = Symbol("notMemoized")
-
 /**
  * @ignore
  * @internal
  */
-export function lateVal<TF extends (...args: any[]) => any>(getter: TF): TF {
-  let memoized: TF | typeof notMemoized = notMemoized
+export function lateVal<A extends unknown[], R>(getter: (...args: A) => R): typeof getter {
+  let memoizedValue: R
+  let memoized = false
 
-  const fn = (...args: any[]): any => {
-    if (memoized === notMemoized) {
-      memoized = getter(...args)
+  const fn = (...args: A): R => {
+    if (!memoized) {
+      memoizedValue = getter(...args)
+      memoized = true
     }
-    return memoized
+    return memoizedValue
   }
 
-  return fn as TF
+  return fn
 }
 
 /**
