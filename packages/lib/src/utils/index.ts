@@ -382,15 +382,13 @@ export function lateVal<A extends unknown[], R>(getter: (...args: A) => R): type
   let memoizedValue: R
   let memoized = false
 
-  const fn = (...args: A): R => {
+  return (...args: A): R => {
     if (!memoized) {
       memoizedValue = getter(...args)
       memoized = true
     }
     return memoizedValue
   }
-
-  return fn
 }
 
 /**
