@@ -10,6 +10,7 @@ import {
   Model,
   modelAction,
   modelIdKey,
+  namespace,
   onActionMiddleware,
   prop,
   serializeActionCall,
@@ -34,14 +35,14 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   expect(deserializeActionCallArgument(serPrim)).toBe(42)
 
   // date
-  const serDate = { $mobxKeystoneSerializer: "mobx-keystone/dateAsTimestamp", value: 1000 }
+  const serDate = { $mobxKeystoneSerializer: `${namespace}/dateAsTimestamp`, value: 1000 }
   expect(serializeActionCallArgument(new Date(1000))).toEqual(serDate)
   expect(deserializeActionCallArgument(serDate)).toEqual(new Date(1000))
 
   // plain obj
   const obj = { x: 10 }
   const serObj = {
-    $mobxKeystoneSerializer: "mobx-keystone/plainObject",
+    $mobxKeystoneSerializer: `${namespace}/plainObject`,
     value: {
       x: 10,
     },
@@ -60,7 +61,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   // array
   const arr = [obj, 20]
   const serArr = {
-    $mobxKeystoneSerializer: "mobx-keystone/array",
+    $mobxKeystoneSerializer: `${namespace}/array`,
     value: [serObj, 20],
   }
 
@@ -83,7 +84,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   ]
   const map = new Map<any, any>(mapKV)
   const serMap = {
-    $mobxKeystoneSerializer: "mobx-keystone/mapAsArray",
+    $mobxKeystoneSerializer: `${namespace}/mapAsArray`,
     value: [
       ["x", 10],
       ["y", serializeActionCallArgument({ z: 20 })],
@@ -99,7 +100,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   const setK: any[] = ["x", { z: 20 }]
   const set = new Set<any>(setK)
   const serSet = {
-    $mobxKeystoneSerializer: "mobx-keystone/setAsArray",
+    $mobxKeystoneSerializer: `${namespace}/setAsArray`,
     value: ["x", serializeActionCallArgument({ z: 20 })],
   }
 
@@ -125,7 +126,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
 
   {
     expect(serializeActionCallArgument(r2, r1)).toEqual({
-      $mobxKeystoneSerializer: "mobx-keystone/objectSnapshot",
+      $mobxKeystoneSerializer: `${namespace}/objectSnapshot`,
       value: getSnapshot(r2),
     })
 
@@ -145,7 +146,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   {
     const serializedR2Child = serializeActionCallArgument(r2.child, r2)
     expect(serializedR2Child).toEqual({
-      $mobxKeystoneSerializer: "mobx-keystone/objectPath",
+      $mobxKeystoneSerializer: `${namespace}/objectPath`,
       value: {
         targetPath: ["child"],
         targetPathIds: [r2.child!.$modelId],
@@ -160,7 +161,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   {
     const serializedR2Child = serializeActionCallArgument(r2, r2)
     expect(serializedR2Child).toEqual({
-      $mobxKeystoneSerializer: "mobx-keystone/objectPath",
+      $mobxKeystoneSerializer: `${namespace}/objectPath`,
       value: {
         targetPath: [],
         targetPathIds: [],

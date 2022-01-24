@@ -1,9 +1,9 @@
 import { remove, set } from "mobx"
 import { toTreeNode } from "../tweaker/tweak"
-import { assertIsObject } from "../utils"
+import { assertIsObject, namespace as ns } from "../utils"
 import { standaloneAction } from "./standaloneActions"
 
-const namespace = "mobx-keystone/objectActions"
+const namespace = `${ns}/objectActions`
 
 export const objectActions = {
   set: standaloneAction(

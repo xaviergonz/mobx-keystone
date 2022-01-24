@@ -7,12 +7,13 @@ import { idProp } from "../modelShared/prop"
 import { typesRecord } from "../types/objectBased/record"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/unchecked"
+import { namespace } from "../utils"
 
 /**
  * A map that is backed by an object-like map.
  * Use `objectMap` to create it.
  */
-@model("mobx-keystone/ObjectMap")
+@model(`${namespace}/ObjectMap`)
 export class ObjectMap<V>
   extends Model({
     [modelIdKey]: idProp,

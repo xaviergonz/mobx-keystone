@@ -1,7 +1,7 @@
 import { fastGetRootPath, resolvePathCheckingIds } from "../../parent/path"
 import { Path } from "../../parent/pathTypes"
 import { isTweakedObject } from "../../tweaker/core"
-import { failure } from "../../utils"
+import { failure, namespace } from "../../utils"
 import { rootPathToTargetPathIds } from "../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
@@ -11,7 +11,7 @@ interface ObjectPath {
 }
 
 export const objectPathSerializer: ActionCallArgumentSerializer<object, ObjectPath> = {
-  id: "mobx-keystone/objectPath",
+  id: `${namespace}/objectPath`,
 
   serialize(value, _, targetRoot) {
     if (typeof value !== "object" || value === null || !isTweakedObject(value, false))
