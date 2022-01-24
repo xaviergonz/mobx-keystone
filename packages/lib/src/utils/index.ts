@@ -441,3 +441,9 @@ export function getMobxVersion(): number {
     return 5
   }
 }
+
+/**
+ * @ignore
+ * @internal
+ */
+export const namespace = "mobx-keystone"

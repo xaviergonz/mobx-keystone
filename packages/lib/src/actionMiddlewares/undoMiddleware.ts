@@ -10,7 +10,7 @@ import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../types/arrayBased/array"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/unchecked"
-import { failure, getMobxVersion, mobx6 } from "../utils"
+import { failure, getMobxVersion, mobx6, namespace } from "../utils"
 import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
 
 /**
@@ -113,7 +113,7 @@ function toSingleEvents(
  * Store model instance for undo/redo actions.
  * Do not manipulate directly, other that creating it.
  */
-@model("mobx-keystone/UndoStore")
+@model(`${namespace}/UndoStore`)
 export class UndoStore extends Model({
   // TODO: add proper type checking to undo store
   undoEvents: tProp(typesArray(typesUnchecked<UndoEvent>()), () => []),

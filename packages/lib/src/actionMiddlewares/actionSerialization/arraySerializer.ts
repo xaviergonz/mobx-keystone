@@ -1,9 +1,9 @@
 import type { IObservableArray } from "mobx"
-import { isArray } from "../../utils"
+import { isArray, namespace } from "../../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const arraySerializer: ActionCallArgumentSerializer<any[] | IObservableArray<any>, any[]> = {
-  id: "mobx-keystone/array",
+  id: `${namespace}/array`,
 
   serialize(value, serialize) {
     if (!isArray(value)) return cannotSerialize

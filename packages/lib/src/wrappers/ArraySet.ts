@@ -7,12 +7,13 @@ import { idProp } from "../modelShared/prop"
 import { typesArray } from "../types/arrayBased/array"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/unchecked"
+import { namespace } from "../utils"
 
 /**
  * A set that is backed by an array.
  * Use `arraySet` to create it.
  */
-@model("mobx-keystone/ArraySet")
+@model(`${namespace}/ArraySet`)
 export class ArraySet<V>
   extends Model({
     [modelIdKey]: idProp,

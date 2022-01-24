@@ -1,9 +1,9 @@
 import { isObservableObject } from "mobx"
-import { isPlainObject } from "../../utils"
+import { isPlainObject, namespace } from "../../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const plainObjectSerializer: ActionCallArgumentSerializer<object, object> = {
-  id: "mobx-keystone/plainObject",
+  id: `${namespace}/plainObject`,
 
   serialize(value, serialize) {
     if (!isPlainObject(value) && !isObservableObject(value)) return cannotSerialize
