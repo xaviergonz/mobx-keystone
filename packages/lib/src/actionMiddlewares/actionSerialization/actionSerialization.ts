@@ -1,8 +1,8 @@
 import type { O } from "ts-toolbelt"
 import type { ActionCall } from "../../action/applyAction"
 import { assertTweakedObject } from "../../tweaker/core"
-import { failure, isPlainObject, isPrimitive } from "../../utils"
-import type { PrimitiveValue } from "../../utils/types"
+import { failure, isJSONPrimitive, isPlainObject } from "../../utils"
+import type { JSONPrimitiveValue } from "../../utils/types"
 import { arraySerializer } from "./arraySerializer"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 import { dateSerializer } from "./dateSerializer"
@@ -10,6 +10,7 @@ import { mapSerializer } from "./mapSerializer"
 import { objectPathSerializer } from "./objectPathSerializer"
 import { objectSnapshotSerializer } from "./objectSnapshotSerializer"
 import { plainObjectSerializer } from "./plainObjectSerializer"
+import { primitiveSerializer } from "./primitiveSerializer"
 import { setSerializer } from "./setSerializer"
 
 const serializersArray: ActionCallArgumentSerializer<any, any>[] = []
@@ -66,7 +67,7 @@ export interface SerializedActionCall extends Omit<ActionCall, "serialized"> {
   /**
    * Serialized action arguments.
    */
-  readonly args: ReadonlyArray<SerializedActionCallArgument | PrimitiveValue>
+  readonly args: ReadonlyArray<SerializedActionCallArgument | JSONPrimitiveValue>
 
   /**
    * Marks this action call as serialized.
@@ -96,8 +97,8 @@ export interface SerializedActionCall extends Omit<ActionCall, "serialized"> {
 export function serializeActionCallArgument(
   argValue: any,
   targetRoot?: object
-): SerializedActionCallArgument | PrimitiveValue {
-  if (isPrimitive(argValue)) {
+): SerializedActionCallArgument | JSONPrimitiveValue {
+  if (isJSONPrimitive(argValue)) {
     return argValue
   }
 
@@ -157,10 +158,10 @@ export function serializeActionCall(
  * @returns The deserialized form of the passed value.
  */
 export function deserializeActionCallArgument(
-  argValue: SerializedActionCallArgument | PrimitiveValue,
+  argValue: SerializedActionCallArgument | JSONPrimitiveValue,
   targetRoot?: object
 ): any {
-  if (isPrimitive(argValue)) {
+  if (isJSONPrimitive(argValue)) {
     return argValue
   }
 
@@ -213,6 +214,7 @@ export function deserializeActionCall(
 
 // serializer registration (from low priority to high priority)
 
+registerActionCallArgumentSerializer(primitiveSerializer)
 registerActionCallArgumentSerializer(plainObjectSerializer)
 registerActionCallArgumentSerializer(setSerializer)
 registerActionCallArgumentSerializer(mapSerializer)

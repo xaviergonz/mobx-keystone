@@ -8,7 +8,7 @@ import {
   ObservableMap,
   ObservableSet,
 } from "mobx"
-import { PrimitiveValue } from "./types"
+import { JSONPrimitiveValue, PrimitiveValue } from "./types"
 
 /**
  * A mobx-keystone error.
@@ -101,6 +101,21 @@ export function isPrimitive(value: any): value is PrimitiveValue {
     case "boolean":
     case "undefined":
     case "bigint":
+      return true
+  }
+  return value === null
+}
+
+/**
+ * @ignore
+ * @internal
+ */
+ export function isJSONPrimitive(value: any): value is JSONPrimitiveValue {
+  switch (typeof value) {
+    case "number":
+      return isFinite(value)
+    case "string":
+    case "boolean":
       return true
   }
   return value === null

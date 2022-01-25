@@ -1,6 +1,7 @@
 # Change Log
 
 - Added property transform `stringToBigIntTransform`.
+- Added action serialization for non-JSON primitive values `undefined`, `bigint` and special `number` values `NaN`/`+Infinity`/`-Infinity`.
 
 ## 0.64.1
 

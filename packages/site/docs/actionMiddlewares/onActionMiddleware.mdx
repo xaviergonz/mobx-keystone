@@ -56,7 +56,7 @@ const disposer = onActionMiddleware(myTodoList, {
 
 Action serialization (via `serializeActionCall` and `deserializeActionCall`) supports many cases by default:
 
-- Primitives.
+- Primitives (including `undefined`, `bigint` and special `number` values `NaN`/`+Infinity`/`-Infinity`, but not `symbol`).
 - Tree nodes as paths if they are under the same root node as the model that holds the action being called.
 - Tree nodes as snapshots if not.
 - Arrays and observable arrays.
