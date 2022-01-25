@@ -8,6 +8,13 @@ export type PrimitiveValue = undefined | null | boolean | number | string | bigi
 /**
  * @ignore
  *
+ * A JSON-compatible primitive value.
+ */
+ export type JSONPrimitiveValue = null | boolean | number | string
+
+/**
+ * @ignore
+ *
  * Checks if a value is optional (undefined or any).
  *
  * Examples:

@@ -29,10 +29,61 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
     "serializeActionCallArgument could not serialize the given value"
   )
 
-  // primitive
-  const serPrim = 42
-  expect(serializeActionCallArgument(42)).toEqual(serPrim)
-  expect(deserializeActionCallArgument(serPrim)).toBe(42)
+  // primitives
+
+  // number
+  const serNumber = 42
+  expect(serializeActionCallArgument(42)).toEqual(serNumber)
+  expect(deserializeActionCallArgument(serNumber)).toBe(42)
+
+  // number (NaN)
+  const serNumberNaN = { $mobxKeystoneSerializer: `${namespace}/primitiveAsString`, value: "nan" }
+  expect(serializeActionCallArgument(NaN)).toEqual(serNumberNaN)
+  expect(deserializeActionCallArgument(serNumberNaN)).toBeNaN()
+
+  // number (+Infinity)
+  const serNumberPosInf = {
+    $mobxKeystoneSerializer: `${namespace}/primitiveAsString`,
+    value: "+inf",
+  }
+  expect(serializeActionCallArgument(+Infinity)).toEqual(serNumberPosInf)
+  expect(deserializeActionCallArgument(serNumberPosInf)).toBe(+Infinity)
+
+  // number (-Infinity)
+  const serNumberNegInf = {
+    $mobxKeystoneSerializer: `${namespace}/primitiveAsString`,
+    value: "-inf",
+  }
+  expect(serializeActionCallArgument(-Infinity)).toEqual(serNumberNegInf)
+  expect(deserializeActionCallArgument(serNumberNegInf)).toBe(-Infinity)
+
+  // bigint
+  const serBigInt = { $mobxKeystoneSerializer: `${namespace}/primitiveAsString`, value: "42" }
+  expect(serializeActionCallArgument(42n)).toEqual(serBigInt)
+  expect(deserializeActionCallArgument(serBigInt)).toBe(42n)
+
+  // undefined
+  const serUndefined = {
+    $mobxKeystoneSerializer: `${namespace}/primitiveAsString`,
+    value: "undefined",
+  }
+  expect(serializeActionCallArgument(undefined)).toEqual(serUndefined)
+  expect(deserializeActionCallArgument(serUndefined)).toBeUndefined()
+
+  // string
+  const serString = "ho"
+  expect(serializeActionCallArgument("ho")).toEqual(serString)
+  expect(deserializeActionCallArgument(serString)).toBe("ho")
+
+  // boolean
+  const serBoolean = true
+  expect(serializeActionCallArgument(true)).toEqual(serBoolean)
+  expect(deserializeActionCallArgument(serBoolean)).toBe(true)
+
+  // null
+  const serNull = null
+  expect(serializeActionCallArgument(null)).toEqual(serNull)
+  expect(deserializeActionCallArgument(serNull)).toBe(null)
 
   // date
   const serDate = { $mobxKeystoneSerializer: `${namespace}/dateAsTimestamp`, value: 1000 }
