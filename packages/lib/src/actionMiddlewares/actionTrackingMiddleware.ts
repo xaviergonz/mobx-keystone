@@ -140,6 +140,7 @@ export function actionTrackingMiddleware(
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   const dataSymbol = Symbol("actionTrackingMiddlewareData")
+
   enum State {
     Idle = "idle",
     Started = "started",
@@ -148,13 +149,16 @@ export function actionTrackingMiddleware(
     Suspended = "suspended",
     Finished = "finished",
   }
+
   interface Data {
     startAccepted: boolean
     state: State
   }
+
   function getCtxData(ctx: ActionContext | SimpleActionContext): Data | undefined {
     return ctx.data[dataSymbol]
   }
+
   function setCtxData(ctx: ActionContext | SimpleActionContext, partialData: Partial<Data>) {
     let currentData = ctx.data[dataSymbol]
     if (!currentData) {
