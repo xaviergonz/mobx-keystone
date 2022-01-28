@@ -141,12 +141,12 @@ export function actionTrackingMiddleware(
 
   const dataSymbol = Symbol("actionTrackingMiddlewareData")
   enum State {
-    Idle,
-    Started,
-    RealResumed,
-    FakeResumed,
-    Suspended,
-    Finished,
+    Idle = "idle",
+    Started = "started",
+    RealResumed = "realResumed",
+    FakeResumed = "fakeResumed",
+    Suspended = "suspended",
+    Finished = "finished",
   }
   interface Data {
     startAccepted: boolean
