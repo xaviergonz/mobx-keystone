@@ -25,7 +25,7 @@ export function onSnapshot<T extends object>(
   nodeOrFn: T | (() => T),
   listener: OnSnapshotListener<T>
 ): OnSnapshotDisposer {
-  const nodeFn = typeof nodeOrFn === "function" ? (nodeOrFn as () => T) : () => nodeOrFn
+  const nodeFn = typeof nodeOrFn === "function" ? nodeOrFn : () => nodeOrFn
 
   const node = nodeFn()
   assertTweakedObject(node, "node")
