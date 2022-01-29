@@ -316,7 +316,7 @@ export function actionTrackingMiddleware(
       let retObj = start(simpleCtx)
 
       if (retObj) {
-        // action cancelled / overriden by onStart
+        // action canceled / overridden by onStart
         resume(simpleCtx, true)
         suspend(simpleCtx)
         retObj = finish(simpleCtx, retObj)
@@ -336,7 +336,7 @@ export function actionTrackingMiddleware(
         case ActionContextAsyncStepType.Spawn: {
           let retObj = start(simpleCtx)
           if (retObj) {
-            // action cancelled / overriden by onStart
+            // action canceled / overridden by onStart
             resume(simpleCtx, true)
             suspend(simpleCtx)
             retObj = finish(simpleCtx, retObj)
@@ -376,13 +376,13 @@ export function actionTrackingMiddleware(
             return next()
           } else {
             throw failure(
-              `asssertion error: async step should have been filtered out - ${ctx.asyncStepType}`
+              `assertion error: async step should have been filtered out - ${ctx.asyncStepType}`
             )
           }
 
         default:
           throw failure(
-            `asssertion error: async step should have been filtered out - ${ctx.asyncStepType}`
+            `assertion error: async step should have been filtered out - ${ctx.asyncStepType}`
           )
       }
     }

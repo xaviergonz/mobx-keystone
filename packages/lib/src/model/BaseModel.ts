@@ -73,7 +73,7 @@ export abstract class BaseModel<
   }
 
   /**
-   * Can be overriden to offer a reference id to be used in reference resolution.
+   * Can be overridden to offer a reference id to be used in reference resolution.
    * By default it will use the `idProp` if available or return `undefined` otherwise.
    */
   getRefId(): string | undefined {
