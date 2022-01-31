@@ -70,7 +70,7 @@
     "@types/node": "^17.0.13",
     "jest": "^27.4.7",
     "mobx": "^6.3.13",
-    "netlify-cli": "^8.15.0",
+    "netlify-cli": "^8.15.1",
     "rollup-plugin-typescript2": "^0.31.1",
     "shx": "^0.3.4",
     "spec.ts": "^1.1.3",
