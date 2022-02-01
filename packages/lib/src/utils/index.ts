@@ -110,7 +110,7 @@ export function isPrimitive(value: any): value is PrimitiveValue {
  * @ignore
  * @internal
  */
- export function isJSONPrimitive(value: any): value is JSONPrimitiveValue {
+export function isJSONPrimitive(value: any): value is JSONPrimitiveValue {
   switch (typeof value) {
     case "number":
       return isFinite(value)
