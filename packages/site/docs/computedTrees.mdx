@@ -1,0 +1,51 @@
+---
+title: Computed Trees
+slug: /computed-trees
+---
+
+## Overview
+
+Computed trees are useful for transforming one state tree into another, e.g. in order to reactively derive an alternative view of an original tree that is attached as a property to the original tree and, thus, supports tree traversal functions, contexts, references, etc. (see the ["Properties of a computed tree"](#properties-of-a-computed-tree) section below for more details).
+
+To create a computed tree, decorate a `get` accessor of a class or data model with the `@computedTree` decorator:
+
+```ts
+@model("myApp/M")
+class M extends Model({
+  id: idProp,
+  // ...
+}) {
+  @computedTree
+  get view() {
+    return new V({
+      // compute a stable/deterministic ID
+      id: `${this.id}.view`,
+      // ...
+    })
+  }
+}
+
+@model("myApp/V")
+class V extends Model({
+  id: idProp,
+  // ...
+}) {
+  // ...
+}
+```
+
+To check whether a node is a regular or computed tree node, use the `isComputedTreeNode(node: object): boolean` utility function.
+
+## Properties of computed trees
+
+Computed trees have the following properties:
+
+- **Immutability** because a computed tree is _derived_ from another (mutable or computed) tree or observable value. Immutability is enforced at runtime by means of the [readonly middleware](./actionMiddlewares/readonlyMiddleware.mdx).
+- **Action middlewares** are never applied to a computed tree because of its immutability.
+- **Contexts** are available within a computed tree, across computed trees, and across the boundary between a regular and a computed tree
+- **Tree traversal methods** can be used on computed tree nodes within a computed tree, across computed trees, and across the boundary between a regular and a computed tree. However, most [utility methods](./treeLikeStructure#utility-methods) do not work on computed tree nodes because of their immutability except for `onChildAttachedTo` whose listener callback gets called upon re-computation of a computed tree child.
+- **References** are available within a computed tree, across computed trees, and across the boundary between a regular and a computed tree. When referencing a model instances in a computed tree, it is important that the ID of the referenced model instance is _stable_ across re-computations of the computed tree.
+- **Back-references** are available within a computed tree, across computed trees, and across the boundary between a regular and a computed tree.
+- **Life-cycle event hooks** are available and work as expected. `onAttachedToRootStore` is called upon each re-computation of the computed tree when it is part of a root store tree.
+- **Snapshots** do not contain data of computed trees.
+- **Patches** are not generated for computed tree nodes because of immutability.

@@ -2,6 +2,7 @@
 
 - Added property transform `stringToBigIntTransform`.
 - Added action serialization for non-JSON primitive values `undefined`, `bigint` and special `number` values `NaN`/`+Infinity`/`-Infinity`.
+- Added `@computedTree` decorator for reactively deriving an alternative view of an original tree that is attached as a property to the original tree to support tree traversal functions, contexts, references, etc. (see "Computed Trees" section in the docs).
 
 ## 0.64.1
 
