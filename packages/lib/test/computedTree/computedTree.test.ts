@@ -270,8 +270,7 @@ describe("tree traversal functions", () => {
     expect(isParentOfChild(r, r.model)).toBeTruthy()
   })
 
-  // fails because `resolvePath` skips ahead to `<model>.$` when it arrives at a model node
-  test.skip("computed tree supports resolvePath", () => {
+  test("computed tree supports resolvePath", () => {
     const r = new R({})
 
     expect(resolvePath(r, ["array"])).toEqual({ resolved: true, value: r.array })
