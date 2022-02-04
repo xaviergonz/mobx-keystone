@@ -10,7 +10,7 @@ export type PrimitiveValue = undefined | null | boolean | number | string | bigi
  *
  * A JSON-compatible primitive value.
  */
- export type JSONPrimitiveValue = null | boolean | number | string
+export type JSONPrimitiveValue = null | boolean | number | string
 
 /**
  * @ignore

@@ -1,7 +1,10 @@
 import { namespace } from "../../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
-export const primitiveSerializer: ActionCallArgumentSerializer<number | bigint | undefined, string>  = {
+export const primitiveSerializer: ActionCallArgumentSerializer<
+  number | bigint | undefined,
+  string
+> = {
   id: `${namespace}/primitiveAsString`,
 
   serialize(value) {

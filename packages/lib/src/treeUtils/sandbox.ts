@@ -194,7 +194,7 @@ export class SandboxManager {
   ): { sandboxNodes: T; applyRecorderChanges: (commit: boolean) => void } {
     const isNestedWithSandboxCall = !!this.withSandboxPatchRecorder
 
-    const sandboxNodes = (nodes.map((node) => {
+    const sandboxNodes = nodes.map((node) => {
       const path = getParentToChildPath(
         isNestedWithSandboxCall ? this.subtreeRootClone : this.subtreeRoot,
         node
@@ -209,7 +209,7 @@ export class SandboxManager {
       }
 
       return sandboxNode
-    }) as unknown) as T
+    }) as unknown as T
 
     if (!this.withSandboxPatchRecorder) {
       this.withSandboxPatchRecorder = patchRecorder(this.subtreeRootClone)

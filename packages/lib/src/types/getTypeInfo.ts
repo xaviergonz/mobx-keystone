@@ -11,7 +11,7 @@ import type { LateTypeChecker, TypeChecker, TypeInfo } from "./TypeChecker"
  */
 export function getTypeInfo(type: AnyType): TypeInfo {
   const stdType = resolveStandardType(type)
-  const typeInfo = ((stdType as any) as TypeChecker | LateTypeChecker).typeInfo
+  const typeInfo = (stdType as any as TypeChecker | LateTypeChecker).typeInfo
   if (!typeInfo) {
     throw failure(`type info not found for ${type}`)
   }
