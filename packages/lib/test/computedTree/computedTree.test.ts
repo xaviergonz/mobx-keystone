@@ -194,7 +194,13 @@ test("computed tree node must not cause a cycle", () => {
 test("computed tree node's onAttachedToRootStore hook is called", () => {
   const r = new R({})
 
-  expect(r.model).toBeInstanceOf(M)
+  // cached when observed
+  autoDispose(
+    reaction(
+      () => r.model,
+      () => {}
+    )
+  )
 
   expect(r.model.isAttachedToRootStore).toBeFalsy()
 
