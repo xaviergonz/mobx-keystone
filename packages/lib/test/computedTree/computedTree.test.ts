@@ -341,7 +341,7 @@ describe("tree traversal functions", () => {
     (mode) => {
       const r = new R({})
 
-      // does not traverse computed trees because they are not obesrved at this point
+      // does not traverse computed trees because they are not observed at this point
       expect(walkTree(r, (node) => (isArray(node) ? node : undefined), mode)).toBeUndefined()
       expect(walkTree(r, (node) => (isPlainObject(node) ? node : undefined), mode)).toBeUndefined()
       expect(walkTree(r, (node) => (node instanceof M ? node : undefined), mode)).toBeUndefined()
