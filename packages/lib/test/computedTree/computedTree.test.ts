@@ -141,6 +141,17 @@ test("computed tree decorator cannot decorate a 'get' accessor of a plain class"
   }).toThrow("@computedTree can only decorate 'get' accessors of class or data models")
 })
 
+test("computed tree decorator cannot decorate a method", () => {
+  expect(() => {
+    // @ts-ignore
+    // eslint-disable-next-line
+    class X extends Model({}) {
+      @computedTree
+      method() {}
+    }
+  }).toThrow("@computedTree requires a 'get' accessor")
+})
+
 test("computed tree decorator cannot decorate a 'set' accessor", () => {
   expect(() => {
     // @ts-ignore
