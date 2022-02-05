@@ -10,7 +10,7 @@ dist/
 /packages/site/build/
 /packages/site/static/api/
 
-.yarn/*
+.yarn/
 !.yarn/patches
 !.yarn/releases
 !.yarn/plugins
