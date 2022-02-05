@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.65.0
+
+- Fixed a `Maximum call stack size exceeded` getting triggered when `onAttachedToRootStore` was defined and many nodes were added at once.
 - Added property transform `stringToBigIntTransform`.
 - Added action serialization for non-JSON primitive values `undefined`, `bigint` and special `number` values `NaN`/`+Infinity`/`-Infinity`.
 

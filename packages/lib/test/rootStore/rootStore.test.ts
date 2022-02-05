@@ -336,3 +336,39 @@ test("issue #316", () => {
   expect(mountCount).toBe(1)
   expect(unmountCount).toBe(1)
 })
+
+test("bug #384", () => {
+  let calls = 0
+
+  @model("bug #384/Todo")
+  class Todo extends Model({
+    text: prop<string>(),
+  }) {
+    onAttachedToRootStore() {
+      calls++
+    }
+  }
+
+  @model("bug #384/TodoStore")
+  class Store extends Model({
+    todos: prop<Todo[]>(() => []),
+  }) {
+    @modelAction
+    setTodos(todos: Todo[]) {
+      this.todos = todos
+    }
+  }
+
+  const todos: Todo[] = []
+
+  for (let i = 0; i < 5000; i++) {
+    todos.push(new Todo({ text: "Todo #" + i }))
+  }
+
+  const store = new Store({})
+
+  registerRootStore(store)
+  store.setTodos(todos)
+
+  expect(calls).toBe(todos.length)
+})
