@@ -5,7 +5,7 @@ import { isDataModelClass } from "../dataModel/utils"
 import { isModelClass } from "../model/utils"
 import { isTreeNode } from "../tweaker/core"
 import { tweak } from "../tweaker/tweak"
-import { failure } from "../utils"
+import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
 
 const computedTreeContext = createContext(false)
 
@@ -53,5 +53,12 @@ export function computedTree(
   }
 
   // apply the `@computed` decorator to the accessor
-  computed(target, propertyKey)
+  computed({ keepAlive: true })(target, propertyKey)
+
+  // access the computed property just before `onInit`/`onLazyInit` to start observing it
+  addLateInitializationFunction(
+    target,
+    runBeforeOnInitSymbol,
+    (instance) => void instance[propertyKey]
+  )
 }

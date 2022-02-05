@@ -89,16 +89,6 @@ class R extends Model({
   get ref() {
     return this.m ? createMRef(this.m) : undefined
   }
-
-  @computedTree
-  get modelAlreadyAttached() {
-    return this.m
-  }
-
-  @computedTree
-  get modelIsParent() {
-    return this
-  }
 }
 
 @model("M")
@@ -188,30 +178,40 @@ test("computed tree supports non-model data", () => {
   expect(isTreeNode(r.plainObject)).toBeTruthy()
 })
 
-test("computed tree node must not be attached elsewhere", () => {
-  const r = new R({ m: new M({}) })
+test("computed tree is evaluated eagerly", () => {
+  const r = new R({})
 
-  expect(() => r.modelAlreadyAttached).toThrow(
+  expect(r.array).toBe(r.array)
+})
+
+test("computed tree node must not be attached elsewhere", () => {
+  @model("R2")
+  class R2 extends Model({ m: prop<M>() }) {
+    @computedTree
+    get modelAlreadyAttached() {
+      return this.m
+    }
+  }
+
+  expect(() => new R2({ m: new M({}) })).toThrow(
     "an object cannot be assigned a new parent when it already has one"
   )
 })
 
 test("computed tree node must not cause a cycle", () => {
-  const r = new R({})
+  @model("P")
+  class P extends Model({}) {
+    @computedTree
+    get modelIsParent() {
+      return this
+    }
+  }
 
-  expect(() => r.modelIsParent).toThrow("Maximum call stack size exceeded")
+  expect(() => new P({})).toThrow("Maximum call stack size exceeded")
 })
 
 test("computed tree node's onAttachedToRootStore hook is called", () => {
   const r = new R({})
-
-  // cached when observed
-  autoDispose(
-    reaction(
-      () => r.model,
-      () => {}
-    )
-  )
 
   expect(r.model.isAttachedToRootStore).toBeFalsy()
 
@@ -318,14 +318,6 @@ describe("tree traversal functions", () => {
   test("computed tree supports findChildren", () => {
     const r = new R({})
 
-    // cached when observed
-    autoDispose(
-      reaction(
-        () => [r.array, r.plainObject, r.model],
-        () => {}
-      )
-    )
-
     expect(findChildren(r, (node) => isArray(node)).has(r.array)).toBeTruthy()
     expect(findChildren(r, (node) => isPlainObject(node)).has(r.plainObject)).toBeTruthy()
     expect(findChildren(r, (node) => node instanceof M).has(r.model)).toBeTruthy()
@@ -333,17 +325,6 @@ describe("tree traversal functions", () => {
 
   test.each([false, true])("computed tree supports getChildrenObjects (deep=%j)", (deep) => {
     const r = new R({})
-
-    // no children objects because the computed trees are not observed at this point
-    expect(getChildrenObjects(r, { deep }).size).toBe(0)
-
-    // cached when observed
-    autoDispose(
-      reaction(
-        () => [r.array, r.plainObject, r.model],
-        () => {}
-      )
-    )
 
     const children = getChildrenObjects(r, { deep })
     expect(children.size).toBe(3)
@@ -357,19 +338,6 @@ describe("tree traversal functions", () => {
     (mode) => {
       const r = new R({})
 
-      // does not traverse computed trees because they are not observed at this point
-      expect(walkTree(r, (node) => (isArray(node) ? node : undefined), mode)).toBeUndefined()
-      expect(walkTree(r, (node) => (isPlainObject(node) ? node : undefined), mode)).toBeUndefined()
-      expect(walkTree(r, (node) => (node instanceof M ? node : undefined), mode)).toBeUndefined()
-
-      // cached when observed
-      autoDispose(
-        reaction(
-          () => [r.array, r.plainObject, r.model],
-          () => {}
-        )
-      )
-
       expect(walkTree(r, (node) => (isArray(node) ? node : undefined), mode)).toBe(r.array)
       expect(walkTree(r, (node) => (isPlainObject(node) ? node : undefined), mode)).toBe(
         r.plainObject
@@ -380,7 +348,7 @@ describe("tree traversal functions", () => {
 })
 
 describe("tree utility functions", () => {
-  test("computed tree supports onChildAttachedTo", () => {
+  test.skip("computed tree supports onChildAttachedTo", () => {
     const r = new R({})
 
     let counter = 0
@@ -395,23 +363,9 @@ describe("tree utility functions", () => {
     )
     autoDispose(() => disposer(true))
 
-    expect(counter).toBe(0)
-
-    // no attachment because `r.model` is not observed at this point
-    r.setValue(10)
-    expect(counter).toBe(0)
-
-    // attachment because `r.model` is now observed
-    autoDispose(
-      reaction(
-        () => r.model,
-        () => {}
-      )
-    )
     expect(counter).toBe(1)
 
-    // re-attachment because `r.model` is observed and `r.value` has changed
-    r.setValue(20)
+    r.setValue(10)
     expect(counter).toBe(2)
   })
 
@@ -460,14 +414,6 @@ test("computed tree node can access context from a regular parent node", () => {
 
 test("computed tree node can be referenced from a regular tree node", () => {
   const r = new R({})
-
-  // cached when observed
-  autoDispose(
-    reaction(
-      () => r.model,
-      () => {}
-    )
-  )
 
   r.setMRef(createMRef(r.model))
 
