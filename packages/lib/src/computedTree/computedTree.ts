@@ -6,6 +6,7 @@ import { isModelClass } from "../model/utils"
 import { isTreeNode } from "../tweaker/core"
 import { tryUntweak, tweak } from "../tweaker/tweak"
 import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 
 const computedTreeContext = createContext(false)
 
@@ -37,13 +38,7 @@ const computedTreeNodeInfo = new WeakMap<
 >()
 
 function getComputedTreeNodeInfo(instance: object) {
-  let map = computedTreeNodeInfo.get(instance)
-  if (!map) {
-    map = new Map()
-    computedTreeNodeInfo.set(instance, map)
-  }
-
-  return map
+  return getOrCreate(computedTreeNodeInfo, instance, () => new Map())
 }
 
 /**
