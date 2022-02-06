@@ -46,7 +46,7 @@ Computed trees have the following properties:
 
 - **Immutability** because a computed tree is _derived_ from another (mutable or computed) tree or observable value. Immutability is enforced at runtime by means of the [readonly middleware](./actionMiddlewares/readonlyMiddleware.mdx).
 - **Action middlewares** are never applied to a computed tree because of its immutability.
-- **Contexts** are available within a computed tree, across computed trees, and across the boundary between a regular and a computed tree
+- **Contexts** are available within a computed tree, across computed trees, and across the boundary between a regular and a computed tree.
 - **Tree traversal methods** can be used on computed tree nodes within a computed tree, across computed trees, and across the boundary between a regular and a computed tree. However, most [utility methods](./treeLikeStructure.mdx#utility-methods) do not work on computed tree nodes because of their immutability except for `onChildAttachedTo` whose listener callback gets called upon re-computation of a computed tree child.
 - **References** are available within a computed tree, across computed trees, and across the boundary between a regular and a computed tree. When referencing a model instances in a computed tree, it is important that the ID of the referenced model instance is _stable_ across re-computations of the computed tree.
 - **Back-references** are available within a computed tree, across computed trees, and across the boundary between a regular and a computed tree.
