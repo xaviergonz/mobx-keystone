@@ -1,15 +1,15 @@
 import { computed } from "mobx"
 import {
-    connectReduxDevTools,
-    idProp,
-    model,
-    Model,
-    modelAction,
-    ModelAutoTypeCheckingMode,
-    registerRootStore,
-    setGlobalConfig,
-    tProp,
-    types
+  connectReduxDevTools,
+  idProp,
+  model,
+  Model,
+  modelAction,
+  ModelAutoTypeCheckingMode,
+  registerRootStore,
+  setGlobalConfig,
+  tProp,
+  types,
 } from "mobx-keystone"
 
 // for this example we will enable runtime data checking even in production mode

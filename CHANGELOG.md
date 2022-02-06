@@ -1,8 +1,12 @@
 # Change Log
 
+- Added `@computedTree` decorator for reactively deriving an alternative view of an original tree that is attached as a property to the original tree to support tree traversal functions, contexts, references, etc. (see "Computed Trees" section in the docs).
+
+## 0.65.0
+
+- Fixed a `Maximum call stack size exceeded` getting triggered when `onAttachedToRootStore` was defined and many nodes were added at once.
 - Added property transform `stringToBigIntTransform`.
 - Added action serialization for non-JSON primitive values `undefined`, `bigint` and special `number` values `NaN`/`+Infinity`/`-Infinity`.
-- Added `@computedTree` decorator for reactively deriving an alternative view of an original tree that is attached as a property to the original tree to support tree traversal functions, contexts, references, etc. (see "Computed Trees" section in the docs).
 
 ## 0.64.1
 
