@@ -36,6 +36,10 @@ class V extends Model({
 
 To check whether a node is a regular or computed tree node, use the `isComputedTreeNode(node: object): boolean` utility function.
 
+:::note
+The behavior of a computed tree property differs from a MobX computed property. A computed tree property evaluates eagerly (i.e. a computed tree is immediately attached upon model instantiation), cached also without being observed in a reactive context and not suspended when not observed. In contrast, a MobX computed property evaluates lazily, is cached only when observed in a reactive context and (by default) suspends when not observed.
+:::
+
 ## Properties of computed trees
 
 Computed trees have the following properties:
