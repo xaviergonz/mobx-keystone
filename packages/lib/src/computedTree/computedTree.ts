@@ -1,10 +1,10 @@
-import { computed } from "mobx"
+import { computed, IComputedValue } from "mobx"
 import { readonlyMiddleware } from "../actionMiddlewares/readonlyMiddleware"
 import { createContext } from "../context/context"
 import { isDataModelClass } from "../dataModel/utils"
 import { isModelClass } from "../model/utils"
 import { isTreeNode } from "../tweaker/core"
-import { tweak } from "../tweaker/tweak"
+import { tryUntweak, tweak } from "../tweaker/tweak"
 import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
 
 const computedTreeContext = createContext(false)
@@ -17,6 +17,33 @@ const computedTreeContext = createContext(false)
  */
 export function isComputedTreeNode(node: object): boolean {
   return computedTreeContext.get(node)
+}
+
+const tweakedComputedTreeNodes = new WeakSet<object>()
+
+function tweakComputedTreeNode<T>(newValue: T, parent: unknown, path: string): T {
+  const tweakedValue = tweak(newValue, { parent, path })
+  if (isTreeNode(tweakedValue) && !tweakedComputedTreeNodes.has(tweakedValue)) {
+    tweakedComputedTreeNodes.add(tweakedValue)
+    readonlyMiddleware(tweakedValue)
+    computedTreeContext.set(tweakedValue, true)
+  }
+  return tweakedValue
+}
+
+const computedTreeNodeInfo = new WeakMap<
+  object,
+  Map<string, { computed: IComputedValue<unknown>; value: unknown; tweakedValue: unknown }>
+>()
+
+function getComputedTreeNodeInfo(instance: object) {
+  let map = computedTreeNodeInfo.get(instance)
+  if (!map) {
+    map = new Map()
+    computedTreeNodeInfo.set(instance, map)
+  }
+
+  return map
 }
 
 /**
@@ -42,23 +69,35 @@ export function computedTree(
   }
 
   const original = descriptor.get
+
   descriptor.get = function () {
-    const value = original.call(this)
-    const tweakedValue = tweak(value, { parent: this, path: propertyKey })
-    if (isTreeNode(tweakedValue)) {
-      readonlyMiddleware(tweakedValue)
-      computedTreeContext.set(tweakedValue, true)
+    const entry = getComputedTreeNodeInfo(this).get(propertyKey)!
+
+    const oldValue = entry.value
+    const newValue = entry.computed.get()
+
+    if (oldValue === newValue) {
+      return entry.tweakedValue
     }
+
+    tweak(oldValue, undefined)
+    tryUntweak(oldValue)
+
+    const tweakedValue = tweakComputedTreeNode(newValue, this, propertyKey)
+    entry.value = newValue
+    entry.tweakedValue = tweakedValue
     return tweakedValue
   }
 
-  // apply the `@computed` decorator to the accessor
-  computed({ keepAlive: true })(target, propertyKey)
+  addLateInitializationFunction(target, runBeforeOnInitSymbol, (instance) => {
+    const c = computed(() => original.call(instance), { keepAlive: true })
+    const newValue = c.get()
+    const tweakedValue = tweakComputedTreeNode(newValue, instance, propertyKey)
 
-  // access the computed property just before `onInit`/`onLazyInit` to start observing it
-  addLateInitializationFunction(
-    target,
-    runBeforeOnInitSymbol,
-    (instance) => void instance[propertyKey]
-  )
+    getComputedTreeNodeInfo(instance).set(propertyKey, {
+      computed: c,
+      value: newValue,
+      tweakedValue,
+    })
+  })
 }

@@ -348,7 +348,7 @@ describe("tree traversal functions", () => {
 })
 
 describe("tree utility functions", () => {
-  test.skip("computed tree supports onChildAttachedTo", () => {
+  test("computed tree supports onChildAttachedTo", () => {
     const r = new R({})
 
     let counter = 0
@@ -365,7 +365,12 @@ describe("tree utility functions", () => {
 
     expect(counter).toBe(1)
 
+    // a value change should generate a new computed model
+    const prevM = r.model
     r.setValue(10)
+    expect(r.model).not.toBe(prevM)
+    expect(r.model.value).toBe(10)
+
     expect(counter).toBe(2)
   })
 
