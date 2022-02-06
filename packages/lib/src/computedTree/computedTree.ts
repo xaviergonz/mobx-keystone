@@ -37,7 +37,7 @@ const computedTreeNodeInfo = new WeakMap<
   Map<string, { computed: IComputedValue<unknown>; value: unknown; tweakedValue: unknown }>
 >()
 
-function getComputedTreeNodeInfo(instance: object) {
+function getOrCreateComputedTreeNodeInfo(instance: object) {
   return getOrCreate(computedTreeNodeInfo, instance, () => new Map())
 }
 
@@ -66,7 +66,7 @@ export function computedTree(
   const original = descriptor.get
 
   descriptor.get = function () {
-    const entry = getComputedTreeNodeInfo(this).get(propertyKey)!
+    const entry = getOrCreateComputedTreeNodeInfo(this).get(propertyKey)!
 
     const oldValue = entry.value
     const newValue = entry.computed.get()
@@ -89,7 +89,7 @@ export function computedTree(
     const newValue = c.get()
     const tweakedValue = tweakComputedTreeNode(newValue, instance, propertyKey)
 
-    getComputedTreeNodeInfo(instance).set(propertyKey, {
+    getOrCreateComputedTreeNodeInfo(instance).set(propertyKey, {
       computed: c,
       value: newValue,
       tweakedValue,
