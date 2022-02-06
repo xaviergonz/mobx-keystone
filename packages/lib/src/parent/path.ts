@@ -253,7 +253,7 @@ export function resolvePath<T = any>(
   // unit tests rely on this to work with any object
   // assertTweakedObject(pathRootObject, "pathRootObject")
 
-  let current: any = modelToDataNode(pathRootObject)
+  let current: any = pathRootObject
 
   let len = path.length
   for (let i = 0; i < len; i++) {
@@ -268,10 +268,19 @@ export function resolvePath<T = any>(
       return unresolved
     }
 
-    current = modelToDataNode(current[p] as object)
+    if (isModel(current)) {
+      const dataNode = modelToDataNode(current)
+      if (p in dataNode) {
+        current = dataNode
+      } else if (!(p in current)) {
+        return unresolved
+      }
+    }
+
+    current = current[p]
   }
 
-  return { resolved: true, value: dataToModelNode(current) }
+  return { resolved: true, value: current }
 }
 
 /**

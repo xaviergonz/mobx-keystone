@@ -19,6 +19,7 @@ import {
   logWarning,
   mobx6,
   runAfterNewSymbol,
+  runBeforeOnInitSymbol,
   runLateInitializationFunctions,
 } from "../utils"
 
@@ -92,6 +93,8 @@ const internalModel =
 
       // the object is ready
       addHiddenProp(instance, modelInitializedSymbol, true, false)
+
+      runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
 
       if (type === "class" && instance.onInit) {
         wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)

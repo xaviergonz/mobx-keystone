@@ -288,6 +288,12 @@ export interface DecorateMethodOrFieldData {
  */
 export const runAfterNewSymbol = Symbol("runAfterNew")
 
+/**
+ * @ignore
+ * @internal
+ */
+export const runBeforeOnInitSymbol = Symbol("runBeforeOnInit")
+
 type WrapFunction = (data: DecorateMethodOrFieldData, fn: any) => any
 type LateInitializationFunctionsArray = ((instance: any) => void)[]
 

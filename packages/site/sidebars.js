@@ -30,6 +30,7 @@ module.exports = {
     "runtimeTypeChecking",
     "drafts",
     "sandboxes",
+    "computedTrees",
     "reduxCompatibility",
     {
       type: "category",
