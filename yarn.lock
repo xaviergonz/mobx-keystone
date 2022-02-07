@@ -14256,6 +14256,8 @@ __metadata:
     fast-deep-equal: ^3.1.3
     jest: ^27.5.0
     mobx: ^6.3.13
+    mobx-v4: "npm:mobx@^4.15.7"
+    mobx-v5: "npm:mobx@^5.15.7"
     nanoid: ^3.2.0
     netlify-cli: ^8.16.1
     rollup-plugin-typescript2: ^0.31.2
@@ -14311,6 +14313,20 @@ __metadata:
   peerDependencies:
     mobx: ^6.3.0
   checksum: f6b31c7d5128b65a9dd818afde364e4c8dcdb75d93c4e3002966cad1c9b1146b4d417fc0898f0dfdd9135adfcaabea3a7fcafcca42a5f01f8943fbff924d1c79
+  languageName: node
+  linkType: hard
+
+"mobx-v4@npm:mobx@^4.15.7":
+  version: 4.15.7
+  resolution: "mobx@npm:4.15.7"
+  checksum: 9ddda3a7fbb92f02cc9da7d6551e4914611dfa90d5cd6509b5abcdddc872f4bbb3cf6bb0537abd716738e0021d632de21013876a9f334a72cb7a1c7fd9664441
+  languageName: node
+  linkType: hard
+
+"mobx-v5@npm:mobx@^5.15.7":
+  version: 5.15.7
+  resolution: "mobx@npm:5.15.7"
+  checksum: 46aa00c330a256fdde1c030cf8bab0baebc7fdfb23709884400ac486c318ce650acc336fd8f1e629b5c8680d82051f2aed4737406c4ac6fe1b2d9f3d978c4339
   languageName: node
   linkType: hard
 

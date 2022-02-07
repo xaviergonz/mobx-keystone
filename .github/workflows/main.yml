@@ -38,6 +38,15 @@ jobs:
   lib-test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        mobx-version:
+          - 6
+          - 5
+          # TODO: add "4", but right now the test suite runs forever
+    env:
+      MOBX_VERSION: ${{ matrix.mobx-version }}
+
     steps:
       - uses: actions/checkout@v2
 
