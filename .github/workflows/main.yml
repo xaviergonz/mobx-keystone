@@ -36,6 +36,7 @@ jobs:
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
 
   lib-test:
+    name: lib-test (MobX v${{ matrix.mobx-version }})
     runs-on: ubuntu-latest
 
     strategy:
