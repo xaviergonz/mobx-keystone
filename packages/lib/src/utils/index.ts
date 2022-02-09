@@ -421,7 +421,7 @@ export const mobx6 = {
   makeObservable: (mobx as any)[
     // just to ensure import * is kept properly
     String.fromCharCode("l".charCodeAt(0) + 1) + "akeObservable"
-  ] as typeof mobx["makeObservable"],
+  ],
 }
 
 /**
