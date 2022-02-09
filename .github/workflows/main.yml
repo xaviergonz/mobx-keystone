@@ -45,7 +45,7 @@ jobs:
         mobx-version:
           - 6
           - 5
-          # TODO: add "4", but right now the test suite runs forever
+          # TODO: add "4" if we ever want to be compatible with it
     env:
       MOBX_VERSION: ${{ matrix.mobx-version }}
 

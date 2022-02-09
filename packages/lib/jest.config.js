@@ -1,7 +1,7 @@
 const tsconfigFiles = {
   6: "tsconfig.json",
   5: "tsconfig.mobx5.json",
-  // 4: "tsconfig.json", // TODO: not sure yet which config to use
+  4: "tsconfig.mobx4.json",
 }
 
 const mobxVersion = process.env.MOBX_VERSION || "6"
