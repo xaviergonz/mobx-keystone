@@ -36,7 +36,16 @@ jobs:
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
 
   lib-test:
+    name: lib-test (MobX v${{ matrix.mobx-version }})
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        mobx-version:
+          - 6
+          - 5
+          # TODO: add "4" if we ever want to be compatible with it
 
     steps:
       - uses: actions/checkout@v2
@@ -55,6 +64,8 @@ jobs:
 
       - run: yarn install --immutable
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
+        env:
+          MOBX_VERSION: ${{ matrix.mobx-version }}
 
   formatting:
     runs-on: ubuntu-latest
