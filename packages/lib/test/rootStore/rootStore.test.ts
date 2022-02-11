@@ -11,7 +11,6 @@ import {
   toTreeNode,
   unregisterRootStore,
 } from "../../src"
-import "../commonSetup"
 
 const events: string[] = []
 

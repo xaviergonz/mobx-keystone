@@ -1,5 +1,4 @@
 import { idProp, model, Model, modelIdKey, prop, tProp, types } from "../../src"
-import "../commonSetup"
 
 describe("create with extra properties", () => {
   const data = { value: 0, a: 2 }

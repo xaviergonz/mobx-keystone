@@ -36,7 +36,7 @@ jobs:
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
 
   lib-test:
-    name: lib-test (${{ matrix.compiler }})
+    name: lib-test (${{ matrix.compiler }} - MobX v${{ matrix.mobx-version }})
     runs-on: ubuntu-latest
 
     strategy:
@@ -45,6 +45,10 @@ jobs:
         compiler:
           - tsc
           - babel
+        mobx-version:
+          - 6
+          - 5
+          # TODO: add "4" if we ever want to be compatible with it
 
     steps:
       - uses: actions/checkout@v2
@@ -65,6 +69,7 @@ jobs:
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
         env:
           COMPILER: ${{ matrix.compiler }}
+          MOBX_VERSION: ${{ matrix.mobx-version }}
 
   formatting:
     runs-on: ubuntu-latest

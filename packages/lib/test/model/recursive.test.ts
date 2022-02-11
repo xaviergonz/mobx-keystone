@@ -9,7 +9,6 @@ import {
   types,
   TypeToData,
 } from "../../src"
-import "../commonSetup"
 
 beforeEach(() => {
   setGlobalConfig({

@@ -1,5 +1,4 @@
 import { jsonPatchToPatch, jsonPointerToPath, patchToJsonPatch, pathToJsonPointer } from "../../src"
-import "../commonSetup"
 
 test("JSON path conversion", () => {
   expect(pathToJsonPointer([])).toEqual("")

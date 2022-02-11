@@ -10,7 +10,6 @@ import {
   _async,
   _await,
 } from "../../src"
-import "../commonSetup"
 
 @model("P2")
 class P2 extends Model({

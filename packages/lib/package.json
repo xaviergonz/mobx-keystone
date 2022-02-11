@@ -76,6 +76,8 @@
     "babel-jest": "^27.5.1",
     "jest": "^27.5.0",
     "mobx": "^6.3.13",
+    "mobx-v4": "npm:mobx@^4.15.7",
+    "mobx-v5": "npm:mobx@^5.15.7",
     "netlify-cli": "^8.16.1",
     "rollup-plugin-typescript2": "^0.31.2",
     "shx": "^0.3.4",

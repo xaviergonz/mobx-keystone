@@ -15,7 +15,6 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
-import "../commonSetup"
 
 test("input snapshot processor", () => {
   @model("customInputSnapshot")
