@@ -9,7 +9,6 @@ import {
   prop,
 } from "../../src"
 import { isArray, isObject } from "../../src/utils"
-import "../commonSetup"
 
 const name = (obj: object) => {
   if (obj instanceof BaseModel) return obj.$modelType

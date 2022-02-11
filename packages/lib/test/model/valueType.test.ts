@@ -1,5 +1,4 @@
 import { Model, model, modelAction, prop } from "../../src"
-import "../commonSetup"
 
 test("value type", () => {
   @model("P")

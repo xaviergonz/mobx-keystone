@@ -23,6 +23,7 @@ module.exports = {
       tsconfig: `./test/${tsconfigFile}`,
     },
   },
+  setupFilesAfterEnv: ["./test/commonSetup.ts"],
   moduleNameMapper: {
     "^mobx$": mobxModuleName,
   },

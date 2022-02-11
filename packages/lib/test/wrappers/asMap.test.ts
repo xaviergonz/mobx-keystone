@@ -9,7 +9,6 @@ import {
   prop,
   runUnprotected,
 } from "../../src"
-import "../commonSetup"
 
 test("asMap - object", () => {
   @model(test.name)

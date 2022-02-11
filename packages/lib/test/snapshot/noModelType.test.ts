@@ -11,7 +11,6 @@ import {
   tProp,
   types,
 } from "../../src"
-import "../commonSetup"
 
 test("model without model type thanks to a tProp", () => {
   @model("m1/1")

@@ -10,7 +10,6 @@ import {
   tProp,
   types,
 } from "../../src"
-import "../commonSetup"
 
 @model("M")
 class M extends Model({

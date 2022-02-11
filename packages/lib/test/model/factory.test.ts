@@ -10,7 +10,6 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
-import "../commonSetup"
 
 test("factory pattern", () => {
   function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
