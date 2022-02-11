@@ -1,3 +1,5 @@
+const { mobxVersion, compiler } = require("./env")
+
 const tsconfigFiles = {
   6: "tsconfig.json",
   5: "tsconfig.mobx5.json",
@@ -10,8 +12,6 @@ const mobxModuleNames = {
   4: "mobx-v4",
 }
 
-const mobxVersion = process.env.MOBX_VERSION || "6"
-
 const tsconfigFile = tsconfigFiles[mobxVersion]
 const mobxModuleName = mobxModuleNames[mobxVersion]
 
@@ -22,7 +22,7 @@ const config = {
   },
 }
 
-switch (process.env.COMPILER || "tsc") {
+switch (compiler) {
   case "tsc":
     Object.assign(config, {
       preset: "ts-jest",

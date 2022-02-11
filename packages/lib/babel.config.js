@@ -1,3 +1,5 @@
+const { mobxVersion } = require("./env")
+
 module.exports = {
   presets: [
     ["@babel/preset-env", { targets: { node: "current" } }],
@@ -5,6 +7,6 @@ module.exports = {
   ],
   plugins: [
     ["@babel/plugin-proposal-decorators", { version: "legacy" }],
-    ["@babel/plugin-proposal-class-properties"],
+    ["@babel/plugin-proposal-class-properties", { loose: mobxVersion <= 5 }],
   ],
 }
