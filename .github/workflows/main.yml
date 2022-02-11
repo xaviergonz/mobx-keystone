@@ -36,7 +36,15 @@ jobs:
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
 
   lib-test:
+    name: lib-test (${{ matrix.compiler }})
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - tsc
+          - babel
 
     steps:
       - uses: actions/checkout@v2
@@ -55,6 +63,8 @@ jobs:
 
       - run: yarn install --immutable
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
+        env:
+          COMPILER: ${{ matrix.compiler }}
 
   formatting:
     runs-on: ubuntu-latest
