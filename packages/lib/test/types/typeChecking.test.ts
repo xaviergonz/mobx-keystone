@@ -781,13 +781,15 @@ test("cross referenced object", () => {
 @model("MR")
 class MR extends Model({
   x: tProp(types.number, 10),
-  rec: tProp(types.maybe(types.model<MR>(() => MR))),
+  rec: tProp(types.maybe(types.model<MR>(() => _MR))),
 }) {
   @modelAction
   setRec(r: MR | undefined) {
     this.rec = r
   }
 }
+// workaround over a babel bug: https://github.com/babel/babel/issues/11131
+const _MR = MR
 
 test("recursive model", () => {
   const type = types.model(MR)

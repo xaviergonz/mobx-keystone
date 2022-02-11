@@ -1,3 +1,5 @@
+const { mobxVersion, compiler } = require("./env")
+
 const tsconfigFiles = {
   6: "tsconfig.json",
   5: "tsconfig.mobx5.json",
@@ -10,21 +12,34 @@ const mobxModuleNames = {
   4: "mobx-v4",
 }
 
-const mobxVersion = process.env.MOBX_VERSION || "6"
-
 const tsconfigFile = tsconfigFiles[mobxVersion]
 const mobxModuleName = mobxModuleNames[mobxVersion]
 
-module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "node",
-  globals: {
-    "ts-jest": {
-      tsconfig: `./test/${tsconfigFile}`,
-    },
-  },
+const config = {
   setupFilesAfterEnv: ["./test/commonSetup.ts"],
   moduleNameMapper: {
     "^mobx$": mobxModuleName,
   },
 }
+
+switch (compiler) {
+  case "tsc":
+    Object.assign(config, {
+      preset: "ts-jest",
+      testEnvironment: "node",
+      globals: {
+        "ts-jest": {
+          tsconfig: `./test/${tsconfigFile}`,
+        },
+      },
+    })
+    break
+
+  case "babel":
+    break
+
+  default:
+    throw new Error("$COMPILER must be one of {tsc,babel}")
+}
+
+module.exports = config
