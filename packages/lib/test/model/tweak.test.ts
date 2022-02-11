@@ -1,6 +1,5 @@
 import { isObservable, keys, set, values } from "mobx"
 import { getParent, isTreeNode, model, Model, prop, runUnprotected } from "../../src"
-import "../commonSetup"
 
 interface TestObj {
   x: number

@@ -11,7 +11,6 @@ import {
   runUnprotected,
   SnapshotOutOf,
 } from "../../src"
-import "../commonSetup"
 
 test("ids", () => {
   @model("ids")

@@ -14,7 +14,6 @@ import {
   serializeActionCall,
   SerializedActionCall,
 } from "../../src"
-import "../commonSetup"
 
 describe("concurrency", () => {
   @model("Root")

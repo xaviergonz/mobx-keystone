@@ -15,7 +15,6 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
-import "../commonSetup"
 
 test("model decorator preserves static properties", () => {
   @model("BarSimple")

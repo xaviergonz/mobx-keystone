@@ -18,7 +18,6 @@ import {
   SerializedActionCall,
   SerializedActionCallArgument,
 } from "../../src"
-import "../commonSetup"
 
 test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   // unserializable args

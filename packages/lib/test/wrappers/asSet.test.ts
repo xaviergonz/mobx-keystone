@@ -1,6 +1,5 @@
 import { computed, reaction } from "mobx"
 import { asSet, Model, model, modelAction, prop, runUnprotected, setToArray } from "../../src"
-import "../commonSetup"
 
 test("asSet", () => {
   @model(test.name)
