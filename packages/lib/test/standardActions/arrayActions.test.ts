@@ -1,5 +1,4 @@
 import { arrayActions, isTreeNode } from "../../src"
-import "../commonSetup"
 
 test("typed array", () => {
   const arr = arrayActions.create([1, 2])

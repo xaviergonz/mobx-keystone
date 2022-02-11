@@ -17,7 +17,6 @@ import {
   prop,
   runUnprotected,
 } from "../../src"
-import "../commonSetup"
 
 const $errorMessage = "must be the model object instance instead of the '$' sub-object"
 

@@ -10,7 +10,6 @@ import {
   Patch,
   prop,
 } from "../../src"
-import "../commonSetup"
 
 test("reassigning an array via spreading", () => {
   @model("SpreadArr_Obj")

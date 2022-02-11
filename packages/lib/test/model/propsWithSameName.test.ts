@@ -1,6 +1,5 @@
 import { assert, _ } from "spec.ts"
 import { idProp, Model, model, modelIdKey, prop, runUnprotected } from "../../src"
-import "../commonSetup"
 
 @model("M")
 class M extends Model({
