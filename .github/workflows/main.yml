@@ -46,8 +46,6 @@ jobs:
           - 6
           - 5
           # TODO: add "4" if we ever want to be compatible with it
-    env:
-      MOBX_VERSION: ${{ matrix.mobx-version }}
 
     steps:
       - uses: actions/checkout@v2
@@ -66,6 +64,8 @@ jobs:
 
       - run: yarn install --immutable
       - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
+        env:
+          MOBX_VERSION: ${{ matrix.mobx-version }}
 
   formatting:
     runs-on: ubuntu-latest
