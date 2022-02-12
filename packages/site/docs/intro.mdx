@@ -39,22 +39,3 @@ Even cooler, because it supports snapshots, action middlewares and replayable ac
 This makes it possible to connect the Redux devtools to `mobx-keystone`.
 
 Like React, `mobx-keystone` consists of composable components, called _models_, which capture small pieces of state. They are instantiated from props and after that manage and protect their own internal state (using actions). Moreover, when applying snapshots, tree nodes are reconciled as much as possible.
-
-## Requirements
-
-This library requires a more or less modern JavaScript environment to work, namely one with support for:
-
-- MobX 6, 5, or 4 (with its gotchas)
-- Proxies (when using MobX 5, or MobX 6 with the proxies setting enabled)
-- Symbols
-- WeakMap/WeakSet
-
-In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
-
-If you are using TypeScript, then version >= 4.2.0 is recommended, though it _might_ work with older versions.
-
-## Installation
-
-> `npm install mobx-keystone`
-
-> `yarn add mobx-keystone`

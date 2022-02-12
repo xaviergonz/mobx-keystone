@@ -4,6 +4,7 @@
 module.exports = {
   docs: [
     "intro",
+    "installation",
     "mstComparison",
     "classModels",
     "dataModels",
