@@ -1,4 +1,4 @@
-import { computed, reaction } from "mobx"
+import { computed, reaction, toJS } from "mobx"
 import {
   computedTree,
   createContext,
@@ -171,7 +171,7 @@ test("computed tree supports non-model data", () => {
   expect(r.undefined).toBeUndefined()
   expect(isTreeNode(r.undefined)).toBeFalsy()
 
-  expect(r.array).toEqual(["abc"])
+  expect(toJS(r.array)).toEqual(["abc"])
   expect(isTreeNode(r.array)).toBeTruthy()
 
   expect(r.plainObject).toEqual({ key: "value" })

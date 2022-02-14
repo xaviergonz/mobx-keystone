@@ -1,5 +1,6 @@
 # Change Log
 
+- Restored compatibility with mobx 4/5 and added CI tests to ensure it never gets broken again.
 - Added `@computedTree` decorator for reactively deriving an alternative view of an original tree that is attached as a property to the original tree to support tree traversal functions, contexts, references, etc. (see "Computed Trees" section in the docs).
 
 ## 0.65.0

@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { reaction, toJS } from "mobx"
 import { ArraySet, arraySet, detach } from "../../src"
 import "../commonSetup"
 import { autoDispose } from "../utils"
@@ -12,7 +12,7 @@ beforeEach(() => {
 })
 
 function expectSetValues(vals: number[]) {
-  expect(arr).toEqual(vals)
+  expect(toJS(arr)).toEqual(vals)
   expect([...set.values()]).toEqual(vals)
   expect([...set.keys()]).toEqual(vals)
   expect([...set.entries()]).toEqual(vals.map((v) => [v, v]))
@@ -52,7 +52,7 @@ test("forEach", () => {
     v.push(t1)
     expect(s).toBe(set)
   }, self)
-  expect(v).toEqual(arr)
+  expect(v).toEqual(toJS(arr))
 })
 
 test("has", () => {

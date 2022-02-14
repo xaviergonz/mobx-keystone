@@ -106,6 +106,9 @@ export const internalNewModel = action(
         } else if (propData._internal.defaultValue !== noDefaultValue) {
           changed = true
           newValue = propData._internal.defaultValue
+        } else if (!("k" in initialData!)) {
+          // for mobx4, we need to set up properties even if they are undefined
+          changed = true
         }
       }
 

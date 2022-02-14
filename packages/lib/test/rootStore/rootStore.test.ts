@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { reaction, toJS } from "mobx"
 import {
   getRootStore,
   isRootStore,
@@ -251,7 +251,7 @@ test("issue #27", () => {
   }
 
   const m = registerRootStore(new ModelWithArrayProp({ values: [] }))
-  expect(m.values).toEqual([1, 2, 3])
+  expect(toJS(m.values)).toEqual([1, 2, 3])
 })
 
 test("isRootStore is reactive", () => {

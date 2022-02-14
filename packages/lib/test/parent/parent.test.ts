@@ -1,4 +1,4 @@
-import { remove, set } from "mobx"
+import { remove, set, toJS } from "mobx"
 import {
   detach,
   findChildren,
@@ -111,7 +111,7 @@ test("parent", () => {
 
   expect(Array.from(getChildrenObjects(p).values())).toEqual([p.arr, p.p2])
   expect(() => Array.from(getChildrenObjects(p.$).values())).toThrow($errorMessage)
-  expect(Array.from(getChildrenObjects(p.arr).values())).toEqual(p.arr)
+  expect(Array.from(getChildrenObjects(p.arr).values())).toEqual(toJS(p.arr))
   expect(Array.from(getChildrenObjects(p.p2!).values())).toEqual([])
 
   expect(Array.from(findChildren(p, () => true).values())).toEqual([p.arr, p.p2])
@@ -303,7 +303,7 @@ test("parent", () => {
   runUnprotected(() => {
     detach(p2arr[1])
   })
-  expect(p.arr).toEqual([p2arr[0], p2arr[2]])
+  expect(toJS(p.arr)).toEqual([p2arr[0], p2arr[2]])
   expect(getParentPath(p2arr[0])).toBeDefined()
   expect(getParentPath(p2arr[1])).toBeUndefined()
   expect(getParentPath(p2arr[2])).toBeDefined()

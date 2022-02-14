@@ -1,4 +1,4 @@
-import { computed, reaction } from "mobx"
+import { computed, reaction, set, toJS } from "mobx"
 import {
   asMap,
   mapToArray,
@@ -56,7 +56,9 @@ test("asMap - object", () => {
   expect(mapToObject(m.map)).toEqual({ e: 5 })
 
   runUnprotected(() => {
-    m.obj.f = 6
+    // this is valid in mobx5 but not mobx4
+    // m.obj.f = 6
+    set(m.obj, "f", 6)
     expect(m.map.get("f")).toBe(6)
   })
 })
@@ -103,7 +105,7 @@ test("asMap - array", () => {
   m.add("d", 4)
   expect(m.map.has("d")).toBe(true)
 
-  expect(mapToArray(m.map)).toEqual([
+  expect(toJS(mapToArray(m.map))).toEqual([
     ["a", 1],
     ["b", 2],
     ["c", 3],
@@ -113,7 +115,7 @@ test("asMap - array", () => {
 
   m.setArr(new Map([["e", 5]]))
   expect(m.map).not.toBe(ma) // should be a new one
-  expect(mapToArray(m.map)).toEqual([["e", 5]])
+  expect(toJS(mapToArray(m.map))).toEqual([["e", 5]])
 
   runUnprotected(() => {
     m.arr.push(["f", 6])

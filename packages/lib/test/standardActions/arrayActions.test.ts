@@ -1,3 +1,4 @@
+import { toJS } from "mobx"
 import { arrayActions, isTreeNode } from "../../src"
 
 test("typed array", () => {
@@ -31,11 +32,11 @@ test("untyped array", () => {
 test("swap", () => {
   const arr = arrayActions.create([1, 2, 3, 4, 5])
   arrayActions.swap(arr, 1, 3)
-  expect(arr).toEqual([1, 4, 3, 2, 5])
+  expect(toJS(arr)).toEqual([1, 4, 3, 2, 5])
 
   arrayActions.swap(arr, -1, 3)
-  expect(arr).toEqual([1, 4, 3, 2, 5])
+  expect(toJS(arr)).toEqual([1, 4, 3, 2, 5])
 
   arrayActions.swap(arr, 1, arr.length)
-  expect(arr).toEqual([1, 4, 3, 2, 5])
+  expect(toJS(arr)).toEqual([1, 4, 3, 2, 5])
 })

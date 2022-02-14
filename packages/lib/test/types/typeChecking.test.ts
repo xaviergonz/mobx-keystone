@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { reaction, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   actionTrackingMiddleware,
@@ -523,15 +523,15 @@ test("model typechecking", () => {
   expectTypeCheckError(m, () => {
     m.setArr([1, 2, "3" as any])
   })
-  expect(m.arr).toEqual([])
+  expect(toJS(m.arr)).toEqual([])
 
   m.setArr([1, 2])
-  expect(m.arr).toEqual([1, 2])
+  expect(toJS(m.arr)).toEqual([1, 2])
 
   expectTypeCheckError(m, () => {
     m.addArr("3" as any)
   })
-  expect(m.arr).toEqual([1, 2])
+  expect(toJS(m.arr)).toEqual([1, 2])
 })
 
 test("new model with typechecking enabled", () => {
@@ -1222,7 +1222,7 @@ test("syntax sugar for primitives in tProp", () => {
   expect(ss.nul).toBe(null)
   expect(ss.undef).toBe(undefined)
   expect(ss.or).toBe(5)
-  expect(ss.arr).toEqual([1, "2", 3])
+  expect(toJS(ss.arr)).toEqual([1, "2", 3])
 
   expectTypeCheckOk(type, ss)
 

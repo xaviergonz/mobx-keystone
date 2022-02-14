@@ -1,4 +1,4 @@
-import { computed, reaction } from "mobx"
+import { computed, reaction, toJS } from "mobx"
 import { asSet, Model, model, modelAction, prop, runUnprotected, setToArray } from "../../src"
 
 test("asSet", () => {
@@ -39,12 +39,12 @@ test("asSet", () => {
   m.add(4)
   expect(m.set.has(4)).toBe(true)
 
-  expect(setToArray(m.set)).toEqual([1, 2, 3, 4])
+  expect(toJS(setToArray(m.set))).toEqual([1, 2, 3, 4])
   expect(setToArray(m.set)).toBe(m.arr) // same as backed prop
 
   m.setSet(new Set([5, 6, 7]))
   expect(m.set).not.toBe(s) // should be a new one
-  expect(setToArray(m.set)).toEqual([5, 6, 7])
+  expect(toJS(setToArray(m.set))).toEqual([5, 6, 7])
 
   runUnprotected(() => {
     m.arr.push(8)

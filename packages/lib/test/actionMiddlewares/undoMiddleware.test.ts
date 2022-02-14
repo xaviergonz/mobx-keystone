@@ -1,4 +1,4 @@
-import { computed } from "mobx"
+import { computed, toJS } from "mobx"
 import {
   getSnapshot,
   idProp,
@@ -194,17 +194,17 @@ test("undoMiddleware - sync", () => {
   expect(r.undoData.undoEvents).toMatchSnapshot()
   expectUndoRedoToBe(2, 0)
 
-  expect(p.arr).toEqual([-9, 1, -8, 2])
+  expect(toJS(p.arr)).toEqual([-9, 1, -8, 2])
   manager.undo()
-  expect(p.arr).toEqual([-9, 1])
+  expect(toJS(p.arr)).toEqual([-9, 1])
   manager.undo()
-  expect(p.arr).toEqual([])
+  expect(toJS(p.arr)).toEqual([])
   expectUndoRedoToBe(0, 2)
 
   manager.redo()
-  expect(p.arr).toEqual([-9, 1])
+  expect(toJS(p.arr)).toEqual([-9, 1])
   manager.redo()
-  expect(p.arr).toEqual([-9, 1, -8, 2])
+  expect(toJS(p.arr)).toEqual([-9, 1, -8, 2])
   expectUndoRedoToBe(2, 0)
 
   manager.clearUndo()
@@ -472,19 +472,19 @@ test("undo-aware substore called from non undo-aware root store", () => {
   expect(manager.undoLevels).toBe(0)
 
   rootStore.substore.addValue(1)
-  expect(rootStore.substore.values).toEqual([1])
+  expect(toJS(rootStore.substore.values)).toEqual([1])
   expect(manager.undoLevels).toBe(1) // substore action directly called
   expect(manager.undoQueue).toMatchSnapshot()
   manager.clearUndo()
 
   rootStore.addSubStoreValueDirect(2)
-  expect(rootStore.substore.values).toEqual([1, 2])
+  expect(toJS(rootStore.substore.values)).toEqual([1, 2])
   expect(manager.undoLevels).toBe(0) // no substore action called
   expect(manager.undoQueue).toHaveLength(0)
   manager.clearUndo()
 
   rootStore.addSubStoreValueIndirect(3)
-  expect(rootStore.substore.values).toEqual([1, 2, 3])
+  expect(toJS(rootStore.substore.values)).toEqual([1, 2, 3])
   expect(manager.undoLevels).toBe(1) // substore action indirectly called
   expect(manager.undoQueue).toMatchSnapshot()
   manager.clearUndo()
