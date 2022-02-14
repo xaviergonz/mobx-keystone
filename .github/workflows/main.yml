@@ -48,7 +48,7 @@ jobs:
         mobx-version:
           - 6
           - 5
-          # TODO: add "4" if we ever want to be compatible with it
+          - 4
 
     steps:
       - uses: actions/checkout@v2
