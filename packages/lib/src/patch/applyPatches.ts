@@ -32,7 +32,6 @@ export function applyPatches(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function internalApplyPatches(

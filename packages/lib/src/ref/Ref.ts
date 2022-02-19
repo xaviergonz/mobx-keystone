@@ -60,7 +60,7 @@ export abstract class Ref<T extends object> extends Model({
 }
 
 /**
- * @ignore
+ * @internal
  */
 export declare const customRefTypeSymbol: unique symbol
 

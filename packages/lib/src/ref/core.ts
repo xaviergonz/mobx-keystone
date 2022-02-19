@@ -43,7 +43,6 @@ export type RefOnResolvedValueChange<T extends object> = (
 ) => void
 
 /**
- * @ignore
  * @internal
  */
 export function internalCustomRef<T extends object>(

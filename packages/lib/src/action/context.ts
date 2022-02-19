@@ -93,7 +93,6 @@ export function getCurrentActionContext(): ActionContext | undefined {
 }
 
 /**
- * @ignore
  * @internal
  *
  * Sets the current action context.

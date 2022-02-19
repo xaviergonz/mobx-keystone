@@ -4,7 +4,7 @@ import type { RootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 
 /**
- * @ignore
+ * @internal
  */
 export function rootPathToTargetPathIds(rootPath: RootPath<any>): (string | null)[] {
   const targetPathIds: (string | null)[] = []
@@ -19,7 +19,7 @@ export function rootPathToTargetPathIds(rootPath: RootPath<any>): (string | null
 }
 
 /**
- * @ignore
+ * @internal
  */
 export function pathToTargetPathIds(root: any, path: Path): (string | null)[] {
   const targetPathIds: (string | null)[] = []

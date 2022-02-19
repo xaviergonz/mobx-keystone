@@ -4,7 +4,7 @@ import { typesOr } from "../utility/or"
 import { typesLiteral } from "./primitives"
 
 /**
- * @ignore
+ * @internal
  * Enum like object.
  */
 export interface EnumLike {
@@ -27,7 +27,7 @@ function enumValues(e: EnumLike): (string | number)[] {
 }
 
 /**
- * @ignore
+ * @internal
  * Extract enum values out of a enum object.
  */
 export type EnumValues<E extends EnumLike> = E extends Record<

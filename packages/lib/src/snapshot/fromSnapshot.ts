@@ -11,7 +11,6 @@ import { failure, isMap, isPrimitive, isSet } from "../utils"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 
 /**
- * @ignore
  * @internal
  */
 export type Snapshotter = (sn: any, ctx: FromSnapshotContext) => any | undefined
@@ -19,7 +18,6 @@ export type Snapshotter = (sn: any, ctx: FromSnapshotContext) => any | undefined
 const snapshotters: { priority: number; snapshotter: Snapshotter }[] = []
 
 /**
- * @ignore
  * @internal
  */
 export function registerSnapshotter(priority: number, snapshotter: Snapshotter): void {
@@ -38,7 +36,6 @@ export interface FromSnapshotOptions {
 }
 
 /**
- * @ignore
  * @internal
  */
 export interface FromSnapshotContext {
@@ -111,7 +108,6 @@ const fromSnapshotAction = action(
 )
 
 /**
- * @ignore
  * @internal
  */
 export function internalFromSnapshot<T>(

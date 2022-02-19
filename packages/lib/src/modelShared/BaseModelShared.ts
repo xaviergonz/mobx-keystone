@@ -11,22 +11,21 @@ import type {
 } from "./prop"
 
 /**
- * @ignore
+ * @internal
  */
 export const propsTypeSymbol = Symbol()
 
 /**
- * @ignore
+ * @internal
  */
 export const fromSnapshotOverrideTypeSymbol = Symbol()
 
 /**
- * @ignore
+ * @internal
  */
 export const toSnapshotOverrideTypeSymbol = Symbol()
 
 /**
- * @ignore
  * @internal
  */
 export const modelInitializedSymbol = Symbol("modelInitialized")

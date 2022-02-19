@@ -1,19 +1,19 @@
 /**
- * @ignore
+ * @internal
  *
  * A primitive value.
  */
 export type PrimitiveValue = undefined | null | boolean | number | string | bigint
 
 /**
- * @ignore
+ * @internal
  *
  * A JSON-compatible primitive value.
  */
 export type JSONPrimitiveValue = null | boolean | number | string
 
 /**
- * @ignore
+ * @internal
  *
  * Checks if a value is optional (undefined or any).
  *
@@ -38,11 +38,11 @@ export type IsOptionalValue<C, TV, FV> = IsNeverType<Extract<C, undefined>, FV, 
 // type _F = IsOptionalValue<unknown, true, false> // false, but we don't care
 
 /**
- * @ignore
+ * @internal
  */
 export type IsNeverType<T, IfNever, IfNotNever> = [T] extends [never] ? IfNever : IfNotNever
 
 /**
- * @ignore
+ * @internal
  */
 export type Flatten<T> = T extends Record<any, any> ? { [P in keyof T]: T[P] } : T

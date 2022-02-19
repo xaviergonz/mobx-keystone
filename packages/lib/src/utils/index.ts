@@ -23,7 +23,6 @@ export class MobxKeystoneError extends Error {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function failure(msg: string) {
@@ -38,7 +37,6 @@ const writableHiddenPropDescriptor: PropertyDescriptor = {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function addHiddenProp(object: any, propName: PropertyKey, value: any, writable = true) {
@@ -56,7 +54,6 @@ export function addHiddenProp(object: any, propName: PropertyKey, value: any, wr
 }
 
 /**
- * @ignore
  * @internal
  */
 export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: boolean) {
@@ -73,7 +70,6 @@ export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: bo
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isPlainObject(value: any): value is Object {
@@ -83,7 +79,6 @@ export function isPlainObject(value: any): value is Object {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isObject(value: any): value is Record<PropertyKey, unknown> {
@@ -91,7 +86,6 @@ export function isObject(value: any): value is Record<PropertyKey, unknown> {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isPrimitive(value: any): value is PrimitiveValue {
@@ -107,7 +101,6 @@ export function isPrimitive(value: any): value is PrimitiveValue {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isJSONPrimitive(value: any): value is JSONPrimitiveValue {
@@ -122,7 +115,6 @@ export function isJSONPrimitive(value: any): value is JSONPrimitiveValue {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function debugFreeze(value: object) {
@@ -132,7 +124,6 @@ export function debugFreeze(value: object) {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function deleteFromArray<T>(array: T[], value: T): boolean {
@@ -145,7 +136,6 @@ export function deleteFromArray<T>(array: T[], value: T): boolean {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isMap(val: any): val is Map<any, any> | ObservableMap {
@@ -153,7 +143,6 @@ export function isMap(val: any): val is Map<any, any> | ObservableMap {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isSet(val: any): val is Set<any> | ObservableSet {
@@ -161,7 +150,6 @@ export function isSet(val: any): val is Set<any> | ObservableSet {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isArray(val: any): val is any[] | IObservableArray {
@@ -169,7 +157,6 @@ export function isArray(val: any): val is any[] | IObservableArray {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function inDevMode(): boolean {
@@ -177,7 +164,6 @@ export function inDevMode(): boolean {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsObject(value: unknown, argName: string): asserts value is object {
@@ -187,7 +173,6 @@ export function assertIsObject(value: unknown, argName: string): asserts value i
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsPlainObject(value: unknown, argName: string): asserts value is object {
@@ -197,7 +182,6 @@ export function assertIsPlainObject(value: unknown, argName: string): asserts va
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsObservableObject(value: unknown, argName: string): asserts value is object {
@@ -207,7 +191,6 @@ export function assertIsObservableObject(value: unknown, argName: string): asser
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsObservableArray(
@@ -220,7 +203,6 @@ export function assertIsObservableArray(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsMap(value: unknown, argName: string): asserts value is Map<any, any> {
@@ -230,7 +212,6 @@ export function assertIsMap(value: unknown, argName: string): asserts value is M
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsSet(value: unknown, argName: string): asserts value is Set<any> {
@@ -240,7 +221,6 @@ export function assertIsSet(value: unknown, argName: string): asserts value is S
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsFunction(value: unknown, argName: string): asserts value is Function {
@@ -250,7 +230,6 @@ export function assertIsFunction(value: unknown, argName: string): asserts value
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsPrimitive(
@@ -263,7 +242,6 @@ export function assertIsPrimitive(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsString(value: unknown, argName: string): asserts value is string {
@@ -273,7 +251,6 @@ export function assertIsString(value: unknown, argName: string): asserts value i
 }
 
 /**
- * @ignore
  * @internal
  */
 export interface DecorateMethodOrFieldData {
@@ -283,13 +260,11 @@ export interface DecorateMethodOrFieldData {
 }
 
 /**
- * @ignore
  * @internal
  */
 export const runAfterNewSymbol = Symbol("runAfterNew")
 
 /**
- * @ignore
  * @internal
  */
 export const runBeforeOnInitSymbol = Symbol("runBeforeOnInit")
@@ -298,7 +273,6 @@ type WrapFunction = (data: DecorateMethodOrFieldData, fn: any) => any
 type LateInitializationFunctionsArray = ((instance: any) => void)[]
 
 /**
- * @ignore
  * @internal
  */
 export function addLateInitializationFunction(
@@ -315,7 +289,6 @@ export function addLateInitializationFunction(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function decorateWrapMethodOrField(
@@ -356,7 +329,6 @@ export function decorateWrapMethodOrField(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function runLateInitializationFunctions(target: any, symbol: symbol): void {
@@ -371,7 +343,6 @@ export function runLateInitializationFunctions(target: any, symbol: symbol): voi
 const warningsAlreadyDisplayed = new Set<string>()
 
 /**
- * @ignore
  * @internal
  */
 export function logWarning(type: "warn" | "error", msg: string, uniqueKey?: string): void {
@@ -396,7 +367,6 @@ export function logWarning(type: "warn" | "error", msg: string, uniqueKey?: stri
 }
 
 /**
- * @ignore
  * @internal
  */
 export function lazy<A extends unknown[], R>(getter: (...args: A) => R): typeof getter {
@@ -413,7 +383,6 @@ export function lazy<A extends unknown[], R>(getter: (...args: A) => R): typeof 
 }
 
 /**
- * @ignore
  * @internal
  */
 export const mobx6 = {
@@ -425,7 +394,6 @@ export const mobx6 = {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function propNameToSetterName(propName: string): string {
@@ -433,7 +401,6 @@ export function propNameToSetterName(propName: string): string {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function getMobxVersion(): number {
@@ -445,7 +412,6 @@ export function getMobxVersion(): number {
 }
 
 /**
- * @ignore
  * @internal
  */
 export const namespace = "mobx-keystone"

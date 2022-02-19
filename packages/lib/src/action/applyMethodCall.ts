@@ -23,7 +23,6 @@ export function applyMethodCall<O extends object, K extends keyof O, FN extends 
 }
 
 /**
- * @ignore
  * @internal
  */
 export function internalApplyMethodCall(this: any, methodName: string | number, args: any[]): any {

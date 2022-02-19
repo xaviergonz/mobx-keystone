@@ -1,5 +1,4 @@
 /**
- * @ignore
  * @internal
  */
 export const modelActionSymbol = Symbol("modelAction")

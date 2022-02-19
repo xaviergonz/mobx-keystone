@@ -16,7 +16,6 @@ import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { assertIsModelClass } from "./utils"
 
 /**
- * @ignore
  * @internal
  */
 export const internalNewModel = action(

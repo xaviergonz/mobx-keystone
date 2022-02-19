@@ -10,7 +10,6 @@ const dataModelActionRegistry = new Map<
 >()
 
 /**
- * @ignore
  * @internal
  */
 export function getDataModelAction(fullActionName: string) {
@@ -18,7 +17,6 @@ export function getDataModelAction(fullActionName: string) {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function setDataModelAction(

@@ -6,7 +6,6 @@ function canWrite(): boolean {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertCanWrite() {
@@ -18,7 +17,6 @@ export function assertCanWrite() {
 let actionProtection = true
 
 /**
- * @ignore
  * @internal
  *
  * Gets if the action protection is currently enabled or not.
@@ -30,7 +28,6 @@ export function getActionProtection() {
 }
 
 /**
- * @ignore
  * @internal
  *
  * Sets if the action protection is currently enabled or not.

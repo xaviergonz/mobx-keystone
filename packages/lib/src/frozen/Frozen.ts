@@ -16,7 +16,7 @@ export enum FrozenCheckMode {
 }
 
 /**
- * @ignore
+ * @internal
  */
 export const frozenKey = "$frozen"
 
@@ -118,7 +118,6 @@ function checkDataIsSerializableAndFreeze(data: any) {
 }
 
 /**
- * @ignore
  * @internal
  *
  * Checks if an snapshot is an snapshot for a frozen data.

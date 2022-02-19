@@ -1,7 +1,6 @@
 import { failure } from "../utils"
 
 /**
- * @ignore
  * @internal
  */
 export interface ImmutableDate
@@ -27,7 +26,6 @@ export interface ImmutableDate
 const errMessage = "this Date object is immutable"
 
 /**
- * @ignore
  * @internal
  */
 export class ImmutableDate extends Date {

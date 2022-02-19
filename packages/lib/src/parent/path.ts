@@ -66,7 +66,6 @@ export function getParentPath<T extends object = any>(value: object): ParentPath
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParentPath<T extends object = any>(
@@ -77,7 +76,6 @@ export function fastGetParentPath<T extends object = any>(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParentPathIncludingDataObjects<T extends object = any>(
@@ -109,7 +107,6 @@ export function getParent<T extends object = any>(value: object): T | undefined 
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParent<T extends object = any>(value: object): T | undefined {
@@ -119,7 +116,6 @@ export function fastGetParent<T extends object = any>(value: object): T | undefi
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParentIncludingDataObjects<T extends object = any>(
@@ -143,7 +139,6 @@ export function isModelDataObject(value: object): boolean {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastIsModelDataObject(value: object): boolean {
@@ -184,7 +179,6 @@ function internalGetRootPath<T extends object = any>(value: object): RootPath<T>
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
@@ -209,7 +203,6 @@ export function getRoot<T extends object = any>(value: object): T {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetRoot<T extends object = any>(value: object): T {
@@ -284,13 +277,11 @@ export function resolvePath<T = any>(
 }
 
 /**
- * @ignore
  * @internal
  */
 export const skipIdChecking = Symbol("skipIdChecking")
 
 /**
- * @ignore
  * @internal
  *
  * Tries to resolve a path from an object while checking ids.

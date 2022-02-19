@@ -14,7 +14,6 @@ export function isDataModel(model: any): model is AnyDataModel {
 }
 
 /**
- * @ignore
  * @internal
  *
  * Asserts something is actually a data model.
@@ -33,7 +32,6 @@ export function assertIsDataModel(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isDataModelClass(modelClass: any): modelClass is ModelClass<AnyDataModel> {
@@ -49,7 +47,6 @@ export function isDataModelClass(modelClass: any): modelClass is ModelClass<AnyD
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsDataModelClass(

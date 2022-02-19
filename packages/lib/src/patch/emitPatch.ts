@@ -6,7 +6,6 @@ import { assertIsFunction, deleteFromArray } from "../utils"
 import type { Patch } from "./Patch"
 
 /**
- * @ignore
  * @internal
  */
 export class InternalPatchRecorder {

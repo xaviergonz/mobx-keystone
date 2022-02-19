@@ -15,7 +15,6 @@ type CheckResultCache = WeakMap<object, CheckResult>
 const typeCheckersWithCachedResultsOfObject = new WeakMap<object, Set<TypeChecker>>()
 
 /**
- * @ignore
  * @internal
  */
 export enum TypeCheckerBaseType {
@@ -26,7 +25,6 @@ export enum TypeCheckerBaseType {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType {
@@ -37,7 +35,6 @@ export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType
 }
 
 /**
- * @ignore
  * @internal
  */
 export function invalidateCachedTypeCheckerResult(obj: object) {
@@ -57,7 +54,7 @@ export function invalidateCachedTypeCheckerResult(obj: object) {
 }
 
 /**
- * @ignore
+ * @internal
  */
 export class TypeChecker {
   private checkResultCache?: CheckResultCache
@@ -170,7 +167,6 @@ export class TypeChecker {
 const lateTypeCheckerSymbol = Symbol("lateTypeCheker")
 
 /**
- * @ignore
  * @internal
  */
 export interface LateTypeChecker {
@@ -180,7 +176,6 @@ export interface LateTypeChecker {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen): LateTypeChecker {
@@ -209,7 +204,6 @@ export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen)
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isLateTypeChecker(ltc: any): ltc is LateTypeChecker {
@@ -224,7 +218,6 @@ export class TypeInfo {
 }
 
 /**
- * @ignore
  * @internal
  */
 export type TypeInfoGen = (t: AnyStandardType) => TypeInfo

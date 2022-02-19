@@ -19,7 +19,6 @@ interface ObjectChildrenData extends DeepObjectChildren {
 const objectChildren = new WeakMap<object, ObjectChildrenData>()
 
 /**
- * @ignore
  * @internal
  */
 export function initializeObjectChildren(node: object) {
@@ -39,7 +38,6 @@ export function initializeObjectChildren(node: object) {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function getObjectChildren(node: object): ObjectChildrenData["shallow"] {
@@ -47,7 +45,6 @@ export function getObjectChildren(node: object): ObjectChildrenData["shallow"] {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function getDeepObjectChildren(node: object): DeepObjectChildren {
@@ -105,7 +102,6 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
 })
 
 /**
- * @ignore
  * @internal
  */
 export const addObjectChild = action((node: object, child: object) => {
@@ -116,7 +112,6 @@ export const addObjectChild = action((node: object, child: object) => {
 })
 
 /**
- * @ignore
  * @internal
  */
 export const removeObjectChild = action((node: object, child: object) => {
@@ -148,7 +143,6 @@ interface DeepObjectChildrenExtension<D> {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChildrenExtension<D>) {

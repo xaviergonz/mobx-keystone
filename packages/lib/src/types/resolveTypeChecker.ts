@@ -7,7 +7,6 @@ type StandardTypeResolverFn = (value: any) => AnyStandardType | undefined
 const standardTypeResolvers: StandardTypeResolverFn[] = []
 
 /**
- * @ignore
  * @internal
  */
 export function registerStandardTypeResolver(resolverFn: StandardTypeResolverFn) {
@@ -23,7 +22,6 @@ function findStandardType(value: any): AnyStandardType | undefined {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function resolveTypeChecker(v: AnyType | TypeChecker | LateTypeChecker): TypeChecker {
@@ -44,7 +42,6 @@ export function resolveTypeChecker(v: AnyType | TypeChecker | LateTypeChecker): 
 }
 
 /**
- * @ignore
  * @internal
  */
 export function resolveStandardTypeNoThrow(
@@ -62,7 +59,6 @@ export function resolveStandardTypeNoThrow(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function resolveStandardType(v: AnyType | TypeChecker | LateTypeChecker): AnyStandardType {

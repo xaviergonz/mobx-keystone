@@ -8,10 +8,10 @@ import type { IsOptionalValue } from "../utils/types"
 // infer is there just to cache type generation
 
 export interface Type<Name, Data> {
-  /** @ignore */
+  /** @internal */
   $$type: Name
 
-  /** @ignore */
+  /** @internal */
   $$data: Data
 }
 
@@ -28,7 +28,7 @@ export interface ArrayType<S> // e.g. S = someType[] or [someType, someType]
   > {}
 
 export interface ObjectOfTypes {
-  /** @ignore */
+  /** @internal */
   [k: string]: AnyType
 }
 
@@ -106,5 +106,5 @@ export type TypeToData<S> = S extends ObjectTypeFunction
   : // anything else
     never
 
-/** @ignore */
+/** @internal */
 export type TypeToDataOpt<S> = S extends { $$data: infer D } ? D & undefined : never

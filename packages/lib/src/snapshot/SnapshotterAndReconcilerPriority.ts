@@ -1,5 +1,4 @@
 /**
- * @ignore
  * @internal
  */
 export enum SnapshotterAndReconcilerPriority {
