@@ -80,7 +80,8 @@ export type ModelTransformedCreationData<M extends AnyModel | AnyDataModel> =
 
 /**
  * The from snapshot type of a model.
- * Use SnapshotInOf<Model> instead.
+ *
+ * @deprecated Use SnapshotInOf<Model> instead.
  */
 export type ModelFromSnapshot<M extends AnyModel> = IsNeverType<
   M[typeof fromSnapshotOverrideTypeSymbol],
@@ -90,7 +91,8 @@ export type ModelFromSnapshot<M extends AnyModel> = IsNeverType<
 
 /**
  * The to snapshot type of a model.
- * Use SnapshotOutOf<Model> instead.
+ *
+ * @deprecated Use SnapshotOutOf<Model> instead.
  */
 export type ModelToSnapshot<M extends AnyModel> = IsNeverType<
   M[typeof toSnapshotOverrideTypeSymbol],
