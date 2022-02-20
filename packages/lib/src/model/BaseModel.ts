@@ -27,7 +27,7 @@ import { setBaseModel } from "./_BaseModel"
 /**
  * @ignore
  */
-export const modelIdPropertyNameSymbol = Symbol()
+export const modelIdPropertyNameSymbol = Symbol("modelIdPropertyName")
 
 /**
  * Base abstract class for models. Use `Model` instead when extending.
