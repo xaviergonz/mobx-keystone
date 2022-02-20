@@ -9,7 +9,7 @@ import { _BaseDataModel } from "./_BaseDataModel"
  * @param model
  * @returns
  */
-export function isDataModel(model: any): model is AnyDataModel {
+export function isDataModel(model: unknown): model is AnyDataModel {
   return model instanceof _BaseDataModel
 }
 
@@ -36,7 +36,7 @@ export function assertIsDataModel(
  * @ignore
  * @internal
  */
-export function isDataModelClass(modelClass: any): modelClass is ModelClass<AnyDataModel> {
+export function isDataModelClass(modelClass: unknown): modelClass is ModelClass<AnyDataModel> {
   if (typeof modelClass !== "function") {
     return false
   }

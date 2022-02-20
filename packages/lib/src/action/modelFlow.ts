@@ -187,8 +187,8 @@ export interface FlowFinisher {
  * @param fn Function to check.
  * @returns
  */
-export function isModelFlow(fn: any) {
-  return typeof fn === "function" && fn[modelFlowSymbol]
+export function isModelFlow(fn: unknown) {
+  return typeof fn === "function" && modelFlowSymbol in fn
 }
 
 /**
