@@ -16,6 +16,7 @@ import {
   tProp,
   types,
 } from "../../src"
+import { Flatten } from "../../src/utils/types"
 
 // @model("P")
 class P extends Model({
@@ -74,7 +75,7 @@ test("subclassing with additional props", () => {
     }
   )
   assert(
-    _ as CD,
+    _ as Flatten<CD>,
     _ as {
       x?: number | null | undefined
       y?: number | null | undefined
@@ -143,7 +144,7 @@ test("subclassing without additional props", () => {
     }
   )
   assert(
-    _ as CD,
+    _ as Flatten<CD>,
     _ as {
       x?: number | null | undefined
       y?: number | null | undefined
@@ -195,7 +196,7 @@ test("subclassing without anything new", () => {
     }
   )
   assert(
-    _ as CD,
+    _ as Flatten<CD>,
     _ as {
       x?: number | null
       y?: number | null
@@ -275,7 +276,7 @@ test("three level subclassing", () => {
     }
   )
   assert(
-    _ as CD,
+    _ as Flatten<CD>,
     _ as {
       x?: number | null | undefined
       y?: number | null | undefined
@@ -775,4 +776,32 @@ test("issue #358/2", () => {
 
   assert(c.value, _ as Value<number>)
   assert(c.value.data, _ as number)
+})
+
+test("generic model instance factory", () => {
+  @model("generic model instance factory/Parent")
+  class Parent<T> extends Model(<T>() => ({
+    a: prop<T>(),
+  }))<T> {}
+
+  @model("generic model instance factory/Child")
+  class Child<T> extends ExtendedModel(<T>() => ({
+    baseModel: modelClass<Parent<T>>(Parent),
+    props: {
+      b: prop<T>(),
+    },
+  }))<T> {}
+
+  function createParent<T>(a: T) {
+    const parent = new Parent({ a })
+    assert(_ as typeof parent, _ as Parent<T>) // ERROR
+  }
+
+  function createChild<T>(a: T, b: T) {
+    const child = new Child({ a, b })
+    assert(_ as typeof child, _ as Child<T>) // ERROR
+  }
+
+  createParent(10)
+  createChild(10, 20)
 })

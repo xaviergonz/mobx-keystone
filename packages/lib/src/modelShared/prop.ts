@@ -180,15 +180,14 @@ export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
-export type ModelPropsToCreationData<MP extends ModelProps> = Flatten<
+// we also don't use Flatten because if we do some generics won't work
+export type ModelPropsToCreationData<MP extends ModelProps> = {
+  [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
+} & Omit<
   {
-    [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
-  } & Omit<
-    {
-      [k in keyof MP]: MP[k]["_internal"]["$creationValueType"]
-    },
-    OptionalModelProps<MP>
-  >
+    [k in keyof MP]: MP[k]["_internal"]["$creationValueType"]
+  },
+  OptionalModelProps<MP>
 >
 
 // we don't use O.Optional anymore since it generates unions too heavy
@@ -218,15 +217,14 @@ export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
-export type ModelPropsToTransformedCreationData<MP extends ModelProps> = Flatten<
+// we also don't use Flatten because if we do some generics won't work
+export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
+  [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
+} & Omit<
   {
-    [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
-  } & Omit<
-    {
-      [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
-    },
-    OptionalModelProps<MP>
-  >
+    [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
+  },
+  OptionalModelProps<MP>
 >
 
 export type ModelPropsToSetter<MP extends ModelProps> = Flatten<{
