@@ -11,17 +11,17 @@ import type {
 } from "./prop"
 
 /**
- * @internal
+ * @ignore
  */
 export const propsTypeSymbol = Symbol()
 
 /**
- * @internal
+ * @ignore
  */
 export const fromSnapshotOverrideTypeSymbol = Symbol()
 
 /**
- * @internal
+ * @ignore
  */
 export const toSnapshotOverrideTypeSymbol = Symbol()
 

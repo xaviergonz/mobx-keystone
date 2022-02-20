@@ -4,7 +4,7 @@ import { getOrCreate } from "../utils/mapUtils"
 import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
 
 /**
- * @internal
+ * @ignore
  */
 export const noDefaultValue = Symbol("noDefaultValue")
 
@@ -260,7 +260,7 @@ export const idProp = {
 } as any as ModelIdProp
 
 /**
- * @internal
+ * @ignore
  */
 export type OnlyPrimitives<T> = Exclude<T, object>
 

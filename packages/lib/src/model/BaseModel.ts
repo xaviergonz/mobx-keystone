@@ -25,7 +25,7 @@ import { assertIsModelClass } from "./utils"
 import { setBaseModel } from "./_BaseModel"
 
 /**
- * @internal
+ * @ignore
  */
 export const modelIdPropertyNameSymbol = Symbol()
 
@@ -165,7 +165,7 @@ export abstract class BaseModel<
 setBaseModel(BaseModel)
 
 /**
- * @internal
+ * @ignore
  */
 export type BaseModelKeys = keyof AnyModel | "onInit" | "onAttachedToRootStore"
 

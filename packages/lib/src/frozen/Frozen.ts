@@ -16,7 +16,7 @@ export enum FrozenCheckMode {
 }
 
 /**
- * @internal
+ * @ignore
  */
 export const frozenKey = "$frozen"
 

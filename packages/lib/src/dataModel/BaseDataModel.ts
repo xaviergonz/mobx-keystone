@@ -163,7 +163,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
 setBaseDataModel(BaseDataModel)
 
 /**
- * @internal
+ * @ignore
  */
 export type BaseDataModelKeys = keyof AnyDataModel | "onLazyInit"
 
