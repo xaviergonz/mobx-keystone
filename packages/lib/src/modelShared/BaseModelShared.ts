@@ -13,17 +13,17 @@ import type {
 /**
  * @ignore
  */
-export const propsTypeSymbol = Symbol()
+export const propsTypeSymbol = Symbol("propsType")
 
 /**
  * @ignore
  */
-export const fromSnapshotOverrideTypeSymbol = Symbol()
+export const fromSnapshotOverrideTypeSymbol = Symbol("fromSnapshotOverrideType")
 
 /**
  * @ignore
  */
-export const toSnapshotOverrideTypeSymbol = Symbol()
+export const toSnapshotOverrideTypeSymbol = Symbol("toSnapshotOverrideType")
 
 /**
  * @ignore
