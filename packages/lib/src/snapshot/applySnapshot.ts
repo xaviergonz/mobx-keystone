@@ -41,7 +41,6 @@ export function applySnapshot(node: object, snapshot: unknown): void {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function internalApplySnapshot<T extends object>(

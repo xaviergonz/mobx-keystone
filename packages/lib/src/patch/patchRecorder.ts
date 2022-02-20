@@ -84,7 +84,6 @@ export function patchRecorder(subtreeRoot: object, opts?: PatchRecorderOptions):
 }
 
 /**
- * @ignore
  * @internal
  *
  * Creates a global or local patch recorder.

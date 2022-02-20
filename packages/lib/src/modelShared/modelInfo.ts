@@ -3,7 +3,7 @@ import type { AnyModel } from "../model/BaseModel"
 import type { ModelClass } from "./BaseModelShared"
 
 /**
- * @ignore
+ * @internal
  */
 export interface ModelInfo {
   name: string
@@ -11,19 +11,19 @@ export interface ModelInfo {
 }
 
 /**
- * @ignore
+ * @internal
  */
 export const modelInfoByName: {
   [name: string]: ModelInfo
 } = {}
 
 /**
- * @ignore
+ * @internal
  */
 export const modelInfoByClass = new Map<ModelClass<AnyModel | AnyDataModel>, ModelInfo>()
 
 /**
- * @ignore
+ * @internal
  */
 export function getModelInfoForName(name: string): ModelInfo | undefined {
   return modelInfoByName[name]

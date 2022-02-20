@@ -4,14 +4,14 @@ import { getOrCreate } from "../utils/mapUtils"
 import type { ParentPath } from "./path"
 
 /**
- * @ignore
+ * @internal
  */
 export const objectParents = new WeakMap<object, ParentPath<object> | undefined>()
 
 const objectParentsAtoms = new WeakMap<object, IAtom>()
 
 /**
- * @ignore
+ * @internal
  */
 export function parentPathEquals(
   parentPath1: ParentPath<any> | undefined,
@@ -30,26 +30,26 @@ function createParentPathAtom(obj: object) {
 }
 
 /**
- * @ignore
+ * @internal
  */
 export function reportParentPathObserved(node: object) {
   createParentPathAtom(node).reportObserved()
 }
 
 /**
- * @ignore
+ * @internal
  */
 export function reportParentPathChanged(node: object) {
   createParentPathAtom(node).reportChanged()
 }
 
 /**
- * @ignore
+ * @internal
  */
 export const dataObjectParent = new WeakMap<object, object>()
 
 /**
- * @ignore
+ * @internal
  */
 export function dataToModelNode<T extends object>(node: T): T {
   const modelNode = dataObjectParent.get(node)
@@ -57,7 +57,7 @@ export function dataToModelNode<T extends object>(node: T): T {
 }
 
 /**
- * @ignore
+ * @internal
  */
 export function modelToDataNode<T extends object>(node: T): T {
   return isModel(node) ? node.$ : node

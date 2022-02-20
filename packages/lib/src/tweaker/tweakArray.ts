@@ -22,7 +22,7 @@ import { TweakerPriority } from "./TweakerPriority"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
- * @ignore
+ * @internal
  */
 export function tweakArray<T extends any[]>(
   value: T,

@@ -13,7 +13,6 @@ type TargetedAction = (target: any, ...args: any[]) => any
 const standaloneActionRegistry = new Map<string, TargetedAction>()
 
 /**
- * @ignore
  * @internal
  */
 export function getStandaloneAction(actionName: string) {
@@ -21,7 +20,6 @@ export function getStandaloneAction(actionName: string) {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function addStandaloneAction(fullActionName: string, fn: TargetedAction, isFlow: boolean) {

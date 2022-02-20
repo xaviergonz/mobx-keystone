@@ -3,7 +3,6 @@ import { _BaseModel } from "../model/_BaseModel"
 import { failure } from "../utils"
 
 /**
- * @ignore
  * @internal
  */
 export function checkModelDecoratorArgs(fnName: string, target: any, propertyKey: string) {

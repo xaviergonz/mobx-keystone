@@ -26,7 +26,6 @@ export const fromSnapshotOverrideTypeSymbol = Symbol("fromSnapshotOverrideType")
 export const toSnapshotOverrideTypeSymbol = Symbol("toSnapshotOverrideType")
 
 /**
- * @ignore
  * @internal
  */
 export const modelInitializedSymbol = Symbol("modelInitialized")

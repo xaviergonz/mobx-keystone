@@ -15,7 +15,6 @@ export function isModel(model: unknown): model is AnyModel {
 }
 
 /**
- * @ignore
  * @internal
  *
  * Asserts something is actually a model.
@@ -34,7 +33,6 @@ export function assertIsModel(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isModelClass(modelClass: unknown): modelClass is ModelClass<AnyModel> {
@@ -50,7 +48,6 @@ export function isModelClass(modelClass: unknown): modelClass is ModelClass<AnyM
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertIsModelClass(
@@ -67,7 +64,6 @@ export function assertIsModelClass(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function isModelSnapshot(sn: unknown): sn is { [modelTypeKey]: string } {

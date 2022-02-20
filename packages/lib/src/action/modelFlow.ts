@@ -8,7 +8,6 @@ import { wrapInAction, WrapInActionOverrideContextFn } from "./wrapInAction"
 const modelFlowSymbol = Symbol("modelFlow")
 
 /**
- * @ignore
  * @internal
  */
 export function flow<R, Args extends any[]>({
@@ -170,7 +169,6 @@ export function flow<R, Args extends any[]>({
 }
 
 /**
- * @ignore
  * @internal
  */
 export interface FlowFinisher {
