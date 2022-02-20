@@ -1,5 +1,6 @@
 export * from "./action"
 export * from "./actionMiddlewares"
+export * from "./computedTree"
 export * from "./context"
 export * from "./dataModel"
 export * from "./frozen"

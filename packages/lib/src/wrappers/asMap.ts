@@ -17,6 +17,7 @@ import {
   assertIsObservableArray,
   assertIsObservableObject,
   failure,
+  getMobxVersion,
   inDevMode,
   isArray,
 } from "../utils"
@@ -124,7 +125,15 @@ const observableMapBackedByObservableArray = action(
       }
     }
 
-    const map = observable.map(array)
+    let map: ObservableMap<string, T>
+    if (getMobxVersion() >= 6) {
+      map = observable.map(array)
+    } else {
+      map = observable.map()
+      array.forEach(([k, v]) => {
+        map.set(k, v)
+      })
+    }
     ;(map as any).dataObject = array
 
     if (map.size !== array.length) {

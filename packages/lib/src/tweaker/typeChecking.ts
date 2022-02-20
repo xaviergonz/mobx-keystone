@@ -12,7 +12,6 @@ import { runWithoutSnapshotOrPatches } from "./core"
 import { isTypeCheckingAllowed } from "./withoutTypeChecking"
 
 /**
- * @ignore
  * @internal
  */
 export function runTypeCheckingAfterChange(
@@ -48,7 +47,7 @@ export function runTypeCheckingAfterChange(
 }
 
 /**
- * @ignore
+ * @internal
  *
  * Finds the closest parent model that has a type checker defined.
  *

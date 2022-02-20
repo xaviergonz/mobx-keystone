@@ -14,12 +14,12 @@ import type { FlowFinisher } from "./modelFlow"
 import { tryRunPendingActions } from "./pendingActions"
 
 /**
- * @ignore
+ * @internal
  */
 export type WrapInActionOverrideContextFn = (ctx: O.Writable<ActionContext>, self: any) => void
 
 /**
- * @ignore
+ * @internal
  */
 export function wrapInAction<T extends Function>({
   nameOrNameFn,
@@ -117,7 +117,7 @@ export function wrapInAction<T extends Function>({
 }
 
 /**
- * @ignore
+ * @internal
  */
 export function wrapModelMethodInActionIfNeeded<M extends AnyModel | AnyDataModel>(
   model: M,

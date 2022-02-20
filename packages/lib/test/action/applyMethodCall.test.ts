@@ -1,3 +1,4 @@
+import { toJS } from "mobx"
 import {
   addActionMiddleware,
   applyAction,
@@ -43,7 +44,7 @@ test("applyCall", () => {
   expect(events.length).toBe(0)
 
   expect(applyMethodCall(p.arr, "push", 4, 5)).toBe(p.arr.length)
-  expect(p.arr).toEqual([1, 2, 3, 4, 5])
+  expect(toJS(p.arr)).toEqual([1, 2, 3, 4, 5])
 
   expect(events).toMatchInlineSnapshot(`
     Array [
@@ -111,6 +112,6 @@ test("applyCall", () => {
   const desAct = deserializeActionCall(serAct, p.arr)
 
   const ret = applyAction(p.arr, desAct)
-  expect(p.arr).toEqual([1, 2, 3, 4, 5, 6, 7])
+  expect(toJS(p.arr)).toEqual([1, 2, 3, 4, 5, 6, 7])
   expect(ret).toBe(p.arr.length)
 })

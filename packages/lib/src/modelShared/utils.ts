@@ -6,7 +6,6 @@ import { failure } from "../utils"
 import type { ModelClass } from "./BaseModelShared"
 
 /**
- * @ignore
  * @internal
  *
  * Asserts something is actually a class or data model.

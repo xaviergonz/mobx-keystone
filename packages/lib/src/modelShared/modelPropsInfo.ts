@@ -6,7 +6,6 @@ import type { ModelProps } from "./prop"
 const modelPropertiesSymbol = Symbol("modelProperties")
 
 /**
- * @ignore
  * @internal
  *
  * Gets the info related to a model class properties.
@@ -20,7 +19,6 @@ export function getInternalModelClassPropsInfo(
 }
 
 /**
- * @ignore
  * @internal
  *
  * Sets the info related to a model class properties.

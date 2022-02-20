@@ -8,7 +8,7 @@ import {
   ObservableSet,
   observe,
 } from "mobx"
-import { assertIsObservableArray, assertIsSet, failure, inDevMode } from "../utils"
+import { assertIsObservableArray, assertIsSet, failure, getMobxVersion, inDevMode } from "../utils"
 import { tag } from "../utils/tag"
 
 const observableSetBackedByObservableArray = action(
@@ -19,7 +19,15 @@ const observableSetBackedByObservableArray = action(
       }
     }
 
-    const set = observable.set(array)
+    let set: ObservableSet<T>
+    if (getMobxVersion() >= 6) {
+      set = observable.set(array)
+    } else {
+      set = observable.set()
+      array.forEach((item) => {
+        set.add(item)
+      })
+    }
     ;(set as any).dataObject = array
 
     if (set.size !== array.length) {

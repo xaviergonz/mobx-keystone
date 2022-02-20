@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { reaction, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   actionTrackingMiddleware,
@@ -544,15 +544,15 @@ test("model typechecking", () => {
   expectTypeCheckError(m, () => {
     m.setArr([1, 2, "3" as any])
   })
-  expect(m.arr).toEqual([])
+  expect(toJS(m.arr)).toEqual([])
 
   m.setArr([1, 2])
-  expect(m.arr).toEqual([1, 2])
+  expect(toJS(m.arr)).toEqual([1, 2])
 
   expectTypeCheckError(m, () => {
     m.addArr("3" as any)
   })
-  expect(m.arr).toEqual([1, 2])
+  expect(toJS(m.arr)).toEqual([1, 2])
 })
 
 test("new model with typechecking enabled", () => {
@@ -802,13 +802,15 @@ test("cross referenced object", () => {
 @model("MR")
 class MR extends Model({
   x: tProp(types.number, 10),
-  rec: tProp(types.maybe(types.model<MR>(() => MR))),
+  rec: tProp(types.maybe(types.model<MR>(() => _MR))),
 }) {
   @modelAction
   setRec(r: MR | undefined) {
     this.rec = r
   }
 }
+// workaround over a babel bug: https://github.com/babel/babel/issues/11131
+const _MR = MR
 
 test("recursive model", () => {
   const type = types.model(MR)
@@ -1241,7 +1243,7 @@ test("syntax sugar for primitives in tProp", () => {
   expect(ss.nul).toBe(null)
   expect(ss.undef).toBe(undefined)
   expect(ss.or).toBe(5)
-  expect(ss.arr).toEqual([1, "2", 3])
+  expect(toJS(ss.arr)).toEqual([1, "2", 3])
 
   expectTypeCheckOk(type, ss)
 

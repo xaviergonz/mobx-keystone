@@ -8,7 +8,6 @@ import { wrapInAction, WrapInActionOverrideContextFn } from "./wrapInAction"
 const modelFlowSymbol = Symbol("modelFlow")
 
 /**
- * @ignore
  * @internal
  */
 export function flow<R, Args extends any[]>({
@@ -170,7 +169,6 @@ export function flow<R, Args extends any[]>({
 }
 
 /**
- * @ignore
  * @internal
  */
 export interface FlowFinisher {
@@ -187,8 +185,8 @@ export interface FlowFinisher {
  * @param fn Function to check.
  * @returns
  */
-export function isModelFlow(fn: any) {
-  return typeof fn === "function" && fn[modelFlowSymbol]
+export function isModelFlow(fn: unknown) {
+  return typeof fn === "function" && modelFlowSymbol in fn
 }
 
 /**

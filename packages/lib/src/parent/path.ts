@@ -66,7 +66,6 @@ export function getParentPath<T extends object = any>(value: object): ParentPath
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParentPath<T extends object = any>(
@@ -77,7 +76,6 @@ export function fastGetParentPath<T extends object = any>(
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParentPathIncludingDataObjects<T extends object = any>(
@@ -109,7 +107,6 @@ export function getParent<T extends object = any>(value: object): T | undefined 
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParent<T extends object = any>(value: object): T | undefined {
@@ -119,7 +116,6 @@ export function fastGetParent<T extends object = any>(value: object): T | undefi
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetParentIncludingDataObjects<T extends object = any>(
@@ -143,7 +139,6 @@ export function isModelDataObject(value: object): boolean {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastIsModelDataObject(value: object): boolean {
@@ -184,7 +179,6 @@ function internalGetRootPath<T extends object = any>(value: object): RootPath<T>
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
@@ -209,7 +203,6 @@ export function getRoot<T extends object = any>(value: object): T {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetRoot<T extends object = any>(value: object): T {
@@ -253,7 +246,7 @@ export function resolvePath<T = any>(
   // unit tests rely on this to work with any object
   // assertTweakedObject(pathRootObject, "pathRootObject")
 
-  let current: any = modelToDataNode(pathRootObject)
+  let current: any = pathRootObject
 
   let len = path.length
   for (let i = 0; i < len; i++) {
@@ -268,20 +261,27 @@ export function resolvePath<T = any>(
       return unresolved
     }
 
-    current = modelToDataNode(current[p] as object)
+    if (isModel(current)) {
+      const dataNode = modelToDataNode(current)
+      if (p in dataNode) {
+        current = dataNode
+      } else if (!(p in current)) {
+        return unresolved
+      }
+    }
+
+    current = current[p]
   }
 
-  return { resolved: true, value: dataToModelNode(current) }
+  return { resolved: true, value: current }
 }
 
 /**
- * @ignore
  * @internal
  */
 export const skipIdChecking = Symbol("skipIdChecking")
 
 /**
- * @ignore
  * @internal
  *
  * Tries to resolve a path from an object while checking ids.

@@ -3,7 +3,6 @@ import { fastGetParentPath, ParentPath } from "../parent/path"
 import { debugFreeze, failure, inDevMode } from "../utils"
 
 /**
- * @ignore
  * @internal
  */
 export type SnapshotTransformFn = (sn: unknown) => unknown
@@ -18,7 +17,6 @@ interface SnapshotData {
 const snapshots = new WeakMap<Object, SnapshotData>()
 
 /**
- * @ignore
  * @internal
  */
 export function getInternalSnapshot<T extends object>(
@@ -51,7 +49,6 @@ function getInternalSnapshotParent(
 }
 
 /**
- * @ignore
  * @internal
  */
 export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any) => {
@@ -64,7 +61,6 @@ export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any
 })
 
 /**
- * @ignore
  * @internal
  */
 export const setInternalSnapshot = action(
@@ -137,7 +133,7 @@ export const setInternalSnapshot = action(
 )
 
 /**
- * @ignore
+ * @internal
  */
 export function reportInternalSnapshotObserved(sn: Readonly<SnapshotData>) {
   sn.atom.reportObserved()

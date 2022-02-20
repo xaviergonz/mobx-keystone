@@ -1,7 +1,8 @@
+import { namespace } from "../../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const dateSerializer: ActionCallArgumentSerializer<Date, number> = {
-  id: "mobx-keystone/dateAsTimestamp",
+  id: `${namespace}/dateAsTimestamp`,
 
   serialize(date) {
     if (!(date instanceof Date)) return cannotSerialize

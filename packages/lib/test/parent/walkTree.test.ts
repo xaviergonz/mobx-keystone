@@ -1,6 +1,5 @@
 import { autorun, observable, ObservableMap, runInAction } from "mobx"
 import { AnyModel, detach, model, Model, prop, walkTree, WalkTreeMode } from "../../src"
-import "../commonSetup"
 
 test("walktree should be reactive", () => {
   type Registry<K, V extends object> = ObservableMap<K, V>

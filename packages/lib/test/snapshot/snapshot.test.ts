@@ -1,3 +1,4 @@
+import { toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   applySnapshot,
@@ -443,7 +444,7 @@ test("undefined should not be allowed in arrays, but null should", () => {
   runUnprotected(() => {
     p.arr.push(null as any)
   })
-  expect(p.arr).toEqual([null])
+  expect(toJS(p.arr)).toEqual([null])
 })
 
 test("types", () => {

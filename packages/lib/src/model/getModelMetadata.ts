@@ -47,7 +47,6 @@ export function getModelMetadata(
 const modelIdPropertyNameCache = new WeakMap<object, string | undefined>()
 
 /**
- * @ignore
  * @internal
  */
 export function getModelIdPropertyName(modelClass: ModelClass<AnyModel>): string | undefined {

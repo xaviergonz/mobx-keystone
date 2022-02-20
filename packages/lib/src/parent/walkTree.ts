@@ -92,7 +92,7 @@ function walkTreeChildrenFirst<T = void>(
 }
 
 /**
- * @ignore
+ * @internal
  */
 /*
 export function computedWalkTreeParentFirst<T = void>(
@@ -124,7 +124,6 @@ export function computedWalkTreeParentFirst<T = void>(
 */
 
 /**
- * @ignore
  * @internal
  */
 export interface ComputedWalkTreeAggregate<R> {
@@ -132,7 +131,6 @@ export interface ComputedWalkTreeAggregate<R> {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function computedWalkTreeAggregate<R>(

@@ -1,3 +1,4 @@
+import { set, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   arrayToMapTransform,
@@ -15,7 +16,6 @@ import {
   tProp,
   types,
 } from "../../src"
-import "../commonSetup"
 
 test("prop with transform and required value", () => {
   @model("pwt/Trequired")
@@ -197,7 +197,9 @@ test("prop with obj->map transform", () => {
   expect(t.$.map).toEqual({ a: 1, c: 3 })
 
   runUnprotected(() => {
-    t.$.map.d = 4
+    // this is valid in mobx5 but not mobx4
+    // t.$.map.d = 4
+    set(t.$.map, "d", 4)
   })
   expect(t.map.get("d")).toBe(4)
   expect(t.$.map).toEqual({ a: 1, c: 3, d: 4 })
@@ -248,13 +250,13 @@ test("prop with arr->map transform", () => {
   expect(t.map).toBe(t.map) // should be cached
 
   assert(t.$.map, _ as Array<[string, number]>)
-  expect(t.$.map).toEqual([["a", 1]])
+  expect(toJS(t.$.map)).toEqual([["a", 1]])
 
   runUnprotected(() => {
     t.map.set("c", 3)
   })
   expect(t.map.get("c")).toBe(3)
-  expect(t.$.map).toEqual([
+  expect(toJS(t.$.map)).toEqual([
     ["a", 1],
     ["c", 3],
   ])
@@ -263,7 +265,7 @@ test("prop with arr->map transform", () => {
     t.$.map.push(["d", 4])
   })
   expect(t.map.get("d")).toBe(4)
-  expect(t.$.map).toEqual([
+  expect(toJS(t.$.map)).toEqual([
     ["a", 1],
     ["c", 3],
     ["d", 4],
@@ -275,17 +277,17 @@ test("prop with arr->map transform", () => {
   expect(t.map.get("b")).toBe(2)
   expect(t.map).not.toBe(map2) // should not be cached
   expect(t.map).toBe(t.map) // should be cached
-  expect(t.$.map).toEqual([["b", 2]])
+  expect(toJS(t.$.map)).toEqual([["b", 2]])
 
   const tsn = getSnapshot(t)
   assert(tsn.map, _ as Array<[string, number]>)
   const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.map, _ as Map<string, number>)
-  expect(t.$.map).toEqual([["b", 2]])
+  expect(toJS(t.$.map)).toEqual([["b", 2]])
 
   t.setNumberArr([["d", 4]])
   expect(t.map.get("d")).toBe(4)
-  expect(t.$.map).toEqual([["d", 4]])
+  expect(toJS(t.$.map)).toEqual([["d", 4]])
   expect(t.map).toBe(t.map) // should be cached
 })
 
@@ -313,19 +315,19 @@ test("prop with arr->set transform", () => {
   expect(t.set).toBe(t.set) // should be cached
 
   assert(t.$.set, _ as Array<number>)
-  expect(t.$.set).toEqual([1])
+  expect(toJS(t.$.set)).toEqual([1])
 
   runUnprotected(() => {
     t.set.add(3)
   })
   expect(t.set.has(3)).toBe(true)
-  expect(t.$.set).toEqual([1, 3])
+  expect(toJS(t.$.set)).toEqual([1, 3])
 
   runUnprotected(() => {
     t.$.set.push(4)
   })
   expect(t.set.has(4)).toBe(true)
-  expect(t.$.set).toEqual([1, 3, 4])
+  expect(toJS(t.$.set)).toEqual([1, 3, 4])
 
   t.setSet(set2)
 
@@ -333,17 +335,17 @@ test("prop with arr->set transform", () => {
   expect(t.set.has(2)).toBe(true)
   expect(t.set).not.toBe(set2) // should not be cached
   expect(t.set).toBe(t.set) // should be cached
-  expect(t.$.set).toEqual([2])
+  expect(toJS(t.$.set)).toEqual([2])
 
   const tsn = getSnapshot(t)
   assert(tsn.set, _ as Array<number>)
   const tfsn = fromSnapshot(T, tsn)
   assert(tfsn.set, _ as Set<number>)
-  expect(t.$.set).toEqual([2])
+  expect(toJS(t.$.set)).toEqual([2])
 
   t.setNumberArr([4])
   expect(t.set.has(4)).toBe(true)
-  expect(t.$.set).toEqual([4])
+  expect(toJS(t.$.set)).toEqual([4])
   expect(t.set).toBe(t.set) // should be cached
 })
 

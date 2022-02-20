@@ -1,5 +1,5 @@
+import { set } from "mobx"
 import { Model, model, modelAction, prop } from "../../src"
-import "../commonSetup"
 
 test("value type", () => {
   @model("P")
@@ -42,7 +42,8 @@ test("value type", () => {
 
     @modelAction
     objSet(p: P | undefined) {
-      this.p_obj.p = p
+      // this.p_obj.p = p // not supported by mobx4
+      set(this.p_obj, "p", p)
       return this.p_obj.p
     }
   }

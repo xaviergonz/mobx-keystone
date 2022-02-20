@@ -1,8 +1,9 @@
 import type { ObservableSet } from "mobx"
+import { namespace } from "../../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const setSerializer: ActionCallArgumentSerializer<Set<any> | ObservableSet<any>, any[]> = {
-  id: "mobx-keystone/setAsArray",
+  id: `${namespace}/setAsArray`,
 
   serialize(set, serialize) {
     if (!(set instanceof Set)) return cannotSerialize

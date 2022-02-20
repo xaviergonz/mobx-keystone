@@ -1,11 +1,12 @@
 import { isObservableMap, ObservableMap } from "mobx"
+import { namespace } from "../../utils"
 import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const mapSerializer: ActionCallArgumentSerializer<
   Map<any, any> | ObservableMap<any, any>,
   [any, any][]
 > = {
-  id: "mobx-keystone/mapAsArray",
+  id: `${namespace}/mapAsArray`,
 
   serialize(map, serialize) {
     if (!(map instanceof Map) && !isObservableMap(map)) return cannotSerialize

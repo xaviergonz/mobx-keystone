@@ -7,7 +7,7 @@ import { registerTweaker } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
 
 /**
- * @ignore
+ * @internal
  */
 export function tweakFrozen<T extends Frozen<any>>(
   frozenObj: T,

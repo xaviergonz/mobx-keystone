@@ -42,10 +42,9 @@ export interface ActionContext {
   readonly asyncStepType?: ActionContextAsyncStepType
   /**
    * Custom data for the action context to be set by middlewares, an object.
-   * It is advised to use symbols as keys whenever possible to avoid name
-   * clashing between middlewares.
+   * Symbols must be used as keys to avoid name clashing between middlewares.
    */
-  readonly data: any
+  readonly data: Record<symbol, any>
 }
 
 /**
@@ -94,7 +93,6 @@ export function getCurrentActionContext(): ActionContext | undefined {
 }
 
 /**
- * @ignore
  * @internal
  *
  * Sets the current action context.

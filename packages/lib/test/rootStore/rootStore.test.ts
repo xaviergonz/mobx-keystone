@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { reaction, toJS } from "mobx"
 import {
   getRootStore,
   isRootStore,
@@ -11,7 +11,6 @@ import {
   toTreeNode,
   unregisterRootStore,
 } from "../../src"
-import "../commonSetup"
 
 const events: string[] = []
 
@@ -252,7 +251,7 @@ test("issue #27", () => {
   }
 
   const m = registerRootStore(new ModelWithArrayProp({ values: [] }))
-  expect(m.values).toEqual([1, 2, 3])
+  expect(toJS(m.values)).toEqual([1, 2, 3])
 })
 
 test("isRootStore is reactive", () => {
@@ -335,4 +334,40 @@ test("issue #316", () => {
   unregisterRootStore(app)
   expect(mountCount).toBe(1)
   expect(unmountCount).toBe(1)
+})
+
+test("bug #384", () => {
+  let calls = 0
+
+  @model("bug #384/Todo")
+  class Todo extends Model({
+    text: prop<string>(),
+  }) {
+    onAttachedToRootStore() {
+      calls++
+    }
+  }
+
+  @model("bug #384/TodoStore")
+  class Store extends Model({
+    todos: prop<Todo[]>(() => []),
+  }) {
+    @modelAction
+    setTodos(todos: Todo[]) {
+      this.todos = todos
+    }
+  }
+
+  const todos: Todo[] = []
+
+  for (let i = 0; i < 5000; i++) {
+    todos.push(new Todo({ text: "Todo #" + i }))
+  }
+
+  const store = new Store({})
+
+  registerRootStore(store)
+  store.setTodos(todos)
+
+  expect(calls).toBe(todos.length)
 })

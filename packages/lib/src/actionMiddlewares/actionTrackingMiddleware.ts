@@ -43,10 +43,9 @@ export interface SimpleActionContext {
   readonly rootContext: SimpleActionContext
   /**
    * Custom data for the action context to be set by middlewares, an object.
-   * It is advised to use symbols as keys whenever possible to avoid name
-   * clashing between middlewares.
+   * Symbols must be used as keys to avoid name clashing between middlewares.
    */
-  readonly data: any
+  readonly data: Record<symbol, any>
 }
 
 /**
@@ -140,13 +139,25 @@ export function actionTrackingMiddleware(
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
   const dataSymbol = Symbol("actionTrackingMiddlewareData")
+
+  enum State {
+    Idle = "idle",
+    Started = "started",
+    RealResumed = "realResumed",
+    FakeResumed = "fakeResumed",
+    Suspended = "suspended",
+    Finished = "finished",
+  }
+
   interface Data {
     startAccepted: boolean
-    state: "idle" | "started" | "realResumed" | "fakeResumed" | "suspended" | "finished"
+    state: State
   }
+
   function getCtxData(ctx: ActionContext | SimpleActionContext): Data | undefined {
     return ctx.data[dataSymbol]
   }
+
   function setCtxData(ctx: ActionContext | SimpleActionContext, partialData: Partial<Data>) {
     let currentData = ctx.data[dataSymbol]
     if (!currentData) {
@@ -173,7 +184,7 @@ export function actionTrackingMiddleware(
       if (accepted) {
         setCtxData(ctx, {
           startAccepted: true,
-          state: "idle",
+          state: State.Idle,
         })
       }
       return accepted
@@ -184,7 +195,7 @@ export function actionTrackingMiddleware(
           if (accepted) {
             setCtxData(ctx, {
               startAccepted: true,
-              state: "idle",
+              state: State.Idle,
             })
           }
           return accepted
@@ -213,7 +224,7 @@ export function actionTrackingMiddleware(
 
   const start = (simpleCtx: SimpleActionContext): ActionTrackingReturn | undefined => {
     setCtxData(simpleCtx, {
-      state: "started",
+      state: State.Started,
     })
     if (hooks.onStart) {
       return hooks.onStart(simpleCtx) || undefined
@@ -230,14 +241,14 @@ export function actionTrackingMiddleware(
     let parentResumed = false
     if (parentCtx) {
       const parentData = getCtxData(parentCtx)
-      if (parentData && parentData.startAccepted && parentData.state === "suspended") {
+      if (parentData && parentData.startAccepted && parentData.state === State.Suspended) {
         parentResumed = true
         resume(parentCtx, false)
       }
     }
 
     setCtxData(simpleCtx, {
-      state: "finished",
+      state: State.Finished,
     })
 
     if (hooks.onFinish) {
@@ -256,13 +267,13 @@ export function actionTrackingMiddleware(
     const parentCtx = simpleCtx.parentContext
     if (parentCtx) {
       const parentData = getCtxData(parentCtx)
-      if (parentData && parentData.startAccepted && parentData.state === "suspended") {
+      if (parentData && parentData.startAccepted && parentData.state === State.Suspended) {
         resume(parentCtx, false)
       }
     }
 
     setCtxData(simpleCtx, {
-      state: real ? "realResumed" : "fakeResumed",
+      state: real ? State.RealResumed : State.FakeResumed,
     })
     if (hooks.onResume) {
       hooks.onResume(simpleCtx)
@@ -271,7 +282,7 @@ export function actionTrackingMiddleware(
 
   const suspend = (simpleCtx: SimpleActionContext) => {
     setCtxData(simpleCtx, {
-      state: "suspended",
+      state: State.Suspended,
     })
     if (hooks.onSuspend) {
       hooks.onSuspend(simpleCtx)
@@ -281,7 +292,7 @@ export function actionTrackingMiddleware(
     const parentCtx = simpleCtx.parentContext
     if (parentCtx) {
       const parentData = getCtxData(parentCtx)
-      if (parentData && parentData.startAccepted && parentData.state === "fakeResumed") {
+      if (parentData && parentData.startAccepted && parentData.state === State.FakeResumed) {
         suspend(parentCtx)
       }
     }
@@ -304,7 +315,7 @@ export function actionTrackingMiddleware(
       let retObj = start(simpleCtx)
 
       if (retObj) {
-        // action cancelled / overriden by onStart
+        // action canceled / overridden by onStart
         resume(simpleCtx, true)
         suspend(simpleCtx)
         retObj = finish(simpleCtx, retObj)
@@ -324,7 +335,7 @@ export function actionTrackingMiddleware(
         case ActionContextAsyncStepType.Spawn: {
           let retObj = start(simpleCtx)
           if (retObj) {
-            // action cancelled / overriden by onStart
+            // action canceled / overridden by onStart
             resume(simpleCtx, true)
             suspend(simpleCtx)
             retObj = finish(simpleCtx, retObj)
@@ -364,13 +375,13 @@ export function actionTrackingMiddleware(
             return next()
           } else {
             throw failure(
-              `asssertion error: async step should have been filtered out - ${ctx.asyncStepType}`
+              `assertion error: async step should have been filtered out - ${ctx.asyncStepType}`
             )
           }
 
         default:
           throw failure(
-            `asssertion error: async step should have been filtered out - ${ctx.asyncStepType}`
+            `assertion error: async step should have been filtered out - ${ctx.asyncStepType}`
           )
       }
     }

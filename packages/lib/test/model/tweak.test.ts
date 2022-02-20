@@ -1,6 +1,5 @@
 import { isObservable, keys, set, values } from "mobx"
 import { getParent, isTreeNode, model, Model, prop, runUnprotected } from "../../src"
-import "../commonSetup"
 
 interface TestObj {
   x: number
@@ -59,16 +58,23 @@ test("data added after intial data must be tweaked", () => {
   {
     const a = new A({})
     runUnprotected(() => {
+      a.arr = []
+      expect(a.$.arr).toBeDefined()
+      expect(a.arr).toBe(a.$.arr)
+      expect(isObservable(a.arr)).toBe(true)
+      a.arr.push({ x: 10 })
+      a.arr.push({ x: 20 })
+
       a.map = {}
+      expect(a.$.map).toBeDefined()
+      expect(a.map).toBe(a.$.map)
+      expect(isObservable(a.map)).toBe(true)
+
       // this is valid in mobx5 but not mobx4
       // a.map.obj1 = { x: 10 }
       // a.map.obj2 = { x: 20 }
       set(a.map, "obj1", { x: 10 })
       set(a.map, "obj2", { x: 20 })
-
-      a.arr = []
-      a.arr.push({ x: 10 })
-      a.arr.push({ x: 20 })
     })
 
     expect(isTreeNodeAndObs(a.map!)).toBeTruthy()

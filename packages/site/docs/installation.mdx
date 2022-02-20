@@ -1,0 +1,79 @@
+---
+title: Installation
+slug: /installation
+---
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+<Tabs>
+<TabItem value="yarn" label="Yarn">
+
+```bash
+yarn add mobx-keystone
+```
+
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```bash
+npm install --save mobx-keystone
+```
+
+</TabItem>
+</Tabs>
+
+This library requires a more or less modern JavaScript environment to work, namely one with support for:
+
+- MobX 6, 5, or 4 (with its gotchas)
+- Proxies (when using MobX 5, or MobX 6 with the proxies setting enabled)
+- Symbols
+- WeakMap/WeakSet
+
+In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
+
+If you are using TypeScript, then version 4.2.0+ is recommended, though it _might_ work with older versions.
+
+## Transpiler configuration
+
+This library uses JavaScript decorators and class properties which are supported via the following transpiler configurations:
+
+<Tabs>
+<TabItem value="tsc" label="TypeScript Compiler">
+
+```json title="tsconfig.json"
+{
+  // ...
+  "compilerOptions": {
+    // ...
+    "experimentalDecorators": true,
+    // MobX 5/6
+    "useDefineForClassFields": true
+    // MobX 4
+    "useDefineForClassFields": false
+  }
+}
+```
+
+</TabItem>
+<TabItem value="babel" label="Babel">
+
+```json title="babel.config.json"
+{
+  "presets": [
+    // ...
+    // If you use TypeScript
+    ["@babel/preset-typescript", { "allowDeclareFields": true }]
+  ],
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", { "version": "legacy" }],
+    // MobX 5/6
+    ["@babel/plugin-proposal-class-properties"]
+    // MobX 4
+    ["@babel/plugin-proposal-class-properties", { "loose": true }]
+  ]
+}
+```
+
+</TabItem>
+</Tabs>

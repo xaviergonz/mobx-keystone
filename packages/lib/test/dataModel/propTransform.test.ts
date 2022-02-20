@@ -9,7 +9,6 @@ import {
   tProp,
   types,
 } from "../../src"
-import "../commonSetup"
 
 test("prop with transform and required value", () => {
   @model("pwt/Trequired")

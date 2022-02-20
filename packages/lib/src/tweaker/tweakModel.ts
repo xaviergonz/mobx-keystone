@@ -6,7 +6,7 @@ import { registerTweaker } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
 
 /**
- * @ignore
+ * @internal
  */
 export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   tweakedObjects.set(value, undefined)

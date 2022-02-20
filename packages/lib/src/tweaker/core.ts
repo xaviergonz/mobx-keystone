@@ -3,13 +3,11 @@ import { dataObjectParent } from "../parent/core"
 import { failure, isPrimitive } from "../utils"
 
 /**
- * @ignore
  * @internal
  */
 export const tweakedObjects = new WeakMap<Object, undefined | (() => void)>()
 
 /**
- * @ignore
  * @internal
  */
 export function isTweakedObject(value: unknown, canBeDataObject: boolean): value is object {
@@ -30,7 +28,6 @@ export function isTreeNode(value: unknown): value is object {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function assertTweakedObject(
@@ -62,13 +59,11 @@ export function assertIsTreeNode(
 }
 
 /**
- * @ignore
  * @internal
  */
 export let runningWithoutSnapshotOrPatches = false
 
 /**
- * @ignore
  * @internal
  */
 export function runWithoutSnapshotOrPatches(fn: () => void) {

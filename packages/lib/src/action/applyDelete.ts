@@ -18,7 +18,6 @@ export function applyDelete<O extends object, K extends keyof O>(node: O, fieldN
 }
 
 /**
- * @ignore
  * @internal
  */
 export function internalApplyDelete<O extends object>(this: O, fieldName: string | number): void {

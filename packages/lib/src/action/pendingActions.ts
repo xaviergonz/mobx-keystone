@@ -8,7 +8,7 @@ function isActionRunning() {
 }
 
 /**
- * @ignore
+ * @internal
  */
 export function enqueuePendingAction(action: () => void): void {
   // delay action until all current actions are finished
@@ -19,17 +19,24 @@ export function enqueuePendingAction(action: () => void): void {
   }
 }
 
+let pendingActionsRunning = false
+
 /**
- * @ignore
+ * @internal
  */
-export function tryRunPendingActions(): boolean {
-  if (isActionRunning()) {
-    return false
+export function tryRunPendingActions(): void {
+  if (isActionRunning() || pendingActionsRunning) {
+    return
   }
 
-  while (pendingActions.length > 0) {
-    const nextAction = pendingActions.shift()!
-    nextAction()
+  pendingActionsRunning = true
+
+  try {
+    while (pendingActions.length > 0) {
+      const nextAction = pendingActions.shift()!
+      nextAction()
+    }
+  } finally {
+    pendingActionsRunning = false
   }
-  return true
 }

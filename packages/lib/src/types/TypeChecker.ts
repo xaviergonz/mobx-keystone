@@ -1,7 +1,7 @@
 import { fastGetParentIncludingDataObjects } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
-import { isArray, isObject, isPrimitive, lateVal } from "../utils"
+import { isArray, isObject, isPrimitive, lazy } from "../utils"
 import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
 
@@ -15,7 +15,6 @@ type CheckResultCache = WeakMap<object, CheckResult>
 const typeCheckersWithCachedResultsOfObject = new WeakMap<object, Set<TypeChecker>>()
 
 /**
- * @ignore
  * @internal
  */
 export enum TypeCheckerBaseType {
@@ -26,7 +25,6 @@ export enum TypeCheckerBaseType {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType {
@@ -37,7 +35,6 @@ export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType
 }
 
 /**
- * @ignore
  * @internal
  */
 export function invalidateCachedTypeCheckerResult(obj: object) {
@@ -57,7 +54,7 @@ export function invalidateCachedTypeCheckerResult(obj: object) {
 }
 
 /**
- * @ignore
+ * @internal
  */
 export class TypeChecker {
   private checkResultCache?: CheckResultCache
@@ -140,7 +137,7 @@ export class TypeChecker {
     private readonly _toSnapshotProcessor: (sn: any) => unknown
   ) {
     this.unchecked = !_check
-    this._cachedTypeInfoGen = lateVal(typeInfoGen)
+    this._cachedTypeInfoGen = lazy(typeInfoGen)
   }
 
   fromSnapshotProcessor = (sn: any): unknown => {
@@ -170,7 +167,6 @@ export class TypeChecker {
 const lateTypeCheckerSymbol = Symbol("lateTypeCheker")
 
 /**
- * @ignore
  * @internal
  */
 export interface LateTypeChecker {
@@ -180,7 +176,6 @@ export interface LateTypeChecker {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen): LateTypeChecker {
@@ -195,7 +190,7 @@ export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen)
   }
   ;(ltc as LateTypeChecker)[lateTypeCheckerSymbol] = true
 
-  const cachedTypeInfoGen = lateVal(typeInfoGen)
+  const cachedTypeInfoGen = lazy(typeInfoGen)
 
   Object.defineProperty(ltc, "typeInfo", {
     enumerable: true,
@@ -209,11 +204,10 @@ export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen)
 }
 
 /**
- * @ignore
  * @internal
  */
-export function isLateTypeChecker(ltc: any): ltc is LateTypeChecker {
-  return typeof ltc === "function" && ltc[lateTypeCheckerSymbol]
+export function isLateTypeChecker(ltc: unknown): ltc is LateTypeChecker {
+  return typeof ltc === "function" && lateTypeCheckerSymbol in ltc
 }
 
 /**
@@ -224,7 +218,6 @@ export class TypeInfo {
 }
 
 /**
- * @ignore
  * @internal
  */
 export type TypeInfoGen = (t: AnyStandardType) => TypeInfo

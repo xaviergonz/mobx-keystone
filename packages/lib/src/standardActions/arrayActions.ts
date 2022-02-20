@@ -1,5 +1,6 @@
 import { remove, set } from "mobx"
 import { toTreeNode } from "../tweaker/tweak"
+import { namespace as ns } from "../utils"
 import { standaloneAction } from "./standaloneActions"
 
 function _splice(array: any[], start: number, deleteCount?: number): any[]
@@ -8,7 +9,7 @@ function _splice(array: any[], ...args: any[]): any[] {
   return (array.splice as any)(...args)
 }
 
-const namespace = "mobx-keystone/arrayActions"
+const namespace = `${ns}/arrayActions`
 
 export const arrayActions = {
   set: standaloneAction(`${namespace}::set`, <T>(array: T[], index: number, value: any): void => {

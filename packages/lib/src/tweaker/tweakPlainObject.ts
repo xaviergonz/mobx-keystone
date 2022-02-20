@@ -24,7 +24,7 @@ import { TweakerPriority } from "./TweakerPriority"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
- * @ignore
+ * @internal
  */
 export function tweakPlainObject<T>(
   value: T,

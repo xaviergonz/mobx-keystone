@@ -71,7 +71,6 @@ export function isRootStore(node: object): boolean {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastIsRootStore(node: object): boolean {
@@ -93,7 +92,6 @@ export function getRootStore<T extends object>(node: object): T | undefined {
 }
 
 /**
- * @ignore
  * @internal
  */
 export function fastGetRootStore<T extends object>(node: object): T | undefined {

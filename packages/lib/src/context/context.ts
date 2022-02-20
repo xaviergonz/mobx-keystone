@@ -1,7 +1,6 @@
 import { action, computed, createAtom, IAtom, IComputedValue, observable } from "mobx"
 import { fastGetParent } from "../parent/path"
 import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
-import { getMobxVersion, mobx6 } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 
 /**
@@ -102,11 +101,11 @@ function resolveContextValue<T>(contextValue: ContextValue<T>): T {
 }
 
 class ContextClass<T> implements Context<T> {
-  @observable.ref
-  private defaultContextValue!: ContextValue<T>
+  private defaultContextValue = observable.box<ContextValue<T>>(undefined, { deep: false })
 
-  @observable.ref
-  private overrideContextValue: ContextValue<T> | undefined
+  private overrideContextValue = observable.box<ContextValue<T> | undefined>(undefined, {
+    deep: false,
+  })
 
   private readonly nodeContextValue = new WeakMap<object, ContextValue<T>>()
   private readonly nodeAtom = new WeakMap<object, IAtom>()
@@ -125,8 +124,9 @@ class ContextClass<T> implements Context<T> {
 
     const parent = fastGetParent(node)
     if (!parent) {
-      if (this.overrideContextValue) {
-        return resolveContextValue(this.overrideContextValue)
+      const overrideValue = this.overrideContextValue.get()
+      if (overrideValue) {
+        return resolveContextValue(overrideValue)
       }
       return this.getDefault()
     }
@@ -163,27 +163,24 @@ class ContextClass<T> implements Context<T> {
   }
 
   getDefault(): T {
-    return resolveContextValue(this.defaultContextValue)
+    return resolveContextValue(this.defaultContextValue.get())
   }
 
-  @action
-  setDefault(value: T) {
-    this.defaultContextValue = {
+  setDefault = action((value: T) => {
+    this.defaultContextValue.set({
       type: "value",
       value,
-    }
-  }
+    })
+  })
 
-  @action
-  setDefaultComputed(valueFn: () => T) {
-    this.defaultContextValue = {
+  setDefaultComputed = action((valueFn: () => T) => {
+    this.defaultContextValue.set({
       type: "computed",
       value: computed(valueFn),
-    }
-  }
+    })
+  })
 
-  @action
-  set(node: object, value: T) {
+  set = action((node: object, value: T) => {
     assertTweakedObject(node, "node")
 
     this.nodeContextValue.set(node, {
@@ -191,7 +188,7 @@ class ContextClass<T> implements Context<T> {
       value,
     })
     this.getNodeAtom(node).reportChanged()
-  }
+  })
 
   private _setComputed(node: object, computedValueFn: IComputedValue<T>) {
     assertTweakedObject(node, "node")
@@ -200,26 +197,23 @@ class ContextClass<T> implements Context<T> {
     this.getNodeAtom(node).reportChanged()
   }
 
-  @action
-  setComputed(node: object, valueFn: () => T) {
+  setComputed = action((node: object, valueFn: () => T) => {
     this._setComputed(node, computed(valueFn))
-  }
+  })
 
-  @action
-  unset(node: object) {
+  unset = action((node: object) => {
     assertTweakedObject(node, "node")
 
     this.nodeContextValue.delete(node)
     this.getNodeAtom(node).reportChanged()
-  }
+  })
 
-  @action
-  apply<R>(fn: () => R, value: T): R {
-    const old = this.overrideContextValue
-    this.overrideContextValue = {
+  apply = action(<R>(fn: () => R, value: T): R => {
+    const old = this.overrideContextValue.get()
+    this.overrideContextValue.set({
       type: "value",
       value,
-    }
+    })
 
     try {
       const ret = fn()
@@ -228,19 +222,18 @@ class ContextClass<T> implements Context<T> {
       }
       return ret
     } finally {
-      this.overrideContextValue = old
+      this.overrideContextValue.set(old)
     }
-  }
+  })
 
-  @action
-  applyComputed<R>(fn: () => R, valueFn: () => T): R {
+  applyComputed = action(<R>(fn: () => R, valueFn: () => T): R => {
     const computedValueFn = computed(valueFn)
 
-    const old = this.overrideContextValue
-    this.overrideContextValue = {
+    const old = this.overrideContextValue.get()
+    this.overrideContextValue.set({
       type: "computed",
       value: computedValueFn,
-    }
+    })
 
     try {
       const ret = fn()
@@ -249,15 +242,11 @@ class ContextClass<T> implements Context<T> {
       }
       return ret
     } finally {
-      this.overrideContextValue = old
+      this.overrideContextValue.set(old)
     }
-  }
+  })
 
   constructor(defaultValue?: T) {
-    if (getMobxVersion() >= 6) {
-      mobx6.makeObservable(this)
-    }
-
     this.setDefault(defaultValue as T)
   }
 }

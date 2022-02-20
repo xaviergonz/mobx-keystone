@@ -11,7 +11,6 @@ import { getDataModelMetadata } from "./getDataModelMetadata"
 import { assertIsDataModelClass } from "./utils"
 
 /**
- * @ignore
  * @internal
  */
 export const internalNewDataModel = action(

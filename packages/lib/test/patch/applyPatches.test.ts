@@ -1,3 +1,4 @@
+import { toJS } from "mobx"
 import { applyPatches, getSnapshot, runUnprotected } from "../../src"
 import "../commonSetup"
 import { createP } from "../testbed"
@@ -85,7 +86,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.arr).toEqual([1, 10, 2, 3])
+    expect(toJS(p.arr)).toEqual([1, 10, 2, 3])
   })
 
   test.each([undefined, false, true])("add (reverse=%j)", (reverse) => {
@@ -107,7 +108,7 @@ describe("array", () => {
         reverse
       )
     })
-    expect(p.arr).toEqual([1, reverse ? 10 : 11, !reverse ? 10 : 11, 2, 3])
+    expect(toJS(p.arr)).toEqual([1, reverse ? 10 : 11, !reverse ? 10 : 11, 2, 3])
   })
 
   test("remove", () => {
@@ -119,7 +120,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.arr).toEqual([1, 3])
+    expect(toJS(p.arr)).toEqual([1, 3])
   })
 
   test("replace", () => {
@@ -132,7 +133,7 @@ describe("array", () => {
         },
       ])
     })
-    expect(p.arr).toEqual([1, 10, 3])
+    expect(toJS(p.arr)).toEqual([1, 10, 3])
   })
 
   test.each([undefined, false, true])("replace (reverse=%j)", (reverse) => {
@@ -154,7 +155,7 @@ describe("array", () => {
         reverse
       )
     })
-    expect(p.arr).toEqual([1, reverse ? 10 : 11, 3])
+    expect(toJS(p.arr)).toEqual([1, reverse ? 10 : 11, 3])
   })
 })
 

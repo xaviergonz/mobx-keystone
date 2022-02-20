@@ -1,5 +1,4 @@
 import { Model, model, modelAction, objectActions, prop } from "../../src"
-import "../commonSetup"
 
 test("typed object", () => {
   const obj = objectActions.create({ a: 1 })

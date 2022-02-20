@@ -10,7 +10,6 @@ type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => an
 const reconcilers: { priority: number; reconciler: Reconciler }[] = []
 
 /**
- * @ignore
  * @internal
  */
 export function registerReconciler(priority: number, reconciler: Reconciler): void {
@@ -19,7 +18,6 @@ export function registerReconciler(priority: number, reconciler: Reconciler): vo
 }
 
 /**
- * @ignore
  * @internal
  */
 export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, parent: any): any {
@@ -48,7 +46,6 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, par
 }
 
 /**
- * @ignore
  * @internal
  */
 export function detachIfNeeded(newValue: any, oldValue: any, modelPool: ModelPool) {

@@ -3,9 +3,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -14,13 +14,12 @@ env:
   NODE_VERSION: "16"
 
 jobs:
-
   lib-site-build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -31,17 +30,53 @@ jobs:
           path: .yarn/cache
           key: v3-${{ runner.os }}-yarn_cache
           restore-keys: |
-            v3-${{ runner.os }}-          
+            v3-${{ runner.os }}-
 
       - run: yarn install --immutable
       - run: yarn lib:build && yarn lib:build-docs && yarn site:build
-  
+
   lib-test:
+    name: lib-test (${{ matrix.compiler }} - mobx${{ matrix.mobx-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - tsc
+          - babel
+        mobx-version:
+          - 6
+          - 5
+          - 4
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache .yarn/cache
+        uses: actions/cache@v2
+        with:
+          path: .yarn/cache
+          key: v3-${{ runner.os }}-yarn_cache
+          restore-keys: |
+            v3-${{ runner.os }}-
+
+      - run: yarn install --immutable
+      - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
+        env:
+          COMPILER: ${{ matrix.compiler }}
+          MOBX_VERSION: ${{ matrix.mobx-version }}
+
+  formatting:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -52,7 +87,7 @@ jobs:
           path: .yarn/cache
           key: v3-${{ runner.os }}-yarn_cache
           restore-keys: |
-            v3-${{ runner.os }}-          
+            v3-${{ runner.os }}-
 
       - run: yarn install --immutable
-      - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
+      - run: yarn prettier --check .

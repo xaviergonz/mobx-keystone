@@ -1,3 +1,4 @@
+import { toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   applyPatches,
@@ -15,7 +16,6 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
-import "../commonSetup"
 
 test("input snapshot processor", () => {
   @model("customInputSnapshot")
@@ -56,7 +56,7 @@ test("input snapshot processor", () => {
     })
   )
 
-  expect(p.arr).toEqual([30, 40, 50])
+  expect(toJS(p.arr)).toEqual([30, 40, 50])
 
   applyPatches(p, [
     {
@@ -66,7 +66,7 @@ test("input snapshot processor", () => {
     },
   ])
 
-  expect(p.arr).toEqual([10, 20])
+  expect(toJS(p.arr)).toEqual([10, 20])
 
   applySnapshot(
     p,
@@ -75,11 +75,11 @@ test("input snapshot processor", () => {
     })
   )
 
-  expect(p.arr).toEqual([100, 200])
+  expect(toJS(p.arr)).toEqual([100, 200])
 
   applySnapshot(p.arr, [300, 400])
 
-  expect(p.arr).toEqual([300, 400])
+  expect(toJS(p.arr)).toEqual([300, 400])
 })
 
 test("input snapshot processor with original type", () => {
@@ -125,7 +125,7 @@ test("input snapshot processor with original type", () => {
     })
   )
 
-  expect(p.arr).toEqual([30, 40, 50])
+  expect(toJS(p.arr)).toEqual([30, 40, 50])
 
   applyPatches(p, [
     {
@@ -135,7 +135,7 @@ test("input snapshot processor with original type", () => {
     },
   ])
 
-  expect(p.arr).toEqual([10, 20])
+  expect(toJS(p.arr)).toEqual([10, 20])
 
   applySnapshot(
     p,
@@ -144,11 +144,11 @@ test("input snapshot processor with original type", () => {
     })
   )
 
-  expect(p.arr).toEqual([100, 200])
+  expect(toJS(p.arr)).toEqual([100, 200])
 
   applySnapshot(p.arr, [300, 400])
 
-  expect(p.arr).toEqual([300, 400])
+  expect(toJS(p.arr)).toEqual([300, 400])
 })
 
 test("output snapshot processor", () => {

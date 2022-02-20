@@ -1,6 +1,6 @@
 import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
-import { assertIsFunction, assertIsObject, isObject, lateVal } from "../../utils"
+import { assertIsFunction, assertIsObject, isObject, lazy } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type {
@@ -162,7 +162,7 @@ export interface ObjectTypeInfoProps {
  */
 export class ObjectTypeInfo extends TypeInfo {
   // memoize to always return the same object
-  private _props = lateVal(() => {
+  private _props = lazy(() => {
     const objSchema = this._objTypeFn()
 
     const propTypes: O.Writable<ObjectTypeInfoProps> = {}

@@ -67,7 +67,6 @@ export function toTreeNode(arg1: any, arg2?: any): any {
 }
 
 /**
- * @ignore
  * @internal
  */
 export type Tweaker<T> = (value: T, parentPath: ParentPath<any> | undefined) => T | undefined
@@ -75,7 +74,6 @@ export type Tweaker<T> = (value: T, parentPath: ParentPath<any> | undefined) => 
 const tweakers: { priority: number; tweaker: Tweaker<any> }[] = []
 
 /**
- * @ignore
  * @internal
  */
 export function registerTweaker<T>(priority: number, tweaker: Tweaker<T>): void {
@@ -132,13 +130,11 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 }
 
 /**
- * @ignore
  * @internal
  */
 export const tweak = action("tweak", internalTweak)
 
 /**
- * @ignore
  * @internal
  */
 export function tryUntweak(value: any) {

@@ -10,7 +10,6 @@ const onAttachedDisposers = new WeakMap<object, () => void>()
 const attachedToRootStore = new WeakSet<object>()
 
 /**
- * @ignore
  * @internal
  */
 export const attachToRootStore = action(
@@ -55,7 +54,6 @@ export const attachToRootStore = action(
 )
 
 /**
- * @ignore
  * @internal
  */
 export const detachFromRootStore = action("detachFromRootStore", (child: object): void => {

@@ -118,7 +118,6 @@ function checkDataIsSerializableAndFreeze(data: any) {
 }
 
 /**
- * @ignore
  * @internal
  *
  * Checks if an snapshot is an snapshot for a frozen data.
@@ -126,6 +125,6 @@ function checkDataIsSerializableAndFreeze(data: any) {
  * @param snapshot
  * @returns
  */
-export function isFrozenSnapshot(snapshot: any): snapshot is SnapshotInOfFrozen<Frozen<any>> {
-  return isPlainObject(snapshot) && !!snapshot[frozenKey]
+export function isFrozenSnapshot(snapshot: unknown): snapshot is SnapshotInOfFrozen<Frozen<any>> {
+  return isPlainObject(snapshot) && frozenKey in snapshot
 }

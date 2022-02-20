@@ -4,6 +4,7 @@
 module.exports = {
   docs: [
     "intro",
+    "installation",
     "mstComparison",
     "classModels",
     "dataModels",
@@ -30,6 +31,7 @@ module.exports = {
     "runtimeTypeChecking",
     "drafts",
     "sandboxes",
+    "computedTrees",
     "reduxCompatibility",
     {
       type: "category",

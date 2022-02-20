@@ -3,7 +3,6 @@ import type { AnyDataModel } from "./BaseDataModel"
 
 /**
  * @internal
- * @ignore
  */
 export interface DataModelConstructorOptions {
   modelClass?: ModelClass<AnyDataModel>

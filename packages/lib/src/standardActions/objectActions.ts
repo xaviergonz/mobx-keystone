@@ -1,15 +1,19 @@
-import { remove, set } from "mobx"
+import { isObservable, remove, set } from "mobx"
 import { toTreeNode } from "../tweaker/tweak"
-import { assertIsObject } from "../utils"
+import { assertIsObject, namespace as ns } from "../utils"
 import { standaloneAction } from "./standaloneActions"
 
-const namespace = "mobx-keystone/objectActions"
+const namespace = `${ns}/objectActions`
 
 export const objectActions = {
   set: standaloneAction(
     `${namespace}::set`,
     <T extends object, K extends keyof T>(target: T, key: K, value: T[K]): void => {
-      set(target, key, value)
+      if (isObservable(target)) {
+        set(target, key, value)
+      } else {
+        target[key] = value
+      }
     }
   ),
 
@@ -18,8 +22,15 @@ export const objectActions = {
     <T extends object>(target: T, partialObject: Partial<T>): void => {
       assertIsObject(partialObject, "partialObject")
       const keys = Object.keys(partialObject)
-      for (const key of keys) {
-        set(target, key, (partialObject as any)[key])
+
+      if (isObservable(target)) {
+        for (const key of keys) {
+          set(target, key, (partialObject as any)[key])
+        }
+      } else {
+        for (const key of keys) {
+          ;(target as any)[key] = (partialObject as any)[key]
+        }
       }
     }
   ),

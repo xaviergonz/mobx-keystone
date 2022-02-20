@@ -1,4 +1,4 @@
-import { computed } from "mobx"
+import { computed, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   customRef,
@@ -292,13 +292,13 @@ test("changes in sandbox can be applied to original tree - non-idempotent action
     node.append(10)
     node.append(11)
     expect(c.values).toEqual([])
-    expect(node.values).toEqual([10, 11])
+    expect(toJS(node.values)).toEqual([10, 11])
     return true
   })
-  expect(c.values).toEqual([10, 11])
+  expect(toJS(c.values)).toEqual([10, 11])
 
   manager.withSandbox([c], (node) => {
-    expect(node.values).toEqual([10, 11])
+    expect(toJS(node.values)).toEqual([10, 11])
     return false
   })
 })
