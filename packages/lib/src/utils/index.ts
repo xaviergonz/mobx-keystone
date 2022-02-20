@@ -76,7 +76,7 @@ export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: bo
  * @ignore
  * @internal
  */
-export function isPlainObject(value: any): value is Object {
+export function isPlainObject(value: unknown): value is Object {
   if (!isObject(value)) return false
   const proto = Object.getPrototypeOf(value)
   return proto === Object.prototype || proto === null
@@ -86,7 +86,7 @@ export function isPlainObject(value: any): value is Object {
  * @ignore
  * @internal
  */
-export function isObject(value: any): value is Record<PropertyKey, unknown> {
+export function isObject(value: unknown): value is Record<PropertyKey, unknown> {
   return value !== null && typeof value === "object"
 }
 
@@ -94,7 +94,7 @@ export function isObject(value: any): value is Record<PropertyKey, unknown> {
  * @ignore
  * @internal
  */
-export function isPrimitive(value: any): value is PrimitiveValue {
+export function isPrimitive(value: unknown): value is PrimitiveValue {
   switch (typeof value) {
     case "number":
     case "string":
@@ -110,7 +110,7 @@ export function isPrimitive(value: any): value is PrimitiveValue {
  * @ignore
  * @internal
  */
-export function isJSONPrimitive(value: any): value is JSONPrimitiveValue {
+export function isJSONPrimitive(value: unknown): value is JSONPrimitiveValue {
   switch (typeof value) {
     case "number":
       return isFinite(value)
@@ -148,7 +148,7 @@ export function deleteFromArray<T>(array: T[], value: T): boolean {
  * @ignore
  * @internal
  */
-export function isMap(val: any): val is Map<any, any> | ObservableMap {
+export function isMap(val: unknown): val is Map<any, any> | ObservableMap {
   return val instanceof Map || isObservableMap(val)
 }
 
@@ -156,7 +156,7 @@ export function isMap(val: any): val is Map<any, any> | ObservableMap {
  * @ignore
  * @internal
  */
-export function isSet(val: any): val is Set<any> | ObservableSet {
+export function isSet(val: unknown): val is Set<any> | ObservableSet {
   return val instanceof Set || isObservableSet(val)
 }
 
@@ -164,7 +164,7 @@ export function isSet(val: any): val is Set<any> | ObservableSet {
  * @ignore
  * @internal
  */
-export function isArray(val: any): val is any[] | IObservableArray {
+export function isArray(val: unknown): val is any[] | IObservableArray {
   return Array.isArray(val) || isObservableArray(val)
 }
 

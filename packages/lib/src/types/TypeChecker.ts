@@ -212,8 +212,8 @@ export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen)
  * @ignore
  * @internal
  */
-export function isLateTypeChecker(ltc: any): ltc is LateTypeChecker {
-  return typeof ltc === "function" && ltc[lateTypeCheckerSymbol]
+export function isLateTypeChecker(ltc: unknown): ltc is LateTypeChecker {
+  return typeof ltc === "function" && lateTypeCheckerSymbol in ltc
 }
 
 /**

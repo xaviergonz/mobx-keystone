@@ -10,7 +10,7 @@ import { _BaseModel } from "./_BaseModel"
  * @param model
  * @returns
  */
-export function isModel(model: any): model is AnyModel {
+export function isModel(model: unknown): model is AnyModel {
   return model instanceof _BaseModel
 }
 
@@ -37,7 +37,7 @@ export function assertIsModel(
  * @ignore
  * @internal
  */
-export function isModelClass(modelClass: any): modelClass is ModelClass<AnyModel> {
+export function isModelClass(modelClass: unknown): modelClass is ModelClass<AnyModel> {
   if (typeof modelClass !== "function") {
     return false
   }
@@ -70,6 +70,6 @@ export function assertIsModelClass(
  * @ignore
  * @internal
  */
-export function isModelSnapshot(sn: any): sn is { [modelTypeKey]: string } {
-  return isPlainObject(sn) && !!sn[modelTypeKey]
+export function isModelSnapshot(sn: unknown): sn is { [modelTypeKey]: string } {
+  return isPlainObject(sn) && modelTypeKey in sn
 }
