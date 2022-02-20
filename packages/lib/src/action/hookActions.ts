@@ -20,7 +20,7 @@ export enum HookAction {
   OnAttachedToRootStoreDisposer = "$$onAttachedToRootStoreDisposer",
 }
 
-const hookActionValues = new Set(Object.values(HookAction))
+const hookActionValues: ReadonlySet<string> = new Set(Object.values(HookAction))
 
 /**
  * Returns if a given action name corresponds to a hook, this is, one of:
@@ -33,5 +33,5 @@ const hookActionValues = new Set(Object.values(HookAction))
  * @returns true if it is a hook, false otherwise.
  */
 export function isHookAction(actionName: string): actionName is HookAction {
-  return hookActionValues.has(actionName as HookAction)
+  return hookActionValues.has(actionName)
 }
