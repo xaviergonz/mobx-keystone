@@ -1,5 +1,7 @@
 # Change Log
 
+- Fixed typing issue related to generics.
+
 ## 0.66.0
 
 - Restored compatibility with mobx 4/5 and added CI tests to ensure it never gets broken again.
