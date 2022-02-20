@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.66.1
+
 - Fixed typing issue related to generics.
 
 ## 0.66.0
