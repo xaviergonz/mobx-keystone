@@ -28,7 +28,7 @@ export enum BuiltInAction {
   ApplyMethodCall = "$$applyMethodCall",
 }
 
-const builtInActionValues = new Set(Object.values(BuiltInAction))
+const builtInActionValues: ReadonlySet<string> = new Set(Object.values(BuiltInAction))
 
 /**
  * Returns if a given action name is a built-in action, this is, one of:
@@ -40,5 +40,5 @@ const builtInActionValues = new Set(Object.values(BuiltInAction))
  * @returns true if it is a built-in action, false otherwise.
  */
 export function isBuiltInAction(actionName: string): actionName is BuiltInAction {
-  return builtInActionValues.has(actionName as BuiltInAction)
+  return builtInActionValues.has(actionName)
 }
