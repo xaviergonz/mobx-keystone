@@ -218,14 +218,15 @@ export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
 // we also don't use Flatten because if we do some generics won't work
+// we also don't use Omit because if we do some generics won't work
 export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
-} & Omit<
-  {
-    [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
-  },
-  OptionalModelProps<MP>
->
+} & {
+  [k in Exclude<
+    keyof MP,
+    OptionalModelProps<MP>
+  >]: MP[k]["_internal"]["$transformedCreationValueType"]
+}
 
 export type ModelPropsToSetter<MP extends ModelProps> = Flatten<{
   [k in keyof MP as MP[k]["_internal"]["$hasSetter"] & `set${Capitalize<k & string>}`]: (

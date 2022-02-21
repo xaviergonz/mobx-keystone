@@ -782,6 +782,7 @@ test("generic model instance factory", () => {
   @model("generic model instance factory/Parent")
   class Parent<T> extends Model(<T>() => ({
     a: prop<T>(),
+    x: prop<number | undefined>(),
   }))<T> {}
 
   @model("generic model instance factory/Child")
