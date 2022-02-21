@@ -7,7 +7,6 @@ import {
   Model,
   prop,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P")

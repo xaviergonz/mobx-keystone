@@ -8,7 +8,6 @@ import {
   types,
   TypeToData,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 test("without type", async () => {

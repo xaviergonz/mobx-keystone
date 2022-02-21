@@ -1,5 +1,4 @@
 import { clone, getRootPath, getSnapshot } from "../../src"
-import "../commonSetup"
 import { createP } from "../testbed"
 
 test("clone", () => {

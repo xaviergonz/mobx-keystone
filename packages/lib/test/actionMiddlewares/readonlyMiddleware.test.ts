@@ -10,7 +10,6 @@ import {
   _async,
   _await,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose, delay } from "../utils"
 
 @model("P2")

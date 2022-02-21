@@ -8,7 +8,6 @@ import {
   registerRootStore,
   runUnprotected,
 } from "../../src"
-import "../commonSetup"
 import { createP } from "../testbed"
 import { autoDispose } from "../utils"
 

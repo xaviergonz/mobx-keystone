@@ -18,7 +18,6 @@ import {
   Ref,
   runUnprotected,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 interface Country {

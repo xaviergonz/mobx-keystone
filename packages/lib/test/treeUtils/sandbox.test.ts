@@ -21,7 +21,6 @@ import {
   undoMiddleware,
   unregisterRootStore,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("A")
