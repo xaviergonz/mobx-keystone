@@ -10,7 +10,6 @@ import {
   prop,
   serializeActionCall,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P")

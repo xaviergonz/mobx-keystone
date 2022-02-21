@@ -23,7 +23,6 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
-import "../commonSetup"
 import { createP, P, P2 } from "../testbed"
 import { autoDispose } from "../utils"
 

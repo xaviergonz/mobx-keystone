@@ -1,6 +1,5 @@
 import { computed } from "mobx"
 import { addActionMiddleware, model, Model, prop, tProp } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P")
