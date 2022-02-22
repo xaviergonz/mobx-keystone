@@ -49,7 +49,7 @@ export function getSnapshot(arg1: any, arg2?: any): any {
 
   assertTweakedObject(nodeOrPrimitive, "nodeOrPrimitive")
 
-  const snapshot = getInternalSnapshot(nodeOrPrimitive as any)
+  const snapshot = getInternalSnapshot(nodeOrPrimitive)
   if (!snapshot) {
     throw failure("getSnapshot is not supported for this kind of object")
   }

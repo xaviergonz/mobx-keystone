@@ -22,7 +22,7 @@ const snapshots = new WeakMap<Object, SnapshotData>()
 export function getInternalSnapshot<T extends object>(
   value: T
 ): Readonly<SnapshotData> | undefined {
-  return snapshots.get(value) as any
+  return snapshots.get(value)
 }
 
 function getInternalSnapshotParent(

@@ -232,7 +232,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
     case "add":
       change.newValue = tweak(change.newValue, {
         parent: change.object,
-        path: "" + (change.name as any),
+        path: "" + change.name,
       })
       break
 
@@ -250,7 +250,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
 
       change.newValue = tweak(change.newValue, {
         parent: change.object,
-        path: "" + (change.name as any),
+        path: "" + change.name,
       })
       break
     }
