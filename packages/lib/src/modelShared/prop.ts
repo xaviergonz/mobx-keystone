@@ -183,12 +183,9 @@ export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
 // we also don't use Flatten because if we do some generics won't work
 export type ModelPropsToCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
-} & Omit<
-  {
-    [k in keyof MP]: MP[k]["_internal"]["$creationValueType"]
-  },
-  OptionalModelProps<MP>
->
+} & {
+  [k in Exclude<keyof MP, OptionalModelProps<MP>>]: MP[k]["_internal"]["$creationValueType"]
+}
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use pick over the optional props we will loose the ability
@@ -196,18 +193,18 @@ export type ModelPropsToCreationData<MP extends ModelProps> = {
 export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = Flatten<
   {
     [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
-  } & Omit<
-    {
-      [k in keyof MP]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
-    },
-    {
-      [K in keyof MP]: IsNeverType<
-        MP[K]["_internal"]["$fromSnapshotOverride"],
-        MP[K]["_internal"]["$isOptional"] & K,
-        IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
-      >
-    }[keyof MP]
-  >
+  } & {
+    [k in Exclude<
+      keyof MP,
+      {
+        [K in keyof MP]: IsNeverType<
+          MP[K]["_internal"]["$fromSnapshotOverride"],
+          MP[K]["_internal"]["$isOptional"] & K,
+          IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
+        >
+      }[keyof MP]
+    >]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
+  }
 >
 
 export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
@@ -218,14 +215,15 @@ export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
 // we also don't use Flatten because if we do some generics won't work
+// we also don't use Omit because if we do some generics won't work
 export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
-} & Omit<
-  {
-    [k in keyof MP]: MP[k]["_internal"]["$transformedCreationValueType"]
-  },
-  OptionalModelProps<MP>
->
+} & {
+  [k in Exclude<
+    keyof MP,
+    OptionalModelProps<MP>
+  >]: MP[k]["_internal"]["$transformedCreationValueType"]
+}
 
 export type ModelPropsToSetter<MP extends ModelProps> = Flatten<{
   [k in keyof MP as MP[k]["_internal"]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
