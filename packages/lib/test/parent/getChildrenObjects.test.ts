@@ -1,6 +1,5 @@
 import { computed, isObservableArray, reaction } from "mobx"
 import { getChildrenObjects, model, Model, prop, runUnprotected } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("C")

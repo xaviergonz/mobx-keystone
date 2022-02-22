@@ -19,7 +19,6 @@ import {
   _async,
   _await,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose, timeMock } from "../utils"
 
 let attachedState = "initial"

@@ -11,7 +11,6 @@ import {
   modelIdKey,
   prop,
 } from "../../src"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 @model("P2")

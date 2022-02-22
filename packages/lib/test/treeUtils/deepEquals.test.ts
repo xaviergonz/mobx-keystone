@@ -1,6 +1,5 @@
 import { action, observable } from "mobx"
 import { clone, deepEquals, runUnprotected } from "../../src"
-import "../commonSetup"
 import { createP } from "../testbed"
 
 test("plain values", () => {

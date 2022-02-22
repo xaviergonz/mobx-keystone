@@ -52,7 +52,6 @@ import {
   UncheckedTypeInfo,
 } from "../../src"
 import { resolveStandardType } from "../../src/types/resolveTypeChecker"
-import "../commonSetup"
 import { autoDispose } from "../utils"
 
 beforeEach(() => {

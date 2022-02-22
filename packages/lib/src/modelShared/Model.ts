@@ -48,7 +48,7 @@ function createModelPropDescriptor(
       // hack to only permit setting these values once fully constructed
       // this is to ignore abstract properties being set by babel
       // see https://github.com/xaviergonz/mobx-keystone/issues/18
-      if (!(this as any)[modelInitializedSymbol]) {
+      if (!(modelInitializedSymbol in this)) {
         return
       }
       setModelInstanceDataField(this, modelProp, modelPropName, v)

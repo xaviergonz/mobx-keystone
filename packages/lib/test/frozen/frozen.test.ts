@@ -12,7 +12,6 @@ import {
   types,
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
-import "../commonSetup"
 import { emulateProdMode } from "../utils"
 
 @model("P")

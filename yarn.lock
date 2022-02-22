@@ -214,9 +214,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.1.0, @babel/core@npm:^7.11.4, @babel/core@npm:^7.12.3, @babel/core@npm:^7.15.5, @babel/core@npm:^7.16.0, @babel/core@npm:^7.17.3, @babel/core@npm:^7.7.2, @babel/core@npm:^7.8.0":
-  version: 7.17.3
-  resolution: "@babel/core@npm:7.17.3"
+"@babel/core@npm:^7.1.0, @babel/core@npm:^7.11.4, @babel/core@npm:^7.12.3, @babel/core@npm:^7.15.5, @babel/core@npm:^7.16.0, @babel/core@npm:^7.17.5, @babel/core@npm:^7.7.2, @babel/core@npm:^7.8.0":
+  version: 7.17.5
+  resolution: "@babel/core@npm:7.17.5"
   dependencies:
     "@ampproject/remapping": ^2.1.0
     "@babel/code-frame": ^7.16.7
@@ -233,7 +233,7 @@ __metadata:
     gensync: ^1.0.0-beta.2
     json5: ^2.1.2
     semver: ^6.3.0
-  checksum: 5a5680888a30db2d5075eb376e25facdd3c2357fe882e6e8b2098a0bf09550bdd1895fa29064af1d4bdd8b6d0964c3bdc08f28c4e1429a5b3597e010a234d15e
+  checksum: c5e7dddb4feaacb91175d22a6edc8e93804242328a82b80732c6e84a0647bc0a9c9d5b05f3ce13138b8e59bf7aba4ff9f7b7446302f141f243ba51df02c318a5
   languageName: node
   linkType: hard
 
@@ -2753,9 +2753,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:^26.3.2":
-  version: 26.3.2
-  resolution: "@netlify/build@npm:26.3.2"
+"@netlify/build@npm:^26.3.3":
+  version: 26.3.3
+  resolution: "@netlify/build@npm:26.3.3"
   dependencies:
     "@bugsnag/js": ^7.0.0
     "@netlify/cache-utils": ^4.0.0
@@ -2763,9 +2763,9 @@ __metadata:
     "@netlify/functions-utils": ^4.0.0
     "@netlify/git-utils": ^4.0.0
     "@netlify/plugin-edge-handlers": ^3.0.6
-    "@netlify/plugins-list": ^6.10.2
+    "@netlify/plugins-list": ^6.11.0
     "@netlify/run-utils": ^4.0.0
-    "@netlify/zip-it-and-ship-it": 5.7.5
+    "@netlify/zip-it-and-ship-it": 5.8.0
     "@sindresorhus/slugify": ^2.0.0
     "@types/node": ^16.0.0
     ansi-escapes: ^5.0.0
@@ -2812,7 +2812,7 @@ __metadata:
     yargs: ^17.3.1
   bin:
     netlify-build: src/core/bin.js
-  checksum: cbb6541c43511315eb3e74130fd94cf5ecb28b2f70efaaa0c72edda6100d978ee840a2eb4c46a58eb520ca28f4381a61ccee84b4faf3a9ce38425bcaf9f14a8d
+  checksum: 1ad73e433a4f85fe5acf41a416bcbcc27eee2070a7cbc08e7b88d41d41cd761d004c24dc40001434cfc3309a2aa25d609c938d546ed81ad386902906617bc793
   languageName: node
   linkType: hard
 
@@ -3102,7 +3102,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/plugins-list@npm:^6.10.2, @netlify/plugins-list@npm:^6.11.0":
+"@netlify/plugins-list@npm:^6.11.0":
   version: 6.11.0
   resolution: "@netlify/plugins-list@npm:6.11.0"
   checksum: 3a8b21bc6f23f109a150fea8fd507333c82b6c2fd53535c55ab963860b88e48fb0f94fd34240881754fa59001524b635706f7f0401d85cc0b17ba07b35658900
@@ -3167,48 +3167,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/zip-it-and-ship-it@npm:5.7.5":
-  version: 5.7.5
-  resolution: "@netlify/zip-it-and-ship-it@npm:5.7.5"
-  dependencies:
-    "@babel/parser": 7.16.8
-    "@netlify/esbuild": ^0.13.6
-    "@vercel/nft": ^0.17.0
-    archiver: ^5.3.0
-    common-path-prefix: ^3.0.0
-    cp-file: ^9.0.0
-    del: ^6.0.0
-    elf-cam: ^0.1.1
-    end-of-stream: ^1.4.4
-    es-module-lexer: ^0.9.0
-    execa: ^5.0.0
-    filter-obj: ^2.0.1
-    find-up: ^5.0.0
-    glob: ^7.1.6
-    is-builtin-module: ^3.1.0
-    junk: ^3.1.0
-    locate-path: ^6.0.0
-    merge-options: ^3.0.4
-    minimatch: ^4.0.0
-    p-map: ^4.0.0
-    path-exists: ^4.0.0
-    pkg-dir: ^5.0.0
-    precinct: ^8.2.0
-    read-package-json-fast: ^2.0.2
-    require-package-name: ^2.0.1
-    resolve: ^2.0.0-next.1
-    semver: ^7.0.0
-    tmp-promise: ^3.0.2
-    toml: ^3.0.0
-    unixify: ^1.0.0
-    yargs: ^16.0.0
-  bin:
-    zip-it-and-ship-it: dist/bin.js
-  checksum: 7a8609297a79c5b8691fcf138a30c3ab83c7dc6ec3a1c1e763905c23ea1741a8e041002adaea56853e08352491cf31b82f6937ee0ea873126c6522d35fdcb008
-  languageName: node
-  linkType: hard
-
-"@netlify/zip-it-and-ship-it@npm:^5.4.0, @netlify/zip-it-and-ship-it@npm:^5.7.5":
+"@netlify/zip-it-and-ship-it@npm:5.8.0, @netlify/zip-it-and-ship-it@npm:^5.4.0, @netlify/zip-it-and-ship-it@npm:^5.8.0":
   version: 5.8.0
   resolution: "@netlify/zip-it-and-ship-it@npm:5.8.0"
   dependencies:
@@ -5989,7 +5948,7 @@ __metadata:
     benchmark: ^2.1.4
     chalk: ^5.0.0
     cross-env: ^7.0.3
-    mobx: ^6.3.13
+    mobx: ^6.4.1
     mobx-keystone: "workspace:packages/lib"
     mobx-state-tree: ^5.1.3
     shx: ^0.3.4
@@ -9069,14 +9028,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^8.3.0":
-  version: 8.3.0
-  resolution: "eslint-config-prettier@npm:8.3.0"
+"eslint-config-prettier@npm:^8.4.0":
+  version: 8.4.0
+  resolution: "eslint-config-prettier@npm:8.4.0"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: bin/cli.js
-  checksum: df4cea3032671995bb5ab07e016169072f7fa59f44a53251664d9ca60951b66cdc872683b5c6a3729c91497c11490ca44a79654b395dd6756beb0c3903a37196
+  checksum: ee8dc343f1fed15dc0658e190a966cc23644477f2331a7f56ae2bb79dd74892e3cde8ea5c142e7a3329a8291a1de041e13ca96e54d0c85ff4a2aba13390c5f10
   languageName: node
   linkType: hard
 
@@ -14527,7 +14486,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "mobx-keystone@workspace:packages/lib"
   dependencies:
-    "@babel/core": ^7.17.3
+    "@babel/core": ^7.17.5
     "@babel/plugin-proposal-class-properties": ^7.16.7
     "@babel/plugin-proposal-decorators": ^7.17.2
     "@babel/preset-env": ^7.16.11
@@ -14537,10 +14496,10 @@ __metadata:
     babel-jest: ^27.5.1
     fast-deep-equal: ^3.1.3
     jest: ^27.5.1
-    mobx: ^6.3.13
+    mobx: ^6.4.1
     mobx-v4: "npm:mobx@^4.15.7"
     mobx-v5: "npm:mobx@^5.15.7"
-    nanoid: ^3.3.0
+    nanoid: ^3.3.1
     rollup-plugin-typescript2: ^0.31.2
     shx: ^0.3.4
     spec.ts: ^1.1.3
@@ -14548,17 +14507,17 @@ __metadata:
     ts-node: ^10.5.0
     ts-toolbelt: ^9.6.0
     tslib: ^2.3.1
-    typedoc: ^0.22.11
+    typedoc: ^0.22.12
     typescript: ^4.5.5
-    vite: ^2.8.3
+    vite: ^2.8.4
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
   linkType: soft
 
-"mobx-react-lite@npm:^3.2.0":
-  version: 3.2.2
-  resolution: "mobx-react-lite@npm:3.2.2"
+"mobx-react-lite@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "mobx-react-lite@npm:3.3.0"
   peerDependencies:
     mobx: ^6.1.0
     react: ^16.8.0 || ^17
@@ -14567,15 +14526,15 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: f64957cb71e45f8bbce0429b90f15fef6e0ad06a38e1522cf887900a2869e157beb3438bf6c2621cfc6907ad891428726686d7b544988995745e9a9c8255ff95
+  checksum: 0f55bd2009a9cedc6b81d70b88b57dc4161362a16ba6ae0af341e673ca1c627bc3c4088c0cb13133e57e6fa6748b09b4c26aff7fab26c60ed95d27e939846fa3
   languageName: node
   linkType: hard
 
-"mobx-react@npm:^7.2.1":
-  version: 7.2.1
-  resolution: "mobx-react@npm:7.2.1"
+"mobx-react@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "mobx-react@npm:7.3.0"
   dependencies:
-    mobx-react-lite: ^3.2.0
+    mobx-react-lite: ^3.3.0
   peerDependencies:
     mobx: ^6.1.0
     react: ^16.8.0 || ^17
@@ -14584,7 +14543,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: ddcdab16ce0977dd8e0b9d324f43c0ef5d9de491b4ad881eaf18f127a967e88d916fd580597decc2eac6617f30f444bdf620be540e487194e3391738b2c3b7b2
+  checksum: 4a53fd45994bfc6d6bcf24072a651f09c15b7afa0f1d0040b92058e6aa55ef0c3a5176986e616a7e791ea0c24561f8c75a964cb08cfe3a1025c550b8a890799a
   languageName: node
   linkType: hard
 
@@ -14611,10 +14570,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx@npm:^6.3.13":
-  version: 6.3.13
-  resolution: "mobx@npm:6.3.13"
-  checksum: 2ab413a323d127081cfc749771aea5f6f6fc3c0f573dc147144356694c2f804df1a0b19cc0cac0e37d236d47d0c767571fa7a6b448dd1f9cb7e05dcad90506bc
+"mobx@npm:^6.4.1":
+  version: 6.4.1
+  resolution: "mobx@npm:6.4.1"
+  checksum: 97412485e716dd286fe41645c26d99b09d403b60fdade5757d26e18c2e1a723da2afc9b7d0f7161457be812075a90839d998c9bf6af88f01cd92dbab16a484c3
   languageName: node
   linkType: hard
 
@@ -14714,12 +14673,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.2.0, nanoid@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "nanoid@npm:3.3.0"
+"nanoid@npm:^3.2.0, nanoid@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "nanoid@npm:3.3.1"
   bin:
     nanoid: bin/nanoid.cjs
-  checksum: 183d7da5c910a717a6058c7d4485d69de6f50fe3eb903830fa965430c7bbd516d70b9eb523a25cf32550bebe835a7adf080b6059808d50c9a8895fa9204e7499
+  checksum: 4ef0969e1bbe866fc223eb32276cbccb0961900bfe79104fa5abe34361979dead8d0e061410a5c03bc3d47455685adf32c09d6f27790f4a6898fb51f7df7ec86
   languageName: node
   linkType: hard
 
@@ -14783,18 +14742,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^9.6.2":
-  version: 9.6.2
-  resolution: "netlify-cli@npm:9.6.2"
+"netlify-cli@npm:^9.6.5":
+  version: 9.6.5
+  resolution: "netlify-cli@npm:9.6.5"
   dependencies:
-    "@netlify/build": ^26.3.2
+    "@netlify/build": ^26.3.3
     "@netlify/config": ^17.0.9
     "@netlify/framework-info": ^9.0.0
     "@netlify/local-functions-proxy": ^1.1.1
     "@netlify/plugin-edge-handlers": ^3.0.6
     "@netlify/plugins-list": ^6.11.0
     "@netlify/routing-local-proxy": ^0.34.1
-    "@netlify/zip-it-and-ship-it": ^5.7.5
+    "@netlify/zip-it-and-ship-it": ^5.8.0
     "@octokit/rest": ^18.0.0
     "@sindresorhus/slugify": ^1.1.0
     ansi-escapes: ^5.0.0
@@ -14898,7 +14857,7 @@ __metadata:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: f41b3d28d2df62f8d72fb1f24d9218e0635a1f22933a23ab8f93ba1289b68e25a5b03eab31d533d4c5402d0d9f4962a2faea4ec059f9c2eba3c12bfb00ff88c2
+  checksum: a0e0592f7bd5dd5399c2e269f59dcc185c9f8718c64845cd16ad4e6ebe43e23c98430596a80a60ed695a04f8736261528a74dc5ca6284f300b14b0dc48cb0f52
   languageName: node
   linkType: hard
 
@@ -18207,9 +18166,9 @@ __metadata:
     bufferutil: ^4.0.6
     codecov: ^3.8.3
     eslint: ^8.9.0
-    eslint-config-prettier: ^8.3.0
+    eslint-config-prettier: ^8.4.0
     eslint-config-react-app: ^7.0.0
-    netlify-cli: ^9.6.2
+    netlify-cli: ^9.6.5
     prettier: ^2.5.1
     prettier-plugin-organize-imports: ^2.3.4
     typescript: ^4.5.5
@@ -18752,9 +18711,9 @@ __metadata:
     "@types/react-dom": ^17.0.11
     "@types/uuid": ^8.3.4
     bootstrap-icons: ^1.8.1
-    mobx: ^6.3.13
+    mobx: ^6.4.1
     mobx-keystone: "workspace:packages/lib"
-    mobx-react: ^7.2.1
+    mobx-react: ^7.3.0
     prism-react-renderer: ^1.3.1
     raw-loader: ^4.0.2
     react: ^17.0.2
@@ -20381,9 +20340,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:^0.22.11":
-  version: 0.22.11
-  resolution: "typedoc@npm:0.22.11"
+"typedoc@npm:^0.22.12":
+  version: 0.22.12
+  resolution: "typedoc@npm:0.22.12"
   dependencies:
     glob: ^7.2.0
     lunr: ^2.3.9
@@ -20394,7 +20353,7 @@ __metadata:
     typescript: 4.0.x || 4.1.x || 4.2.x || 4.3.x || 4.4.x || 4.5.x
   bin:
     typedoc: bin/typedoc
-  checksum: 7d29f4b771d3eadc612d0b35509ee88c153d7310b7adb57faf0740132765613d6ceceb94877148d674cfc8242ca3c2e22e3ae2060768b2d96842bf14659d1b1c
+  checksum: 8e04851fed6ba125dad226df121386b66a4b79035ea2650cc1f311cc8b903d89bc2e82e5641327e647b68af4fb12e06305287f5e8abe25d3790e9ad8753ab5ed
   languageName: node
   linkType: hard
 
@@ -21028,9 +20987,9 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "vite@npm:2.8.3"
+"vite@npm:^2.8.4":
+  version: 2.8.4
+  resolution: "vite@npm:2.8.4"
   dependencies:
     esbuild: ^0.14.14
     fsevents: ~2.3.2
@@ -21053,7 +21012,7 @@ typescript@^3.9.7:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: f18f62037741ae8ac8b377da9ba4ed9556bebe9857531bbf33b2691cba15c5720264410385cd628bbccee5bfe105d3d0ead6286e3fbe0211de94ea061e2e876c
+  checksum: 0531ea17d354c35026c87e732d28c777492cc5165c4abdaa507c4894535ecbbfcf447fa3f270bbb160cd7cba8ad319cc86a221be18b2ccd40d8be139f9d7381d
   languageName: node
   linkType: hard
 

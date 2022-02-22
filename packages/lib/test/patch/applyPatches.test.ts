@@ -1,6 +1,5 @@
 import { toJS } from "mobx"
 import { applyPatches, getSnapshot, runUnprotected } from "../../src"
-import "../commonSetup"
 import { createP } from "../testbed"
 
 let p = createP(true)

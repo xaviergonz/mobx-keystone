@@ -10,6 +10,7 @@ import {
   tProp,
   types,
 } from "../../src"
+import { Flatten } from "../../src/utils/types"
 
 @model("M")
 class M extends Model({
@@ -36,7 +37,7 @@ class M extends Model({
 
 test("default props", () => {
   assert(
-    _ as ModelCreationData<M>,
+    _ as Flatten<ModelCreationData<M>>,
     _ as {
       [modelIdKey]?: string
 

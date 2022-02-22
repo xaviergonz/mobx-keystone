@@ -1,6 +1,11 @@
 # Change Log
 
 - Added runtime type-checker for BigInt.
+- Fixed typing issue related to generics with optional props.
+
+## 0.66.1
+
+- Fixed typing issue related to generics.
 
 ## 0.66.0
 
