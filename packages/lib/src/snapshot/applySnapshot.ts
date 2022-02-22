@@ -75,7 +75,7 @@ export function internalApplySnapshot<T extends object>(
   // adapt snapshot to target model if possible
   if (isPlainObject(sn) && !(modelTypeKey in sn) && isModel(obj)) {
     const modelInfo = modelInfoByClass.get((obj as any).constructor)!
-    sn = { ...(sn as any), [modelTypeKey]: modelInfo.name }
+    sn = { ...sn, [modelTypeKey]: modelInfo.name }
   }
 
   if (isModelSnapshot(sn)) {

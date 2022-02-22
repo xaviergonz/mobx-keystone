@@ -782,6 +782,7 @@ test("generic model instance factory", () => {
   @model("generic model instance factory/Parent")
   class Parent<T> extends Model(<T>() => ({
     a: prop<T>(),
+    x: prop<number | undefined>(),
   }))<T> {}
 
   @model("generic model instance factory/Child")
@@ -794,12 +795,12 @@ test("generic model instance factory", () => {
 
   function createParent<T>(a: T) {
     const parent = new Parent({ a })
-    assert(_ as typeof parent, _ as Parent<T>) // ERROR
+    assert(_ as typeof parent, _ as Parent<T>)
   }
 
   function createChild<T>(a: T, b: T) {
     const child = new Child({ a, b })
-    assert(_ as typeof child, _ as Child<T>) // ERROR
+    assert(_ as typeof child, _ as Child<T>)
   }
 
   createParent(10)

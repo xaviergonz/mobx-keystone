@@ -1,5 +1,7 @@
 # Change Log
 
+- Fixed typing issue related to generics with optional props.
+
 ## 0.66.1
 
 - Fixed typing issue related to generics.

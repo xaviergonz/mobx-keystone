@@ -84,7 +84,7 @@ export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
         const iterator: Iterator<PartialActionMiddleware> = {
           next() {
             if (!iter) {
-              return { value: undefined, done: true } as any
+              return { value: undefined, done: true }
             }
 
             let result = iter.next()
