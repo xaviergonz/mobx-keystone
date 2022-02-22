@@ -87,7 +87,7 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
   }
 
   // already tweaked
-  if (isTweakedObject(value as any, true)) {
+  if (isTweakedObject(value, true)) {
     value = setParent({
       value,
       parentPath,

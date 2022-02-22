@@ -33,12 +33,12 @@ export function deepEquals(a: any, b: any): boolean {
   // since snapshots use structural sharing it is more likely
   // to speed up comparisons
   if (isTreeNode(a)) {
-    a = getSnapshot(a) as any
+    a = getSnapshot(a)
   } else if (isObservable(a)) {
     a = toJS(a, toJSOptions)
   }
   if (isTreeNode(b)) {
-    b = getSnapshot(b) as any
+    b = getSnapshot(b)
   } else if (isObservable(b)) {
     b = toJS(b, toJSOptions)
   }

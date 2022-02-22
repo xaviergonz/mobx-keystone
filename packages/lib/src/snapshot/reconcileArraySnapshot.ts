@@ -34,7 +34,7 @@ function reconcileArraySnapshot(
 
       detachIfNeeded(newValue, oldValue, modelPool)
 
-      set(value, i as any, newValue)
+      set(value, i, newValue)
     }
 
     // add excess items

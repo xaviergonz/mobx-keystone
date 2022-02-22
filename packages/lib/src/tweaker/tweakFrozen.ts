@@ -26,12 +26,12 @@ export function tweakFrozen<T extends Frozen<any>>(
   // we DON'T want data proxified, but the snapshot is the data itself
   setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined)
 
-  return frozenObj as any
+  return frozenObj
 }
 
 registerTweaker(TweakerPriority.Frozen, (value, parentPath) => {
-  if ((value as any) instanceof Frozen) {
-    return tweakFrozen(value as Frozen<any>, parentPath)
+  if (value instanceof Frozen) {
+    return tweakFrozen(value, parentPath)
   }
   return undefined
 })
