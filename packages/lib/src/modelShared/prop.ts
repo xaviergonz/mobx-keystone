@@ -16,7 +16,7 @@ export interface ModelProp<
   TPropCreationValue,
   TTransformedValue,
   TTransformedCreationValue,
-  TIsOptional,
+  TIsRequired,
   TIsId extends boolean = false,
   THasSetter = never,
   TFromSnapshotOverride = never,
@@ -27,7 +27,7 @@ export interface ModelProp<
     $creationValueType: TPropCreationValue
     $transformedValueType: TTransformedValue
     $transformedCreationValueType: TTransformedCreationValue
-    $isOptional: TIsOptional
+    $isRequired: TIsRequired
     $isId: TIsId
     $hasSetter: THasSetter
     $fromSnapshotOverride: TFromSnapshotOverride
@@ -58,7 +58,7 @@ export interface ModelProp<
     TPropCreationValue,
     TTransformedValue,
     TTransformedCreationValue,
-    TIsOptional,
+    TIsRequired,
     TIsId,
     string,
     TFromSnapshotOverride,
@@ -74,7 +74,7 @@ export interface ModelProp<
     TPropCreationValue,
     TTransformedValue,
     TTransformedCreationValue,
-    TIsOptional,
+    TIsRequired,
     TIsId,
     string,
     TFromSnapshotOverride,
@@ -95,7 +95,7 @@ export interface ModelProp<
     TPropCreationValue,
     TTV | Extract<TPropValue, null | undefined>,
     TTV | Extract<TPropCreationValue, null | undefined>,
-    TIsOptional,
+    TIsRequired,
     TIsId,
     THasSetter,
     TFromSnapshotOverride,
@@ -114,7 +114,7 @@ export interface ModelProp<
     TPropCreationValue,
     TTransformedValue,
     TTransformedCreationValue,
-    TIsOptional,
+    TIsRequired,
     TIsId,
     THasSetter,
     FS,
@@ -165,8 +165,8 @@ export interface ModelProps {
   [k: string]: AnyModelProp
 }
 
-export type OptionalModelProps<MP extends ModelProps> = {
-  [K in keyof MP]: MP[K]["_internal"]["$isOptional"] & K
+export type RequiredModelProps<MP extends ModelProps> = {
+  [K in keyof MP]: MP[K]["_internal"]["$isRequired"] & K
 }[keyof MP]
 
 export type ModelPropsToData<MP extends ModelProps> = Flatten<{
@@ -184,7 +184,7 @@ export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
 export type ModelPropsToCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
 } & {
-  [k in Exclude<keyof MP, OptionalModelProps<MP>>]: MP[k]["_internal"]["$creationValueType"]
+  [k in RequiredModelProps<MP>]: MP[k]["_internal"]["$creationValueType"]
 }
 
 // we don't use O.Optional anymore since it generates unions too heavy
@@ -194,16 +194,13 @@ export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = Flatten<
   {
     [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
   } & {
-    [k in Exclude<
-      keyof MP,
-      {
-        [K in keyof MP]: IsNeverType<
-          MP[K]["_internal"]["$fromSnapshotOverride"],
-          MP[K]["_internal"]["$isOptional"] & K,
-          IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], K, never>
-        >
-      }[keyof MP]
-    >]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
+    [k in {
+      [K in keyof MP]: IsNeverType<
+        MP[K]["_internal"]["$fromSnapshotOverride"],
+        MP[K]["_internal"]["$isRequired"] & K, // no override
+        IsOptionalValue<MP[K]["_internal"]["$fromSnapshotOverride"], never, K> // with override
+      >
+    }[keyof MP]]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
   }
 >
 
@@ -219,10 +216,7 @@ export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
 export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["_internal"]["$transformedCreationValueType"]
 } & {
-  [k in Exclude<
-    keyof MP,
-    OptionalModelProps<MP>
-  >]: MP[k]["_internal"]["$transformedCreationValueType"]
+  [k in RequiredModelProps<MP>]: MP[k]["_internal"]["$transformedCreationValueType"]
 }
 
 export type ModelPropsToSetter<MP extends ModelProps> = Flatten<{
@@ -236,7 +230,7 @@ export type ModelIdProp = ModelProp<
   string | undefined,
   string,
   string | undefined,
-  string,
+  never, // not required
   true
 >
 
@@ -268,7 +262,7 @@ export type MaybeOptionalModelProp<TPropValue> = ModelProp<
   TPropValue,
   TPropValue,
   TPropValue,
-  IsOptionalValue<TPropValue, string, never>
+  IsOptionalValue<TPropValue, never, string> // calculate if required
 >
 
 /**
@@ -279,7 +273,7 @@ export type OptionalModelProp<TPropValue> = ModelProp<
   TPropValue | null | undefined,
   TPropValue,
   TPropValue | null | undefined,
-  string
+  never // not required
 >
 
 /**
@@ -346,7 +340,7 @@ export function prop(def?: any): AnyModelProp {
       $creationValueType: null as any,
       $transformedValueType: null as any,
       $transformedCreationValueType: null as any,
-      $isOptional: null as any,
+      $isRequired: null as never,
       $isId: null as never,
       $hasSetter: null as never,
       $fromSnapshotOverride: null as never,
