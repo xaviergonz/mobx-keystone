@@ -10,5 +10,5 @@ export const modelActionSymbol = Symbol("modelAction")
  * @returns
  */
 export function isModelAction(fn: (...args: any[]) => any): boolean {
-  return typeof fn === "function" && !!(fn as any)[modelActionSymbol]
+  return typeof fn === "function" && modelActionSymbol in fn
 }

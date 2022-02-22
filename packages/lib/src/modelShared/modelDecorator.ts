@@ -54,7 +54,7 @@ const internalModel =
       }
     }
 
-    if ((clazz as any)[modelUnwrappedClassSymbol]) {
+    if (modelUnwrappedClassSymbol in clazz) {
       throw failure("a class already decorated with `@model` cannot be re-decorated")
     }
 
