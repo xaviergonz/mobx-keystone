@@ -41,7 +41,7 @@ switch (compiler) {
   case "swc":
     Object.assign(config, {
       transform: {
-        "^.+\\.(t|j)s$": ["@swc/jest", require("./swc.config.js")],
+        "^.+\\.ts$": ["@swc/jest", require("./swc.config.js")],
       },
     })
     break
