@@ -19,7 +19,8 @@ function enumValues(e: EnumLike): (string | number)[] {
     // we have to do this since TS does something weird
     // to number values
     // Hi = 0 -> { Hi: 0, 0: "Hi" }
-    if (typeof v !== "string" || e[v] !== +k) {
+    // and SWC does something weird, too
+    if (!vals.includes(v) && ((typeof v !== "string" && v !== +k) || e[v] !== +k)) {
       vals.push(v)
     }
   }

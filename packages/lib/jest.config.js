@@ -38,8 +38,16 @@ switch (compiler) {
   case "babel":
     break
 
+  case "swc":
+    Object.assign(config, {
+      transform: {
+        "^.+\\.(t|j)s$": ["@swc/jest", require("./swc.config.js")],
+      },
+    })
+    break
+
   default:
-    throw new Error("$COMPILER must be one of {tsc,babel}")
+    throw new Error("$COMPILER must be one of {tsc,babel,swc}")
 }
 
 module.exports = config
