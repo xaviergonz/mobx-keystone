@@ -22,7 +22,8 @@ export function enumValues(e: EnumLike): (string | number)[] {
     // we have to do this since TS does something weird
     // to number values
     // Hi = 0 -> { Hi: 0, 0: "Hi" }
-    // and SWC does something weird, too
+    // and SWC currently generates enum code inconsistent with TS/Babel
+    // https://github.com/swc-project/swc/issues/3711
     if (!vals.includes(v) && ((typeof v !== "string" && v !== +k) || e[v] !== +k)) {
       vals.push(v)
     }
