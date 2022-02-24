@@ -12,7 +12,10 @@ export interface EnumLike {
   [v: number]: string
 }
 
-function enumValues(e: EnumLike): (string | number)[] {
+/**
+ * @internal
+ */
+export function enumValues(e: EnumLike): (string | number)[] {
   const vals: (string | number)[] = []
   for (const k of Object.keys(e)) {
     const v = e[k]

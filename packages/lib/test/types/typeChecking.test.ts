@@ -50,6 +50,7 @@ import {
   TypeToData,
   UncheckedTypeInfo,
 } from "../../src"
+import { enumValues } from "../../src/types/primitiveBased/enum"
 import { resolveStandardType } from "../../src/types/resolveTypeChecker"
 import { autoDispose } from "../utils"
 
@@ -922,6 +923,15 @@ test("frozen - complex type", () => {
   expect(typeInfo.dataTypeInfo).toBe(getTypeInfo(dataType))
 })
 
+test("enumValues (string)", () => {
+  enum A {
+    X1 = "x1",
+    X2 = "x2",
+  }
+
+  expect(enumValues(A)).toEqual(["x1", "x2"])
+})
+
 test("enum (string)", () => {
   enum A {
     X1 = "x1",
@@ -945,6 +955,15 @@ test("enum (string)", () => {
   expect(orB.literal).toBe(A.X2)
 })
 
+test("enumValues (number)", () => {
+  enum A {
+    X1,
+    X2,
+  }
+
+  expect(enumValues(A)).toEqual([0, 1])
+})
+
 test("enum (number)", () => {
   enum A {
     X1,
@@ -966,6 +985,16 @@ test("enum (number)", () => {
   const orB = typeInfo.orTypeInfos[1] as LiteralTypeInfo
   expect(orB).toBeInstanceOf(LiteralTypeInfo)
   expect(orB.literal).toBe(A.X2)
+})
+
+test("enumValues (mixed)", () => {
+  enum A {
+    X1,
+    X15 = "x15",
+    X2 = 6,
+  }
+
+  expect(enumValues(A)).toEqual([0, "x15", 6])
 })
 
 test("enum (mixed)", () => {
