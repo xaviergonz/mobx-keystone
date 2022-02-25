@@ -45,6 +45,7 @@ jobs:
         compiler:
           - tsc
           - babel
+          - swc
         mobx-version:
           - 6
           - 5
