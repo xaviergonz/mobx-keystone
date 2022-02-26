@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "benchmark": "^2.1.4",
-    "chalk": "^5.0.0",
+    "chalk": "^4.1.2",
     "mobx": "^6.4.1",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-state-tree": "^5.1.3",
