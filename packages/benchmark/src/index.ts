@@ -6,6 +6,7 @@ import {
 } from "mobx-keystone"
 import { getSnapshot as mstGetSnapshot } from "mobx-state-tree"
 import { bench } from "./bench"
+import { ESBigModel } from "./models/es6"
 import { BigModel } from "./models/ks-nonTypeChecked"
 import { TcBigModel } from "./models/ks-typeChecked"
 import { mstBigModel } from "./models/mst"
@@ -52,6 +53,9 @@ tcModes.forEach((tcMode) => {
     },
     () => {
       mstBigModel.create({})
+    },
+    () => {
+      new ESBigModel({})
     }
   )
 
@@ -80,12 +84,18 @@ tcModes.forEach((tcMode) => {
     () => {
       const x = mstBigModel.create({})
       accessVars(x)
+    },
+    () => {
+      const x = new ESBigModel({})
+      accessVars(x)
     }
   )
 
   {
     const bm1 = new bigModel({})
     const bm2 = mstBigModel.create({})
+    const bm3 = new ESBigModel({})
+
     bench(
       `already created, access all simple props (${name})`,
       () => {
@@ -93,6 +103,9 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         accessVars(bm2)
+      },
+      () => {
+        accessVars(bm3)
       }
     )
   }
@@ -141,6 +154,9 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         mstBigModel.create(bigModelSnapshot)
+      },
+      () => {
+        ESBigModel.fromSnapshot(bigModelSnapshot)
       }
     )
   }
@@ -148,6 +164,8 @@ tcModes.forEach((tcMode) => {
   {
     const bm1 = new bigModel({})
     const bm2 = mstBigModel.create({})
+    const bm3 = new ESBigModel({})
+
     bench(
       `already created, access all simple props (${name})`,
       () => {
@@ -155,6 +173,9 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         accessVars(bm2)
+      },
+      () => {
+        accessVars(bm3)
       }
     )
   }
@@ -174,6 +195,8 @@ tcModes.forEach((tcMode) => {
   {
     const bm1 = new bigModel({})
     const bm2 = mstBigModel.create({})
+    const bm3 = mstBigModel.create({})
+
     bench(
       `already created, change all simple props (${name})`,
       () => {
@@ -181,6 +204,9 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         setVars(bm2)
+      },
+      () => {
+        setVars(bm3)
       }
     )
   }
