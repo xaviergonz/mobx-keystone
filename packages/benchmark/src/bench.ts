@@ -5,7 +5,8 @@ export function bench(
   name: string,
   mobxKeyStoneImpl: Function,
   mstImpl: Function,
-  es6Impl?: Function
+  es6Impl?: Function,
+  mobxImpl?: Function
 ) {
   let suite = new Benchmark.Suite(name)
 
@@ -13,12 +14,16 @@ export function bench(
 
   const keystone = chalk.green("mobx-keystone")
   const mst = chalk.red("mobx-state-tree")
-  const es6 = chalk.blue("raw es6")
+  const es6 = chalk.magenta("raw es6")
+  const mobx = chalk.blue("raw mobx")
 
   suite = suite.add(keystone, mobxKeyStoneImpl).add(mst, mstImpl)
 
   if (es6Impl) {
     suite = suite.add(es6, es6Impl)
+  }
+  if (mobxImpl) {
+    suite = suite.add(mobx, mobxImpl)
   }
 
   // add listeners
@@ -39,6 +44,11 @@ export function bench(
       const ratio = Math.max(keystoneSpeed, mstSpeed) / Math.min(keystoneSpeed, mstSpeed)
 
       console.log(`Fastest is ${fastest} by ${ratio.toFixed(2)}x`)
+
+      if (mobxImpl) {
+        const mobxRatio = results[mobx].hz! / results[fastest].hz!
+        console.log(`${mobx} is faster by ${mobxRatio.toFixed(2)}x`)
+      }
 
       if (es6Impl) {
         const es6Ratio = results[es6].hz! / results[fastest].hz!
