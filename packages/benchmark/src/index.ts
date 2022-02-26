@@ -1,4 +1,9 @@
-import { getSnapshot, ModelAutoTypeCheckingMode, setGlobalConfig } from "mobx-keystone"
+import {
+  fromSnapshot,
+  getSnapshot,
+  ModelAutoTypeCheckingMode,
+  setGlobalConfig,
+} from "mobx-keystone"
 import { getSnapshot as mstGetSnapshot } from "mobx-state-tree"
 import { bench } from "./bench"
 import { BigModel } from "./models/ks-nonTypeChecked"
@@ -77,6 +82,68 @@ tcModes.forEach((tcMode) => {
       accessVars(x)
     }
   )
+
+  {
+    const bm1 = new bigModel({})
+    const bm2 = mstBigModel.create({})
+    bench(
+      `already created, access all simple props (${name})`,
+      () => {
+        accessVars(bm1)
+      },
+      () => {
+        accessVars(bm2)
+      }
+    )
+  }
+
+  {
+    const bigModelSnapshot = {
+      $modelType: "TcBigModel",
+      a: "a value",
+      b: "b value",
+      c: "c value",
+      d: "d value",
+      aa: {
+        $modelType: "TcSmallModel",
+        a: "aa a value",
+        b: "aa b value",
+        c: "aa c value",
+        d: "aa d value",
+      },
+      bb: {
+        $modelType: "TcSmallModel",
+        a: "bb a value",
+        b: "bb b value",
+        c: "bb c value",
+        d: "bb d value",
+      },
+      cc: {
+        $modelType: "TcSmallModel",
+        a: "cc a value",
+        b: "cc b value",
+        c: "cc c value",
+        d: "cc d value",
+      },
+      dd: {
+        $modelType: "TcSmallModel",
+        a: "dd a value",
+        b: "dd b value",
+        c: "dd c value",
+        d: "dd d value",
+      },
+    }
+
+    bench(
+      `snapshot creation (${name})`,
+      () => {
+        fromSnapshot(bigModel, bigModelSnapshot)
+      },
+      () => {
+        mstBigModel.create(bigModelSnapshot)
+      }
+    )
+  }
 
   {
     const bm1 = new bigModel({})
