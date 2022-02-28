@@ -1,4 +1,4 @@
-import { action, createAtom, IAtom, untracked } from "mobx"
+import { action, createAtom, IAtom } from "mobx"
 import { fastGetParentPath, ParentPath } from "../parent/path"
 import { debugFreeze, failure, inDevMode } from "../utils"
 
@@ -29,23 +29,19 @@ function getInternalSnapshotParent(
   sn: Readonly<SnapshotData> | undefined,
   parentPath: ParentPath<any> | undefined
 ): { parentSnapshot: SnapshotData; parentPath: ParentPath<any> } | undefined {
-  return untracked(() => {
-    if (!parentPath) {
-      return undefined
-    }
+  if (!parentPath || !sn) {
+    return undefined
+  }
 
-    const parentSn = getInternalSnapshot(parentPath.parent)
-    if (!parentSn) {
-      return undefined
-    }
+  const parentSn = getInternalSnapshot(parentPath.parent)
+  if (!parentSn) {
+    return undefined
+  }
 
-    return sn
-      ? {
-          parentSnapshot: parentSn,
-          parentPath: parentPath,
-        }
-      : undefined
-  })
+  return {
+    parentSnapshot: parentSn,
+    parentPath: parentPath,
+  }
 }
 
 /**
