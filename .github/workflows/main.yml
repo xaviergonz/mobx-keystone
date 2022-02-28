@@ -91,6 +91,7 @@ jobs:
             v3-${{ runner.os }}-
 
       - run: yarn install --immutable
+      - run: yarn lib:build
       - run: yarn build
         working-directory: ./packages/benchmark
 
