@@ -6327,7 +6327,7 @@ __metadata:
   dependencies:
     "@types/benchmark": ^2.1.1
     benchmark: ^2.1.4
-    chalk: ^5.0.0
+    chalk: ^4.1.2
     cross-env: ^7.0.3
     mobx: ^6.4.1
     mobx-keystone: "workspace:packages/lib"
