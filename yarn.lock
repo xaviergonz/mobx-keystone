@@ -2313,9 +2313,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@eslint/eslintrc@npm:1.1.0"
+"@eslint/eslintrc@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@eslint/eslintrc@npm:1.2.0"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.3.2
@@ -2326,7 +2326,7 @@ __metadata:
     js-yaml: ^4.1.0
     minimatch: ^3.0.4
     strip-json-comments: ^3.1.1
-  checksum: 784aa2157e2808b52bbbaf1d1cfca9a6ba0b2faaa3696eb7a1229d4b357400fbd8a6aa09a16e7ae0868ea075d3a8f365cf5928b6d05a1df47f40a1167423a4fa
+  checksum: a5e51dcf02627363567094456d7880b46b6a14a285d7a057f083ca903bdd862483bb6314cbc9fb6fa2d2c4537d50e0d28bd5e39650840241ae4796faaec65d2e
   languageName: node
   linkType: hard
 
@@ -2709,17 +2709,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:^26.3.8":
-  version: 26.3.8
-  resolution: "@netlify/build@npm:26.3.8"
+"@netlify/build@npm:^26.3.12":
+  version: 26.3.12
+  resolution: "@netlify/build@npm:26.3.12"
   dependencies:
     "@bugsnag/js": ^7.0.0
     "@netlify/cache-utils": ^4.0.0
     "@netlify/config": ^17.0.0
     "@netlify/functions-utils": ^4.0.0
     "@netlify/git-utils": ^4.0.0
-    "@netlify/plugin-edge-handlers": ^3.0.6
-    "@netlify/plugins-list": ^6.13.1
+    "@netlify/plugin-edge-handlers": ^3.0.7
+    "@netlify/plugins-list": ^6.14.0
     "@netlify/run-utils": ^4.0.0
     "@netlify/zip-it-and-ship-it": 5.9.0
     "@sindresorhus/slugify": ^2.0.0
@@ -2768,7 +2768,7 @@ __metadata:
     yargs: ^17.3.1
   bin:
     netlify-build: src/core/bin.js
-  checksum: f833ec1d1fb4238693957eaa89cc3f50d1cc6620b456f69d4e523a2f4778d531bc892de24ce241d97f170b845694818b2cd8fe8217b3830b99e222aefb767400
+  checksum: bf8a8e6a785b23405b754a95250be18797dcc9c7448f51beaad085e722c65740d3ea7c8a36ff9a3c65eaddc0f0a6c85f05bdc0ec7d89450c4a39c9fead928b96
   languageName: node
   linkType: hard
 
@@ -2790,9 +2790,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/config@npm:^17.0.0, @netlify/config@npm:^17.0.15":
-  version: 17.0.15
-  resolution: "@netlify/config@npm:17.0.15"
+"@netlify/config@npm:^17.0.0, @netlify/config@npm:^17.0.16":
+  version: 17.0.16
+  resolution: "@netlify/config@npm:17.0.16"
   dependencies:
     chalk: ^5.0.0
     cron-parser: ^4.1.0
@@ -2809,7 +2809,7 @@ __metadata:
     map-obj: ^5.0.0
     netlify: ^11.0.0
     netlify-headers-parser: ^6.0.2
-    netlify-redirect-parser: 13.0.4
+    netlify-redirect-parser: 13.0.5
     omit.js: ^2.0.2
     p-locate: ^6.0.0
     path-exists: ^5.0.0
@@ -2820,7 +2820,7 @@ __metadata:
     yargs: ^17.3.1
   bin:
     netlify-config: src/bin/main.js
-  checksum: 2f8bf46effbe282309bd1f2c9925adbeab72e8d0a1d0740571e6f21b763e3b4de4c9b3229d16d5990eb79c0298023a96afe29769629d16ddbdc62055394c1d35
+  checksum: a0d96026b0bce3d7236a9b9c185607435db1ace5b44c9c02680a36896f50c703e87387754241b592a045c5391742b4411f308840ba59bb6c4c3a78b9eec1f817
   languageName: node
   linkType: hard
 
@@ -3033,9 +3033,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/plugin-edge-handlers@npm:^3.0.6":
-  version: 3.0.6
-  resolution: "@netlify/plugin-edge-handlers@npm:3.0.6"
+"@netlify/plugin-edge-handlers@npm:^3.0.7":
+  version: 3.0.7
+  resolution: "@netlify/plugin-edge-handlers@npm:3.0.7"
   dependencies:
     "@babel/core": ^7.11.4
     "@babel/preset-env": ^7.11.5
@@ -3054,14 +3054,14 @@ __metadata:
     rollup-plugin-terser: ^7.0.2
   bin:
     plugin-build-edge-handlers: src/cli.js
-  checksum: 9b8532dd859ca32bb544e829ca0fc75253a580671f9a1aa57a6a9f2d2efc7ce55a8c5a51f1a1ee6c3ce4c04193ad7c405bf11603ef6a9b6343f88bfeb4df8a55
+  checksum: 82e38084a0693d470fb5f7c65131b35f96e3bd84079961bed99914721b335669662df91aeae8f1c58464ebdb45568b8c3835b1fc78974d578ced37c23eef2113
   languageName: node
   linkType: hard
 
-"@netlify/plugins-list@npm:^6.13.1":
-  version: 6.13.1
-  resolution: "@netlify/plugins-list@npm:6.13.1"
-  checksum: e68d6e940b88b3b2fd820b16a6986b1a1c2a45f21e0b1ec19743ccd04739a91778bc0d5cf1870ded3a384864d57a8882852c3ec8bcfbd5ecc83a39d7b871d188
+"@netlify/plugins-list@npm:^6.14.0, @netlify/plugins-list@npm:^6.15.0":
+  version: 6.15.0
+  resolution: "@netlify/plugins-list@npm:6.15.0"
+  checksum: 0a5ba583d9f52532999c9ca5304973cd4faf36fd5211db812017fe9d804b255c8a802a0fcf2c0f08ba3d8967e1fba0e16e3f07c43686ffae17ba037f691371d5
   languageName: node
   linkType: hard
 
@@ -3743,140 +3743,140 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm-eabi@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-android-arm-eabi@npm:1.2.145"
+"@swc/core-android-arm-eabi@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-android-arm-eabi@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm64@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-android-arm64@npm:1.2.145"
+"@swc/core-android-arm64@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-android-arm64@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-darwin-arm64@npm:1.2.145"
+"@swc/core-darwin-arm64@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-darwin-arm64@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-darwin-x64@npm:1.2.145"
+"@swc/core-darwin-x64@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-darwin-x64@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-freebsd-x64@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-freebsd-x64@npm:1.2.145"
+"@swc/core-freebsd-x64@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-freebsd-x64@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.145"
+"@swc/core-linux-arm-gnueabihf@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.145"
+"@swc/core-linux-arm64-gnu@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-linux-arm64-musl@npm:1.2.145"
+"@swc/core-linux-arm64-musl@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-linux-arm64-musl@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-linux-x64-gnu@npm:1.2.145"
+"@swc/core-linux-x64-gnu@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-linux-x64-gnu@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-linux-x64-musl@npm:1.2.145"
+"@swc/core-linux-x64-musl@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-linux-x64-musl@npm:1.2.146"
   bin:
     swcx: swc
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.145"
+"@swc/core-win32-arm64-msvc@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.146"
   bin:
     swcx: swc.exe
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.145"
+"@swc/core-win32-ia32-msvc@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.146"
   bin:
     swcx: swc.exe
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core-win32-x64-msvc@npm:1.2.145"
+"@swc/core-win32-x64-msvc@npm:1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core-win32-x64-msvc@npm:1.2.146"
   bin:
     swcx: swc.exe
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.2.145":
-  version: 1.2.145
-  resolution: "@swc/core@npm:1.2.145"
+"@swc/core@npm:^1.2.146":
+  version: 1.2.146
+  resolution: "@swc/core@npm:1.2.146"
   dependencies:
-    "@swc/core-android-arm-eabi": 1.2.145
-    "@swc/core-android-arm64": 1.2.145
-    "@swc/core-darwin-arm64": 1.2.145
-    "@swc/core-darwin-x64": 1.2.145
-    "@swc/core-freebsd-x64": 1.2.145
-    "@swc/core-linux-arm-gnueabihf": 1.2.145
-    "@swc/core-linux-arm64-gnu": 1.2.145
-    "@swc/core-linux-arm64-musl": 1.2.145
-    "@swc/core-linux-x64-gnu": 1.2.145
-    "@swc/core-linux-x64-musl": 1.2.145
-    "@swc/core-win32-arm64-msvc": 1.2.145
-    "@swc/core-win32-ia32-msvc": 1.2.145
-    "@swc/core-win32-x64-msvc": 1.2.145
+    "@swc/core-android-arm-eabi": 1.2.146
+    "@swc/core-android-arm64": 1.2.146
+    "@swc/core-darwin-arm64": 1.2.146
+    "@swc/core-darwin-x64": 1.2.146
+    "@swc/core-freebsd-x64": 1.2.146
+    "@swc/core-linux-arm-gnueabihf": 1.2.146
+    "@swc/core-linux-arm64-gnu": 1.2.146
+    "@swc/core-linux-arm64-musl": 1.2.146
+    "@swc/core-linux-x64-gnu": 1.2.146
+    "@swc/core-linux-x64-musl": 1.2.146
+    "@swc/core-win32-arm64-msvc": 1.2.146
+    "@swc/core-win32-ia32-msvc": 1.2.146
+    "@swc/core-win32-x64-msvc": 1.2.146
   dependenciesMeta:
     "@swc/core-android-arm-eabi":
       optional: true
@@ -3904,18 +3904,18 @@ __metadata:
       optional: true
     "@swc/core-win32-x64-msvc":
       optional: true
-  checksum: c34ff054cb4af53966c9607ba60180e2c653cc7a093f3511174462e072ebc41b4bd698f522330cc1de84f05f3f20e21152cef3d661a3361a3a49ff8cf84f357e
+  checksum: 9dae149a2a28cfccef8eaab59fa776ca20c6070c7aaaec60e55cfc7d17d514580bb6173de7d069ecf44f1dcec3a193f4f19d89e70df759ffc77b67f449b75630
   languageName: node
   linkType: hard
 
-"@swc/jest@npm:^0.2.17":
-  version: 0.2.17
-  resolution: "@swc/jest@npm:0.2.17"
+"@swc/jest@npm:^0.2.20":
+  version: 0.2.20
+  resolution: "@swc/jest@npm:0.2.20"
   dependencies:
     "@jest/create-cache-key-function": ^27.4.2
   peerDependencies:
     "@swc/core": "*"
-  checksum: 33e08c71adaa3d46f47b888b954c8f61513804a1b3ee24fdc13ccbbb89ca6c96b474eef4002b96edcd6090a308a1aafd313073ae4bcd6339fcc3a22e2f29f1b7
+  checksum: 160a2d0336c416ec38ad267892ba67696c853318b207cfc9924da09a3318345bc37ca255782764ef651399cb8c0e9976ebdf90284799acb6b0c45c5d8bc4edbc
   languageName: node
   linkType: hard
 
@@ -4406,12 +4406,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^17.0.11":
-  version: 17.0.11
-  resolution: "@types/react-dom@npm:17.0.11"
+"@types/react-dom@npm:^17.0.12":
+  version: 17.0.12
+  resolution: "@types/react-dom@npm:17.0.12"
   dependencies:
     "@types/react": "*"
-  checksum: 4d5730dffbef86c887cecad7e3cecda424ce6a64d0b5441c63b5b015d48219868660a2bb1aa15e897e565ad8867fa6b885d4358b04e1c4e589ba4c07c3fda55c
+  checksum: 9754e1d0c0107310eab35a2eb1dad45f6ef0a41e562c23a29d6bf723a29c8a2036c4acd6a1a1422bf7cf956d431e41b154608dd917f6e69c7ab0d87720c5e27e
   languageName: node
   linkType: hard
 
@@ -6020,12 +6020,12 @@ __metadata:
     benchmark: ^2.1.4
     chalk: ^4.1.2
     cross-env: ^7.0.3
-    mobx: ^6.4.1
+    mobx: ^6.4.2
     mobx-keystone: "workspace:packages/lib"
     mobx-state-tree: ^5.1.3
     shx: ^0.3.4
     tslib: ^2.3.1
-    typescript: ^4.5.5
+    typescript: ^4.6.2
   languageName: unknown
   linkType: soft
 
@@ -9339,11 +9339,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.9.0":
-  version: 8.9.0
-  resolution: "eslint@npm:8.9.0"
+"eslint@npm:^8.10.0":
+  version: 8.10.0
+  resolution: "eslint@npm:8.10.0"
   dependencies:
-    "@eslint/eslintrc": ^1.1.0
+    "@eslint/eslintrc": ^1.2.0
     "@humanwhocodes/config-array": ^0.9.2
     ajv: ^6.10.0
     chalk: ^4.0.0
@@ -9380,7 +9380,7 @@ __metadata:
     v8-compile-cache: ^2.0.3
   bin:
     eslint: bin/eslint.js
-  checksum: 8efecdb9752ee6cb4d2787a14e00cbeab29562ed95dd71c6f3f8ac410426a067d5aa659416d2290e46ca44bc5607e6a6e6c62f814694d8639f80666f522022a7
+  checksum: 8b31ab3de5b48b6828bf13c09c9e62ee0045fa0afa017efaa73eedcf4dc33bc204ee4c467d4677e37967d1645f73816ddef4271422e691fded352040f8f83093
   languageName: node
   linkType: hard
 
@@ -14567,14 +14567,14 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.17.2
     "@babel/preset-env": ^7.16.11
     "@babel/preset-typescript": ^7.16.7
-    "@swc/core": ^1.2.145
-    "@swc/jest": ^0.2.17
+    "@swc/core": ^1.2.146
+    "@swc/jest": ^0.2.20
     "@types/jest": ^27.4.1
     "@types/node": ^17.0.21
     babel-jest: ^27.5.1
     fast-deep-equal: ^3.1.3
     jest: ^27.5.1
-    mobx: ^6.4.1
+    mobx: ^6.4.2
     mobx-v4: "npm:mobx@^4.15.7"
     mobx-v5: "npm:mobx@^5.15.7"
     nanoid: ^3.3.1
@@ -14582,12 +14582,12 @@ __metadata:
     shx: ^0.3.4
     spec.ts: ^1.1.3
     ts-jest: ^27.1.3
-    ts-node: ^10.5.0
+    ts-node: ^10.6.0
     ts-toolbelt: ^9.6.0
     tslib: ^2.3.1
     typedoc: ^0.22.12
-    typescript: ^4.5.5
-    vite: ^2.8.4
+    typescript: ^4.6.2
+    vite: ^2.8.6
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
@@ -14648,10 +14648,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx@npm:^6.4.1":
-  version: 6.4.1
-  resolution: "mobx@npm:6.4.1"
-  checksum: 97412485e716dd286fe41645c26d99b09d403b60fdade5757d26e18c2e1a723da2afc9b7d0f7161457be812075a90839d998c9bf6af88f01cd92dbab16a484c3
+"mobx@npm:^6.4.2":
+  version: 6.4.2
+  resolution: "mobx@npm:6.4.2"
+  checksum: 2cdb0b81ab7fa6209d29a57af0c8c1c4635756f4b93a872be8686d58abcc562a4172f3bd8551c3432322f02cc5a6434daced10e5665d73a533e4099416dd3435
   languageName: node
   linkType: hard
 
@@ -14820,16 +14820,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^9.8.3":
-  version: 9.8.3
-  resolution: "netlify-cli@npm:9.8.3"
+"netlify-cli@npm:^9.10.0":
+  version: 9.10.0
+  resolution: "netlify-cli@npm:9.10.0"
   dependencies:
-    "@netlify/build": ^26.3.8
-    "@netlify/config": ^17.0.15
+    "@netlify/build": ^26.3.12
+    "@netlify/config": ^17.0.16
     "@netlify/framework-info": ^9.0.2
     "@netlify/local-functions-proxy": ^1.1.1
-    "@netlify/plugin-edge-handlers": ^3.0.6
-    "@netlify/plugins-list": ^6.13.1
+    "@netlify/plugin-edge-handlers": ^3.0.7
+    "@netlify/plugins-list": ^6.15.0
     "@netlify/routing-local-proxy": ^0.34.1
     "@netlify/zip-it-and-ship-it": ^5.9.0
     "@octokit/rest": ^18.0.0
@@ -14897,7 +14897,7 @@ __metadata:
     netlify: ^11.0.0
     netlify-headers-parser: ^6.0.2
     netlify-onegraph-internal: 0.0.50
-    netlify-redirect-parser: ^13.0.4
+    netlify-redirect-parser: ^13.0.5
     netlify-redirector: ^0.2.1
     node-fetch: ^2.6.0
     node-version-alias: ^1.0.1
@@ -14935,7 +14935,7 @@ __metadata:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: 9c5b18dbad52592634d865508e25af17a2287f4741f89ddbfc9a1f22ed9863860bd64c75541ba13922582e18bfb9c6f16194ec2827344919a7670a41a8d233c2
+  checksum: d7447f4868a915d817c91d132682caa31a6e9e5defe57a9b98889d0d17262f3fa3a901e25ea93229d5ac20ac277ffa48dcc306d9efd7868f921dc6ddc512b7a3
   languageName: node
   linkType: hard
 
@@ -14963,15 +14963,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-redirect-parser@npm:13.0.4, netlify-redirect-parser@npm:^13.0.4":
-  version: 13.0.4
-  resolution: "netlify-redirect-parser@npm:13.0.4"
+"netlify-redirect-parser@npm:13.0.5, netlify-redirect-parser@npm:^13.0.5":
+  version: 13.0.5
+  resolution: "netlify-redirect-parser@npm:13.0.5"
   dependencies:
     filter-obj: ^3.0.0
     is-plain-obj: ^4.0.0
     path-exists: ^5.0.0
     toml: ^3.0.0
-  checksum: f445fb7baa2c4cf84124470fa897a974da8c8da7615b23e2f09761a51df4d1907f47ffd9d9d5777807e3ca4abf7495983df39a1869cf3e474b156d731e855c99
+  checksum: 6a7ca158e52569cd7058e06616b7ebeb287641c65163eb6b9ba4595bfc0d91c350c779e7fd55ea279918427e64870d0d872cb355bf134c0da8a439b4f24c1916
   languageName: node
   linkType: hard
 
@@ -18169,13 +18169,13 @@ __metadata:
   dependencies:
     bufferutil: ^4.0.6
     codecov: ^3.8.3
-    eslint: ^8.9.0
+    eslint: ^8.10.0
     eslint-config-prettier: ^8.4.0
     eslint-config-react-app: ^7.0.0
-    netlify-cli: ^9.8.3
+    netlify-cli: ^9.10.0
     prettier: ^2.5.1
     prettier-plugin-organize-imports: ^2.3.4
-    typescript: ^4.5.5
+    typescript: ^4.6.2
     utf-8-validate: ^5.0.8
   languageName: unknown
   linkType: soft
@@ -18719,10 +18719,10 @@ __metadata:
     "@svgr/webpack": ^6.2.1
     "@tsconfig/docusaurus": ^1.0.4
     "@types/react": ^17.0.39
-    "@types/react-dom": ^17.0.11
+    "@types/react-dom": ^17.0.12
     "@types/uuid": ^8.3.4
     bootstrap-icons: ^1.8.1
-    mobx: ^6.4.1
+    mobx: ^6.4.2
     mobx-keystone: "workspace:packages/lib"
     mobx-react: ^7.3.0
     prism-react-renderer: ^1.3.1
@@ -18730,7 +18730,7 @@ __metadata:
     react: ^17.0.2
     react-dom: ^17.0.2
     remotedev: ^0.2.9
-    typescript: ^4.5.5
+    typescript: ^4.6.2
   languageName: unknown
   linkType: soft
 
@@ -20143,9 +20143,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.5.0":
-  version: 10.5.0
-  resolution: "ts-node@npm:10.5.0"
+"ts-node@npm:^10.6.0":
+  version: 10.6.0
+  resolution: "ts-node@npm:10.6.0"
   dependencies:
     "@cspotcode/source-map-support": 0.7.0
     "@tsconfig/node10": ^1.0.7
@@ -20176,7 +20176,7 @@ __metadata:
     ts-node-script: dist/bin-script.js
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
-  checksum: d51ac8a9b3582ce3705cef8d35f3372e40caa277dbd7c7baeb651961538f13d2f11f22402614348f78d9b10501bd1cb5f05ec4f2ec9a74bd0e288de769c32335
+  checksum: bc7589d8c38dc75a2a6f832ac43faaac7edd3d0ef4643f46a9deeaabcdd35722e8c89e729fcd39a16069b30d09e297c2fb3eec917a82dd3f1e7da8b352bbd447
   languageName: node
   linkType: hard
 
@@ -20372,13 +20372,13 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.5.4, typescript@npm:^4.5.5":
-  version: 4.5.5
-  resolution: "typescript@npm:4.5.5"
+"typescript@npm:^4.5.4, typescript@npm:^4.6.2":
+  version: 4.6.2
+  resolution: "typescript@npm:4.6.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 506f4c919dc8aeaafa92068c997f1d213b9df4d9756d0fae1a1e7ab66b585ab3498050e236113a1c9e57ee08c21ec6814ca7a7f61378c058d79af50a4b1f5a5e
+  checksum: 8a44ed7e6f6c4cb1ebe8cf236ecda2fb119d84dcf0fbd77e707b2dfea1bbcfc4e366493a143513ce7f57203c75da9d4e20af6fe46de89749366351046be7577c
   languageName: node
   linkType: hard
 
@@ -20392,13 +20392,13 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.5.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.5.5#~builtin<compat/typescript>":
-  version: 4.5.5
-  resolution: "typescript@patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=493e53"
+"typescript@patch:typescript@^4.5.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>":
+  version: 4.6.2
+  resolution: "typescript@patch:typescript@npm%3A4.6.2#~builtin<compat/typescript>::version=4.6.2&hash=493e53"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: c05c318d79c690f101d7ffb34cd6c7d6bbd884d3af9cefe7749ad0cd6be43c7082f098280982ca945dcba23fde34a08fed9602bb26540936baf8c0520727d3ba
+  checksum: efb83260a22ee49d4c8bdc59b3cefe54fdf51d6f563f5c3a35aa3d5e46fb12f3f1d33a36d6f9f64171e567ead1847e99cb612d0a9a74e7d44e16cad9d0bbc937
   languageName: node
   linkType: hard
 
@@ -20983,9 +20983,9 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.8.4":
-  version: 2.8.4
-  resolution: "vite@npm:2.8.4"
+"vite@npm:^2.8.6":
+  version: 2.8.6
+  resolution: "vite@npm:2.8.6"
   dependencies:
     esbuild: ^0.14.14
     fsevents: ~2.3.2
@@ -21008,7 +21008,7 @@ typescript@^3.9.7:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 0531ea17d354c35026c87e732d28c777492cc5165c4abdaa507c4894535ecbbfcf447fa3f270bbb160cd7cba8ad319cc86a221be18b2ccd40d8be139f9d7381d
+  checksum: 4b02d133892c98362c10214b7ad518d74b59745889197a2ba0b63260ed083fcef75a447e8fb58dbd2af8747386274b36017983d93031254df6ead38701950dcc
   languageName: node
   linkType: hard
 
