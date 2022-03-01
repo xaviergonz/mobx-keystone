@@ -252,10 +252,11 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         bm3.setA(bm3.a + "x")
+        bm3.toJSON()
       },
       () => {
         bm4.setA(bm4.a + "x")
-        ;(bm4 as any).toJS()
+        bm4.toJSON()
       }
     )
   }

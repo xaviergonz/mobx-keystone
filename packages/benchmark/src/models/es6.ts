@@ -35,6 +35,15 @@ export class ESSmallModel {
     return this.d + this.d
   }
 
+  toJSON() {
+    return {
+      a: this.a,
+      b: this.b,
+      c: this.c,
+      d: this.d,
+    }
+  }
+
   setA(x: string) {
     this.a = x
   }
@@ -109,6 +118,19 @@ export class ESBigModel {
   }
   get d2() {
     return this.d + this.d
+  }
+
+  toJSON() {
+    return {
+      a: this.a,
+      b: this.b,
+      c: this.c,
+      d: this.d,
+      aa: this.aa.toJSON(),
+      bb: this.bb.toJSON(),
+      cc: this.cc.toJSON(),
+      dd: this.dd.toJSON(),
+    }
   }
 
   setAA(s: ESSmallModel) {
