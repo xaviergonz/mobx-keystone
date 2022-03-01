@@ -16,7 +16,13 @@ import { dataToModelNode } from "../parent/core"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
-import { getInternalSnapshot, setInternalSnapshot, SnapshotTransformFn } from "../snapshot/internal"
+import {
+  freezeInternalSnapshot,
+  getInternalSnapshot,
+  setNewInternalSnapshot,
+  SnapshotTransformFn,
+  updateInternalSnapshot,
+} from "../snapshot/internal"
 import { failure, isPlainObject, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { registerTweaker, tryUntweak, tweak } from "./tweak"
@@ -109,7 +115,7 @@ export function tweakPlainObject<T>(
     }
   }
 
-  setInternalSnapshot(
+  setNewInternalSnapshot(
     isDataObject ? dataToModelNode(tweakedObj) : tweakedObj,
     untransformedSn,
     transformFn
@@ -128,11 +134,11 @@ const observableOptions = {
 function objectDidChange(change: IObjectDidChange): void {
   const obj = change.object
   const actualNode = dataToModelNode(obj)
-  let { untransformed: untransformedSn } = getInternalSnapshot(actualNode)!
+  let { untransformed: oldUntransformedSn } = getInternalSnapshot(actualNode)!
 
   const patchRecorder = new InternalPatchRecorder()
 
-  untransformedSn = Object.assign({}, untransformedSn)
+  let mutate: ((sn: any) => void) | undefined
 
   switch (change.type) {
     case "add":
@@ -140,12 +146,19 @@ function objectDidChange(change: IObjectDidChange): void {
       {
         const k = change.name
         const val = change.newValue
-        const oldVal = untransformedSn[k]
+
+        const oldVal = oldUntransformedSn[k]
+
+        let newVal: any
         if (isPrimitive(val)) {
-          untransformedSn[k] = val
+          newVal = val
         } else {
           const valueSn = getInternalSnapshot(val)!
-          untransformedSn[k] = valueSn.transformed
+          newVal = valueSn.transformed
+        }
+
+        mutate = (sn) => {
+          sn[k] = newVal
         }
 
         const path = [k as string]
@@ -155,7 +168,7 @@ function objectDidChange(change: IObjectDidChange): void {
               {
                 op: "add",
                 path,
-                value: untransformedSn[k],
+                value: freezeInternalSnapshot(newVal),
               },
             ],
             [
@@ -171,14 +184,14 @@ function objectDidChange(change: IObjectDidChange): void {
               {
                 op: "replace",
                 path,
-                value: untransformedSn[k],
+                value: freezeInternalSnapshot(newVal),
               },
             ],
             [
               {
                 op: "replace",
                 path,
-                value: oldVal,
+                value: freezeInternalSnapshot(oldVal),
               },
             ]
           )
@@ -189,8 +202,10 @@ function objectDidChange(change: IObjectDidChange): void {
     case "remove":
       {
         const k = change.name
-        const oldVal = untransformedSn[k]
-        delete untransformedSn[k]
+        const oldVal = oldUntransformedSn[k]
+        mutate = (sn) => {
+          delete sn[k]
+        }
 
         const path = [k as string]
 
@@ -205,7 +220,7 @@ function objectDidChange(change: IObjectDidChange): void {
             {
               op: "add",
               path,
-              value: oldVal,
+              value: freezeInternalSnapshot(oldVal),
             },
           ]
         )
@@ -215,8 +230,8 @@ function objectDidChange(change: IObjectDidChange): void {
 
   runTypeCheckingAfterChange(obj, patchRecorder)
 
-  if (!runningWithoutSnapshotOrPatches) {
-    setInternalSnapshot(actualNode, untransformedSn, undefined)
+  if (!runningWithoutSnapshotOrPatches && mutate) {
+    updateInternalSnapshot(actualNode, mutate)
     patchRecorder.emit(actualNode)
   }
 }
