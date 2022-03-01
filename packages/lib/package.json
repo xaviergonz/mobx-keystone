@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.66.1",
+  "version": "0.67.0",
   "description": "A MobX powered state management solution based on data trees with first class support for TypeScript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -71,23 +71,23 @@
     "@babel/plugin-proposal-decorators": "^7.17.2",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@swc/core": "^1.2.145",
-    "@swc/jest": "^0.2.17",
+    "@swc/core": "^1.2.146",
+    "@swc/jest": "^0.2.20",
     "@types/jest": "^27.4.1",
     "@types/node": "^17.0.21",
     "babel-jest": "^27.5.1",
     "jest": "^27.5.1",
-    "mobx": "^6.4.1",
+    "mobx": "^6.4.2",
     "mobx-v4": "npm:mobx@^4.15.7",
     "mobx-v5": "npm:mobx@^5.15.7",
     "rollup-plugin-typescript2": "^0.31.2",
     "shx": "^0.3.4",
     "spec.ts": "^1.1.3",
     "ts-jest": "^27.1.3",
-    "ts-node": "^10.5.0",
+    "ts-node": "^10.6.0",
     "typedoc": "^0.22.12",
-    "typescript": "^4.5.5",
-    "vite": "^2.8.4"
+    "typescript": "^4.6.2",
+    "vite": "^2.8.6"
   },
   "dependencies": {
     "fast-deep-equal": "^3.1.3",

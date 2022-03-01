@@ -2,7 +2,11 @@ import { assertTweakedObject } from "../tweaker/core"
 import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import { AnyType, TypeToData } from "../types/schemas"
 import { failure, isPrimitive } from "../utils"
-import { getInternalSnapshot, reportInternalSnapshotObserved } from "./internal"
+import {
+  freezeInternalSnapshot,
+  getInternalSnapshot,
+  reportInternalSnapshotObserved,
+} from "./internal"
 import type { SnapshotOutOf } from "./SnapshotOf"
 
 const identityFn = (x: any) => x
@@ -54,6 +58,7 @@ export function getSnapshot(arg1: any, arg2?: any): any {
     throw failure("getSnapshot is not supported for this kind of object")
   }
 
+  freezeInternalSnapshot(snapshot.transformed)
   reportInternalSnapshotObserved(snapshot)
   return toSnapshotProcessor(snapshot.transformed)
 }

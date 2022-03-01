@@ -1,7 +1,7 @@
 import { Frozen, frozenKey } from "../frozen/Frozen"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
-import { setInternalSnapshot } from "../snapshot/internal"
+import { setNewInternalSnapshot } from "../snapshot/internal"
 import { tweakedObjects } from "./core"
 import { registerTweaker } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
@@ -24,7 +24,7 @@ export function tweakFrozen<T extends Frozen<any>>(
   })
 
   // we DON'T want data proxified, but the snapshot is the data itself
-  setInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined)
+  setNewInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined, true)
 
   return frozenObj
 }
