@@ -46,13 +46,13 @@ export function bench(
       console.log(`Fastest is ${fastest} by ${ratio.toFixed(2)}x`)
 
       if (mobxImpl) {
-        const mobxRatio = results[mobx].hz! / results[fastest].hz!
-        console.log(`${mobx} is faster by ${mobxRatio.toFixed(2)}x`)
+        const mobxRatio = results[mobx].hz! / results[keystone].hz!
+        console.log(`${mobx} is faster than mobx-keystone by ${mobxRatio.toFixed(2)}x`)
       }
 
       if (es6Impl) {
-        const es6Ratio = results[es6].hz! / results[fastest].hz!
-        console.log(`${es6} is faster by ${es6Ratio.toFixed(2)}x`)
+        const es6Ratio = results[es6].hz! / results[keystone].hz!
+        console.log(`${es6} is faster than mobx-keystone by ${es6Ratio.toFixed(2)}x`)
       }
 
       console.log()
