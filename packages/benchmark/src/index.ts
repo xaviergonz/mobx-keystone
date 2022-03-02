@@ -13,7 +13,8 @@ import { MobxBigModel } from "./models/mobx"
 import { mstBigModel } from "./models/mst"
 
 const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
-  /*false, ModelAutoTypeCheckingMode.AlwaysOn, */ ModelAutoTypeCheckingMode.AlwaysOff,
+  ModelAutoTypeCheckingMode.AlwaysOn,
+  ModelAutoTypeCheckingMode.AlwaysOff,
 ]
 
 tcModes.forEach((tcMode) => {
