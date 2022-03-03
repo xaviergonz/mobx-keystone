@@ -47,10 +47,7 @@ This library uses JavaScript decorators and class properties which are supported
   "compilerOptions": {
     // ...
     "experimentalDecorators": true,
-    // MobX 5/6
     "useDefineForClassFields": true
-    // MobX 4
-    "useDefineForClassFields": false
   }
 }
 ```
@@ -67,10 +64,7 @@ This library uses JavaScript decorators and class properties which are supported
   ],
   "plugins": [
     ["@babel/plugin-proposal-decorators", { "version": "legacy" }],
-    // MobX 5/6
     ["@babel/plugin-proposal-class-properties"]
-    // MobX 4
-    ["@babel/plugin-proposal-class-properties", { "loose": true }]
   ]
 }
 ```
@@ -89,11 +83,7 @@ This library uses JavaScript decorators and class properties which are supported
       // Optional if you use TypeScript
       // Required if you use JavaScript
       "legacyDecorator": true
-    },
-    // MobX 5/6
-    "loose": false
-    // MobX 4
-    "loose": true
+    }
   }
 }
 ```
