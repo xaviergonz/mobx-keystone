@@ -1,12 +1,20 @@
-import { getSnapshot, ModelAutoTypeCheckingMode, setGlobalConfig } from "mobx-keystone"
+import {
+  fromSnapshot,
+  getSnapshot,
+  ModelAutoTypeCheckingMode,
+  setGlobalConfig,
+} from "mobx-keystone"
 import { getSnapshot as mstGetSnapshot } from "mobx-state-tree"
 import { bench } from "./bench"
+import { ESBigModel } from "./models/es6"
 import { BigModel } from "./models/ks-nonTypeChecked"
 import { TcBigModel } from "./models/ks-typeChecked"
+import { MobxBigModel } from "./models/mobx"
 import { mstBigModel } from "./models/mst"
 
 const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
-  /*false, ModelAutoTypeCheckingMode.AlwaysOn, */ ModelAutoTypeCheckingMode.AlwaysOff,
+  ModelAutoTypeCheckingMode.AlwaysOn,
+  ModelAutoTypeCheckingMode.AlwaysOff,
 ]
 
 tcModes.forEach((tcMode) => {
@@ -47,6 +55,12 @@ tcModes.forEach((tcMode) => {
     },
     () => {
       mstBigModel.create({})
+    },
+    () => {
+      new ESBigModel({})
+    },
+    () => {
+      new MobxBigModel({})
     }
   )
 
@@ -75,12 +89,23 @@ tcModes.forEach((tcMode) => {
     () => {
       const x = mstBigModel.create({})
       accessVars(x)
+    },
+    () => {
+      const x = new ESBigModel({})
+      accessVars(x)
+    },
+    () => {
+      const x = new MobxBigModel({})
+      accessVars(x)
     }
   )
 
   {
     const bm1 = new bigModel({})
     const bm2 = mstBigModel.create({})
+    const bm3 = new ESBigModel({})
+    const bm4 = new MobxBigModel({})
+
     bench(
       `already created, access all simple props (${name})`,
       () => {
@@ -88,6 +113,89 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         accessVars(bm2)
+      },
+      () => {
+        accessVars(bm3)
+      },
+      () => {
+        accessVars(bm4)
+      }
+    )
+  }
+
+  {
+    const bigModelSnapshot = {
+      $modelType: "TcBigModel",
+      a: "a value",
+      b: "b value",
+      c: "c value",
+      d: "d value",
+      aa: {
+        $modelType: "TcSmallModel",
+        a: "aa a value",
+        b: "aa b value",
+        c: "aa c value",
+        d: "aa d value",
+      },
+      bb: {
+        $modelType: "TcSmallModel",
+        a: "bb a value",
+        b: "bb b value",
+        c: "bb c value",
+        d: "bb d value",
+      },
+      cc: {
+        $modelType: "TcSmallModel",
+        a: "cc a value",
+        b: "cc b value",
+        c: "cc c value",
+        d: "cc d value",
+      },
+      dd: {
+        $modelType: "TcSmallModel",
+        a: "dd a value",
+        b: "dd b value",
+        c: "dd c value",
+        d: "dd d value",
+      },
+    }
+
+    bench(
+      `snapshot creation (${name})`,
+      () => {
+        fromSnapshot(bigModel, bigModelSnapshot)
+      },
+      () => {
+        mstBigModel.create(bigModelSnapshot)
+      },
+      () => {
+        ESBigModel.fromSnapshot(bigModelSnapshot)
+      },
+      () => {
+        MobxBigModel.fromSnapshot(bigModelSnapshot)
+      }
+    )
+  }
+
+  {
+    const bm1 = new bigModel({})
+    const bm2 = mstBigModel.create({})
+    const bm3 = new ESBigModel({})
+    const bm4 = new MobxBigModel({})
+
+    bench(
+      `already created, access all simple props (${name})`,
+      () => {
+        accessVars(bm1)
+      },
+      () => {
+        accessVars(bm2)
+      },
+      () => {
+        accessVars(bm3)
+      },
+      () => {
+        accessVars(bm4)
       }
     )
   }
@@ -107,6 +215,9 @@ tcModes.forEach((tcMode) => {
   {
     const bm1 = new bigModel({})
     const bm2 = mstBigModel.create({})
+    const bm3 = mstBigModel.create({})
+    const bm4 = mstBigModel.create({})
+
     bench(
       `already created, change all simple props (${name})`,
       () => {
@@ -114,6 +225,12 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         setVars(bm2)
+      },
+      () => {
+        setVars(bm3)
+      },
+      () => {
+        setVars(bm4)
       }
     )
   }
@@ -121,6 +238,8 @@ tcModes.forEach((tcMode) => {
   {
     const bm1 = new bigModel({})
     const bm2 = mstBigModel.create({})
+    const bm3 = new ESBigModel({})
+    const bm4 = new MobxBigModel({})
 
     bench(
       `already created, change one simple props + getSnapshot (${name})`,
@@ -131,6 +250,14 @@ tcModes.forEach((tcMode) => {
       () => {
         bm2.setA(bm2.a + "x")
         mstGetSnapshot(bm2)
+      },
+      () => {
+        bm3.setA(bm3.a + "x")
+        bm3.toJSON()
+      },
+      () => {
+        bm4.setA(bm4.a + "x")
+        bm4.toJSON()
       }
     )
   }
