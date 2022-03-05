@@ -1920,16 +1920,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/logger@npm:2.0.0-beta.16":
-  version: 2.0.0-beta.16
-  resolution: "@docusaurus/logger@npm:2.0.0-beta.16"
-  dependencies:
-    chalk: ^4.1.2
-    tslib: ^2.3.1
-  checksum: 38a4100c752d0a5f4765bb691ca70e61103a00465e2cfba6f59354d47524a0f41bc88cb6e4a034c784340074557d3d3dbcb5be6c8490e029a2c9b4170ff16104
-  languageName: node
-  linkType: hard
-
 "@docusaurus/logger@npm:2.0.0-beta.17":
   version: 2.0.0-beta.17
   resolution: "@docusaurus/logger@npm:2.0.0-beta.17"
@@ -2258,7 +2248,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/utils-validation@npm:2.0.0-beta.17":
+"@docusaurus/utils-validation@npm:2.0.0-beta.17, @docusaurus/utils-validation@npm:^2.0.0-beta.4":
   version: 2.0.0-beta.17
   resolution: "@docusaurus/utils-validation@npm:2.0.0-beta.17"
   dependencies:
@@ -2270,42 +2260,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/utils-validation@npm:^2.0.0-beta.4":
-  version: 2.0.0-beta.16
-  resolution: "@docusaurus/utils-validation@npm:2.0.0-beta.16"
-  dependencies:
-    "@docusaurus/logger": 2.0.0-beta.16
-    "@docusaurus/utils": 2.0.0-beta.16
-    joi: ^17.6.0
-    tslib: ^2.3.1
-  checksum: d2a2cdf2a7dabbc1c0c8551626d54dd1f8e7e913f559ff3f4c1fc3645831b1a005f69fd8e927022f77421ef2c8b6a0504a41538283c279897696c0d3375c1a8b
-  languageName: node
-  linkType: hard
-
-"@docusaurus/utils@npm:2.0.0-beta.16, @docusaurus/utils@npm:^2.0.0-beta.4":
-  version: 2.0.0-beta.16
-  resolution: "@docusaurus/utils@npm:2.0.0-beta.16"
-  dependencies:
-    "@docusaurus/logger": 2.0.0-beta.16
-    "@svgr/webpack": ^6.0.0
-    file-loader: ^6.2.0
-    fs-extra: ^10.0.1
-    github-slugger: ^1.4.0
-    globby: ^11.0.4
-    gray-matter: ^4.0.3
-    js-yaml: ^4.1.0
-    lodash: ^4.17.21
-    micromatch: ^4.0.4
-    resolve-pathname: ^3.0.0
-    shelljs: ^0.8.5
-    tslib: ^2.3.1
-    url-loader: ^4.1.1
-    webpack: ^5.69.1
-  checksum: e9b52823ca952b654932870b4a55fae2428669a9fa484e92a6cd8de54709543fd48589cb6d2d2c463b3455d275103cd54053c6c04e79296616f7d3c805773029
-  languageName: node
-  linkType: hard
-
-"@docusaurus/utils@npm:2.0.0-beta.17":
+"@docusaurus/utils@npm:2.0.0-beta.17, @docusaurus/utils@npm:^2.0.0-beta.4":
   version: 2.0.0-beta.17
   resolution: "@docusaurus/utils@npm:2.0.0-beta.17"
   dependencies:
@@ -14796,7 +14751,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.2.0, nanoid@npm:^3.3.1":
+"nanoid@npm:^3.3.1":
   version: 3.3.1
   resolution: "nanoid@npm:3.3.1"
   bin:
@@ -16848,18 +16803,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.1.7, postcss@npm:^8.3.11, postcss@npm:^8.3.5, postcss@npm:^8.4.5, postcss@npm:^8.4.6":
-  version: 8.4.6
-  resolution: "postcss@npm:8.4.6"
-  dependencies:
-    nanoid: ^3.2.0
-    picocolors: ^1.0.0
-    source-map-js: ^1.0.2
-  checksum: 60e7808f39c4a9d0fa067bfd5eb906168c4eb6d3ff0093f7d314d1979b001a16363deedccd368a7df869c63ad4ae350d27da439c94ff3fb0f8fc93d49fe38a90
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^8.4.7":
+"postcss@npm:^8.1.7, postcss@npm:^8.3.11, postcss@npm:^8.3.5, postcss@npm:^8.4.5, postcss@npm:^8.4.6, postcss@npm:^8.4.7":
   version: 8.4.7
   resolution: "postcss@npm:8.4.7"
   dependencies:
