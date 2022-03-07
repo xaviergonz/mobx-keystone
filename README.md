@@ -80,7 +80,3 @@ If you are using TypeScript, then version >= 4.2.0 is recommended, though it _mi
 > `npm install mobx-keystone`
 
 > `yarn add mobx-keystone`
-
-## Full documentation
-
-Full documentation can be found on [mobx-keystone.js.org](https://mobx-keystone.js.org)
