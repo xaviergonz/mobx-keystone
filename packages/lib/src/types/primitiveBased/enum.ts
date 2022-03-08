@@ -56,7 +56,7 @@ export type EnumValues<E extends EnumLike> = E extends Record<
  * const colorType = types.enum(Color)
  * ```
  *
- * @template E Enum type.
+ * @typeparam E Enum type.
  * @param enumObject
  * @returns
  */
