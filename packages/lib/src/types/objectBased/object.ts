@@ -193,7 +193,7 @@ export class ObjectTypeInfo extends TypeInfo {
  * const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
  * ```
  *
- * @typeParam T Type.
+ * @typeparam T Type.
  * @param dataType Type of the frozen data.
  * @returns
  */
