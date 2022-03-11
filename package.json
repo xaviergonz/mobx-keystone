@@ -21,14 +21,14 @@
   ],
   "dependencies": {
     "bufferutil": "^4.0.6",
-    "utf-8-validate": "^5.0.8"
+    "utf-8-validate": "^5.0.9"
   },
   "devDependencies": {
     "codecov": "^3.8.3",
     "eslint": "^8.10.0",
-    "eslint-config-prettier": "^8.4.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-config-react-app": "^7.0.0",
-    "netlify-cli": "^9.10.0",
+    "netlify-cli": "^9.13.0",
     "prettier": "^2.5.1",
     "prettier-plugin-organize-imports": "^2.3.4",
     "typescript": "^4.6.2"
