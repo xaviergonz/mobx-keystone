@@ -376,6 +376,11 @@ export function lazy<A extends unknown[], R>(getter: (...args: A) => R): typeof 
 /**
  * @internal
  */
+export const identityFn = <T>(x: T): T => x
+
+/**
+ * @internal
+ */
 export const mobx6 = {
   // eslint-disable-next-line no-useless-concat
   makeObservable: (mobx as any)[
