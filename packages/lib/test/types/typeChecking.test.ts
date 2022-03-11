@@ -8,6 +8,7 @@ import {
   arraySet,
   ArraySetTypeInfo,
   ArrayTypeInfo,
+  BigIntTypeInfo,
   BooleanTypeInfo,
   customRef,
   Frozen,
@@ -220,6 +221,26 @@ test("simple number", () => {
   expectTypeCheckFail(type, "ho", [], "number")
 
   expectValidTypeInfo(type, NumberTypeInfo)
+})
+
+test("bigint", () => {
+  const type = types.bigint
+  assert(_ as TypeToData<typeof type>, _ as bigint)
+
+  expectTypeCheckOk(type, 6n)
+  expectTypeCheckFail(type, "ho", [], "bigint")
+
+  expectValidTypeInfo(type, BigIntTypeInfo)
+})
+
+test("simple bigint", () => {
+  const type = BigInt
+  assert(_ as TypeToData<typeof type>, _ as bigint)
+
+  expectTypeCheckOk(type, 6n)
+  expectTypeCheckFail(type, "ho", [], "bigint")
+
+  expectValidTypeInfo(type, BigIntTypeInfo)
 })
 
 test("string", () => {

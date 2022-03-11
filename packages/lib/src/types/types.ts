@@ -15,10 +15,12 @@ import { RecordTypeInfo, typesRecord } from "./objectBased/record"
 import { RefTypeInfo, typesRef } from "./objectBased/ref"
 import { typesEnum } from "./primitiveBased/enum"
 import {
+  BigIntTypeInfo,
   BooleanTypeInfo,
   LiteralTypeInfo,
   NumberTypeInfo,
   StringTypeInfo,
+  typesBigInt,
   typesBoolean,
   typesLiteral,
   typesNull,
@@ -36,6 +38,7 @@ export { getTypeInfo } from "./getTypeInfo"
 export { TypeInfo } from "./TypeChecker"
 export type { ObjectTypeInfoProps, ModelTypeInfoProps }
 export {
+  BigIntTypeInfo,
   BooleanTypeInfo,
   LiteralTypeInfo,
   NumberTypeInfo,
@@ -60,6 +63,7 @@ export const types = {
   null: typesNull,
   boolean: typesBoolean,
   number: typesNumber,
+  bigint: typesBigInt,
   string: typesString,
   or: typesOr,
   maybe: typesMaybe,

@@ -74,6 +74,7 @@ export type AnyNonValueType =
   | ModelClass<AnyModel>
   | StringConstructor
   | NumberConstructor
+  | BigIntConstructor
   | BooleanConstructor
   | AnyStandardType
 
@@ -94,6 +95,9 @@ export type TypeToData<S> = S extends ObjectTypeFunction
   : // Number
   S extends NumberConstructor
   ? number
+  : // BigInt
+  S extends BigIntConstructor
+  ? bigint
   : // Boolean
   S extends BooleanConstructor
   ? boolean
