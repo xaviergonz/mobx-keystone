@@ -72,11 +72,11 @@ tcModes.forEach((tcMode) => {
     bigModelBigVars.forEach((bmbv) => {
       const small = x[bmbv]
       smallModelVars.forEach((smv) => {
-        small[smv]
+        void small[smv]
       })
     })
     bigModelSmallVars.forEach((bmsv) => {
-      x[bmsv]
+      void x[bmsv]
     })
   }
 
