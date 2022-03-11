@@ -1,15 +1,13 @@
 import { assertTweakedObject } from "../tweaker/core"
 import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import { AnyType, TypeToData } from "../types/schemas"
-import { failure, isPrimitive } from "../utils"
+import { failure, identityFn, isPrimitive } from "../utils"
 import {
   freezeInternalSnapshot,
   getInternalSnapshot,
   reportInternalSnapshotObserved,
 } from "./internal"
 import type { SnapshotOutOf } from "./SnapshotOf"
-
-const identityFn = (x: any) => x
 
 /**
  * Retrieves an immutable snapshot for a data structure.
@@ -37,7 +35,7 @@ export function getSnapshot<T extends AnyType>(
 export function getSnapshot<T>(nodeOrPrimitive: T): SnapshotOutOf<T>
 
 export function getSnapshot(arg1: any, arg2?: any): any {
-  let toSnapshotProcessor = identityFn
+  let toSnapshotProcessor = identityFn as (sn: any) => unknown
   let nodeOrPrimitive: any
 
   if (arguments.length >= 2) {
