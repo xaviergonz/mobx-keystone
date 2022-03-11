@@ -2,7 +2,7 @@
 
 ## 0.67.1
 
-- Improved model creation time by around 25% when using mobx 6.
+- Improved model creation time by around 25% when using mobx 6 on models without mobx decorators.
 
 ## 0.67.0
 
