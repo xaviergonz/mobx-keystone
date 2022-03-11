@@ -14,7 +14,12 @@ import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
-import { getInternalSnapshot, setInternalSnapshot } from "../snapshot/internal"
+import {
+  freezeInternalSnapshot,
+  getInternalSnapshot,
+  setNewInternalSnapshot,
+  updateInternalSnapshot,
+} from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { registerTweaker, tryUntweak, tweak } from "./tweak"
@@ -93,7 +98,7 @@ export function tweakArray<T extends any[]>(
     }
   }
 
-  setInternalSnapshot(tweakedArr, untransformedSn, undefined)
+  setNewInternalSnapshot(tweakedArr, untransformedSn, undefined)
 
   interceptDisposer = intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
   observeDisposer = observe(tweakedArr, arrayDidChange)
@@ -107,7 +112,7 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
 
   const patchRecorder = new InternalPatchRecorder()
 
-  const newSnapshot = oldSnapshot.slice()
+  let mutate: ((sn: any[]) => void) | undefined
 
   switch (change.type) {
     case "splice":
@@ -116,7 +121,7 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
         const addedCount = change.addedCount
         const removedCount = change.removedCount
 
-        let addedItems = []
+        let addedItems: any[] = []
         addedItems.length = addedCount
         for (let i = 0; i < addedCount; i++) {
           const v = change.added[i]
@@ -128,7 +133,9 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
         }
 
         const oldLen = oldSnapshot.length
-        newSnapshot.splice(index, removedCount, ...addedItems)
+        mutate = (newSnapshot) => {
+          newSnapshot.splice(index, removedCount, ...addedItems)
+        }
 
         const patches: Patch[] = []
         const invPatches: Patch[] = []
@@ -138,7 +145,13 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
           for (let i = 0; i < addedCount; i++) {
             const realIndex = index + i
 
-            const newVal = newSnapshot[realIndex]
+            const newVal = getValueAfterSplice(
+              oldSnapshot,
+              realIndex,
+              index,
+              removedCount,
+              addedItems
+            )
             const oldVal = oldSnapshot[realIndex]
 
             if (newVal !== oldVal) {
@@ -147,13 +160,13 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
               patches.push({
                 op: "replace",
                 path,
-                value: newVal,
+                value: freezeInternalSnapshot(newVal),
               })
               // replace ...2, 1, 0 since inverse patches are applied in reverse
               invPatches.push({
                 op: "replace",
                 path,
-                value: oldVal,
+                value: freezeInternalSnapshot(oldVal),
               })
             }
           }
@@ -188,7 +201,7 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
               invPatches.push({
                 op: "add",
                 path,
-                value: oldSnapshot[realIndex],
+                value: freezeInternalSnapshot(oldSnapshot[realIndex]),
               })
             }
           }
@@ -213,7 +226,9 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
               patches.push({
                 op: "add",
                 path,
-                value: newSnapshot[realIndex],
+                value: freezeInternalSnapshot(
+                  getValueAfterSplice(oldSnapshot, realIndex, index, removedCount, addedItems)
+                ),
               })
 
               // remove ...2, 1, 0 since inverse patches are applied in reverse
@@ -235,12 +250,16 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
       {
         const k = change.index
         const val = change.newValue
-        const oldVal = newSnapshot[k]
+        const oldVal = oldSnapshot[k]
+        let newVal: any
         if (isPrimitive(val)) {
-          newSnapshot[k] = val
+          newVal = val
         } else {
           const valueSn = getInternalSnapshot(val)!
-          newSnapshot[k] = valueSn.transformed
+          newVal = valueSn.transformed
+        }
+        mutate = (newSnapshot) => {
+          newSnapshot[k] = newVal
         }
 
         const path = [k]
@@ -250,14 +269,14 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
             {
               op: "replace",
               path,
-              value: newSnapshot[k],
+              value: freezeInternalSnapshot(newVal),
             },
           ],
           [
             {
               op: "replace",
               path,
-              value: oldVal,
+              value: freezeInternalSnapshot(oldVal),
             },
           ]
         )
@@ -267,8 +286,8 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
 
   runTypeCheckingAfterChange(arr, patchRecorder)
 
-  if (!runningWithoutSnapshotOrPatches) {
-    setInternalSnapshot(arr, newSnapshot, undefined)
+  if (!runningWithoutSnapshotOrPatches && mutate) {
+    updateInternalSnapshot(arr, mutate)
     patchRecorder.emit(arr)
   }
 }
@@ -360,4 +379,23 @@ registerTweaker(TweakerPriority.Array, (value, parentPath) => {
 
 const observableOptions = {
   deep: false,
+}
+
+function getValueAfterSplice<T>(
+  array: readonly T[],
+  i: number,
+  index: number,
+  remove: number,
+  addedItems: readonly T[]
+) {
+  const base = i - index
+  if (base < 0) {
+    return array[i]
+  }
+
+  if (base < addedItems.length) {
+    return addedItems[base]
+  }
+
+  return array[i - addedItems.length + remove]
 }

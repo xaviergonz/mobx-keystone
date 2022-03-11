@@ -117,15 +117,6 @@ export function isJSONPrimitive(value: unknown): value is JSONPrimitiveValue {
 /**
  * @internal
  */
-export function debugFreeze(value: object) {
-  if (inDevMode()) {
-    Object.freeze(value)
-  }
-}
-
-/**
- * @internal
- */
 export function deleteFromArray<T>(array: T[], value: T): boolean {
   let index = array.indexOf(value)
   if (index >= 0) {
@@ -381,6 +372,11 @@ export function lazy<A extends unknown[], R>(getter: (...args: A) => R): typeof 
     return memoizedValue
   }
 }
+
+/**
+ * @internal
+ */
+export const identityFn = <T>(x: T): T => x
 
 /**
  * @internal

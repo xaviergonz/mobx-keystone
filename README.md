@@ -1,14 +1,32 @@
-# mobx-keystone
+<p align="center">
+  <img src="./packages/site/static/img/logo.png" height="128" />
+  <h1 align="center">mobx-keystone</h1>
+</p>
+<p align="center">
+  <i>A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more</i>
+</p>
 
-_A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more_
-
-[![npm](https://img.shields.io/npm/v/mobx-keystone.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/mobx-keystone)
-![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=flat-square)
-![types](https://img.shields.io/npm/types/mobx-keystone.svg?style=flat-square&logo=typescript)
-
-[![CI](https://img.shields.io/github/workflow/status/xaviergonz/mobx-keystone/CI?label=CI&logo=github&style=flat-square)](https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml)
-[![codecov](https://codecov.io/gh/xaviergonz/mobx-keystone/branch/master/graph/badge.svg?token=6MLRFUBK8V)](https://codecov.io/gh/xaviergonz/mobx-keystone)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429/deploy-status)](https://app.netlify.com/sites/mobx-keystone/deploys)
+<p align="center">
+  <a aria-label="NPM version" href="https://www.npmjs.com/package/mobx-keystone">
+    <img src="https://img.shields.io/npm/v/mobx-keystone.svg?style=for-the-badge&logo=npm&labelColor=333" />
+  </a>
+  <a aria-label="License" href="./LICENSE">
+    <img src="https://img.shields.io/npm/l/mobx-keystone.svg?style=for-the-badge&labelColor=333" />
+  </a>
+  <a aria-label="Types" href="./packages/lib/tsconfig.json">
+    <img src="https://img.shields.io/npm/types/mobx-keystone.svg?style=for-the-badge&logo=typescript&labelColor=333" />
+  </a>
+  <br />
+  <a aria-label="CI" href="https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml">
+    <img src="https://img.shields.io/github/workflow/status/xaviergonz/mobx-keystone/CI?label=CI&logo=github&style=for-the-badge&labelColor=333" />
+  </a>
+  <a aria-label="Codecov" href="https://codecov.io/gh/xaviergonz/mobx-keystone">
+    <img src="https://img.shields.io/codecov/c/github/xaviergonz/mobx-keystone?token=6MLRFUBK8V&label=codecov&logo=codecov&style=for-the-badge&labelColor=333" />
+  </a>
+  <a aria-label="Netlify Status" href="https://app.netlify.com/sites/mobx-keystone/deploys">
+    <img src="https://img.shields.io/netlify/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429?label=netlify&logo=netlify&style=for-the-badge&labelColor=333" />
+  </a>
+</p>
 
 > ### Full documentation can be found on the site:
 >
@@ -62,7 +80,3 @@ If you are using TypeScript, then version >= 4.2.0 is recommended, though it _mi
 > `npm install mobx-keystone`
 
 > `yarn add mobx-keystone`
-
-## Full documentation
-
-Full documentation can be found on [mobx-keystone.js.org](https://mobx-keystone.js.org)

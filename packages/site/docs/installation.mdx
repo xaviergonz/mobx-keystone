@@ -76,4 +76,27 @@ This library uses JavaScript decorators and class properties which are supported
 ```
 
 </TabItem>
+<TabItem value="swc" label="SWC">
+
+```json title=".swcrc"
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript", // "ecmascript" if you use JavaScript
+      "decorators": true
+    },
+    "transform": {
+      // Optional if you use TypeScript
+      // Required if you use JavaScript
+      "legacyDecorator": true
+    },
+    // MobX 5/6
+    "loose": false
+    // MobX 4
+    "loose": true
+  }
+}
+```
+
+</TabItem>
 </Tabs>

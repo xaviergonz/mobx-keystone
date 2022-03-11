@@ -12,14 +12,19 @@ export interface EnumLike {
   [v: number]: string
 }
 
-function enumValues(e: EnumLike): (string | number)[] {
+/**
+ * @internal
+ */
+export function enumValues(e: EnumLike): (string | number)[] {
   const vals: (string | number)[] = []
   for (const k of Object.keys(e)) {
     const v = e[k]
     // we have to do this since TS does something weird
     // to number values
     // Hi = 0 -> { Hi: 0, 0: "Hi" }
-    if (typeof v !== "string" || e[v] !== +k) {
+    // and SWC currently generates enum code inconsistent with TS/Babel
+    // https://github.com/swc-project/swc/issues/3711
+    if (!vals.includes(v) && ((typeof v !== "string" && v !== +k) || e[v] !== +k)) {
       vals.push(v)
     }
   }
@@ -51,7 +56,7 @@ export type EnumValues<E extends EnumLike> = E extends Record<
  * const colorType = types.enum(Color)
  * ```
  *
- * @template E Enum type.
+ * @typeparam E Enum type.
  * @param enumObject
  * @returns
  */

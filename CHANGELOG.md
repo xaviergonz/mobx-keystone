@@ -1,6 +1,10 @@
 # Change Log
 
 - Added runtime type-checker for BigInt.
+
+## 0.67.0
+
+- Big speedup in certain cases (when many mutations are done between `getSnapshot` calls) by delaying the immutable object creation to the point when `getSnapshot` is called.
 - Fixed typing issue related to generics with optional props.
 
 ## 0.66.1

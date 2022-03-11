@@ -45,6 +45,7 @@ jobs:
         compiler:
           - tsc
           - babel
+          - swc
         mobx-version:
           - 6
           - 5
@@ -70,6 +71,29 @@ jobs:
         env:
           COMPILER: ${{ matrix.compiler }}
           MOBX_VERSION: ${{ matrix.mobx-version }}
+
+  benchmark-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache .yarn/cache
+        uses: actions/cache@v2
+        with:
+          path: .yarn/cache
+          key: v3-${{ runner.os }}-yarn_cache
+          restore-keys: |
+            v3-${{ runner.os }}-
+
+      - run: yarn install --immutable
+      - run: yarn lib:build
+      - run: yarn build
+        working-directory: ./packages/benchmark
 
   formatting:
     runs-on: ubuntu-latest

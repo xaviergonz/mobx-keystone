@@ -1,11 +1,9 @@
-import { assertIsPrimitive } from "../../utils"
+import { assertIsPrimitive, identityFn } from "../../utils"
 import type { PrimitiveValue } from "../../utils/types"
 import { registerStandardTypeResolver } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
-
-const identityFn = <T>(x: T): T => x
 
 /**
  * A type that represents a certain value of a primitive (for example an *exact* number or string).

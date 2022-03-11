@@ -54,7 +54,7 @@ export interface ReduxMiddleware<T> {
 /**
  * Generates a redux compatible store out of a mobx-keystone object.
  *
- * @template T Object type.
+ * @typeparam T Object type.
  * @param target Root object.
  * @param middlewares Optional list of redux middlewares.
  * @returns A redux compatible store.
