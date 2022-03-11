@@ -58,6 +58,9 @@ const internalModel =
       throw failure("a class already decorated with `@model` cannot be re-decorated")
     }
 
+    // track if we fail so we only try it once per class
+    let makeObservableFailed = false
+
     // trick so plain new works
     const newClazz: any = function (this: any, initialData: any, modelConstructorOptions: any) {
       const instance = new (clazz as any)(initialData, modelConstructorOptions)
@@ -73,13 +76,15 @@ const internalModel =
       runLateInitializationFunctions(instance, runAfterNewSymbol)
 
       // compatibility with mobx 6
-      if (getMobxVersion() >= 6) {
+      if (!makeObservableFailed && getMobxVersion() >= 6) {
         try {
           mobx6.makeObservable(instance)
         } catch (e) {
-          const err = e as Error
           // sadly we need to use this hack since the PR to do this the proper way
           // was rejected on the mobx side
+          makeObservableFailed = true
+
+          const err = e as Error
           if (
             err.message !==
               "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&

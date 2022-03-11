@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.67.1
+
+- Improved model creation time by around 25% when using mobx 6.
+
 ## 0.67.0
 
 - Big speedup in certain cases (when many mutations are done between `getSnapshot` calls) by delaying the immutable object creation to the point when `getSnapshot` is called.
