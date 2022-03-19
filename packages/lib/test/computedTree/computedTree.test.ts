@@ -444,7 +444,7 @@ test("computed tree node can reference a regular tree node", () => {
   expect(r.ref?.maybeCurrent).toBe(m)
   // now `r.ref` has been accessed
   expect(m.backrefs.size).toBe(1)
-  expect(m.backrefs.has(r.ref)).toBeTruthy()
+  expect(m.backrefs.has(r.ref!)).toBeTruthy()
 
   r.setM(undefined)
   expect(r.m).toBeUndefined()
