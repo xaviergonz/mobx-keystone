@@ -63,12 +63,12 @@ export function internalCustomRef<T extends object>(
       return this.resolver(this)
     }
 
-    #savedOldTarget: T | undefined
+    private savedOldTarget: T | undefined
 
     private internalForceUpdateBackRefs(newTarget: T | undefined) {
-      const oldTarget = this.#savedOldTarget
+      const oldTarget = this.savedOldTarget
       // update early in case of thrown exceptions
-      this.#savedOldTarget = newTarget
+      this.savedOldTarget = newTarget
 
       updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
     }
