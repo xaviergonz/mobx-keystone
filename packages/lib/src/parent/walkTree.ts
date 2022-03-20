@@ -22,106 +22,76 @@ export enum WalkTreeMode {
  * then the walk will be stopped and the function will return the returned value.
  *
  * @typeparam T Returned object type, defaults to void.
- * @param target Subtree root object.
- * @param predicate Function that will be run for each node of the tree.
+ * @param root Subtree root object.
+ * @param visit Function that will be run for each node of the tree.
  * @param mode Mode to walk the tree, as defined in `WalkTreeMode`.
  * @returns
  */
 export function walkTree<T = void>(
-  target: object,
-  predicate: (node: object) => T | undefined,
+  root: object,
+  visit: (node: object) => T | undefined,
   mode: WalkTreeMode
 ): T | undefined {
-  assertTweakedObject(target, "target")
+  assertTweakedObject(root, "root")
 
   if (mode === WalkTreeMode.ParentFirst) {
-    const recurse: (node: object) => T | undefined = (child) =>
-      walkTreeParentFirst(child, predicate, recurse)
-    return walkTreeParentFirst(target, predicate, recurse)
+    return walkTreeParentFirst(root, visit)
   } else {
-    const recurse: (node: object) => T | undefined = (child) =>
-      walkTreeChildrenFirst(child, predicate, recurse)
-    return walkTreeChildrenFirst(target, predicate, recurse)
+    return walkTreeChildrenFirst(root, visit)
   }
 }
 
 function walkTreeParentFirst<T = void>(
-  target: object,
-  rootPredicate: (node: object) => T | undefined,
-  recurse: (node: object) => T | undefined
+  root: object,
+  visit: (node: object) => T | undefined
 ): T | undefined {
-  const ret = rootPredicate(target)
-  if (ret !== undefined) {
-    return ret
-  }
+  const stack: object[] = [root]
 
-  const childrenIter = getObjectChildren(target)!.values()
-  let ch = childrenIter.next()
-  while (!ch.done) {
-    const ret = recurse(ch.value)
+  while (stack.length > 0) {
+    const node = stack.pop()!
+
+    const ret = visit(node)
     if (ret !== undefined) {
       return ret
     }
-    ch = childrenIter.next()
+
+    const children = getObjectChildren(node)!
+
+    stack.length += children.size
+    let i = stack.length - 1
+
+    const childrenIter = children!.values()
+    let ch = childrenIter.next()
+    while (!ch.done) {
+      stack[i--] = ch.value
+      ch = childrenIter.next()
+    }
   }
 
   return undefined
 }
 
 function walkTreeChildrenFirst<T = void>(
-  target: object,
-  rootPredicate: (node: object) => T | undefined,
-  recurse: (node: object) => T | undefined
+  root: object,
+  visit: (node: object) => T | undefined
 ): T | undefined {
-  const childrenIter = getObjectChildren(target)!.values()
+  const childrenIter = getObjectChildren(root)!.values()
   let ch = childrenIter.next()
   while (!ch.done) {
-    const ret = recurse(ch.value)
+    const ret = walkTreeChildrenFirst(ch.value, visit)
     if (ret !== undefined) {
       return ret
     }
     ch = childrenIter.next()
   }
 
-  const ret = rootPredicate(target)
+  const ret = visit(root)
   if (ret !== undefined) {
     return ret
   }
 
   return undefined
 }
-
-/**
- * @internal
- */
-/*
-export function computedWalkTreeParentFirst<T = void>(
-  predicate: (node: object) => T | undefined
-): {
-  walk(target: object): T | undefined
-} {
-  const computedFns = new WeakMap<object, IComputedValue<T | undefined>>()
-
-  const getComputedTreeResult = (tree: object): T | undefined => {
-    let cmpted = computedFns.get(tree)
-    if (!cmpted) {
-      cmpted = computed(() => {
-        return walkTreeParentFirst(tree, predicate, recurse)
-      })
-      computedFns.set(tree, cmpted)
-    }
-    return cmpted.get()
-  }
-
-  const recurse = (ch: object) => getComputedTreeResult(ch)
-
-  return {
-    walk(target) {
-      return getComputedTreeResult(target)
-    },
-  }
-}
-*/
 
 /**
  * @internal
@@ -130,41 +100,41 @@ export interface ComputedWalkTreeAggregate<R> {
   walk(target: object): Map<R, object> | undefined
 }
 
+function getComputedTreeResult<R>(
+  computedFns: WeakMap<object, IComputedValue<Map<R, object> | undefined>>,
+  visit: (node: object) => R | undefined,
+  tree: object
+): Map<R, object> | undefined {
+  let cmpted = computedFns.get(tree)
+  if (!cmpted) {
+    cmpted = computed(() => {
+      return walkTreeAggregate(tree, visit, (ch) => getComputedTreeResult(computedFns, visit, ch))
+    })
+    computedFns.set(tree, cmpted)
+  }
+  return cmpted.get()
+}
+
 /**
  * @internal
  */
 export function computedWalkTreeAggregate<R>(
-  predicate: (node: object) => R | undefined
+  visit: (node: object) => R | undefined
 ): ComputedWalkTreeAggregate<R> {
   const computedFns = new WeakMap<object, IComputedValue<Map<R, object> | undefined>>()
 
-  const getComputedTreeResult = (tree: object): Map<R, object> | undefined => {
-    let cmpted = computedFns.get(tree)
-    if (!cmpted) {
-      cmpted = computed(() => {
-        return walkTreeAggregate(tree, predicate, recurse)
-      })
-      computedFns.set(tree, cmpted)
-    }
-    return cmpted.get()
-  }
-
-  const recurse = (ch: object) => getComputedTreeResult(ch)
-
   return {
-    walk(target) {
-      return getComputedTreeResult(target)
-    },
+    walk: (n) => getComputedTreeResult(computedFns, visit, n),
   }
 }
 
 function walkTreeAggregate<R>(
   target: object,
-  rootPredicate: (node: object) => R | undefined,
+  visit: (node: object) => R | undefined,
   recurse: (node: object) => Map<R, object> | undefined
 ): Map<R, object> | undefined {
   let map: Map<R, object> | undefined
-  const rootVal = rootPredicate(target)
+  const rootVal = visit(target)
 
   const childrenMap = getObjectChildren(target)!
   const childrenIter = childrenMap!.values()
