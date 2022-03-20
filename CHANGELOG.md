@@ -1,5 +1,7 @@
 # Change Log
 
+- Small optimization to some of the walk tree methods.
+
 ## 0.67.1
 
 - Improved model creation time by around 25% when using mobx 6 for models without mobx decorators.
