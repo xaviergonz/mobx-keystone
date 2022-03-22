@@ -6,9 +6,9 @@ dist/
 /packages/lib/LICENSE
 /packages/lib/CHANGELOG.md
 
-/packages/site/.docusaurus/
-/packages/site/build/
-/packages/site/static/api/
+/apps/site/.docusaurus/
+/apps/site/build/
+/apps/site/static/api/
 
 .yarn/
 !.yarn/patches

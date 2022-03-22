@@ -1,0 +1,38 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "mobx-keystone#build-docs": {
+      "dependsOn": ["build"],
+      "outputs": ["../../apps/site/static/api/**"]
+    },
+    "mobx-keystone#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "site#build": {
+      "dependsOn": ["^build", "^build-docs"],
+      "outputs": ["build/**"]
+    },
+    "site#serve": {
+      "cache": false,
+      "dependsOn": ["build"],
+      "outputs": []
+    },
+    "site#start": {
+      "cache": false,
+      "dependsOn": ["^build", "^build-docs"],
+      "outputs": []
+    },
+    "mobx-keystone#test": {
+      "dependsOn": ["$compiler", "$mobx-version"],
+      "outputs": []
+    },
+    "mobx-keystone#test:ci": {
+      "dependsOn": ["$compiler", "$mobx-version"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    }
+  }
+}

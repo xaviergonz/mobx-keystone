@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./packages/site/static/img/logo.png" height="128" />
+  <img src="./apps/site/static/img/logo.png" height="128" />
   <h1 align="center">mobx-keystone</h1>
 </p>
 <p align="center">

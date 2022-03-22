@@ -22,7 +22,7 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
-          editUrl: "https://github.com/xaviergonz/mobx-keystone/edit/master/packages/site/",
+          editUrl: "https://github.com/xaviergonz/mobx-keystone/edit/master/apps/site/",
           routeBasePath: docsRouteBasePath,
         },
         blog: false,
