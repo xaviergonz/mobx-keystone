@@ -806,3 +806,23 @@ test("generic model instance factory", () => {
   createParent(10)
   createChild(10, 20)
 })
+
+test("statics get inherited", () => {
+  @model("statics get inherited/A")
+  class StaticA extends Model({}) {
+    static foo: "foo" = "foo"
+  }
+
+  @model("statics get inherited/B")
+  class StaticB extends ExtendedModel(StaticA, {}) {
+    static bar: "bar" = "bar"
+  }
+
+  assert(StaticA.foo, _ as "foo")
+  assert(StaticB.foo, _ as "foo")
+  assert(StaticB.bar, _ as "bar")
+
+  expect(StaticA.foo).toBe("foo")
+  expect(StaticB.foo).toBe("foo")
+  expect(StaticB.bar).toBe("bar")
+})

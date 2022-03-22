@@ -1,6 +1,9 @@
 # Change Log
 
+## 0.67.2
+
 - Small optimization to some of the walk tree methods.
+- Fixed a typing issue where statics would not be picked up by ExtendedModel.
 
 ## 0.67.1
 

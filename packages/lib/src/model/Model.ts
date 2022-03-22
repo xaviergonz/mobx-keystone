@@ -60,30 +60,30 @@ export type ExtractModelIdProp<TProps extends ModelProps> = {
  * Base abstract class for models that extends another model.
  *
  * @typeparam TProps New model properties type.
- * @typeparam TModel Model type.
+ * @typeparam TModelClass Model class type.
  * @param genFn Function that returns the base model and model properties.
  * @param modelOptions Model options.
  * @returns
  */
 export function ExtendedModel<
   TProps extends ModelProps,
-  TModel extends AnyModel,
+  TModelClass extends AbstractModelClass<AnyModel>,
   A extends [],
   FS = never,
   TS = never
 >(
   genFn: (...args: A) => {
-    baseModel: AbstractModelClass<TModel>
+    baseModel: TModelClass
     props: TProps
   },
   modelOptions?: ModelOptions<TProps, FS, TS>
-): _Model<TModel, TProps, FS, TS>
+): _Model<InstanceType<TModelClass>, TProps, FS, TS>
 
 /**
  * Base abstract class for models that extends another model.
  *
  * @typeparam TProps New model properties type.
- * @typeparam TModel Model type.
+ * @typeparam TModelClass Model class type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @param modelOptions Model options.
@@ -91,22 +91,24 @@ export function ExtendedModel<
  */
 export function ExtendedModel<
   TProps extends ModelProps,
-  TModel extends AnyModel,
+  TModelClass extends AbstractModelClass<AnyModel>,
   FS = never,
   TS = never
 >(
-  baseModel: AbstractModelClass<TModel>,
+  baseModel: TModelClass,
   modelProps: TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
-): _Model<TModel, TProps, FS, TS>
+): _Model<InstanceType<TModelClass>, TProps, FS, TS> & {
+  [P in Exclude<keyof TModelClass, "prototype">]: TModelClass[P]
+}
 
 // base
 export function ExtendedModel<
   TProps extends ModelProps,
-  TModel extends AnyModel,
+  TModelClass extends AbstractModelClass<AnyModel>,
   FS = never,
   TS = never
->(...args: any[]): _Model<TModel, TProps, FS, TS> {
+>(...args: any[]): _Model<InstanceType<TModelClass>, TProps, FS, TS> {
   let baseModel
   let modelProps
   let modelOptions
