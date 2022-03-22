@@ -57,6 +57,7 @@
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
     "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp ./dist/mobx-keystone.es.js ./dist/mobx-keystone.es.mjs",
     "test": "jest",
+    "test:ci": "yarn test -i --coverage",
     "test:perf": "yarn build && yarn test:perf:run",
     "test:perf:run": "cd perf_bench && export NODE_ENV=production && /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
     "build-docs": "shx rm -rf ../../apps/site/static/api && typedoc --options ./typedocconfig.js src/index.ts",

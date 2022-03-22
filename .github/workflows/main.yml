@@ -67,7 +67,7 @@ jobs:
             v3-${{ runner.os }}-
 
       - run: yarn install --immutable
-      - run: yarn lib:test -i --coverage && yarn codecov -p ./packages/lib
+      - run: yarn lib:test:ci && yarn codecov -p ./packages/lib
         env:
           COMPILER: ${{ matrix.compiler }}
           MOBX_VERSION: ${{ matrix.mobx-version }}

@@ -23,7 +23,12 @@
       "dependsOn": ["^build", "^build-docs"],
       "outputs": []
     },
-    "test": {
+    "mobx-keystone#test": {
+      "dependsOn": ["$compiler", "$mobx-version"],
+      "outputs": []
+    },
+    "mobx-keystone#test:ci": {
+      "dependsOn": ["$compiler", "$mobx-version"],
       "outputs": []
     },
     "lint": {
