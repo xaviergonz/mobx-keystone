@@ -33,7 +33,7 @@ jobs:
             v3-${{ runner.os }}-
 
       - run: yarn install --immutable
-      - run: yarn lib:build && yarn lib:build-docs && yarn site:build
+      - run: yarn site:build
 
   lib-test:
     name: lib-test (${{ matrix.compiler }} - mobx${{ matrix.mobx-version }})
@@ -93,7 +93,7 @@ jobs:
       - run: yarn install --immutable
       - run: yarn lib:build
       - run: yarn build
-        working-directory: ./packages/benchmark
+        working-directory: ./apps/benchmark
 
   formatting:
     runs-on: ubuntu-latest
