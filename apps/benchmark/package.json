@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "benchmark",
+  "type": "module",
   "version": "0.0.0",
   "description": "Benchmark for mobx-keystone",
   "main": "dist/index.js",
@@ -12,7 +13,7 @@
   },
   "dependencies": {
     "benchmark": "^2.1.4",
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.1",
     "mobx": "^6.5.0",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-state-tree": "^5.1.3",

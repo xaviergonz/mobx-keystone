@@ -5,12 +5,12 @@ import {
   setGlobalConfig,
 } from "mobx-keystone"
 import { getSnapshot as mstGetSnapshot } from "mobx-state-tree"
-import { bench } from "./bench"
-import { ESBigModel } from "./models/es6"
-import { BigModel } from "./models/ks-nonTypeChecked"
-import { TcBigModel } from "./models/ks-typeChecked"
-import { MobxBigModel } from "./models/mobx"
-import { mstBigModel } from "./models/mst"
+import { bench } from "./bench.js"
+import { ESBigModel } from "./models/es6.js"
+import { BigModel } from "./models/ks-nonTypeChecked.js"
+import { TcBigModel } from "./models/ks-typeChecked.js"
+import { MobxBigModel } from "./models/mobx.js"
+import { mstBigModel } from "./models/mst.js"
 
 const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
   ModelAutoTypeCheckingMode.AlwaysOn,

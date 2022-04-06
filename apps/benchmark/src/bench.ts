@@ -1,4 +1,4 @@
-import * as Benchmark from "benchmark"
+import Benchmark from "benchmark"
 import chalk from "chalk"
 
 export function bench(

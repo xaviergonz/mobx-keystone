@@ -7,6 +7,8 @@ module.exports = {
     "plugin:import/typescript",
   ],
   rules: {
+    // doesn't get along well with .js extensions (needed so node "type": module works)
+    "import/no-unresolved": "off",
     // "import/no-cycle": ["error", { ignoreExternal: true }],
   },
 }
