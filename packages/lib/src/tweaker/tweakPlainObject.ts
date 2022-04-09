@@ -32,14 +32,14 @@ import { runTypeCheckingAfterChange } from "./typeChecking"
 /**
  * @internal
  */
-export function tweakPlainObject<T>(
+export function tweakPlainObject<T extends Record<string, any>>(
   value: T,
   parentPath: ParentPath<any> | undefined,
   snapshotModelType: string | undefined,
   doNotTweakChildren: boolean,
   isDataObject: boolean
 ): T {
-  const originalObj: { [k: string]: any } = value
+  const originalObj: Record<string, any> = value
   const tweakedObj = isObservableObject(originalObj)
     ? originalObj
     : observable.object({}, undefined, observableOptions)
@@ -230,7 +230,7 @@ function objectDidChange(change: IObjectDidChange): void {
 
   runTypeCheckingAfterChange(obj, patchRecorder)
 
-  if (!runningWithoutSnapshotOrPatches && mutate) {
+  if (!runningWithoutSnapshotOrPatches && mutate!) {
     updateInternalSnapshot(actualNode, mutate)
     patchRecorder.emit(actualNode)
   }
@@ -277,7 +277,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
 registerTweaker(TweakerPriority.PlainObject, (value, parentPath) => {
   // plain object
   if (isObservableObject(value) || isPlainObject(value)) {
-    return tweakPlainObject(value, parentPath, undefined, false, false)
+    return tweakPlainObject(value as Record<string, any>, parentPath, undefined, false, false)
   }
   return undefined
 })

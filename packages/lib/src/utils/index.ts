@@ -72,7 +72,7 @@ export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: bo
 /**
  * @internal
  */
-export function isPlainObject(value: unknown): value is Object {
+export function isPlainObject(value: unknown): value is Record<PropertyKey, unknown> {
   if (!isObject(value)) return false
   const proto = Object.getPrototypeOf(value)
   return proto === Object.prototype || proto === null

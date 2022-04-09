@@ -40,8 +40,8 @@ export type _ModelId<SuperModel, TProps extends ModelProps> = SuperModel extends
 export interface _Model<
   SuperModel,
   TProps extends ModelProps,
-  FromSnapshotOverride,
-  ToSnapshotOverride
+  FromSnapshotOverride extends Record<string, any>,
+  ToSnapshotOverride extends Record<string, any>
 > {
   new (data: _ComposedCreationData<SuperModel, TProps>): SuperModel &
     BaseModel<TProps, FromSnapshotOverride, ToSnapshotOverride, _ModelId<SuperModel, TProps>> &
@@ -69,8 +69,8 @@ export function ExtendedModel<
   TProps extends ModelProps,
   TModelClass extends AbstractModelClass<AnyModel>,
   A extends [],
-  FS = never,
-  TS = never
+  FS extends Record<string, any> = never,
+  TS extends Record<string, any> = never
 >(
   genFn: (...args: A) => {
     baseModel: TModelClass
@@ -92,8 +92,8 @@ export function ExtendedModel<
 export function ExtendedModel<
   TProps extends ModelProps,
   TModelClass extends AbstractModelClass<AnyModel>,
-  FS = never,
-  TS = never
+  FS extends Record<string, any> = never,
+  TS extends Record<string, any> = never
 >(
   baseModel: TModelClass,
   modelProps: TProps,
@@ -106,8 +106,8 @@ export function ExtendedModel<
 export function ExtendedModel<
   TProps extends ModelProps,
   TModelClass extends AbstractModelClass<AnyModel>,
-  FS = never,
-  TS = never
+  FS extends Record<string, any> = never,
+  TS extends Record<string, any> = never
 >(...args: any[]): _Model<InstanceType<TModelClass>, TProps, FS, TS> {
   let baseModel
   let modelProps
@@ -138,7 +138,12 @@ export function ExtendedModel<
  * @param fnModelProps Function that generates model properties.
  * @param modelOptions Model options.
  */
-export function Model<TProps extends ModelProps, A extends [], FS = never, TS = never>(
+export function Model<
+  TProps extends ModelProps,
+  A extends [],
+  FS extends Record<string, any> = never,
+  TS extends Record<string, any> = never
+>(
   fnModelProps: (...args: A) => TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
 ): _Model<unknown, TProps, FS, TS>
@@ -152,13 +157,18 @@ export function Model<TProps extends ModelProps, A extends [], FS = never, TS = 
  * @param modelProps Model properties.
  * @param modelOptions Model options.
  */
-export function Model<TProps extends ModelProps, FS = never, TS = never>(
-  modelProps: TProps,
-  modelOptions?: ModelOptions<TProps, FS, TS>
-): _Model<unknown, TProps, FS, TS>
+export function Model<
+  TProps extends ModelProps,
+  FS extends Record<string, any> = never,
+  TS extends Record<string, any> = never
+>(modelProps: TProps, modelOptions?: ModelOptions<TProps, FS, TS>): _Model<unknown, TProps, FS, TS>
 
 // base
-export function Model<TProps extends ModelProps, FS = never, TS = never>(
+export function Model<
+  TProps extends ModelProps,
+  FS extends Record<string, any> = never,
+  TS extends Record<string, any> = never
+>(
   fnModelPropsOrModelProps: (() => TProps) | TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
 ): _Model<unknown, TProps, FS, TS> {
@@ -172,8 +182,8 @@ export function Model<TProps extends ModelProps, FS = never, TS = never>(
 function internalModel<
   TProps extends ModelProps,
   TBaseModel extends AnyModel,
-  FS = never,
-  TS = never
+  FS extends Record<string, any> = never,
+  TS extends Record<string, any> = never
 >(
   modelProps: TProps,
   baseModel: ModelClass<TBaseModel> | undefined,

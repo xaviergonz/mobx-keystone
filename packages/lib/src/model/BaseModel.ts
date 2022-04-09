@@ -40,20 +40,20 @@ export const modelIdPropertyNameSymbol = Symbol("modelIdPropertyName")
  */
 export abstract class BaseModel<
   TProps extends ModelProps,
-  FromSnapshotOverride extends { [k: string]: any },
-  ToSnapshotOverride extends { [k: string]: any },
+  FromSnapshotOverride extends Record<string, any>,
+  ToSnapshotOverride extends Record<string, any>,
   ModelIdPropertyName extends string = never
 > {
   // just to make typing work properly
-  [propsTypeSymbol]: TProps;
-  [fromSnapshotOverrideTypeSymbol]: FromSnapshotOverride;
-  [toSnapshotOverrideTypeSymbol]: ToSnapshotOverride;
-  [modelIdPropertyNameSymbol]: ModelIdPropertyName;
+  [propsTypeSymbol]!: TProps;
+  [fromSnapshotOverrideTypeSymbol]!: FromSnapshotOverride;
+  [toSnapshotOverrideTypeSymbol]!: ToSnapshotOverride;
+  [modelIdPropertyNameSymbol]!: ModelIdPropertyName;
 
   /**
    * Model type name.
    */
-  readonly [modelTypeKey]: string
+  readonly [modelTypeKey]!: string
 
   /**
    * Model internal id. Can be modified inside a model action.

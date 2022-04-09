@@ -5,7 +5,7 @@ import { failure, isPrimitive } from "../utils"
 /**
  * @internal
  */
-export const tweakedObjects = new WeakMap<Object, undefined | (() => void)>()
+export const tweakedObjects = new WeakMap<object, undefined | (() => void)>()
 
 /**
  * @internal

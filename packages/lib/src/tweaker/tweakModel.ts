@@ -8,7 +8,7 @@ import { TweakerPriority } from "./TweakerPriority"
 /**
  * @internal
  */
-export function tweakModel<T>(value: T, parentPath: ParentPath<any> | undefined): T {
+export function tweakModel<T extends object>(value: T, parentPath: ParentPath<any> | undefined): T {
   tweakedObjects.set(value, undefined)
   setParent({
     value,

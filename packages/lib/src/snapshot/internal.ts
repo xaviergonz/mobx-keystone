@@ -1,6 +1,7 @@
 import { action, createAtom, IAtom } from "mobx"
 import { fastGetParentPath, ParentPath } from "../parent/path"
 import { isPrimitive } from "../utils"
+import { PrimitiveValue } from "../utils/types"
 
 /**
  * @internal
@@ -14,11 +15,11 @@ interface SnapshotData {
   readonly atom: IAtom
 }
 
-const snapshots = new WeakMap<Object, SnapshotData>()
+const snapshots = new WeakMap<object, SnapshotData>()
 
 // true if it has been accessed publicly and therefore should be cloned
 // rather than modified in place
-const frozenState = new WeakMap<Object, boolean>()
+const frozenState = new WeakMap<object, boolean>()
 
 /**
  * @internal
@@ -148,7 +149,7 @@ export function reportInternalSnapshotObserved(sn: SnapshotData) {
 /**
  * @internal
  */
-export function freezeInternalSnapshot<T>(data: T): T {
+export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: T): T {
   if (isPrimitive(data)) {
     return data
   }
