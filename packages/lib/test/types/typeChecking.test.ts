@@ -1301,14 +1301,14 @@ test("issue #445", () => {
   }) {}
 
   const t1 = new T({ arrUnd: undefined, arrNull: null })
-  expect(t1.arrUnd).toEqual(undefined)
-  expect(t1.arrNull).toEqual(null)
+  expect(toJS(t1.arrUnd)).toEqual(undefined)
+  expect(toJS(t1.arrNull)).toEqual(null)
 
   const t2 = new T({ arrUnd: [], arrNull: [] })
-  expect(t2.arrUnd).toEqual([])
-  expect(t2.arrNull).toEqual([])
+  expect(toJS(t2.arrUnd)).toEqual([])
+  expect(toJS(t2.arrNull)).toEqual([])
 
   const t3 = new T({ arrUnd: ["5"], arrNull: [5] })
-  expect(t3.arrUnd).toEqual(["5"])
-  expect(t3.arrNull).toEqual([5])
+  expect(toJS(t3.arrUnd)).toEqual(["5"])
+  expect(toJS(t3.arrNull)).toEqual([5])
 })
