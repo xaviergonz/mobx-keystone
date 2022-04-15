@@ -4450,10 +4450,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^17.0.23, @types/node@npm:^17.0.5":
-  version: 17.0.23
-  resolution: "@types/node@npm:17.0.23"
-  checksum: a3517554737cbb042e76c30d0e5482192ac4d9bea0eeb086e2622d9cabf460a0eb52a696b99fcd18e7fcc93c96db6cc7ae507f6608f256ef0b5c1d8c87a5a470
+"@types/node@npm:*, @types/node@npm:^17.0.24, @types/node@npm:^17.0.5":
+  version: 17.0.24
+  resolution: "@types/node@npm:17.0.24"
+  checksum: 9e7c4f863601b2430b4c2429a89935f22eba692956f5013c90a4c7fb0e1401ed8add8c4307453c5d6b8b985384500f8c3f644427ab88632640cc396159af479a
   languageName: node
   linkType: hard
 
@@ -9255,9 +9255,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-react-app@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "eslint-config-react-app@npm:7.0.0"
+"eslint-config-react-app@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "eslint-config-react-app@npm:7.0.1"
   dependencies:
     "@babel/core": ^7.16.0
     "@babel/eslint-parser": ^7.16.3
@@ -9275,7 +9275,7 @@ __metadata:
     eslint-plugin-testing-library: ^5.0.1
   peerDependencies:
     eslint: ^8.0.0
-  checksum: dac130cfcb9689596ce3495692fecb25d913ba81de0e0c3e4b078ae79f0f0d20a77751f30823c5b3c09d66981c1df7f2836aa193f5c6c542faeb17761cd62019
+  checksum: a67e0821809e62308d6e419753fa2acfc7cd353659fab08cf34735f59c6c66910c0b6fda0471c4ec0d712ce762d65efc6431b39569f8d575e2d9bdfc384e0824
   languageName: node
   linkType: hard
 
@@ -14700,7 +14700,7 @@ __metadata:
     "@swc/core": ^1.2.165
     "@swc/jest": ^0.2.20
     "@types/jest": ^27.4.1
-    "@types/node": ^17.0.23
+    "@types/node": ^17.0.24
     babel-jest: ^27.5.1
     fast-deep-equal: ^3.1.3
     jest: ^27.5.1
@@ -14717,7 +14717,7 @@ __metadata:
     tslib: ^2.3.1
     typedoc: ^0.22.15
     typescript: ^4.6.3
-    vite: ^2.9.1
+    vite: ^2.9.5
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
@@ -18295,11 +18295,11 @@ __metadata:
     codecov: ^3.8.3
     eslint: ^8.13.0
     eslint-config-prettier: ^8.5.0
-    eslint-config-react-app: ^7.0.0
+    eslint-config-react-app: ^7.0.1
     netlify-cli: ^9.16.6
     prettier: ^2.6.2
     prettier-plugin-organize-imports: ^2.3.4
-    turbo: ^1.2.2
+    turbo: ^1.2.4
     typescript: ^4.6.3
     utf-8-validate: ^5.0.9
   languageName: unknown
@@ -20356,106 +20356,106 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-darwin-64@npm:1.2.2"
+"turbo-darwin-64@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-darwin-64@npm:1.2.4"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-darwin-arm64@npm:1.2.2"
+"turbo-darwin-arm64@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-darwin-arm64@npm:1.2.4"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-freebsd-64@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-freebsd-64@npm:1.2.2"
+"turbo-freebsd-64@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-freebsd-64@npm:1.2.4"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-freebsd-arm64@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-freebsd-arm64@npm:1.2.2"
+"turbo-freebsd-arm64@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-freebsd-arm64@npm:1.2.4"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-32@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-linux-32@npm:1.2.2"
+"turbo-linux-32@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-linux-32@npm:1.2.4"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-linux-64@npm:1.2.2"
+"turbo-linux-64@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-linux-64@npm:1.2.4"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-linux-arm64@npm:1.2.2"
+"turbo-linux-arm64@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-linux-arm64@npm:1.2.4"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-linux-arm@npm:1.2.2"
+"turbo-linux-arm@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-linux-arm@npm:1.2.4"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"turbo-linux-mips64le@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-linux-mips64le@npm:1.2.2"
+"turbo-linux-mips64le@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-linux-mips64le@npm:1.2.4"
   conditions: os=linux & cpu=mips64el
   languageName: node
   linkType: hard
 
-"turbo-linux-ppc64le@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-linux-ppc64le@npm:1.2.2"
+"turbo-linux-ppc64le@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-linux-ppc64le@npm:1.2.4"
   conditions: os=linux & cpu=ppc64
   languageName: node
   linkType: hard
 
-"turbo-windows-32@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-windows-32@npm:1.2.2"
+"turbo-windows-32@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-windows-32@npm:1.2.4"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:1.2.2":
-  version: 1.2.2
-  resolution: "turbo-windows-64@npm:1.2.2"
+"turbo-windows-64@npm:1.2.4":
+  version: 1.2.4
+  resolution: "turbo-windows-64@npm:1.2.4"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.2.2":
-  version: 1.2.2
-  resolution: "turbo@npm:1.2.2"
+"turbo@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "turbo@npm:1.2.4"
   dependencies:
-    turbo-darwin-64: 1.2.2
-    turbo-darwin-arm64: 1.2.2
-    turbo-freebsd-64: 1.2.2
-    turbo-freebsd-arm64: 1.2.2
-    turbo-linux-32: 1.2.2
-    turbo-linux-64: 1.2.2
-    turbo-linux-arm: 1.2.2
-    turbo-linux-arm64: 1.2.2
-    turbo-linux-mips64le: 1.2.2
-    turbo-linux-ppc64le: 1.2.2
-    turbo-windows-32: 1.2.2
-    turbo-windows-64: 1.2.2
+    turbo-darwin-64: 1.2.4
+    turbo-darwin-arm64: 1.2.4
+    turbo-freebsd-64: 1.2.4
+    turbo-freebsd-arm64: 1.2.4
+    turbo-linux-32: 1.2.4
+    turbo-linux-64: 1.2.4
+    turbo-linux-arm: 1.2.4
+    turbo-linux-arm64: 1.2.4
+    turbo-linux-mips64le: 1.2.4
+    turbo-linux-ppc64le: 1.2.4
+    turbo-windows-32: 1.2.4
+    turbo-windows-64: 1.2.4
   dependenciesMeta:
     turbo-darwin-64:
       optional: true
@@ -20483,7 +20483,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: 161cb5f927205d9426c50443255d24a0c6adb4a64af12ea0f37bd8578046f6a5162ca91697eed03847e4d5d8126c4f88443bf1f41a07b97dc7eebbedbd52740a
+  checksum: a68362a1722136b4d26c9217b7da5272ea6d82b70a7855f4c2260d02aac402bbf0c866dcbd7e55a040b4327107e70dbfd357550042c02b601669477788385711
   languageName: node
   linkType: hard
 
@@ -21222,9 +21222,9 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"vite@npm:^2.9.1":
-  version: 2.9.1
-  resolution: "vite@npm:2.9.1"
+"vite@npm:^2.9.5":
+  version: 2.9.5
+  resolution: "vite@npm:2.9.5"
   dependencies:
     esbuild: ^0.14.27
     fsevents: ~2.3.2
@@ -21247,7 +21247,7 @@ typescript@^3.9.7:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 0f0ac9337fa5c17faa4a59831a2df17475563b23a6162e86b2b60b19835ca1277f3249ea7a6608880354b39caf05779e9bad1e3b1f5b27010deced224aae47ea
+  checksum: 354189cbce6904a3b58ca70b7ad9e1bb751ded9c13e483165562e634804cfb29bbf1507a4e6334cb9987e3f1f41e9f50764878a3c837523762e9da65229c9543
   languageName: node
   linkType: hard
 
