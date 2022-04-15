@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.67.3
+
+- Fixed an issue related wrong validation of tProps of nullable/undefinable arrays.
+
 ## 0.67.2
 
 - Small optimization to some of the walk tree methods.

@@ -1292,3 +1292,23 @@ test("syntax sugar for primitives in tProp", () => {
   }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
   ss.setOr(5)
 })
+
+test("issue #445", () => {
+  @model("issue #445/Todo")
+  class T extends Model({
+    arrUnd: tProp(types.maybe(types.array(types.string))),
+    arrNull: tProp(types.maybeNull(types.array(types.number))),
+  }) {}
+
+  const t1 = new T({ arrUnd: undefined, arrNull: null })
+  expect(t1.arrUnd).toEqual(undefined)
+  expect(t1.arrNull).toEqual(null)
+
+  const t2 = new T({ arrUnd: [], arrNull: [] })
+  expect(t2.arrUnd).toEqual([])
+  expect(t2.arrNull).toEqual([])
+
+  const t3 = new T({ arrUnd: ["5"], arrNull: [5] })
+  expect(t3.arrUnd).toEqual(["5"])
+  expect(t3.arrNull).toEqual([5])
+})

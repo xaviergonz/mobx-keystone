@@ -28,10 +28,11 @@ export enum TypeCheckerBaseType {
  * @internal
  */
 export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType {
+  // array must be before object since arrays are also objects
+  if (isArray(value)) return TypeCheckerBaseType.Array
   if (isObject(value)) return TypeCheckerBaseType.Object
-  else if (isArray(value)) return TypeCheckerBaseType.Array
-  else if (isPrimitive(value)) return TypeCheckerBaseType.Primitive
-  else return TypeCheckerBaseType.Any
+  if (isPrimitive(value)) return TypeCheckerBaseType.Primitive
+  return TypeCheckerBaseType.Any
 }
 
 /**
