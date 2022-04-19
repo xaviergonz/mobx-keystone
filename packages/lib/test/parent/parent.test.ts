@@ -1,4 +1,4 @@
-import { remove, set, toJS } from "mobx"
+import { computed, remove, set, toJS } from "mobx"
 import {
   detach,
   findChildren,
@@ -6,6 +6,7 @@ import {
   findParentPath,
   fromSnapshot,
   getChildrenObjects,
+  getParent,
   getParentPath,
   getParentToChildPath,
   getRootPath,
@@ -344,4 +345,59 @@ test("parent", () => {
   }).toThrow("an object cannot be assigned a new parent when it already has one")
   expect((p.$ as any).z).toBe(undefined)
   expect("z" in p.$).toBeFalsy()
+})
+
+test("issue #446", () => {
+  @model("Battle")
+  class Battle extends Model({
+    players: prop<Player[]>(() => []),
+  }) {}
+
+  @model("Player")
+  class Player extends Model({
+    fleet: prop<Fleet | undefined>(),
+  }) {
+    @computed
+    get battle(): Battle {
+      return getParent<Battle>(this)!
+    }
+  }
+
+  @model("Fleet")
+  class Fleet extends Model({
+    ships: prop<Ship[]>(() => []),
+  }) {
+    @computed
+    get player(): Player {
+      return getParent<Player>(this)!
+    }
+  }
+
+  @model("Ship")
+  class Ship extends Model({}) {
+    @computed
+    get fleetGetParent(): Fleet {
+      const ships = getParent<Ship[]>(this)
+      return getParent<Fleet>(ships!)!
+    }
+
+    @computed
+    get fleetFindParent(): Fleet {
+      return findParent<Fleet>(this, (p) => p instanceof Fleet)!
+    }
+  }
+
+  const battle = new Battle({
+    players: [
+      new Player({
+        fleet: new Fleet({
+          ships: [new Ship({})],
+        }),
+      }),
+    ],
+  })
+
+  expect(battle.players[0].fleet!.player).toBeDefined()
+  expect(battle.players[0].fleet!.ships[0].fleetGetParent.player).toBeDefined()
+  expect(battle.players[0].fleet!.ships[0].fleetFindParent.player).toBeDefined()
 })
