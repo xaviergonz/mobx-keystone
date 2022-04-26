@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.67.5
+
+- Fixed a bug so `$modelType` should no longer be needed when it is defined with `tProp`.
+
 ## 0.67.4
 
 - Fixed an issue introduced in 0.67.0 related to the use of tProp and getting stale snapshots.

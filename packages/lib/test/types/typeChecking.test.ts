@@ -10,6 +10,7 @@ import {
   ArrayTypeInfo,
   BooleanTypeInfo,
   customRef,
+  fromSnapshot,
   Frozen,
   frozen,
   FrozenTypeInfo,
@@ -40,6 +41,7 @@ import {
   RefinementTypeInfo,
   RefTypeInfo,
   resolvePath,
+  rootRef,
   setGlobalConfig,
   StringTypeInfo,
   tProp,
@@ -1388,4 +1390,29 @@ test("issue #447", () => {
   todo2.setText("second edited")
   expectSnapshotsToBeTheSame()
   expect(snapshots1).toEqual(snapshots2)
+})
+
+test("issue #448", () => {
+  const todoRef = rootRef<Todo>("issue #448/TodoRef")
+
+  @model("issue #448/Todo")
+  class Todo extends Model({
+    id: idProp,
+    text: tProp(types.string, ""),
+  }) {}
+
+  @model("issue #448/TodoList")
+  class TodoList extends Model({
+    list: tProp(types.array(Todo), () => []),
+    selectedRef: tProp(types.ref(todoRef)),
+  }) {}
+
+  fromSnapshot(TodoList, {
+    list: [{ id: "id1", text: "Todo 1" }],
+    selectedRef: {
+      // $modelType should not be needed when using tProp
+      // $modelType: "issue #448/TodoRef",
+      id: "id1",
+    },
+  })
 })

@@ -24,7 +24,7 @@ import { typesObject } from "./object"
 export function typesRef<O extends object>(refConstructor: RefConstructor<O>): ModelType<Ref<O>> {
   const typeName = "Ref"
 
-  const modelInfo = modelInfoByClass.get(refConstructor as any)!
+  const modelInfo = modelInfoByClass.get(refConstructor.refClass)!
 
   const refDataTypeChecker = resolveTypeChecker(
     typesObject(() => ({
