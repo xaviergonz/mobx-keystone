@@ -13,6 +13,7 @@ import {
   Frozen,
   frozen,
   FrozenTypeInfo,
+  getSnapshot,
   getTypeInfo,
   idProp,
   LiteralTypeInfo,
@@ -1311,4 +1312,80 @@ test("issue #445", () => {
   const t3 = new T({ arrUnd: ["5"], arrNull: [5] })
   expect(toJS(t3.arrUnd)).toEqual(["5"])
   expect(toJS(t3.arrNull)).toEqual([5])
+})
+
+test("issue #447", () => {
+  @model("issue #447/Todo")
+  class Todo extends Model({
+    text: tProp(types.string),
+  }) {
+    @modelAction
+    setText(text: string) {
+      this.text = text
+    }
+  }
+
+  @model("issue #447/TodoList1")
+  class TodoList1 extends Model({
+    todos: tProp(types.array(types.model(Todo)), () => []),
+  }) {
+    @modelAction
+    add(todo: Todo) {
+      this.todos.push(todo)
+    }
+  }
+
+  @model("issue #447/TodoList2")
+  class TodoList2 extends Model({
+    todos: prop<Todo[]>(() => []),
+  }) {
+    @modelAction
+    add(todo: Todo) {
+      this.todos.push(todo)
+    }
+  }
+
+  const todoList1 = new TodoList1({
+    todos: [new Todo({ text: "first" })],
+  })
+  const todoList2 = new TodoList2({
+    todos: [new Todo({ text: "first" })],
+  })
+
+  function normalizeSn<T>(sn: T): T {
+    return {
+      ...sn,
+      $modelType: "",
+    }
+  }
+
+  function expectSnapshotsToBeTheSame() {
+    const sn1 = normalizeSn(getSnapshot(todoList1))
+    const sn2 = normalizeSn(getSnapshot(todoList2))
+    expect(sn1).toEqual(sn2)
+  }
+
+  expect(todoList1.todos.length).toBe(todoList2.todos.length)
+  expectSnapshotsToBeTheSame()
+
+  const snapshots1: any[] = []
+  onSnapshot(todoList1, (sn) => snapshots1.push(normalizeSn(sn)))
+  const snapshots2: any[] = []
+  onSnapshot(todoList2, (sn) => snapshots2.push(normalizeSn(sn)))
+
+  const todo1 = new Todo({ text: "second" })
+  onSnapshot(todo1, (sn) => snapshots1.push(normalizeSn(sn)))
+  const todo2 = new Todo({ text: "second" })
+  onSnapshot(todo2, (sn) => snapshots2.push(normalizeSn(sn)))
+
+  todoList1.add(todo1)
+  todoList2.add(todo2)
+  expect(todoList1.todos.length).toBe(todoList2.todos.length)
+  expectSnapshotsToBeTheSame()
+  expect(snapshots1).toEqual(snapshots2)
+
+  todo1.setText("second edited")
+  todo2.setText("second edited")
+  expectSnapshotsToBeTheSame()
+  expect(snapshots1).toEqual(snapshots2)
 })

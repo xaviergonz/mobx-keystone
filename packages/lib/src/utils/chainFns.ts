@@ -3,9 +3,9 @@ export function chainFns<F extends Function>(...fns: (F | undefined)[]): F | und
   if (definedFns.length <= 0) return undefined
 
   const chainedFn = (v: any, ...args: any[]) => {
-    let ret = definedFns[0]!(v, ...args)
+    let ret = v
 
-    for (let i = 1; i < definedFns.length; i++) {
+    for (let i = 0; i < definedFns.length; i++) {
       ret = definedFns[i]!(ret, ...args)
     }
 

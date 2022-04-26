@@ -7,12 +7,11 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest Current File",
+      "name": "Jest debug current file",
       "program": "${workspaceFolder}/packages/lib/node_modules/jest/bin/jest.js",
-      "args": ["test", "--ci", "-i", "${fileBasenameNoExtension}"],
+      "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true,
       "skipFiles": [
         "${workspaceFolder}/node_modules/**/*.js",
         "${workspaceFolder}/packages/lib/node_modules/**/*.js",

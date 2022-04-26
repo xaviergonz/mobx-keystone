@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.67.4
+
+- Fixed an issue introduced in 0.67.0 related to the use of tProp and getting stale snapshots.
+
 ## 0.67.3
 
 - Fixed an issue related wrong validation of tProps of nullable/undefinable arrays.

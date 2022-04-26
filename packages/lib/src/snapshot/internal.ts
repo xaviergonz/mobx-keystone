@@ -1,5 +1,6 @@
 import { action, createAtom, IAtom } from "mobx"
 import { fastGetParentPath, ParentPath } from "../parent/path"
+import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
 import { isPrimitive } from "../utils"
 import { PrimitiveValue } from "../utils/types"
 
@@ -110,6 +111,10 @@ export const updateInternalSnapshot = action(
       } else {
         untransformed = Object.assign({}, untransformed)
       }
+    } else {
+      // the processor cached result is no longer valid since we will
+      // mutate the object
+      invalidateCachedToSnapshotProcessorResult(untransformed)
     }
 
     mutate(untransformed)

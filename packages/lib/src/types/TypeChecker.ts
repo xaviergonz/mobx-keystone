@@ -2,6 +2,7 @@ import { fastGetParentIncludingDataObjects } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
 import { isArray, isObject, isPrimitive, lazy } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
 
@@ -54,6 +55,23 @@ export function invalidateCachedTypeCheckerResult(obj: object) {
   }
 }
 
+const typeCheckersWithCachedSnapshotProcessorResultsOfObject = new WeakMap<
+  object,
+  Set<TypeChecker>
+>()
+
+/**
+ * @internal
+ */
+export function invalidateCachedToSnapshotProcessorResult(obj: object) {
+  const set = typeCheckersWithCachedSnapshotProcessorResultsOfObject.get(obj)
+
+  if (set) {
+    set.forEach((typeChecker) => typeChecker.invalidateSnapshotProcessorCachedResult(obj))
+    typeCheckersWithCachedSnapshotProcessorResultsOfObject.delete(obj)
+  }
+}
+
 /**
  * @internal
  */
@@ -73,23 +91,17 @@ export class TypeChecker {
     this.createCacheIfNeeded().set(obj, newCacheValue)
 
     // register this type checker as listener of that object changes
-    let typeCheckerSet = typeCheckersWithCachedResultsOfObject.get(obj)
-    if (!typeCheckerSet) {
-      typeCheckerSet = new Set()
-      typeCheckersWithCachedResultsOfObject.set(obj, typeCheckerSet)
-    }
+    const typeCheckerSet = getOrCreate(typeCheckersWithCachedResultsOfObject, obj, () => new Set())
 
     typeCheckerSet.add(this)
   }
 
   invalidateCachedResult(obj: object) {
-    if (this.checkResultCache) {
-      this.checkResultCache.delete(obj)
-    }
+    this.checkResultCache?.delete(obj)
   }
 
   private getCachedResult(obj: object): CheckResult | undefined {
-    return this.checkResultCache ? this.checkResultCache.get(obj) : undefined
+    return this.checkResultCache?.get(obj)
   }
 
   check(value: any, path: Path): TypeCheckError | null {
@@ -149,6 +161,10 @@ export class TypeChecker {
 
   private readonly _toSnapshotProcessorCache = new WeakMap<object, unknown>()
 
+  invalidateSnapshotProcessorCachedResult(obj: object) {
+    this._toSnapshotProcessorCache.delete(obj)
+  }
+
   toSnapshotProcessor = (sn: any): unknown => {
     if (typeof sn !== "object" || sn === null) {
       // not cacheable
@@ -161,6 +177,16 @@ export class TypeChecker {
 
     const val = this._toSnapshotProcessor(sn)
     this._toSnapshotProcessorCache.set(sn, val)
+
+    // register this type checker as listener of that sn changes
+    const typeCheckerSet = getOrCreate(
+      typeCheckersWithCachedSnapshotProcessorResultsOfObject,
+      sn,
+      () => new Set()
+    )
+
+    typeCheckerSet.add(this)
+
     return val
   }
 }
