@@ -1,8 +1,8 @@
 import { action } from "mobx"
 import { enqueuePendingAction } from "../action/pendingActions"
+import { BaseModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
 import { isModel } from "../model/utils"
-import { _BaseModel } from "../model/_BaseModel"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { isRootStore } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
@@ -122,7 +122,7 @@ export const setParent = action(
       reportParentPathChanged(value)
     }
 
-    if (value instanceof _BaseModel) {
+    if (value instanceof BaseModel) {
       const oldRoot = fastGetRoot(value)
       const oldRootStore = isRootStore(oldRoot) ? oldRoot : undefined
 

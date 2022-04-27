@@ -1,8 +1,12 @@
 import { failure } from "../utils"
+import { registerDefaultStandardTypeResolvers } from "./registerDefaultStandardTypeResolvers"
 import type { AnyStandardType, AnyType } from "./schemas"
 import { isLateTypeChecker, LateTypeChecker, TypeChecker } from "./TypeChecker"
 
-type StandardTypeResolverFn = (value: any) => AnyStandardType | undefined
+/**
+ * @internal
+ */
+export type StandardTypeResolverFn = (value: any) => AnyStandardType | undefined
 
 const standardTypeResolvers: StandardTypeResolverFn[] = []
 
@@ -14,6 +18,8 @@ export function registerStandardTypeResolver(resolverFn: StandardTypeResolverFn)
 }
 
 function findStandardType(value: any): AnyStandardType | undefined {
+  registerDefaultStandardTypeResolvers()
+
   for (const resolverFn of standardTypeResolvers) {
     const tc = resolverFn(value)
     if (tc) return tc

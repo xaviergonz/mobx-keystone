@@ -23,9 +23,14 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotC
   return tweakPlainObject(plainObj, undefined, undefined, true, false)
 }
 
-registerSnapshotter(SnapshotterAndReconcilerPriority.PlainObject, (sn, ctx) => {
-  if (isPlainObject(sn)) {
-    return fromPlainObjectSnapshot(sn, ctx)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerFromPlainObjectSnapshotter() {
+  registerSnapshotter(SnapshotterAndReconcilerPriority.PlainObject, (sn, ctx) => {
+    if (isPlainObject(sn)) {
+      return fromPlainObjectSnapshot(sn, ctx)
+    }
+    return undefined
+  })
+}

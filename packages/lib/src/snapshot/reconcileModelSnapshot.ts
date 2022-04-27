@@ -98,9 +98,14 @@ function reconcileModelSnapshot(
   return modelObj
 }
 
-registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool, parent) => {
-  if (isModelSnapshot(sn)) {
-    return reconcileModelSnapshot(value, sn, modelPool, parent)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerModelSnapshotReconciler() {
+  registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool, parent) => {
+    if (isModelSnapshot(sn)) {
+      return reconcileModelSnapshot(value, sn, modelPool, parent)
+    }
+    return undefined
+  })
+}

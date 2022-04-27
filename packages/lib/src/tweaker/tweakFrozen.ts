@@ -29,9 +29,14 @@ export function tweakFrozen<T extends Frozen<any>>(
   return frozenObj
 }
 
-registerTweaker(TweakerPriority.Frozen, (value, parentPath) => {
-  if (value instanceof Frozen) {
-    return tweakFrozen(value, parentPath)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerFrozenTweaker() {
+  registerTweaker(TweakerPriority.Frozen, (value, parentPath) => {
+    if (value instanceof Frozen) {
+      return tweakFrozen(value, parentPath)
+    }
+    return undefined
+  })
+}

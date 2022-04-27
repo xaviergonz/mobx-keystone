@@ -370,12 +370,17 @@ function interceptArrayMutation(
   return change
 }
 
-registerTweaker(TweakerPriority.Array, (value, parentPath) => {
-  if (isArray(value)) {
-    return tweakArray(value, parentPath, false)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerArrayTweaker() {
+  registerTweaker(TweakerPriority.Array, (value, parentPath) => {
+    if (isArray(value)) {
+      return tweakArray(value, parentPath, false)
+    }
+    return undefined
+  })
+}
 
 const observableOptions = {
   deep: false,

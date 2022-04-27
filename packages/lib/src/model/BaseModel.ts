@@ -22,7 +22,6 @@ import { modelIdKey, modelTypeKey } from "./metadata"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
-import { setBaseModel } from "./_BaseModel"
 
 /**
  * @ignore
@@ -161,8 +160,6 @@ export abstract class BaseModel<
       : `[${firstPart}]`
   }
 }
-
-setBaseModel(BaseModel)
 
 /**
  * @ignore

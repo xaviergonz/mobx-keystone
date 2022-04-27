@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.67.5",
+  "version": "0.68.0",
   "description": "A MobX powered state management solution based on data trees with first class support for TypeScript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -44,6 +44,7 @@
   "main": "./dist/mobx-keystone.umd.js",
   "types": "./dist/index.d.ts",
   "typings": "./dist/index.d.ts",
+  "sideEffects": false,
   "files": [
     "src",
     "dist",

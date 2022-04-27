@@ -1,7 +1,7 @@
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { failure } from "../utils"
 import type { AnyDataModel } from "./BaseDataModel"
-import { _BaseDataModel } from "./_BaseDataModel"
+import { BaseDataModel } from "./BaseDataModel"
 
 /**
  * Checks if an object is a data model instance.
@@ -10,7 +10,7 @@ import { _BaseDataModel } from "./_BaseDataModel"
  * @returns
  */
 export function isDataModel(model: unknown): model is AnyDataModel {
-  return model instanceof _BaseDataModel
+  return model instanceof BaseDataModel
 }
 
 /**
@@ -39,7 +39,7 @@ export function isDataModelClass(modelClass: unknown): modelClass is ModelClass<
     return false
   }
 
-  if (modelClass !== _BaseDataModel && !(modelClass.prototype instanceof _BaseDataModel)) {
+  if (modelClass !== BaseDataModel && !(modelClass.prototype instanceof BaseDataModel)) {
     return false
   }
 
@@ -57,7 +57,7 @@ export function assertIsDataModelClass(
     throw failure(`${argName} must be a class`)
   }
 
-  if (modelClass !== _BaseDataModel && !(modelClass.prototype instanceof _BaseDataModel)) {
+  if (modelClass !== BaseDataModel && !(modelClass.prototype instanceof BaseDataModel)) {
     throw failure(`${argName} must extend DataModel`)
   }
 }

@@ -188,4 +188,9 @@ export class ModelTypeInfo extends TypeInfo {
   }
 }
 
-registerStandardTypeResolver((v) => (isModelClass(v) ? typesModel(v) : undefined))
+/**
+ * @internal
+ */
+export function registerModelStandardTypeResolver() {
+  registerStandardTypeResolver((v) => (isModelClass(v) ? typesModel(v) : undefined))
+}

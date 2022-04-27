@@ -55,9 +55,14 @@ function reconcilePlainObjectSnapshot(
   return plainObj
 }
 
-registerReconciler(SnapshotterAndReconcilerPriority.PlainObject, (value, sn, modelPool) => {
-  if (isPlainObject(sn)) {
-    return reconcilePlainObjectSnapshot(value, sn, modelPool)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerPlainObjectSnapshotReconciler() {
+  registerReconciler(SnapshotterAndReconcilerPriority.PlainObject, (value, sn, modelPool) => {
+    if (isPlainObject(sn)) {
+      return reconcilePlainObjectSnapshot(value, sn, modelPool)
+    }
+    return undefined
+  })
+}

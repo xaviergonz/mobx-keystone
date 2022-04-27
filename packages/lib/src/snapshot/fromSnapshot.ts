@@ -8,6 +8,7 @@ import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
+import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 
 /**
@@ -117,6 +118,8 @@ export function internalFromSnapshot<T>(
   if (isPrimitive(sn)) {
     return sn as any
   }
+
+  registerDefaultSnapshotters()
 
   const snapshotterLen = snapshotters.length
   for (let i = 0; i < snapshotterLen; i++) {

@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.68.0
+
+- Removed side effects to improve the tree-shakeability of the library.
+
 ## 0.67.5
 
 - Fixed a bug so `$modelType` should no longer be needed when it is defined with `tProp`.

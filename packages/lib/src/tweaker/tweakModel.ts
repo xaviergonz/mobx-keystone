@@ -24,9 +24,14 @@ export function tweakModel<T extends object>(value: T, parentPath: ParentPath<an
   return value
 }
 
-registerTweaker(TweakerPriority.Model, (value, parentPath) => {
-  if (isModel(value)) {
-    return tweakModel(value, parentPath)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerModelTweaker() {
+  registerTweaker(TweakerPriority.Model, (value, parentPath) => {
+    if (isModel(value)) {
+      return tweakModel(value, parentPath)
+    }
+    return undefined
+  })
+}

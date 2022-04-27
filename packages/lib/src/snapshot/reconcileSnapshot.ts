@@ -4,6 +4,7 @@ import { isModel } from "../model/utils"
 import { fastGetParentPathIncludingDataObjects } from "../parent"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
+import { registerDefaultReconcilers } from "./registerDefaultReconcilers"
 
 type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any | undefined
 
@@ -24,6 +25,8 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, par
   if (isPrimitive(sn)) {
     return sn
   }
+
+  registerDefaultReconcilers()
 
   const reconcilersLen = reconcilers.length
   for (let i = 0; i < reconcilersLen; i++) {

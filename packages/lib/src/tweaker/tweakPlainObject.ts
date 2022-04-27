@@ -274,10 +274,15 @@ function interceptObjectMutation(change: IObjectWillChange) {
   return change
 }
 
-registerTweaker(TweakerPriority.PlainObject, (value, parentPath) => {
-  // plain object
-  if (isObservableObject(value) || isPlainObject(value)) {
-    return tweakPlainObject(value as Record<string, any>, parentPath, undefined, false, false)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerPlainObjectTweaker() {
+  registerTweaker(TweakerPriority.PlainObject, (value, parentPath) => {
+    // plain object
+    if (isObservableObject(value) || isPlainObject(value)) {
+      return tweakPlainObject(value as Record<string, any>, parentPath, undefined, false, false)
+    }
+    return undefined
+  })
+}

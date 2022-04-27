@@ -1,8 +1,7 @@
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { failure, isPlainObject } from "../utils"
-import type { AnyModel } from "./BaseModel"
+import { AnyModel, BaseModel } from "./BaseModel"
 import { modelTypeKey } from "./metadata"
-import { _BaseModel } from "./_BaseModel"
 
 /**
  * Checks if an object is a model instance.
@@ -11,7 +10,7 @@ import { _BaseModel } from "./_BaseModel"
  * @returns
  */
 export function isModel(model: unknown): model is AnyModel {
-  return model instanceof _BaseModel
+  return model instanceof BaseModel
 }
 
 /**
@@ -40,7 +39,7 @@ export function isModelClass(modelClass: unknown): modelClass is ModelClass<AnyM
     return false
   }
 
-  if (modelClass !== _BaseModel && !(modelClass.prototype instanceof _BaseModel)) {
+  if (modelClass !== BaseModel && !(modelClass.prototype instanceof BaseModel)) {
     return false
   }
 
@@ -58,7 +57,7 @@ export function assertIsModelClass(
     throw failure(`${argName} must be a class`)
   }
 
-  if (modelClass !== _BaseModel && !(modelClass.prototype instanceof _BaseModel)) {
+  if (modelClass !== BaseModel && !(modelClass.prototype instanceof BaseModel)) {
     throw failure(`${argName} must extend Model`)
   }
 }

@@ -27,6 +27,8 @@ const serializersMap = new Map<string, ActionCallArgumentSerializer<any, any>>()
 export function registerActionCallArgumentSerializer(
   serializer: ActionCallArgumentSerializer<any, any>
 ): () => void {
+  registerDefaultActionCallArgumentSerializers()
+
   if (serializersArray.includes(serializer)) {
     throw failure("action call argument serializer already registered")
   }
@@ -98,6 +100,8 @@ export function serializeActionCallArgument(
   argValue: any,
   targetRoot?: object
 ): SerializedActionCallArgument | JSONPrimitiveValue {
+  registerDefaultActionCallArgumentSerializers()
+
   if (isJSONPrimitive(argValue)) {
     return argValue
   }
@@ -161,6 +165,8 @@ export function deserializeActionCallArgument(
   argValue: SerializedActionCallArgument | JSONPrimitiveValue,
   targetRoot?: object
 ): any {
+  registerDefaultActionCallArgumentSerializers()
+
   if (isJSONPrimitive(argValue)) {
     return argValue
   }
@@ -212,13 +218,22 @@ export function deserializeActionCall(
   return deserializedActionCall
 }
 
-// serializer registration (from low priority to high priority)
+let defaultActionCallArgumentSerializersRegistered = false
 
-registerActionCallArgumentSerializer(primitiveSerializer)
-registerActionCallArgumentSerializer(plainObjectSerializer)
-registerActionCallArgumentSerializer(setSerializer)
-registerActionCallArgumentSerializer(mapSerializer)
-registerActionCallArgumentSerializer(dateSerializer)
-registerActionCallArgumentSerializer(arraySerializer)
-registerActionCallArgumentSerializer(objectSnapshotSerializer)
-registerActionCallArgumentSerializer(objectPathSerializer)
+function registerDefaultActionCallArgumentSerializers() {
+  if (defaultActionCallArgumentSerializersRegistered) {
+    return
+  }
+  defaultActionCallArgumentSerializersRegistered = true
+
+  // serializer registration (from low priority to high priority)
+
+  registerActionCallArgumentSerializer(primitiveSerializer)
+  registerActionCallArgumentSerializer(plainObjectSerializer)
+  registerActionCallArgumentSerializer(setSerializer)
+  registerActionCallArgumentSerializer(mapSerializer)
+  registerActionCallArgumentSerializer(dateSerializer)
+  registerActionCallArgumentSerializer(arraySerializer)
+  registerActionCallArgumentSerializer(objectSnapshotSerializer)
+  registerActionCallArgumentSerializer(objectPathSerializer)
+}

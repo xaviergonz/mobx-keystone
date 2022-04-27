@@ -18,7 +18,6 @@ import { failure, isObject } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
 import { internalNewDataModel } from "./newDataModel"
-import { setBaseDataModel } from "./_BaseDataModel"
 
 const dataModelInstanceCache = new WeakMap<ModelClass<AnyDataModel>, WeakMap<any, AnyDataModel>>()
 
@@ -159,8 +158,6 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
       : `[${firstPart}]`
   }
 }
-
-setBaseDataModel(BaseDataModel)
 
 /**
  * @ignore

@@ -9,6 +9,7 @@ import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { typeCheck } from "../types/typeCheck"
 import { failure, inDevMode, isMap, isObject, isPrimitive, isSet } from "../utils"
 import { isTweakedObject, tweakedObjects } from "./core"
+import { registerDefaultTweakers } from "./registerDefaultTweakers"
 
 /**
  * Turns an object (array, plain object) into a tree node,
@@ -104,6 +105,8 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
       "data models are not directly supported. you may insert the data in the tree instead ('$' property)."
     )
   }
+
+  registerDefaultTweakers()
 
   const tweakersLen = tweakers.length
   for (let i = 0; i < tweakersLen; i++) {

@@ -1,9 +1,11 @@
 import { assertIsPrimitive, identityFn } from "../../utils"
 import type { PrimitiveValue } from "../../utils/types"
-import { registerStandardTypeResolver } from "../resolveTypeChecker"
+import { registerStandardTypeResolver, StandardTypeResolverFn } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
+
+const standardTypeResolvers: StandardTypeResolverFn[] = []
 
 /**
  * A type that represents a certain value of a primitive (for example an *exact* number or string).
@@ -70,7 +72,7 @@ export class LiteralTypeInfo extends TypeInfo {
  */
 export const typesUndefined = typesLiteral(undefined)
 
-registerStandardTypeResolver((v) => (v === undefined ? typesUndefined : undefined))
+standardTypeResolvers.push((v) => (v === undefined ? typesUndefined : undefined))
 
 /**
  * A type that represents the value null.
@@ -82,7 +84,7 @@ registerStandardTypeResolver((v) => (v === undefined ? typesUndefined : undefine
  */
 export const typesNull = typesLiteral(null)
 
-registerStandardTypeResolver((v) => (v === null ? typesNull : undefined))
+standardTypeResolvers.push((v) => (v === null ? typesNull : undefined))
 
 /**
  * A type that represents any boolean value.
@@ -104,7 +106,7 @@ export const typesBoolean: IdentityType<boolean> = new TypeChecker(
   identityFn
 ) as any
 
-registerStandardTypeResolver((v) => (v === Boolean ? typesBoolean : undefined))
+standardTypeResolvers.push((v) => (v === Boolean ? typesBoolean : undefined))
 
 /**
  * `types.boolean` type info.
@@ -131,7 +133,7 @@ export const typesNumber: IdentityType<number> = new TypeChecker(
   identityFn
 ) as any
 
-registerStandardTypeResolver((v) => (v === Number ? typesNumber : undefined))
+standardTypeResolvers.push((v) => (v === Number ? typesNumber : undefined))
 
 /**
  * `types.number` type info.
@@ -158,9 +160,18 @@ export const typesString: IdentityType<string> = new TypeChecker(
   identityFn
 ) as any
 
-registerStandardTypeResolver((v) => (v === String ? typesString : undefined))
+standardTypeResolvers.push((v) => (v === String ? typesString : undefined))
 
 /**
  * `types.string` type info.
  */
 export class StringTypeInfo extends TypeInfo {}
+
+/**
+ * @internal
+ */
+export function registerPrimitiveStandardTypeResolvers() {
+  standardTypeResolvers.forEach((str) => {
+    registerStandardTypeResolver(str)
+  })
+}

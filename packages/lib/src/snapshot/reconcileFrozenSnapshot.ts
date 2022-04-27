@@ -12,9 +12,14 @@ function reconcileFrozenSnapshot(value: any, sn: SnapshotInOfFrozen<Frozen<any>>
   return frozen(sn.data)
 }
 
-registerReconciler(SnapshotterAndReconcilerPriority.Frozen, (value, sn) => {
-  if (isFrozenSnapshot(sn)) {
-    return reconcileFrozenSnapshot(value, sn)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerFrozenSnapshotReconciler() {
+  registerReconciler(SnapshotterAndReconcilerPriority.Frozen, (value, sn) => {
+    if (isFrozenSnapshot(sn)) {
+      return reconcileFrozenSnapshot(value, sn)
+    }
+    return undefined
+  })
+}

@@ -48,9 +48,14 @@ function reconcileArraySnapshot(
   return value
 }
 
-registerReconciler(SnapshotterAndReconcilerPriority.Array, (value, sn, modelPool) => {
-  if (isArray(sn)) {
-    return reconcileArraySnapshot(value, sn, modelPool)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerArraySnapshotReconciler() {
+  registerReconciler(SnapshotterAndReconcilerPriority.Array, (value, sn, modelPool) => {
+    if (isArray(sn)) {
+      return reconcileArraySnapshot(value, sn, modelPool)
+    }
+    return undefined
+  })
+}

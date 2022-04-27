@@ -1,13 +1,3 @@
-// make sure snapshotters/reconcilers are imported
-import "./fromArraySnapshot"
-import "./fromFrozenSnapshot"
-import "./fromModelSnapshot"
-import "./fromPlainObjectSnapshot"
-import "./reconcileArraySnapshot"
-import "./reconcileFrozenSnapshot"
-import "./reconcileModelSnapshot"
-import "./reconcilePlainObjectSnapshot"
-
 export * from "./applySnapshot"
 export * from "./clone"
 export * from "./fromSnapshot"

@@ -38,9 +38,14 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   } as ModelConstructorOptions)
 }
 
-registerSnapshotter(SnapshotterAndReconcilerPriority.Model, (sn, ctx) => {
-  if (isModelSnapshot(sn)) {
-    return fromModelSnapshot(sn, ctx)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerFromModelSnapshotter() {
+  registerSnapshotter(SnapshotterAndReconcilerPriority.Model, (sn, ctx) => {
+    if (isModelSnapshot(sn)) {
+      return fromModelSnapshot(sn, ctx)
+    }
+    return undefined
+  })
+}

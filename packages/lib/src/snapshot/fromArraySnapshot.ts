@@ -19,9 +19,14 @@ function fromArraySnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext
   return tweakArray(arr, undefined, true)
 }
 
-registerSnapshotter(SnapshotterAndReconcilerPriority.Array, (sn, ctx) => {
-  if (isArray(sn)) {
-    return fromArraySnapshot(sn, ctx)
-  }
-  return undefined
-})
+/**
+ * @internal
+ */
+export function registerFromArraySnapshotter() {
+  registerSnapshotter(SnapshotterAndReconcilerPriority.Array, (sn, ctx) => {
+    if (isArray(sn)) {
+      return fromArraySnapshot(sn, ctx)
+    }
+    return undefined
+  })
+}
