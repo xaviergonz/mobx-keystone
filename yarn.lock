@@ -14749,9 +14749,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "netlify-cli@npm:10.0.0"
+"netlify-cli@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "netlify-cli@npm:10.1.0"
   dependencies:
     "@netlify/build": ^27.0.1
     "@netlify/config": ^18.0.0
@@ -14866,7 +14866,7 @@ __metadata:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: ae6e10661eb91969bf404b00b603704504b11d1c869bcb603a3f783d8b72d44934d7be311bfe21e8a1175ad43fc2c87f145c547bec1198224fdaccb60a8f5a91
+  checksum: 860233879a7821b96bd31ec54e2fe3d2efa85ed010b2234323f4adb47b9416fa11347f1f71b043f70472841c4cdce6bec1158b9d38af3ec1b2cb9e4b0d46a629
   languageName: node
   linkType: hard
 
@@ -18062,7 +18062,7 @@ __metadata:
     eslint: ^8.14.0
     eslint-config-prettier: ^8.5.0
     eslint-config-react-app: ^7.0.1
-    netlify-cli: ^10.0.0
+    netlify-cli: ^10.1.0
     prettier: ^2.6.2
     prettier-plugin-organize-imports: ^2.3.4
     turbo: ^1.2.5
