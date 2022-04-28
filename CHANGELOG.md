@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.68.2
+
+- Reverted ESM splitting.
+
 ## 0.68.1
 
 - Split the ESM version in several files to improve the tree-shakeability of the library.

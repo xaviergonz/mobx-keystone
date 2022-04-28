@@ -15,22 +15,17 @@ export default defineConfig({
     minify: false,
 
     rollupOptions: {
-      external: ["mobx", "nanoid/non-secure", "fast-deep-equal/es6", "tslib"],
+      external: ["mobx"],
 
       output: [
         {
           format: "esm",
-          entryFileNames: "[name].mjs",
-          dir: "dist/esm",
-          preserveModules: true,
+          entryFileNames: "mobx-keystone.esm.mjs",
         },
         {
           format: "umd",
           globals: {
             mobx: "mobx",
-            "nanoid/non-secure": "nanoid/non-secure",
-            "fast-deep-equal/es6": "fast-deep-equal/es6",
-            tslib: "tslib",
           },
         },
       ],

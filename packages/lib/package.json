@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.68.1",
+  "version": "0.68.2",
   "description": "A MobX powered state management solution based on data trees with first class support for TypeScript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -25,16 +25,16 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/esm/index.mjs",
+      "import": "./dist/mobx-keystone.esm.mjs",
       "require": "./dist/mobx-keystone.umd.js",
       "script": "./dist/mobx-keystone.umd.js",
-      "default": "./dist/esm/index.mjs"
+      "default": "./dist/mobx-keystone.esm.mjs"
     }
   },
-  "esmodule": "./dist/esm/index.mjs",
-  "module": "./dist/esm/index.mjs",
-  "jsnext:main": "./dist/esm/index.mjs",
-  "react-native": "./dist/esm/index.mjs",
+  "esmodule": "./dist/mobx-keystone.esm.mjs",
+  "module": "./dist/mobx-keystone.esm.mjs",
+  "jsnext:main": "./dist/mobx-keystone.esm.mjs",
+  "react-native": "./dist/mobx-keystone.esm.mjs",
   "umd:main": "./dist/mobx-keystone.umd.js",
   "unpkg": "./dist/mobx-keystone.umd.js",
   "jsdelivr": "./dist/mobx-keystone.umd.js",
