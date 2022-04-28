@@ -13,14 +13,36 @@ export default defineConfig({
     },
     sourcemap: "inline",
     minify: false,
+
     rollupOptions: {
-      external: ["mobx"],
-      output: {
-        globals: {
-          mobx: "mobx",
+      external: ["mobx", "nanoid/non-secure", "fast-deep-equal/es6", "tslib"],
+
+      output: [
+        {
+          format: "esm",
+          entryFileNames: "[name].mjs",
+          dir: "dist/esm",
+          preserveModules: true,
         },
-      },
+        {
+          format: "umd",
+          globals: {
+            mobx: "mobx",
+            "nanoid/non-secure": "nanoid/non-secure",
+            "fast-deep-equal/es6": "fast-deep-equal/es6",
+            tslib: "tslib",
+          },
+        },
+      ],
     },
   },
-  plugins: [{ ...typescript2({}), apply: "build", enforce: "pre" }],
+  plugins: [
+    {
+      ...typescript2({
+        useTsconfigDeclarationDir: true,
+      }),
+      apply: "build",
+      enforce: "pre",
+    },
+  ],
 })

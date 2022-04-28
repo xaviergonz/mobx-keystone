@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.68.1
+
+- Split the ESM version in several files to improve the tree-shakeability of the library.
+
 ## 0.68.0
 
 - Removed side effects to improve the tree-shakeability of the library.

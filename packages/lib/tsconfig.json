@@ -10,7 +10,7 @@
     "noEmit": true,
     "importHelpers": true,
     "declaration": true,
-    "declarationDir": "./dist",
+    "declarationDir": "./dist/types",
     "rootDir": "./src",
     "strict": true,
     "noImplicitAny": true,

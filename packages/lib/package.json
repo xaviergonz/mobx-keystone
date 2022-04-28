@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.68.0",
+  "version": "0.68.1",
   "description": "A MobX powered state management solution based on data trees with first class support for TypeScript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -25,25 +25,22 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": {
-        "webpack": "./dist/mobx-keystone.es.js",
-        "default": "./dist/mobx-keystone.es.mjs"
-      },
+      "import": "./dist/esm/index.mjs",
       "require": "./dist/mobx-keystone.umd.js",
       "script": "./dist/mobx-keystone.umd.js",
-      "default": "./dist/mobx-keystone.es.mjs"
+      "default": "./dist/esm/index.mjs"
     }
   },
-  "esmodule": "./dist/mobx-keystone.es.mjs",
-  "module": "./dist/mobx-keystone.es.js",
-  "jsnext:main": "./dist/mobx-keystone.es.js",
-  "react-native": "./dist/mobx-keystone.es.js",
+  "esmodule": "./dist/esm/index.mjs",
+  "module": "./dist/esm/index.mjs",
+  "jsnext:main": "./dist/esm/index.mjs",
+  "react-native": "./dist/esm/index.mjs",
   "umd:main": "./dist/mobx-keystone.umd.js",
   "unpkg": "./dist/mobx-keystone.umd.js",
   "jsdelivr": "./dist/mobx-keystone.umd.js",
   "main": "./dist/mobx-keystone.umd.js",
-  "types": "./dist/index.d.ts",
-  "typings": "./dist/index.d.ts",
+  "types": "./dist/types/index.d.ts",
+  "typings": "./dist/types/index.d.ts",
   "sideEffects": false,
   "files": [
     "src",
@@ -56,7 +53,7 @@
     "quick-build": "tsc",
     "quick-build-tests": "tsc -p test",
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
-    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp ./dist/mobx-keystone.es.js ./dist/mobx-keystone.es.mjs",
+    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build",
     "test": "jest",
     "test:ci": "yarn test -i --coverage",
     "test:perf": "yarn build && yarn test:perf:run",
