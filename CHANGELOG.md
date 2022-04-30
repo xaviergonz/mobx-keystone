@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.68.3
+
+- Fixed a bug related to sorting arrays producing patches that end up in a same node being temporarily twice in the tree.
+
 ## 0.68.2
 
 - Reverted ESM splitting.

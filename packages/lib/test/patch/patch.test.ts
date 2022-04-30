@@ -426,7 +426,14 @@ describe("onPatches and applyPatches", () => {
       Array [
         Array [
           Object {
-            "op": "replace",
+            "op": "remove",
+            "path": Array [
+              "arr",
+              1,
+            ],
+          },
+          Object {
+            "op": "add",
             "path": Array [
               "arr",
               1,
@@ -441,12 +448,19 @@ describe("onPatches and applyPatches", () => {
       Array [
         Array [
           Object {
-            "op": "replace",
+            "op": "add",
             "path": Array [
               "arr",
               1,
             ],
             "value": 2,
+          },
+          Object {
+            "op": "remove",
+            "path": Array [
+              "arr",
+              1,
+            ],
           },
         ],
       ]

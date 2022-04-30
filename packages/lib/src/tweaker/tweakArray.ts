@@ -140,8 +140,19 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
         const patches: Patch[] = []
         const invPatches: Patch[] = []
 
-        // optimization: if we add as many as we remove then replace instead
+        // optimization: if we add as many as we remove then remove/readd instead
+
+        // we cannot replace since we might end up in a situation where the same node
+        // might attempt to be temporarily twice inside the same tree (e.g. sorting)
+
+        // it would be faster to keep holes rather than remove/readd, but if we do that then
+        // validation might fail
+
         if (addedCount === removedCount) {
+          const readdPatches: Patch[] = []
+          const readdInvPatches: Patch[] = []
+          let removed = 0
+
           for (let i = 0; i < addedCount; i++) {
             const realIndex = index + i
 
@@ -155,21 +166,37 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
             const oldVal = oldSnapshot[realIndex]
 
             if (newVal !== oldVal) {
-              const path = [realIndex]
-              // replace 0, 1, 2...
+              const removePath = [realIndex - removed]
               patches.push({
-                op: "replace",
-                path,
+                op: "remove",
+                path: removePath,
+              })
+              invPatches.push({
+                op: "remove",
+                path: removePath,
+              })
+
+              removed++
+
+              const readdPath = [realIndex]
+              readdPatches.push({
+                op: "add",
+                path: readdPath,
                 value: freezeInternalSnapshot(newVal),
               })
-              // replace ...2, 1, 0 since inverse patches are applied in reverse
-              invPatches.push({
-                op: "replace",
-                path,
+
+              readdInvPatches.push({
+                op: "add",
+                path: readdPath,
                 value: freezeInternalSnapshot(oldVal),
               })
             }
           }
+
+          patches.push(...readdPatches)
+          invPatches.push(...readdInvPatches)
+          // we need to reverse since inverse patches are applied in reverse
+          invPatches.reverse()
         } else {
           const interimLen = oldLen - removedCount
 

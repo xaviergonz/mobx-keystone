@@ -879,3 +879,43 @@ test("concurrent async actions", async () => {
   expect(r.y).toBe(0)
   expectUndoRedoToBe(0, 2)
 })
+
+test("sorting crashes undo", () => {
+  @model("sorting crashes undo/Todo")
+  class Todo extends Model({
+    order: prop(0),
+    id: idProp,
+  }) {}
+
+  @model("sorting crashes undo/TodoList")
+  class TodoList extends Model({
+    todos: prop<Array<Todo>>(() => []),
+  }) {
+    @modelAction
+    reorderTodos() {
+      this.todos.sort((a, b) => a.order - b.order)
+    }
+  }
+
+  const todoList = new TodoList({
+    todos: [
+      new Todo({ order: 0 }),
+      new Todo({ order: 3 }),
+      new Todo({ order: 2 }),
+      new Todo({ order: 1 }),
+      new Todo({ order: 4 }),
+    ],
+  })
+  const undoManager = undoMiddleware(todoList)
+
+  const sn = getSnapshot(todoList)
+
+  todoList.reorderTodos()
+  const snReordered = getSnapshot(todoList)
+
+  undoManager.undo()
+  expect(getSnapshot(todoList)).toEqual(sn)
+
+  undoManager.redo()
+  expect(getSnapshot(todoList)).toEqual(snReordered)
+})
