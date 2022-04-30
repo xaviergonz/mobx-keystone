@@ -2,7 +2,7 @@ module.exports = {
   excludePrivate: true,
   excludeProtected: true,
   readme: "none",
-  out: "../../apps/site/static/api",
+  out: "api-docs",
   tsconfig: "tsconfig.json",
   listInvalidSymbolLinks: true,
 }

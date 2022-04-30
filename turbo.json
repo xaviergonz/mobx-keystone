@@ -3,7 +3,7 @@
   "pipeline": {
     "mobx-keystone#build-docs": {
       "dependsOn": ["build"],
-      "outputs": ["../../apps/site/static/api/**"]
+      "outputs": ["api-docs/**"]
     },
     "mobx-keystone#build": {
       "dependsOn": [],
