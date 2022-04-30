@@ -1,4 +1,4 @@
-import { computed, toJS } from "mobx"
+import { computed, IObservableArray, toJS } from "mobx"
 import {
   getSnapshot,
   idProp,
@@ -893,7 +893,10 @@ test("sorting crashes undo", () => {
   }) {
     @modelAction
     reorderTodos() {
-      this.todos.sort((a, b) => a.order - b.order)
+      // this works in mobx6, but we need to do it differently for older mobx versions
+      // this.todos.sort((a, b) => a.order - b.order)
+      const sorted = this.todos.slice().sort((a, b) => a.order - b.order)
+      ;(this.todos as IObservableArray).replace(sorted)
     }
   }
 
