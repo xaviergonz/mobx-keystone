@@ -34,7 +34,7 @@
   "esmodule": "./dist/mobx-keystone.esm.mjs",
   "module": "./dist/mobx-keystone.esm.mjs",
   "jsnext:main": "./dist/mobx-keystone.esm.mjs",
-  "react-native": "./dist/mobx-keystone.esm.mjs",
+  "react-native": "./src/index.ts",
   "umd:main": "./dist/mobx-keystone.umd.js",
   "unpkg": "./dist/mobx-keystone.umd.js",
   "jsdelivr": "./dist/mobx-keystone.umd.js",
