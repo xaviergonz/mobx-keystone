@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.68.5
+
+- Fixed `fromSnapshotProcessor` not accepting null or undefined when a `tProp` with a default value was used.
+
 ## 0.68.4
 
 - Fixed react-native not picking up the right bundle.

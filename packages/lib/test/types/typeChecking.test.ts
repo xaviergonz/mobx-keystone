@@ -1416,3 +1416,36 @@ test("issue #448", () => {
     },
   })
 })
+
+test("issue #454", () => {
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+
+  @model("issue #454/MySubModel")
+  class MySubModel extends Model({
+    someData: tProp(types.number, 0),
+  }) {}
+  @model("issue #454/Todo")
+  class Todo extends Model({
+    text: tProp(types.string, "").withSetter(),
+    arrayProp: tProp(types.array(types.number), () => []),
+    subModel: tProp(MySubModel, () => new MySubModel({})),
+  }) {}
+
+  const todo1 = new Todo({})
+
+  const todo2 = fromSnapshot(Todo, {})
+  expect(getSnapshot(todo2)).toEqual(getSnapshot(todo1))
+
+  expect(() => {
+    todo2.setText(undefined as any)
+  }).toThrowError("TypeCheckError: [/text] Expected: string")
+
+  const todo3 = fromSnapshot(Todo, {
+    text: null,
+    arrayProp: null,
+    subModel: null,
+  })
+  expect(getSnapshot(todo3)).toEqual(getSnapshot(todo1))
+})
