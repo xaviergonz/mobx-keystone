@@ -22,6 +22,8 @@ import {
   Ref,
   rootRef,
   runUnprotected,
+  tProp,
+  types,
   undoMiddleware,
 } from "../../src"
 import { autoDispose } from "../utils"
@@ -806,4 +808,35 @@ test("generic typings", () => {
 
   // @ts-expect-error
   genericRef2(new GenericModel({ v1: 1, v2: "2" }))
+})
+
+test("issue #456", () => {
+  @model("issue #456/Todo")
+  class Todo extends Model({
+    id: idProp,
+    text: tProp(types.string, ""),
+  }) {}
+
+  const todoRef = rootRef<Todo>("issue #456/TodoRef")
+
+  @model("issue #456/TodoList")
+  class TodoList extends Model({
+    todos: tProp(types.array(Todo)),
+    selectedRef: tProp(types.ref(todoRef)),
+    selectedRefs: tProp(types.array(types.ref(todoRef))),
+  }) {}
+
+  const todoList = new TodoList({
+    todos: [new Todo({ id: "todo1" })],
+    selectedRef: todoRef("todo1"),
+    selectedRefs: [todoRef("todo1")],
+  })
+
+  const patches: Patch[][] = []
+
+  onPatches(todoList, (p) => patches.push(p))
+  const sn = getSnapshot(todoList)
+  applySnapshot(todoList, sn)
+
+  expect(patches).toHaveLength(0)
 })

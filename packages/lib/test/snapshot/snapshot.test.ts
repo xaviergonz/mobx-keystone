@@ -568,7 +568,7 @@ test("id-less reconciliation", () => {
   let id = 0
 
   @model("idlr/i")
-  class I extends Model({}) {
+  class I extends Model({ x: prop(0) }) {
     id = id++
   }
 
@@ -590,15 +590,16 @@ test("id-less reconciliation", () => {
   applySnapshot(
     r,
     modelSnapshotOutWithMetadata(R, {
-      arr: [modelSnapshotOutWithMetadata(I, {}), modelSnapshotOutWithMetadata(I, {})],
-      m: modelSnapshotOutWithMetadata(I, {}),
+      arr: [modelSnapshotOutWithMetadata(I, { x: 0 }), modelSnapshotOutWithMetadata(I, { x: 1 })],
+      m: modelSnapshotOutWithMetadata(I, { x: 0 }),
     })
   )
 
   expect(r.m.id).toBe(2)
-  // no reconciliation inside an array
-  expect(r.arr[0].id).toBe(3)
-  expect(r.arr[1].id).toBe(4)
+  expect(r.arr[0].id).toBe(0)
+  // no reconciliation inside an array if data is different
+  // (in this case x is 1)
+  expect(r.arr[1].id).toBe(3)
 })
 
 test("id-full reconciliation", () => {

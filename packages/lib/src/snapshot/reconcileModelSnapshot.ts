@@ -5,6 +5,7 @@ import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel, isModelSnapshot } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
+import { deepEquals } from "../treeUtils/deepEquals"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { failure, isArray } from "../utils"
@@ -49,8 +50,11 @@ function reconcileModelSnapshot(
       return fromSnapshot<AnyModel>(sn)
     }
   } else if (isArray(parent)) {
-    // no id inside an array, no reconciliation possible
-    return fromSnapshot<AnyModel>(sn)
+    // no id and inside an array? no reconciliation possible,
+    // unless the snapshots are equivalent (note deep equals will use the snapshot of value auto)
+    if (!deepEquals(value, sn)) {
+      return fromSnapshot<AnyModel>(sn)
+    }
   }
 
   const modelObj: AnyModel = value

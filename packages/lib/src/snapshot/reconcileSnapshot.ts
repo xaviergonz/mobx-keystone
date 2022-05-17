@@ -4,6 +4,7 @@ import { isModel } from "../model/utils"
 import { fastGetParentPathIncludingDataObjects } from "../parent"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
+import { getSnapshot } from "./getSnapshot"
 import { registerDefaultReconcilers } from "./registerDefaultReconcilers"
 
 type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any | undefined
@@ -24,6 +25,12 @@ export function registerReconciler(priority: number, reconciler: Reconciler): vo
 export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, parent: any): any {
   if (isPrimitive(sn)) {
     return sn
+  }
+
+  // if the snapshot passed is exactly the same as the current one
+  // then it is already reconciled
+  if (getSnapshot(value) === sn) {
+    return value
   }
 
   registerDefaultReconcilers()
