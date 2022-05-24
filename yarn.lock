@@ -2,7 +2,7 @@
 # Manual changes might be lost - proceed with caution!
 
 __metadata:
-  version: 5
+  version: 6
   cacheKey: 8
 
 "@algolia/autocomplete-core@npm:1.5.2":
@@ -775,7 +775,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-proposal-private-property-in-object@npm:^7.17.12":
+"@babel/plugin-proposal-private-property-in-object@npm:^7.16.0, @babel/plugin-proposal-private-property-in-object@npm:^7.17.12":
   version: 7.17.12
   resolution: "@babel/plugin-proposal-private-property-in-object@npm:7.17.12"
   dependencies:
@@ -2190,7 +2190,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/theme-common@npm:2.0.0-beta.20":
+"@docusaurus/theme-common@npm:2.0.0-beta.20, @docusaurus/theme-common@npm:^2.0.0-beta.20":
   version: 2.0.0-beta.20
   resolution: "@docusaurus/theme-common@npm:2.0.0-beta.20"
   dependencies:
@@ -2237,7 +2237,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/theme-translations@npm:2.0.0-beta.20":
+"@docusaurus/theme-translations@npm:2.0.0-beta.20, @docusaurus/theme-translations@npm:^2.0.0-beta.20":
   version: 2.0.0-beta.20
   resolution: "@docusaurus/theme-translations@npm:2.0.0-beta.20"
   dependencies:
@@ -2262,7 +2262,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/utils-common@npm:2.0.0-beta.20":
+"@docusaurus/utils-common@npm:2.0.0-beta.20, @docusaurus/utils-common@npm:^2.0.0-beta.20":
   version: 2.0.0-beta.20
   resolution: "@docusaurus/utils-common@npm:2.0.0-beta.20"
   dependencies:
@@ -2271,7 +2271,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/utils-validation@npm:2.0.0-beta.20, @docusaurus/utils-validation@npm:^2.0.0-beta.4":
+"@docusaurus/utils-validation@npm:2.0.0-beta.20, @docusaurus/utils-validation@npm:^2.0.0-beta.20":
   version: 2.0.0-beta.20
   resolution: "@docusaurus/utils-validation@npm:2.0.0-beta.20"
   dependencies:
@@ -2284,7 +2284,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@docusaurus/utils@npm:2.0.0-beta.20, @docusaurus/utils@npm:^2.0.0-beta.4":
+"@docusaurus/utils@npm:2.0.0-beta.20, @docusaurus/utils@npm:^2.0.0-beta.20":
   version: 2.0.0-beta.20
   resolution: "@docusaurus/utils@npm:2.0.0-beta.20"
   dependencies:
@@ -2317,24 +2317,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@easyops-cn/docusaurus-search-local@npm:^0.23.3":
-  version: 0.23.3
-  resolution: "@easyops-cn/docusaurus-search-local@npm:0.23.3"
+"@easyops-cn/docusaurus-search-local@npm:^0.26.0":
+  version: 0.26.0
+  resolution: "@easyops-cn/docusaurus-search-local@npm:0.26.0"
   dependencies:
-    "@docusaurus/utils": ^2.0.0-beta.4
-    "@docusaurus/utils-validation": ^2.0.0-beta.4
+    "@docusaurus/theme-common": ^2.0.0-beta.20
+    "@docusaurus/theme-translations": ^2.0.0-beta.20
+    "@docusaurus/utils": ^2.0.0-beta.20
+    "@docusaurus/utils-common": ^2.0.0-beta.20
+    "@docusaurus/utils-validation": ^2.0.0-beta.20
     "@easyops-cn/autocomplete.js": ^0.38.1
     "@node-rs/jieba": ^1.6.0
     cheerio: ^1.0.0-rc.3
     clsx: ^1.1.1
     debug: ^4.2.0
-    fs-extra: ^9.0.1
+    fs-extra: ^10.0.0
     klaw-sync: ^6.0.0
     lunr: ^2.3.9
     lunr-languages: ^1.4.0
     mark.js: ^8.11.1
-    tslib: ^2.2.0
-  checksum: 307c7f5e403fb96885a966a94c13cf3173e07f22ea1c69da49886bed960b07b79ee0c3d982cb2b2622888959143d60917737f96f478687bf789b79991cd88664
+    tslib: ^2.4.0
+  peerDependencies:
+    react: ^16.14.0 || 17 || 18
+  checksum: a5edc5d817edcc7cea664bd6b261c37a41a4a0e7471915c44563f07acb38152f858dcccaf082ad4a498a547843447cc757fc284bb269e46723e82540865c7716
   languageName: node
   linkType: hard
 
@@ -4040,114 +4045,114 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm-eabi@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-android-arm-eabi@npm:1.2.189"
+"@swc/core-android-arm-eabi@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-android-arm-eabi@npm:1.2.192"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm64@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-android-arm64@npm:1.2.189"
+"@swc/core-android-arm64@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-android-arm64@npm:1.2.192"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-darwin-arm64@npm:1.2.189"
+"@swc/core-darwin-arm64@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-darwin-arm64@npm:1.2.192"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-darwin-x64@npm:1.2.189"
+"@swc/core-darwin-x64@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-darwin-x64@npm:1.2.192"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-freebsd-x64@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-freebsd-x64@npm:1.2.189"
+"@swc/core-freebsd-x64@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-freebsd-x64@npm:1.2.192"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.189"
+"@swc/core-linux-arm-gnueabihf@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.192"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.189"
-  conditions: os=linux & cpu=arm64
+"@swc/core-linux-arm64-gnu@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.192"
+  conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-linux-arm64-musl@npm:1.2.189"
-  conditions: os=linux & cpu=arm64
+"@swc/core-linux-arm64-musl@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-linux-arm64-musl@npm:1.2.192"
+  conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-linux-x64-gnu@npm:1.2.189"
-  conditions: os=linux & cpu=x64
+"@swc/core-linux-x64-gnu@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-linux-x64-gnu@npm:1.2.192"
+  conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-linux-x64-musl@npm:1.2.189"
-  conditions: os=linux & cpu=x64
+"@swc/core-linux-x64-musl@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-linux-x64-musl@npm:1.2.192"
+  conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.189"
+"@swc/core-win32-arm64-msvc@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.192"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.189"
+"@swc/core-win32-ia32-msvc@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.192"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core-win32-x64-msvc@npm:1.2.189"
+"@swc/core-win32-x64-msvc@npm:1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core-win32-x64-msvc@npm:1.2.192"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.2.189":
-  version: 1.2.189
-  resolution: "@swc/core@npm:1.2.189"
+"@swc/core@npm:^1.2.192":
+  version: 1.2.192
+  resolution: "@swc/core@npm:1.2.192"
   dependencies:
-    "@swc/core-android-arm-eabi": 1.2.189
-    "@swc/core-android-arm64": 1.2.189
-    "@swc/core-darwin-arm64": 1.2.189
-    "@swc/core-darwin-x64": 1.2.189
-    "@swc/core-freebsd-x64": 1.2.189
-    "@swc/core-linux-arm-gnueabihf": 1.2.189
-    "@swc/core-linux-arm64-gnu": 1.2.189
-    "@swc/core-linux-arm64-musl": 1.2.189
-    "@swc/core-linux-x64-gnu": 1.2.189
-    "@swc/core-linux-x64-musl": 1.2.189
-    "@swc/core-win32-arm64-msvc": 1.2.189
-    "@swc/core-win32-ia32-msvc": 1.2.189
-    "@swc/core-win32-x64-msvc": 1.2.189
+    "@swc/core-android-arm-eabi": 1.2.192
+    "@swc/core-android-arm64": 1.2.192
+    "@swc/core-darwin-arm64": 1.2.192
+    "@swc/core-darwin-x64": 1.2.192
+    "@swc/core-freebsd-x64": 1.2.192
+    "@swc/core-linux-arm-gnueabihf": 1.2.192
+    "@swc/core-linux-arm64-gnu": 1.2.192
+    "@swc/core-linux-arm64-musl": 1.2.192
+    "@swc/core-linux-x64-gnu": 1.2.192
+    "@swc/core-linux-x64-musl": 1.2.192
+    "@swc/core-win32-arm64-msvc": 1.2.192
+    "@swc/core-win32-ia32-msvc": 1.2.192
+    "@swc/core-win32-x64-msvc": 1.2.192
   dependenciesMeta:
     "@swc/core-android-arm-eabi":
       optional: true
@@ -4177,7 +4182,7 @@ __metadata:
       optional: true
   bin:
     swcx: run_swcx.js
-  checksum: 606013d0cf9e49a9c0498c77d070464394e2430b82728b5157b210300bc2d0dc84a071b98554292c8694a0d4e295c4248aebfe25ddd022764a75b9030e9ddf90
+  checksum: 58541e2b72c37869d6a04d4a9a2e743513c720ce17329825c724d3623a720f626e2cd24eec9bd6b5506a436e903fed1c8ac1a24293f6f6599ff27e87cef5278b
   languageName: node
   linkType: hard
 
@@ -6208,12 +6213,12 @@ __metadata:
     benchmark: ^2.1.4
     chalk: ^5.0.1
     cross-env: ^7.0.3
-    mobx: ^6.5.0
+    mobx: ^6.6.0
     mobx-keystone: "workspace:packages/lib"
     mobx-state-tree: ^5.1.5
     shx: ^0.3.4
     tslib: ^2.4.0
-    typescript: ^4.6.4
+    typescript: ^4.7.2
   languageName: unknown
   linkType: soft
 
@@ -10456,7 +10461,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:^9.0.0, fs-extra@npm:^9.0.1":
+"fs-extra@npm:^9.0.0":
   version: 9.1.0
   resolution: "fs-extra@npm:9.1.0"
   dependencies:
@@ -13227,15 +13232,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:2.x, json5@npm:^2.1.2, json5@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "json5@npm:2.2.1"
-  bin:
-    json5: lib/cli.js
-  checksum: 74b8a23b102a6f2bf2d224797ae553a75488b5adbaee9c9b6e5ab8b510a2fc6e38f876d4c77dea672d4014a44b2399e15f2051ac2b37b87f74c0c7602003543b
-  languageName: node
-  linkType: hard
-
 "json5@npm:^1.0.1":
   version: 1.0.1
   resolution: "json5@npm:1.0.1"
@@ -13244,6 +13240,15 @@ __metadata:
   bin:
     json5: lib/cli.js
   checksum: e76ea23dbb8fc1348c143da628134a98adf4c5a4e8ea2adaa74a80c455fc2cdf0e2e13e6398ef819bfe92306b610ebb2002668ed9fc1af386d593691ef346fc3
+  languageName: node
+  linkType: hard
+
+"json5@npm:^2.1.2, json5@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "json5@npm:2.2.1"
+  bin:
+    json5: lib/cli.js
+  checksum: 74b8a23b102a6f2bf2d224797ae553a75488b5adbaee9c9b6e5ab8b510a2fc6e38f876d4c77dea672d4014a44b2399e15f2051ac2b37b87f74c0c7602003543b
   languageName: node
   linkType: hard
 
@@ -14610,26 +14615,26 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.17.12
     "@babel/preset-env": ^7.18.0
     "@babel/preset-typescript": ^7.17.12
-    "@swc/core": ^1.2.189
+    "@swc/core": ^1.2.192
     "@swc/jest": ^0.2.21
     "@types/jest": ^27.5.1
     "@types/node": ^17.0.35
     babel-jest: ^28.1.0
     fast-deep-equal: ^3.1.3
     jest: ^28.1.0
-    mobx: ^6.5.0
+    mobx: ^6.6.0
     mobx-v4: "npm:mobx@^4.15.7"
     mobx-v5: "npm:mobx@^5.15.7"
     nanoid: ^3.3.4
     rollup-plugin-typescript2: ^0.31.2
     shx: ^0.3.4
     spec.ts: ^1.1.3
-    ts-jest: ^28.0.2
+    ts-jest: ^28.0.3
     ts-node: ^10.8.0
     ts-toolbelt: ^9.6.0
     tslib: ^2.4.0
     typedoc: ^0.22.15
-    typescript: ^4.6.4
+    typescript: ^4.7.2
     vite: ^2.9.9
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
@@ -14651,9 +14656,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx-react@npm:^7.4.0":
-  version: 7.4.0
-  resolution: "mobx-react@npm:7.4.0"
+"mobx-react@npm:^7.5.0":
+  version: 7.5.0
+  resolution: "mobx-react@npm:7.5.0"
   dependencies:
     mobx-react-lite: ^3.4.0
   peerDependencies:
@@ -14664,7 +14669,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 16076a6acdcb5474c20282f6d882c35ae41e9c93f57d9a53899a6c15ad355a5c54163b2efa13a2342edb59f1d052cb949985420025e81a9b32980061331f7bf6
+  checksum: a1e3cf182bbec7d190eea247eaabeb81b9cbf8bbd5fe51513889de7c6f73d2ffe2655befece7873f41fb897996ab6e31834e309917b47ae7db7e111240cdd078
   languageName: node
   linkType: hard
 
@@ -14691,10 +14696,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx@npm:^6.5.0":
-  version: 6.5.0
-  resolution: "mobx@npm:6.5.0"
-  checksum: 1210fb0b1c515b5f0ec2916296c32ca19b733e03b34f180af382d44b90668a15b4143c69bb06ca8785ebc3da3e761c6c60d0e72c945c199efc823088af1941ab
+"mobx@npm:^6.6.0":
+  version: 6.6.0
+  resolution: "mobx@npm:6.6.0"
+  checksum: 369b8d6830ec286e9c856c80002c7a554d46bca739b7f76432cb56b3ce1fe0a7ed7e5a994b9793d30023beeff0dd16300a501e831fa97107104e4fedc7d4af8f
   languageName: node
   linkType: hard
 
@@ -18130,8 +18135,8 @@ __metadata:
     netlify-cli: ^10.3.1
     prettier: ^2.6.2
     prettier-plugin-organize-imports: ^2.3.4
-    turbo: ^1.2.9
-    typescript: ^4.6.4
+    turbo: ^1.2.12
+    typescript: ^4.7.2
     utf-8-validate: ^5.0.9
   languageName: unknown
   linkType: soft
@@ -18646,22 +18651,22 @@ __metadata:
     "@docusaurus/core": 2.0.0-beta.20
     "@docusaurus/module-type-aliases": 2.0.0-beta.20
     "@docusaurus/preset-classic": 2.0.0-beta.20
-    "@easyops-cn/docusaurus-search-local": ^0.23.3
+    "@easyops-cn/docusaurus-search-local": ^0.26.0
     "@svgr/webpack": ^6.2.1
     "@tsconfig/docusaurus": ^1.0.5
     "@types/react": ^17.0.45
     "@types/react-dom": ^17.0.17
     "@types/uuid": ^8.3.4
     bootstrap-icons: ^1.8.2
-    mobx: ^6.5.0
+    mobx: ^6.6.0
     mobx-keystone: "workspace:packages/lib"
-    mobx-react: ^7.4.0
+    mobx-react: ^7.5.0
     prism-react-renderer: ^1.3.3
     raw-loader: ^4.0.2
     react: ^17.0.2
     react-dom: ^17.0.2
     remotedev: ^0.2.9
-    typescript: ^4.6.4
+    typescript: ^4.7.2
   languageName: unknown
   linkType: soft
 
@@ -19987,14 +19992,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^28.0.2":
-  version: 28.0.2
-  resolution: "ts-jest@npm:28.0.2"
+"ts-jest@npm:^28.0.3":
+  version: 28.0.3
+  resolution: "ts-jest@npm:28.0.3"
   dependencies:
     bs-logger: 0.x
     fast-json-stable-stringify: 2.x
     jest-util: ^28.0.0
-    json5: 2.x
+    json5: ^2.2.1
     lodash.memoize: 4.x
     make-error: 1.x
     semver: 7.x
@@ -20016,7 +20021,7 @@ __metadata:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: bb244015f947cf9a77c892691a8131116a86f4f1cc7a1ff045cd72f78c16485c07ac582b31117f8d722a0ebb9d51c27468c28e2f8eec8bbae6e2a09ee41066f2
+  checksum: dc6f49507cef996abb75d5870f6ce09c9f191d135a5bb2c38c46adac890f10fd4610b7697a0045b9b37315ce4e075f39d5578da8034d6791952eebc7951475c2
   languageName: node
   linkType: hard
 
@@ -20152,114 +20157,114 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-darwin-64@npm:1.2.9"
+"turbo-darwin-64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-darwin-64@npm:1.2.12"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-darwin-arm64@npm:1.2.9"
+"turbo-darwin-arm64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-darwin-arm64@npm:1.2.12"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-freebsd-64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-freebsd-64@npm:1.2.9"
+"turbo-freebsd-64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-freebsd-64@npm:1.2.12"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-freebsd-arm64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-freebsd-arm64@npm:1.2.9"
+"turbo-freebsd-arm64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-freebsd-arm64@npm:1.2.12"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-32@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-linux-32@npm:1.2.9"
+"turbo-linux-32@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-linux-32@npm:1.2.12"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-linux-64@npm:1.2.9"
+"turbo-linux-64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-linux-64@npm:1.2.12"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-linux-arm64@npm:1.2.9"
+"turbo-linux-arm64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-linux-arm64@npm:1.2.12"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-linux-arm@npm:1.2.9"
+"turbo-linux-arm@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-linux-arm@npm:1.2.12"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"turbo-linux-mips64le@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-linux-mips64le@npm:1.2.9"
+"turbo-linux-mips64le@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-linux-mips64le@npm:1.2.12"
   conditions: os=linux & cpu=mips64el
   languageName: node
   linkType: hard
 
-"turbo-linux-ppc64le@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-linux-ppc64le@npm:1.2.9"
+"turbo-linux-ppc64le@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-linux-ppc64le@npm:1.2.12"
   conditions: os=linux & cpu=ppc64
   languageName: node
   linkType: hard
 
-"turbo-windows-32@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-windows-32@npm:1.2.9"
+"turbo-windows-32@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-windows-32@npm:1.2.12"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-windows-64@npm:1.2.9"
+"turbo-windows-64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-windows-64@npm:1.2.12"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-windows-arm64@npm:1.2.9":
-  version: 1.2.9
-  resolution: "turbo-windows-arm64@npm:1.2.9"
+"turbo-windows-arm64@npm:1.2.12":
+  version: 1.2.12
+  resolution: "turbo-windows-arm64@npm:1.2.12"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.2.9":
-  version: 1.2.9
-  resolution: "turbo@npm:1.2.9"
+"turbo@npm:^1.2.12":
+  version: 1.2.12
+  resolution: "turbo@npm:1.2.12"
   dependencies:
-    turbo-darwin-64: 1.2.9
-    turbo-darwin-arm64: 1.2.9
-    turbo-freebsd-64: 1.2.9
-    turbo-freebsd-arm64: 1.2.9
-    turbo-linux-32: 1.2.9
-    turbo-linux-64: 1.2.9
-    turbo-linux-arm: 1.2.9
-    turbo-linux-arm64: 1.2.9
-    turbo-linux-mips64le: 1.2.9
-    turbo-linux-ppc64le: 1.2.9
-    turbo-windows-32: 1.2.9
-    turbo-windows-64: 1.2.9
-    turbo-windows-arm64: 1.2.9
+    turbo-darwin-64: 1.2.12
+    turbo-darwin-arm64: 1.2.12
+    turbo-freebsd-64: 1.2.12
+    turbo-freebsd-arm64: 1.2.12
+    turbo-linux-32: 1.2.12
+    turbo-linux-64: 1.2.12
+    turbo-linux-arm: 1.2.12
+    turbo-linux-arm64: 1.2.12
+    turbo-linux-mips64le: 1.2.12
+    turbo-linux-ppc64le: 1.2.12
+    turbo-windows-32: 1.2.12
+    turbo-windows-64: 1.2.12
+    turbo-windows-arm64: 1.2.12
   dependenciesMeta:
     turbo-darwin-64:
       optional: true
@@ -20289,7 +20294,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: 7f8bbe9ff37590e01a10f8e9859a99fb74def0c94f38d46844f3a29d7559ad95f9c85944085783f122d5ee2fff20f49e2d838d953343a45680a9089190eee2a3
+  checksum: 75ad427d0165b96f9381e50e8a67f70230b8cef749f247aa38b4af5499168ca61a26a88629543b6478c0bbc8992523319a52917407b413fe988173f1a5e9ff80
   languageName: node
   linkType: hard
 
@@ -20427,19 +20432,19 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.5.4, typescript@npm:^4.6.4":
-  version: 4.6.4
-  resolution: "typescript@npm:4.6.4"
+"typescript@npm:^4.5.4, typescript@npm:^4.7.2":
+  version: 4.7.2
+  resolution: "typescript@npm:4.7.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
+  checksum: 5163585e6b56410f77d5483b698d9489bbee8902c99029eb70cf6d21525a186530ce19a00951af84eefd4a131cc51d0959f5118e25e70ab61f45ac4057dbd1ef
   languageName: node
   linkType: hard
 
 "typescript@patch:typescript@^3.9.7#~builtin<compat/typescript>":
   version: 3.9.10
-  resolution: "typescript@patch:typescript@npm%3A3.9.10#~builtin<compat/typescript>::version=3.9.10&hash=493e53"
+  resolution: "typescript@patch:typescript@npm%3A3.9.10#~builtin<compat/typescript>::version=3.9.10&hash=7ad353"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
@@ -20447,13 +20452,13 @@ typescript@^3.9.7:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.5.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.6.4#~builtin<compat/typescript>":
-  version: 4.6.4
-  resolution: "typescript@patch:typescript@npm%3A4.6.4#~builtin<compat/typescript>::version=4.6.4&hash=493e53"
+"typescript@patch:typescript@^4.5.4#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.2#~builtin<compat/typescript>":
+  version: 4.7.2
+  resolution: "typescript@patch:typescript@npm%3A4.7.2#~builtin<compat/typescript>::version=4.7.2&hash=7ad353"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 8cff08bf66d9ecfbf9fcc5edde04a5a7923e6cac3b21d99b4e9a06973bf5bd7f9a83ec7eed24129c1b9e13fd861de8c1070110d4b9ce9f18ab57c6999e9c9a6f
+  checksum: 7e2b9a9f4a70fb7616f1b0d986977f8e34a74f046202fa7f24fdee79589598277810fa216b3776c20c0683a9235872c73be34fdb93f67f98c1efaca40999422f
   languageName: node
   linkType: hard
 

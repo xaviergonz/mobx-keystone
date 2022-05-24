@@ -163,7 +163,7 @@ class ContextClass<T> implements Context<T> {
   }
 
   getDefault(): T {
-    return resolveContextValue(this.defaultContextValue.get())
+    return resolveContextValue(this.defaultContextValue.get()!)
   }
 
   setDefault = action((value: T) => {
