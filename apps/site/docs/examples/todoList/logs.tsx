@@ -83,12 +83,14 @@ function ActionCallToText(props: { actionCall: ExtendedActionCall }) {
         <span style={{ textDecoration: "line-through" }}>{text}</span>{" "}
         <span>(cancelled and sent to server)</span>
         <br />
+        <br />
       </>
     )
   }
   return (
     <>
       <span>{text}</span>
+      <br />
       <br />
     </>
   )
