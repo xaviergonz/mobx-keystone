@@ -28,6 +28,7 @@ import {
 } from "./primitiveBased/primitives"
 import { typesInteger, typesNonEmptyString } from "./primitiveBased/refinedPrimitives"
 import type { AnyType } from "./schemas"
+import { typesAnnotation } from "./utility/annotation"
 import { typesMaybe, typesMaybeNull } from "./utility/maybe"
 import { OrTypeInfo, typesOr } from "./utility/or"
 import { RefinementTypeInfo, typesRefinement } from "./utility/refinement"
@@ -73,6 +74,7 @@ export const types = {
   ref: typesRef,
   frozen: typesFrozen,
   enum: typesEnum,
+  annotation: typesAnnotation,
   refinement: typesRefinement,
   integer: typesInteger,
   nonEmptyString: typesNonEmptyString,

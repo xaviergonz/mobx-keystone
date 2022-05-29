@@ -282,6 +282,37 @@ const sumModelType = types.refinement(types.model(Sum), (sum) => {
 })
 ```
 
+### types.annotation<T>(baseType, annotation: T)
+
+Wraps a given type with annotation information. This allows you to associate arbitrary metadata with the
+type of a prop that you can then use at runtime against instances.
+
+```ts
+const widthType = types.annotation(
+  types.number,
+  { displayName: "Width in inches", required: true },
+  "dimension"
+)
+const heightType = types.annotation(
+  types.number,
+  { displayName: "Height in inches", required: true },
+  "dimension"
+)
+@model("MyModel")
+class MyModel extends Model({
+  width: tProp(widthType, 10),
+  height: tProp(heightType, 10),
+}) {}
+
+const m = new MyModel({})
+const type = types.model<typeof Model>(m.constructor)
+const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
+const propTypeInfo = modelTypeInfo.props.width.typeInfo as AnnotationTypeInfo<{
+  displayName: string
+}>
+const displayName = propTypeInfo.annotation.displayName
+```
+
 ### Syntactic sugar for optional primitives with a default value
 
 You can also do `tProp(defaultValue: string | number | boolean)`, which is equivalent to `tProp(types.string|number|boolean, defaultValue)`.

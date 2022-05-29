@@ -2,6 +2,7 @@ import { reaction, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   actionTrackingMiddleware,
+  AnnotationTypeInfo,
   AnyModel,
   AnyType,
   ArraySet,
@@ -1294,6 +1295,20 @@ test("syntax sugar for primitives in tProp", () => {
     // expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
   }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
   ss.setOr(5)
+})
+
+test("issue #460", () => {
+  const testDisplayName = "Test"
+  @model("M")
+  class M extends Model({
+    p: tProp(types.annotation(types.string, { displayName: testDisplayName }), ""),
+  }) {}
+
+  const m = new M({})
+  const type = types.model<typeof Model>(m.constructor)
+  const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
+  const propTypeInfo = modelTypeInfo.props.p.typeInfo as AnnotationTypeInfo<{ displayName: string }>
+  expect(propTypeInfo.annotation.displayName).toEqual(testDisplayName)
 })
 
 test("issue #445", () => {
