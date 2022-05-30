@@ -8,7 +8,7 @@ import {
   ObjectTypeInfo,
   ObjectTypeInfoProps,
   typesFrozen,
-  typesObject,
+  typesObject
 } from "./objectBased/object"
 import { ObjectMapTypeInfo, typesObjectMap } from "./objectBased/objectMap"
 import { RecordTypeInfo, typesRecord } from "./objectBased/record"
@@ -24,11 +24,11 @@ import {
   typesNull,
   typesNumber,
   typesString,
-  typesUndefined,
+  typesUndefined
 } from "./primitiveBased/primitives"
 import { typesInteger, typesNonEmptyString } from "./primitiveBased/refinedPrimitives"
 import type { AnyType } from "./schemas"
-import { typesAnnotation } from "./utility/annotation"
+import { AnnotationTypeInfo, typesAnnotation } from "./utility/annotation"
 import { typesMaybe, typesMaybeNull } from "./utility/maybe"
 import { OrTypeInfo, typesOr } from "./utility/or"
 import { RefinementTypeInfo, typesRefinement } from "./utility/refinement"
@@ -43,6 +43,7 @@ export {
   StringTypeInfo,
   FrozenTypeInfo,
   ObjectMapTypeInfo,
+  AnnotationTypeInfo,
   RefinementTypeInfo,
   RecordTypeInfo,
   RefTypeInfo,
