@@ -1,7 +1,7 @@
 import { getTypeInfo } from "../getTypeInfo"
-import { resolveStandardType,resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType,AnyType } from "../schemas"
-import { lateTypeChecker,TypeChecker,TypeInfo,TypeInfoGen } from "../TypeChecker"
+import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, AnyType } from "../schemas"
+import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChecker"
 
 /**
  * Wrap a given type with annotation information.
