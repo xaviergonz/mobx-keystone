@@ -4,14 +4,14 @@ import type { AnyStandardType, AnyType } from "../schemas"
 import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChecker"
 
 /**
- * Wrap a given type with annotation information.
+ * Wrap a given type with tag information.
  * This allows you to associate metadata with the type of a prop that
  * you can use at runtime.
  *
  * Example:
  * ```ts
- * const widthType = types.annotation(types.number, { displayName: "Width in Inches", required: true }, "dimension")
- * const heightType = types.annotation(types.number, { displayName: "Height in Inches", required: true }, "dimension")
+ * const widthType = types.tag(types.number, { displayName: "Width in Inches", required: true }, "dimension")
+ * const heightType = types.tag(types.number, { displayName: "Height in Inches", required: true }, "dimension")
  * ```
  *
  * These can then be accessed at runtime through inspection APIs, e.g.
@@ -25,30 +25,26 @@ import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChec
  * const m = new MyModel({})
  * const type = types.model<typeof Model>(m.constructor)
  * const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
- * const propTypeInfo = modelTypeInfo.props.width.typeInfo as AnnotationTypeInfo
+ * const propTypeInfo = modelTypeInfo.props.width.typeInfo as TagTypeInfo
  * const displayName = propTypeInfo.displayName
  * ```
  * @typeparam T Base type.
  * @param baseType Base type.
- * @typeparam A Annotation object.
- * @param annotation Abitrary object that can be queried at runtime.
+ * @typeparam A Tag object.
+ * @param tag Abitrary object that can be queried at runtime.
  * @returns
  */
-export function typesAnnotation<T extends AnyType, A>(
-  baseType: T,
-  annotation: A,
-  typeName?: string
-): T {
+export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: string): T {
   const typeInfoGen: TypeInfoGen = (t) =>
-    new AnnotationTypeInfo(t, resolveStandardType(baseType), annotation, typeName)
+    new TagTypeInfo(t, resolveStandardType(baseType), tag, typeName)
 
   return lateTypeChecker(() => {
     const baseChecker = resolveTypeChecker(baseType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
       const baseTypeName = baseChecker.getTypeName(...recursiveTypeCheckers, baseChecker)
-      const annotatedName = typeName || "annotated"
-      return `${annotatedName}<${baseTypeName}>`
+      const taggedName = typeName || "tagged"
+      return `${taggedName}<${baseTypeName}>`
     }
 
     const thisTc: TypeChecker = new TypeChecker(
@@ -66,9 +62,9 @@ export function typesAnnotation<T extends AnyType, A>(
 }
 
 /**
- * `types.annotation` type info.
+ * `types.tag` type info.
  */
-export class AnnotationTypeInfo<A> extends TypeInfo {
+export class TagTypeInfo<A> extends TypeInfo {
   get baseTypeInfo(): TypeInfo {
     return getTypeInfo(this.baseType)
   }
@@ -76,7 +72,7 @@ export class AnnotationTypeInfo<A> extends TypeInfo {
   constructor(
     thisType: AnyStandardType,
     readonly baseType: AnyStandardType,
-    readonly annotation: A,
+    readonly tag: A,
     readonly typeName: string | undefined
   ) {
     super(thisType)

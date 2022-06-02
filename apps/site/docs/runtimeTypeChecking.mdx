@@ -282,18 +282,18 @@ const sumModelType = types.refinement(types.model(Sum), (sum) => {
 })
 ```
 
-### `types.annotation<T>(baseType, annotation: T, typeName?: string)`
+### `types.tag<T>(baseType, tag: T, typeName?: string)`
 
-Wraps a given type with annotation information. This allows you to associate arbitrary metadata with the type of a prop that you can then use at runtime against instances.
+Wraps a given type with tag information. This allows you to associate arbitrary metadata with the type of a prop that you can then use at runtime against instances.
 
 ```ts
-const widthType = types.annotation(
+const widthType = types.tag(
   types.number,
   { displayName: "Width in inches", required: true },
   "dimension"
 )
 
-const heightType = types.annotation(
+const heightType = types.tag(
   types.number,
   { displayName: "Height in inches", required: true },
   "dimension"
@@ -308,10 +308,10 @@ class MyModel extends Model({
 const m = new MyModel({})
 const type = types.model<typeof Model>(m.constructor)
 const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
-const propTypeInfo = modelTypeInfo.props.width.typeInfo as AnnotationTypeInfo<{
+const propTypeInfo = modelTypeInfo.props.width.typeInfo as TagTypeInfo<{
   displayName: string
 }>
-const displayName = propTypeInfo.annotation.displayName
+const displayName = propTypeInfo.tag.displayName
 ```
 
 ### Syntactic sugar for optional primitives with a default value

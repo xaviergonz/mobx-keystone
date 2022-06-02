@@ -2,7 +2,6 @@ import { reaction, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   actionTrackingMiddleware,
-  AnnotationTypeInfo,
   AnyModel,
   AnyType,
   ArraySet,
@@ -45,6 +44,7 @@ import {
   rootRef,
   setGlobalConfig,
   StringTypeInfo,
+  TagTypeInfo,
   tProp,
   TupleTypeInfo,
   typeCheck,
@@ -1297,20 +1297,20 @@ test("syntax sugar for primitives in tProp", () => {
   ss.setOr(5)
 })
 
-test("types.annotation", () => {
+test("types.tag", () => {
   const testDisplayName = "Test"
-  const annotationData = { displayName: testDisplayName }
+  const tagData = { displayName: testDisplayName }
 
   @model("M")
   class M extends Model({
-    p: tProp(types.annotation(types.string, annotationData, "someTypeName"), ""),
+    p: tProp(types.tag(types.string, tagData, "someTypeName"), ""),
   }) {}
 
   const m = new M({})
   const type = types.model<typeof Model>(m.constructor)
   const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
-  const propTypeInfo = modelTypeInfo.props.p.typeInfo as AnnotationTypeInfo<{ displayName: string }>
-  expect(propTypeInfo.annotation).toBe(annotationData)
+  const propTypeInfo = modelTypeInfo.props.p.typeInfo as TagTypeInfo<{ displayName: string }>
+  expect(propTypeInfo.tag).toBe(tagData)
   expect(propTypeInfo.typeName).toEqual("someTypeName")
 })
 

@@ -2,7 +2,7 @@
 
 ## 0.69.0
 
-- Added `types.annotation` to be able to annotate types.
+- Added `types.tag` to be able to annotate types.
 
 ## 0.68.6
 

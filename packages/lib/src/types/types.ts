@@ -28,10 +28,10 @@ import {
 } from "./primitiveBased/primitives"
 import { typesInteger, typesNonEmptyString } from "./primitiveBased/refinedPrimitives"
 import type { AnyType } from "./schemas"
-import { AnnotationTypeInfo, typesAnnotation } from "./utility/annotation"
 import { typesMaybe, typesMaybeNull } from "./utility/maybe"
 import { OrTypeInfo, typesOr } from "./utility/or"
 import { RefinementTypeInfo, typesRefinement } from "./utility/refinement"
+import { TagTypeInfo, typesTag } from "./utility/tag"
 import { typesUnchecked, UncheckedTypeInfo } from "./utility/unchecked"
 export { getTypeInfo } from "./getTypeInfo"
 export { TypeInfo } from "./TypeChecker"
@@ -43,7 +43,7 @@ export {
   StringTypeInfo,
   FrozenTypeInfo,
   ObjectMapTypeInfo,
-  AnnotationTypeInfo,
+  TagTypeInfo,
   RefinementTypeInfo,
   RecordTypeInfo,
   RefTypeInfo,
@@ -75,7 +75,7 @@ export const types = {
   ref: typesRef,
   frozen: typesFrozen,
   enum: typesEnum,
-  annotation: typesAnnotation,
+  tag: typesTag,
   refinement: typesRefinement,
   integer: typesInteger,
   nonEmptyString: typesNonEmptyString,
