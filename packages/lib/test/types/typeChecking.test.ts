@@ -44,6 +44,7 @@ import {
   rootRef,
   setGlobalConfig,
   StringTypeInfo,
+  TagTypeInfo,
   tProp,
   TupleTypeInfo,
   typeCheck,
@@ -1294,6 +1295,23 @@ test("syntax sugar for primitives in tProp", () => {
     // expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
   }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
   ss.setOr(5)
+})
+
+test("types.tag", () => {
+  const testDisplayName = "Test"
+  const tagData = { displayName: testDisplayName }
+
+  @model("M")
+  class M extends Model({
+    p: tProp(types.tag(types.string, tagData, "someTypeName"), ""),
+  }) {}
+
+  const m = new M({})
+  const type = types.model<typeof Model>(m.constructor)
+  const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
+  const propTypeInfo = modelTypeInfo.props.p.typeInfo as TagTypeInfo<{ displayName: string }>
+  expect(propTypeInfo.tag).toBe(tagData)
+  expect(propTypeInfo.typeName).toEqual("someTypeName")
 })
 
 test("issue #445", () => {
