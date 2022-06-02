@@ -282,10 +282,9 @@ const sumModelType = types.refinement(types.model(Sum), (sum) => {
 })
 ```
 
-### `types.annotation<T>(baseType, annotation: T)`
+### `types.annotation<T>(baseType, annotation: T, typeName?: string)`
 
-Wraps a given type with annotation information. This allows you to associate arbitrary metadata with the
-type of a prop that you can then use at runtime against instances.
+Wraps a given type with annotation information. This allows you to associate arbitrary metadata with the type of a prop that you can then use at runtime against instances.
 
 ```ts
 const widthType = types.annotation(
@@ -293,11 +292,13 @@ const widthType = types.annotation(
   { displayName: "Width in inches", required: true },
   "dimension"
 )
+
 const heightType = types.annotation(
   types.number,
   { displayName: "Height in inches", required: true },
   "dimension"
 )
+
 @model("MyModel")
 class MyModel extends Model({
   width: tProp(widthType, 10),

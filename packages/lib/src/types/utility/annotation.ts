@@ -13,6 +13,7 @@ import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChec
  * const widthType = types.annotation(types.number, { displayName: "Width in Inches", required: true }, "dimension")
  * const heightType = types.annotation(types.number, { displayName: "Height in Inches", required: true }, "dimension")
  * ```
+ *
  * These can then be accessed at runtime through inspection APIs, e.g.
  * ```
  * @model('MyModel')

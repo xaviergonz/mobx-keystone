@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.0
+
+- Added `types.annotation` to be able to annotate types.
+
 ## 0.68.6
 
 - Fixed `applySnapshot` generating no-op patches sometimes.

@@ -8,7 +8,7 @@ import {
   ObjectTypeInfo,
   ObjectTypeInfoProps,
   typesFrozen,
-  typesObject
+  typesObject,
 } from "./objectBased/object"
 import { ObjectMapTypeInfo, typesObjectMap } from "./objectBased/objectMap"
 import { RecordTypeInfo, typesRecord } from "./objectBased/record"
@@ -24,7 +24,7 @@ import {
   typesNull,
   typesNumber,
   typesString,
-  typesUndefined
+  typesUndefined,
 } from "./primitiveBased/primitives"
 import { typesInteger, typesNonEmptyString } from "./primitiveBased/refinedPrimitives"
 import type { AnyType } from "./schemas"

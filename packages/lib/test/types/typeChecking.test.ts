@@ -1297,18 +1297,21 @@ test("syntax sugar for primitives in tProp", () => {
   ss.setOr(5)
 })
 
-test("issue #460", () => {
+test("types.annotation", () => {
   const testDisplayName = "Test"
+  const annotationData = { displayName: testDisplayName }
+
   @model("M")
   class M extends Model({
-    p: tProp(types.annotation(types.string, { displayName: testDisplayName }), ""),
+    p: tProp(types.annotation(types.string, annotationData, "someTypeName"), ""),
   }) {}
 
   const m = new M({})
   const type = types.model<typeof Model>(m.constructor)
   const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
   const propTypeInfo = modelTypeInfo.props.p.typeInfo as AnnotationTypeInfo<{ displayName: string }>
-  expect(propTypeInfo.annotation.displayName).toEqual(testDisplayName)
+  expect(propTypeInfo.annotation).toBe(annotationData)
+  expect(propTypeInfo.typeName).toEqual("someTypeName")
 })
 
 test("issue #445", () => {
