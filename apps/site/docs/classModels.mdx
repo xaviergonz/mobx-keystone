@@ -321,7 +321,7 @@ class Color extends Model(
 ) {}
 ```
 
-Usually, without `valueType: true`, whenever we wanted to use the same color in two separate paths of the tree we would need to clone it first, or else we would get an error about the node trying to have two parents at once. With `valueType` set this would be no longer the case, since the node would get cloned automatically:
+Usually, without `valueType: true`, whenever we wanted to use the same color in two separate paths of the tree we would need to clone it first, or else we would get an error about the node trying to have two parents at once. With `valueType` set this would be no longer the case, since the node would get cloned automatically if it already had a parent:
 
 ```ts
 class MyColors extends Model({

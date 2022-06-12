@@ -86,10 +86,11 @@ export const setParent = action(
     }
 
     // value type models should be cloned when they are about to be assigned to a new parent
-    // and they had none previously
+    // and they had one previously
     if (
       cloneIfApplicable &&
       parentPath?.parent &&
+      oldParentPath?.parent &&
       isModel(value) &&
       getModelMetadata(value).valueType
     ) {

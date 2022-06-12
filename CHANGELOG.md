@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.1
+
+- Fixed an issue where value-types would always generate patches when `applySnapshot` was being used (even if the contents of the value-type did not really change).
+
 ## 0.69.0
 
 - Added `types.tag` to be able to annotate types.
@@ -412,7 +416,7 @@
 
 ## 0.28.4
 
-- `onAttachedToRootStore` and its disposer will be called right after a change is made rather than after a whole action is finished (restores behaviour of version <= 0.28.1).
+- `onAttachedToRootStore` and its disposer will be called right after a change is made rather than after a whole action is finished (restores behaviour of version &lt;= 0.28.1).
 
 ## 0.28.3
 
