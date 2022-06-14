@@ -4090,114 +4090,114 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm-eabi@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-android-arm-eabi@npm:1.2.199"
+"@swc/core-android-arm-eabi@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-android-arm-eabi@npm:1.2.203"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm64@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-android-arm64@npm:1.2.199"
+"@swc/core-android-arm64@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-android-arm64@npm:1.2.203"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-darwin-arm64@npm:1.2.199"
+"@swc/core-darwin-arm64@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-darwin-arm64@npm:1.2.203"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-darwin-x64@npm:1.2.199"
+"@swc/core-darwin-x64@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-darwin-x64@npm:1.2.203"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-freebsd-x64@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-freebsd-x64@npm:1.2.199"
+"@swc/core-freebsd-x64@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-freebsd-x64@npm:1.2.203"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.199"
+"@swc/core-linux-arm-gnueabihf@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.203"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.199"
+"@swc/core-linux-arm64-gnu@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.203"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-linux-arm64-musl@npm:1.2.199"
+"@swc/core-linux-arm64-musl@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-linux-arm64-musl@npm:1.2.203"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-linux-x64-gnu@npm:1.2.199"
+"@swc/core-linux-x64-gnu@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-linux-x64-gnu@npm:1.2.203"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-linux-x64-musl@npm:1.2.199"
+"@swc/core-linux-x64-musl@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-linux-x64-musl@npm:1.2.203"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.199"
+"@swc/core-win32-arm64-msvc@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.203"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.199"
+"@swc/core-win32-ia32-msvc@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.203"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.2.199":
-  version: 1.2.199
-  resolution: "@swc/core-win32-x64-msvc@npm:1.2.199"
+"@swc/core-win32-x64-msvc@npm:1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core-win32-x64-msvc@npm:1.2.203"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.2.198":
-  version: 1.2.198
-  resolution: "@swc/core@npm:1.2.198"
+"@swc/core@npm:^1.2.203":
+  version: 1.2.203
+  resolution: "@swc/core@npm:1.2.203"
   dependencies:
-    "@swc/core-android-arm-eabi": 1.2.199
-    "@swc/core-android-arm64": 1.2.199
-    "@swc/core-darwin-arm64": 1.2.199
-    "@swc/core-darwin-x64": 1.2.199
-    "@swc/core-freebsd-x64": 1.2.199
-    "@swc/core-linux-arm-gnueabihf": 1.2.199
-    "@swc/core-linux-arm64-gnu": 1.2.199
-    "@swc/core-linux-arm64-musl": 1.2.199
-    "@swc/core-linux-x64-gnu": 1.2.199
-    "@swc/core-linux-x64-musl": 1.2.199
-    "@swc/core-win32-arm64-msvc": 1.2.199
-    "@swc/core-win32-ia32-msvc": 1.2.199
-    "@swc/core-win32-x64-msvc": 1.2.199
+    "@swc/core-android-arm-eabi": 1.2.203
+    "@swc/core-android-arm64": 1.2.203
+    "@swc/core-darwin-arm64": 1.2.203
+    "@swc/core-darwin-x64": 1.2.203
+    "@swc/core-freebsd-x64": 1.2.203
+    "@swc/core-linux-arm-gnueabihf": 1.2.203
+    "@swc/core-linux-arm64-gnu": 1.2.203
+    "@swc/core-linux-arm64-musl": 1.2.203
+    "@swc/core-linux-x64-gnu": 1.2.203
+    "@swc/core-linux-x64-musl": 1.2.203
+    "@swc/core-win32-arm64-msvc": 1.2.203
+    "@swc/core-win32-ia32-msvc": 1.2.203
+    "@swc/core-win32-x64-msvc": 1.2.203
   dependenciesMeta:
     "@swc/core-android-arm-eabi":
       optional: true
@@ -4227,7 +4227,7 @@ __metadata:
       optional: true
   bin:
     swcx: run_swcx.js
-  checksum: c137ba5ca6dfc7392d4731210c09b10327eb09697aad40867d3d65c4eb5cac380c86680d14349d74bfe7493ecd0cf9bc6db77c6f36a07fece2a38847bb428f5d
+  checksum: ef7a7a5fe0eb95ba85d286c61c6e19890c1b3382437cf5cbe8834a5d5031b60f8f97b285d304ff222b8fc35c3f6cd0d4dd727fb5da76babb8d2382811802e8cf
   languageName: node
   linkType: hard
 
@@ -14705,7 +14705,7 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.18.2
     "@babel/preset-env": ^7.18.2
     "@babel/preset-typescript": ^7.17.12
-    "@swc/core": ^1.2.198
+    "@swc/core": ^1.2.203
     "@swc/jest": ^0.2.21
     "@types/jest": ^28.1.1
     "@types/node": ^17.0.42
@@ -16983,12 +16983,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.6.2":
-  version: 2.6.2
-  resolution: "prettier@npm:2.6.2"
+"prettier@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "prettier@npm:2.7.0"
   bin:
     prettier: bin-prettier.js
-  checksum: 48d08dde8e9fb1f5bccdd205baa7f192e9fc8bc98f86e1b97d919de804e28c806b0e6cc685e4a88211aa7987fa9668f30baae19580d87ced3ed0f2ec6572106f
+  checksum: 5b55bb1dced9d16635b83229df8e670d150890fdb343f19e8a66e610094a108e960c0f57352b3e5cdbc4eff4ef00a834406047ffcd9f20bd22a6497ba143c81f
   languageName: node
   linkType: hard
 
@@ -17389,15 +17389,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^18.1.0":
-  version: 18.1.0
-  resolution: "react-dom@npm:18.1.0"
+"react-dom@npm:^18.2.0":
+  version: 18.2.0
+  resolution: "react-dom@npm:18.2.0"
   dependencies:
     loose-envify: ^1.1.0
-    scheduler: ^0.22.0
+    scheduler: ^0.23.0
   peerDependencies:
-    react: ^18.1.0
-  checksum: bb0d48eeb0b297c79c2a03978baa29f5b3ff7ba3d070b21e34c9af1a6e7fdf0ca8b8d73e41f9214d91ad40eeb6d1f3559f884cbbc338713374a51320637c23df
+    react: ^18.2.0
+  checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
   languageName: node
   linkType: hard
 
@@ -17548,12 +17548,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^18.1.0":
-  version: 18.1.0
-  resolution: "react@npm:18.1.0"
+"react@npm:^18.2.0":
+  version: 18.2.0
+  resolution: "react@npm:18.2.0"
   dependencies:
     loose-envify: ^1.1.0
-  checksum: 5bb296b561b43ef2220395da4faac86c14a087c8c80e1a7598a5740f01ee605c11eaf249985c1e2000971c4cd32ccb46d40f00479bbd9fb6b1c7cf857393b7d4
+  checksum: 88e38092da8839b830cda6feef2e8505dec8ace60579e46aa5490fc3dc9bba0bd50336507dc166f43e3afc1c42939c09fe33b25fae889d6f402721dcd78fca1b
   languageName: node
   linkType: hard
 
@@ -18230,7 +18230,7 @@ __metadata:
     eslint-config-prettier: ^8.5.0
     eslint-config-react-app: ^7.0.1
     netlify-cli: ^10.5.1
-    prettier: ^2.6.2
+    prettier: ^2.7.0
     prettier-plugin-organize-imports: ^2.3.4
     turbo: ^1.2.16
     typescript: ^4.7.3
@@ -18367,12 +18367,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "scheduler@npm:0.22.0"
+"scheduler@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "scheduler@npm:0.23.0"
   dependencies:
     loose-envify: ^1.1.0
-  checksum: a8ef5cab769c020cd6382ad9ecc3f72dbde56a50a36639b3a42ad9c11f7724f03700bcad373044059b8067d4a6365154dc7c0ca8027ef20ff4900cf58a0fc2c5
+  checksum: d79192eeaa12abef860c195ea45d37cbf2bbf5f66e3c4dcd16f54a7da53b17788a70d109ee3d3dde1a0fd50e6a8fc171f4300356c5aee4fc0171de526bf35f8a
   languageName: node
   linkType: hard
 
@@ -18759,8 +18759,8 @@ __metadata:
     mobx-react: ^7.5.0
     prism-react-renderer: ^1.3.3
     raw-loader: ^4.0.2
-    react: ^18.1.0
-    react-dom: ^18.1.0
+    react: ^18.2.0
+    react-dom: ^18.2.0
     remotedev: ^0.2.9
     typescript: ^4.7.3
   languageName: unknown
