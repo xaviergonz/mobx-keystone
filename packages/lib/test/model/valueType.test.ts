@@ -104,7 +104,6 @@ test("valueType shouldn't generate no-op patches when applySnapshot is used", ()
     patches.push(newPatches)
   })
 
-  console.log("apply snapshot!")
   applySnapshot(r, {
     $modelType: "R",
     p_prop: {
