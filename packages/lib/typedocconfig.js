@@ -4,5 +4,5 @@ module.exports = {
   readme: "none",
   out: "api-docs",
   tsconfig: "tsconfig.json",
-  listInvalidSymbolLinks: true,
+  disableSources: true,
 }
