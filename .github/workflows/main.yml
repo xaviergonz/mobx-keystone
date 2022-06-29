@@ -28,9 +28,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .yarn/cache
-          key: v3-${{ runner.os }}-yarn_cache
+          key: v4-${{ runner.os }}-yarn_cache
           restore-keys: |
-            v3-${{ runner.os }}-
+            v4-${{ runner.os }}-
 
       - run: yarn install --immutable
       - run: yarn site:build
@@ -62,9 +62,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .yarn/cache
-          key: v3-${{ runner.os }}-yarn_cache
+          key: v4-${{ runner.os }}-yarn_cache
           restore-keys: |
-            v3-${{ runner.os }}-
+            v4-${{ runner.os }}-
 
       - run: yarn install --immutable
       - run: yarn lib:test:ci && yarn codecov -p ./packages/lib
@@ -86,9 +86,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .yarn/cache
-          key: v3-${{ runner.os }}-yarn_cache
+          key: v4-${{ runner.os }}-yarn_cache
           restore-keys: |
-            v3-${{ runner.os }}-
+            v4-${{ runner.os }}-
 
       - run: yarn install --immutable
       - run: yarn lib:build
@@ -109,9 +109,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .yarn/cache
-          key: v3-${{ runner.os }}-yarn_cache
+          key: v4-${{ runner.os }}-yarn_cache
           restore-keys: |
-            v3-${{ runner.os }}-
+            v4-${{ runner.os }}-
 
       - run: yarn install --immutable
       - run: yarn prettier --check .
