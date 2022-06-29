@@ -3,7 +3,6 @@ import type {
   ModelClass,
   ModelTransformedCreationData,
 } from "../modelShared/BaseModelShared"
-import { sharedInternalModel } from "../modelShared/Model"
 import type {
   ModelProps,
   ModelPropsToSetter,
@@ -12,6 +11,7 @@ import type {
   ModelPropsToTransformedCreationData,
   ModelPropsToTransformedData,
 } from "../modelShared/prop"
+import { sharedInternalModel } from "../modelShared/sharedInternalModel"
 import type { AnyModel, BaseModel, BaseModelKeys, ModelIdPropertyName } from "./BaseModel"
 import { assertIsModelClass, isModelClass } from "./utils"
 
