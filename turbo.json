@@ -7,7 +7,7 @@
     },
     "mobx-keystone#build": {
       "dependsOn": [],
-      "outputs": ["dist/**", "package.json"]
+      "outputs": ["dist/**"]
     },
     "site#build": {
       "dependsOn": ["^build", "^build-docs"],

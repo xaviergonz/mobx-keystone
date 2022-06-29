@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "docusaurus start",
-    "build": "docusaurus build",
+    "build": "docusaurus build && shx cp -r ./copy-to-build/. ./build",
     "serve": "docusaurus serve"
   },
   "dependencies": {
@@ -31,6 +31,7 @@
     "@types/react-dom": "^18.0.5",
     "@types/uuid": "^8.3.4",
     "raw-loader": "^4.0.2",
+    "shx": "^0.3.4",
     "typescript": "^4.7.4"
   },
   "browserslist": {

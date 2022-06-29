@@ -3,5 +3,6 @@
 .docusaurus
 .DS_Store
 /build
-/node_modules/
-/static/api/
+/node_modules
+/static/api
+/copy-to-build

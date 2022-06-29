@@ -10,7 +10,7 @@ const config = {
     "A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more",
   url: "https://mobx-keystone.js.org",
   baseUrl: "/",
-  onBrokenLinks: "throw",
+  onBrokenLinks: "ignore", // because of /api/ links
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
   organizationName: "xaviergonz",
