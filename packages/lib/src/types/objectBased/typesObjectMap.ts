@@ -13,8 +13,8 @@ import {
   TypeInfoGen,
 } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
-import { typesObject } from "./object"
-import { typesRecord } from "./record"
+import { typesObject } from "./typesObject"
+import { typesRecord } from "./typesRecord"
 
 /**
  * A type that represents an object-like map ObjectMap.

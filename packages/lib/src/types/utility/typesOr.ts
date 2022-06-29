@@ -15,7 +15,7 @@ import {
   TypeInfoGen,
 } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
-import { typesUnchecked } from "./unchecked"
+import { typesUnchecked } from "./typesUnchecked"
 
 /**
  * A type that represents the union of several other types (a | b | c | ...).

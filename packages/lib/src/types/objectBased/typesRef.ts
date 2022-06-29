@@ -2,12 +2,12 @@ import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { Ref, RefConstructor } from "../../ref/Ref"
 import { isObject } from "../../utils"
-import { typesString } from "../primitiveBased/primitives"
+import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"
 import type { ModelType } from "../schemas"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
-import { typesObject } from "./object"
+import { typesObject } from "./typesObject"
 
 /**
  * A type that represents a reference to an object or model.

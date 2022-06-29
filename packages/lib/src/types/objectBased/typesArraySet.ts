@@ -2,7 +2,7 @@ import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { isObject } from "../../utils"
 import { ArraySet } from "../../wrappers/ArraySet"
-import { typesArray } from "../arrayBased/array"
+import { typesArray } from "../arrayBased/typesArray"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas"
@@ -14,7 +14,7 @@ import {
   TypeInfoGen,
 } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
-import { typesObject } from "./object"
+import { typesObject } from "./typesObject"
 
 /**
  * A type that represents an array backed set ArraySet.

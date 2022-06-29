@@ -5,11 +5,11 @@ import {
   typesNumber,
   typesString,
   typesUndefined,
-} from "./primitiveBased/primitives"
+} from "./primitiveBased/typesPrimitive"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyType, TypeToData } from "./schemas"
 import { LateTypeChecker, TypeChecker } from "./TypeChecker"
-import { typesOr } from "./utility/or"
+import { typesOr } from "./utility/typesOr"
 
 /**
  * Defines a string model property with a default value.

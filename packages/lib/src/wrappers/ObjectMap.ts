@@ -4,9 +4,9 @@ import { modelIdKey } from "../model/metadata"
 import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { idProp } from "../modelShared/prop"
-import { typesRecord } from "../types/objectBased/record"
+import { typesRecord } from "../types/objectBased/typesRecord"
 import { tProp } from "../types/tProp"
-import { typesUnchecked } from "../types/utility/unchecked"
+import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { namespace } from "../utils"
 
 /**

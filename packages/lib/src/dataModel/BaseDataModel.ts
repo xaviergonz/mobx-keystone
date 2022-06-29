@@ -11,7 +11,7 @@ import {
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTreeNode } from "../tweaker/core"
 import { toTreeNode } from "../tweaker/tweak"
-import { typesDataModelData } from "../types/objectBased/dataModelData"
+import { typesDataModelData } from "../types/objectBased/typesDataModelData"
 import { typeCheck } from "../types/typeCheck"
 import type { TypeCheckError } from "../types/TypeCheckError"
 import { failure, isObject } from "../utils"

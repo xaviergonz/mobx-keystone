@@ -54,7 +54,7 @@ import {
   TypeToData,
   UncheckedTypeInfo,
 } from "../../src"
-import { enumValues } from "../../src/types/primitiveBased/enum"
+import { enumValues } from "../../src/types/primitiveBased/typesEnum"
 import { resolveStandardType } from "../../src/types/resolveTypeChecker"
 import { autoDispose } from "../utils"
 

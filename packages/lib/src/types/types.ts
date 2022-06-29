@@ -1,19 +1,19 @@
-import { ArrayTypeInfo, typesArray } from "./arrayBased/array"
-import { TupleTypeInfo, typesTuple } from "./arrayBased/tuple"
-import { ArraySetTypeInfo, typesArraySet } from "./objectBased/arraySet"
-import { typesDataModelData } from "./objectBased/dataModelData"
-import { ModelTypeInfo, ModelTypeInfoProps, typesModel } from "./objectBased/model"
+import { ArrayTypeInfo, typesArray } from "./arrayBased/typesArray"
+import { TupleTypeInfo, typesTuple } from "./arrayBased/typesTuple"
+import { ArraySetTypeInfo, typesArraySet } from "./objectBased/typesArraySet"
+import { typesDataModelData } from "./objectBased/typesDataModelData"
+import { ModelTypeInfo, ModelTypeInfoProps, typesModel } from "./objectBased/typesModel"
 import {
   FrozenTypeInfo,
   ObjectTypeInfo,
   ObjectTypeInfoProps,
   typesFrozen,
   typesObject,
-} from "./objectBased/object"
-import { ObjectMapTypeInfo, typesObjectMap } from "./objectBased/objectMap"
-import { RecordTypeInfo, typesRecord } from "./objectBased/record"
-import { RefTypeInfo, typesRef } from "./objectBased/ref"
-import { typesEnum } from "./primitiveBased/enum"
+} from "./objectBased/typesObject"
+import { ObjectMapTypeInfo, typesObjectMap } from "./objectBased/typesObjectMap"
+import { RecordTypeInfo, typesRecord } from "./objectBased/typesRecord"
+import { RefTypeInfo, typesRef } from "./objectBased/typesRef"
+import { typesEnum } from "./primitiveBased/typesEnum"
 import {
   BooleanTypeInfo,
   LiteralTypeInfo,
@@ -25,14 +25,14 @@ import {
   typesNumber,
   typesString,
   typesUndefined,
-} from "./primitiveBased/primitives"
-import { typesInteger, typesNonEmptyString } from "./primitiveBased/refinedPrimitives"
+} from "./primitiveBased/typesPrimitive"
+import { typesInteger, typesNonEmptyString } from "./primitiveBased/typesRefinedPrimitive"
 import type { AnyType } from "./schemas"
-import { typesMaybe, typesMaybeNull } from "./utility/maybe"
-import { OrTypeInfo, typesOr } from "./utility/or"
-import { RefinementTypeInfo, typesRefinement } from "./utility/refinement"
-import { TagTypeInfo, typesTag } from "./utility/tag"
-import { typesUnchecked, UncheckedTypeInfo } from "./utility/unchecked"
+import { typesMaybe, typesMaybeNull } from "./utility/typesMaybe"
+import { OrTypeInfo, typesOr } from "./utility/typesOr"
+import { RefinementTypeInfo, typesRefinement } from "./utility/typesRefinement"
+import { TagTypeInfo, typesTag } from "./utility/typesTag"
+import { typesUnchecked, UncheckedTypeInfo } from "./utility/typesUnchecked"
 export { getTypeInfo } from "./getTypeInfo"
 export { TypeInfo } from "./TypeChecker"
 export type { ObjectTypeInfoProps, ModelTypeInfoProps }

@@ -1,5 +1,5 @@
-import { registerModelStandardTypeResolver } from "./objectBased/model"
-import { registerPrimitiveStandardTypeResolvers } from "./primitiveBased/primitives"
+import { registerModelStandardTypeResolver } from "./objectBased/typesModel"
+import { registerPrimitiveStandardTypeResolvers } from "./primitiveBased/typesPrimitive"
 
 let defaultStandardTypeResolversRegistered = false
 

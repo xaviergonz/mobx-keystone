@@ -13,7 +13,7 @@ import type {
 } from "../modelShared/prop"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import type { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
-import { typesModel } from "../types/objectBased/model"
+import { typesModel } from "../types/objectBased/typesModel"
 import { typeCheck } from "../types/typeCheck"
 import type { TypeCheckError } from "../types/TypeCheckError"
 import { assertIsObject, failure } from "../utils"

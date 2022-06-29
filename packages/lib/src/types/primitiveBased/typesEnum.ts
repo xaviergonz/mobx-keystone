@@ -1,7 +1,7 @@
 import { assertIsObject } from "../../utils"
 import type { IdentityType } from "../schemas"
-import { typesOr } from "../utility/or"
-import { typesLiteral } from "./primitives"
+import { typesOr } from "../utility/typesOr"
+import { typesLiteral } from "./typesPrimitive"
 
 /**
  * @ignore
