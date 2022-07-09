@@ -12,9 +12,11 @@ import {
   ModelClassDeclaration,
   ModelCreationData,
   ModelData,
+  modelFlow,
   prop,
   tProp,
   types,
+  _async,
 } from "../../src"
 import { Flatten } from "../../src/utils/types"
 
@@ -825,4 +827,67 @@ test("statics get inherited", () => {
   expect(StaticA.foo).toBe("foo")
   expect(StaticB.foo).toBe("foo")
   expect(StaticB.bar).toBe("bar")
+})
+
+test("modelAction, modelFlow and subclassing", () => {
+  abstract class BM extends Model({
+    id: idProp,
+    name: prop<string>(),
+  }) {
+    @modelAction
+    action11 = () => {}
+
+    @modelAction
+    action12() {}
+
+    @modelFlow
+    fetch1 = _async(function* (this: BM) {})
+  }
+
+  @model("modelAction, modelFlow and subclassing/ModelA")
+  class A extends ExtendedModel(BM, {
+    foo: prop<string>(),
+  }) {}
+
+  @model("modelAction, modelFlow and subclassing/ModelB")
+  class B extends ExtendedModel(BM, {
+    foo: prop<string>(),
+  }) {
+    @modelAction
+    action21 = () => {}
+
+    @modelAction
+    action22() {}
+
+    @modelFlow
+    fetch2 = _async(function* (this: BM) {})
+  }
+
+  const a = new A({
+    foo: "bar",
+    name: "test",
+  })
+
+  expect(a.foo).toBe("bar")
+  expect(a.name).toBe("test")
+  expect(a.fetch1).toBeDefined()
+  expect(a.action11).toBeDefined()
+  expect(a.action12).toBeDefined()
+  expect((a as any).action21).toBeUndefined()
+  expect((a as any).action22).toBeUndefined()
+  expect((a as any).fetch2).toBeUndefined()
+
+  const b = new B({
+    foo: "bar2",
+    name: "test2",
+  })
+
+  expect(b.foo).toBe("bar2")
+  expect(b.name).toBe("test2")
+  expect(b.fetch1).toBeDefined()
+  expect(b.action11).toBeDefined()
+  expect(b.action12).toBeDefined()
+  expect(b.action11).toBeDefined()
+  expect(b.action22).toBeDefined()
+  expect(b.fetch2).toBeDefined()
 })

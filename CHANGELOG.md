@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.2
+
+- Fixed an issue related to modelActions and modelFlows in derived classes giving an error on instantiation.
+
 ## 0.69.1
 
 - Fixed an issue where value-types would always generate patches when `applySnapshot` was being used (even if the contents of the value-type did not really change).

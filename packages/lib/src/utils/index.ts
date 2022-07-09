@@ -272,8 +272,9 @@ export function addLateInitializationFunction(
   fn: (instance: any) => void
 ) {
   let array: LateInitializationFunctionsArray = target[symbol]
-  if (!array) {
-    array = []
+  if (!array || !Object.prototype.hasOwnProperty.call(target, symbol)) {
+    // leave base array unmodified, create new array in the derived class
+    array = array ? array.slice() : []
     addHiddenProp(target, symbol, array)
   }
   array.push(fn)
