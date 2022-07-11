@@ -2,14 +2,14 @@ import type {
   AbstractModelClass,
   ModelClass,
   ModelCreationData,
-  ModelTransformedCreationData,
+  ModelUntransformedCreationData,
 } from "../modelShared/BaseModelShared"
 import type {
   ModelProps,
-  ModelPropsToCreationData,
   ModelPropsToSetter,
   ModelPropsToTransformedCreationData,
   ModelPropsToTransformedData,
+  ModelPropsToUntransformedCreationData,
 } from "../modelShared/prop"
 import { sharedInternalModel } from "../modelShared/sharedInternalModel"
 import type { AnyDataModel, BaseDataModel, BaseDataModelKeys } from "./BaseDataModel"
@@ -17,9 +17,9 @@ import { assertIsDataModelClass, isDataModelClass } from "./utils"
 
 export type _ComposedData<SuperModel, TProps extends ModelProps> = SuperModel extends AnyDataModel
   ?
-      | (ModelPropsToCreationData<TProps> & ModelCreationData<SuperModel>)
-      | (ModelPropsToTransformedCreationData<TProps> & ModelTransformedCreationData<SuperModel>)
-  : ModelPropsToCreationData<TProps> | ModelPropsToTransformedCreationData<TProps>
+      | (ModelPropsToUntransformedCreationData<TProps> & ModelUntransformedCreationData<SuperModel>)
+      | (ModelPropsToTransformedCreationData<TProps> & ModelCreationData<SuperModel>)
+  : ModelPropsToUntransformedCreationData<TProps> | ModelPropsToTransformedCreationData<TProps>
 
 export interface _DataModel<SuperModel, TProps extends ModelProps> {
   new (data: _ComposedData<SuperModel, TProps>): SuperModel &

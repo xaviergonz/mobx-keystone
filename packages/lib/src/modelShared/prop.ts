@@ -169,7 +169,7 @@ export type RequiredModelProps<MP extends ModelProps> = {
   [K in keyof MP]: MP[K]["_internal"]["$isRequired"] & K
 }[keyof MP]
 
-export type ModelPropsToData<MP extends ModelProps> = Flatten<{
+export type ModelPropsToUntransformedData<MP extends ModelProps> = Flatten<{
   [k in keyof MP]: MP[k]["_internal"]["$valueType"]
 }>
 
@@ -181,7 +181,7 @@ export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
 // also if we use pick over the optional props we will loose the ability
 // to infer generics
 // we also don't use Flatten because if we do some generics won't work
-export type ModelPropsToCreationData<MP extends ModelProps> = {
+export type ModelPropsToUntransformedCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["_internal"]["$creationValueType"]
 } & {
   [k in RequiredModelProps<MP>]: MP[k]["_internal"]["$creationValueType"]

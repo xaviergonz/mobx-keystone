@@ -1,7 +1,7 @@
 import type {
   AbstractModelClass,
   ModelClass,
-  ModelTransformedCreationData,
+  ModelCreationData,
 } from "../modelShared/BaseModelShared"
 import type {
   ModelProps,
@@ -19,7 +19,7 @@ export type _ComposedCreationData<
   SuperModel,
   TProps extends ModelProps
 > = SuperModel extends AnyModel
-  ? ModelPropsToTransformedCreationData<TProps> & ModelTransformedCreationData<SuperModel>
+  ? ModelPropsToTransformedCreationData<TProps> & ModelCreationData<SuperModel>
   : ModelPropsToTransformedCreationData<TProps>
 
 /**

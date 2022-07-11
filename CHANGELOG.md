@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.3
+
+- `ModelData` and `ModelCreationData` now take into account any possible transformations. If you want to use the old ones (without transformations) then use `ModelUntransformedData` and `ModelUntransformedCreationData`.
+
 ## 0.69.2
 
 - Fixed an issue related to modelActions and modelFlows in derived classes giving an error on instantiation.

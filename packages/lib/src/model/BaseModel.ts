@@ -8,8 +8,8 @@ import {
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import type {
   ModelProps,
-  ModelPropsToData,
   ModelPropsToTransformedCreationData,
+  ModelPropsToUntransformedData,
 } from "../modelShared/prop"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import type { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
@@ -88,7 +88,7 @@ export abstract class BaseModel<
    * Data part of the model, which is observable and will be serialized in snapshots.
    * Use it if one of the data properties matches one of the model properties/functions.
    */
-  readonly $!: ModelPropsToData<TProps>
+  readonly $!: ModelPropsToUntransformedData<TProps>
 
   /**
    * Optional hook that will run once this model instance is attached to the tree of a model marked as

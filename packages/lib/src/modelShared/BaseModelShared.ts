@@ -3,11 +3,11 @@ import type { AnyModel } from "../model/BaseModel"
 import type { modelTypeKey } from "../model/metadata"
 import type { Flatten, IsNeverType } from "../utils/types"
 import type {
-  ModelPropsToCreationData,
   ModelPropsToSnapshotCreationData,
   ModelPropsToSnapshotData,
   ModelPropsToTransformedCreationData,
   ModelPropsToTransformedData,
+  ModelPropsToUntransformedCreationData,
 } from "./prop"
 
 /**
@@ -53,28 +53,27 @@ export type AbstractModelClass<M extends AnyModel | AnyDataModel> = abstract new
 export type ModelPropsOf<M extends AnyModel | AnyDataModel> = M[typeof propsTypeSymbol]
 
 /**
- * The data type of a model.
+ * The data type of a model, without transformations applied.
  */
-export type ModelData<M extends AnyModel | AnyDataModel> = Flatten<M["$"]>
+export type ModelUntransformedData<M extends AnyModel | AnyDataModel> = Flatten<M["$"]>
 
 /**
- * The creation data type of a model.
+ * The creation data type of a model, without transformations applied.
  */
-export type ModelCreationData<M extends AnyModel | AnyDataModel> = ModelPropsToCreationData<
+export type ModelUntransformedCreationData<M extends AnyModel | AnyDataModel> =
+  ModelPropsToUntransformedCreationData<ModelPropsOf<M>>
+
+/**
+ * The data type of a model, with transformations applied.
+ */
+export type ModelData<M extends AnyModel | AnyDataModel> = ModelPropsToTransformedData<
   ModelPropsOf<M>
 >
 
 /**
- * The transformed data type of a model.
+ * The creation data type of a model, with transformations applied.
  */
-export type ModelTransformedData<M extends AnyModel | AnyDataModel> = ModelPropsToTransformedData<
-  ModelPropsOf<M>
->
-
-/**
- * The transformed creation data type of a model.
- */
-export type ModelTransformedCreationData<M extends AnyModel | AnyDataModel> =
+export type ModelCreationData<M extends AnyModel | AnyDataModel> =
   ModelPropsToTransformedCreationData<ModelPropsOf<M>>
 
 /**

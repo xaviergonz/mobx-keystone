@@ -2,7 +2,11 @@ import type { O } from "ts-toolbelt"
 import type { AnyDataModel } from "../../dataModel/BaseDataModel"
 import { getDataModelMetadata } from "../../dataModel/getDataModelMetadata"
 import { isDataModelClass } from "../../dataModel/utils"
-import type { ModelClass, ModelData } from "../../modelShared/BaseModelShared"
+import type {
+  ModelClass,
+  ModelData,
+  ModelUntransformedData,
+} from "../../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
@@ -41,7 +45,12 @@ type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
 export function typesDataModelData<M = never, K = M>(
   modelClass: _ClassOrObject<M, K>
 ): IdentityType<
-  ModelData<K extends M ? (M extends AnyDataModel ? M : never) : K extends AnyDataModel ? K : never>
+  | ModelUntransformedData<
+      K extends M ? (M extends AnyDataModel ? M : never) : K extends AnyDataModel ? K : never
+    >
+  | ModelData<
+      K extends M ? (M extends AnyDataModel ? M : never) : K extends AnyDataModel ? K : never
+    >
 > {
   // if we type it any stronger then recursive defs and so on stop working
 

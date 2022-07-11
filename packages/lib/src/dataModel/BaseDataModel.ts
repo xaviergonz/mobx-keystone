@@ -3,9 +3,9 @@ import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import {
   ModelProps,
-  ModelPropsToCreationData,
-  ModelPropsToData,
   ModelPropsToTransformedCreationData,
+  ModelPropsToUntransformedCreationData,
+  ModelPropsToUntransformedData,
   noDefaultValue,
 } from "../modelShared/prop"
 import { getSnapshot } from "../snapshot/getSnapshot"
@@ -42,7 +42,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
    * Use it if one of the data properties matches one of the model properties/functions.
    * This also allows access to the backed values of transformed properties.
    */
-  readonly $!: ModelPropsToData<TProps>
+  readonly $!: ModelPropsToUntransformedData<TProps>
 
   /**
    * Performs a type check over the model instance.
@@ -59,7 +59,9 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
    * Creates an instance of a data model.
    */
   constructor(
-    data: ModelPropsToCreationData<TProps> | ModelPropsToTransformedCreationData<TProps>
+    data:
+      | ModelPropsToUntransformedCreationData<TProps>
+      | ModelPropsToTransformedCreationData<TProps>
   ) {
     if (!isObject(data)) {
       throw failure("data models can only work over data objects")
@@ -68,7 +70,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
     const { modelClass: _modelClass }: DataModelConstructorOptions = arguments[1] as any
     const modelClass = _modelClass!
 
-    type Data = ModelPropsToData<TProps>
+    type Data = ModelPropsToUntransformedData<TProps>
     let tweakedData: Data
     if (isTreeNode(data)) {
       // in theory already initialized
