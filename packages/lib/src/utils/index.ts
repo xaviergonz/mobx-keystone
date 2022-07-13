@@ -280,6 +280,8 @@ export function addLateInitializationFunction(
   array.push(fn)
 }
 
+const unboundMethodSymbol = Symbol("unboundMethod")
+
 /**
  * @internal
  */
@@ -292,7 +294,19 @@ export function decorateWrapMethodOrField(
 
   const addFieldDecorator = () => {
     addLateInitializationFunction(target, runAfterNewSymbol, (instance) => {
-      instance[propertyKey] = wrap(data, instance[propertyKey])
+      // all of this is to make method destructuring work
+      const method = wrap(data, instance[propertyKey])
+
+      const unboundMethod = unboundMethodSymbol in method ? method[unboundMethodSymbol] : method
+
+      const boundMethod = unboundMethod.bind(instance)
+      // copy modelAction symbol, etc.
+      Object.getOwnPropertySymbols(unboundMethod).forEach((s) => {
+        boundMethod[s] = unboundMethod[s]
+      })
+      boundMethod[unboundMethodSymbol] = unboundMethod
+
+      instance[propertyKey] = boundMethod
     })
   }
 
@@ -315,7 +329,7 @@ export function decorateWrapMethodOrField(
       addFieldDecorator()
     }
   } else {
-    // typescript - field decorator
+    // typescript - field decorator: @action method = () => {}
     addFieldDecorator()
   }
 }

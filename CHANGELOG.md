@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.4
+
+- Fixed an issue that preventmodel actions/flows from being used when destructured.
+
 ## 0.69.3
 
 - `ModelData` and `ModelCreationData` now take into account any possible transformations. If you want to use the old ones (without transformations) then use `ModelUntransformedData` and `ModelUntransformedCreationData`.

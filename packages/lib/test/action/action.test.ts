@@ -3,6 +3,7 @@ import {
   addActionMiddleware,
   applyAction,
   applySnapshot,
+  ExtendedModel,
   getSnapshot,
   idProp,
   model,
@@ -736,4 +737,34 @@ test("action protection", () => {
       remove(p.obj, "200")
     })
   ).toThrow(err)
+})
+
+test("arrow model actions work when destructured", () => {
+  @model("arrow model actions work when destructured/M")
+  class M extends Model({
+    x: prop(0),
+  }) {
+    @modelAction
+    addX = (n: number) => {
+      this.x += n
+      return this.x
+    }
+  }
+
+  {
+    const m = new M({})
+    expect(m.addX(1)).toBe(1)
+    const { addX } = m
+    expect(addX(1)).toBe(2)
+  }
+
+  @model("arrow model actions work when destructured/M2")
+  class M2 extends ExtendedModel(M, {}) {}
+
+  {
+    const m2 = new M2({})
+    expect(m2.addX(1)).toBe(1)
+    const { addX } = m2
+    expect(addX(1)).toBe(2)
+  }
 })

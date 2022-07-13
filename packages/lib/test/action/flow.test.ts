@@ -2,6 +2,7 @@ import { assert, _ } from "spec.ts"
 import {
   ActionCall,
   ActionContext,
+  ExtendedModel,
   getSnapshot,
   model,
   Model,
@@ -266,4 +267,38 @@ test("flow", async () => {
       },
     ]
   `)
+})
+
+test("arrow model flows work when destructured", async () => {
+  @model("arrow model flows work when destructured/M")
+  class M extends Model({
+    x: prop(0),
+  }) {
+    private *_addX(n: number) {
+      this.x += n
+      yield* _await(Promise.resolve())
+      this.x += n
+      return this.x
+    }
+
+    @modelFlow
+    addX = _async(this._addX)
+  }
+
+  {
+    const m = new M({})
+    expect(await m.addX(1)).toBe(2)
+    const { addX } = m
+    expect(await addX(1)).toBe(4)
+  }
+
+  @model("arrow model flows work when destructured/M2")
+  class M2 extends ExtendedModel(M, {}) {}
+
+  {
+    const m2 = new M2({})
+    expect(await m2.addX(1)).toBe(2)
+    const { addX } = m2
+    expect(await addX(1)).toBe(4)
+  }
 })

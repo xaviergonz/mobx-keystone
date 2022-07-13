@@ -17,6 +17,7 @@ import {
   tProp,
   types,
   _async,
+  _await,
 } from "../../src"
 import { Flatten } from "../../src/utils/types"
 
@@ -829,65 +830,92 @@ test("statics get inherited", () => {
   expect(StaticB.bar).toBe("bar")
 })
 
-test("modelAction, modelFlow and subclassing", () => {
+test("modelAction, modelFlow and subclassing", async () => {
   abstract class BM extends Model({
     id: idProp,
-    name: prop<string>(),
+    stateBm: prop<string>(),
   }) {
     @modelAction
-    action11 = () => {}
+    action11 = () => {
+      this.stateBm = "action11"
+    }
 
     @modelAction
-    action12() {}
+    action12() {
+      this.stateBm = "action12"
+    }
 
     @modelFlow
-    fetch1 = _async(function* (this: BM) {})
+    fetch1 = _async(function* (this: BM) {
+      this.stateBm = "actionf1"
+      yield* _await(Promise.resolve())
+    })
   }
 
   @model("modelAction, modelFlow and subclassing/ModelA")
   class A extends ExtendedModel(BM, {
-    foo: prop<string>(),
+    stateSub: prop<string>(),
   }) {}
 
   @model("modelAction, modelFlow and subclassing/ModelB")
   class B extends ExtendedModel(BM, {
-    foo: prop<string>(),
+    stateSub: prop<string>(),
   }) {
     @modelAction
-    action21 = () => {}
+    action21 = () => {
+      this.stateSub = "action21"
+    }
 
     @modelAction
-    action22() {}
+    action22() {
+      this.stateSub = "action22"
+    }
 
     @modelFlow
-    fetch2 = _async(function* (this: BM) {})
+    fetch2 = _async(function* (this: B) {
+      this.stateSub = "fetch2"
+      yield* _await(Promise.resolve())
+    })
   }
 
   const a = new A({
-    foo: "bar",
-    name: "test",
+    stateSub: "bar",
+    stateBm: "test",
   })
 
-  expect(a.foo).toBe("bar")
-  expect(a.name).toBe("test")
+  expect(a.stateSub).toBe("bar")
+  expect(a.stateBm).toBe("test")
+
   expect(a.fetch1).toBeDefined()
+  await a.fetch1()
   expect(a.action11).toBeDefined()
+  a.action11()
   expect(a.action12).toBeDefined()
+  a.action12()
+
   expect((a as any).action21).toBeUndefined()
   expect((a as any).action22).toBeUndefined()
   expect((a as any).fetch2).toBeUndefined()
 
   const b = new B({
-    foo: "bar2",
-    name: "test2",
+    stateSub: "bar2",
+    stateBm: "test2",
   })
 
-  expect(b.foo).toBe("bar2")
-  expect(b.name).toBe("test2")
-  expect(b.fetch1).toBeDefined()
+  expect(b.stateSub).toBe("bar2")
+  expect(b.stateBm).toBe("test2")
+
   expect(b.action11).toBeDefined()
+  b.action11()
   expect(b.action12).toBeDefined()
-  expect(b.action11).toBeDefined()
+  b.action12()
+  expect(b.fetch1).toBeDefined()
+  await b.fetch1()
+
+  expect(b.action21).toBeDefined()
+  b.action21()
   expect(b.action22).toBeDefined()
+  b.action22()
   expect(b.fetch2).toBeDefined()
+  await b.fetch2()
 })
