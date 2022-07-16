@@ -32,6 +32,8 @@ C -> sC[0] = getSnapshot(C)
 
 This means, as mentioned before, that snapshots generation is automatically optimized to only change their references when the objects they represent (and their children) actually change.
 
+Note: Never change the contents of a snapshot object returned by `getSnapshot` directly, clone it first! If you do weird things might happen.
+
 ## Getting the snapshot of an instance
 
 ### `getSnapshot`
