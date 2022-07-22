@@ -12,8 +12,8 @@
   "dependencies": {
     "@docusaurus/core": "2.0.0-rc.1",
     "@docusaurus/preset-classic": "2.0.0-rc.1",
-    "@easyops-cn/docusaurus-search-local": "^0.29.0",
-    "bootstrap-icons": "^1.9.0",
+    "@easyops-cn/docusaurus-search-local": "^0.30.1",
+    "bootstrap-icons": "^1.9.1",
     "mobx": "^6.6.1",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-react": "^7.5.2",
@@ -23,9 +23,9 @@
     "remotedev": "^0.2.9"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.18.6",
+    "@babel/plugin-proposal-decorators": "^7.18.9",
     "@docusaurus/module-type-aliases": "2.0.0-rc.1",
-    "@svgr/webpack": "^6.2.1",
+    "@svgr/webpack": "^6.3.0",
     "@tsconfig/docusaurus": "^1.0.6",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
