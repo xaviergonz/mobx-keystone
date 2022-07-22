@@ -641,3 +641,22 @@ test("id-full reconciliation", () => {
   expect(r.arr[1].id).toBe(1)
   expect(r.m.id).toBe(2)
 })
+
+test("applySnapshot should respect default initializers", () => {
+  @model("applySnapshot should respect default initializers/M")
+  class M extends Model({
+    x: prop(1),
+    y: prop(2),
+  }) {}
+
+  const m = new M({ x: 5, y: 6 })
+  expect(m.x).toBe(5)
+  expect(m.y).toBe(6)
+
+  applySnapshot(m, {
+    x: 10,
+  })
+
+  expect(m.x).toBe(10)
+  expect(m.y).toBe(2)
+})

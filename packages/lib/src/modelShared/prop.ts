@@ -471,3 +471,18 @@ function toFullTransform(transformObject: ModelPropTransform<unknown, unknown>) 
     },
   }
 }
+
+/**
+ * @ignore
+ */
+export function getModelPropDefaultValue(propData: AnyModelProp): unknown | typeof noDefaultValue {
+  if (propData._internal.defaultFn !== noDefaultValue) {
+    return propData._internal.defaultFn()
+  }
+
+  if (propData._internal.defaultValue !== noDefaultValue) {
+    return propData._internal.defaultValue
+  }
+
+  return noDefaultValue
+}

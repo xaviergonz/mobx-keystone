@@ -5,7 +5,7 @@ import type { ModelCreationData } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
-import { noDefaultValue } from "../modelShared/prop"
+import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
@@ -91,7 +91,7 @@ export const internalNewModel = action(
       let newValue = initialData![k]
       let changed = false
 
-      // apply untransform (if any)
+      // apply untransform (if any) if not in snapshot mode
       if (mode === "new" && propData._internal.transform) {
         changed = true
         newValue = propData._internal.transform.untransform(newValue, modelObj, k)
@@ -99,12 +99,10 @@ export const internalNewModel = action(
 
       // apply default value (if needed)
       if (newValue == null) {
-        if (propData._internal.defaultFn !== noDefaultValue) {
+        const defaultValue = getModelPropDefaultValue(propData)
+        if (defaultValue !== noDefaultValue) {
           changed = true
-          newValue = propData._internal.defaultFn()
-        } else if (propData._internal.defaultValue !== noDefaultValue) {
-          changed = true
-          newValue = propData._internal.defaultValue
+          newValue = defaultValue
         } else if (!("k" in initialData!)) {
           // for mobx4, we need to set up properties even if they are undefined
           changed = true

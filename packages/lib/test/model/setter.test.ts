@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { addActionMiddleware, model, Model, prop, tProp } from "../../src"
+import { addActionMiddleware, model, Model, modelAction, prop, tProp } from "../../src"
 import { autoDispose } from "../utils"
 
 @model("P")
@@ -282,4 +282,41 @@ test("setter", () => {
     ]
   `)
   events.length = 0
+})
+
+test("setting null or undefined to a value with a default should set the default", () => {
+  @model("M1")
+  class M1 extends Model({
+    x: prop(1).withSetter(),
+  }) {
+    @modelAction
+    setXX(x: number) {
+      this.x = x
+    }
+  }
+
+  const m1 = new M1({
+    x: 10,
+  })
+
+  const reset = () => {
+    m1.setX(10)
+    expect(m1.x).toBe(10)
+  }
+
+  reset()
+  m1.setX(undefined as any)
+  expect(m1.x).toBe(1)
+
+  reset()
+  m1.setX(null as any)
+  expect(m1.x).toBe(1)
+
+  reset()
+  m1.setXX(undefined as any)
+  expect(m1.x).toBe(1)
+
+  reset()
+  m1.setXX(null as any)
+  expect(m1.x).toBe(1)
 })

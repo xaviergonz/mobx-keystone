@@ -21,7 +21,7 @@ import { ModelClass, modelInitializedSymbol } from "./BaseModelShared"
 import { modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
-import { AnyModelProp, ModelProps, prop } from "./prop"
+import { AnyModelProp, getModelPropDefaultValue, ModelProps, noDefaultValue, prop } from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
 function __extends(subClass: any, superClass: any) {
@@ -87,11 +87,20 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
     return
   }
 
-  const transformedValue = modelProp?._internal.transform
+  let untransformedValue = modelProp?._internal.transform
     ? modelProp._internal.transform.untransform(value, model, modelPropName)
     : value
+
+  // apply default value if applicable
+  if (modelProp && untransformedValue == null) {
+    const defaultValue = getModelPropDefaultValue(modelProp)
+    if (defaultValue !== noDefaultValue) {
+      untransformedValue = defaultValue
+    }
+  }
+
   // no need to use set since these vars always get on the initial $
-  model.$[modelPropName] = transformedValue
+  model.$[modelPropName] = untransformedValue
 }
 
 const idGenerator = () => getGlobalConfig().modelIdGenerator()

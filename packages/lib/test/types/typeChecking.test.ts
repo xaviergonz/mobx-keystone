@@ -1456,9 +1456,8 @@ test("issue #454", () => {
   const todo2 = fromSnapshot(Todo, {})
   expect(getSnapshot(todo2)).toEqual(getSnapshot(todo1))
 
-  expect(() => {
-    todo2.setText(undefined as any)
-  }).toThrowError("TypeCheckError: [/text] Expected: string")
+  // this should not throw since the default value will transform undefined to an empty string
+  todo2.setText(undefined as any)
 
   const todo3 = fromSnapshot(Todo, {
     text: null,

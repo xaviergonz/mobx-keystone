@@ -1,8 +1,13 @@
 # Change Log
 
+## 0.69.5
+
+- Fix `applySnapshot` so it respects default initializers.
+- Setting a prop that has a default value to `undefined` or `null` will set it to its default value (same as if it was done in `new` or `fromSnapshot`).
+
 ## 0.69.4
 
-- Fixed an issue that preventmodel actions/flows from being used when destructured.
+- Fixed an issue that prevent model actions/flows from being used when destructured.
 
 ## 0.69.3
 

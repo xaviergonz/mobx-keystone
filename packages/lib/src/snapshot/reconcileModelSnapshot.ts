@@ -5,6 +5,8 @@ import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel, isModelSnapshot } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
+import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
+import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { deepEquals } from "../treeUtils/deepEquals"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
@@ -41,7 +43,10 @@ function reconcileModelSnapshot(
     return fromSnapshot<AnyModel>(sn)
   }
 
-  const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
+  const modelClass = modelInfo.class as ModelClass<AnyModel>
+  const modelProps = getInternalModelClassPropsInfo(modelClass)
+  const modelIdPropertyName = getModelIdPropertyName(modelClass)
+
   if (modelIdPropertyName) {
     const id = sn[modelIdPropertyName]
 
@@ -75,7 +80,13 @@ function reconcileModelSnapshot(
     for (let i = 0; i < dataKeysLen; i++) {
       const k = dataKeys[i]
       if (!(k in processedSn)) {
-        remove(data, k)
+        // use default value if applicable
+        const defaultValue = getModelPropDefaultValue(modelProps[k])
+        if (defaultValue === noDefaultValue) {
+          remove(data, k)
+        } else {
+          set(data, k, defaultValue)
+        }
       }
     }
 
@@ -88,7 +99,15 @@ function reconcileModelSnapshot(
         const v = processedSn[k]
 
         const oldValue = data[k]
-        const newValue = reconcileSnapshot(oldValue, v, modelPool, modelObj)
+        let newValue = reconcileSnapshot(oldValue, v, modelPool, modelObj)
+
+        // use default value if applicable
+        if (newValue == null) {
+          const defaultValue = getModelPropDefaultValue(modelProps[k])
+          if (defaultValue !== noDefaultValue) {
+            newValue = defaultValue
+          }
+        }
 
         detachIfNeeded(newValue, oldValue, modelPool)
 
