@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.6
+
+- Fix for a possible infinite recursive call when using `types.tag`.
+
 ## 0.69.5
 
 - Fix `applySnapshot` so it respects default initializers.
