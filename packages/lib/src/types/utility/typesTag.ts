@@ -49,7 +49,7 @@ export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: s
 
     const thisTc: TypeChecker = new TypeChecker(
       baseChecker.baseType,
-      baseChecker.check,
+      (data, path) => baseChecker.check(data, path),
       getTypeName,
       typeInfoGen,
       (sn) => baseChecker.snapshotType(sn),
