@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone",
-  "version": "0.69.6",
+  "version": "0.69.7",
   "description": "A MobX powered state management solution based on data trees with first class support for TypeScript, snapshots, patches and much more",
   "keywords": [
     "mobx",
@@ -31,9 +31,9 @@
       "default": "./dist/mobx-keystone.esm.mjs"
     }
   },
-  "esmodule": "./dist/mobx-keystone.esm.mjs",
-  "module": "./dist/mobx-keystone.esm.mjs",
-  "jsnext:main": "./dist/mobx-keystone.esm.mjs",
+  "esmodule": "./dist/mobx-keystone.esm.js",
+  "module": "./dist/mobx-keystone.esm.js",
+  "jsnext:main": "./dist/mobx-keystone.esm.js",
   "react-native": "./dist/mobx-keystone.umd.js",
   "umd:main": "./dist/mobx-keystone.umd.js",
   "unpkg": "./dist/mobx-keystone.umd.js",
@@ -53,7 +53,7 @@
     "quick-build": "tsc",
     "quick-build-tests": "tsc -p test",
     "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
-    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build",
+    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone.esm.mjs dist/mobx-keystone.esm.js",
     "test": "jest",
     "test:ci": "yarn test -i --coverage",
     "test:perf": "yarn build && yarn test:perf:run",

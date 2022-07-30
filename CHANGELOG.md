@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.7
+
+- Attempt to fix react native bundling issues.
+
 ## 0.69.6
 
 - Fix for a possible infinite recursive call when using `types.tag`.
