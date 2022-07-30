@@ -2848,14 +2848,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:^27.5.0":
-  version: 27.6.0
-  resolution: "@netlify/build@npm:27.6.0"
+"@netlify/build@npm:^27.7.0":
+  version: 27.7.0
+  resolution: "@netlify/build@npm:27.7.0"
   dependencies:
     "@bugsnag/js": ^7.0.0
     "@netlify/cache-utils": ^4.0.0
     "@netlify/config": ^18.1.2
-    "@netlify/edge-bundler": ^1.7.0
+    "@netlify/edge-bundler": ^1.8.0
     "@netlify/functions-utils": ^4.2.2
     "@netlify/git-utils": ^4.0.0
     "@netlify/plugins-list": ^6.35.0
@@ -2909,7 +2909,7 @@ __metadata:
     yargs: ^17.3.1
   bin:
     netlify-build: src/core/bin.js
-  checksum: 1a352cf8035646aa84ac2962bdbb3e5c459b9f842fdc31794fbc50ae241dd10c9f43edbf08016fe4b355ed0a348943578d09501922bfccea46e260bfabe6d68a
+  checksum: 51931110a7ad8b93d78b9d44af12bc4844bf7bebcb7fcedcbfd8b8c12d9049c3b8fb98ead4e7c97678ce685cd2b9429fbd6542b0e7263539e95d55b59bd302ad
   languageName: node
   linkType: hard
 
@@ -2965,9 +2965,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/edge-bundler@npm:^1.7.0":
-  version: 1.7.0
-  resolution: "@netlify/edge-bundler@npm:1.7.0"
+"@netlify/edge-bundler@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "@netlify/edge-bundler@npm:1.8.0"
   dependencies:
     common-path-prefix: ^3.0.0
     del: ^6.0.0
@@ -2980,7 +2980,7 @@ __metadata:
     semver: ^7.3.5
     tmp-promise: ^3.0.3
     uuid: ^8.3.2
-  checksum: 8edb9f966b8f9ef7bbeebf1a0eb9031cc534237529ca3987e2634bb4c44a65e8a17e9a6cfffd588fffc6606bf13155fa8069d77972ad5d32810f5d2eaba7a56d
+  checksum: 555a0174cb912304e5c236df718de45480bf9a6b897bf6337a5cab1d1d30df59535769bd600f7d44ed4555e768a5478a56c833355798163bc003372400c7a22d
   languageName: node
   linkType: hard
 
@@ -14415,7 +14415,7 @@ __metadata:
     tslib: ^2.4.0
     typedoc: ^0.23.9
     typescript: ^4.7.4
-    vite: ^3.0.3
+    vite: ^3.0.4
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
@@ -14634,13 +14634,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^10.12.1":
-  version: 10.12.1
-  resolution: "netlify-cli@npm:10.12.1"
+"netlify-cli@npm:^10.13.0":
+  version: 10.13.0
+  resolution: "netlify-cli@npm:10.13.0"
   dependencies:
-    "@netlify/build": ^27.5.0
+    "@netlify/build": ^27.7.0
     "@netlify/config": ^18.1.2
-    "@netlify/edge-bundler": ^1.7.0
+    "@netlify/edge-bundler": ^1.8.0
     "@netlify/framework-info": ^9.1.1
     "@netlify/local-functions-proxy": ^1.1.1
     "@netlify/plugins-list": ^6.35.0
@@ -14709,7 +14709,7 @@ __metadata:
     multiparty: ^4.2.1
     netlify: ^12.0.0
     netlify-headers-parser: ^6.0.2
-    netlify-onegraph-internal: 0.3.9
+    netlify-onegraph-internal: 0.3.10
     netlify-redirect-parser: ^13.0.5
     netlify-redirector: ^0.2.1
     node-fetch: ^2.6.0
@@ -14749,7 +14749,7 @@ __metadata:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: b94d8d8c79301498c2c02757f27f62532aa712d4b1a2fc3452f6bb7ab342d2b21b1a79e0dd01c5c7a0c564ad6358c03ae627d958b959b93db288cf30a89d675e
+  checksum: 7465036ab7b3ac34b628c3aa13246c60bf24ae5f7125bf97f0901fe3388e06551cad7a88c5c22af551e7df2a3bdb694dfe19fffbf131edb4b3714013f522878c
   languageName: node
   linkType: hard
 
@@ -14766,14 +14766,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-onegraph-internal@npm:0.3.9":
-  version: 0.3.9
-  resolution: "netlify-onegraph-internal@npm:0.3.9"
+"netlify-onegraph-internal@npm:0.3.10":
+  version: 0.3.10
+  resolution: "netlify-onegraph-internal@npm:0.3.10"
   dependencies:
     graphql: 16.0.0
     node-fetch: ^2.6.0
     uuid: ^8.3.2
-  checksum: c7e40cc44e8c650537b82b4509d16b5ac02c5f11e6873ed38d169dbb043e78abc5463418095a09a29d11d160b32661888991feef04bfa86a2c6e660e6a8122d7
+  checksum: 53337360e9f10ba430ffb1547f7e3aa3f09482236900a1d1264dbf7d3b563fb1dceb7e7ad3dd24c1a8fb345cc4e5e6caebef621aa22adbeddd512faf146a2e03
   languageName: node
   linkType: hard
 
@@ -17870,10 +17870,10 @@ __metadata:
     eslint: ^8.20.0
     eslint-config-prettier: ^8.5.0
     eslint-config-react-app: ^7.0.1
-    netlify-cli: ^10.12.1
+    netlify-cli: ^10.13.0
     prettier: ^2.7.1
     prettier-plugin-organize-imports: ^3.0.0
-    turbo: ^1.3.4
+    turbo: ^1.4.0
     typescript: ^4.7.4
     utf-8-validate: ^5.0.9
   languageName: unknown
@@ -19831,122 +19831,122 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-android-arm64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-android-arm64@npm:1.3.4"
+"turbo-android-arm64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-android-arm64@npm:1.4.0"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-darwin-64@npm:1.3.4"
+"turbo-darwin-64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-darwin-64@npm:1.4.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-darwin-arm64@npm:1.3.4"
+"turbo-darwin-arm64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-darwin-arm64@npm:1.4.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-freebsd-64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-freebsd-64@npm:1.3.4"
+"turbo-freebsd-64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-freebsd-64@npm:1.4.0"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-freebsd-arm64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-freebsd-arm64@npm:1.3.4"
+"turbo-freebsd-arm64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-freebsd-arm64@npm:1.4.0"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-32@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-linux-32@npm:1.3.4"
+"turbo-linux-32@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-linux-32@npm:1.4.0"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-linux-64@npm:1.3.4"
+"turbo-linux-64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-linux-64@npm:1.4.0"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-linux-arm64@npm:1.3.4"
+"turbo-linux-arm64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-linux-arm64@npm:1.4.0"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-linux-arm@npm:1.3.4"
+"turbo-linux-arm@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-linux-arm@npm:1.4.0"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"turbo-linux-mips64le@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-linux-mips64le@npm:1.3.4"
-  conditions: os=linux & cpu=mips64el
+"turbo-linux-mips64le@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-linux-mips64le@npm:1.4.0"
+  conditions: os=linux & cpu=mipsel
   languageName: node
   linkType: hard
 
-"turbo-linux-ppc64le@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-linux-ppc64le@npm:1.3.4"
+"turbo-linux-ppc64le@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-linux-ppc64le@npm:1.4.0"
   conditions: os=linux & cpu=ppc64
   languageName: node
   linkType: hard
 
-"turbo-windows-32@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-windows-32@npm:1.3.4"
+"turbo-windows-32@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-windows-32@npm:1.4.0"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-windows-64@npm:1.3.4"
+"turbo-windows-64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-windows-64@npm:1.4.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-windows-arm64@npm:1.3.4":
-  version: 1.3.4
-  resolution: "turbo-windows-arm64@npm:1.3.4"
+"turbo-windows-arm64@npm:1.4.0":
+  version: 1.4.0
+  resolution: "turbo-windows-arm64@npm:1.4.0"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.3.4":
-  version: 1.3.4
-  resolution: "turbo@npm:1.3.4"
+"turbo@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "turbo@npm:1.4.0"
   dependencies:
-    turbo-android-arm64: 1.3.4
-    turbo-darwin-64: 1.3.4
-    turbo-darwin-arm64: 1.3.4
-    turbo-freebsd-64: 1.3.4
-    turbo-freebsd-arm64: 1.3.4
-    turbo-linux-32: 1.3.4
-    turbo-linux-64: 1.3.4
-    turbo-linux-arm: 1.3.4
-    turbo-linux-arm64: 1.3.4
-    turbo-linux-mips64le: 1.3.4
-    turbo-linux-ppc64le: 1.3.4
-    turbo-windows-32: 1.3.4
-    turbo-windows-64: 1.3.4
-    turbo-windows-arm64: 1.3.4
+    turbo-android-arm64: 1.4.0
+    turbo-darwin-64: 1.4.0
+    turbo-darwin-arm64: 1.4.0
+    turbo-freebsd-64: 1.4.0
+    turbo-freebsd-arm64: 1.4.0
+    turbo-linux-32: 1.4.0
+    turbo-linux-64: 1.4.0
+    turbo-linux-arm: 1.4.0
+    turbo-linux-arm64: 1.4.0
+    turbo-linux-mips64le: 1.4.0
+    turbo-linux-ppc64le: 1.4.0
+    turbo-windows-32: 1.4.0
+    turbo-windows-64: 1.4.0
+    turbo-windows-arm64: 1.4.0
   dependenciesMeta:
     turbo-android-arm64:
       optional: true
@@ -19978,7 +19978,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: 073db54822108744c3291d8ad3f7a8a380ac6d1a3873ece732df3197401b9609210870667130642d19ddc612e3db90ba8c7c4d49f3c29936ec1ff0c979ee0852
+  checksum: 2b688b115643c69ddb3e5aac769226094a7daad3c44c72ef2bb7e62c413e1338a376d859bedb3bf532804a215c8494d5e396b89a758268f0ecc06bee6977bc81
   languageName: node
   linkType: hard
 
@@ -20654,9 +20654,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "vite@npm:3.0.3"
+"vite@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "vite@npm:3.0.4"
   dependencies:
     esbuild: ^0.14.47
     fsevents: ~2.3.2
@@ -20682,7 +20682,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 0b15d6bb062ab56dd8a0d47262344dcb48423d658c153c88a8a41f9301a70f32dd0fa2c037fa39a0a7888be1005cb763aad94235f82439441a13cef5103c29c4
+  checksum: f13eceb94f7b399942ce5e7c10df73314f7b073171d6594228b078cc1203042c4cdb9e8356fe64ad444c3533c31437abb3c64ac56478f0865fab598e924cf68b
   languageName: node
   linkType: hard
 
