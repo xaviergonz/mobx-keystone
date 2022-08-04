@@ -10,8 +10,8 @@
     "serve": "docusaurus serve"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-rc.1",
-    "@docusaurus/preset-classic": "2.0.0-rc.1",
+    "@docusaurus/core": "^2.0.1",
+    "@docusaurus/preset-classic": "^2.0.1",
     "@easyops-cn/docusaurus-search-local": "^0.30.2",
     "bootstrap-icons": "^1.9.1",
     "mobx": "^6.6.1",
@@ -23,8 +23,8 @@
     "remotedev": "^0.2.9"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.18.9",
-    "@docusaurus/module-type-aliases": "2.0.0-rc.1",
+    "@babel/plugin-proposal-decorators": "^7.18.10",
+    "@docusaurus/module-type-aliases": "^2.0.1",
     "@svgr/webpack": "^6.3.1",
     "@tsconfig/docusaurus": "^1.0.6",
     "@types/react": "^18.0.15",
