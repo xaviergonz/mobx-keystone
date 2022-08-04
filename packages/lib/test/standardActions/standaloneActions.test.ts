@@ -1,12 +1,20 @@
+import { assert, _ } from "spec.ts"
 import {
   addActionMiddleware,
   applyAction,
+  model,
+  Model,
+  modelFlow,
+  prop,
   registerRootStore,
   standaloneAction,
+  standaloneFlow,
   tag,
   toTreeNode,
   types,
   TypeToData,
+  _async,
+  _await,
 } from "../../src"
 import { autoDispose } from "../utils"
 
@@ -676,4 +684,43 @@ test("with type", async () => {
 
   expect(todo.done).toBe(true)
   expect(todo.text).toBe("4")
+})
+
+test("standaloneFlow", async () => {
+  @model("standaloneFlow/Data")
+  class DataModel extends Model({ x: prop(0) }) {
+    @modelFlow
+    fetchX = _async(function* (this: DataModel, y: number) {
+      const data = this.x + y
+      const flowResult = yield* _await(fetchData(this, y))
+      assert(flowResult, _ as number)
+      expect(flowResult).toBe(data)
+      return flowResult
+    })
+  }
+
+  const fetchData = standaloneFlow("actions/fetchData", function* (target: DataModel, y: number) {
+    const data = target.x + y
+
+    const promiseResult = yield* _await(Promise.resolve(data))
+    assert(promiseResult, _ as number)
+    expect(promiseResult).toBe(data)
+    return promiseResult
+  })
+
+  assert(fetchData, _ as (target: DataModel, y: number) => Promise<number>)
+
+  const root = new DataModel({})
+
+  const pr = fetchData(root, 3)
+  assert(pr, _ as Promise<number>)
+  const r = await pr
+  assert(r, _ as number)
+  expect(r).toBe(3)
+
+  const pr2 = root.fetchX(4)
+  assert(pr2, _ as Promise<number>)
+  const r2 = await pr2
+  assert(r2, _ as number)
+  expect(r2).toBe(4)
 })

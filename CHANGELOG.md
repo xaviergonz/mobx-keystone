@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.8
+
+- Fix for `standaloneFlow` typing.
+
 ## 0.69.7
 
 - Attempt to fix react native bundling issues.

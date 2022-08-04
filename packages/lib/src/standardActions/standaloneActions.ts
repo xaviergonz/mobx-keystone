@@ -21,8 +21,9 @@ export function standaloneAction<FN extends (target: any, ...args: any[]) => any
  * @param fn Function.
  * @returns The function as an standalone flow.
  */
-export function standaloneFlow<
-  FN extends (target: any, ...args: any[]) => Generator<any, any, any>
->(actionName: string, fn: FN): FN {
-  return addStandaloneAction(actionName, fn, true) as unknown as FN
+export function standaloneFlow<TTarget, TArgs extends any[], TResult>(
+  actionName: string,
+  fn: (target: TTarget, ...args: TArgs) => Generator<any, TResult, any>
+): (target: TTarget, ...args: TArgs) => Promise<TResult> {
+  return addStandaloneAction(actionName, fn, true) as unknown as any
 }

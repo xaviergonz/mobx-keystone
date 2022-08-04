@@ -8,7 +8,7 @@ import { assertIsFunction, failure, logWarning } from "../utils"
 /**
  * A function with an object as target.
  */
-type TargetedAction = (target: any, ...args: any[]) => any
+type TargetedAction = (...args: any[]) => any
 
 const standaloneActionRegistry = new Map<string, TargetedAction>()
 
