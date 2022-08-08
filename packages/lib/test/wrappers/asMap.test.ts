@@ -1,17 +1,9 @@
 import { computed, reaction, set, toJS } from "mobx"
-import {
-  asMap,
-  mapToArray,
-  mapToObject,
-  Model,
-  model,
-  modelAction,
-  prop,
-  runUnprotected,
-} from "../../src"
+import { asMap, mapToArray, mapToObject, Model, modelAction, prop, runUnprotected } from "../../src"
+import { testModel } from "../utils"
 
 test("asMap - object", () => {
-  @model(test.name)
+  @testModel("M")
   class M extends Model({
     obj: prop<Record<string, number>>(() => ({ a: 1, b: 2, c: 3 })),
   }) {
@@ -64,7 +56,7 @@ test("asMap - object", () => {
 })
 
 test("asMap - array", () => {
-  @model(test.name)
+  @testModel("M")
   class M extends Model({
     arr: prop<Array<[string, number]>>(() => [
       ["a", 1],

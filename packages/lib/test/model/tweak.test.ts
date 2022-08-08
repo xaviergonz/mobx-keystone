@@ -1,5 +1,6 @@
 import { isObservable, keys, set, values } from "mobx"
-import { getParent, isTreeNode, model, Model, prop, runUnprotected } from "../../src"
+import { getParent, isTreeNode, Model, prop, runUnprotected } from "../../src"
+import { testModel } from "../utils"
 
 interface TestObj {
   x: number
@@ -13,7 +14,7 @@ function isTreeNodeAndObs(n: any) {
 }
 
 test("initial data must be tweaked", () => {
-  @model("A")
+  @testModel("A")
   class A extends Model({
     map: prop<{ obj1: TestObj; obj2: TestObj }>(() => ({
       obj1: { x: 10 },
@@ -49,7 +50,7 @@ test("initial data must be tweaked", () => {
 })
 
 test("data added after intial data must be tweaked", () => {
-  @model("B")
+  @testModel("B")
   class A extends Model({
     map: prop<{ obj1?: TestObj; obj2?: TestObj } | undefined>(),
     arr: prop<TestObj[] | undefined>(),

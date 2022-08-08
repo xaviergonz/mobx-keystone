@@ -18,7 +18,6 @@ import {
   getTypeInfo,
   idProp,
   LiteralTypeInfo,
-  model,
   Model,
   modelAction,
   ModelAutoTypeCheckingMode,
@@ -56,7 +55,7 @@ import {
 } from "../../src"
 import { enumValues } from "../../src/types/primitiveBased/typesEnum"
 import { resolveStandardType } from "../../src/types/resolveTypeChecker"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
 beforeEach(() => {
   setGlobalConfig({
@@ -422,7 +421,7 @@ test("object - all optional simple types", () => {
 const mArrType = types.array(types.number)
 const mArrDefault = () => []
 
-@model("M")
+@testModel("M")
 class M extends Model({
   [modelIdKey]: idProp,
   x: tProp(types.number, 10),
@@ -782,7 +781,7 @@ test("cross referenced object", () => {
   }
 })
 
-@model("MR")
+@testModel("MR")
 class MR extends Model({
   x: tProp(types.number, 10),
   rec: tProp(types.maybe(types.model<MR>(() => _MR))),
@@ -823,7 +822,7 @@ test("recursive model", () => {
   expect(recModelTypeInfo.props.rec).toBeDefined()
 })
 
-@model("MA")
+@testModel("MA")
 class MA extends Model({
   x: tProp(types.number, 10),
   b: tProp(types.maybe(types.model<MB>(() => MB))),
@@ -834,7 +833,7 @@ class MA extends Model({
   }
 }
 
-@model("MB")
+@testModel("MB")
 class MB extends Model({
   y: tProp(types.number, 20),
   a: tProp(types.maybe(MA)),
@@ -1171,7 +1170,7 @@ test("typing of optional values", () => {
 })
 
 test("syntax sugar for primitives in tProp", () => {
-  @model("syntaxSugar")
+  @testModel("syntaxSugar")
   class SS extends Model({
     n: tProp(42),
     s: tProp("foo"),
@@ -1301,7 +1300,7 @@ test("types.tag", () => {
   const testDisplayName = "Test"
   const tagData = { displayName: testDisplayName }
 
-  @model("M")
+  @testModel("M")
   class M extends Model({
     p: tProp(types.tag(types.string, tagData, "someTypeName"), ""),
   }) {}
@@ -1315,7 +1314,7 @@ test("types.tag", () => {
 })
 
 test("issue #445", () => {
-  @model("issue #445/Todo")
+  @testModel("issue #445/Todo")
   class T extends Model({
     arrUnd: tProp(types.maybe(types.array(types.string))),
     arrNull: tProp(types.maybeNull(types.array(types.number))),
@@ -1335,7 +1334,7 @@ test("issue #445", () => {
 })
 
 test("issue #447", () => {
-  @model("issue #447/Todo")
+  @testModel("issue #447/Todo")
   class Todo extends Model({
     text: tProp(types.string),
   }) {
@@ -1345,7 +1344,7 @@ test("issue #447", () => {
     }
   }
 
-  @model("issue #447/TodoList1")
+  @testModel("issue #447/TodoList1")
   class TodoList1 extends Model({
     todos: tProp(types.array(types.model(Todo)), () => []),
   }) {
@@ -1355,7 +1354,7 @@ test("issue #447", () => {
     }
   }
 
-  @model("issue #447/TodoList2")
+  @testModel("issue #447/TodoList2")
   class TodoList2 extends Model({
     todos: prop<Todo[]>(() => []),
   }) {
@@ -1413,13 +1412,13 @@ test("issue #447", () => {
 test("issue #448", () => {
   const todoRef = rootRef<Todo>("issue #448/TodoRef")
 
-  @model("issue #448/Todo")
+  @testModel("issue #448/Todo")
   class Todo extends Model({
     id: idProp,
     text: tProp(types.string, ""),
   }) {}
 
-  @model("issue #448/TodoList")
+  @testModel("issue #448/TodoList")
   class TodoList extends Model({
     list: tProp(types.array(Todo), () => []),
     selectedRef: tProp(types.ref(todoRef)),
@@ -1440,11 +1439,11 @@ test("issue #454", () => {
     modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
   })
 
-  @model("issue #454/MySubModel")
+  @testModel("issue #454/MySubModel")
   class MySubModel extends Model({
     someData: tProp(types.number, 0),
   }) {}
-  @model("issue #454/Todo")
+  @testModel("issue #454/Todo")
   class Todo extends Model({
     text: tProp(types.string, "").withSetter(),
     arrayProp: tProp(types.array(types.number), () => []),

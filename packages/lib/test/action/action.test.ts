@@ -6,15 +6,14 @@ import {
   ExtendedModel,
   getSnapshot,
   idProp,
-  model,
   Model,
   modelAction,
   modelIdKey,
   prop,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("P2")
+@testModel("P2")
 export class P2 extends Model({
   [modelIdKey]: idProp,
   y: prop(0),
@@ -26,7 +25,7 @@ export class P2 extends Model({
   }
 }
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   [modelIdKey]: idProp,
   p2: prop(() => new P2({})),
@@ -740,7 +739,7 @@ test("action protection", () => {
 })
 
 test("arrow model actions work when destructured", () => {
-  @model("arrow model actions work when destructured/M")
+  @testModel("M")
   class M extends Model({
     x: prop(0),
   }) {
@@ -758,7 +757,7 @@ test("arrow model actions work when destructured", () => {
     expect(addX(1)).toBe(2)
   }
 
-  @model("arrow model actions work when destructured/M2")
+  @testModel("M2")
   class M2 extends ExtendedModel(M, {}) {}
 
   {

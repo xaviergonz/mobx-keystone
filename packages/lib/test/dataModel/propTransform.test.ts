@@ -2,16 +2,16 @@ import { assert, _ } from "spec.ts"
 import {
   DataModel,
   getSnapshot,
-  model,
   modelAction,
   prop,
   timestampToDateTransform,
   tProp,
   types,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("prop with transform and required value", () => {
-  @model("pwt/Trequired")
+  @testModel("pwt/Trequired")
   class T extends DataModel({
     date: prop<number>().withSetter().withTransform(timestampToDateTransform()),
   }) {
@@ -54,7 +54,7 @@ test("prop with transform and required value", () => {
 })
 
 test("prop with transform and default value", () => {
-  @model("pwt/Tdefault")
+  @testModel("pwt/Tdefault")
   class T extends DataModel({
     date: prop(1000).withTransform(timestampToDateTransform()).withSetter(),
   }) {}
@@ -81,7 +81,7 @@ test("prop with transform and default value", () => {
 })
 
 test("prop with transform and can be null | undefined", () => {
-  @model("pwt/Tundefined")
+  @testModel("pwt/Tundefined")
   class T extends DataModel({
     date: prop<number | undefined | null>().withSetter().withTransform(timestampToDateTransform()),
   }) {}
@@ -114,7 +114,7 @@ test("prop with transform and can be null | undefined", () => {
 })
 
 test("prop with transform and can be null", () => {
-  @model("pwt/tTundefined")
+  @testModel("pwt/tTundefined")
   class T extends DataModel({
     date: tProp(types.maybeNull(types.number))
       .withSetter()

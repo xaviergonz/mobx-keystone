@@ -2,7 +2,6 @@ import {
   applySnapshot,
   connectReduxDevTools,
   idProp,
-  model,
   Model,
   modelAction,
   modelFlow,
@@ -12,6 +11,7 @@ import {
   _async,
   _await,
 } from "../../src"
+import { testModel } from "../utils"
 
 jest.useRealTimers()
 
@@ -34,7 +34,7 @@ test("waitAsyncReject helper works", async () => {
   }
 })
 
-@model("SubModel")
+@testModel("SubModel")
 class M2 extends Model({
   a: prop(() => ""),
 }) {
@@ -44,7 +44,7 @@ class M2 extends Model({
   }
 }
 
-@model("TestModel")
+@testModel("TestModel")
 class M extends Model({
   [modelIdKey]: idProp,
   x: prop(() => "uninitializedX"),

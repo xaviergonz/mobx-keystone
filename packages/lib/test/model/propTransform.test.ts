@@ -5,7 +5,6 @@ import {
   arrayToSetTransform,
   fromSnapshot,
   getSnapshot,
-  model,
   Model,
   modelAction,
   objectToMapTransform,
@@ -16,9 +15,10 @@ import {
   tProp,
   types,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("prop with transform and required value", () => {
-  @model("pwt/Trequired")
+  @testModel("pwt/Trequired")
   class T extends Model({
     date: prop<number>().withSetter().withTransform(timestampToDateTransform()),
   }) {
@@ -65,7 +65,7 @@ test("prop with transform and required value", () => {
 })
 
 test("prop with transform and default value", () => {
-  @model("pwt/Tdefault")
+  @testModel("pwt/Tdefault")
   class T extends Model({
     date: prop(1000).withTransform(timestampToDateTransform()).withSetter(),
   }) {}
@@ -96,7 +96,7 @@ test("prop with transform and default value", () => {
 })
 
 test("prop with transform and can be null | undefined", () => {
-  @model("pwt/Tundefined")
+  @testModel("pwt/Tundefined")
   class T extends Model({
     date: prop<number | undefined | null>().withSetter().withTransform(timestampToDateTransform()),
   }) {}
@@ -132,7 +132,7 @@ test("prop with transform and can be null | undefined", () => {
 })
 
 test("prop with transform and can be null", () => {
-  @model("pwt/tTundefined")
+  @testModel("pwt/tTundefined")
   class T extends Model({
     date: tProp(types.maybeNull(types.number))
       .withSetter()
@@ -165,7 +165,7 @@ test("prop with transform and can be null", () => {
 })
 
 test("prop with obj->map transform", () => {
-  @model("obj->map")
+  @testModel("obj->map")
   class T extends Model({
     map: tProp(types.record(types.number)).withSetter().withTransform(objectToMapTransform()),
   }) {
@@ -225,7 +225,7 @@ test("prop with obj->map transform", () => {
 })
 
 test("prop with arr->map transform", () => {
-  @model("arr->map")
+  @testModel("arr->map")
   class T extends Model({
     map: tProp(types.array(types.tuple(types.string, types.number)))
       .withSetter()
@@ -292,7 +292,7 @@ test("prop with arr->map transform", () => {
 })
 
 test("prop with arr->set transform", () => {
-  @model("arr->set")
+  @testModel("arr->set")
   class T extends Model({
     set: tProp(types.array(types.number)).withSetter().withTransform(arrayToSetTransform()),
   }) {
@@ -350,7 +350,7 @@ test("prop with arr->set transform", () => {
 })
 
 test("prop with string->bigint transform", () => {
-  @model("string->bigint")
+  @testModel("string->bigint")
   class T extends Model({
     int: tProp(types.string).withSetter().withTransform(stringToBigIntTransform()),
   }) {

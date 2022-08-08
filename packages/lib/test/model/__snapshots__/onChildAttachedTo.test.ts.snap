@@ -2,101 +2,101 @@
 
 exports[`dynamic target: add Todo 1`] = `
 Array [
-  "attached to Array <- Todo at [2]",
+  "attached to Array <- dynamic target/Todo at [2]",
 ]
 `;
 
 exports[`dynamic target: initial 1`] = `
 Array [
-  "attached to Array <- Todo at [0]",
-  "attached to Array <- Todo at [1]",
+  "attached to Array <- dynamic target/Todo at [0]",
+  "attached to Array <- dynamic target/Todo at [1]",
 ]
 `;
 
 exports[`dynamic target: remove Todo 1`] = `
 Array [
-  "detached from Array <- Todo at [1]",
+  "detached from Array <- dynamic target/Todo at [1]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: false): initial 1`] = `
 Array [
-  "attached to B-deep:false <- Array at [arr]",
-  "attached to A-deep:false <- B-deep:false at [b]",
-  "attached to R-deep:false <- A-deep:false at [a]",
+  "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
+  "attached to onChildAttachedTo (deep: false)/A-deep:false <- onChildAttachedTo (deep: false)/B-deep:false at [b]",
+  "attached to onChildAttachedTo (deep: false)/R-deep:false <- onChildAttachedTo (deep: false)/A-deep:false at [a]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: false): new A 1`] = `
 Array [
-  "attached to B-deep:false <- Array at [arr]",
-  "attached to A-deep:false <- B-deep:false at [b]",
-  "detached from R-deep:false <- A-deep:false at [a]",
-  "attached to R-deep:false <- A-deep:false at [a]",
+  "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
+  "attached to onChildAttachedTo (deep: false)/A-deep:false <- onChildAttachedTo (deep: false)/B-deep:false at [b]",
+  "detached from onChildAttachedTo (deep: false)/R-deep:false <- onChildAttachedTo (deep: false)/A-deep:false at [a]",
+  "attached to onChildAttachedTo (deep: false)/R-deep:false <- onChildAttachedTo (deep: false)/A-deep:false at [a]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: false): new B 1`] = `
 Array [
-  "attached to B-deep:false <- Array at [arr]",
-  "detached from A-deep:false <- B-deep:false at [b]",
-  "attached to A-deep:false <- B-deep:false at [b]",
+  "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
+  "detached from onChildAttachedTo (deep: false)/A-deep:false <- onChildAttachedTo (deep: false)/B-deep:false at [b]",
+  "attached to onChildAttachedTo (deep: false)/A-deep:false <- onChildAttachedTo (deep: false)/B-deep:false at [b]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: false): new arr 1`] = `
 Array [
-  "detached from B-deep:false <- Array at [arr]",
-  "attached to B-deep:false <- Array at [arr]",
+  "detached from onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
+  "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: true): initial 1`] = `
 Array [
-  "attached to B-deep:true <- Array at [arr]",
-  "attached to A-deep:true <- B-deep:true at [b]",
-  "attached to A-deep:true <- Array at [b/arr]",
-  "attached to R-deep:true <- A-deep:true at [a]",
-  "attached to R-deep:true <- B-deep:true at [a/b]",
-  "attached to R-deep:true <- Array at [a/b/arr]",
+  "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
+  "attached to onChildAttachedTo (deep: true)/A-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [b]",
+  "attached to onChildAttachedTo (deep: true)/A-deep:true <- Array at [b/arr]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/A-deep:true at [a]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [a/b]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- Array at [a/b/arr]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: true): new A 1`] = `
 Array [
-  "attached to B-deep:true <- Array at [arr]",
-  "attached to A-deep:true <- B-deep:true at [b]",
-  "attached to A-deep:true <- Array at [b/arr]",
-  "detached from R-deep:true <- Array at [a/b/arr]",
-  "detached from R-deep:true <- B-deep:true at [a/b]",
-  "detached from R-deep:true <- A-deep:true at [a]",
-  "attached to R-deep:true <- A-deep:true at [a]",
-  "attached to R-deep:true <- B-deep:true at [a/b]",
-  "attached to R-deep:true <- Array at [a/b/arr]",
+  "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
+  "attached to onChildAttachedTo (deep: true)/A-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [b]",
+  "attached to onChildAttachedTo (deep: true)/A-deep:true <- Array at [b/arr]",
+  "detached from onChildAttachedTo (deep: true)/R-deep:true <- Array at [a/b/arr]",
+  "detached from onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [a/b]",
+  "detached from onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/A-deep:true at [a]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/A-deep:true at [a]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [a/b]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- Array at [a/b/arr]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: true): new B 1`] = `
 Array [
-  "attached to B-deep:true <- Array at [arr]",
-  "detached from A-deep:true <- Array at [b/arr]",
-  "detached from A-deep:true <- B-deep:true at [b]",
-  "attached to A-deep:true <- B-deep:true at [b]",
-  "attached to A-deep:true <- Array at [b/arr]",
-  "detached from R-deep:true <- Array at [a/b/arr]",
-  "detached from R-deep:true <- B-deep:true at [a/b]",
-  "attached to R-deep:true <- B-deep:true at [a/b]",
-  "attached to R-deep:true <- Array at [a/b/arr]",
+  "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
+  "detached from onChildAttachedTo (deep: true)/A-deep:true <- Array at [b/arr]",
+  "detached from onChildAttachedTo (deep: true)/A-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [b]",
+  "attached to onChildAttachedTo (deep: true)/A-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [b]",
+  "attached to onChildAttachedTo (deep: true)/A-deep:true <- Array at [b/arr]",
+  "detached from onChildAttachedTo (deep: true)/R-deep:true <- Array at [a/b/arr]",
+  "detached from onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [a/b]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [a/b]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- Array at [a/b/arr]",
 ]
 `;
 
 exports[`onChildAttachedTo (deep: true): new arr 1`] = `
 Array [
-  "detached from B-deep:true <- Array at [arr]",
-  "attached to B-deep:true <- Array at [arr]",
-  "detached from A-deep:true <- Array at [b/arr]",
-  "attached to A-deep:true <- Array at [b/arr]",
-  "detached from R-deep:true <- Array at [a/b/arr]",
-  "attached to R-deep:true <- Array at [a/b/arr]",
+  "detached from onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
+  "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
+  "detached from onChildAttachedTo (deep: true)/A-deep:true <- Array at [b/arr]",
+  "attached to onChildAttachedTo (deep: true)/A-deep:true <- Array at [b/arr]",
+  "detached from onChildAttachedTo (deep: true)/R-deep:true <- Array at [a/b/arr]",
+  "attached to onChildAttachedTo (deep: true)/R-deep:true <- Array at [a/b/arr]",
 ]
 `;

@@ -15,9 +15,10 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("model decorator preserves static properties", () => {
-  @model("BarSimple")
+  @testModel("BarSimple")
   class Bar extends Model({}) {
     static foo = "foo"
   }
@@ -26,7 +27,7 @@ test("model decorator preserves static properties", () => {
 })
 
 test("model decorator preserves static property getters", () => {
-  @model("BarWithGetter")
+  @testModel("BarWithGetter")
   class Bar extends Model({}) {
     static sideEffectCount = 0
     static get foo() {

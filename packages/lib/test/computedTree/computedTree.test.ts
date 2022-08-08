@@ -22,7 +22,6 @@ import {
   isPlainObject,
   isRoot,
   isTreeNode,
-  model,
   Model,
   onChildAttachedTo,
   onPatches,
@@ -35,9 +34,9 @@ import {
   walkTree,
   WalkTreeMode,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("R")
+@testModel("R")
 class R extends Model({
   id: idProp,
   m: prop<M | undefined>().withSetter(),
@@ -90,7 +89,7 @@ class R extends Model({
   }
 }
 
-@model("M")
+@testModel("M")
 class M extends Model({
   id: idProp,
   value: prop<number>(1).withSetter(),
@@ -184,7 +183,7 @@ test("computed tree is evaluated eagerly", () => {
 })
 
 test("computed tree node must not be attached elsewhere", () => {
-  @model("R2")
+  @testModel("R2")
   class R2 extends Model({ m: prop<M>() }) {
     @computedTree
     get modelAlreadyAttached() {
@@ -198,7 +197,7 @@ test("computed tree node must not be attached elsewhere", () => {
 })
 
 test("computed tree node must not cause a cycle", () => {
-  @model("P")
+  @testModel("P")
   class P extends Model({}) {
     @computedTree
     get modelIsParent() {

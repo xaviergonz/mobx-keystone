@@ -1,6 +1,5 @@
 import {
   findParent,
-  model,
   Model,
   modelAction,
   modelFlow,
@@ -10,8 +9,9 @@ import {
   _async,
   _await,
 } from "../../src"
+import { testModel } from "../utils"
 
-@model("P2")
+@testModel("P2")
 class P2 extends Model({
   y: prop(() => 0),
 }) {
@@ -37,7 +37,7 @@ class P2 extends Model({
   }
 }
 
-@model("P")
+@testModel("P")
 class P extends Model({
   x: prop(() => 0),
   p2: prop(() => new P2({})),
@@ -104,7 +104,7 @@ async function delay(x: number) {
   return new Promise<number>((r) => setTimeout(() => r(x), x))
 }
 
-@model("P2Flow")
+@testModel("P2Flow")
 class P2Flow extends Model({
   y: prop(() => 0),
   z: prop(() => 0),
@@ -145,7 +145,7 @@ class P2Flow extends Model({
   }
 }
 
-@model("PFlow")
+@testModel("PFlow")
 class PFlow extends Model({
   x: prop(() => 0),
   p2: prop(() => new P2Flow({})),

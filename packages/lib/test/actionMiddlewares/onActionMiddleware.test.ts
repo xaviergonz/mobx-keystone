@@ -5,16 +5,15 @@ import {
   applySnapshot,
   getSnapshot,
   idProp,
-  model,
   Model,
   modelAction,
   modelIdKey,
   onActionMiddleware,
   prop,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("P2")
+@testModel("P2")
 export class P2 extends Model({
   [modelIdKey]: idProp,
   y: prop(() => 0),
@@ -26,7 +25,7 @@ export class P2 extends Model({
   }
 }
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   [modelIdKey]: idProp,
   p2: prop(() => new P2({})),

@@ -5,7 +5,6 @@ import {
   applySnapshot,
   fromSnapshot,
   getSnapshot,
-  model,
   Model,
   modelAction,
   modelSnapshotInWithMetadata,
@@ -15,9 +14,10 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("input snapshot processor", () => {
-  @model("customInputSnapshot")
+  @testModel("customInputSnapshot")
   class P3 extends Model({
     arr: prop<number[]>(() => []).withSnapshotProcessor({
       fromSnapshot: (sn: string) => sn?.split(",").map((x) => +x),
@@ -81,7 +81,7 @@ test("input snapshot processor", () => {
 })
 
 test("output snapshot processor", () => {
-  @model("innerCustomOutputSnapshot")
+  @testModel("innerCustomOutputSnapshot")
   class IP4 extends Model({
     arr: prop<number[]>(() => []).withSnapshotProcessor({
       toSnapshot: (sn) => {
@@ -95,7 +95,7 @@ test("output snapshot processor", () => {
     }
   }
 
-  @model("customOutputSnapshot")
+  @testModel("customOutputSnapshot")
   class P4 extends Model({
     arr: prop<number[]>(() => []).withSnapshotProcessor({
       toSnapshot: (sn) => {
@@ -176,10 +176,10 @@ test("output snapshot processor", () => {
   )
 
   applySnapshot(p, {
-    [modelTypeKey]: "customOutputSnapshot",
+    [modelTypeKey]: "output snapshot processor/customOutputSnapshot",
     arr: [100, 200],
     child: {
-      [modelTypeKey]: "innerCustomOutputSnapshot",
+      [modelTypeKey]: "output snapshot processor/innerCustomOutputSnapshot",
       arr: [300, 400],
     },
   })
@@ -195,16 +195,16 @@ test("output snapshot processor", () => {
 })
 
 test("model without model type", () => {
-  @model("m1")
+  @testModel("m1")
   class M1 extends Model({
     x: prop<number>(),
   }) {}
 
-  @model("m2")
+  @testModel("m2")
   class M2 extends Model({
     m1: prop<M1 | undefined>().withSnapshotProcessor({
       fromSnapshot(sn: Omit<SnapshotInOf<M1>, typeof modelTypeKey>) {
-        return { ...sn, [modelTypeKey]: "m1" }
+        return { ...sn, [modelTypeKey]: "model without model type/m1" }
       },
       toSnapshot(sn): Omit<SnapshotOutOf<M1>, typeof modelTypeKey> | undefined {
         if (!sn) return sn

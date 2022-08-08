@@ -6,7 +6,6 @@ import {
   deserializeActionCallArgument,
   getSnapshot,
   idProp,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -18,6 +17,7 @@ import {
   SerializedActionCall,
   SerializedActionCallArgument,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   // unserializable args
@@ -160,7 +160,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   expect(Array.from(setBack.keys())).toEqual(setK)
 
   // model without shared root ref
-  @model("SACM")
+  @testModel("SACM")
   class SACM extends Model({
     [modelIdKey]: idProp,
     child: prop<SACM | undefined>(),
@@ -224,7 +224,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
 })
 
 describe("concurrency", () => {
-  @model("TodoList")
+  @testModel("TodoList")
   class TodoList extends Model({
     [modelIdKey]: idProp,
     list: prop<Todo[]>(() => []),
@@ -251,7 +251,7 @@ describe("concurrency", () => {
     }
   }
 
-  @model("Todo")
+  @testModel("Todo")
   class Todo extends Model({
     [modelIdKey]: idProp,
     text: prop<string>(),

@@ -1,7 +1,6 @@
 import { assert, _ } from "spec.ts"
 import {
   idProp,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -10,10 +9,11 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("factory pattern", () => {
   function createModelClass<TX, TY>(modelName: string, initialX: TX, initialY: TY) {
-    @model(`myApp/${modelName}`)
+    @testModel(`myApp/${modelName}`)
     class MyModel extends Model({
       [modelIdKey]: idProp,
       x: prop<TX>(() => initialX),
@@ -34,7 +34,7 @@ test("factory pattern", () => {
   type NumberMyModel = InstanceType<typeof NumberMyModel>
 
   const numberMyModelInstance = new NumberMyModel({}) // this will be of type NumberMyModel
-  expect(numberMyModelInstance.$modelType).toBe("myApp/NumberMyModel")
+  expect(numberMyModelInstance.$modelType).toBe("factory pattern/myApp/NumberMyModel")
   expect(numberMyModelInstance.x).toBe(10)
   expect(numberMyModelInstance.y).toBe(20)
   numberMyModelInstance.setXY(50, 60)
@@ -70,7 +70,7 @@ test("factory pattern", () => {
   )
 
   const stringMyModelInstance = new StringMyModel({}) // this will be of type StringMyModel
-  expect(stringMyModelInstance.$modelType).toBe("myApp/StringMyModel")
+  expect(stringMyModelInstance.$modelType).toBe("factory pattern/myApp/StringMyModel")
   expect(stringMyModelInstance.x).toBe("10")
   expect(stringMyModelInstance.y).toBe("20")
   stringMyModelInstance.setXY("50", "60")

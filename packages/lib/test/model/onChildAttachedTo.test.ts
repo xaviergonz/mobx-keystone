@@ -2,13 +2,13 @@ import {
   BaseModel,
   getParentToChildPath,
   Model,
-  model,
   modelAction,
   onChildAttachedTo,
   Path,
   prop,
 } from "../../src"
 import { isArray, isObject } from "../../src/utils"
+import { testModel } from "../utils"
 
 const name = (obj: object) => {
   if (obj instanceof BaseModel) return obj.$modelType
@@ -55,7 +55,7 @@ beforeEach(() => {
       disposers.push(d)
     }
 
-    @model(`R-deep:${deep}`)
+    @testModel(`R-deep:${deep}`)
     class R extends Model({
       a: prop<A>(() => new A({})),
     }) {
@@ -69,7 +69,7 @@ beforeEach(() => {
       }
     }
 
-    @model(`A-deep:${deep}`)
+    @testModel(`A-deep:${deep}`)
     class A extends Model({
       b: prop<B>(() => new B({})),
     }) {
@@ -83,7 +83,7 @@ beforeEach(() => {
       }
     }
 
-    @model(`B-deep:${deep}`)
+    @testModel(`B-deep:${deep}`)
     class B extends Model({
       primitive: prop<string>("hi"),
       arr: prop<number[]>(() => [1, 2, 3]),
@@ -149,7 +149,7 @@ test("dynamic target", () => {
     disposers.push(d)
   }
 
-  @model(`TodoList`)
+  @testModel(`TodoList`)
   class TodoList extends Model({
     todos: prop<Todo[]>(() => []),
   }) {
@@ -168,7 +168,7 @@ test("dynamic target", () => {
     }
   }
 
-  @model(`Todo`)
+  @testModel(`Todo`)
   class Todo extends Model({}) {}
 
   expect(events).toHaveLength(0)

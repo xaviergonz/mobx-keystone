@@ -1,15 +1,7 @@
 import { autorun, observable, reaction } from "mobx"
-import {
-  getSnapshot,
-  model,
-  Model,
-  modelAction,
-  prop,
-  registerRootStore,
-  runUnprotected,
-} from "../../src"
+import { getSnapshot, Model, modelAction, prop, registerRootStore, runUnprotected } from "../../src"
 import { createP } from "../testbed"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
 test("basic types", () => {
   expect(getSnapshot(undefined)).toBe(undefined)
@@ -177,7 +169,7 @@ test("reactive snapshots", () => {
 })
 
 test("issue #74 - with action", () => {
-  @model("#74-1/A")
+  @testModel("A")
   class A extends Model({
     value: prop<number>(),
   }) {
@@ -190,7 +182,7 @@ test("issue #74 - with action", () => {
     }
   }
 
-  @model("#74-1/Store")
+  @testModel("Store")
   class Store extends Model({
     all: prop<A[]>(() => []),
   }) {
@@ -222,7 +214,7 @@ test("issue #74 - with action", () => {
 })
 
 test("issue #74 - with runUnprotected", () => {
-  @model("#74-2/A")
+  @testModel("A")
   class A extends Model({
     value: prop<number>(),
   }) {
@@ -235,7 +227,7 @@ test("issue #74 - with runUnprotected", () => {
     }
   }
 
-  @model("#74-2/Store")
+  @testModel("Store")
   class Store extends Model({
     all: prop<A[]>(() => []),
   }) {}

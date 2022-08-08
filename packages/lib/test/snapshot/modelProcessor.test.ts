@@ -6,7 +6,6 @@ import {
   fromSnapshot,
   FromSnapshotDefaultType,
   getSnapshot,
-  model,
   Model,
   modelAction,
   modelSnapshotInWithMetadata,
@@ -16,9 +15,10 @@ import {
   SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("input snapshot processor", () => {
-  @model("customInputSnapshot")
+  @testModel("customInputSnapshot")
   class P3 extends Model(
     {
       arr: prop<number[]>(() => []),
@@ -87,7 +87,7 @@ test("input snapshot processor with original type", () => {
     arr: prop<number[]>(() => []),
   }
 
-  @model("customInputSnapshotWithOriginalType")
+  @testModel("customInputSnapshotWithOriginalType")
   class P3 extends Model(props, {
     fromSnapshotProcessor(sn: FromSnapshotDefaultType<typeof props> | { arr: string[] }) {
       return {
@@ -152,7 +152,7 @@ test("input snapshot processor with original type", () => {
 })
 
 test("output snapshot processor", () => {
-  @model("innerCustomOutputSnapshot")
+  @testModel("innerCustomOutputSnapshot")
   class IP4 extends Model(
     {
       arr: prop<number[]>(() => []),
@@ -172,7 +172,7 @@ test("output snapshot processor", () => {
     }
   }
 
-  @model("customOutputSnapshot")
+  @testModel("customOutputSnapshot")
   class P4 extends Model(
     {
       arr: prop<number[]>(() => []),
@@ -260,10 +260,10 @@ test("output snapshot processor", () => {
   )
 
   applySnapshot(p, {
-    [modelTypeKey]: "customOutputSnapshot",
+    [modelTypeKey]: "output snapshot processor/customOutputSnapshot",
     arr: [100, 200],
     child: {
-      [modelTypeKey]: "innerCustomOutputSnapshot",
+      [modelTypeKey]: "output snapshot processor/innerCustomOutputSnapshot",
       arr: [300, 400],
     },
   })

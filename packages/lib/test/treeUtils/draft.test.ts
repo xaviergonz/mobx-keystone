@@ -1,15 +1,7 @@
-import {
-  draft,
-  Draft,
-  getSnapshot,
-  Model,
-  model,
-  modelAction,
-  prop,
-  SnapshotOutOf,
-} from "../../src"
+import { draft, Draft, getSnapshot, Model, modelAction, prop, SnapshotOutOf } from "../../src"
+import { testModel } from "../utils"
 
-@model("M")
+@testModel("M")
 class M extends Model({
   x: prop(1),
   y: prop(10),

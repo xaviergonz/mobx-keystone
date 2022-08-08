@@ -2,7 +2,6 @@ import {
   getSnapshot,
   idProp,
   isTreeNode,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -10,15 +9,16 @@ import {
   Patch,
   prop,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("reassigning an array via spreading", () => {
-  @model("SpreadArr_Obj")
+  @testModel("Obj")
   class Obj extends Model({
     [modelIdKey]: idProp,
     x: prop(),
   }) {}
 
-  @model("SpreadArr")
+  @testModel("SpreadArr")
   class SpreadArr extends Model({
     [modelIdKey]: idProp,
     arr: prop<Obj[]>(() => []),
@@ -56,21 +56,21 @@ test("reassigning an array via spreading", () => {
   expect(getSnapshot(arr)).toMatchInlineSnapshot(`
     Object {
       "$modelId": "id-1",
-      "$modelType": "SpreadArr",
+      "$modelType": "reassigning an array via spreading/SpreadArr",
       "arr": Array [
         Object {
           "$modelId": "id-2",
-          "$modelType": "SpreadArr_Obj",
+          "$modelType": "reassigning an array via spreading/Obj",
           "x": 1,
         },
         Object {
           "$modelId": "id-3",
-          "$modelType": "SpreadArr_Obj",
+          "$modelType": "reassigning an array via spreading/Obj",
           "x": 2,
         },
         Object {
           "$modelId": "id-4",
-          "$modelType": "SpreadArr_Obj",
+          "$modelType": "reassigning an array via spreading/Obj",
           "x": 3,
         },
       ],
@@ -98,7 +98,7 @@ test("reassigning an array via spreading", () => {
             "value": Array [
               Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 1,
               },
             ],
@@ -115,7 +115,7 @@ test("reassigning an array via spreading", () => {
             "value": Array [
               Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 1,
               },
             ],
@@ -130,12 +130,12 @@ test("reassigning an array via spreading", () => {
             "value": Array [
               Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 1,
               },
               Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 2,
               },
             ],
@@ -152,12 +152,12 @@ test("reassigning an array via spreading", () => {
             "value": Array [
               Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 1,
               },
               Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 2,
               },
             ],
@@ -172,17 +172,17 @@ test("reassigning an array via spreading", () => {
             "value": Array [
               Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 1,
               },
               Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 2,
               },
               Object {
                 "$modelId": "id-4",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 3,
               },
             ],
@@ -218,11 +218,11 @@ test("reassigning an array via spreading", () => {
   expect(getSnapshot(arr)).toMatchInlineSnapshot(`
     Object {
       "$modelId": "id-1",
-      "$modelType": "SpreadArr",
+      "$modelType": "reassigning an array via spreading/SpreadArr",
       "arr": Array [
         Object {
           "$modelId": "id-2",
-          "$modelType": "SpreadArr_Obj",
+          "$modelType": "reassigning an array via spreading/Obj",
           "x": 1,
         },
       ],
@@ -241,17 +241,17 @@ test("reassigning an array via spreading", () => {
             "value": Array [
               Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 1,
               },
               Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 2,
               },
               Object {
                 "$modelId": "id-4",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 3,
               },
             ],
@@ -266,7 +266,7 @@ test("reassigning an array via spreading", () => {
             "value": Array [
               Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadArr_Obj",
+                "$modelType": "reassigning an array via spreading/Obj",
                 "x": 1,
               },
             ],
@@ -279,13 +279,13 @@ test("reassigning an array via spreading", () => {
 })
 
 test("reassigning an object via spreading", () => {
-  @model("SpreadObj_Obj")
+  @testModel("Obj")
   class Obj extends Model({
     [modelIdKey]: idProp,
     x: prop(),
   }) {}
 
-  @model("SpreadObj")
+  @testModel("SpreadObj")
   class SpreadObj extends Model({
     [modelIdKey]: idProp,
     spreadObj: prop<{ [k: string]: Obj }>(() => ({})),
@@ -326,21 +326,21 @@ test("reassigning an object via spreading", () => {
   expect(getSnapshot(o)).toMatchInlineSnapshot(`
     Object {
       "$modelId": "id-1",
-      "$modelType": "SpreadObj",
+      "$modelType": "reassigning an object via spreading/SpreadObj",
       "spreadObj": Object {
         "one": Object {
           "$modelId": "id-2",
-          "$modelType": "SpreadObj_Obj",
+          "$modelType": "reassigning an object via spreading/Obj",
           "x": 1,
         },
         "three": Object {
           "$modelId": "id-4",
-          "$modelType": "SpreadObj_Obj",
+          "$modelType": "reassigning an object via spreading/Obj",
           "x": 3,
         },
         "two": Object {
           "$modelId": "id-3",
-          "$modelType": "SpreadObj_Obj",
+          "$modelType": "reassigning an object via spreading/Obj",
           "x": 2,
         },
       },
@@ -368,7 +368,7 @@ test("reassigning an object via spreading", () => {
             "value": Object {
               "one": Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 1,
               },
             },
@@ -385,7 +385,7 @@ test("reassigning an object via spreading", () => {
             "value": Object {
               "one": Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 1,
               },
             },
@@ -400,12 +400,12 @@ test("reassigning an object via spreading", () => {
             "value": Object {
               "one": Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 1,
               },
               "two": Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 2,
               },
             },
@@ -422,12 +422,12 @@ test("reassigning an object via spreading", () => {
             "value": Object {
               "one": Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 1,
               },
               "two": Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 2,
               },
             },
@@ -442,17 +442,17 @@ test("reassigning an object via spreading", () => {
             "value": Object {
               "one": Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 1,
               },
               "three": Object {
                 "$modelId": "id-4",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 3,
               },
               "two": Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 2,
               },
             },
@@ -488,11 +488,11 @@ test("reassigning an object via spreading", () => {
   expect(getSnapshot(o)).toMatchInlineSnapshot(`
     Object {
       "$modelId": "id-1",
-      "$modelType": "SpreadObj",
+      "$modelType": "reassigning an object via spreading/SpreadObj",
       "spreadObj": Object {
         "one": Object {
           "$modelId": "id-2",
-          "$modelType": "SpreadObj_Obj",
+          "$modelType": "reassigning an object via spreading/Obj",
           "x": 1,
         },
       },
@@ -511,17 +511,17 @@ test("reassigning an object via spreading", () => {
             "value": Object {
               "one": Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 1,
               },
               "three": Object {
                 "$modelId": "id-4",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 3,
               },
               "two": Object {
                 "$modelId": "id-3",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 2,
               },
             },
@@ -536,7 +536,7 @@ test("reassigning an object via spreading", () => {
             "value": Object {
               "one": Object {
                 "$modelId": "id-2",
-                "$modelType": "SpreadObj_Obj",
+                "$modelType": "reassigning an object via spreading/Obj",
                 "x": 1,
               },
             },

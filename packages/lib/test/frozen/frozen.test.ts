@@ -5,21 +5,20 @@ import {
   getParent,
   getRoot,
   getSnapshot,
-  model,
   Model,
   prop,
   runUnprotected,
   types,
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
-import { emulateProdMode } from "../utils"
+import { emulateProdMode, testModel } from "../utils"
 
-@model("MWithFrozenProp")
+@testModel("MWithFrozenProp")
 class MWithFrozenProp extends Model({
   frozenStuff: prop<Frozen<any> | undefined>(),
 }) {}
 
-@model("MWithNumber")
+@testModel("MWithNumber")
 class MWithNumber extends Model({
   n: prop<number>(),
 }) {}

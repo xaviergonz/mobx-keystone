@@ -3,13 +3,12 @@ import {
   applyAction,
   applyDelete,
   BuiltInAction,
-  model,
   Model,
   prop,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   obj: prop<{ [k: string]: number } | undefined>(undefined),
 }) {}

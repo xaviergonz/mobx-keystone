@@ -1,7 +1,8 @@
 import { set } from "mobx"
-import { applySnapshot, Model, model, modelAction, onPatches, Patch, prop } from "../../src"
+import { applySnapshot, Model, modelAction, onPatches, Patch, prop } from "../../src"
+import { testModel } from "../utils"
 
-@model("P")
+@testModel("P")
 class P extends Model(
   {
     x: prop(1),
@@ -16,7 +17,7 @@ class P extends Model(
   }
 }
 
-@model("R")
+@testModel("R")
 class R extends Model({
   p_prop: prop<P | undefined>(),
   p_arr: prop<P[]>(() => []),

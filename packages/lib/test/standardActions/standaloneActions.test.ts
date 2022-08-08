@@ -2,7 +2,6 @@ import { assert, _ } from "spec.ts"
 import {
   addActionMiddleware,
   applyAction,
-  model,
   Model,
   modelFlow,
   prop,
@@ -16,7 +15,7 @@ import {
   _async,
   _await,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
 test("without type", async () => {
   interface Todo {
@@ -687,7 +686,7 @@ test("with type", async () => {
 })
 
 test("standaloneFlow", async () => {
-  @model("standaloneFlow/Data")
+  @testModel("DataModel")
   class DataModel extends Model({ x: prop(0) }) {
     @modelFlow
     fetchX = _async(function* (this: DataModel, y: number) {

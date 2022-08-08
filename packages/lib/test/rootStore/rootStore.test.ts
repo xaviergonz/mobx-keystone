@@ -2,7 +2,6 @@ import { reaction, toJS } from "mobx"
 import {
   getRootStore,
   isRootStore,
-  model,
   Model,
   modelAction,
   prop,
@@ -11,10 +10,11 @@ import {
   toTreeNode,
   unregisterRootStore,
 } from "../../src"
+import { testModel } from "../utils"
 
 const events: string[] = []
 
-@model("P3")
+@testModel("P3")
 export class P3 extends Model({
   z: prop(() => 20),
 }) {
@@ -30,7 +30,7 @@ export class P3 extends Model({
   }
 }
 
-@model("P2")
+@testModel("P2")
 export class P2 extends Model({
   y: prop(() => 10),
   p3: prop(() => new P3({})),
@@ -49,7 +49,7 @@ export class P2 extends Model({
   }
 }
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   x: prop(() => 5),
   arr: prop<P2[]>(() => []),
@@ -236,7 +236,7 @@ test("array as rootStore", () => {
 })
 
 test("issue #27", () => {
-  @model("#27/ModelWithArrayProp")
+  @testModel("#27/ModelWithArrayProp")
   class ModelWithArrayProp extends Model({
     values: prop<number[]>(),
   }) {
@@ -255,7 +255,7 @@ test("issue #27", () => {
 })
 
 test("isRootStore is reactive", () => {
-  @model("isRootStore is reactive/M")
+  @testModel("isRootStore is reactive/M")
   class M extends Model({}) {}
   const obj = new M({})
   const events: boolean[] = []
@@ -284,12 +284,12 @@ test("issue #316", () => {
   let mountCount = 0
   let unmountCount = 0
 
-  @model("316/track")
+  @testModel("316/track")
   class Track extends Model({
     nodes: prop<TrackNode[]>(),
   }) {}
 
-  @model("316/node")
+  @testModel("316/node")
   class TrackNode extends Model({
     name: prop<string>(),
   }) {
@@ -302,7 +302,7 @@ test("issue #316", () => {
     }
   }
 
-  @model("316/app")
+  @testModel("316/app")
   class App extends Model({
     tracks: prop<Track[]>(),
   }) {
@@ -339,7 +339,7 @@ test("issue #316", () => {
 test("bug #384", () => {
   let calls = 0
 
-  @model("bug #384/Todo")
+  @testModel("bug #384/Todo")
   class Todo extends Model({
     text: prop<string>(),
   }) {
@@ -348,7 +348,7 @@ test("bug #384", () => {
     }
   }
 
-  @model("bug #384/TodoStore")
+  @testModel("bug #384/TodoStore")
   class Store extends Model({
     todos: prop<Todo[]>(() => []),
   }) {

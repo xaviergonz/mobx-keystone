@@ -2,7 +2,6 @@ import {
   actionCallToReduxAction,
   asReduxStore,
   getSnapshot,
-  model,
   Model,
   modelAction,
   prop,
@@ -10,9 +9,9 @@ import {
   ReduxMiddleware,
   SnapshotOutOfModel,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   x: prop(() => 0),
 }) {

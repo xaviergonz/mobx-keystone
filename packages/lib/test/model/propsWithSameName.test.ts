@@ -1,7 +1,8 @@
 import { assert, _ } from "spec.ts"
-import { idProp, Model, model, modelIdKey, prop, runUnprotected } from "../../src"
+import { idProp, Model, modelIdKey, prop, runUnprotected } from "../../src"
+import { testModel } from "../utils"
 
-@model("M")
+@testModel("M")
 class M extends Model({
   [modelIdKey]: idProp,
   $modelType: prop<number>(),

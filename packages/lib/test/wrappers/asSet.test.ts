@@ -1,8 +1,9 @@
 import { computed, reaction, toJS } from "mobx"
-import { asSet, Model, model, modelAction, prop, runUnprotected, setToArray } from "../../src"
+import { asSet, Model, modelAction, prop, runUnprotected, setToArray } from "../../src"
+import { testModel } from "../utils"
 
 test("asSet", () => {
-  @model(test.name)
+  @testModel("M")
   class M extends Model({
     arr: prop<number[]>(() => [1, 2, 3]),
   }) {

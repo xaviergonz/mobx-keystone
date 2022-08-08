@@ -2,7 +2,6 @@ import {
   applyPatches,
   getSnapshot,
   idProp,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -14,7 +13,7 @@ import {
   unregisterRootStore,
 } from "../../src"
 import { createP } from "../testbed"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
 describe("onPatches and applyPatches", () => {
   function setup(withArray = false) {
@@ -827,7 +826,7 @@ describe("onPatches and applyPatches", () => {
 })
 
 test("patches with reserved prop names", () => {
-  @model("test/patchesWithReservedPropNames")
+  @testModel("M")
   class M extends Model({
     [modelIdKey]: idProp,
     onInit: prop(4),
@@ -911,7 +910,7 @@ test("patches with reserved prop names", () => {
 })
 
 test("patches with action in onAttachedToRootStore", () => {
-  @model("test/patchesWithActionInOnAttachedToRootStore/M")
+  @testModel("M")
   class M extends Model({
     [modelIdKey]: idProp,
     value: prop<number>(0),
@@ -926,7 +925,7 @@ test("patches with action in onAttachedToRootStore", () => {
     }
   }
 
-  @model("test/patchesWithActionInOnAttachedToRootStore/R")
+  @testModel("R")
   class R extends Model({
     [modelIdKey]: idProp,
     ms: prop<M[]>(() => []),
@@ -967,7 +966,7 @@ test("patches with action in onAttachedToRootStore", () => {
           ],
           "value": Object {
             "$modelId": "id-2",
-            "$modelType": "test/patchesWithActionInOnAttachedToRootStore/M",
+            "$modelType": "patches with action in onAttachedToRootStore/M",
             "value": 0,
           },
         },

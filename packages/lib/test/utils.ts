@@ -1,3 +1,5 @@
+import { model } from "../src"
+
 type Disposer = () => void
 
 const disposers: Disposer[] = []
@@ -33,4 +35,10 @@ export function timeMock() {
       await delay(now + x - Date.now())
     },
   }
+}
+
+export const testModel = (name: string) => {
+  const testName = expect.getState().currentTestName
+  const modelName = testName ? `${testName}/${name}` : name
+  return model(modelName)
 }

@@ -4,16 +4,16 @@ import {
   fromSnapshot,
   getSnapshot,
   idProp,
-  model,
   Model,
   modelIdKey,
   ModelIdPropertyName,
   runUnprotected,
   SnapshotOutOf,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("ids", () => {
-  @model("ids")
+  @testModel("ids")
   class M extends Model({
     [modelIdKey]: idProp,
   }) {}
@@ -25,7 +25,7 @@ test("ids", () => {
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       $modelId: m1.$modelId,
-      $modelType: "ids",
+      $modelType: "ids/ids",
     } as SnapshotOutOf<M>)
   }
 
@@ -36,18 +36,18 @@ test("ids", () => {
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       $modelId: m1.$modelId,
-      $modelType: "ids",
+      $modelType: "ids/ids",
     } as SnapshotOutOf<M>)
   }
 
   // id on snapshot
   {
-    const m1 = fromSnapshot(M, { $modelType: "ids", $modelId: "MY_ID2" })
+    const m1 = fromSnapshot(M, { $modelType: "ids/ids", $modelId: "MY_ID2" })
     expect(m1.$modelId).toBe("MY_ID2")
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       $modelId: m1.$modelId,
-      $modelType: "ids",
+      $modelType: "ids/ids",
     } as SnapshotOutOf<M>)
 
     const m2 = fromSnapshot(M, getSnapshot(m1))
@@ -55,7 +55,7 @@ test("ids", () => {
     expect(m2.getRefId()).toBe(m2.$modelId)
     expect(getSnapshot(m2)).toEqual({
       $modelId: m2.$modelId,
-      $modelType: "ids",
+      $modelType: "ids/ids",
     } as SnapshotOutOf<M>)
   }
 
@@ -67,7 +67,7 @@ test("ids", () => {
     expect(m1.$.$modelId).toBe("id-2")
     expect(getSnapshot(m1)).toEqual({
       $modelId: m1.$modelId,
-      $modelType: "ids",
+      $modelType: "ids/ids",
     } as SnapshotOutOf<M>)
 
     runUnprotected(() => {
@@ -78,13 +78,13 @@ test("ids", () => {
     expect(m1.$.$modelId).toBe("MY_ID")
     expect(getSnapshot(m1)).toEqual({
       $modelId: m1.$modelId,
-      $modelType: "ids",
+      $modelType: "ids/ids",
     } as SnapshotOutOf<M>)
   }
 })
 
 test("ids with custom property", () => {
-  @model("ids-customProperty")
+  @testModel("ids-customProperty")
   class M extends Model({
     id: idProp.withSetter(),
   }) {}
@@ -97,7 +97,7 @@ test("ids with custom property", () => {
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       id: m1.$modelId,
-      $modelType: "ids-customProperty",
+      $modelType: "ids with custom property/ids-customProperty",
     } as SnapshotOutOf<M>)
   }
 
@@ -109,19 +109,22 @@ test("ids with custom property", () => {
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       id: m1.$modelId,
-      $modelType: "ids-customProperty",
+      $modelType: "ids with custom property/ids-customProperty",
     } as SnapshotOutOf<M>)
   }
 
   // id on snapshot
   {
-    const m1 = fromSnapshot(M, { $modelType: "ids-customProperty", id: "MY_ID2" })
+    const m1 = fromSnapshot(M, {
+      $modelType: "ids with custom property/ids-customProperty",
+      id: "MY_ID2",
+    })
     expect(m1.$modelId).toBe("MY_ID2")
     expect(m1.id).toBe(m1.$modelId)
     expect(m1.getRefId()).toBe(m1.$modelId)
     expect(getSnapshot(m1)).toEqual({
       id: m1.$modelId,
-      $modelType: "ids-customProperty",
+      $modelType: "ids with custom property/ids-customProperty",
     } as SnapshotOutOf<M>)
 
     const m2 = fromSnapshot(M, getSnapshot(m1))
@@ -130,7 +133,7 @@ test("ids with custom property", () => {
     expect(m2.getRefId()).toBe(m2.$modelId)
     expect(getSnapshot(m2)).toEqual({
       id: m2.$modelId,
-      $modelType: "ids-customProperty",
+      $modelType: "ids with custom property/ids-customProperty",
     } as SnapshotOutOf<M>)
   }
 
@@ -144,7 +147,7 @@ test("ids with custom property", () => {
     expect((m1.$ as any).$modelId).toBe(undefined)
     expect(getSnapshot(m1)).toEqual({
       id: m1.$modelId,
-      $modelType: "ids-customProperty",
+      $modelType: "ids with custom property/ids-customProperty",
     } as SnapshotOutOf<M>)
 
     runUnprotected(() => {
@@ -157,7 +160,7 @@ test("ids with custom property", () => {
     expect((m1.$ as any).$modelId).toBe(undefined)
     expect(getSnapshot(m1)).toEqual({
       id: m1.$modelId,
-      $modelType: "ids-customProperty",
+      $modelType: "ids with custom property/ids-customProperty",
     } as SnapshotOutOf<M>)
 
     m1.setId("MY_ID2")
@@ -168,20 +171,20 @@ test("ids with custom property", () => {
     expect((m1.$ as any).$modelId).toBe(undefined)
     expect(getSnapshot(m1)).toEqual({
       id: m1.$modelId,
-      $modelType: "ids-customProperty",
+      $modelType: "ids with custom property/ids-customProperty",
     } as SnapshotOutOf<M>)
   }
 })
 
 test("extended class from base with custom id", () => {
-  @model("IdOnBase")
+  @testModel("IdOnBase")
   class IdOnBase extends Model({
     id: idProp,
   }) {}
 
   assert(_ as ModelIdPropertyName<IdOnBase>, _ as "id")
 
-  @model("ExtendedIdOnBase")
+  @testModel("ExtendedIdOnBase")
   class ExtendedIdOnBase extends ExtendedModel(IdOnBase, {}) {}
 
   assert(_ as ModelIdPropertyName<ExtendedIdOnBase>, _ as "id")

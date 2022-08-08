@@ -5,14 +5,13 @@ import {
   applyMethodCall,
   BuiltInAction,
   deserializeActionCall,
-  model,
   Model,
   prop,
   serializeActionCall,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   arr: prop<number[]>(() => []),
 }) {}

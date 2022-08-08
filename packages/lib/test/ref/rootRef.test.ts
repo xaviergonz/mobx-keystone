@@ -12,7 +12,6 @@ import {
   getSnapshot,
   idProp,
   isRefOfType,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -26,9 +25,9 @@ import {
   types,
   undoMiddleware,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("Country")
+@testModel("Country")
 class Country extends Model({
   id: prop<string>(),
   weather: prop<string>(),
@@ -38,7 +37,7 @@ class Country extends Model({
   }
 }
 
-@model("Countries")
+@testModel("Countries")
 class Countries extends Model({
   countries: prop<{ [k: string]: Country }>(() => ({})),
   selectedCountryRef: prop<Ref<Country> | undefined>(),
@@ -216,7 +215,7 @@ test("array ref works", () => {
 })
 
 test("single selection with custom getId", () => {
-  @model("myApp/Todo")
+  @testModel("myApp/Todo")
   class Todo extends Model({ id: prop<string>() }) {
     @modelAction
     setId(id: string) {
@@ -224,7 +223,7 @@ test("single selection with custom getId", () => {
     }
   }
 
-  @model("myApp/TodoList")
+  @testModel("myApp/TodoList")
   class TodoList extends Model({
     list: prop<Todo[]>(() => []),
     selectedRef: prop<Ref<Todo> | undefined>(),
@@ -424,13 +423,13 @@ test("isRefOfType", () => {
 })
 
 test("getRefsResolvingTo after loading from snapshot", () => {
-  @model("#56/Root")
+  @testModel("#56/Root")
   class Root extends Model({
     a: prop<A>(),
     b: prop<B>(),
   }) {}
 
-  @model("#56/A")
+  @testModel("#56/A")
   class A extends Model({
     [modelIdKey]: idProp,
   }) {
@@ -440,7 +439,7 @@ test("getRefsResolvingTo after loading from snapshot", () => {
     }
   }
 
-  @model("#56/B")
+  @testModel("#56/B")
   class B extends Model({
     [modelIdKey]: idProp,
     a: prop<Ref<A>>(),
@@ -471,19 +470,19 @@ test("applySnapshot - applyPatches - ref", () => {
     },
   })
 
-  @model("A")
+  @testModel("A")
   class A extends Model({
     [modelIdKey]: idProp,
     b: prop<Ref<B>>(),
   }) {}
 
-  @model("B")
+  @testModel("B")
   class B extends Model({
     [modelIdKey]: idProp,
     x: prop<number>(),
   }) {}
 
-  @model("R")
+  @testModel("R")
   class R extends Model({
     as: prop<A[]>(),
     bs: prop<B[]>(),
@@ -534,7 +533,7 @@ test("applySnapshot - applyPatches - ref", () => {
           ],
           "value": Object {
             "$modelId": "id-2",
-            "$modelType": "A",
+            "$modelType": "applySnapshot - applyPatches - ref/A",
             "b": Object {
               "$modelType": "bRef",
               "id": "id-1",
@@ -791,7 +790,7 @@ test("backrefs can be updated in the middle of an action if the target and ref a
 })
 
 test("generic typings", () => {
-  @model("GenericModel")
+  @testModel("GenericModel")
   class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
     [modelIdKey]: idProp,
     v1: prop<U1 | undefined>(),
@@ -811,7 +810,7 @@ test("generic typings", () => {
 })
 
 test("issue #456", () => {
-  @model("issue #456/Todo")
+  @testModel("issue #456/Todo")
   class Todo extends Model({
     id: idProp,
     text: tProp(types.string, ""),
@@ -819,7 +818,7 @@ test("issue #456", () => {
 
   const todoRef = rootRef<Todo>("issue #456/TodoRef")
 
-  @model("issue #456/TodoList")
+  @testModel("issue #456/TodoList")
   class TodoList extends Model({
     todos: tProp(types.array(Todo)),
     selectedRef: tProp(types.ref(todoRef)),

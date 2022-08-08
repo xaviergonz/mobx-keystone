@@ -5,7 +5,6 @@ import {
   clone,
   getSnapshot,
   idProp,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -14,9 +13,10 @@ import {
   serializeActionCall,
   SerializedActionCall,
 } from "../../src"
+import { testModel } from "../utils"
 
 describe("concurrency", () => {
-  @model("Root")
+  @testModel("Root")
   class Root extends Model({
     [modelIdKey]: idProp,
     list: prop<ChildA[]>(() => []),
@@ -52,13 +52,13 @@ describe("concurrency", () => {
     }
   }
 
-  @model("ChildA")
+  @testModel("ChildA")
   class ChildA extends Model({
     [modelIdKey]: idProp,
     childB: prop(() => new ChildB({})),
   }) {}
 
-  @model("ChildB")
+  @testModel("ChildB")
   class ChildB extends Model({
     [modelIdKey]: idProp,
   }) {}

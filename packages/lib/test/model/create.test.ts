@@ -1,10 +1,11 @@
-import { idProp, model, Model, modelIdKey, prop, tProp, types } from "../../src"
+import { idProp, Model, modelIdKey, prop, tProp, types } from "../../src"
+import { testModel } from "../utils"
 
 describe("create with extra properties", () => {
   const data = { value: 0, a: 2 }
 
   test("with unchecked props", () => {
-    @model("M-unchecked")
+    @testModel("M-unchecked")
     class M extends Model({
       [modelIdKey]: idProp,
       value: prop<number>(),
@@ -19,7 +20,7 @@ describe("create with extra properties", () => {
   })
 
   test("with checked props", () => {
-    @model("M-checked")
+    @testModel("M-checked")
     class M extends Model({
       value: tProp(types.number),
     }) {}
@@ -33,7 +34,7 @@ describe("create with extra properties", () => {
   })
 
   test("with a custom model id", () => {
-    @model("M-customId")
+    @testModel("M-customId")
     class M extends Model({
       id: idProp,
     }) {}

@@ -1,6 +1,5 @@
 import {
   applyPatches,
-  model,
   Model,
   modelAction,
   modelFlow,
@@ -10,9 +9,9 @@ import {
   _async,
   _await,
 } from "../../src"
-import { autoDispose, delay } from "../utils"
+import { autoDispose, delay, testModel } from "../utils"
 
-@model("P2")
+@testModel("P2")
 export class P2 extends Model({
   y: prop(() => 10),
 }) {
@@ -22,7 +21,7 @@ export class P2 extends Model({
   }
 }
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   x: prop(() => 5),
   p2: prop(() => new P2({})),

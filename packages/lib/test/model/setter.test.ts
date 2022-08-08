@@ -1,8 +1,8 @@
 import { computed } from "mobx"
-import { addActionMiddleware, model, Model, modelAction, prop, tProp } from "../../src"
-import { autoDispose } from "../utils"
+import { addActionMiddleware, Model, modelAction, prop, tProp } from "../../src"
+import { autoDispose, testModel } from "../utils"
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   y: prop(0).withSetter(),
   z: tProp(0).withSetter(),
@@ -285,7 +285,7 @@ test("setter", () => {
 })
 
 test("setting null or undefined to a value with a default should set the default", () => {
-  @model("M1")
+  @testModel("M1")
   class M1 extends Model({
     x: prop(1).withSetter(),
   }) {

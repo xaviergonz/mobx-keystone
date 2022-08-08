@@ -1,5 +1,6 @@
 import { autorun, observable, ObservableMap, runInAction } from "mobx"
-import { AnyModel, detach, model, Model, prop, walkTree, WalkTreeMode } from "../../src"
+import { AnyModel, detach, Model, prop, walkTree, WalkTreeMode } from "../../src"
+import { testModel } from "../utils"
 
 test("walktree should be reactive", () => {
   type Registry<K, V extends object> = ObservableMap<K, V>
@@ -38,7 +39,7 @@ test("walktree should be reactive", () => {
     return reg
   }
 
-  @model("root")
+  @testModel("root")
   class Root extends Model({
     children: prop<Child[]>(() => []),
   }) {
@@ -50,7 +51,7 @@ test("walktree should be reactive", () => {
     })
   }
 
-  @model("child")
+  @testModel("child")
   class Child extends Model({
     id: prop<string>(),
   }) {}

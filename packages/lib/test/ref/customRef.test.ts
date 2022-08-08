@@ -10,7 +10,6 @@ import {
   getSnapshot,
   idProp,
   isRefOfType,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -18,13 +17,13 @@ import {
   Ref,
   runUnprotected,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
 interface Country {
   weather: string
 }
 
-@model("Countries")
+@testModel("Countries")
 class Countries extends Model({
   countries: prop<{ [k: string]: Country }>(() => ({})),
   selectedCountryRef: prop<Ref<Country> | undefined>(),
@@ -206,7 +205,7 @@ test("array ref works", () => {
 })
 
 test("single selection with getRefId", () => {
-  @model("myApp/Todo")
+  @testModel("myApp/Todo")
   class Todo extends Model({ id: prop<string>() }) {
     getRefId() {
       return this.id
@@ -218,7 +217,7 @@ test("single selection with getRefId", () => {
     }
   }
 
-  @model("myApp/TodoList")
+  @testModel("myApp/TodoList")
   class TodoList extends Model({
     list: prop<Todo[]>(() => []),
     selectedRef: prop<Ref<Todo> | undefined>(),
@@ -351,7 +350,7 @@ test("isRefOfType", () => {
 })
 
 test("generic typings", () => {
-  @model("GenericModel")
+  @testModel("GenericModel")
   class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
     [modelIdKey]: idProp,
     v1: prop<U1 | undefined>(),

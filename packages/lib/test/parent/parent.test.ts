@@ -12,21 +12,21 @@ import {
   getRootPath,
   isChildOfParent,
   isParentOfChild,
-  model,
   Model,
   modelSnapshotInWithMetadata,
   prop,
   runUnprotected,
 } from "../../src"
+import { testModel } from "../utils"
 
 const $errorMessage = "must be the model object instance instead of the '$' sub-object"
 
-@model("P2")
+@testModel("P2")
 export class P2 extends Model({
   y: prop(() => 10),
 }) {}
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   x: prop(() => 5),
   arr: prop<P2[]>(() => []),
@@ -348,12 +348,12 @@ test("parent", () => {
 })
 
 test("issue #446", () => {
-  @model("Battle")
+  @testModel("Battle")
   class Battle extends Model({
     players: prop<Player[]>(() => []),
   }) {}
 
-  @model("Player")
+  @testModel("Player")
   class Player extends Model({
     fleet: prop<Fleet | undefined>(),
   }) {
@@ -363,7 +363,7 @@ test("issue #446", () => {
     }
   }
 
-  @model("Fleet")
+  @testModel("Fleet")
   class Fleet extends Model({
     ships: prop<Ship[]>(() => []),
   }) {
@@ -373,7 +373,7 @@ test("issue #446", () => {
     }
   }
 
-  @model("Ship")
+  @testModel("Ship")
   class Ship extends Model({}) {
     @computed
     get fleetGetParent(): Fleet {

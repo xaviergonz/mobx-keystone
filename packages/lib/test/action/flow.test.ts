@@ -4,7 +4,6 @@ import {
   ActionContext,
   ExtendedModel,
   getSnapshot,
-  model,
   Model,
   modelAction,
   modelFlow,
@@ -13,9 +12,9 @@ import {
   _async,
   _await,
 } from "../../src"
-import { autoDispose, delay } from "../utils"
+import { autoDispose, delay, testModel } from "../utils"
 
-@model("P2")
+@testModel("P2")
 export class P2 extends Model({
   y: prop(() => 0),
 }) {
@@ -30,7 +29,7 @@ export class P2 extends Model({
   addY = _async(this._addY)
 }
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(() => 0),
@@ -270,7 +269,7 @@ test("flow", async () => {
 })
 
 test("arrow model flows work when destructured", async () => {
-  @model("arrow model flows work when destructured/M")
+  @testModel("M")
   class M extends Model({
     x: prop(0),
   }) {
@@ -292,7 +291,7 @@ test("arrow model flows work when destructured", async () => {
     expect(await addX(1)).toBe(4)
   }
 
-  @model("arrow model flows work when destructured/M2")
+  @testModel("M2")
   class M2 extends ExtendedModel(M, {}) {}
 
   {

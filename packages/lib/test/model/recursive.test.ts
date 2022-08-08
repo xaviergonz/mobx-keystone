@@ -1,7 +1,6 @@
 import { assert, _ } from "spec.ts"
 import {
   Model,
-  model,
   ModelAutoTypeCheckingMode,
   prop,
   setGlobalConfig,
@@ -9,6 +8,7 @@ import {
   types,
   TypeToData,
 } from "../../src"
+import { testModel } from "../utils"
 
 beforeEach(() => {
   setGlobalConfig({
@@ -17,7 +17,7 @@ beforeEach(() => {
 })
 
 test("self recursive", () => {
-  @model("myApp/TreeNode")
+  @testModel("myApp/TreeNode")
   class TreeNode extends Model({ children: prop<TreeNode[]>(() => []), x: prop(0) }) {}
 
   const tn = new TreeNode({ children: [new TreeNode({})] })
@@ -33,7 +33,7 @@ test("self recursive", () => {
 })
 
 test("self recursive type checked", () => {
-  @model("myAppTC/TreeNode")
+  @testModel("myAppTC/TreeNode")
   class TreeNode extends Model({
     children: tProp(types.array(types.model<TreeNode>(() => TreeNode)), () => []),
     x: tProp(types.number, 0),
@@ -52,10 +52,10 @@ test("self recursive type checked", () => {
 })
 
 test("cross-referenced", () => {
-  @model("myApp/A")
+  @testModel("myApp/A")
   class A extends Model({ b: prop<B | undefined>(), x: prop(0) }) {}
 
-  @model("myApp/B")
+  @testModel("myApp/B")
   class B extends Model({ a: prop<A | undefined>(), y: prop("") }) {}
 
   const a = new A({
@@ -75,13 +75,13 @@ test("cross-referenced", () => {
 })
 
 test("cross-referenced type checked", () => {
-  @model("myAppTC/A")
+  @testModel("myAppTC/A")
   class A extends Model({
     b: tProp(types.maybe(types.model<B>(() => B))),
     x: tProp(types.number, 0),
   }) {}
 
-  @model("myAppTC/B")
+  @testModel("myAppTC/B")
   class B extends Model({
     a: tProp(types.maybe(types.model<A>(() => A))),
     y: tProp(types.string, ""),
@@ -109,7 +109,7 @@ test("recursive with object", () => {
     meObj?: Obj
   }
 
-  @model("myApp/AA")
+  @testModel("myApp/AA")
   class AA extends Model({
     obj: prop<Obj | undefined>(),
   }) {}
@@ -139,7 +139,7 @@ test("recursive with object type checked", () => {
 
   type Obj2 = TypeToData<typeof typeObj>
 
-  @model("myAppTC/AA")
+  @testModel("myAppTC/AA")
   class AA extends Model({
     obj: tProp(types.maybe(typeObj)),
   }) {}

@@ -1,4 +1,5 @@
-import { Model, model, modelAction, objectActions, prop } from "../../src"
+import { Model, modelAction, objectActions, prop } from "../../src"
+import { testModel } from "../utils"
 
 test("typed object", () => {
   const obj = objectActions.create({ a: 1 })
@@ -29,7 +30,7 @@ test("untyped object", () => {
 })
 
 test("over a model", () => {
-  @model(`${test.name}/M`)
+  @testModel("M")
   class M extends Model({ x: prop(10) }) {
     // without action
     setXNoAction(n: number) {

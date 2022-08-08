@@ -2,7 +2,6 @@ import { assert, _ } from "spec.ts"
 import {
   idProp,
   Model,
-  model,
   ModelCreationData,
   ModelData,
   modelIdKey,
@@ -11,8 +10,9 @@ import {
   types,
 } from "../../src"
 import { Flatten } from "../../src/utils/types"
+import { testModel } from "../utils"
 
-@model("M")
+@testModel("M")
 class M extends Model({
   [modelIdKey]: idProp,
 

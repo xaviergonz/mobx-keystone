@@ -1,15 +1,7 @@
-import {
-  addActionMiddleware,
-  applyAction,
-  applySet,
-  BuiltInAction,
-  model,
-  Model,
-  prop,
-} from "../../src"
-import { autoDispose } from "../utils"
+import { addActionMiddleware, applyAction, applySet, BuiltInAction, Model, prop } from "../../src"
+import { autoDispose, testModel } from "../utils"
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   y: prop(0),
   ch: prop<P | undefined>(undefined),

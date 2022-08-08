@@ -8,7 +8,6 @@ import {
   getParent,
   idProp,
   Model,
-  model,
   modelAction,
   modelClass,
   ModelData,
@@ -21,12 +20,12 @@ import {
   _async,
   _await,
 } from "../../src"
-import { autoDispose, delay } from "../utils"
+import { autoDispose, delay, testModel } from "../utils"
 
 test("without type", async () => {
   let viewRuns = 0
 
-  @model("myApp/Todo1")
+  @testModel("myApp/Todo1")
   class Todo extends DataModel({
     done: prop<boolean>().withSetter(),
     text: prop<string>(),
@@ -154,7 +153,7 @@ test("without type", async () => {
     Array [
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setDone",
+          "actionName": "fn::without type/myApp/Todo1::setDone",
           "args": Array [
             true,
           ],
@@ -171,7 +170,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setDone",
+          "actionName": "fn::without type/myApp/Todo1::setDone",
           "args": Array [
             true,
           ],
@@ -189,7 +188,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setText",
+          "actionName": "fn::without type/myApp/Todo1::setText",
           "args": Array [
             "2",
           ],
@@ -206,7 +205,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setText",
+          "actionName": "fn::without type/myApp/Todo1::setText",
           "args": Array [
             "2",
           ],
@@ -224,7 +223,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setAll",
+          "actionName": "fn::without type/myApp/Todo1::setAll",
           "args": Array [
             false,
             "3",
@@ -242,13 +241,13 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setDone",
+          "actionName": "fn::without type/myApp/Todo1::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "fn::myApp/Todo1::setAll",
+            "actionName": "fn::without type/myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -263,7 +262,7 @@ test("without type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "fn::myApp/Todo1::setAll",
+            "actionName": "fn::without type/myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -287,13 +286,13 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setDone",
+          "actionName": "fn::without type/myApp/Todo1::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "fn::myApp/Todo1::setAll",
+            "actionName": "fn::without type/myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -308,7 +307,7 @@ test("without type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "fn::myApp/Todo1::setAll",
+            "actionName": "fn::without type/myApp/Todo1::setAll",
             "args": Array [
               false,
               "3",
@@ -333,7 +332,7 @@ test("without type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo1::setAll",
+          "actionName": "fn::without type/myApp/Todo1::setAll",
           "args": Array [
             false,
             "3",
@@ -355,7 +354,7 @@ test("without type", async () => {
 
   expect(
     applyAction(todo.$, {
-      actionName: "fn::myApp/Todo1::setAll",
+      actionName: "fn::without type/myApp/Todo1::setAll",
       args: [true, "4"],
       targetPath: [],
       targetPathIds: [],
@@ -374,7 +373,7 @@ test("without type", async () => {
 test("with type", async () => {
   let viewRuns = 0
 
-  @model("myApp/Todo2")
+  @testModel("myApp/Todo2")
   class Todo extends DataModel({
     done: tProp(types.boolean).withSetter(),
     text: tProp(types.string),
@@ -503,7 +502,7 @@ test("with type", async () => {
     Array [
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setDone",
+          "actionName": "fn::with type/myApp/Todo2::setDone",
           "args": Array [
             true,
           ],
@@ -520,7 +519,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setDone",
+          "actionName": "fn::with type/myApp/Todo2::setDone",
           "args": Array [
             true,
           ],
@@ -538,7 +537,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setText",
+          "actionName": "fn::with type/myApp/Todo2::setText",
           "args": Array [
             "2",
           ],
@@ -555,7 +554,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setText",
+          "actionName": "fn::with type/myApp/Todo2::setText",
           "args": Array [
             "2",
           ],
@@ -573,7 +572,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setAll",
+          "actionName": "fn::with type/myApp/Todo2::setAll",
           "args": Array [
             false,
             "3",
@@ -591,13 +590,13 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setDone",
+          "actionName": "fn::with type/myApp/Todo2::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "fn::myApp/Todo2::setAll",
+            "actionName": "fn::with type/myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -612,7 +611,7 @@ test("with type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "fn::myApp/Todo2::setAll",
+            "actionName": "fn::with type/myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -636,13 +635,13 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setDone",
+          "actionName": "fn::with type/myApp/Todo2::setDone",
           "args": Array [
             false,
           ],
           "data": Object {},
           "parentContext": Object {
-            "actionName": "fn::myApp/Todo2::setAll",
+            "actionName": "fn::with type/myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -657,7 +656,7 @@ test("with type", async () => {
             "type": "sync",
           },
           "rootContext": Object {
-            "actionName": "fn::myApp/Todo2::setAll",
+            "actionName": "fn::with type/myApp/Todo2::setAll",
             "args": Array [
               false,
               "3",
@@ -682,7 +681,7 @@ test("with type", async () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::myApp/Todo2::setAll",
+          "actionName": "fn::with type/myApp/Todo2::setAll",
           "args": Array [
             false,
             "3",
@@ -704,7 +703,7 @@ test("with type", async () => {
 
   expect(
     applyAction(todo.$, {
-      actionName: "fn::myApp/Todo2::setAll",
+      actionName: "fn::with type/myApp/Todo2::setAll",
       args: [true, "4"],
       targetPath: [],
       targetPathIds: [],
@@ -731,7 +730,7 @@ test("idProp is not allowed", () => {
 test("onLazyInit gets called", () => {
   let lazyInitCalls = 0
 
-  @model("test/LazyInit")
+  @testModel("test/LazyInit")
   class LazyInit extends DataModel({
     x: prop<number>(),
   }) {
@@ -749,7 +748,7 @@ test("onLazyInit gets called", () => {
 })
 
 test("multiple calls to new with the same tree node return the same instance", () => {
-  @model("test/SameInstance")
+  @testModel("test/SameInstance")
   class SameInstance extends DataModel({
     x: prop<number>(),
   }) {}
@@ -760,7 +759,7 @@ test("multiple calls to new with the same tree node return the same instance", (
 })
 
 test("type checking", () => {
-  @model("test/TypeCheck")
+  @testModel("test/TypeCheck")
   class TypeCheck extends DataModel({
     x: tProp(types.number),
   }) {}
@@ -775,12 +774,12 @@ test("type checking", () => {
 })
 
 test("parent/child", () => {
-  @model("test/ChildModel")
+  @testModel("test/ChildModel")
   class ChildModel extends DataModel({
     x: tProp(types.number),
   }) {}
 
-  @model("test/ParentModel")
+  @testModel("test/ParentModel")
   class ParentModel extends Model({
     subObj: tProp(types.maybe(types.dataModelData(ChildModel))).withSetter(),
   }) {}
@@ -799,10 +798,10 @@ test("parent/child", () => {
 })
 
 test("two different classes over the same data return different instances", () => {
-  @model("test/a")
+  @testModel("test/a")
   class A extends DataModel({ x: prop<number>() }) {}
 
-  @model("test/b")
+  @testModel("test/b")
   class B extends DataModel({ x: prop<number>() }) {}
 
   const data = toTreeNode({ x: 10 })
@@ -811,7 +810,7 @@ test("two different classes over the same data return different instances", () =
 })
 
 test("extends works", () => {
-  @model("test/extends/base")
+  @testModel("test/extends/base")
   class Base extends DataModel({ x: prop<number>().withSetter() }) {}
 
   const bm = new Base({ x: 10 })
@@ -846,7 +845,7 @@ test("extends works", () => {
     Array [
       Object {
         "ctx": Object {
-          "actionName": "fn::test/extends/base::setX",
+          "actionName": "fn::extends works/test/extends/base::setX",
           "args": Array [
             30,
           ],
@@ -862,7 +861,7 @@ test("extends works", () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::test/extends/base::setX",
+          "actionName": "fn::extends works/test/extends/base::setX",
           "args": Array [
             30,
           ],
@@ -880,7 +879,7 @@ test("extends works", () => {
     ]
   `)
 
-  @model("test/extends/extended")
+  @testModel("test/extends/extended")
   class Extended extends ExtendedDataModel(Base, {
     y: prop<number>().withSetter(),
   }) {}
@@ -914,7 +913,7 @@ test("extends works", () => {
     Array [
       Object {
         "ctx": Object {
-          "actionName": "fn::test/extends/extended::setX",
+          "actionName": "fn::extends works/test/extends/extended::setX",
           "args": Array [
             30,
           ],
@@ -931,7 +930,7 @@ test("extends works", () => {
       },
       Object {
         "ctx": Object {
-          "actionName": "fn::test/extends/extended::setY",
+          "actionName": "fn::extends works/test/extends/extended::setY",
           "args": Array [
             40,
           ],
@@ -951,7 +950,7 @@ test("extends works", () => {
 })
 
 test("new pattern for generics", () => {
-  @model("GenericModel")
+  @testModel("GenericModel")
   class GenericModel<T1, T2> extends DataModel(<U1, U2>() => ({
     v1: prop<U1>(),
     v2: prop<U2>(),
@@ -966,7 +965,7 @@ test("new pattern for generics", () => {
   expect(s.v2).toBe(2)
   expect(s.v3).toBe(3)
 
-  @model("ExtendedGenericModel")
+  @testModel("ExtendedGenericModel")
   class ExtendedGenericModel<T1, T2> extends ExtendedDataModel(<T1, T2>() => ({
     baseModel: modelClass<GenericModel<T1, T2>>(GenericModel),
     props: {

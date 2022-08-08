@@ -2,7 +2,6 @@ import {
   actionTrackingMiddleware,
   ActionTrackingResult,
   getSnapshot,
-  model,
   Model,
   modelAction,
   modelFlow,
@@ -11,9 +10,9 @@ import {
   _async,
   _await,
 } from "../../src"
-import { autoDispose, delay } from "../utils"
+import { autoDispose, delay, testModel } from "../utils"
 
-@model("P2")
+@testModel("P2")
 export class P2 extends Model({
   y: prop(() => 0),
 }) {
@@ -38,7 +37,7 @@ export class P2 extends Model({
   addY2 = _async(this._addY2)
 }
 
-@model("P")
+@testModel("P")
 export class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(() => 0),

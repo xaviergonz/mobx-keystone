@@ -8,7 +8,6 @@ import {
   isRootStore,
   isSandboxedNode,
   isTweakedObject,
-  model,
   Model,
   modelAction,
   modelIdKey,
@@ -21,15 +20,15 @@ import {
   undoMiddleware,
   unregisterRootStore,
 } from "../../src"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
-@model("A")
+@testModel("A")
 class A extends Model({
   [modelIdKey]: idProp,
   b: prop<B>(),
 }) {}
 
-@model("B")
+@testModel("B")
 class B extends Model({
   [modelIdKey]: idProp,
   value: prop<number>(),
@@ -87,7 +86,7 @@ test("withSandbox can be called with one node or a tuple of nodes", () => {
 })
 
 test("withSandbox can be called with an array node", () => {
-  @model("R")
+  @testModel("R")
   class R extends Model({ a: prop<A[]>() }) {}
 
   const r = new R({ a: [new A({ b: new B({ value: 1 }) }), new A({ b: new B({ value: 2 }) })] })
@@ -273,7 +272,7 @@ test("changes in sandbox can be applied to original tree - idempotent action", (
 })
 
 test("changes in sandbox can be applied to original tree - non-idempotent action", () => {
-  @model("C")
+  @testModel("C")
   class C extends Model({
     values: prop<number[]>(),
   }) {
@@ -387,7 +386,7 @@ test("sandbox cannot be changed outside of fn", () => {
 test("sanboxed nodes can check if they are sandboxed", () => {
   const initEvents: string[] = []
 
-  @model("A2")
+  @testModel("A2")
   class A2 extends Model({
     b: prop<B2>(),
   }) {
@@ -410,7 +409,7 @@ test("sanboxed nodes can check if they are sandboxed", () => {
     }
   }
 
-  @model("B2")
+  @testModel("B2")
   class B2 extends Model({
     value: prop<number>(),
   }) {
@@ -506,7 +505,7 @@ test("isSandboxedNode recognizes ref/prev/next to all be sandboxed nodes or not 
     },
   })
 
-  @model("R3")
+  @testModel("R3")
   class R extends Model({ a: prop<A | undefined>(), aref: prop<Ref<A> | undefined>() }) {}
 
   const a = new A({ b: new B({ value: 0 }) })

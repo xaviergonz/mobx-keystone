@@ -1,8 +1,8 @@
 import { computed, isObservableArray, reaction } from "mobx"
-import { getChildrenObjects, model, Model, prop, runUnprotected } from "../../src"
-import { autoDispose } from "../utils"
+import { getChildrenObjects, Model, prop, runUnprotected } from "../../src"
+import { autoDispose, testModel } from "../utils"
 
-@model("C")
+@testModel("C")
 class C extends Model({ id: prop<string>(), children: prop<C[] | undefined>(undefined) }) {}
 
 const deep = true

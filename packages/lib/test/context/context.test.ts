@@ -1,16 +1,8 @@
 import { observable, reaction, runInAction } from "mobx"
 import { assert, _ } from "spec.ts"
-import {
-  createContext,
-  fromSnapshot,
-  getSnapshot,
-  model,
-  Model,
-  prop,
-  runUnprotected,
-} from "../../src"
+import { createContext, fromSnapshot, getSnapshot, Model, prop, runUnprotected } from "../../src"
 import { createP } from "../testbed"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
 test("context with set default value", () => {
   const ctx = createContext(1)
@@ -281,7 +273,7 @@ test("context apply", () => {
 
   let val = 2
 
-  @model("context apply / M")
+  @testModel("M")
   class M extends Model({
     children: prop<M[]>(() => []),
   }) {
@@ -314,7 +306,7 @@ test("context applyComputed", () => {
 
   let val = 2
 
-  @model("context applyComputed / M")
+  @testModel("M")
   class M extends Model({
     children: prop<M[]>(() => []),
   }) {

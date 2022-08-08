@@ -1,7 +1,6 @@
 import {
   fromSnapshot,
   getSnapshot,
-  model,
   Model,
   modelIdKey,
   modelSnapshotInWithMetadata,
@@ -11,14 +10,15 @@ import {
   tProp,
   types,
 } from "../../src"
+import { testModel } from "../utils"
 
 test("model without model type thanks to a tProp", () => {
-  @model("m1/1")
+  @testModel("M1")
   class M1 extends Model({
     x: prop<number>(),
   }) {}
 
-  @model("m2/1")
+  @testModel("M2")
   class M2 extends Model({
     m1: tProp(types.model(M1)),
   }) {}
@@ -71,14 +71,14 @@ test("model without model type thanks to a tProp", () => {
 })
 
 test("model without model type thanks to a type passed to fromSnapshot", () => {
-  @model("m1/2")
+  @testModel("M1")
   class M1 extends Model({
     x: tProp(types.number),
   }) {}
 
   const m1Sn: SnapshotInOf<M1> = { x: 1 }
 
-  @model("m2/2")
+  @testModel("M2")
   class M2 extends Model({
     y: tProp(types.number),
   }) {}

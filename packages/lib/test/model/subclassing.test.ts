@@ -5,7 +5,6 @@ import {
   fromSnapshot,
   getSnapshot,
   idProp,
-  model,
   Model,
   modelAction,
   modelClass,
@@ -20,8 +19,9 @@ import {
   _await,
 } from "../../src"
 import { Flatten } from "../../src/utils/types"
+import { testModel } from "../utils"
 
-// @model("P")
+// @testModel("P")
 class P extends Model({
   x: tProp(types.number, 15),
   y: tProp(types.number, 10),
@@ -46,7 +46,7 @@ class P extends Model({
 }
 
 test("subclassing with additional props", () => {
-  @model("P2_props")
+  @testModel("P2_props")
   class P2 extends ExtendedModel(P, {
     a: tProp(types.number, 50),
     b: tProp(types.number),
@@ -110,7 +110,7 @@ test("subclassing with additional props", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelType": "P2_props",
+      "$modelType": "subclassing with additional props/P2_props",
       "a": 50,
       "b": 70,
       "x": 20,
@@ -125,7 +125,7 @@ test("subclassing with additional props", () => {
 })
 
 test("subclassing without additional props", () => {
-  @model("P2_noprops")
+  @testModel("P2_noprops")
   class P2 extends ExtendedModel(P, {}) {
     p2Method() {
       return "p2"
@@ -172,7 +172,7 @@ test("subclassing without additional props", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelType": "P2_noprops",
+      "$modelType": "subclassing without additional props/P2_noprops",
       "x": 20,
       "y": 10,
       "z": 30,
@@ -185,7 +185,7 @@ test("subclassing without additional props", () => {
 })
 
 test("subclassing without anything new", () => {
-  @model("P2_nothingNew")
+  @testModel("P2_nothingNew")
   class P2 extends ExtendedModel(P, {}) {}
 
   type D = ModelData<P2>
@@ -223,7 +223,7 @@ test("subclassing without anything new", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelType": "P2_nothingNew",
+      "$modelType": "subclassing without anything new/P2_nothingNew",
       "x": 20,
       "y": 10,
       "z": 30,
@@ -248,7 +248,7 @@ test("three level subclassing", () => {
     }
   }
 
-  @model("P2_threeLevels")
+  @testModel("P2_threeLevels")
   class P2 extends ExtendedModel(P1, {
     b: tProp(types.number),
   }) {
@@ -310,7 +310,7 @@ test("three level subclassing", () => {
   const p2sn = getSnapshot(p2)
   expect(p2sn).toMatchInlineSnapshot(`
     Object {
-      "$modelType": "P2_threeLevels",
+      "$modelType": "three level subclassing/P2_threeLevels",
       "a": 50,
       "b": 70,
       "x": 20,
@@ -357,7 +357,7 @@ test("abstract-ish model classes with factory", () => {
 
   const StringA = createA<string>()
 
-  @model("B-abstractish-factory")
+  @testModel("B-abstractish-factory")
   class B extends ExtendedModel(StringA, {}) {
     public validate(value: string): string | undefined {
       return value.length < 3 ? "too short" : undefined
@@ -396,7 +396,7 @@ test("abstract-ish model classes without factory", () => {
 
   abstract class StringA extends A<string> {}
 
-  @model("B-abstractish")
+  @testModel("B-abstractish")
   class B extends ExtendedModel(StringA, {
     value: prop<string>(),
   }) {
@@ -444,7 +444,7 @@ test("abstract model classes with factory", () => {
 
   const StringA = createA<string>()
 
-  @model("B-abstract-factory")
+  @testModel("B-abstract-factory")
   class B extends ExtendedModel(StringA, {}) {
     public validate(value: string): string | undefined {
       return value.length < 3 ? "too short" : undefined
@@ -486,7 +486,7 @@ test("abstract model classes without factory", () => {
 
   abstract class StringA extends A<string> {}
 
-  @model("B-abstract")
+  @testModel("B-abstract")
   class B extends ExtendedModel(StringA, {
     value: prop<string>(),
   }) {
@@ -520,7 +520,7 @@ test("issue #18", () => {
     public /* abstract */ value: number = void 0 as any // similiar to what babel does when using an abstract prop without default value
   }
 
-  @model("B#18")
+  @testModel("B#18")
   class B extends ExtendedModel(A, { value: prop<number>() }) {}
 
   // Error: data changes must be performed inside model actions
@@ -543,7 +543,7 @@ test("issue #2", () => {
     })
   }
 
-  @model("issue-2/model")
+  @testModel("issue-2/model")
   class MyModel extends ExtendedBase("val") {}
 
   const m = new MyModel({})
@@ -552,7 +552,7 @@ test("issue #2", () => {
 })
 
 test("classes using model decorator can be extended", () => {
-  @model("Point2d")
+  @testModel("Point2d")
   class P2d extends Model({
     x: tProp(types.number, 15),
     y: tProp(types.number, 10),
@@ -562,7 +562,7 @@ test("classes using model decorator can be extended", () => {
     }
   }
 
-  @model("Point3d")
+  @testModel("Point3d")
   class P3d extends ExtendedModel(P2d, {
     z: tProp(types.number, 20),
   }) {
@@ -576,7 +576,7 @@ test("classes using model decorator can be extended", () => {
     expect(p2d.x).toBe(15)
     expect(p2d.y).toBe(10)
     expect((p2d as any).z).toBe(undefined)
-    expect(p2d.$modelType).toBe("Point2d")
+    expect(p2d.$modelType).toBe("classes using model decorator can be extended/Point2d")
   }
 
   {
@@ -585,7 +585,7 @@ test("classes using model decorator can be extended", () => {
     expect(p3d.y).toBe(10)
     expect(p3d.z).toBe(20)
     expect(p3d.sum).toBe(p3d.x + p3d.y + p3d.z)
-    expect(p3d.$modelType).toBe("Point3d")
+    expect(p3d.$modelType).toBe("classes using model decorator can be extended/Point3d")
   }
 })
 
@@ -594,7 +594,7 @@ export function createClassWithType<T>(modelName: string) {
     val: prop<T>(),
   })
 
-  @model(`ClassWithType/${modelName}`)
+  @testModel(`ClassWithType/${modelName}`)
   class ClassWithType extends ClassWithTypeProps {
     @modelAction
     test(_e: T) {}
@@ -615,14 +615,14 @@ test("external class factory with type declaration", () => {
 })
 
 test("issue #109", () => {
-  @model("my/BaseModel")
+  @testModel("my/BaseModel")
   class BaseModel<T> extends Model({
     items: prop<string[]>(() => []),
   }) {
     superFoo(_x: T) {}
   }
 
-  @model("my/ChildModel")
+  @testModel("my/ChildModel")
   class ChildModel extends ExtendedModel(modelClass<BaseModel<number>>(BaseModel), {}) {
     foo() {
       assert(this.items, _ as string[])
@@ -636,7 +636,7 @@ test("issue #109", () => {
 })
 
 test("ExtendedModel should bring static / prototype properties", () => {
-  @model("Bobbin")
+  @testModel("Bobbin")
   class Bobbin extends Model({}) {
     static LAST = "Threadbare"
   }
@@ -653,7 +653,7 @@ test("ExtendedModel should bring static / prototype properties", () => {
   expect((bobbin as any).first).toBe("Bobbin")
   expect((bobbin as any).LAST).toBe(undefined)
 
-  @model("ExtendedBobbin")
+  @testModel("ExtendedBobbin")
   class ExtendedBobbin extends ExtendedModel(Bobbin, {}) {
     static LAST2 = "Threepwood"
   }
@@ -676,7 +676,7 @@ test("ExtendedModel should bring static / prototype properties", () => {
 })
 
 test("new pattern for generics", () => {
-  @model("GenericModel")
+  @testModel("GenericModel")
   class GenericModel<T1, T2> extends Model(<U1, U2>() => ({
     v1: prop<U1 | undefined>(),
     v2: prop<U2>(),
@@ -698,7 +698,7 @@ test("new pattern for generics", () => {
   expect(s.v2).toBe(2)
   expect(s.v3).toBe(3)
 
-  @model("ExtendedGenericModel")
+  @testModel("ExtendedGenericModel")
   class ExtendedGenericModel<T1, T2> extends ExtendedModel(<T1, T2>() => ({
     baseModel: modelClass<GenericModel<T1, T2>>(GenericModel),
     props: {
@@ -720,7 +720,7 @@ test("issue #310", () => {
     name: prop<string>().withSetter(),
   }) {}
 
-  @model("issue #310/MyExtendedModelWithoutId")
+  @testModel("issue #310/MyExtendedModelWithoutId")
   class MyExtendedModelWithoutId extends ExtendedModel(MyBaseModelWithId, {
     extendedProp: prop<boolean>(),
   }) {}
@@ -735,12 +735,12 @@ test("issue #310", () => {
 test("issue #358", () => {
   type DataType = number | string
 
-  @model("issue #358/Value")
+  @testModel("issue #358/Value")
   class Value<T extends DataType> extends Model(<T extends DataType>() => ({
     data: prop<T>(),
   }))<T> {}
 
-  @model("issue #358/Container")
+  @testModel("issue #358/Container")
   class Container<V extends Value<T>, T extends DataType> extends Model(<
     V extends Value<T>,
     T extends DataType
@@ -761,12 +761,12 @@ test("issue #358", () => {
 test("issue #358/2", () => {
   type DataType = number | string
 
-  @model("issue #358/2/Value")
+  @testModel("issue #358/2/Value")
   class Value<T extends DataType> extends Model(<T extends DataType>() => ({
     data: prop<T>().withSetter(),
   }))<T> {}
 
-  @model("issue #358/2/Container")
+  @testModel("issue #358/2/Container")
   class Container<V extends Value<any>> extends Model(<V extends Value<DataType>>() => ({
     value: prop<V>(),
   }))<V> {}
@@ -782,13 +782,13 @@ test("issue #358/2", () => {
 })
 
 test("generic model instance factory", () => {
-  @model("generic model instance factory/Parent")
+  @testModel("generic model instance factory/Parent")
   class Parent<T> extends Model(<T>() => ({
     a: prop<T>(),
     x: prop<number | undefined>(),
   }))<T> {}
 
-  @model("generic model instance factory/Child")
+  @testModel("generic model instance factory/Child")
   class Child<T> extends ExtendedModel(<T>() => ({
     baseModel: modelClass<Parent<T>>(Parent),
     props: {
@@ -811,12 +811,12 @@ test("generic model instance factory", () => {
 })
 
 test("statics get inherited", () => {
-  @model("statics get inherited/A")
+  @testModel("statics get inherited/A")
   class StaticA extends Model({}) {
     static foo: "foo" = "foo"
   }
 
-  @model("statics get inherited/B")
+  @testModel("statics get inherited/B")
   class StaticB extends ExtendedModel(StaticA, {}) {
     static bar: "bar" = "bar"
   }
@@ -852,12 +852,12 @@ test("modelAction, modelFlow and subclassing", async () => {
     })
   }
 
-  @model("modelAction, modelFlow and subclassing/ModelA")
+  @testModel("modelAction, modelFlow and subclassing/ModelA")
   class A extends ExtendedModel(BM, {
     stateSub: prop<string>(),
   }) {}
 
-  @model("modelAction, modelFlow and subclassing/ModelB")
+  @testModel("modelAction, modelFlow and subclassing/ModelB")
   class B extends ExtendedModel(BM, {
     stateSub: prop<string>(),
   }) {

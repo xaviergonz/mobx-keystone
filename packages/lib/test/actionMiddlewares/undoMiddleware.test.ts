@@ -2,7 +2,6 @@ import { computed, IObservableArray, toJS } from "mobx"
 import {
   getSnapshot,
   idProp,
-  model,
   Model,
   modelAction,
   modelFlow,
@@ -19,7 +18,7 @@ import {
   _async,
   _await,
 } from "../../src"
-import { autoDispose, timeMock } from "../utils"
+import { autoDispose, testModel, timeMock } from "../utils"
 
 let attachedState = "initial"
 
@@ -27,7 +26,7 @@ beforeEach(() => {
   attachedState = "initial"
 })
 
-@model("P2")
+@testModel("P2")
 class P2 extends Model({
   y: prop(() => 0),
 }) {
@@ -38,7 +37,7 @@ class P2 extends Model({
   }
 }
 
-@model("P")
+@testModel("P")
 class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(() => 0),
@@ -65,7 +64,7 @@ class P extends Model({
   }
 }
 
-@model("R")
+@testModel("R")
 class R extends Model({
   undoData: prop(() => new UndoStore({})),
   p: prop(() => new P({})),
@@ -215,7 +214,7 @@ test("undoMiddleware - sync", () => {
   expectUndoRedoToBe(0, 0)
 })
 
-@model("P2Flow")
+@testModel("P2Flow")
 class P2Flow extends Model({
   y: prop(() => 0),
 }) {
@@ -229,7 +228,7 @@ class P2Flow extends Model({
   incY = _async(this._incY)
 }
 
-@model("PFlow")
+@testModel("PFlow")
 class PFlow extends Model({
   x: prop(() => 0),
   p2: prop(() => new P2Flow({})),
@@ -256,7 +255,7 @@ class PFlow extends Model({
   incXY = _async(this._incXY)
 }
 
-@model("RFlow")
+@testModel("RFlow")
 class RFlow extends Model({
   undoData: prop(() => new UndoStore({})),
   p: prop(() => new PFlow({})),
@@ -350,7 +349,7 @@ test("undoMiddleware - async", async () => {
 test("issue #115", () => {
   const elementRef = rootRef<ElementModel>("toryjs/ElementRef", {})
 
-  @model("toryjs/ElementModel")
+  @testModel("toryjs/ElementModel")
   class ElementModel extends Model({
     [modelIdKey]: idProp,
     name: prop<string>(),
@@ -362,7 +361,7 @@ test("issue #115", () => {
     }
   }
 
-  @model("toryjs/StateModel")
+  @testModel("toryjs/StateModel")
   class StateModel extends Model({
     selectedElementRef: prop<Ref<ElementModel> | undefined>(),
   }) {
@@ -385,7 +384,7 @@ test("issue #115", () => {
     }
   }
 
-  @model("toryjs/RootModel")
+  @testModel("toryjs/RootModel")
   class RootModel extends Model({
     undoData: prop<UndoStore>(() => new UndoStore({})),
     store: prop<ElementModel[]>(),
@@ -441,7 +440,7 @@ test("issue #115", () => {
 })
 
 test("undo-aware substore called from non undo-aware root store", () => {
-  @model("subactions/RootStore")
+  @testModel("subactions/RootStore")
   class RootStore extends Model({
     substore: prop(() => new SubStore({})),
   }) {
@@ -456,7 +455,7 @@ test("undo-aware substore called from non undo-aware root store", () => {
     }
   }
 
-  @model("subactions/SubStore")
+  @testModel("subactions/SubStore")
   class SubStore extends Model({
     values: prop(() => [] as number[]),
   }) {
@@ -788,7 +787,7 @@ test("withGroupFlow - concurrent", async () => {
 test("concurrent async actions", async () => {
   const { advanceTimeTo } = timeMock()
 
-  @model("ConcurrentAsyncActionsM")
+  @testModel("ConcurrentAsyncActionsM")
   class ConcurrentAsyncActionsM extends Model({
     undoData: prop(() => new UndoStore({})),
     x: prop(() => 0),
@@ -881,13 +880,13 @@ test("concurrent async actions", async () => {
 })
 
 test("sorting crashes undo", () => {
-  @model("sorting crashes undo/Todo")
+  @testModel("sorting crashes undo/Todo")
   class Todo extends Model({
     order: prop(0),
     id: idProp,
   }) {}
 
-  @model("sorting crashes undo/TodoList")
+  @testModel("sorting crashes undo/TodoList")
   class TodoList extends Model({
     todos: prop<Array<Todo>>(() => []),
   }) {

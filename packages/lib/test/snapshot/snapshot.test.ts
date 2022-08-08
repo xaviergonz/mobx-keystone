@@ -9,7 +9,6 @@ import {
   getSnapshot,
   idProp,
   Model,
-  model,
   modelAction,
   modelIdKey,
   modelSnapshotOutWithMetadata,
@@ -24,7 +23,7 @@ import {
   SnapshotOutOf,
 } from "../../src"
 import { createP, P, P2 } from "../testbed"
-import { autoDispose } from "../utils"
+import { autoDispose, testModel } from "../utils"
 
 test("onSnapshot and applySnapshot", () => {
   const p = createP()
@@ -533,7 +532,7 @@ test("types", () => {
 })
 
 test("snapshot with reserved property names", () => {
-  @model("test/snapshotWithReservedPropNames")
+  @testModel("M")
   class M extends Model({ onInit: prop(4) }) {
     @modelAction
     setOnInit(n: number) {
@@ -547,7 +546,7 @@ test("snapshot with reserved property names", () => {
 
   expect(sn).toMatchInlineSnapshot(`
     Object {
-      "$modelType": "test/snapshotWithReservedPropNames",
+      "$modelType": "snapshot with reserved property names/M",
       "onInit": 4,
     }
   `)
@@ -567,12 +566,12 @@ test("snapshot with reserved property names", () => {
 test("id-less reconciliation", () => {
   let id = 0
 
-  @model("idlr/i")
+  @testModel("idlr/i")
   class I extends Model({ x: prop(0) }) {
     id = id++
   }
 
-  @model("idlr/r")
+  @testModel("idlr/r")
   class R extends Model({
     arr: prop<I[]>(),
     m: prop<I>(),
@@ -604,14 +603,14 @@ test("id-less reconciliation", () => {
 
 test("id-full reconciliation", () => {
   let id = 0
-  @model("idfr/i")
+  @testModel("idfr/i")
   class I extends Model({
     id2: idProp,
   }) {
     id = id++
   }
 
-  @model("idfr/r")
+  @testModel("idfr/r")
   class R extends Model({
     arr: prop<I[]>(),
     m: prop<I>(),
@@ -643,7 +642,7 @@ test("id-full reconciliation", () => {
 })
 
 test("applySnapshot should respect default initializers", () => {
-  @model("applySnapshot should respect default initializers/M")
+  @testModel("M")
   class M extends Model({
     x: prop(1),
     y: prop(2),
@@ -662,7 +661,7 @@ test("applySnapshot should respect default initializers", () => {
 })
 
 test("applySnapshot should be ok with extra snapshot props", () => {
-  @model("applySnapshot should be ok with extra snapshot props/M")
+  @testModel("M")
   class M extends Model({
     x: prop(1),
   }) {}
