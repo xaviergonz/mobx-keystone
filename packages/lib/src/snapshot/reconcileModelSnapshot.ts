@@ -66,11 +66,8 @@ function reconcileModelSnapshot(
   const snapshotBeforeChanges = getSnapshot(modelObj)
 
   withoutTypeChecking(() => {
-    let processedSn: any = sn
     const modelClass: ModelClass<AnyModel> = (modelObj as any).constructor
-    if (modelClass.fromSnapshotProcessor) {
-      processedSn = modelClass.fromSnapshotProcessor(sn)
-    }
+    const processedSn = modelClass.fromSnapshotProcessor ? modelClass.fromSnapshotProcessor(sn) : sn
 
     const data = modelObj.$
 
@@ -81,7 +78,8 @@ function reconcileModelSnapshot(
       const k = dataKeys[i]
       if (!(k in processedSn)) {
         // use default value if applicable
-        const defaultValue = getModelPropDefaultValue(modelProps[k])
+        const modelProp = modelProps[k]
+        const defaultValue = modelProp ? getModelPropDefaultValue(modelProp) : noDefaultValue
         if (defaultValue === noDefaultValue) {
           remove(data, k)
         } else {
@@ -103,7 +101,8 @@ function reconcileModelSnapshot(
 
         // use default value if applicable
         if (newValue == null) {
-          const defaultValue = getModelPropDefaultValue(modelProps[k])
+          const modelProp = modelProps[k]
+          const defaultValue = modelProp ? getModelPropDefaultValue(modelProp) : noDefaultValue
           if (defaultValue !== noDefaultValue) {
             newValue = defaultValue
           }

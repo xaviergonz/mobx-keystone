@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.69.9
+
+- Fix for `applySnapshot` throwing an exception when removing a property which was not declared in the model.
+
 ## 0.69.8
 
 - Fix for `standaloneFlow` typing.

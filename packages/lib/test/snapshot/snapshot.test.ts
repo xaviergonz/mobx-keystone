@@ -660,3 +660,35 @@ test("applySnapshot should respect default initializers", () => {
   expect(m.x).toBe(10)
   expect(m.y).toBe(2)
 })
+
+test("applySnapshot should be ok with extra snapshot props", () => {
+  @model("applySnapshot should be ok with extra snapshot props/M")
+  class M extends Model({
+    x: prop(1),
+  }) {}
+
+  const m = new M({ x: 5 })
+
+  applySnapshot(m, {
+    x: 2,
+    y: 10,
+  } as any)
+
+  expect(m.$.x).toBe(2)
+  expect((m.$ as any).y).toBe(10)
+
+  applySnapshot(m, {
+    x: 3,
+    y: 20,
+  } as any)
+
+  expect(m.$.x).toBe(3)
+  expect((m.$ as any).y).toBe(20)
+
+  applySnapshot(m, {
+    x: 4,
+  } as any)
+
+  expect(m.$.x).toBe(4)
+  expect((m.$ as any).y).toBe(undefined)
+})
