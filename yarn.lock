@@ -4102,126 +4102,126 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm-eabi@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-android-arm-eabi@npm:1.2.226"
+"@swc/core-android-arm-eabi@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-android-arm-eabi@npm:1.2.231"
   dependencies:
     "@swc/wasm": 1.2.122
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-android-arm64@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-android-arm64@npm:1.2.226"
+"@swc/core-android-arm64@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-android-arm64@npm:1.2.231"
   dependencies:
     "@swc/wasm": 1.2.130
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-darwin-arm64@npm:1.2.226"
+"@swc/core-darwin-arm64@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-darwin-arm64@npm:1.2.231"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-darwin-x64@npm:1.2.226"
+"@swc/core-darwin-x64@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-darwin-x64@npm:1.2.231"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-freebsd-x64@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-freebsd-x64@npm:1.2.226"
+"@swc/core-freebsd-x64@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-freebsd-x64@npm:1.2.231"
   dependencies:
     "@swc/wasm": 1.2.130
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.226"
+"@swc/core-linux-arm-gnueabihf@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.2.231"
   dependencies:
     "@swc/wasm": 1.2.130
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.226"
+"@swc/core-linux-arm64-gnu@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.2.231"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-linux-arm64-musl@npm:1.2.226"
+"@swc/core-linux-arm64-musl@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-linux-arm64-musl@npm:1.2.231"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-linux-x64-gnu@npm:1.2.226"
+"@swc/core-linux-x64-gnu@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-linux-x64-gnu@npm:1.2.231"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-linux-x64-musl@npm:1.2.226"
+"@swc/core-linux-x64-musl@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-linux-x64-musl@npm:1.2.231"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.226"
+"@swc/core-win32-arm64-msvc@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.2.231"
   dependencies:
     "@swc/wasm": 1.2.130
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.226"
+"@swc/core-win32-ia32-msvc@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.2.231"
   dependencies:
     "@swc/wasm": 1.2.130
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core-win32-x64-msvc@npm:1.2.226"
+"@swc/core-win32-x64-msvc@npm:1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core-win32-x64-msvc@npm:1.2.231"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.2.226":
-  version: 1.2.226
-  resolution: "@swc/core@npm:1.2.226"
+"@swc/core@npm:^1.2.231":
+  version: 1.2.231
+  resolution: "@swc/core@npm:1.2.231"
   dependencies:
-    "@swc/core-android-arm-eabi": 1.2.226
-    "@swc/core-android-arm64": 1.2.226
-    "@swc/core-darwin-arm64": 1.2.226
-    "@swc/core-darwin-x64": 1.2.226
-    "@swc/core-freebsd-x64": 1.2.226
-    "@swc/core-linux-arm-gnueabihf": 1.2.226
-    "@swc/core-linux-arm64-gnu": 1.2.226
-    "@swc/core-linux-arm64-musl": 1.2.226
-    "@swc/core-linux-x64-gnu": 1.2.226
-    "@swc/core-linux-x64-musl": 1.2.226
-    "@swc/core-win32-arm64-msvc": 1.2.226
-    "@swc/core-win32-ia32-msvc": 1.2.226
-    "@swc/core-win32-x64-msvc": 1.2.226
+    "@swc/core-android-arm-eabi": 1.2.231
+    "@swc/core-android-arm64": 1.2.231
+    "@swc/core-darwin-arm64": 1.2.231
+    "@swc/core-darwin-x64": 1.2.231
+    "@swc/core-freebsd-x64": 1.2.231
+    "@swc/core-linux-arm-gnueabihf": 1.2.231
+    "@swc/core-linux-arm64-gnu": 1.2.231
+    "@swc/core-linux-arm64-musl": 1.2.231
+    "@swc/core-linux-x64-gnu": 1.2.231
+    "@swc/core-linux-x64-musl": 1.2.231
+    "@swc/core-win32-arm64-msvc": 1.2.231
+    "@swc/core-win32-ia32-msvc": 1.2.231
+    "@swc/core-win32-x64-msvc": 1.2.231
   dependenciesMeta:
     "@swc/core-android-arm-eabi":
       optional: true
@@ -4251,7 +4251,7 @@ __metadata:
       optional: true
   bin:
     swcx: run_swcx.js
-  checksum: 5e1befa1c6e6300886573dcb40165c1282abe69ab8ebb413bfcd1c07e5285d589c84dacd17cf755e9f5a9722656e29d609c4725c459c59b028ab2292c4a473ab
+  checksum: 8fbb5121bf13ea00a769b71a09a299f5eedbf4aa1c5a2fcacb78602cbdc74649ebfd71b92a11cb34d1c4779323167a39e57589d1d905fef164b823ff4a66b5ef
   languageName: node
   linkType: hard
 
@@ -4683,10 +4683,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.7.2":
-  version: 18.7.2
-  resolution: "@types/node@npm:18.7.2"
-  checksum: 422cf95dea09959d0e809d24280b76948f60ea805e20d38f07bf9eeafeb413513b9cc365404766f7752bef9cafb8301a882d9d097f780e13f2bedf507459ebc5
+"@types/node@npm:*, @types/node@npm:^18.7.3":
+  version: 18.7.3
+  resolution: "@types/node@npm:18.7.3"
+  checksum: f51ed436a112235ac068d739b4823090a37b869cc186b64dd5c250dd285139c286990fcbeff2fb3ecba5d605fa885de4275247d332e5b96eafdfbb1da62e3ced
   languageName: node
   linkType: hard
 
@@ -9453,9 +9453,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.21.0":
-  version: 8.21.0
-  resolution: "eslint@npm:8.21.0"
+"eslint@npm:^8.22.0":
+  version: 8.22.0
+  resolution: "eslint@npm:8.22.0"
   dependencies:
     "@eslint/eslintrc": ^1.3.0
     "@humanwhocodes/config-array": ^0.10.4
@@ -9498,7 +9498,7 @@ __metadata:
     v8-compile-cache: ^2.0.3
   bin:
     eslint: bin/eslint.js
-  checksum: 1d39ddb08772ea230cb7d74f7f81f85b9d46965d3600725c7eb39a27bcdaf28cb2a780dacf6cfa1cfbf2da606b57a5e7e3ab373ab474cbcf0ba042076821f501
+  checksum: 2d84a7a2207138cdb250759b047fdb05a57fede7f87b7a039d9370edba7f26e23a873a208becfd4b2c9e4b5499029f3fc3b9318da3290e693d25c39084119c80
   languageName: node
   linkType: hard
 
@@ -14429,10 +14429,10 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.18.10
     "@babel/preset-env": ^7.18.10
     "@babel/preset-typescript": ^7.18.6
-    "@swc/core": ^1.2.226
+    "@swc/core": ^1.2.231
     "@swc/jest": ^0.2.22
     "@types/jest": ^28.1.6
-    "@types/node": ^18.7.2
+    "@types/node": ^18.7.3
     babel-jest: ^28.1.3
     fast-deep-equal: ^3.1.3
     jest: ^28.1.3
@@ -14655,9 +14655,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^10.17.3":
-  version: 10.17.3
-  resolution: "netlify-cli@npm:10.17.3"
+"netlify-cli@npm:^10.17.4":
+  version: 10.17.4
+  resolution: "netlify-cli@npm:10.17.4"
   dependencies:
     "@netlify/build": ^27.11.4
     "@netlify/config": ^18.1.4
@@ -14770,7 +14770,7 @@ __metadata:
   bin:
     netlify: bin/run
     ntl: bin/run
-  checksum: bc183d867e5c89d360693c4b539c874ee904d09516980c2c19289b2e2ca9ebff04e40973def06a71229331482c9617fbe3abf3b8a33eaf65e04537d485040c8b
+  checksum: b5c2b270be56186610c3cab8479716a3c1fc4da3979ad35d7f290d316ccae7bf6c5d4728da61a050ff29a85e91082ccac2eb8cc562206f8d1c6002baaf11f2aa
   languageName: node
   linkType: hard
 
@@ -17813,10 +17813,10 @@ __metadata:
   dependencies:
     bufferutil: ^4.0.6
     codecov: ^3.8.3
-    eslint: ^8.21.0
+    eslint: ^8.22.0
     eslint-config-prettier: ^8.5.0
     eslint-config-react-app: ^7.0.1
-    netlify-cli: ^10.17.3
+    netlify-cli: ^10.17.4
     prettier: ^2.7.1
     prettier-plugin-organize-imports: ^3.0.3
     turbo: ^1.4.3
