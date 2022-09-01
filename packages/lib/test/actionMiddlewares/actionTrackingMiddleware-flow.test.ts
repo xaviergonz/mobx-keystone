@@ -167,27 +167,27 @@ test("actionTrackingMiddleware - flow", async () => {
   expect(getSnapshot(p).x).toBe(2)
 
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-            Array [
-              "addX (filter)",
-              "addX (start)",
-              "addX (resume)",
-              "addX (suspend)",
-              "addX (resume)",
-              "addX (suspend)",
-              "addX (resume)",
-              "addX > addXSync (filter)",
-              "addX > addXSync (start)",
-              "addX > addXSync (resume)",
-              "addX > addXSync (suspend)",
-              "addX > addXSync (finish - return)",
-              "addX (suspend)",
-              "addX (resume)",
-              "addX (suspend)",
-              "addX (resume)",
-              "addX (suspend)",
-              "addX (finish - return)",
-            ]
-      `)
+    [
+      "addX (filter)",
+      "addX (start)",
+      "addX (resume)",
+      "addX (suspend)",
+      "addX (resume)",
+      "addX (suspend)",
+      "addX (resume)",
+      "addX > addXSync (filter)",
+      "addX > addXSync (start)",
+      "addX > addXSync (resume)",
+      "addX > addXSync (suspend)",
+      "addX > addXSync (finish - return)",
+      "addX (suspend)",
+      "addX (resume)",
+      "addX (suspend)",
+      "addX (resume)",
+      "addX (suspend)",
+      "addX (finish - return)",
+    ]
+  `)
   expect(events).toMatchSnapshot("addX")
 
   reset()
@@ -197,7 +197,7 @@ test("actionTrackingMiddleware - flow", async () => {
   expect(p.p2.y).toBe(4)
 
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-    Array [
+    [
       "addXY (filter)",
       "addXY (start)",
       "addXY (resume)",
@@ -272,20 +272,20 @@ test("actionTrackingMiddleware - flow", async () => {
     expect(p.x).toBe(oldX + 10)
   }
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-            Array [
-              "throwFlow (filter)",
-              "throwFlow (start)",
-              "throwFlow (resume)",
-              "throwFlow (suspend)",
-              "throwFlow (resume)",
-              "throwFlow (suspend)",
-              "throwFlow (resume)",
-              "throwFlow (suspend)",
-              "throwFlow (resume)",
-              "throwFlow (suspend)",
-              "throwFlow (finish - throw)",
-            ]
-      `)
+    [
+      "throwFlow (filter)",
+      "throwFlow (start)",
+      "throwFlow (resume)",
+      "throwFlow (suspend)",
+      "throwFlow (resume)",
+      "throwFlow (suspend)",
+      "throwFlow (resume)",
+      "throwFlow (suspend)",
+      "throwFlow (resume)",
+      "throwFlow (suspend)",
+      "throwFlow (finish - throw)",
+    ]
+  `)
   expect(events).toMatchSnapshot("throwFlow")
 
   // overriding flow start
@@ -296,14 +296,14 @@ test("actionTrackingMiddleware - flow", async () => {
   expect(p.p2.y).toBe(oldY)
   expect(retOverrideStart).toBe(-1000)
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-            Array [
-              "addY2 (filter)",
-              "addY2 (start)",
-              "addY2 (resume)",
-              "addY2 (suspend)",
-              "addY2 (finish - return)",
-            ]
-      `)
+    [
+      "addY2 (filter)",
+      "addY2 (start)",
+      "addY2 (resume)",
+      "addY2 (suspend)",
+      "addY2 (finish - return)",
+    ]
+  `)
   expect(events).toMatchSnapshot("overriding flow start")
 
   // disposing
@@ -311,6 +311,6 @@ test("actionTrackingMiddleware - flow", async () => {
   disposer()
   const ret3 = await p.addXY(5, 6)
   expect(ret3 < 1000).toBeTruthy() // the return value override should be gone by now
-  expect(events.map(eventToString)).toMatchInlineSnapshot(`Array []`)
+  expect(events.map(eventToString)).toMatchInlineSnapshot(`[]`)
   expect(events).toMatchSnapshot("disposing")
 })

@@ -52,19 +52,19 @@ describe("asReduxStore", () => {
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
-            Array [
-              Object {
-                "prevSn": Object {
-                  "$modelType": "P",
-                  "x": 0,
-                },
-                "sn": Object {
-                  "$modelType": "P",
-                  "x": 5,
-                },
-              },
-            ]
-        `)
+      [
+        {
+          "prevSn": {
+            "$modelType": "P",
+            "x": 0,
+          },
+          "sn": {
+            "$modelType": "P",
+            "x": 5,
+          },
+        },
+      ]
+    `)
   })
 
   test("with middlewares", () => {
@@ -116,14 +116,14 @@ describe("asReduxStore", () => {
 
     // 11200 because 12 -> 12 + 100 = 112 -> 112 * 100 = 11200
     expect(dispatched).toMatchInlineSnapshot(`
-      Object {
-        "payload": Object {
+      {
+        "payload": {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             11200,
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
         "type": "applyAction",
       }
@@ -132,13 +132,13 @@ describe("asReduxStore", () => {
     expect(store.getState()).toBe(getSnapshot(p))
 
     expect(events).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "prevSn": Object {
+      [
+        {
+          "prevSn": {
             "$modelType": "P",
             "x": 0,
           },
-          "sn": Object {
+          "sn": {
             "$modelType": "P",
             "x": 12,
           },

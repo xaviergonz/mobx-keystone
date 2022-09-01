@@ -68,24 +68,24 @@ test("onActionMiddleware", () => {
   p1.addX(1)
   p2.addX(1)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             1,
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        Object {
+        {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             1,
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -93,10 +93,10 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 0,
                 },
@@ -118,28 +118,28 @@ test("onActionMiddleware", () => {
   p1.p2.addY(2)
   p2.p2.addY(2)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "actionName": "addY",
-          "args": Array [
+          "args": [
             2,
           ],
-          "targetPath": Array [
+          "targetPath": [
             "p2",
           ],
-          "targetPathIds": Array [
+          "targetPathIds": [
             "id-2",
           ],
         },
-        Object {
+        {
           "actionName": "addY",
-          "args": Array [
+          "args": [
             2,
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -147,7 +147,7 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 2,
             },
@@ -165,26 +165,26 @@ test("onActionMiddleware", () => {
   p1.addXY(3, 4)
   p2.addXY(3, 4)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "actionName": "addXY",
-          "args": Array [
+          "args": [
             3,
             4,
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        Object {
+        {
           "actionName": "addXY",
-          "args": Array [
+          "args": [
             3,
             4,
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -192,10 +192,10 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 6,
                 },
@@ -220,24 +220,24 @@ test("onActionMiddleware", () => {
   p1.other(rc)
   p2.other(rc)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "actionName": "other",
-          "args": Array [
+          "args": [
             RandomClass {},
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        Object {
+        {
           "actionName": "other",
-          "args": Array [
+          "args": [
             RandomClass {},
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -245,10 +245,10 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 6,
                 },
@@ -270,42 +270,42 @@ test("onActionMiddleware", () => {
   p1.other([1, 2, 3], observable([4, 5, 6]))
   p2.other([1, 2, 3], observable([4, 5, 6]))
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "actionName": "other",
-          "args": Array [
-            Array [
+          "args": [
+            [
               1,
               2,
               3,
             ],
-            Array [
+            [
               4,
               5,
               6,
             ],
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        Object {
+        {
           "actionName": "other",
-          "args": Array [
-            Array [
+          "args": [
+            [
               1,
               2,
               3,
             ],
-            Array [
+            [
               4,
               5,
               6,
             ],
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -313,10 +313,10 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 6,
                 },
@@ -338,34 +338,34 @@ test("onActionMiddleware", () => {
   p1.other({ a: 5 }, observable({ a: 5 }))
   p2.other({ a: 5 }, observable({ a: 5 }))
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "actionName": "other",
-          "args": Array [
-            Object {
+          "args": [
+            {
               "a": 5,
             },
-            Object {
+            {
               "a": 5,
             },
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        Object {
+        {
           "actionName": "other",
-          "args": Array [
-            Object {
+          "args": [
+            {
               "a": 5,
             },
-            Object {
+            {
               "a": 5,
             },
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -373,10 +373,10 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 6,
                 },
@@ -404,36 +404,36 @@ test("onActionMiddleware", () => {
     y: 100,
   })
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "actionName": "$$applySnapshot",
-          "args": Array [
-            Object {
+          "args": [
+            {
               "$modelId": "id-2",
               "$modelType": "P2",
               "y": 100,
             },
           ],
-          "targetPath": Array [
+          "targetPath": [
             "p2",
           ],
-          "targetPathIds": Array [
+          "targetPathIds": [
             "id-2",
           ],
         },
-        Object {
+        {
           "actionName": "$$applySnapshot",
-          "args": Array [
-            Object {
+          "args": [
+            {
               "$modelId": "id-2",
               "$modelType": "P2",
               "y": 100,
             },
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -441,7 +441,7 @@ test("onActionMiddleware", () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 100,
             },
@@ -459,5 +459,5 @@ test("onActionMiddleware", () => {
   disposer()
   p1.addXY(5, 6)
   p2.addXY(5, 6)
-  expect(events).toMatchInlineSnapshot(`Array []`)
+  expect(events).toMatchInlineSnapshot(`[]`)
 })

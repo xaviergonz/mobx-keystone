@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`actionTrackingMiddleware - sync: action on the child 1`] = `
-Array [
-  Object {
-    "context": Object {
+[
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         2,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -18,7 +18,7 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 2,
         },
@@ -29,15 +29,15 @@ Array [
     },
     "type": "filter",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         2,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -45,7 +45,7 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 2,
         },
@@ -56,15 +56,15 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         2,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -72,7 +72,7 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 2,
         },
@@ -83,15 +83,15 @@ Array [
     },
     "type": "resume",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         2,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -99,7 +99,7 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 2,
         },
@@ -110,15 +110,15 @@ Array [
     },
     "type": "suspend",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         2,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -126,7 +126,7 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 2,
         },
@@ -143,16 +143,16 @@ Array [
 `;
 
 exports[`actionTrackingMiddleware - sync: action on the root 1`] = `
-Array [
-  Object {
-    "context": Object {
+[
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         1,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -160,10 +160,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 0,
             },
@@ -178,15 +178,15 @@ Array [
     },
     "type": "filter",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         1,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -194,10 +194,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 0,
             },
@@ -212,15 +212,15 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         1,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -228,10 +228,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 0,
             },
@@ -246,15 +246,15 @@ Array [
     },
     "type": "resume",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         1,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -262,10 +262,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 0,
             },
@@ -280,15 +280,15 @@ Array [
     },
     "type": "suspend",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         1,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -296,10 +296,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 0,
             },
@@ -320,17 +320,17 @@ Array [
 `;
 
 exports[`actionTrackingMiddleware - sync: action on the root with sub-action on the child 1`] = `
-Array [
-  Object {
-    "context": Object {
+[
+  {
+    "context": {
       "actionName": "addXY",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -338,10 +338,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -356,16 +356,16 @@ Array [
     },
     "type": "filter",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -373,10 +373,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -391,16 +391,16 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -408,10 +408,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -426,28 +426,28 @@ Array [
     },
     "type": "resume",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         3,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -455,10 +455,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -471,15 +471,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -487,10 +487,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -504,10 +504,10 @@ Array [
         "type": "sync",
       },
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -522,28 +522,28 @@ Array [
     },
     "type": "filter",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         3,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -551,10 +551,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -567,15 +567,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -583,10 +583,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -600,10 +600,10 @@ Array [
         "type": "sync",
       },
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -618,28 +618,28 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         3,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -647,10 +647,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -663,15 +663,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -679,10 +679,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -696,10 +696,10 @@ Array [
         "type": "sync",
       },
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -714,28 +714,28 @@ Array [
     },
     "type": "resume",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         3,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -743,10 +743,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -759,15 +759,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -775,10 +775,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -792,10 +792,10 @@ Array [
         "type": "sync",
       },
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -810,28 +810,28 @@ Array [
     },
     "type": "suspend",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addX",
-      "args": Array [
+      "args": [
         3,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -839,10 +839,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -855,15 +855,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -871,10 +871,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -888,10 +888,10 @@ Array [
         "type": "sync",
       },
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -908,28 +908,28 @@ Array [
     "type": "finish",
     "value": 4,
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -937,10 +937,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -953,15 +953,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -969,10 +969,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -986,7 +986,7 @@ Array [
         "type": "sync",
       },
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 6,
         },
@@ -997,28 +997,28 @@ Array [
     },
     "type": "filter",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1026,10 +1026,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1042,15 +1042,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1058,10 +1058,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1075,7 +1075,7 @@ Array [
         "type": "sync",
       },
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 6,
         },
@@ -1086,28 +1086,28 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1115,10 +1115,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1131,15 +1131,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1147,10 +1147,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1164,7 +1164,7 @@ Array [
         "type": "sync",
       },
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 6,
         },
@@ -1175,28 +1175,28 @@ Array [
     },
     "type": "resume",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1204,10 +1204,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1220,15 +1220,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1236,10 +1236,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1253,7 +1253,7 @@ Array [
         "type": "sync",
       },
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 6,
         },
@@ -1264,28 +1264,28 @@ Array [
     },
     "type": "suspend",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addY",
-      "args": Array [
+      "args": [
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
       },
-      "parentContext": Object {
+      "parentContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1293,10 +1293,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1309,15 +1309,15 @@ Array [
         },
         "type": "sync",
       },
-      "rootContext": Object {
+      "rootContext": {
         "actionName": "addXY",
-        "args": Array [
+        "args": [
           3,
           4,
         ],
-        "data": Object {
+        "data": {
           Symbol(simpleDataContext): [Circular],
-          Symbol(actionTrackingMiddlewareData): Object {
+          Symbol(actionTrackingMiddlewareData): {
             "startAccepted": true,
             "state": "finished",
           },
@@ -1325,10 +1325,10 @@ Array [
         "parentContext": undefined,
         "rootContext": [Circular],
         "target": P {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "p2": P2 {
-              "$": Object {
+              "$": {
                 "$modelId": "id-2",
                 "y": 6,
               },
@@ -1342,7 +1342,7 @@ Array [
         "type": "sync",
       },
       "target": P2 {
-        "$": Object {
+        "$": {
           "$modelId": "id-2",
           "y": 6,
         },
@@ -1355,16 +1355,16 @@ Array [
     "type": "finish",
     "value": 6,
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1372,10 +1372,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1390,16 +1390,16 @@ Array [
     },
     "type": "suspend",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1407,10 +1407,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1430,20 +1430,20 @@ Array [
 ]
 `;
 
-exports[`actionTrackingMiddleware - sync: disposing 1`] = `Array []`;
+exports[`actionTrackingMiddleware - sync: disposing 1`] = `[]`;
 
 exports[`actionTrackingMiddleware - sync: override action on start 1`] = `
-Array [
-  Object {
-    "context": Object {
+[
+  {
+    "context": {
       "actionName": "addXY2",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1451,10 +1451,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1469,16 +1469,16 @@ Array [
     },
     "type": "filter",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY2",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1486,10 +1486,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1504,16 +1504,16 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY2",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1521,10 +1521,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1539,16 +1539,16 @@ Array [
     },
     "type": "resume",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY2",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1556,10 +1556,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1574,16 +1574,16 @@ Array [
     },
     "type": "suspend",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "addXY2",
-      "args": Array [
+      "args": [
         3,
         4,
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1591,10 +1591,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1615,16 +1615,16 @@ Array [
 `;
 
 exports[`actionTrackingMiddleware - sync: throwing 1`] = `
-Array [
-  Object {
-    "context": Object {
+[
+  {
+    "context": {
       "actionName": "throw",
-      "args": Array [
+      "args": [
         "some error",
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1632,10 +1632,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1650,15 +1650,15 @@ Array [
     },
     "type": "filter",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "throw",
-      "args": Array [
+      "args": [
         "some error",
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1666,10 +1666,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1684,15 +1684,15 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "throw",
-      "args": Array [
+      "args": [
         "some error",
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1700,10 +1700,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1718,15 +1718,15 @@ Array [
     },
     "type": "resume",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "throw",
-      "args": Array [
+      "args": [
         "some error",
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1734,10 +1734,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },
@@ -1752,15 +1752,15 @@ Array [
     },
     "type": "suspend",
   },
-  Object {
-    "context": Object {
+  {
+    "context": {
       "actionName": "throw",
-      "args": Array [
+      "args": [
         "some error",
       ],
-      "data": Object {
+      "data": {
         Symbol(simpleDataContext): [Circular],
-        Symbol(actionTrackingMiddlewareData): Object {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -1768,10 +1768,10 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": P {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
           "p2": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 6,
             },

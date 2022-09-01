@@ -107,24 +107,24 @@ test("flow", async () => {
   expect(getSnapshot(p).x).toBe(2)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionCall": Object {
+    [
+      {
+        "actionCall": {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             2,
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        "context": Object {
+        "context": {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             2,
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -132,9 +132,9 @@ test("flow", async () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "y": 0,
                 },
                 "$modelType": "P2",
@@ -161,26 +161,26 @@ test("flow", async () => {
   expect(p.p2.y).toBe(4)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionCall": Object {
+    [
+      {
+        "actionCall": {
           "actionName": "addXY",
-          "args": Array [
+          "args": [
             4,
             4,
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        "context": Object {
+        "context": {
           "actionName": "addXY",
-          "args": Array [
+          "args": [
             4,
             4,
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -188,9 +188,9 @@ test("flow", async () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "y": 4,
                 },
                 "$modelType": "P2",
@@ -221,24 +221,24 @@ test("flow", async () => {
     expect(p.x).toBe(oldX + 10)
   }
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "actionCall": Object {
+    [
+      {
+        "actionCall": {
           "actionName": "throwFlow",
-          "args": Array [
+          "args": [
             10,
           ],
-          "targetPath": Array [],
-          "targetPathIds": Array [],
+          "targetPath": [],
+          "targetPathIds": [],
         },
-        "context": Object {
+        "context": {
           "actionName": "throwFlow",
-          "args": Array [
+          "args": [
             10,
           ],
-          "data": Object {
+          "data": {
             Symbol(simpleDataContext): [Circular],
-            Symbol(actionTrackingMiddlewareData): Object {
+            Symbol(actionTrackingMiddlewareData): {
               "startAccepted": true,
               "state": "finished",
             },
@@ -246,9 +246,9 @@ test("flow", async () => {
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "y": 4,
                 },
                 "$modelType": "P2",

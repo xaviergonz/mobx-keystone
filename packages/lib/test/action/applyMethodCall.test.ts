@@ -45,21 +45,21 @@ test("applyCall", () => {
   expect(toJS(p.arr)).toEqual([1, 2, 3, 4, 5])
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "$$applyMethodCall",
-          "args": Array [
+          "args": [
             "push",
-            Array [
+            [
               4,
               5,
             ],
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Array [
+          "target": [
             1,
             2,
             3,
@@ -70,20 +70,20 @@ test("applyCall", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "$$applyMethodCall",
-          "args": Array [
+          "args": [
             "push",
-            Array [
+            [
               4,
               5,
             ],
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Array [
+          "target": [
             1,
             2,
             3,

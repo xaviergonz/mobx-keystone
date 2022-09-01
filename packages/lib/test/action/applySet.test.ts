@@ -37,19 +37,19 @@ test("applySet", () => {
   expect(p.y).toBe(5)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "y",
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "ch": undefined,
               "obj": undefined,
               "y": 5,
@@ -60,18 +60,18 @@ test("applySet", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "y",
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "ch": undefined,
               "obj": undefined,
               "y": 5,
@@ -102,14 +102,14 @@ test("applySet", () => {
   applySet(p, "ch", p2)
   expect(p.ch).toBe(p2)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "ch",
             P {
-              "$": Object {
+              "$": {
                 "ch": undefined,
                 "obj": undefined,
                 "y": 1,
@@ -117,13 +117,13 @@ test("applySet", () => {
               "$modelType": "P",
             },
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "ch": P {
-                "$": Object {
+                "$": {
                   "ch": undefined,
                   "obj": undefined,
                   "y": 1,
@@ -139,13 +139,13 @@ test("applySet", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "ch",
             P {
-              "$": Object {
+              "$": {
                 "ch": undefined,
                 "obj": undefined,
                 "y": 1,
@@ -153,13 +153,13 @@ test("applySet", () => {
               "$modelType": "P",
             },
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "ch": P {
-                "$": Object {
+                "$": {
                   "ch": undefined,
                   "obj": undefined,
                   "y": 1,

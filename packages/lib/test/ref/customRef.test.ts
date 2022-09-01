@@ -110,7 +110,7 @@ test("single ref works", () => {
 
   const r = c.selectedCountryRef!
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
-    Object {
+    {
       "$modelType": "countryRef",
       "id": "spain",
     }
@@ -158,12 +158,12 @@ test("array ref works", () => {
 
   const r = c.selectedCountriesRef
   expect(getSnapshot(r)).toMatchInlineSnapshot(`
-    Array [
-      Object {
+    [
+      {
         "$modelType": "countryRef",
         "id": "spain",
       },
-      Object {
+      {
         "$modelType": "countryRef",
         "id": "uk",
       },

@@ -1,25 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`applySnapshot(m, { x: "snapshotX", y: "snapshotY", array: [] }) 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [
-        Object {
+[
+  [
+    {
+      "args": [
+        {
           "$modelId": "id-1",
           "$modelType": "TestModel",
-          "array": Array [],
+          "array": [],
           "x": "snapshotX",
           "y": "snapshotY",
         },
       ],
-      "path": Array [],
-      "type": "[/] $$applySnapshot({\\"x\\":\\"snapshotX\\",\\"y\\":\\"snapshotY\\",\\"array\\":[],\\"$modelId\\":\\"id-1\\",\\"$...) (id 0)",
+      "path": [],
+      "type": "[/] $$applySnapshot({"x":"snapshotX","y":"snapshotY","array":[],"$modelId":"id-1","$...) (id 0)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "snapshotX",
       "y": "snapshotY",
     },
@@ -28,59 +28,59 @@ Array [
 `;
 
 exports[`concurrent [m.setYAsync() / m.setXAsync()] 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setYAsync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "",
       "y": "setYAsync +0",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsync() (id 1, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +0",
       "y": "setYAsync +0",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsync() (id 1, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +20",
       "y": "setYAsync +0",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setYAsync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +20",
       "y": "setYAsync +50",
     },
@@ -89,25 +89,25 @@ Array [
 `;
 
 exports[`m.addtoArray({ a: "otherA" }), m.array[0].setA() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [
+[
+  [
+    {
+      "args": [
         M2 {
-          "$": Object {
+          "$": {
             "a": "setA",
           },
           "$modelType": "SubModel",
         },
       ],
-      "path": Array [],
-      "type": "[/] addToArray({\\"$modelType\\":\\"SubModel\\",\\"$\\":{\\"a\\":\\"otherA\\"}}) (id 0)",
+      "path": [],
+      "type": "[/] addToArray({"$modelType":"SubModel","$":{"a":"otherA"}}) (id 0)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [
-        Object {
+      "array": [
+        {
           "$modelType": "SubModel",
           "a": "otherA",
         },
@@ -116,20 +116,20 @@ Array [
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [
+  [
+    {
+      "args": [],
+      "path": [
         "array",
         0,
       ],
       "type": "[/array/0] setA() (id 1)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [
-        Object {
+      "array": [
+        {
           "$modelType": "SubModel",
           "a": "setA",
         },
@@ -142,17 +142,17 @@ Array [
 `;
 
 exports[`m.setX() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setX() (id 0)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setX",
       "y": "",
     },
@@ -161,31 +161,31 @@ Array [
 `;
 
 exports[`m.setXAsync() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +20",
       "y": "",
     },
@@ -194,31 +194,31 @@ Array [
 `;
 
 exports[`m.setXAsyncThrowAsync() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsyncThrowAsync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsyncThrowAsync() (id 0, async) -error thrown-",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
     },
@@ -227,31 +227,31 @@ Array [
 `;
 
 exports[`m.setXAsyncThrowSync() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsyncThrowSync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsyncThrowSync() (id 0, async) -error thrown-",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
     },
@@ -260,17 +260,17 @@ Array [
 `;
 
 exports[`m.setXAsyncWithEmptyFirstPart() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXAsyncWithEmptyFirstPart() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncWithEmptyFirstPart +20",
       "y": "",
     },
@@ -279,31 +279,31 @@ Array [
 `;
 
 exports[`m.setXThrow() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXThrow() (id 0)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXThrow",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXThrow() (id 0) -error thrown-",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXThrow",
       "y": "",
     },
@@ -312,59 +312,59 @@ Array [
 `;
 
 exports[`m.setXY() -> m.setX(), m.setY() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXY() (id 0)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXY starts",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXY() (id 0) >>> [/] setX() (id 1)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setX",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXY() (id 0) >>> [/] setY() (id 2)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setX",
       "y": "setY",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXY() (id 0)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXY ends",
       "y": "setY",
     },
@@ -373,87 +373,87 @@ Array [
 `;
 
 exports[`m.setXYAsync() -> m.setXAsync(), m.setYAsync() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXYAsync starts",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setXAsync() (id 1, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setXAsync() (id 1, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +20",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setYAsync() (id 2, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +20",
       "y": "setYAsync +0",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsync() (id 0, async) >>> [/] setYAsync() (id 2, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsync +20",
       "y": "setYAsync +50",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsync() (id 0, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXYAsync ends",
       "y": "setYAsync +50",
     },
@@ -462,45 +462,45 @@ Array [
 `;
 
 exports[`m.setXYAsyncThrowAsync() -> m.setXYAsyncThrowAsync() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsyncThrowAsync() (id 0, async) >>> [/] setXAsyncThrowAsync() (id 1, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsyncThrowAsync() (id 0, async) >>> [/] setXAsyncThrowAsync() (id 1, async) -error thrown-",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsyncThrowAsync() (id 0, async) -error thrown-",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowAsync +0",
       "y": "",
     },
@@ -509,45 +509,45 @@ Array [
 `;
 
 exports[`m.setXYAsyncThrowSync() -> m.setXAsyncThrowSync() 1`] = `
-Array [
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+[
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsyncThrowSync() (id 0, async) >>> [/] setXAsyncThrowSync() (id 1, async)",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsyncThrowSync() (id 0, async) >>> [/] setXAsyncThrowSync() (id 1, async) -error thrown-",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
     },
   ],
-  Array [
-    Object {
-      "args": Array [],
-      "path": Array [],
+  [
+    {
+      "args": [],
+      "path": [],
       "type": "[/] setXYAsyncThrowSync() (id 0, async) -error thrown-",
     },
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "TestModel",
-      "array": Array [],
+      "array": [],
       "x": "setXAsyncThrowSync +0",
       "y": "",
     },

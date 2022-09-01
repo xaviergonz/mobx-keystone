@@ -24,11 +24,11 @@ test("model class", () => {
 
   // initial state
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
-    Object {
+    {
       "$modelId": "id-2",
       "$modelType": "P",
-      "arr": Array [],
-      "p2": Object {
+      "arr": [],
+      "p2": {
         "$modelId": "id-1",
         "$modelType": "P2",
         "y": 12,
@@ -44,17 +44,17 @@ test("model class", () => {
   })
 
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
-    Object {
+    {
       "$modelId": "id-2",
       "$modelType": "P",
-      "arr": Array [],
+      "arr": [],
       "p2": undefined,
       "x": 8,
     }
   `)
 
   expect(getSnapshot(oldP2)).toMatchInlineSnapshot(`
-    Object {
+    {
       "$modelId": "id-1",
       "$modelType": "P2",
       "y": 12,
@@ -68,11 +68,11 @@ test("model class", () => {
   })
 
   expect(getSnapshot(p)).toMatchInlineSnapshot(`
-    Object {
+    {
       "$modelId": "id-2",
       "$modelType": "P",
-      "arr": Array [],
-      "p2": Object {
+      "arr": [],
+      "p2": {
         "$modelId": "id-1",
         "$modelType": "P2",
         "y": 13,

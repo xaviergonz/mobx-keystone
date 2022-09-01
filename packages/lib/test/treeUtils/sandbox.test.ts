@@ -441,7 +441,7 @@ test("sanboxed nodes can check if they are sandboxed", () => {
   })
 
   expect(initEvents).toMatchInlineSnapshot(`
-    Array [
+    [
       "B2 init: false",
       "A2 init: false",
       "A2 attached: false",
@@ -454,7 +454,7 @@ test("sanboxed nodes can check if they are sandboxed", () => {
   autoDispose(() => manager.dispose())
 
   expect(initEvents).toMatchInlineSnapshot(`
-    Array [
+    [
       "B2 init: true",
       "A2 init: true",
       "A2 attached: true",
@@ -543,46 +543,46 @@ test("sandbox commit patches are grouped in a single undo item", () => {
   expect(undoManager.undoLevels).toBe(1)
   expect(undoManager.redoLevels).toBe(0)
   expect(undoManager.undoQueue).toMatchInlineSnapshot(`
-    Array [
-      Object {
+    [
+      {
         "actionName": "$$applyPatches",
-        "attachedState": Object {
+        "attachedState": {
           "afterEvent": undefined,
           "beforeEvent": undefined,
         },
-        "inversePatches": Array [
-          Object {
+        "inversePatches": [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "value",
             ],
             "value": 0,
           },
-          Object {
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "value",
             ],
             "value": 1,
           },
         ],
-        "patches": Array [
-          Object {
+        "patches": [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "value",
             ],
             "value": 1,
           },
-          Object {
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "value",
             ],
             "value": 2,
           },
         ],
-        "targetPath": Array [],
+        "targetPath": [],
         "type": "single",
       },
     ]

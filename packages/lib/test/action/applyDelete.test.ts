@@ -47,33 +47,33 @@ test("applyDelete", () => {
   expect(Object.keys(p.obj!)).toEqual(["b"])
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "$$applyDelete",
-          "args": Array [
+          "args": [
             "a",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "b": 2,
           },
           "type": "sync",
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "$$applyDelete",
-          "args": Array [
+          "args": [
             "a",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "b": 2,
           },
           "type": "sync",

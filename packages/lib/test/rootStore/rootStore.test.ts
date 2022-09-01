@@ -110,7 +110,7 @@ test("model as rootStore", () => {
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(p.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
-    Array [
+    [
       "p1Attached",
       "p2Attached",
       "p3Attached",
@@ -129,11 +129,11 @@ test("model as rootStore", () => {
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(oldP2)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          "p3Detached",
-          "p2Detached",
-        ]
-    `)
+    [
+      "p3Detached",
+      "p2Detached",
+    ]
+  `)
 
   // reattach
   resetEvents()
@@ -146,7 +146,7 @@ test("model as rootStore", () => {
   expect(getRootStore(p)).toBe(p)
   expect(getRootStore(p.p2!)).toBe(p)
   expect(events).toMatchInlineSnapshot(`
-    Array [
+    [
       "p2Attached",
       "p3Attached",
     ]
@@ -160,7 +160,7 @@ test("model as rootStore", () => {
   expect(getRootStore(p)).toBeUndefined()
   expect(getRootStore(p.p2!)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
-    Array [
+    [
       "p3Detached",
       "p2Detached",
       "p1Detached",
@@ -183,10 +183,10 @@ test("array as rootStore", () => {
   expect(getRootStore(arr)).toBe(arr)
   expect(getRootStore(arr[0]!)).toBe(arr)
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          "p3Attached",
-        ]
-    `)
+    [
+      "p3Attached",
+    ]
+  `)
 
   // detach p3 from root store
   resetEvents()
@@ -200,10 +200,10 @@ test("array as rootStore", () => {
   expect(getRootStore(arr)).toBe(arr)
   expect(getRootStore(oldP3)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          "p3Detached",
-        ]
-    `)
+    [
+      "p3Detached",
+    ]
+  `)
 
   // reattach
   resetEvents()
@@ -216,10 +216,10 @@ test("array as rootStore", () => {
   expect(getRootStore(arr)).toBe(arr)
   expect(getRootStore(arr[0]!)).toBe(arr)
   expect(events).toMatchInlineSnapshot(`
-        Array [
-          "p3Attached",
-        ]
-    `)
+    [
+      "p3Attached",
+    ]
+  `)
 
   // unregister root store
   resetEvents()
@@ -229,7 +229,7 @@ test("array as rootStore", () => {
   expect(getRootStore(arr)).toBeUndefined()
   expect(getRootStore(arr[0]!)).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
-    Array [
+    [
       "p3Detached",
     ]
   `)

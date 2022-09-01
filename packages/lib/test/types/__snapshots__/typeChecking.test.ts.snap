@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`model typechecking 1`] = `
-Array [
-  Object {
-    "ctx": Object {
+[
+  {
+    "ctx": {
       "actionName": "setX",
-      "args": Array [
+      "args": [
         "5",
       ],
-      "data": Object {
-        Symbol(actionTrackingMiddlewareData): Object {
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -18,9 +18,9 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
-          "arr": Array [],
+          "arr": [],
           "untyped": 5,
           "x": 10,
           "y": "6",
@@ -31,14 +31,14 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "ctx": Object {
+  {
+    "ctx": {
       "actionName": "setX",
-      "args": Array [
+      "args": [
         "5",
       ],
-      "data": Object {
-        Symbol(actionTrackingMiddlewareData): Object {
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -47,9 +47,9 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
-          "arr": Array [],
+          "arr": [],
           "untyped": 5,
           "x": 10,
           "y": "6",
@@ -65,19 +65,19 @@ Array [
 `;
 
 exports[`model typechecking 2`] = `
-Array [
-  Object {
-    "ctx": Object {
+[
+  {
+    "ctx": {
       "actionName": "setArr",
-      "args": Array [
-        Array [
+      "args": [
+        [
           1,
           2,
           "3",
         ],
       ],
-      "data": Object {
-        Symbol(actionTrackingMiddlewareData): Object {
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -86,9 +86,9 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
-          "arr": Array [],
+          "arr": [],
           "untyped": 5,
           "x": 10,
           "y": "6",
@@ -99,18 +99,18 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "ctx": Object {
+  {
+    "ctx": {
       "actionName": "setArr",
-      "args": Array [
-        Array [
+      "args": [
+        [
           1,
           2,
           "3",
         ],
       ],
-      "data": Object {
-        Symbol(actionTrackingMiddlewareData): Object {
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -119,9 +119,9 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
-          "arr": Array [],
+          "arr": [],
           "untyped": 5,
           "x": 10,
           "y": "6",
@@ -137,15 +137,15 @@ Array [
 `;
 
 exports[`model typechecking 3`] = `
-Array [
-  Object {
-    "ctx": Object {
+[
+  {
+    "ctx": {
       "actionName": "addArr",
-      "args": Array [
+      "args": [
         "3",
       ],
-      "data": Object {
-        Symbol(actionTrackingMiddlewareData): Object {
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -154,9 +154,9 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
-          "arr": Array [
+          "arr": [
             1,
             2,
           ],
@@ -170,14 +170,14 @@ Array [
     },
     "type": "start",
   },
-  Object {
-    "ctx": Object {
+  {
+    "ctx": {
       "actionName": "addArr",
-      "args": Array [
+      "args": [
         "3",
       ],
-      "data": Object {
-        Symbol(actionTrackingMiddlewareData): Object {
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
           "startAccepted": true,
           "state": "finished",
         },
@@ -186,9 +186,9 @@ Array [
       "parentContext": undefined,
       "rootContext": [Circular],
       "target": M {
-        "$": Object {
+        "$": {
           "$modelId": "id-1",
-          "arr": Array [
+          "arr": [
             1,
             2,
           ],

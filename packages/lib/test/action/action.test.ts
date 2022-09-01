@@ -83,23 +83,23 @@ test("action tracking", () => {
   const resultX = p.addX(1)
   expect(resultX).toBe(1)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             1,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
-              "arr": Array [],
-              "obj": Object {},
+              "arr": [],
+              "obj": {},
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 0,
                 },
@@ -114,22 +114,22 @@ test("action tracking", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             1,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
-              "arr": Array [],
-              "obj": Object {},
+              "arr": [],
+              "obj": {},
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 0,
                 },
@@ -152,18 +152,18 @@ test("action tracking", () => {
   const resultY = p.p2.addY(2)
   expect(resultY).toBe(2)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "addY",
-          "args": Array [
+          "args": [
             2,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 2,
             },
@@ -174,17 +174,17 @@ test("action tracking", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "addY",
-          "args": Array [
+          "args": [
             2,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 2,
             },
@@ -203,24 +203,24 @@ test("action tracking", () => {
   const resultXY = p.addXY(1, 2)
   expect(resultXY).toBe(1 + 2)
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "addXY",
-          "args": Array [
+          "args": [
             1,
             2,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
-              "arr": Array [],
-              "obj": Object {},
+              "arr": [],
+              "obj": {},
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 4,
                 },
@@ -235,29 +235,29 @@ test("action tracking", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             1,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -270,22 +270,22 @@ test("action tracking", () => {
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -299,12 +299,12 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
-              "arr": Array [],
-              "obj": Object {},
+              "arr": [],
+              "obj": {},
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 4,
                 },
@@ -319,29 +319,29 @@ test("action tracking", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "addX",
-          "args": Array [
+          "args": [
             1,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -354,22 +354,22 @@ test("action tracking", () => {
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -383,12 +383,12 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
-              "arr": Array [],
-              "obj": Object {},
+              "arr": [],
+              "obj": {},
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 4,
                 },
@@ -404,29 +404,29 @@ test("action tracking", () => {
         "event": "action finished",
         "result": 2,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "addY",
-          "args": Array [
+          "args": [
             2,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -439,22 +439,22 @@ test("action tracking", () => {
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -468,7 +468,7 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 4,
             },
@@ -479,29 +479,29 @@ test("action tracking", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "addY",
-          "args": Array [
+          "args": [
             2,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -514,22 +514,22 @@ test("action tracking", () => {
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "addXY",
-            "args": Array [
+            "args": [
               1,
               2,
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
             "target": P {
-              "$": Object {
+              "$": {
                 "$modelId": "id-1",
-                "arr": Array [],
-                "obj": Object {},
+                "arr": [],
+                "obj": {},
                 "p2": P2 {
-                  "$": Object {
+                  "$": {
                     "$modelId": "id-2",
                     "y": 4,
                   },
@@ -543,7 +543,7 @@ test("action tracking", () => {
             "type": "sync",
           },
           "target": P2 {
-            "$": Object {
+            "$": {
               "$modelId": "id-2",
               "y": 4,
             },
@@ -555,23 +555,23 @@ test("action tracking", () => {
         "event": "action finished",
         "result": 4,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "addXY",
-          "args": Array [
+          "args": [
             1,
             2,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "$modelId": "id-1",
-              "arr": Array [],
-              "obj": Object {},
+              "arr": [],
+              "obj": {},
               "p2": P2 {
-                "$": Object {
+                "$": {
                   "$modelId": "id-2",
                   "y": 4,
                 },

@@ -47,37 +47,37 @@ test("onSnapshot and applySnapshot", () => {
   })
 
   expect(sn).toMatchInlineSnapshot(`
-        Array [
-          Array [
-            Object {
-              "$modelId": "id-2",
-              "$modelType": "P",
-              "arr": Array [
-                1,
-                2,
-                3,
-              ],
-              "p2": Object {
-                "$modelId": "id-1",
-                "$modelType": "P2",
-                "y": 13,
-              },
-              "x": 6,
-            },
-            Object {
-              "$modelId": "id-2",
-              "$modelType": "P",
-              "arr": Array [],
-              "p2": Object {
-                "$modelId": "id-1",
-                "$modelType": "P2",
-                "y": 12,
-              },
-              "x": 5,
-            },
+    [
+      [
+        {
+          "$modelId": "id-2",
+          "$modelType": "P",
+          "arr": [
+            1,
+            2,
+            3,
           ],
-        ]
-    `)
+          "p2": {
+            "$modelId": "id-1",
+            "$modelType": "P2",
+            "y": 13,
+          },
+          "x": 6,
+        },
+        {
+          "$modelId": "id-2",
+          "$modelType": "P",
+          "arr": [],
+          "p2": {
+            "$modelId": "id-1",
+            "$modelType": "P2",
+            "y": 12,
+          },
+          "x": 5,
+        },
+      ],
+    ]
+  `)
 
   reset()
   autoDispose(
@@ -91,55 +91,55 @@ test("onSnapshot and applySnapshot", () => {
   expect(getSnapshot(p)).toStrictEqual(originalSn)
 
   expect(sn).toMatchInlineSnapshot(`
-        Array [
-          Array [
-            Object {
-              "$modelId": "id-2",
-              "$modelType": "P",
-              "arr": Array [],
-              "p2": Object {
-                "$modelId": "id-1",
-                "$modelType": "P2",
-                "y": 12,
-              },
-              "x": 5,
-            },
-            Object {
-              "$modelId": "id-2",
-              "$modelType": "P",
-              "arr": Array [
-                1,
-                2,
-                3,
-              ],
-              "p2": Object {
-                "$modelId": "id-1",
-                "$modelType": "P2",
-                "y": 13,
-              },
-              "x": 6,
-            },
+    [
+      [
+        {
+          "$modelId": "id-2",
+          "$modelType": "P",
+          "arr": [],
+          "p2": {
+            "$modelId": "id-1",
+            "$modelType": "P2",
+            "y": 12,
+          },
+          "x": 5,
+        },
+        {
+          "$modelId": "id-2",
+          "$modelType": "P",
+          "arr": [
+            1,
+            2,
+            3,
           ],
-        ]
-    `)
+          "p2": {
+            "$modelId": "id-1",
+            "$modelType": "P2",
+            "y": 13,
+          },
+          "x": 6,
+        },
+      ],
+    ]
+  `)
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Array [
-          Object {
+    [
+      [
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
               "y",
             ],
             "value": 12,
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
               "y",
             ],
@@ -147,37 +147,37 @@ test("onSnapshot and applySnapshot", () => {
           },
         ],
       ],
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "arr",
               "length",
             ],
             "value": 0,
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "op": "add",
-            "path": Array [
+            "path": [
               "arr",
               2,
             ],
             "value": 3,
           },
-          Object {
+          {
             "op": "add",
-            "path": Array [
+            "path": [
               "arr",
               1,
             ],
             "value": 2,
           },
-          Object {
+          {
             "op": "add",
-            "path": Array [
+            "path": [
               "arr",
               0,
             ],
@@ -185,20 +185,20 @@ test("onSnapshot and applySnapshot", () => {
           },
         ],
       ],
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "x",
             ],
             "value": 5,
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "x",
             ],
             "value": 6,
@@ -242,45 +242,45 @@ test("applySnapshot can create a new submodel", () => {
   expect(p.p2 instanceof BaseModel).toBe(true)
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Array [
-          Object {
+    [
+      [
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
             ],
-            "value": Object {
+            "value": {
               "$modelId": "id-1",
               "$modelType": "P2",
               "y": 12,
             },
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
             ],
             "value": undefined,
           },
         ],
       ],
-      Array [
-        Array [
-          Object {
+      [
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "x",
             ],
             "value": 5,
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "x",
             ],
             "value": 6,
@@ -302,28 +302,28 @@ test("applySnapshot can create a new submodel", () => {
   expect(getSnapshot(p.p2)).not.toBe(getSnapshot(oldP2))
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Array [
-          Object {
+    [
+      [
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
             ],
-            "value": Object {
+            "value": {
               "$modelId": "id-3",
               "$modelType": "P2",
               "y": 12,
             },
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
             ],
-            "value": Object {
+            "value": {
               "$modelId": "id-1",
               "$modelType": "P2",
               "y": 12,
@@ -335,24 +335,24 @@ test("applySnapshot can create a new submodel", () => {
   `)
 
   expect(sn).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "$modelId": "id-2",
           "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
+          "arr": [],
+          "p2": {
             "$modelId": "id-3",
             "$modelType": "P2",
             "y": 12,
           },
           "x": 5,
         },
-        Object {
+        {
           "$modelId": "id-2",
           "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
+          "arr": [],
+          "p2": {
             "$modelId": "id-1",
             "$modelType": "P2",
             "y": 12,
@@ -373,22 +373,22 @@ test("applySnapshot can create a new submodel", () => {
   expect(getSnapshot(p.p2)).not.toBe(oldP2Sn)
 
   expect(patches).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Array [
-          Object {
+    [
+      [
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
               "y",
             ],
             "value": 256,
           },
         ],
-        Array [
-          Object {
+        [
+          {
             "op": "replace",
-            "path": Array [
+            "path": [
               "p2",
               "y",
             ],
@@ -400,24 +400,24 @@ test("applySnapshot can create a new submodel", () => {
   `)
 
   expect(sn).toMatchInlineSnapshot(`
-    Array [
-      Array [
-        Object {
+    [
+      [
+        {
           "$modelId": "id-2",
           "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
+          "arr": [],
+          "p2": {
             "$modelId": "id-3",
             "$modelType": "P2",
             "y": 256,
           },
           "x": 5,
         },
-        Object {
+        {
           "$modelId": "id-2",
           "$modelType": "P",
-          "arr": Array [],
-          "p2": Object {
+          "arr": [],
+          "p2": {
             "$modelId": "id-3",
             "$modelType": "P2",
             "y": 12,
@@ -545,7 +545,7 @@ test("snapshot with reserved property names", () => {
   expect((p as any).onInit).toBeUndefined()
 
   expect(sn).toMatchInlineSnapshot(`
-    Object {
+    {
       "$modelType": "snapshot with reserved property names/M",
       "onInit": 4,
     }

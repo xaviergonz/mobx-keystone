@@ -150,17 +150,17 @@ test("without type", async () => {
   expect(todo.text).toBe("3")
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setDone",
-          "args": Array [
+          "args": [
             true,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -168,16 +168,16 @@ test("without type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setDone",
-          "args": Array [
+          "args": [
             true,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -186,16 +186,16 @@ test("without type", async () => {
         "event": "action finished",
         "result": undefined,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setText",
-          "args": Array [
+          "args": [
             "2",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -203,16 +203,16 @@ test("without type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setText",
-          "args": Array [
+          "args": [
             "2",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -221,17 +221,17 @@ test("without type", async () => {
         "event": "action finished",
         "result": undefined,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setAll",
-          "args": Array [
+          "args": [
             false,
             "3",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -239,44 +239,44 @@ test("without type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setDone",
-          "args": Array [
+          "args": [
             false,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "fn::without type/myApp/Todo1::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "fn::without type/myApp/Todo1::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -284,44 +284,44 @@ test("without type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setDone",
-          "args": Array [
+          "args": [
             false,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "fn::without type/myApp/Todo1::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "fn::without type/myApp/Todo1::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -330,17 +330,17 @@ test("without type", async () => {
         "event": "action finished",
         "result": undefined,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::without type/myApp/Todo1::setAll",
-          "args": Array [
+          "args": [
             false,
             "3",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -499,17 +499,17 @@ test("with type", async () => {
   expect(todo.text).toBe("3")
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setDone",
-          "args": Array [
+          "args": [
             true,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -517,16 +517,16 @@ test("with type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setDone",
-          "args": Array [
+          "args": [
             true,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -535,16 +535,16 @@ test("with type", async () => {
         "event": "action finished",
         "result": undefined,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setText",
-          "args": Array [
+          "args": [
             "2",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -552,16 +552,16 @@ test("with type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setText",
-          "args": Array [
+          "args": [
             "2",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -570,17 +570,17 @@ test("with type", async () => {
         "event": "action finished",
         "result": undefined,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setAll",
-          "args": Array [
+          "args": [
             false,
             "3",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -588,44 +588,44 @@ test("with type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setDone",
-          "args": Array [
+          "args": [
             false,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "fn::with type/myApp/Todo2::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "fn::with type/myApp/Todo2::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -633,44 +633,44 @@ test("with type", async () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setDone",
-          "args": Array [
+          "args": [
             false,
           ],
-          "data": Object {},
-          "parentContext": Object {
+          "data": {},
+          "parentContext": {
             "actionName": "fn::with type/myApp/Todo2::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "rootContext": Object {
+          "rootContext": {
             "actionName": "fn::with type/myApp/Todo2::setAll",
-            "args": Array [
+            "args": [
               false,
               "3",
             ],
-            "data": Object {},
+            "data": {},
             "parentContext": undefined,
             "rootContext": [Circular],
-            "target": Object {
+            "target": {
               "done": false,
               "text": "3",
             },
             "type": "sync",
           },
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -679,17 +679,17 @@ test("with type", async () => {
         "event": "action finished",
         "result": undefined,
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::with type/myApp/Todo2::setAll",
-          "args": Array [
+          "args": [
             false,
             "3",
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "done": false,
             "text": "3",
           },
@@ -842,33 +842,33 @@ test("extends works", () => {
   expect(bm.x).toBe(30)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "fn::extends works/test/extends/base::setX",
-          "args": Array [
+          "args": [
             30,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "x": 30,
           },
           "type": "sync",
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::extends works/test/extends/base::setX",
-          "args": Array [
+          "args": [
             30,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "x": 30,
           },
           "type": "sync",
@@ -910,17 +910,17 @@ test("extends works", () => {
   expect(m.y).toBe(40)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "fn::extends works/test/extends/extended::setX",
-          "args": Array [
+          "args": [
             30,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "x": 30,
             "y": 40,
           },
@@ -928,16 +928,16 @@ test("extends works", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "fn::extends works/test/extends/extended::setY",
-          "args": Array [
+          "args": [
             40,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
-          "target": Object {
+          "target": {
             "x": 30,
             "y": 40,
           },

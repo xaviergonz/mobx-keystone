@@ -113,35 +113,35 @@ describe("concurrency", () => {
 
     expect(getSnapshot(rootClient.list)).toEqual(getSnapshot(rootServer.list))
     expect(getSnapshot(rootClient.list)).toMatchInlineSnapshot(`
-      Array [
-        Object {
+      [
+        {
           "$modelId": "SOME ID",
           "$modelType": "ChildA",
-          "childB": Object {
+          "childB": {
             "$modelId": "SOME ID 2",
             "$modelType": "ChildB",
           },
         },
-        Object {
+        {
           "$modelId": "id-3",
           "$modelType": "ChildA",
-          "childB": Object {
+          "childB": {
             "$modelId": "id-4",
             "$modelType": "ChildB",
           },
         },
-        Object {
+        {
           "$modelId": "id-11",
           "$modelType": "ChildA",
-          "childB": Object {
+          "childB": {
             "$modelId": "id-12",
             "$modelType": "ChildB",
           },
         },
-        Object {
+        {
           "$modelId": "id-15",
           "$modelType": "ChildA",
-          "childB": Object {
+          "childB": {
             "$modelId": "id-16",
             "$modelType": "ChildB",
           },

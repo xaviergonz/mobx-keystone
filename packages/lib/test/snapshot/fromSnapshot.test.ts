@@ -16,15 +16,15 @@ test("basic", () => {
 
   expect(p).toMatchInlineSnapshot(`
     P {
-      "$": Object {
+      "$": {
         "$modelId": "id-2",
-        "arr": Array [
+        "arr": [
           1,
           2,
           3,
         ],
         "p2": P2 {
-          "$": Object {
+          "$": {
             "$modelId": "id-1",
             "y": 12,
           },

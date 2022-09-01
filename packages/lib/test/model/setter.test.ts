@@ -61,18 +61,18 @@ test("setter", () => {
   expect(p.cy).toBe(50)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "setY",
-          "args": Array [
+          "args": [
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -84,17 +84,17 @@ test("setter", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "setY",
-          "args": Array [
+          "args": [
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -117,18 +117,18 @@ test("setter", () => {
   expect(p.cz).toBe(50)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "setZ",
-          "args": Array [
+          "args": [
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -140,17 +140,17 @@ test("setter", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "setZ",
-          "args": Array [
+          "args": [
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 0,
               "sz": 0,
               "y": 5,
@@ -173,19 +173,19 @@ test("setter", () => {
   expect(p.csy).toBe(50)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "sy",
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 5,
               "sz": 0,
               "y": 5,
@@ -197,18 +197,18 @@ test("setter", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "sy",
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 5,
               "sz": 0,
               "y": 5,
@@ -231,19 +231,19 @@ test("setter", () => {
   expect(p.csz).toBe(50)
 
   expect(events).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "ctx": Object {
+    [
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "sz",
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 5,
               "sz": 5,
               "y": 5,
@@ -255,18 +255,18 @@ test("setter", () => {
         },
         "event": "action started",
       },
-      Object {
-        "ctx": Object {
+      {
+        "ctx": {
           "actionName": "$$applySet",
-          "args": Array [
+          "args": [
             "sz",
             5,
           ],
-          "data": Object {},
+          "data": {},
           "parentContext": undefined,
           "rootContext": [Circular],
           "target": P {
-            "$": Object {
+            "$": {
               "sy": 5,
               "sz": 5,
               "y": 5,

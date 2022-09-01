@@ -140,7 +140,7 @@ test("actionTrackingMiddleware - sync", () => {
   p1.addX(1)
   p2.addX(1)
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-    Array [
+    [
       "addX (filter)",
       "addX (start)",
       "addX (resume)",
@@ -155,7 +155,7 @@ test("actionTrackingMiddleware - sync", () => {
   p1.p2.addY(2)
   p2.p2.addY(2)
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-    Array [
+    [
       "addY (filter)",
       "addY (start)",
       "addY (resume)",
@@ -170,7 +170,7 @@ test("actionTrackingMiddleware - sync", () => {
   expect(p1.addXY(3, 4) > 1000).toBeTruthy() // because of the return value override
   expect(p2.addXY(3, 4) < 1000).toBeTruthy()
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-    Array [
+    [
       "addXY (filter)",
       "addXY (start)",
       "addXY (resume)",
@@ -194,7 +194,7 @@ test("actionTrackingMiddleware - sync", () => {
   reset()
   expect(() => p1.throw("some error")).toThrow("some error")
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-    Array [
+    [
       "throw (filter)",
       "throw (start)",
       "throw (resume)",
@@ -211,7 +211,7 @@ test("actionTrackingMiddleware - sync", () => {
   expect(p2.addXY2(3, 4) > 0).toBeTruthy()
   expect(p1.x).toBe(oldX)
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
-    Array [
+    [
       "addXY2 (filter)",
       "addXY2 (start)",
       "addXY2 (resume)",
@@ -226,6 +226,6 @@ test("actionTrackingMiddleware - sync", () => {
   disposer()
   expect(p1.addXY(5, 6) < 1000).toBeTruthy() // the value override should be gone by now
   expect(p2.addXY(5, 6) < 1000).toBeTruthy()
-  expect(events.map(eventToString)).toMatchInlineSnapshot(`Array []`)
+  expect(events.map(eventToString)).toMatchInlineSnapshot(`[]`)
   expect(events).toMatchSnapshot("disposing")
 })
