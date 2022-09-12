@@ -27,10 +27,8 @@ switch (compiler) {
     Object.assign(config, {
       preset: "ts-jest",
       testEnvironment: "node",
-      globals: {
-        "ts-jest": {
-          tsconfig: `./test/${tsconfigFile}`,
-        },
+      transform: {
+        "^.+\\.ts$": ["ts-jest", { tsConfig: `./test/${tsconfigFile}` }],
       },
     })
     break
