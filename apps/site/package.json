@@ -23,7 +23,7 @@
     "remotedev": "^0.2.9"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.19.0",
+    "@babel/plugin-proposal-decorators": "^7.19.1",
     "@docusaurus/module-type-aliases": "^2.1.0",
     "@svgr/webpack": "^6.3.1",
     "@tsconfig/docusaurus": "^1.0.6",
