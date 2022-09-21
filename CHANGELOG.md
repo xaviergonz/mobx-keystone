@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.0
+
+- Since the API has been quite stable for a while I think it is time for a v1.0.0 release. :) No other changes.
+
 ## 0.69.9
 
 - Fix for `applySnapshot` throwing an exception when removing a property which was not declared in the model.
