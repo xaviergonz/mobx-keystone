@@ -11,26 +11,19 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: "16"
+  NODE_VERSION: "18"
 
 jobs:
   lib-site-build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache .yarn/cache
-        uses: actions/cache@v2
-        with:
-          path: .yarn/cache
-          key: v4-${{ runner.os }}-yarn_cache
-          restore-keys: |
-            v4-${{ runner.os }}-
+          cache: "yarn"
 
       - run: yarn install --immutable
       - run: yarn site:build
@@ -52,19 +45,12 @@ jobs:
           - 4
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache .yarn/cache
-        uses: actions/cache@v2
-        with:
-          path: .yarn/cache
-          key: v4-${{ runner.os }}-yarn_cache
-          restore-keys: |
-            v4-${{ runner.os }}-
+          cache: "yarn"
 
       - run: yarn install --immutable
       - run: yarn lib:test:ci && yarn codecov -p ./packages/lib
@@ -76,19 +62,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache .yarn/cache
-        uses: actions/cache@v2
-        with:
-          path: .yarn/cache
-          key: v4-${{ runner.os }}-yarn_cache
-          restore-keys: |
-            v4-${{ runner.os }}-
+          cache: "yarn"
 
       - run: yarn install --immutable
       - run: yarn lib:build
@@ -99,19 +78,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Cache .yarn/cache
-        uses: actions/cache@v2
-        with:
-          path: .yarn/cache
-          key: v4-${{ runner.os }}-yarn_cache
-          restore-keys: |
-            v4-${{ runner.os }}-
+          cache: "yarn"
 
       - run: yarn install --immutable
       - run: yarn prettier --check .
