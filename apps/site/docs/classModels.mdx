@@ -164,7 +164,7 @@ That being said, there are actually two ways to skip this requirement (having `$
 
 ## Setting an ID property
 
-Note that it is also possible to assign a property as the ID property using `idProp`. Having a dedicated ID property set has some advantages:
+Note that it is also possible to assign a property as the ID property using `idProp`. Setting a dedicated ID property has some advantages:
 
 - Improved reconciliation when applying snapshots.
 - Resolving the target of serialized actions will be less likely to hit the wrong node (thanks to ID checking).
@@ -197,6 +197,12 @@ as well as writing to it at a later time inside a model action:
 this.myId = "my new custom id"
 // or alternatively
 this.$modelId = "my new custom id"
+```
+
+If you wish to type the ID property even further (for example by using a string template) you may do it like this:
+
+```ts
+idProp.typedAs<`custom-${string}`>
 ```
 
 ## Customizing the ID generator function

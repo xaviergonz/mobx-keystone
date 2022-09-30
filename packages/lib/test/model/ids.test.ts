@@ -8,6 +8,7 @@ import {
   modelIdKey,
   ModelIdPropertyName,
   runUnprotected,
+  SnapshotInOf,
   SnapshotOutOf,
 } from "../../src"
 import { testModel } from "../utils"
@@ -195,4 +196,18 @@ test("extended class from base with custom id", () => {
   expect(m1.getRefId()).toBe(m1.$modelId)
   expect(m1.$.id).toBe("MY_ID")
   expect((m1.$ as any).$modelId).toBe(undefined)
+})
+
+test("idProp.typedAs", () => {
+  type Id = `custom-${string}`
+  @testModel("M")
+  class M extends Model({
+    id: idProp.typedAs<Id>(),
+  }) {}
+
+  const m = new M({ id: "custom-1" })
+  assert(m.id, _ as Id)
+  assert(_ as SnapshotInOf<M>["id"], _ as Id | undefined)
+  assert(_ as SnapshotOutOf<M>["id"], _ as Id)
+  assert(m.$modelId, _ as Id)
 })

@@ -29,6 +29,15 @@ import { assertIsModelClass } from "./utils"
 export const modelIdPropertyNameSymbol = Symbol("modelIdPropertyName")
 
 /**
+ * @ignore
+ */
+export type ModelIdPropertyType<TProps extends ModelProps, ModelIdPropertyName extends string> = [
+  ModelIdPropertyName
+] extends [never]
+  ? never
+  : ModelPropsToUntransformedData<Pick<TProps, ModelIdPropertyName>>[ModelIdPropertyName]
+
+/**
  * Base abstract class for models. Use `Model` instead when extending.
  *
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
@@ -58,12 +67,12 @@ export abstract class BaseModel<
    * Model internal id. Can be modified inside a model action.
    * It will return `undefined` if there's no id prop set.
    */
-  get [modelIdKey](): [ModelIdPropertyName] extends [never] ? never : string {
+  get [modelIdKey](): ModelIdPropertyType<TProps, ModelIdPropertyName> {
     const idProp = getModelIdPropertyName(this.constructor as any)
     return idProp ? this.$[idProp] : (undefined as any)
   }
 
-  set [modelIdKey](newId: [ModelIdPropertyName] extends [never] ? never : string) {
+  set [modelIdKey](newId: ModelIdPropertyType<TProps, ModelIdPropertyName>) {
     const idProp = getModelIdPropertyName(this.constructor as any)
     if (!idProp) {
       throw failure("$modelId cannot be set when there is no idProp set in the model")

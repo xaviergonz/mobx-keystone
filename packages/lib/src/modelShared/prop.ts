@@ -225,11 +225,11 @@ export type ModelPropsToSetter<MP extends ModelProps> = Flatten<{
   ) => void
 }>
 
-export type ModelIdProp = ModelProp<
-  string,
-  string | undefined,
-  string,
-  string | undefined,
+export type ModelIdProp<T extends string = string> = ModelProp<
+  T,
+  T | undefined,
+  T,
+  T | undefined,
   never, // not required
   true
 >
@@ -247,7 +247,17 @@ export const idProp = {
   withSetter(mode?: boolean | "assign") {
     return { ...this, _internal: { ...this._internal, setter: mode ?? true } }
   },
-} as any as ModelIdProp
+
+  typedAs() {
+    return idProp
+  },
+} as any as ModelIdProp & {
+  /**
+   * Same as `idProp`, except that it might have an specific TypeScript string template as type.
+   * E.g. `typedIdProp<`custom-${string}`>()`
+   */
+  typedAs<T extends string>(): ModelIdProp<T>
+}
 
 /**
  * @ignore
