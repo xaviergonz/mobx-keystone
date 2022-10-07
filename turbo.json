@@ -24,12 +24,14 @@
       "outputs": []
     },
     "mobx-keystone#test": {
-      "dependsOn": ["$compiler", "$mobx-version"],
-      "outputs": []
+      "dependsOn": [],
+      "outputs": [],
+      "env": ["compiler", "mobx-version"]
     },
     "mobx-keystone#test:ci": {
-      "dependsOn": ["$compiler", "$mobx-version"],
-      "outputs": []
+      "dependsOn": [],
+      "outputs": [],
+      "env": ["compiler", "mobx-version"]
     },
     "lint": {
       "outputs": []
