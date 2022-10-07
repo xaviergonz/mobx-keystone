@@ -527,8 +527,12 @@ test("computed tree works with an array of models", () => {
   const r = new R({})
 
   r.setValue(10)
-  expect(r.arrayOfModels).toEqual([1, 2].map((i) => new M({ id: `${r.id}.model${i}`, value: 10 })))
+  expect(r.arrayOfModels.slice()).toEqual(
+    [1, 2].map((i) => new M({ id: `${r.id}.model${i}`, value: 10 }))
+  )
 
   r.setValue(20)
-  expect(r.arrayOfModels).toEqual([1, 2].map((i) => new M({ id: `${r.id}.model${i}`, value: 20 })))
+  expect(r.arrayOfModels.slice()).toEqual(
+    [1, 2].map((i) => new M({ id: `${r.id}.model${i}`, value: 20 }))
+  )
 })
