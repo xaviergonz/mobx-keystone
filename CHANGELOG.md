@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.1.1
+
+- Fixed an issue related to computed trees.
+
 ## 1.1.0
 
 - Added `idProp.typedAs<T>()` to be able to type an ID prop with a string template.
