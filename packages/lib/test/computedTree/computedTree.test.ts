@@ -74,6 +74,11 @@ class R extends Model({
   }
 
   @computedTree
+  get arrayOfModels() {
+    return [1, 2].map((i) => new M({ id: `${this.id}.model${i}`, value: this.value }))
+  }
+
+  @computedTree
   get plainObject() {
     return { key: "value" }
   }
@@ -325,8 +330,9 @@ describe("tree traversal functions", () => {
     const r = new R({})
 
     const children = getChildrenObjects(r, { deep })
-    expect(children.size).toBe(3)
+    expect(children.size).toBe(deep ? 6 : 4)
     expect(children.has(r.array)).toBeTruthy()
+    expect(children.has(r.arrayOfModels)).toBeTruthy()
     expect(children.has(r.plainObject)).toBeTruthy()
     expect(children.has(r.model)).toBeTruthy()
   })
@@ -336,11 +342,46 @@ describe("tree traversal functions", () => {
     (mode) => {
       const r = new R({})
 
-      expect(walkTree(r, (node) => (isArray(node) ? node : undefined), mode)).toBe(r.array)
-      expect(walkTree(r, (node) => (isPlainObject(node) ? node : undefined), mode)).toBe(
-        r.plainObject
+      const nodes: unknown[] = []
+
+      walkTree(
+        r,
+        (node) => {
+          if (isArray(node)) {
+            nodes.push(node)
+          }
+        },
+        mode
       )
-      expect(walkTree(r, (node) => (node instanceof M ? node : undefined), mode)).toBe(r.model)
+      expect(nodes).toEqual([r.array, r.arrayOfModels])
+
+      // reset
+      nodes.length = 0
+
+      walkTree(
+        r,
+        (node) => {
+          if (isPlainObject(node)) {
+            nodes.push(node)
+          }
+        },
+        mode
+      )
+      expect(nodes).toEqual([r.plainObject])
+
+      // reset
+      nodes.length = 0
+
+      walkTree(
+        r,
+        (node) => {
+          if (node instanceof M) {
+            nodes.push(node)
+          }
+        },
+        mode
+      )
+      expect(nodes).toEqual([...r.arrayOfModels, r.model])
     }
   )
 })
@@ -479,5 +520,19 @@ test("computed tree is readonly", () => {
 
   expect(() => r.model.setValue(11)).toThrow(
     "tried to invoke action 'setValue' over a readonly node"
+  )
+})
+
+test("computed tree works with an array of models", () => {
+  const r = new R({})
+
+  r.setValue(10)
+  expect(r.arrayOfModels.slice()).toEqual(
+    [1, 2].map((i) => new M({ id: `${r.id}.model${i}`, value: 10 }))
+  )
+
+  r.setValue(20)
+  expect(r.arrayOfModels.slice()).toEqual(
+    [1, 2].map((i) => new M({ id: `${r.id}.model${i}`, value: 20 }))
   )
 })

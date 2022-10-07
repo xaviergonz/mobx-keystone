@@ -75,8 +75,9 @@ export function computedTree(
       return entry.tweakedValue
     }
 
-    tweak(oldValue, undefined)
-    tryUntweak(oldValue)
+    const oldTweakedValue = entry.tweakedValue
+    tweak(oldTweakedValue, undefined)
+    tryUntweak(oldTweakedValue)
 
     const tweakedValue = tweakComputedTreeNode(newValue, this, propertyKey)
     entry.value = newValue
