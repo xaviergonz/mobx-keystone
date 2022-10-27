@@ -10,7 +10,7 @@
       "outputs": ["dist/**"]
     },
     "site#build": {
-      "dependsOn": ["^build", "^build-docs"],
+      "dependsOn": ["mobx-keystone#build", "mobx-keystone#build-docs"],
       "outputs": ["build/**"]
     },
     "site#serve": {
@@ -20,7 +20,7 @@
     },
     "site#start": {
       "cache": false,
-      "dependsOn": ["^build", "^build-docs"],
+      "dependsOn": ["mobx-keystone#build", "mobx-keystone#build-docs"],
       "outputs": []
     },
     "mobx-keystone#test": {
