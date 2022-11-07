@@ -23,11 +23,11 @@
     "remotedev": "^0.2.9"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.20.0",
+    "@babel/plugin-proposal-decorators": "^7.20.2",
     "@docusaurus/module-type-aliases": "^2.2.0",
     "@svgr/webpack": "^6.5.1",
     "@tsconfig/docusaurus": "^1.0.6",
-    "@types/react": "^18.0.24",
+    "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
     "@types/uuid": "^8.3.4",
     "raw-loader": "^4.0.2",
