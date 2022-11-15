@@ -49,12 +49,12 @@ export function typesObjectMap<T extends AnyType>(
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
-      (obj, path) => {
+      (obj, path, typeCheckedValue) => {
         if (!(obj instanceof ObjectMap)) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj)
+          return new TypeCheckError(path, getTypeName(thisTc), obj, typeCheckedValue)
         }
 
-        return resolvedDataTypeChecker.check(obj.$, path)
+        return resolvedDataTypeChecker.check(obj.$, path, typeCheckedValue)
       },
 
       getTypeName,

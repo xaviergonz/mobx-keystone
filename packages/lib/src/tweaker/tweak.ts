@@ -57,7 +57,7 @@ export function toTreeNode(arg1: any, arg2?: any): any {
   if (hasType && isModelAutoTypeCheckingEnabled()) {
     const errors = typeCheck(type, value)
     if (errors) {
-      errors.throw(value)
+      errors.throw()
     }
   }
 

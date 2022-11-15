@@ -46,13 +46,13 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object, // because it is really a model
 
-      (obj, path) => {
+      (obj, path, typeCheckedValue) => {
         if (!(obj instanceof ArraySet)) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj)
+          return new TypeCheckError(path, getTypeName(thisTc), obj, typeCheckedValue)
         }
 
         const resolvedTc = resolveTypeChecker(dataTypeChecker)
-        return resolvedTc.check(obj.$, path)
+        return resolvedTc.check(obj.$, path, typeCheckedValue)
       },
 
       getTypeName,

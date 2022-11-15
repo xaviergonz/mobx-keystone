@@ -69,13 +69,13 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
 
-        (value, path) => {
+        (value, path, typeCheckedValue) => {
           if (!(value instanceof modelClazz)) {
-            return new TypeCheckError(path, typeName, value)
+            return new TypeCheckError(path, typeName, value, typeCheckedValue)
           }
 
           if (resolvedDataTypeChecker) {
-            return resolvedDataTypeChecker.check(value.$, path)
+            return resolvedDataTypeChecker.check(value.$, path, typeCheckedValue)
           }
 
           return null

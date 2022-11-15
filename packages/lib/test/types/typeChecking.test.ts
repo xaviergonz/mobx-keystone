@@ -110,10 +110,18 @@ function expectTypeCheckOk<T extends AnyType>(t: T, val: TypeToData<T>) {
   expect(err).toBeNull()
 }
 
-function expectTypeCheckFail<T extends AnyType>(t: T, val: any, path: Path, expected: string) {
-  const err = typeCheck(t, val)
+function expectTypeCheckFail<T extends AnyType>(
+  t: T,
+  val: any,
+  path: Path,
+  expected: string,
+  typeCheckedValue: any = val
+) {
   const { value: actualValue } = resolvePath(val, path)
-  expect(err).toEqual(new TypeCheckError(path, expected, actualValue))
+
+  const err = typeCheck(t, val)!
+  expect(err).toBeInstanceOf(TypeCheckError)
+  expect(err).toEqual(new TypeCheckError(path, expected, actualValue, typeCheckedValue))
 }
 
 function expectValidTypeInfo<TI extends TypeInfo>(
@@ -457,7 +465,7 @@ test("model", () => {
   expectTypeCheckFail(type, new MR({}), [], `Model(${m.$modelType})`)
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["x"], "number")
-  expect(m.typeCheck()).toEqual(new TypeCheckError(["x"], "number", "10"))
+  expect(m.typeCheck()).toEqual(new TypeCheckError(["x"], "number", "10", m))
 
   const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
   expect(typeInfo.modelClass).toBe(M)
@@ -542,7 +550,9 @@ test("new model with typechecking enabled", () => {
     modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
   })
 
-  expect(() => new M({ x: 10, y: 20 as any })).toThrow("TypeCheckError: [/y] Expected: string")
+  expect(() => new M({ x: 10, y: 20 as any })).toThrow(
+    "TypeCheckError: [/y] Expected a value of type <string> but got the value <20> instead"
+  )
 })
 
 test("array - complex types", () => {
@@ -1087,7 +1097,7 @@ test("refinement (complex)", () => {
   const type = types.refinement(sumObjType, (sum) => {
     const rightResult = sum.a + sum.b === sum.result
 
-    return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
+    return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result, sum)
   })
   assert(_ as TypeToData<typeof type>, _ as { b: number; a: number; result: number })
 

@@ -35,12 +35,12 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
   const thisTc: TypeChecker = new TypeChecker(
     TypeCheckerBaseType.Object,
 
-    (value, path) => {
+    (value, path, typeCheckedValue) => {
       if (!(value instanceof Ref)) {
-        return new TypeCheckError(path, typeName, value)
+        return new TypeCheckError(path, typeName, value, typeCheckedValue)
       }
 
-      return refDataTypeChecker.check(value.$, path)
+      return refDataTypeChecker.check(value.$, path, typeCheckedValue)
     },
 
     () => typeName,

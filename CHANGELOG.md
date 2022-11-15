@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.2.0
+
+- TypeCheckError now includes a new `message` field, a new `typeCheckedValue` field and no longer requires a parameter for the `throw()` method.
+- Type checking error messages will now include the actual value that failed validation in the error message.
+
 ## 1.1.1
 
 - Fixed an issue related to computed trees.

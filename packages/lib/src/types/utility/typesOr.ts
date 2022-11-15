@@ -101,12 +101,12 @@ export function typesOr(
     const thisTc: TypeChecker = new TypeChecker(
       thisTcBaseType,
 
-      (value, path) => {
-        const someMatchingType = checkers.some((tc) => !tc.check(value, path))
+      (value, path, typeCheckedValue) => {
+        const someMatchingType = checkers.some((tc) => !tc.check(value, path, typeCheckedValue))
         if (someMatchingType) {
           return null
         } else {
-          return new TypeCheckError(path, getTypeName(thisTc), value)
+          return new TypeCheckError(path, getTypeName(thisTc), value, typeCheckedValue)
         }
       },
 

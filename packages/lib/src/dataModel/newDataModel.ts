@@ -46,7 +46,7 @@ export const internalNewDataModel = action(
     if (isModelAutoTypeCheckingEnabled() && getDataModelMetadata(modelClass).dataType) {
       const err = modelObj.typeCheck()
       if (err) {
-        err.throw(modelObj)
+        err.throw()
       }
     }
 

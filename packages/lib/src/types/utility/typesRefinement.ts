@@ -55,20 +55,26 @@ export function typesRefinement<T extends AnyType>(
     const thisTc: TypeChecker = new TypeChecker(
       baseChecker.baseType,
 
-      (data, path) => {
-        const baseErr = baseChecker.check(data, path)
+      (data, path, typeCheckedValue) => {
+        const baseErr = baseChecker.check(data, path, typeCheckedValue)
         if (baseErr) {
           return baseErr
         }
 
         const refinementErr = checkFn(data)
 
-        if (refinementErr === true) {
+        if (refinementErr === true || refinementErr == null) {
           return null
         } else if (refinementErr === false) {
-          return new TypeCheckError(path, getTypeName(thisTc), data)
+          return new TypeCheckError(path, getTypeName(thisTc), data, typeCheckedValue)
         } else {
-          return refinementErr ?? null
+          // override typeCheckedValue
+          return new TypeCheckError(
+            refinementErr.path,
+            refinementErr.expectedTypeName,
+            refinementErr.actualValue,
+            typeCheckedValue
+          )
         }
       },
 

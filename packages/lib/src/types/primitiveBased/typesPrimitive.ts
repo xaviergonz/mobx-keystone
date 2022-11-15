@@ -40,7 +40,8 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
   const thisTc: TypeChecker = new TypeChecker(
     TypeCheckerBaseType.Primitive,
 
-    (value, path) => (value === literal ? null : new TypeCheckError(path, typeName, value)),
+    (value, path, typeCheckedValue) =>
+      value === literal ? null : new TypeCheckError(path, typeName, value, typeCheckedValue),
 
     () => typeName,
     typeInfoGen,
@@ -96,7 +97,10 @@ standardTypeResolvers.push((v) => (v === null ? typesNull : undefined))
 export const typesBoolean: IdentityType<boolean> = new TypeChecker(
   TypeCheckerBaseType.Primitive,
 
-  (value, path) => (typeof value === "boolean" ? null : new TypeCheckError(path, "boolean", value)),
+  (value, path, typeCheckedValue) =>
+    typeof value === "boolean"
+      ? null
+      : new TypeCheckError(path, "boolean", value, typeCheckedValue),
 
   () => "boolean",
   (t) => new BooleanTypeInfo(t),
@@ -123,7 +127,8 @@ export class BooleanTypeInfo extends TypeInfo {}
 export const typesNumber: IdentityType<number> = new TypeChecker(
   TypeCheckerBaseType.Primitive,
 
-  (value, path) => (typeof value === "number" ? null : new TypeCheckError(path, "number", value)),
+  (value, path, typeCheckedValue) =>
+    typeof value === "number" ? null : new TypeCheckError(path, "number", value, typeCheckedValue),
 
   () => "number",
   (t) => new NumberTypeInfo(t),
@@ -150,7 +155,8 @@ export class NumberTypeInfo extends TypeInfo {}
 export const typesString: IdentityType<string> = new TypeChecker(
   TypeCheckerBaseType.Primitive,
 
-  (value, path) => (typeof value === "string" ? null : new TypeCheckError(path, "string", value)),
+  (value, path, typeCheckedValue) =>
+    typeof value === "string" ? null : new TypeCheckError(path, "string", value, typeCheckedValue),
 
   () => "string",
   (t) => new StringTypeInfo(t),

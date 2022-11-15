@@ -139,7 +139,7 @@ export const internalNewModel = action(
     if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {
       const err = modelObj.typeCheck()
       if (err) {
-        err.throw(modelObj)
+        err.throw()
       }
     }
 

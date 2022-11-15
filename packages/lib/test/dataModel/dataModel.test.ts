@@ -768,7 +768,8 @@ test("type checking", () => {
     x: "10",
   }
 
-  const errorMsg = "TypeCheckError: [/x] Expected: number"
+  const errorMsg =
+    'TypeCheckError: [/x] Expected a value of type <number> but got the value <"10"> instead'
 
   expect(() => new TypeCheck(wrongData as any)).toThrow(errorMsg)
 })

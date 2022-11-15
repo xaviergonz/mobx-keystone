@@ -69,9 +69,9 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
-      (obj, path) => {
+      (obj, path, typeCheckedValue) => {
         if (!isObject(obj) || (frozen && !(obj instanceof Frozen))) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj)
+          return new TypeCheckError(path, getTypeName(thisTc), obj, typeCheckedValue)
         }
 
         // note: we allow excess properties when checking objects
@@ -79,7 +79,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
           const tc = resolveTypeChecker(unresolvedTc)
           const objVal = obj[k]
 
-          const valueError = tc.check(objVal, [...path, k])
+          const valueError = tc.check(objVal, [...path, k], typeCheckedValue)
           if (valueError) {
             return valueError
           }

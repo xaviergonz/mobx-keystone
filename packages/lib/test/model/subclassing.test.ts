@@ -332,11 +332,15 @@ test("three level subclassing", () => {
   // type checking must still work
   expect(() => {
     p2.setX("10" as any)
-  }).toThrow("TypeCheckError: [/x] Expected: number")
+  }).toThrow(
+    'TypeCheckError: [/x] Expected a value of type <number> but got the value <"10"> instead'
+  )
 
   expect(() => {
     p2.setB("10" as any)
-  }).toThrow("TypeCheckError: [/b] Expected: number")
+  }).toThrow(
+    'TypeCheckError: [/b] Expected a value of type <number> but got the value <"10"> instead'
+  )
 })
 
 test("abstract-ish model classes with factory", () => {

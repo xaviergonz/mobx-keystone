@@ -10,7 +10,16 @@ import { isModel, isModelSnapshot } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, modelInfoByClass } from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsObject, failure, inDevMode, isArray, isPlainObject, lazy } from "../utils"
+import {
+  assertIsObject,
+  failure,
+  inDevMode,
+  isArray,
+  isMap,
+  isPlainObject,
+  isSet,
+  lazy,
+} from "../utils"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
@@ -122,6 +131,14 @@ export function internalApplySnapshot<T extends object>(
     }
 
     return reconcile()
+  }
+
+  if (isMap(sn)) {
+    throw failure("a snapshot must not contain maps")
+  }
+
+  if (isSet(sn)) {
+    throw failure("a snapshot must not contain sets")
   }
 
   throw failure(`unsupported snapshot - ${sn}`)

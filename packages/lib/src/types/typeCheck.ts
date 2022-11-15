@@ -16,6 +16,6 @@ export function typeCheck<T extends AnyType>(type: T, value: TypeToData<T>): Typ
   if (typeChecker.unchecked) {
     return null
   } else {
-    return typeChecker.check(value, [])
+    return typeChecker.check(value, [], value)
   }
 }

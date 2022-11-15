@@ -40,7 +40,7 @@ export function runTypeCheckingAfterChange(
           }
         })
         // at the end of apply patches it will be type checked again and its result cached once more
-        err.throw(parentModelWithTypeChecker)
+        err.throw()
       }
     }
   }

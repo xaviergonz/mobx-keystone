@@ -6,7 +6,7 @@ import { getOrCreate } from "../utils/mapUtils"
 import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
 
-type CheckFunction = (value: any, path: Path) => TypeCheckError | null
+type CheckFunction = (value: any, path: Path, typeCheckedValue: any) => TypeCheckError | null
 
 const emptyPath: Path = []
 
@@ -104,13 +104,13 @@ export class TypeChecker {
     return this.checkResultCache?.get(obj)
   }
 
-  check(value: any, path: Path): TypeCheckError | null {
+  check(value: any, path: Path, typeCheckedValue: any): TypeCheckError | null {
     if (this.unchecked) {
       return null
     }
 
     if (!isTweakedObject(value, true)) {
-      return this._check!(value, path)
+      return this._check!(value, path, typeCheckedValue)
     }
 
     // optimized checking with cached values
@@ -118,8 +118,8 @@ export class TypeChecker {
     let cachedResult = this.getCachedResult(value)
 
     if (cachedResult === undefined) {
-      // we set the path empty since the result could be used for paths other than this base
-      cachedResult = this._check!(value, emptyPath)
+      // we set the path empty and no parent, since the result could be used for paths other than this base
+      cachedResult = this._check!(value, emptyPath, undefined)
       this.setCachedResult(value, cachedResult)
     }
 
@@ -127,7 +127,8 @@ export class TypeChecker {
       return new TypeCheckError(
         [...path, ...cachedResult.path],
         cachedResult.expectedTypeName,
-        cachedResult.actualValue
+        cachedResult.actualValue,
+        typeCheckedValue
       )
     } else {
       return null

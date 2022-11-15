@@ -43,13 +43,13 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
-      (array, path) => {
+      (array, path, typeCheckedValue) => {
         if (!isArray(array) || array.length !== itemTypes.length) {
-          return new TypeCheckError(path, getTypeName(thisTc), array)
+          return new TypeCheckError(path, getTypeName(thisTc), array, typeCheckedValue)
         }
 
         for (let i = 0; i < array.length; i++) {
-          const itemError = checkers[i].check(array[i], [...path, i])
+          const itemError = checkers[i].check(array[i], [...path, i], typeCheckedValue)
           if (itemError) {
             return itemError
           }

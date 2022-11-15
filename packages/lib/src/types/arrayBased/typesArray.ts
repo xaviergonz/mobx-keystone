@@ -35,14 +35,14 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
-      (array, path) => {
+      (array, path, typeCheckedValue) => {
         if (!isArray(array)) {
-          return new TypeCheckError(path, getTypeName(thisTc), array)
+          return new TypeCheckError(path, getTypeName(thisTc), array, typeCheckedValue)
         }
 
         if (!itemChecker.unchecked) {
           for (let i = 0; i < array.length; i++) {
-            const itemError = itemChecker.check(array[i], [...path, i])
+            const itemError = itemChecker.check(array[i], [...path, i], typeCheckedValue)
             if (itemError) {
               return itemError
             }
