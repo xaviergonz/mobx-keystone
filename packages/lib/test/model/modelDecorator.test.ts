@@ -42,19 +42,16 @@ test("model decorator preserves static property getters", () => {
 test("model decorator works with static proxy gymnastics", () => {
   class Bar extends Model({}) {}
 
-  // @ts-ignore
-  Bar = new Proxy(Bar, {
+  let Bar2 = new Proxy(Bar, {
     get: (target, key: keyof typeof Bar | "foo") => {
       if (key === "foo") return "oof"
       return target[key]
     },
   })
 
-  // @ts-ignore
-  Bar = model("BarWithProxyStuff")(Bar)
+  Bar2 = model("BarWithProxyStuff")(Bar2)
 
-  // @ts-ignore
-  expect(Bar.foo).toBe("oof")
+  expect((Bar2 as any).foo).toBe("oof")
 })
 
 test("model decorator sets model type static prop and toString methods", () => {
