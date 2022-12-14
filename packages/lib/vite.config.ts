@@ -23,6 +23,7 @@ export default defineConfig({
           entryFileNames: "mobx-keystone.esm.mjs",
         },
         {
+          name: "mobx-keystone",
           format: "umd",
           globals: {
             mobx: "mobx",
