@@ -74,7 +74,7 @@ export function typesObjectMap<T extends AnyType>(
       },
 
       (sn: { items: Record<string, unknown> }) => {
-        const newItems: typeof sn["items"] = {}
+        const newItems: (typeof sn)["items"] = {}
 
         for (const k of Object.keys(sn.items)) {
           newItems[k] = valueChecker.fromSnapshotProcessor(sn.items[k])
@@ -88,7 +88,7 @@ export function typesObjectMap<T extends AnyType>(
       },
 
       (sn: { items: Record<string, unknown>; [modelTypeKey]?: string }) => {
-        const newItems: typeof sn["items"] = {}
+        const newItems: (typeof sn)["items"] = {}
 
         for (const k of Object.keys(sn.items)) {
           newItems[k] = valueChecker.toSnapshotProcessor(sn.items[k])

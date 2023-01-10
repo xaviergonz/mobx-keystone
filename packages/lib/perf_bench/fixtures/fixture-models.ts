@@ -10,7 +10,7 @@ export class Treasure extends Model({
 
 // medium
 export const HeroRoles = ["warrior", "wizard", "cleric", "thief"] as const
-export type HeroRolesType = typeof HeroRoles[number]
+export type HeroRolesType = (typeof HeroRoles)[number]
 
 @model("Hero")
 export class Hero extends Model({
