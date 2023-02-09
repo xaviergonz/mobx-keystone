@@ -29,11 +29,11 @@
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-react-app": "^7.0.1",
-    "netlify-cli": "^12.10.0",
-    "prettier": "^2.8.3",
+    "netlify-cli": "^12.11.0",
+    "prettier": "^2.8.4",
     "prettier-plugin-organize-imports": "^3.2.2",
-    "turbo": "^1.7.2",
-    "typescript": "^5.0.0-beta"
+    "turbo": "^1.7.4",
+    "typescript": "^5.0.0-dev.20230209"
   },
   "packageManager": "yarn@3.3.1"
 }

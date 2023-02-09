@@ -72,7 +72,7 @@ export function fastGetParentPath<T extends object = any>(
   value: object
 ): ParentPath<T> | undefined {
   reportParentPathObserved(value)
-  return objectParents.get(value) as any
+  return objectParents.get(value) as ParentPath<T> | undefined
 }
 
 /**

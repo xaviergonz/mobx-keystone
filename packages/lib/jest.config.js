@@ -28,7 +28,7 @@ switch (compiler) {
       preset: "ts-jest",
       testEnvironment: "node",
       transform: {
-        "^.+\\.ts$": ["ts-jest", { tsConfig: `./test/${tsconfigFile}` }],
+        "^.+\\.ts$": ["ts-jest", { tsconfig: `./test/${tsconfigFile}` }],
       },
     })
     break
