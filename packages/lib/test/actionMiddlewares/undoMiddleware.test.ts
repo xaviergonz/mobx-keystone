@@ -1,4 +1,4 @@
-import { computed, IObservableArray, toJS } from "mobx"
+import { computed, IObservableArray, reaction, toJS } from "mobx"
 import {
   getSnapshot,
   idProp,
@@ -880,13 +880,13 @@ test("concurrent async actions", async () => {
 })
 
 test("sorting crashes undo", () => {
-  @testModel("sorting crashes undo/Todo")
+  @testModel("Todo")
   class Todo extends Model({
     order: prop(0),
     id: idProp,
   }) {}
 
-  @testModel("sorting crashes undo/TodoList")
+  @testModel("TodoList")
   class TodoList extends Model({
     todos: prop<Array<Todo>>(() => []),
   }) {
@@ -920,4 +920,54 @@ test("sorting crashes undo", () => {
 
   undoManager.redo()
   expect(getSnapshot(todoList)).toEqual(snReordered)
+})
+
+test("reactions should be part of the same undo step than the action that triggered them", () => {
+  @testModel("Todo")
+  class Todo extends Model({
+    order: prop(0),
+    id: idProp,
+  }) {}
+
+  @testModel("TodoList")
+  class TodoList extends Model({
+    todos: prop<Array<Todo>>(() => []),
+    todoLength: prop(0),
+  }) {
+    @modelAction
+    addTodo() {
+      const todo = new Todo({ order: this.todos.length })
+      this.todos.push(todo)
+    }
+
+    @modelAction
+    setTodoLength(value: number) {
+      this.todoLength = value
+    }
+  }
+
+  const todoList = new TodoList({
+    todos: [],
+  })
+
+  const disposeReaction = reaction(
+    () => todoList.todos.length,
+    (len) => {
+      todoList.setTodoLength(len)
+    }
+  )
+
+  const undoManager = undoMiddleware(todoList)
+
+  todoList.addTodo()
+  expect(todoList.todoLength).toBe(1)
+  expect(undoManager.undoLevels).toBe(1)
+  expect(undoManager.redoLevels).toBe(0)
+
+  undoManager.undo()
+  expect(todoList.todoLength).toBe(0)
+  expect(undoManager.undoLevels).toBe(0)
+  expect(undoManager.redoLevels).toBe(1)
+
+  disposeReaction()
 })
