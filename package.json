@@ -33,7 +33,7 @@
     "prettier": "^2.8.4",
     "prettier-plugin-organize-imports": "^3.2.2",
     "turbo": "^1.7.4",
-    "typescript": "^5.0.0-dev.20230214"
+    "typescript": "^5.0.0-dev.20230217"
   },
   "packageManager": "yarn@3.3.1"
 }
