@@ -10,9 +10,9 @@ import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import type { AnyModel } from "./BaseModel"
+import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
 import { modelTypeKey } from "./metadata"
-import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -103,7 +103,7 @@ export const internalNewModel = action(
         if (defaultValue !== noDefaultValue) {
           changed = true
           newValue = defaultValue
-        } else if (!("k" in initialData!)) {
+        } else if (!(k in initialData!)) {
           // for mobx4, we need to set up properties even if they are undefined
           changed = true
         }
