@@ -135,19 +135,19 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
     ? typesOr(typeChecker as unknown as AnyType, typesUndefined, typesNull)
     : typeChecker
 
-  Object.assign(newProp._internal, {
-    typeChecker,
+  Object.assign(newProp, {
+    _typeChecker: typeChecker,
 
-    fromSnapshotProcessor: (sn) => {
+    _fromSnapshotProcessor: (sn) => {
       const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
       return fsnp ? fsnp(sn) : sn
     },
 
-    toSnapshotProcessor: (sn) => {
+    _toSnapshotProcessor: (sn) => {
       const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
       return tsnp ? tsnp(sn) : sn
     },
-  } satisfies Partial<AnyModelProp["_internal"]>)
+  } satisfies Partial<AnyModelProp>)
 
   return newProp
 }

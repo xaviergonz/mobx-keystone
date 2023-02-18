@@ -96,19 +96,19 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
         let changed = false
 
         // apply untransform (if any)
-        if (propData._internal.transform) {
+        if (propData._transform) {
           changed = true
-          newValue = propData._internal.transform.untransform(newValue, this, k)
+          newValue = propData._transform.untransform(newValue, this, k)
         }
 
         // apply default value (if needed)
         if (newValue == null) {
-          if (propData._internal.defaultFn !== noDefaultValue) {
+          if (propData._defaultFn !== noDefaultValue) {
             changed = true
-            newValue = propData._internal.defaultFn()
-          } else if (propData._internal.defaultValue !== noDefaultValue) {
+            newValue = propData._defaultFn()
+          } else if (propData._defaultValue !== noDefaultValue) {
             changed = true
-            newValue = propData._internal.defaultValue
+            newValue = propData._defaultValue
           }
         }
 

@@ -10,9 +10,9 @@ import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import type { AnyModel } from "./BaseModel"
+import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
 import { modelTypeKey } from "./metadata"
-import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -52,7 +52,7 @@ export const internalNewModel = action(
 
       if (modelIdPropData && modelIdPropertyName) {
         if (generateNewIds) {
-          id = (modelIdPropData._internal.defaultFn as () => string)()
+          id = (modelIdPropData._defaultFn as () => string)()
         } else {
           id = sn[modelIdPropertyName]
         }
@@ -69,7 +69,7 @@ export const internalNewModel = action(
         if (initialData![modelIdPropertyName]) {
           id = initialData![modelIdPropertyName]
         } else {
-          id = (modelIdPropData._internal.defaultFn as () => string)()
+          id = (modelIdPropData._defaultFn as () => string)()
         }
       }
     }
@@ -92,9 +92,9 @@ export const internalNewModel = action(
       let changed = false
 
       // apply untransform (if any) if not in snapshot mode
-      if (mode === "new" && propData._internal.transform) {
+      if (mode === "new" && propData._transform) {
         changed = true
-        newValue = propData._internal.transform.untransform(newValue, modelObj, k)
+        newValue = propData._transform.untransform(newValue, modelObj, k)
       }
 
       // apply default value (if needed)

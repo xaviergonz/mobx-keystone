@@ -11,16 +11,16 @@ import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
 import { failure, lazy } from "../../utils"
-import { getTypeInfo } from "../getTypeInfo"
-import { resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "../schemas"
 import {
-  lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
+  lateTypeChecker,
 } from "../TypeChecker"
+import { getTypeInfo } from "../getTypeInfo"
+import { resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, IdentityType } from "../schemas"
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
 
@@ -137,7 +137,7 @@ export class DataModelDataTypeInfo extends TypeInfo {
     Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
-      const type = propData._internal.typeChecker as any as AnyStandardType
+      const type = propData._typeChecker as any as AnyStandardType
 
       let typeInfo: TypeInfo | undefined
       if (type) {
@@ -146,11 +146,11 @@ export class DataModelDataTypeInfo extends TypeInfo {
 
       let hasDefault = false
       let defaultValue: any
-      if (propData._internal.defaultFn !== noDefaultValue) {
-        defaultValue = propData._internal.defaultFn
+      if (propData._defaultFn !== noDefaultValue) {
+        defaultValue = propData._defaultFn
         hasDefault = true
-      } else if (propData._internal.defaultValue !== noDefaultValue) {
-        defaultValue = propData._internal.defaultValue
+      } else if (propData._defaultValue !== noDefaultValue) {
+        defaultValue = propData._defaultValue
         hasDefault = true
       }
 

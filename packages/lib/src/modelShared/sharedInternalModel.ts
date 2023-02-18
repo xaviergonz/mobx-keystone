@@ -58,8 +58,8 @@ function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   // no need to use get since these vars always get on the initial $
   const value = model.$[modelPropName]
 
-  if (modelProp?._internal.transform) {
-    return modelProp._internal.transform.transform(value, model, modelPropName, (newValue) => {
+  if (modelProp?._transform) {
+    return modelProp._transform.transform(value, model, modelPropName, (newValue) => {
       // use apply set instead to wrap it in an action
       // set the $ object to set the original value directly
       applySet(model.$, modelPropName, newValue)
@@ -82,14 +82,14 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
     return
   }
 
-  if (modelProp?._internal.setter === "assign" && !getCurrentActionContext()) {
+  if (modelProp?._setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     applySet(model, modelPropName as any, value)
     return
   }
 
-  let untransformedValue = modelProp?._internal.transform
-    ? modelProp._internal.transform.untransform(value, model, modelPropName)
+  let untransformedValue = modelProp?._transform
+    ? modelProp._transform.untransform(value, model, modelPropName)
     : value
 
   // apply default value if applicable
@@ -106,9 +106,9 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
 
 const idGenerator = () => getGlobalConfig().modelIdGenerator()
 const tPropForId = tProp(typesString, idGenerator)
-tPropForId._internal.isId = true
+tPropForId._isId = true
 const propForId = prop(idGenerator)
-propForId._internal.isId = true
+propForId._isId = true
 
 type FromSnapshotProcessorFn = (sn: any) => any
 type ToSnapshotProcessorFn = (sn: any, instance: any) => any
@@ -161,7 +161,7 @@ export function sharedInternalModel<
   // look for id keys
   const idKeys = Object.keys(composedModelProps).filter((k) => {
     const p = composedModelProps[k]
-    return p._internal.isId
+    return p._isId
   })
   if (type === "class") {
     if (idKeys.length > 1) {
@@ -173,9 +173,7 @@ export function sharedInternalModel<
     }
   }
 
-  const needsTypeChecker = Object.values(composedModelProps).some(
-    (mp) => !!mp._internal.typeChecker
-  )
+  const needsTypeChecker = Object.values(composedModelProps).some((mp) => !!mp._typeChecker)
 
   // transform id keys (only one really)
   let idKey: string | undefined
@@ -183,7 +181,7 @@ export function sharedInternalModel<
     idKey = idKeys[0]
     const idProp = composedModelProps[idKey]
     let baseProp: AnyModelProp = needsTypeChecker ? tPropForId : propForId
-    switch (idProp?._internal.setter) {
+    switch (idProp?._setter) {
       case true:
         baseProp = baseProp.withSetter()
         break
@@ -203,7 +201,7 @@ export function sharedInternalModel<
       [k: string]: any
     } = {}
     for (const [k, mp] of Object.entries(composedModelProps)) {
-      typeCheckerObj[k] = !mp._internal.typeChecker ? typesUnchecked() : mp._internal.typeChecker
+      typeCheckerObj[k] = !mp._typeChecker ? typesUnchecked() : mp._typeChecker
     }
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
   }
@@ -283,7 +281,7 @@ export function sharedInternalModel<
 
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
-    if (propData._internal.setter === true) {
+    if (propData._setter === true) {
       const setterName = propNameToSetterName(propName)
 
       CustomBaseModel.prototype[setterName] = function (this: any, value: any) {
@@ -337,7 +335,7 @@ function getModelPropsFromSnapshotProcessor(
   composedModelProps: ModelProps
 ): FromSnapshotProcessorFn | undefined {
   const propsWithFromSnapshotProcessor = Object.entries(composedModelProps).filter(
-    ([_propName, propData]) => propData._internal.fromSnapshotProcessor
+    ([_propName, propData]) => propData._fromSnapshotProcessor
   )
   if (propsWithFromSnapshotProcessor.length <= 0) {
     return undefined
@@ -346,8 +344,8 @@ function getModelPropsFromSnapshotProcessor(
   return (sn) => {
     const newSn = { ...sn }
     for (const [propName, propData] of propsWithFromSnapshotProcessor) {
-      if (propData._internal.fromSnapshotProcessor) {
-        newSn[propName] = propData._internal.fromSnapshotProcessor(sn[propName])
+      if (propData._fromSnapshotProcessor) {
+        newSn[propName] = propData._fromSnapshotProcessor(sn[propName])
       }
     }
     return newSn
@@ -358,7 +356,7 @@ function getModelPropsToSnapshotProcessor(
   composedModelProps: ModelProps
 ): ToSnapshotProcessorFn | undefined {
   const propsWithToSnapshotProcessor = Object.entries(composedModelProps).filter(
-    ([_propName, propData]) => propData._internal.toSnapshotProcessor
+    ([_propName, propData]) => propData._toSnapshotProcessor
   )
 
   if (propsWithToSnapshotProcessor.length <= 0) {
@@ -368,8 +366,8 @@ function getModelPropsToSnapshotProcessor(
   return (sn) => {
     const newSn = { ...sn }
     for (const [propName, propData] of propsWithToSnapshotProcessor) {
-      if (propData._internal.toSnapshotProcessor) {
-        newSn[propName] = propData._internal.toSnapshotProcessor(sn[propName])
+      if (propData._toSnapshotProcessor) {
+        newSn[propName] = propData._toSnapshotProcessor(sn[propName])
       }
     }
     return newSn
