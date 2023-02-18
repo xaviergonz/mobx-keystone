@@ -1,64 +1,67 @@
 import { observable } from "mobx"
 import { Model, model, prop } from "../src"
 
-function plainObj(numProps: number) {
-  const obj = Object.create(null)
-  for (let i = 0; i < numProps; i++) {
-    obj[`prop${i}`] = i
-  }
-  return obj
-}
-
-function plainMap(numProps: number) {
-  const map = new Map()
-  for (let i = 0; i < numProps; i++) {
-    map.set(`prop${i}`, i)
-  }
-  return map
-}
-
-function mobxObj(numProps: number) {
-  const obj = observable.object<any>({}, undefined, { deep: false })
-  for (let i = 0; i < numProps; i++) {
-    obj[`prop${i}`] = i
-  }
-  return obj
-}
-
-function mobxMap(numProps: number) {
-  const map = observable.map<any>()
-  for (let i = 0; i < numProps; i++) {
-    map.set(`prop${i}`, i)
-  }
-  return map
-}
-
-function mobxKeystoneClass(numProps: number) {
-  const props = Object.create(null)
-  for (let i = 0; i < numProps; i++) {
-    props[`prop${i}`] = prop<number>()
-  }
-
-  @model("MKS")
-  class MKS extends Model(props) {}
-
-  return new MKS({})
-}
-
-function measure(name: string, fn: (numProps: number) => void, numProps: number) {
+function measure<R>(name: string, fn: () => R): R {
   global.gc!()
   const start = process.memoryUsage().heapUsed
-  const v = fn(numProps)
+  const v = fn()
+  global.gc!()
   const end = process.memoryUsage().heapUsed
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  v // to avoid unused var warning
+  console.log(`${name}: ${Math.round((end - start) / 1024)}KB`)
 
-  console.log(`${name} [${numProps} props]: ${Math.round((end - start) / 1024)}KB`)
+  return v
 }
 
-measure("plainObj", plainObj, 1000)
-measure("plainMap", plainMap, 1000)
-measure("mobxObj", mobxObj, 1000)
-measure("mobxMap", mobxMap, 1000)
-measure("mobxKeystoneClass", mobxKeystoneClass, 1000)
+function main(numProps: number) {
+  console.log(`[${numProps} props]`)
+
+  function plainObj() {
+    const obj = {} as any
+    for (let i = 0; i < numProps; i++) {
+      obj[`prop${i}`] = i
+    }
+    return obj
+  }
+
+  measure("plainObj", plainObj)
+
+  measure("plainMap", () => {
+    const map = new Map()
+    for (let i = 0; i < numProps; i++) {
+      map.set(`prop${i}`, i)
+    }
+    return map
+  })
+
+  measure("mobxObj", () => {
+    const obj = observable.object<any>({}, undefined, { deep: false })
+    for (let i = 0; i < numProps; i++) {
+      obj[`prop${i}`] = i
+    }
+    return obj
+  })
+
+  measure("mobxMap", () => {
+    const map = observable.map<any>()
+    for (let i = 0; i < numProps; i++) {
+      map.set(`prop${i}`, i)
+    }
+    return map
+  })
+
+  const MKS = measure("mobxKeystoneClass model creation", () => {
+    const props = Object.create(null)
+    for (let i = 0; i < numProps; i++) {
+      props[`prop${i}`] = prop<number>()
+    }
+
+    @model("MKS")
+    class MKS extends Model(props) {}
+
+    return MKS
+  })
+  measure("mobxKeystoneClass instance creation", () => new MKS(plainObj()))
+}
+
+main(10000)
