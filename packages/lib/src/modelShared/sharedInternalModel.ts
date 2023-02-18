@@ -45,12 +45,6 @@ function createModelPropDescriptor(
       return getModelInstanceDataField(this, modelProp, modelPropName)
     },
     set(this: AnyModel | AnyDataModel, v?: any) {
-      // hack to only permit setting these values once fully constructed
-      // this is to ignore abstract properties being set by babel
-      // see https://github.com/xaviergonz/mobx-keystone/issues/18
-      if (!(modelInitializedSymbol in this)) {
-        return
-      }
       setModelInstanceDataField(this, modelProp, modelPropName, v)
     },
   }
@@ -81,6 +75,13 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   modelPropName: string,
   value: any
 ): void {
+  // hack to only permit setting these values once fully constructed
+  // this is to ignore abstract properties being set by babel
+  // see https://github.com/xaviergonz/mobx-keystone/issues/18
+  if (!(modelInitializedSymbol in model)) {
+    return
+  }
+
   if (modelProp?._internal.setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     applySet(model, modelPropName as any, value)
