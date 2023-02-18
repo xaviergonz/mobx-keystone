@@ -286,6 +286,75 @@ export type OptionalModelProp<TPropValue> = ModelProp<
   never // not required
 >
 
+const baseProp: AnyModelProp = {
+  _internal: {
+    ...({} as Pick<
+      AnyModelProp["_internal"],
+      | "$valueType"
+      | "$creationValueType"
+      | "$transformedValueType"
+      | "$transformedCreationValueType"
+      | "$isRequired"
+      | "$isId"
+      | "$hasSetter"
+      | "$fromSnapshotOverride"
+      | "$toSnapshotOverride"
+    >),
+
+    defaultFn: noDefaultValue,
+    defaultValue: noDefaultValue,
+    typeChecker: undefined,
+    setter: false,
+    isId: false,
+    transform: undefined,
+    fromSnapshotProcessor: undefined,
+    toSnapshotProcessor: undefined,
+  },
+
+  withSetter(mode?: boolean | "assign") {
+    return { ...this, _internal: { ...this._internal, setter: mode ?? true } }
+  },
+
+  withTransform(transform: ModelPropTransform<unknown, unknown>) {
+    return { ...this, _internal: { ...this._internal, transform: toFullTransform(transform) } }
+  },
+
+  withSnapshotProcessor({ fromSnapshot, toSnapshot }) {
+    let newFromSnapshot
+
+    if (this._internal.fromSnapshotProcessor && fromSnapshot) {
+      const oldFn = this._internal.fromSnapshotProcessor
+      const newFn = fromSnapshot
+      newFromSnapshot = (sn: any) => oldFn(newFn(sn))
+    } else if (fromSnapshot) {
+      newFromSnapshot = fromSnapshot
+    } else {
+      newFromSnapshot = this._internal.fromSnapshotProcessor
+    }
+
+    let newToSnapshot
+
+    if (this._internal.toSnapshotProcessor && toSnapshot) {
+      const oldFn: any = this._internal.toSnapshotProcessor
+      const newFn = toSnapshot
+      newToSnapshot = (sn: any) => newFn(oldFn(sn))
+    } else if (toSnapshot) {
+      newToSnapshot = toSnapshot
+    } else {
+      newToSnapshot = this._internal.toSnapshotProcessor
+    }
+
+    return {
+      ...this,
+      _internal: {
+        ...this._internal,
+        fromSnapshotProcessor: newFromSnapshot,
+        toSnapshotProcessor: newToSnapshot,
+      },
+    }
+  },
+}
+
 /**
  * Defines a model property, with an optional function to generate a default value
  * if the input snapshot / model creation data is `null` or `undefined`.
@@ -335,79 +404,20 @@ export function prop<TValue>(): MaybeOptionalModelProp<TValue>
 
 // base
 export function prop(def?: any): AnyModelProp {
-  let hasDefaultValue = false
-
-  // default
-  if (arguments.length >= 1) {
-    hasDefaultValue = true
+  const obj: AnyModelProp = {
+    ...baseProp,
+    _internal: {
+      ...baseProp._internal,
+    },
   }
 
-  const isDefFn = typeof def === "function"
-
-  const obj: AnyModelProp = {
-    _internal: {
-      $valueType: null as any,
-      $creationValueType: null as any,
-      $transformedValueType: null as any,
-      $transformedCreationValueType: null as any,
-      $isRequired: null as never,
-      $isId: null as never,
-      $hasSetter: null as never,
-      $fromSnapshotOverride: null as never,
-      $toSnapshotOverride: null as never,
-
-      defaultFn: hasDefaultValue && isDefFn ? def : noDefaultValue,
-      defaultValue: hasDefaultValue && !isDefFn ? def : noDefaultValue,
-      typeChecker: undefined,
-      setter: false,
-      isId: false,
-      transform: undefined,
-      fromSnapshotProcessor: undefined,
-      toSnapshotProcessor: undefined,
-    },
-
-    withSetter(mode?: boolean | "assign") {
-      return { ...this, _internal: { ...this._internal, setter: mode ?? true } }
-    },
-
-    withTransform(transform: ModelPropTransform<unknown, unknown>) {
-      return { ...this, _internal: { ...this._internal, transform: toFullTransform(transform) } }
-    },
-
-    withSnapshotProcessor({ fromSnapshot, toSnapshot }) {
-      let newFromSnapshot
-
-      if (this._internal.fromSnapshotProcessor && fromSnapshot) {
-        const oldFn = this._internal.fromSnapshotProcessor
-        const newFn = fromSnapshot
-        newFromSnapshot = (sn: any) => oldFn(newFn(sn))
-      } else if (fromSnapshot) {
-        newFromSnapshot = fromSnapshot
-      } else {
-        newFromSnapshot = this._internal.fromSnapshotProcessor
-      }
-
-      let newToSnapshot
-
-      if (this._internal.toSnapshotProcessor && toSnapshot) {
-        const oldFn: any = this._internal.toSnapshotProcessor
-        const newFn = toSnapshot
-        newToSnapshot = (sn: any) => newFn(oldFn(sn))
-      } else if (toSnapshot) {
-        newToSnapshot = toSnapshot
-      } else {
-        newToSnapshot = this._internal.toSnapshotProcessor
-      }
-
-      return {
-        ...this,
-        _internal: {
-          ...this._internal,
-          fromSnapshotProcessor: newFromSnapshot,
-          toSnapshotProcessor: newToSnapshot,
-        },
-      }
-    },
+  const hasDefaultValue = arguments.length >= 1
+  if (hasDefaultValue) {
+    if (typeof def === "function") {
+      obj._internal.defaultFn = def
+    } else {
+      obj._internal.defaultValue = def
+    }
   }
 
   return obj

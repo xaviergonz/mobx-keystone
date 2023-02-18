@@ -114,8 +114,6 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(type: TType): MaybeOptionalModelProp<TypeToData<TType>>
 
 export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
-  let hasDefaultValue = false
-
   switch (typeof typeOrDefaultValue) {
     case "string":
       return tProp(typesString, typeOrDefaultValue)
@@ -125,10 +123,7 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
       return tProp(typesBoolean, typeOrDefaultValue)
   }
 
-  if (arguments.length >= 2) {
-    // type, default
-    hasDefaultValue = true
-  }
+  const hasDefaultValue = arguments.length >= 2
 
   const newProp = hasDefaultValue ? prop(def) : prop()
 
@@ -140,22 +135,19 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
     ? typesOr(typeChecker as unknown as AnyType, typesUndefined, typesNull)
     : typeChecker
 
-  return {
-    ...newProp,
-    _internal: {
-      ...newProp._internal,
+  Object.assign(newProp._internal, {
+    typeChecker,
 
-      typeChecker,
-
-      fromSnapshotProcessor: (sn) => {
-        const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
-        return fsnp ? fsnp(sn) : sn
-      },
-
-      toSnapshotProcessor: (sn) => {
-        const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
-        return tsnp ? tsnp(sn) : sn
-      },
+    fromSnapshotProcessor: (sn) => {
+      const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
+      return fsnp ? fsnp(sn) : sn
     },
-  }
+
+    toSnapshotProcessor: (sn) => {
+      const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
+      return tsnp ? tsnp(sn) : sn
+    },
+  } satisfies Partial<AnyModelProp["_internal"]>)
+
+  return newProp
 }
