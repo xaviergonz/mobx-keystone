@@ -19,11 +19,11 @@ export function bench(
 
   suite = suite.add(keystone, mobxKeyStoneImpl).add(mst, mstImpl)
 
-  if (es6Impl) {
-    suite = suite.add(es6, es6Impl)
-  }
   if (mobxImpl) {
     suite = suite.add(mobx, mobxImpl)
+  }
+  if (es6Impl) {
+    suite = suite.add(es6, es6Impl)
   }
 
   // add listeners
@@ -43,7 +43,9 @@ export function bench(
 
       const ratio = Math.max(keystoneSpeed, mstSpeed) / Math.min(keystoneSpeed, mstSpeed)
 
-      console.log(`Fastest is ${fastest} by ${ratio.toFixed(2)}x`)
+      console.log(
+        `Fastest between mobx-keystone and mobx-state-tree is ${fastest} by ${ratio.toFixed(2)}x`
+      )
 
       if (mobxImpl) {
         const mobxRatio = results[mobx].hz! / results[keystone].hz!
@@ -57,6 +59,5 @@ export function bench(
 
       console.log()
     })
-    // run async
     .run({ async: false })
 }

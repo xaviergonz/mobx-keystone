@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { Frozen, Model, model, prop } from "../../dist"
+import { Frozen, Model, model, prop } from "../.."
 
 // tiny
 @model("Treasure")
