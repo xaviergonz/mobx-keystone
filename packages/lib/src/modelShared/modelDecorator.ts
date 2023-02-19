@@ -65,14 +65,6 @@ const internalModel =
     const newClazz: any = function (this: any, initialData: any, modelConstructorOptions: any) {
       const instance = new (clazz as any)(initialData, modelConstructorOptions)
 
-      // set or else it points to the undecorated class
-      Object.defineProperty(instance, "constructor", {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: newClazz,
-      })
-
       runLateInitializationFunctions(instance, runAfterNewSymbol)
 
       // compatibility with mobx 6
@@ -124,6 +116,8 @@ const internalModel =
     // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
     Object.setPrototypeOf(newClazz, clazz)
     newClazz.prototype = clazz.prototype
+    // set or else it points to the undecorated class
+    newClazz.prototype.constructor = newClazz
 
     Object.defineProperty(newClazz, "name", {
       ...Object.getOwnPropertyDescriptor(newClazz, "name"),

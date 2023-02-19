@@ -1,5 +1,7 @@
 # Change Log
 
+- Some speed and memory optimizations.
+
 ## 1.2.0
 
 - TypeCheckError now includes a new `message` field, a new `typeCheckedValue` field and no longer requires a parameter for the `throw()` method.

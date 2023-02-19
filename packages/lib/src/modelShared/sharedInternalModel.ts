@@ -24,15 +24,6 @@ import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import { AnyModelProp, getModelPropDefaultValue, ModelProps, noDefaultValue, prop } from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
-function __extends(subClass: any, superClass: any) {
-  Object.setPrototypeOf(subClass, superClass)
-  function __(this: any) {
-    this.constructor = subClass
-  }
-  __.prototype = superClass.prototype
-  subClass.prototype = new (__ as any)()
-}
-
 function createModelPropDescriptor(
   modelPropName: string,
   modelProp: AnyModelProp | undefined,
@@ -220,48 +211,53 @@ export function sharedInternalModel<
     )
   }
 
-  const extraPropNames = Object.keys(extraDescriptors)
-  const extraPropNamesLen = extraPropNames.length
-
   const base: any = baseModel ?? (type === "class" ? BaseModel : BaseDataModel)
+  let propsToDeleteFromBase: string[] | undefined
 
   // we use this weird hack rather than just class CustomBaseModel extends base {}
   // in order to work around problems with ES5 classes extending ES6 classes
   // see https://github.com/xaviergonz/mobx-keystone/issues/15
-  const CustomBaseModel: any = (function (_base) {
-    __extends(CustomBaseModel, _base)
+  function ThisModel(
+    this: any,
+    initialData: any,
+    constructorOptions?: ModelConstructorOptions | DataModelConstructorOptions
+  ) {
+    const modelClass = constructorOptions?.modelClass ?? this.constructor
+    const baseModel = new base(initialData, {
+      ...constructorOptions,
+      modelClass,
+    } as ModelConstructorOptions & DataModelConstructorOptions)
 
-    function CustomBaseModel(
-      this: any,
-      initialData: any,
-      constructorOptions?: ModelConstructorOptions | DataModelConstructorOptions
-    ) {
-      const modelClass = constructorOptions?.modelClass ?? this.constructor
-      const baseModel = new _base(initialData, {
-        ...constructorOptions,
-        modelClass,
-      } as ModelConstructorOptions & DataModelConstructorOptions)
+    // make sure abstract classes do not override prototype props
+    if (!propsToDeleteFromBase) {
+      propsToDeleteFromBase = []
 
-      // make sure abstract classes do not override prototype props
-      for (let i = 0; i < extraPropNamesLen; i++) {
+      const extraPropNames = Object.keys(extraDescriptors)
+      for (let i = 0; i < extraPropNames.length; i++) {
         const extraPropName = extraPropNames[i]
-        if (Object.getOwnPropertyDescriptor(baseModel, extraPropName)) {
-          delete baseModel[extraPropName]
+        if (Object.hasOwn(baseModel, extraPropName)) {
+          propsToDeleteFromBase.push(extraPropName)
         }
       }
-
-      return baseModel
     }
 
-    return CustomBaseModel
-  })(base)
+    propsToDeleteFromBase.forEach((prop) => delete baseModel[prop])
+
+    return baseModel
+  }
+
+  // copy static props from base
+  Object.assign(ThisModel, base)
+
+  ThisModel.prototype = Object.create(base.prototype)
+  ThisModel.prototype.constructor = ThisModel
 
   const initializers = base[modelInitializersSymbol]
   if (initializers) {
-    CustomBaseModel[modelInitializersSymbol] = initializers.slice()
+    ThisModel[modelInitializersSymbol] = initializers.slice()
   }
 
-  setInternalModelClassPropsInfo(CustomBaseModel, composedModelProps)
+  setInternalModelClassPropsInfo(ThisModel as any, composedModelProps)
 
   if (type === "class") {
     const metadata: ModelMetadata = {
@@ -269,32 +265,32 @@ export function sharedInternalModel<
       modelIdProperty: idKey,
       valueType,
     }
-    CustomBaseModel[modelMetadataSymbol] = metadata
+    ThisModel[modelMetadataSymbol] = metadata
   } else {
     const metadata: DataModelMetadata = {
       dataType: dataTypeChecker as unknown as AnyType | undefined,
     }
-    CustomBaseModel[modelMetadataSymbol] = metadata
+    ThisModel[modelMetadataSymbol] = metadata
   }
 
-  Object.defineProperties(CustomBaseModel.prototype, extraDescriptors)
+  Object.defineProperties(ThisModel.prototype, extraDescriptors)
 
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
     if (propData._setter === true) {
       const setterName = propNameToSetterName(propName)
 
-      CustomBaseModel.prototype[setterName] = function (this: any, value: any) {
+      ThisModel.prototype[setterName] = function (this: any, value: any) {
         this[propName] = value
       }
 
       const newPropDescriptor: any = modelAction(
-        CustomBaseModel.prototype,
+        ThisModel.prototype,
         setterName,
-        Object.getOwnPropertyDescriptor(CustomBaseModel.prototype, setterName)
+        Object.getOwnPropertyDescriptor(ThisModel.prototype, setterName)
       )
 
-      Object.defineProperty(CustomBaseModel.prototype, setterName, newPropDescriptor)
+      Object.defineProperty(ThisModel.prototype, setterName, newPropDescriptor)
     }
   }
 
@@ -322,13 +318,10 @@ export function sharedInternalModel<
     }
   }
 
-  CustomBaseModel.fromSnapshotProcessor = chainFns(
-    fromSnapshotProcessor,
-    modelPropsFromSnapshotProcessor
-  )
-  CustomBaseModel.toSnapshotProcessor = chainFns(modelPropsToSnapshotProcessor, toSnapshotProcessor)
+  ThisModel.fromSnapshotProcessor = chainFns(fromSnapshotProcessor, modelPropsFromSnapshotProcessor)
+  ThisModel.toSnapshotProcessor = chainFns(modelPropsToSnapshotProcessor, toSnapshotProcessor)
 
-  return CustomBaseModel
+  return ThisModel
 }
 
 function getModelPropsFromSnapshotProcessor(

@@ -177,29 +177,6 @@ tcModes.forEach((tcMode) => {
     )
   }
 
-  {
-    const bm1 = new bigModel({})
-    const bm2 = mstBigModel.create({})
-    const bm3 = new ESBigModel({})
-    const bm4 = new MobxBigModel({})
-
-    bench(
-      `already created, access all simple props (${name})`,
-      () => {
-        accessVars(bm1)
-      },
-      () => {
-        accessVars(bm2)
-      },
-      () => {
-        accessVars(bm3)
-      },
-      () => {
-        accessVars(bm4)
-      }
-    )
-  }
-
   const setVars = (x: any) => {
     bigModelBigVars.forEach((bmbv) => {
       const small = x[bmbv]
