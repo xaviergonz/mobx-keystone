@@ -24,23 +24,6 @@ import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import { AnyModelProp, getModelPropDefaultValue, ModelProps, noDefaultValue, prop } from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
-function createModelPropDescriptor(
-  modelPropName: string,
-  modelProp: AnyModelProp | undefined,
-  enumerable: boolean
-): PropertyDescriptor {
-  return {
-    enumerable,
-    configurable: true,
-    get(this: AnyModel | AnyDataModel) {
-      return getModelInstanceDataField(this, modelProp, modelPropName)
-    },
-    set(this: AnyModel | AnyDataModel, v?: any) {
-      setModelInstanceDataField(this, modelProp, modelPropName, v)
-    },
-  }
-}
-
 function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
   modelProp: AnyModelProp | undefined,
@@ -123,6 +106,10 @@ export function sharedInternalModel<
   toSnapshotProcessor: ToSnapshotProcessorFn | undefined
 }): any {
   assertIsObject(modelProps, "modelProps")
+
+  // make sure we avoid prototype pollution
+  modelProps = Object.assign(Object.create(null), modelProps)
+
   if (baseModel) {
     assertIsClassOrDataModelClass(baseModel, "baseModel")
 
@@ -133,8 +120,6 @@ export function sharedInternalModel<
       assertIsClassOrDataModelClass(baseModel, "baseModel")
     }
   }
-
-  const extraDescriptors: PropertyDescriptorMap = {}
 
   const composedModelProps: ModelProps = modelProps
   if (baseModel) {
@@ -197,21 +182,9 @@ export function sharedInternalModel<
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
   }
 
-  const basePropNames = type === "class" ? baseModelPropNames : baseDataModelPropNames
-
-  // skip props that are on base model, these have to be accessed through $
-  // we only need to proxy new props, not old ones
-  for (const modelPropName of Object.keys(modelProps).filter(
-    (mp) => !basePropNames.has(mp as any)
-  )) {
-    extraDescriptors[modelPropName] = createModelPropDescriptor(
-      modelPropName,
-      modelProps[modelPropName],
-      false
-    )
-  }
-
   const base: any = baseModel ?? (type === "class" ? BaseModel : BaseDataModel)
+  const basePropNames = base === BaseModel ? baseModelPropNames : baseDataModelPropNames
+
   let propsToDeleteFromBase: string[] | undefined
 
   // we use this weird hack rather than just class CustomBaseModel extends base {}
@@ -230,15 +203,9 @@ export function sharedInternalModel<
 
     // make sure abstract classes do not override prototype props
     if (!propsToDeleteFromBase) {
-      propsToDeleteFromBase = []
-
-      const extraPropNames = Object.keys(extraDescriptors)
-      for (let i = 0; i < extraPropNames.length; i++) {
-        const extraPropName = extraPropNames[i]
-        if (Object.hasOwn(baseModel, extraPropName)) {
-          propsToDeleteFromBase.push(extraPropName)
-        }
-      }
+      propsToDeleteFromBase = Object.keys(composedModelProps).filter(
+        (p) => !basePropNames.has(p as any) && Object.hasOwn(baseModel, p)
+      )
     }
 
     propsToDeleteFromBase.forEach((prop) => delete baseModel[prop])
@@ -249,8 +216,8 @@ export function sharedInternalModel<
   // copy static props from base
   Object.assign(ThisModel, base)
 
-  ThisModel.prototype = Object.create(base.prototype)
-  ThisModel.prototype.constructor = ThisModel
+  const newPrototype = Object.create(base.prototype)
+  newPrototype.constructor = ThisModel
 
   const initializers = base[modelInitializersSymbol]
   if (initializers) {
@@ -273,24 +240,52 @@ export function sharedInternalModel<
     ThisModel[modelMetadataSymbol] = metadata
   }
 
-  Object.defineProperties(ThisModel.prototype, extraDescriptors)
+  ThisModel.prototype = new Proxy(newPrototype, {
+    get(target, p, receiver) {
+      if (receiver === ThisModel.prototype) {
+        return target[p]
+      }
+
+      const modelProp = !basePropNames.has(p as any) && composedModelProps[p as string]
+      return modelProp
+        ? getModelInstanceDataField(receiver, modelProp, p as string)
+        : Reflect.get(target, p, receiver)
+    },
+    set(target, p, v, receiver) {
+      if (receiver === ThisModel.prototype) {
+        target[p] = v
+        return true
+      }
+
+      const modelProp = !basePropNames.has(p as any) && composedModelProps[p as string]
+      if (modelProp) {
+        setModelInstanceDataField(receiver, modelProp, p as string, v)
+        return true
+      }
+      return Reflect.set(target, p, v, receiver)
+    },
+    has(target, p) {
+      const modelProp = !basePropNames.has(p as any) && composedModelProps[p as string]
+      return !!modelProp || Reflect.has(target, p)
+    },
+  })
 
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
     if (propData._setter === true) {
       const setterName = propNameToSetterName(propName)
 
-      ThisModel.prototype[setterName] = function (this: any, value: any) {
+      newPrototype[setterName] = function (this: any, value: any) {
         this[propName] = value
       }
 
       const newPropDescriptor: any = modelAction(
-        ThisModel.prototype,
+        newPrototype,
         setterName,
-        Object.getOwnPropertyDescriptor(ThisModel.prototype, setterName)
+        Object.getOwnPropertyDescriptor(newPrototype, setterName)
       )
 
-      Object.defineProperty(ThisModel.prototype, setterName, newPropDescriptor)
+      Object.defineProperty(newPrototype, setterName, newPropDescriptor)
     }
   }
 

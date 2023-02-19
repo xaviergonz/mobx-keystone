@@ -1,6 +1,9 @@
 # Change Log
 
-- Some speed and memory optimizations.
+## 1.3.0
+
+- Big memory optimizations for model definitions with many properties (very little changes for model instances though). This change now makes Proxy support a requirement.
+- Minor speed optimizations.
 
 ## 1.2.0
 
