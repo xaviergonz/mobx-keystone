@@ -237,7 +237,9 @@ export function sharedInternalModel<
     ThisModel[modelMetadataSymbol] = metadata
   }
 
-  ThisModel.prototype = new Proxy(Object.create(base.prototype), {
+  const newPrototype = Object.create(base.prototype)
+
+  ThisModel.prototype = new Proxy(newPrototype, {
     get(target, p, receiver) {
       if (receiver === ThisModel.prototype) {
         return target[p]
@@ -269,24 +271,24 @@ export function sharedInternalModel<
     },
   })
 
-  ThisModel.prototype.constructor = ThisModel
+  newPrototype.constructor = ThisModel
 
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
     if (propData._setter === true) {
       const setterName = propNameToSetterName(propName)
 
-      ThisModel.prototype[setterName] = function (this: any, value: any) {
+      newPrototype[setterName] = function (this: any, value: any) {
         this[propName] = value
       }
 
       const newPropDescriptor: any = modelAction(
-        ThisModel.prototype,
+        newPrototype,
         setterName,
-        Object.getOwnPropertyDescriptor(ThisModel.prototype, setterName)
+        Object.getOwnPropertyDescriptor(newPrototype, setterName)
       )
 
-      Object.defineProperty(ThisModel.prototype, setterName, newPropDescriptor)
+      Object.defineProperty(newPrototype, setterName, newPropDescriptor)
     }
   }
 
