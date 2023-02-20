@@ -216,9 +216,6 @@ export function sharedInternalModel<
   // copy static props from base
   Object.assign(ThisModel, base)
 
-  const newPrototype = Object.create(base.prototype)
-  newPrototype.constructor = ThisModel
-
   const initializers = base[modelInitializersSymbol]
   if (initializers) {
     ThisModel[modelInitializersSymbol] = initializers.slice()
@@ -240,7 +237,7 @@ export function sharedInternalModel<
     ThisModel[modelMetadataSymbol] = metadata
   }
 
-  ThisModel.prototype = new Proxy(newPrototype, {
+  ThisModel.prototype = new Proxy(Object.create(base.prototype), {
     get(target, p, receiver) {
       if (receiver === ThisModel.prototype) {
         return target[p]
@@ -251,6 +248,7 @@ export function sharedInternalModel<
         ? getModelInstanceDataField(receiver, modelProp, p as string)
         : Reflect.get(target, p, receiver)
     },
+
     set(target, p, v, receiver) {
       if (receiver === ThisModel.prototype) {
         target[p] = v
@@ -264,28 +262,31 @@ export function sharedInternalModel<
       }
       return Reflect.set(target, p, v, receiver)
     },
+
     has(target, p) {
       const modelProp = !basePropNames.has(p as any) && composedModelProps[p as string]
       return !!modelProp || Reflect.has(target, p)
     },
   })
 
+  ThisModel.prototype.constructor = ThisModel
+
   // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
     if (propData._setter === true) {
       const setterName = propNameToSetterName(propName)
 
-      newPrototype[setterName] = function (this: any, value: any) {
+      ThisModel.prototype[setterName] = function (this: any, value: any) {
         this[propName] = value
       }
 
       const newPropDescriptor: any = modelAction(
-        newPrototype,
+        ThisModel.prototype,
         setterName,
-        Object.getOwnPropertyDescriptor(newPrototype, setterName)
+        Object.getOwnPropertyDescriptor(ThisModel.prototype, setterName)
       )
 
-      Object.defineProperty(newPrototype, setterName, newPropDescriptor)
+      Object.defineProperty(ThisModel.prototype, setterName, newPropDescriptor)
     }
   }
 
