@@ -1,5 +1,7 @@
 # Change Log
 
+- Use a proxy to decorate model classes to reduce the inheritance level of models by one.
+
 ## 1.3.0
 
 - Big memory optimizations for model definitions with many properties (very little changes for model instances though). This change now makes Proxy support a requirement.

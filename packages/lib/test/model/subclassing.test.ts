@@ -1,22 +1,22 @@
 import { computed } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   ExtendedModel,
-  fromSnapshot,
-  getSnapshot,
-  idProp,
   Model,
-  modelAction,
-  modelClass,
   ModelClassDeclaration,
   ModelCreationData,
   ModelData,
+  _async,
+  _await,
+  fromSnapshot,
+  getSnapshot,
+  idProp,
+  modelAction,
+  modelClass,
   modelFlow,
   prop,
   tProp,
   types,
-  _async,
-  _await,
 } from "../../src"
 import { Flatten } from "../../src/utils/types"
 import { testModel } from "../utils"
@@ -820,10 +820,18 @@ test("statics get inherited", () => {
     static foo: "foo" = "foo"
   }
 
+  ;(StaticA.prototype as any).foo = "foo"
+  expect((StaticA.prototype as any).foo).toBe("foo")
+
   @testModel("statics get inherited/B")
   class StaticB extends ExtendedModel(StaticA, {}) {
     static bar: "bar" = "bar"
   }
+
+  expect((StaticB.prototype as any).foo).toBe("foo")
+  ;(StaticB.prototype as any).foo = "bar"
+  expect((StaticA.prototype as any).foo).toBe("foo")
+  expect((StaticB.prototype as any).foo).toBe("bar")
 
   assert(StaticA.foo, _ as "foo")
   assert(StaticB.foo, _ as "foo")

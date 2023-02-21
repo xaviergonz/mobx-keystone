@@ -183,7 +183,7 @@ export function sharedInternalModel<
   }
 
   const base: any = baseModel ?? (type === "class" ? BaseModel : BaseDataModel)
-  const basePropNames = base === BaseModel ? baseModelPropNames : baseDataModelPropNames
+  const basePropNames = type === "class" ? baseModelPropNames : baseDataModelPropNames
 
   let propsToDeleteFromBase: string[] | undefined
 
@@ -278,16 +278,16 @@ export function sharedInternalModel<
     if (propData._setter === true) {
       const setterName = propNameToSetterName(propName)
 
-      newPrototype[setterName] = function (this: any, value: any) {
-        this[propName] = value
-      }
+      const newPropDescriptor: any = modelAction(newPrototype, setterName, {
+        value: function (this: any, value: any) {
+          this[propName] = value
+        },
+        writable: true,
+        enumerable: false,
+        configurable: true,
+      })
 
-      const newPropDescriptor: any = modelAction(
-        newPrototype,
-        setterName,
-        Object.getOwnPropertyDescriptor(newPrototype, setterName)
-      )
-
+      // we use define property to avoid the base proxy
       Object.defineProperty(newPrototype, setterName, newPropDescriptor)
     }
   }

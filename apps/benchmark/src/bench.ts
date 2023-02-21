@@ -28,6 +28,9 @@ export function bench(
 
   // add listeners
   suite
+    .on("error", (error: any) => {
+      console.error(error)
+    })
     .on("start", () => {
       console.log(chalk.cyan(name))
       results = {}
