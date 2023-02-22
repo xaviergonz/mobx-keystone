@@ -26,26 +26,26 @@ import { assertIsClassOrDataModelClass } from "./utils"
 
 function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
-  modelProp: AnyModelProp | undefined,
+  modelProp: AnyModelProp,
   modelPropName: string
 ): any {
   // no need to use get since these vars always get on the initial $
   const value = model.$[modelPropName]
 
-  if (modelProp?._transform) {
-    return modelProp._transform.transform(value, model, modelPropName, (newValue) => {
-      // use apply set instead to wrap it in an action
-      // set the $ object to set the original value directly
-      applySet(model.$, modelPropName, newValue)
-    }) as any
+  if (!modelProp._transform) {
+    return value
   }
 
-  return value
+  return modelProp._transform.transform(value, model, modelPropName, (newValue) => {
+    // use apply set instead to wrap it in an action
+    // set the $ object to set the original value directly
+    applySet(model.$, modelPropName, newValue)
+  }) as any
 }
 
 function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
-  modelProp: AnyModelProp | undefined,
+  modelProp: AnyModelProp,
   modelPropName: string,
   value: any
 ): void {
@@ -56,18 +56,18 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
     return
   }
 
-  if (modelProp?._setter === "assign" && !getCurrentActionContext()) {
+  if (modelProp._setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     applySet(model, modelPropName as any, value)
     return
   }
 
-  let untransformedValue = modelProp?._transform
+  let untransformedValue = modelProp._transform
     ? modelProp._transform.untransform(value, model, modelPropName)
     : value
 
   // apply default value if applicable
-  if (modelProp && untransformedValue == null) {
+  if (untransformedValue == null) {
     const defaultValue = getModelPropDefaultValue(modelProp)
     if (defaultValue !== noDefaultValue) {
       untransformedValue = defaultValue
