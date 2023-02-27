@@ -40,7 +40,9 @@ function main(numProps: number) {
     measure("mobxObj", () => {
       const obj = observable.object<any>({}, undefined, { deep: false })
       for (let i = 0; i < numProps; i++) {
-        obj[`prop${i}`] = defValue(i)
+        let dv = defValue(i)
+        if (typeof dv === "object" && dv !== null) dv = observable(dv)
+        obj[`prop${i}`] = dv
       }
       return obj
     })
@@ -48,7 +50,9 @@ function main(numProps: number) {
     measure("mobxMap", () => {
       const map = observable.map<any>()
       for (let i = 0; i < numProps; i++) {
-        map.set(`prop${i}`, defValue(i))
+        let dv = defValue(i)
+        if (typeof dv === "object" && dv !== null) dv = observable(dv)
+        map.set(`prop${i}`, dv)
       }
       return map
     })
