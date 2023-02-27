@@ -138,16 +138,26 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
   Object.assign(newProp, {
     _typeChecker: typeChecker,
 
-    _fromSnapshotProcessor: (sn) => {
-      const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
-      return fsnp ? fsnp(sn) : sn
-    },
+    _fromSnapshotProcessor: tPropFromSnapshotProcessor.bind(undefined, fromSnapshotTypeChecker),
 
-    _toSnapshotProcessor: (sn) => {
-      const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
-      return tsnp ? tsnp(sn) : sn
-    },
+    _toSnapshotProcessor: tPropToSnapshotProcessor.bind(undefined, typeChecker),
   } satisfies Partial<AnyModelProp>)
 
   return newProp
+}
+
+function tPropFromSnapshotProcessor(
+  fromSnapshotTypeChecker: AnyType | TypeChecker | LateTypeChecker,
+  sn: unknown
+) {
+  const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
+  return fsnp ? fsnp(sn) : sn
+}
+
+function tPropToSnapshotProcessor(
+  typeChecker: AnyType | TypeChecker | LateTypeChecker,
+  sn: unknown
+) {
+  const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
+  return tsnp ? tsnp(sn) : sn
 }
