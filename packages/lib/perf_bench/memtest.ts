@@ -1,67 +1,95 @@
 import { observable } from "mobx"
-import { Model, model, prop } from "../src"
-
-function measure<R>(name: string, fn: () => R): R {
-  global.gc!()
-  const start = process.memoryUsage().heapUsed
-  const v = fn()
-  global.gc!()
-  const end = process.memoryUsage().heapUsed
-
-  console.log(`${name}: ${Math.round((end - start) / 1024)}KB`)
-
-  return v
-}
+import { Model, model, prop, Type, types } from "../src"
 
 function main(numProps: number) {
   console.log(`[${numProps} props]`)
+  console.log()
 
-  function plainObj() {
+  function measure<R>(name: string, fn: () => R): R {
+    global.gc!()
+    const start = process.memoryUsage().heapUsed
+    const v = fn()
+    global.gc!()
+    const end = process.memoryUsage().heapUsed
+
+    const diff = end - start
+    console.log(`${name}: ${Math.round(diff / 1024)}KB (${Math.ceil(diff / numProps)}B/prop)`)
+
+    return v
+  }
+
+  function plainObj<T>(defValue: (i: number) => T) {
     const obj = {} as any
     for (let i = 0; i < numProps; i++) {
-      obj[`prop${i}`] = i
+      obj[`prop${i}`] = defValue(i)
     }
     return obj
   }
 
-  measure("plainObj", plainObj)
+  function runTests<T>(defValue: (i: number) => T, typedProp: Type<any, any>) {
+    measure("plainObj", () => plainObj(defValue))
 
-  measure("plainMap", () => {
-    const map = new Map()
-    for (let i = 0; i < numProps; i++) {
-      map.set(`prop${i}`, i)
-    }
-    return map
-  })
+    measure("plainMap", () => {
+      const map = new Map()
+      for (let i = 0; i < numProps; i++) {
+        map.set(`prop${i}`, defValue(i))
+      }
+      return map
+    })
 
-  measure("mobxObj", () => {
-    const obj = observable.object<any>({}, undefined, { deep: false })
-    for (let i = 0; i < numProps; i++) {
-      obj[`prop${i}`] = i
-    }
-    return obj
-  })
+    measure("mobxObj", () => {
+      const obj = observable.object<any>({}, undefined, { deep: false })
+      for (let i = 0; i < numProps; i++) {
+        obj[`prop${i}`] = defValue(i)
+      }
+      return obj
+    })
 
-  measure("mobxMap", () => {
-    const map = observable.map<any>()
-    for (let i = 0; i < numProps; i++) {
-      map.set(`prop${i}`, i)
-    }
-    return map
-  })
+    measure("mobxMap", () => {
+      const map = observable.map<any>()
+      for (let i = 0; i < numProps; i++) {
+        map.set(`prop${i}`, defValue(i))
+      }
+      return map
+    })
 
-  const MKS = measure("mobxKeystoneClass model creation", () => {
-    const props = Object.create(null)
-    for (let i = 0; i < numProps; i++) {
-      props[`prop${i}`] = prop<number>()
-    }
+    const MksProp = measure("mobxKeystoneClass model creation (prop)", () => {
+      const props = Object.create(null)
+      for (let i = 0; i < numProps; i++) {
+        props[`prop${i}`] = prop<T>()
+      }
 
-    @model("MKS")
-    class MKS extends Model(props) {}
+      @model("MKS-prop-" + Math.random())
+      class MKS extends Model(props) {}
 
-    return MKS
-  })
-  measure("mobxKeystoneClass instance creation", () => new MKS(plainObj()))
+      return MKS
+    })
+    measure("mobxKeystoneClass instance creation (prop)", () => new MksProp(plainObj(defValue)))
+
+    const MksTProp = measure("mobxKeystoneClass model creation (tProp)", () => {
+      const props = Object.create(null)
+      for (let i = 0; i < numProps; i++) {
+        props[`prop${i}`] = typedProp
+      }
+
+      @model("MKS-tProp-" + Math.random())
+      class MKS extends Model(props) {}
+
+      return MKS
+    })
+    measure("mobxKeystoneClass instance creation (tProp)", () => new MksTProp(plainObj(defValue)))
+
+    console.log()
+  }
+
+  console.log("# simple props")
+
+  runTests((i) => i, types.number)
+
+  console.log("# array props")
+
+  runTests(() => [], types.array(types.number))
 }
 
+main(100)
 main(10000)
