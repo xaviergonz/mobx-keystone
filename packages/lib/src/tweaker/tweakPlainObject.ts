@@ -142,7 +142,7 @@ function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
 function objectDidChange(change: IObjectDidChange): void {
   const obj = change.object
   const actualNode = dataToModelNode(obj)
-  let { untransformed: oldUntransformedSn } = getInternalSnapshot(actualNode)!
+  let oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
 
   const patchRecorder = new InternalPatchRecorder()
 

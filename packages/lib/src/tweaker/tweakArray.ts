@@ -116,7 +116,7 @@ function mutateSplice(index: number, removedCount: number, addedItems: any[], sn
 
 function arrayDidChange(change: any /*IArrayDidChange*/) {
   const arr = change.object
-  let { untransformed: oldSnapshot } = getInternalSnapshot(arr as Array<any>)!
+  let oldSnapshot = getInternalSnapshot(arr as Array<any>)!.untransformed
 
   const patchRecorder = new InternalPatchRecorder()
 

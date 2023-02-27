@@ -1,5 +1,5 @@
 import { observable } from "mobx"
-import { Model, model, prop, Type, types } from "../src"
+import { Model, model, prop, types } from "../src"
 
 function main(numProps: number) {
   console.log(`[${numProps} props]`)
@@ -26,7 +26,7 @@ function main(numProps: number) {
     return obj
   }
 
-  function runTests<T>(defValue: (i: number) => T, typedProp: Type<any, any>) {
+  function runTests<T>(defValue: (i: number) => T, typedProp: any) {
     measure("plainObj", () => plainObj(defValue))
 
     measure("plainMap", () => {
@@ -93,7 +93,14 @@ function main(numProps: number) {
   console.log("# array props")
 
   runTests(() => [], types.array(types.number))
+
+  console.log("# object props")
+
+  runTests(
+    () => ({}),
+    types.object(() => ({}))
+  )
 }
 
-main(100)
+// main(100)
 main(10000)

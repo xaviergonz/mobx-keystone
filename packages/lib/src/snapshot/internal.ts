@@ -85,7 +85,9 @@ export const setNewInternalSnapshot = action(
       atom: createAtom("snapshot"),
     }
     frozenState.set(sn.untransformed, markAsFrozen)
-    frozenState.set(sn.transformed, markAsFrozen)
+    if (sn.transformed !== undefined) {
+      frozenState.set(sn.transformed, markAsFrozen)
+    }
 
     snapshots.set(value, sn)
 
@@ -123,7 +125,9 @@ export const updateInternalSnapshot = action(
     sn.transformed = sn.transformFn ? sn.transformFn(untransformed) : untransformed
 
     frozenState.set(sn.untransformed, false)
-    frozenState.set(sn.transformed, false)
+    if (sn.transformed !== undefined) {
+      frozenState.set(sn.transformed, false)
+    }
 
     sn.atom.reportChanged()
 
