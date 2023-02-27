@@ -149,7 +149,7 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
 function tPropFromSnapshotProcessor(
   fromSnapshotTypeChecker: AnyType | TypeChecker | LateTypeChecker,
   sn: unknown
-) {
+): unknown {
   const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
   return fsnp ? fsnp(sn) : sn
 }
@@ -157,7 +157,7 @@ function tPropFromSnapshotProcessor(
 function tPropToSnapshotProcessor(
   typeChecker: AnyType | TypeChecker | LateTypeChecker,
   sn: unknown
-) {
+): unknown {
   const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
   return tsnp ? tsnp(sn) : sn
 }
