@@ -11,6 +11,30 @@ import type { AnyType, TypeToData } from "./schemas"
 import { LateTypeChecker, TypeChecker } from "./TypeChecker"
 import { typesOr } from "./utility/typesOr"
 
+const noDefaultValueSymbol = Symbol("noDefaultValue")
+
+const tPropCache = new WeakMap<TypeChecker | LateTypeChecker, Map<unknown, AnyModelProp>>()
+
+function getOrCreateTProp(
+  type: TypeChecker | LateTypeChecker,
+  defKey: unknown,
+  createTProp: () => AnyModelProp
+): AnyModelProp {
+  let defValueCache = tPropCache.get(type)
+  if (!defValueCache) {
+    defValueCache = new Map()
+    tPropCache.set(type, defValueCache)
+  }
+
+  let prop = defValueCache.get(defKey)
+  if (!prop) {
+    prop = createTProp()
+    defValueCache.set(defKey, prop)
+  }
+
+  return prop
+}
+
 /**
  * Defines a string model property with a default value.
  * Equivalent to `tProp(types.string, defaultValue)`.
@@ -125,25 +149,28 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
 
   const hasDefaultValue = arguments.length >= 2
 
-  const newProp = hasDefaultValue ? prop(def) : prop()
-
   const typeChecker = resolveStandardType(typeOrDefaultValue) as unknown as
     | TypeChecker
     | LateTypeChecker
 
-  const fromSnapshotTypeChecker = hasDefaultValue
-    ? typesOr(typeChecker as unknown as AnyType, typesUndefined, typesNull)
-    : typeChecker
+  return getOrCreateTProp(typeChecker, hasDefaultValue ? def : noDefaultValueSymbol, () => {
+    const fromSnapshotTypeChecker = hasDefaultValue
+      ? typesOr(typeChecker as unknown as AnyType, typesUndefined, typesNull)
+      : typeChecker
 
-  Object.assign(newProp, {
-    _typeChecker: typeChecker,
+    // we use Object.create to avoid messing up with the prop cache
+    const newProp = Object.create(hasDefaultValue ? prop(def) : prop())
 
-    _fromSnapshotProcessor: tPropFromSnapshotProcessor.bind(undefined, fromSnapshotTypeChecker),
+    Object.assign(newProp, {
+      _typeChecker: typeChecker,
 
-    _toSnapshotProcessor: tPropToSnapshotProcessor.bind(undefined, typeChecker),
-  } satisfies Partial<AnyModelProp>)
+      _fromSnapshotProcessor: tPropFromSnapshotProcessor.bind(undefined, fromSnapshotTypeChecker),
 
-  return newProp
+      _toSnapshotProcessor: tPropToSnapshotProcessor.bind(undefined, typeChecker),
+    } satisfies Partial<AnyModelProp>)
+
+    return newProp
+  })
 }
 
 function tPropFromSnapshotProcessor(

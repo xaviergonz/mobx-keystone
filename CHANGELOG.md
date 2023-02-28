@@ -1,6 +1,8 @@
 # Change Log
 
 - Use a proxy to decorate model classes to reduce the inheritance level of models by one.
+- Create object children cache only when there are actually children to save some memory in objects/arrays that don't have children of type object.
+- Cache props/tProps to save some memory in model definitions.
 
 ## 1.3.0
 

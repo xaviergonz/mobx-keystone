@@ -401,19 +401,29 @@ export function prop<TValue>(): MaybeOptionalModelProp<TValue>
 
 // base
 export function prop(def?: any): AnyModelProp {
-  const obj: AnyModelProp = Object.create(baseProp)
-
   const hasDefaultValue = arguments.length >= 1
-  if (hasDefaultValue) {
-    if (typeof def === "function") {
-      obj._defaultFn = def
-    } else {
-      obj._defaultValue = def
-    }
+  if (!hasDefaultValue) {
+    return baseProp
   }
 
-  return obj
+  let p = propCache.get(def)
+
+  if (!p) {
+    p = Object.create(baseProp)
+
+    if (typeof def === "function") {
+      p!._defaultFn = def
+    } else {
+      p!._defaultValue = def
+    }
+
+    propCache.set(def, p!)
+  }
+
+  return p!
 }
+
+const propCache = new Map<unknown, AnyModelProp>()
 
 let cacheTransformResult = false
 const cacheTransformedValueFn = () => {

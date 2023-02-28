@@ -1,5 +1,5 @@
 import { observable } from "mobx"
-import { Model, model, prop, types } from "../src"
+import { Model, model, prop, tProp, types } from "../src"
 
 function main(numProps: number) {
   console.log(`[${numProps} props]`)
@@ -84,7 +84,7 @@ function main(numProps: number) {
     const MksTProp = measure("mobxKeystoneClass model creation (tProp)", () => {
       const props = Object.create(null)
       for (let i = 0; i < numProps; i++) {
-        props[`prop${i}`] = typedProp
+        props[`prop${i}`] = tProp(typedProp)
       }
 
       @model("MKS-tProp-" + Math.random())
