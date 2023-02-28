@@ -38,7 +38,7 @@ export function tweakArray<T extends any[]>(
   const arrLn = originalArr.length
   const tweakedArr = isObservableArray(originalArr)
     ? originalArr
-    : observable.array([], observableOptions)
+    : observable.array(undefined, observableOptions)
   if (tweakedArr !== originalArr) {
     tweakedArr.length = originalArr.length
   }

@@ -15,7 +15,7 @@ import {
   parentPathEquals,
   reportParentPathChanged,
 } from "./core"
-import { addObjectChild, initializeObjectChildren, removeObjectChild } from "./coreObjectChildren"
+import { addObjectChild, removeObjectChild } from "./coreObjectChildren"
 import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
 
 /**
@@ -62,8 +62,6 @@ export const setParent = action(
       // data object will proxy to use the actual parent model for child/parent stuff
       return value
     }
-
-    initializeObjectChildren(value)
 
     // make sure the new parent actually points to models when we give model data objs
     if (parentPath) {
