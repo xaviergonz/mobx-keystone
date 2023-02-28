@@ -5,6 +5,13 @@ function main(numProps: number) {
   console.log(`[${numProps} props]`)
   console.log()
 
+  const byteValueNumberFormatter = Intl.NumberFormat("en", {
+    notation: "standard",
+    style: "unit",
+    unit: "byte",
+    unitDisplay: "narrow",
+  })
+
   function measure<R>(name: string, fn: () => R): R {
     global.gc!()
     const start = process.memoryUsage().heapUsed
@@ -13,7 +20,11 @@ function main(numProps: number) {
     const end = process.memoryUsage().heapUsed
 
     const diff = end - start
-    console.log(`${name}: ${Math.round(diff / 1024)}KB (${Math.ceil(diff / numProps)}B/prop)`)
+    console.log(
+      `${name}: ${byteValueNumberFormatter.format(diff)} (${byteValueNumberFormatter.format(
+        Math.ceil(diff / numProps)
+      )}/prop)`
+    )
 
     return v
   }
