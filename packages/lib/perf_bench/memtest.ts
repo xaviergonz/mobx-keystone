@@ -1,16 +1,16 @@
 import { observable } from "mobx"
 import { Model, model, prop, tProp, types } from "../src"
 
-function main(numProps: number) {
-  console.log(`[${numProps} props]`)
-  console.log()
+const byteValueNumberFormatter = Intl.NumberFormat("en", {
+  notation: "standard",
+  style: "unit",
+  unit: "byte",
+  unitDisplay: "narrow",
+})
 
-  const byteValueNumberFormatter = Intl.NumberFormat("en", {
-    notation: "standard",
-    style: "unit",
-    unit: "byte",
-    unitDisplay: "narrow",
-  })
+function memtest(numProps: number, numInstances: number) {
+  console.log(`[${numProps} props, ${numInstances} instances]`)
+  console.log()
 
   function measure<R>(name: string, fn: () => R): R {
     global.gc!()
@@ -22,8 +22,8 @@ function main(numProps: number) {
     const diff = end - start
     console.log(
       `${name}: ${byteValueNumberFormatter.format(diff)} (${byteValueNumberFormatter.format(
-        Math.ceil(diff / numProps)
-      )}/prop)`
+        Math.ceil(diff / (numProps * numInstances))
+      )}/each)`
     )
 
     return v
@@ -37,36 +37,50 @@ function main(numProps: number) {
     return obj
   }
 
+  const createManyInstances = (fn: () => void) => {
+    const arr = [] // keep the instances alive
+    for (let i = 0; i < numInstances; i++) {
+      arr.push(fn())
+    }
+    return arr
+  }
+
   function runTests<T>(defValue: (i: number) => T, typedProp: any) {
-    measure("plainObj", () => plainObj(defValue))
+    measure("plainObj", () => createManyInstances(() => plainObj(defValue)))
 
-    measure("plainMap", () => {
-      const map = new Map()
-      for (let i = 0; i < numProps; i++) {
-        map.set(`prop${i}`, defValue(i))
-      }
-      return map
-    })
+    measure("plainMap", () =>
+      createManyInstances(() => {
+        const map = new Map()
+        for (let i = 0; i < numProps; i++) {
+          map.set(`prop${i}`, defValue(i))
+        }
+        return map
+      })
+    )
 
-    measure("mobxObj", () => {
-      const obj = observable.object<any>({}, undefined, { deep: false })
-      for (let i = 0; i < numProps; i++) {
-        let dv = defValue(i)
-        if (typeof dv === "object" && dv !== null) dv = observable(dv)
-        obj[`prop${i}`] = dv
-      }
-      return obj
-    })
+    measure("mobxObj", () =>
+      createManyInstances(() => {
+        const obj = observable.object<any>({}, undefined, { deep: false })
+        for (let i = 0; i < numProps; i++) {
+          let dv = defValue(i)
+          if (typeof dv === "object" && dv !== null) dv = observable(dv)
+          obj[`prop${i}`] = dv
+        }
+        return obj
+      })
+    )
 
-    measure("mobxMap", () => {
-      const map = observable.map<any>()
-      for (let i = 0; i < numProps; i++) {
-        let dv = defValue(i)
-        if (typeof dv === "object" && dv !== null) dv = observable(dv)
-        map.set(`prop${i}`, dv)
-      }
-      return map
-    })
+    measure("mobxMap", () =>
+      createManyInstances(() => {
+        const map = observable.map<any>()
+        for (let i = 0; i < numProps; i++) {
+          let dv = defValue(i)
+          if (typeof dv === "object" && dv !== null) dv = observable(dv)
+          map.set(`prop${i}`, dv)
+        }
+        return map
+      })
+    )
 
     const MksProp = measure("mobxKeystoneClass model creation (prop)", () => {
       const props = Object.create(null)
@@ -79,7 +93,9 @@ function main(numProps: number) {
 
       return MKS
     })
-    measure("mobxKeystoneClass instance creation (prop)", () => new MksProp(plainObj(defValue)))
+    measure("mobxKeystoneClass instance creation (prop)", () =>
+      createManyInstances(() => new MksProp(plainObj(defValue)))
+    )
 
     const MksTProp = measure("mobxKeystoneClass model creation (tProp)", () => {
       const props = Object.create(null)
@@ -92,7 +108,9 @@ function main(numProps: number) {
 
       return MKS
     })
-    measure("mobxKeystoneClass instance creation (tProp)", () => new MksTProp(plainObj(defValue)))
+    measure("mobxKeystoneClass instance creation (tProp)", () =>
+      createManyInstances(() => new MksTProp(plainObj(defValue)))
+    )
 
     console.log()
   }
@@ -113,5 +131,5 @@ function main(numProps: number) {
   )
 }
 
-// main(100)
-main(10000)
+// memtest(10000, 1)
+memtest(1, 2000)
