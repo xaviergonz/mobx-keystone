@@ -12,7 +12,7 @@
   "dependencies": {
     "@docusaurus/core": "^2.3.1",
     "@docusaurus/preset-classic": "^2.3.1",
-    "@easyops-cn/docusaurus-search-local": "^0.34.0",
+    "@easyops-cn/docusaurus-search-local": "^0.35.0",
     "bootstrap-icons": "^1.10.3",
     "mobx": "^6.8.0",
     "mobx-keystone": "workspace:packages/lib",
