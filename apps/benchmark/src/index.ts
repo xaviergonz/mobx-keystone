@@ -5,12 +5,17 @@ import {
   setGlobalConfig,
 } from "mobx-keystone"
 import { getSnapshot as mstGetSnapshot } from "mobx-state-tree"
-import { bench } from "./bench.js"
+import { bench, ExtrasToRun } from "./bench.js"
 import { ESBigModel } from "./models/es6.js"
 import { BigModel } from "./models/ks-nonTypeChecked.js"
 import { TcBigModel } from "./models/ks-typeChecked.js"
 import { MobxBigModel } from "./models/mobx.js"
 import { mstBigModel } from "./models/mst.js"
+
+const extrasToRun: ExtrasToRun = [
+  // "es6",
+  // "mobx",
+]
 
 const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
   ModelAutoTypeCheckingMode.AlwaysOn,
@@ -61,7 +66,8 @@ tcModes.forEach((tcMode) => {
     },
     () => {
       new MobxBigModel({})
-    }
+    },
+    extrasToRun
   )
 
   const bigModelBigVars = ["aa", "bb", "cc", "dd"]
@@ -97,7 +103,8 @@ tcModes.forEach((tcMode) => {
     () => {
       const x = new MobxBigModel({})
       accessVars(x)
-    }
+    },
+    extrasToRun
   )
 
   {
@@ -119,7 +126,8 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         accessVars(bm4)
-      }
+      },
+      extrasToRun
     )
   }
 
@@ -173,7 +181,8 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         MobxBigModel.fromSnapshot(bigModelSnapshot)
-      }
+      },
+      extrasToRun
     )
   }
 
@@ -208,7 +217,8 @@ tcModes.forEach((tcMode) => {
       },
       () => {
         setVars(bm4)
-      }
+      },
+      extrasToRun
     )
   }
 
@@ -235,7 +245,8 @@ tcModes.forEach((tcMode) => {
       () => {
         bm4.setA(bm4.a + "x")
         bm4.toJSON()
-      }
+      },
+      extrasToRun
     )
   }
 })

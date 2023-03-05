@@ -5,12 +5,19 @@ import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray } from "../utils"
 import type { Patch } from "./Patch"
 
+const emptyPatchArray: Patch[] = []
+
 /**
  * @internal
  */
 export class InternalPatchRecorder {
-  patches!: Patch[]
-  invPatches!: Patch[]
+  patches: Patch[] = emptyPatchArray
+  invPatches: Patch[] = emptyPatchArray
+
+  reset() {
+    this.patches = emptyPatchArray
+    this.invPatches = emptyPatchArray
+  }
 
   record(patches: Patch[], invPatches: Patch[]) {
     this.patches = patches
@@ -19,6 +26,7 @@ export class InternalPatchRecorder {
 
   emit(obj: object) {
     emitPatch(obj, this.patches, this.invPatches, true)
+    this.reset()
   }
 }
 

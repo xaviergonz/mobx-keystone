@@ -139,29 +139,31 @@ function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
   delete sn[k]
 }
 
+const patchRecorder = new InternalPatchRecorder()
+
 function objectDidChange(change: IObjectDidChange): void {
   const obj = change.object
   const actualNode = dataToModelNode(obj)
   let oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
 
-  const patchRecorder = new InternalPatchRecorder()
+  patchRecorder.reset()
 
   let mutate: ((sn: any) => void) | undefined
 
   switch (change.type) {
     case "add":
     case "update":
-      mutate = objectDidChangeAddOrUpdate(change, oldUntransformedSn, patchRecorder)
+      mutate = objectDidChangeAddOrUpdate(change, oldUntransformedSn)
       break
 
     case "remove":
-      mutate = objectDidChangeRemove(change, oldUntransformedSn, patchRecorder)
+      mutate = objectDidChangeRemove(change, oldUntransformedSn)
       break
   }
 
   runTypeCheckingAfterChange(obj, patchRecorder)
 
-  if (!runningWithoutSnapshotOrPatches && mutate!) {
+  if (!runningWithoutSnapshotOrPatches && mutate) {
     updateInternalSnapshot(actualNode, mutate)
     patchRecorder.emit(actualNode)
   }
@@ -169,8 +171,7 @@ function objectDidChange(change: IObjectDidChange): void {
 
 function objectDidChangeRemove(
   change: IObjectDidChange & { type: "remove" },
-  oldUntransformedSn: any,
-  patchRecorder: InternalPatchRecorder
+  oldUntransformedSn: any
 ) {
   const k = change.name
   const oldVal = oldUntransformedSn[k]
@@ -198,8 +199,7 @@ function objectDidChangeRemove(
 
 function objectDidChangeAddOrUpdate(
   change: IObjectWillChange & { type: "add" | "update" },
-  oldUntransformedSn: any,
-  patchRecorder: InternalPatchRecorder
+  oldUntransformedSn: any
 ) {
   const k = change.name
   const val = change.newValue

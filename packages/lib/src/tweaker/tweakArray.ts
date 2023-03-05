@@ -114,21 +114,23 @@ function mutateSplice(index: number, removedCount: number, addedItems: any[], sn
   sn.splice(index, removedCount, ...addedItems)
 }
 
+const patchRecorder = new InternalPatchRecorder()
+
 function arrayDidChange(change: any /*IArrayDidChange*/) {
   const arr = change.object
   let oldSnapshot = getInternalSnapshot(arr as Array<any>)!.untransformed
 
-  const patchRecorder = new InternalPatchRecorder()
+  patchRecorder.reset()
 
   let mutate: ((sn: any[]) => void) | undefined
 
   switch (change.type) {
     case "splice":
-      mutate = arrayDidChangeSplice(change, oldSnapshot, patchRecorder)
+      mutate = arrayDidChangeSplice(change, oldSnapshot)
       break
 
     case "update":
-      mutate = arrayDidChangeUpdate(change, oldSnapshot, patchRecorder)
+      mutate = arrayDidChangeUpdate(change, oldSnapshot)
       break
   }
 
@@ -143,11 +145,7 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
 const undefinedInsideArrayErrorMsg =
   "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
 
-function arrayDidChangeUpdate(
-  change: any /*IArrayDidChange*/,
-  oldSnapshot: any,
-  patchRecorder: InternalPatchRecorder
-) {
+function arrayDidChangeUpdate(change: any /*IArrayDidChange*/, oldSnapshot: any) {
   const k = change.index
   const val = change.newValue
   const oldVal = oldSnapshot[k]
@@ -181,11 +179,7 @@ function arrayDidChangeUpdate(
   return mutate
 }
 
-function arrayDidChangeSplice(
-  change: any /*IArrayDidChange*/,
-  oldSnapshot: any,
-  patchRecorder: InternalPatchRecorder
-) {
+function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any) {
   const index = change.index
   const addedCount = change.addedCount
   const removedCount = change.removedCount

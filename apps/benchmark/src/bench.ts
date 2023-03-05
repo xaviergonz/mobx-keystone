@@ -1,12 +1,15 @@
 import Benchmark from "benchmark"
 import chalk from "chalk"
 
+export type ExtrasToRun = ("es6" | "mobx")[]
+
 export function bench(
   name: string,
   mobxKeyStoneImpl: Function,
   mstImpl: Function,
-  es6Impl?: Function,
-  mobxImpl?: Function
+  es6Impl: Function,
+  mobxImpl: Function,
+  extrasToRun: ExtrasToRun
 ) {
   let suite = new Benchmark.Suite(name)
 
@@ -19,10 +22,10 @@ export function bench(
 
   suite = suite.add(keystone, mobxKeyStoneImpl).add(mst, mstImpl)
 
-  if (mobxImpl) {
+  if (extrasToRun.includes("mobx")) {
     suite = suite.add(mobx, mobxImpl)
   }
-  if (es6Impl) {
+  if (extrasToRun.includes("es6")) {
     suite = suite.add(es6, es6Impl)
   }
 
@@ -50,12 +53,12 @@ export function bench(
         `Fastest between mobx-keystone and mobx-state-tree is ${fastest} by ${ratio.toFixed(2)}x`
       )
 
-      if (mobxImpl) {
+      if (extrasToRun.includes("mobx")) {
         const mobxRatio = results[mobx].hz! / results[keystone].hz!
         console.log(`${mobx} is faster than mobx-keystone by ${mobxRatio.toFixed(2)}x`)
       }
 
-      if (es6Impl) {
+      if (extrasToRun.includes("es6")) {
         const es6Ratio = results[es6].hz! / results[keystone].hz!
         console.log(`${es6} is faster than mobx-keystone by ${es6Ratio.toFixed(2)}x`)
       }

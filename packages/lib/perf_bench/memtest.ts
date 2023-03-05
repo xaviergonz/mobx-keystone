@@ -131,5 +131,5 @@ function memtest(numProps: number, numInstances: number) {
   )
 }
 
-// memtest(10000, 1)
-memtest(1, 2000)
+memtest(10000, 1)
+// memtest(1, 2000)
