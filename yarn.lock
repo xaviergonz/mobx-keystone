@@ -14906,7 +14906,7 @@ __metadata:
     ts-node: ^10.9.1
     ts-toolbelt: ^9.6.0
     tslib: ^2.5.0
-    typedoc: ^0.24.0-beta.2
+    typedoc: ^0.23.26
     typescript: ^4.9.5
     vite: ^4.1.4
   peerDependencies:
@@ -20560,9 +20560,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:^0.24.0-beta.2":
-  version: 0.24.0-beta.2
-  resolution: "typedoc@npm:0.24.0-beta.2"
+"typedoc@npm:^0.23.26":
+  version: 0.23.26
+  resolution: "typedoc@npm:0.23.26"
   dependencies:
     lunr: ^2.3.9
     marked: ^4.2.12
@@ -20572,7 +20572,7 @@ __metadata:
     typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x
   bin:
     typedoc: bin/typedoc
-  checksum: b3dbc02608775a8fcf19ae892221fcda06b3d766550e9ad889d698fb69a4c3fa6fc26439fd795586317ec59062c02faa2e44b09e5b30b8a0ca3ee819be3902c7
+  checksum: 09dbd221b5bd27a7f6c593a6aa7e4efc3c46f20761e109a76bf0ed7239011cca1261357094710c01472582060d75a7558aab5bf5b78db3aff7c52188d146ee65
   languageName: node
   linkType: hard
 
