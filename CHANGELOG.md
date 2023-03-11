@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.1
+
+- Optimizations yielding around 10-15% less CPU time for some operations.
+
 ## 1.4.0
 
 - Use a proxy to decorate model classes to reduce the inheritance level of models by one.
