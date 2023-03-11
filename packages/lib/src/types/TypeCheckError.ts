@@ -1,4 +1,4 @@
-import { getRootPath } from "../parent/path"
+import { fastGetRootPath } from "../parent/path"
 import { Path } from "../parent/pathTypes"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
@@ -28,7 +28,7 @@ export class TypeCheckError {
   ) {
     let rootPath: Path = []
     if (this.typeCheckedValue && isTweakedObject(this.typeCheckedValue, true)) {
-      rootPath = getRootPath(this.typeCheckedValue).path
+      rootPath = fastGetRootPath(this.typeCheckedValue).path
     }
 
     const actualValueSnapshot = isTweakedObject(this.actualValue, true)

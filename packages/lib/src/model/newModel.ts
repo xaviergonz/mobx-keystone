@@ -10,9 +10,9 @@ import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import type { AnyModel } from "./BaseModel"
-import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
 import { modelTypeKey } from "./metadata"
+import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -29,7 +29,7 @@ export const internalNewModel = action(
     const { modelClass: _modelClass, snapshotInitialData, generateNewIds } = options
     const modelClass = _modelClass!
 
-    if (inDevMode()) {
+    if (inDevMode) {
       assertIsModelClass(modelClass, "modelClass")
     }
 
@@ -121,7 +121,7 @@ export const internalNewModel = action(
     tweakModel(modelObj, undefined)
 
     // create observable data object with initial data
-    let obsData = tweakPlainObject(
+    modelObj.$ = tweakPlainObject(
       initialData!,
       { parent: modelObj, path: "$" },
       modelObj[modelTypeKey],
@@ -129,11 +129,12 @@ export const internalNewModel = action(
       true
     )
 
-    // link it, and make it readonly
-    modelObj.$ = obsData
-    if (inDevMode()) {
+    if (inDevMode) {
       makePropReadonly(modelObj, "$", true)
     }
+
+    // run any extra initializers for the class as needed
+    applyModelInitializers(modelClass, modelObj)
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {
@@ -142,9 +143,6 @@ export const internalNewModel = action(
         err.throw()
       }
     }
-
-    // run any extra initializers for the class as needed
-    applyModelInitializers(modelClass, modelObj)
 
     return modelObj as M
   }

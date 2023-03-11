@@ -11,8 +11,7 @@ export function applyModelInitializers(
   if (initializers) {
     const len = initializers.length
     for (let i = 0; i < len; i++) {
-      const init = initializers[i]
-      init(modelObj)
+      initializers[i](modelObj)
     }
   }
 }

@@ -145,7 +145,7 @@ export function tryUntweak(value: any) {
     return true
   }
 
-  if (inDevMode()) {
+  if (inDevMode) {
     if (fastGetParent(value)) {
       throw failure("assertion failed: object cannot be untweaked while it has a parent")
     }
@@ -157,14 +157,7 @@ export function tryUntweak(value: any) {
   }
 
   // we have to make a copy since it will be changed
-  // we have to iterate ourselves since it seems like babel does not do downlevel iteration
-  const children = []
-  const childrenIter = getObjectChildren(value)!.values()
-  let childrenCur = childrenIter.next()
-  while (!childrenCur.done) {
-    children.push(childrenCur.value)
-    childrenCur = childrenIter.next()
-  }
+  const children = Array.from(getObjectChildren(value)!.values())
 
   for (let i = 0; i < children.length; i++) {
     setParent({

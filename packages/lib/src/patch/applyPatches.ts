@@ -147,7 +147,7 @@ function pathArrayToObjectAndProp(
   obj: object,
   path: Patch["path"]
 ): { target: any; prop?: PathElement } {
-  if (inDevMode()) {
+  if (inDevMode) {
     if (!isArray(path)) {
       throw failure(`invalid path: ${path}`)
     }

@@ -62,7 +62,7 @@ export function internalApplySnapshot<T extends object>(
     const modelPool = new ModelPool(obj)
     const ret = reconcileSnapshot(obj, sn, modelPool, undefined)
 
-    if (inDevMode()) {
+    if (inDevMode) {
       if (ret !== obj) {
         throw failure("assertion failed: reconciled object has to be the same")
       }

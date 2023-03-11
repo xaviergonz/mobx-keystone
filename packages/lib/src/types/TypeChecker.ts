@@ -45,10 +45,9 @@ export function invalidateCachedTypeCheckerResult(obj: object) {
   while (current) {
     const set = typeCheckersWithCachedResultsOfObject.get(current)
     if (set) {
-      for (const typeChecker of set) {
-        typeChecker.invalidateCachedResult(current)
-      }
       typeCheckersWithCachedResultsOfObject.delete(current)
+      // eslint-disable-next-line no-loop-func
+      set.forEach((typeChecker) => typeChecker.invalidateCachedResult(current))
     }
 
     current = fastGetParentIncludingDataObjects(current)

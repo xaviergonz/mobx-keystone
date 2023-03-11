@@ -13,7 +13,7 @@ import { tag } from "../utils/tag"
 
 const observableSetBackedByObservableArray = action(
   <T>(array: IObservableArray<T>): ObservableSet<T> & { dataObject: typeof array } => {
-    if (inDevMode()) {
+    if (inDevMode) {
       if (!isObservableArray(array)) {
         throw failure("assertion failed: expected an observable array")
       }

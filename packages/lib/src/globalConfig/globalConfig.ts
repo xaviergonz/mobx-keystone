@@ -94,7 +94,7 @@ export function getGlobalConfig(): Readonly<GlobalConfig> {
 export function isModelAutoTypeCheckingEnabled() {
   switch (getGlobalConfig().modelAutoTypeChecking) {
     case ModelAutoTypeCheckingMode.DevModeOnly:
-      return inDevMode()
+      return inDevMode
     case ModelAutoTypeCheckingMode.AlwaysOff:
       return false
     case ModelAutoTypeCheckingMode.AlwaysOn:

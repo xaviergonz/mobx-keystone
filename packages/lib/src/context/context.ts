@@ -100,6 +100,8 @@ function resolveContextValue<T>(contextValue: ContextValue<T>): T {
   }
 }
 
+const createContextValueAtom = () => createAtom("contextValue")
+
 class ContextClass<T> implements Context<T> {
   private defaultContextValue = observable.box<ContextValue<T>>(undefined, { deep: false })
 
@@ -111,7 +113,7 @@ class ContextClass<T> implements Context<T> {
   private readonly nodeAtom = new WeakMap<object, IAtom>()
 
   private getNodeAtom(node: object) {
-    return getOrCreate(this.nodeAtom, node, () => createAtom("contextValue"))
+    return getOrCreate(this.nodeAtom, node, createContextValueAtom)
   }
 
   private fastGet(node: object): T {

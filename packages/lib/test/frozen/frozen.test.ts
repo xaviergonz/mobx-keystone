@@ -11,7 +11,7 @@ import {
   types,
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
-import { emulateProdMode, testModel } from "../utils"
+import { testModel } from "../utils"
 
 @testModel("MWithFrozenProp")
 class MWithFrozenProp extends Model({
@@ -61,25 +61,15 @@ basicTest("array", [1, 2, 3])
 basicTest("plain object", { a: 1, b: 2, c: 3 })
 basicTest("plain complex object", { a: { aa: 1 }, b: 2, c: 3 })
 
-test("a non plain object should throw in dev mode, but not in prod mode", () => {
+test("a non plain object should throw in dev mode", () => {
   expect(() => frozen(function () {})).toThrow("frozen data must be plainly serializable to JSON")
-  emulateProdMode(() => {
-    expect(() => frozen(function () {})).not.toThrow()
-  })
 })
 
-test("data is frozen in dev mode, but not in prod mode", () => {
+test("data is frozen in dev mode", () => {
   expect(() => {
     const fr = frozen([1, 2, 3])
     ;(fr.data as any)[0] = 10
   }).toThrow()
-
-  emulateProdMode(() => {
-    const fr = frozen([1, 2, 3])
-    expect(() => {
-      ;(fr.data as any)[0] = 10
-    }).not.toThrow()
-  })
 })
 
 test("it is possible to store a snapshot in a frozen", () => {

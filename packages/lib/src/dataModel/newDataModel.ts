@@ -23,7 +23,7 @@ export const internalNewDataModel = action(
     const { modelClass: _modelClass } = options
     const modelClass = _modelClass!
 
-    if (inDevMode()) {
+    if (inDevMode) {
       assertIsDataModelClass(modelClass, "modelClass")
     }
 
@@ -38,9 +38,12 @@ export const internalNewDataModel = action(
 
     // link it, and make it readonly
     modelObj.$ = tweakedData
-    if (inDevMode()) {
+    if (inDevMode) {
       makePropReadonly(modelObj, "$", true)
     }
+
+    // run any extra initializers for the class as needed
+    applyModelInitializers(modelClass, modelObj)
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled() && getDataModelMetadata(modelClass).dataType) {
@@ -49,9 +52,6 @@ export const internalNewDataModel = action(
         err.throw()
       }
     }
-
-    // run any extra initializers for the class as needed
-    applyModelInitializers(modelClass, modelObj)
 
     return modelObj as M
   }
