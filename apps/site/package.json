@@ -26,7 +26,7 @@
     "@babel/plugin-proposal-decorators": "^7.21.0",
     "@docusaurus/module-type-aliases": "^2.3.1",
     "@svgr/webpack": "^6.5.1",
-    "@tsconfig/docusaurus": "^1.0.6",
+    "@tsconfig/docusaurus": "^1.0.7",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@types/uuid": "^9.0.1",

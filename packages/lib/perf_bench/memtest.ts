@@ -1,5 +1,18 @@
 import { observable } from "mobx"
-import { Model, model, prop, tProp, types } from "../src"
+import {
+  idProp,
+  Model,
+  model,
+  modelAction,
+  ModelAutoTypeCheckingMode,
+  prop,
+  Ref,
+  registerRootStore,
+  rootRef,
+  setGlobalConfig,
+  tProp,
+  types,
+} from "../src"
 
 const byteValueNumberFormatter = Intl.NumberFormat("en", {
   notation: "standard",
@@ -8,6 +21,8 @@ const byteValueNumberFormatter = Intl.NumberFormat("en", {
   unitDisplay: "narrow",
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// @ts-ignore
 function memtest(numProps: number, numInstances: number) {
   console.log(`[${numProps} props, ${numInstances} instances]`)
   console.log()
@@ -133,3 +148,131 @@ function memtest(numProps: number, numInstances: number) {
 
 memtest(10000, 1)
 // memtest(1, 2000)
+
+function testCreationSpeed(n: number) {
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+  })
+  const categoryRef = rootRef<TodoCategory>("myCoolApp/categoryRef")
+
+  @model("myCoolApp/Cateogry")
+  class TodoCategory extends Model({
+    id: idProp,
+    text: prop<string>("category"),
+  }) {}
+
+  @model("myCoolApp/Todo")
+  class Todo extends Model({
+    id: idProp,
+    text: prop<string>("todo"),
+    done: prop(false),
+    categoryRef: prop<Ref<TodoCategory> | undefined>(),
+  }) {}
+
+  @model("myCoolApp/TodoStore")
+  class Store extends Model({
+    categories: prop<TodoCategory[]>(() => []),
+    todos: prop<Todo[]>(() => []),
+  }) {
+    @modelAction
+    reset() {
+      this.categories = []
+      this.todos = []
+    }
+
+    @modelAction
+    justCreatingModels() {
+      const todos: Todo[] = []
+      for (let i = 0; i < n; i++) {
+        todos.push(new Todo({ text: "" }))
+      }
+    }
+
+    @modelAction
+    bigInitWithoutRefsWithoutAssign() {
+      for (let i = 0; i < n; i++) {
+        this.todos.push(new Todo({ text: "" }))
+      }
+    }
+
+    @modelAction
+    bigInitWithoutRefsWithAssign() {
+      const todos: Todo[] = []
+      for (let i = 0; i < n; i++) {
+        todos.push(new Todo({ text: "" }))
+      }
+      this.todos = [...this.todos, ...todos]
+    }
+
+    @modelAction
+    bigInitWithRefsWithoutAssign() {
+      const category = new TodoCategory({})
+      const todos: Todo[] = []
+      for (let i = 0; i < n; i++) {
+        todos.push(new Todo({ text: "", categoryRef: categoryRef(category) }))
+      }
+    }
+
+    @modelAction
+    bigInitWithRefsWithAssign() {
+      const category = new TodoCategory({})
+      this.categories.push(category)
+
+      const todos: Todo[] = []
+      for (let i = 0; i < n; i++) {
+        todos.push(new Todo({ text: "", categoryRef: categoryRef(category) }))
+      }
+      this.todos = [...this.todos, ...todos]
+    }
+
+    mobxInit() {
+      const todos: { text: string }[] = observable([])
+      for (let i = 0; i < n; i++) {
+        todos.push({ text: "" })
+      }
+    }
+  }
+
+  const store = new Store({})
+  registerRootStore(store)
+
+  store.reset()
+
+  console.time("justCreatingModel")
+  store.justCreatingModels()
+  console.timeEnd("justCreatingModel")
+
+  store.reset()
+
+  console.time("bigInitWithoutRefsWithoutAssign")
+  store.bigInitWithoutRefsWithoutAssign()
+  console.timeEnd("bigInitWithoutRefsWithoutAssign")
+
+  store.reset()
+
+  console.time("bigInitWithoutRefsWithAssign")
+  store.bigInitWithoutRefsWithAssign()
+  console.timeEnd("bigInitWithoutRefsWithAssign")
+
+  store.reset()
+
+  console.time("bigInitWithRefsWithoutAssign")
+  store.bigInitWithRefsWithoutAssign()
+  console.timeEnd("bigInitWithRefsWithoutAssign")
+
+  store.reset()
+
+  console.time("bigInitWithRefsWithoutAssign")
+  store.bigInitWithRefsWithoutAssign()
+  console.timeEnd("bigInitWithRefsWithoutAssign")
+
+  store.reset()
+
+  console.time("mobxInit")
+  store.mobxInit()
+  console.timeEnd("mobxInit")
+
+  store.reset()
+}
+
+testCreationSpeed(10_000)

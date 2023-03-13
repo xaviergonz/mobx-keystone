@@ -2555,27 +2555,45 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@eslint/eslintrc@npm:2.0.0"
+"@eslint-community/eslint-utils@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "@eslint-community/eslint-utils@npm:4.2.0"
+  dependencies:
+    eslint-visitor-keys: ^3.3.0
+  peerDependencies:
+    eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
+  checksum: 82fdd1cc2a5d169def0e665ec790580ef708e7df9c91f20006595dc90e3bd42ec31c8976a2eeccd336286301a72e937c0ddf3ab4b7377d7014997c36333a7d22
+  languageName: node
+  linkType: hard
+
+"@eslint-community/regexpp@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "@eslint-community/regexpp@npm:4.4.0"
+  checksum: 2d127af0c752b80e8a782eacfe996a86925d21de92da3ffc6f9e615e701145e44a62e26bdd88bfac2cd76779c39ba8d9875a91046ec5e7e5f23cb647c247ea6a
+  languageName: node
+  linkType: hard
+
+"@eslint/eslintrc@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@eslint/eslintrc@npm:2.0.1"
   dependencies:
     ajv: ^6.12.4
     debug: ^4.3.2
-    espree: ^9.4.0
+    espree: ^9.5.0
     globals: ^13.19.0
     ignore: ^5.2.0
     import-fresh: ^3.2.1
     js-yaml: ^4.1.0
     minimatch: ^3.1.2
     strip-json-comments: ^3.1.1
-  checksum: 31119c8ca06723d80384f18f5c78e0530d8e6306ad36379868650131a8b10dd7cffd7aff79a5deb3a2e9933660823052623d268532bae9538ded53d5b19a69a6
+  checksum: 56b9192a687a450db53a7b883daf9f0f447c43b3510189cf88808a7a2467c2a302a42a50f184cc6d5a9faf3d1df890a2ef0fd0d60b751f32a3e9dfea717c6b48
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:8.35.0":
-  version: 8.35.0
-  resolution: "@eslint/js@npm:8.35.0"
-  checksum: 6687ceff659a6d617e37823f809dc9c4b096535961a81acead27d26b1a51a4cf608a5e59d831ddd57f24f6f8bb99340a4a0e19f9c99b390fbb4b275f51ed5f5e
+"@eslint/js@npm:8.36.0":
+  version: 8.36.0
+  resolution: "@eslint/js@npm:8.36.0"
+  checksum: b7d6b84b823c8c7784be390741196617565527b1f7c0977fde9455bfb57fd88f81c074a03dd878757d2c33fa29f24291e9ecbc1425710f067917324b55e1bf3a
   languageName: node
   linkType: hard
 
@@ -3127,17 +3145,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:^29.6.6":
-  version: 29.6.6
-  resolution: "@netlify/build@npm:29.6.6"
+"@netlify/build@npm:^29.6.7":
+  version: 29.6.8
+  resolution: "@netlify/build@npm:29.6.8"
   dependencies:
     "@bugsnag/js": ^7.0.0
-    "@netlify/cache-utils": ^5.1.2
-    "@netlify/config": ^20.3.4
-    "@netlify/edge-bundler": 8.11.0
+    "@netlify/cache-utils": ^5.1.3
+    "@netlify/config": ^20.3.5
+    "@netlify/edge-bundler": 8.11.1
     "@netlify/framework-info": ^9.8.5
-    "@netlify/functions-utils": ^5.2.0
-    "@netlify/git-utils": ^5.1.0
+    "@netlify/functions-utils": ^5.2.1
+    "@netlify/git-utils": ^5.1.1
     "@netlify/plugins-list": ^6.66.0
     "@netlify/run-utils": ^5.1.0
     "@netlify/zip-it-and-ship-it": ^8.9.0
@@ -3186,13 +3204,13 @@ __metadata:
     yargs: ^17.6.0
   bin:
     netlify-build: bin.js
-  checksum: fb2fbf88f59fd700a11c343fcd44353dee355e45cd10fcf0aecb9520609ea491929432f8f7aa1e7e2d769c23f5045d941ca7f5ace3c61e86f649fe1361a1b85e
+  checksum: 5d83c137c18c37cf35c12edaa82262d0300aa7ca3a1d6506281cae1649e14330ff55e4fc072dc5f18ba45e76018901b6da61f8d7a778a793da11fd677725478b
   languageName: node
   linkType: hard
 
-"@netlify/cache-utils@npm:^5.1.2":
-  version: 5.1.2
-  resolution: "@netlify/cache-utils@npm:5.1.2"
+"@netlify/cache-utils@npm:^5.1.3":
+  version: 5.1.3
+  resolution: "@netlify/cache-utils@npm:5.1.3"
   dependencies:
     cpy: ^8.1.0
     del: ^6.0.0
@@ -3203,13 +3221,13 @@ __metadata:
     move-file: ^3.0.0
     path-exists: ^5.0.0
     readdirp: ^3.4.0
-  checksum: 1d8c04170d1412b7cf0553c06904482fdd2c92454115550bf3bd0d63884b0c153596d5af9dbd6687817ed9b07258d35a4681f80b02c35a6dc82c52948b2f6886
+  checksum: 1a8c9681c2749336db1b387a835137dba8e26da65833ef1a76ea0b6e7fd47b5ddba6673da4edc311f95d6732574eda877e69adff3e657a44cc22196210103d81
   languageName: node
   linkType: hard
 
-"@netlify/config@npm:^20.3.4":
-  version: 20.3.4
-  resolution: "@netlify/config@npm:20.3.4"
+"@netlify/config@npm:^20.3.5":
+  version: 20.3.5
+  resolution: "@netlify/config@npm:20.3.5"
   dependencies:
     chalk: ^5.0.0
     cron-parser: ^4.1.0
@@ -3225,8 +3243,8 @@ __metadata:
     js-yaml: ^4.0.0
     map-obj: ^5.0.0
     netlify: ^13.1.2
-    netlify-headers-parser: ^7.1.1
-    netlify-redirect-parser: ^14.1.1
+    netlify-headers-parser: ^7.1.2
+    netlify-redirect-parser: ^14.1.2
     omit.js: ^2.0.2
     p-locate: ^6.0.0
     path-type: ^5.0.0
@@ -3236,41 +3254,11 @@ __metadata:
     yargs: ^17.6.0
   bin:
     netlify-config: bin.js
-  checksum: 080731d9583e5df0f48c51e7920a066751905a090110b7ff3be95202e31e22b3c09596298fb559ff99c45d00f3fa92ced3b50ae7fc2e9128ca1467e333896eb1
+  checksum: 13cbfb469025615c090de7f085f8b6dc6dcd65b0f6cf92c570f798a1a087fe13e0c6ceceaae0ae9900754f5eb056f5ffc5bfcb2c6ceaaad0df50babfa37a2287
   languageName: node
   linkType: hard
 
-"@netlify/edge-bundler@npm:8.11.0":
-  version: 8.11.0
-  resolution: "@netlify/edge-bundler@npm:8.11.0"
-  dependencies:
-    "@import-maps/resolve": ^1.0.1
-    ajv: ^8.11.2
-    ajv-errors: ^3.0.0
-    better-ajv-errors: ^1.2.0
-    common-path-prefix: ^3.0.0
-    del: ^7.0.0
-    env-paths: ^3.0.0
-    execa: ^6.0.0
-    find-up: ^6.3.0
-    get-port: ^6.1.2
-    glob-to-regexp: ^0.4.1
-    is-path-inside: ^4.0.0
-    jsonc-parser: ^3.2.0
-    node-fetch: ^3.1.1
-    node-stream-zip: ^1.15.0
-    p-retry: ^5.1.1
-    p-wait-for: ^4.1.0
-    path-key: ^4.0.0
-    regexp-tree: ^0.1.24
-    semver: ^7.3.5
-    tmp-promise: ^3.0.3
-    uuid: ^9.0.0
-  checksum: 620ce8b65f017c8ac1e4a476af3a8556256951a6e57a49b604d673b25659ac9cfdb6c93eeeb7e44d1be6e87f795ab0594c4856ebbe0eb660783a521bffcfb3d7
-  languageName: node
-  linkType: hard
-
-"@netlify/edge-bundler@npm:^8.11.1":
+"@netlify/edge-bundler@npm:8.11.1, @netlify/edge-bundler@npm:^8.11.1":
   version: 8.11.1
   resolution: "@netlify/edge-bundler@npm:8.11.1"
   dependencies:
@@ -3530,27 +3518,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/functions-utils@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "@netlify/functions-utils@npm:5.2.0"
+"@netlify/functions-utils@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "@netlify/functions-utils@npm:5.2.1"
   dependencies:
     "@netlify/zip-it-and-ship-it": ^8.9.0
     cpy: ^8.1.0
     path-exists: ^5.0.0
-  checksum: 9e1d380ad51f7062718e33302349be72f152df902ad0cb771cfabe0a900c6a3023eec31954a366e8f2bfb35ef4cb54d3754a9535befc115c942d3bc990279c06
+  checksum: baba570e114fd67e0879fe62605156b0b3a70131c27ffc3c8d56e7338a6b8798f430b002decd9883d57bfb2b3aa7b6df377b08c0d4512de20eb3faa2a2e42638
   languageName: node
   linkType: hard
 
-"@netlify/git-utils@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "@netlify/git-utils@npm:5.1.0"
+"@netlify/git-utils@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "@netlify/git-utils@npm:5.1.1"
   dependencies:
     execa: ^6.0.0
     map-obj: ^5.0.0
     micromatch: ^4.0.2
     moize: ^6.1.3
     path-exists: ^5.0.0
-  checksum: 9c1f791d86c56f5919882c1a4e6c7d1b5cb8a8e5b8e2673dee9c0cef64cfbe7da200144b0492482e0aa74aa73f856c14b30975dc593db665bc48c017e41a5f93
+  checksum: 1da1c88d5f4be8b7e2c2d19ce443791e7c66a80a5b9a6852b4b327be9ffaa4458db927d3223977cbb47e80e389edcecdf5142a595cf1a4b3529f7f38b85cd2cb
   languageName: node
   linkType: hard
 
@@ -4424,90 +4412,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-darwin-arm64@npm:1.3.39"
+"@swc/core-darwin-arm64@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-darwin-arm64@npm:1.3.40"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-darwin-x64@npm:1.3.39"
+"@swc/core-darwin-x64@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-darwin-x64@npm:1.3.40"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.3.39"
+"@swc/core-linux-arm-gnueabihf@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.3.40"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.3.39"
+"@swc/core-linux-arm64-gnu@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.3.40"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-linux-arm64-musl@npm:1.3.39"
+"@swc/core-linux-arm64-musl@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-linux-arm64-musl@npm:1.3.40"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-linux-x64-gnu@npm:1.3.39"
+"@swc/core-linux-x64-gnu@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-linux-x64-gnu@npm:1.3.40"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-linux-x64-musl@npm:1.3.39"
+"@swc/core-linux-x64-musl@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-linux-x64-musl@npm:1.3.40"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.3.39"
+"@swc/core-win32-arm64-msvc@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.3.40"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.3.39"
+"@swc/core-win32-ia32-msvc@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.3.40"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core-win32-x64-msvc@npm:1.3.39"
+"@swc/core-win32-x64-msvc@npm:1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core-win32-x64-msvc@npm:1.3.40"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.3.39":
-  version: 1.3.39
-  resolution: "@swc/core@npm:1.3.39"
+"@swc/core@npm:^1.3.40":
+  version: 1.3.40
+  resolution: "@swc/core@npm:1.3.40"
   dependencies:
-    "@swc/core-darwin-arm64": 1.3.39
-    "@swc/core-darwin-x64": 1.3.39
-    "@swc/core-linux-arm-gnueabihf": 1.3.39
-    "@swc/core-linux-arm64-gnu": 1.3.39
-    "@swc/core-linux-arm64-musl": 1.3.39
-    "@swc/core-linux-x64-gnu": 1.3.39
-    "@swc/core-linux-x64-musl": 1.3.39
-    "@swc/core-win32-arm64-msvc": 1.3.39
-    "@swc/core-win32-ia32-msvc": 1.3.39
-    "@swc/core-win32-x64-msvc": 1.3.39
+    "@swc/core-darwin-arm64": 1.3.40
+    "@swc/core-darwin-x64": 1.3.40
+    "@swc/core-linux-arm-gnueabihf": 1.3.40
+    "@swc/core-linux-arm64-gnu": 1.3.40
+    "@swc/core-linux-arm64-musl": 1.3.40
+    "@swc/core-linux-x64-gnu": 1.3.40
+    "@swc/core-linux-x64-musl": 1.3.40
+    "@swc/core-win32-arm64-msvc": 1.3.40
+    "@swc/core-win32-ia32-msvc": 1.3.40
+    "@swc/core-win32-x64-msvc": 1.3.40
   dependenciesMeta:
     "@swc/core-darwin-arm64":
       optional: true
@@ -4529,7 +4517,7 @@ __metadata:
       optional: true
     "@swc/core-win32-x64-msvc":
       optional: true
-  checksum: 2c5376627587302d9146a13670ab88d49d236361f226058625a287e275952a282e46c6f8620ec756917406c2ab801093c28668d95837646e39742d65e193965d
+  checksum: 3ec2919784dfac7a535976e43771c85ed8048fae036ba922d379b1f64ea1cbfe614cc4124553fc268a19c5246311a3d887b9a92c6bcde6b03f2ad1957ad77246
   languageName: node
   linkType: hard
 
@@ -4593,10 +4581,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsconfig/docusaurus@npm:^1.0.6":
-  version: 1.0.6
-  resolution: "@tsconfig/docusaurus@npm:1.0.6"
-  checksum: fb0d7965c01fe64fc6369a72695b903d654bd5fb145f373d707c2bae3c2d828703517d812cef1c041ae44b108f44e52778b9d9837a54fdf782e68e6619a90a4d
+"@tsconfig/docusaurus@npm:^1.0.7":
+  version: 1.0.7
+  resolution: "@tsconfig/docusaurus@npm:1.0.7"
+  checksum: 8f5b14005d90b2008f10daf03a5edec86d2a7603e5641c579ea936a5c2d165a8c3007a72254fc4c2adb0554d73062f52bb97b30ff818f01c9215957822f3c4db
   languageName: node
   linkType: hard
 
@@ -4895,13 +4883,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.4.0":
-  version: 29.4.0
-  resolution: "@types/jest@npm:29.4.0"
+"@types/jest@npm:^29.4.1":
+  version: 29.4.1
+  resolution: "@types/jest@npm:29.4.1"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 23760282362a252e6690314584d83a47512d4cd61663e957ed3398ecf98195fe931c45606ee2f9def12f8ed7d8aa102d492ec42d26facdaf8b78094a31e6568e
+  checksum: 75cdd1804615b663b88844eef61cb7c8104d65baf718190a1cd88ce199412dbe2ee136df3698604cc258a9a62ba7cbd7bd7712a17d8cb748909263ef56d6aac3
   languageName: node
   linkType: hard
 
@@ -4961,10 +4949,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^18.15.0":
-  version: 18.15.0
-  resolution: "@types/node@npm:18.15.0"
-  checksum: d81372276dd5053b1743338b61a2178ff9722dc609189d01fc7d1c2acd539414039e0e4780678730514390dad3f29c366a28c29e8dbd5b0025651181f6dd6669
+"@types/node@npm:*, @types/node@npm:^18.15.2":
+  version: 18.15.2
+  resolution: "@types/node@npm:18.15.2"
+  checksum: 6db83062d295f9da63e7b24477f734b497170a577b21e0c13637d6f355d53713f875536e52ff02938221330d919700b5ed787dc493e32624a3ecb6c86105cfc8
   languageName: node
   linkType: hard
 
@@ -9745,12 +9733,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.35.0":
-  version: 8.35.0
-  resolution: "eslint@npm:8.35.0"
+"eslint@npm:^8.36.0":
+  version: 8.36.0
+  resolution: "eslint@npm:8.36.0"
   dependencies:
-    "@eslint/eslintrc": ^2.0.0
-    "@eslint/js": 8.35.0
+    "@eslint-community/eslint-utils": ^4.2.0
+    "@eslint-community/regexpp": ^4.4.0
+    "@eslint/eslintrc": ^2.0.1
+    "@eslint/js": 8.36.0
     "@humanwhocodes/config-array": ^0.11.8
     "@humanwhocodes/module-importer": ^1.0.1
     "@nodelib/fs.walk": ^1.2.8
@@ -9761,9 +9751,8 @@ __metadata:
     doctrine: ^3.0.0
     escape-string-regexp: ^4.0.0
     eslint-scope: ^7.1.1
-    eslint-utils: ^3.0.0
     eslint-visitor-keys: ^3.3.0
-    espree: ^9.4.0
+    espree: ^9.5.0
     esquery: ^1.4.2
     esutils: ^2.0.2
     fast-deep-equal: ^3.1.3
@@ -9785,24 +9774,23 @@ __metadata:
     minimatch: ^3.1.2
     natural-compare: ^1.4.0
     optionator: ^0.9.1
-    regexpp: ^3.2.0
     strip-ansi: ^6.0.1
     strip-json-comments: ^3.1.0
     text-table: ^0.2.0
   bin:
     eslint: bin/eslint.js
-  checksum: 6212173691d90b1bc94dd3d640e1f210374b30c3905fc0a15e501cf71c6ca52aa3d80ea7a9a245adaaed26d6019169e01fb6881b3f2885b188d37069c749308c
+  checksum: e9a961fc3b3de5cff5a1cb2c92eeffaa7e155a715489e30b3e1e76f186bd1255e0481e09564f2094733c0b1dbd3453499fb72ae7c043c83156e11e6d965b2304
   languageName: node
   linkType: hard
 
-"espree@npm:^9.4.0":
-  version: 9.4.0
-  resolution: "espree@npm:9.4.0"
+"espree@npm:^9.5.0":
+  version: 9.5.0
+  resolution: "espree@npm:9.5.0"
   dependencies:
     acorn: ^8.8.0
     acorn-jsx: ^5.3.2
     eslint-visitor-keys: ^3.3.0
-  checksum: 2e3020dde67892d2ba3632413b44d0dc31d92c29ce72267d7ec24216a562f0a6494d3696e2fa39a3ec8c0e0088d773947ab2925fbb716801a11eb8dd313ac89c
+  checksum: a7f110aefb6407e0d3237aa635ab3cea87106ae63748dd23c67031afccc640d04c4209fca2daf16e2233c82efb505faead0fb84097478fd9cc6e8f8dd80bf99d
   languageName: node
   linkType: hard
 
@@ -14914,10 +14902,10 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.21.0
     "@babel/preset-env": ^7.20.2
     "@babel/preset-typescript": ^7.21.0
-    "@swc/core": ^1.3.39
+    "@swc/core": ^1.3.40
     "@swc/jest": ^0.2.24
-    "@types/jest": ^29.4.0
-    "@types/node": ^18.15.0
+    "@types/jest": ^29.4.1
+    "@types/node": ^18.15.2
     babel-jest: ^29.5.0
     fast-deep-equal: ^3.1.3
     jest: ^29.5.0
@@ -15156,13 +15144,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^13.1.2":
-  version: 13.1.2
-  resolution: "netlify-cli@npm:13.1.2"
+"netlify-cli@npm:^13.1.3":
+  version: 13.1.3
+  resolution: "netlify-cli@npm:13.1.3"
   dependencies:
     "@fastify/static": ^6.6.0
-    "@netlify/build": ^29.6.6
-    "@netlify/config": ^20.3.4
+    "@netlify/build": ^29.6.7
+    "@netlify/config": ^20.3.5
     "@netlify/edge-bundler": ^8.11.1
     "@netlify/framework-info": ^9.8.5
     "@netlify/local-functions-proxy": ^1.1.1
@@ -15230,9 +15218,9 @@ __metadata:
     minimist: ^1.2.5
     multiparty: ^4.2.1
     netlify: ^13.1.2
-    netlify-headers-parser: ^7.1.1
+    netlify-headers-parser: ^7.1.2
     netlify-onegraph-internal: 0.10.1
-    netlify-redirect-parser: ^14.1.1
+    netlify-redirect-parser: ^14.1.2
     netlify-redirector: ^0.4.0
     node-fetch: ^2.6.0
     node-version-alias: ^2.0.0
@@ -15269,13 +15257,13 @@ __metadata:
   bin:
     netlify: bin/run.mjs
     ntl: bin/run.mjs
-  checksum: 556e755bd2a28f51984e765f6a545076a322f5d1d33294f5dae1519bdc42aeaf17b2bd9eb17e69bfa36e98bf0729452cbea711b224d654b9717fc70c2c688810
+  checksum: c3d8d905bd10e36e788e125019417fcae2bc6acd9b99130649c56e49200701ead2f1c2e6a1fb3c64b55baac507fc68a1a60e40adca735c5e4e4980568d3440a1
   languageName: node
   linkType: hard
 
-"netlify-headers-parser@npm:^7.1.1":
-  version: 7.1.1
-  resolution: "netlify-headers-parser@npm:7.1.1"
+"netlify-headers-parser@npm:^7.1.2":
+  version: 7.1.2
+  resolution: "netlify-headers-parser@npm:7.1.2"
   dependencies:
     escape-string-regexp: ^5.0.0
     fast-safe-stringify: ^2.0.7
@@ -15283,7 +15271,7 @@ __metadata:
     map-obj: ^5.0.0
     path-exists: ^5.0.0
     toml: ^3.0.0
-  checksum: 675ca0429400042f9786a402927cb49d26540cd644ae9f7910dd1d8d6980938a2404c4c83186808dad4c4fffc878386e5e373391d3b225f080825053df9a426b
+  checksum: 6df2aea9752547619af0272603eede21ce8e024bed145232f00bdd4526b594422733698e99ec9ec66c97ab3480b734674bb8f3fe1cd74db980c19f8e7abee18f
   languageName: node
   linkType: hard
 
@@ -15299,16 +15287,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-redirect-parser@npm:^14.1.1":
-  version: 14.1.1
-  resolution: "netlify-redirect-parser@npm:14.1.1"
+"netlify-redirect-parser@npm:^14.1.2":
+  version: 14.1.2
+  resolution: "netlify-redirect-parser@npm:14.1.2"
   dependencies:
     fast-safe-stringify: ^2.1.1
     filter-obj: ^3.0.0
     is-plain-obj: ^4.0.0
     path-exists: ^5.0.0
     toml: ^3.0.0
-  checksum: adc9eff7fd022843a4c877c8f8c43040cee2490299ec2ef2eb884746e142dc4ee7122734e5f45c4d5d14be46b188dc31f9f10e1b838d6ca72d27a11612758f46
+  checksum: 357109bb42f78ae9ba547bb96a658512d7e3f387fa8d97c41da050449336c1e42c943c60f14b26441c05f8748e6bd48ed670fab5c83f8163a32a07dfe2c2f999
   languageName: node
   linkType: hard
 
@@ -18448,10 +18436,10 @@ __metadata:
   dependencies:
     bufferutil: ^4.0.7
     codecov: ^3.8.3
-    eslint: ^8.35.0
+    eslint: ^8.36.0
     eslint-config-prettier: ^8.7.0
     eslint-config-react-app: ^7.0.1
-    netlify-cli: ^13.1.2
+    netlify-cli: ^13.1.3
     prettier: ^2.8.4
     prettier-plugin-organize-imports: ^3.2.2
     turbo: ^1.8.3
@@ -19013,7 +19001,7 @@ __metadata:
     "@docusaurus/preset-classic": ^2.3.1
     "@easyops-cn/docusaurus-search-local": ^0.35.0
     "@svgr/webpack": ^6.5.1
-    "@tsconfig/docusaurus": ^1.0.6
+    "@tsconfig/docusaurus": ^1.0.7
     "@types/react": ^18.0.28
     "@types/react-dom": ^18.0.11
     "@types/uuid": ^9.0.1
