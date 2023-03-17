@@ -20,7 +20,7 @@ export const modelInfoByName: {
 /**
  * @internal
  */
-export const modelInfoByClass = new Map<ModelClass<AnyModel | AnyDataModel>, ModelInfo>()
+export const modelInfoByClass = new WeakMap<ModelClass<AnyModel | AnyDataModel>, ModelInfo>()
 
 /**
  * @internal

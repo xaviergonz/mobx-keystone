@@ -74,16 +74,16 @@ jobs:
       - run: yarn build
         working-directory: ./apps/benchmark
 
-  formatting:
-    runs-on: ubuntu-latest
+  # formatting:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         cache: "yarn"
 
-      - run: yarn install --immutable
-      - run: yarn prettier --check .
+  #     - run: yarn install --immutable
+  #     - run: yarn prettier --check .

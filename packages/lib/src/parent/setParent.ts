@@ -4,7 +4,7 @@ import { BaseModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
 import { isModel } from "../model/utils"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
-import { isRootStore } from "../rootStore/rootStore"
+import { fastIsRootStore } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
 import { isTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isPrimitive } from "../utils"
@@ -15,7 +15,7 @@ import {
   parentPathEquals,
   reportParentPathChanged,
 } from "./core"
-import { addObjectChild, initializeObjectChildren, removeObjectChild } from "./coreObjectChildren"
+import { addObjectChild, removeObjectChild } from "./coreObjectChildren"
 import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
 
 /**
@@ -40,7 +40,7 @@ export const setParent = action(
       return value
     }
 
-    if (inDevMode()) {
+    if (inDevMode) {
       if (indexChangeAllowed && cloneIfApplicable) {
         throw failure(
           "assertion failed: 'indexChangeAllowed' and 'cloneIfApplicable' cannot be set at the same time"
@@ -57,13 +57,20 @@ export const setParent = action(
       }
     }
 
+    let oldParentPath = fastGetParentPath(value)
+    if (parentPathEquals(oldParentPath, parentPath)) {
+      return value
+    }
+
+    if (fastIsRootStore(value)) {
+      throw failure("root stores cannot be attached to any parents")
+    }
+
     if (isDataObject) {
       dataObjectParent.set(value, parentPath!.parent)
       // data object will proxy to use the actual parent model for child/parent stuff
       return value
     }
-
-    initializeObjectChildren(value)
 
     // make sure the new parent actually points to models when we give model data objs
     if (parentPath) {
@@ -74,15 +81,6 @@ export const setParent = action(
           path: parentPath.path,
         }
       }
-    }
-
-    let oldParentPath = fastGetParentPath(value)
-    if (parentPathEquals(oldParentPath, parentPath)) {
-      return value
-    }
-
-    if (isRootStore(value)) {
-      throw failure("root stores cannot be attached to any parents")
     }
 
     // value type models should be cloned when they are about to be assigned to a new parent
@@ -125,12 +123,12 @@ export const setParent = action(
 
     if (value instanceof BaseModel) {
       const oldRoot = fastGetRoot(value)
-      const oldRootStore = isRootStore(oldRoot) ? oldRoot : undefined
+      const oldRootStore = fastIsRootStore(oldRoot) ? oldRoot : undefined
 
       attachToNewParent()
 
       const newRoot = fastGetRoot(value)
-      const newRootStore = isRootStore(newRoot) ? newRoot : undefined
+      const newRootStore = fastIsRootStore(newRoot) ? newRoot : undefined
 
       // invoke model root store events
       if (oldRootStore !== newRootStore && (oldRootStore || newRootStore)) {

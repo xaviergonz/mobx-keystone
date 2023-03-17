@@ -53,7 +53,7 @@ export interface _Model<
  * Extract the model id property from the model props.
  */
 export type ExtractModelIdProp<TProps extends ModelProps> = {
-  [K in keyof TProps]: TProps[K]["_internal"]["$isId"] extends true ? K : never
+  [K in keyof TProps]: TProps[K]["$isId"] extends true ? K : never
 }[keyof TProps]
 
 /**

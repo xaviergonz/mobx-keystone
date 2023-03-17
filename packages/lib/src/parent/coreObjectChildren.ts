@@ -1,16 +1,15 @@
-import { action, createAtom, IAtom, observable, ObservableSet } from "mobx"
+import { action, createAtom, IAtom } from "mobx"
 import { fastGetParent } from "./path"
-
-const defaultObservableSetOptions = { deep: false }
 
 interface DeepObjectChildren {
   deep: Set<object>
 
-  extensionsData: WeakMap<Symbol, any>
+  extensionsData: WeakMap<object, any>
 }
 
 interface ObjectChildrenData extends DeepObjectChildren {
-  shallow: ObservableSet<object>
+  shallow: Set<object>
+  shallowAtom: IAtom
 
   deepDirty: boolean
   deepAtom: IAtom
@@ -18,37 +17,40 @@ interface ObjectChildrenData extends DeepObjectChildren {
 
 const objectChildren = new WeakMap<object, ObjectChildrenData>()
 
-/**
- * @internal
- */
-export function initializeObjectChildren(node: object) {
-  if (objectChildren.has(node)) {
-    return
+function getObjectChildrenObject(node: object) {
+  let obj = objectChildren.get(node)
+
+  if (!obj) {
+    obj = {
+      shallow: new Set(),
+      shallowAtom: createAtom("shallowChildrenAtom"),
+
+      deep: new Set(),
+      deepDirty: true,
+      deepAtom: createAtom("deepChildrenAtom"),
+
+      extensionsData: initExtensionsData(),
+    }
+    objectChildren.set(node, obj)
   }
 
-  objectChildren.set(node, {
-    shallow: observable.set(undefined, defaultObservableSetOptions),
-
-    deep: new Set(),
-    extensionsData: initExtensionsData(),
-
-    deepDirty: true,
-    deepAtom: createAtom("deepChildrenAtom"),
-  })
+  return obj
 }
 
 /**
  * @internal
  */
 export function getObjectChildren(node: object): ObjectChildrenData["shallow"] {
-  return objectChildren.get(node)!.shallow
+  const obj = getObjectChildrenObject(node)
+  obj.shallowAtom.reportObserved()
+  return obj.shallow
 }
 
 /**
  * @internal
  */
 export function getDeepObjectChildren(node: object): DeepObjectChildren {
-  const obj = objectChildren.get(node)!
+  const obj = getObjectChildrenObject(node)
 
   if (obj.deepDirty) {
     updateDeepObjectChildren(node)
@@ -67,7 +69,7 @@ function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
 }
 
 const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
-  const obj = objectChildren.get(node)!
+  const obj = getObjectChildrenObject(node)!
   if (!obj.deepDirty) {
     return obj
   }
@@ -77,7 +79,7 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
     extensionsData: initExtensionsData(),
   }
 
-  const childrenIter = getObjectChildren(node)!.values()
+  const childrenIter = obj.shallow.values()
   let ch = childrenIter.next()
   while (!ch.done) {
     addNodeToDeepLists(ch.value, data)
@@ -105,8 +107,9 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
  * @internal
  */
 export const addObjectChild = action((node: object, child: object) => {
-  const obj = objectChildren.get(node)!
+  const obj = getObjectChildrenObject(node)
   obj.shallow.add(child)
+  obj.shallowAtom.reportChanged()
 
   invalidateDeepChildren(node)
 })
@@ -115,14 +118,15 @@ export const addObjectChild = action((node: object, child: object) => {
  * @internal
  */
 export const removeObjectChild = action((node: object, child: object) => {
-  const obj = objectChildren.get(node)!
+  const obj = getObjectChildrenObject(node)
   obj.shallow.delete(child)
+  obj.shallowAtom.reportChanged()
 
   invalidateDeepChildren(node)
 })
 
 function invalidateDeepChildren(node: object) {
-  const obj = objectChildren.get(node)!
+  const obj = getObjectChildrenObject(node)
 
   if (!obj.deepDirty) {
     obj.deepDirty = true
@@ -135,7 +139,7 @@ function invalidateDeepChildren(node: object) {
   }
 }
 
-const extensions = new Map<Symbol, DeepObjectChildrenExtension<any>>()
+const extensions = new Map<object, DeepObjectChildrenExtension<any>>()
 
 interface DeepObjectChildrenExtension<D> {
   initData(): D
@@ -146,7 +150,7 @@ interface DeepObjectChildrenExtension<D> {
  * @internal
  */
 export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChildrenExtension<D>) {
-  const dataSymbol = Symbol("deepObjectChildrenExtension")
+  const dataSymbol = {}
   extensions.set(dataSymbol, extension)
 
   return (data: DeepObjectChildren): D => {
@@ -155,7 +159,7 @@ export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChil
 }
 
 function initExtensionsData() {
-  const extensionsData = new Map<Symbol, any>()
+  const extensionsData = new WeakMap<object, any>()
 
   extensions.forEach((extension, dataSymbol) => {
     extensionsData.set(dataSymbol, extension.initData())

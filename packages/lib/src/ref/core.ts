@@ -6,7 +6,7 @@ import {
   getDeepObjectChildren,
   registerDeepObjectChildrenExtension,
 } from "../parent/coreObjectChildren"
-import { getRoot } from "../parent/path"
+import { fastGetRoot } from "../parent/path"
 import { ComputedWalkTreeAggregate, computedWalkTreeAggregate } from "../parent/walkTree"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure } from "../utils"
@@ -239,7 +239,7 @@ export function getRefsResolvingTo<T extends object>(
     const oldBackRefs = getBackRefs(target, refType)
     oldBackRefs.forEach(updateRef)
 
-    const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(getRoot(target)))
+    const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target)))
     let refs: Set<Ref<object>> | undefined
     if (refType) {
       refs = refsChildrenOfRoot.byType.get(refType.refClass)

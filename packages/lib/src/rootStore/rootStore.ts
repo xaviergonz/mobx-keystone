@@ -5,8 +5,13 @@ import { failure } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
-const rootStores = new WeakSet<object>()
-const rootStoreAtoms = new WeakMap<object, IAtom>()
+const rootStoreRegistry = new WeakMap<object, { atom: IAtom; is: boolean }>()
+
+const getOrCreateRootStoreEntry = (node: object) =>
+  getOrCreate(rootStoreRegistry, node, () => ({
+    atom: createAtom("rootStore"),
+    is: false,
+  }))
 
 /**
  * Registers a model / tree node object as a root store tree.
@@ -24,7 +29,9 @@ export const registerRootStore: <T extends object>(node: T) => T = action(
   (node) => {
     assertTweakedObject(node, "node")
 
-    if (rootStores.has(node)) {
+    const entry = getOrCreateRootStoreEntry(node)
+
+    if (entry.is) {
       throw failure("object already registered as root store")
     }
 
@@ -32,11 +39,11 @@ export const registerRootStore: <T extends object>(node: T) => T = action(
       throw failure("a root store must not have a parent")
     }
 
-    rootStores.add(node)
+    entry.is = true
 
     attachToRootStore(node, node)
 
-    getOrCreateRootStoreAtom(node).reportChanged()
+    entry.atom.reportChanged()
     return node
   }
 )
@@ -51,11 +58,12 @@ export const unregisterRootStore: (node: object) => void = action("unregisterRoo
     throw failure("not a root store")
   }
 
-  rootStores.delete(node)
+  const entry = getOrCreateRootStoreEntry(node)
+  entry.is = false
 
   detachFromRootStore(node)
 
-  getOrCreateRootStoreAtom(node).reportChanged()
+  entry.atom.reportChanged()
 })
 
 /**
@@ -74,8 +82,9 @@ export function isRootStore(node: object): boolean {
  * @internal
  */
 export function fastIsRootStore(node: object): boolean {
-  getOrCreateRootStoreAtom(node).reportObserved()
-  return rootStores.has(node)
+  const entry = getOrCreateRootStoreEntry(node)
+  entry.atom.reportObserved()
+  return entry.is
 }
 
 /**
@@ -97,8 +106,4 @@ export function getRootStore<T extends object>(node: object): T | undefined {
 export function fastGetRootStore<T extends object>(node: object): T | undefined {
   const root = fastGetRoot(node)
   return fastIsRootStore(root) ? root : undefined
-}
-
-function getOrCreateRootStoreAtom(node: object): IAtom {
-  return getOrCreate(rootStoreAtoms, node, () => createAtom("rootStore"))
 }

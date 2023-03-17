@@ -11,6 +11,30 @@ import type { AnyType, TypeToData } from "./schemas"
 import { LateTypeChecker, TypeChecker } from "./TypeChecker"
 import { typesOr } from "./utility/typesOr"
 
+const noDefaultValueSymbol = Symbol("noDefaultValue")
+
+const tPropCache = new WeakMap<TypeChecker | LateTypeChecker, Map<unknown, AnyModelProp>>()
+
+function getOrCreateTProp(
+  type: TypeChecker | LateTypeChecker,
+  defKey: unknown,
+  createTProp: () => AnyModelProp
+): AnyModelProp {
+  let defValueCache = tPropCache.get(type)
+  if (!defValueCache) {
+    defValueCache = new Map()
+    tPropCache.set(type, defValueCache)
+  }
+
+  let prop = defValueCache.get(defKey)
+  if (!prop) {
+    prop = createTProp()
+    defValueCache.set(defKey, prop)
+  }
+
+  return prop
+}
+
 /**
  * Defines a string model property with a default value.
  * Equivalent to `tProp(types.string, defaultValue)`.
@@ -114,8 +138,6 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends AnyType>(type: TType): MaybeOptionalModelProp<TypeToData<TType>>
 
 export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
-  let hasDefaultValue = false
-
   switch (typeof typeOrDefaultValue) {
     case "string":
       return tProp(typesString, typeOrDefaultValue)
@@ -125,37 +147,44 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
       return tProp(typesBoolean, typeOrDefaultValue)
   }
 
-  if (arguments.length >= 2) {
-    // type, default
-    hasDefaultValue = true
-  }
-
-  const newProp = hasDefaultValue ? prop(def) : prop()
+  const hasDefaultValue = arguments.length >= 2
 
   const typeChecker = resolveStandardType(typeOrDefaultValue) as unknown as
     | TypeChecker
     | LateTypeChecker
 
-  const fromSnapshotTypeChecker = hasDefaultValue
-    ? typesOr(typeChecker as unknown as AnyType, typesUndefined, typesNull)
-    : typeChecker
+  return getOrCreateTProp(typeChecker, hasDefaultValue ? def : noDefaultValueSymbol, () => {
+    const fromSnapshotTypeChecker = hasDefaultValue
+      ? typesOr(typeChecker as unknown as AnyType, typesUndefined, typesNull)
+      : typeChecker
 
-  return {
-    ...newProp,
-    _internal: {
-      ...newProp._internal,
+    // we use Object.create to avoid messing up with the prop cache
+    const newProp = Object.create(hasDefaultValue ? prop(def) : prop())
 
-      typeChecker,
+    Object.assign(newProp, {
+      _typeChecker: typeChecker,
 
-      fromSnapshotProcessor: (sn) => {
-        const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
-        return fsnp ? fsnp(sn) : sn
-      },
+      _fromSnapshotProcessor: tPropFromSnapshotProcessor.bind(undefined, fromSnapshotTypeChecker),
 
-      toSnapshotProcessor: (sn) => {
-        const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
-        return tsnp ? tsnp(sn) : sn
-      },
-    },
-  }
+      _toSnapshotProcessor: tPropToSnapshotProcessor.bind(undefined, typeChecker),
+    } satisfies Partial<AnyModelProp>)
+
+    return newProp
+  })
+}
+
+function tPropFromSnapshotProcessor(
+  fromSnapshotTypeChecker: AnyType | TypeChecker | LateTypeChecker,
+  sn: unknown
+): unknown {
+  const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
+  return fsnp ? fsnp(sn) : sn
+}
+
+function tPropToSnapshotProcessor(
+  typeChecker: AnyType | TypeChecker | LateTypeChecker,
+  sn: unknown
+): unknown {
+  const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
+  return tsnp ? tsnp(sn) : sn
 }

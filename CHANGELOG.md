@@ -1,5 +1,20 @@
 # Change Log
 
+## 1.4.1
+
+- Optimizations yielding around 10-15% less CPU time for some operations.
+
+## 1.4.0
+
+- Use a proxy to decorate model classes to reduce the inheritance level of models by one.
+- Create object children cache only when there are actually children to save some memory in objects/arrays that don't have children of type object.
+- Cache props/tProps to save some memory in model definitions.
+
+## 1.3.0
+
+- Big memory optimizations for model definitions with many properties (very little changes for model instances though). This change now makes Proxy support a requirement.
+- Minor speed optimizations.
+
 ## 1.2.0
 
 - TypeCheckError now includes a new `message` field, a new `typeCheckedValue` field and no longer requires a parameter for the `throw()` method.

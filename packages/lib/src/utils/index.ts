@@ -150,9 +150,7 @@ export function isArray(val: unknown): val is any[] | IObservableArray {
 /**
  * @internal
  */
-export function inDevMode(): boolean {
-  return process.env.NODE_ENV !== "production"
-}
+export const inDevMode = process.env.NODE_ENV !== "production"
 
 /**
  * @internal

@@ -67,7 +67,7 @@ Like React, `mobx-keystone` consists of composable components, called _models_, 
 This library requires a more or less modern JavaScript environment to work, namely one with support for:
 
 - MobX 6, 5, or 4 (with its gotchas)
-- Proxies (when using MobX 5, or MobX 6 with the proxies setting enabled)
+- Proxies
 - Symbols
 - WeakMap/WeakSet
 

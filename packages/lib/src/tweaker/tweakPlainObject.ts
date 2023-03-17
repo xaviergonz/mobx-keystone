@@ -131,109 +131,128 @@ const observableOptions = {
   deep: false,
 }
 
+function mutateSet(k: PropertyKey, v: unknown, sn: Record<PropertyKey, unknown>) {
+  sn[k] = v
+}
+
+function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
+  delete sn[k]
+}
+
+const patchRecorder = new InternalPatchRecorder()
+
 function objectDidChange(change: IObjectDidChange): void {
   const obj = change.object
   const actualNode = dataToModelNode(obj)
-  let { untransformed: oldUntransformedSn } = getInternalSnapshot(actualNode)!
+  let oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
 
-  const patchRecorder = new InternalPatchRecorder()
+  patchRecorder.reset()
 
   let mutate: ((sn: any) => void) | undefined
 
   switch (change.type) {
     case "add":
     case "update":
-      {
-        const k = change.name
-        const val = change.newValue
-
-        const oldVal = oldUntransformedSn[k]
-
-        let newVal: any
-        if (isPrimitive(val)) {
-          newVal = val
-        } else {
-          const valueSn = getInternalSnapshot(val)!
-          newVal = valueSn.transformed
-        }
-
-        mutate = (sn) => {
-          sn[k] = newVal
-        }
-
-        const path = [k as string]
-        if (change.type === "add") {
-          patchRecorder.record(
-            [
-              {
-                op: "add",
-                path,
-                value: freezeInternalSnapshot(newVal),
-              },
-            ],
-            [
-              {
-                op: "remove",
-                path,
-              },
-            ]
-          )
-        } else {
-          patchRecorder.record(
-            [
-              {
-                op: "replace",
-                path,
-                value: freezeInternalSnapshot(newVal),
-              },
-            ],
-            [
-              {
-                op: "replace",
-                path,
-                value: freezeInternalSnapshot(oldVal),
-              },
-            ]
-          )
-        }
-      }
+      mutate = objectDidChangeAddOrUpdate(change, oldUntransformedSn)
       break
 
     case "remove":
-      {
-        const k = change.name
-        const oldVal = oldUntransformedSn[k]
-        mutate = (sn) => {
-          delete sn[k]
-        }
-
-        const path = [k as string]
-
-        patchRecorder.record(
-          [
-            {
-              op: "remove",
-              path,
-            },
-          ],
-          [
-            {
-              op: "add",
-              path,
-              value: freezeInternalSnapshot(oldVal),
-            },
-          ]
-        )
-      }
+      mutate = objectDidChangeRemove(change, oldUntransformedSn)
       break
   }
 
   runTypeCheckingAfterChange(obj, patchRecorder)
 
-  if (!runningWithoutSnapshotOrPatches && mutate!) {
+  if (!runningWithoutSnapshotOrPatches && mutate) {
     updateInternalSnapshot(actualNode, mutate)
     patchRecorder.emit(actualNode)
   }
+}
+
+function objectDidChangeRemove(
+  change: IObjectDidChange & { type: "remove" },
+  oldUntransformedSn: any
+) {
+  const k = change.name
+  const oldVal = oldUntransformedSn[k]
+  const mutate = mutateDelete.bind(undefined, k)
+
+  const path = [k as string]
+
+  patchRecorder.record(
+    [
+      {
+        op: "remove",
+        path,
+      },
+    ],
+    [
+      {
+        op: "add",
+        path,
+        value: freezeInternalSnapshot(oldVal),
+      },
+    ]
+  )
+  return mutate
+}
+
+function objectDidChangeAddOrUpdate(
+  change: IObjectWillChange & { type: "add" | "update" },
+  oldUntransformedSn: any
+) {
+  const k = change.name
+  const val = change.newValue
+
+  const oldVal = oldUntransformedSn[k]
+
+  let newVal: any
+  if (isPrimitive(val)) {
+    newVal = val
+  } else {
+    const valueSn = getInternalSnapshot(val)!
+    newVal = valueSn.transformed
+  }
+
+  const mutate = mutateSet.bind(undefined, k, newVal)
+
+  const path = [k as string]
+  if (change.type === "add") {
+    patchRecorder.record(
+      [
+        {
+          op: "add",
+          path,
+          value: freezeInternalSnapshot(newVal),
+        },
+      ],
+      [
+        {
+          op: "remove",
+          path,
+        },
+      ]
+    )
+  } else {
+    patchRecorder.record(
+      [
+        {
+          op: "replace",
+          path,
+          value: freezeInternalSnapshot(newVal),
+        },
+      ],
+      [
+        {
+          op: "replace",
+          path,
+          value: freezeInternalSnapshot(oldVal),
+        },
+      ]
+    )
+  }
+
+  return mutate
 }
 
 function interceptObjectMutation(change: IObjectWillChange) {

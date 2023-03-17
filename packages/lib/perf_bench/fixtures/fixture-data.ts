@@ -1,4 +1,4 @@
-import { modelSnapshotInWithMetadata, SnapshotInOf } from "../../dist"
+import { modelSnapshotInWithMetadata, SnapshotInOf } from "../.."
 import { Hero, HeroRoles, Monster, Treasure } from "./fixture-models"
 
 /**

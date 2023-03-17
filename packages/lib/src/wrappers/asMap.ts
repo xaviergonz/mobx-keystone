@@ -29,7 +29,7 @@ const observableMapBackedByObservableObject = action(
   ): ObservableMap<string, T> & {
     dataObject: typeof obj
   } => {
-    if (inDevMode()) {
+    if (inDevMode) {
       if (!isObservableObject(obj)) {
         throw failure("assertion failed: expected an observable object")
       }
@@ -119,7 +119,7 @@ const observableMapBackedByObservableArray = action(
   <T>(
     array: IObservableArray<[string, T]>
   ): ObservableMap<string, T> & { dataObject: typeof array } => {
-    if (inDevMode()) {
+    if (inDevMode) {
       if (!isObservableArray(array)) {
         throw failure("assertion failed: expected an observable array")
       }

@@ -1,9 +1,7 @@
-import { computed, IComputedValue } from "mobx"
 import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { isArray, isObject } from "../utils"
-import { getOrCreate } from "../utils/mapUtils"
 import {
   dataObjectParent,
   dataToModelNode,
@@ -110,9 +108,7 @@ export function getParent<T extends object = any>(value: object): T | undefined 
  * @internal
  */
 export function fastGetParent<T extends object = any>(value: object): T | undefined {
-  const parentPath = fastGetParentPath(value)
-
-  return parentPath ? parentPath.parent : undefined
+  return fastGetParentPath(value)?.parent
 }
 
 /**
@@ -121,9 +117,7 @@ export function fastGetParent<T extends object = any>(value: object): T | undefi
 export function fastGetParentIncludingDataObjects<T extends object = any>(
   value: object
 ): T | undefined {
-  const parentPath = fastGetParentPathIncludingDataObjects(value)
-
-  return parentPath ? parentPath.parent : undefined
+  return fastGetParentPathIncludingDataObjects(value)?.parent
 }
 
 /**
@@ -158,35 +152,22 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
   return fastGetRootPath(value)
 }
 
-// we use computeds so they are cached whenever possible
-const computedsGetRootPath = new WeakMap<object, IComputedValue<RootPath<any>>>()
-
-function internalGetRootPath<T extends object = any>(value: object): RootPath<T> {
-  const rootPath = {
-    root: value,
-    path: [] as WritablePath,
-    pathObjects: [value] as unknown[],
-  }
-
-  let parentPath: ParentPath<any> | undefined
-  while ((parentPath = fastGetParentPath(rootPath.root))) {
-    rootPath.root = parentPath.parent
-    rootPath.path.unshift(parentPath.path)
-    rootPath.pathObjects.unshift(parentPath.parent)
-  }
-
-  return rootPath as RootPath<any>
-}
-
 /**
  * @internal
  */
 export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
-  return getOrCreate(computedsGetRootPath, value, () =>
-    computed(() => {
-      return internalGetRootPath(value)
-    })
-  ).get()
+  let root = value
+  let path = [] as WritablePath
+  let pathObjects = [value] as unknown[]
+
+  let parentPath: ParentPath<any> | undefined
+  while ((parentPath = fastGetParentPath(root))) {
+    root = parentPath.parent
+    path.unshift(parentPath.path)
+    pathObjects.unshift(parentPath.parent)
+  }
+
+  return { root, path, pathObjects } as RootPath<any>
 }
 
 /**
@@ -206,7 +187,14 @@ export function getRoot<T extends object = any>(value: object): T {
  * @internal
  */
 export function fastGetRoot<T extends object = any>(value: object): T {
-  return fastGetRootPath(value).root
+  let root = value
+
+  let parentPath: ParentPath<any> | undefined
+  while ((parentPath = fastGetParentPath(root))) {
+    root = parentPath.parent
+  }
+
+  return root as T
 }
 
 /**

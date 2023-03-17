@@ -41,7 +41,7 @@ export class Frozen<T> {
    */
   constructor(dataToFreeze: T, checkMode: FrozenCheckMode = FrozenCheckMode.DevModeOnly) {
     const check =
-      checkMode === FrozenCheckMode.On || (checkMode === FrozenCheckMode.DevModeOnly && inDevMode())
+      checkMode === FrozenCheckMode.On || (inDevMode && checkMode === FrozenCheckMode.DevModeOnly)
     if (check) {
       checkDataIsSerializableAndFreeze(dataToFreeze)
     }

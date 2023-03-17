@@ -36,6 +36,63 @@ export const model =
     return internalModel(name)(clazz)
   }
 
+const proxyClassHandlerTag = new WeakMap<
+  ModelClass<AnyModel | AnyDataModel>,
+  {
+    makeObservableFailed: boolean
+    type: "class" | "data"
+  }
+>()
+
+const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
+  construct(target, args) {
+    const instance = new (target as any)(...args)
+
+    runLateInitializationFunctions(instance, runAfterNewSymbol)
+
+    // compatibility with mobx 6
+    const tag = proxyClassHandlerTag.get(target)!
+    if (!tag.makeObservableFailed && getMobxVersion() >= 6) {
+      try {
+        mobx6.makeObservable(instance)
+      } catch (e) {
+        // sadly we need to use this hack since the PR to do this the proper way
+        // was rejected on the mobx side
+        tag.makeObservableFailed = true
+
+        const err = e as Error
+        if (
+          err.message !==
+            "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
+          err.message !==
+            "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
+        ) {
+          throw err
+        }
+      }
+    }
+
+    // the object is ready
+    addHiddenProp(instance, modelInitializedSymbol, true, false)
+
+    runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
+
+    if (tag.type === "class" && instance.onInit) {
+      wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
+
+      instance.onInit()
+    }
+
+    if (tag.type === "data" && instance.onLazyInit) {
+      wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
+
+      instance.onLazyInit()
+    }
+
+    return instance
+  },
+}
+
 const internalModel =
   (name: string) =>
   <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC): MC => {
@@ -54,96 +111,38 @@ const internalModel =
       }
     }
 
-    if (modelUnwrappedClassSymbol in clazz) {
+    if (modelUnwrappedClassSymbol in clazz && clazz[modelUnwrappedClassSymbol] === clazz) {
       throw failure("a class already decorated with `@model` cannot be re-decorated")
     }
 
     // track if we fail so we only try it once per class
-    let makeObservableFailed = false
+    proxyClassHandlerTag.set(clazz, { makeObservableFailed: false, type })
 
     // trick so plain new works
-    const newClazz: any = function (this: any, initialData: any, modelConstructorOptions: any) {
-      const instance = new (clazz as any)(initialData, modelConstructorOptions)
-
-      // set or else it points to the undecorated class
-      Object.defineProperty(instance, "constructor", {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: newClazz,
-      })
-
-      runLateInitializationFunctions(instance, runAfterNewSymbol)
-
-      // compatibility with mobx 6
-      if (!makeObservableFailed && getMobxVersion() >= 6) {
-        try {
-          mobx6.makeObservable(instance)
-        } catch (e) {
-          // sadly we need to use this hack since the PR to do this the proper way
-          // was rejected on the mobx side
-          makeObservableFailed = true
-
-          const err = e as Error
-          if (
-            err.message !==
-              "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
-            err.message !==
-              "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
-          ) {
-            throw err
-          }
-        }
-      }
-
-      // the object is ready
-      addHiddenProp(instance, modelInitializedSymbol, true, false)
-
-      runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
-
-      if (type === "class" && instance.onInit) {
-        wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
-
-        instance.onInit()
-      }
-
-      if (type === "data" && instance.onLazyInit) {
-        wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
-
-        instance.onLazyInit()
-      }
-
-      return instance
-    }
+    const proxyClass = new Proxy<MC>(clazz, proxyClassHandler)
 
     clazz.toString = () => `class ${clazz.name}#${name}`
     if (type === "class") {
       ;(clazz as any)[modelTypeKey] = name
     }
 
-    // this also gives access to modelInitializersSymbol, modelPropertiesSymbol, modelDataTypeCheckerSymbol
-    Object.setPrototypeOf(newClazz, clazz)
-    newClazz.prototype = clazz.prototype
-
-    Object.defineProperty(newClazz, "name", {
-      ...Object.getOwnPropertyDescriptor(newClazz, "name"),
-      value: clazz.name,
-    })
-    newClazz[modelUnwrappedClassSymbol] = clazz
+    // set or else it points to the undecorated class
+    proxyClass.prototype.constructor = proxyClass
+    ;(proxyClass as any)[modelUnwrappedClassSymbol] = clazz
 
     const modelInfo = {
       name,
-      class: newClazz,
+      class: proxyClass,
     }
 
     modelInfoByName[name] = modelInfo
 
-    modelInfoByClass.set(newClazz, modelInfo)
+    modelInfoByClass.set(proxyClass, modelInfo)
     modelInfoByClass.set(clazz, modelInfo)
 
     runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
 
-    return newClazz
+    return proxyClass
   }
 
 // basically taken from TS

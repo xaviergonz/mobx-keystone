@@ -3,8 +3,8 @@ import { getActionProtection } from "./protection"
 
 const pendingActions: (() => void)[] = []
 
-function isActionRunning() {
-  return !getActionProtection() || getCurrentActionContext()
+function isActionRunning(): boolean {
+  return !getActionProtection() || !!getCurrentActionContext()
 }
 
 /**

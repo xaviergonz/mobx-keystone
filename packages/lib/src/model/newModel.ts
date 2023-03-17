@@ -29,7 +29,7 @@ export const internalNewModel = action(
     const { modelClass: _modelClass, snapshotInitialData, generateNewIds } = options
     const modelClass = _modelClass!
 
-    if (inDevMode()) {
+    if (inDevMode) {
       assertIsModelClass(modelClass, "modelClass")
     }
 
@@ -52,7 +52,7 @@ export const internalNewModel = action(
 
       if (modelIdPropData && modelIdPropertyName) {
         if (generateNewIds) {
-          id = (modelIdPropData._internal.defaultFn as () => string)()
+          id = (modelIdPropData._defaultFn as () => string)()
         } else {
           id = sn[modelIdPropertyName]
         }
@@ -69,7 +69,7 @@ export const internalNewModel = action(
         if (initialData![modelIdPropertyName]) {
           id = initialData![modelIdPropertyName]
         } else {
-          id = (modelIdPropData._internal.defaultFn as () => string)()
+          id = (modelIdPropData._defaultFn as () => string)()
         }
       }
     }
@@ -92,9 +92,9 @@ export const internalNewModel = action(
       let changed = false
 
       // apply untransform (if any) if not in snapshot mode
-      if (mode === "new" && propData._internal.transform) {
+      if (mode === "new" && propData._transform) {
         changed = true
-        newValue = propData._internal.transform.untransform(newValue, modelObj, k)
+        newValue = propData._transform.untransform(newValue, modelObj, k)
       }
 
       // apply default value (if needed)
@@ -103,7 +103,7 @@ export const internalNewModel = action(
         if (defaultValue !== noDefaultValue) {
           changed = true
           newValue = defaultValue
-        } else if (!("k" in initialData!)) {
+        } else if (!(k in initialData!)) {
           // for mobx4, we need to set up properties even if they are undefined
           changed = true
         }
@@ -121,7 +121,7 @@ export const internalNewModel = action(
     tweakModel(modelObj, undefined)
 
     // create observable data object with initial data
-    let obsData = tweakPlainObject(
+    modelObj.$ = tweakPlainObject(
       initialData!,
       { parent: modelObj, path: "$" },
       modelObj[modelTypeKey],
@@ -129,11 +129,12 @@ export const internalNewModel = action(
       true
     )
 
-    // link it, and make it readonly
-    modelObj.$ = obsData
-    if (inDevMode()) {
+    if (inDevMode) {
       makePropReadonly(modelObj, "$", true)
     }
+
+    // run any extra initializers for the class as needed
+    applyModelInitializers(modelClass, modelObj)
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {
@@ -142,9 +143,6 @@ export const internalNewModel = action(
         err.throw()
       }
     }
-
-    // run any extra initializers for the class as needed
-    applyModelInitializers(modelClass, modelObj)
 
     return modelObj as M
   }

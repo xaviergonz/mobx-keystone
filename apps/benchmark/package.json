@@ -16,13 +16,13 @@
     "chalk": "^5.2.0",
     "mobx": "^6.8.0",
     "mobx-keystone": "workspace:packages/lib",
-    "mobx-state-tree": "^5.1.7",
+    "mobx-state-tree": "^5.1.8",
     "tslib": "^2.5.0"
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.2",
     "cross-env": "^7.0.3",
     "shx": "^0.3.4",
-    "typescript": "^5.0.0-dev.20230217"
+    "typescript": "^5.0.2"
   }
 }
