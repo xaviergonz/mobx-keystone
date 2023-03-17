@@ -1,5 +1,5 @@
+import { nanoid } from "nanoid/non-secure"
 import { failure, inDevMode } from "../utils"
-import { nanoid } from "../utils/nanoid-non-secure"
 
 /**
  * Model auto type-checking mode.
