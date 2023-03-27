@@ -30,7 +30,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-react-app": "^7.0.1",
     "netlify-cli": "^13.2.1",
-    "prettier": "^2.8.6",
+    "prettier": "^2.8.7",
     "prettier-plugin-organize-imports": "^3.2.2",
     "turbo": "^1.8.5",
     "typescript": "^5.0.2"
