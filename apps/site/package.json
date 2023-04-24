@@ -27,7 +27,7 @@
     "@docusaurus/module-type-aliases": "^2.4.0",
     "@svgr/webpack": "^7.0.0",
     "@tsconfig/docusaurus": "^1.0.7",
-    "@types/react": "^18.0.35",
+    "@types/react": "^18.0.38",
     "@types/react-dom": "^18.0.11",
     "@types/uuid": "^9.0.1",
     "raw-loader": "^4.0.2",

@@ -26,14 +26,14 @@
   },
   "devDependencies": {
     "codecov": "^3.8.3",
-    "eslint": "^8.38.0",
+    "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-react-app": "^7.0.1",
-    "netlify-cli": "^14.0.0",
-    "prettier": "^2.8.7",
+    "netlify-cli": "^14.2.1",
+    "prettier": "^2.8.8",
     "prettier-plugin-organize-imports": "^3.2.2",
-    "turbo": "^1.9.1",
+    "turbo": "^1.9.3",
     "typescript": "^5.0.4"
   },
-  "packageManager": "yarn@3.3.1"
+  "packageManager": "yarn@3.5.0"
 }
