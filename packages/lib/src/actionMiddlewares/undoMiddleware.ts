@@ -5,13 +5,13 @@ import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { fastGetRootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
-import { applyPatches, Patch, patchRecorder, PatchRecorder } from "../patch"
+import { Patch, PatchRecorder, applyPatches, patchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../types/arrayBased/typesArray"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { failure, getMobxVersion, mobx6, namespace } from "../utils"
-import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
+import { SimpleActionContext, actionTrackingMiddleware } from "./actionTrackingMiddleware"
 
 /**
  * An undo/redo event without attached state.
@@ -142,11 +142,34 @@ export class UndoStore extends Model({
   /**
    * @ignore
    */
+  enforceMaxLevels({
+    maxUndoLevels,
+    maxRedoLevels,
+  }: {
+    maxUndoLevels?: number
+    maxRedoLevels?: number
+  }) {
+    if (maxUndoLevels !== undefined) {
+      while (this.undoEvents.length > maxUndoLevels) {
+        this.undoEvents.shift()
+      }
+    }
+    if (maxRedoLevels !== undefined) {
+      while (this.redoEvents.length > maxRedoLevels) {
+        this.redoEvents.shift()
+      }
+    }
+  }
+
+  /**
+   * @ignore
+   */
   @modelAction
-  _undo() {
+  _undo({ maxRedoLevels }: { maxRedoLevels: number | undefined }) {
     withoutUndo(() => {
       const event = this.undoEvents.pop()!
       this.redoEvents.push(event)
+      this.enforceMaxLevels({ maxRedoLevels })
     })
   }
 
@@ -154,10 +177,11 @@ export class UndoStore extends Model({
    * @ignore
    */
   @modelAction
-  _redo() {
+  _redo({ maxUndoLevels }: { maxUndoLevels: number | undefined }) {
     withoutUndo(() => {
       const event = this.redoEvents.pop()!
       this.undoEvents.push(event)
+      this.enforceMaxLevels({ maxUndoLevels })
     })
   }
 
@@ -165,11 +189,12 @@ export class UndoStore extends Model({
    * @ignore
    */
   @modelAction
-  _addUndo(event: UndoEvent) {
+  _addUndo({ event, maxUndoLevels }: { event: UndoEvent; maxUndoLevels: number | undefined }) {
     withoutUndo(() => {
       this.undoEvents.push(event)
       // once an undo event is added redo queue is no longer valid
       this.redoEvents.length = 0
+      this.enforceMaxLevels({ maxUndoLevels })
     })
   }
 
@@ -242,11 +267,14 @@ export class UndoStore extends Model({
           this._addUndoToParentGroup(parentGroup, group)
         } else {
           this._addUndo({
-            ...group,
-            attachedState: {
-              beforeEvent: attachedStateBeforeEvent,
-              afterEvent: options?.attachedState?.save(),
+            event: {
+              ...group,
+              attachedState: {
+                beforeEvent: attachedStateBeforeEvent,
+                afterEvent: options?.attachedState?.save(),
+              },
             },
+            maxUndoLevels: options?.maxUndoLevels,
           })
         }
       },
@@ -357,7 +385,7 @@ export class UndoManager {
       }
     })
 
-    this.store._undo()
+    this.store._undo({ maxRedoLevels: this.options?.maxRedoLevels })
   }
 
   /**
@@ -382,7 +410,7 @@ export class UndoManager {
       }
     })
 
-    this.store._redo()
+    this.store._redo({ maxUndoLevels: this.options?.maxUndoLevels })
   }
 
   /**
@@ -593,8 +621,29 @@ export class UndoManager {
  * Undo middleware options.
  */
 export interface UndoMiddlewareOptions<S> {
+  /**
+   * Max number of undo levels to keep, or undefined for infinite.
+   */
+  maxUndoLevels?: number
+
+  /**
+   * Max number of redo levels to keep, or undefined for infinite.
+   */
+  maxRedoLevels?: number
+
+  /**
+   * Attached states are states that are saved/restored when undoing/redoing.
+   * Usually used to restore state that is not part of the document model such as focus, selection, scroll position, etc.
+   */
   attachedState?: {
+    /**
+     * Saves a certain state and associates it with the undo step. This state can be restored when undoing/redoing.
+     */
     save(): S
+    /**
+     * Restores a certain state previously saved.
+     * @param s State to restore.
+     */
     restore(s: S): void
   }
 }
@@ -695,11 +744,14 @@ export function undoMiddleware<S>(
             manager.store._addUndoToParentGroup(parentGroup, event)
           } else {
             manager.store._addUndo({
-              ...event,
-              attachedState: {
-                beforeEvent: patchRecorderData.attachedStateBeforeEvent,
-                afterEvent: options?.attachedState?.save(),
+              event: {
+                ...event,
+                attachedState: {
+                  beforeEvent: patchRecorderData.attachedStateBeforeEvent,
+                  afterEvent: options?.attachedState?.save(),
+                },
               },
+              maxUndoLevels: options?.maxUndoLevels,
             })
           }
         }

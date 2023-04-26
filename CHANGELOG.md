@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.5.0
+
+- Added `maxUndoLevels` and `maxRedoLevels` to `undoMiddleware` options to limit the number of undo/redo levels.
+
 ## 1.4.1
 
 - Optimizations yielding around 10-15% less CPU time for some operations.

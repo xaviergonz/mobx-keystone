@@ -1,5 +1,7 @@
 import { computed, IObservableArray, reaction, toJS } from "mobx"
 import {
+  _async,
+  _await,
   getSnapshot,
   idProp,
   Model,
@@ -15,8 +17,6 @@ import {
   undoMiddleware,
   UndoStore,
   withoutUndo,
-  _async,
-  _await,
 } from "../../src"
 import { autoDispose, testModel, timeMock } from "../utils"
 
@@ -970,4 +970,36 @@ test("reactions should be part of the same undo step than the action that trigge
   expect(undoManager.redoLevels).toBe(1)
 
   disposeReaction()
+})
+
+test("limit undo/redo steps", () => {
+  const r = new R({})
+  const p = r.p
+
+  const manager = undoMiddleware(r, r.undoData, {
+    maxRedoLevels: 1,
+    maxUndoLevels: 2,
+  })
+  autoDispose(() => manager.dispose())
+
+  function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
+    expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
+  }
+
+  expectUndoRedoToBe(0, 0)
+
+  p.incX(1)
+  expectUndoRedoToBe(1, 0)
+
+  p.incX(1)
+  expectUndoRedoToBe(2, 0)
+
+  p.incX(1)
+  expectUndoRedoToBe(2, 0)
+
+  manager.undo()
+  expectUndoRedoToBe(1, 1)
+
+  manager.undo()
+  expectUndoRedoToBe(0, 1)
 })
