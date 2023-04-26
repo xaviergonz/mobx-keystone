@@ -146,6 +146,17 @@ group.end() // at this point is when the undo event will be created
 
 Now, once undo/redo is called all the actions will be undone/redone in a single call.
 
+## Limiting the number of undo/redo steps
+
+By default there is no limit to the number of undo/redo steps that can be stored. If you want to limit the number of steps you can do so by passing the `maxUndoLevels` and `maxRedoLevels` options as third argument to `undoMiddleware`:
+
+```ts
+const undoManager = undoMiddleware(myRootStore, undefined, {
+  maxUndoLevels: 50, // or omit to have no limit
+  maxRedoLevels: 50, // or omit to have no limit
+})
+```
+
 ## Adding attached state to each undo/redo step
 
 Imagine a text editor where you don't want to undo each single cursor position change, but you still want to move the cursor to wherever it was before (when undoing) / after (when redoing) an action is performed.
