@@ -13,7 +13,7 @@
     "@docusaurus/core": "^2.4.0",
     "@docusaurus/preset-classic": "^2.4.0",
     "@easyops-cn/docusaurus-search-local": "^0.35.0",
-    "bootstrap-icons": "^1.10.4",
+    "bootstrap-icons": "^1.10.5",
     "mobx": "^6.9.0",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-react": "^7.6.0",
