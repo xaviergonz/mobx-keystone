@@ -4,10 +4,10 @@ Welcome to a community of developers just like you, striving to create the best 
 
 Here are some ways to contribute to the project, from easiest to most difficult:
 
--   [Reporting bugs](#reporting-bugs)
--   [Improving the documentation](#improving-the-documentation)
--   [Responding to issues](#responding-to-issues)
--   [Small bug fixes](#small-bug-fixes)
+- [Reporting bugs](#reporting-bugs)
+- [Improving the documentation](#improving-the-documentation)
+- [Responding to issues](#responding-to-issues)
+- [Small bug fixes](#small-bug-fixes)
 
 ## Issues
 
