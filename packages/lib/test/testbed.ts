@@ -12,7 +12,7 @@ export class P extends Model({
   [modelIdKey]: idProp,
   x: prop(() => 5),
   arr: prop<number[]>(() => []),
-  p2: prop<P2 | undefined>(),
+  p2: prop<P2 | undefined>().withSetter(),
 }) {
   @computed
   get xx() {

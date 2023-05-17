@@ -1,6 +1,6 @@
 import { observable, reaction, runInAction } from "mobx"
-import { assert, _ } from "spec.ts"
-import { createContext, fromSnapshot, getSnapshot, Model, prop, runUnprotected } from "../../src"
+import { _, assert } from "spec.ts"
+import { Model, createContext, fromSnapshot, getSnapshot, prop, runUnprotected } from "../../src"
 import { createP } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 
@@ -337,4 +337,20 @@ test("context applyComputed", () => {
   )
   expect(m2.method()).toBe(val)
   expect(m2.children[0].method()).toBe(val)
+})
+
+test("context is back to default when the parent providing the context is no longer there", () => {
+  const ctx = createContext(1)
+
+  const p = createP()
+  ctx.set(p, 2)
+
+  expect(ctx.get(p)).toBe(2)
+  const p2 = p.p2!
+  expect(ctx.get(p2)).toBe(2)
+
+  p.setP2(undefined)
+
+  // now that p is no longer providing the context, it should be back to the default
+  expect(ctx.get(p2)).toBe(1)
 })
