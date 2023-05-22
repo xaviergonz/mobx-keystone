@@ -931,3 +931,41 @@ test("modelAction, modelFlow and subclassing", async () => {
   expect(b.fetch2).toBeDefined()
   await b.fetch2()
 })
+
+test("it is possible to override defaults", () => {
+  @testModel("Point2d")
+  class P2d extends Model({
+    x: tProp(types.number, 15),
+    y: tProp(types.number, 10).withSetter(),
+  }) {}
+
+  @testModel("Point3d")
+  class P3d extends ExtendedModel(P2d, {
+    y: tProp(types.number, 40),
+    z: tProp(types.number, 20),
+  }) {}
+
+  {
+    const p2d = new P2d({})
+    expect(p2d.x).toBe(15)
+    assert(p2d.y, _ as number)
+    expect(p2d.y).toBe(10)
+    expect(p2d.setY).toBeDefined()
+    expect((p2d as any).z).toBe(undefined)
+
+    const p2dt = new P2d({ y: 50 })
+    expect(p2dt.y).toBe(50)
+  }
+
+  {
+    const p3d = new P3d({})
+    expect(p3d.x).toBe(15)
+    assert(p3d.y, _ as number)
+    expect(p3d.y).toBe(40)
+    expect(p3d.setY).toBeDefined()
+    expect(p3d.z).toBe(20)
+
+    const p3dt = new P3d({ y: 50 })
+    expect(p3dt.y).toBe(50)
+  }
+})

@@ -125,12 +125,9 @@ export function sharedInternalModel<
   if (baseModel) {
     const oldModelProps = getInternalModelClassPropsInfo(baseModel)
     for (const oldModelPropKey of Object.keys(oldModelProps)) {
-      if (modelProps[oldModelPropKey]) {
-        throw failure(
-          `extended model cannot redeclare base model property named '${oldModelPropKey}'`
-        )
+      if (!modelProps[oldModelPropKey]) {
+        composedModelProps[oldModelPropKey] = oldModelProps[oldModelPropKey]
       }
-      composedModelProps[oldModelPropKey] = oldModelProps[oldModelPropKey]
     }
   }
 

@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.0
+
+- It is now possible to override default values when extending a model, but it is now on the user side to ensure that the base and extended types are compatible.
+
 ## 1.5.0
 
 - Added `maxUndoLevels` and `maxRedoLevels` to `undoMiddleware` options to limit the number of undo/redo levels.
