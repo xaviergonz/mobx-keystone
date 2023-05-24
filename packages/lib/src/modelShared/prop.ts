@@ -176,8 +176,7 @@ export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
 }>
 
 // we don't use O.Optional anymore since it generates unions too heavy
-// also if we use pick over the optional props we will loose the ability
-// to infer generics
+// also if we use Pick over the optional props we will loose the ability to infer generics
 // we also don't use Flatten because if we do some generics won't work
 export type ModelPropsToUntransformedCreationData<MP extends ModelProps> = {
   [k in keyof MP]?: MP[k]["$creationValueType"]
@@ -186,8 +185,7 @@ export type ModelPropsToUntransformedCreationData<MP extends ModelProps> = {
 }
 
 // we don't use O.Optional anymore since it generates unions too heavy
-// also if we use pick over the optional props we will loose the ability
-// to infer generics
+// also if we use Pick over the optional props we will loose the ability to infer generics
 export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = Flatten<
   {
     [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
@@ -207,8 +205,7 @@ export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
 }>
 
 // we don't use O.Optional anymore since it generates unions too heavy
-// also if we use pick over the optional props we will loose the ability
-// to infer generics
+// also if we use Pick over the optional props we will loose the ability to infer generics
 // we also don't use Flatten because if we do some generics won't work
 // we also don't use Omit because if we do some generics won't work
 export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
