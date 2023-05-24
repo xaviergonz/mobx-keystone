@@ -3,6 +3,7 @@ import type { AnyModel } from "../model/BaseModel"
 import type { modelTypeKey } from "../model/metadata"
 import type { Flatten, IsNeverType } from "../utils/types"
 import type {
+  ModelProps,
   ModelPropsToSnapshotCreationData,
   ModelPropsToSnapshotData,
   ModelPropsToTransformedCreationData,
@@ -48,40 +49,46 @@ export type AbstractModelClass<M extends AnyModel | AnyDataModel> = abstract new
 ) => M
 
 /**
+ * @internal
+ */
+export type ModelWithProps = { [propsTypeSymbol]: ModelProps }
+
+/**
  * The props of a model.
  */
-export type ModelPropsOf<M extends AnyModel | AnyDataModel> = M[typeof propsTypeSymbol]
+export type ModelPropsOf<M extends ModelWithProps> = M[typeof propsTypeSymbol]
 
 /**
  * The data type of a model, without transformations applied.
  */
-export type ModelUntransformedData<M extends AnyModel | AnyDataModel> = Flatten<M["$"]>
+export type ModelUntransformedData<M extends { readonly $: any }> = Flatten<M["$"]>
 
 /**
  * The creation data type of a model, without transformations applied.
  */
-export type ModelUntransformedCreationData<M extends AnyModel | AnyDataModel> =
+export type ModelUntransformedCreationData<M extends ModelWithProps> =
   ModelPropsToUntransformedCreationData<ModelPropsOf<M>>
 
 /**
  * The data type of a model, with transformations applied.
  */
-export type ModelData<M extends AnyModel | AnyDataModel> = ModelPropsToTransformedData<
-  ModelPropsOf<M>
->
+export type ModelData<M extends ModelWithProps> = ModelPropsToTransformedData<ModelPropsOf<M>>
 
 /**
  * The creation data type of a model, with transformations applied.
  */
-export type ModelCreationData<M extends AnyModel | AnyDataModel> =
-  ModelPropsToTransformedCreationData<ModelPropsOf<M>>
+export type ModelCreationData<M extends ModelWithProps> = ModelPropsToTransformedCreationData<
+  ModelPropsOf<M>
+>
 
 /**
  * The from snapshot type of a model.
  *
  * @deprecated Use SnapshotInOf<Model> instead.
  */
-export type ModelFromSnapshot<M extends AnyModel> = IsNeverType<
+export type ModelFromSnapshot<
+  M extends ModelWithProps & { [fromSnapshotOverrideTypeSymbol]: any }
+> = IsNeverType<
   M[typeof fromSnapshotOverrideTypeSymbol],
   ModelPropsToSnapshotCreationData<ModelPropsOf<M>>,
   M[typeof fromSnapshotOverrideTypeSymbol]
@@ -92,11 +99,12 @@ export type ModelFromSnapshot<M extends AnyModel> = IsNeverType<
  *
  * @deprecated Use SnapshotOutOf<Model> instead.
  */
-export type ModelToSnapshot<M extends AnyModel> = IsNeverType<
-  M[typeof toSnapshotOverrideTypeSymbol],
-  ModelPropsToSnapshotData<ModelPropsOf<M>>,
-  M[typeof toSnapshotOverrideTypeSymbol]
-> & { [modelTypeKey]?: string }
+export type ModelToSnapshot<M extends ModelWithProps & { [toSnapshotOverrideTypeSymbol]: any }> =
+  IsNeverType<
+    M[typeof toSnapshotOverrideTypeSymbol],
+    ModelPropsToSnapshotData<ModelPropsOf<M>>,
+    M[typeof toSnapshotOverrideTypeSymbol]
+  > & { [modelTypeKey]?: string }
 
 /**
  * Tricks TypeScript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.
