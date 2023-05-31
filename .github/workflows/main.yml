@@ -53,10 +53,13 @@ jobs:
           cache: "yarn"
 
       - run: yarn install --immutable
-      - run: yarn lib:test:ci && yarn codecov -p ./packages/lib
+      - run: yarn lib:test:ci
         env:
           COMPILER: ${{ matrix.compiler }}
           MOBX_VERSION: ${{ matrix.mobx-version }}
+      - name: Upload codecov report
+        run: yarn codecov -p ./packages/lib
+        if: matrix.compiler == 'tsc' && matrix.mobx-version == '6'
 
   benchmark-build:
     runs-on: ubuntu-latest
