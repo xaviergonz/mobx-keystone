@@ -25,13 +25,13 @@
     "utf-8-validate": "^5.0.10"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.22.3",
+    "@babel/plugin-proposal-decorators": "^7.22.5",
     "@docusaurus/module-type-aliases": "^2.4.1",
     "@svgr/webpack": "^8.0.1",
     "@tsconfig/docusaurus": "^1.0.7",
-    "@types/react": "^18.2.8",
-    "@types/react-dom": "^18.2.4",
-    "@types/uuid": "^9.0.1",
+    "@types/react": "^18.2.12",
+    "@types/react-dom": "^18.2.5",
+    "@types/uuid": "^9.0.2",
     "raw-loader": "^4.0.2",
     "shx": "^0.3.4",
     "typescript": "^5.1.3"
