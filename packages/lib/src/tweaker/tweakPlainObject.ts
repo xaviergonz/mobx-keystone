@@ -279,13 +279,16 @@ function interceptObjectMutation(change: IObjectWillChange) {
 
     case "update": {
       const oldVal = change.object[change.name]
-      tweak(oldVal, undefined)
-      tryUntweak(oldVal)
+      const newVal = change.newValue
+      if (newVal !== oldVal) {
+        tweak(oldVal, undefined)
+        tryUntweak(oldVal)
 
-      change.newValue = tweak(change.newValue, {
-        parent: change.object,
-        path: "" + change.name,
-      })
+        change.newValue = tweak(change.newValue, {
+          parent: change.object,
+          path: "" + change.name,
+        })
+      }
       break
     }
   }

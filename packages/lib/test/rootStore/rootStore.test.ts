@@ -1,13 +1,18 @@
 import { reaction, toJS } from "mobx"
 import {
-  getRootStore,
-  isRootStore,
   Model,
+  applySnapshot,
+  getRootStore,
+  getSnapshot,
+  idProp,
+  isRootStore,
   modelAction,
   prop,
   registerRootStore,
   runUnprotected,
+  tProp,
   toTreeNode,
+  types,
   unregisterRootStore,
 } from "../../src"
 import { testModel } from "../utils"
@@ -370,4 +375,117 @@ test("bug #384", () => {
   store.setTodos(todos)
 
   expect(calls).toBe(todos.length)
+})
+
+test("issue #521, changing id", () => {
+  const events: string[] = []
+
+  @testModel("A")
+  class A extends Model({
+    id: idProp.withSetter(),
+    n: tProp(types.number).withSetter(),
+  }) {
+    protected onAttachedToRootStore() {
+      events.push("attach")
+      return () => {
+        events.push("detach")
+      }
+    }
+  }
+
+  @testModel("B")
+  class B extends Model({
+    id: idProp,
+    a: tProp(types.model(A)),
+  }) {}
+
+  const b = new B({ id: "b", a: new A({ id: "a", n: 1 }) })
+  expect(events).toMatchInlineSnapshot(`[]`)
+  events.length = 0
+
+  registerRootStore(b)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "attach",
+    ]
+  `)
+  events.length = 0
+
+  const snapshot = getSnapshot(b)
+
+  b.a.setId("2")
+  expect(events).toMatchInlineSnapshot(`[]`)
+  events.length = 0
+
+  applySnapshot(b, snapshot)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "detach",
+      "attach",
+    ]
+  `)
+  events.length = 0
+
+  unregisterRootStore(b)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "detach",
+    ]
+  `)
+  events.length = 0
+})
+
+test("issue #521, changing a field other than id", () => {
+  const events: string[] = []
+
+  @testModel("A")
+  class A extends Model({
+    id: idProp.withSetter(),
+    n: tProp(types.number).withSetter(),
+  }) {
+    protected onAttachedToRootStore() {
+      events.push("attach")
+      return () => {
+        events.push("detach")
+      }
+    }
+  }
+
+  @testModel("B")
+  class B extends Model({
+    id: idProp,
+    a: tProp(types.model(A)),
+  }) {}
+
+  const b = new B({ id: "b", a: new A({ id: "a", n: 1 }) })
+  expect(events).toMatchInlineSnapshot(`[]`)
+  events.length = 0
+
+  registerRootStore(b)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "attach",
+    ]
+  `)
+  events.length = 0
+
+  const snapshot = getSnapshot(b)
+
+  b.a.setN(2)
+  expect(events).toMatchInlineSnapshot(`[]`)
+  events.length = 0
+
+  debugger
+
+  applySnapshot(b, snapshot)
+  expect(events).toMatchInlineSnapshot(`[]`)
+  events.length = 0
+
+  unregisterRootStore(b)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "detach",
+    ]
+  `)
+  events.length = 0
 })
