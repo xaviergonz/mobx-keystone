@@ -475,8 +475,6 @@ test("issue #521, changing a field other than id", () => {
   expect(events).toMatchInlineSnapshot(`[]`)
   events.length = 0
 
-  debugger
-
   applySnapshot(b, snapshot)
   expect(events).toMatchInlineSnapshot(`[]`)
   events.length = 0
