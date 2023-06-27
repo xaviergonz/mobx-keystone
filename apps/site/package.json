@@ -29,7 +29,7 @@
     "@docusaurus/module-type-aliases": "^2.4.1",
     "@svgr/webpack": "^8.0.1",
     "@tsconfig/docusaurus": "^1.0.7",
-    "@types/react": "^18.2.13",
+    "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/uuid": "^9.0.2",
     "raw-loader": "^4.0.2",
