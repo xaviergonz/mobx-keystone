@@ -519,7 +519,6 @@ test("issue #522, attach/detach of models inside an array", () => {
   }) {
     @modelAction
     clearAs() {
-      debugger
       this.as = []
     }
   }
