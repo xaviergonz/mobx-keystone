@@ -4,7 +4,7 @@ import { createContext } from "../context/context"
 import { isDataModelClass } from "../dataModel/utils"
 import { isModelClass } from "../model/utils"
 import { isTreeNode } from "../tweaker/core"
-import { tryUntweak, tweak } from "../tweaker/tweak"
+import { tweak } from "../tweaker/tweak"
 import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 
@@ -77,7 +77,6 @@ export function computedTree(
 
     const oldTweakedValue = entry.tweakedValue
     tweak(oldTweakedValue, undefined)
-    tryUntweak(oldTweakedValue)
 
     const tweakedValue = tweakComputedTreeNode(newValue, this, propertyKey)
     entry.value = newValue

@@ -25,7 +25,7 @@ import {
 } from "../snapshot/internal"
 import { failure, isPlainObject, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { registerTweaker, tryUntweak, tweak } from "./tweak"
+import { registerTweaker, tweak } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
@@ -273,7 +273,6 @@ function interceptObjectMutation(change: IObjectWillChange) {
     case "remove": {
       const oldVal = change.object[change.name]
       tweak(oldVal, undefined)
-      tryUntweak(oldVal)
       break
     }
 
@@ -282,7 +281,6 @@ function interceptObjectMutation(change: IObjectWillChange) {
       const newVal = change.newValue
       if (newVal !== oldVal) {
         tweak(oldVal, undefined)
-        tryUntweak(oldVal)
 
         change.newValue = tweak(change.newValue, {
           parent: change.object,

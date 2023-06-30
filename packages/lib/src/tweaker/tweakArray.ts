@@ -22,7 +22,7 @@ import {
 } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { registerTweaker, tryUntweak, tweak } from "./tweak"
+import { registerTweaker, tweak } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
@@ -359,7 +359,6 @@ function interceptArrayMutationUpdate(change: IArrayWillChange, array: IObservab
   // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
   const oldVal = array[change.index]
   tweak(oldVal, undefined) // set old prop obj parent to undefined
-  tryUntweak(oldVal)
 
   change.newValue = tweak(change.newValue, { parent: array, path: change.index })
 }
@@ -378,7 +377,6 @@ function interceptArrayMutationSplice(change: IArrayWillSplice) {
   for (let i = 0; i < change.removedCount; i++) {
     const removedValue = change.object[change.index + i]
     tweak(removedValue, undefined)
-    tryUntweak(removedValue)
   }
 
   for (let i = 0; i < change.added.length; i++) {

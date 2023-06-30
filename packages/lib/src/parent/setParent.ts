@@ -7,6 +7,7 @@ import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetac
 import { fastIsRootStore } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
 import { isTweakedObject } from "../tweaker/core"
+import { tryUntweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPrimitive } from "../utils"
 import {
   dataObjectParent,
@@ -16,7 +17,7 @@ import {
   reportParentPathChanged,
 } from "./core"
 import { addObjectChild, removeObjectChild } from "./coreObjectChildren"
-import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
+import { ParentPath, fastGetParentPath, fastGetRoot } from "./path"
 
 /**
  * @internal
@@ -107,6 +108,12 @@ export const setParent = action(
       }
     }
 
+    let postUntweaker: ReturnType<typeof tryUntweak> | undefined
+
+    if (!parentPath) {
+      postUntweaker = tryUntweak(value)
+    }
+
     const attachToNewParent = () => {
       // detach from old
       if (oldParentPath?.parent) {
@@ -144,6 +151,8 @@ export const setParent = action(
     } else {
       attachToNewParent()
     }
+
+    postUntweaker?.()
 
     return value
   }

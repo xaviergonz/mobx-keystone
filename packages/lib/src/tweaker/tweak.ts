@@ -140,21 +140,23 @@ export const tweak = action("tweak", internalTweak)
 /**
  * @internal
  */
-export function tryUntweak(value: any) {
+export function tryUntweak(value: any): (() => void) | undefined {
   if (isPrimitive(value)) {
-    return true
+    return undefined
   }
 
   if (inDevMode) {
-    if (fastGetParent(value)) {
-      throw failure("assertion failed: object cannot be untweaked while it has a parent")
+    if (!fastGetParent(value)) {
+      throw failure("assertion failed: object cannot be untweaked if it does not have a parent")
     }
   }
 
   const untweaker = tweakedObjects.get(value)
   if (!untweaker) {
-    return false
+    return undefined
   }
+
+  // pre-untweaking, untweak children first
 
   // we have to make a copy since it will be changed
   const children = Array.from(getObjectChildren(value)!.values())
@@ -170,9 +172,11 @@ export function tryUntweak(value: any) {
     })
   }
 
-  untweaker()
+  return () => {
+    // post-untweaking, call the untweaker
+    untweaker()
 
-  tweakedObjects.delete(value)
-  unsetInternalSnapshot(value)
-  return true
+    tweakedObjects.delete(value)
+    unsetInternalSnapshot(value)
+  }
 }

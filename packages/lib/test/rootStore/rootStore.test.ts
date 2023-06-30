@@ -487,3 +487,62 @@ test("issue #521, changing a field other than id", () => {
   `)
   events.length = 0
 })
+
+test("issue #522, attach/detach of models inside an array", () => {
+  const events: string[] = []
+
+  @testModel("AA")
+  class AA extends Model({}) {
+    protected onAttachedToRootStore() {
+      events.push("attach AA")
+      return () => {
+        events.push("detach AA")
+      }
+    }
+  }
+
+  @testModel("A")
+  class A extends Model({
+    aa: tProp(types.model(AA)).withSetter(),
+  }) {
+    protected onAttachedToRootStore() {
+      events.push("attach A")
+      return () => {
+        events.push("detach A")
+      }
+    }
+  }
+
+  @testModel("B")
+  class B extends Model({
+    as: tProp(types.array(types.model(A))),
+  }) {
+    @modelAction
+    clearAs() {
+      debugger
+      this.as = []
+    }
+  }
+
+  const b = new B({ as: [new A({ aa: new AA({}) })] })
+  expect(events).toMatchInlineSnapshot(`[]`)
+  events.length = 0
+
+  registerRootStore(b)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "attach A",
+      "attach AA",
+    ]
+  `)
+  events.length = 0
+
+  b.clearAs()
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "detach AA",
+      "detach A",
+    ]
+  `)
+  events.length = 0
+})

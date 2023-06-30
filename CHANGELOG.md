@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.2
+
+- Fixed a bug where the `onAttachedToRootStore` disposer was not being called for models inside arrays.
+
 ## 1.6.1
 
 - Fixed a bug where extra `attachToRootStore` calls and patches were being made when using `applySnapshot` to reconcile models with the same ID.
