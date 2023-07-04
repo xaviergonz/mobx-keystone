@@ -11,6 +11,7 @@ import { BigModel } from "./models/ks-nonTypeChecked.js"
 import { TcBigModel } from "./models/ks-typeChecked.js"
 import { MobxBigModel } from "./models/mobx.js"
 import { mstBigModel } from "./models/mst.js"
+import { sleep } from "./sleep.js"
 
 const extrasToRun: ExtrasToRun = [
   // "es6",
@@ -22,7 +23,9 @@ const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
   ModelAutoTypeCheckingMode.AlwaysOff,
 ]
 
-tcModes.forEach((tcMode) => {
+const waitBetweenBenchmarks = () => sleep(500)
+
+for (const tcMode of tcModes) {
   let name = ""
   let bigModel: typeof BigModel | typeof TcBigModel
 
@@ -69,6 +72,7 @@ tcModes.forEach((tcMode) => {
     },
     extrasToRun
   )
+  await waitBetweenBenchmarks()
 
   const bigModelBigVars = ["aa", "bb", "cc", "dd"]
   const bigModelSmallVars = ["a", "b", "c", "d"]
@@ -106,6 +110,7 @@ tcModes.forEach((tcMode) => {
     },
     extrasToRun
   )
+  await waitBetweenBenchmarks()
 
   {
     const bm1 = new bigModel({})
@@ -129,6 +134,7 @@ tcModes.forEach((tcMode) => {
       },
       extrasToRun
     )
+    await waitBetweenBenchmarks()
   }
 
   {
@@ -184,6 +190,7 @@ tcModes.forEach((tcMode) => {
       },
       extrasToRun
     )
+    await waitBetweenBenchmarks()
   }
 
   const setVars = (x: any) => {
@@ -220,6 +227,7 @@ tcModes.forEach((tcMode) => {
       },
       extrasToRun
     )
+    await waitBetweenBenchmarks()
   }
 
   {
@@ -248,5 +256,6 @@ tcModes.forEach((tcMode) => {
       },
       extrasToRun
     )
+    await waitBetweenBenchmarks()
   }
-})
+}
