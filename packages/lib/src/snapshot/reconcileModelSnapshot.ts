@@ -1,4 +1,4 @@
-import { remove, set } from "mobx"
+import { remove } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
@@ -12,11 +12,12 @@ import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { failure, isArray } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
+import { setIfDifferent } from "../utils/setIfDifferent"
+import type { SnapshotInOfModel } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
-import type { SnapshotInOfModel } from "./SnapshotOf"
-import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function reconcileModelSnapshot(
   value: any,
@@ -83,7 +84,7 @@ function reconcileModelSnapshot(
         if (defaultValue === noDefaultValue) {
           remove(data, k)
         } else {
-          set(data, k, defaultValue)
+          setIfDifferent(data, k, defaultValue)
         }
       }
     }
@@ -110,7 +111,7 @@ function reconcileModelSnapshot(
 
         detachIfNeeded(newValue, oldValue, modelPool)
 
-        set(data, k, newValue)
+        setIfDifferent(data, k, newValue)
       }
     }
   })

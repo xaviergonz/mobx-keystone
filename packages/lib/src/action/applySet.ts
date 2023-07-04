@@ -1,7 +1,8 @@
-import { isObservable, set } from "mobx"
+import { isObservable } from "mobx"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { lazy } from "../utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
 import { BuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./wrapInAction"
@@ -27,7 +28,7 @@ function internalApplySet<O extends object>(this: O, fieldName: string | number,
   // we need to check if it is a model since models can become observable objects
   // (e.g. by having a computed value)
   if (!isModel(this) && isObservable(this)) {
-    set(this, fieldName, value)
+    setIfDifferent(this, fieldName, value)
   } else {
     ;(this as any)[fieldName] = value
   }

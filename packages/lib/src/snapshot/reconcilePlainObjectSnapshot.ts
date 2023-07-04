@@ -1,13 +1,14 @@
-import { isObservableObject, remove, set } from "mobx"
+import { isObservableObject, remove } from "mobx"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isPlainObject } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
+import { setIfDifferent } from "../utils/setIfDifferent"
+import type { SnapshotInOfObject } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
-import type { SnapshotInOfObject } from "./SnapshotOf"
-import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function reconcilePlainObjectSnapshot(
   value: any,
@@ -46,7 +47,7 @@ function reconcilePlainObjectSnapshot(
 
       detachIfNeeded(newValue, oldValue, modelPool)
 
-      set(plainObj, k, newValue)
+      setIfDifferent(plainObj, k, newValue)
     }
   })
 

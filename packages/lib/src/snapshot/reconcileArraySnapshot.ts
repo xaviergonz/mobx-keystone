@@ -1,13 +1,13 @@
-import { set } from "mobx"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isArray } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
+import { setIfDifferent } from "../utils/setIfDifferent"
+import type { SnapshotInOfObject } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
-import type { SnapshotInOfObject } from "./SnapshotOf"
-import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function reconcileArraySnapshot(
   value: any,
@@ -34,7 +34,7 @@ function reconcileArraySnapshot(
 
       detachIfNeeded(newValue, oldValue, modelPool)
 
-      set(value, i, newValue)
+      setIfDifferent(value, i, newValue)
     }
 
     // add excess items

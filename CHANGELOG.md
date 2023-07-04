@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.3
+
+- Fixed a bug where an object was sometimes being detached and then again retached when using applySnapshot.
+
 ## 1.6.2
 
 - Fixed a bug where the `onAttachedToRootStore` disposer was not being called for models inside arrays.

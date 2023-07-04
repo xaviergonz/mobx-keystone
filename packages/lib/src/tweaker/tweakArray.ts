@@ -6,7 +6,6 @@ import {
   isObservableArray,
   observable,
   observe,
-  set,
 } from "mobx"
 import { assertCanWrite } from "../action/protection"
 import { getGlobalConfig } from "../globalConfig"
@@ -21,6 +20,7 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { registerTweaker, tweak } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
@@ -70,7 +70,7 @@ export function tweakArray<T extends any[]>(
 
     if (isPrimitive(v)) {
       if (!doNotTweakChildren) {
-        set(tweakedArr, i, v)
+        setIfDifferent(tweakedArr, i, v)
       }
 
       untransformedSn[i] = v
@@ -90,7 +90,7 @@ export function tweakArray<T extends any[]>(
         })
       } else {
         tweakedValue = tweak(v, path)
-        set(tweakedArr, i, tweakedValue)
+        setIfDifferent(tweakedArr, i, tweakedValue)
       }
 
       const valueSn = getInternalSnapshot(tweakedValue)!

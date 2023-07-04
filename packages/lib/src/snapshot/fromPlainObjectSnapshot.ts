@@ -1,14 +1,14 @@
 import { observable, set } from "mobx"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { isPlainObject } from "../utils"
+import { SnapshotInOfObject } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 import {
   FromSnapshotContext,
   internalFromSnapshot,
   observableOptions,
   registerSnapshotter,
 } from "./fromSnapshot"
-import { SnapshotInOfObject } from "./SnapshotOf"
-import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): object {
   const plainObj = observable.object({}, undefined, observableOptions)
@@ -18,6 +18,7 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotC
   for (let i = 0; i < snKeysLen; i++) {
     const k = snKeys[i]
     const v = sn[k]
+    // setIfDifferent not required
     set(plainObj, k, internalFromSnapshot(v, ctx))
   }
   return tweakPlainObject(plainObj, undefined, undefined, true, false)

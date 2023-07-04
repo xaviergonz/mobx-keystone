@@ -5,7 +5,6 @@ import {
   isObservableObject,
   observable,
   observe,
-  set,
 } from "mobx"
 import { assertCanWrite } from "../action/protection"
 import type { AnyModel } from "../model/BaseModel"
@@ -24,6 +23,7 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, isPlainObject, isPrimitive } from "../utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { registerTweaker, tweak } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
@@ -73,7 +73,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
 
     if (isPrimitive(v)) {
       if (!doNotTweakChildren) {
-        set(tweakedObj, k, v)
+        setIfDifferent(tweakedObj, k, v)
       }
       untransformedSn[k] = v
     } else {
@@ -92,7 +92,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
         })
       } else {
         tweakedValue = tweak(v, path)
-        set(tweakedObj, k, tweakedValue)
+        setIfDifferent(tweakedObj, k, tweakedValue)
       }
 
       const valueSn = getInternalSnapshot(tweakedValue)!

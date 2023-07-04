@@ -1,4 +1,4 @@
-import { remove, set } from "mobx"
+import { remove } from "mobx"
 import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
@@ -9,6 +9,7 @@ import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isArray, lazy } from "../utils"
 import { ModelPool } from "../utils/ModelPool"
+import { setIfDifferent } from "../utils/setIfDifferent"
 
 /**
  * Applies the given patches to the given target object.
@@ -106,7 +107,7 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
           const index = +prop!
           // try to reconcile
           const newValue = reconcileSnapshot(target[index], patch.value, modelPool, target)
-          set(target, index as any, newValue)
+          setIfDifferent(target, index as any, newValue)
         }
         break
       }
@@ -119,7 +120,7 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
       case "add": {
         // reconcile from the pool if possible
         const newValue = reconcileSnapshot(undefined, patch.value, modelPool, target)
-        set(target, prop, newValue)
+        setIfDifferent(target, prop!, newValue)
         break
       }
 
@@ -133,7 +134,7 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
         // try to reconcile
         // we don't need to tweak the pool since reconcileSnapshot will do that for us
         const newValue = reconcileSnapshot(target[prop!], patch.value, modelPool, target)
-        set(target, prop, newValue)
+        setIfDifferent(target, prop!, newValue)
         break
       }
 

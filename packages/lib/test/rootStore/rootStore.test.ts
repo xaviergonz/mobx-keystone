@@ -545,3 +545,75 @@ test("issue #522, attach/detach of models inside an array", () => {
   `)
   events.length = 0
 })
+
+test("issue #522 part 2", () => {
+  const events: string[] = []
+
+  @testModel("A")
+  class A extends Model({
+    n: idProp.withSetter(),
+  }) {
+    protected onAttachedToRootStore() {
+      events.push(`attach ${this.n}`)
+      return () => {
+        events.push(`detach ${this.n}`)
+      }
+    }
+  }
+
+  @testModel("B")
+  class B extends Model({
+    as: tProp(types.array(types.model(A))).withSetter(),
+    ar: tProp(types.record(types.model(A))).withSetter(),
+  }) {}
+
+  const b = new B({
+    as: [new A({ n: "1" })],
+    ar: {
+      "3": new A({ n: "3" }),
+    },
+  })
+
+  registerRootStore(b)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "attach 1",
+      "attach 3",
+    ]
+  `)
+  events.length = 0
+
+  const sn1 = getSnapshot(b)
+
+  b.setAs([...b.as, new A({ n: "2" })])
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "detach 1",
+      "attach 1",
+      "attach 2",
+    ]
+  `)
+  events.length = 0
+
+  b.setAr({
+    "3": b.ar["3"],
+    "4": new A({ n: "4" }),
+  })
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "detach 3",
+      "attach 3",
+      "attach 4",
+    ]
+  `)
+  events.length = 0
+
+  applySnapshot(b, sn1)
+  expect(events).toMatchInlineSnapshot(`
+    [
+      "detach 2",
+      "detach 4",
+    ]
+  `)
+  events.length = 0
+})

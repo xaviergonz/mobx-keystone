@@ -10,7 +10,6 @@ import {
   ObservableMap,
   observe,
   remove,
-  set,
 } from "mobx"
 import {
   assertIsMap,
@@ -21,6 +20,7 @@ import {
   inDevMode,
   isArray,
 } from "../utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
 import { tag } from "../utils/tag"
 
 const observableMapBackedByObservableObject = action(
@@ -94,7 +94,7 @@ const observableMapBackedByObservableObject = action(
           switch (change.type) {
             case "add":
             case "update": {
-              set(obj, change.name, change.newValue)
+              setIfDifferent(obj, change.name, change.newValue)
               break
             }
 

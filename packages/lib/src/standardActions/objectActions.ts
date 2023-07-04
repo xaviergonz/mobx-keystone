@@ -1,6 +1,7 @@
-import { isObservable, remove, set } from "mobx"
+import { isObservable, remove } from "mobx"
 import { toTreeNode } from "../tweaker/tweak"
 import { assertIsObject, namespace as ns } from "../utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
 import { standaloneAction } from "./standaloneActions"
 
 const namespace = `${ns}/objectActions`
@@ -10,7 +11,7 @@ export const objectActions = {
     `${namespace}::set`,
     <T extends object, K extends keyof T>(target: T, key: K, value: T[K]): void => {
       if (isObservable(target)) {
-        set(target, key, value)
+        setIfDifferent(target, key, value)
       } else {
         target[key] = value
       }
@@ -25,7 +26,8 @@ export const objectActions = {
 
       if (isObservable(target)) {
         for (const key of keys) {
-          set(target, key, (partialObject as any)[key])
+          const newValue = (partialObject as any)[key]
+          setIfDifferent(target, key, newValue)
         }
       } else {
         for (const key of keys) {

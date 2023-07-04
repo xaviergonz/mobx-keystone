@@ -1,6 +1,7 @@
-import { remove, set } from "mobx"
+import { remove } from "mobx"
 import { toTreeNode } from "../tweaker/tweak"
 import { namespace as ns } from "../utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
 import { standaloneAction } from "./standaloneActions"
 
 function _splice(array: any[], start: number, deleteCount?: number): any[]
@@ -13,7 +14,7 @@ const namespace = `${ns}/arrayActions`
 
 export const arrayActions = {
   set: standaloneAction(`${namespace}::set`, <T>(array: T[], index: number, value: any): void => {
-    set(array, index, value)
+    setIfDifferent(array, index, value)
   }),
 
   delete: standaloneAction(`${namespace}::delete`, <T>(array: T[], index: number): boolean => {

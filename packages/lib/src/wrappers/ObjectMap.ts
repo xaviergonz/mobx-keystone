@@ -1,13 +1,14 @@
-import { entries, get, has, keys, remove, set, values } from "mobx"
+import { entries, get, has, keys, remove, values } from "mobx"
 import { modelAction } from "../action/modelAction"
-import { modelIdKey } from "../model/metadata"
 import { Model } from "../model/Model"
+import { modelIdKey } from "../model/metadata"
 import { model } from "../modelShared/modelDecorator"
 import { idProp } from "../modelShared/prop"
 import { typesRecord } from "../types/objectBased/typesRecord"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { namespace } from "../utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
 
 /**
  * A map that is backed by an object-like map.
@@ -66,7 +67,7 @@ export class ObjectMap<V>
 
   @modelAction
   set(key: string, value: V): this {
-    set(this.items, key, value)
+    setIfDifferent(this.items, key, value)
     return this
   }
 
