@@ -15751,35 +15751,37 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"mobx-react-lite@npm:^3.4.0":
-  version: 3.4.3
-  resolution: "mobx-react-lite@npm:3.4.3"
+"mobx-react-lite@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "mobx-react-lite@npm:4.0.3"
+  dependencies:
+    use-sync-external-store: ^1.2.0
   peerDependencies:
-    mobx: ^6.1.0
+    mobx: ^6.9.0
     react: ^16.8.0 || ^17 || ^18
   peerDependenciesMeta:
     react-dom:
       optional: true
     react-native:
       optional: true
-  checksum: 60a2580eb9a0b9988fc76959d7299f018733dc33cacaa73c45500953006d4d45e738d9ae39ccfc767ac19a75656dbc028d833282c848fbc67d8d18a2bcb5c262
+  checksum: 327151c61f6520605ce855b2972f30f4b4d9e277d546be5bf0abc663cf09f3e242193603d51d41a9e847fd359a3b9a5cfbeb89ccbb0905f04a2e1b38021d3025
   languageName: node
   linkType: hard
 
-"mobx-react@npm:^7.6.0":
-  version: 7.6.0
-  resolution: "mobx-react@npm:7.6.0"
+"mobx-react@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "mobx-react@npm:9.0.0"
   dependencies:
-    mobx-react-lite: ^3.4.0
+    mobx-react-lite: ^4.0.3
   peerDependencies:
-    mobx: ^6.1.0
+    mobx: ^6.9.0
     react: ^16.8.0 || ^17 || ^18
   peerDependenciesMeta:
     react-dom:
       optional: true
     react-native:
       optional: true
-  checksum: 07ce6eb297ddab2cc693df7350a3e2f730194cc6eb56bd912f80e28f9427237569e0bda6b30167154faf094e7c5e5ff360abd52acd2860d9a0d0e53320617ee8
+  checksum: 275282f5deb99c31419a92e8ff426a59825b0ac98c356a7ce333f1256961d032809136033af63ac9aab13530aa5a6a0beecfbb6ef61dd27bcfb0625da406e20c
   languageName: node
   linkType: hard
 
@@ -19703,7 +19705,7 @@ __metadata:
     bufferutil: ^4.0.7
     mobx: ^6.9.1
     mobx-keystone: "workspace:packages/lib"
-    mobx-react: ^7.6.0
+    mobx-react: ^9.0.0
     prism-react-renderer: ^1.3.5
     raw-loader: ^4.0.2
     react: ^18.2.0
