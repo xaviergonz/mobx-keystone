@@ -98,9 +98,7 @@ export function ExtendedModel<
   baseModel: TModelClass,
   modelProps: TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
-): _Model<InstanceType<TModelClass>, TProps, FS, TS> & {
-  [P in Exclude<keyof TModelClass, "prototype">]: TModelClass[P]
-}
+): _Model<InstanceType<TModelClass>, TProps, FS, TS> & Omit<TModelClass, "prototype">
 
 // base
 export function ExtendedModel<
