@@ -5317,90 +5317,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-darwin-arm64@npm:1.3.70"
+"@swc/core-darwin-arm64@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-darwin-arm64@npm:1.3.71"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-darwin-x64@npm:1.3.70"
+"@swc/core-darwin-x64@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-darwin-x64@npm:1.3.71"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.3.70"
+"@swc/core-linux-arm-gnueabihf@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.3.71"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.3.70"
+"@swc/core-linux-arm64-gnu@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.3.71"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-linux-arm64-musl@npm:1.3.70"
+"@swc/core-linux-arm64-musl@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-linux-arm64-musl@npm:1.3.71"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-linux-x64-gnu@npm:1.3.70"
+"@swc/core-linux-x64-gnu@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-linux-x64-gnu@npm:1.3.71"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-linux-x64-musl@npm:1.3.70"
+"@swc/core-linux-x64-musl@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-linux-x64-musl@npm:1.3.71"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.3.70"
+"@swc/core-win32-arm64-msvc@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.3.71"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.3.70"
+"@swc/core-win32-ia32-msvc@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.3.71"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core-win32-x64-msvc@npm:1.3.70"
+"@swc/core-win32-x64-msvc@npm:1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core-win32-x64-msvc@npm:1.3.71"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.3.70":
-  version: 1.3.70
-  resolution: "@swc/core@npm:1.3.70"
+"@swc/core@npm:^1.3.71":
+  version: 1.3.71
+  resolution: "@swc/core@npm:1.3.71"
   dependencies:
-    "@swc/core-darwin-arm64": 1.3.70
-    "@swc/core-darwin-x64": 1.3.70
-    "@swc/core-linux-arm-gnueabihf": 1.3.70
-    "@swc/core-linux-arm64-gnu": 1.3.70
-    "@swc/core-linux-arm64-musl": 1.3.70
-    "@swc/core-linux-x64-gnu": 1.3.70
-    "@swc/core-linux-x64-musl": 1.3.70
-    "@swc/core-win32-arm64-msvc": 1.3.70
-    "@swc/core-win32-ia32-msvc": 1.3.70
-    "@swc/core-win32-x64-msvc": 1.3.70
+    "@swc/core-darwin-arm64": 1.3.71
+    "@swc/core-darwin-x64": 1.3.71
+    "@swc/core-linux-arm-gnueabihf": 1.3.71
+    "@swc/core-linux-arm64-gnu": 1.3.71
+    "@swc/core-linux-arm64-musl": 1.3.71
+    "@swc/core-linux-x64-gnu": 1.3.71
+    "@swc/core-linux-x64-musl": 1.3.71
+    "@swc/core-win32-arm64-msvc": 1.3.71
+    "@swc/core-win32-ia32-msvc": 1.3.71
+    "@swc/core-win32-x64-msvc": 1.3.71
   peerDependencies:
     "@swc/helpers": ^0.5.0
   dependenciesMeta:
@@ -5427,7 +5427,7 @@ __metadata:
   peerDependenciesMeta:
     "@swc/helpers":
       optional: true
-  checksum: 2a3228de3bb497433a7b91815c4ce59bb92a289c9b91245ee42fe0cd12a3dbff73e74fc498e29bb5083abf6867b1fa89b04cd0ac716ba270a455d89f9d491922
+  checksum: 86389384951c531579e518c012d36b28ef070146faf8d6965a174fd2c7b18113c5939fc3ca81ec8be448188949763cc98cb20d16f44316cd209860f53b760c80
   languageName: node
   linkType: hard
 
@@ -5804,10 +5804,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=12.12.47, @types/node@npm:>=13.7.0, @types/node@npm:^20.4.4":
-  version: 20.4.4
-  resolution: "@types/node@npm:20.4.4"
-  checksum: 43f3c4a8acc38ae753e15a0e79bae0447d255b3742fa87f8e065d7b9d20ecb0e03d6c5b46c00d5d26f4552160381a00255f49205595a8ee48c2423e00263c930
+"@types/node@npm:*, @types/node@npm:>=12.12.47, @types/node@npm:>=13.7.0, @types/node@npm:^20.4.5":
+  version: 20.4.5
+  resolution: "@types/node@npm:20.4.5"
+  checksum: 36a0304a8dc346a1b2d2edac4c4633eecf70875793d61a5274d0df052d7a7af7a8e34f29884eac4fbd094c4f0201477dcb39c0ecd3307ca141688806538d1138
   languageName: node
   linkType: hard
 
@@ -5908,14 +5908,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.15":
-  version: 18.2.15
-  resolution: "@types/react@npm:18.2.15"
+"@types/react@npm:*, @types/react@npm:^18.2.16":
+  version: 18.2.16
+  resolution: "@types/react@npm:18.2.16"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 36989f638201bfe2f4110b06c119180f6df9c0e13d7060481e82e7a745f81745a01ae543c478a25b61e0767cb52e82da2ad5b0dedacabf99339e523d06176705
+  checksum: 3d4fdc12509e0098e0dbb4bacdea53e8ccc6632e9df63d9f2711c77aa81ce3b2bb9c76d087f284034b25fd7245680167f4832bf6e4df960c5af2634b52adfd0c
   languageName: node
   linkType: hard
 
@@ -7588,7 +7588,7 @@ __metadata:
     mobx-keystone: "workspace:packages/lib"
     mobx-state-tree: ^5.1.8
     shx: ^0.3.4
-    tslib: ^2.6.0
+    tslib: ^2.6.1
     typescript: ^5.1.6
   languageName: unknown
   linkType: soft
@@ -15726,10 +15726,10 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.22.7
     "@babel/preset-env": ^7.22.9
     "@babel/preset-typescript": ^7.22.5
-    "@swc/core": ^1.3.70
+    "@swc/core": ^1.3.71
     "@swc/jest": ^0.2.27
     "@types/jest": ^29.5.3
-    "@types/node": ^20.4.4
+    "@types/node": ^20.4.5
     babel-jest: ^29.6.1
     fast-deep-equal: ^3.1.3
     jest: ^29.6.1
@@ -15742,7 +15742,7 @@ __metadata:
     ts-jest: ^29.1.1
     ts-node: ^10.9.1
     ts-toolbelt: ^9.6.0
-    tslib: ^2.6.0
+    tslib: ^2.6.1
     typedoc: ^0.24.8
     typescript: ^5.1.6
     vite: ^4.4.7
@@ -19132,7 +19132,7 @@ __metadata:
     netlify-cli: ^15.9.1
     prettier: ^3.0.0
     prettier-plugin-organize-imports: ^3.2.3
-    turbo: ^1.10.9
+    turbo: ^1.10.11
     typescript: ^5.1.6
   languageName: unknown
   linkType: soft
@@ -19698,7 +19698,7 @@ __metadata:
     "@easyops-cn/docusaurus-search-local": ^0.35.0
     "@svgr/webpack": ^8.0.1
     "@tsconfig/docusaurus": ^2.0.0
-    "@types/react": ^18.2.15
+    "@types/react": ^18.2.16
     "@types/react-dom": ^18.2.7
     "@types/uuid": ^9.0.2
     bootstrap-icons: ^1.10.5
@@ -21124,10 +21124,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.6.0":
-  version: 2.6.0
-  resolution: "tslib@npm:2.6.0"
-  checksum: c01066038f950016a18106ddeca4649b4d76caa76ec5a31e2a26e10586a59fceb4ee45e96719bf6c715648e7c14085a81fee5c62f7e9ebee68e77a5396e5538f
+"tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "tslib@npm:2.6.1"
+  checksum: b0d176d176487905b66ae4d5856647df50e37beea7571c53b8d10ba9222c074b81f1410fb91da13debaf2cbc970663609068bdebafa844ea9d69b146527c38fe
   languageName: node
   linkType: hard
 
@@ -21142,58 +21142,58 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "turbo-darwin-64@npm:1.10.9"
+"turbo-darwin-64@npm:1.10.11":
+  version: 1.10.11
+  resolution: "turbo-darwin-64@npm:1.10.11"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "turbo-darwin-arm64@npm:1.10.9"
+"turbo-darwin-arm64@npm:1.10.11":
+  version: 1.10.11
+  resolution: "turbo-darwin-arm64@npm:1.10.11"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "turbo-linux-64@npm:1.10.9"
+"turbo-linux-64@npm:1.10.11":
+  version: 1.10.11
+  resolution: "turbo-linux-64@npm:1.10.11"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "turbo-linux-arm64@npm:1.10.9"
+"turbo-linux-arm64@npm:1.10.11":
+  version: 1.10.11
+  resolution: "turbo-linux-arm64@npm:1.10.11"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "turbo-windows-64@npm:1.10.9"
+"turbo-windows-64@npm:1.10.11":
+  version: 1.10.11
+  resolution: "turbo-windows-64@npm:1.10.11"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-windows-arm64@npm:1.10.9":
-  version: 1.10.9
-  resolution: "turbo-windows-arm64@npm:1.10.9"
+"turbo-windows-arm64@npm:1.10.11":
+  version: 1.10.11
+  resolution: "turbo-windows-arm64@npm:1.10.11"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.10.9":
-  version: 1.10.9
-  resolution: "turbo@npm:1.10.9"
+"turbo@npm:^1.10.11":
+  version: 1.10.11
+  resolution: "turbo@npm:1.10.11"
   dependencies:
-    turbo-darwin-64: 1.10.9
-    turbo-darwin-arm64: 1.10.9
-    turbo-linux-64: 1.10.9
-    turbo-linux-arm64: 1.10.9
-    turbo-windows-64: 1.10.9
-    turbo-windows-arm64: 1.10.9
+    turbo-darwin-64: 1.10.11
+    turbo-darwin-arm64: 1.10.11
+    turbo-linux-64: 1.10.11
+    turbo-linux-arm64: 1.10.11
+    turbo-windows-64: 1.10.11
+    turbo-windows-arm64: 1.10.11
   dependenciesMeta:
     turbo-darwin-64:
       optional: true
@@ -21209,7 +21209,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: 667867c3ea6ecf59cafe494e1bd4da8564bdae4ea735a14813656b2784a909fb69f12f8c6cdb140ca490c602fd11dc186b5d426af6a451ba51a487e73b742731
+  checksum: caa5f4e6e6f9b340e8b44424d83b5e9b1ad478ae646d3a5cb6784dc68c420e0237a7e293e6ac7ab5776fad9d08bf886bcecb898a69f7bfb151d3446fa885ec3f
   languageName: node
   linkType: hard
 
