@@ -5908,14 +5908,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.16":
-  version: 18.2.16
-  resolution: "@types/react@npm:18.2.16"
+"@types/react@npm:*, @types/react@npm:^18.2.17":
+  version: 18.2.17
+  resolution: "@types/react@npm:18.2.17"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 3d4fdc12509e0098e0dbb4bacdea53e8ccc6632e9df63d9f2711c77aa81ce3b2bb9c76d087f284034b25fd7245680167f4832bf6e4df960c5af2634b52adfd0c
+  checksum: 150516b31bd98b635e4a56bcf2af007330b35cccb6e35e902f46a47f0e81e30c46cdacc095e91051bdf2f33e4846e7e62fd51b67e064dc7d15c00e15dfa449d5
   languageName: node
   linkType: hard
 
@@ -19132,7 +19132,7 @@ __metadata:
     netlify-cli: ^15.9.1
     prettier: ^3.0.0
     prettier-plugin-organize-imports: ^3.2.3
-    turbo: ^1.10.11
+    turbo: ^1.10.12
     typescript: ^5.1.6
   languageName: unknown
   linkType: soft
@@ -19698,7 +19698,7 @@ __metadata:
     "@easyops-cn/docusaurus-search-local": ^0.35.0
     "@svgr/webpack": ^8.0.1
     "@tsconfig/docusaurus": ^2.0.0
-    "@types/react": ^18.2.16
+    "@types/react": ^18.2.17
     "@types/react-dom": ^18.2.7
     "@types/uuid": ^9.0.2
     bootstrap-icons: ^1.10.5
@@ -21142,58 +21142,58 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.10.11":
-  version: 1.10.11
-  resolution: "turbo-darwin-64@npm:1.10.11"
+"turbo-darwin-64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "turbo-darwin-64@npm:1.10.12"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.10.11":
-  version: 1.10.11
-  resolution: "turbo-darwin-arm64@npm:1.10.11"
+"turbo-darwin-arm64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "turbo-darwin-arm64@npm:1.10.12"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.10.11":
-  version: 1.10.11
-  resolution: "turbo-linux-64@npm:1.10.11"
+"turbo-linux-64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "turbo-linux-64@npm:1.10.12"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.10.11":
-  version: 1.10.11
-  resolution: "turbo-linux-arm64@npm:1.10.11"
+"turbo-linux-arm64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "turbo-linux-arm64@npm:1.10.12"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:1.10.11":
-  version: 1.10.11
-  resolution: "turbo-windows-64@npm:1.10.11"
+"turbo-windows-64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "turbo-windows-64@npm:1.10.12"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-windows-arm64@npm:1.10.11":
-  version: 1.10.11
-  resolution: "turbo-windows-arm64@npm:1.10.11"
+"turbo-windows-arm64@npm:1.10.12":
+  version: 1.10.12
+  resolution: "turbo-windows-arm64@npm:1.10.12"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.10.11":
-  version: 1.10.11
-  resolution: "turbo@npm:1.10.11"
+"turbo@npm:^1.10.12":
+  version: 1.10.12
+  resolution: "turbo@npm:1.10.12"
   dependencies:
-    turbo-darwin-64: 1.10.11
-    turbo-darwin-arm64: 1.10.11
-    turbo-linux-64: 1.10.11
-    turbo-linux-arm64: 1.10.11
-    turbo-windows-64: 1.10.11
-    turbo-windows-arm64: 1.10.11
+    turbo-darwin-64: 1.10.12
+    turbo-darwin-arm64: 1.10.12
+    turbo-linux-64: 1.10.12
+    turbo-linux-arm64: 1.10.12
+    turbo-windows-64: 1.10.12
+    turbo-windows-arm64: 1.10.12
   dependenciesMeta:
     turbo-darwin-64:
       optional: true
@@ -21209,7 +21209,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: caa5f4e6e6f9b340e8b44424d83b5e9b1ad478ae646d3a5cb6784dc68c420e0237a7e293e6ac7ab5776fad9d08bf886bcecb898a69f7bfb151d3446fa885ec3f
+  checksum: 266b70404e149b92cd64051fcdd03c56b474ed22f6bd11cf4cf1b70f55c72f9a2aaa90109b19b95e43d68e53a6be54485f0cc0135c8d5b505db09fd126a34052
   languageName: node
   linkType: hard
 
