@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.4
+
+- Fixed an error about finding types when using TS in bundler mode.
+
 ## 1.6.3
 
 - Fixed a bug where an object was sometimes being detached and then again retached when using applySnapshot.

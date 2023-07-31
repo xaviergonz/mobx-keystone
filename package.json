@@ -22,10 +22,10 @@
   ],
   "devDependencies": {
     "codecov": "^3.8.3",
-    "eslint": "^8.45.0",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint": "^8.46.0",
+    "eslint-config-prettier": "^8.9.0",
     "eslint-config-react-app": "^7.0.1",
-    "netlify-cli": "^15.9.1",
+    "netlify-cli": "^15.10.0",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^3.2.3",
     "turbo": "^1.10.12",
