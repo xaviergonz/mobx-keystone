@@ -74,28 +74,24 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
     return obj
   }
 
-  const data: DeepObjectChildren = {
-    deep: new Set(),
-    extensionsData: initExtensionsData(),
-  }
+  obj.deep = new Set()
+  obj.extensionsData = initExtensionsData()
 
-  const childrenIter = obj.shallow.values()
-  let ch = childrenIter.next()
-  while (!ch.done) {
-    addNodeToDeepLists(ch.value, data)
+  const childrenIterator = obj.shallow.values()
+  let childrenIteratorResult = childrenIterator.next()
+  while (!childrenIteratorResult.done) {
+    addNodeToDeepLists(childrenIteratorResult.value, obj)
 
-    const ret = updateDeepObjectChildren(ch.value).deep
-    const retIter = ret.values()
-    let retCur = retIter.next()
-    while (!retCur.done) {
-      addNodeToDeepLists(retCur.value, data)
-      retCur = retIter.next()
+    const childDeepChildren = updateDeepObjectChildren(childrenIteratorResult.value).deep
+    const childDeepChildrenIterator = childDeepChildren.values()
+    let childDeepChildrenIteratorResult = childDeepChildrenIterator.next()
+    while (!childDeepChildrenIteratorResult.done) {
+      addNodeToDeepLists(childDeepChildrenIteratorResult.value, obj)
+      childDeepChildrenIteratorResult = childDeepChildrenIterator.next()
     }
 
-    ch = childrenIter.next()
+    childrenIteratorResult = childrenIterator.next()
   }
-
-  Object.assign(obj, data)
 
   obj.deepDirty = false
   obj.deepAtom.reportChanged()
