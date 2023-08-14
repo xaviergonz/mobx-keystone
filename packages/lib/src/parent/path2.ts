@@ -1,5 +1,5 @@
 import { assertTweakedObject } from "../tweaker/core"
-import { getDeepObjectChildren } from "./coreObjectChildren"
+import { fastGetParent } from "./path"
 
 /**
  * Returns if the target is a "child" of the tree of the given "parent" object.
@@ -12,7 +12,16 @@ export function isChildOfParent(child: object, parent: object): boolean {
   assertTweakedObject(child, "child")
   assertTweakedObject(parent, "parent")
 
-  return getDeepObjectChildren(parent).deep.has(child)
+  let currentParent = fastGetParent(child)
+  while (currentParent) {
+    if (currentParent === parent) {
+      return true
+    }
+
+    currentParent = fastGetParent(currentParent)
+  }
+
+  return false
 }
 
 /**
