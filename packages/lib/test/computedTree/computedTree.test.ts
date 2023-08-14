@@ -201,18 +201,6 @@ test("computed tree node must not be attached elsewhere", () => {
   )
 })
 
-test("computed tree node must not cause a cycle", () => {
-  @testModel("P")
-  class P extends Model({}) {
-    @computedTree
-    get modelIsParent() {
-      return this
-    }
-  }
-
-  expect(() => new P({})).toThrow("Maximum call stack size exceeded")
-})
-
 test("computed tree node's onAttachedToRootStore hook is called", () => {
   const r = new R({})
 

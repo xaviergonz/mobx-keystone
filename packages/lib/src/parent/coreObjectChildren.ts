@@ -107,7 +107,7 @@ export const addObjectChild = action((node: object, child: object) => {
   obj.shallow.add(child)
   obj.shallowAtom.reportChanged()
 
-  invalidateDeepChildren(node)
+  invalidateDeepChildren(node, obj)
 })
 
 /**
@@ -118,18 +118,21 @@ export const removeObjectChild = action((node: object, child: object) => {
   obj.shallow.delete(child)
   obj.shallowAtom.reportChanged()
 
-  invalidateDeepChildren(node)
+  invalidateDeepChildren(node, obj)
 })
 
-function invalidateDeepChildren(node: object) {
-  const obj = getObjectChildrenObject(node)
+function invalidateDeepChildren(node: object, obj: ObjectChildrenData) {
+  let currentNode: object | undefined = node
+  let currentObj = obj
 
-  obj.deepDirty = true
-  obj.deepAtom.reportChanged()
+  while (currentNode) {
+    currentObj.deepDirty = true
+    currentObj.deepAtom.reportChanged()
 
-  const parent = fastGetParent(node)
-  if (parent) {
-    invalidateDeepChildren(parent)
+    currentNode = fastGetParent(currentNode)
+    if (currentNode) {
+      currentObj = getObjectChildrenObject(currentNode)
+    }
   }
 }
 
