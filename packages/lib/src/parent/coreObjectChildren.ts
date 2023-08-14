@@ -124,10 +124,8 @@ export const removeObjectChild = action((node: object, child: object) => {
 function invalidateDeepChildren(node: object) {
   const obj = getObjectChildrenObject(node)
 
-  if (!obj.deepDirty) {
-    obj.deepDirty = true
-    obj.deepAtom.reportChanged()
-  }
+  obj.deepDirty = true
+  obj.deepAtom.reportChanged()
 
   const parent = fastGetParent(node)
   if (parent) {
