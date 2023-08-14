@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.5
+
+- Some small optimizations.
+
 ## 1.6.4
 
 - Fixed an error about finding types when using TS in bundler mode.
