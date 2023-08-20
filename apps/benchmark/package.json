@@ -17,7 +17,7 @@
     "mobx": "^6.10.0",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-state-tree": "^5.1.8",
-    "tslib": "^2.6.1"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.2",
