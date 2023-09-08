@@ -31,5 +31,5 @@
     "turbo": "^1.10.13",
     "typescript": "^5.2.2"
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.3"
 }
