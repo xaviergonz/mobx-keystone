@@ -12,7 +12,7 @@
   "dependencies": {
     "@docusaurus/core": "^2.4.1",
     "@docusaurus/preset-classic": "^2.4.1",
-    "@easyops-cn/docusaurus-search-local": "^0.35.0",
+    "@easyops-cn/docusaurus-search-local": "^0.36.0",
     "bootstrap-icons": "^1.10.5",
     "bufferutil": "^4.0.7",
     "mobx": "^6.10.2",
