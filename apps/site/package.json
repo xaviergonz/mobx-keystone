@@ -13,7 +13,7 @@
     "@docusaurus/core": "^2.4.1",
     "@docusaurus/preset-classic": "^2.4.1",
     "@easyops-cn/docusaurus-search-local": "^0.36.0",
-    "bootstrap-icons": "^1.10.5",
+    "bootstrap-icons": "^1.11.0",
     "bufferutil": "^4.0.7",
     "mobx": "^6.10.2",
     "mobx-keystone": "workspace:packages/lib",
@@ -31,7 +31,7 @@
     "@tsconfig/docusaurus": "^2.0.0",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
-    "@types/uuid": "^9.0.3",
+    "@types/uuid": "^9.0.4",
     "raw-loader": "^4.0.2",
     "shx": "^0.3.4",
     "typescript": "^5.2.2"
