@@ -3534,9 +3534,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:29.21.0":
-  version: 29.21.0
-  resolution: "@netlify/build@npm:29.21.0"
+"@netlify/build@npm:29.21.1":
+  version: 29.21.1
+  resolution: "@netlify/build@npm:29.21.1"
   dependencies:
     "@bugsnag/js": ^7.0.0
     "@honeycombio/opentelemetry-node": ^0.5.0
@@ -3595,7 +3595,7 @@ __metadata:
     yargs: ^17.6.0
   bin:
     netlify-build: bin.js
-  checksum: 3f16ca8aa929732759e476e323cf22d4478163e1fba32d7dc058b8a7b8277da485b26df814ca0fe35336a14bb863979542861d8557cbed08f69dfde7d176ea13
+  checksum: b49d7cfb86946cec51779baf8b8bdc7817eca9a656170264dd95436e32d5855d6108309139754be5eee3e45f9615553b58556b3612bd3ade8c64863240935e2b
   languageName: node
   linkType: hard
 
@@ -5434,90 +5434,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-darwin-arm64@npm:1.3.85"
+"@swc/core-darwin-arm64@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-darwin-arm64@npm:1.3.86"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-darwin-x64@npm:1.3.85"
+"@swc/core-darwin-x64@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-darwin-x64@npm:1.3.86"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.3.85"
+"@swc/core-linux-arm-gnueabihf@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.3.86"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.3.85"
+"@swc/core-linux-arm64-gnu@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.3.86"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-linux-arm64-musl@npm:1.3.85"
+"@swc/core-linux-arm64-musl@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-linux-arm64-musl@npm:1.3.86"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-linux-x64-gnu@npm:1.3.85"
+"@swc/core-linux-x64-gnu@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-linux-x64-gnu@npm:1.3.86"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-linux-x64-musl@npm:1.3.85"
+"@swc/core-linux-x64-musl@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-linux-x64-musl@npm:1.3.86"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.3.85"
+"@swc/core-win32-arm64-msvc@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.3.86"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.3.85"
+"@swc/core-win32-ia32-msvc@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.3.86"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core-win32-x64-msvc@npm:1.3.85"
+"@swc/core-win32-x64-msvc@npm:1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core-win32-x64-msvc@npm:1.3.86"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.3.85":
-  version: 1.3.85
-  resolution: "@swc/core@npm:1.3.85"
+"@swc/core@npm:^1.3.86":
+  version: 1.3.86
+  resolution: "@swc/core@npm:1.3.86"
   dependencies:
-    "@swc/core-darwin-arm64": 1.3.85
-    "@swc/core-darwin-x64": 1.3.85
-    "@swc/core-linux-arm-gnueabihf": 1.3.85
-    "@swc/core-linux-arm64-gnu": 1.3.85
-    "@swc/core-linux-arm64-musl": 1.3.85
-    "@swc/core-linux-x64-gnu": 1.3.85
-    "@swc/core-linux-x64-musl": 1.3.85
-    "@swc/core-win32-arm64-msvc": 1.3.85
-    "@swc/core-win32-ia32-msvc": 1.3.85
-    "@swc/core-win32-x64-msvc": 1.3.85
+    "@swc/core-darwin-arm64": 1.3.86
+    "@swc/core-darwin-x64": 1.3.86
+    "@swc/core-linux-arm-gnueabihf": 1.3.86
+    "@swc/core-linux-arm64-gnu": 1.3.86
+    "@swc/core-linux-arm64-musl": 1.3.86
+    "@swc/core-linux-x64-gnu": 1.3.86
+    "@swc/core-linux-x64-musl": 1.3.86
+    "@swc/core-win32-arm64-msvc": 1.3.86
+    "@swc/core-win32-ia32-msvc": 1.3.86
+    "@swc/core-win32-x64-msvc": 1.3.86
     "@swc/types": ^0.1.4
   peerDependencies:
     "@swc/helpers": ^0.5.0
@@ -5545,7 +5545,7 @@ __metadata:
   peerDependenciesMeta:
     "@swc/helpers":
       optional: true
-  checksum: af9ec7d88fd9ad3dd876c8fea812b20ba734c2ed917c9f8281fd57c68ab57d5931ccb841f4467332b84c0cd522682737a770dfc8c3f9e0cc88cdce713971978c
+  checksum: e2792b836446f2d2c002f7170e5a20aae9d0ca2ef316bef17918a1c87744c354c0c0afd8e2a97312cc017d2253fa60397478a5fe8c1ba12f84e7a293db9df5a5
   languageName: node
   linkType: hard
 
@@ -6026,14 +6026,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.21":
-  version: 18.2.21
-  resolution: "@types/react@npm:18.2.21"
+"@types/react@npm:*, @types/react@npm:^18.2.22":
+  version: 18.2.22
+  resolution: "@types/react@npm:18.2.22"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: ffed203bfe7aad772b8286f7953305c9181ac3a8f27d3f5400fbbc2a8e27ca8e5bbff818ee014f39ca0d19d2b3bb154e5bdbec7e232c6f80b59069375aa78349
+  checksum: 44289523dabaadcd3fd85689abb98f9ebcc8492d7e978348d1c986138acef4801030b279e89a19e38a6319e294bcea77559e37e0c803e4bacf2b8ae3a56ba587
   languageName: node
   linkType: hard
 
@@ -7700,7 +7700,7 @@ __metadata:
     cross-env: ^7.0.3
     mobx: ^6.10.2
     mobx-keystone: "workspace:packages/lib"
-    mobx-state-tree: ^5.1.8
+    mobx-state-tree: ^5.2.0
     shx: ^0.3.4
     tslib: ^2.6.2
     typescript: ^5.2.2
@@ -15926,7 +15926,7 @@ __metadata:
     "@babel/plugin-proposal-decorators": ^7.22.15
     "@babel/preset-env": ^7.22.20
     "@babel/preset-typescript": ^7.22.15
-    "@swc/core": ^1.3.85
+    "@swc/core": ^1.3.86
     "@swc/jest": ^0.2.29
     "@types/jest": ^29.5.5
     "@types/node": ^20.6.2
@@ -15985,12 +15985,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx-state-tree@npm:^5.1.8":
-  version: 5.1.8
-  resolution: "mobx-state-tree@npm:5.1.8"
+"mobx-state-tree@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "mobx-state-tree@npm:5.2.0"
   peerDependencies:
     mobx: ^6.3.0
-  checksum: 251e69a17dd025dd080a38cf446ae59febcf1a95f88abfc9e7eff04db139783b5da5e8f997b365da2da13259140695c3f0cd46b5be63cb25658219e86321defb
+  checksum: 35fb2aeae395ccf3a152a71fb52029a9b7bd9c342605fd84740103f3285a32e0b9600bd5ccfa5914d4f90cafb24bf18032bf5faa6d3e355cab0d219da62c75c3
   languageName: node
   linkType: hard
 
@@ -16183,13 +16183,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^16.3.3":
-  version: 16.3.3
-  resolution: "netlify-cli@npm:16.3.3"
+"netlify-cli@npm:^16.4.0":
+  version: 16.4.0
+  resolution: "netlify-cli@npm:16.4.0"
   dependencies:
     "@bugsnag/js": 7.20.2
     "@fastify/static": 6.10.2
-    "@netlify/build": 29.21.0
+    "@netlify/build": 29.21.1
     "@netlify/build-info": 7.8.0
     "@netlify/config": 20.9.0
     "@netlify/edge-bundler": 8.19.1
@@ -16262,7 +16262,7 @@ __metadata:
     netlify: 13.1.10
     netlify-headers-parser: 7.1.2
     netlify-redirect-parser: 14.2.0
-    netlify-redirector: 0.4.0
+    netlify-redirector: 0.5.0
     node-fetch: 2.6.12
     node-version-alias: 3.4.1
     ora: 6.3.1
@@ -16297,7 +16297,7 @@ __metadata:
   bin:
     netlify: bin/run.mjs
     ntl: bin/run.mjs
-  checksum: d507336ff232d5972f5793b65146cf93ef7b2d0e941ef265c6dd72f0a644b4612f44848101afd9fac6ea848a4380d898853c003c97b529538f828d47c9ed17af
+  checksum: 202ef4d3bb0a4cbf8523d2fbbcdf1f78638017b92e55f83a3a6d74c2b7c7e106db5d8165f0dd0c9e70738db429beac9ccf1fc0b003716a515a4c77209f0611ba
   languageName: node
   linkType: hard
 
@@ -16328,10 +16328,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-redirector@npm:0.4.0":
-  version: 0.4.0
-  resolution: "netlify-redirector@npm:0.4.0"
-  checksum: d249bad5e2a5bf1825a131ae7b1179b89968830f711112b7da7f86270c30789fd9221d20acc34b79a966148d37489a6168e6d38099429fb60b01100e22ce6d66
+"netlify-redirector@npm:0.5.0":
+  version: 0.5.0
+  resolution: "netlify-redirector@npm:0.5.0"
+  checksum: 4eaa1d0129553cb7254579bcd4661fc7bc59145c686e702dabafca54dad068174ecc7142fae64c62695745d3d133b9b6699ce7c95c8eae4b71ad9fd5f453c639
   languageName: node
   linkType: hard
 
@@ -19335,7 +19335,7 @@ __metadata:
     eslint: ^8.49.0
     eslint-config-prettier: ^9.0.0
     eslint-config-react-app: ^7.0.1
-    netlify-cli: ^16.3.3
+    netlify-cli: ^16.4.0
     prettier: ^3.0.3
     prettier-plugin-organize-imports: ^3.2.3
     turbo: ^1.10.14
@@ -19904,7 +19904,7 @@ __metadata:
     "@easyops-cn/docusaurus-search-local": ^0.36.0
     "@svgr/webpack": ^8.1.0
     "@tsconfig/docusaurus": ^2.0.1
-    "@types/react": ^18.2.21
+    "@types/react": ^18.2.22
     "@types/react-dom": ^18.2.7
     "@types/uuid": ^9.0.4
     bootstrap-icons: ^1.11.1

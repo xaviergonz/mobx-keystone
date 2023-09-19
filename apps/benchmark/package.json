@@ -16,7 +16,7 @@
     "chalk": "^5.3.0",
     "mobx": "^6.10.2",
     "mobx-keystone": "workspace:packages/lib",
-    "mobx-state-tree": "^5.1.8",
+    "mobx-state-tree": "^5.2.0",
     "tslib": "^2.6.2"
   },
   "devDependencies": {
