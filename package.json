@@ -25,7 +25,7 @@
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-react-app": "^7.0.1",
-    "netlify-cli": "^16.4.2",
+    "netlify-cli": "^16.5.0",
     "prettier": "^3.0.3",
     "prettier-plugin-organize-imports": "^3.2.3",
     "turbo": "^1.10.14",
