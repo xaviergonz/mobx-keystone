@@ -32,12 +32,12 @@ import {
  */
 export const model: (
   name: string
-) => <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]) => MC | void =
+) => <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]) => MC =
   (name) =>
   (clazz, ...args) => {
     const ctx = typeof args[1] === "object" ? (args[1] as ClassDecoratorContext) : undefined
 
-    return internalModel(name, clazz, ctx?.addInitializer)
+    return internalModel(name, clazz, ctx?.addInitializer) as any
   }
 
 const afterClassInitializationData = new WeakMap<
