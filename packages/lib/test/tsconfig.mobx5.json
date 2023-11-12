@@ -1,4 +1,4 @@
 {
-  "extends": "./tsconfig-old-decorators.json",
+  "extends": "./tsconfig.experimental-decorators.json",
   "compilerOptions": {}
 }
