@@ -28,7 +28,7 @@
       "*": ["src/*", "node_modules/*"]
     },
     "jsx": "react",
-    "experimentalDecorators": false,
+    "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "skipLibCheck": true,
     "stripInternal": true,
