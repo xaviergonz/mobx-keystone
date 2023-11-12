@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.7.1
+
+- Performance improvements when using the "new" non-experimental standard decorators: do not use class proxies.
+
 ## 1.7.0
 
 - Added support for "new" non-experimental standard decorators. The old ones are still supported.

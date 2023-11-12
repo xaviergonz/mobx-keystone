@@ -32,12 +32,15 @@ import {
  */
 export const model: (
   name: string
-) => <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]) => MC =
-  (name) => (clazz) => {
-    return internalModel(name, clazz)
+) => <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]) => MC | void =
+  (name) =>
+  (clazz, ...args) => {
+    const ctx = typeof args[1] === "object" ? (args[1] as ClassDecoratorContext) : undefined
+
+    return internalModel(name, clazz, ctx?.addInitializer)
   }
 
-const proxyClassHandlerTag = new WeakMap<
+const afterClassInitializationData = new WeakMap<
   ModelClass<AnyModel | AnyDataModel>,
   {
     makeObservableFailed: boolean
@@ -45,50 +48,57 @@ const proxyClassHandlerTag = new WeakMap<
   }
 >()
 
-const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
-  construct(target, args) {
-    const instance = new (target as any)(...args)
+const runAfterClassInitialization = (
+  target: ModelClass<AnyModel | AnyDataModel>,
+  instance: any
+) => {
+  runLateInitializationFunctions(instance, runAfterNewSymbol)
 
-    runLateInitializationFunctions(instance, runAfterNewSymbol)
+  // compatibility with mobx 6
+  const tag = afterClassInitializationData.get(target)!
+  if (!tag.makeObservableFailed && getMobxVersion() >= 6) {
+    try {
+      mobx6.makeObservable(instance)
+    } catch (e) {
+      // sadly we need to use this hack since the PR to do this the proper way
+      // was rejected on the mobx side
+      tag.makeObservableFailed = true
 
-    // compatibility with mobx 6
-    const tag = proxyClassHandlerTag.get(target)!
-    if (!tag.makeObservableFailed && getMobxVersion() >= 6) {
-      try {
-        mobx6.makeObservable(instance)
-      } catch (e) {
-        // sadly we need to use this hack since the PR to do this the proper way
-        // was rejected on the mobx side
-        tag.makeObservableFailed = true
-
-        const err = e as Error
-        if (
-          err.message !==
-            "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
-          err.message !==
-            "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
-        ) {
-          throw err
-        }
+      const err = e as Error
+      if (
+        err.message !==
+          "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
+        err.message !==
+          "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
+      ) {
+        throw err
       }
     }
+  }
 
-    // the object is ready
-    addHiddenProp(instance, modelInitializedSymbol, true, false)
+  // the object is ready
+  addHiddenProp(instance, modelInitializedSymbol, true, false)
 
-    runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
+  runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
 
-    if (tag.type === "class" && instance.onInit) {
-      wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
+  if (tag.type === "class" && instance.onInit) {
+    wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
 
-      instance.onInit()
-    }
+    instance.onInit()
+  }
 
-    if (tag.type === "data" && instance.onLazyInit) {
-      wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
+  if (tag.type === "data" && instance.onLazyInit) {
+    wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
 
-      instance.onLazyInit()
-    }
+    instance.onLazyInit()
+  }
+}
+
+const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
+  construct(clazz, args) {
+    const instance = new (clazz as any)(...args)
+
+    runAfterClassInitialization(clazz, instance)
 
     return instance
   },
@@ -96,8 +106,9 @@ const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
 
 const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
   name: string,
-  clazz: MC
-): MC => {
+  clazz: MC,
+  addInitializer: ((initializer: (this: any) => void) => void) | undefined
+): MC | void => {
   const type = isModelClass(clazz) ? "class" : isDataModelClass(clazz) ? "data" : undefined
   if (!type) {
     throw failure(`clazz must be a class that extends from Model/DataModel`)
@@ -117,34 +128,56 @@ const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
     throw failure("a class already decorated with `@model` cannot be re-decorated")
   }
 
-  // track if we fail so we only try it once per class
-  proxyClassHandlerTag.set(clazz, { makeObservableFailed: false, type })
-
-  // trick so plain new works
-  const proxyClass = new Proxy<MC>(clazz, proxyClassHandler)
-
   clazz.toString = () => `class ${clazz.name}#${name}`
   if (type === "class") {
     ;(clazz as any)[modelTypeKey] = name
   }
 
-  // set or else it points to the undecorated class
-  proxyClass.prototype.constructor = proxyClass
-  ;(proxyClass as any)[modelUnwrappedClassSymbol] = clazz
+  // track if we fail so we only try it once per class
+  afterClassInitializationData.set(clazz, { makeObservableFailed: false, type })
 
-  const modelInfo = {
-    name,
-    class: proxyClass,
+  if (addInitializer) {
+    // standard decorator API, avoid proxies
+    addInitializer(function (this: any) {
+      runAfterClassInitialization(clazz, this)
+    })
+
+    const modelInfo = {
+      name,
+      class: clazz,
+    }
+
+    modelInfoByName[name] = modelInfo
+
+    modelInfoByClass.set(clazz, modelInfo)
+
+    runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
+
+    return undefined // use same class
+  } else {
+    // non-standard decorator API, use proxies
+
+    // trick so plain new works
+    const proxyClass = new Proxy<MC>(clazz, proxyClassHandler)
+
+    // set or else it points to the undecorated class
+    proxyClass.prototype.constructor = proxyClass
+    ;(proxyClass as any)[modelUnwrappedClassSymbol] = clazz
+
+    const modelInfo = {
+      name,
+      class: proxyClass,
+    }
+
+    modelInfoByName[name] = modelInfo
+
+    modelInfoByClass.set(proxyClass, modelInfo)
+    modelInfoByClass.set(clazz, modelInfo)
+
+    runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
+
+    return proxyClass
   }
-
-  modelInfoByName[name] = modelInfo
-
-  modelInfoByClass.set(proxyClass, modelInfo)
-  modelInfoByClass.set(clazz, modelInfo)
-
-  runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
-
-  return proxyClass
 }
 
 // basically taken from TS
