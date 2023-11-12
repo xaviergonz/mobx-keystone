@@ -30,11 +30,9 @@ import {
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model: (
-  name: string
-) => <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]) => MC =
-  (name) =>
-  (clazz, ...args) => {
+export const model =
+  (name: string) =>
+  <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]): MC => {
     const ctx = typeof args[1] === "object" ? (args[1] as ClassDecoratorContext) : undefined
 
     return internalModel(name, clazz, ctx?.addInitializer) as any
