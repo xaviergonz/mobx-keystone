@@ -1,7 +1,7 @@
+import { checkDecoratorContext } from "../utils/decorators"
 import type { ActionMiddlewareDisposer } from "../action/middleware"
 import type { AnyModel } from "../model/BaseModel"
 import { assertIsModel } from "../model/utils"
-import { checkModelDecoratorArgs } from "../modelShared/checkModelDecoratorArgs"
 import { addModelClassInitializer } from "../modelShared/modelClassInitializer"
 import { applyPatches } from "../patch"
 import { internalPatchRecorder, PatchRecorder } from "../patch/patchRecorder"
@@ -84,17 +84,36 @@ export function transactionMiddleware<M extends AnyModel>(target: {
 
 /**
  * Transaction middleware as a decorator.
- *
- * @param target
- * @param propertyKey
  */
-export function transaction(target: any, propertyKey: string): void {
-  checkModelDecoratorArgs("transaction", target, propertyKey)
+export function transaction(...args: any[]): void {
+  if (typeof args[1] === "object") {
+    // standard decorators
+    const ctx = args[1] as ClassMethodDecoratorContext | ClassFieldDecoratorContext
 
-  addModelClassInitializer(target.constructor, (modelInstance) => {
-    transactionMiddleware({
-      model: modelInstance as AnyModel,
-      actionName: propertyKey as any,
+    checkDecoratorContext("transaction", ctx.name, ctx.static)
+    if (ctx.kind !== "method" && ctx.kind !== "field") {
+      throw failure(`@transaction can only be used on fields or methods}`)
+    }
+
+    ctx.addInitializer(function (this: any) {
+      const modelInstance = this
+      transactionMiddleware({
+        model: modelInstance as AnyModel,
+        actionName: ctx.name as any,
+      })
     })
-  })
+  } else {
+    // non-standard decorators
+    const target = args[0]
+    const propertyKey: string | symbol = args[1]
+
+    checkDecoratorContext("transaction", propertyKey, false)
+
+    addModelClassInitializer(target.constructor, (modelInstance) => {
+      transactionMiddleware({
+        model: modelInstance as AnyModel,
+        actionName: propertyKey as any,
+      })
+    })
+  }
 }

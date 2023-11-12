@@ -1,9 +1,8 @@
 import type { O } from "ts-toolbelt"
-import { checkModelDecoratorArgs } from "../modelShared/checkModelDecoratorArgs"
-import { decorateWrapMethodOrField, failure } from "../utils"
-import { getActionNameAndContextOverride } from "./actionDecoratorUtils"
+import { failure } from "../utils"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { wrapInAction, WrapInActionOverrideContextFn } from "./wrapInAction"
+import { WrapInActionOverrideContextFn, wrapInAction } from "./wrapInAction"
+import { decorateWrapMethodOrField } from "../utils/decorators"
 
 const modelFlowSymbol = Symbol("modelFlow")
 
@@ -191,43 +190,23 @@ export function isModelFlow(fn: unknown) {
 
 /**
  * Decorator that turns a function generator into a model flow.
- *
- * @param target
- * @param propertyKey
- * @param [baseDescriptor]
- * @returns
  */
-export function modelFlow(
-  target: any,
-  propertyKey: string,
-  baseDescriptor?: PropertyDescriptor
-): void {
-  const { actionName, overrideContext } = getActionNameAndContextOverride(target, propertyKey)
-
-  return decorateWrapMethodOrField(
-    "modelFlow",
-    {
-      target,
-      propertyKey,
-      baseDescriptor,
-    },
-    (data, fn) => {
-      if (isModelFlow(fn)) {
-        return fn
-      } else {
-        checkModelFlowArgs(data.target, data.propertyKey, fn)
-
-        return flow({ nameOrNameFn: actionName, generator: fn, overrideContext })
+export function modelFlow(...args: any[]): void {
+  return decorateWrapMethodOrField("modelFlow", args, (data, fn) => {
+    if (isModelFlow(fn)) {
+      return fn
+    } else {
+      if (typeof fn !== "function") {
+        throw failure("modelFlow has to be used over functions")
       }
-    }
-  )
-}
 
-function checkModelFlowArgs(target: any, propertyKey: string, value: any) {
-  if (typeof value !== "function") {
-    throw failure("modelFlow has to be used over functions")
-  }
-  checkModelDecoratorArgs("modelFlow", target, propertyKey)
+      return flow({
+        nameOrNameFn: data.actionName,
+        generator: fn,
+        overrideContext: data.overrideContext,
+      })
+    }
+  })
 }
 
 /**

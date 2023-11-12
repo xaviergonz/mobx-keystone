@@ -37,6 +37,7 @@ jobs:
       matrix:
         compiler:
           - tsc
+          - tsc-old-decorators
           - babel
           - swc
         mobx-version:
