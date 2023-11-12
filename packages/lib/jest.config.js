@@ -1,7 +1,7 @@
 const { mobxVersion, compiler } = require("./env")
 
 const tsconfigFiles = {
-  6: "tsconfig.json",
+  6: compiler === "tsc" ? "tsconfig.json" : "tsconfig.experimental-decorators.json",
   5: "tsconfig.mobx5.json",
   4: "tsconfig.mobx4.json",
 }
@@ -24,6 +24,7 @@ const config = {
 
 switch (compiler) {
   case "tsc":
+  case "tsc-experimental-decorators":
     Object.assign(config, {
       preset: "ts-jest",
       testEnvironment: "node",
@@ -45,7 +46,7 @@ switch (compiler) {
     break
 
   default:
-    throw new Error("$COMPILER must be one of {tsc,babel,swc}")
+    throw new Error("$COMPILER must be one of {tsc,tsc-experimental-decorators,babel,swc}")
 }
 
 module.exports = config

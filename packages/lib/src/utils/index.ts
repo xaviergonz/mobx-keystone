@@ -242,15 +242,6 @@ export function assertIsString(value: unknown, argName: string): asserts value i
 /**
  * @internal
  */
-export interface DecorateMethodOrFieldData {
-  target: any
-  propertyKey: string
-  baseDescriptor?: PropertyDescriptor & { initializer?: () => any }
-}
-
-/**
- * @internal
- */
 export const runAfterNewSymbol = Symbol("runAfterNew")
 
 /**
@@ -258,7 +249,6 @@ export const runAfterNewSymbol = Symbol("runAfterNew")
  */
 export const runBeforeOnInitSymbol = Symbol("runBeforeOnInit")
 
-type WrapFunction = (data: DecorateMethodOrFieldData, fn: any) => any
 type LateInitializationFunctionsArray = ((instance: any) => void)[]
 
 /**
@@ -276,60 +266,6 @@ export function addLateInitializationFunction(
     addHiddenProp(target, symbol, array)
   }
   array.push(fn)
-}
-
-const unboundMethodSymbol = Symbol("unboundMethod")
-
-/**
- * @internal
- */
-export function decorateWrapMethodOrField(
-  decoratorName: string,
-  data: DecorateMethodOrFieldData,
-  wrap: WrapFunction
-): any {
-  const { target, propertyKey, baseDescriptor } = data
-
-  const addFieldDecorator = () => {
-    addLateInitializationFunction(target, runAfterNewSymbol, (instance) => {
-      // all of this is to make method destructuring work
-      const method = wrap(data, instance[propertyKey])
-
-      const unboundMethod = unboundMethodSymbol in method ? method[unboundMethodSymbol] : method
-
-      const boundMethod = unboundMethod.bind(instance)
-      // copy modelAction symbol, etc.
-      Object.getOwnPropertySymbols(unboundMethod).forEach((s) => {
-        boundMethod[s] = unboundMethod[s]
-      })
-      boundMethod[unboundMethodSymbol] = unboundMethod
-
-      instance[propertyKey] = boundMethod
-    })
-  }
-
-  if (baseDescriptor) {
-    if (baseDescriptor.get !== undefined) {
-      throw failure(`@${decoratorName} cannot be used with getters`)
-    }
-
-    if (baseDescriptor.value) {
-      // babel / typescript - method decorator
-      // @action method() { }
-      return {
-        enumerable: false,
-        writable: true,
-        configurable: true,
-        value: wrap(data, baseDescriptor.value),
-      }
-    } else {
-      // babel - field decorator: @action method = () => {}
-      addFieldDecorator()
-    }
-  } else {
-    // typescript - field decorator: @action method = () => {}
-    addFieldDecorator()
-  }
 }
 
 /**

@@ -30,10 +30,11 @@ import {
  * @param name Unique name for the model type. Note that this name must be unique for your whole
  * application, so it is usually a good idea to use some prefix unique to your application domain.
  */
-export const model =
-  (name: string) =>
-  <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC): MC => {
-    return internalModel(name)(clazz)
+export const model: (
+  name: string
+) => <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]) => MC =
+  (name) => (clazz) => {
+    return internalModel(name, clazz)
   }
 
 const proxyClassHandlerTag = new WeakMap<
@@ -93,57 +94,58 @@ const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
   },
 }
 
-const internalModel =
-  (name: string) =>
-  <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC): MC => {
-    const type = isModelClass(clazz) ? "class" : isDataModelClass(clazz) ? "data" : undefined
-    if (!type) {
-      throw failure(`clazz must be a class that extends from Model/DataModel`)
-    }
-
-    if (modelInfoByName[name]) {
-      if (getGlobalConfig().showDuplicateModelNameWarnings) {
-        logWarning(
-          "warn",
-          `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
-          `duplicateModelName - ${name}`
-        )
-      }
-    }
-
-    if (modelUnwrappedClassSymbol in clazz && clazz[modelUnwrappedClassSymbol] === clazz) {
-      throw failure("a class already decorated with `@model` cannot be re-decorated")
-    }
-
-    // track if we fail so we only try it once per class
-    proxyClassHandlerTag.set(clazz, { makeObservableFailed: false, type })
-
-    // trick so plain new works
-    const proxyClass = new Proxy<MC>(clazz, proxyClassHandler)
-
-    clazz.toString = () => `class ${clazz.name}#${name}`
-    if (type === "class") {
-      ;(clazz as any)[modelTypeKey] = name
-    }
-
-    // set or else it points to the undecorated class
-    proxyClass.prototype.constructor = proxyClass
-    ;(proxyClass as any)[modelUnwrappedClassSymbol] = clazz
-
-    const modelInfo = {
-      name,
-      class: proxyClass,
-    }
-
-    modelInfoByName[name] = modelInfo
-
-    modelInfoByClass.set(proxyClass, modelInfo)
-    modelInfoByClass.set(clazz, modelInfo)
-
-    runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
-
-    return proxyClass
+const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
+  name: string,
+  clazz: MC
+): MC => {
+  const type = isModelClass(clazz) ? "class" : isDataModelClass(clazz) ? "data" : undefined
+  if (!type) {
+    throw failure(`clazz must be a class that extends from Model/DataModel`)
   }
+
+  if (modelInfoByName[name]) {
+    if (getGlobalConfig().showDuplicateModelNameWarnings) {
+      logWarning(
+        "warn",
+        `a model with name "${name}" already exists (if you are using hot-reloading you may safely ignore this warning)`,
+        `duplicateModelName - ${name}`
+      )
+    }
+  }
+
+  if (modelUnwrappedClassSymbol in clazz && clazz[modelUnwrappedClassSymbol] === clazz) {
+    throw failure("a class already decorated with `@model` cannot be re-decorated")
+  }
+
+  // track if we fail so we only try it once per class
+  proxyClassHandlerTag.set(clazz, { makeObservableFailed: false, type })
+
+  // trick so plain new works
+  const proxyClass = new Proxy<MC>(clazz, proxyClassHandler)
+
+  clazz.toString = () => `class ${clazz.name}#${name}`
+  if (type === "class") {
+    ;(clazz as any)[modelTypeKey] = name
+  }
+
+  // set or else it points to the undecorated class
+  proxyClass.prototype.constructor = proxyClass
+  ;(proxyClass as any)[modelUnwrappedClassSymbol] = clazz
+
+  const modelInfo = {
+    name,
+    class: proxyClass,
+  }
+
+  modelInfoByName[name] = modelInfo
+
+  modelInfoByClass.set(proxyClass, modelInfo)
+  modelInfoByClass.set(clazz, modelInfo)
+
+  runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
+
+  return proxyClass
+}
 
 // basically taken from TS
 function tsDecorate(decorators: any, target: any, key: any, desc: any) {

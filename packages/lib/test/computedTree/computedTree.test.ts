@@ -131,6 +131,9 @@ test("computed tree decorator cannot decorate a 'get' accessor of a plain class"
         return null
       }
     }
+
+    // with new decorators it will throw on new, with old ones it will throw on class definition
+    new X()
   }).toThrow("@computedTree can only decorate 'get' accessors of class or data models")
 })
 

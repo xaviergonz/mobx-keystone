@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.7.0
+
+- Added support for "new" non-experimental standard decorators. The old ones are still supported.
+
 ## 1.6.5
 
 - Some small optimizations.

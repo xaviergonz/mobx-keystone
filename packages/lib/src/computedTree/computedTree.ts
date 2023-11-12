@@ -7,6 +7,7 @@ import { isTreeNode } from "../tweaker/core"
 import { tweak } from "../tweaker/tweak"
 import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
+import { checkDecoratorContext } from "../utils/decorators"
 
 const computedTreeContext = createContext(false)
 
@@ -44,47 +45,29 @@ function getOrCreateComputedTreeNodeInfo(instance: object) {
 /**
  * Decorator for turning a computed property into a computed tree which supports tree traversal
  * functions, contexts, references, etc.
- *
- * @param target Prototype of the class.
- * @param propertyKey Name of the member.
- * @param descriptor Property descriptor for the member.
  */
-export function computedTree(
-  target: any,
-  propertyKey: string,
-  descriptor: PropertyDescriptor
-): void {
-  if (!descriptor.get) {
-    throw failure("@computedTree requires a 'get' accessor")
-  }
+export function computedTree(...args: any[]): any {
+  const createGetter = (propertyKey: string) =>
+    function (this: any) {
+      const entry = getOrCreateComputedTreeNodeInfo(this).get(propertyKey)!
 
-  const targetClass = target.constructor
-  if (!isModelClass(targetClass) && !isDataModelClass(targetClass)) {
-    throw failure("@computedTree can only decorate 'get' accessors of class or data models")
-  }
+      const oldValue = entry.value
+      const newValue = entry.computed.get()
 
-  const original = descriptor.get
+      if (oldValue === newValue) {
+        return entry.tweakedValue
+      }
 
-  descriptor.get = function () {
-    const entry = getOrCreateComputedTreeNodeInfo(this).get(propertyKey)!
+      const oldTweakedValue = entry.tweakedValue
+      tweak(oldTweakedValue, undefined)
 
-    const oldValue = entry.value
-    const newValue = entry.computed.get()
-
-    if (oldValue === newValue) {
-      return entry.tweakedValue
+      const tweakedValue = tweakComputedTreeNode(newValue, this, propertyKey)
+      entry.value = newValue
+      entry.tweakedValue = tweakedValue
+      return tweakedValue
     }
 
-    const oldTweakedValue = entry.tweakedValue
-    tweak(oldTweakedValue, undefined)
-
-    const tweakedValue = tweakComputedTreeNode(newValue, this, propertyKey)
-    entry.value = newValue
-    entry.tweakedValue = tweakedValue
-    return tweakedValue
-  }
-
-  addLateInitializationFunction(target, runBeforeOnInitSymbol, (instance) => {
+  const runLateInit = (instance: any, original: any, propertyKey: string) => {
     const c = computed(() => original.call(instance), { keepAlive: true })
     const newValue = c.get()
     const tweakedValue = tweakComputedTreeNode(newValue, instance, propertyKey)
@@ -94,5 +77,63 @@ export function computedTree(
       value: newValue,
       tweakedValue,
     })
-  })
+  }
+
+  const checkInstanceClass = (instance: any) => {
+    const instanceClass = instance.constructor
+    if (!isModelClass(instanceClass) && !isDataModelClass(instanceClass)) {
+      throw failure("@computedTree can only decorate 'get' accessors of class or data models")
+    }
+  }
+
+  if (typeof args[1] === "object") {
+    // standard decorators
+    const value = args[0]
+    const ctx = args[1] as ClassGetterDecoratorContext
+
+    if (ctx.kind !== "getter") {
+      throw failure("@computedTree requires a 'get' accessor")
+    }
+
+    checkDecoratorContext("computedTree", ctx.name, ctx.static)
+
+    const propertyKey = ctx.name as string
+    const original = value
+
+    let classChecked = false
+
+    ctx.addInitializer(function (this: any) {
+      const instance = this
+
+      if (!classChecked) {
+        checkInstanceClass(instance)
+        classChecked = true
+      }
+
+      runLateInit(instance, original, propertyKey)
+    })
+
+    return createGetter(propertyKey)
+  } else {
+    // non-standard decorators
+    const instance = args[0]
+    const propertyKey: string = args[1]
+    const descriptor = args[2]
+
+    if (!descriptor.get) {
+      throw failure("@computedTree requires a 'get' accessor")
+    }
+
+    checkDecoratorContext("computedTree", propertyKey, false)
+
+    checkInstanceClass(instance)
+
+    const original = descriptor.get
+
+    descriptor.get = createGetter(propertyKey)
+
+    addLateInitializationFunction(instance, runBeforeOnInitSymbol, (instance) => {
+      runLateInit(instance, original, propertyKey)
+    })
+  }
 }
