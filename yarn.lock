@@ -16519,9 +16519,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^17.2.2":
-  version: 17.2.2
-  resolution: "netlify-cli@npm:17.2.2"
+"netlify-cli@npm:^17.3.1":
+  version: 17.3.1
+  resolution: "netlify-cli@npm:17.3.1"
   dependencies:
     "@bugsnag/js": 7.20.2
     "@fastify/static": 6.10.2
@@ -16625,6 +16625,7 @@ __metadata:
     through2-map: 3.0.0
     to-readable-stream: 3.0.0
     toml: 3.0.0
+    tomlify-j0.4: ^3.0.0
     ulid: 2.3.0
     unixify: 1.0.0
     update-notifier: 6.0.2
@@ -16635,7 +16636,7 @@ __metadata:
   bin:
     netlify: bin/run.mjs
     ntl: bin/run.mjs
-  checksum: 9bf087cc365df41451a070f1e29480f9f18ec378264a4accae6d2e85c8479cb95a4d5a4b05e0f7f65b0a277c54a86b46e4796e08ec8168dcff4049379680a727
+  checksum: a127d661a2f27ceb3f36e7f15ef83a04c6cff195de906e4050786c6b6d6ee9274081494c644ed64cadd5eb9fb161423a1865f4a2de3446a7ed050c8fc5845692
   languageName: node
   linkType: hard
 
@@ -19774,7 +19775,7 @@ __metadata:
     eslint: ^8.53.0
     eslint-config-prettier: ^9.0.0
     eslint-config-react-app: ^7.0.1
-    netlify-cli: ^17.2.2
+    netlify-cli: ^17.3.1
     prettier: ^3.1.0
     prettier-plugin-organize-imports: ^3.2.4
     turbo: ^1.10.16
