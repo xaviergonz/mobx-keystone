@@ -1,5 +1,5 @@
 import path from "path"
-import typescript2 from "rollup-plugin-typescript2"
+import { checker } from "vite-plugin-checker"
 import { defineConfig } from "vite"
 
 const resolvePath = (str: string) => path.resolve(__dirname, str)
@@ -33,12 +33,8 @@ export default defineConfig({
     },
   },
   plugins: [
-    {
-      ...typescript2({
-        useTsconfigDeclarationDir: true,
-      }),
-      apply: "build",
-      enforce: "pre",
-    },
+    checker({
+      typescript: true,
+    }),
   ],
 })
