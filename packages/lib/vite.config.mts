@@ -37,7 +37,6 @@ export default defineConfig({
       ...typescript2({
         useTsconfigDeclarationDir: true,
       }),
-      apply: "build",
       enforce: "pre",
     },
   ],
