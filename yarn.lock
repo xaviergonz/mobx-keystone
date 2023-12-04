@@ -507,7 +507,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-string-parser@npm:^7.22.5, @babel/helper-string-parser@npm:^7.23.4":
+"@babel/helper-string-parser@npm:^7.23.4":
   version: 7.23.4
   resolution: "@babel/helper-string-parser@npm:7.23.4"
   checksum: f348d5637ad70b6b54b026d6544bd9040f78d24e7ec245a0fc42293968181f6ae9879c22d89744730d246ce8ec53588f716f102addd4df8bbc79b73ea10004ac
@@ -1851,17 +1851,6 @@ __metadata:
     debug: "npm:^4.1.0"
     globals: "npm:^11.1.0"
   checksum: c5ea793080ca6719b0a1612198fd25e361cee1f3c14142d7a518d2a1eeb5c1d21f7eec1b26c20ea6e1ddd8ed12ab50b960ff95ffd25be353b6b46e1b54d6f825
-  languageName: node
-  linkType: hard
-
-"@babel/types@npm:7.23.3":
-  version: 7.23.3
-  resolution: "@babel/types@npm:7.23.3"
-  dependencies:
-    "@babel/helper-string-parser": "npm:^7.22.5"
-    "@babel/helper-validator-identifier": "npm:^7.22.20"
-    to-fast-properties: "npm:^2.0.0"
-  checksum: 371a10dd9c8d8ebf48fc5d9e1b327dafd74453f8ea582dcbddd1cee5ae34e8881b743e783a86c08c04dcd1849b1842455472a911ae8a1c185484fe9b7b5f1595
   languageName: node
   linkType: hard
 
@@ -3587,9 +3576,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:29.29.0":
-  version: 29.29.0
-  resolution: "@netlify/build@npm:29.29.0"
+"@netlify/build@npm:29.29.4":
+  version: 29.29.4
+  resolution: "@netlify/build@npm:29.29.4"
   dependencies:
     "@bugsnag/js": "npm:^7.0.0"
     "@honeycombio/opentelemetry-node": "npm:^0.5.0"
@@ -3598,11 +3587,11 @@ __metadata:
     "@netlify/config": "npm:^20.10.0"
     "@netlify/edge-bundler": "npm:10.1.3"
     "@netlify/framework-info": "npm:^9.8.10"
-    "@netlify/functions-utils": "npm:^5.2.42"
+    "@netlify/functions-utils": "npm:^5.2.45"
     "@netlify/git-utils": "npm:^5.1.1"
     "@netlify/plugins-list": "npm:^6.72.0"
     "@netlify/run-utils": "npm:^5.1.1"
-    "@netlify/zip-it-and-ship-it": "npm:9.26.4"
+    "@netlify/zip-it-and-ship-it": "npm:9.28.1"
     "@opentelemetry/api": "npm:^1.4.1"
     "@opentelemetry/core": "npm:^1.17.1"
     "@sindresorhus/slugify": "npm:^2.0.0"
@@ -3657,7 +3646,7 @@ __metadata:
       optional: true
   bin:
     netlify-build: bin.js
-  checksum: de33f50f69ff0bf39c4a6dac990794344678864c9dd24b6b0eb1dd26bf3b764bda8a87832ce0111e957dfb46fc3c29ab9108f804b031538cb209abd9171de4b5
+  checksum: bedb8525b4df168a0de4727095fc8ab7a59412c9dcfa9d6c3ba452cd1733186099865058daad9c0503c86715f8183437f342f9af377b7eaf2492c15ea9378007
   languageName: node
   linkType: hard
 
@@ -3761,7 +3750,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/functions-utils@npm:^5.2.42":
+"@netlify/functions-utils@npm:^5.2.45":
   version: 5.2.45
   resolution: "@netlify/functions-utils@npm:5.2.45"
   dependencies:
@@ -3975,48 +3964,6 @@ __metadata:
     "@netlify/node-cookies": "npm:^0.1.0"
     urlpattern-polyfill: "npm:8.0.2"
   checksum: 19e0d0d2ba012b2d33085f9050c3077e7b8a7fc797b56c8e58307e8091d919b965595e93e332898a22e7191ec3c4b8bb01aae3b1c6e10be255917f27d38463fe
-  languageName: node
-  linkType: hard
-
-"@netlify/zip-it-and-ship-it@npm:9.26.4":
-  version: 9.26.4
-  resolution: "@netlify/zip-it-and-ship-it@npm:9.26.4"
-  dependencies:
-    "@babel/parser": "npm:^7.22.5"
-    "@babel/types": "npm:7.23.3"
-    "@netlify/binary-info": "npm:^1.0.0"
-    "@netlify/serverless-functions-api": "npm:^1.12.1"
-    "@vercel/nft": "npm:^0.23.0"
-    archiver: "npm:^6.0.0"
-    common-path-prefix: "npm:^3.0.0"
-    cp-file: "npm:^10.0.0"
-    es-module-lexer: "npm:^1.0.0"
-    esbuild: "npm:0.19.6"
-    execa: "npm:^6.0.0"
-    filter-obj: "npm:^5.0.0"
-    find-up: "npm:^6.0.0"
-    glob: "npm:^8.0.3"
-    is-builtin-module: "npm:^3.1.0"
-    is-path-inside: "npm:^4.0.0"
-    junk: "npm:^4.0.0"
-    locate-path: "npm:^7.0.0"
-    merge-options: "npm:^3.0.4"
-    minimatch: "npm:^9.0.0"
-    normalize-path: "npm:^3.0.0"
-    p-map: "npm:^5.0.0"
-    path-exists: "npm:^5.0.0"
-    precinct: "npm:^11.0.0"
-    require-package-name: "npm:^2.0.1"
-    resolve: "npm:^2.0.0-next.1"
-    semver: "npm:^7.3.8"
-    tmp-promise: "npm:^3.0.2"
-    toml: "npm:^3.0.0"
-    unixify: "npm:^1.0.0"
-    urlpattern-polyfill: "npm:8.0.2"
-    yargs: "npm:^17.0.0"
-  bin:
-    zip-it-and-ship-it: dist/bin.js
-  checksum: 09d10bb1f2287fe914d2e46fb690576687caba62a36e15f0612ba66ad61c69ccdb7f552f571b3191600d984b66b35650e6cc0f600a18876a5cf4679853a46d5b
   languageName: node
   linkType: hard
 
@@ -6219,12 +6166,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=12.12.47, @types/node@npm:>=13.7.0, @types/node@npm:^20.10.2":
-  version: 20.10.2
-  resolution: "@types/node@npm:20.10.2"
+"@types/node@npm:*, @types/node@npm:>=12.12.47, @types/node@npm:>=13.7.0, @types/node@npm:^20.10.3":
+  version: 20.10.3
+  resolution: "@types/node@npm:20.10.3"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: c24630d6bdd237f538d69886868fc29abba8c59f58996b6a6267c42e2253a84a18834c09408b3d887ec74f69e6828e25e3d23cf6fa0daac5902afccaf0568d7e
+  checksum: 7c8a0327a29d68a0bb152ae30e8c4738638515dd599064821c9d0c1884a1efa103021cd8f8c91e690cd56b0602bb6fe0e6651a5df2337bdc85e0c0f66054b2ce
   languageName: node
   linkType: hard
 
@@ -16500,7 +16447,7 @@ __metadata:
     "@swc/core": "npm:^1.3.100"
     "@swc/jest": "npm:^0.2.29"
     "@types/jest": "npm:^29.5.10"
-    "@types/node": "npm:^20.10.2"
+    "@types/node": "npm:^20.10.3"
     babel-jest: "npm:^29.7.0"
     fast-deep-equal: "npm:^3.1.3"
     jest: "npm:^29.7.0"
@@ -16516,7 +16463,7 @@ __metadata:
     tslib: "npm:^2.6.2"
     typedoc: "npm:^0.25.4"
     typescript: "npm:^5.3.2"
-    vite: "npm:^5.0.4"
+    vite: "npm:^5.0.5"
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
@@ -16775,19 +16722,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^17.8.1":
-  version: 17.8.1
-  resolution: "netlify-cli@npm:17.8.1"
+"netlify-cli@npm:^17.9.0":
+  version: 17.9.0
+  resolution: "netlify-cli@npm:17.9.0"
   dependencies:
     "@bugsnag/js": "npm:7.20.2"
     "@fastify/static": "npm:6.10.2"
     "@netlify/blobs": "npm:6.3.1"
-    "@netlify/build": "npm:29.29.0"
+    "@netlify/build": "npm:29.29.4"
     "@netlify/build-info": "npm:7.11.1"
     "@netlify/config": "npm:20.10.0"
     "@netlify/edge-bundler": "npm:10.1.3"
     "@netlify/local-functions-proxy": "npm:1.1.1"
-    "@netlify/zip-it-and-ship-it": "npm:9.26.4"
+    "@netlify/zip-it-and-ship-it": "npm:9.28.1"
     "@octokit/rest": "npm:19.0.13"
     ansi-escapes: "npm:6.2.0"
     ansi-styles: "npm:6.2.1"
@@ -16893,7 +16840,7 @@ __metadata:
   bin:
     netlify: bin/run.js
     ntl: bin/run.js
-  checksum: 440eaf6d9dc282eaa52f938ea6ffd62083c2ec0b5c861746cb252a4405b0ca8528c7e6f2c7836e81bcbc4a2ffdea01157a6bf20286adfc08ba13f3de0ff2633c
+  checksum: 85a07019f999d939824b39f44ad07b228f86827b5bbef442aecab70eaf9d8d5e652f66bca6057a08c07dde5b662944ea8f4ade6566d25cdf10423060d9fa5d86
   languageName: node
   linkType: hard
 
@@ -18623,7 +18570,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.3.11, postcss@npm:^8.4.14, postcss@npm:^8.4.17, postcss@npm:^8.4.21, postcss@npm:^8.4.23, postcss@npm:^8.4.31":
+"postcss@npm:^8.3.11, postcss@npm:^8.4.14, postcss@npm:^8.4.17, postcss@npm:^8.4.21, postcss@npm:^8.4.23, postcss@npm:^8.4.32":
   version: 8.4.32
   resolution: "postcss@npm:8.4.32"
   dependencies:
@@ -20116,7 +20063,7 @@ __metadata:
     eslint: "npm:^8.55.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-config-react-app: "npm:^7.0.1"
-    netlify-cli: "npm:^17.8.1"
+    netlify-cli: "npm:^17.9.0"
     prettier: "npm:^3.1.0"
     prettier-plugin-organize-imports: "npm:^3.2.4"
     turbo: "npm:^1.10.16"
@@ -23161,13 +23108,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.0.4":
-  version: 5.0.4
-  resolution: "vite@npm:5.0.4"
+"vite@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "vite@npm:5.0.5"
   dependencies:
     esbuild: "npm:^0.19.3"
     fsevents: "npm:~2.3.3"
-    postcss: "npm:^8.4.31"
+    postcss: "npm:^8.4.32"
     rollup: "npm:^4.2.0"
   peerDependencies:
     "@types/node": ^18.0.0 || >=20.0.0
@@ -23197,7 +23144,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 67a0df248af042e75b1ecbf20098096df80a1068a832c5c964a20d7c06853e12b7310989c3c273cb88a9a3a37f4bada0a2115018b36df0fc09a6b6dba9a7d5b5
+  checksum: 22fbaacbc87eff7d1de46104880c5d269d3bb2964957e9d13edaac819e6a90b5ce2567b5d0ba8c92a7bd5bcf0412ae7d22ce958047490931fbb466b1908ff17c
   languageName: node
   linkType: hard
 
