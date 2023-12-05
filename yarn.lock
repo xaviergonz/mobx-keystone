@@ -6265,14 +6265,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.41":
-  version: 18.2.41
-  resolution: "@types/react@npm:18.2.41"
+"@types/react@npm:*, @types/react@npm:^18.2.42":
+  version: 18.2.42
+  resolution: "@types/react@npm:18.2.42"
   dependencies:
     "@types/prop-types": "npm:*"
     "@types/scheduler": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 5cc72491ce8be95e7bbedd8bf039ca971772ecd22d989feb045af7e73247c7e6cff25a2f1c2200be461fb2f6b5aacef739e1ba9fd83c744209dfd3ce8aa75afe
+  checksum: 2946d78c1f9a220a4dfedd7995b8bcba47235b19756bf3dd845c604bb24fff8d0ff5be81c0c98ac7f4488791e8c7e6cbcc4898c40c0209d74a1223b8fbfb994f
   languageName: node
   linkType: hard
 
@@ -20066,7 +20066,7 @@ __metadata:
     netlify-cli: "npm:^17.9.0"
     prettier: "npm:^3.1.0"
     prettier-plugin-organize-imports: "npm:^3.2.4"
-    turbo: "npm:^1.10.16"
+    turbo: "npm:^1.11.0"
     typescript: "npm:^5.3.2"
   languageName: unknown
   linkType: soft
@@ -20703,7 +20703,7 @@ __metadata:
     "@easyops-cn/docusaurus-search-local": "npm:^0.36.0"
     "@svgr/webpack": "npm:^8.1.0"
     "@tsconfig/docusaurus": "npm:^2.0.2"
-    "@types/react": "npm:^18.2.41"
+    "@types/react": "npm:^18.2.42"
     "@types/react-dom": "npm:^18.2.17"
     "@types/uuid": "npm:^9.0.7"
     bootstrap-icons: "npm:^1.11.2"
@@ -22147,58 +22147,58 @@ __metadata:
   languageName: node
   linkType: hard
 
-"turbo-darwin-64@npm:1.10.16":
-  version: 1.10.16
-  resolution: "turbo-darwin-64@npm:1.10.16"
+"turbo-darwin-64@npm:1.11.0":
+  version: 1.11.0
+  resolution: "turbo-darwin-64@npm:1.11.0"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-darwin-arm64@npm:1.10.16":
-  version: 1.10.16
-  resolution: "turbo-darwin-arm64@npm:1.10.16"
+"turbo-darwin-arm64@npm:1.11.0":
+  version: 1.11.0
+  resolution: "turbo-darwin-arm64@npm:1.11.0"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-linux-64@npm:1.10.16":
-  version: 1.10.16
-  resolution: "turbo-linux-64@npm:1.10.16"
+"turbo-linux-64@npm:1.11.0":
+  version: 1.11.0
+  resolution: "turbo-linux-64@npm:1.11.0"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-linux-arm64@npm:1.10.16":
-  version: 1.10.16
-  resolution: "turbo-linux-arm64@npm:1.10.16"
+"turbo-linux-arm64@npm:1.11.0":
+  version: 1.11.0
+  resolution: "turbo-linux-arm64@npm:1.11.0"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo-windows-64@npm:1.10.16":
-  version: 1.10.16
-  resolution: "turbo-windows-64@npm:1.10.16"
+"turbo-windows-64@npm:1.11.0":
+  version: 1.11.0
+  resolution: "turbo-windows-64@npm:1.11.0"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"turbo-windows-arm64@npm:1.10.16":
-  version: 1.10.16
-  resolution: "turbo-windows-arm64@npm:1.10.16"
+"turbo-windows-arm64@npm:1.11.0":
+  version: 1.11.0
+  resolution: "turbo-windows-arm64@npm:1.11.0"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"turbo@npm:^1.10.16":
-  version: 1.10.16
-  resolution: "turbo@npm:1.10.16"
+"turbo@npm:^1.11.0":
+  version: 1.11.0
+  resolution: "turbo@npm:1.11.0"
   dependencies:
-    turbo-darwin-64: "npm:1.10.16"
-    turbo-darwin-arm64: "npm:1.10.16"
-    turbo-linux-64: "npm:1.10.16"
-    turbo-linux-arm64: "npm:1.10.16"
-    turbo-windows-64: "npm:1.10.16"
-    turbo-windows-arm64: "npm:1.10.16"
+    turbo-darwin-64: "npm:1.11.0"
+    turbo-darwin-arm64: "npm:1.11.0"
+    turbo-linux-64: "npm:1.11.0"
+    turbo-linux-arm64: "npm:1.11.0"
+    turbo-windows-64: "npm:1.11.0"
+    turbo-windows-arm64: "npm:1.11.0"
   dependenciesMeta:
     turbo-darwin-64:
       optional: true
@@ -22214,7 +22214,7 @@ __metadata:
       optional: true
   bin:
     turbo: bin/turbo
-  checksum: a93ca993eea26351917c31d41c7f61e4198342fbded79a94e0837c3bc7506992094d7f38eaf0d8b798554f10ab553b859f1d8a4ad66553a0ec42cb223b40f8e4
+  checksum: decb93f1693bd5b3478a7b72146559754d7e2fa640fa1f9ac6c66a3038b017921e4ba1959e0989b09eb141d75ece6bee216ae6fda2125e639e4ff3afa8d059ed
   languageName: node
   linkType: hard
 
