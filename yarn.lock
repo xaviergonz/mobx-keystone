@@ -2433,6 +2433,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@docusaurus/tsconfig@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@docusaurus/tsconfig@npm:3.0.1"
+  checksum: d28f253f8d678c7650934ed3ee0390995a22ffb1b10fd8e15e4482517352b097a9a29bcd4a617d8722490ef299fe37d3162e542822bbbe53d5f1e1d5f8a921ce
+  languageName: node
+  linkType: hard
+
 "@docusaurus/types@npm:3.0.1":
   version: 3.0.1
   resolution: "@docusaurus/types@npm:3.0.1"
@@ -5801,13 +5808,6 @@ __metadata:
   version: 0.2.0
   resolution: "@trysound/sax@npm:0.2.0"
   checksum: 44907308549ce775a41c38a815f747009ac45929a45d642b836aa6b0a536e4978d30b8d7d680bbd116e9dd73b7dbe2ef0d1369dcfc2d09e83ba381e485ecbe12
-  languageName: node
-  linkType: hard
-
-"@tsconfig/docusaurus@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "@tsconfig/docusaurus@npm:2.0.2"
-  checksum: af39e4c07f8d74c53162bc8cf756efb5ce1112e776e0c7ab6e85e156a1209179ed3d284378f85ab1d9259f081d89d9d883090021460bcfacf3ae54d908fbd2b1
   languageName: node
   linkType: hard
 
@@ -21144,9 +21144,9 @@ __metadata:
     "@docusaurus/core": "npm:^3.0.1"
     "@docusaurus/module-type-aliases": "npm:^3.0.1"
     "@docusaurus/preset-classic": "npm:^3.0.1"
+    "@docusaurus/tsconfig": "npm:^3.0.1"
     "@easyops-cn/docusaurus-search-local": "npm:^0.38.1"
     "@svgr/webpack": "npm:^8.1.0"
-    "@tsconfig/docusaurus": "npm:^2.0.2"
     "@types/react": "npm:^18.2.42"
     "@types/react-dom": "npm:^18.2.17"
     "@types/uuid": "npm:^9.0.7"
