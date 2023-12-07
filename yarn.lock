@@ -3557,9 +3557,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@netlify/build-info@npm:7.11.1":
-  version: 7.11.1
-  resolution: "@netlify/build-info@npm:7.11.1"
+"@netlify/build-info@npm:7.11.3":
+  version: 7.11.3
+  resolution: "@netlify/build-info@npm:7.11.3"
   dependencies:
     "@bugsnag/js": "npm:^7.20.0"
     dot-prop: "npm:^7.2.0"
@@ -3572,13 +3572,13 @@ __metadata:
     yargs: "npm:^17.6.0"
   bin:
     build-info: bin.js
-  checksum: f2a4e33c56e3f5d3ba550fdcccf71870e9ef20c9993005418638e3ded7b6f3fb1357cec5d2beb423949916b4d497c48a9921adccdb10c95757170716e9090b3b
+  checksum: 18ffdfca32daefc2e76b62c56f68153990d5eca826a93d24ef40461e8868c9fd1d1e4b465325e94c3c9459322cf8d1f846a29c34bc283eb4bb096cad68d277d8
   languageName: node
   linkType: hard
 
-"@netlify/build@npm:29.29.4":
-  version: 29.29.4
-  resolution: "@netlify/build@npm:29.29.4"
+"@netlify/build@npm:29.31.0":
+  version: 29.31.0
+  resolution: "@netlify/build@npm:29.31.0"
   dependencies:
     "@bugsnag/js": "npm:^7.0.0"
     "@honeycombio/opentelemetry-node": "npm:^0.5.0"
@@ -3646,7 +3646,7 @@ __metadata:
       optional: true
   bin:
     netlify-build: bin.js
-  checksum: bedb8525b4df168a0de4727095fc8ab7a59412c9dcfa9d6c3ba452cd1733186099865058daad9c0503c86715f8183437f342f9af377b7eaf2492c15ea9378007
+  checksum: 1f3d5a0461b402b5edcdb93df9080a660f4ff4924f2c4741ad3b7b3364e39487f2ddf912fa842e17456f0c84094d064c35db31ea2f51fa7fe5b0ddb15fa3f3b2
   languageName: node
   linkType: hard
 
@@ -6101,13 +6101,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.5.10":
-  version: 29.5.10
-  resolution: "@types/jest@npm:29.5.10"
+"@types/jest@npm:^29.5.11":
+  version: 29.5.11
+  resolution: "@types/jest@npm:29.5.11"
   dependencies:
     expect: "npm:^29.0.0"
     pretty-format: "npm:^29.0.0"
-  checksum: b46171d59d12a5f69bbe710f65eaf59a8073337c6b4a67dff8158575caec53f1c61f8a7d645b34d6ac3c4ea398acd30f0c5d1c4a131c0c918798019264a3397d
+  checksum: 524a3394845214581278bf4d75055927261fbeac7e1a89cd621bd0636da37d265fe0a85eac58b5778758faad1cbd7c7c361dfc190c78ebde03a91cce33463261
   languageName: node
   linkType: hard
 
@@ -6166,12 +6166,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=12.12.47, @types/node@npm:>=13.7.0, @types/node@npm:^20.10.3":
-  version: 20.10.3
-  resolution: "@types/node@npm:20.10.3"
+"@types/node@npm:*, @types/node@npm:>=12.12.47, @types/node@npm:>=13.7.0, @types/node@npm:^20.10.4":
+  version: 20.10.4
+  resolution: "@types/node@npm:20.10.4"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 7c8a0327a29d68a0bb152ae30e8c4738638515dd599064821c9d0c1884a1efa103021cd8f8c91e690cd56b0602bb6fe0e6651a5df2337bdc85e0c0f66054b2ce
+  checksum: 2c8b70cba731eb2ae3ae046daa74903bfcbb0e7b9196da767e5895054f6d252296ae7a04fb1dbbcb53bb004c4c658c05eaea2731bc9e2dd9e08f7e88d672f563
   languageName: node
   linkType: hard
 
@@ -7981,7 +7981,7 @@ __metadata:
     mobx-state-tree: "npm:^5.4.0"
     shx: "npm:^0.3.4"
     tslib: "npm:^2.6.2"
-    typescript: "npm:^5.3.2"
+    typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
 
@@ -16446,8 +16446,8 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.23.3"
     "@swc/core": "npm:^1.3.100"
     "@swc/jest": "npm:^0.2.29"
-    "@types/jest": "npm:^29.5.10"
-    "@types/node": "npm:^20.10.3"
+    "@types/jest": "npm:^29.5.11"
+    "@types/node": "npm:^20.10.4"
     babel-jest: "npm:^29.7.0"
     fast-deep-equal: "npm:^3.1.3"
     jest: "npm:^29.7.0"
@@ -16462,8 +16462,8 @@ __metadata:
     ts-toolbelt: "npm:^9.6.0"
     tslib: "npm:^2.6.2"
     typedoc: "npm:^0.25.4"
-    typescript: "npm:^5.3.2"
-    vite: "npm:^5.0.5"
+    typescript: "npm:^5.3.3"
+    vite: "npm:^5.0.6"
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
   languageName: unknown
@@ -16722,15 +16722,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^17.9.0":
-  version: 17.9.0
-  resolution: "netlify-cli@npm:17.9.0"
+"netlify-cli@npm:^17.10.0":
+  version: 17.10.0
+  resolution: "netlify-cli@npm:17.10.0"
   dependencies:
     "@bugsnag/js": "npm:7.20.2"
     "@fastify/static": "npm:6.10.2"
     "@netlify/blobs": "npm:6.3.1"
-    "@netlify/build": "npm:29.29.4"
-    "@netlify/build-info": "npm:7.11.1"
+    "@netlify/build": "npm:29.31.0"
+    "@netlify/build-info": "npm:7.11.3"
     "@netlify/config": "npm:20.10.0"
     "@netlify/edge-bundler": "npm:10.1.3"
     "@netlify/local-functions-proxy": "npm:1.1.1"
@@ -16840,7 +16840,7 @@ __metadata:
   bin:
     netlify: bin/run.js
     ntl: bin/run.js
-  checksum: 85a07019f999d939824b39f44ad07b228f86827b5bbef442aecab70eaf9d8d5e652f66bca6057a08c07dde5b662944ea8f4ade6566d25cdf10423060d9fa5d86
+  checksum: b42bb167f56a1181ac51682afa2ca60d340a33e9b96af279297096c30c3353b6931283c7cac985d1084e120ef12d3196b660301c33faf7087a2a3a1b63a72b00
   languageName: node
   linkType: hard
 
@@ -20063,11 +20063,11 @@ __metadata:
     eslint: "npm:^8.55.0"
     eslint-config-prettier: "npm:^9.1.0"
     eslint-config-react-app: "npm:^7.0.1"
-    netlify-cli: "npm:^17.9.0"
+    netlify-cli: "npm:^17.10.0"
     prettier: "npm:^3.1.0"
     prettier-plugin-organize-imports: "npm:^3.2.4"
     turbo: "npm:^1.11.0"
-    typescript: "npm:^5.3.2"
+    typescript: "npm:^5.3.3"
   languageName: unknown
   linkType: soft
 
@@ -20717,7 +20717,7 @@ __metadata:
     react-dom: "npm:^18.2.0"
     remotedev: "npm:^0.2.9"
     shx: "npm:^0.3.4"
-    typescript: "npm:^5.3.2"
+    typescript: "npm:^5.3.3"
     utf-8-validate: "npm:^5.0.10"
   languageName: unknown
   linkType: soft
@@ -22358,23 +22358,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.0.0, typescript@npm:^5.0.4, typescript@npm:^5.3.2":
-  version: 5.3.2
-  resolution: "typescript@npm:5.3.2"
+"typescript@npm:^5.0.0, typescript@npm:^5.0.4, typescript@npm:^5.3.3":
+  version: 5.3.3
+  resolution: "typescript@npm:5.3.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: d7dbe1fbe19039e36a65468ea64b5d338c976550394ba576b7af9c68ed40c0bc5d12ecce390e4b94b287a09a71bd3229f19c2d5680611f35b7c53a3898791159
+  checksum: e33cef99d82573624fc0f854a2980322714986bc35b9cb4d1ce736ed182aeab78e2cb32b385efa493b2a976ef52c53e20d6c6918312353a91850e2b76f1ea44f
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.0.0#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.0.4#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.3.2#optional!builtin<compat/typescript>":
-  version: 5.3.2
-  resolution: "typescript@patch:typescript@npm%3A5.3.2#optional!builtin<compat/typescript>::version=5.3.2&hash=e012d7"
+"typescript@patch:typescript@npm%3A^5.0.0#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.0.4#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.3.3#optional!builtin<compat/typescript>":
+  version: 5.3.3
+  resolution: "typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 73c8bad74e732d93211c9d77f28b03307e2f5fc6a0afc73f4b783261ab567686a16d6ae958bdaef383a00be1b0b8c8b6741dd6ca3d13af4963fa7e47456d49c7
+  checksum: 1d0a5f4ce496c42caa9a30e659c467c5686eae15d54b027ee7866744952547f1be1262f2d40de911618c242b510029d51d43ff605dba8fb740ec85ca2d3f9500
   languageName: node
   linkType: hard
 
@@ -23108,9 +23108,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^5.0.5":
-  version: 5.0.5
-  resolution: "vite@npm:5.0.5"
+"vite@npm:^5.0.6":
+  version: 5.0.6
+  resolution: "vite@npm:5.0.6"
   dependencies:
     esbuild: "npm:^0.19.3"
     fsevents: "npm:~2.3.3"
@@ -23144,7 +23144,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 22fbaacbc87eff7d1de46104880c5d269d3bb2964957e9d13edaac819e6a90b5ce2567b5d0ba8c92a7bd5bcf0412ae7d22ce958047490931fbb466b1908ff17c
+  checksum: 5c0f29e81865c8a4992d7a13a9c736b79a6caa4cdd98ade73ab5923e928818dddc23a954c99a3e1de5d59a0e004e7e86344c18a955e6d06194d7e394d7027e20
   languageName: node
   linkType: hard
 
