@@ -81,10 +81,6 @@ const config = {
         style: "dark",
         copyright: `Copyright © ${new Date().getFullYear()} Javier González Garcés`,
       },
-      prism: {
-        theme: require("prism-react-renderer/themes/github"),
-        darkTheme: require("prism-react-renderer/themes/palenight"),
-      },
       docs: {
         sidebar: {
           hideable: true,
