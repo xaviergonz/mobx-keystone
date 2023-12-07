@@ -1,10 +1,9 @@
-// @ts-check
-// Note: type annotations allow type checking and IDEs autocompletion
+import type { Config } from "@docusaurus/types"
+import type * as Preset from "@docusaurus/preset-classic"
 
 const docsRouteBasePath = "/"
 
-/** @type {import('@docusaurus/types').Config} */
-const config = {
+const config: Config = {
   title: "mobx-keystone",
   tagline:
     "A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more",
@@ -18,8 +17,7 @@ const config = {
   presets: [
     [
       "@docusaurus/preset-classic",
-      /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           editUrl: "https://github.com/xaviergonz/mobx-keystone/edit/master/apps/site/",
@@ -31,7 +29,7 @@ const config = {
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
-      }),
+      } satisfies Preset.Options,
     ],
   ],
   plugins: [
@@ -47,46 +45,44 @@ const config = {
     ],
   ],
 
-  themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
-      navbar: {
-        style: "dark",
-        title: "mobx-keystone",
-        logo: {
-          alt: "mobx-keystone",
-          src: "img/logo.png",
+  themeConfig: {
+    navbar: {
+      style: "dark",
+      title: "mobx-keystone",
+      logo: {
+        alt: "mobx-keystone",
+        src: "img/logo.png",
+      },
+      items: [
+        {
+          type: "doc",
+          docId: "intro",
+          position: "right",
+          label: "Documentation",
         },
-        items: [
-          {
-            type: "doc",
-            docId: "intro",
-            position: "right",
-            label: "Documentation",
-          },
-          {
-            href: "/api/",
-            target: "_blank",
-            label: "API",
-            position: "right",
-          },
-          {
-            href: "https://github.com/xaviergonz/mobx-keystone",
-            label: "GitHub",
-            position: "right",
-          },
-        ],
-      },
-      footer: {
-        style: "dark",
-        copyright: `Copyright © ${new Date().getFullYear()} Javier González Garcés`,
-      },
-      docs: {
-        sidebar: {
-          hideable: true,
+        {
+          href: "/api/",
+          target: "_blank",
+          label: "API",
+          position: "right",
         },
+        {
+          href: "https://github.com/xaviergonz/mobx-keystone",
+          label: "GitHub",
+          position: "right",
+        },
+      ],
+    },
+    footer: {
+      style: "dark",
+      copyright: `Copyright © ${new Date().getFullYear()} Javier González Garcés`,
+    },
+    docs: {
+      sidebar: {
+        hideable: true,
       },
-    }),
+    },
+  } satisfies Preset.ThemeConfig,
 }
 
 module.exports = config
