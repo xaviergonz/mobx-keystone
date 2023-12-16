@@ -25,7 +25,10 @@ export class InternalPatchRecorder {
   }
 
   emit(obj: object) {
-    emitPatch(obj, this.patches, this.invPatches, true)
+    if (this.patches.length > 0 || this.invPatches.length > 0) {
+      emitGlobalPatch(obj, this.patches, this.invPatches)
+      emitPatch(obj, this.patches, this.invPatches)
+    }
     this.reset()
   }
 }
@@ -99,49 +102,55 @@ export function onGlobalPatches(listener: OnGlobalPatchesListener): OnPatchesDis
   }
 }
 
-function emitPatch(
-  obj: object,
-  patches: Patch[],
-  inversePatches: Patch[],
-  emitGlobally: boolean
-): void {
-  if (patches.length <= 0 && inversePatches.length <= 0) {
-    return
-  }
-
-  // first emit global listeners
-  if (emitGlobally) {
-    for (let i = 0; i < globalPatchListeners.length; i++) {
-      const listener = globalPatchListeners[i]
-      listener(obj, patches, inversePatches)
-    }
-  }
-
-  // then per subtree listeners
-  const listenersForObject = patchListeners.get(obj)
-  if (listenersForObject) {
-    for (let i = 0; i < listenersForObject.length; i++) {
-      const listener = listenersForObject[i]
-      listener(patches, inversePatches)
-    }
-  }
-
-  // and also emit subtree listeners all the way to the root
-  const parentPath = fastGetParentPath(obj)
-  if (parentPath) {
-    // tweak patches so they include the child path
-    const childPath = parentPath.path
-    const newPatches = patches.map((p) => addPathToPatch(p, childPath))
-    const newInversePatches = inversePatches.map((p) => addPathToPatch(p, childPath))
-
-    // false to avoid emitting global patches again for the same change
-    emitPatch(parentPath.parent, newPatches, newInversePatches, false)
+function emitGlobalPatch(obj: object, patches: Patch[], inversePatches: Patch[]): void {
+  for (let i = 0; i < globalPatchListeners.length; i++) {
+    const listener = globalPatchListeners[i]
+    listener(obj, patches, inversePatches)
   }
 }
 
-function addPathToPatch(patch: Patch, path: PathElement): Patch {
+function emitPatchForTarget(
+  obj: object,
+  patches: Patch[],
+  inversePatches: Patch[],
+  pathPrefix: PathElement[]
+): void {
+  const listenersForObject = patchListeners.get(obj)
+
+  if (!listenersForObject || listenersForObject.length === 0) {
+    return
+  }
+
+  const fixPath = (patchesArray: Patch[]) =>
+    pathPrefix.length > 0 ? patchesArray.map((p) => addPathToPatch(p, pathPrefix)) : patchesArray
+
+  const patchesWithPathPrefix = fixPath(patches)
+  const invPatchesWithPathPrefix = fixPath(inversePatches)
+
+  for (let i = 0; i < listenersForObject.length; i++) {
+    const listener = listenersForObject[i]
+    listener(patchesWithPathPrefix, invPatchesWithPathPrefix)
+  }
+}
+
+function emitPatch(obj: object, patches: Patch[], inversePatches: Patch[]): void {
+  const pathPrefix: PathElement[] = []
+
+  emitPatchForTarget(obj, patches, inversePatches, pathPrefix)
+
+  // and also emit subtree listeners all the way to the root
+  let parentPath = fastGetParentPath(obj)
+  while (parentPath) {
+    pathPrefix.unshift(parentPath.path)
+    emitPatchForTarget(parentPath.parent, patches, inversePatches, pathPrefix)
+
+    parentPath = fastGetParentPath(parentPath.parent)
+  }
+}
+
+function addPathToPatch(patch: Patch, pathPrefix: readonly PathElement[]): Patch {
   return {
     ...patch,
-    path: [path, ...patch.path],
+    path: [...pathPrefix, ...patch.path],
   }
 }
