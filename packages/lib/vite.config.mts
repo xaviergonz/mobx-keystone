@@ -9,7 +9,7 @@ export default defineConfig({
     target: "node10",
     lib: {
       entry: resolvePath("./src/index.ts"),
-      name: "mobxKeystone",
+      name: "mobx-keystone",
     },
     sourcemap: "inline",
     minify: false,

@@ -2,6 +2,7 @@ node_modules
 /.idea
 /*.log
 .turbo
+/**/.DS_Store
 
 .yarn/*
 !.yarn/patches

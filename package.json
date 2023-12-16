@@ -16,7 +16,7 @@
     "lint": "turbo run lint"
   },
   "workspaces": [
-    "packages/lib",
+    "packages/*",
     "apps/site",
     "apps/benchmark"
   ],
