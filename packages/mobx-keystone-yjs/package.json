@@ -59,7 +59,9 @@
     "lint": "cd ../.. && yarn eslint \"packages/mobx-keystone-yjs/src/**/*.ts\" \"packages/mobx-keystone-yjs/test/**/*.ts\""
   },
   "peerDependencies": {
-    "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0"
+    "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0",
+    "mobx-keystone": "^1.0.0",
+    "yjs": "^13.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
@@ -74,7 +76,8 @@
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10"
+    "vite": "^5.0.10",
+    "yjs": "^13.0.0"
   },
   "dependencies": {
     "tslib": "^2.6.2"

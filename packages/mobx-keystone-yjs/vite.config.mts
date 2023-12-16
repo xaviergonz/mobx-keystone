@@ -28,6 +28,7 @@ export default defineConfig({
           globals: {
             mobx: "mobx",
             "mobx-keystone": "mobx-keystone",
+            yjs: "yjs",
           },
         },
       ],
