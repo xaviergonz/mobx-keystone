@@ -1,4 +1,6 @@
-const { mobxVersion, compiler } = require("./env")
+import type { Config } from "jest"
+
+import { mobxVersion, compiler } from "./env"
 
 const tsconfigFiles = {
   6: compiler === "tsc" ? "tsconfig.json" : "tsconfig.experimental-decorators.json",
@@ -15,11 +17,12 @@ const mobxModuleNames = {
 const tsconfigFile = tsconfigFiles[mobxVersion]
 const mobxModuleName = mobxModuleNames[mobxVersion]
 
-const config = {
+const config: Config = {
   setupFilesAfterEnv: ["./test/commonSetup.ts"],
   moduleNameMapper: {
     "^mobx$": mobxModuleName,
   },
+  prettierPath: null,
 }
 
 switch (compiler) {
@@ -49,4 +52,4 @@ switch (compiler) {
     throw new Error("$COMPILER must be one of {tsc,tsc-experimental-decorators,babel,swc}")
 }
 
-module.exports = config
+export default config

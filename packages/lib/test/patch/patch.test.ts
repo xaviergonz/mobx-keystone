@@ -1,5 +1,6 @@
 import {
   applyPatches,
+  applySnapshot,
   getSnapshot,
   idProp,
   Model,
@@ -816,6 +817,75 @@ describe("onPatches and applyPatches", () => {
         ],
       ]
     `)
+
+    expect(p2Patches).toMatchInlineSnapshot(`[]`)
+
+    expect(p2InvPatches).toMatchInlineSnapshot(`[]`)
+
+    expectSameSnapshotOnceReverted()
+  })
+
+  test("reconciliation should generate patches", () => {
+    const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
+      setup(true)
+
+    applySnapshot(p, { ...getSnapshot(p), x: 10, arr: [1] })
+
+    expect(pPatches).toMatchInlineSnapshot(`
+[
+  [
+    {
+      "op": "replace",
+      "path": [
+        "arr",
+        "length",
+      ],
+      "value": 1,
+    },
+  ],
+  [
+    {
+      "op": "replace",
+      "path": [
+        "x",
+      ],
+      "value": 10,
+    },
+  ],
+]
+`)
+
+    expect(pInvPatches).toMatchInlineSnapshot(`
+[
+  [
+    {
+      "op": "add",
+      "path": [
+        "arr",
+        2,
+      ],
+      "value": 3,
+    },
+    {
+      "op": "add",
+      "path": [
+        "arr",
+        1,
+      ],
+      "value": 2,
+    },
+  ],
+  [
+    {
+      "op": "replace",
+      "path": [
+        "x",
+      ],
+      "value": 5,
+    },
+  ],
+]
+`)
 
     expect(p2Patches).toMatchInlineSnapshot(`[]`)
 
