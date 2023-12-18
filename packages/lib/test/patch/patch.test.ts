@@ -6,6 +6,7 @@ import {
   Model,
   modelAction,
   modelIdKey,
+  onGlobalPatches,
   onPatches,
   Patch,
   prop,
@@ -39,6 +40,13 @@ describe("onPatches and applyPatches", () => {
       })
     )
 
+    const globalPatchesCalls: { target: object; patches: Patch[]; inversePatches: Patch[] }[] = []
+    autoDispose(
+      onGlobalPatches((target, patches, inversePatches) => {
+        globalPatchesCalls.push({ target, patches, inversePatches })
+      })
+    )
+
     function expectSameSnapshotOnceReverted() {
       runUnprotected(() => {
         pInvPatches
@@ -57,6 +65,7 @@ describe("onPatches and applyPatches", () => {
       p2Patches,
       p2InvPatches,
       expectSameSnapshotOnceReverted,
+      globalPatchesCalls,
     }
   }
 
@@ -832,66 +841,120 @@ describe("onPatches and applyPatches", () => {
     applySnapshot(p, { ...getSnapshot(p), x: 10, arr: [1] })
 
     expect(pPatches).toMatchInlineSnapshot(`
-[
-  [
-    {
-      "op": "replace",
-      "path": [
-        "arr",
-        "length",
-      ],
-      "value": 1,
-    },
-  ],
-  [
-    {
-      "op": "replace",
-      "path": [
-        "x",
-      ],
-      "value": 10,
-    },
-  ],
-]
-`)
+      [
+        [
+          {
+            "op": "replace",
+            "path": [
+              "arr",
+              "length",
+            ],
+            "value": 1,
+          },
+        ],
+        [
+          {
+            "op": "replace",
+            "path": [
+              "x",
+            ],
+            "value": 10,
+          },
+        ],
+      ]
+    `)
 
     expect(pInvPatches).toMatchInlineSnapshot(`
-[
-  [
-    {
-      "op": "add",
-      "path": [
-        "arr",
-        2,
-      ],
-      "value": 3,
-    },
-    {
-      "op": "add",
-      "path": [
-        "arr",
-        1,
-      ],
-      "value": 2,
-    },
-  ],
-  [
-    {
-      "op": "replace",
-      "path": [
-        "x",
-      ],
-      "value": 5,
-    },
-  ],
-]
-`)
+      [
+        [
+          {
+            "op": "add",
+            "path": [
+              "arr",
+              2,
+            ],
+            "value": 3,
+          },
+          {
+            "op": "add",
+            "path": [
+              "arr",
+              1,
+            ],
+            "value": 2,
+          },
+        ],
+        [
+          {
+            "op": "replace",
+            "path": [
+              "x",
+            ],
+            "value": 5,
+          },
+        ],
+      ]
+    `)
 
     expect(p2Patches).toMatchInlineSnapshot(`[]`)
 
     expect(p2InvPatches).toMatchInlineSnapshot(`[]`)
 
     expectSameSnapshotOnceReverted()
+  })
+
+  test("global patches are emitted", () => {
+    const { p, globalPatchesCalls } = setup(true)
+
+    runUnprotected(() => {
+      p.x++
+    })
+
+    expect(globalPatchesCalls).toMatchInlineSnapshot(`
+      [
+        {
+          "inversePatches": [
+            {
+              "op": "replace",
+              "path": [
+                "x",
+              ],
+              "value": 5,
+            },
+          ],
+          "patches": [
+            {
+              "op": "replace",
+              "path": [
+                "x",
+              ],
+              "value": 6,
+            },
+          ],
+          "target": P {
+            "$": {
+              "$modelId": "id-2",
+              "arr": [
+                1,
+                2,
+                3,
+              ],
+              "p2": P2 {
+                "$": {
+                  "$modelId": "id-1",
+                  "y": 12,
+                },
+                "$modelType": "P2",
+              },
+              "x": 6,
+            },
+            "$modelType": "P",
+            "boundAction": [Function],
+            "boundNonAction": [Function],
+          },
+        },
+      ]
+    `)
   })
 })
 
