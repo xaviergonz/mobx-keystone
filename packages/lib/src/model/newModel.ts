@@ -143,7 +143,7 @@ export const internalNewModel = action(
 
     if (mode === "fromSnapshot") {
       // also emit a patch for modelType, since it will get included in the snapshot
-      const initialModelType = snapshotInitialData?.unprocessedSnapshot[modelTypeKey]
+      const initialModelType = snapshotInitialData?.unprocessedModelType
       const newModelType = modelInfo.name
       if (initialModelType !== newModelType) {
         const modelTypePath = [modelTypeKey]
