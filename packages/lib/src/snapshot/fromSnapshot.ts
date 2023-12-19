@@ -53,23 +53,8 @@ export interface FromSnapshotContext {
  * @param options Options.
  * @returns The deserialized object.
  */
-export function fromSnapshot<M extends AnyModel | AnyDataModel>(
-  type: ModelClass<M>,
-  snapshot: SnapshotInOf<M>,
-  options?: Partial<FromSnapshotOptions>
-): M
-
-/**
- * Given a type deserializes a data structure from its snapshot form.
- *
- * @typeparam TType Object type.
- * @param type Type.
- * @param snapshot Snapshot, even if a primitive.
- * @param options Options.
- * @returns The deserialized object.
- */
 export function fromSnapshot<
-  TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
+  TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>
 >(
   type: TType,
   snapshot: SnapshotInOf<TypeToData<TType>>,
