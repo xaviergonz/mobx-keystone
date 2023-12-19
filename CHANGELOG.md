@@ -1,8 +1,8 @@
 # Change Log
 
-## 1.7.2
+## 1.8.0
 
-- Fixed a bug where `onGlobalPatches` was not being called for new models whenever the initial snapshot values where overridden by defaults or missing IDs.
+- `onGlobalPatches` will now get called for new models whenever the initial snapshot values where overridden by defaults or missing IDs.
 
 ## 1.7.1
 
