@@ -1166,8 +1166,9 @@ test("patches should be generated when defaults are applied to a new model snaps
   new P2({})
 
   expect(globalPatchesCalls).toMatchInlineSnapshot(`[]`)
+  globalPatchesCalls.length = 0
 
-  // should result in one patch for y
+  // should result in one patch for y and other for modelType
   fromSnapshot(P2, { [modelIdKey]: "id-1" })
 
   expect(globalPatchesCalls).toMatchInlineSnapshot(`
@@ -1180,6 +1181,12 @@ test("patches should be generated when defaults are applied to a new model snaps
           "y",
         ],
       },
+      {
+        "op": "remove",
+        "path": [
+          "$modelType",
+        ],
+      },
     ],
     "patches": [
       {
@@ -1188,6 +1195,13 @@ test("patches should be generated when defaults are applied to a new model snaps
           "y",
         ],
         "value": 10,
+      },
+      {
+        "op": "add",
+        "path": [
+          "$modelType",
+        ],
+        "value": "P2",
       },
     ],
     "target": P2 {

@@ -32,6 +32,12 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   return new (modelInfo.class as any)(undefined, {
     snapshotInitialData: {
       unprocessedSnapshot: sn,
+      unprocessedModelType:
+        typeof ctx.untypedSnapshot === "object" &&
+        ctx.untypedSnapshot &&
+        modelTypeKey in ctx.untypedSnapshot
+          ? ctx.untypedSnapshot[modelTypeKey]
+          : undefined,
       snapshotToInitialData: ctx.snapshotToInitialData,
     },
     generateNewIds: ctx.options.generateNewIds,

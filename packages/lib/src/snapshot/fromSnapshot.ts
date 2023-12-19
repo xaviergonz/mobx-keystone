@@ -42,6 +42,7 @@ export interface FromSnapshotOptions {
 export interface FromSnapshotContext {
   options: FromSnapshotOptions
   snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any
+  untypedSnapshot: unknown
 }
 
 /**
@@ -54,7 +55,7 @@ export interface FromSnapshotContext {
  * @returns The deserialized object.
  */
 export function fromSnapshot<
-  TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>
+  TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
 >(
   type: TType,
   snapshot: SnapshotInOf<TypeToData<TType>>,
@@ -76,23 +77,32 @@ export function fromSnapshot<T>(
 
 export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
   let snapshot: any
+  let unprocessedSnapshot: unknown
   let options: Partial<FromSnapshotOptions> | undefined
 
   if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || isModelClass(arg1)) {
     const typeChecker = resolveTypeChecker(arg1)
-    snapshot = typeChecker.fromSnapshotProcessor ? typeChecker.fromSnapshotProcessor(arg2) : arg2
+    unprocessedSnapshot = arg2
+    snapshot = typeChecker.fromSnapshotProcessor
+      ? typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
+      : unprocessedSnapshot
     options = arg3
   } else {
     snapshot = arg1
+    unprocessedSnapshot = snapshot
     options = arg2
   }
 
-  return fromSnapshotAction(snapshot, options)
+  return fromSnapshotAction(snapshot, unprocessedSnapshot, options)
 }
 
 const fromSnapshotAction = action(
   "fromSnapshot",
-  <T>(snapshot: SnapshotInOf<T>, options?: Partial<FromSnapshotOptions>): T => {
+  <T>(
+    snapshot: SnapshotInOf<T>,
+    unprocessedSnapshot: unknown,
+    options: Partial<FromSnapshotOptions> | undefined
+  ): T => {
     const opts = {
       generateNewIds: false,
       overrideRootModelId: undefined,
@@ -101,6 +111,7 @@ const fromSnapshotAction = action(
 
     const ctx: Partial<FromSnapshotContext> = {
       options: opts,
+      untypedSnapshot: unprocessedSnapshot,
     }
     ctx.snapshotToInitialData = snapshotToInitialData.bind(undefined, ctx as FromSnapshotContext)
 
