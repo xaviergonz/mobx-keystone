@@ -14,7 +14,7 @@ import {
   runUnprotected,
   unregisterRootStore,
 } from "../../src"
-import { createP } from "../testbed"
+import { createP, P2 } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 
 describe("onPatches and applyPatches", () => {
@@ -1150,4 +1150,104 @@ test("patches with action in onAttachedToRootStore", () => {
       .forEach((invpatches) => applyPatches(r, invpatches, true))
   })
   expect(getSnapshot(r)).toStrictEqual(sn)
+})
+
+test("patches should be generated when defaults are applied to a new model snapshot", () => {
+  const globalPatchesCalls: { target: object; patches: Patch[]; inversePatches: Patch[] }[] = []
+  autoDispose(
+    onGlobalPatches((target, patches, inversePatches) => {
+      globalPatchesCalls.push({ target, patches, inversePatches })
+    })
+  )
+
+  // should result in one patch for y and another one for modelId
+  new P2({})
+
+  expect(globalPatchesCalls).toMatchInlineSnapshot(`
+    [
+      {
+        "inversePatches": [
+          {
+            "op": "remove",
+            "path": [
+              "y",
+            ],
+          },
+          {
+            "op": "remove",
+            "path": [
+              "$modelId",
+            ],
+          },
+        ],
+        "patches": [
+          {
+            "op": "add",
+            "path": [
+              "y",
+            ],
+            "value": 10,
+          },
+          {
+            "op": "add",
+            "path": [
+              "$modelId",
+            ],
+            "value": "id-1",
+          },
+        ],
+        "target": P2 {
+          "$": {
+            "$modelId": "id-1",
+            "y": 10,
+          },
+          "$modelType": "P2",
+        },
+      },
+    ]
+  `)
+
+  globalPatchesCalls.length = 0
+
+  // should result no patches
+  new P2({ y: 10, $modelId: "id-1" })
+
+  expect(globalPatchesCalls).toMatchInlineSnapshot(`[]`)
+
+  globalPatchesCalls.length = 0
+
+  // should result in one patch for modelId
+
+  new P2({ y: 11 })
+
+  expect(globalPatchesCalls).toMatchInlineSnapshot(`
+    [
+      {
+        "inversePatches": [
+          {
+            "op": "remove",
+            "path": [
+              "$modelId",
+            ],
+          },
+        ],
+        "patches": [
+          {
+            "op": "add",
+            "path": [
+              "$modelId",
+            ],
+            "value": "id-2",
+          },
+        ],
+        "target": P2 {
+          "$": {
+            "$modelId": "id-2",
+            "y": 11,
+          },
+          "$modelType": "P2",
+        },
+      },
+    ]
+  `)
 })
