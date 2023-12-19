@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.8.1
+
+- Fix so `onGlobalPatches` only generates the patches for new models when they are generated via `fromSnapshot`.
+
 ## 1.8.0
 
 - `onGlobalPatches` will now get called for new models whenever the initial snapshot values where overridden by defaults or missing IDs.
