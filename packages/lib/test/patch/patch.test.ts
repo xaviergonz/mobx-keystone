@@ -1,11 +1,13 @@
 import {
   applyPatches,
   applySnapshot,
+  fromSnapshot,
   getSnapshot,
   idProp,
   Model,
   modelAction,
   modelIdKey,
+  modelTypeKey,
   onGlobalPatches,
   onPatches,
   Patch,
@@ -1160,94 +1162,51 @@ test("patches should be generated when defaults are applied to a new model snaps
     })
   )
 
-  // should result in one patch for y and another one for modelId
+  // new never generates patches
   new P2({})
 
+  expect(globalPatchesCalls).toMatchInlineSnapshot(`[]`)
+
+  // should result in one patch for y
+  fromSnapshot(P2, { [modelIdKey]: "id-1" })
+
   expect(globalPatchesCalls).toMatchInlineSnapshot(`
-    [
+[
+  {
+    "inversePatches": [
       {
-        "inversePatches": [
-          {
-            "op": "remove",
-            "path": [
-              "y",
-            ],
-          },
-          {
-            "op": "remove",
-            "path": [
-              "$modelId",
-            ],
-          },
+        "op": "remove",
+        "path": [
+          "y",
         ],
-        "patches": [
-          {
-            "op": "add",
-            "path": [
-              "y",
-            ],
-            "value": 10,
-          },
-          {
-            "op": "add",
-            "path": [
-              "$modelId",
-            ],
-            "value": "id-1",
-          },
-        ],
-        "target": P2 {
-          "$": {
-            "$modelId": "id-1",
-            "y": 10,
-          },
-          "$modelType": "P2",
-        },
       },
-    ]
-  `)
+    ],
+    "patches": [
+      {
+        "op": "add",
+        "path": [
+          "y",
+        ],
+        "value": 10,
+      },
+    ],
+    "target": P2 {
+      "$": {
+        "$modelId": "id-1",
+        "y": 10,
+      },
+      "$modelType": "P2",
+    },
+  },
+]
+`)
 
   globalPatchesCalls.length = 0
 
   // should result no patches
-  new P2({ y: 10, $modelId: "id-1" })
+  fromSnapshot(P2, { y: 10, $modelId: "id-1", [modelTypeKey]: "P2" })
 
   expect(globalPatchesCalls).toMatchInlineSnapshot(`[]`)
 
   globalPatchesCalls.length = 0
-
-  // should result in one patch for modelId
-
-  new P2({ y: 11 })
-
-  expect(globalPatchesCalls).toMatchInlineSnapshot(`
-    [
-      {
-        "inversePatches": [
-          {
-            "op": "remove",
-            "path": [
-              "$modelId",
-            ],
-          },
-        ],
-        "patches": [
-          {
-            "op": "add",
-            "path": [
-              "$modelId",
-            ],
-            "value": "id-2",
-          },
-        ],
-        "target": P2 {
-          "$": {
-            "$modelId": "id-2",
-            "y": 11,
-          },
-          "$modelType": "P2",
-        },
-      },
-    ]
-  `)
 })

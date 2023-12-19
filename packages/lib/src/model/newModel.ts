@@ -120,7 +120,7 @@ export const internalNewModel = action(
         // setIfDifferent not required
         set(initialData!, k, newValue)
 
-        if (newValue !== initialValue) {
+        if (mode === "fromSnapshot" && newValue !== initialValue) {
           const propPath = [k]
 
           patches.push(createPatchForObjectValueChange(propPath, initialValue, newValue))
@@ -133,11 +133,25 @@ export const internalNewModel = action(
       const initialValue = initialData![modelIdPropertyName]
       const valueChanged = setIfDifferent(initialData, modelIdPropertyName, id)
 
-      if (valueChanged) {
+      if (valueChanged && mode === "fromSnapshot") {
         const modelIdPath = [modelIdPropertyName]
 
         patches.push(createPatchForObjectValueChange(modelIdPath, initialValue, id))
         inversePatches.push(createPatchForObjectValueChange(modelIdPath, id, initialValue))
+      }
+    }
+
+    if (mode === "fromSnapshot") {
+      // also emit a patch for modelType, since it will get included in the snapshot
+      const initialModelType = snapshotInitialData?.unprocessedSnapshot[modelTypeKey]
+      const newModelType = modelInfo.name
+      if (initialModelType !== newModelType) {
+        const modelTypePath = [modelTypeKey]
+
+        patches.push(createPatchForObjectValueChange(modelTypePath, initialModelType, newModelType))
+        inversePatches.push(
+          createPatchForObjectValueChange(modelTypePath, newModelType, initialModelType)
+        )
       }
     }
 
