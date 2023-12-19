@@ -14,6 +14,9 @@ import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
 import { modelTypeKey } from "./metadata"
 import { assertIsModelClass } from "./utils"
+import { setIfDifferent } from "../utils/setIfDifferent"
+import { Patch } from "../patch/Patch"
+import { emitPatches, createPatchForObjectValueChange } from "../patch/emitPatch"
 
 /**
  * @internal
@@ -76,6 +79,9 @@ export const internalNewModel = action(
 
     modelObj[modelTypeKey] = modelInfo.name
 
+    const patches: Patch[] = []
+    const inversePatches: Patch[] = []
+
     // fill in defaults in initial data
     const modelPropsKeys = Object.keys(modelProps)
     for (let i = 0; i < modelPropsKeys.length; i++) {
@@ -88,7 +94,8 @@ export const internalNewModel = action(
 
       const propData = modelProps[k]
 
-      let newValue = initialData![k]
+      const initialValue = initialData![k]
+      let newValue = initialValue
       let changed = false
 
       // apply untransform (if any) if not in snapshot mode
@@ -111,13 +118,27 @@ export const internalNewModel = action(
 
       if (changed) {
         // setIfDifferent not required
-        set(initialData as any, k, newValue)
+        set(initialData!, k, newValue)
+
+        if (newValue !== initialValue) {
+          const propPath = [k]
+
+          patches.push(createPatchForObjectValueChange(propPath, initialValue, newValue))
+          inversePatches.push(createPatchForObjectValueChange(propPath, newValue, initialValue))
+        }
       }
     }
 
     if (modelIdPropertyName) {
-      // setIfDifferent not required
-      set(initialData as any, modelIdPropertyName, id)
+      const initialValue = initialData![modelIdPropertyName]
+      const valueChanged = setIfDifferent(initialData, modelIdPropertyName, id)
+
+      if (valueChanged) {
+        const modelIdPath = [modelIdPropertyName]
+
+        patches.push(createPatchForObjectValueChange(modelIdPath, initialValue, id))
+        inversePatches.push(createPatchForObjectValueChange(modelIdPath, id, initialValue))
+      }
     }
 
     tweakModel(modelObj, undefined)
@@ -137,6 +158,8 @@ export const internalNewModel = action(
 
     // run any extra initializers for the class as needed
     applyModelInitializers(modelClass, modelObj)
+
+    emitPatches(modelObj, patches, inversePatches)
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {

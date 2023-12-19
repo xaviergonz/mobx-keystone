@@ -25,11 +25,18 @@ export class InternalPatchRecorder {
   }
 
   emit(obj: object) {
-    if (this.patches.length > 0 || this.invPatches.length > 0) {
-      emitGlobalPatch(obj, this.patches, this.invPatches)
-      emitPatch(obj, this.patches, this.invPatches)
-    }
+    emitPatches(obj, this.patches, this.invPatches)
     this.reset()
+  }
+}
+
+/**
+ * @internal
+ */
+export function emitPatches(obj: object, patches: Patch[], invPatches: Patch[]): void {
+  if (patches.length > 0 || invPatches.length > 0) {
+    emitGlobalPatch(obj, patches, invPatches)
+    emitPatch(obj, patches, invPatches)
   }
 }
 
@@ -153,4 +160,27 @@ function addPathToPatch(patch: Patch, pathPrefix: readonly PathElement[]): Patch
     ...patch,
     path: [...pathPrefix, ...patch.path],
   }
+}
+
+/**
+ * @internal
+ */
+export function createPatchForObjectValueChange(
+  path: readonly PathElement[],
+  oldValue: unknown,
+  newValue: unknown
+): Patch {
+  return newValue === undefined
+    ? { op: "remove", path }
+    : oldValue === undefined
+      ? {
+          op: "add",
+          path,
+          value: newValue,
+        }
+      : {
+          op: "replace",
+          path,
+          value: newValue,
+        }
 }

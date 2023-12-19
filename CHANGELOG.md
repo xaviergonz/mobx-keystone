@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.7.2
+
+- Fixed a bug where `onGlobalPatches` was not being called for new models whenever the initial snapshot values where overridden by defaults or missing IDs.
+
 ## 1.7.1
 
 - Performance improvements when using the "new" non-experimental standard decorators: do not use class proxies.
