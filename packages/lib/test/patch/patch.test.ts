@@ -14,6 +14,8 @@ import {
   prop,
   registerRootStore,
   runUnprotected,
+  tProp,
+  types,
   unregisterRootStore,
 } from "../../src"
 import { createP, P2 } from "../testbed"
@@ -1223,4 +1225,47 @@ test("patches should be generated when defaults are applied to a new model snaps
   expect(globalPatchesCalls).toMatchInlineSnapshot(`[]`)
 
   globalPatchesCalls.length = 0
+})
+
+test("global patches should not include $ in their path", () => {
+  @testModel("SubModel")
+  class SubModel extends Model({
+    primitive: tProp(types.number, 0),
+  }) {}
+
+  @testModel("ParentModel")
+  class ParentModel extends Model({
+    submodel: tProp(SubModel, () => new SubModel({})),
+  }) {}
+
+  let globalPatches: Patch[] = []
+  const disposeOnGlobalPatches = onGlobalPatches((_, p) => {
+    globalPatches.push(...p)
+  })
+  autoDispose(() => disposeOnGlobalPatches())
+
+  fromSnapshot(ParentModel, {})
+
+  expect(globalPatches).toMatchInlineSnapshot(`
+    [
+      {
+        "op": "add",
+        "path": [
+          "submodel",
+        ],
+        "value": {
+          "$modelType": "global patches should not include $ in their path/SubModel",
+          "primitive": 0,
+        },
+      },
+      {
+        "op": "add",
+        "path": [
+          "$modelType",
+        ],
+        "value": "global patches should not include $ in their path/ParentModel",
+      },
+    ]
+  `)
+  globalPatches = []
 })

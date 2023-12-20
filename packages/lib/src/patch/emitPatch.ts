@@ -2,8 +2,9 @@ import { action, isAction } from "mobx"
 import { fastGetParentPath } from "../parent/path"
 import type { PathElement } from "../parent/pathTypes"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsFunction, deleteFromArray } from "../utils"
+import { assertIsFunction, deleteFromArray, isPrimitive } from "../utils"
 import type { Patch } from "./Patch"
+import { freezeInternalSnapshot, getInternalSnapshot } from "../snapshot/internal"
 
 const emptyPatchArray: Patch[] = []
 
@@ -162,6 +163,9 @@ function addPathToPatch(patch: Patch, pathPrefix: readonly PathElement[]): Patch
   }
 }
 
+const getValueSnapshotForPatch = (v: unknown) =>
+  isPrimitive(v) ? v : freezeInternalSnapshot(getInternalSnapshot(v as object)!.transformed)
+
 /**
  * @internal
  */
@@ -176,11 +180,11 @@ export function createPatchForObjectValueChange(
       ? {
           op: "add",
           path,
-          value: newValue,
+          value: getValueSnapshotForPatch(newValue),
         }
       : {
           op: "replace",
           path,
-          value: newValue,
+          value: getValueSnapshotForPatch(newValue),
         }
 }
