@@ -3,6 +3,7 @@
 ## 1.8.1
 
 - Fix so `onGlobalPatches` only generates the patches for new models when they are generated via `fromSnapshot`.
+- Fix so new `onGlobalPatches` pathes won't include '$' in their paths.
 
 ## 1.8.0
 
