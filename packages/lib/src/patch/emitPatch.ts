@@ -163,8 +163,17 @@ function addPathToPatch(patch: Patch, pathPrefix: readonly PathElement[]): Patch
   }
 }
 
-const getValueSnapshotForPatch = (v: unknown) =>
-  isPrimitive(v) ? v : freezeInternalSnapshot(getInternalSnapshot(v as object)!.transformed)
+const getValueSnapshotForPatch = (v: unknown) => {
+  if (isPrimitive(v)) {
+    return v
+  }
+  const internalSnapshot = getInternalSnapshot(v as object)
+  if (!internalSnapshot) {
+    // probably a plain value
+    return v
+  }
+  return freezeInternalSnapshot(internalSnapshot.transformed)
+}
 
 /**
  * @internal
