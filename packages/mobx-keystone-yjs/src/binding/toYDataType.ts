@@ -1,12 +1,5 @@
-import Y from "yjs"
-
-type JSONPrimitive = string | number | boolean | null
-
-type JSONValue = JSONPrimitive | JSONObject | JSONArray
-
-type JSONObject = { [member: string]: JSONValue }
-
-interface JSONArray extends Array<JSONValue> {}
+import * as Y from "yjs"
+import { JSONValue, JSONArray, JSONObject, JSONPrimitive } from "../jsonTypes"
 
 function isJSONPrimitive(v: JSONValue): v is JSONPrimitive {
   const t = typeof v

@@ -1,18 +1,20 @@
 import {
-  AnyModel,
   AnyDataModel,
+  AnyModel,
+  AnyStandardType,
   ModelClass,
   Patch,
-  onGlobalPatches,
+  TypeToData,
+  applyPatches,
   fromSnapshot,
+  getParentToChildPath,
+  onGlobalPatches,
   onPatches,
   onSnapshot,
-  getParentToChildPath,
-  TypeToData,
-  AnyStandardType,
 } from "mobx-keystone"
-import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
 import * as Y from "yjs"
+import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
+import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
 
 export function bindYjsToMobxKeystone<
   TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
@@ -46,12 +48,26 @@ export function bindYjsToMobxKeystone<
   let applyingYjsChanges = 0
   let applyingMobxKeystoneChanges = 0
 
-  // TODO: bind any changes from yjs to mobx-keystone
-  /* yjsModel.observeDeep((events) => {
+  // bind any changes from yjs to mobx-keystone
+  const observeDeepCb = (events: Y.YEvent<any>[]) => {
+    if (applyingYjsChanges > 0) {
+      return
+    }
+
+    const patches: Patch[] = []
     events.forEach((event) => {
-      convertYjsEventToJsonPatch(event)
+      patches.push(...convertYjsEventToPatches(event))
     })
-  }) */
+
+    applyingMobxKeystoneChanges++
+    try {
+      applyPatches(boundObject, patches)
+    } finally {
+      applyingMobxKeystoneChanges--
+    }
+  }
+
+  yjsObject.observeDeep(observeDeepCb)
 
   // bind any changes from mobx-keystone to yjs
   let pendingPatches: Patch[] = []
@@ -68,22 +84,22 @@ export function bindYjsToMobxKeystone<
     const patches = pendingPatches
     pendingPatches = []
 
-    yjsDoc.transact(() => {
-      applyingYjsChanges++
-      try {
+    applyingYjsChanges++
+    try {
+      yjsDoc.transact(() => {
         patches.forEach((patch) => {
           applyMobxKeystonePatchToYjsObject(patch, yjsObject)
         })
-      } finally {
-        applyingYjsChanges--
-      }
-    })
+      })
+    } finally {
+      applyingYjsChanges--
+    }
   })
 
   // sync initial patches, that might include setting defaults, IDs, etc
-  yjsDoc.transact(() => {
-    applyingYjsChanges++
-    try {
+  applyingYjsChanges++
+  try {
+    yjsDoc.transact(() => {
       initializationGlobalPatches.forEach(({ target, patches }) => {
         const parentToChildPath = getParentToChildPath(boundObject, target)
         // this is undefined only if target is not a child of boundModel
@@ -99,17 +115,17 @@ export function bindYjsToMobxKeystone<
           })
         }
       })
-    } finally {
-      applyingYjsChanges--
-    }
-  })
+    })
+  } finally {
+    applyingYjsChanges--
+  }
 
   return {
     boundObject,
     dispose: () => {
       disposeOnPatches()
       disposeOnSnapshot()
-      // TODO: dispose deep observe
+      yjsObject.unobserveDeep(observeDeepCb)
     },
   }
 }

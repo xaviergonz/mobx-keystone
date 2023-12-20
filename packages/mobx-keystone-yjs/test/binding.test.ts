@@ -16,19 +16,6 @@ class TestModel extends Model({
   }
 }
 
-/*
-function convertYjsEventToJsonPatch(event: Y.YEvent<any>): void {
-  console.log({
-    changes: event.changes,
-    currentTarget: event.currentTarget,
-    delta: event.delta,
-    keys: event.keys,
-    path: event.path,
-    target: event.target,
-  })
-}
-*/
-
 test("bind a model", () => {
   const doc = new Y.Doc()
   const yTestModel = doc.getMap("testModel")
@@ -47,21 +34,66 @@ test("bind a model", () => {
     const yjsSn = yTestModel.toJSON()
     expect(sn).toStrictEqual(yjsSn)
   }
+
+  const expectNotToBeInSync = () => {
+    const sn = getSnapshot(boundObject)
+    const yjsSn = yTestModel.toJSON()
+    expect(sn).not.toStrictEqual(yjsSn)
+  }
+
   expectToBeInSync()
 
   // mobx-keystone -> yjs
   runUnprotected(() => {
     boundObject.primitive = 2
+    expectNotToBeInSync()
     boundObject.simpleArray.push(2)
+    expectNotToBeInSync()
     boundObject.simpleRecord.a = 2
+    expectNotToBeInSync()
     boundObject.complexArray.push([2])
+    expectNotToBeInSync()
     boundObject.complexRecord.a = { a: 2 }
+    expectNotToBeInSync()
   })
   expectToBeInSync()
 
   // yjs -> mobx-keystone
-  // TODO
+  yTestModel.set("primitive", 3)
+  expectToBeInSync()
+  ;(yTestModel.get("simpleArray") as Y.Array<number>).push([3])
+  expectToBeInSync()
+  ;(yTestModel.get("simpleRecord") as Y.Map<number>).set("b", 3)
+  expectToBeInSync()
 
+  const subArray = new Y.Array<number>()
+  subArray.push([3])
+  ;(yTestModel.get("complexArray") as Y.Array<Y.Array<number>>).push([subArray])
+  expectToBeInSync()
+
+  const subRecord = new Y.Map<any>()
+  subRecord.set("a", 3)
+  ;(yTestModel.get("complexRecord") as Y.Map<Y.Map<number>>).set("b", subRecord)
+  expectToBeInSync()
+
+  doc.transact(() => {
+    yTestModel.set("primitive", 4)
+    expectNotToBeInSync()
+    ;(yTestModel.get("simpleArray") as Y.Array<number>).push([4])
+    expectNotToBeInSync()
+    ;(yTestModel.get("simpleRecord") as Y.Map<number>).set("c", 4)
+    expectNotToBeInSync()
+
+    const subArray = new Y.Array<number>()
+    subArray.push([4])
+    ;(yTestModel.get("complexArray") as Y.Array<Y.Array<number>>).push([subArray])
+    expectNotToBeInSync()
+
+    const subRecord = new Y.Map<any>()
+    subRecord.set("a", 4)
+    ;(yTestModel.get("complexRecord") as Y.Map<Y.Map<number>>).set("c", subRecord)
+    expectNotToBeInSync()
+  })
   expectToBeInSync()
 })
 
@@ -83,16 +115,39 @@ test("bind a simple array", () => {
     const yjsSn = yTestArray.toJSON()
     expect(sn).toStrictEqual(yjsSn)
   }
+
+  const expectNotToBeInSync = () => {
+    const sn = getSnapshot(boundObject)
+    const yjsSn = yTestArray.toJSON()
+    expect(sn).not.toStrictEqual(yjsSn)
+  }
+
   expectToBeInSync()
 
   // mobx-keystone -> yjs
   runUnprotected(() => {
     boundObject.push(2)
+    expectNotToBeInSync()
   })
   expectToBeInSync()
 
   // yjs -> mobx-keystone
-  // TODO
+  yTestArray.push([1, 2, 3])
+  expectToBeInSync()
 
+  yTestArray.delete(1, 2)
+  expectToBeInSync()
+
+  yTestArray.insert(1, [4, 5])
+  expectToBeInSync()
+
+  doc.transact(() => {
+    yTestArray.push([6, 7, 8])
+    expectNotToBeInSync()
+    yTestArray.delete(1, 2)
+    expectNotToBeInSync()
+    yTestArray.insert(1, [9, 10])
+    expectNotToBeInSync()
+  })
   expectToBeInSync()
 })
