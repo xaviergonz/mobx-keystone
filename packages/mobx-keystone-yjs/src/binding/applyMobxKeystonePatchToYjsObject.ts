@@ -10,17 +10,27 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
     if (yjs instanceof Y.Map) {
       const child = yjs.get(String(key))
       if (child === undefined) {
-        throw failure(`invalid patch path, key ${key} not found in map`)
+        throw failure(
+          `invalid patch path, key "${key}" not found in Yjs map - patch: ${JSON.stringify(patch)}`
+        )
       }
       applyMobxKeystonePatchToYjsObject({ ...patch, path: rest }, child)
     } else if (yjs instanceof Y.Array) {
       const child = yjs.get(Number(key))
       if (child === undefined) {
-        throw failure(`invalid patch path, key ${key} not found in array`)
+        throw failure(
+          `invalid patch path, key "${key}" not found in Yjs array - patch: ${JSON.stringify(
+            patch
+          )}`
+        )
       }
       applyMobxKeystonePatchToYjsObject({ ...patch, path: rest }, child)
     } else {
-      throw failure(`invalid patch path, key ${key} not found in unknown object`)
+      throw failure(
+        `invalid patch path, key "${key}" not found in unknown Yjs object - patch: ${JSON.stringify(
+          patch
+        )}`
+      )
     }
   } else if (patch.path.length === 1) {
     if (yjs instanceof Y.Map) {

@@ -72,12 +72,16 @@ export function bindYjsToMobxKeystone<
   // bind any changes from mobx-keystone to yjs
   let pendingPatches: Patch[] = []
   const disposeOnPatches = onPatches(boundObject, (patches) => {
+    if (applyingMobxKeystoneChanges > 0) {
+      return
+    }
+
     pendingPatches.push(...patches)
   })
 
   // this is only used so we can transact all patches to the snapshot boundary
   const disposeOnSnapshot = onSnapshot(boundObject, () => {
-    if (applyingMobxKeystoneChanges > 0) {
+    if (pendingPatches.length === 0) {
       return
     }
 
@@ -100,7 +104,19 @@ export function bindYjsToMobxKeystone<
   applyingYjsChanges++
   try {
     yjsDoc.transact(() => {
+      // we need to skip initializations until we hit the initialization of the bound object
+      // this is because default objects might be created and initialized before the main object
+      // but we just need to catch when those are actually assigned to the bound object
+      let boundObjectFound = false
+
       initializationGlobalPatches.forEach(({ target, patches }) => {
+        if (!boundObjectFound) {
+          if (target !== boundObject) {
+            return // skip
+          }
+          boundObjectFound = true
+        }
+
         const parentToChildPath = getParentToChildPath(boundObject, target)
         // this is undefined only if target is not a child of boundModel
         if (parentToChildPath !== undefined) {
