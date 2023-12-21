@@ -1269,3 +1269,22 @@ test("global patches should not include $ in their path", () => {
   `)
   globalPatches = []
 })
+
+test("patches should not need a model type when prop is typed", () => {
+  @testModel("SubModel")
+  class SubModel extends Model({
+    primitive: tProp(types.number, 0),
+  }) {}
+
+  @testModel("ParentModel")
+  class ParentModel extends Model({
+    submodel: tProp(types.maybe(SubModel)),
+  }) {}
+
+  const pm = new ParentModel({})
+
+  applyPatches(pm, [{ op: "add", path: ["submodel"], value: { primitive: 1 } }])
+  expect(pm.submodel).toBeDefined()
+  expect(pm.submodel).toBeInstanceOf(SubModel)
+  expect(pm.submodel!.primitive).toBe(1)
+})
