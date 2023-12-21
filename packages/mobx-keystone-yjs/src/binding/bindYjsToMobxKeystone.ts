@@ -45,25 +45,25 @@ export function bindYjsToMobxKeystone<
 
   const boundObject = createBoundObject()
 
-  let applyingYjsChanges = 0
   let applyingMobxKeystoneChanges = 0
+  const thisTransactionOrigin = Symbol("bindYjsToMobxKeystoneTransactionOrigin")
 
   // bind any changes from yjs to mobx-keystone
   const observeDeepCb = (events: Y.YEvent<any>[]) => {
-    if (applyingYjsChanges > 0) {
-      return
-    }
-
     const patches: Patch[] = []
     events.forEach((event) => {
-      patches.push(...convertYjsEventToPatches(event))
+      if (event.transaction.origin !== thisTransactionOrigin) {
+        patches.push(...convertYjsEventToPatches(event))
+      }
     })
 
-    applyingMobxKeystoneChanges++
-    try {
-      applyPatches(boundObject, patches)
-    } finally {
-      applyingMobxKeystoneChanges--
+    if (patches.length > 0) {
+      applyingMobxKeystoneChanges++
+      try {
+        applyPatches(boundObject, patches)
+      } finally {
+        applyingMobxKeystoneChanges--
+      }
     }
   }
 
@@ -88,53 +88,43 @@ export function bindYjsToMobxKeystone<
     const patches = pendingPatches
     pendingPatches = []
 
-    applyingYjsChanges++
-    try {
-      yjsDoc.transact(() => {
-        patches.forEach((patch) => {
-          applyMobxKeystonePatchToYjsObject(patch, yjsObject)
-        })
+    yjsDoc.transact(() => {
+      patches.forEach((patch) => {
+        applyMobxKeystonePatchToYjsObject(patch, yjsObject)
       })
-    } finally {
-      applyingYjsChanges--
-    }
+    }, thisTransactionOrigin)
   })
 
   // sync initial patches, that might include setting defaults, IDs, etc
-  applyingYjsChanges++
-  try {
-    yjsDoc.transact(() => {
-      // we need to skip initializations until we hit the initialization of the bound object
-      // this is because default objects might be created and initialized before the main object
-      // but we just need to catch when those are actually assigned to the bound object
-      let boundObjectFound = false
+  yjsDoc.transact(() => {
+    // we need to skip initializations until we hit the initialization of the bound object
+    // this is because default objects might be created and initialized before the main object
+    // but we just need to catch when those are actually assigned to the bound object
+    let boundObjectFound = false
 
-      initializationGlobalPatches.forEach(({ target, patches }) => {
-        if (!boundObjectFound) {
-          if (target !== boundObject) {
-            return // skip
-          }
-          boundObjectFound = true
+    initializationGlobalPatches.forEach(({ target, patches }) => {
+      if (!boundObjectFound) {
+        if (target !== boundObject) {
+          return // skip
         }
+        boundObjectFound = true
+      }
 
-        const parentToChildPath = getParentToChildPath(boundObject, target)
-        // this is undefined only if target is not a child of boundModel
-        if (parentToChildPath !== undefined) {
-          patches.forEach((patch) => {
-            applyMobxKeystonePatchToYjsObject(
-              {
-                ...patch,
-                path: [...parentToChildPath, ...patch.path],
-              },
-              yjsObject
-            )
-          })
-        }
-      })
+      const parentToChildPath = getParentToChildPath(boundObject, target)
+      // this is undefined only if target is not a child of boundModel
+      if (parentToChildPath !== undefined) {
+        patches.forEach((patch) => {
+          applyMobxKeystonePatchToYjsObject(
+            {
+              ...patch,
+              path: [...parentToChildPath, ...patch.path],
+            },
+            yjsObject
+          )
+        })
+      }
     })
-  } finally {
-    applyingYjsChanges--
-  }
+  }, thisTransactionOrigin)
 
   return {
     boundObject,
