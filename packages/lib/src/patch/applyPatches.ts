@@ -88,7 +88,7 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
       case "add": {
         const index = +prop!
         // reconcile from the pool if possible
-        const newValue = reconcileSnapshot(undefined, patch.value, modelPool, target, index)
+        const newValue = reconcileSnapshot(undefined, patch.value, modelPool, target)
         target.splice(index, 0, newValue)
         break
       }
@@ -106,7 +106,7 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
         } else {
           const index = +prop!
           // try to reconcile
-          const newValue = reconcileSnapshot(target[index], patch.value, modelPool, target, index)
+          const newValue = reconcileSnapshot(target[index], patch.value, modelPool, target)
           setIfDifferent(target, index as any, newValue)
         }
         break
@@ -119,7 +119,7 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
     switch (patch.op) {
       case "add": {
         // reconcile from the pool if possible
-        const newValue = reconcileSnapshot(undefined, patch.value, modelPool, target, prop!)
+        const newValue = reconcileSnapshot(undefined, patch.value, modelPool, target)
         setIfDifferent(target, prop!, newValue)
         break
       }
@@ -133,7 +133,7 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
       case "replace": {
         // try to reconcile
         // we don't need to tweak the pool since reconcileSnapshot will do that for us
-        const newValue = reconcileSnapshot(target[prop!], patch.value, modelPool, target, prop!)
+        const newValue = reconcileSnapshot(target[prop!], patch.value, modelPool, target)
         setIfDifferent(target, prop!, newValue)
         break
       }

@@ -1,6 +1,6 @@
 import { remove } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
-import { getModelIdPropertyName, getModelMetadata } from "../model/getModelMetadata"
+import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel, isModelSnapshot } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
@@ -10,7 +10,7 @@ import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { deepEquals } from "../treeUtils/deepEquals"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
-import { failure, isArray, isPlainObject } from "../utils"
+import { failure, isArray } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import type { SnapshotInOfModel } from "./SnapshotOf"
@@ -18,12 +18,6 @@ import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPrio
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
-import { resolveTypeChecker } from "../types/resolveTypeChecker"
-import { isDataModel } from "../dataModel/utils"
-import { ObjectTypeInfo } from "../types/objectBased/typesObject"
-import { getTypeInfo } from "../types/getTypeInfo"
-import { getDataModelMetadata } from "../dataModel/getDataModelMetadata"
-import { dataToModelNode } from "../parent/core"
 
 function reconcileModelSnapshot(
   value: any,
@@ -104,7 +98,7 @@ function reconcileModelSnapshot(
         const v = processedSn[k]
 
         const oldValue = data[k]
-        let newValue = reconcileSnapshot(oldValue, v, modelPool, modelObj, k)
+        let newValue = reconcileSnapshot(oldValue, v, modelPool, modelObj)
 
         // use default value if applicable
         if (newValue == null) {
@@ -131,34 +125,10 @@ function reconcileModelSnapshot(
  * @internal
  */
 export function registerModelSnapshotReconciler() {
-  registerReconciler(
-    SnapshotterAndReconcilerPriority.Model,
-    (value, sn, modelPool, parent, key) => {
-      let finalSn = sn
-
-      if (isPlainObject(sn) && !(modelTypeKey in sn)) {
-        // maybe we can extract the model type from the parent typed prop?
-        const parentModel = dataToModelNode(parent)
-
-        const dataType = isModel(parentModel)
-          ? getModelMetadata(parentModel)?.dataType
-          : isDataModel(parentModel)
-            ? getDataModelMetadata(parentModel)?.dataType
-            : undefined
-
-        if (dataType) {
-          const propType = (getTypeInfo(dataType) as ObjectTypeInfo).props[key as string]?.type
-          if (propType) {
-            const typeChecker = resolveTypeChecker(propType)
-            finalSn = typeChecker.fromSnapshotProcessor ? typeChecker.fromSnapshotProcessor(sn) : sn
-          }
-        }
-      }
-
-      if (isModelSnapshot(finalSn)) {
-        return reconcileModelSnapshot(value, finalSn, modelPool, parent)
-      }
-      return undefined
+  registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool, parent) => {
+    if (isModelSnapshot(sn)) {
+      return reconcileModelSnapshot(value, sn, modelPool, parent)
     }
-  )
+    return undefined
+  })
 }

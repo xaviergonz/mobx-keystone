@@ -7,13 +7,7 @@ import type { ModelPool } from "../utils/ModelPool"
 import { getSnapshot } from "./getSnapshot"
 import { registerDefaultReconcilers } from "./registerDefaultReconcilers"
 
-type Reconciler = (
-  value: any,
-  sn: any,
-  modelPool: ModelPool,
-  parent: any,
-  key: string | number | undefined
-) => any | undefined
+type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any | undefined
 
 const reconcilers: { priority: number; reconciler: Reconciler }[] = []
 
@@ -28,13 +22,7 @@ export function registerReconciler(priority: number, reconciler: Reconciler): vo
 /**
  * @internal
  */
-export function reconcileSnapshot(
-  value: any,
-  sn: any,
-  modelPool: ModelPool,
-  parent: any,
-  key: string | number | undefined
-): any {
+export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, parent: any): any {
   if (isPrimitive(sn)) {
     return sn
   }
@@ -50,7 +38,7 @@ export function reconcileSnapshot(
   const reconcilersLen = reconcilers.length
   for (let i = 0; i < reconcilersLen; i++) {
     const { reconciler } = reconcilers[i]
-    const ret = reconciler(value, sn, modelPool, parent, key)
+    const ret = reconciler(value, sn, modelPool, parent)
     if (ret !== undefined) {
       return ret
     }

@@ -43,7 +43,7 @@ function reconcilePlainObjectSnapshot(
       const v = sn[k]
 
       const oldValue = plainObj[k]
-      const newValue = reconcileSnapshot(oldValue, v, modelPool, plainObj, k)
+      const newValue = reconcileSnapshot(oldValue, v, modelPool, plainObj)
 
       detachIfNeeded(newValue, oldValue, modelPool)
 

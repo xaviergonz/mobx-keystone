@@ -30,7 +30,7 @@ function reconcileArraySnapshot(
     // reconcile present items
     for (let i = 0; i < value.length; i++) {
       const oldValue = value[i]
-      const newValue = reconcileSnapshot(oldValue, sn[i], modelPool, value, i)
+      const newValue = reconcileSnapshot(oldValue, sn[i], modelPool, value)
 
       detachIfNeeded(newValue, oldValue, modelPool)
 
@@ -39,7 +39,7 @@ function reconcileArraySnapshot(
 
     // add excess items
     for (let i = value.length; i < sn.length; i++) {
-      value.push(reconcileSnapshot(undefined, sn[i], modelPool, value, i))
+      value.push(reconcileSnapshot(undefined, sn[i], modelPool, value))
     }
   })
 
