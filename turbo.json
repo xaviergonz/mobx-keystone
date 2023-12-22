@@ -10,7 +10,7 @@
       "outputs": ["dist/**"]
     },
     "mobx-keystone-yjs#build": {
-      "dependsOn": [],
+      "dependsOn": ["mobx-keystone#build"],
       "outputs": ["dist/**"]
     },
     "site#build": {
