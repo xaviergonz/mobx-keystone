@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["../src", "../types", "."],
+  "compilerOptions": {
+    "target": "ES2020",
+    "experimentalDecorators": false,
+    "rootDir": ".."
+  }
+}

@@ -62,6 +62,21 @@ jobs:
         run: yarn codecov -p ./packages/lib
         if: matrix.compiler == 'tsc' && matrix.mobx-version == '6'
 
+  yjs-lib-test:
+    name: yjs-lib-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "yarn"
+
+      - run: yarn install --immutable
+      - run: yarn yjs-lib:test:ci
+
   benchmark-build:
     runs-on: ubuntu-latest
 

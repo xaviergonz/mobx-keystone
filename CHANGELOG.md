@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.8.2
+
+- New! Y.js bindings for `mobx-keystone` are now available in the `mobx-keystone-yjs` package as well as a working example in the examples section of the online docs.
+- Added missing `nanoid` dependency to the list of dependencies.
+
 ## 1.8.1
 
 - Fix so `onGlobalPatches` only generates the patches for new models when they are generated via `fromSnapshot`.

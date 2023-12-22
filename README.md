@@ -32,6 +32,8 @@
 >
 > ## [mobx-keystone.js.org](https://mobx-keystone.js.org)
 
+#### New! Y.js bindings for `mobx-keystone` are now available in the `mobx-keystone-yjs` package as well as a working example in the examples section of the online docs.
+
 ## Introduction
 
 `mobx-keystone` is a state container that combines the _simplicity and ease of mutable data_ with the _traceability of immutable data_ and the _reactiveness and performance of observable data_, all with a fully compatible TypeScript syntax.

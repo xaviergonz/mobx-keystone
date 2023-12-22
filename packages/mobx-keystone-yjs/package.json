@@ -1,0 +1,87 @@
+{
+  "name": "mobx-keystone-yjs",
+  "version": "1.0.0",
+  "description": "Yjs bindings for mobx-keystone",
+  "keywords": [
+    "mobx",
+    "mobx-keystone",
+    "yjs",
+    "crdt",
+    "state management"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xaviergonz/mobx-keystone.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xaviergonz/mobx-keystone/issues"
+  },
+  "homepage": "https://mobx-keystone.js.org",
+  "license": "MIT",
+  "author": "Javier González Garcés",
+  "source": "./src/index.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/mobx-keystone-yjs.esm.mjs",
+      "require": "./dist/mobx-keystone-yjs.umd.js",
+      "script": "./dist/mobx-keystone-yjs.umd.js",
+      "default": "./dist/mobx-keystone-yjs.esm.mjs",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "esmodule": "./dist/mobx-keystone-yjs.esm.js",
+  "module": "./dist/mobx-keystone-yjs.esm.js",
+  "jsnext:main": "./dist/mobx-keystone-yjs.esm.js",
+  "react-native": "./dist/mobx-keystone-yjs.umd.js",
+  "umd:main": "./dist/mobx-keystone-yjs.umd.js",
+  "unpkg": "./dist/mobx-keystone-yjs.umd.js",
+  "jsdelivr": "./dist/mobx-keystone-yjs.umd.js",
+  "main": "./dist/mobx-keystone-yjs.umd.js",
+  "types": "./dist/types/index.d.ts",
+  "typings": "./dist/types/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "src",
+    "dist",
+    "LICENSE",
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "scripts": {
+    "quick-build": "tsc",
+    "quick-build-tests": "tsc -p test",
+    "copy-root-files": "shx cp ../../LICENSE .",
+    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone-yjs.esm.mjs dist/mobx-keystone-yjs.esm.js",
+    "test": "jest",
+    "test:ci": "yarn test -i",
+    "test:perf": "yarn build && yarn test:perf:run",
+    "lint": "cd ../.. && yarn eslint \"packages/mobx-keystone-yjs/src/**/*.ts\" \"packages/mobx-keystone-yjs/test/**/*.ts\""
+  },
+  "peerDependencies": {
+    "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0",
+    "mobx-keystone": "^1.8.1",
+    "yjs": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.10.5",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "mobx": "^6.12.0",
+    "mobx-keystone": "workspace:packages/lib",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "shx": "^0.3.4",
+    "spec.ts": "^1.1.3",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  },
+  "dependencies": {
+    "tslib": "^2.6.2"
+  },
+  "directories": {
+    "test": "test"
+  }
+}

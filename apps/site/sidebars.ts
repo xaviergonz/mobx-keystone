@@ -35,7 +35,11 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Examples",
-      items: ["examples/todoList/todoList", "examples/clientServer/clientServer"],
+      items: [
+        "examples/todoList/todoList",
+        "examples/clientServer/clientServer",
+        "examples/yjsBinding/yjsBinding",
+      ],
     },
   ],
 }
