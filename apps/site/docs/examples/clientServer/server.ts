@@ -16,7 +16,7 @@ class Server {
     return getSnapshot(this.serverRootStore)
   }
 
-  onMessage(listener: (actionCall: SerializedActionCallWithModelIdOverrides) => void) {
+  onMessage(listener: MsgListener) {
     this.msgListeners.push(listener)
   }
 

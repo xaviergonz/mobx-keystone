@@ -26,7 +26,11 @@ export function bindYjsToMobxKeystone<
   yjsDoc: Y.Doc
   yjsObject: Y.Map<unknown> | Y.Array<unknown>
   mobxKeystoneType: TType
-}): { boundObject: TypeToData<TType>; dispose(): void } {
+}): {
+  boundObject: TypeToData<TType>
+  dispose(): void
+  yjsOrigin: symbol
+} {
   const yjsJson = yjsObject.toJSON()
 
   const initializationGlobalPatches: { target: object; patches: Patch[] }[] = []
@@ -46,13 +50,13 @@ export function bindYjsToMobxKeystone<
   const boundObject = createBoundObject()
 
   let applyingMobxKeystoneChanges = 0
-  const thisTransactionOrigin = Symbol("bindYjsToMobxKeystoneTransactionOrigin")
+  const yjsOrigin = Symbol("bindYjsToMobxKeystoneTransactionOrigin")
 
   // bind any changes from yjs to mobx-keystone
   const observeDeepCb = (events: Y.YEvent<any>[]) => {
     const patches: Patch[] = []
     events.forEach((event) => {
-      if (event.transaction.origin !== thisTransactionOrigin) {
+      if (event.transaction.origin !== yjsOrigin) {
         patches.push(...convertYjsEventToPatches(event))
       }
     })
@@ -92,7 +96,7 @@ export function bindYjsToMobxKeystone<
       patches.forEach((patch) => {
         applyMobxKeystonePatchToYjsObject(patch, yjsObject)
       })
-    }, thisTransactionOrigin)
+    }, yjsOrigin)
   })
 
   // sync initial patches, that might include setting defaults, IDs, etc
@@ -124,7 +128,7 @@ export function bindYjsToMobxKeystone<
         })
       }
     })
-  }, thisTransactionOrigin)
+  }, yjsOrigin)
 
   return {
     boundObject,
@@ -133,5 +137,6 @@ export function bindYjsToMobxKeystone<
       disposeOnSnapshot()
       yjsObject.unobserveDeep(observeDeepCb)
     },
+    yjsOrigin,
   }
 }

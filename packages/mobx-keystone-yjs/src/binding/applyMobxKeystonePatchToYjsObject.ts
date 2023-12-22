@@ -82,7 +82,9 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
         }
       }
     } else {
-      throw failure(`invalid patch path, key ${patch.path[0]} not found in unknown object`)
+      throw failure(
+        `invalid patch path, the Yjs object is of an unkown type, so key "${patch.path[0]}" cannot be found in it`
+      )
     }
   } else {
     throw failure(`invalid patch path, it cannot be empty`)

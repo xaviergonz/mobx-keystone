@@ -20,6 +20,9 @@
     "apps/site",
     "apps/benchmark"
   ],
+  "dependencies": {
+    "yjs": "^13.6.10"
+  },
   "devDependencies": {
     "codecov": "^3.8.3",
     "eslint": "^8.56.0",

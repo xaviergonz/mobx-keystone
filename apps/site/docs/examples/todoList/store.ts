@@ -82,15 +82,19 @@ export class TodoList extends Model({
   }
 }
 
-export function createRootStore(): TodoList {
+export function createDefaultTodoList(): TodoList {
   // the parameter is the initial data for the model
-  const rootStore = new TodoList({
+  return new TodoList({
     todos: [
       new Todo({ text: "make mobx-keystone awesome!" }),
       new Todo({ text: "spread the word" }),
       new Todo({ text: "buy some milk", done: true }),
     ],
   })
+}
+
+export function createRootStore(): TodoList {
+  const rootStore = createDefaultTodoList()
 
   // although not strictly required, it is always a good idea to register your root stores
   // as such, since this allows the model hook `onAttachedToRootStore` to work and other goodies

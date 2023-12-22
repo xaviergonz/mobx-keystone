@@ -17,11 +17,16 @@
     "bufferutil": "^4.0.8",
     "mobx": "^6.12.0",
     "mobx-keystone": "workspace:packages/lib",
+    "mobx-keystone-yjs": "workspace:packages/mobx-keystone-yjs",
     "mobx-react": "^9.1.0",
+    "nanoid": "^3.3.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "remotedev": "^0.2.9",
     "utf-8-validate": "^5.0.10"
+  },
+  "peerDependencies": {
+    "yjs": "^13.0.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.23.6",
