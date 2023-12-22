@@ -19,12 +19,6 @@
   <a aria-label="CI" href="https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/xaviergonz/mobx-keystone/main.yml?branch=master&label=CI&logo=github&style=for-the-badge&labelColor=333" />
   </a>
-  <a aria-label="Codecov" href="https://codecov.io/gh/xaviergonz/mobx-keystone">
-    <img src="https://img.shields.io/codecov/c/github/xaviergonz/mobx-keystone?token=6MLRFUBK8V&label=codecov&logo=codecov&style=for-the-badge&labelColor=333" />
-  </a>
-  <a aria-label="Netlify Status" href="https://app.netlify.com/sites/mobx-keystone/deploys">
-    <img src="https://img.shields.io/netlify/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429?label=netlify&logo=netlify&style=for-the-badge&labelColor=333" />
-  </a>
 </p>
 
 > ## See a [working example](https://mobx-keystone.js.org/examples/yjs-binding) in [mobx-keystone.js.org](https://mobx-keystone.js.org)

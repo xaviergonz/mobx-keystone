@@ -9,8 +9,12 @@
       "dependsOn": [],
       "outputs": ["dist/**"]
     },
+    "mobx-keystone-yjs#build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
     "site#build": {
-      "dependsOn": ["mobx-keystone#build", "mobx-keystone#build-docs"],
+      "dependsOn": ["mobx-keystone#build", "mobx-keystone-yjs#build", "mobx-keystone#build-docs"],
       "outputs": ["build/**"]
     },
     "site#serve": {
@@ -20,7 +24,7 @@
     },
     "site#start": {
       "cache": false,
-      "dependsOn": ["mobx-keystone#build", "mobx-keystone#build-docs"],
+      "dependsOn": ["mobx-keystone#build", "mobx-keystone-yjs#build", "mobx-keystone#build-docs"],
       "outputs": []
     },
     "mobx-keystone#test": {
@@ -28,10 +32,18 @@
       "outputs": [],
       "env": ["COMPILER", "MOBX-VERSION"]
     },
+    "mobx-keystone-yjs#test": {
+      "dependsOn": [],
+      "outputs": []
+    },
     "mobx-keystone#test:ci": {
       "dependsOn": [],
       "outputs": [],
       "env": ["COMPILER", "MOBX-VERSION"]
+    },
+    "mobx-keystone-yjs#test:ci": {
+      "dependsOn": [],
+      "outputs": []
     },
     "lint": {
       "outputs": []
