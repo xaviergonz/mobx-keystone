@@ -17047,7 +17047,7 @@ __metadata:
     vite: "npm:^5.0.10"
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
-    mobx-keystone: ^1.0.0
+    mobx-keystone: ^1.8.1
     yjs: ^13.0.0
   languageName: unknown
   linkType: soft
