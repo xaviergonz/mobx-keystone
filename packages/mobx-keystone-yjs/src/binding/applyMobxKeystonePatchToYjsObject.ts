@@ -1,7 +1,7 @@
 import { Patch } from "mobx-keystone"
-import { failure } from "../utils/error"
 import * as Y from "yjs"
-import { toYDataType } from "./toYDataType"
+import { failure } from "../utils/error"
+import { convertJsonToYjsData } from "./convertJsonToYjsData"
 
 export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): void {
   if (patch.path.length > 1) {
@@ -39,7 +39,7 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
       switch (patch.op) {
         case "add":
         case "replace": {
-          yjs.set(key, toYDataType(patch.value))
+          yjs.set(key, convertJsonToYjsData(patch.value))
           break
         }
         case "remove": {
@@ -65,12 +65,12 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
             }
           } else {
             yjs.delete(Number(key))
-            yjs.insert(Number(key), [toYDataType(patch.value)])
+            yjs.insert(Number(key), [convertJsonToYjsData(patch.value)])
           }
           break
         }
         case "add": {
-          yjs.insert(Number(key), [toYDataType(patch.value)])
+          yjs.insert(Number(key), [convertJsonToYjsData(patch.value)])
           break
         }
         case "remove": {

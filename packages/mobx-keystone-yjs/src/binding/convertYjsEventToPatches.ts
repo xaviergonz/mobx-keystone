@@ -1,6 +1,6 @@
 import { Patch } from "mobx-keystone"
 import * as Y from "yjs"
-import { JSONArray, JSONObject, JSONValue } from "../jsonTypes"
+import { JsonArray, JsonObject, JsonValue } from "../jsonTypes"
 import { failure } from "../utils/error"
 
 export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
@@ -76,9 +76,9 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
   return patches
 }
 
-function toPlainValue(v: Y.Map<any> | Y.Array<any> | JSONValue) {
+function toPlainValue(v: Y.Map<any> | Y.Array<any> | JsonValue) {
   if (v instanceof Y.Map || v instanceof Y.Array) {
-    return v.toJSON() as JSONObject | JSONArray
+    return v.toJSON() as JsonObject | JsonArray
   } else {
     return v
   }
