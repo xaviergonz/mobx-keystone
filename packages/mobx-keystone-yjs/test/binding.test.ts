@@ -23,6 +23,7 @@ class SubModel extends Model({
 @model("yjs-test-model")
 class TestModel extends Model({
   primitive: tProp(types.number, 0),
+  maybePrimitive: tProp(types.maybe(types.number)),
   simpleArray: tProp(types.array(types.number), () => []),
   simpleRecord: tProp(types.record(types.number), () => ({})),
   complexArray: tProp(types.array(types.array(types.number)), () => []),
@@ -50,18 +51,30 @@ test("bind a model", () => {
   const expectToBeInSync = () => {
     const sn = getSnapshot(boundObject)
     const yjsSn = yTestModel.toJSON()
-    expect(sn).toStrictEqual(yjsSn)
+    expect(sn).toEqual(yjsSn)
   }
 
   const expectNotToBeInSync = () => {
     const sn = getSnapshot(boundObject)
     const yjsSn = yTestModel.toJSON()
-    expect(sn).not.toStrictEqual(yjsSn)
+    expect(sn).not.toEqual(yjsSn)
   }
 
   expectToBeInSync()
 
   // mobx-keystone -> yjs
+  runUnprotected(() => {
+    boundObject.maybePrimitive = 2
+    expectNotToBeInSync()
+  })
+  expectToBeInSync()
+
+  runUnprotected(() => {
+    boundObject.maybePrimitive = undefined
+    expectNotToBeInSync()
+  })
+  expectToBeInSync()
+
   runUnprotected(() => {
     boundObject.primitive = 2
     expectNotToBeInSync()
@@ -81,6 +94,11 @@ test("bind a model", () => {
   expectToBeInSync()
 
   // yjs -> mobx-keystone
+  yTestModel.set("maybePrimitive", 3)
+  expectToBeInSync()
+  yTestModel.delete("maybePrimitive")
+  expectToBeInSync()
+
   yTestModel.set("primitive", 3)
   expectToBeInSync()
   ;(yTestModel.get("simpleArray") as Y.Array<number>).push([3])
@@ -167,6 +185,8 @@ test("bind a simple array", () => {
   // mobx-keystone -> yjs
   runUnprotected(() => {
     boundObject.push(2)
+    expectNotToBeInSync()
+    boundObject.splice(0, 1, 5)
     expectNotToBeInSync()
   })
   expectToBeInSync()
