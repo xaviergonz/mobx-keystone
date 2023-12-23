@@ -68,17 +68,24 @@ function initAppInstance() {
   })
 
   // whenever our Y.js doc changes send the update to the other clients
-  yjsDoc.on("updateV2", (updateV2: Uint8Array) => {
-    if (!isConnected()) {
-      // simulate a disconnection
-      return
-    }
+  yjsDoc.on(
+    "updateV2",
+    (updateV2: Uint8Array, _origin: unknown, _doc: Y.Doc, transaction: Y.Transaction) => {
+      if (!isConnected()) {
+        // simulate a disconnection
+        return
+      }
+      if (!transaction.local) {
+        // we only want to send updates that come from our own changes
+        return
+      }
 
-    server.sendMessage(clientId, {
-      type: "yjsUpdate",
-      update: updateV2,
-    })
-  })
+      server.sendMessage(clientId, {
+        type: "yjsUpdate",
+        update: updateV2,
+      })
+    }
+  )
 
   const toggleConnected = action(() => {
     connected.set(!connected.get())
