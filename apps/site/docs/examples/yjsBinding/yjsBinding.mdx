@@ -3,31 +3,20 @@ title: Y.js binding
 slug: /examples/yjs-binding
 ---
 
-import BrowserOnly from "@docusaurus/BrowserOnly"
 import CodeBlock from "@theme/CodeBlock"
 
 import appSource from "!!raw-loader!./app.tsx"
-import serverSource from "!!raw-loader!./server.ts"
 import appInstanceSource from "!!raw-loader!./appInstance.tsx"
 
 In this example we will be synchronizing two separate root stores via the `mobx-keystone-yjs` package. This package ensures a Y.js document is kept in sync with a mobx-keystone store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
 
-Note: This example has an artificial delay to simulate network latency.
+Note: This example uses `y-webrtc` to share state using WebRTC (P2P).
 
-<BrowserOnly>
-  {() => {
-    const { App } = require("./app.tsx")
-    return <App />
-  }}
-</BrowserOnly>
-
+<div style={{ display: "flex" }}>
+  <iframe src="/example-apps/yjs-binding" style={{ flex: "0 0 50%", height: 350 }} />
+  <iframe src="/example-apps/yjs-binding" style={{ flex: "0 0 50%", height: 350 }} />
+</div>
 ## Code
-
-### `server.ts`
-
-<CodeBlock className="language-ts" title="examples/clientServer/server.ts">
-  {serverSource}
-</CodeBlock>
 
 ### `appInstance.tsx`
 

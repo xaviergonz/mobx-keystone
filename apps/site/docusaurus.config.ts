@@ -24,7 +24,6 @@ const config: Config = {
           routeBasePath: docsRouteBasePath,
         },
         blog: false,
-        pages: false,
         sitemap: {},
         theme: {
           customCss: require.resolve("./src/css/custom.css"),

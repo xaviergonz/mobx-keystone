@@ -1,17 +1,33 @@
 import { action, observable } from "mobx"
-import { registerRootStore } from "mobx-keystone"
-import { bindYjsToMobxKeystone } from "mobx-keystone-yjs"
+import { getSnapshot, registerRootStore } from "mobx-keystone"
+import { applyJsonObjectToYMap, bindYjsToMobxKeystone } from "mobx-keystone-yjs"
 import { observer } from "mobx-react"
-import { nanoid } from "nanoid"
 import { useState } from "react"
+import { WebrtcProvider } from "y-webrtc"
 import * as Y from "yjs"
 import { TodoListView } from "../todoList/app"
-import { TodoList } from "../todoList/store"
-import { server } from "./server"
+import { TodoList, createDefaultTodoList } from "../todoList/store"
+
+function getInitialState() {
+  // here we just generate what a client would have saved from a previous session,
+  // but it could be stored in each client local storage or something like that
+
+  const yjsDoc = new Y.Doc()
+  const yjsRootStore = yjsDoc.getMap("rootStore")
+
+  const todoListSnapshot = getSnapshot(createDefaultTodoList())
+  applyJsonObjectToYMap(yjsRootStore, todoListSnapshot)
+
+  const updateV2 = Y.encodeStateAsUpdateV2(yjsDoc)
+
+  yjsDoc.destroy()
+
+  return updateV2
+}
 
 function initAppInstance() {
   // we get the initial state from the server, which is a Yjs update
-  const rootStoreYjsUpdate = server.getInitialState()
+  const rootStoreYjsUpdate = getInitialState()
 
   // hydrate into a Yjs document
   const yjsDoc = new Y.Doc()
@@ -28,76 +44,27 @@ function initAppInstance() {
   // as such, since this allows the model hook `onAttachedToRootStore` to work and other goodies
   registerRootStore(rootStore)
 
-  const clientId = nanoid()
+  // connect to other peers via webrtc
+  const webrtcProvider = new WebrtcProvider("mobx-keystone-yjs-binding-demo", yjsDoc)
 
-  const connected = observable.box(true)
+  const connected = observable.box(webrtcProvider.connected)
   const isConnected = () => connected.get()
 
-  server.onMessage({
-    clientId: clientId,
-    listener: (msg, fromClientId) => {
-      if (!isConnected()) {
-        // simulate a disconnection
-        return
-      }
-
-      if (msg.type === "yjsUpdate") {
-        // whenever we get an update from another client apply it to our Y.js doc
-        // the binding will make sure it ends up in the root store
-        Y.applyUpdateV2(yjsDoc, msg.update, fromClientId)
-      } else if (msg.type === "requestYjsUpdateSinceVector") {
-        // another client reconnected and is asking for the changes from his version
-        // send our changes since that version, but only if there are changes
-        const currentVector = Y.encodeStateVector(yjsDoc)
-        if (!areUint8ArraysEqual(currentVector, msg.vector)) {
-          // we have changes, send them
-          const update = Y.encodeStateAsUpdateV2(yjsDoc, msg.vector)
-          server.sendMessage(clientId, {
-            type: "yjsUpdate",
-            update,
-          })
-
-          // and also request updates since our version
-          server.sendMessage(clientId, {
-            type: "requestYjsUpdateSinceVector",
-            vector: Y.encodeStateVector(yjsDoc),
-          })
-        }
-      }
-    },
-  })
-
-  // whenever our Y.js doc changes send the update to the other clients
-  yjsDoc.on(
-    "updateV2",
-    (updateV2: Uint8Array, _origin: unknown, _doc: Y.Doc, transaction: Y.Transaction) => {
-      if (!isConnected()) {
-        // simulate a disconnection
-        return
-      }
-      if (!transaction.local) {
-        // we only want to send updates that come from our own changes
-        return
-      }
-
-      server.sendMessage(clientId, {
-        type: "yjsUpdate",
-        update: updateV2,
-      })
-    }
+  // until y-webrtc has a better way to detect connection status, we poll it
+  setInterval(
+    action(() => {
+      connected.set(webrtcProvider.connected)
+    }),
+    500
   )
 
-  const toggleConnected = action(() => {
-    connected.set(!connected.get())
-
-    if (isConnected()) {
-      // request updates since our version
-      server.sendMessage(clientId, {
-        type: "requestYjsUpdateSinceVector",
-        vector: Y.encodeStateVector(yjsDoc),
-      })
+  const toggleConnected = () => {
+    if (webrtcProvider.connected) {
+      webrtcProvider.disconnect()
+    } else {
+      webrtcProvider.connect()
     }
-  })
+  }
 
   return { rootStore, isConnected, toggleConnected }
 }
@@ -109,20 +76,10 @@ export const AppInstance = observer(() => {
     <>
       <TodoListView list={rootStore} />
       <br />
-      <div>{isConnected() ? "Connected" : "Disconnected"}</div>
-      <button onClick={() => toggleConnected()}>{isConnected() ? "Disconnect" : "Connect"}</button>
+      <div>{isConnected() ? "Online (sync enabled)" : "Offline (sync disabled)"}</div>
+      <button onClick={() => toggleConnected()} style={{ width: "fit-content" }}>
+        {isConnected() ? "Disconnect" : "Connect"}
+      </button>
     </>
   )
 })
-
-function areUint8ArraysEqual(arr1: Uint8Array, arr2: Uint8Array): boolean {
-  if (arr1.length !== arr2.length) {
-    return false
-  }
-  for (let i = 0; i < arr1.length; i++) {
-    if (arr1[i] !== arr2[i]) {
-      return false
-    }
-  }
-  return true
-}

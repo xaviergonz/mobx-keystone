@@ -23,7 +23,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "remotedev": "^0.2.9",
-    "utf-8-validate": "^5.0.10"
+    "utf-8-validate": "^5.0.10",
+    "y-webrtc": "^10.2.6"
   },
   "peerDependencies": {
     "yjs": "^13.0.0"
