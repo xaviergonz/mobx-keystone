@@ -4,6 +4,7 @@ slug: /examples/yjs-binding
 ---
 
 import CodeBlock from "@theme/CodeBlock"
+import IframeResizer from "iframe-resizer-react"
 
 import appSource from "!!raw-loader!./app.tsx"
 import appInstanceSource from "!!raw-loader!./appInstance.tsx"
@@ -13,8 +14,16 @@ In this example we will be synchronizing two separate root stores via the `mobx-
 Note: This example uses `y-webrtc` to share state using WebRTC (P2P).
 
 <div style={{ display: "flex" }}>
-  <iframe src="/example-apps/yjs-binding" style={{ flex: "0 0 50%", height: 350 }} />
-  <iframe src="/example-apps/yjs-binding" style={{ flex: "0 0 50%", height: 350 }} />
+  <IframeResizer
+    src="/example-apps/yjs-binding"
+    style={{ flex: "0 0 50%" }}
+    heightCalculationMethod="bodyScroll"
+  />
+  <IframeResizer
+    src="/example-apps/yjs-binding"
+    style={{ flex: "0 0 50%" }}
+    heightCalculationMethod="bodyScroll"
+  />
 </div>
 ## Code
 

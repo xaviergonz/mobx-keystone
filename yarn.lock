@@ -13467,6 +13467,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"iframe-resizer-react@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "iframe-resizer-react@npm:1.1.0"
+  dependencies:
+    iframe-resizer: "npm:^4.3.0"
+    warning: "npm:^4.0.3"
+  peerDependencies:
+    prop-types: ">=15.7.2"
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 2f3d7b1b0bb1a64353554f53d3e8266136a6c8b76fec9f601d05d70909dc44b4acc4cff330a7c0fac75ccf6b2a532c93d1fc078076f25c7802daafa0902b6e6f
+  languageName: node
+  linkType: hard
+
+"iframe-resizer@npm:^4.3.0":
+  version: 4.3.9
+  resolution: "iframe-resizer@npm:4.3.9"
+  checksum: 8599cc820bbf3a921e23cc6a288724d2781deea5c4ba0c2e577e68f533b06099b759e34e2120c365547592db4c762db6a71c287e18252fa5998a19561dcc1b50
+  languageName: node
+  linkType: hard
+
 "ignore-walk@npm:3.0.4":
   version: 3.0.4
   resolution: "ignore-walk@npm:3.0.4"
@@ -21239,6 +21260,7 @@ __metadata:
     "@types/uuid": "npm:^9.0.7"
     bootstrap-icons: "npm:^1.11.2"
     bufferutil: "npm:^4.0.8"
+    iframe-resizer-react: "npm:^1.1.0"
     mobx: "npm:^6.12.0"
     mobx-keystone: "workspace:packages/lib"
     mobx-keystone-yjs: "workspace:packages/mobx-keystone-yjs"
@@ -23632,6 +23654,15 @@ __metadata:
   dependencies:
     makeerror: "npm:1.0.12"
   checksum: a17e037bccd3ca8a25a80cb850903facdfed0de4864bd8728f1782370715d679fa72e0a0f5da7c1c1379365159901e5935f35be531229da53bbfc0efdabdb48e
+  languageName: node
+  linkType: hard
+
+"warning@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "warning@npm:4.0.3"
+  dependencies:
+    loose-envify: "npm:^1.0.0"
+  checksum: aebab445129f3e104c271f1637fa38e55eb25f968593e3825bd2f7a12bd58dc3738bb70dc8ec85826621d80b4acfed5a29ebc9da17397c6125864d72301b937e
   languageName: node
   linkType: hard
 
