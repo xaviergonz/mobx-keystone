@@ -15,6 +15,7 @@ import {
 import * as Y from "yjs"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
+import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 
 export function bindYjsToMobxKeystone<
   TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
@@ -31,6 +32,15 @@ export function bindYjsToMobxKeystone<
   dispose(): void
   yjsOrigin: symbol
 } {
+  const yjsOrigin = Symbol("bindYjsToMobxKeystoneTransactionOrigin")
+
+  const bindingContext: YjsBindingContext = {
+    yjsDoc,
+    yjsObject,
+    mobxKeystoneType,
+    yjsOrigin,
+  }
+
   const yjsJson = yjsObject.toJSON()
 
   const initializationGlobalPatches: { target: object; patches: Patch[] }[] = []
@@ -41,7 +51,12 @@ export function bindYjsToMobxKeystone<
     })
 
     try {
-      return fromSnapshot(mobxKeystoneType, yjsJson as any)
+      const boundObject = yjsBindingContext.apply(
+        () => fromSnapshot(mobxKeystoneType, yjsJson as any),
+        bindingContext
+      )
+      yjsBindingContext.set(boundObject, bindingContext)
+      return boundObject
     } finally {
       disposeOnGlobalPatches()
     }
@@ -50,7 +65,6 @@ export function bindYjsToMobxKeystone<
   const boundObject = createBoundObject()
 
   let applyingMobxKeystoneChanges = 0
-  const yjsOrigin = Symbol("bindYjsToMobxKeystoneTransactionOrigin")
 
   // bind any changes from yjs to mobx-keystone
   const observeDeepCb = (events: Y.YEvent<any>[]) => {

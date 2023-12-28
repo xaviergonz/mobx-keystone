@@ -8,7 +8,7 @@ import {
   types,
 } from "mobx-keystone"
 import * as Y from "yjs"
-import { bindYjsToMobxKeystone } from "../src"
+import { bindYjsToMobxKeystone, yjsBindingContext } from "../src"
 import { autoDispose } from "./utils"
 
 @model("yjs-test-submodel")
@@ -32,6 +32,7 @@ class TestModel extends Model({
 }) {
   protected onInit(): void {
     this.simpleArray.push(1)
+    expect(yjsBindingContext.get(this)).toBeDefined()
   }
 }
 
@@ -153,6 +154,15 @@ test("bind a model", () => {
     expectNotToBeInSync()
   })
   expectToBeInSync()
+
+  // check binding context
+  const rootBindingContext = yjsBindingContext.get(boundObject)
+  const submodelBindingContext = yjsBindingContext.get(boundObject.submodel)
+  expect(rootBindingContext).toBe(submodelBindingContext)
+  expect(rootBindingContext?.mobxKeystoneType).toBe(TestModel)
+  expect(rootBindingContext?.yjsDoc).toBe(doc)
+  expect(rootBindingContext?.yjsObject).toBe(yTestModel)
+  expect(rootBindingContext?.yjsOrigin).toBeDefined()
 })
 
 test("bind a simple array", () => {
