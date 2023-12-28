@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.8.3
+
+- Data model classes can now be passed as types directly, like model classes can.
+
 ## 1.8.2
 
 - New! Y.js bindings for `mobx-keystone` are now available in the `mobx-keystone-yjs` package as well as a working example in the examples section of the online docs.

@@ -1,4 +1,5 @@
 import type { O } from "ts-toolbelt"
+import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import type { IsOptionalValue } from "../utils/types"
@@ -72,6 +73,7 @@ export type AnyType = null | undefined | AnyNonValueType
 
 export type AnyNonValueType =
   | ModelClass<AnyModel>
+  | ModelClass<AnyDataModel>
   | StringConstructor
   | NumberConstructor
   | BooleanConstructor
@@ -84,27 +86,27 @@ export type TypeToData<S> = S extends ObjectTypeFunction
     ? R
     : never
   : S extends { $$data: infer D }
-  ? D
-  : // AnyModel
-  S extends ModelClass<infer M>
-  ? M
-  : // String
-  S extends StringConstructor
-  ? string
-  : // Number
-  S extends NumberConstructor
-  ? number
-  : // Boolean
-  S extends BooleanConstructor
-  ? boolean
-  : // null
-  S extends null
-  ? null
-  : // undefined
-  S extends undefined
-  ? undefined
-  : // anything else
-    never
+    ? D
+    : // AnyModel
+      S extends ModelClass<infer M>
+      ? M
+      : // String
+        S extends StringConstructor
+        ? string
+        : // Number
+          S extends NumberConstructor
+          ? number
+          : // Boolean
+            S extends BooleanConstructor
+            ? boolean
+            : // null
+              S extends null
+              ? null
+              : // undefined
+                S extends undefined
+                ? undefined
+                : // anything else
+                  never
 
 /** @ignore */
 export type TypeToDataOpt<S> = S extends { $$data: infer D } ? D & undefined : never

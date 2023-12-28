@@ -980,3 +980,15 @@ test("new pattern for generics", () => {
   expect(e.v3).toBe(3)
   expect(e.v4).toBe(4)
 })
+
+test("data model can be used as tprop", () => {
+  @testModel("SomeDataModel")
+  class SomeDataModel extends DataModel({
+    x: prop<number>(),
+  }) {}
+
+  const dataModelTypeTProp = tProp(types.dataModelData(SomeDataModel))
+  const dataModelClassTProp = tProp(SomeDataModel)
+
+  expect(dataModelTypeTProp).toBe(dataModelClassTProp)
+})

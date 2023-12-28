@@ -19,7 +19,7 @@ import {
   lateTypeChecker,
 } from "../TypeChecker"
 import { getTypeInfo } from "../getTypeInfo"
-import { resolveTypeChecker } from "../resolveTypeChecker"
+import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
@@ -173,7 +173,17 @@ export class DataModelDataTypeInfo extends TypeInfo {
     return modelInfo.name
   }
 
-  constructor(thisType: AnyStandardType, readonly modelClass: ModelClass<AnyDataModel>) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly modelClass: ModelClass<AnyDataModel>
+  ) {
     super(thisType)
   }
+}
+
+/**
+ * @internal
+ */
+export function registerDataModelDataStandardTypeResolver() {
+  registerStandardTypeResolver((v) => (isDataModelClass(v) ? typesDataModelData(v) : undefined))
 }

@@ -1,3 +1,4 @@
+import { registerDataModelDataStandardTypeResolver } from "./objectBased/typesDataModelData"
 import { registerModelStandardTypeResolver } from "./objectBased/typesModel"
 import { registerPrimitiveStandardTypeResolvers } from "./primitiveBased/typesPrimitive"
 
@@ -13,5 +14,6 @@ export function registerDefaultStandardTypeResolvers() {
   defaultStandardTypeResolversRegistered = true
 
   registerModelStandardTypeResolver()
+  registerDataModelDataStandardTypeResolver()
   registerPrimitiveStandardTypeResolvers()
 }
