@@ -25,17 +25,17 @@
     "react-dom": "^18.2.0",
     "remotedev": "^0.2.9",
     "utf-8-validate": "^5.0.10",
-    "y-webrtc": "^10.2.6"
+    "y-webrtc": "^10.3.0"
   },
   "peerDependencies": {
     "yjs": "^13.0.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.23.6",
+    "@babel/plugin-proposal-decorators": "^7.23.7",
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@docusaurus/tsconfig": "^3.0.1",
     "@svgr/webpack": "^8.1.0",
-    "@types/react": "^18.2.45",
+    "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "@types/uuid": "^9.0.7",
     "raw-loader": "^4.0.2",
