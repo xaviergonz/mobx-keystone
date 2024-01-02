@@ -39,6 +39,7 @@ export function bindYjsToMobxKeystone<
     yjsObject,
     mobxKeystoneType,
     yjsOrigin,
+    boundObject: undefined, // not yet created
   }
 
   const yjsJson = yjsObject.toJSON()
@@ -55,7 +56,7 @@ export function bindYjsToMobxKeystone<
         () => fromSnapshot(mobxKeystoneType, yjsJson as any),
         bindingContext
       )
-      yjsBindingContext.set(boundObject, bindingContext)
+      yjsBindingContext.set(boundObject, { ...bindingContext, boundObject })
       return boundObject
     } finally {
       disposeOnGlobalPatches()

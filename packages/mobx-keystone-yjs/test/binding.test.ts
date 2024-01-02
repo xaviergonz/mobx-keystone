@@ -35,6 +35,8 @@ class TestModel extends Model({
   protected onInit(): void {
     this.simpleArray.push(1)
     expect(yjsBindingContext.get(this)).toBeDefined()
+    // not yet bound, so undefined
+    expect(yjsBindingContext.get(this)?.boundObject).toBe(undefined)
   }
 }
 
@@ -179,6 +181,7 @@ test("bind a model", () => {
   expect(rootBindingContext?.yjsDoc).toBe(doc)
   expect(rootBindingContext?.yjsObject).toBe(yTestModel)
   expect(rootBindingContext?.yjsOrigin).toBeDefined()
+  expect(rootBindingContext?.boundObject).toBe(boundObject)
 })
 
 test("bind a simple array", () => {
