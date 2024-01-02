@@ -26,6 +26,11 @@ export function convertJsonToYjsData(v: JsonValue) {
   }
 
   if (isJsonObject(v)) {
+    if (v.$frozen === true) {
+      // frozen value, save as immutable object
+      return v
+    }
+
     const map = new Y.Map()
     applyJsonObjectToYMap(map, v)
     return map

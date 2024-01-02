@@ -1,5 +1,6 @@
 import {
   Model,
+  frozen,
   getSnapshot,
   model,
   modelTypeKey,
@@ -29,6 +30,7 @@ class TestModel extends Model({
   complexArray: tProp(types.array(types.array(types.number)), () => []),
   complexRecord: tProp(types.record(types.record(types.number)), () => ({})),
   submodel: tProp(SubModel, () => new SubModel({})),
+  frozen: tProp(types.frozen(types.array(types.number)), () => frozen([])),
 }) {
   protected onInit(): void {
     this.simpleArray.push(1)
@@ -91,8 +93,16 @@ test("bind a model", () => {
     expectNotToBeInSync()
     boundObject.submodel = new SubModel({ primitive: 20 })
     expectNotToBeInSync()
+    boundObject.frozen = frozen([2])
+    expectNotToBeInSync()
   })
   expectToBeInSync()
+
+  // frozen values should be saved as plain objects
+  expect(yTestModel.get("frozen")).toStrictEqual({
+    $frozen: true,
+    data: [2],
+  })
 
   // yjs -> mobx-keystone
   yTestModel.set("maybePrimitive", 3)
@@ -125,6 +135,9 @@ test("bind a model", () => {
   subModel.set("primitive", 30)
   yTestModel.set("submodel", subModel)
   expectToBeInSync()
+  // frozen
+  yTestModel.set("frozen", getSnapshot(frozen([3])))
+  expectToBeInSync()
 
   doc.transact(() => {
     yTestModel.set("primitive", 4)
@@ -151,6 +164,9 @@ test("bind a model", () => {
     subModel.set(modelTypeKey, "yjs-test-submodel")
     subModel.set("primitive", 40)
     yTestModel.set("submodel", subModel)
+    expectNotToBeInSync()
+    // frozen
+    yTestModel.set("frozen", getSnapshot(frozen([4])))
     expectNotToBeInSync()
   })
   expectToBeInSync()

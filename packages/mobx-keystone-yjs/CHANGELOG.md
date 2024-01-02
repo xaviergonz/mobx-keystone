@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.3.0
+
+- Frozen values will be stored as plain values in Y.js instead of being deeply converted to Y.js Maps/Arrays, etc. This means storing/fetching frozen values should be faster, require less memory and probably require less space in the Y.js state.
+
 ## 1.2.0
 
 - Added `yjsBindingContext` so bound objects offer a context with the Y.js doc, bound object, etc.
