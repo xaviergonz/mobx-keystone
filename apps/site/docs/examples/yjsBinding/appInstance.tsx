@@ -47,18 +47,19 @@ function initAppInstance() {
   // connect to other peers via webrtc
   const webrtcProvider = new WebrtcProvider("mobx-keystone-yjs-binding-demo", yjsDoc)
 
-  const connected = observable.box(webrtcProvider.connected)
-  const isConnected = () => connected.get()
+  // expose the webrtc connection status as an observable
+  const status = observable({
+    connected: webrtcProvider.connected,
+    setConnected(value: boolean) {
+      this.connected = value
+    },
+  })
 
-  // until y-webrtc has a better way to detect connection status, we poll it
-  setInterval(
-    action(() => {
-      connected.set(webrtcProvider.connected)
-    }),
-    500
-  )
+  webrtcProvider.on("status", (event) => {
+    status.setConnected(event.connected)
+  })
 
-  const toggleConnected = () => {
+  const toggleWebrtcProviderConnection = () => {
     if (webrtcProvider.connected) {
       webrtcProvider.disconnect()
     } else {
@@ -66,19 +67,21 @@ function initAppInstance() {
     }
   }
 
-  return { rootStore, isConnected, toggleConnected }
+  return { rootStore, status, toggleWebrtcProviderConnection }
 }
 
 export const AppInstance = observer(() => {
-  const [{ rootStore, isConnected, toggleConnected }] = useState(() => initAppInstance())
+  const [{ rootStore, status, toggleWebrtcProviderConnection }] = useState(() => initAppInstance())
 
   return (
     <>
       <TodoListView list={rootStore} />
+
       <br />
-      <div>{isConnected() ? "Online (sync enabled)" : "Offline (sync disabled)"}</div>
-      <button onClick={() => toggleConnected()} style={{ width: "fit-content" }}>
-        {isConnected() ? "Disconnect" : "Connect"}
+
+      <div>{status.connected ? "Online (sync enabled)" : "Offline (sync disabled)"}</div>
+      <button onClick={() => toggleWebrtcProviderConnection()} style={{ width: "fit-content" }}>
+        {status.connected ? "Disconnect" : "Connect"}
       </button>
     </>
   )

@@ -1,6 +1,6 @@
 import BrowserOnly from "@docusaurus/BrowserOnly"
 import Head from "@docusaurus/Head"
-import { App } from "@site/docs/examples/yjsBinding/app"
+import { App } from "../../../docs/examples/yjsBinding/app"
 
 const Page = () => (
   <>
