@@ -1,4 +1,5 @@
 import {
+  applySnapshot,
   fromSnapshot,
   frozen,
   Frozen,
@@ -35,10 +36,10 @@ function basicTest<T>(name: string, data: T) {
     expect(sn[frozenKey]).toBe(true)
     expect(sn.data).toStrictEqual(data)
 
-    const frBack = fromSnapshot(frType, sn)
-    expect(frBack instanceof Frozen).toBe(true)
-    expect(frBack).not.toBe(fr)
-    expect(frBack.data).toBe(sn.data)
+    const frFromFromSnapshot = fromSnapshot(frType, sn)
+    expect(frFromFromSnapshot instanceof Frozen).toBe(true)
+    expect(frFromFromSnapshot).not.toBe(fr)
+    expect(frFromFromSnapshot.data).toBe(sn.data)
 
     const p = new MWithFrozenProp({ frozenStuff: fr })
 
@@ -53,6 +54,12 @@ function basicTest<T>(name: string, data: T) {
     expect(getSnapshot(p).frozenStuff).toBe(undefined)
     expect(getParent(fr)).toBe(undefined)
     expect(getRoot(fr)).toBe(fr)
+
+    applySnapshot(p, { frozenStuff: sn })
+    const frFromApplySnapshot = p.frozenStuff!
+    expect(frFromApplySnapshot instanceof Frozen).toBe(true)
+    expect(frFromApplySnapshot).not.toBe(fr)
+    expect(frFromApplySnapshot.data).toBe(sn.data)
   })
 }
 
