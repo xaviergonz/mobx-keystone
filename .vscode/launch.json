@@ -7,17 +7,24 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest debug current file",
+      "name": "lib - Jest debug current file",
       "program": "${workspaceFolder}/packages/lib/node_modules/jest/bin/jest.js",
       "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "${workspaceFolder}/node_modules/**/*.js",
-        "${workspaceFolder}/packages/lib/node_modules/**/*.js",
-        "<node_internals>/**/*.js"
-      ],
+      "skipFiles": ["${workspaceFolder}/**/node_modules/**/*.js", "<node_internals>/**/*.js"],
       "cwd": "${workspaceFolder}/packages/lib"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "mobx-keystone-yjs - Jest debug current file",
+      "program": "${workspaceFolder}/packages/mobx-keystone-yjs/node_modules/jest/bin/jest.js",
+      "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["${workspaceFolder}/**/node_modules/**/*.js", "<node_internals>/**/*.js"],
+      "cwd": "${workspaceFolder}/packages/mobx-keystone-yjs"
     }
   ]
 }
