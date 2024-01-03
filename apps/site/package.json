@@ -16,7 +16,6 @@
     "bootstrap-icons": "^1.11.2",
     "bufferutil": "^4.0.8",
     "iframe-resizer-react": "^1.1.0",
-    "mobx": "^6.12.0",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-keystone-yjs": "workspace:packages/mobx-keystone-yjs",
     "mobx-react": "^9.1.0",
@@ -28,6 +27,7 @@
     "y-webrtc": "^10.3.0"
   },
   "peerDependencies": {
+    "mobx": "^6.0.0",
     "yjs": "^13.0.0"
   },
   "devDependencies": {
