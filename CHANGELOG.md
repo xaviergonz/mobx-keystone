@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.9.0
+
+- Adds support for `YjsTextModel` from `mobx-keystone-yjs`.
+
 ## 1.8.3
 
 - Data model classes can now be passed as types directly, like model classes can.

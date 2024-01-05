@@ -1,4 +1,4 @@
-import { action, observable } from "mobx"
+import { observable } from "mobx"
 import { getSnapshot, registerRootStore } from "mobx-keystone"
 import { applyJsonObjectToYMap, bindYjsToMobxKeystone } from "mobx-keystone-yjs"
 import { observer } from "mobx-react"

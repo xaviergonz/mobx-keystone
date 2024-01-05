@@ -31,7 +31,11 @@ const sidebars: SidebarsConfig = {
     "drafts",
     "sandboxes",
     "computedTrees",
-    "reduxCompatibility",
+    {
+      type: "category",
+      label: "Integrations",
+      items: ["integrations/reduxCompatibility", "integrations/yjsBinding"],
+    },
     {
       type: "category",
       label: "Examples",

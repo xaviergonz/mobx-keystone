@@ -71,6 +71,13 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
         })
       }
     })
+  } else if (event instanceof Y.YTextEvent) {
+    const path = [...event.path, "deltaList", -1 /* last item */]
+    patches.push({
+      op: "add",
+      path,
+      value: { $frozen: true, data: event.delta },
+    })
   }
 
   return patches

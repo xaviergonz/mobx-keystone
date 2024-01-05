@@ -1,5 +1,5 @@
 ---
-title: Y.js binding
+title: Y.js Binding Example
 slug: /examples/yjs-binding
 ---
 
@@ -9,7 +9,7 @@ import IframeResizer from "iframe-resizer-react"
 import appSource from "!!raw-loader!./app.tsx"
 import appInstanceSource from "!!raw-loader!./appInstance.tsx"
 
-In this example we will be synchronizing two separate root stores via the `mobx-keystone-yjs` package. This package ensures a Y.js document is kept in sync with a mobx-keystone store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
+In this example we will be synchronizing two separate root stores via the `mobx-keystone-yjs` package (documentation [here](../../integrations/yjsBinding.mdx)). This package ensures a `Y.js` document is kept in sync with a `mobx-keystone` store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
 
 Note: This example uses `y-webrtc` to share state using WebRTC (P2P).
 
