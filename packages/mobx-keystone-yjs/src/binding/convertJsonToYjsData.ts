@@ -23,7 +23,7 @@ export function convertJsonToYjsData(v: JsonValue) {
 
   if (isJsonArray(v)) {
     const arr = new Y.Array()
-    applyJsonArrayYArray(arr, v)
+    applyJsonArrayToYArray(arr, v)
     return arr
   }
 
@@ -50,7 +50,7 @@ export function convertJsonToYjsData(v: JsonValue) {
   throw new Error(`unsupported value type: ${v}`)
 }
 
-export function applyJsonArrayYArray(dest: Y.Array<unknown>, source: JsonArray) {
+export function applyJsonArrayToYArray(dest: Y.Array<unknown>, source: JsonArray) {
   dest.push(source.map(convertJsonToYjsData))
 }
 

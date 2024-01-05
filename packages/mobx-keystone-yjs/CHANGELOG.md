@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.0
+
+- Added `YjsTextModel` as a way to use `Y.Text` as if it were a node.
+
 ## 1.3.1
 
 - Added `boundObject` to `yjsBindingContext` so it's easier to access the root bound object from the context.
