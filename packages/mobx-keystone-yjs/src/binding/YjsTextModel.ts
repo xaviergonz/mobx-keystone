@@ -1,4 +1,4 @@
-import { computed, observe } from "mobx"
+import { IAtom, computed, createAtom, observe, reaction } from "mobx"
 import {
   Frozen,
   Model,
@@ -12,6 +12,7 @@ import {
 import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
+import { resolveYjsPath } from "./resolveYjsPath"
 
 // Delta[][], since each single change is a Delta[]
 // we use frozen so that we can reuse each delta change
@@ -67,23 +68,7 @@ export class YjsTextModel extends Model({
 
     const ctx = yjsBindingContext.get(this)!
 
-    // resolve the path to the object
-    let currentYjsObject: unknown = ctx.yjsObject
-    path.forEach((pathPart, i) => {
-      if (currentYjsObject instanceof Y.Map) {
-        currentYjsObject = currentYjsObject.get(String(pathPart))
-      } else if (currentYjsObject instanceof Y.Array) {
-        currentYjsObject = currentYjsObject.get(Number(pathPart))
-      } else {
-        throw failure(
-          `Y.Map or Y.Array was expected at path ${JSON.stringify(
-            path.slice(0, i)
-          )} in order to resolve path ${JSON.stringify(path)}, but got ${currentYjsObject} instead`
-        )
-      }
-    })
-
-    return currentYjsObject
+    return resolveYjsPath(ctx.yjsObject, path)
   }
 
   /**
@@ -101,11 +86,17 @@ export class YjsTextModel extends Model({
   }
 
   /**
-   * The text value of the Yjs.Text object.
-   * Shortcut for `yjsText.toString()`.
+   * Atom that gets changed when the associated Y.js text changes.
    */
+  yjsTextChangedAtom = createAtom("yjsTextChangedAtom")
+
+  /**
+   * The text value of the Yjs.Text object.
+   * Shortcut for `yjsText.toString()`, but computed.
+   */
+  @computed
   get text(): string {
-    // this cannot be made computed unless we made it observe changes to deltaList
+    this.yjsTextChangedAtom.reportObserved()
     return this.yjsText.toString()
   }
 
@@ -117,29 +108,42 @@ export class YjsTextModel extends Model({
     let reapplyDeltasToYjsText = false
     const newDeltas: Frozen<unknown[]>[] = []
 
-    const disposeObserve = observe(this.$.deltaList, (change) => {
-      if (reapplyDeltasToYjsText) {
-        // already gonna replace them all
-        return
-      }
-      if (!shouldReplicateToYjs(yjsBindingContext.get(this))) {
-        // yjs text is already up to date with these changes
-        return
-      }
+    let disposeObserveDeltaList: (() => void) | undefined
 
-      if (
-        change.type === "splice" &&
-        change.removedCount === 0 &&
-        change.addedCount > 0 &&
-        change.index === this.deltaList.length
-      ) {
-        // optimization, just adding new ones to the end
-        newDeltas.push(...change.added)
-      } else {
-        // any other change, we need to reapply all deltas
-        reapplyDeltasToYjsText = true
-      }
-    })
+    const disposeReactionToDeltaListRefChange = reaction(
+      () => this.$.deltaList,
+      (deltaList) => {
+        disposeObserveDeltaList?.()
+        disposeObserveDeltaList = undefined
+
+        if (deltaList) {
+          disposeObserveDeltaList = observe(this.$.deltaList, (change) => {
+            if (reapplyDeltasToYjsText) {
+              // already gonna replace them all
+              return
+            }
+            if (!shouldReplicateToYjs(yjsBindingContext.get(this))) {
+              // yjs text is already up to date with these changes
+              return
+            }
+
+            if (
+              change.type === "splice" &&
+              change.removedCount === 0 &&
+              change.addedCount > 0 &&
+              change.index === this.deltaList.length
+            ) {
+              // optimization, just adding new ones to the end
+              newDeltas.push(...change.added)
+            } else {
+              // any other change, we need to reapply all deltas
+              reapplyDeltasToYjsText = true
+            }
+          })
+        }
+      },
+      { fireImmediately: true }
+    )
 
     const disposeOnSnapshot = onSnapshot(this, () => {
       try {
@@ -153,7 +157,7 @@ export class YjsTextModel extends Model({
               // didn't find a better way than this to reapply all deltas
               // without having to re-create the Y.Text object
               if (yjsText.length > 0) {
-                yjsText.delete(0, this.yjsText.length)
+                yjsText.delete(0, yjsText.length)
               }
 
               this.deltaList.forEach((frozenDeltas) => {
@@ -180,9 +184,18 @@ export class YjsTextModel extends Model({
       }
     })
 
+    const diposeYjsTextChangedAtom = hookYjsTextChangedAtom(
+      () => this.yjsText,
+      this.yjsTextChangedAtom
+    )
+
     return () => {
       disposeOnSnapshot()
-      disposeObserve()
+      disposeReactionToDeltaListRefChange()
+      disposeObserveDeltaList?.()
+      disposeObserveDeltaList = undefined
+
+      diposeYjsTextChangedAtom()
     }
   }
 }
@@ -190,3 +203,44 @@ export class YjsTextModel extends Model({
 // we use this trick just to avoid a babel bug that causes classes used inside classes not to be overriden
 // by the decorator
 const DecoratedYjsTextModel = YjsTextModel
+
+function hookYjsTextChangedAtom(getYjsText: () => Y.Text, textChangedAtom: IAtom) {
+  let disposeObserveYjsText: (() => void) | undefined
+
+  const observeFn = () => {
+    textChangedAtom.reportChanged()
+  }
+
+  const disposeReactionToYTextChange = reaction(
+    () => {
+      try {
+        return getYjsText()
+      } catch {
+        return undefined
+      }
+    },
+    (yjsText) => {
+      disposeObserveYjsText?.()
+      disposeObserveYjsText = undefined
+
+      if (yjsText) {
+        yjsText.observe(observeFn)
+
+        disposeObserveYjsText = () => {
+          yjsText.unobserve(observeFn)
+        }
+      }
+
+      textChangedAtom.reportChanged()
+    },
+    {
+      fireImmediately: true,
+    }
+  )
+
+  return () => {
+    disposeReactionToYTextChange()
+    disposeObserveYjsText?.()
+    disposeObserveYjsText = undefined
+  }
+}

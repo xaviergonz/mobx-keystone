@@ -1,3 +1,4 @@
+import { reaction } from "mobx"
 import { Model, frozen, getSnapshot, runUnprotected, tProp, types } from "mobx-keystone"
 import * as Y from "yjs"
 import { YjsTextModel, bindYjsToMobxKeystone } from "../../src"
@@ -171,14 +172,41 @@ const createSubobjectWithText = () => {
   })
   autoDispose(() => dispose())
 
+  const textChanges: string[] = []
+  autoDispose(
+    reaction(
+      () => {
+        try {
+          return boundObject.text?.text
+        } catch {
+          // unresolved
+          return undefined
+        }
+      },
+      (text) => {
+        if (text !== undefined) {
+          textChanges.push(text)
+        }
+      },
+      { fireImmediately: true }
+    )
+  )
+  expect(textChanges).toMatchInlineSnapshot(`
+    [
+      "abc",
+    ]
+  `)
+  textChanges.length = 0
+
   return {
     boundObject,
     yTestModel,
+    textChanges,
   }
 }
 
 test("bind a text as a sub-object (text starts defined)", () => {
-  const { boundObject } = createSubobjectWithText()
+  const { boundObject, textChanges } = createSubobjectWithText()
 
   expect(boundObject).toBeDefined()
   expect(boundObject.text!.yjsText).toBeDefined()
@@ -204,10 +232,13 @@ test("bind a text as a sub-object (text starts defined)", () => {
       ],
     }
   `)
+  // empty because there were no changes
+  expect(textChanges).toMatchInlineSnapshot(`[]`)
+  textChanges.length = 0
 })
 
 test("modify y.js native test - insert", () => {
-  const { boundObject } = createSubobjectWithText()
+  const { boundObject, textChanges } = createSubobjectWithText()
 
   boundObject.text!.yjsText.insert(0, "def")
   expect(boundObject.text!.yjsText.toDelta()).toMatchInlineSnapshot(`
@@ -240,10 +271,16 @@ test("modify y.js native test - insert", () => {
       ],
     }
   `)
+  expect(textChanges).toMatchInlineSnapshot(`
+    [
+      "defabc",
+    ]
+  `)
+  textChanges.length = 0
 })
 
 test("modify YJsText - clear", () => {
-  const { boundObject } = createSubobjectWithText()
+  const { boundObject, textChanges } = createSubobjectWithText()
 
   runUnprotected(() => {
     boundObject.text!.deltaList.length = 0
@@ -255,10 +292,16 @@ test("modify YJsText - clear", () => {
       "deltaList": [],
     }
   `)
+  expect(textChanges).toMatchInlineSnapshot(`
+    [
+      "",
+    ]
+  `)
+  textChanges.length = 0
 })
 
 test("modify YJsText - set to a value", () => {
-  const { boundObject } = createSubobjectWithText()
+  const { boundObject, textChanges } = createSubobjectWithText()
 
   runUnprotected(() => {
     boundObject.text!.deltaList[0] = frozen([
@@ -289,10 +332,16 @@ test("modify YJsText - set to a value", () => {
       ],
     }
   `)
+  expect(textChanges).toMatchInlineSnapshot(`
+    [
+      "def",
+    ]
+  `)
+  textChanges.length = 0
 })
 
 test("detach/reattach same YJsText", () => {
-  const { boundObject, yTestModel } = createSubobjectWithText()
+  const { boundObject, yTestModel, textChanges } = createSubobjectWithText()
 
   // detach
   const abcText = boundObject.text!
@@ -302,6 +351,8 @@ test("detach/reattach same YJsText", () => {
   expect(() => abcText.text).toThrow(
     "the YjsTextModel instance must be part of a bound object before it can be accessed"
   )
+  expect(textChanges).toMatchInlineSnapshot(`[]`)
+  textChanges.length = 0
 
   // reattach
   boundObject.setText(abcText)
@@ -329,10 +380,16 @@ test("detach/reattach same YJsText", () => {
       ],
     }
   `)
+  expect(textChanges).toMatchInlineSnapshot(`
+    [
+      "abc",
+    ]
+  `)
+  textChanges.length = 0
 })
 
 test("detach/reattach different YJsText", () => {
-  const { boundObject, yTestModel } = createSubobjectWithText()
+  const { boundObject, yTestModel, textChanges } = createSubobjectWithText()
 
   // detach
   const abcText = boundObject.text!
@@ -342,6 +399,8 @@ test("detach/reattach different YJsText", () => {
   expect(() => abcText.text).toThrow(
     "the YjsTextModel instance must be part of a bound object before it can be accessed"
   )
+  expect(textChanges).toMatchInlineSnapshot(`[]`)
+  textChanges.length = 0
 
   // reattach
   const defText = YjsTextModel.withText("def")
@@ -370,4 +429,10 @@ test("detach/reattach different YJsText", () => {
       ],
     }
   `)
+  expect(textChanges).toMatchInlineSnapshot(`
+    [
+      "def",
+    ]
+  `)
+  textChanges.length = 0
 })

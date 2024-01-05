@@ -1,3 +1,4 @@
+import { action } from "mobx"
 import {
   AnyDataModel,
   AnyModel,
@@ -13,6 +14,7 @@ import {
   onSnapshot,
 } from "mobx-keystone"
 import * as Y from "yjs"
+import { getOrCreateYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
 import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
@@ -73,11 +75,15 @@ export function bindYjsToMobxKeystone<
   const boundObject = createBoundObject()
 
   // bind any changes from yjs to mobx-keystone
-  const observeDeepCb = (events: Y.YEvent<any>[]) => {
+  const observeDeepCb = action((events: Y.YEvent<any>[]) => {
     const patches: Patch[] = []
     events.forEach((event) => {
       if (event.transaction.origin !== yjsOrigin) {
         patches.push(...convertYjsEventToPatches(event))
+      }
+
+      if (event.target instanceof Y.Map || event.target instanceof Y.Array) {
+        getOrCreateYjsCollectionAtom(event.target).reportChanged()
       }
     })
 
@@ -89,7 +95,7 @@ export function bindYjsToMobxKeystone<
         applyingYjsChangesToMobxKeystone--
       }
     }
-  }
+  })
 
   yjsObject.observeDeep(observeDeepCb)
 
