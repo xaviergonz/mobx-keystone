@@ -16,6 +16,11 @@ function isJsonObject(v: JsonValue): v is JsonObject {
   return !isJsonArray(v) && typeof v === "object"
 }
 
+/**
+ * Converts a JSON value to a Y.js data structure.
+ * Objects are converted to Y.Maps, arrays to Y.Arrays, primitives are untouched.
+ * Frozen values are a special case and they are kept as immutable plain values.
+ */
 export function convertJsonToYjsData(v: JsonValue) {
   if (v === undefined || isJsonPrimitive(v)) {
     return v
@@ -50,10 +55,16 @@ export function convertJsonToYjsData(v: JsonValue) {
   throw new Error(`unsupported value type: ${v}`)
 }
 
+/**
+ * Applies a JSON array to a Y.Array, using the convertJsonToYjsData to convert the values.
+ */
 export function applyJsonArrayToYArray(dest: Y.Array<unknown>, source: JsonArray) {
   dest.push(source.map(convertJsonToYjsData))
 }
 
+/**
+ * Applies a JSON object to a Y.Map, using the convertJsonToYjsData to convert the values.
+ */
 export function applyJsonObjectToYMap(dest: Y.Map<unknown>, source: JsonObject) {
   Object.entries(source).forEach(([k, v]) => {
     dest.set(k, convertJsonToYjsData(v))

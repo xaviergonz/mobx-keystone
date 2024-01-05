@@ -20,6 +20,9 @@ import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
 import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 
+/**
+ * Creates a bidirectional binding between a Y.js data structure and a mobx-keystone model.
+ */
 export function bindYjsToMobxKeystone<
   TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
 >({
@@ -27,12 +30,30 @@ export function bindYjsToMobxKeystone<
   yjsObject,
   mobxKeystoneType,
 }: {
+  /**
+   * The Y.js document.
+   */
   yjsDoc: Y.Doc
+  /**
+   * The bound Y.js data structure.
+   */
   yjsObject: Y.Map<unknown> | Y.Array<unknown> | Y.Text
+  /**
+   * The mobx-keystone model type.
+   */
   mobxKeystoneType: TType
 }): {
+  /**
+   * The bound mobx-keystone instance.
+   */
   boundObject: TypeToData<TType>
+  /**
+   * Disposes the binding.
+   */
   dispose(): void
+  /**
+   * The Y.js origin symbol used for binding transactions.
+   */
   yjsOrigin: symbol
 } {
   const yjsOrigin = Symbol("bindYjsToMobxKeystoneTransactionOrigin")

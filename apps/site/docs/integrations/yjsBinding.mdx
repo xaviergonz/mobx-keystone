@@ -5,27 +5,65 @@ slug: /integrations/yjs-binding
 
 The [`mobx-keystone-yjs`](https://www.npmjs.com/package/mobx-keystone-yjs) package ensures a `Y.js` document is kept in sync with a `mobx-keystone` store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
 
-## Binding `Y.js` data to a model
+## Binding `Y.js` data to a model instance
 
-TODO: bindYjsToMobxKeystone
+```ts
+const {
+  // The bound mobx-keystone instance.
+  boundObject,
+  // Disposes the binding.
+  dispose,
+  // The Y.js origin symbol used for binding transactions.
+  yjsOrigin,
+} = bindYjsToMobxKeystone({
+  // The mobx-keystone model type.
+  mobxKeystoneType,
+  // The Y.js document.
+  yjsDoc,
+  // The bound Y.js data structure.
+  yjsObject,
+})
+```
+
+Note that the `yjsObject` must be a `Y.Map`, `Y.Array` or a `Y.Text` and its structure must be compatible with the provided `mobx-keystone` type (or, to be more precise, its snapshot form).
 
 ## First migration - converting JSON to `Y.js` data
 
-TODO: talk about the first migration
-The `convertJsonToYjsData` takes a single argument, a JSON value (usually a snapshot of the model you want to bind) and returns a `Y.js` data structure (`Y.Map`, `Y.Array`, etc.) ready to be bound to that model.
+If you already have a model instance snapshot stored somewhere and want to start binding it to a `Y.js` data structure you can use the `convertJsonToYjsData` function to make this first migration.
+
+`convertJsonToYjsData` takes a single argument, a JSON value (usually a snapshot of the model you want to bind) and returns a `Y.js` data structure (`Y.Map`, `Y.Array`, etc.) ready to be bound to that model. Frozen values are a special case and they are kept as immutable plain values.
 
 ## Using Y.Text as a model node
 
-TODO: YjsTextModel
+The special model `YjsTextModel` can be used to bind a `Y.Text` to a `mobx-keystone` model.
+
+```ts
+const text = new YjsTextModel();
+const boundModel.setText(text);
+text.yjsText.insert(0, 'Hello world!');
+```
+
+Note that `yjsText` will throw an error if you try to access while it is not part of a bounded tree. This is due to a limitation of `Y.js` itself, since it allows limited manipulation of types while they are outside a `Y.Doc` tree.
 
 ## The `YjsBindingContext`
 
-TODO: YjsBindingContext
+All nodes inside a bound tree have access to a `YjsBindingContext` instance.
+
+The instance can be accessed using:
+
+```ts
+yjsBindingContext.get(nodePartOfTheBoundTree)
+```
+
+And this instance provides access to the following data:
+
+- `yjsDoc`: The `Y.js` document.
+- `yjsObject`: The bound `Y.js` data structure.
+- `mobxKeystoneType`: The `mobx-keystone` model type.
+- `yjsOrigin`: The origin symbol used for transactions.
+- `boundObject`: The bound `mobx-keystone` instance.
+- `isApplyingYjsChangesToMobxKeystone`: Whether we are currently applying `Y.js` changes to the `mobx-keystone` model.
 
 ## Example
 
 A full example is available [here](../examples/yjsBinding/yjsBinding.mdx).
-
-```
-
-```

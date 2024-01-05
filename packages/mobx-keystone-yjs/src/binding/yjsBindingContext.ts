@@ -36,4 +36,7 @@ export interface YjsBindingContext {
   isApplyingYjsChangesToMobxKeystone: boolean
 }
 
+/**
+ * Context with info on how a mobx-keystone model is bound to a Y.js data structure.
+ */
 export const yjsBindingContext = createContext<YjsBindingContext | undefined>(undefined)

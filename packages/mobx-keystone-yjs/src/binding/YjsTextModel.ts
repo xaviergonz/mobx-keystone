@@ -20,6 +20,9 @@ const deltaListType = types.array(types.frozen(types.unchecked<unknown[]>()))
 
 export const yjsTextModelId = "mobx-keystone-yjs/YjsTextModel"
 
+/**
+ * A mobx-keystone model that represents a Yjs.Text object.
+ */
 @model(yjsTextModelId)
 export class YjsTextModel extends Model({
   deltaList: tProp(deltaListType, () => []),
