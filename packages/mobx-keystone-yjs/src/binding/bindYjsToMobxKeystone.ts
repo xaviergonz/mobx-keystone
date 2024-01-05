@@ -14,6 +14,7 @@ import {
 } from "mobx-keystone"
 import * as Y from "yjs"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
+import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
 import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 
@@ -25,7 +26,7 @@ export function bindYjsToMobxKeystone<
   mobxKeystoneType,
 }: {
   yjsDoc: Y.Doc
-  yjsObject: Y.Map<unknown> | Y.Array<unknown>
+  yjsObject: Y.Map<unknown> | Y.Array<unknown> | Y.Text
   mobxKeystoneType: TType
 }): {
   boundObject: TypeToData<TType>
@@ -34,15 +35,21 @@ export function bindYjsToMobxKeystone<
 } {
   const yjsOrigin = Symbol("bindYjsToMobxKeystoneTransactionOrigin")
 
+  let applyingYjsChangesToMobxKeystone = 0
+
   const bindingContext: YjsBindingContext = {
     yjsDoc,
     yjsObject,
     mobxKeystoneType,
     yjsOrigin,
     boundObject: undefined, // not yet created
+
+    get isApplyingYjsChangesToMobxKeystone() {
+      return applyingYjsChangesToMobxKeystone > 0
+    },
   }
 
-  const yjsJson = yjsObject.toJSON()
+  const yjsJson = convertYjsDataToJson(yjsObject)
 
   const initializationGlobalPatches: { target: object; patches: Patch[] }[] = []
 
@@ -65,8 +72,6 @@ export function bindYjsToMobxKeystone<
 
   const boundObject = createBoundObject()
 
-  let applyingMobxKeystoneChanges = 0
-
   // bind any changes from yjs to mobx-keystone
   const observeDeepCb = (events: Y.YEvent<any>[]) => {
     const patches: Patch[] = []
@@ -77,11 +82,11 @@ export function bindYjsToMobxKeystone<
     })
 
     if (patches.length > 0) {
-      applyingMobxKeystoneChanges++
+      applyingYjsChangesToMobxKeystone++
       try {
         applyPatches(boundObject, patches)
       } finally {
-        applyingMobxKeystoneChanges--
+        applyingYjsChangesToMobxKeystone--
       }
     }
   }
@@ -89,27 +94,29 @@ export function bindYjsToMobxKeystone<
   yjsObject.observeDeep(observeDeepCb)
 
   // bind any changes from mobx-keystone to yjs
-  let pendingPatches: Patch[] = []
+  let pendingArrayOfArrayOfPatches: Patch[][] = []
   const disposeOnPatches = onPatches(boundObject, (patches) => {
-    if (applyingMobxKeystoneChanges > 0) {
+    if (applyingYjsChangesToMobxKeystone > 0) {
       return
     }
 
-    pendingPatches.push(...patches)
+    pendingArrayOfArrayOfPatches.push(patches)
   })
 
   // this is only used so we can transact all patches to the snapshot boundary
   const disposeOnSnapshot = onSnapshot(boundObject, () => {
-    if (pendingPatches.length === 0) {
+    if (pendingArrayOfArrayOfPatches.length === 0) {
       return
     }
 
-    const patches = pendingPatches
-    pendingPatches = []
+    const arrayOfArrayOfPatches = pendingArrayOfArrayOfPatches
+    pendingArrayOfArrayOfPatches = []
 
     yjsDoc.transact(() => {
-      patches.forEach((patch) => {
-        applyMobxKeystonePatchToYjsObject(patch, yjsObject)
+      arrayOfArrayOfPatches.forEach((arrayOfPatches) => {
+        arrayOfPatches.forEach((patch) => {
+          applyMobxKeystonePatchToYjsObject(patch, yjsObject)
+        })
       })
     }, yjsOrigin)
   })

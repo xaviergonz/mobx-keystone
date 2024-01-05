@@ -1,3 +1,4 @@
+export { YjsTextModel, yjsTextModelId } from "./binding/YjsTextModel"
 export { bindYjsToMobxKeystone } from "./binding/bindYjsToMobxKeystone"
 export {
   applyJsonArrayYArray,

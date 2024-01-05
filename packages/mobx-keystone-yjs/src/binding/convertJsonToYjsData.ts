@@ -1,5 +1,7 @@
 import * as Y from "yjs"
 import { JsonValue, JsonArray, JsonObject, JsonPrimitive } from "../jsonTypes"
+import { YjsTextModel, yjsTextModelId } from "./YjsTextModel"
+import { SnapshotOutOf } from "mobx-keystone"
 
 function isJsonPrimitive(v: JsonValue): v is JsonPrimitive {
   const t = typeof v
@@ -29,6 +31,15 @@ export function convertJsonToYjsData(v: JsonValue) {
     if (v.$frozen === true) {
       // frozen value, save as immutable object
       return v
+    }
+
+    if (v.$modelType === yjsTextModelId) {
+      const text = new Y.Text()
+      const yjsTextModel = v as SnapshotOutOf<YjsTextModel>
+      yjsTextModel.deltaList.forEach((frozenDeltas) => {
+        text.applyDelta(frozenDeltas.data)
+      })
+      return text
     }
 
     const map = new Y.Map()

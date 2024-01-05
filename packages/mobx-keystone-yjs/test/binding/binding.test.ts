@@ -2,17 +2,16 @@ import {
   Model,
   frozen,
   getSnapshot,
-  model,
   modelTypeKey,
   runUnprotected,
   tProp,
   types,
 } from "mobx-keystone"
 import * as Y from "yjs"
-import { bindYjsToMobxKeystone, yjsBindingContext } from "../src"
-import { autoDispose } from "./utils"
+import { bindYjsToMobxKeystone, yjsBindingContext } from "../../src"
+import { autoDispose, testModel } from "../utils"
 
-@model("yjs-test-submodel")
+@testModel("yjs-test-submodel")
 class SubModel extends Model({
   primitive: tProp(types.number, 0),
 }) {
@@ -21,7 +20,7 @@ class SubModel extends Model({
   }
 }
 
-@model("yjs-test-model")
+@testModel("yjs-test-model")
 class TestModel extends Model({
   primitive: tProp(types.number, 0),
   maybePrimitive: tProp(types.maybe(types.number)),

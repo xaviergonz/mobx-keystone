@@ -89,7 +89,12 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
         const index = +prop!
         // reconcile from the pool if possible
         const newValue = reconcileSnapshot(undefined, patch.value, modelPool, target)
-        target.splice(index, 0, newValue)
+        if (index < 0) {
+          // extension needed by mobx-keystone-yjs
+          target.push(newValue)
+        } else {
+          target.splice(index, 0, newValue)
+        }
         break
       }
 

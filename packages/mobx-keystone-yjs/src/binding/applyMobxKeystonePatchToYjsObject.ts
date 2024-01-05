@@ -25,6 +25,8 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
         )
       }
       applyMobxKeystonePatchToYjsObject({ ...patch, path: rest }, child)
+    } else if (yjs instanceof Y.Text) {
+      // changes to deltaList will be handled by the array observe in the YjsTextModel class
     } else {
       throw failure(
         `invalid patch path, key "${key}" not found in unknown Yjs object - patch: ${JSON.stringify(
@@ -81,6 +83,8 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
           throw failure(`invalid patch operation for array`)
         }
       }
+    } else if (yjs instanceof Y.Text) {
+      // initialization of a YjsTextModel, do nothing
     } else {
       throw failure(
         `invalid patch path, the Yjs object is of an unkown type, so key "${patch.path[0]}" cannot be found in it`
