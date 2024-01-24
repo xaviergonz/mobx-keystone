@@ -108,32 +108,30 @@ export const setParent = action(
       }
     }
 
-    let postUntweaker: ReturnType<typeof tryUntweak> | undefined
+    const postUntweaker = parentPath ? undefined : tryUntweak(value)
 
-    if (!parentPath) {
-      postUntweaker = tryUntweak(value)
+    const valueIsModel = value instanceof BaseModel
+
+    let oldRoot: any
+    let oldRootStore: any
+    if (valueIsModel) {
+      oldRoot = fastGetRoot(value)
+      oldRootStore = fastIsRootStore(oldRoot) ? oldRoot : undefined
     }
 
-    const attachToNewParent = () => {
-      // detach from old
-      if (oldParentPath?.parent) {
-        removeObjectChild(oldParentPath.parent, value)
-      }
-
-      // attach to new
-      objectParents.set(value, parentPath)
-      if (parentPath?.parent) {
-        addObjectChild(parentPath.parent, value)
-      }
-      reportParentPathChanged(value)
+    // detach from old
+    if (oldParentPath?.parent) {
+      removeObjectChild(oldParentPath.parent, value)
     }
 
-    if (value instanceof BaseModel) {
-      const oldRoot = fastGetRoot(value)
-      const oldRootStore = fastIsRootStore(oldRoot) ? oldRoot : undefined
+    // attach to new
+    objectParents.set(value, parentPath)
+    if (parentPath?.parent) {
+      addObjectChild(parentPath.parent, value)
+    }
+    reportParentPathChanged(value)
 
-      attachToNewParent()
-
+    if (valueIsModel) {
       const newRoot = fastGetRoot(value)
       const newRootStore = fastIsRootStore(newRoot) ? newRoot : undefined
 
@@ -148,8 +146,6 @@ export const setParent = action(
           }
         })
       }
-    } else {
-      attachToNewParent()
     }
 
     postUntweaker?.()

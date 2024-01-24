@@ -15,14 +15,11 @@ const objectParentsAtoms = new WeakMap<object, IAtom>()
  */
 export function parentPathEquals(
   parentPath1: ParentPath<any> | undefined,
-  parentPath2: ParentPath<any> | undefined,
-  comparePath = true
+  parentPath2: ParentPath<any> | undefined
 ) {
   if (!parentPath1 && !parentPath2) return true
   if (!parentPath1 || !parentPath2) return false
-  const parentEquals = parentPath1.parent === parentPath2.parent
-  if (!parentEquals) return false
-  return comparePath ? parentPath1.path === parentPath2.path : true
+  return parentPath1.parent === parentPath2.parent && parentPath1.path === parentPath2.path
 }
 
 function createParentPathAtom(obj: object) {
