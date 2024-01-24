@@ -20,7 +20,12 @@ export function bench(
   const es6 = chalk.magenta("raw es6")
   const mobx = chalk.blue("raw mobx")
 
-  suite = suite.add(keystone, mobxKeyStoneImpl).add(mst, mstImpl)
+  suite = suite.add(keystone, mobxKeyStoneImpl)
+
+  const runMst = true
+  if (runMst) {
+    suite = suite.add(mobx, mstImpl)
+  }
 
   if (extrasToRun.includes("mobx")) {
     suite = suite.add(mobx, mobxImpl)
@@ -44,14 +49,16 @@ export function bench(
     })
     .on("complete", () => {
       const keystoneSpeed = results[keystone].hz!
-      const mstSpeed = results[mst].hz!
-      const fastest = keystoneSpeed > mstSpeed ? keystone : mst
+      if (runMst) {
+        const mstSpeed = results[mst].hz!
+        const fastest = keystoneSpeed > mstSpeed ? keystone : mst
 
-      const ratio = Math.max(keystoneSpeed, mstSpeed) / Math.min(keystoneSpeed, mstSpeed)
+        const ratio = Math.max(keystoneSpeed, mstSpeed) / Math.min(keystoneSpeed, mstSpeed)
 
-      console.log(
-        `Fastest between mobx-keystone and mobx-state-tree is ${fastest} by ${ratio.toFixed(2)}x`
-      )
+        console.log(
+          `Fastest between mobx-keystone and mobx-state-tree is ${fastest} by ${ratio.toFixed(2)}x`
+        )
+      }
 
       if (extrasToRun.includes("mobx")) {
         const mobxRatio = results[mobx].hz! / results[keystone].hz!
