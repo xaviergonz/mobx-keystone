@@ -48,8 +48,8 @@ export function bench(
       console.log(String(event.target))
     })
     .on("complete", () => {
-      const keystoneSpeed = results[keystone].hz!
       if (runMst) {
+        const keystoneSpeed = results[keystone].hz!
         const mstSpeed = results[mst].hz!
         const fastest = keystoneSpeed > mstSpeed ? keystone : mst
 
