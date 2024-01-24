@@ -24,7 +24,7 @@ export function bench(
 
   const runMst = true
   if (runMst) {
-    suite = suite.add(mobx, mstImpl)
+    suite = suite.add(mst, mstImpl)
   }
 
   if (extrasToRun.includes("mobx")) {
