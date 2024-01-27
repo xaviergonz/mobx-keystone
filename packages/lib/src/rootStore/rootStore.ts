@@ -7,11 +7,15 @@ import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
 const rootStoreRegistry = new WeakMap<object, { atom: IAtom; is: boolean }>()
 
-const getOrCreateRootStoreEntry = (node: object) =>
-  getOrCreate(rootStoreRegistry, node, () => ({
+function createRootStoreEntry() {
+  return {
     atom: createAtom("rootStore"),
     is: false,
-  }))
+  }
+}
+
+const getOrCreateRootStoreEntry = (node: object) =>
+  getOrCreate(rootStoreRegistry, node, createRootStoreEntry)
 
 /**
  * Registers a model / tree node object as a root store tree.

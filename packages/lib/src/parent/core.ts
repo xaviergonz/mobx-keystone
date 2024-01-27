@@ -22,22 +22,26 @@ export function parentPathEquals(
   return parentPath1.parent === parentPath2.parent && parentPath1.path === parentPath2.path
 }
 
-function createParentPathAtom(obj: object) {
-  return getOrCreate(objectParentsAtoms, obj, () => createAtom("parentAtom"))
+function createParentPathAtom() {
+  return createAtom("parentAtom")
+}
+
+function getOrCreateParentPathAtom(obj: object) {
+  return getOrCreate(objectParentsAtoms, obj, createParentPathAtom)
 }
 
 /**
  * @internal
  */
 export function reportParentPathObserved(node: object) {
-  createParentPathAtom(node).reportObserved()
+  getOrCreateParentPathAtom(node).reportObserved()
 }
 
 /**
  * @internal
  */
 export function reportParentPathChanged(node: object) {
-  createParentPathAtom(node).reportChanged()
+  getOrCreateParentPathAtom(node).reportChanged()
 }
 
 /**

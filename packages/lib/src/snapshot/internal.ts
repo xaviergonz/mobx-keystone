@@ -78,15 +78,19 @@ export const setNewInternalSnapshot = action(
     transformFn: SnapshotTransformFn | undefined,
     markAsFrozen = false
   ): void => {
+    const transformed: any = transformFn ? transformFn(untransformed) : untransformed
+
     const sn: SnapshotData = {
       untransformed,
       transformFn,
-      transformed: transformFn ? transformFn(untransformed) : untransformed,
+      transformed,
       atom: createAtom("snapshot"),
     }
-    frozenState.set(sn.untransformed, markAsFrozen)
-    if (sn.transformed !== undefined) {
-      frozenState.set(sn.transformed, markAsFrozen)
+
+    frozenState.set(untransformed, markAsFrozen)
+
+    if (transformed !== undefined && transformed !== untransformed) {
+      frozenState.set(transformed, markAsFrozen)
     }
 
     snapshots.set(value, sn)
