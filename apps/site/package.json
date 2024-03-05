@@ -31,12 +31,12 @@
     "yjs": "^13.0.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.23.9",
+    "@babel/plugin-proposal-decorators": "^7.24.0",
     "@docusaurus/module-type-aliases": "^3.1.1",
     "@docusaurus/tsconfig": "^3.1.1",
     "@svgr/webpack": "^8.1.0",
-    "@types/react": "^18.2.58",
-    "@types/react-dom": "^18.2.19",
+    "@types/react": "^18.2.63",
+    "@types/react-dom": "^18.2.20",
     "@types/uuid": "^9.0.8",
     "raw-loader": "^4.0.2",
     "shx": "^0.3.4",
