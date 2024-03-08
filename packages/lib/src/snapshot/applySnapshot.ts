@@ -88,7 +88,7 @@ export function internalApplySnapshot<T extends object>(
   }
 
   if (isModelSnapshot(sn)) {
-    const type = sn[modelTypeKey]
+    const type = (sn as { [modelTypeKey]: string })[modelTypeKey]
 
     const modelInfo = getModelInfoForName(type)
     if (!modelInfo) {
