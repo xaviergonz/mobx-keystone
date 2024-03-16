@@ -7,7 +7,7 @@ import {
   SerializedActionCallWithModelIdOverrides,
 } from "mobx-keystone"
 import { observer } from "mobx-react"
-import React, { useState } from "react"
+import { useState } from "react"
 import { TodoListView } from "../todoList/app"
 import { cancelledActionSymbol, LogsView } from "../todoList/logs"
 import { TodoList } from "../todoList/store"

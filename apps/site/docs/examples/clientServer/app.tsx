@@ -1,5 +1,4 @@
 import { observer } from "mobx-react"
-import React from "react"
 import { AppInstance } from "./appInstance"
 
 // we will expose both app instances in the ui

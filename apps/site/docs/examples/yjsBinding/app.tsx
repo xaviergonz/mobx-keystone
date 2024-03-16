@@ -1,5 +1,4 @@
 import { observer } from "mobx-react"
-import React from "react"
 import { AppInstance } from "./appInstance"
 
 export const App = observer(() => {

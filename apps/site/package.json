@@ -7,7 +7,8 @@
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build && shx cp -r ./copy-to-build/. ./build",
-    "serve": "docusaurus serve"
+    "serve": "docusaurus serve",
+    "lint": "cd ../.. && yarn eslint \"apps/site/{src,docs}/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@docusaurus/core": "^3.1.1",
