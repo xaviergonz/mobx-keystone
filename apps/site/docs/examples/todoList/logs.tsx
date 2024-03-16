@@ -35,7 +35,7 @@ export const LogsView = observer((props: { rootStore: TodoList }) => {
       },
     })
     return disposer
-  }, [props.rootStore])
+  }, [data, props.rootStore])
 
   useEffect(() => {
     // also it is possible to get a list of changes in the form of patches,
@@ -76,7 +76,7 @@ function ActionCallToText(props: { actionCall: ExtendedActionCall }) {
 
   const args = actionCall.args.map((arg) => JSON.stringify(arg)).join(", ")
   const path = actionCall.targetPath.join("/")
-  let text = `[${path}] ${actionCall.actionName}(${args})`
+  const text = `[${path}] ${actionCall.actionName}(${args})`
   if (actionCall.cancelled) {
     return (
       <>

@@ -22,7 +22,7 @@ function initAppInstance() {
 
   let serverAction = false
   const runServerActionLocally = (actionCall: SerializedActionCallWithModelIdOverrides) => {
-    let wasServerAction = serverAction
+    const wasServerAction = serverAction
     serverAction = true
     try {
       // in clients we use the sync new model ids version to make sure that
