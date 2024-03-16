@@ -664,6 +664,7 @@ export function undoMiddleware<S>(
 ): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
+  // eslint-disable-next-line prefer-const
   let manager: UndoManager
 
   interface PatchRecorderData {

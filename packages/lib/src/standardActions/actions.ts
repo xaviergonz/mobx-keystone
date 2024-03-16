@@ -1,3 +1,4 @@
+import { AnyFunction } from "../utils/AnyFunction"
 import { ActionContextActionType } from "../action/context"
 import { isModelAction } from "../action/isModelAction"
 import { flow, isModelFlow } from "../action/modelFlow"
@@ -8,7 +9,7 @@ import { assertIsFunction, failure, logWarning } from "../utils"
 /**
  * A function with an object as target.
  */
-type TargetedAction = (...args: any[]) => any
+type TargetedAction = AnyFunction
 
 const standaloneActionRegistry = new Map<string, TargetedAction>()
 

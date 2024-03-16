@@ -51,7 +51,7 @@ test("delete", () => {
 })
 
 test("forEach", () => {
-  let a: [string, number][] = []
+  const a: [string, number][] = []
   const self = {}
   map.forEach(function (this: any, v, k, m) {
     expect(this).toBe(self)

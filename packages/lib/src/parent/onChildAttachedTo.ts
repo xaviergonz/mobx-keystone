@@ -56,7 +56,7 @@ export function onChildAttachedTo(
 
   const getChildrenObjectOpts = { deep: opts.deep }
   const getCurrentChildren = () => {
-    let t = target()
+    const t = target()
     assertTweakedObject(t, "target()")
 
     const children = getChildrenObjects(t, getChildrenObjectOpts)

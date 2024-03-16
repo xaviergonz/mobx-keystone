@@ -44,7 +44,9 @@ export function tweakPlainObject<T extends Record<string, any>>(
     ? originalObj
     : observable.object({}, undefined, observableOptions)
 
+  // eslint-disable-next-line prefer-const
   let interceptDisposer: () => void
+  // eslint-disable-next-line prefer-const
   let observeDisposer: () => void
 
   const untweak = () => {
@@ -62,7 +64,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
     cloneIfApplicable: false,
   })
 
-  let untransformedSn: any = {}
+  const untransformedSn: any = {}
 
   // substitute initial values by tweaked values
   const originalObjKeys = Object.keys(originalObj)
@@ -144,7 +146,7 @@ const patchRecorder = new InternalPatchRecorder()
 function objectDidChange(change: IObjectDidChange): void {
   const obj = change.object
   const actualNode = dataToModelNode(obj)
-  let oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
+  const oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
 
   patchRecorder.reset()
 

@@ -747,7 +747,7 @@ test("issue #358", () => {
   @testModel("issue #358/Container")
   class Container<V extends Value<T>, T extends DataType> extends Model(<
     V extends Value<T>,
-    T extends DataType
+    T extends DataType,
   >() => ({
     value: prop<V>(),
   }))<V, T> {}
@@ -817,7 +817,7 @@ test("generic model instance factory", () => {
 test("statics get inherited", () => {
   @testModel("statics get inherited/A")
   class StaticA extends Model({}) {
-    static foo: "foo" = "foo"
+    static foo = "foo" as const
   }
 
   ;(StaticA.prototype as any).foo = "foo"
@@ -825,7 +825,7 @@ test("statics get inherited", () => {
 
   @testModel("statics get inherited/B")
   class StaticB extends ExtendedModel(StaticA, {}) {
-    static bar: "bar" = "bar"
+    static bar = "bar" as const
   }
 
   expect((StaticB.prototype as any).foo).toBe("foo")

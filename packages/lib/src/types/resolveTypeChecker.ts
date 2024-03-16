@@ -32,6 +32,7 @@ function findStandardType(value: any): AnyStandardType | undefined {
  */
 export function resolveTypeChecker(v: AnyType | TypeChecker | LateTypeChecker): TypeChecker {
   let next: TypeChecker | LateTypeChecker = v as any
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (next instanceof TypeChecker) {
       return next

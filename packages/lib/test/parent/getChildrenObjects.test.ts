@@ -31,9 +31,9 @@ test(`getChildrenObjects {deep: ${deep}}`, () => {
   const getChildrenIds = (n: any) =>
     [...getChildren(n).values()].map((n2: any) => (isObservableArray(n2) ? "array" : n2.id))
 
-  let initialChildren = getChildren(c)
-  let initialChildren1 = getChildren(c.children![0])
-  let initialChildren3 = getChildren(c.children![2])
+  const initialChildren = getChildren(c)
+  const initialChildren1 = getChildren(c.children![0])
+  const initialChildren3 = getChildren(c.children![2])
 
   let childrenChanges = 0
   let children1Changes = 0

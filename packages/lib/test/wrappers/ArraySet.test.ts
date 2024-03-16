@@ -43,7 +43,7 @@ test("delete", () => {
 })
 
 test("forEach", () => {
-  let v: number[] = []
+  const v: number[] = []
   const self = {}
   set.forEach(function (this: any, t1, t2, s) {
     expect(this).toBe(self)

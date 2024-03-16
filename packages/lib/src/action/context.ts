@@ -1,5 +1,3 @@
-import type { AnyModel } from "../model/BaseModel"
-
 /**
  * Low level action context.
  */
@@ -15,7 +13,7 @@ export interface ActionContext {
   /**
    * Action target object.
    */
-  readonly target: AnyModel
+  readonly target: object
   /**
    * Array of action arguments.
    */

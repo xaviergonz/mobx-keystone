@@ -88,7 +88,7 @@ test("model without model type thanks to a type passed to fromSnapshot", () => {
   const testType = (type: any, sn: any, getInstance?: (val: any) => M1) => {
     const fsn = fromSnapshot(type, sn)
 
-    let m1 = getInstance?.(fsn)
+    const m1 = getInstance?.(fsn)
     if (m1 !== undefined) {
       expect(m1 instanceof M1).toBe(true)
       expect(m1!.x).toBe(m1Sn.x)

@@ -58,7 +58,7 @@ test("model decorator sets model type static prop and toString methods", () => {
   class MyModel extends Model({
     name: prop(() => "hello"),
   }) {
-    x: number = 1 // not-stored-properties not rendered
+    x = 1 // not-stored-properties not rendered
   }
 
   expect((MyModel as any)[modelTypeKey]).toBeUndefined()

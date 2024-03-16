@@ -212,7 +212,9 @@ function addStandardTests() {
     try {
       await m.setXAsyncThrowSync()
       throw fail("should have thrown")
-    } catch {}
+    } catch {
+      // ignore
+    }
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 
@@ -220,7 +222,9 @@ function addStandardTests() {
     try {
       await m.setXAsyncThrowAsync()
       throw fail("should have thrown")
-    } catch {}
+    } catch {
+      // ignore
+    }
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 
@@ -246,7 +250,9 @@ function addStandardTests() {
     try {
       await m.setXYAsyncThrowSync()
       throw fail("should have thrown")
-    } catch {}
+    } catch {
+      // ignore
+    }
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 
@@ -254,7 +260,9 @@ function addStandardTests() {
     try {
       await m.setXYAsyncThrowAsync()
       throw fail("should have thrown")
-    } catch {}
+    } catch {
+      // ignore
+    }
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 

@@ -1,3 +1,4 @@
+import { AnyFunction } from "../utils/AnyFunction"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
@@ -179,6 +180,7 @@ const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
 }
 
 // basically taken from TS
+/* eslint-disable */
 function tsDecorate(decorators: any, target: any, key: any, desc: any) {
   var c = arguments.length,
     r =
@@ -192,6 +194,7 @@ function tsDecorate(decorators: any, target: any, key: any, desc: any) {
   // eslint-disable-next-line no-sequences
   return c > 3 && r && Object.defineProperty(target, key, r), r
 }
+/* eslint-enable */
 
 /**
  * Marks a class (which MUST inherit from the `Model` abstract class)
@@ -207,7 +210,7 @@ export function decoratedModel<M, MC extends abstract new (...ags: any) => M>(
   name: string | undefined,
   clazz: MC,
   decorators: {
-    [k in keyof M]?: ((...args: any[]) => any) | ReadonlyArray<(...args: any[]) => any>
+    [k in keyof M]?: AnyFunction | ReadonlyArray<AnyFunction>
   }
 ): MC {
   // decorate class members

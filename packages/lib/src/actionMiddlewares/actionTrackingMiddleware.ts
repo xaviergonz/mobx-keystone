@@ -159,7 +159,7 @@ export function actionTrackingMiddleware(
   }
 
   function setCtxData(ctx: ActionContext | SimpleActionContext, partialData: Partial<Data>) {
-    let currentData = ctx.data[dataSymbol]
+    const currentData = ctx.data[dataSymbol]
     if (!currentData) {
       ctx.data[dataSymbol] = partialData
     } else {
@@ -190,7 +190,7 @@ export function actionTrackingMiddleware(
       return accepted
     } else {
       switch (ctx.asyncStepType) {
-        case ActionContextAsyncStepType.Spawn:
+        case ActionContextAsyncStepType.Spawn: {
           const accepted = userFilter(ctx)
           if (accepted) {
             setCtxData(ctx, {
@@ -199,12 +199,14 @@ export function actionTrackingMiddleware(
             })
           }
           return accepted
+        }
 
         case ActionContextAsyncStepType.Return:
-        case ActionContextAsyncStepType.Throw:
+        case ActionContextAsyncStepType.Throw: {
           // depends if the spawn one was accepted or not
           const data = getCtxData(ctx.spawnAsyncStepContext!)
           return data ? data.startAccepted : false
+        }
 
         case ActionContextAsyncStepType.Resume:
         case ActionContextAsyncStepType.ResumeError:

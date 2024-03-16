@@ -373,6 +373,8 @@ test("generic typings", () => {
     },
   })
 
-  // @ts-expect-error
-  genericRef2(new GenericModel({ v1: 1, v2: "2" }))
+  genericRef2(
+    // @ts-expect-error - wrong type
+    new GenericModel({ v1: 1, v2: "2" })
+  )
 })

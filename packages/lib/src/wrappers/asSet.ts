@@ -28,7 +28,7 @@ const observableSetBackedByObservableArray = action(
         set.add(item)
       })
     }
-    ;(set as any).dataObject = array
+    ;(set as ObservableSet<T> & { dataObject: typeof array }).dataObject = array
 
     if (set.size !== array.length) {
       throw failure("arrays backing a set cannot contain duplicate values")
@@ -42,43 +42,48 @@ const observableSetBackedByObservableArray = action(
     // when the array changes the set changes
     observe(
       array,
-      action((change: any /*IArrayDidChange<T>*/) => {
-        if (setAlreadyChanged) {
-          return
-        }
-
-        arrayAlreadyChanged = true
-
-        try {
-          switch (change.type) {
-            case "splice": {
-              {
-                const removed = change.removed
-                for (let i = 0; i < removed.length; i++) {
-                  set.delete(removed[i])
-                }
-              }
-
-              {
-                const added = change.added
-                for (let i = 0; i < added.length; i++) {
-                  set.add(added[i])
-                }
-              }
-
-              break
-            }
-
-            case "update": {
-              set.delete(change.oldValue)
-              set.add(change.newValue)
-              break
-            }
+      action(
+        (
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          change: any /*IArrayDidChange<T>*/
+        ) => {
+          if (setAlreadyChanged) {
+            return
           }
-        } finally {
-          arrayAlreadyChanged = false
+
+          arrayAlreadyChanged = true
+
+          try {
+            switch (change.type) {
+              case "splice": {
+                {
+                  const removed = change.removed
+                  for (let i = 0; i < removed.length; i++) {
+                    set.delete(removed[i])
+                  }
+                }
+
+                {
+                  const added = change.added
+                  for (let i = 0; i < added.length; i++) {
+                    set.add(added[i])
+                  }
+                }
+
+                break
+              }
+
+              case "update": {
+                set.delete(change.oldValue)
+                set.add(change.newValue)
+                break
+              }
+            }
+          } finally {
+            arrayAlreadyChanged = false
+          }
         }
-      })
+      )
     )
 
     // when the set changes also change the array
@@ -118,11 +123,11 @@ const observableSetBackedByObservableArray = action(
       })
     )
 
-    return set as any
+    return set as ObservableSet<T> & { dataObject: typeof array }
   }
 )
 
-const asSetTag = tag((array: Array<any>) => {
+const asSetTag = tag((array: Array<unknown>) => {
   assertIsObservableArray(array, "array")
   return observableSetBackedByObservableArray(array)
 })
@@ -133,7 +138,7 @@ const asSetTag = tag((array: Array<any>) => {
  * @param array
  */
 export function asSet<T>(array: Array<T>): ObservableSet<T> & { dataObject: typeof array } {
-  return asSetTag.for(array) as any
+  return asSetTag.for(array)
 }
 
 /**
@@ -144,7 +149,7 @@ export function asSet<T>(array: Array<T>): ObservableSet<T> & { dataObject: type
 export function setToArray<T>(set: Set<T>): Array<T> {
   assertIsSet(set, "set")
 
-  const dataObject = (set as any).dataObject
+  const dataObject = (set as Set<T> & { dataObject: Array<T> }).dataObject
   if (dataObject) {
     return dataObject
   }

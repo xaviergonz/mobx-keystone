@@ -275,7 +275,7 @@ describe("concurrency", () => {
 
   let todoList!: TodoList
   let capturing = true
-  let captured: SerializedActionCall[] = []
+  const captured: SerializedActionCall[] = []
   beforeEach(() => {
     todoList = newTodoList()
     capturing = true

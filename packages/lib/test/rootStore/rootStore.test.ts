@@ -298,7 +298,7 @@ test("issue #316", () => {
   class TrackNode extends Model({
     name: prop<string>(),
   }) {
-    counter: number = 0
+    counter = 0
     onAttachedToRootStore() {
       mountCount++
       return () => {

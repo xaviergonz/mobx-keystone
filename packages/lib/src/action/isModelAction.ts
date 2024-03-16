@@ -1,3 +1,5 @@
+import { AnyFunction } from "../utils/AnyFunction"
+
 /**
  * @internal
  */
@@ -9,6 +11,6 @@ export const modelActionSymbol = Symbol("modelAction")
  * @param fn Function to check.
  * @returns
  */
-export function isModelAction(fn: (...args: any[]) => any): boolean {
+export function isModelAction(fn: AnyFunction): boolean {
   return typeof fn === "function" && modelActionSymbol in fn
 }

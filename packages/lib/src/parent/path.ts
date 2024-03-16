@@ -157,8 +157,8 @@ export function getRootPath<T extends object = any>(value: object): RootPath<T> 
  */
 export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
   let root = value
-  let path = [] as WritablePath
-  let pathObjects = [value] as unknown[]
+  const path = [] as WritablePath
+  const pathObjects = [value] as unknown[]
 
   let parentPath: ParentPath<any> | undefined
   while ((parentPath = fastGetParentPath(root))) {
@@ -236,7 +236,7 @@ export function resolvePath<T = any>(
 
   let current: any = pathRootObject
 
-  let len = path.length
+  const len = path.length
   for (let i = 0; i < len; i++) {
     if (!isObject(current)) {
       return unresolved
@@ -299,7 +299,7 @@ export function resolvePathCheckingIds<T = any>(
   let current: any = modelToDataNode(pathRootObject)
   // root id is never checked
 
-  let len = path.length
+  const len = path.length
   for (let i = 0; i < len; i++) {
     if (!isObject(current)) {
       return { resolved: false }

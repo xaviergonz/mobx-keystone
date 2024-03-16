@@ -118,7 +118,7 @@ export function isJSONPrimitive(value: unknown): value is JSONPrimitiveValue {
  * @internal
  */
 export function deleteFromArray<T>(array: T[], value: T): boolean {
-  let index = array.indexOf(value)
+  const index = array.indexOf(value)
   if (index >= 0) {
     array.splice(index, 1)
     return true
@@ -212,6 +212,7 @@ export function assertIsSet(value: unknown, argName: string): asserts value is S
 /**
  * @internal
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function assertIsFunction(value: unknown, argName: string): asserts value is Function {
   if (typeof value !== "function") {
     throw failure(`${argName} must be a function`)

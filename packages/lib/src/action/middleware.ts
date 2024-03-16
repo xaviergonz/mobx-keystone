@@ -87,7 +87,7 @@ export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
               return { value: undefined, done: true }
             }
 
-            let result = iter.next()
+            const result = iter.next()
             if (!result.done) {
               return result
             }
@@ -117,7 +117,8 @@ export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
 export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDisposer {
   assertIsObject(mware, "middleware")
 
-  let { middleware, filter, subtreeRoot } = mware
+  const { middleware, subtreeRoot } = mware
+  let { filter } = mware
 
   assertTweakedObject(subtreeRoot, "middleware.subtreeRoot")
   assertIsFunction(middleware, "middleware.middleware")

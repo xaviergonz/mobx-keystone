@@ -1,10 +1,9 @@
+import { AnyFunction } from "../utils/AnyFunction"
 import { assertTweakedObject } from "../tweaker/core"
 import { lazy } from "../utils"
 import { BuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./wrapInAction"
-
-type AnyFunction = (...args: any[]) => any
 
 /**
  * Calls an object method wrapped in an action.

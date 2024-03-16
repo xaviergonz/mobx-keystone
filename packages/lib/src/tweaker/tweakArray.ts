@@ -43,7 +43,9 @@ export function tweakArray<T extends any[]>(
     tweakedArr.length = originalArr.length
   }
 
+  // eslint-disable-next-line prefer-const
   let interceptDisposer: () => void
+  // eslint-disable-next-line prefer-const
   let observeDisposer: () => void
 
   const untweak = () => {
@@ -118,7 +120,7 @@ const patchRecorder = new InternalPatchRecorder()
 
 function arrayDidChange(change: any /*IArrayDidChange*/) {
   const arr = change.object
-  let oldSnapshot = getInternalSnapshot(arr as Array<any>)!.untransformed
+  const oldSnapshot = getInternalSnapshot(arr as Array<unknown>)!.untransformed
 
   patchRecorder.reset()
 
@@ -184,7 +186,7 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
   const addedCount = change.addedCount
   const removedCount = change.removedCount
 
-  let addedItems: any[] = []
+  const addedItems: any[] = []
   addedItems.length = addedCount
   for (let i = 0; i < addedCount; i++) {
     const v = change.added[i]

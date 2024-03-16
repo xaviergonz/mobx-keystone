@@ -76,7 +76,7 @@ export function asReduxStore<T extends object>(
     return action
   }
 
-  let store: ReduxStore<T> = {
+  const store: ReduxStore<T> = {
     getState() {
       return getSnapshot(target)
     },

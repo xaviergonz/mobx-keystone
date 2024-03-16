@@ -360,8 +360,8 @@ test("prop with string->bigint transform", () => {
     }
   }
 
-  const int1: bigint = 1n
-  const int2: bigint = 2n
+  const int1 = 1n
+  const int2 = 2n
 
   const t = new T({
     int: int1,

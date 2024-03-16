@@ -66,7 +66,7 @@ describe("concurrency", () => {
   let rootClient!: Root
   let rootServer!: Root
   let capturing = true
-  let captured: SerializedActionCall[] = []
+  const captured: SerializedActionCall[] = []
   beforeEach(() => {
     rootClient = new Root({})
     rootServer = new Root({})

@@ -67,6 +67,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
       throw failure("data models can only work over data objects")
     }
 
+    // eslint-disable-next-line prefer-rest-params
     const { modelClass: _modelClass }: DataModelConstructorOptions = arguments[1] as any
     const modelClass = _modelClass!
 

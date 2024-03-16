@@ -109,7 +109,7 @@ export function objectMap<V>(entries?: ReadonlyArray<readonly [string, V]> | nul
   const initialObj: { [k: string]: V } = {}
 
   if (entries) {
-    let len = entries.length
+    const len = entries.length
     for (let i = 0; i < len; i++) {
       const entry = entries[i]
       initialObj[entry[0]] = entry[1]

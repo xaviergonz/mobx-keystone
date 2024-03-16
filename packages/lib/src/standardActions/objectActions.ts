@@ -3,6 +3,7 @@ import { toTreeNode } from "../tweaker/tweak"
 import { assertIsObject, namespace as ns } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { standaloneAction } from "./standaloneActions"
+import { AnyFunction } from "../utils/AnyFunction"
 
 const namespace = `${ns}/objectActions`
 
@@ -49,8 +50,8 @@ export const objectActions = {
     <T extends object, K extends keyof T>(
       target: T,
       methodName: K,
-      ...args: T[K] extends (...args: any[]) => any ? Parameters<T[K]> : never
-    ): T[K] extends (...args: any[]) => any ? ReturnType<T[K]> : never => {
+      ...args: T[K] extends AnyFunction ? Parameters<T[K]> : never
+    ): T[K] extends AnyFunction ? ReturnType<T[K]> : never => {
       return (target as any)[methodName](...args)
     }
   ),

@@ -76,7 +76,7 @@ export class SandboxManager {
   /**
    * Whether changes made in the sandbox are currently being committed to the original subtree.
    */
-  private isCommitting: boolean = false
+  private isCommitting = false
 
   /**
    * Creates an instance of `SandboxManager`.
@@ -90,13 +90,11 @@ export class SandboxManager {
     // we temporarily set the default value of the context manager so that
     // cloned nodes can access it while in their onInit phase
 
-    let previousContextDefault = sandboxManagerContext.getDefault()
+    const previousContextDefault = sandboxManagerContext.getDefault()
     sandboxManagerContext.setDefault(this)
     try {
       this.subtreeRootClone = clone(subtreeRoot, { generateNewIds: false })
       sandboxManagerContext.set(this.subtreeRootClone, this)
-    } catch (err) {
-      throw err
     } finally {
       sandboxManagerContext.setDefault(previousContextDefault)
     }

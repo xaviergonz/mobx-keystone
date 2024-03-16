@@ -21,7 +21,7 @@ import { setIfDifferent } from "../utils/setIfDifferent"
 export function applyPatches(
   node: object,
   patches: ReadonlyArray<Patch> | ReadonlyArray<ReadonlyArray<Patch>>,
-  reverse: boolean = false
+  reverse = false
 ): void {
   assertTweakedObject(node, "node")
 
@@ -38,7 +38,7 @@ export function applyPatches(
 export function internalApplyPatches(
   this: object,
   patches: ReadonlyArray<Patch> | ReadonlyArray<ReadonlyArray<Patch>>,
-  reverse: boolean = false
+  reverse = false
 ): void {
   const obj = this
   const modelPool = new ModelPool(obj)

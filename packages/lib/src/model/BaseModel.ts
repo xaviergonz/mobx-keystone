@@ -32,7 +32,7 @@ export const modelIdPropertyNameSymbol = Symbol("modelIdPropertyName")
  * @ignore
  */
 export type ModelIdPropertyType<TProps extends ModelProps, ModelIdPropertyName extends string> = [
-  ModelIdPropertyName
+  ModelIdPropertyName,
 ] extends [never]
   ? never
   : ModelPropsToUntransformedData<Pick<TProps, ModelIdPropertyName>>[ModelIdPropertyName]
@@ -50,7 +50,7 @@ export abstract class BaseModel<
   TProps extends ModelProps,
   FromSnapshotOverride extends Record<string, any>,
   ToSnapshotOverride extends Record<string, any>,
-  ModelIdPropertyName extends string = never
+  ModelIdPropertyName extends string = never,
 > {
   // just to make typing work properly
   [propsTypeSymbol]!: TProps;
@@ -128,8 +128,9 @@ export abstract class BaseModel<
    * Creates an instance of a model.
    */
   constructor(data: ModelPropsToTransformedCreationData<TProps>) {
-    let initialData = data as any
+    const initialData = data as any
     const { snapshotInitialData, modelClass, generateNewIds }: ModelConstructorOptions =
+      // eslint-disable-next-line prefer-rest-params
       arguments[1] as any
 
     Object.setPrototypeOf(this, modelClass!.prototype)
@@ -204,6 +205,7 @@ export interface AnyModel extends BaseModel<any, any, any, any> {}
  * @param type Abstract model class.
  * @returns
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function abstractModelClass<T>(type: T): T & Object {
   return type as any
 }

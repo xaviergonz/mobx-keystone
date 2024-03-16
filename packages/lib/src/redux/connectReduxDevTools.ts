@@ -75,20 +75,26 @@ export function connectReduxDevTools(
         case "RESET":
           applySnapshot(target2, initialState)
           return remotedev2.init(initialState)
+
         case "COMMIT":
           return remotedev2.init(getSnapshot(target2))
+
         case "ROLLBACK":
           return remotedev2.init(remotedevPackage.extractState(message))
+
         case "JUMP_TO_STATE":
         case "JUMP_TO_ACTION":
           applySnapshot(target2, remotedevPackage.extractState(message))
           return
-        case "IMPORT_STATE":
+
+        case "IMPORT_STATE": {
           const nextLiftedState = message.payload.nextLiftedState
           const computedStates = nextLiftedState.computedStates
           applySnapshot(target2, computedStates[computedStates.length - 1].state)
           remotedev2.send(null, nextLiftedState)
           return
+        }
+
         default:
       }
     } finally {

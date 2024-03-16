@@ -1,7 +1,7 @@
 let typeCheckingAllowed = true
 
 export function withoutTypeChecking(fn: () => void): void {
-  let oldTypeCheckingAllowed = typeCheckingAllowed
+  const oldTypeCheckingAllowed = typeCheckingAllowed
   typeCheckingAllowed = false
 
   try {

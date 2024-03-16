@@ -123,8 +123,6 @@ const createMRef = rootRef<M>("MRef")
 
 test("computed tree decorator cannot decorate a 'get' accessor of a plain class", () => {
   expect(() => {
-    // @ts-ignore
-    // eslint-disable-next-line
     class X {
       @computedTree
       get value() {
@@ -139,23 +137,23 @@ test("computed tree decorator cannot decorate a 'get' accessor of a plain class"
 
 test("computed tree decorator cannot decorate a method", () => {
   expect(() => {
-    // @ts-ignore
-    // eslint-disable-next-line
     class X extends Model({}) {
       @computedTree
       method() {}
     }
+
+    expect(X).toBeDefined() // will never get here
   }).toThrow("@computedTree requires a 'get' accessor")
 })
 
 test("computed tree decorator cannot decorate a 'set' accessor", () => {
   expect(() => {
-    // @ts-ignore
-    // eslint-disable-next-line
     class X extends Model({}) {
       @computedTree
       set value(_value: any) {}
     }
+
+    expect(X).toBeDefined() // will never get here
   }).toThrow("@computedTree requires a 'get' accessor")
 })
 

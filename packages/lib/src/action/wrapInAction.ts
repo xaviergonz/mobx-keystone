@@ -12,15 +12,17 @@ import { isModelAction, modelActionSymbol } from "./isModelAction"
 import { getActionMiddlewares } from "./middleware"
 import type { FlowFinisher } from "./modelFlow"
 import { tryRunPendingActions } from "./pendingActions"
+import { AnyFunction } from "../utils/AnyFunction"
 
 /**
  * @internal
  */
-export type WrapInActionOverrideContextFn = (ctx: O.Writable<ActionContext>, self: any) => void
+export type WrapInActionOverrideContextFn = (ctx: O.Writable<ActionContext>, self: AnyModel) => void
 
 /**
  * @internal
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function wrapInAction<T extends Function>({
   nameOrNameFn,
   fn,
@@ -36,7 +38,7 @@ export function wrapInAction<T extends Function>({
 }): T {
   let fnInAction = false
 
-  const wrappedAction = function (this: any) {
+  const wrappedAction = function (this: AnyModel, ...args: unknown[]) {
     const name = typeof nameOrNameFn === "function" ? nameOrNameFn() : nameOrNameFn
 
     if (!fnInAction) {
@@ -56,10 +58,10 @@ export function wrapInAction<T extends Function>({
       actionName: name,
       type: actionType,
       target,
-      args: Array.from(arguments),
+      args,
       parentContext,
       data: {},
-      rootContext: undefined as any, // will be set after the override
+      rootContext: undefined as never, // will be set after the override
     }
     if (overrideContext) {
       overrideContext(context, this)
@@ -76,7 +78,7 @@ export function wrapInAction<T extends Function>({
 
     setCurrentActionContext(context)
 
-    let mwareFn: () => any = fn.bind(target, ...arguments)
+    let mwareFn: () => unknown = fn.bind(target, ...args)
     const mwareIter = getActionMiddlewares(context.target)[Symbol.iterator]()
     let mwareCur = mwareIter.next()
     while (!mwareCur.done) {
@@ -111,9 +113,9 @@ export function wrapInAction<T extends Function>({
       tryRunPendingActions()
     }
   }
-  ;(wrappedAction as any)[modelActionSymbol] = true
+  ;(wrappedAction as unknown as { [modelActionSymbol]: true })[modelActionSymbol] = true
 
-  return wrappedAction as any
+  return wrappedAction as unknown as T
 }
 
 /**
@@ -124,7 +126,7 @@ export function wrapModelMethodInActionIfNeeded<M extends AnyModel | AnyDataMode
   propertyKey: keyof M,
   name: string
 ): void {
-  const fn = model[propertyKey] as any
+  const fn = model[propertyKey] as AnyFunction
   if (isModelAction(fn)) {
     return
   }
@@ -139,6 +141,6 @@ export function wrapModelMethodInActionIfNeeded<M extends AnyModel | AnyDataMode
   if (protoFn === fn) {
     proto[propertyKey] = wrappedFn
   } else {
-    model[propertyKey] = wrappedFn
+    model[propertyKey] = wrappedFn as M[typeof propertyKey]
   }
 }

@@ -100,7 +100,7 @@ test("valueType shouldn't generate no-op patches when applySnapshot is used", ()
     },
   })
 
-  let patches: Patch[][] = []
+  const patches: Patch[][] = []
   const recorderDispose = onPatches(r, (newPatches) => {
     patches.push(newPatches)
   })

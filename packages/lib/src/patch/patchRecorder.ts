@@ -96,11 +96,8 @@ export function internalPatchRecorder(
   subtreeRoot: object | undefined,
   opts?: PatchRecorderOptions
 ): PatchRecorder {
-  let { recording, filter } = {
-    recording: true,
-    filter: alwaysAcceptFilter,
-    ...opts,
-  }
+  let recording = opts?.recording ?? true
+  const filter = opts?.filter ?? alwaysAcceptFilter
 
   const events = observable.array<PatchRecorderEvent>([], {
     deep: false,

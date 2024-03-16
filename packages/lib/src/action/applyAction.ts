@@ -1,3 +1,4 @@
+import { AnyFunction } from "../utils/AnyFunction"
 import { getDataModelAction } from "../dataModel/actions"
 import { detach } from "../parent/detach"
 import { resolvePathCheckingIds } from "../parent/path"
@@ -86,7 +87,7 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   assertTweakedObject(current, `resolved ${current}`, true)
 
   if (isBuiltInAction(call.actionName)) {
-    const fnToCall: (...args: any[]) => any = builtInActionToFunction[call.actionName]
+    const fnToCall: AnyFunction = builtInActionToFunction[call.actionName]
     if (!fnToCall) {
       throw failure(`assertion failed: unknown built-in action - ${call.actionName}`)
     }
@@ -101,7 +102,7 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   const dataModelAction = getDataModelAction(call.actionName)
   if (dataModelAction) {
     const instance: any = new dataModelAction.modelClass(current)
-    return instance[dataModelAction.fnName].apply(instance, call.args)
+    return instance[dataModelAction.fnName](...call.args)
   }
 
   const standaloneAction = getStandaloneAction(call.actionName)
