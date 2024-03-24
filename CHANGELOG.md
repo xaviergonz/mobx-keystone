@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.10.0
+
+- Some optimizations, for example reading values should be around 2x faster now.
+
 ## 1.9.0
 
 - Adds support for `YjsTextModel` from `mobx-keystone-yjs`.
