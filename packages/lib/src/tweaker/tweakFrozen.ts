@@ -14,14 +14,14 @@ export function tweakFrozen<T extends Frozen<any>>(
   parentPath: ParentPath<any> | undefined
 ): T {
   tweakedObjects.set(frozenObj, undefined)
-  setParent({
-    value: frozenObj,
+  setParent(
+    frozenObj, // value
     parentPath,
-    indexChangeAllowed: false,
-    isDataObject: false,
+    false, // indexChangeAllowed
+    false, // isDataObject
     // a frozen is not a value-type
-    cloneIfApplicable: false,
-  })
+    false // cloneIfApplicable
+  )
 
   // we DON'T want data proxified, but the snapshot is the data itself
   setNewInternalSnapshot(frozenObj, { [frozenKey]: true, data: frozenObj.data }, undefined, true)

@@ -96,8 +96,9 @@ export function isPrimitive(value: unknown): value is PrimitiveValue {
     case "undefined":
     case "bigint":
       return true
+    default:
+      return value === null
   }
-  return value === null
 }
 
 /**
@@ -110,8 +111,9 @@ export function isJSONPrimitive(value: unknown): value is JSONPrimitiveValue {
     case "string":
     case "boolean":
       return true
+    default:
+      return value === null
   }
-  return value === null
 }
 
 /**

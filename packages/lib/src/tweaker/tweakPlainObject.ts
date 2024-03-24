@@ -55,14 +55,14 @@ export function tweakPlainObject<T extends Record<string, any>>(
   }
 
   tweakedObjects.set(tweakedObj, untweak)
-  setParent({
-    value: tweakedObj,
+  setParent(
+    tweakedObj, // value
     parentPath,
-    indexChangeAllowed: false,
+    false, // indexChangeAllowed
     isDataObject,
     // an object shouldn't be cloned
-    cloneIfApplicable: false,
-  })
+    false // cloneIfApplicable
+  )
 
   const untransformedSn: any = {}
 
@@ -84,14 +84,14 @@ export function tweakPlainObject<T extends Record<string, any>>(
       let tweakedValue
       if (doNotTweakChildren) {
         tweakedValue = v
-        setParent({
-          value: tweakedValue,
-          parentPath: path,
-          indexChangeAllowed: false,
-          isDataObject: false,
+        setParent(
+          tweakedValue, // value
+          path, // parentPath
+          false, // indexChangeAllowed
+          false, // isDataObject
           // the value is already a new value (the result of a fromSnapshot)
-          cloneIfApplicable: false,
-        })
+          false // cloneIfApplicable
+        )
       } else {
         tweakedValue = tweak(v, path)
         setIfDifferent(tweakedObj, k, tweakedValue)
@@ -273,8 +273,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
       break
 
     case "remove": {
-      const oldVal = change.object[change.name]
-      tweak(oldVal, undefined)
+      tweak(change.object[change.name], undefined)
       break
     }
 
@@ -284,7 +283,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
       if (newVal !== oldVal) {
         tweak(oldVal, undefined)
 
-        change.newValue = tweak(change.newValue, {
+        change.newValue = tweak(newVal, {
           parent: change.object,
           path: "" + change.name,
         })

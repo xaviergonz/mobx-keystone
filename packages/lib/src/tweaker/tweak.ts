@@ -89,13 +89,13 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 
   // already tweaked
   if (isTweakedObject(value, true)) {
-    value = setParent({
+    value = setParent(
       value,
       parentPath,
-      indexChangeAllowed: false,
-      isDataObject: false,
-      cloneIfApplicable: true,
-    })
+      false, // indexChangeAllowed
+      false, // isDataObject
+      true // cloneIfApplicable
+    )
     return value
   }
 
@@ -162,14 +162,14 @@ export function tryUntweak(value: any): (() => void) | undefined {
   const children = Array.from(getObjectChildren(value)!.values())
 
   for (let i = 0; i < children.length; i++) {
-    setParent({
-      value: children[i],
-      parentPath: undefined,
-      indexChangeAllowed: false,
-      isDataObject: false,
+    setParent(
+      children[i], // value
+      undefined, // parentPath
+      false, // indexChangeAllowed
+      false, // isDataObject
       // no need to clone if unsetting the parent
-      cloneIfApplicable: false,
-    })
+      false // cloneIfApplicable
+    )
   }
 
   return () => {

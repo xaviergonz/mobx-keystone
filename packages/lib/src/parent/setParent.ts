@@ -24,19 +24,13 @@ import { ParentPath, fastGetParentPath, fastGetRoot } from "./path"
  */
 export const setParent = action(
   "setParent",
-  ({
-    value,
-    parentPath,
-    indexChangeAllowed,
-    isDataObject,
-    cloneIfApplicable,
-  }: {
-    value: any
-    parentPath: ParentPath<any> | undefined
-    indexChangeAllowed: boolean
-    isDataObject: boolean
+  (
+    value: any,
+    parentPath: ParentPath<any> | undefined,
+    indexChangeAllowed: boolean,
+    isDataObject: boolean,
     cloneIfApplicable: boolean
-  }): any => {
+  ): any => {
     if (isPrimitive(value)) {
       return value
     }

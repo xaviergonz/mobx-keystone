@@ -10,13 +10,13 @@ import { TweakerPriority } from "./TweakerPriority"
  */
 export function tweakModel<T extends object>(value: T, parentPath: ParentPath<any> | undefined): T {
   tweakedObjects.set(value, undefined)
-  setParent({
+  setParent(
     value,
     parentPath,
-    indexChangeAllowed: false,
-    isDataObject: false,
-    cloneIfApplicable: true,
-  })
+    false, // indexChangeAllowed
+    false, // isDataObject
+    true // cloneIfApplicable
+  )
 
   // nothing to do for models, data is already proxified and its parent is set
   // for snapshots we will use its "$" object snapshot directly

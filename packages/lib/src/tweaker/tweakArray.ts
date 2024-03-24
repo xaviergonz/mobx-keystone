@@ -54,14 +54,14 @@ export function tweakArray<T extends any[]>(
   }
 
   tweakedObjects.set(tweakedArr, untweak)
-  setParent({
-    value: tweakedArr,
+  setParent(
+    tweakedArr, // value
     parentPath,
-    indexChangeAllowed: false,
-    isDataObject: false,
+    false, // indexChangeAllowed
+    false, // isDataObject
     // arrays shouldn't be cloned anyway
-    cloneIfApplicable: false,
-  })
+    false // cloneIfApplicable
+  )
 
   const untransformedSn: any[] = []
   untransformedSn.length = arrLn
@@ -82,14 +82,14 @@ export function tweakArray<T extends any[]>(
       let tweakedValue
       if (doNotTweakChildren) {
         tweakedValue = v
-        setParent({
-          value: tweakedValue,
-          parentPath: path,
-          indexChangeAllowed: false,
-          isDataObject: false,
+        setParent(
+          tweakedValue, // value
+          path, // parentPath
+          false, // indexChangeAllowed
+          false, // isDataObject
           // the value is already a new value (the result of a fromSnapshot)
-          cloneIfApplicable: false,
-        })
+          false // cloneIfApplicable
+        )
       } else {
         tweakedValue = tweak(v, path)
         setIfDifferent(tweakedArr, i, tweakedValue)
@@ -394,17 +394,17 @@ function interceptArrayMutationSplice(change: IArrayWillSplice) {
 
   if (oldNextIndex !== newNextIndex) {
     for (let i = oldNextIndex, j = newNextIndex; i < change.object.length; i++, j++) {
-      setParent({
-        value: change.object[i],
-        parentPath: {
+      setParent(
+        change.object[i], // value
+        {
           parent: change.object,
           path: j,
-        },
-        indexChangeAllowed: true,
-        isDataObject: false,
+        }, // parentPath
+        true, // indexChangeAllowed
+        false, // isDataObject
         // just re-indexing
-        cloneIfApplicable: false,
-      })
+        false // cloneIfApplicable
+      )
     }
   }
 }
