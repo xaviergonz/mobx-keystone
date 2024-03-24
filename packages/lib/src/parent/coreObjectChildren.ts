@@ -9,10 +9,10 @@ interface DeepObjectChildren {
 
 interface ObjectChildrenData extends DeepObjectChildren {
   shallow: Set<object>
-  shallowAtom: IAtom
+  shallowAtom: IAtom | undefined // will be created when first observed
 
   deepDirty: boolean
-  deepAtom: IAtom
+  deepAtom: IAtom | undefined // will be created when first observed
 }
 
 const objectChildren = new WeakMap<object, ObjectChildrenData>()
@@ -23,11 +23,11 @@ function getObjectChildrenObject(node: object) {
   if (!obj) {
     obj = {
       shallow: new Set(),
-      shallowAtom: createAtom("shallowChildrenAtom"),
+      shallowAtom: undefined, // will be created when first observed
 
       deep: new Set(),
       deepDirty: true,
-      deepAtom: createAtom("deepChildrenAtom"),
+      deepAtom: undefined, // will be created when first observed
 
       extensionsData: initExtensionsData(),
     }
@@ -42,6 +42,9 @@ function getObjectChildrenObject(node: object) {
  */
 export function getObjectChildren(node: object): ObjectChildrenData["shallow"] {
   const obj = getObjectChildrenObject(node)
+  if (!obj.shallowAtom) {
+    obj.shallowAtom = createAtom("shallowChildrenAtom")
+  }
   obj.shallowAtom.reportObserved()
   return obj.shallow
 }
@@ -56,6 +59,9 @@ export function getDeepObjectChildren(node: object): DeepObjectChildren {
     updateDeepObjectChildren(node)
   }
 
+  if (!obj.deepAtom) {
+    obj.deepAtom = createAtom("deepChildrenAtom")
+  }
   obj.deepAtom.reportObserved()
 
   return obj
@@ -94,7 +100,7 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
   }
 
   obj.deepDirty = false
-  obj.deepAtom.reportChanged()
+  obj.deepAtom?.reportChanged()
 
   return obj
 })
@@ -105,7 +111,7 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
 export const addObjectChild = action((node: object, child: object) => {
   const obj = getObjectChildrenObject(node)
   obj.shallow.add(child)
-  obj.shallowAtom.reportChanged()
+  obj.shallowAtom?.reportChanged()
 
   invalidateDeepChildren(node, obj)
 })
@@ -116,7 +122,7 @@ export const addObjectChild = action((node: object, child: object) => {
 export const removeObjectChild = action((node: object, child: object) => {
   const obj = getObjectChildrenObject(node)
   obj.shallow.delete(child)
-  obj.shallowAtom.reportChanged()
+  obj.shallowAtom?.reportChanged()
 
   invalidateDeepChildren(node, obj)
 })
@@ -127,7 +133,7 @@ function invalidateDeepChildren(node: object, obj: ObjectChildrenData) {
 
   while (currentNode) {
     currentObj.deepDirty = true
-    currentObj.deepAtom.reportChanged()
+    currentObj.deepAtom?.reportChanged()
 
     currentNode = fastGetParent(currentNode)
     if (currentNode) {

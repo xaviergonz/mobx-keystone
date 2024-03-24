@@ -26,22 +26,18 @@ function createParentPathAtom() {
   return createAtom("parentAtom")
 }
 
-function getOrCreateParentPathAtom(obj: object) {
-  return getOrCreate(objectParentsAtoms, obj, createParentPathAtom)
-}
-
 /**
  * @internal
  */
 export function reportParentPathObserved(node: object) {
-  getOrCreateParentPathAtom(node).reportObserved()
+  getOrCreate(objectParentsAtoms, node, createParentPathAtom).reportObserved()
 }
 
 /**
  * @internal
  */
 export function reportParentPathChanged(node: object) {
-  getOrCreateParentPathAtom(node).reportChanged()
+  objectParentsAtoms.get(node)?.reportChanged()
 }
 
 /**

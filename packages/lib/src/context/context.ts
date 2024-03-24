@@ -112,12 +112,16 @@ class ContextClass<T> implements Context<T> {
   private readonly nodeContextValue = new WeakMap<object, ContextValue<T>>()
   private readonly nodeAtom = new WeakMap<object, IAtom>()
 
-  private getNodeAtom(node: object) {
-    return getOrCreate(this.nodeAtom, node, createContextValueAtom)
+  private reportNodeAtomObserved(node: object) {
+    getOrCreate(this.nodeAtom, node, createContextValueAtom).reportObserved()
+  }
+
+  private reportNodeAtomChanged(node: object) {
+    this.nodeAtom.get(node)?.reportChanged()
   }
 
   private fastGet(node: object): T {
-    this.getNodeAtom(node).reportObserved()
+    this.reportNodeAtomObserved(node)
 
     const obsForNode = this.nodeContextValue.get(node)
     if (obsForNode) {
@@ -143,7 +147,7 @@ class ContextClass<T> implements Context<T> {
   }
 
   private fastGetProviderNode(node: object): object | undefined {
-    this.getNodeAtom(node).reportObserved()
+    this.reportNodeAtomObserved(node)
 
     const obsForNode = this.nodeContextValue.get(node)
     if (obsForNode) {
@@ -189,14 +193,14 @@ class ContextClass<T> implements Context<T> {
       type: "value",
       value,
     })
-    this.getNodeAtom(node).reportChanged()
+    this.reportNodeAtomChanged(node)
   })
 
   private _setComputed(node: object, computedValueFn: IComputedValue<T>) {
     assertTweakedObject(node, "node")
 
     this.nodeContextValue.set(node, { type: "computed", value: computedValueFn })
-    this.getNodeAtom(node).reportChanged()
+    this.reportNodeAtomChanged(node)
   }
 
   setComputed = action((node: object, valueFn: () => T) => {
@@ -207,7 +211,7 @@ class ContextClass<T> implements Context<T> {
     assertTweakedObject(node, "node")
 
     this.nodeContextValue.delete(node)
-    this.getNodeAtom(node).reportChanged()
+    this.reportNodeAtomChanged(node)
   })
 
   apply = action(<R>(fn: () => R, value: T): R => {

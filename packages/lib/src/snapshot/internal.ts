@@ -13,7 +13,7 @@ interface SnapshotData {
   untransformed: any
   readonly transformFn: SnapshotTransformFn | undefined
   transformed: any
-  readonly atom: IAtom
+  atom: IAtom | undefined
 }
 
 const snapshots = new WeakMap<object, SnapshotData>()
@@ -63,7 +63,7 @@ export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any
 
   if (oldSn) {
     snapshots.delete(value)
-    oldSn.atom.reportChanged()
+    oldSn.atom?.reportChanged()
   }
 })
 
@@ -84,7 +84,7 @@ export const setNewInternalSnapshot = action(
       untransformed,
       transformFn,
       transformed,
-      atom: createAtom("snapshot"),
+      atom: undefined, // will be created when first observed
     }
 
     frozenState.set(untransformed, markAsFrozen)
@@ -95,7 +95,7 @@ export const setNewInternalSnapshot = action(
 
     snapshots.set(value, sn)
 
-    sn.atom.reportChanged()
+    sn.atom?.reportChanged()
   }
 )
 
@@ -133,7 +133,7 @@ export const updateInternalSnapshot = action(
       frozenState.set(sn.transformed, false)
     }
 
-    sn.atom.reportChanged()
+    sn.atom?.reportChanged()
 
     // also update parent(s) snapshot(s) if needed
     const parent = getInternalSnapshotParent(sn, fastGetParentPath(value))
@@ -156,6 +156,9 @@ export const updateInternalSnapshot = action(
  * @internal
  */
 export function reportInternalSnapshotObserved(sn: SnapshotData) {
+  if (!sn.atom) {
+    sn.atom = createAtom("snapshot")
+  }
   sn.atom.reportObserved()
 }
 

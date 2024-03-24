@@ -5,11 +5,11 @@ import { failure } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import { attachToRootStore, detachFromRootStore } from "./attachDetach"
 
-const rootStoreRegistry = new WeakMap<object, { atom: IAtom; is: boolean }>()
+const rootStoreRegistry = new WeakMap<object, { atom: IAtom | undefined; is: boolean }>()
 
 function createRootStoreEntry() {
   return {
-    atom: createAtom("rootStore"),
+    atom: undefined, // will be created when first observed
     is: false,
   }
 }
@@ -47,7 +47,7 @@ export const registerRootStore: <T extends object>(node: T) => T = action(
 
     attachToRootStore(node, node)
 
-    entry.atom.reportChanged()
+    entry.atom?.reportChanged()
     return node
   }
 )
@@ -67,7 +67,7 @@ export const unregisterRootStore: (node: object) => void = action("unregisterRoo
 
   detachFromRootStore(node)
 
-  entry.atom.reportChanged()
+  entry.atom?.reportChanged()
 })
 
 /**
@@ -87,6 +87,9 @@ export function isRootStore(node: object): boolean {
  */
 export function fastIsRootStore(node: object): boolean {
   const entry = getOrCreateRootStoreEntry(node)
+  if (!entry.atom) {
+    entry.atom = createAtom("rootStore")
+  }
   entry.atom.reportObserved()
   return entry.is
 }

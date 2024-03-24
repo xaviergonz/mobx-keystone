@@ -14,7 +14,10 @@ import {
   onSnapshot,
 } from "mobx-keystone"
 import * as Y from "yjs"
-import { getOrCreateYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
+import {
+  getOrCreateYjsCollectionAtom,
+  getYjsCollectionAtom,
+} from "../utils/getOrCreateYjsCollectionAtom"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
 import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
@@ -104,7 +107,7 @@ export function bindYjsToMobxKeystone<
       }
 
       if (event.target instanceof Y.Map || event.target instanceof Y.Array) {
-        getOrCreateYjsCollectionAtom(event.target).reportChanged()
+        getYjsCollectionAtom(event.target)?.reportChanged()
       }
     })
 

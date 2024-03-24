@@ -6,6 +6,15 @@ const yjsCollectionAtoms = new WeakMap<Y.Map<unknown> | Y.Array<unknown>, IAtom>
 /**
  * @internal
  */
+export const getYjsCollectionAtom = (
+  yjsCollection: Y.Map<unknown> | Y.Array<unknown>
+): IAtom | undefined => {
+  return yjsCollectionAtoms.get(yjsCollection)
+}
+
+/**
+ * @internal
+ */
 export const getOrCreateYjsCollectionAtom = (
   yjsCollection: Y.Map<unknown> | Y.Array<unknown>
 ): IAtom => {
