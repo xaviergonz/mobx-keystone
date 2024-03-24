@@ -23,7 +23,7 @@ const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
   ModelAutoTypeCheckingMode.AlwaysOff,
 ]
 
-const waitBetweenBenchmarks = () => sleep(500)
+const waitBetweenBenchmarks = () => sleep(1000)
 
 for (const tcMode of tcModes) {
   let name = ""

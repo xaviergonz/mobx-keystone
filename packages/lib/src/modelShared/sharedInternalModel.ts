@@ -27,12 +27,14 @@ import { assertIsClassOrDataModelClass } from "./utils"
 function createGetModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   modelProp: AnyModelProp,
   modelPropName: string
-): (model: M) => unknown {
+): (this: M) => unknown {
   const transformFn = modelProp._transform?.transform
 
   if (!transformFn) {
     // no need to use get since these vars always get on the initial $
-    return (model) => model.$[modelPropName]
+    return function (this) {
+      return this.$[modelPropName]
+    }
   }
 
   const transformValue = (model: M, value: unknown) =>
@@ -42,26 +44,26 @@ function createGetModelInstanceDataField<M extends AnyModel | AnyDataModel>(
       applySet(model.$, modelPropName, newValue)
     })
 
-  return (model) => {
+  return function (this) {
     // no need to use get since these vars always get on the initial $
-    const value = model.$[modelPropName]
-    return transformValue(model, value)
+    const value = this.$[modelPropName]
+    return transformValue(this, value)
   }
 }
 
-function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
-  model: M,
+type SetModelInstanceDataFieldFn = <M extends AnyModel | AnyDataModel>(
   modelProp: AnyModelProp,
   modelPropName: string,
+  model: M,
   value: unknown
-): void {
-  // hack to only permit setting these values once fully constructed
-  // this is to ignore abstract properties being set by babel
-  // see https://github.com/xaviergonz/mobx-keystone/issues/18
-  if (!(model as any)[modelInitializedSymbol]) {
-    return
-  }
+) => boolean | void
 
+const setModelInstanceDataField: SetModelInstanceDataFieldFn = (
+  modelProp,
+  modelPropName,
+  model,
+  value
+): void => {
   if (modelProp._setter === "assign" && !getCurrentActionContext()) {
     // use apply set instead to wrap it in an action
     applySet(model, modelPropName as any, value)
@@ -82,6 +84,22 @@ function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
 
   // no need to use set since these vars always get on the initial $
   model.$[modelPropName] = untransformedValue
+}
+
+const setModelInstanceDataFieldWithPrecheck: SetModelInstanceDataFieldFn = (
+  modelProp,
+  modelPropName,
+  model,
+  value
+): boolean => {
+  // hack to only permit setting these values once fully constructed
+  // this is to ignore abstract properties being set by babel
+  // see https://github.com/xaviergonz/mobx-keystone/issues/18
+  if (!(model as any)[modelInitializedSymbol]) {
+    return false
+  }
+  setModelInstanceDataField(modelProp, modelPropName, model, value)
+  return true
 }
 
 const idGenerator = () => getGlobalConfig().modelIdGenerator()
@@ -246,16 +264,20 @@ export function sharedInternalModel<
   ThisModel.prototype = Object.create(base.prototype)
   ThisModel.prototype.constructor = ThisModel
 
+  let setFn: SetModelInstanceDataFieldFn = (modelProp, modelPropName, model, value) => {
+    if (setModelInstanceDataFieldWithPrecheck(modelProp, modelPropName, model, value)) {
+      setFn = setModelInstanceDataField
+    }
+  }
+
   for (const [propName, propData] of Object.entries(modelProps)) {
     if (!(basePropNames as Set<string>).has(propName)) {
       const get = createGetModelInstanceDataField(propData, propName)
 
       Object.defineProperty(ThisModel.prototype, propName, {
-        get() {
-          return get(this)
-        },
-        set(value: any) {
-          setModelInstanceDataField(this, propData, propName, value)
+        get,
+        set(value: unknown) {
+          setFn(propData, propName, this, value)
         },
         enumerable: true,
         configurable: false,
