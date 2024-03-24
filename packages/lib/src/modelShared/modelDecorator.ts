@@ -14,7 +14,6 @@ import {
   runAfterModelDecoratorSymbol,
 } from "../modelShared/modelSymbols"
 import {
-  addHiddenProp,
   failure,
   getMobxVersion,
   logWarning,
@@ -76,7 +75,7 @@ const runAfterClassInitialization = (
   }
 
   // the object is ready
-  addHiddenProp(instance, modelInitializedSymbol, true, false)
+  instance[modelInitializedSymbol] = true
 
   runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
 

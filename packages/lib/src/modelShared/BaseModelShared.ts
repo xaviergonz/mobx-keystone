@@ -87,7 +87,7 @@ export type ModelCreationData<M extends ModelWithProps> = ModelPropsToTransforme
  * @deprecated Use SnapshotInOf<Model> instead.
  */
 export type ModelFromSnapshot<
-  M extends ModelWithProps & { [fromSnapshotOverrideTypeSymbol]: any }
+  M extends ModelWithProps & { [fromSnapshotOverrideTypeSymbol]: any },
 > = IsNeverType<
   M[typeof fromSnapshotOverrideTypeSymbol],
   ModelPropsToSnapshotCreationData<ModelPropsOf<M>>,

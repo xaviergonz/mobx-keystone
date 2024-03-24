@@ -15,7 +15,7 @@ import type { AnyType } from "../types/schemas"
 import { tProp } from "../types/tProp"
 import type { LateTypeChecker } from "../types/TypeChecker"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
-import { assertIsObject, failure, propNameToSetterName } from "../utils"
+import { addHiddenProp, assertIsObject, failure, propNameToSetterName } from "../utils"
 import { chainFns } from "../utils/chainFns"
 import { ModelClass, modelInitializedSymbol } from "./BaseModelShared"
 import { modelInitializersSymbol } from "./modelClassInitializer"
@@ -24,35 +24,41 @@ import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import { AnyModelProp, getModelPropDefaultValue, ModelProps, noDefaultValue, prop } from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
-function getModelInstanceDataField<M extends AnyModel | AnyDataModel>(
-  model: M,
+function createGetModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   modelProp: AnyModelProp,
   modelPropName: string
-): any {
-  // no need to use get since these vars always get on the initial $
-  const value = model.$[modelPropName]
+): (model: M) => unknown {
+  const transformFn = modelProp._transform?.transform
 
-  if (!modelProp._transform) {
-    return value
+  if (!transformFn) {
+    // no need to use get since these vars always get on the initial $
+    return (model) => model.$[modelPropName]
   }
 
-  return modelProp._transform.transform(value, model, modelPropName, (newValue) => {
-    // use apply set instead to wrap it in an action
-    // set the $ object to set the original value directly
-    applySet(model.$, modelPropName, newValue)
-  }) as any
+  const transformValue = (model: M, value: unknown) =>
+    transformFn(value, model, modelPropName, (newValue) => {
+      // use apply set instead to wrap it in an action
+      // set the $ object to set the original value directly
+      applySet(model.$, modelPropName, newValue)
+    })
+
+  return (model) => {
+    // no need to use get since these vars always get on the initial $
+    const value = model.$[modelPropName]
+    return transformValue(model, value)
+  }
 }
 
 function setModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   model: M,
   modelProp: AnyModelProp,
   modelPropName: string,
-  value: any
+  value: unknown
 ): void {
   // hack to only permit setting these values once fully constructed
   // this is to ignore abstract properties being set by babel
   // see https://github.com/xaviergonz/mobx-keystone/issues/18
-  if (!(modelInitializedSymbol in model)) {
+  if (!(model as any)[modelInitializedSymbol]) {
     return
   }
 
@@ -89,7 +95,7 @@ type ToSnapshotProcessorFn = (sn: any, instance: any) => any
 
 export function sharedInternalModel<
   TProps extends ModelProps,
-  TBaseModel extends AnyModel | AnyDataModel
+  TBaseModel extends AnyModel | AnyDataModel,
 >({
   modelProps,
   baseModel,
@@ -198,9 +204,12 @@ export function sharedInternalModel<
       modelClass,
     } as ModelConstructorOptions & DataModelConstructorOptions)
 
+    // add prop, it is faster than having to go to the root of the prototype to not find it
+    addHiddenProp(baseModel, modelInitializedSymbol, false, true)
+
     // make sure abstract classes do not override prototype props
     if (!propsToDeleteFromBase) {
-      propsToDeleteFromBase = Object.keys(composedModelProps).filter(
+      propsToDeleteFromBase = Object.keys(modelProps).filter(
         (p) => !basePropNames.has(p as any) && Object.hasOwn(baseModel, p)
       )
     }
@@ -234,58 +243,40 @@ export function sharedInternalModel<
     ThisModel[modelMetadataSymbol] = metadata
   }
 
-  const newPrototype = Object.create(base.prototype)
+  ThisModel.prototype = Object.create(base.prototype)
+  ThisModel.prototype.constructor = ThisModel
 
-  ThisModel.prototype = new Proxy(newPrototype, {
-    get(target, p, receiver) {
-      if (receiver === ThisModel.prototype) {
-        return target[p]
-      }
-
-      const modelProp = !basePropNames.has(p as any) && composedModelProps[p as string]
-      return modelProp
-        ? getModelInstanceDataField(receiver, modelProp, p as string)
-        : Reflect.get(target, p, receiver)
-    },
-
-    set(target, p, v, receiver) {
-      if (receiver === ThisModel.prototype) {
-        target[p] = v
-        return true
-      }
-
-      const modelProp = !basePropNames.has(p as any) && composedModelProps[p as string]
-      if (modelProp) {
-        setModelInstanceDataField(receiver, modelProp, p as string, v)
-        return true
-      }
-      return Reflect.set(target, p, v, receiver)
-    },
-
-    has(target, p) {
-      const modelProp = !basePropNames.has(p as any) && composedModelProps[p as string]
-      return !!modelProp || Reflect.has(target, p)
-    },
-  })
-
-  newPrototype.constructor = ThisModel
-
-  // add setter actions to prototype
   for (const [propName, propData] of Object.entries(modelProps)) {
+    if (!(basePropNames as Set<string>).has(propName)) {
+      const get = createGetModelInstanceDataField(propData, propName)
+
+      Object.defineProperty(ThisModel.prototype, propName, {
+        get() {
+          return get(this)
+        },
+        set(value: any) {
+          setModelInstanceDataField(this, propData, propName, value)
+        },
+        enumerable: true,
+        configurable: false,
+      })
+    }
+
     if (propData._setter === true) {
       const setterName = propNameToSetterName(propName)
 
-      const newPropDescriptor: any = modelAction(newPrototype, setterName, {
-        value: function (this: any, value: any) {
-          this[propName] = value
-        },
-        writable: true,
-        enumerable: false,
-        configurable: true,
-      })
+      if (!(basePropNames as Set<string>).has(setterName)) {
+        const newPropDescriptor: any = modelAction(ThisModel.prototype, setterName, {
+          value: function (this: any, value: any) {
+            this[propName] = value
+          },
+          writable: true,
+          enumerable: false,
+          configurable: false,
+        })
 
-      // we use define property to avoid the base proxy
-      Object.defineProperty(newPrototype, setterName, newPropDescriptor)
+        Object.defineProperty(ThisModel.prototype, setterName, newPropDescriptor)
+      }
     }
   }
 

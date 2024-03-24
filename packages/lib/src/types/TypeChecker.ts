@@ -221,7 +221,7 @@ export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen)
 
   Object.defineProperty(ltc, "typeInfo", {
     enumerable: true,
-    configurable: true,
+    configurable: false,
     get() {
       return cachedTypeInfoGen(ltc as any)
     },
