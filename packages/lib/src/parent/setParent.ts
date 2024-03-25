@@ -4,7 +4,7 @@ import { BaseModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
 import { isModel } from "../model/utils"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
-import { fastIsRootStore } from "../rootStore/rootStore"
+import { fastIsRootStoreNoAtom } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
 import { isTweakedObject } from "../tweaker/core"
 import { tryUntweak } from "../tweaker/tweak"
@@ -57,7 +57,7 @@ export const setParent = action(
       return value
     }
 
-    if (fastIsRootStore(value)) {
+    if (fastIsRootStoreNoAtom(value)) {
       throw failure("root stores cannot be attached to any parents")
     }
 
@@ -110,7 +110,7 @@ export const setParent = action(
     let oldRootStore: any
     if (valueIsModel) {
       oldRoot = fastGetRoot(value)
-      oldRootStore = fastIsRootStore(oldRoot) ? oldRoot : undefined
+      oldRootStore = fastIsRootStoreNoAtom(oldRoot) ? oldRoot : undefined
     }
 
     // detach from old
@@ -127,7 +127,7 @@ export const setParent = action(
 
     if (valueIsModel) {
       const newRoot = fastGetRoot(value)
-      const newRootStore = fastIsRootStore(newRoot) ? newRoot : undefined
+      const newRootStore = fastIsRootStoreNoAtom(newRoot) ? newRoot : undefined
 
       // invoke model root store events
       if (oldRootStore !== newRootStore && (oldRootStore || newRootStore)) {

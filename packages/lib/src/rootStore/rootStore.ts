@@ -79,19 +79,19 @@ export const unregisterRootStore: (node: object) => void = action("unregisterRoo
 export function isRootStore(node: object): boolean {
   assertTweakedObject(node, "node")
 
-  return fastIsRootStore(node)
-}
-
-/**
- * @internal
- */
-export function fastIsRootStore(node: object): boolean {
   const entry = getOrCreateRootStoreEntry(node)
   if (!entry.atom) {
     entry.atom = createAtom("rootStore")
   }
   entry.atom.reportObserved()
   return entry.is
+}
+
+/**
+ * @internal
+ */
+export function fastIsRootStoreNoAtom(node: object): boolean {
+  return !!rootStoreRegistry.get(node)?.is
 }
 
 /**
@@ -104,13 +104,6 @@ export function fastIsRootStore(node: object): boolean {
 export function getRootStore<T extends object>(node: object): T | undefined {
   assertTweakedObject(node, "node")
 
-  return fastGetRootStore(node)
-}
-
-/**
- * @internal
- */
-export function fastGetRootStore<T extends object>(node: object): T | undefined {
   const root = fastGetRoot(node)
-  return fastIsRootStore(root) ? root : undefined
+  return isRootStore(root) ? root : undefined
 }

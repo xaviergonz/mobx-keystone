@@ -9,7 +9,12 @@ import { applyPatches } from "../patch/applyPatches"
 import { onPatches } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
 import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
-import { fastIsRootStore, registerRootStore, unregisterRootStore } from "../rootStore/rootStore"
+import {
+  fastIsRootStoreNoAtom,
+  isRootStore,
+  registerRootStore,
+  unregisterRootStore,
+} from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, failure } from "../utils"
@@ -101,7 +106,7 @@ export class SandboxManager {
 
     let wasRS = false
     const disposeReactionRS = reaction(
-      () => fastIsRootStore(subtreeRoot),
+      () => isRootStore(subtreeRoot),
       (isRS) => {
         if (isRS !== wasRS) {
           wasRS = isRS
@@ -133,7 +138,7 @@ export class SandboxManager {
       disposeReactionRS()
       disposeOnPatches()
       disposeReadonlyMW()
-      if (fastIsRootStore(this.subtreeRootClone)) {
+      if (fastIsRootStoreNoAtom(this.subtreeRootClone)) {
         unregisterRootStore(this.subtreeRootClone)
       }
       this.disposer = () => {}
