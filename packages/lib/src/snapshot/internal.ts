@@ -136,7 +136,7 @@ export const updateInternalSnapshot = action(
     sn.atom?.reportChanged()
 
     // also update parent(s) snapshot(s) if needed
-    const parent = getInternalSnapshotParent(sn, fastGetParentPath(value))
+    const parent = getInternalSnapshotParent(sn, fastGetParentPath(value, false))
     if (parent) {
       const { parentSnapshot, parentPath } = parent
       // might be false in the cases where the parent has not yet been created

@@ -70,7 +70,7 @@ export function detachIfNeeded(newValue: any, oldValue: any, modelPool: ModelPoo
     isModel(newValue) &&
     modelPool.findModelByTypeAndId(newValue[modelTypeKey], newValue[modelIdKey])
   ) {
-    const parentPath = fastGetParentPathIncludingDataObjects(newValue)
+    const parentPath = fastGetParentPathIncludingDataObjects(newValue, false)
     if (parentPath) {
       set(parentPath.parent, parentPath.path, null)
     }

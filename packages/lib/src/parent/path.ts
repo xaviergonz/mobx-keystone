@@ -60,16 +60,19 @@ export interface RootPath<T extends object> {
 export function getParentPath<T extends object = any>(value: object): ParentPath<T> | undefined {
   assertTweakedObject(value, "value")
 
-  return fastGetParentPath(value)
+  return fastGetParentPath(value, true)
 }
 
 /**
  * @internal
  */
 export function fastGetParentPath<T extends object = any>(
-  value: object
+  value: object,
+  useAtom: boolean
 ): ParentPath<T> | undefined {
-  reportParentPathObserved(value)
+  if (useAtom) {
+    reportParentPathObserved(value)
+  }
   return objectParents.get(value) as ParentPath<T> | undefined
 }
 
@@ -77,14 +80,15 @@ export function fastGetParentPath<T extends object = any>(
  * @internal
  */
 export function fastGetParentPathIncludingDataObjects<T extends object = any>(
-  value: object
+  value: object,
+  useAtom: boolean
 ): ParentPath<T> | undefined {
   const parentModel = dataObjectParent.get(value)
   if (parentModel) {
     return { parent: parentModel as T, path: "$" }
   }
 
-  const parentPath = fastGetParentPath(value)
+  const parentPath = fastGetParentPath(value, useAtom)
   if (parentPath && isModel(parentPath.parent)) {
     return { parent: parentPath.parent.$ as T, path: parentPath.path }
   }
@@ -101,23 +105,27 @@ export function fastGetParentPathIncludingDataObjects<T extends object = any>(
 export function getParent<T extends object = any>(value: object): T | undefined {
   assertTweakedObject(value, "value")
 
-  return fastGetParent(value)
+  return fastGetParent(value, true)
 }
 
 /**
  * @internal
  */
-export function fastGetParent<T extends object = any>(value: object): T | undefined {
-  return fastGetParentPath(value)?.parent
+export function fastGetParent<T extends object = any>(
+  value: object,
+  useAtom: boolean
+): T | undefined {
+  return fastGetParentPath(value, useAtom)?.parent
 }
 
 /**
  * @internal
  */
 export function fastGetParentIncludingDataObjects<T extends object = any>(
-  value: object
+  value: object,
+  useAtom: boolean
 ): T | undefined {
-  return fastGetParentPathIncludingDataObjects(value)?.parent
+  return fastGetParentPathIncludingDataObjects(value, useAtom)?.parent
 }
 
 /**
@@ -149,19 +157,22 @@ export function fastIsModelDataObject(value: object): boolean {
 export function getRootPath<T extends object = any>(value: object): RootPath<T> {
   assertTweakedObject(value, "value")
 
-  return fastGetRootPath(value)
+  return fastGetRootPath(value, true)
 }
 
 /**
  * @internal
  */
-export function fastGetRootPath<T extends object = any>(value: object): RootPath<T> {
+export function fastGetRootPath<T extends object = any>(
+  value: object,
+  useAtom: boolean
+): RootPath<T> {
   let root = value
   const path = [] as WritablePath
   const pathObjects = [value] as unknown[]
 
   let parentPath: ParentPath<any> | undefined
-  while ((parentPath = fastGetParentPath(root))) {
+  while ((parentPath = fastGetParentPath(root, useAtom))) {
     root = parentPath.parent
     path.unshift(parentPath.path)
     pathObjects.unshift(parentPath.parent)
@@ -180,17 +191,17 @@ export function fastGetRootPath<T extends object = any>(value: object): RootPath
 export function getRoot<T extends object = any>(value: object): T {
   assertTweakedObject(value, "value")
 
-  return fastGetRoot(value)
+  return fastGetRoot(value, true)
 }
 
 /**
  * @internal
  */
-export function fastGetRoot<T extends object = any>(value: object): T {
+export function fastGetRoot<T extends object = any>(value: object, useAtom: boolean): T {
   let root = value
 
   let parentPath: ParentPath<any> | undefined
-  while ((parentPath = fastGetParentPath(root))) {
+  while ((parentPath = fastGetParentPath(root, useAtom))) {
     root = parentPath.parent
   }
 
@@ -206,7 +217,7 @@ export function fastGetRoot<T extends object = any>(value: object): T {
 export function isRoot(value: object): boolean {
   assertTweakedObject(value, "value")
 
-  return !fastGetParent(value)
+  return !fastGetParent(value, true)
 }
 
 const unresolved = { resolved: false } as const
@@ -347,7 +358,7 @@ export function getParentToChildPath(fromParent: object, toChild: object): Path 
 
   let current = toChild
   let parentPath
-  while ((parentPath = fastGetParentPath(current))) {
+  while ((parentPath = fastGetParentPath(current, true))) {
     path.unshift(parentPath.path)
 
     current = parentPath.parent

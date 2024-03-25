@@ -117,7 +117,7 @@ export function connectReduxDevTools(
     }
     lastLoggedSnapshot = sn
 
-    const rootPath = fastGetRootPath(ctx.target)
+    const rootPath = fastGetRootPath(ctx.target, false)
     const name = getActionContextNameAndTypePath(ctx, rootPath, result)
 
     const copy = {
@@ -170,7 +170,7 @@ export function connectReduxDevTools(
     if (ctx.parentContext) {
       const parentName = getActionContextNameAndTypePath(
         ctx.parentContext,
-        fastGetRootPath(ctx.parentContext.target),
+        fastGetRootPath(ctx.parentContext.target, false),
         undefined
       )
       if (parentName) {

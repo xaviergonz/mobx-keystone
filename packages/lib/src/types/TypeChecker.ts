@@ -50,7 +50,7 @@ export function invalidateCachedTypeCheckerResult(obj: object) {
       set.forEach((typeChecker) => typeChecker.invalidateCachedResult(current))
     }
 
-    current = fastGetParentIncludingDataObjects(current)
+    current = fastGetParentIncludingDataObjects(current, false)
   }
 }
 

@@ -31,7 +31,7 @@ const wrappedInternalDetach = lazy(() =>
 function internalDetach(this: object): void {
   const node = this
 
-  const parentPath = fastGetParentPathIncludingDataObjects(node)
+  const parentPath = fastGetParentPathIncludingDataObjects(node, false)
   if (!parentPath) return
 
   const { parent, path } = parentPath

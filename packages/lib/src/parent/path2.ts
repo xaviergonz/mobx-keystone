@@ -12,13 +12,13 @@ export function isChildOfParent(child: object, parent: object): boolean {
   assertTweakedObject(child, "child")
   assertTweakedObject(parent, "parent")
 
-  let currentParent = fastGetParent(child)
+  let currentParent = fastGetParent(child, true)
   while (currentParent) {
     if (currentParent === parent) {
       return true
     }
 
-    currentParent = fastGetParent(currentParent)
+    currentParent = fastGetParent(currentParent, true)
   }
 
   return false

@@ -19,7 +19,7 @@ export const objectPathSerializer: ActionCallArgumentSerializer<object, ObjectPa
 
     // try to serialize a ref to its path if possible instead
     if (targetRoot) {
-      const rootPath = fastGetRootPath(value)
+      const rootPath = fastGetRootPath(value, false)
       if (rootPath.root === targetRoot) {
         return {
           targetPath: rootPath.path,

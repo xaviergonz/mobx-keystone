@@ -120,15 +120,17 @@ class ContextClass<T> implements Context<T> {
     this.nodeAtom.get(node)?.reportChanged()
   }
 
-  private fastGet(node: object): T {
-    this.reportNodeAtomObserved(node)
+  private fastGet(node: object, useAtom: boolean): T {
+    if (useAtom) {
+      this.reportNodeAtomObserved(node)
+    }
 
     const obsForNode = this.nodeContextValue.get(node)
     if (obsForNode) {
       return resolveContextValue(obsForNode)
     }
 
-    const parent = fastGetParent(node)
+    const parent = fastGetParent(node, useAtom)
     if (!parent) {
       const overrideValue = this.overrideContextValue.get()
       if (overrideValue) {
@@ -137,35 +139,37 @@ class ContextClass<T> implements Context<T> {
       return this.getDefault()
     }
 
-    return this.fastGet(parent)
+    return this.fastGet(parent, useAtom)
   }
 
   get(node: object) {
     assertTweakedObject(node, "node")
 
-    return this.fastGet(node)
+    return this.fastGet(node, true)
   }
 
-  private fastGetProviderNode(node: object): object | undefined {
-    this.reportNodeAtomObserved(node)
+  private fastGetProviderNode(node: object, useAtom: boolean): object | undefined {
+    if (useAtom) {
+      this.reportNodeAtomObserved(node)
+    }
 
     const obsForNode = this.nodeContextValue.get(node)
     if (obsForNode) {
       return node
     }
 
-    const parent = fastGetParent(node)
+    const parent = fastGetParent(node, useAtom)
     if (!parent) {
       return undefined
     }
 
-    return this.fastGetProviderNode(parent)
+    return this.fastGetProviderNode(parent, useAtom)
   }
 
   getProviderNode(node: object): object | undefined {
     assertTweakedObject(node, "node")
 
-    return this.fastGetProviderNode(node)
+    return this.fastGetProviderNode(node, true)
   }
 
   getDefault(): T {

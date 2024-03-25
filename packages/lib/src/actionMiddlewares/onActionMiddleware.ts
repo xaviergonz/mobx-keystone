@@ -79,7 +79,7 @@ export function onActionMiddleware(
 }
 
 function actionContextToActionCall(ctx: SimpleActionContext): ActionCall {
-  const rootPath = fastGetRootPath(ctx.target)
+  const rootPath = fastGetRootPath(ctx.target, false)
 
   return {
     actionName: ctx.actionName,

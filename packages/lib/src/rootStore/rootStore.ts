@@ -104,6 +104,6 @@ export function fastIsRootStoreNoAtom(node: object): boolean {
 export function getRootStore<T extends object>(node: object): T | undefined {
   assertTweakedObject(node, "node")
 
-  const root = fastGetRoot(node)
+  const root = fastGetRoot(node, true)
   return isRootStore(root) ? root : undefined
 }

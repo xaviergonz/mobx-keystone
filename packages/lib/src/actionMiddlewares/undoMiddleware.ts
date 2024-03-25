@@ -733,7 +733,7 @@ export function undoMiddleware<S>(
 
           const event = {
             type: UndoEventType.Single,
-            targetPath: fastGetRootPath(ctx.target).path,
+            targetPath: fastGetRootPath(ctx.target, false).path,
             actionName: ctx.actionName,
             patches,
             inversePatches,

@@ -135,7 +135,7 @@ function invalidateDeepChildren(node: object, obj: ObjectChildrenData) {
     currentObj.deepDirty = true
     currentObj.deepAtom?.reportChanged()
 
-    currentNode = fastGetParent(currentNode)
+    currentNode = fastGetParent(currentNode, false)
     if (currentNode) {
       currentObj = getObjectChildrenObject(currentNode)
     }

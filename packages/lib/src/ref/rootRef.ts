@@ -55,7 +55,7 @@ export const rootRef: <T extends object>(
       let cachedTarget: T | undefined
 
       return () => {
-        const refRoot = fastGetRoot(ref)
+        const refRoot = fastGetRoot(ref, true)
 
         if (isRefRootCachedTargetOk(ref, refRoot, cachedTarget, getId)) {
           return cachedTarget
@@ -83,6 +83,6 @@ function isRefRootCachedTargetOk<T extends object>(
 ): cachedTarget is T {
   if (!cachedTarget) return false
   if (ref.id !== getId(cachedTarget)) return false
-  if (refRoot !== fastGetRoot(cachedTarget)) return false
+  if (refRoot !== fastGetRoot(cachedTarget, true)) return false
   return true
 }

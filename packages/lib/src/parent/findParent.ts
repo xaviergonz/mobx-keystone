@@ -64,7 +64,7 @@ export function findParentPath<T extends object = any>(
   let depth = 0
 
   let parentPath: ParentPath<any> | undefined
-  while ((parentPath = fastGetParentPath(current))) {
+  while ((parentPath = fastGetParentPath(current, true))) {
     path.unshift(parentPath.path)
     current = parentPath.parent
     if (predicate(current)) {

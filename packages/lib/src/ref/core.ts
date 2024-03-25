@@ -239,7 +239,7 @@ export function getRefsResolvingTo<T extends object>(
     const oldBackRefs = getBackRefs(target, refType)
     oldBackRefs.forEach(updateRef)
 
-    const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target)))
+    const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target, true)))
     let refs: Set<Ref<object>> | undefined
     if (refType) {
       refs = refsChildrenOfRoot.byType.get(refType.refClass)

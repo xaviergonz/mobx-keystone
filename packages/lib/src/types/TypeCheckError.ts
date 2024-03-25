@@ -28,7 +28,7 @@ export class TypeCheckError {
   ) {
     let rootPath: Path = []
     if (this.typeCheckedValue && isTweakedObject(this.typeCheckedValue, true)) {
-      rootPath = fastGetRootPath(this.typeCheckedValue).path
+      rootPath = fastGetRootPath(this.typeCheckedValue, false).path
     }
 
     const actualValueSnapshot = isTweakedObject(this.actualValue, true)

@@ -52,7 +52,7 @@ export const setParent = action(
       }
     }
 
-    let oldParentPath = fastGetParentPath(value)
+    let oldParentPath = fastGetParentPath(value, false)
     if (parentPathEquals(oldParentPath, parentPath)) {
       return value
     }
@@ -88,7 +88,7 @@ export const setParent = action(
       getModelMetadata(value).valueType
     ) {
       value = clone(value, { generateNewIds: true })
-      oldParentPath = fastGetParentPath(value)
+      oldParentPath = fastGetParentPath(value, false)
     }
 
     if (oldParentPath && parentPath) {
@@ -109,7 +109,7 @@ export const setParent = action(
     let oldRoot: any
     let oldRootStore: any
     if (valueIsModel) {
-      oldRoot = fastGetRoot(value)
+      oldRoot = fastGetRoot(value, false)
       oldRootStore = fastIsRootStoreNoAtom(oldRoot) ? oldRoot : undefined
     }
 
@@ -126,7 +126,7 @@ export const setParent = action(
     reportParentPathChanged(value)
 
     if (valueIsModel) {
-      const newRoot = fastGetRoot(value)
+      const newRoot = fastGetRoot(value, false)
       const newRootStore = fastIsRootStoreNoAtom(newRoot) ? newRoot : undefined
 
       // invoke model root store events

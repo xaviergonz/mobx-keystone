@@ -70,7 +70,7 @@ export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
         function findNextIterator() {
           let nextIter
           while (current && !nextIter) {
-            current = fastGetParent(current)
+            current = fastGetParent(current, false)
             nextIter = getCurrentIterator()
           }
           return nextIter

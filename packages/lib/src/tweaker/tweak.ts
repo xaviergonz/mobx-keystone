@@ -146,7 +146,7 @@ export function tryUntweak(value: any): (() => void) | undefined {
   }
 
   if (inDevMode) {
-    if (!fastGetParent(value)) {
+    if (!fastGetParent(value, false)) {
       throw failure("assertion failed: object cannot be untweaked if it does not have a parent")
     }
   }
