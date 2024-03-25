@@ -1,9 +1,13 @@
 import { set } from "mobx"
 
-export function setIfDifferent(target: any, key: PropertyKey, value: any): boolean {
-  const oldValue = target[key]
+export function setIfDifferent(target: any, key: PropertyKey, value: unknown): void {
+  if (target[key] !== value || !(key in target)) {
+    set(target, key, value)
+  }
+}
 
-  if (oldValue !== value || (value === undefined && !(key in target))) {
+export function setIfDifferentWithReturn(target: any, key: PropertyKey, value: unknown): boolean {
+  if (target[key] !== value || !(key in target)) {
     set(target, key, value)
     return true
   }

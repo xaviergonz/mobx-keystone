@@ -6,17 +6,17 @@ import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
 import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
+import { Patch } from "../patch/Patch"
+import { createPatchForObjectValueChange, emitPatches } from "../patch/emitPatch"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
+import { setIfDifferentWithReturn } from "../utils/setIfDifferent"
 import type { AnyModel } from "./BaseModel"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
 import { modelTypeKey } from "./metadata"
 import { assertIsModelClass } from "./utils"
-import { setIfDifferent } from "../utils/setIfDifferent"
-import { Patch } from "../patch/Patch"
-import { emitPatches, createPatchForObjectValueChange } from "../patch/emitPatch"
 
 /**
  * @internal
@@ -131,7 +131,7 @@ export const internalNewModel = action(
 
     if (modelIdPropertyName) {
       const initialValue = initialData![modelIdPropertyName]
-      const valueChanged = setIfDifferent(initialData, modelIdPropertyName, id)
+      const valueChanged = setIfDifferentWithReturn(initialData, modelIdPropertyName, id)
 
       if (valueChanged && mode === "fromSnapshot") {
         const modelIdPath = [modelIdPropertyName]
