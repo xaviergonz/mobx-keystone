@@ -14,10 +14,7 @@ import {
   onSnapshot,
 } from "mobx-keystone"
 import * as Y from "yjs"
-import {
-  getOrCreateYjsCollectionAtom,
-  getYjsCollectionAtom,
-} from "../utils/getOrCreateYjsCollectionAtom"
+import { getYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
 import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
