@@ -35,74 +35,31 @@ type PartialActionMiddleware = Pick<ActionMiddleware, "filter" | "middleware">
 
 const perObjectActionMiddlewares = new WeakMap<object, PartialActionMiddleware[]>()
 
-interface ActionMiddlewaresIterator extends Iterable<PartialActionMiddleware> {}
-
-const perObjectActionMiddlewaresIterator = new WeakMap<object, ActionMiddlewaresIterator>()
-
 /**
  * @internal
  *
- * Gets the current action middlewares to be run over a given object as an iterable object.
+ * Runs a callback for each action middlewares to be run over a given object.
  *
  * @returns
  */
-export function getActionMiddlewares(obj: object): ActionMiddlewaresIterator {
+export function forEachActionMiddleware(
+  obj: object,
+  callback: (middleware: PartialActionMiddleware) => void
+): void {
   // when we call a middleware we will call the middlewares of that object plus all parent objects
   // the parent object middlewares are run last
 
-  // since an array like [a, b, c] will be called like c(b(a())) this means that we need to put
+  // since an array like [a, b, c] will be called like c(b(a())) this means that we need to call
   // the parent object ones at the end of the array
 
-  let iterable = perObjectActionMiddlewaresIterator.get(obj)
-  if (!iterable) {
-    iterable = {
-      [Symbol.iterator]() {
-        let current: any = obj
-
-        function getCurrentIterator() {
-          const objMwares = current ? perObjectActionMiddlewares.get(current) : undefined
-          if (!objMwares || objMwares.length <= 0) {
-            return undefined
-          }
-          return objMwares[Symbol.iterator]()
-        }
-
-        function findNextIterator() {
-          let nextIter
-          while (current && !nextIter) {
-            current = fastGetParent(current, false)
-            nextIter = getCurrentIterator()
-          }
-          return nextIter
-        }
-
-        let iter = getCurrentIterator()
-        if (!iter) {
-          iter = findNextIterator()
-        }
-
-        const iterator: Iterator<PartialActionMiddleware> = {
-          next() {
-            if (!iter) {
-              return { value: undefined, done: true }
-            }
-
-            const result = iter.next()
-            if (!result.done) {
-              return result
-            }
-
-            iter = findNextIterator()
-            return this.next()
-          },
-        }
-
-        return iterator
-      },
+  let current: unknown | undefined = obj
+  while (current) {
+    const objMwares = perObjectActionMiddlewares.get(current)
+    if (objMwares && objMwares.length > 0) {
+      objMwares.forEach(callback)
     }
-    perObjectActionMiddlewaresIterator.set(obj, iterable)
+    current = fastGetParent(current, false)
   }
-  return iterable
 }
 
 /**

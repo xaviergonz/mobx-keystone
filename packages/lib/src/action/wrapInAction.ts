@@ -9,7 +9,7 @@ import {
   setCurrentActionContext,
 } from "./context"
 import { isModelAction, modelActionSymbol } from "./isModelAction"
-import { getActionMiddlewares } from "./middleware"
+import { forEachActionMiddleware } from "./middleware"
 import type { FlowFinisher } from "./modelFlow"
 import { tryRunPendingActions } from "./pendingActions"
 import { AnyFunction } from "../utils/AnyFunction"
@@ -50,14 +50,12 @@ export function wrapInAction<T extends Function>({
       fn = action(name, fn)
     }
 
-    const target = this
-
     const parentContext = getCurrentActionContext()
 
     const context: O.Writable<ActionContext> = {
       actionName: name,
       type: actionType,
-      target,
+      target: this,
       args,
       parentContext,
       data: {},
@@ -78,19 +76,14 @@ export function wrapInAction<T extends Function>({
 
     setCurrentActionContext(context)
 
-    let mwareFn: () => unknown = fn.bind(target, ...args)
-    const mwareIter = getActionMiddlewares(context.target)[Symbol.iterator]()
-    let mwareCur = mwareIter.next()
-    while (!mwareCur.done) {
-      const mware = mwareCur.value
+    let mwareFn: () => unknown = fn.bind(this, ...args)
 
+    forEachActionMiddleware(context.target, (mware) => {
       const filterPassed = mware.filter ? mware.filter(context) : true
       if (filterPassed) {
         mwareFn = mware.middleware.bind(undefined, context, mwareFn)
       }
-
-      mwareCur = mwareIter.next()
-    }
+    })
 
     try {
       const ret = mwareFn()
