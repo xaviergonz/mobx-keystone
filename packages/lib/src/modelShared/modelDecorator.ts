@@ -41,7 +41,7 @@ export const model =
 const afterClassInitializationData = new WeakMap<
   ModelClass<AnyModel | AnyDataModel>,
   {
-    makeObservableFailed: boolean
+    needsMakeObservable: boolean | undefined
     type: "class" | "data"
   }
 >()
@@ -52,25 +52,34 @@ const runAfterClassInitialization = (
 ) => {
   runLateInitializationFunctions(instance, runAfterNewSymbol)
 
-  // compatibility with mobx 6
   const tag = afterClassInitializationData.get(target)!
-  if (!tag.makeObservableFailed && getMobxVersion() >= 6) {
-    try {
-      mobx6.makeObservable(instance)
-    } catch (e) {
-      // sadly we need to use this hack since the PR to do this the proper way
-      // was rejected on the mobx side
-      tag.makeObservableFailed = true
 
-      const err = e as Error
-      if (
-        err.message !==
-          "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
-        err.message !==
-          "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
-      ) {
-        throw err
+  // compatibility with mobx 6
+  if (tag.needsMakeObservable) {
+    // we know it can be done and shouldn't fail
+    mobx6.makeObservable(instance)
+  } else if (tag.needsMakeObservable === undefined) {
+    if (getMobxVersion() >= 6) {
+      try {
+        mobx6.makeObservable(instance)
+        tag.needsMakeObservable = true
+      } catch (e) {
+        const err = e as Error
+        if (
+          err.message !==
+            "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
+          err.message !==
+            "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
+        ) {
+          throw err
+        }
+
+        // sadly we need to use this hack since the PR to do this the proper way
+        // was rejected on the mobx side
+        tag.needsMakeObservable = false
       }
+    } else {
+      tag.needsMakeObservable = false
     }
   }
 
@@ -132,7 +141,7 @@ const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
   }
 
   // track if we fail so we only try it once per class
-  afterClassInitializationData.set(clazz, { makeObservableFailed: false, type })
+  afterClassInitializationData.set(clazz, { needsMakeObservable: undefined, type })
 
   if (addInitializer) {
     // standard decorator API, avoid proxies
