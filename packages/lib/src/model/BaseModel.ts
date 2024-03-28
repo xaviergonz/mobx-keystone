@@ -20,7 +20,7 @@ import { assertIsObject, failure } from "../utils"
 import { getModelIdPropertyName } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
-import { internalNewModel } from "./newModel"
+import { internalFromSnapshotModel, internalNewModel } from "./newModel"
 import { assertIsModelClass } from "./utils"
 
 /**
@@ -147,13 +147,14 @@ export abstract class BaseModel<
       // plain new
       assertIsObject(initialData, "initialData")
 
-      internalNewModel(this, observable.object(initialData as any, undefined, { deep: false }), {
-        modelClass,
-        generateNewIds: true,
-      })
+      internalNewModel(
+        this,
+        observable.object(initialData as any, undefined, { deep: false }),
+        modelClass!
+      )
     } else {
       // from snapshot
-      internalNewModel(this, undefined, { modelClass, snapshotInitialData, generateNewIds })
+      internalFromSnapshotModel(this, snapshotInitialData!, modelClass!, !!generateNewIds)
     }
   }
 
