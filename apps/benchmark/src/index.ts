@@ -1,3 +1,4 @@
+import { action } from "mobx"
 import {
   fromSnapshot,
   getSnapshot,
@@ -193,7 +194,7 @@ for (const tcMode of tcModes) {
     await waitBetweenBenchmarks()
   }
 
-  const setVars = (x: any) => {
+  const setVars = action((x: any) => {
     bigModelBigVars.forEach((bmbv) => {
       const small = x[bmbv]
       smallModelVars.forEach((smv) => {
@@ -203,7 +204,7 @@ for (const tcMode of tcModes) {
     bigModelSmallVars.forEach((bmsv) => {
       x["set" + bmsv.toUpperCase()](x[bmsv] + "x")
     })
-  }
+  })
 
   {
     const bm1 = new bigModel({})
