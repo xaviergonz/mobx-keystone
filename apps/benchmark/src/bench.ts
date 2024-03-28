@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 import Benchmark from "benchmark"
 import chalk from "chalk"
 
