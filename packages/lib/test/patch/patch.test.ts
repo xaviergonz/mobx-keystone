@@ -56,7 +56,9 @@ describe("onPatches and applyPatches", () => {
         pInvPatches
           .slice()
           .reverse()
-          .forEach((invpatches) => applyPatches(p, invpatches, true))
+          .forEach((invpatches) => {
+            applyPatches(p, invpatches, true)
+          })
       })
       expect(getSnapshot(p)).toStrictEqual(sn)
     }
@@ -996,7 +998,9 @@ test("patches with reserved prop names", () => {
       pInvPatches
         .slice()
         .reverse()
-        .forEach((invpatches) => applyPatches(p, invpatches, true))
+        .forEach((invpatches) => {
+          applyPatches(p, invpatches, true)
+        })
     })
     expect(getSnapshot(p)).toStrictEqual(sn)
   }
@@ -1074,7 +1078,9 @@ test("patches with action in onAttachedToRootStore", () => {
   }
 
   const r = new R({})
-  autoDispose(() => unregisterRootStore(r))
+  autoDispose(() => {
+    unregisterRootStore(r)
+  })
   registerRootStore(r)
 
   const sn = getSnapshot(r)
@@ -1151,7 +1157,9 @@ test("patches with action in onAttachedToRootStore", () => {
     rInvPatches
       .slice()
       .reverse()
-      .forEach((invpatches) => applyPatches(r, invpatches, true))
+      .forEach((invpatches) => {
+        applyPatches(r, invpatches, true)
+      })
   })
   expect(getSnapshot(r)).toStrictEqual(sn)
 })
@@ -1242,7 +1250,9 @@ test("global patches should not include $ in their path", () => {
   const disposeOnGlobalPatches = onGlobalPatches((_, p) => {
     globalPatches.push(...p)
   })
-  autoDispose(() => disposeOnGlobalPatches())
+  autoDispose(() => {
+    disposeOnGlobalPatches()
+  })
 
   fromSnapshot(ParentModel, {})
 

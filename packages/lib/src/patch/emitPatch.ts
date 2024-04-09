@@ -86,7 +86,7 @@ export function onPatches(subtreeRoot: object, listener: OnPatchesListener): OnP
 
   listenersForObject.push(listener)
   return () => {
-    deleteFromArray(listenersForObject!, listener)
+    deleteFromArray(listenersForObject, listener)
   }
 }
 

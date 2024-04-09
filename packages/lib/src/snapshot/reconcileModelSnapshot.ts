@@ -6,7 +6,7 @@ import { isModel, isModelSnapshot } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
-import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
+import { AnyModelProp, getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { deepEquals } from "../treeUtils/deepEquals"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
@@ -79,7 +79,7 @@ function reconcileModelSnapshot(
       const k = dataKeys[i]
       if (!(k in processedSn)) {
         // use default value if applicable
-        const modelProp = modelProps[k]
+        const modelProp = modelProps[k] as AnyModelProp | undefined
         const defaultValue = modelProp ? getModelPropDefaultValue(modelProp) : noDefaultValue
         if (defaultValue === noDefaultValue) {
           remove(data, k)
@@ -102,7 +102,7 @@ function reconcileModelSnapshot(
 
         // use default value if applicable
         if (newValue == null) {
-          const modelProp = modelProps[k]
+          const modelProp = modelProps[k] as AnyModelProp | undefined
           const defaultValue = modelProp ? getModelPropDefaultValue(modelProp) : noDefaultValue
           if (defaultValue !== noDefaultValue) {
             newValue = defaultValue

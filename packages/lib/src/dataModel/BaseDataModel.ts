@@ -68,7 +68,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
     }
 
     // eslint-disable-next-line prefer-rest-params
-    const { modelClass: _modelClass }: DataModelConstructorOptions = arguments[1] as any
+    const { modelClass: _modelClass }: DataModelConstructorOptions = arguments[1]
     const modelClass = _modelClass!
 
     type Data = ModelPropsToUntransformedData<TProps>
@@ -93,7 +93,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
         const k = modelPropsKeys[i]
         const propData = modelProps[k]
 
-        let newValue = initialData![k]
+        let newValue = initialData[k]
         let changed = false
 
         // apply untransform (if any)
@@ -139,6 +139,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
     const self = this as any
 
     // delete unnecessary props
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[propsTypeSymbol]
 
     internalNewDataModel(this, tweakedData as any, {
@@ -182,5 +183,6 @@ export interface AnyDataModel extends BaseDataModel<any> {}
  * A data model class declaration, made of a base model and the model interface.
  */
 export type DataModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
+  // eslint-disable-next-line @typescript-eslint/prefer-function-type
   (...args: any[]): ModelInterface
 }

@@ -336,7 +336,7 @@ test("tuple - simple types", () => {
 test("record - simple types", () => {
   const type = types.record(types.number)
   type T = TypeToData<typeof type>
-  assert(_ as T, _ as { [k: string]: number })
+  assert(_ as T, _ as Record<string, number>)
 
   expectTypeCheckOk(type, {})
   expectTypeCheckOk(type, { x: 5, y: 6 })
@@ -652,7 +652,7 @@ test("record - complex types", () => {
   }))
 
   const type = types.record(valueType)
-  assert(_ as TypeToData<typeof type>, _ as { [k: string]: { y: string } })
+  assert(_ as TypeToData<typeof type>, _ as Record<string, { y: string }>)
 
   expectTypeCheckOk(type, { o: { y: "6" } })
 
@@ -1003,6 +1003,7 @@ test("enum (number)", () => {
 test("enumValues (mixed)", () => {
   enum A {
     X1,
+    // eslint-disable-next-line @typescript-eslint/no-mixed-enums
     X15 = "x15",
     X2 = 6,
   }
@@ -1013,6 +1014,7 @@ test("enumValues (mixed)", () => {
 test("enum (mixed)", () => {
   enum A {
     X1,
+    // eslint-disable-next-line @typescript-eslint/no-mixed-enums
     X15 = "x15",
     X2 = 6,
   }

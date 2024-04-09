@@ -48,7 +48,7 @@ export class YjsTextModel extends Model({
   @computed
   private get _yjsObjectPath() {
     const ctx = yjsBindingContext.get(this)
-    if (!ctx || ctx.boundObject == null) {
+    if (ctx?.boundObject == null) {
       throw failure(
         "the YjsTextModel instance must be part of a bound object before it can be accessed"
       )
@@ -100,6 +100,7 @@ export class YjsTextModel extends Model({
   @computed
   get text(): string {
     this.yjsTextChangedAtom.reportObserved()
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.yjsText.toString()
   }
 
@@ -119,31 +120,29 @@ export class YjsTextModel extends Model({
         disposeObserveDeltaList?.()
         disposeObserveDeltaList = undefined
 
-        if (deltaList) {
-          disposeObserveDeltaList = observe(this.$.deltaList, (change) => {
-            if (reapplyDeltasToYjsText) {
-              // already gonna replace them all
-              return
-            }
-            if (!shouldReplicateToYjs(yjsBindingContext.get(this))) {
-              // yjs text is already up to date with these changes
-              return
-            }
+        disposeObserveDeltaList = observe(deltaList, (change) => {
+          if (reapplyDeltasToYjsText) {
+            // already gonna replace them all
+            return
+          }
+          if (!shouldReplicateToYjs(yjsBindingContext.get(this))) {
+            // yjs text is already up to date with these changes
+            return
+          }
 
-            if (
-              change.type === "splice" &&
-              change.removedCount === 0 &&
-              change.addedCount > 0 &&
-              change.index === this.deltaList.length
-            ) {
-              // optimization, just adding new ones to the end
-              newDeltas.push(...change.added)
-            } else {
-              // any other change, we need to reapply all deltas
-              reapplyDeltasToYjsText = true
-            }
-          })
-        }
+          if (
+            change.type === "splice" &&
+            change.removedCount === 0 &&
+            change.addedCount > 0 &&
+            change.index === this.deltaList.length
+          ) {
+            // optimization, just adding new ones to the end
+            newDeltas.push(...change.added)
+          } else {
+            // any other change, we need to reapply all deltas
+            reapplyDeltasToYjsText = true
+          }
+        })
       },
       { fireImmediately: true }
     )

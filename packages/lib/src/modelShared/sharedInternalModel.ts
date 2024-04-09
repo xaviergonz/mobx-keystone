@@ -18,7 +18,7 @@ import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { addHiddenProp, assertIsObject, failure, propNameToSetterName } from "../utils"
 import { chainFns } from "../utils/chainFns"
 import { ModelClass, modelInitializedSymbol } from "./BaseModelShared"
-import { modelInitializersSymbol } from "./modelClassInitializer"
+import { ModelClassInitializer, modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import { AnyModelProp, getModelPropDefaultValue, ModelProps, noDefaultValue, prop } from "./prop"
@@ -178,7 +178,7 @@ export function sharedInternalModel<
     idKey = idKeys[0]
     const idProp = composedModelProps[idKey]
     let baseProp: AnyModelProp = needsTypeChecker ? tPropForId : propForId
-    switch (idProp?._setter) {
+    switch (idProp._setter) {
       case true:
         baseProp = baseProp.withSetter()
         break
@@ -217,6 +217,7 @@ export function sharedInternalModel<
     constructorOptions?: ModelConstructorOptions | DataModelConstructorOptions
   ) {
     const modelClass = constructorOptions?.modelClass ?? this.constructor
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const baseModel = new base(initialData, {
       ...constructorOptions,
       modelClass,
@@ -232,7 +233,10 @@ export function sharedInternalModel<
       )
     }
 
-    propsToDeleteFromBase.forEach((prop) => delete baseModel[prop])
+    propsToDeleteFromBase.forEach((prop) => {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete baseModel[prop]
+    })
 
     return baseModel
   }
@@ -240,7 +244,7 @@ export function sharedInternalModel<
   // copy static props from base
   Object.assign(ThisModel, base)
 
-  const initializers = base[modelInitializersSymbol]
+  const initializers: ModelClassInitializer[] = base[modelInitializersSymbol]
   if (initializers) {
     ThisModel[modelInitializersSymbol] = initializers.slice()
   }
@@ -288,6 +292,7 @@ export function sharedInternalModel<
       const setterName = propNameToSetterName(propName)
 
       if (!(basePropNames as Set<string>).has(setterName)) {
+        // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
         const newPropDescriptor: any = modelAction(ThisModel.prototype, setterName, {
           value: function (this: any, value: any) {
             this[propName] = value

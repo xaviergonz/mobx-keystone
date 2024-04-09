@@ -31,16 +31,10 @@ import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */
-export function applySnapshot<T extends object>(node: T, snapshot: SnapshotInOf<T>): void
-
-/**
- * Applies a full snapshot over an object, reconciling it with the current contents of the object.
- *
- * @typeparam T Object type.
- * @param node Target object (model object, object or array).
- * @param snapshot Snapshot to apply.
- */
-export function applySnapshot<T extends object>(node: T, snapshot: SnapshotOutOf<T>): void
+export function applySnapshot<T extends object>(
+  node: T,
+  snapshot: SnapshotInOf<T> | SnapshotOutOf<T>
+): void
 
 export function applySnapshot(node: object, snapshot: unknown): void {
   assertTweakedObject(node, "node")
@@ -74,7 +68,8 @@ export function internalApplySnapshot<T extends object>(
       throw failure("if the snapshot is an array the target must be an array too")
     }
 
-    return reconcile()
+    reconcile()
+    return
   }
 
   if (isFrozenSnapshot(sn)) {
@@ -121,7 +116,8 @@ export function internalApplySnapshot<T extends object>(
       }
     }
 
-    return reconcile()
+    reconcile()
+    return
   }
 
   if (isPlainObject(sn)) {
@@ -130,7 +126,8 @@ export function internalApplySnapshot<T extends object>(
       throw failure("if the snapshot is an object the target must be an object too")
     }
 
-    return reconcile()
+    reconcile()
+    return
   }
 
   if (isMap(sn)) {

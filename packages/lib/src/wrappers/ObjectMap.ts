@@ -94,9 +94,7 @@ export class ObjectMap<V>
     return this.entries()
   }
 
-  get [Symbol.toStringTag](): string {
-    return "ObjectMap"
-  }
+  readonly [Symbol.toStringTag] = "ObjectMap"
 }
 
 /**
@@ -106,7 +104,7 @@ export class ObjectMap<V>
  * @param [entries] Optional initial values.
  */
 export function objectMap<V>(entries?: ReadonlyArray<readonly [string, V]> | null): ObjectMap<V> {
-  const initialObj: { [k: string]: V } = {}
+  const initialObj: Record<string, V> = {}
 
   if (entries) {
     const len = entries.length

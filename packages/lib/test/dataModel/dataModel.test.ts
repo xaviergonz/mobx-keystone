@@ -114,7 +114,7 @@ test("without type", async () => {
   expect(viewRuns).toBe(1)
   viewRuns = 0
 
-  const events: any = []
+  const events: any[] = []
 
   autoDispose(
     addActionMiddleware({
@@ -463,7 +463,7 @@ test("with type", async () => {
   expect(viewRuns).toBe(1)
   viewRuns = 0
 
-  const events: any = []
+  const events: any[] = []
 
   autoDispose(
     addActionMiddleware({
@@ -789,7 +789,9 @@ test("parent/child", () => {
 
   const tc = new ChildModel({ x: 10 })
 
-  expect(() => pm.setSubObj(tc)).toThrow(
+  expect(() => {
+    pm.setSubObj(tc)
+  }).toThrow(
     "data models are not directly supported. you may insert the data in the tree instead ('$' property)."
   )
   pm.setSubObj(tc.$)
@@ -817,7 +819,7 @@ test("extends works", () => {
   const bm = new Base({ x: 10 })
   expect(bm.x).toBe(10)
 
-  const events: any = []
+  const events: any[] = []
 
   autoDispose(
     addActionMiddleware({

@@ -58,7 +58,7 @@ export interface PatchRecorderOptions {
    * @param inversePatches Inverse patches about to be recorded.
    * @returns `true` to record the patch, `false` to skip it.
    */
-  filter?(patches: Patch[], inversePatches: Patch[]): boolean
+  filter?: (patches: Patch[], inversePatches: Patch[]) => boolean
 
   /**
    * An optional callback run once a patch is recorded.

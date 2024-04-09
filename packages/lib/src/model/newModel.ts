@@ -77,7 +77,7 @@ export const internalNewModel = action(
         if (defaultValue !== noDefaultValue) {
           changed = true
           newValue = defaultValue
-        } else if (!(k in initialData!)) {
+        } else if (!(k in initialData)) {
           // for mobx4, we need to set up properties even if they are undefined
           changed = true
         }
@@ -231,7 +231,7 @@ function getModelDetails(modelClass: ModelClass<AnyModel>) {
 
   const modelIdPropertyName = getModelIdPropertyName(modelClass)
   const modelProps = getInternalModelClassPropsInfo(modelClass)
-  const modelIdPropData = modelIdPropertyName ? modelProps[modelIdPropertyName]! : undefined
+  const modelIdPropData = modelIdPropertyName ? modelProps[modelIdPropertyName] : undefined
 
   return { modelInfo, modelIdPropertyName, modelProps, modelIdPropData }
 }

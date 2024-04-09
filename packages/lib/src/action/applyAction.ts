@@ -41,7 +41,7 @@ export interface ActionCall {
   /**
    * Marks this action call as non-serialized.
    */
-  readonly serialized?: undefined
+  readonly serialized?: boolean
 }
 
 const builtInActionToFunction = {
@@ -87,7 +87,7 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   assertTweakedObject(current, `resolved ${current}`, true)
 
   if (isBuiltInAction(call.actionName)) {
-    const fnToCall: AnyFunction = builtInActionToFunction[call.actionName]
+    const fnToCall = builtInActionToFunction[call.actionName] as AnyFunction | undefined
     if (!fnToCall) {
       throw failure(`assertion failed: unknown built-in action - ${call.actionName}`)
     }
@@ -102,6 +102,7 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   const dataModelAction = getDataModelAction(call.actionName)
   if (dataModelAction) {
     const instance: any = new dataModelAction.modelClass(current)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return instance[dataModelAction.fnName](...call.args)
   }
 
@@ -110,5 +111,6 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
     return standaloneAction.apply(current, call.args as any)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   return (current as any)[call.actionName].apply(current, call.args)
 }

@@ -57,10 +57,12 @@ const runAfterClassInitialization = (
   // compatibility with mobx 6
   if (tag.needsMakeObservable) {
     // we know it can be done and shouldn't fail
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     mobx6.makeObservable(instance)
   } else if (tag.needsMakeObservable === undefined) {
     if (getMobxVersion() >= 6) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         mobx6.makeObservable(instance)
         tag.needsMakeObservable = true
       } catch (e) {
@@ -91,18 +93,21 @@ const runAfterClassInitialization = (
   if (tag.type === "class" && instance.onInit) {
     wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     instance.onInit()
   }
 
   if (tag.type === "data" && instance.onLazyInit) {
     wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     instance.onLazyInit()
   }
 }
 
 const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
   construct(clazz, args) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const instance = new (clazz as any)(...args)
 
     runAfterClassInitialization(clazz, instance)

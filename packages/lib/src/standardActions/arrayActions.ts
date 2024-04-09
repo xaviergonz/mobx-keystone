@@ -4,10 +4,9 @@ import { namespace as ns } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { standaloneAction } from "./standaloneActions"
 
-function _splice(array: any[], start: number, deleteCount?: number): any[]
-function _splice(array: any[], start: number, deleteCount: number, ...items: any[]): any[]
+function _splice(array: any[], start: number, deleteCount?: number, ...items: any[]): any[]
 function _splice(array: any[], ...args: any[]): any[] {
-  return (array.splice as any)(...args)
+  return (array.splice as (...args: any[]) => any[])(...args)
 }
 
 const namespace = `${ns}/arrayActions`
@@ -18,7 +17,7 @@ export const arrayActions = {
   }),
 
   delete: standaloneAction(`${namespace}::delete`, <T>(array: T[], index: number): boolean => {
-    return remove(array, "" + index)
+    return remove(array, String(index))
   }),
 
   setLength: standaloneAction(`${namespace}::setLength`, <T>(array: T[], length: number): void => {

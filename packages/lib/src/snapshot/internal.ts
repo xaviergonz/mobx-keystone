@@ -173,7 +173,7 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
   // this might be undefined if the data comes from example from transforms
   const isFrozen = frozenState.get(data)
 
-  if (isFrozen === undefined || isFrozen === true) {
+  if (isFrozen === undefined || isFrozen) {
     // already frozen or an external data (e.g. from a transform)
     return data
   }

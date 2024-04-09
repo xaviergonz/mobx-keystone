@@ -110,7 +110,7 @@ export function typesDataModelData<M = never, K = M>(
 
     cachedDataModelTypeChecker.set(modelClazz, tc)
 
-    return tc as any
+    return tc
   }
 }
 
@@ -137,7 +137,7 @@ export class DataModelDataTypeInfo extends TypeInfo {
     Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
-      const type = propData._typeChecker as any as AnyStandardType
+      const type = propData._typeChecker as any as AnyStandardType | undefined
 
       let typeInfo: TypeInfo | undefined
       if (type) {

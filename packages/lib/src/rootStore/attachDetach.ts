@@ -44,7 +44,8 @@ export const attachToRootStore = action(
     for (let i = 0; i < childrenToCallLen; i++) {
       const ch = childrenToCall[i]
 
-      const disposer = (ch as any).onAttachedToRootStore!(rootStore)
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      const disposer = (ch as any).onAttachedToRootStore(rootStore)
       if (disposer) {
         onAttachedDisposers.set(ch, disposer)
       }

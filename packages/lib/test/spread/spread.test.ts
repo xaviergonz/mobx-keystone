@@ -288,7 +288,7 @@ test("reassigning an object via spreading", () => {
   @testModel("SpreadObj")
   class SpreadObj extends Model({
     [modelIdKey]: idProp,
-    spreadObj: prop<{ [k: string]: Obj }>(() => ({})),
+    spreadObj: prop<Record<string, Obj>>(() => ({})),
   }) {
     @modelAction
     add(n: string, x: number) {
@@ -300,7 +300,7 @@ test("reassigning an object via spreading", () => {
     }
 
     @modelAction
-    set(spreadObj: { [k: string]: Obj }) {
+    set(spreadObj: Record<string, Obj>) {
       this.spreadObj = spreadObj
     }
   }
@@ -319,9 +319,9 @@ test("reassigning an object via spreading", () => {
   const o2 = o.add("two", 2)
   const o3 = o.add("three", 3)
 
-  expect(o.spreadObj["one"].x).toBe(1)
-  expect(o.spreadObj["two"].x).toBe(2)
-  expect(o.spreadObj["three"].x).toBe(3)
+  expect(o.spreadObj.one.x).toBe(1)
+  expect(o.spreadObj.two.x).toBe(2)
+  expect(o.spreadObj.three.x).toBe(3)
 
   expect(getSnapshot(o)).toMatchInlineSnapshot(`
     {

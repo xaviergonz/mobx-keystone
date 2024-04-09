@@ -52,6 +52,7 @@ export const objectActions = {
       methodName: K,
       ...args: T[K] extends AnyFunction ? Parameters<T[K]> : never
     ): T[K] extends AnyFunction ? ReturnType<T[K]> : never => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       return (target as any)[methodName](...args)
     }
   ),

@@ -23,12 +23,13 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   }
 
   const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-  if (modelIdPropertyName && (sn as any)[modelIdPropertyName] === undefined) {
+  if (modelIdPropertyName && sn[modelIdPropertyName] === undefined) {
     throw failure(
       `a model snapshot of type '${type}' must contain an id key (${modelIdPropertyName}), but none was found`
     )
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   return new (modelInfo.class as any)(undefined, {
     snapshotInitialData: {
       unprocessedSnapshot: sn,
@@ -41,7 +42,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
       snapshotToInitialData: ctx.snapshotToInitialData,
     },
     generateNewIds: ctx.options.generateNewIds,
-  } as ModelConstructorOptions)
+  } satisfies ModelConstructorOptions)
 }
 
 /**

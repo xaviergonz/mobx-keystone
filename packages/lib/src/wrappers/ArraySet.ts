@@ -88,9 +88,7 @@ export class ArraySet<V>
     return this.values()
   }
 
-  get [Symbol.toStringTag](): string {
-    return "ArraySet"
-  }
+  readonly [Symbol.toStringTag] = "ArraySet"
 }
 
 /**

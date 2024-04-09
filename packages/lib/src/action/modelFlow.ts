@@ -132,6 +132,7 @@ export function flow<R, Args extends any[]>({
       function next(ret: any): void {
         if (ret && typeof ret.then === "function") {
           // an async iterator
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           ret.then(next, reject)
         } else if (ret.done) {
           // done
@@ -247,6 +248,8 @@ function* promiseGenerator<T>(
 // above code but compiled by TS for ES5
 // so we don't include a dependency to regenerator runtime
 
+/* eslint-disable */
+
 const __generator = function (thisArg: any, body: any) {
   let _: any = {
       label: 0,
@@ -285,8 +288,8 @@ const __generator = function (thisArg: any, body: any) {
               op[0] & 2
                 ? y["return"]
                 : op[0]
-                ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
-                : y.next) &&
+                  ? y["throw"] || ((t = y["return"]) && t.call(y), 0)
+                  : y.next) &&
             !(t = t.call(y, op[1])).done)
         )
           return t
@@ -360,3 +363,5 @@ function promiseGenerator(this: Promise<any>) {
     }
   })
 }
+
+/* eslint-enable */

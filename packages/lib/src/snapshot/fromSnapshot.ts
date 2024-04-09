@@ -14,7 +14,7 @@ import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
 /**
  * @internal
  */
-export type Snapshotter = (sn: any, ctx: FromSnapshotContext) => any | undefined
+export type Snapshotter = (sn: any, ctx: FromSnapshotContext) => any
 
 const snapshotters: { priority: number; snapshotter: Snapshotter }[] = []
 
@@ -41,7 +41,7 @@ export interface FromSnapshotOptions {
  */
 export interface FromSnapshotContext {
   options: FromSnapshotOptions
-  snapshotToInitialData(processedSn: SnapshotInOfModel<AnyModel>): any
+  snapshotToInitialData: (processedSn: SnapshotInOfModel<AnyModel>) => any
   untypedSnapshot: unknown
 }
 
@@ -83,9 +83,7 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
   if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || isModelClass(arg1)) {
     const typeChecker = resolveTypeChecker(arg1)
     unprocessedSnapshot = arg2
-    snapshot = typeChecker.fromSnapshotProcessor
-      ? typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
-      : unprocessedSnapshot
+    snapshot = typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
     options = arg3
   } else {
     snapshot = arg1

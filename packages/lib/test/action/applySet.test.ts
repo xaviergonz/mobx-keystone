@@ -5,11 +5,11 @@ import { autoDispose, testModel } from "../utils"
 export class P extends Model({
   y: prop(0),
   ch: prop<P | undefined>(undefined),
-  obj: prop<{ [k: string]: number } | undefined>(undefined),
+  obj: prop<Record<string, number> | undefined>(undefined),
 }) {}
 
 test("applySet", () => {
-  const events: any = []
+  const events: any[] = []
 
   const p = new P({})
 

@@ -5,7 +5,9 @@ type Disposer = () => void
 const disposers: Disposer[] = []
 
 afterEach(() => {
-  disposers.forEach((d) => d())
+  disposers.forEach((d) => {
+    d()
+  })
   disposers.length = 0
 })
 
@@ -14,7 +16,11 @@ export function autoDispose(disposer: Disposer) {
 }
 
 export async function delay(x: number) {
-  return new Promise<number>((r) => setTimeout(() => r(x), x))
+  return new Promise<number>((r) =>
+    setTimeout(() => {
+      r(x)
+    }, x)
+  )
 }
 
 export const testModel = (name: string) => {

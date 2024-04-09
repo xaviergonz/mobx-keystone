@@ -214,6 +214,7 @@ test("onActionMiddleware", () => {
 
   // unserializable args
   reset()
+  // eslint-disable-next-line @typescript-eslint/no-extraneous-class
   class RandomClass {}
   const rc = new RandomClass()
 

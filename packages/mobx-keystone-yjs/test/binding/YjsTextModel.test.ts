@@ -14,7 +14,9 @@ test("bind a text as root object", () => {
     yjsObject: yTestText,
     mobxKeystoneType: YjsTextModel,
   })
-  autoDispose(() => dispose())
+  autoDispose(() => {
+    dispose()
+  })
 
   expect(boundObject).toBeDefined()
   expect(boundObject.yjsText).toBe(yTestText)
@@ -86,7 +88,9 @@ test("load a pre-exiting text", () => {
     yjsObject: yTestText,
     mobxKeystoneType: YjsTextModel,
   })
-  autoDispose(() => dispose())
+  autoDispose(() => {
+    dispose()
+  })
 
   expect(boundObject).toBeDefined()
   expect(boundObject.yjsText).toBe(yTestText)
@@ -127,7 +131,9 @@ test("bind a text as a sub-object (text starts undefined)", () => {
     yjsObject: yTestModel,
     mobxKeystoneType: TestModel,
   })
-  autoDispose(() => dispose())
+  autoDispose(() => {
+    dispose()
+  })
 
   expect(boundObject).toBeDefined()
   expect(boundObject.text).toBeUndefined()
@@ -170,7 +176,9 @@ const createSubobjectWithText = () => {
     yjsObject: yTestModel,
     mobxKeystoneType: TestModel,
   })
-  autoDispose(() => dispose())
+  autoDispose(() => {
+    dispose()
+  })
 
   const textChanges: string[] = []
   autoDispose(

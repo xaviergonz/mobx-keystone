@@ -120,7 +120,7 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
 
     cachedModelTypeChecker.set(modelClazz, tc)
 
-    return tc as any
+    return tc
   }
 }
 
@@ -147,7 +147,7 @@ export class ModelTypeInfo extends TypeInfo {
     Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
-      const type = propData._typeChecker as any as AnyStandardType
+      const type = propData._typeChecker as any as AnyStandardType | undefined
 
       let typeInfo: TypeInfo | undefined
       if (type) {
@@ -183,7 +183,10 @@ export class ModelTypeInfo extends TypeInfo {
     return modelInfo.name
   }
 
-  constructor(thisType: AnyStandardType, readonly modelClass: ModelClass<AnyModel>) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly modelClass: ModelClass<AnyModel>
+  ) {
     super(thisType)
   }
 }

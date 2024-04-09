@@ -262,7 +262,7 @@ export function addLateInitializationFunction(
   symbol: symbol,
   fn: (instance: any) => void
 ) {
-  let array: LateInitializationFunctionsArray = target[symbol]
+  let array: LateInitializationFunctionsArray | undefined = target[symbol]
   if (!array || !Object.prototype.hasOwnProperty.call(target, symbol)) {
     // leave base array unmodified, create new array in the derived class
     array = array ? array.slice() : []

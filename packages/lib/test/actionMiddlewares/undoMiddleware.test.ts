@@ -80,10 +80,14 @@ function expectUndoManagerRedoToBe(manager: UndoManager, undoLevels: number, red
   expect(manager.redoQueue.length).toBe(redoLevels)
 
   if (undoLevels <= 0) {
-    expect(() => manager.undo()).toThrow("nothing to undo")
+    expect(() => {
+      manager.undo()
+    }).toThrow("nothing to undo")
   }
   if (redoLevels <= 0) {
-    expect(() => manager.redo()).toThrow("nothing to redo")
+    expect(() => {
+      manager.redo()
+    }).toThrow("nothing to redo")
   }
 }
 
@@ -102,7 +106,9 @@ test("undoMiddleware - sync", () => {
     },
   })
   expect(manager instanceof UndoManager).toBeTruthy()
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function getEvents(): { undo: ReadonlyArray<UndoEvent>; redo: ReadonlyArray<UndoEvent> } {
     return {
@@ -134,7 +140,9 @@ test("undoMiddleware - sync", () => {
   snapshots.push(getSnapshot(p))
 
   attachedState = "beforeIncXY3,20"
-  expect(() => p.incXY(3, 20)).toThrow("incXY")
+  expect(() => {
+    p.incXY(3, 20)
+  }).toThrow("incXY")
   snapshots.push(getSnapshot(p))
 
   expect(p.x).toBe(1 + 2 + 3)
@@ -267,7 +275,9 @@ test("undoMiddleware - async", async () => {
 
   const manager = undoMiddleware(r, r.undoData)
   expect(manager instanceof UndoManager).toBeTruthy()
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function getEvents(): { undo: ReadonlyArray<UndoEvent>; redo: ReadonlyArray<UndoEvent> } {
     return {
@@ -493,7 +503,9 @@ test("does not generate steps if using withoutUndo", () => {
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
     expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
@@ -520,7 +532,9 @@ test("withGroup", () => {
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
     expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
@@ -558,7 +572,9 @@ test("createGroup", () => {
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
     expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
@@ -623,7 +639,9 @@ test("withGroupFlow - simple case", async () => {
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
     expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
@@ -668,7 +686,9 @@ test("withGroupFlow - throwing", async () => {
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
     expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
@@ -684,14 +704,14 @@ test("withGroupFlow - throwing", async () => {
         yield* _await(
           manager.withGroupFlow(function* () {
             yield* _await(p.incX(3))
-            // eslint-disable-next-line no-throw-literal
+            // eslint-disable-next-line no-throw-literal, @typescript-eslint/only-throw-error
             throw "inside"
           })
         )
         fail("should have thrown")
       } catch (err) {
         expect(err).toBe("inside")
-        // eslint-disable-next-line no-throw-literal
+        // eslint-disable-next-line no-throw-literal, @typescript-eslint/only-throw-error
         throw "outside"
       }
     })
@@ -720,7 +740,9 @@ test("withGroupFlow - concurrent", async () => {
   const p = r.p
 
   const manager = undoMiddleware(r, r.undoData)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
     expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)
@@ -816,7 +838,9 @@ test("concurrent async actions", async () => {
 
   const manager = undoMiddleware(r, r.undoData)
   expect(manager instanceof UndoManager).toBeTruthy()
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function getEvents(): { undo: ReadonlyArray<UndoEvent>; redo: ReadonlyArray<UndoEvent> } {
     return {
@@ -980,7 +1004,9 @@ test("limit undo/redo steps", () => {
     maxRedoLevels: 1,
     maxUndoLevels: 2,
   })
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   function expectUndoRedoToBe(undoLevels: number, redoLevels: number) {
     expectUndoManagerRedoToBe(manager, undoLevels, redoLevels)

@@ -15,5 +15,6 @@
   "search.exclude": {
     "**/.yarn": true,
     "**/.pnp.*": true
-  }
+  },
+  "eslint.experimental.useFlatConfig": true
 }

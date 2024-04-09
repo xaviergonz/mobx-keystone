@@ -38,9 +38,9 @@ beforeEach(() => {
       const d = onChildAttachedTo(
         () => node,
         (child) => {
-          const path = getParentToChildPath(node, child)!
+          const path = getParentToChildPath(node, child)
           if (!path) {
-            fail("path between " + node + " and " + child + " could not be found")
+            fail("path between node and child could not be found")
           }
           log("attached", node, child, path)
           return () => {
@@ -120,7 +120,9 @@ beforeEach(() => {
     expect(events).toMatchSnapshot("new arr")
 
     // disposer
-    disposers.forEach((d) => d(false))
+    disposers.forEach((d) => {
+      d(false)
+    })
     events.length = 0
     r.a.b.setArr([4, 5, 6])
     expect(events).toHaveLength(0)
@@ -190,7 +192,9 @@ test("dynamic target", () => {
   expect(events).toMatchSnapshot("remove Todo")
 
   // disposer
-  disposers.forEach((d) => d(false))
+  disposers.forEach((d) => {
+    d(false)
+  })
   events.length = 0
   todoList.removeTodo(todoList.todos[0])
   expect(events).toHaveLength(0)

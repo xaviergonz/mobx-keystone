@@ -54,10 +54,14 @@ test("subnode", () => {
   autoDispose(dispose)
 
   const oldY1 = p.p2.y
-  expect(() => p.p2.setY(300)).toThrow("tried to invoke action 'setY' over a readonly node")
+  expect(() => {
+    p.p2.setY(300)
+  }).toThrow("tried to invoke action 'setY' over a readonly node")
   expect(p.p2.y).toBe(oldY1)
 
-  allowWrite(() => p.p2.setY(300))
+  allowWrite(() => {
+    p.p2.setY(300)
+  })
   expect(p.p2.y).toBe(300)
 
   expect(() => p.setXY(50, 400)).toThrow("tried to invoke action 'setY' over a readonly node")
@@ -81,10 +85,14 @@ test("root node", () => {
   autoDispose(dispose)
 
   const oldY1 = p.p2.y
-  expect(() => p.p2.setY(300)).toThrow("tried to invoke action 'setY' over a readonly node")
+  expect(() => {
+    p.p2.setY(300)
+  }).toThrow("tried to invoke action 'setY' over a readonly node")
   expect(p.p2.y).toBe(oldY1)
 
-  allowWrite(() => p.p2.setY(300))
+  allowWrite(() => {
+    p.p2.setY(300)
+  })
   expect(p.p2.y).toBe(300)
 
   const oldX2 = p.x

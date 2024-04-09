@@ -20,7 +20,7 @@ test("input snapshot processor", () => {
   @testModel("customInputSnapshot")
   class P3 extends Model({
     arr: prop<number[]>(() => []).withSnapshotProcessor({
-      fromSnapshot: (sn: string) => sn?.split(",").map((x) => +x),
+      fromSnapshot: (sn: string) => sn.split(",").map((x) => +x),
     }),
   }) {}
 
@@ -85,7 +85,7 @@ test("output snapshot processor", () => {
   class IP4 extends Model({
     arr: prop<number[]>(() => []).withSnapshotProcessor({
       toSnapshot: (sn) => {
-        return sn.map((x) => "" + x).join(",")
+        return sn.map((x) => String(x)).join(",")
       },
     }),
   }) {
@@ -99,7 +99,7 @@ test("output snapshot processor", () => {
   class P4 extends Model({
     arr: prop<number[]>(() => []).withSnapshotProcessor({
       toSnapshot: (sn) => {
-        return sn.map((x) => "" + x).join(",")
+        return sn.map((x) => String(x)).join(",")
       },
     }),
     child: prop<IP4 | undefined>(),
@@ -210,6 +210,7 @@ test("model without model type", () => {
         if (!sn) return sn
 
         const snCopy = { ...sn }
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete (snCopy as any)[modelTypeKey]
         return snCopy
       },

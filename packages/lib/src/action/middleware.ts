@@ -17,13 +17,13 @@ export interface ActionMiddleware {
   /**
    * A filter function to decide if an action middleware function should be run or not.
    */
-  filter?(ctx: ActionContext): boolean
+  filter?: (ctx: ActionContext) => boolean
 
   /**
    * An action middleware function.
    * Rember to `return next()` if you want to continue the action or throw if you want to cancel it.
    */
-  middleware(ctx: ActionContext, next: () => any): any
+  middleware: (ctx: ActionContext, next: () => any) => any
 }
 
 /**
@@ -52,7 +52,7 @@ export function forEachActionMiddleware(
   // since an array like [a, b, c] will be called like c(b(a())) this means that we need to call
   // the parent object ones at the end of the array
 
-  let current: unknown | undefined = obj
+  let current: unknown = obj
   while (current) {
     const objMwares = perObjectActionMiddlewares.get(current)
     if (objMwares && objMwares.length > 0) {
@@ -88,7 +88,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   if (subtreeRoot) {
     const targetFilter = (ctx: ActionContext) =>
-      ctx.target === subtreeRoot || isChildOfParent(ctx.target, subtreeRoot!)
+      ctx.target === subtreeRoot || isChildOfParent(ctx.target, subtreeRoot)
 
     if (!filter) {
       filter = targetFilter
@@ -102,7 +102,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   const actualMware = { middleware, filter }
 
-  let objMwares = perObjectActionMiddlewares.get(subtreeRoot)!
+  let objMwares = perObjectActionMiddlewares.get(subtreeRoot)
   if (!objMwares) {
     objMwares = [actualMware]
     perObjectActionMiddlewares.set(subtreeRoot, objMwares)

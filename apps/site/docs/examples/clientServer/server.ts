@@ -43,7 +43,9 @@ class Server {
       if (serializedActionCallToReplicate) {
         setTimeout(() => {
           // and distribute message, which includes new model IDs to keep them in sync
-          this.msgListeners.forEach((listener) => listener(serializedActionCallToReplicate!))
+          this.msgListeners.forEach((listener) => {
+            listener(serializedActionCallToReplicate)
+          })
         }, 500)
       }
     }, 500)

@@ -542,7 +542,7 @@ export class UndoManager {
 
     // use bound functions to fix es6 compilation
     const genNext = gen.next.bind(gen)
-    const genThrow = gen.throw!.bind(gen)
+    const genThrow = gen.throw.bind(gen)
 
     const promise = new Promise<R>(function (resolve, reject) {
       function onFulfilled(res: any): void {
@@ -552,7 +552,7 @@ export class UndoManager {
           ret = genNext(res)
         } catch (e) {
           group.end()
-          reject(e)
+          reject(e as Error)
           return
         }
 
@@ -567,7 +567,7 @@ export class UndoManager {
           ret = genThrow(err)
         } catch (e) {
           group.end()
-          reject(e)
+          reject(e as Error)
           return
         }
 
@@ -578,6 +578,7 @@ export class UndoManager {
       function next(ret: any): void {
         if (ret && typeof ret.then === "function") {
           // an async iterator
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           ret.then(next, reject)
         } else if (ret.done) {
           // done
@@ -610,6 +611,7 @@ export class UndoManager {
     private readonly options: UndoMiddlewareOptions<unknown> | undefined
   ) {
     if (getMobxVersion() >= 6) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       mobx6.makeObservable(this)
     }
 

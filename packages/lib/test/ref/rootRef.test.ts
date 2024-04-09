@@ -39,7 +39,7 @@ class Country extends Model({
 
 @testModel("Countries")
 class Countries extends Model({
-  countries: prop<{ [k: string]: Country }>(() => ({})),
+  countries: prop<Record<string, Country>>(() => ({})),
   selectedCountryRef: prop<Ref<Country> | undefined>(),
   selectedCountriesRef: prop<Ref<Country>[]>(() => []),
 }) {
@@ -90,7 +90,7 @@ const countryRef = rootRef<Country>("countryRef", {
   },
 })
 
-const initialCountries: () => { [k: string]: Country } = () => ({
+const initialCountries: () => Record<string, Country> = () => ({
   spain: new Country({
     id: "spain",
     weather: "sunny",
@@ -113,7 +113,7 @@ test("single ref works", () => {
   expect(c.selectedCountryRef).toBeUndefined()
   expect(c.selectedCountry).toBeUndefined()
 
-  const spain = c.countries["spain"]
+  const spain = c.countries.spain
   c.setSelectedCountry(spain)
   expect(c.selectedCountry).toBe(spain)
 
@@ -131,9 +131,9 @@ test("single ref works", () => {
 
   // cloning should be ok
   const cloneC = clone(c)
-  expect(cloneC.countries["spain"]).toBeTruthy()
+  expect(cloneC.countries.spain).toBeTruthy()
   const cloneCSelectedCountry = cloneC.selectedCountry
-  expect(cloneCSelectedCountry).toBe(cloneC.countries["spain"])
+  expect(cloneCSelectedCountry).toBe(cloneC.countries.spain)
 
   // remove referenced country
   c.removeCountry("spain")
@@ -150,7 +150,7 @@ test("single ref works", () => {
   )
 
   // clone should not be affected
-  expect(cloneC.selectedCountry).toBe(cloneC.countries["spain"])
+  expect(cloneC.selectedCountry).toBe(cloneC.countries.spain)
 })
 
 test("array ref works", () => {
@@ -161,8 +161,8 @@ test("array ref works", () => {
   expect(c.selectedCountriesRef).toEqual([])
   expect(c.selectedCountries).toEqual([])
 
-  const spain = c.countries["spain"]
-  const uk = c.countries["uk"]
+  const spain = c.countries.spain
+  const uk = c.countries.uk
   c.setSelectedCountries([spain, uk])
   expect(c.selectedCountries).toEqual([spain, uk])
 
@@ -185,9 +185,9 @@ test("array ref works", () => {
 
   // cloning should be ok
   const cloneC = clone(c)
-  expect(cloneC.countries["spain"]).toBeTruthy()
-  expect(cloneC.countries["uk"]).toBeTruthy()
-  expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
+  expect(cloneC.countries.spain).toBeTruthy()
+  expect(cloneC.countries.uk).toBeTruthy()
+  expect(cloneC.selectedCountries).toEqual([cloneC.countries.spain, cloneC.countries.uk])
 
   // remove referenced country
   const oldR = r.slice()
@@ -211,7 +211,7 @@ test("array ref works", () => {
   expect(oldR[1].current).toBe(uk)
 
   // clone should not be affected
-  expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
+  expect(cloneC.selectedCountries).toEqual([cloneC.countries.spain, cloneC.countries.uk])
 })
 
 test("single selection with custom getId", () => {
@@ -276,12 +276,12 @@ test("moving ref between roots", () => {
   const c1 = new Countries({
     countries: initialCountries(),
   })
-  const c1Spain = c1.countries["spain"]
+  const c1Spain = c1.countries.spain
 
   const c2 = new Countries({
     countries: initialCountries(),
   })
-  const c2Spain = c2.countries["spain"]
+  const c2Spain = c2.countries.spain
 
   const ref = countryRef(c1Spain)
   expect(ref.isValid).toBe(false)
@@ -314,7 +314,7 @@ describe("resolution", () => {
     const c = new Countries({
       countries: initialCountries(),
     })
-    const cSpain = c.countries["spain"]
+    const cSpain = c.countries.spain
 
     const ref = countryRef2(cSpain)
 
@@ -367,7 +367,7 @@ describe("resolution", () => {
     const c = new Countries({
       countries: initialCountries(),
     })
-    const cSpain = c.countries["spain"]
+    const cSpain = c.countries.spain
 
     const ref = countryRef2(cSpain)
 
@@ -407,7 +407,7 @@ test("isRefOfType", () => {
   const c = new Countries({
     countries: initialCountries(),
   })
-  const cSpain = c.countries["spain"]
+  const cSpain = c.countries.spain
 
   const ref = countryRef(cSpain)
   const ref2 = countryRef2(cSpain)
@@ -590,9 +590,11 @@ test("undo manager can undo removal of a referenced object in a single step", ()
   })
 
   const manager = undoMiddleware(c)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
-  const spain = c.countries["spain"]
+  const spain = c.countries.spain
   c.setSelectedCountry(spain)
 
   expect(manager.undoQueue).toMatchInlineSnapshot(`
@@ -696,7 +698,7 @@ test("backrefs can be updated in the middle of an action if the target and ref a
   const c = new Countries({
     countries: initialCountries(),
   })
-  const cSpain = c.countries["spain"]
+  const cSpain = c.countries.spain
 
   c.setSelectedCountryRef(countryRef2(cSpain))
   const ref = c.selectedCountryRef!

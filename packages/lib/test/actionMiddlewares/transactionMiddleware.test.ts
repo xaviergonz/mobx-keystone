@@ -101,7 +101,11 @@ describe("transactionMiddleware - sync", () => {
 })
 
 async function delay(x: number) {
-  return new Promise<number>((r) => setTimeout(() => r(x), x))
+  return new Promise<number>((r) =>
+    setTimeout(() => {
+      r(x)
+    }, x)
+  )
 }
 
 @testModel("P2Flow")

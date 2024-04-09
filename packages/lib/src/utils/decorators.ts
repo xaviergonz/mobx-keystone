@@ -20,6 +20,7 @@ const unboundMethodSymbol = Symbol("unboundMethod")
 const bindMethod = (method: any, instance: any) => {
   const unboundMethod = unboundMethodSymbol in method ? method[unboundMethodSymbol] : method
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const boundMethod = unboundMethod.bind(instance)
   // copy modelAction symbol, etc.
   Object.getOwnPropertySymbols(unboundMethod).forEach((s) => {
@@ -86,59 +87,65 @@ export function decorateWrapMethodOrField(
     const ctx = args[1] as ClassMethodDecoratorContext | ClassFieldDecoratorContext
 
     checkDecoratorContext(decoratorName, ctx.name, ctx.static)
-    if (ctx.kind !== "method" && ctx.kind !== "field") {
-      throw failure(`@${decoratorName} can only be used on fields or methods}`)
-    }
+    switch (ctx.kind) {
+      case "method": {
+        // @action method() { }
+        const value = args[0]
+        const propertyKey = ctx.name as string
 
-    if (ctx.kind === "method") {
-      // @action method() { }
-      const value = args[0]
-      const propertyKey = ctx.name as string
+        let inited = false
 
-      let inited = false
+        ctx.addInitializer(function (this: any) {
+          // only do one override on first initialization for the whole class
+          if (inited) {
+            return
+          }
+          inited = true
 
-      ctx.addInitializer(function (this: any) {
-        // only do one override on first initialization for the whole class
-        if (inited) {
-          return
-        }
-        inited = true
+          const target = this
+          checkModelDecoratorTaget(decoratorName, target)
 
-        const target = this
-        checkModelDecoratorTaget(decoratorName, target)
+          // find the deepest proto that matches the value
+          let proto = this
+          let nextProto = Object.getPrototypeOf(proto)
+          while (nextProto && nextProto[propertyKey] === value) {
+            proto = nextProto
+            nextProto = Object.getPrototypeOf(proto)
+          }
 
-        // find the deepest proto that matches the value
-        let proto = this
-        let nextProto = Object.getPrototypeOf(proto)
-        while (nextProto && nextProto[propertyKey] === value) {
-          proto = nextProto
-          nextProto = Object.getPrototypeOf(proto)
-        }
+          proto[propertyKey] = wrap(
+            getActionNameAndContextOverride(target, propertyKey, false),
+            proto[propertyKey]
+          )
+        })
 
-        proto[propertyKey] = wrap(
-          getActionNameAndContextOverride(target, propertyKey, false),
-          proto[propertyKey]
-        )
-      })
-    } else if (ctx.kind === "field") {
-      // @action method = () => {}
-      const propertyKey = ctx.name as string
-
-      let data: ReturnType<typeof getActionNameAndContextOverride> | undefined
-
-      return function (this: any, value: any) {
-        const instance = this
-
-        if (!data) {
-          checkModelDecoratorTaget(decoratorName, instance)
-          data = getActionNameAndContextOverride(instance, propertyKey, false)
-        }
-
-        const method = wrap(data, value)
-
-        // all of this is to make method destructuring work
-        return bindMethod(method, instance)
+        break
       }
+
+      case "field": {
+        // @action method = () => {}
+        const propertyKey = ctx.name as string
+
+        let data: ReturnType<typeof getActionNameAndContextOverride> | undefined
+
+        return function (this: any, value: any) {
+          const instance = this
+
+          if (!data) {
+            checkModelDecoratorTaget(decoratorName, instance)
+            data = getActionNameAndContextOverride(instance, propertyKey, false)
+          }
+
+          const method = wrap(data, value)
+
+          // all of this is to make method destructuring work
+          return bindMethod(method, instance)
+        }
+        break
+      }
+
+      default:
+        throw failure(`@${decoratorName} can only be used on fields or methods}`)
     }
   }
 }

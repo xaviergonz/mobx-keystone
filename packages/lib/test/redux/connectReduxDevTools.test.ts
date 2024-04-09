@@ -28,7 +28,7 @@ test("waitAsync helper works", async () => {
 test("waitAsyncReject helper works", async () => {
   try {
     await waitAsyncReject(10)
-    throw fail("should have failed")
+    fail("should have failed")
   } catch {
     // do nothing
   }
@@ -199,7 +199,9 @@ function addStandardTests() {
   })
 
   test("m.setXThrow()", () => {
-    expect(() => m.setXThrow()).toThrow()
+    expect(() => {
+      m.setXThrow()
+    }).toThrow()
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 
@@ -211,7 +213,7 @@ function addStandardTests() {
   test("m.setXAsyncThrowSync()", async () => {
     try {
       await m.setXAsyncThrowSync()
-      throw fail("should have thrown")
+      fail("should have thrown")
     } catch {
       // ignore
     }
@@ -221,7 +223,7 @@ function addStandardTests() {
   test("m.setXAsyncThrowAsync()", async () => {
     try {
       await m.setXAsyncThrowAsync()
-      throw fail("should have thrown")
+      fail("should have thrown")
     } catch {
       // ignore
     }
@@ -249,7 +251,7 @@ function addStandardTests() {
   test("m.setXYAsyncThrowSync() -> m.setXAsyncThrowSync()", async () => {
     try {
       await m.setXYAsyncThrowSync()
-      throw fail("should have thrown")
+      fail("should have thrown")
     } catch {
       // ignore
     }
@@ -259,7 +261,7 @@ function addStandardTests() {
   test("m.setXYAsyncThrowAsync() -> m.setXYAsyncThrowAsync()", async () => {
     try {
       await m.setXYAsyncThrowAsync()
-      throw fail("should have thrown")
+      fail("should have thrown")
     } catch {
       // ignore
     }
@@ -273,7 +275,7 @@ function addStandardTests() {
 
   test('m.addtoArray({ a: "otherA" }), m.array[0].setA()', () => {
     m.addToArray(new M2({ a: "otherA" }))
-    m.array[0]!.setA()
+    m.array[0].setA()
     expect(devTools.send.mock.calls).toMatchSnapshot()
   })
 
@@ -282,7 +284,7 @@ function addStandardTests() {
       x: "snapshotX",
       y: "snapshotY",
       array: [],
-      [modelIdKey]: m.$modelId!,
+      [modelIdKey]: m.$modelId,
     })
     applySnapshot(m, snapshot)
     expect(devTools.send.mock.calls).toMatchSnapshot()

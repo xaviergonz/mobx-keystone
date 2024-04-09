@@ -15,7 +15,7 @@ beforeEach(() => {
 })
 
 function expectMapValues(valsN: number[]) {
-  const vals = valsN.map((v) => ["" + v, v] as const)
+  const vals = valsN.map((v) => [String(v), v] as const)
   expect(entries(obj)).toEqual(vals)
 
   expect([...map.values()]).toEqual(vals.map((v) => v[1]))

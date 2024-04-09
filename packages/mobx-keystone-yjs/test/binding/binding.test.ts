@@ -48,7 +48,9 @@ test("bind a model", () => {
     yjsObject: yTestModel,
     mobxKeystoneType: TestModel,
   })
-  autoDispose(() => dispose())
+  autoDispose(() => {
+    dispose()
+  })
 
   expect(boundObject).toBeDefined()
 
@@ -192,7 +194,9 @@ test("bind a simple array", () => {
     yjsObject: yTestArray,
     mobxKeystoneType: types.array(types.number),
   })
-  autoDispose(() => dispose())
+  autoDispose(() => {
+    dispose()
+  })
 
   expect(boundObject).toBeDefined()
 

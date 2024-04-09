@@ -38,7 +38,7 @@ function internalDetach(this: object): void {
   if (isObservableArray(parent)) {
     parent.splice(+path, 1)
   } else if (isObservableObject(parent)) {
-    remove(parent, "" + path)
+    remove(parent, String(path))
   } else {
     throw failure("parent must be an observable object or an observable array")
   }

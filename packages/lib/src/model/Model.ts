@@ -17,7 +17,7 @@ import { assertIsModelClass, isModelClass } from "./utils"
 
 export type _ComposedCreationData<
   SuperModel,
-  TProps extends ModelProps
+  TProps extends ModelProps,
 > = SuperModel extends AnyModel
   ? ModelPropsToTransformedCreationData<TProps> & ModelCreationData<SuperModel>
   : ModelPropsToTransformedCreationData<TProps>
@@ -41,9 +41,12 @@ export interface _Model<
   SuperModel,
   TProps extends ModelProps,
   FromSnapshotOverride extends Record<string, any>,
-  ToSnapshotOverride extends Record<string, any>
+  ToSnapshotOverride extends Record<string, any>,
 > {
-  new (data: _ComposedCreationData<SuperModel, TProps>): SuperModel &
+  // eslint-disable-next-line @typescript-eslint/prefer-function-type
+  new (
+    data: _ComposedCreationData<SuperModel, TProps>
+  ): SuperModel &
     BaseModel<TProps, FromSnapshotOverride, ToSnapshotOverride, _ModelId<SuperModel, TProps>> &
     Omit<ModelPropsToTransformedData<TProps>, BaseModelKeys> &
     ModelPropsToSetter<TProps>
@@ -70,7 +73,7 @@ export function ExtendedModel<
   TModelClass extends AbstractModelClass<AnyModel>,
   A extends [],
   FS extends Record<string, any> = never,
-  TS extends Record<string, any> = never
+  TS extends Record<string, any> = never,
 >(
   genFn: (...args: A) => {
     baseModel: TModelClass
@@ -93,7 +96,7 @@ export function ExtendedModel<
   TProps extends ModelProps,
   TModelClass extends AbstractModelClass<AnyModel>,
   FS extends Record<string, any> = never,
-  TS extends Record<string, any> = never
+  TS extends Record<string, any> = never,
 >(
   baseModel: TModelClass,
   modelProps: TProps,
@@ -105,17 +108,22 @@ export function ExtendedModel<
   TProps extends ModelProps,
   TModelClass extends AbstractModelClass<AnyModel>,
   FS extends Record<string, any> = never,
-  TS extends Record<string, any> = never
+  TS extends Record<string, any> = never,
 >(...args: any[]): _Model<InstanceType<TModelClass>, TProps, FS, TS> {
-  let baseModel
-  let modelProps
-  let modelOptions
+  let baseModel: AbstractModelClass<AnyModel>
+  let modelProps: TProps
+  let modelOptions: ModelOptions<TProps, any, any>
   if (isModelClass(args[0])) {
     baseModel = args[0]
     modelProps = args[1]
     modelOptions = args[2]
   } else {
-    const gen = args[0]()
+    const gen = (
+      args[0] as () => {
+        baseModel: ModelClass<AnyModel>
+        props: TProps
+      }
+    )()
 
     baseModel = gen.baseModel
     modelProps = gen.props
@@ -140,7 +148,7 @@ export function Model<
   TProps extends ModelProps,
   A extends [],
   FS extends Record<string, any> = never,
-  TS extends Record<string, any> = never
+  TS extends Record<string, any> = never,
 >(
   fnModelProps: (...args: A) => TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
@@ -158,14 +166,14 @@ export function Model<
 export function Model<
   TProps extends ModelProps,
   FS extends Record<string, any> = never,
-  TS extends Record<string, any> = never
+  TS extends Record<string, any> = never,
 >(modelProps: TProps, modelOptions?: ModelOptions<TProps, FS, TS>): _Model<unknown, TProps, FS, TS>
 
 // base
 export function Model<
   TProps extends ModelProps,
   FS extends Record<string, any> = never,
-  TS extends Record<string, any> = never
+  TS extends Record<string, any> = never,
 >(
   fnModelPropsOrModelProps: (() => TProps) | TProps,
   modelOptions?: ModelOptions<TProps, FS, TS>
@@ -181,7 +189,7 @@ function internalModel<
   TProps extends ModelProps,
   TBaseModel extends AnyModel,
   FS extends Record<string, any> = never,
-  TS extends Record<string, any> = never
+  TS extends Record<string, any> = never,
 >(
   modelProps: TProps,
   baseModel: ModelClass<TBaseModel> | undefined,
@@ -214,7 +222,7 @@ export interface ModelOptions<TProps extends ModelProps, FS, TS> {
    * @param sn The custom input snapshot.
    * @returns An input snapshot that must match the expected model input snapshot.
    */
-  fromSnapshotProcessor?(sn: FS): FromSnapshotDefaultType<TProps>
+  fromSnapshotProcessor?: (sn: FS) => FromSnapshotDefaultType<TProps>
 
   /**
    * Optional transformation that will be run when converting the data part of the model into a snapshot.
@@ -223,5 +231,5 @@ export interface ModelOptions<TProps extends ModelProps, FS, TS> {
    * @param modelInstance The model instance.
    * @returns  a custom output snapshot.
    */
-  toSnapshotProcessor?(sn: ToSnapshotDefaultType<TProps>, modelInstance: any): TS
+  toSnapshotProcessor?: (sn: ToSnapshotDefaultType<TProps>, modelInstance: any) => TS
 }

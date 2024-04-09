@@ -31,7 +31,7 @@ export class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(0),
   arr: prop<number[]>(() => []),
-  obj: prop<{ [k: string]: number }>(() => ({})),
+  obj: prop<Record<string, number>>(() => ({})),
 }) {
   @modelAction
   addX(n: number) {
@@ -51,12 +51,12 @@ export class P extends Model({
     this.arr.push(n)
     // this is valid in mobx5 but not mobx4
     // this.obj["" + n] = n
-    set(this.obj, "" + n, n)
+    set(this.obj, String(n), n)
   }
 }
 
 test("action tracking", () => {
-  const events: any = []
+  const events: any[] = []
 
   const p = new P({})
 
@@ -662,7 +662,7 @@ test("applyAction", () => {
     const ra = pa.p2.addY(15)
     const rb = applyAction(pb, {
       targetPath: ["p2"],
-      targetPathIds: [pb.p2.$modelId!],
+      targetPathIds: [pb.p2.$modelId],
       actionName: "addY",
       args: [15],
     })
@@ -677,7 +677,7 @@ test("applyAction", () => {
   })
   applyAction(pb, {
     targetPath: ["p2"],
-    targetPathIds: [pb.p2.$modelId!],
+    targetPathIds: [pb.p2.$modelId],
     actionName: "$$applySnapshot",
     args: [{ ...getSnapshot(pb.p2), y: 100 }],
   })

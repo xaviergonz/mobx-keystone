@@ -432,11 +432,11 @@ test("applySnapshot can create a new submodel", () => {
 test("undefined should not be allowed in arrays, but null should", () => {
   const p = createP()
 
-  expect(() =>
+  expect(() => {
     runUnprotected(() => {
       p.arr.push(undefined as any)
     })
-  ).toThrow("undefined is not supported inside arrays")
+  }).toThrow("undefined is not supported inside arrays")
   expect(p.arr.length).toBe(0)
 
   runUnprotected(() => {
@@ -493,9 +493,7 @@ test("types", () => {
   assert(
     _ as SnapshotInOf<ObjectMap<number>>,
     _ as {
-      items?: {
-        [k: string]: number
-      }
+      items?: Record<string, number>
       [modelTypeKey]?: string
       [modelIdKey]: string
     }
@@ -504,9 +502,7 @@ test("types", () => {
   assert(
     _ as SnapshotOutOf<ObjectMap<number>>,
     _ as {
-      items: {
-        [k: string]: number
-      }
+      items: Record<string, number>
       [modelTypeKey]?: string
       [modelIdKey]: string
     }

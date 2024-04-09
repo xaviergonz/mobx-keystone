@@ -17,7 +17,7 @@ import {
 } from "../../src"
 import { autoDispose, testModel } from "../utils"
 
-test("without type", async () => {
+test("without type", () => {
   interface Todo {
     done: boolean
     text: string
@@ -65,7 +65,7 @@ test("without type", async () => {
   myTodoTag.toggleDone()
   expect(todo.done).toBe(false)
 
-  const events: any = []
+  const events: any[] = []
 
   autoDispose(
     addActionMiddleware({
@@ -361,7 +361,7 @@ test("without type", async () => {
   expect(todo.text).toBe("4")
 })
 
-test("with type", async () => {
+test("with type", () => {
   const todoType = types.object(() => ({
     done: types.boolean,
     text: types.string,
@@ -389,7 +389,7 @@ test("with type", async () => {
   const todo = toTreeNode(todoType, { done: false, text: "1" })
   registerRootStore(todo)
 
-  const events: any = []
+  const events: any[] = []
 
   autoDispose(
     addActionMiddleware({
@@ -712,13 +712,13 @@ test("standaloneFlow", async () => {
   const root = new DataModel({})
 
   const pr = fetchData(root, 3)
-  assert(pr, _ as Promise<number>)
+  void assert(pr, _ as Promise<number>)
   const r = await pr
   assert(r, _ as number)
   expect(r).toBe(3)
 
   const pr2 = root.fetchX(4)
-  assert(pr2, _ as Promise<number>)
+  void assert(pr2, _ as Promise<number>)
   const r2 = await pr2
   assert(r2, _ as number)
   expect(r2).toBe(4)

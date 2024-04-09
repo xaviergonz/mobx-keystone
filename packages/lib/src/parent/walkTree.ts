@@ -55,12 +55,12 @@ function walkTreeParentFirst<T = void>(
       return ret
     }
 
-    const children = getObjectChildren(node)!
+    const children = getObjectChildren(node)
 
     stack.length += children.size
     let i = stack.length - 1
 
-    const childrenIter = children!.values()
+    const childrenIter = children.values()
     let ch = childrenIter.next()
     while (!ch.done) {
       stack[i--] = ch.value
@@ -75,7 +75,7 @@ function walkTreeChildrenFirst<T = void>(
   root: object,
   visit: (node: object) => T | undefined
 ): T | undefined {
-  const childrenIter = getObjectChildren(root)!.values()
+  const childrenIter = getObjectChildren(root).values()
   let ch = childrenIter.next()
   while (!ch.done) {
     const ret = walkTreeChildrenFirst(ch.value, visit)
@@ -136,8 +136,8 @@ function walkTreeAggregate<R>(
   let map: Map<R, object> | undefined
   const rootVal = visit(target)
 
-  const childrenMap = getObjectChildren(target)!
-  const childrenIter = childrenMap!.values()
+  const childrenMap = getObjectChildren(target)
+  const childrenIter = childrenMap.values()
   let ch = childrenIter.next()
 
   // small optimization, if there is only one child and this

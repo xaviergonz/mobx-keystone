@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.5.0
+
+- Added undefined to accepted primitive "JSON" types.
+
 ## 1.4.0
 
 - Added `YjsTextModel` as a way to use `Y.Text` as if it were a node.

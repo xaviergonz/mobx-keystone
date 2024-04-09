@@ -80,7 +80,12 @@ export const AppInstance = observer(() => {
       <br />
 
       <div>{status.connected ? "Online (sync enabled)" : "Offline (sync disabled)"}</div>
-      <button onClick={() => toggleWebrtcProviderConnection()} style={{ width: "fit-content" }}>
+      <button
+        onClick={() => {
+          toggleWebrtcProviderConnection()
+        }}
+        style={{ width: "fit-content" }}
+      >
         {status.connected ? "Disconnect" : "Connect"}
       </button>
     </>

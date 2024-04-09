@@ -141,7 +141,7 @@ export function internalCustomRef<T extends object>(
  * @returns The string ID or `undefined`.
  */
 export function getModelRefId(target: object): string | undefined {
-  if (isModel(target) && target.getRefId) {
+  if (isModel(target)) {
     const id = target.getRefId()
     if (id !== undefined && typeof id !== "string") {
       throw failure("'getRefId()' must return a string or undefined when present")

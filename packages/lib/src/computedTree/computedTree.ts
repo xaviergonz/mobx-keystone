@@ -67,7 +67,7 @@ export function computedTree(...args: any[]): any {
       return tweakedValue
     }
 
-  const runLateInit = (instance: any, original: any, propertyKey: string) => {
+  const runLateInit = (instance: any, original: () => any, propertyKey: string) => {
     const c = computed(() => original.call(instance), { keepAlive: true })
     const newValue = c.get()
     const tweakedValue = tweakComputedTreeNode(newValue, instance, propertyKey)

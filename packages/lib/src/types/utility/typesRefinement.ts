@@ -48,6 +48,7 @@ export function typesRefinement<T extends AnyType>(
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
       const baseTypeName = baseChecker.getTypeName(...recursiveTypeCheckers, baseChecker)
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       const refinementName = typeName || "refinementOf"
       return `${refinementName}<${baseTypeName}>`
     }

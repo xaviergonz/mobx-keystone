@@ -33,9 +33,9 @@ export interface JsonPatchReplaceOperation<T> extends JsonPatchBaseOperation {
  */
 function escapePathComponent(path: string | number): string {
   if (typeof path === "number") {
-    return "" + path
+    return String(path)
   }
-  if (path.indexOf("/") === -1 && path.indexOf("~") === -1) {
+  if (!path.includes("/") && !path.includes("~")) {
     return path
   }
   return path.replace(/~/g, "~0").replace(/\//g, "~1")

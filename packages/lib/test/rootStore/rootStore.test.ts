@@ -184,9 +184,9 @@ test("array as rootStore", () => {
   expect(registerRootStore(arr)).toBe(arr)
 
   expect(isRootStore(arr)).toBeTruthy()
-  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(isRootStore(arr[0])).toBeFalsy()
   expect(getRootStore(arr)).toBe(arr)
-  expect(getRootStore(arr[0]!)).toBe(arr)
+  expect(getRootStore(arr[0])).toBe(arr)
   expect(events).toMatchInlineSnapshot(`
     [
       "p3Attached",
@@ -195,7 +195,7 @@ test("array as rootStore", () => {
 
   // detach p3 from root store
   resetEvents()
-  const oldP3 = arr[0]!
+  const oldP3 = arr[0]
   runUnprotected(() => {
     arr.splice(0, 1)
   })
@@ -217,9 +217,9 @@ test("array as rootStore", () => {
   })
 
   expect(isRootStore(arr)).toBeTruthy()
-  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(isRootStore(arr[0])).toBeFalsy()
   expect(getRootStore(arr)).toBe(arr)
-  expect(getRootStore(arr[0]!)).toBe(arr)
+  expect(getRootStore(arr[0])).toBe(arr)
   expect(events).toMatchInlineSnapshot(`
     [
       "p3Attached",
@@ -230,9 +230,9 @@ test("array as rootStore", () => {
   resetEvents()
   unregisterRootStore(arr)
   expect(isRootStore(arr)).toBeFalsy()
-  expect(isRootStore(arr[0]!)).toBeFalsy()
+  expect(isRootStore(arr[0])).toBeFalsy()
   expect(getRootStore(arr)).toBeUndefined()
-  expect(getRootStore(arr[0]!)).toBeUndefined()
+  expect(getRootStore(arr[0])).toBeUndefined()
   expect(events).toMatchInlineSnapshot(`
     [
       "p3Detached",
@@ -366,7 +366,7 @@ test("bug #384", () => {
   const todos: Todo[] = []
 
   for (let i = 0; i < 5000; i++) {
-    todos.push(new Todo({ text: "Todo #" + i }))
+    todos.push(new Todo({ text: `Todo #${i}` }))
   }
 
   const store = new Store({})

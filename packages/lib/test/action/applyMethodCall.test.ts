@@ -17,7 +17,7 @@ export class P extends Model({
 }) {}
 
 test("applyCall", () => {
-  const events: any = []
+  const events: any[] = []
 
   const p = new P({ arr: [1, 2, 3] })
 

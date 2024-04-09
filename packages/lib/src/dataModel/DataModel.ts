@@ -22,7 +22,10 @@ export type _ComposedData<SuperModel, TProps extends ModelProps> = SuperModel ex
   : ModelPropsToUntransformedCreationData<TProps> | ModelPropsToTransformedCreationData<TProps>
 
 export interface _DataModel<SuperModel, TProps extends ModelProps> {
-  new (data: _ComposedData<SuperModel, TProps>): SuperModel &
+  // eslint-disable-next-line @typescript-eslint/prefer-function-type
+  new (
+    data: _ComposedData<SuperModel, TProps>
+  ): SuperModel &
     BaseDataModel<TProps> &
     Omit<ModelPropsToTransformedData<TProps>, BaseDataModelKeys> &
     ModelPropsToSetter<TProps>
@@ -39,7 +42,7 @@ export interface _DataModel<SuperModel, TProps extends ModelProps> {
 export function ExtendedDataModel<
   TProps extends ModelProps,
   TModel extends AnyDataModel,
-  A extends []
+  A extends [],
 >(
   genFn: (...args: A) => {
     baseModel: AbstractModelClass<TModel>
@@ -65,13 +68,13 @@ export function ExtendedDataModel<TProps extends ModelProps, TModel extends AnyD
 export function ExtendedDataModel<TProps extends ModelProps, TModel extends AnyDataModel>(
   ...args: any[]
 ): _DataModel<TModel, TProps> {
-  let baseModel
-  let modelProps
+  let baseModel: AbstractModelClass<AnyDataModel>
+  let modelProps: TProps
   if (isDataModelClass(args[0])) {
     baseModel = args[0]
     modelProps = args[1]
   } else {
-    const gen = args[0]()
+    const gen = (args[0] as () => { baseModel: ModelClass<AnyDataModel>; props: TProps })()
 
     baseModel = gen.baseModel
     modelProps = gen.props

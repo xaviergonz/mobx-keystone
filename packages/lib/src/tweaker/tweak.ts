@@ -159,7 +159,7 @@ export function tryUntweak(value: any): (() => void) | undefined {
   // pre-untweaking, untweak children first
 
   // we have to make a copy since it will be changed
-  const children = Array.from(getObjectChildren(value)!.values())
+  const children = Array.from(getObjectChildren(value).values())
 
   for (let i = 0; i < children.length; i++) {
     setParent(

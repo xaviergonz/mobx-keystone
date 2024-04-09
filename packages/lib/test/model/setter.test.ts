@@ -31,7 +31,7 @@ export class P extends Model({
 }
 
 test("setter", () => {
-  const events: any = []
+  const events: any[] = []
 
   const p = new P({})
 

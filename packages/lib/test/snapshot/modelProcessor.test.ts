@@ -161,7 +161,7 @@ test("output snapshot processor", () => {
       toSnapshotProcessor(sn, instance) {
         expect(instance instanceof IP4).toBe(true)
         return {
-          y: sn.arr.map((x) => "" + x).join(","),
+          y: sn.arr.map((x) => String(x)).join(","),
         }
       },
     }
@@ -182,7 +182,7 @@ test("output snapshot processor", () => {
       toSnapshotProcessor(sn, instance) {
         expect(instance instanceof P4).toBe(true)
         return {
-          y: sn.arr.map((x) => "" + x).join(","),
+          y: sn.arr.map((x) => String(x)).join(","),
           child: sn.child,
         }
       },

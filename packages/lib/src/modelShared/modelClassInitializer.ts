@@ -7,7 +7,10 @@ import type { ModelClass } from "./BaseModelShared"
  */
 export const modelInitializersSymbol = Symbol("modelInitializers")
 
-type ModelClassInitializer = (modelInstance: AnyModel | AnyDataModel) => void
+/**
+ * @internal
+ */
+export type ModelClassInitializer = (modelInstance: AnyModel | AnyDataModel) => void
 
 /**
  * @internal
@@ -16,7 +19,7 @@ export function addModelClassInitializer(
   modelClass: ModelClass<AnyModel | AnyDataModel>,
   init: ModelClassInitializer
 ) {
-  let initializers = (modelClass as any)[modelInitializersSymbol]
+  let initializers: ModelClassInitializer[] = (modelClass as any)[modelInitializersSymbol]
   if (!initializers) {
     initializers = []
     ;(modelClass as any)[modelInitializersSymbol] = initializers

@@ -152,7 +152,7 @@ test("actionTrackingMiddleware - flow", async () => {
       if (ctx.actionName === "addXY") {
         return {
           result: ActionTrackingResult.Return,
-          value: ret.value + 1000,
+          value: (ret.value as number) + 1000,
         }
       }
       return undefined

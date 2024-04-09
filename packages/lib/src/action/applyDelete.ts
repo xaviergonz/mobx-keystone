@@ -21,7 +21,7 @@ export function applyDelete<O extends object, K extends keyof O>(node: O, fieldN
  * @internal
  */
 export function internalApplyDelete<O extends object>(this: O, fieldName: string | number): void {
-  remove(this, "" + fieldName)
+  remove(this, String(fieldName))
 }
 
 const wrappedInternalApplyDelete = lazy(() =>

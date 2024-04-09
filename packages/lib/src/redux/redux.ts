@@ -40,16 +40,14 @@ export interface ReduxStore<T> {
 /**
  * A redux runner for mobx-keystone.
  */
-export interface ReduxRunner<T> {
-  (next: ReduxStore<T>["dispatch"]): (action: ReduxAction) => ReduxAction
-}
+export type ReduxRunner<T> = (
+  next: ReduxStore<T>["dispatch"]
+) => (action: ReduxAction) => ReduxAction
 
 /**
  * A redux middleware for mobx-keystone.
  */
-export interface ReduxMiddleware<T> {
-  (store: ReduxStore<T>): ReduxRunner<T>
-}
+export type ReduxMiddleware<T> = (store: ReduxStore<T>) => ReduxRunner<T>
 
 /**
  * Generates a redux compatible store out of a mobx-keystone object.
@@ -101,13 +99,12 @@ function runMiddlewares<T>(
   let i = 0
 
   function runNextMiddleware(action: ReduxAction): ReduxAction {
-    const runner = runners[i]
-    i++
-    if (runner) {
+    if (i < runners.length) {
+      const runner = runners[i]
+      i++
       return runner(runNextMiddleware)(action)
-    } else {
-      return next(action)
     }
+    return next(action)
   }
 
   return runNextMiddleware(initialAction)

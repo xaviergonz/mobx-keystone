@@ -7,7 +7,7 @@ import type { ModelPool } from "../utils/ModelPool"
 import { getSnapshot } from "./getSnapshot"
 import { registerDefaultReconcilers } from "./registerDefaultReconcilers"
 
-type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any | undefined
+type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any
 
 const reconcilers: { priority: number; reconciler: Reconciler }[] = []
 

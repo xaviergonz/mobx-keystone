@@ -128,7 +128,7 @@ test("actionTrackingMiddleware - sync", () => {
       if (ctx.actionName === "addXY") {
         return {
           result: ActionTrackingResult.Return,
-          value: ret.value + 1000,
+          value: (ret.value as number) + 1000,
         }
       }
       return undefined
@@ -192,7 +192,9 @@ test("actionTrackingMiddleware - sync", () => {
 
   // throwing
   reset()
-  expect(() => p1.throw("some error")).toThrow("some error")
+  expect(() => {
+    p1.throw("some error")
+  }).toThrow("some error")
   expect(events.map(eventToString)).toMatchInlineSnapshot(`
     [
       "throw (filter)",

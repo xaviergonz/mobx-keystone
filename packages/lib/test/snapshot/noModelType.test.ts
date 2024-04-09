@@ -1,7 +1,11 @@
 import {
+  AnyDataModel,
+  AnyModel,
+  AnyStandardType,
   fromSnapshot,
   getSnapshot,
   Model,
+  ModelClass,
   modelIdKey,
   modelSnapshotInWithMetadata,
   modelSnapshotOutWithMetadata,
@@ -9,6 +13,7 @@ import {
   SnapshotInOf,
   tProp,
   types,
+  TypeToData,
 } from "../../src"
 import { testModel } from "../utils"
 
@@ -31,7 +36,7 @@ test("model without model type thanks to a tProp", () => {
   )
 
   expect(m2.m1 instanceof M1).toBe(true)
-  expect(m2.m1!.x).toBe(6)
+  expect(m2.m1.x).toBe(6)
 
   expect(getSnapshot(m2)).toStrictEqual(
     modelSnapshotOutWithMetadata(M2, {
@@ -59,9 +64,9 @@ test("model without model type thanks to a tProp", () => {
     })
   )
 
-  const sn1 = getSnapshot(types.model(M1), m2.m1!)
+  const sn1 = getSnapshot(types.model(M1), m2.m1)
   // multiple calls should yield the same result
-  expect(getSnapshot(types.model(M1), m2.m1!)).toBe(sn1)
+  expect(getSnapshot(types.model(M1), m2.m1)).toBe(sn1)
 
   expect(sn1).toStrictEqual(
     modelSnapshotOutWithMetadata(M1, {
@@ -85,13 +90,19 @@ test("model without model type thanks to a type passed to fromSnapshot", () => {
 
   // const m2Sn: SnapshotInOf<M2> = { y: 1 }
 
-  const testType = (type: any, sn: any, getInstance?: (val: any) => M1) => {
+  const testType = <
+    TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
+  >(
+    type: TType,
+    sn: SnapshotInOf<TypeToData<TType>>,
+    getInstance?: (val: TypeToData<TType>) => M1 | M2 | undefined | null
+  ) => {
     const fsn = fromSnapshot(type, sn)
 
     const m1 = getInstance?.(fsn)
     if (m1 !== undefined) {
       expect(m1 instanceof M1).toBe(true)
-      expect(m1!.x).toBe(m1Sn.x)
+      expect((m1 as M1).x).toBe(m1Sn.x)
       expect(getSnapshot(m1)).toStrictEqual(modelSnapshotOutWithMetadata(M1, m1Sn))
       // TODO: do we need a getSnapshot that will skip modelType?
     } else {

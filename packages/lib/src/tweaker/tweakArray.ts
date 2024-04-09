@@ -182,9 +182,9 @@ function arrayDidChangeUpdate(change: any /*IArrayDidChange*/, oldSnapshot: any)
 }
 
 function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any) {
-  const index = change.index
-  const addedCount = change.addedCount
-  const removedCount = change.removedCount
+  const index = change.index as number
+  const addedCount = change.addedCount as number
+  const removedCount = change.removedCount as number
 
   const addedItems: any[] = []
   addedItems.length = addedCount

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/class-literal-property-style */
 import { computed, reaction, toJS } from "mobx"
 import {
   computedTree,
@@ -389,7 +390,9 @@ describe("tree utility functions", () => {
         }
       }
     )
-    autoDispose(() => disposer(true))
+    autoDispose(() => {
+      disposer(true)
+    })
 
     expect(counter).toBe(1)
 
@@ -405,7 +408,9 @@ describe("tree utility functions", () => {
   test("computed tree cannot be detached", () => {
     const r = new R({})
 
-    expect(() => detach(r.model)).toThrow("tried to invoke action '$$detach' over a readonly node")
+    expect(() => {
+      detach(r.model)
+    }).toThrow("tried to invoke action '$$detach' over a readonly node")
   })
 })
 
@@ -507,9 +512,9 @@ test("computed tree is reactive", () => {
 test("computed tree is readonly", () => {
   const r = new R({})
 
-  expect(() => r.model.setValue(11)).toThrow(
-    "tried to invoke action 'setValue' over a readonly node"
-  )
+  expect(() => {
+    r.model.setValue(11)
+  }).toThrow("tried to invoke action 'setValue' over a readonly node")
 })
 
 test("computed tree works with an array of models", () => {

@@ -5,6 +5,7 @@ import {
   AnyStandardType,
   ModelClass,
   Patch,
+  SnapshotInOf,
   TypeToData,
   applyPatches,
   fromSnapshot,
@@ -16,7 +17,7 @@ import {
 import * as Y from "yjs"
 import { getYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
-import { convertYjsDataToJson } from "./convertYjsDataToJson"
+import { YjsData, convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
 import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 
@@ -50,7 +51,7 @@ export function bindYjsToMobxKeystone<
   /**
    * Disposes the binding.
    */
-  dispose(): void
+  dispose: () => void
   /**
    * The Y.js origin symbol used for binding transactions.
    */
@@ -72,7 +73,7 @@ export function bindYjsToMobxKeystone<
     },
   }
 
-  const yjsJson = convertYjsDataToJson(yjsObject)
+  const yjsJson = convertYjsDataToJson(yjsObject as YjsData)
 
   const initializationGlobalPatches: { target: object; patches: Patch[] }[] = []
 
@@ -83,7 +84,7 @@ export function bindYjsToMobxKeystone<
 
     try {
       const boundObject = yjsBindingContext.apply(
-        () => fromSnapshot(mobxKeystoneType, yjsJson as any),
+        () => fromSnapshot(mobxKeystoneType, yjsJson as unknown as SnapshotInOf<TypeToData<TType>>),
         bindingContext
       )
       yjsBindingContext.set(boundObject, { ...bindingContext, boundObject })

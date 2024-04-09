@@ -138,6 +138,7 @@ function mutateSet(k: PropertyKey, v: unknown, sn: Record<PropertyKey, unknown>)
 }
 
 function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
   delete sn[k]
 }
 
@@ -165,7 +166,7 @@ function objectDidChange(change: IObjectDidChange): void {
 
   runTypeCheckingAfterChange(obj, patchRecorder)
 
-  if (!runningWithoutSnapshotOrPatches && mutate) {
+  if (!runningWithoutSnapshotOrPatches) {
     updateInternalSnapshot(actualNode, mutate)
     patchRecorder.emit(actualNode)
   }
@@ -268,7 +269,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
     case "add":
       change.newValue = tweak(change.newValue, {
         parent: change.object,
-        path: "" + change.name,
+        path: String(change.name),
       })
       break
 
@@ -285,7 +286,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
 
         change.newValue = tweak(newVal, {
           parent: change.object,
-          path: "" + change.name,
+          path: String(change.name),
         })
       }
       break

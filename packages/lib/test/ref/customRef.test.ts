@@ -25,7 +25,7 @@ interface Country {
 
 @testModel("Countries")
 class Countries extends Model({
-  countries: prop<{ [k: string]: Country }>(() => ({})),
+  countries: prop<Record<string, Country>>(() => ({})),
   selectedCountryRef: prop<Ref<Country> | undefined>(),
   selectedCountriesRef: prop<Ref<Country>[]>(() => []),
 }) {
@@ -73,7 +73,7 @@ const countryRef = customRef<Country>("countryRef", {
 
   getId(target) {
     const targetParentPath = getParentPath<Countries>(target)
-    return "" + targetParentPath!.path
+    return String(targetParentPath!.path)
   },
 
   onResolvedValueChange(ref, newValue, oldValue) {
@@ -84,7 +84,7 @@ const countryRef = customRef<Country>("countryRef", {
   },
 })
 
-const initialCountries: () => { [k: string]: Country } = () => ({
+const initialCountries: () => Record<string, Country> = () => ({
   spain: {
     weather: "sunny",
   },
@@ -104,7 +104,7 @@ test("single ref works", () => {
   expect(c.selectedCountryRef).toBeUndefined()
   expect(c.selectedCountry).toBeUndefined()
 
-  const spain = c.countries["spain"]
+  const spain = c.countries.spain
   c.setSelectedCountry(spain)
   expect(c.selectedCountry).toBe(spain)
 
@@ -121,9 +121,9 @@ test("single ref works", () => {
 
   // cloning should be ok
   const cloneC = clone(c)
-  expect(cloneC.countries["spain"]).toBeTruthy()
+  expect(cloneC.countries.spain).toBeTruthy()
   const cloneCSelectedCountry = cloneC.selectedCountry
-  expect(cloneCSelectedCountry).toBe(cloneC.countries["spain"])
+  expect(cloneCSelectedCountry).toBe(cloneC.countries.spain)
 
   // remove referenced country
   c.removeCountry("spain")
@@ -140,7 +140,7 @@ test("single ref works", () => {
   )
 
   // clone should not be affected
-  expect(cloneC.selectedCountry).toBe(cloneC.countries["spain"])
+  expect(cloneC.selectedCountry).toBe(cloneC.countries.spain)
 })
 
 test("array ref works", () => {
@@ -151,8 +151,8 @@ test("array ref works", () => {
   expect(c.selectedCountriesRef).toEqual([])
   expect(c.selectedCountries).toEqual([])
 
-  const spain = c.countries["spain"]
-  const uk = c.countries["uk"]
+  const spain = c.countries.spain
+  const uk = c.countries.uk
   c.setSelectedCountries([spain, uk])
   expect(c.selectedCountries).toEqual([spain, uk])
 
@@ -175,9 +175,9 @@ test("array ref works", () => {
 
   // cloning should be ok
   const cloneC = clone(c)
-  expect(cloneC.countries["spain"]).toBeTruthy()
-  expect(cloneC.countries["uk"]).toBeTruthy()
-  expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
+  expect(cloneC.countries.spain).toBeTruthy()
+  expect(cloneC.countries.uk).toBeTruthy()
+  expect(cloneC.selectedCountries).toEqual([cloneC.countries.spain, cloneC.countries.uk])
 
   // remove referenced country
   const oldR = r.slice()
@@ -201,7 +201,7 @@ test("array ref works", () => {
   expect(oldR[1].current).toBe(uk)
 
   // clone should not be affected
-  expect(cloneC.selectedCountries).toEqual([cloneC.countries["spain"], cloneC.countries["uk"]])
+  expect(cloneC.selectedCountries).toEqual([cloneC.countries.spain, cloneC.countries.uk])
 })
 
 test("single selection with getRefId", () => {
@@ -285,7 +285,7 @@ const countryRef2 = customRef<Country>("countryRef2", {
 
   getId(target) {
     const targetParentPath = getParentPath<Countries>(target)
-    return "" + targetParentPath!.path
+    return String(targetParentPath!.path)
   },
 })
 
@@ -294,7 +294,7 @@ describe("resolution", () => {
     const c = new Countries({
       countries: initialCountries(),
     })
-    const cSpain = c.countries["spain"]
+    const cSpain = c.countries.spain
 
     const ref = countryRef2(cSpain)
 
@@ -334,7 +334,7 @@ test("isRefOfType", () => {
   const c = new Countries({
     countries: initialCountries(),
   })
-  const cSpain = c.countries["spain"]
+  const cSpain = c.countries.spain
 
   const ref = countryRef(cSpain)
   const ref2 = countryRef2(cSpain)

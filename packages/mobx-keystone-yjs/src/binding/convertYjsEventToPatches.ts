@@ -1,13 +1,17 @@
 import { Patch } from "mobx-keystone"
 import * as Y from "yjs"
-import { JsonArray, JsonObject, JsonValue } from "../jsonTypes"
+import {
+  JsonArrayWithUndefined,
+  JsonObjectWithUndefined,
+  JsonValueWithUndefined,
+} from "../jsonTypes"
 import { failure } from "../utils/error"
 
 export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
   const patches: Patch[] = []
 
   if (event instanceof Y.YMapEvent) {
-    const source = event.target as Y.Map<any>
+    const source = event.target
 
     event.changes.keys.forEach((change, key) => {
       const path = [...event.path, key]
@@ -83,9 +87,9 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
   return patches
 }
 
-function toPlainValue(v: Y.Map<any> | Y.Array<any> | JsonValue) {
+function toPlainValue(v: Y.Map<any> | Y.Array<any> | JsonValueWithUndefined) {
   if (v instanceof Y.Map || v instanceof Y.Array) {
-    return v.toJSON() as JsonObject | JsonArray
+    return v.toJSON() as JsonObjectWithUndefined | JsonArrayWithUndefined
   } else {
     return v
   }

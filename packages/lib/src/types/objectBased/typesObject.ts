@@ -24,9 +24,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
   assertIsFunction(objFn, "objFn")
 
   return lateTypeChecker(() => {
-    const objectSchema: {
-      [k: string]: TypeChecker | LateTypeChecker
-    } = (objFn as any)()
+    const objectSchema: Record<string, TypeChecker | LateTypeChecker> = objFn()
     assertIsObject(objectSchema, "objectSchema")
 
     const schemaEntries = Object.entries(objectSchema)
@@ -177,7 +175,10 @@ export class ObjectTypeInfo extends TypeInfo {
     return this._props()
   }
 
-  constructor(thisType: AnyStandardType, private _objTypeFn: ObjectTypeFunction) {
+  constructor(
+    thisType: AnyStandardType,
+    private _objTypeFn: ObjectTypeFunction
+  ) {
     super(thisType)
   }
 }
@@ -215,7 +216,10 @@ export class FrozenTypeInfo extends TypeInfo {
     return getTypeInfo(this.dataType)
   }
 
-  constructor(thisType: AnyStandardType, readonly dataType: AnyStandardType) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly dataType: AnyStandardType
+  ) {
     super(thisType)
   }
 }

@@ -28,7 +28,7 @@ export interface YjsBindingContext {
   /**
    * The bound mobx-keystone instance.
    */
-  boundObject: unknown | undefined
+  boundObject: unknown
 
   /**
    * Whether we are currently applying Y.js changes to the mobx-keystone model.

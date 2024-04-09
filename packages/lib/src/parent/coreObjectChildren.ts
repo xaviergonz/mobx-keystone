@@ -75,7 +75,7 @@ function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
 }
 
 const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
-  const obj = getObjectChildrenObject(node)!
+  const obj = getObjectChildrenObject(node)
   if (!obj.deepDirty) {
     return obj
   }
@@ -162,7 +162,7 @@ export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChil
 }
 
 function initExtensionsData() {
-  const extensionsData = new WeakMap<object, any>()
+  const extensionsData = new WeakMap<object, unknown>()
 
   extensions.forEach((extension, dataSymbol) => {
     extensionsData.set(dataSymbol, extension.initData())

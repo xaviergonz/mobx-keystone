@@ -21,6 +21,7 @@ import { testModel } from "../utils"
 
 test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   // unserializable args
+  // eslint-disable-next-line @typescript-eslint/no-extraneous-class
   class RandomClass {}
   const rc = new RandomClass()
 
@@ -142,7 +143,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   }
 
   expect(serializeActionCallArgument(map)).toEqual(serMap)
-  const mapBack = deserializeActionCallArgument(serMap)
+  const mapBack: Map<any, any> = deserializeActionCallArgument(serMap)
   expect(mapBack instanceof Map).toBe(true)
   expect(Array.from(mapBack.entries())).toEqual(mapKV)
 
@@ -155,7 +156,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   }
 
   expect(serializeActionCallArgument(set)).toEqual(serSet)
-  const setBack = deserializeActionCallArgument(serSet)
+  const setBack: Set<any> = deserializeActionCallArgument(serSet)
   expect(setBack instanceof Set).toBe(true)
   expect(Array.from(setBack.keys())).toEqual(setK)
 
@@ -310,9 +311,9 @@ describe("concurrency", () => {
     // remove
     replicate(captured[0])
     // trying to change a deleted item
-    expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",1] with ids [null,"id-2"] could not be resolved'
-    )
+    expect(() => {
+      replicate(captured[1])
+    }).toThrow('object at path ["list",1] with ids [null,"id-2"] could not be resolved')
   })
 
   test("remove same item twice", () => {
@@ -324,9 +325,9 @@ describe("concurrency", () => {
     // remove
     replicate(captured[0])
     // trying to remove already removed item
-    expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",1] with ids [null,"id-2"] could not be resolved'
-    )
+    expect(() => {
+      replicate(captured[1])
+    }).toThrow('object at path ["list",1] with ids [null,"id-2"] could not be resolved')
   })
 
   test("remove two and change text on third item", () => {
@@ -338,9 +339,9 @@ describe("concurrency", () => {
     // remove
     replicate(captured[0])
     // trying to change an item that moved to index 0 from index 2
-    expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",2] with ids [null,"id-3"] could not be resolved'
-    )
+    expect(() => {
+      replicate(captured[1])
+    }).toThrow('object at path ["list",2] with ids [null,"id-3"] could not be resolved')
   })
 
   test("remove 0,1 and 1,2", () => {
@@ -352,8 +353,8 @@ describe("concurrency", () => {
     // remove
     replicate(captured[0])
     // trying to remove an item that no longer exists
-    expect(() => replicate(captured[1])).toThrow(
-      'object at path ["list",1] with ids [null,"id-2"] could not be resolved'
-    )
+    expect(() => {
+      replicate(captured[1])
+    }).toThrow('object at path ["list",1] with ids [null,"id-2"] could not be resolved')
   })
 })

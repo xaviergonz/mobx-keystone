@@ -439,7 +439,7 @@ test("abstract model classes with factory", () => {
 
       @computed
       public get error(): string | undefined {
-        return this.validate!(this.value)
+        return this.validate(this.value)
       }
     }
 

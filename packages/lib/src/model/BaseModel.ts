@@ -131,16 +131,20 @@ export abstract class BaseModel<
     const initialData = data as any
     const { snapshotInitialData, modelClass, generateNewIds }: ModelConstructorOptions =
       // eslint-disable-next-line prefer-rest-params
-      arguments[1] as any
+      arguments[1]
 
     Object.setPrototypeOf(this, modelClass!.prototype)
 
     const self = this as any
 
     // delete unnecessary props
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[propsTypeSymbol]
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[fromSnapshotOverrideTypeSymbol]
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[toSnapshotOverrideTypeSymbol]
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[modelIdPropertyNameSymbol]
 
     if (!snapshotInitialData) {
@@ -154,7 +158,7 @@ export abstract class BaseModel<
       )
     } else {
       // from snapshot
-      internalFromSnapshotModel(this, snapshotInitialData!, modelClass!, !!generateNewIds)
+      internalFromSnapshotModel(this, snapshotInitialData, modelClass!, !!generateNewIds)
     }
   }
 
@@ -268,5 +272,6 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
  * A model class declaration, made of a base model and the model interface.
  */
 export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
+  // eslint-disable-next-line @typescript-eslint/prefer-function-type
   new (...args: any[]): ModelInterface
 }

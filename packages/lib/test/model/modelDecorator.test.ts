@@ -72,9 +72,9 @@ test("model decorator sets model type static prop and toString methods", () => {
   expect(`${MyModel}`).toBe(`class MyModel#${type}`)
   expect(`${MyModel2}`).toBe(`class MyModel#${type}`)
 
-  const inst = new MyModel2({}) as MyModel
+  const inst = new MyModel2({})
   expect(`${inst}`).toBe(`[MyModel#${type} ${JSON.stringify(getSnapshot(inst))}]`)
-  expect(`${inst.toString({ withData: false })}`).toBe(`[MyModel#${type}]`)
+  expect(inst.toString({ withData: false })).toBe(`[MyModel#${type}]`)
 })
 
 test("decoratedModel", () => {

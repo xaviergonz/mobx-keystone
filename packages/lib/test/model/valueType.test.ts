@@ -72,7 +72,7 @@ test("value type", () => {
   // (it had no previous parent)
   expect(r.setProp(p1)!).toBe(p1)
 
-  const p3 = expectClonedValueType(r.arrPush(p1)!, () => r.p_arr[r.p_arr.length - 1])
+  const p3 = expectClonedValueType(r.arrPush(p1), () => r.p_arr[r.p_arr.length - 1])
 
   const p3_2 = r.arrPop()
   expect(p3_2).toBe(p3)

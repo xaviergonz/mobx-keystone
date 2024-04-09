@@ -14,7 +14,7 @@ export type SnapshotOutOfObject<T> = {
 
 export type SnapshotOutOfModel<M extends AnyModel> = ModelToSnapshot<M>
 
-export type SnapshotOutOfFrozen<F extends Frozen<any>> = {
+export interface SnapshotOutOfFrozen<F extends Frozen<any>> {
   [frozenKey]: true
   data: F["data"]
 }
@@ -31,27 +31,28 @@ export interface SnapshotOutOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type SnapshotOutOf<T> = T extends ObjectMap<infer V>
-  ? SnapshotOutOfObjectMap<V> extends infer R
-    ? R
-    : never
-  : T extends ArraySet<infer V>
-  ? SnapshotOutOfArraySet<V> extends infer R
-    ? R
-    : never
-  : T extends AnyModel
-  ? SnapshotOutOfModel<T> extends infer R
-    ? R
-    : never
-  : T extends Frozen<any>
-  ? SnapshotOutOfFrozen<T> extends infer R
-    ? R
-    : never
-  : T extends object
-  ? SnapshotOutOfObject<T> extends infer R
-    ? R
-    : never
-  : T
+export type SnapshotOutOf<T> =
+  T extends ObjectMap<infer V>
+    ? SnapshotOutOfObjectMap<V> extends infer R
+      ? R
+      : never
+    : T extends ArraySet<infer V>
+      ? SnapshotOutOfArraySet<V> extends infer R
+        ? R
+        : never
+      : T extends AnyModel
+        ? SnapshotOutOfModel<T> extends infer R
+          ? R
+          : never
+        : T extends Frozen<any>
+          ? SnapshotOutOfFrozen<T> extends infer R
+            ? R
+            : never
+          : T extends object
+            ? SnapshotOutOfObject<T> extends infer R
+              ? R
+              : never
+            : T
 
 // snapshot in
 
@@ -61,7 +62,7 @@ export type SnapshotInOfObject<T> = {
 
 export type SnapshotInOfModel<M extends AnyModel> = ModelFromSnapshot<M>
 
-export type SnapshotInOfFrozen<F extends Frozen<any>> = {
+export interface SnapshotInOfFrozen<F extends Frozen<any>> {
   [frozenKey]: true
   data: F["data"]
 }
@@ -78,24 +79,25 @@ export interface SnapshotInOfArraySet<V> {
   [modelIdKey]: string
 }
 
-export type SnapshotInOf<T> = T extends ObjectMap<infer V>
-  ? SnapshotInOfObjectMap<V> extends infer R
-    ? R
-    : never
-  : T extends ArraySet<infer V>
-  ? SnapshotInOfArraySet<V> extends infer R
-    ? R
-    : never
-  : T extends AnyModel
-  ? SnapshotInOfModel<T> extends infer R
-    ? R
-    : never
-  : T extends Frozen<any>
-  ? SnapshotInOfFrozen<T> extends infer R
-    ? R
-    : never
-  : T extends object
-  ? SnapshotInOfObject<T> extends infer R
-    ? R
-    : never
-  : T
+export type SnapshotInOf<T> =
+  T extends ObjectMap<infer V>
+    ? SnapshotInOfObjectMap<V> extends infer R
+      ? R
+      : never
+    : T extends ArraySet<infer V>
+      ? SnapshotInOfArraySet<V> extends infer R
+        ? R
+        : never
+      : T extends AnyModel
+        ? SnapshotInOfModel<T> extends infer R
+          ? R
+          : never
+        : T extends Frozen<any>
+          ? SnapshotInOfFrozen<T> extends infer R
+            ? R
+            : never
+          : T extends object
+            ? SnapshotInOfObject<T> extends infer R
+              ? R
+              : never
+            : T

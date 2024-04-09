@@ -10,11 +10,11 @@ import { autoDispose, testModel } from "../utils"
 
 @testModel("P")
 export class P extends Model({
-  obj: prop<{ [k: string]: number } | undefined>(undefined),
+  obj: prop<Record<string, number> | undefined>(undefined),
 }) {}
 
 test("applyDelete", () => {
-  const events: any = []
+  const events: any[] = []
 
   const p = new P({ obj: { a: 1, b: 2 } })
 

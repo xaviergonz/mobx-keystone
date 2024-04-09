@@ -20,7 +20,7 @@ export interface ModelProp<
   TIsId extends boolean = false,
   THasSetter = never,
   TFromSnapshotOverride = never,
-  TToSnapshotOverride = never
+  TToSnapshotOverride = never,
 > {
   $valueType: TPropValue
   $creationValueType: TPropCreationValue
@@ -39,17 +39,17 @@ export interface ModelProp<
   _isId: boolean
   _transform:
     | {
-        transform(
+        transform: (
           original: unknown,
           model: object,
           propName: PropertyKey,
           setOriginalValue: (newOriginalValue: unknown) => void
-        ): unknown
-        untransform(transformed: unknown, model: object, propName: PropertyKey): unknown
+        ) => unknown
+        untransform: (transformed: unknown, model: object, propName: PropertyKey) => unknown
       }
     | undefined
-  _fromSnapshotProcessor?(sn: unknown): unknown
-  _toSnapshotProcessor?(sn: unknown): unknown
+  _fromSnapshotProcessor?: (sn: unknown) => unknown
+  _toSnapshotProcessor?: (sn: unknown) => unknown
 
   withSetter(): ModelProp<
     TPropValue,
@@ -103,7 +103,7 @@ export interface ModelProp<
   withSnapshotProcessor<
     FS = TFromSnapshotOverride,
     TS = TToSnapshotOverride,
-    This extends AnyModelProp = this
+    This extends AnyModelProp = this,
   >(processor: {
     fromSnapshot?(sn: FS): ModelPropFromSnapshot<This>
     toSnapshot?(sn: ModelPropToSnapshot<This>): TS
@@ -317,7 +317,7 @@ const baseProp: AnyModelProp = {
   },
 
   withSnapshotProcessor({ fromSnapshot, toSnapshot }) {
-    let newFromSnapshot
+    let newFromSnapshot: ((sn: any) => any) | undefined
 
     if (this._fromSnapshotProcessor && fromSnapshot) {
       const oldFn = this._fromSnapshotProcessor
@@ -329,12 +329,12 @@ const baseProp: AnyModelProp = {
       newFromSnapshot = this._fromSnapshotProcessor
     }
 
-    let newToSnapshot
+    let newToSnapshot: ((sn: any) => any) | undefined
 
     if (this._toSnapshotProcessor && toSnapshot) {
-      const oldFn: any = this._toSnapshotProcessor
+      const oldFn: (sn: unknown) => any = this._toSnapshotProcessor
       const newFn = toSnapshot
-      newToSnapshot = (sn: any) => newFn(oldFn(sn))
+      newToSnapshot = (sn: unknown) => newFn(oldFn(sn))
     } else if (toSnapshot) {
       newToSnapshot = toSnapshot
     } else {
@@ -494,7 +494,10 @@ function toFullTransform(transformObject: ModelPropTransform<unknown, unknown>) 
 /**
  * @ignore
  */
-export function getModelPropDefaultValue(propData: AnyModelProp): unknown | typeof noDefaultValue {
+export function getModelPropDefaultValue(
+  propData: AnyModelProp
+): // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+unknown | typeof noDefaultValue {
   if (propData._defaultFn !== noDefaultValue) {
     return propData._defaultFn()
   }

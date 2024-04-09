@@ -34,11 +34,11 @@ export const modelInitializedSymbol = Symbol("modelInitialized")
 /**
  * Extracts the instance type of a model class.
  */
-export type ModelClass<M extends AnyModel | AnyDataModel> = {
+export interface ModelClass<M extends AnyModel | AnyDataModel> {
   new (initialData: any): M
 
-  fromSnapshotProcessor?(sn: any): any
-  toSnapshotProcessor?(sn: any, modelInstance: any): any
+  fromSnapshotProcessor?: (sn: any) => any
+  toSnapshotProcessor?: (sn: any, modelInstance: any) => any
 }
 
 /**
@@ -51,7 +51,9 @@ export type AbstractModelClass<M extends AnyModel | AnyDataModel> = abstract new
 /**
  * @internal
  */
-export type ModelWithProps = { [propsTypeSymbol]: ModelProps }
+export interface ModelWithProps {
+  [propsTypeSymbol]: ModelProps
+}
 
 /**
  * The props of a model.

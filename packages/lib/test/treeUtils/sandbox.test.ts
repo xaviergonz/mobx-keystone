@@ -42,14 +42,18 @@ class B extends Model({
 test("sandbox creates instance of SandboxManager", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
   expect(manager instanceof SandboxManager).toBeTruthy()
 })
 
 test("withSandbox can be called with one node or a tuple of nodes", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([a], (node) => {
     assert(node, _ as A)
@@ -92,7 +96,9 @@ test("withSandbox can be called with an array node", () => {
   const r = new R({ a: [new A({ b: new B({ value: 1 }) }), new A({ b: new B({ value: 2 }) })] })
 
   const manager = sandbox(r)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([r.a], (node) => {
     assert(node, _ as A[])
@@ -105,7 +111,9 @@ test("withSandbox can be called with an array node", () => {
 test("withSandbox callback is called when node is a child of subtreeRoot", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   let called = false
 
@@ -119,7 +127,9 @@ test("withSandbox callback is called when node is a child of subtreeRoot", () =>
 test("withSandbox throws a failure when node is not a child of subtreeRoot", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a.b)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   expect(() => {
     manager.withSandbox([a], () => false)
@@ -129,7 +139,9 @@ test("withSandbox throws a failure when node is not a child of subtreeRoot", () 
 test("sandbox copy reuses IDs from original tree", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([a], (node) => {
     expect(node.$modelId).toBe(a.$modelId)
@@ -141,14 +153,16 @@ test("sandbox copy reuses IDs from original tree", () => {
 test("original tree must not be changed while withSandbox executes", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
-  expect(() =>
+  expect(() => {
     manager.withSandbox([a.b], () => {
       a.b.setValue(2)
       return false
     })
-  ).toThrow("original subtree must not change while 'withSandbox' executes")
+  }).toThrow("original subtree must not change while 'withSandbox' executes")
 })
 
 test.each<[boolean, boolean]>([
@@ -159,7 +173,9 @@ test.each<[boolean, boolean]>([
 ])("withSandbox calls can be nested (%j - %j)", (commitInner, commitOuter) => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([a.b], (node1) => {
     node1.setValue(1)
@@ -184,14 +200,16 @@ test.each<[boolean, boolean]>([
 test("nested withSandbox call requires sandbox node", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([a.b], () => {
-    expect(() =>
+    expect(() => {
       manager.withSandbox([a.b], () => {
         return false
       })
-    ).toThrow("node is not a child of subtreeRootClone")
+    }).toThrow("node is not a child of subtreeRootClone")
     return false
   })
 })
@@ -204,7 +222,9 @@ test("sandbox node is a root store if original subtree root is a root store", ()
     }
   })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   expect(isRootStore(a)).toBeFalsy()
   manager.withSandbox([a], (node) => {
@@ -232,7 +252,9 @@ test("sandbox node is a root store if original subtree root is a root store", ()
 test("sandbox is patched when original tree changes", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(0)
@@ -250,7 +272,9 @@ test("sandbox is patched when original tree changes", () => {
 test("changes in sandbox can be applied to original tree - idempotent action", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([a.b], (node) => {
     node.setValue(1)
@@ -284,7 +308,9 @@ test("changes in sandbox can be applied to original tree - non-idempotent action
 
   const c = new C({ values: [] })
   const manager = sandbox(c)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([c], (node) => {
     node.append(10)
@@ -304,7 +330,9 @@ test("changes in sandbox can be applied to original tree - non-idempotent action
 test("changes in sandbox can be rejected", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   manager.withSandbox([a.b], (node) => {
     node.setValue(1)
@@ -328,7 +356,9 @@ test("changes in sandbox can be rejected", () => {
 test("changes in sandbox are rejected when fn throws", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   expect(() => {
     manager.withSandbox([a.b], (node) => {
@@ -350,7 +380,9 @@ test("changes in sandbox are rejected when fn throws", () => {
 test("withSandbox can return value from fn", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   const returnValue1 = manager.withSandbox([a.b], (node) => {
     node.setValue(1)
@@ -372,7 +404,9 @@ test("withSandbox can return value from fn", () => {
 test("sandbox cannot be changed outside of fn", () => {
   const a = new A({ b: new B({ value: 0 }) })
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   let n!: B
   manager.withSandbox([a.b], (node) => {
@@ -380,7 +414,9 @@ test("sandbox cannot be changed outside of fn", () => {
     return false
   })
 
-  expect(() => n.setValue(1)).toThrow("tried to invoke action 'setValue' over a readonly node")
+  expect(() => {
+    n.setValue(1)
+  }).toThrow("tried to invoke action 'setValue' over a readonly node")
 })
 
 test("sanboxed nodes can check if they are sandboxed", () => {
@@ -451,7 +487,9 @@ test("sanboxed nodes can check if they are sandboxed", () => {
   initEvents.length = 0
 
   const manager = sandbox(a)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   expect(initEvents).toMatchInlineSnapshot(`
     [
@@ -511,7 +549,9 @@ test("isSandboxedNode recognizes ref/prev/next to all be sandboxed nodes or not 
   const a = new A({ b: new B({ value: 0 }) })
   const r = new R({})
   const manager = sandbox(r)
-  autoDispose(() => manager.dispose())
+  autoDispose(() => {
+    manager.dispose()
+  })
 
   runUnprotected(() => {
     r.aref = aRef(a)

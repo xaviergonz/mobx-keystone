@@ -4,6 +4,7 @@ import { createP } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 
 test("basic types", () => {
+  // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
   expect(getSnapshot(undefined)).toBe(undefined)
   expect(getSnapshot(null)).toBe(null)
   expect(getSnapshot(7)).toBe(7)
