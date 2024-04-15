@@ -72,7 +72,7 @@
     "@babel/plugin-proposal-decorators": "^7.24.1",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
-    "@swc/core": "^1.4.13",
+    "@swc/core": "^1.4.14",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.7",

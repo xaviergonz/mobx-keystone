@@ -42,7 +42,7 @@
     "prettier-plugin-organize-imports": "^3.2.4",
     "turbo": "^1.13.2",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.6.0"
+    "typescript-eslint": "^7.7.0"
   },
   "packageManager": "yarn@4.1.1"
 }
