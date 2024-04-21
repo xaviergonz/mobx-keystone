@@ -41,7 +41,7 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked, // TODO: reenable?
+  ...tseslint.configs.stylisticTypeChecked,
   eslintConfigPrettier,
   {
     languageOptions: {
