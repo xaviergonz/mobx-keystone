@@ -72,7 +72,7 @@
     "@babel/plugin-proposal-decorators": "^7.24.1",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
-    "@swc/core": "^1.4.14",
+    "@swc/core": "^1.4.16",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.7",
@@ -87,7 +87,7 @@
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
     "typescript": "^5.4.5",
-    "vite": "^5.2.9"
+    "vite": "^5.2.10"
   },
   "dependencies": {
     "fast-deep-equal": "^3.1.3",
