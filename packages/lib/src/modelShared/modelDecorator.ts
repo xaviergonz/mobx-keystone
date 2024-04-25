@@ -35,7 +35,12 @@ export const model =
   <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]): MC => {
     const ctx = typeof args[1] === "object" ? (args[1] as ClassDecoratorContext) : undefined
 
-    return internalModel(name, clazz, ctx?.addInitializer) as any
+    return internalModel(
+      name,
+      clazz,
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      ctx?.addInitializer
+    ) as any
   }
 
 const afterClassInitializationData = new WeakMap<
