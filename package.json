@@ -25,7 +25,7 @@
   ],
   "dependencies": {
     "mobx": "^6.12.3",
-    "yjs": "^13.6.14"
+    "yjs": "^13.6.15"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.2",
@@ -35,14 +35,14 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-react-hooks": "^4.6.1",
-    "globals": "^15.0.0",
-    "netlify-cli": "^17.23.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "globals": "^15.1.0",
+    "netlify-cli": "^17.23.1",
     "prettier": "^3.2.5",
     "prettier-plugin-organize-imports": "^3.2.4",
-    "turbo": "^1.13.2",
+    "turbo": "^1.13.3",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.7.1"
+    "typescript-eslint": "^7.8.0"
   },
   "packageManager": "yarn@4.1.1"
 }
