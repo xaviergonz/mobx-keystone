@@ -2855,10 +2855,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "@eslint/js@npm:9.1.1"
-  checksum: 10c0/b25d11736b91d8df44dd217e88adb1f43d2bd5911ef4f4033e51faffe370f28d329731ffbf841d0b8303c8eedb60bda8c3a9efe803bb3b3737a06bb22c09ad0c
+"@eslint/js@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "@eslint/js@npm:9.2.0"
+  checksum: 10c0/89632466d329d9dd68c6ec24290e407f0950ca8c4b7f3750b82457daa7f6233799ccbc956cd84231f9544efbefddd69833ee82658883ca673cfca9e4b8e0713a
   languageName: node
   linkType: hard
 
@@ -4961,90 +4961,90 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-arm64@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-darwin-arm64@npm:1.4.17"
+"@swc/core-darwin-arm64@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-darwin-arm64@npm:1.5.3"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-darwin-x64@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-darwin-x64@npm:1.4.17"
+"@swc/core-darwin-x64@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-darwin-x64@npm:1.5.3"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm-gnueabihf@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.4.17"
+"@swc/core-linux-arm-gnueabihf@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-linux-arm-gnueabihf@npm:1.5.3"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-gnu@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-linux-arm64-gnu@npm:1.4.17"
+"@swc/core-linux-arm64-gnu@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-linux-arm64-gnu@npm:1.5.3"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-arm64-musl@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-linux-arm64-musl@npm:1.4.17"
+"@swc/core-linux-arm64-musl@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-linux-arm64-musl@npm:1.5.3"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-gnu@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-linux-x64-gnu@npm:1.4.17"
+"@swc/core-linux-x64-gnu@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-linux-x64-gnu@npm:1.5.3"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@swc/core-linux-x64-musl@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-linux-x64-musl@npm:1.4.17"
+"@swc/core-linux-x64-musl@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-linux-x64-musl@npm:1.5.3"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@swc/core-win32-arm64-msvc@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-win32-arm64-msvc@npm:1.4.17"
+"@swc/core-win32-arm64-msvc@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-win32-arm64-msvc@npm:1.5.3"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@swc/core-win32-ia32-msvc@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-win32-ia32-msvc@npm:1.4.17"
+"@swc/core-win32-ia32-msvc@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-win32-ia32-msvc@npm:1.5.3"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@swc/core-win32-x64-msvc@npm:1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core-win32-x64-msvc@npm:1.4.17"
+"@swc/core-win32-x64-msvc@npm:1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core-win32-x64-msvc@npm:1.5.3"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.4.17":
-  version: 1.4.17
-  resolution: "@swc/core@npm:1.4.17"
+"@swc/core@npm:^1.5.3":
+  version: 1.5.3
+  resolution: "@swc/core@npm:1.5.3"
   dependencies:
-    "@swc/core-darwin-arm64": "npm:1.4.17"
-    "@swc/core-darwin-x64": "npm:1.4.17"
-    "@swc/core-linux-arm-gnueabihf": "npm:1.4.17"
-    "@swc/core-linux-arm64-gnu": "npm:1.4.17"
-    "@swc/core-linux-arm64-musl": "npm:1.4.17"
-    "@swc/core-linux-x64-gnu": "npm:1.4.17"
-    "@swc/core-linux-x64-musl": "npm:1.4.17"
-    "@swc/core-win32-arm64-msvc": "npm:1.4.17"
-    "@swc/core-win32-ia32-msvc": "npm:1.4.17"
-    "@swc/core-win32-x64-msvc": "npm:1.4.17"
+    "@swc/core-darwin-arm64": "npm:1.5.3"
+    "@swc/core-darwin-x64": "npm:1.5.3"
+    "@swc/core-linux-arm-gnueabihf": "npm:1.5.3"
+    "@swc/core-linux-arm64-gnu": "npm:1.5.3"
+    "@swc/core-linux-arm64-musl": "npm:1.5.3"
+    "@swc/core-linux-x64-gnu": "npm:1.5.3"
+    "@swc/core-linux-x64-musl": "npm:1.5.3"
+    "@swc/core-win32-arm64-msvc": "npm:1.5.3"
+    "@swc/core-win32-ia32-msvc": "npm:1.5.3"
+    "@swc/core-win32-x64-msvc": "npm:1.5.3"
     "@swc/counter": "npm:^0.1.2"
     "@swc/types": "npm:^0.1.5"
   peerDependencies:
@@ -5073,7 +5073,7 @@ __metadata:
   peerDependenciesMeta:
     "@swc/helpers":
       optional: true
-  checksum: 10c0/385b1ced6ed3b282c717f422d7fb70a8529f81b004dacb6fd49b3cc3693f33047d806870fae868ea71b586628aaf6879870afacd495c61103fe4f46bda8a83e3
+  checksum: 10c0/b038251989a600054d5d9cd54ed25febd1c32afa43914c33eeaafd8ed975cbe2491de2187dfacabcd1f6c29aaac55a91d7f9adc3818ef20438e10fd233e91e01
   languageName: node
   linkType: hard
 
@@ -5483,12 +5483,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.12.8":
-  version: 20.12.8
-  resolution: "@types/node@npm:20.12.8"
+"@types/node@npm:*, @types/node@npm:^20.12.9":
+  version: 20.12.9
+  resolution: "@types/node@npm:20.12.9"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/840002d20654e38a9af8cdffa215598fdb28ac4f96c5701ed672ec365ed6ccc66da299edddaa409baf13cd71bbf1128901f633b5e44e070fc236e26415805b78
+  checksum: 10c0/410da89226b425fa24fe497fbffb90a79ce63461ff0e0361414de567dc80b8c9b5a0e5803983bb62e2c7757b0769bf49498d3578e61f677590124491cdaf1d7a
   languageName: node
   linkType: hard
 
@@ -16351,7 +16351,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.24.5"
     "@babel/preset-typescript": "npm:^7.24.1"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.8"
+    "@types/node": "npm:^20.12.9"
     babel-jest: "npm:^29.7.0"
     jest: "npm:^29.7.0"
     mobx-keystone: "workspace:packages/lib"
@@ -16379,10 +16379,10 @@ __metadata:
     "@babel/plugin-proposal-decorators": "npm:^7.24.1"
     "@babel/preset-env": "npm:^7.24.5"
     "@babel/preset-typescript": "npm:^7.24.1"
-    "@swc/core": "npm:^1.4.17"
+    "@swc/core": "npm:^1.5.3"
     "@swc/jest": "npm:^0.2.36"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.8"
+    "@types/node": "npm:^20.12.9"
     babel-jest: "npm:^29.7.0"
     fast-deep-equal: "npm:^3.1.3"
     jest: "npm:^29.7.0"
@@ -19912,7 +19912,7 @@ __metadata:
   resolution: "root@workspace:."
   dependencies:
     "@eslint/eslintrc": "npm:^3.0.2"
-    "@eslint/js": "npm:^9.1.1"
+    "@eslint/js": "npm:^9.2.0"
     codecov: "npm:^3.8.3"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
