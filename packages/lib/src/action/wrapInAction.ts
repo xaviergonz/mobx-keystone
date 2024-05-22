@@ -9,7 +9,7 @@ import {
   setCurrentActionContext,
 } from "./context"
 import { isModelAction, modelActionSymbol } from "./isModelAction"
-import { forEachActionMiddleware } from "./middleware"
+import { getPerObjectActionMiddlewares } from "./middleware"
 import type { FlowFinisher } from "./modelFlow"
 import { tryRunPendingActions } from "./pendingActions"
 import { AnyFunction } from "../utils/AnyFunction"
@@ -76,17 +76,32 @@ export function wrapInAction<T extends Function>({
 
     setCurrentActionContext(context)
 
-    let mwareFn: () => unknown = fn.bind(this, ...args)
+    const perObjectMiddlewares = getPerObjectActionMiddlewares(context.target)
 
-    forEachActionMiddleware(context.target, (mware) => {
-      const filterPassed = mware.filter ? mware.filter(context) : true
-      if (filterPassed) {
-        mwareFn = mware.middleware.bind(undefined, context, mwareFn)
+    let objectIndex = perObjectMiddlewares.length - 1 // from topmost parent to the object itself
+    let objectMwareIndex = 0
+
+    const runNextMiddleware = (): unknown => {
+      const objectMwares = perObjectMiddlewares[objectIndex]
+      if (!objectMwares) {
+        // no more middlewares, run base action
+        return fn.apply(this, args)
       }
-    })
+      const mwareData = objectMwares[objectMwareIndex]
+
+      // advance to the next middleware
+      objectMwareIndex++
+      if (objectMwareIndex >= objectMwares.length) {
+        objectMwareIndex = 0
+        objectIndex--
+      }
+
+      const filterPassed = mwareData.filter ? mwareData.filter(context) : true
+      return filterPassed ? mwareData.middleware(context, runNextMiddleware) : runNextMiddleware()
+    }
 
     try {
-      const ret = mwareFn()
+      const ret = runNextMiddleware()
 
       if (isFlowFinisher) {
         const flowFinisher = ret as FlowFinisher

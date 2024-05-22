@@ -61,6 +61,27 @@ export function forEachActionMiddleware(
     current = fastGetParent(current, false)
   }
 }
+/**
+ * @internal
+ *
+ * Returns the action middlewares to be run over a given object.
+ *
+ * @returns
+ */
+export function getPerObjectActionMiddlewares(obj: object): PartialActionMiddleware[][] {
+  const result: PartialActionMiddleware[][] = []
+
+  let current: unknown = obj
+  while (current) {
+    const objMwares = perObjectActionMiddlewares.get(current)
+    if (objMwares && objMwares.length > 0) {
+      result.push(objMwares)
+    }
+    current = fastGetParent(current, false)
+  }
+
+  return result
+}
 
 /**
  * Adds a global action middleware to be run when an action is performed.
