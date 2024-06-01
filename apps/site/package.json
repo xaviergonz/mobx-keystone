@@ -11,8 +11,8 @@
     "lint": "cd ../.. && yarn eslint \"apps/site/{src,docs}/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@docusaurus/core": "^3.3.2",
-    "@docusaurus/preset-classic": "^3.3.2",
+    "@docusaurus/core": "^3.4.0",
+    "@docusaurus/preset-classic": "^3.4.0",
     "@easyops-cn/docusaurus-search-local": "^0.41.0",
     "bootstrap-icons": "^1.11.3",
     "bufferutil": "^4.0.8",
@@ -33,8 +33,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.6",
-    "@docusaurus/module-type-aliases": "^3.3.2",
-    "@docusaurus/tsconfig": "^3.3.2",
+    "@docusaurus/module-type-aliases": "^3.4.0",
+    "@docusaurus/tsconfig": "^3.4.0",
     "@svgr/webpack": "^8.1.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
