@@ -6,7 +6,7 @@ redirects = [
 [build]
   command = "yarn build-netlify"
   publish = "apps/site/build"
-  environment = { NODE_VERSION = "20", YARN_VERSION = "4.1.0" }
+  environment = { NODE_VERSION = "22", YARN_VERSION = "4.2.2" }
 
 [dev]
   publish = "apps/site/build"
