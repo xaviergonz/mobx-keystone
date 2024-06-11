@@ -1,6 +1,7 @@
 import { FlatCompat } from "@eslint/eslintrc"
 import eslint from "@eslint/js"
 import eslintConfigPrettier from "eslint-config-prettier"
+import pluginImportX from "eslint-plugin-import-x"
 import eslintPluginReactConfigsJsxRuntime from "eslint-plugin-react/configs/jsx-runtime.js"
 import eslintPluginReactConfigsRecommended from "eslint-plugin-react/configs/recommended.js"
 import globals from "globals"
@@ -63,15 +64,15 @@ export default tseslint.config(
       },
     },
   },
-  // TODO: not working right now with flat configs
-  //...compat.extends("plugin:import/errors", "plugin:import/warnings", "plugin:import/typescript"),
+  ...compat.config(pluginImportX.configs.recommended),
+  pluginImportX.configs.typescript,
   eslintPluginReactConfigsRecommended,
   eslintPluginReactConfigsJsxRuntime,
   ...compat.extends("plugin:react-hooks/recommended"),
   {
     rules: {
-      // doesn't get along well with .js extensions (needed so node "type": module works)
-      "import/no-unresolved": "off",
+      // does not get along with flat configs for now, but TS takes care of this I think
+      "import-x/namespace": "off",
       // "import/no-cycle": ["error", { ignoreExternal: true }],
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-this-alias": "off",

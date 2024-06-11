@@ -1,5 +1,7 @@
+/* eslint-disable import-x/no-unresolved */
 import BrowserOnly from "@docusaurus/BrowserOnly"
 import Head from "@docusaurus/Head"
+/* eslint-enable import-x/no-unresolved */
 import { App } from "../../../docs/examples/yjsBinding/app"
 
 const Page = () => (

@@ -7,7 +7,7 @@ import {
   JsonObjectWithUndefined,
   JsonPrimitiveWithUndefined,
   JsonValueWithUndefined,
-} from "jsonTypes"
+} from "../jsonTypes"
 
 function isJsonPrimitiveWithUndefined(v: JsonValueWithUndefined): v is JsonPrimitiveWithUndefined {
   const t = typeof v

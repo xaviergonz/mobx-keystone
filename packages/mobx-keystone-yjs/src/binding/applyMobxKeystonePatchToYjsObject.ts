@@ -2,7 +2,7 @@ import { Patch } from "mobx-keystone"
 import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { convertJsonToYjsData } from "./convertJsonToYjsData"
-import { JsonValueWithUndefined } from "jsonTypes"
+import { JsonValueWithUndefined } from "../jsonTypes"
 
 export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): void {
   if (patch.path.length > 1) {
