@@ -89,6 +89,41 @@ export class ArraySet<V>
   }
 
   readonly [Symbol.toStringTag] = "ArraySet"
+
+  union<U>(other: ReadonlySetLike<U>): Set<V | U> {
+    const s = new Set(this)
+    return s.union(other)
+  }
+
+  intersection<U>(other: ReadonlySetLike<U>): Set<V & U> {
+    const s = new Set(this)
+    return s.intersection(other)
+  }
+
+  difference<U>(other: ReadonlySetLike<U>): Set<V> {
+    const s = new Set(this)
+    return s.difference(other)
+  }
+
+  symmetricDifference<U>(other: ReadonlySetLike<U>): Set<V | U> {
+    const s = new Set(this)
+    return s.symmetricDifference(other)
+  }
+
+  isSubsetOf(other: ReadonlySetLike<unknown>): boolean {
+    const s = new Set(this)
+    return s.isSubsetOf(other)
+  }
+
+  isSupersetOf(other: ReadonlySetLike<unknown>): boolean {
+    const s = new Set(this)
+    return s.isSupersetOf(other)
+  }
+
+  isDisjointFrom(other: ReadonlySetLike<unknown>): boolean {
+    const s = new Set(this)
+    return s.isDisjointFrom(other)
+  }
 }
 
 /**

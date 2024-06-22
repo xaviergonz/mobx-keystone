@@ -146,7 +146,7 @@ export function asSet<T>(array: Array<T>): ObservableSet<T> & { dataObject: type
  *
  * @param set
  */
-export function setToArray<T>(set: Set<T>): Array<T> {
+export function setToArray<T>(set: Set<T> | ObservableSet<T>): Array<T> {
   assertIsSet(set, "set")
 
   const dataObject = (set as Set<T> & { dataObject: Array<T> }).dataObject

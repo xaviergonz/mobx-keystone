@@ -1,4 +1,4 @@
-import { set, toJS } from "mobx"
+import { ObservableSet, set, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
   arrayToMapTransform,
@@ -309,7 +309,7 @@ test("prop with arr->set transform", () => {
     set: set1,
   })
 
-  assert(t.set, _ as Set<number>)
+  assert(t.set, _ as Set<number> | ObservableSet<number>)
   expect(t.set.has(1)).toBe(true)
   expect(t.set).not.toBe(set1) // should not be cached
   expect(t.set).toBe(t.set) // should be cached
@@ -331,7 +331,7 @@ test("prop with arr->set transform", () => {
 
   t.setSet(set2)
 
-  assert(t.set, _ as Set<number>)
+  assert(t.set, _ as Set<number> | ObservableSet<number>)
   expect(t.set.has(2)).toBe(true)
   expect(t.set).not.toBe(set2) // should not be cached
   expect(t.set).toBe(t.set) // should be cached
@@ -340,7 +340,7 @@ test("prop with arr->set transform", () => {
   const tsn = getSnapshot(t)
   assert(tsn.set, _ as Array<number>)
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.set, _ as Set<number>)
+  assert(tfsn.set, _ as Set<number> | ObservableSet<number>)
   expect(toJS(t.$.set)).toEqual([2])
 
   t.setNumberArr([4])

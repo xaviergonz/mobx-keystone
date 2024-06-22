@@ -196,7 +196,10 @@ export function assertIsObservableArray(
 /**
  * @internal
  */
-export function assertIsMap(value: unknown, argName: string): asserts value is Map<any, any> {
+export function assertIsMap(
+  value: unknown,
+  argName: string
+): asserts value is Map<any, any> | ObservableMap {
   if (!isMap(value)) {
     throw failure(`${argName} must be a map`)
   }
@@ -205,7 +208,10 @@ export function assertIsMap(value: unknown, argName: string): asserts value is M
 /**
  * @internal
  */
-export function assertIsSet(value: unknown, argName: string): asserts value is Set<any> {
+export function assertIsSet(
+  value: unknown,
+  argName: string
+): asserts value is Set<any> | ObservableSet {
   if (!isSet(value)) {
     throw failure(`${argName} must be a set`)
   }
