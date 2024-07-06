@@ -16,7 +16,7 @@
     "@easyops-cn/docusaurus-search-local": "^0.44.2",
     "bootstrap-icons": "^1.11.3",
     "bufferutil": "^4.0.8",
-    "iframe-resizer-react": "^1.1.0",
+    "iframe-resizer-react": "^1.1.1",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-keystone-yjs": "workspace:packages/mobx-keystone-yjs",
     "mobx-react": "^9.1.1",
@@ -41,7 +41,7 @@
     "@types/uuid": "^10.0.0",
     "raw-loader": "^4.0.2",
     "shx": "^0.3.4",
-    "typescript": "^5.5.2"
+    "typescript": "^5.5.3"
   },
   "browserslist": {
     "production": [

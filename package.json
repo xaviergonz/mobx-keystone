@@ -24,25 +24,25 @@
     "apps/benchmark"
   ],
   "dependencies": {
-    "mobx": "^6.12.4",
+    "mobx": "^6.13.0",
     "yjs": "^13.6.18"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.5.0",
+    "@eslint/js": "^9.6.0",
     "codecov": "^3.8.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import-x": "^0.5.2",
+    "eslint-plugin-import-x": "^0.5.3",
     "eslint-plugin-react": "^7.34.3",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "globals": "^15.6.0",
-    "netlify-cli": "^17.29.0",
+    "globals": "^15.8.0",
+    "netlify-cli": "^17.33.0",
     "prettier": "^3.3.2",
-    "prettier-plugin-organize-imports": "^3.2.4",
-    "turbo": "^2.0.5",
-    "typescript": "^5.5.2",
-    "typescript-eslint": "^7.14.1"
+    "prettier-plugin-organize-imports": "^4.0.0",
+    "turbo": "^2.0.6",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^7.15.0"
   },
   "packageManager": "yarn@4.2.2"
 }
