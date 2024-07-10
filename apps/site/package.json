@@ -13,10 +13,11 @@
   "dependencies": {
     "@docusaurus/core": "^3.4.0",
     "@docusaurus/preset-classic": "^3.4.0",
-    "@easyops-cn/docusaurus-search-local": "^0.44.2",
+    "@easyops-cn/docusaurus-search-local": "^0.44.3",
+    "@iframe-resizer/child": "^5.1.5",
+    "@iframe-resizer/react": "^5.1.5",
     "bootstrap-icons": "^1.11.3",
     "bufferutil": "^4.0.8",
-    "iframe-resizer-react": "^1.1.1",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-keystone-yjs": "workspace:packages/mobx-keystone-yjs",
     "mobx-react": "^9.1.1",
