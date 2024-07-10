@@ -38,10 +38,10 @@ export const mstSmallModel = types
 
 export const mstBigModel = types
   .model("BigModel", {
-    aa: types.optional(mstSmallModel, () => {}),
-    bb: types.optional(mstSmallModel, () => {}),
-    cc: types.optional(mstSmallModel, () => {}),
-    dd: types.optional(mstSmallModel, () => {}),
+    aa: types.optional(mstSmallModel, () => ({})),
+    bb: types.optional(mstSmallModel, () => ({})),
+    cc: types.optional(mstSmallModel, () => ({})),
+    dd: types.optional(mstSmallModel, () => ({})),
     a: "a",
     b: "b",
     c: "c",
