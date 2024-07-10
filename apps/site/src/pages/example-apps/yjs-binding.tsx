@@ -1,5 +1,3 @@
-import "@iframe-resizer/child"
-
 /* eslint-disable import-x/no-unresolved */
 import BrowserOnly from "@docusaurus/BrowserOnly"
 /* eslint-enable import-x/no-unresolved */

@@ -1,7 +1,18 @@
 import { observer } from "mobx-react"
 import { AppInstance } from "./appInstance"
 
+let iframeResizerChildInited = false
+
+function initIframeResizerChild() {
+  if (!iframeResizerChildInited) {
+    iframeResizerChildInited = true
+    import("@iframe-resizer/child")
+  }
+}
+
 export const App = observer(() => {
+  initIframeResizerChild()
+
   return (
     <>
       <div
