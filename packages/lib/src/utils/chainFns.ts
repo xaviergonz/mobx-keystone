@@ -7,7 +7,7 @@ export function chainFns<F extends Function>(...fns: (F | undefined)[]): F | und
     let ret = v
 
     for (let i = 0; i < definedFns.length; i++) {
-      ret = definedFns[i]!(ret, ...args)
+      ret = definedFns[i](ret, ...args)
     }
 
     return ret
