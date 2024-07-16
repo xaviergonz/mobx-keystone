@@ -29,20 +29,20 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.6.0",
+    "@eslint/js": "^9.7.0",
     "codecov": "^3.8.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import-x": "^3.0.1",
-    "eslint-plugin-react": "^7.34.3",
+    "eslint-plugin-react": "^7.34.4",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.8.0",
-    "netlify-cli": "^17.33.3",
-    "prettier": "^3.3.2",
+    "netlify-cli": "^17.33.4",
+    "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.0.0",
-    "turbo": "^2.0.6",
+    "turbo": "^2.0.7",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^7.16.0"
+    "typescript-eslint": "^7.16.1"
   },
   "packageManager": "yarn@4.2.2"
 }
