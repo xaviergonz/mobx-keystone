@@ -13,7 +13,7 @@
   "dependencies": {
     "@docusaurus/core": "^3.4.0",
     "@docusaurus/preset-classic": "^3.4.0",
-    "@easyops-cn/docusaurus-search-local": "^0.44.3",
+    "@easyops-cn/docusaurus-search-local": "^0.44.4",
     "@iframe-resizer/child": "^5.2.1",
     "@iframe-resizer/react": "^5.2.1",
     "bootstrap-icons": "^1.11.3",
