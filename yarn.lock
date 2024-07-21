@@ -20043,7 +20043,7 @@ __metadata:
     remotedev: "npm:^0.2.9"
     shx: "npm:^0.3.4"
     typescript: "npm:^5.5.3"
-    utf-8-validate: "npm:^5.0.10"
+    utf-8-validate: "npm:^6.0.4"
     y-webrtc: "npm:^10.3.0"
   peerDependencies:
     mobx: ^6.0.0
@@ -22094,13 +22094,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"utf-8-validate@npm:^5.0.10":
-  version: 5.0.10
-  resolution: "utf-8-validate@npm:5.0.10"
+"utf-8-validate@npm:^6.0.4":
+  version: 6.0.4
+  resolution: "utf-8-validate@npm:6.0.4"
   dependencies:
     node-gyp: "npm:latest"
     node-gyp-build: "npm:^4.3.0"
-  checksum: 10c0/23cd6adc29e6901aa37ff97ce4b81be9238d0023c5e217515b34792f3c3edb01470c3bd6b264096dd73d0b01a1690b57468de3a24167dd83004ff71c51cc025f
+  checksum: 10c0/f7042d94aec6ca02461b64e725bdc7262266610dbb787331e5bbd49374ef6f75fe9900600df3fc63d97906c23614a965c8989b4bf95d70bf35dc617da99215e7
   languageName: node
   linkType: hard
 

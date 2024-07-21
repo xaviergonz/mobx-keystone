@@ -25,7 +25,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remotedev": "^0.2.9",
-    "utf-8-validate": "^5.0.10",
+    "utf-8-validate": "^6.0.4",
     "y-webrtc": "^10.3.0"
   },
   "peerDependencies": {
