@@ -93,6 +93,8 @@ export default tseslint.config(
       "@typescript-eslint/prefer-for-of": "off",
       "@typescript-eslint/no-empty-interface": "off",
       "@typescript-eslint/consistent-indexed-object-style": "off",
+      "@typescript-eslint/no-unnecessary-type-parameters": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
       // perhaps we should re-enable these in the future
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unsafe-return": "off",
@@ -105,6 +107,7 @@ export default tseslint.config(
     files: ["packages/lib/test/**"],
     rules: {
       "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/no-unused-vars": "off",
     },
   },
   {

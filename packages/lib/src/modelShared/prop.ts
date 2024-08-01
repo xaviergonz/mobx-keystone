@@ -105,8 +105,8 @@ export interface ModelProp<
     TS = TToSnapshotOverride,
     This extends AnyModelProp = this,
   >(processor: {
-    fromSnapshot?(sn: FS): ModelPropFromSnapshot<This>
-    toSnapshot?(sn: ModelPropToSnapshot<This>): TS
+    fromSnapshot?: (sn: FS) => ModelPropFromSnapshot<This>
+    toSnapshot?: (sn: ModelPropToSnapshot<This>) => TS
   }): ModelProp<
     TPropValue,
     TPropCreationValue,
@@ -148,7 +148,10 @@ export interface ModelPropTransform<TOriginal, TTransformed> {
     setOriginalValue(value: TOriginal): void
   }): TTransformed
 
-  untransform(params: { transformedValue: TTransformed; cacheTransformedValue(): void }): TOriginal
+  untransform(params: {
+    transformedValue: TTransformed
+    cacheTransformedValue: () => void
+  }): TOriginal
 }
 
 /**

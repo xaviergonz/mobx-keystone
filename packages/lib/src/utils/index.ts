@@ -220,7 +220,7 @@ export function assertIsSet(
 /**
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function assertIsFunction(value: unknown, argName: string): asserts value is Function {
   if (typeof value !== "function") {
     throw failure(`${argName} must be a function`)

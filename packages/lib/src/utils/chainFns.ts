@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function chainFns<F extends Function>(...fns: (F | undefined)[]): F | undefined {
   const definedFns = fns.filter((fn) => !!fn)
   if (definedFns.length <= 0) return undefined

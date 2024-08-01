@@ -79,8 +79,8 @@ function TodoView({
 }: {
   done: boolean
   text: string
-  onClick(): void
-  onRemove(): void
+  onClick: () => void
+  onRemove: () => void
 }) {
   return (
     <div style={{ cursor: "pointer" }}>

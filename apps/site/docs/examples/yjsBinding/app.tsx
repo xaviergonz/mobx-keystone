@@ -6,7 +6,7 @@ let iframeResizerChildInited = false
 function initIframeResizerChild() {
   if (!iframeResizerChildInited) {
     iframeResizerChildInited = true
-    import("@iframe-resizer/child")
+    void import("@iframe-resizer/child")
   }
 }
 

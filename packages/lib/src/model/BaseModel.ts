@@ -56,7 +56,7 @@ export abstract class BaseModel<
   [propsTypeSymbol]!: TProps;
   [fromSnapshotOverrideTypeSymbol]!: FromSnapshotOverride;
   [toSnapshotOverrideTypeSymbol]!: ToSnapshotOverride;
-  [modelIdPropertyNameSymbol]!: ModelIdPropertyName;
+  [modelIdPropertyNameSymbol]!: ModelIdPropertyName
 
   /**
    * Model type name.
@@ -210,7 +210,7 @@ export interface AnyModel extends BaseModel<any, any, any, any> {}
  * @param type Abstract model class.
  * @returns
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
 export function abstractModelClass<T>(type: T): T & Object {
   return type as any
 }
