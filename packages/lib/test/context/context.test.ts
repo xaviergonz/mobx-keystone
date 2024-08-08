@@ -1,6 +1,14 @@
 import { observable, reaction, runInAction } from "mobx"
 import { _, assert } from "spec.ts"
-import { Model, createContext, fromSnapshot, getSnapshot, prop, runUnprotected } from "../../src"
+import {
+  Model,
+  createContext,
+  createRequiredContext,
+  fromSnapshot,
+  getSnapshot,
+  prop,
+  runUnprotected,
+} from "../../src"
 import { createP } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 
@@ -353,4 +361,18 @@ test("context is back to default when the parent providing the context is no lon
 
   // now that p is no longer providing the context, it should be back to the default
   expect(ctx.get(p2)).toBe(1)
+})
+
+test("required context", () => {
+  const ctx = createRequiredContext<number>()
+
+  const errorMessage = "required contexts do not provide a default value"
+
+  expect(() => ctx.getDefault()).toThrow(errorMessage)
+
+  const p = createP()
+  expect(() => ctx.get(p)).toThrow(errorMessage)
+
+  ctx.set(p, 2)
+  expect(ctx.get(p)).toBe(2)
 })

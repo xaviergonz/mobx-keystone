@@ -2,6 +2,7 @@ import { action, computed, createAtom, IAtom, IComputedValue, observable } from 
 import { fastGetParent } from "../parent/path"
 import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { getOrCreate } from "../utils/mapUtils"
+import { failure } from "../utils"
 
 /**
  * A context.
@@ -105,6 +106,8 @@ const createContextValueAtom = () => createAtom("contextValue")
 class ContextClass<T> implements Context<T> {
   private defaultContextValue = observable.box<ContextValue<T>>(undefined, { deep: false })
 
+  private readonly throwOnDefault: boolean
+
   private overrideContextValue = observable.box<ContextValue<T> | undefined>(undefined, {
     deep: false,
   })
@@ -173,10 +176,18 @@ class ContextClass<T> implements Context<T> {
   }
 
   getDefault(): T {
+    if (this.throwOnDefault) {
+      throw failure("required contexts do not provide a default value")
+    }
+
     return resolveContextValue(this.defaultContextValue.get()!)
   }
 
   setDefault = action((value: T) => {
+    if (this.throwOnDefault) {
+      throw failure("a required context cannot have a default value")
+    }
+
     this.defaultContextValue.set({
       type: "value",
       value,
@@ -184,6 +195,10 @@ class ContextClass<T> implements Context<T> {
   })
 
   setDefaultComputed = action((valueFn: () => T) => {
+    if (this.throwOnDefault) {
+      throw failure("a required context cannot have a default value")
+    }
+
     this.defaultContextValue.set({
       type: "computed",
       value: computed(valueFn),
@@ -256,8 +271,16 @@ class ContextClass<T> implements Context<T> {
     }
   })
 
-  constructor(defaultValue?: T) {
+  constructor({
+    defaultValue,
+    throwOnDefault,
+  }: {
+    defaultValue: T | undefined
+    throwOnDefault: boolean
+  }) {
+    this.throwOnDefault = false
     this.setDefault(defaultValue as T)
+    this.throwOnDefault = throwOnDefault
   }
 }
 
@@ -280,5 +303,15 @@ export function createContext<T>(defaultValue: T): Context<T>
 
 // base
 export function createContext<T>(defaultValue?: T): Context<T> {
-  return new ContextClass(defaultValue)
+  return new ContextClass({ defaultValue, throwOnDefault: false })
+}
+
+/**
+ * Creates a new context with a required non-default value, thus making it throw if it no node provides a value.
+ *
+ * @typeparam T Context value type.
+ * @returns
+ */
+export function createRequiredContext<T>(): Context<T> {
+  return new ContextClass<T>({ defaultValue: undefined, throwOnDefault: true })
 }

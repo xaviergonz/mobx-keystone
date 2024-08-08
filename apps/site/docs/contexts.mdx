@@ -51,6 +51,8 @@ expect(child.someComputedThatRequiresUsername).toBe("RandomUsername is awesome!"
 
 When using `createContext` a default value can be also provided (e.g. `const userCtx = createContext("defaultUsername")`), which will be used when no node higher in the tree provides a value.
 
+If you need a context that will throw any time a default is reached (this is, whenever no node provides a value), you may use `createRequiredContext<T>()` instead.
+
 The returned context object has the following methods:
 
 - `getDefault()` - Gets the default context value.

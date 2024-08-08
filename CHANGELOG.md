@@ -1,5 +1,7 @@
 # Change Log
 
+- Added `createRequiredContext` to create a context that has no defaults.
+
 ## 1.10.2
 
 - Fixed some types so set transformations are compatible with TypeSscript 5.5 once more.
