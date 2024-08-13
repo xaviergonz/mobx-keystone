@@ -11,9 +11,9 @@
     "lint": "cd ../.. && yarn eslint \"apps/site/{src,docs}/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@docusaurus/core": "^3.5.1",
-    "@docusaurus/preset-classic": "^3.5.1",
-    "@easyops-cn/docusaurus-search-local": "^0.44.4",
+    "@docusaurus/core": "^3.5.2",
+    "@docusaurus/preset-classic": "^3.5.2",
+    "@easyops-cn/docusaurus-search-local": "^0.44.5",
     "@iframe-resizer/child": "^5.2.3",
     "@iframe-resizer/react": "^5.2.3",
     "bootstrap-icons": "^1.11.3",
@@ -34,8 +34,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.24.7",
-    "@docusaurus/module-type-aliases": "^3.5.1",
-    "@docusaurus/tsconfig": "^3.5.1",
+    "@docusaurus/module-type-aliases": "^3.5.2",
+    "@docusaurus/tsconfig": "^3.5.2",
     "@svgr/webpack": "^8.1.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
