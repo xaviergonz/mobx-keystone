@@ -560,7 +560,7 @@ export class UndoManager {
         next(ret)
       }
 
-      function onRejected(err: any): void {
+      function onRejected(err: unknown): void {
         group.resume()
         let ret
         try {

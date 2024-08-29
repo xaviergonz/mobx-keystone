@@ -97,7 +97,7 @@ export function flow<R, Args extends any[]>({
         next(ret)
       }
 
-      function onRejected(err: any): void {
+      function onRejected(err: unknown): void {
         let ret
         try {
           ret = wrapInAction({

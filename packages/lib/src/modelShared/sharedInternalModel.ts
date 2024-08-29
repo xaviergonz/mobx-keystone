@@ -183,6 +183,7 @@ export function sharedInternalModel<
         baseProp = baseProp.withSetter()
         break
       case "assign":
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
         baseProp = baseProp.withSetter("assign")
         break
       default:

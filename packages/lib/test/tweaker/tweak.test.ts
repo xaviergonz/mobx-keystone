@@ -9,7 +9,7 @@ test("array disallows undefined element when allowUndefinedArrayElements is fals
     runUnprotected(() => {
       array.push(undefined)
     })
-  }).toThrowError(/^undefined is not supported inside arrays/)
+  }).toThrow(/^undefined is not supported inside arrays/)
 })
 
 test("array allows undefined element when allowUndefinedArrayElements is true", () => {
@@ -21,5 +21,5 @@ test("array allows undefined element when allowUndefinedArrayElements is true", 
     runUnprotected(() => {
       array.push(undefined)
     })
-  }).not.toThrowError(/^undefined is not supported inside arrays/)
+  }).not.toThrow(/^undefined is not supported inside arrays/)
 })
