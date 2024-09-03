@@ -70,7 +70,7 @@
     "@babel/preset-env": "^7.25.4",
     "@babel/preset-typescript": "^7.24.7",
     "@types/jest": "^29.5.12",
-    "@types/node": "^22.5.1",
+    "@types/node": "^22.5.2",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "mobx-keystone": "workspace:packages/lib",
@@ -80,7 +80,7 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "vite": "^5.4.2"
+    "vite": "^5.4.3"
   },
   "dependencies": {
     "tslib": "^2.7.0"
