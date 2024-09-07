@@ -75,7 +75,7 @@
     "@swc/core": "^1.7.23",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.12",
-    "@types/node": "^22.5.2",
+    "@types/node": "^22.5.4",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "mobx-v4": "npm:mobx@^4.15.7",

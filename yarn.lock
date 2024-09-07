@@ -1693,7 +1693,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.22.6, @babel/runtime@npm:^7.25.4, @babel/runtime@npm:^7.8.4":
+"@babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.3, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.22.6, @babel/runtime@npm:^7.25.6, @babel/runtime@npm:^7.8.4":
   version: 7.25.6
   resolution: "@babel/runtime@npm:7.25.6"
   dependencies:
@@ -3009,10 +3009,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:^9.9.1":
-  version: 9.9.1
-  resolution: "@eslint/js@npm:9.9.1"
-  checksum: 10c0/a3a91de2ce78469f7c4eee78c1eba77360706e1d0fa0ace2e19102079bcf237b851217c85ea501dc92c4c3719d60d9df966977abc8554d4c38e3638c1f53dcb2
+"@eslint/js@npm:^9.10.0":
+  version: 9.10.0
+  resolution: "@eslint/js@npm:9.10.0"
+  checksum: 10c0/2ac45a002dc1ccf25be46ea61001ada8d77248d1313ab4e53f3735e5ae00738a757874e41f62ad6fbd49df7dffeece66e5f53ff0d7b78a99ce4c68e8fea66753
   languageName: node
   linkType: hard
 
@@ -3141,31 +3141,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@iframe-resizer/child@npm:^5.2.6":
-  version: 5.2.6
-  resolution: "@iframe-resizer/child@npm:5.2.6"
-  checksum: 10c0/36bfadf53234d78e9ca72116487b4bf44ffdc6112793c1f950e9fa0043b8058a0907c63a87aacc0384de1559eeee8806ed4f922489de656d4fa8dd49ed31c29b
+"@iframe-resizer/child@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@iframe-resizer/child@npm:5.3.0"
+  checksum: 10c0/0f53628fee1cbd1cebe0471e8a546b1764be30a10b24e8083bdb7c5a1b78c77b1a1cb1abf9ae5c5301d8fb89f14a52e5d491a363ae0b6854ab3dfebab407381a
   languageName: node
   linkType: hard
 
-"@iframe-resizer/core@npm:5.2.6":
-  version: 5.2.6
-  resolution: "@iframe-resizer/core@npm:5.2.6"
-  checksum: 10c0/6c406aa5962ac7355baa65762fb349d9617e30a9321d0edb707fb3aebae0279752823b447a6bb3556f84ccde18062f91ea79a59f17b4f679849f1f6449ca6b7a
+"@iframe-resizer/core@npm:5.3.0":
+  version: 5.3.0
+  resolution: "@iframe-resizer/core@npm:5.3.0"
+  checksum: 10c0/e3b57488512ad55cfc54856c8d0fd209dd45c71bac962b1798e50d4eaef8aa341b3b7248898a0efb3268a30c3fcc0a00bfaff52cec707998efbb5ca9c4e28202
   languageName: node
   linkType: hard
 
-"@iframe-resizer/react@npm:^5.2.6":
-  version: 5.2.6
-  resolution: "@iframe-resizer/react@npm:5.2.6"
+"@iframe-resizer/react@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@iframe-resizer/react@npm:5.3.0"
   dependencies:
-    "@babel/runtime": "npm:^7.25.4"
-    "@iframe-resizer/core": "npm:5.2.6"
-    warning: "npm:^4.0.3"
+    "@babel/runtime": "npm:^7.25.6"
+    "@iframe-resizer/core": "npm:5.3.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0  || ^19.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0  || ^19.0.0
-  checksum: 10c0/71e4e6cd1fab5ede587190a9e619c2f2aa1811ebcf5f63c5ae948b6dbd629f0a2fc951d1ba3b5d513711c6db5b677d03e3844ad205e9893228facfc7cb7c2ea6
+  checksum: 10c0/f1d61d96990d3ef8991d43c1d5fb01ba008da83bea3a6b1f3e11bd91b2502537c0d28e7a41f3118a69527a4d1c14783d3349e6760e4b9ccadfdc195a0939c3b9
   languageName: node
   linkType: hard
 
@@ -5497,12 +5496,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.5.2":
-  version: 22.5.2
-  resolution: "@types/node@npm:22.5.2"
+"@types/node@npm:*, @types/node@npm:^22.5.4":
+  version: 22.5.4
+  resolution: "@types/node@npm:22.5.4"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/624a7fd76229eacc6c158eb3b9afd55b811d7f01976c5f92c630d5b9d47047cc218928c343988484a165ac400e5eb6fe70ea300fc7242deeb0e920c7724290f6
+  checksum: 10c0/b445daa7eecd761ad4d778b882d6ff7bcc3b4baad2086ea9804db7c5d4a4ab0298b00d7f5315fc640a73b5a1d52bbf9628e09c9fec0cf44dbf9b4df674a8717d
   languageName: node
   linkType: hard
 
@@ -5826,7 +5825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/typescript-estree@npm:8.4.0, @typescript-eslint/typescript-estree@npm:^8.1.0":
+"@typescript-eslint/typescript-estree@npm:8.4.0":
   version: 8.4.0
   resolution: "@typescript-eslint/typescript-estree@npm:8.4.0"
   dependencies:
@@ -10090,11 +10089,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import-x@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "eslint-plugin-import-x@npm:4.1.1"
+"eslint-plugin-import-x@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "eslint-plugin-import-x@npm:4.2.1"
   dependencies:
-    "@typescript-eslint/typescript-estree": "npm:^8.1.0"
     "@typescript-eslint/utils": "npm:^8.1.0"
     debug: "npm:^4.3.4"
     doctrine: "npm:^3.0.0"
@@ -10107,7 +10105,7 @@ __metadata:
     tslib: "npm:^2.6.3"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: 10c0/cb44a04cf830752534e71929857aa8dca3128d02cbdef367df79e998f333c229b81a645b5f2d62409d0e51ebc1875ad52618d72db1622e4112bd727a739af417
+  checksum: 10c0/5a644448e2658e999ef01582011f24589920aa7c01ee45478481d0182fb9a21a0649c84d63fc4108f5bf2e2ce4c3d4c14930d7064224619230690a3240d98839
   languageName: node
   linkType: hard
 
@@ -10120,9 +10118,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react@npm:^7.35.1":
-  version: 7.35.1
-  resolution: "eslint-plugin-react@npm:7.35.1"
+"eslint-plugin-react@npm:^7.35.2":
+  version: 7.35.2
+  resolution: "eslint-plugin-react@npm:7.35.2"
   dependencies:
     array-includes: "npm:^3.1.8"
     array.prototype.findlast: "npm:^1.2.5"
@@ -10144,7 +10142,7 @@ __metadata:
     string.prototype.repeat: "npm:^1.0.0"
   peerDependencies:
     eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
-  checksum: 10c0/faaa2108543675951949685208d105d9c3efa0ac8f4d950851b8f20e065b8bf87fdd7e78abae9b0382090bc22e61c00709388f35bdab2a8b1d283f985d310ed7
+  checksum: 10c0/5f891f5a77e902a0ca8d10b23d0b800e90a09400187febe5986c5078d6277baa4b974d6acdbba25baae065dbcf12eb9241b5f5782527d0780314c2ee5006a8af
   languageName: node
   linkType: hard
 
@@ -16066,7 +16064,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.25.4"
     "@babel/preset-typescript": "npm:^7.24.7"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^22.5.2"
+    "@types/node": "npm:^22.5.4"
     babel-jest: "npm:^29.7.0"
     jest: "npm:^29.7.0"
     mobx-keystone: "workspace:packages/lib"
@@ -16097,7 +16095,7 @@ __metadata:
     "@swc/core": "npm:^1.7.23"
     "@swc/jest": "npm:^0.2.36"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^22.5.2"
+    "@types/node": "npm:^22.5.4"
     babel-jest: "npm:^29.7.0"
     fast-deep-equal: "npm:^3.1.3"
     jest: "npm:^29.7.0"
@@ -16339,9 +16337,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"netlify-cli@npm:^17.34.3":
-  version: 17.34.3
-  resolution: "netlify-cli@npm:17.34.3"
+"netlify-cli@npm:^17.35.0":
+  version: 17.35.0
+  resolution: "netlify-cli@npm:17.35.0"
   dependencies:
     "@bugsnag/js": "npm:7.25.0"
     "@fastify/static": "npm:7.0.4"
@@ -16459,7 +16457,7 @@ __metadata:
   bin:
     netlify: bin/run.js
     ntl: bin/run.js
-  checksum: 10c0/cbb5f67db96bc78435dd0c5eede93ff85f0aa2bc3a016d567e2097b20f9cff7a59a1deb9ef3c8d675ec497d16484566220b9c847509247fd92fc6b564fbc8531
+  checksum: 10c0/f45633b57aefbcdebc01d60d800afe17f53c6011d7b1cae577b73e13a01a07e3ea6ff964777f3254cb1a64a60d1c46fa6bab2869f4bbcf10b8a2d663cb1f4da1
   languageName: node
   linkType: hard
 
@@ -19543,16 +19541,16 @@ __metadata:
   resolution: "root@workspace:."
   dependencies:
     "@eslint/eslintrc": "npm:^3.1.0"
-    "@eslint/js": "npm:^9.9.1"
+    "@eslint/js": "npm:^9.10.0"
     codecov: "npm:^3.8.3"
     eslint: "npm:^8.57.0"
     eslint-config-prettier: "npm:^9.1.0"
-    eslint-plugin-import-x: "npm:^4.1.1"
-    eslint-plugin-react: "npm:^7.35.1"
+    eslint-plugin-import-x: "npm:^4.2.1"
+    eslint-plugin-react: "npm:^7.35.2"
     eslint-plugin-react-hooks: "npm:^4.6.2"
     globals: "npm:^15.9.0"
     mobx: "npm:^6.13.1"
-    netlify-cli: "npm:^17.34.3"
+    netlify-cli: "npm:^17.35.0"
     prettier: "npm:^3.3.3"
     prettier-plugin-organize-imports: "npm:^4.0.0"
     turbo: "npm:^2.1.1"
@@ -20134,8 +20132,8 @@ __metadata:
     "@docusaurus/preset-classic": "npm:^3.5.2"
     "@docusaurus/tsconfig": "npm:^3.5.2"
     "@easyops-cn/docusaurus-search-local": "npm:^0.44.5"
-    "@iframe-resizer/child": "npm:^5.2.6"
-    "@iframe-resizer/react": "npm:^5.2.6"
+    "@iframe-resizer/child": "npm:^5.3.0"
+    "@iframe-resizer/react": "npm:^5.3.0"
     "@svgr/webpack": "npm:^8.1.0"
     "@types/react": "npm:^18.3.5"
     "@types/react-dom": "npm:^18.3.0"
@@ -22417,15 +22415,6 @@ __metadata:
   dependencies:
     makeerror: "npm:1.0.12"
   checksum: 10c0/a17e037bccd3ca8a25a80cb850903facdfed0de4864bd8728f1782370715d679fa72e0a0f5da7c1c1379365159901e5935f35be531229da53bbfc0efdabdb48e
-  languageName: node
-  linkType: hard
-
-"warning@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "warning@npm:4.0.3"
-  dependencies:
-    loose-envify: "npm:^1.0.0"
-  checksum: 10c0/aebab445129f3e104c271f1637fa38e55eb25f968593e3825bd2f7a12bd58dc3738bb70dc8ec85826621d80b4acfed5a29ebc9da17397c6125864d72301b937e
   languageName: node
   linkType: hard
 
