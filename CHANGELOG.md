@@ -1,8 +1,12 @@
 # Change Log
 
+## 1.11.0
+
+- Fixed some types so they are compatible with TypeScript 5.6.
+
 ## 1.10.2
 
-- Fixed some types so set transformations are compatible with TypeSscript 5.5 once more.
+- Fixed some types so set transformations are compatible with TypeScript 5.5 once more.
 
 ## 1.10.1
 
