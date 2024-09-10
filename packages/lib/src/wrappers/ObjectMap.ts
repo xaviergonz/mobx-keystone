@@ -75,22 +75,22 @@ export class ObjectMap<V>
     return keys(this.items).length
   }
 
-  keys(): IterableIterator<string> {
+  keys(): ReturnType<Map<string, V>["keys"]> {
     // TODO: should use an actual iterator
-    return keys(this.items)[Symbol.iterator]() as IterableIterator<string>
+    return keys(this.items)[Symbol.iterator]() as ReturnType<Map<string, V>["keys"]>
   }
 
-  values(): IterableIterator<V> {
+  values(): ReturnType<Map<string, V>["values"]> {
     // TODO: should use an actual iterator
     return values(this.items)[Symbol.iterator]()
   }
 
-  entries(): IterableIterator<[string, V]> {
+  entries(): ReturnType<Map<string, V>["entries"]> {
     // TODO: should use an actual iterator
     return entries(this.items)[Symbol.iterator]()
   }
 
-  [Symbol.iterator](): IterableIterator<[string, V]> {
+  [Symbol.iterator](): ReturnType<Map<string, V>[typeof Symbol.iterator]> {
     return this.entries()
   }
 

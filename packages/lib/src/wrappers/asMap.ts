@@ -279,7 +279,7 @@ export function asMap(
  *
  * @param map
  */
-export function mapToObject<T>(map: Map<string, T>): Record<string, T> {
+export function mapToObject<T>(map: Pick<Map<string, T>, "forEach">): Record<string, T> {
   assertIsMap(map, "map")
 
   const dataObject = (map as any).dataObject
@@ -288,9 +288,9 @@ export function mapToObject<T>(map: Map<string, T>): Record<string, T> {
   }
 
   const obj: Record<string, T> = {}
-  for (const k of map.keys()) {
-    obj[k] = map.get(k)!
-  }
+  map.forEach((v, k) => {
+    obj[k] = v
+  })
 
   return obj
 }
@@ -300,7 +300,7 @@ export function mapToObject<T>(map: Map<string, T>): Record<string, T> {
  *
  * @param map
  */
-export function mapToArray<K, V>(map: Map<K, V>): Array<[K, V]> {
+export function mapToArray<K, V>(map: Pick<Map<K, V>, "forEach">): Array<[K, V]> {
   assertIsMap(map, "map")
 
   const dataObject = (map as any).dataObject
@@ -309,9 +309,9 @@ export function mapToArray<K, V>(map: Map<K, V>): Array<[K, V]> {
   }
 
   const arr: [K, V][] = []
-  for (const k of map.keys()) {
-    arr.push([k, map.get(k)!])
-  }
+  map.forEach((v, k) => {
+    arr.push([k, v])
+  })
 
   return arr
 }

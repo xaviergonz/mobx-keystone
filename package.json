@@ -24,8 +24,8 @@
     "apps/benchmark"
   ],
   "dependencies": {
-    "mobx": "^6.13.1",
-    "yjs": "^13.6.18"
+    "mobx": "^6.13.2",
+    "yjs": "^13.6.19"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
@@ -37,12 +37,12 @@
     "eslint-plugin-react": "^7.35.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.9.0",
-    "netlify-cli": "^17.35.0",
+    "netlify-cli": "^17.36.0",
     "prettier": "^3.3.3",
     "prettier-plugin-organize-imports": "^4.0.0",
     "turbo": "^2.1.1",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.4.0"
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.5.0"
   },
   "packageManager": "yarn@4.4.0"
 }
