@@ -34,7 +34,7 @@ export function onChildAttachedTo(
 
   const opts = {
     deep: false,
-    runForCurrentChildren: true,
+    fireForCurrentChildren: true,
     ...options,
   }
 
@@ -73,7 +73,7 @@ export function onChildAttachedTo(
     return set
   }
 
-  const currentChildren = opts.runForCurrentChildren ? new Set<object>() : getCurrentChildren()
+  const currentChildren = opts.fireForCurrentChildren ? new Set<object>() : getCurrentChildren()
 
   const disposer = reaction(
     () => getCurrentChildren(),
