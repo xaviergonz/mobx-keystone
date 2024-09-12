@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.11.1
+
+- Fix for `onChildAttachedTo` firing for current children even when `fireForCurrentChildren` was set to false.
+
 ## 1.11.0
 
 - Fixed some types so they are compatible with TypeScript 5.6.
