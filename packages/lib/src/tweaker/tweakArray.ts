@@ -43,9 +43,9 @@ export function tweakArray<T extends any[]>(
     tweakedArr.length = originalArr.length
   }
 
-  // eslint-disable-next-line prefer-const
+  // biome-ignore lint/style/useConst:
   let interceptDisposer: () => void
-  // eslint-disable-next-line prefer-const
+  // biome-ignore lint/style/useConst:
   let observeDisposer: () => void
 
   const untweak = () => {
@@ -79,7 +79,7 @@ export function tweakArray<T extends any[]>(
     } else {
       const path = { parent: tweakedArr, path: i }
 
-      let tweakedValue
+      let tweakedValue: any
       if (doNotTweakChildren) {
         tweakedValue = v
         setParent(
@@ -133,6 +133,9 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
 
     case "update":
       mutate = arrayDidChangeUpdate(change, oldSnapshot)
+      break
+
+    default:
       break
   }
 
@@ -344,6 +347,9 @@ function interceptArrayMutation(
 
     case "update":
       interceptArrayMutationUpdate(change, array)
+      break
+
+    default:
       break
   }
   return change

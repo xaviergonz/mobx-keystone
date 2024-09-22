@@ -328,7 +328,7 @@ export function resolvePathCheckingIds<T = any>(
 
     const expectedId = pathIds[i]
     if (expectedId !== skipIdChecking) {
-      const currentId = isModel(currentMaybeModel) ? currentMaybeModel[modelIdKey] ?? null : null
+      const currentId = isModel(currentMaybeModel) ? (currentMaybeModel[modelIdKey] ?? null) : null
       if (expectedId !== currentId) {
         return { resolved: false }
       }
@@ -357,7 +357,7 @@ export function getParentToChildPath(fromParent: object, toChild: object): Path 
   const path: WritablePath = []
 
   let current = toChild
-  let parentPath
+  let parentPath: ParentPath<any> | undefined
   while ((parentPath = fastGetParentPath(current, true))) {
     path.unshift(parentPath.path)
 

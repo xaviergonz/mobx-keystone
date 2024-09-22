@@ -35,12 +35,7 @@ export const model =
   <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]): MC => {
     const ctx = typeof args[1] === "object" ? (args[1] as ClassDecoratorContext) : undefined
 
-    return internalModel(
-      name,
-      clazz,
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      ctx?.addInitializer
-    ) as any
+    return internalModel(name, clazz, ctx?.addInitializer) as any
   }
 
 const afterClassInitializationData = new WeakMap<
@@ -62,12 +57,10 @@ const runAfterClassInitialization = (
   // compatibility with mobx 6
   if (tag.needsMakeObservable) {
     // we know it can be done and shouldn't fail
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     mobx6.makeObservable(instance)
   } else if (tag.needsMakeObservable === undefined) {
     if (getMobxVersion() >= 6) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         mobx6.makeObservable(instance)
         tag.needsMakeObservable = true
       } catch (e) {
@@ -98,21 +91,18 @@ const runAfterClassInitialization = (
   if (tag.type === "class" && instance.onInit) {
     wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     instance.onInit()
   }
 
   if (tag.type === "data" && instance.onLazyInit) {
     wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     instance.onLazyInit()
   }
 }
 
 const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
   construct(clazz, args) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const instance = new (clazz as any)(...args)
 
     runAfterClassInitialization(clazz, instance)
@@ -198,21 +188,28 @@ const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
 }
 
 // basically taken from TS
-/* eslint-disable */
 function tsDecorate(decorators: any, target: any, key: any, desc: any) {
-  var c = arguments.length,
-    r =
-      c < 3 ? target : desc === null ? (desc = Object.getOwnPropertyDescriptor(target, key)) : desc,
-    d
-  if (typeof Reflect === "object" && typeof (Reflect as any).decorate === "function")
+  const c = arguments.length
+  let r =
+    c < 3 ? target : desc === null ? (desc = Object.getOwnPropertyDescriptor(target, key)) : desc
+  let d: any
+  if (typeof Reflect === "object" && typeof (Reflect as any).decorate === "function") {
     r = (Reflect as any).decorate(decorators, target, key, desc)
-  else
-    for (var i = decorators.length - 1; i >= 0; i--)
-      if ((d = decorators[i])) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r
-  // eslint-disable-next-line no-sequences
+  } else {
+    for (
+      // biome-ignore lint:
+      var i = decorators.length - 1;
+      i >= 0;
+      i--
+    ) {
+      if ((d = decorators[i])) {
+        r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r
+      }
+    }
+  }
+  // biome-ignore lint/style/noCommaOperator:
   return c > 3 && r && Object.defineProperty(target, key, r), r
 }
-/* eslint-enable */
 
 /**
  * Marks a class (which MUST inherit from the `Model` abstract class)

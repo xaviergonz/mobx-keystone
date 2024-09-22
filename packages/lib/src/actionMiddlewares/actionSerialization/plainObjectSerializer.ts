@@ -6,7 +6,9 @@ export const plainObjectSerializer: ActionCallArgumentSerializer<object, object>
   id: `${namespace}/plainObject`,
 
   serialize(value, serialize) {
-    if (!isPlainObject(value) && !isObservableObject(value)) return cannotSerialize
+    if (!(isPlainObject(value) || isObservableObject(value))) {
+      return cannotSerialize
+    }
 
     // this will make observable objects non-observable ones
     return mapObjectFields(value, serialize)

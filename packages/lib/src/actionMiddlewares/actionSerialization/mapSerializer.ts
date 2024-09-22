@@ -9,7 +9,9 @@ export const mapSerializer: ActionCallArgumentSerializer<
   id: `${namespace}/mapAsArray`,
 
   serialize(map, serialize) {
-    if (!(map instanceof Map) && !isObservableMap(map)) return cannotSerialize
+    if (!(map instanceof Map || isObservableMap(map))) {
+      return cannotSerialize
+    }
 
     const arr: [any, any][] = []
 

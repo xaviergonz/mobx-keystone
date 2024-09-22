@@ -102,7 +102,6 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
   const dataModelAction = getDataModelAction(call.actionName)
   if (dataModelAction) {
     const instance: any = new dataModelAction.modelClass(current)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     return instance[dataModelAction.fnName](...call.args)
   }
 
@@ -111,6 +110,5 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
     return standaloneAction.apply(current, call.args as any)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   return (current as any)[call.actionName].apply(current, call.args)
 }

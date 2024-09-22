@@ -130,7 +130,6 @@ export abstract class BaseModel<
   constructor(data: ModelPropsToTransformedCreationData<TProps>) {
     const initialData = data as any
     const { snapshotInitialData, modelClass, generateNewIds }: ModelConstructorOptions =
-      // eslint-disable-next-line prefer-rest-params
       arguments[1]
 
     Object.setPrototypeOf(this, modelClass!.prototype)
@@ -138,16 +137,15 @@ export abstract class BaseModel<
     const self = this as any
 
     // delete unnecessary props
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[propsTypeSymbol]
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[fromSnapshotOverrideTypeSymbol]
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[toSnapshotOverrideTypeSymbol]
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete self[modelIdPropertyNameSymbol]
 
-    if (!snapshotInitialData) {
+    if (snapshotInitialData) {
+      // from snapshot
+      internalFromSnapshotModel(this, snapshotInitialData, modelClass!, !!generateNewIds)
+    } else {
       // plain new
       assertIsObject(initialData, "initialData")
 
@@ -156,9 +154,6 @@ export abstract class BaseModel<
         observable.object(initialData as any, undefined, { deep: false }),
         modelClass!
       )
-    } else {
-      // from snapshot
-      internalFromSnapshotModel(this, snapshotInitialData, modelClass!, !!generateNewIds)
     }
   }
 
@@ -210,7 +205,6 @@ export interface AnyModel extends BaseModel<any, any, any, any> {}
  * @param type Abstract model class.
  * @returns
  */
-// eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
 export function abstractModelClass<T>(type: T): T & Object {
   return type as any
 }
@@ -272,6 +266,5 @@ export function modelSnapshotOutWithMetadata<M extends AnyModel>(
  * A model class declaration, made of a base model and the model interface.
  */
 export type ModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
-  // eslint-disable-next-line @typescript-eslint/prefer-function-type
   new (...args: any[]): ModelInterface
 }

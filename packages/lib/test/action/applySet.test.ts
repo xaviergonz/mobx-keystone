@@ -2,7 +2,7 @@ import { addActionMiddleware, applyAction, applySet, BuiltInAction, Model, prop 
 import { autoDispose, testModel } from "../utils"
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   y: prop(0),
   ch: prop<P | undefined>(undefined),
   obj: prop<Record<string, number> | undefined>(undefined),

@@ -44,9 +44,6 @@
     "mobx-keystone-yjs#test:ci": {
       "dependsOn": ["mobx-keystone#build"],
       "outputs": []
-    },
-    "lint": {
-      "outputs": []
     }
   }
 }

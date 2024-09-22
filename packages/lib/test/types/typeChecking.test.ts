@@ -183,6 +183,7 @@ test("null", () => {
 })
 
 test("simple null", () => {
+  // biome-ignore lint/suspicious/noEvolvingTypes:
   const type = null
   assert(_ as TypeToData<typeof type>, null)
 
@@ -970,8 +971,8 @@ test("enum (string)", () => {
 
 test("enumValues (number)", () => {
   enum A {
-    X1,
-    X2,
+    X1 = 0,
+    X2 = 1,
   }
 
   expect(enumValues(A)).toEqual([0, 1])
@@ -979,8 +980,8 @@ test("enumValues (number)", () => {
 
 test("enum (number)", () => {
   enum A {
-    X1,
-    X2,
+    X1 = 0,
+    X2 = 1,
   }
 
   const type = types.enum(A)
@@ -1002,8 +1003,7 @@ test("enum (number)", () => {
 
 test("enumValues (mixed)", () => {
   enum A {
-    X1,
-    // eslint-disable-next-line @typescript-eslint/no-mixed-enums
+    X1 = 0,
     X15 = "x15",
     X2 = 6,
   }
@@ -1013,8 +1013,7 @@ test("enumValues (mixed)", () => {
 
 test("enum (mixed)", () => {
   enum A {
-    X1,
-    // eslint-disable-next-line @typescript-eslint/no-mixed-enums
+    X1 = 0,
     X15 = "x15",
     X2 = 6,
   }

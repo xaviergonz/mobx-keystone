@@ -44,9 +44,9 @@ export function tweakPlainObject<T extends Record<string, any>>(
     ? originalObj
     : observable.object({}, undefined, observableOptions)
 
-  // eslint-disable-next-line prefer-const
+  // biome-ignore lint/style/useConst:
   let interceptDisposer: () => void
-  // eslint-disable-next-line prefer-const
+  // biome-ignore lint/style/useConst:
   let observeDisposer: () => void
 
   const untweak = () => {
@@ -81,7 +81,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
     } else {
       const path = { parent: tweakedObj, path: k }
 
-      let tweakedValue
+      let tweakedValue: any
       if (doNotTweakChildren) {
         tweakedValue = v
         setParent(
@@ -138,7 +138,6 @@ function mutateSet(k: PropertyKey, v: unknown, sn: Record<PropertyKey, unknown>)
 }
 
 function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
-  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
   delete sn[k]
 }
 
@@ -162,6 +161,9 @@ function objectDidChange(change: IObjectDidChange): void {
     case "remove":
       mutate = objectDidChangeRemove(change, oldUntransformedSn)
       break
+
+    default:
+      throw failure("assertion error: unsupported object change type")
   }
 
   runTypeCheckingAfterChange(obj, patchRecorder)
@@ -291,6 +293,9 @@ function interceptObjectMutation(change: IObjectWillChange) {
       }
       break
     }
+
+    default:
+      throw failure("assertion error: unsupported object change type")
   }
 
   return change

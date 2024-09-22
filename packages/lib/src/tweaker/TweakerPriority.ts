@@ -2,8 +2,8 @@
  * @internal
  */
 export enum TweakerPriority {
-  Model,
-  Array,
-  PlainObject,
-  Frozen,
+  Model = 0,
+  Array = 1,
+  PlainObject = 2,
+  Frozen = 3,
 }

@@ -14,7 +14,7 @@ import {
 import { autoDispose, testModel } from "../utils"
 
 @testModel("P2")
-export class P2 extends Model({
+class P2 extends Model({
   [modelIdKey]: idProp,
   y: prop(() => 0),
 }) {
@@ -26,7 +26,7 @@ export class P2 extends Model({
 }
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   [modelIdKey]: idProp,
   p2: prop(() => new P2({})),
   x: prop(() => 0),
@@ -214,7 +214,6 @@ test("onActionMiddleware", () => {
 
   // unserializable args
   reset()
-  // eslint-disable-next-line @typescript-eslint/no-extraneous-class
   class RandomClass {}
   const rc = new RandomClass()
 

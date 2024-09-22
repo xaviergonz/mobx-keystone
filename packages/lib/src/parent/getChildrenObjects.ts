@@ -17,9 +17,9 @@ export function getChildrenObjects(
 ): ReadonlySet<object> {
   assertTweakedObject(node, "node")
 
-  if (!options?.deep) {
-    return getObjectChildren(node)
-  } else {
+  if (options?.deep) {
     return getDeepObjectChildren(node).deep
+  } else {
+    return getObjectChildren(node)
   }
 }

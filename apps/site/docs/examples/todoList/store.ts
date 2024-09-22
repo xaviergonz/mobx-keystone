@@ -101,7 +101,6 @@ export function createRootStore(): TodoList {
   registerRootStore(rootStore)
 
   // we can also connect the store to the redux dev tools
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const remotedev = require("remotedev")
   const connection = remotedev.connectViaExtension({
     name: "Todo List Example",

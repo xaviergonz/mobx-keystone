@@ -111,24 +111,24 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
     const targetFilter = (ctx: ActionContext) =>
       ctx.target === subtreeRoot || isChildOfParent(ctx.target, subtreeRoot)
 
-    if (!filter) {
-      filter = targetFilter
-    } else {
+    if (filter) {
       const customFilter = filter
       filter = (ctx) => {
         return targetFilter(ctx) && customFilter(ctx)
       }
+    } else {
+      filter = targetFilter
     }
   }
 
   const actualMware = { middleware, filter }
 
   let objMwares = perObjectActionMiddlewares.get(subtreeRoot)
-  if (!objMwares) {
+  if (objMwares) {
+    objMwares.push(actualMware)
+  } else {
     objMwares = [actualMware]
     perObjectActionMiddlewares.set(subtreeRoot, objMwares)
-  } else {
-    objMwares.push(actualMware)
   }
 
   return () => {

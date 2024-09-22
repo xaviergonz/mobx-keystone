@@ -35,12 +35,7 @@ export function enumValues(e: EnumLike): (string | number)[] {
  * @ignore
  * Extract enum values out of a enum object.
  */
-export type EnumValues<E extends EnumLike> = E extends Record<
-  infer _K, // eslint-disable-line @typescript-eslint/no-unused-vars
-  infer V
->
-  ? V
-  : never
+export type EnumValues<E extends EnumLike> = E extends Record<infer _K, infer V> ? V : never
 
 /**
  * An enum type, based on a TypeScript alike enum object.

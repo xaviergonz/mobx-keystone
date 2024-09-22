@@ -50,7 +50,7 @@ export interface ObjectType<S>
   > {}
 
 export interface ObjectTypeFunction {
-  // eslint-disable-next-line @typescript-eslint/prefer-function-type
+  // biome-ignore lint/style/useShorthandFunctionType:
   (): ObjectOfTypes
 }
 

@@ -141,7 +141,9 @@ export class SandboxManager {
       if (fastIsRootStoreNoAtom(this.subtreeRootClone)) {
         unregisterRootStore(this.subtreeRootClone)
       }
-      this.disposer = () => {}
+      this.disposer = () => {
+        // noop
+      }
     }
   }
 

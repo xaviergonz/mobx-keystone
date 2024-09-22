@@ -79,9 +79,11 @@ describe("onPatches and applyPatches", () => {
     const { p, pPatches, pInvPatches, p2Patches, p2InvPatches } = setup(true)
 
     runUnprotected(() => {
-      p.x = p.x // eslint-disable-line no-self-assign
-      p.arr[0] = p.arr[0] // eslint-disable-line no-self-assign
-      p.p2!.y = p.p2!.y // eslint-disable-line no-self-assign
+      // biome-ignore lint/correctness/noSelfAssign:
+      p.x = p.x
+      // biome-ignore lint/correctness/noSelfAssign:
+      p.arr[0] = p.arr[0]
+      p.p2!.y = p.p2!.y
     })
 
     expect(pPatches).toMatchInlineSnapshot(`[]`)
@@ -1008,6 +1010,7 @@ test("patches with reserved prop names", () => {
   // no changes should result in no patches
   reset()
   runUnprotected(() => {
+    // biome-ignore lint/style/useShorthandAssign:
     p.$.onInit = p.$.onInit + 0
   })
 

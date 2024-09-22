@@ -9,7 +9,7 @@ import {
 import { autoDispose, testModel } from "../utils"
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   obj: prop<Record<string, number> | undefined>(undefined),
 }) {}
 

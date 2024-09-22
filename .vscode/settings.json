@@ -2,7 +2,6 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "peacock.color": "#68217A",
   "workbench.colorCustomizations": {
     "titleBar.activeBackground": "#68217a",
@@ -15,6 +14,5 @@
   "search.exclude": {
     "**/.yarn": true,
     "**/.pnp.*": true
-  },
-  "eslint.experimental.useFlatConfig": true
+  }
 }

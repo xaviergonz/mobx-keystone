@@ -1,0 +1,89 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": { "ignoreUnknown": false, "ignore": [] },
+  "organizeImports": { "enabled": true },
+  "linter": {
+    "enabled": true,
+    "include": [
+      "apps/site/src/**/*.ts",
+      "apps/site/src/**/*.tsx",
+      "apps/site/docs/**/*.ts",
+      "apps/site/docs/**/*.tsx",
+      "packages/lib/src/**/*.ts",
+      "packages/lib/test/**/*.ts",
+      "packages/mobx-keystone-yjs/src/**/*.ts",
+      "packages/mobx-keystone-yjs/test/**/*.ts"
+    ],
+    "ignore": ["packages/lib/src/action/modelFlowPromiseGenerator.ts"],
+    "rules": {
+      "recommended": true,
+      "a11y": { "all": true, "useKeyWithClickEvents": "off" },
+      "complexity": {
+        "all": true,
+        "noExcessiveCognitiveComplexity": "off",
+        "noVoid": "off",
+        "noBannedTypes": "off",
+        "noForEach": "off",
+        "noUselessThisAlias": "off"
+      },
+      "correctness": {
+        "all": true,
+        "noUndeclaredDependencies": "off",
+        "useImportExtensions": "off"
+      },
+      "security": {
+        "all": true
+      },
+      "style": {
+        "all": true,
+        "noParameterProperties": "off",
+        "useFilenamingConvention": "off",
+        "noDefaultExport": "off",
+        "useShorthandArrayType": "off",
+        "noNamespaceImport": "off",
+        "useNamingConvention": "off",
+        "noParameterAssign": "off",
+        "noUnusedTemplateLiteral": "off",
+        "useTemplate": "off",
+        "noUselessElse": "off",
+        "useImportType": "off",
+        "noNonNullAssertion": "off",
+        "useConsistentArrayType": "off",
+        "useForOf": "off",
+        "noArguments": "off"
+      },
+      "suspicious": {
+        "all": true,
+        "noMisplacedAssertion": "off",
+        "noConsole": "off",
+        "noReactSpecificProps": "off",
+        "noArrayIndexKey": "off",
+        "noAssignInExpressions": "off",
+        "noConfusingVoidType": "off",
+        "noEmptyBlockStatements": "off",
+        "noEmptyInterface": "off",
+        "noExplicitAny": "off"
+      },
+      "performance": {
+        "all": true,
+        "noBarrelFile": "off",
+        "noReExportAll": "off"
+      }
+    }
+  },
+  "javascript": {
+    "globals": [
+      "afterEach",
+      "beforeEach",
+      "describe",
+      "expect",
+      "it",
+      "jest",
+      "test",
+      "fail",
+      "arguments",
+      "ReadonlySetLike"
+    ]
+  }
+}

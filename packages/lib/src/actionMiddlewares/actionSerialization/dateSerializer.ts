@@ -5,7 +5,9 @@ export const dateSerializer: ActionCallArgumentSerializer<Date, number> = {
   id: `${namespace}/dateAsTimestamp`,
 
   serialize(date) {
-    if (!(date instanceof Date)) return cannotSerialize
+    if (!(date instanceof Date)) {
+      return cannotSerialize
+    }
     return +date
   },
 

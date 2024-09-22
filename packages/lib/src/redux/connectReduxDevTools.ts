@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ActionContextActionType } from "../action"
 import {
   actionTrackingMiddleware,
@@ -73,9 +72,10 @@ export function connectReduxDevTools(
       handlingMonitorAction++
 
       switch (message.payload.type) {
-        case "RESET":
+        case "RESET": {
           applySnapshot(target2, initialState)
           return remotedev2.init(initialState)
+        }
 
         case "COMMIT":
           return remotedev2.init(getSnapshot(target2))
@@ -84,9 +84,10 @@ export function connectReduxDevTools(
           return remotedev2.init(remotedevPackage.extractState(message))
 
         case "JUMP_TO_STATE":
-        case "JUMP_TO_ACTION":
+        case "JUMP_TO_ACTION": {
           applySnapshot(target2, remotedevPackage.extractState(message))
           return
+        }
 
         case "IMPORT_STATE": {
           const nextLiftedState = message.payload.nextLiftedState

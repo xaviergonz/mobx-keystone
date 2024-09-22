@@ -47,26 +47,26 @@ export function internalApplyPatches(
     let i = patches.length
     while (i--) {
       const p = patches[i]
-      if (!isArray(p)) {
-        applySinglePatch(obj, p as Patch, modelPool)
-      } else {
+      if (isArray(p)) {
         let j = p.length
         while (j--) {
           applySinglePatch(obj, p[j], modelPool)
         }
+      } else {
+        applySinglePatch(obj, p as Patch, modelPool)
       }
     }
   } else {
     const len = patches.length
     for (let i = 0; i < len; i++) {
       const p = patches[i]
-      if (!isArray(p)) {
-        applySinglePatch(obj, p as Patch, modelPool)
-      } else {
+      if (isArray(p)) {
         const len2 = p.length
         for (let j = 0; j < len2; j++) {
           applySinglePatch(obj, p[j], modelPool)
         }
+      } else {
+        applySinglePatch(obj, p as Patch, modelPool)
       }
     }
   }

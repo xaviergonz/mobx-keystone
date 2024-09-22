@@ -80,7 +80,9 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       typeInfoGen,
 
       (obj) => {
-        if (!isObject(obj)) return null
+        if (!isObject(obj)) {
+          return null
+        }
 
         if (!valueChecker.unchecked) {
           const keys = Object.keys(obj)
@@ -118,7 +120,10 @@ export class RecordTypeInfo extends TypeInfo {
     return getTypeInfo(this.valueType)
   }
 
-  constructor(thisType: AnyStandardType, readonly valueType: AnyStandardType) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly valueType: AnyStandardType
+  ) {
     super(thisType)
   }
 }

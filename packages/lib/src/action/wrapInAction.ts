@@ -22,7 +22,6 @@ export type WrapInActionOverrideContextFn = (ctx: O.Writable<ActionContext>, sel
 /**
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function wrapInAction<T extends Function>({
   nameOrNameFn,
   fn,

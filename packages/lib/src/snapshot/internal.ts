@@ -40,7 +40,7 @@ function getInternalSnapshotParent(
   sn: Readonly<SnapshotData> | undefined,
   parentPath: ParentPath<any> | undefined
 ): InternalSnapshotParent | undefined {
-  if (!parentPath || !sn) {
+  if (!(parentPath && sn)) {
     return undefined
   }
 

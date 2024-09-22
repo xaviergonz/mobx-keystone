@@ -81,6 +81,7 @@ export const AppInstance = observer(() => {
 
       <div>{status.connected ? "Online (sync enabled)" : "Offline (sync disabled)"}</div>
       <button
+        type="button"
         onClick={() => {
           toggleWebrtcProviderConnection()
         }}

@@ -44,7 +44,9 @@ test("model decorator works with static proxy gymnastics", () => {
 
   let Bar2 = new Proxy(Bar, {
     get: (target, key: keyof typeof Bar | "foo") => {
-      if (key === "foo") return "oof"
+      if (key === "foo") {
+        return "oof"
+      }
       return target[key]
     },
   })
@@ -116,7 +118,6 @@ test("decoratedModel", () => {
     setXY: [modelAction],
     length: computed,
   })
-  // eslint-disable-next-line @typescript-eslint/no-redeclare
   type Point<N> = _Point<N>
 
   {
@@ -193,7 +194,6 @@ test("decoratedModel", () => {
     setXYZ: modelAction,
     length3d: computed,
   })
-  // eslint-disable-next-line @typescript-eslint/no-redeclare
   type Point3d = _Point3d
 
   {

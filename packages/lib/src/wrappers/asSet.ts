@@ -42,48 +42,46 @@ const observableSetBackedByObservableArray = action(
     // when the array changes the set changes
     observe(
       array,
-      action(
-        (
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          change: any /*IArrayDidChange<T>*/
-        ) => {
-          if (setAlreadyChanged) {
-            return
-          }
-
-          arrayAlreadyChanged = true
-
-          try {
-            switch (change.type) {
-              case "splice": {
-                {
-                  const removed = change.removed
-                  for (let i = 0; i < removed.length; i++) {
-                    set.delete(removed[i])
-                  }
-                }
-
-                {
-                  const added = change.added
-                  for (let i = 0; i < added.length; i++) {
-                    set.add(added[i])
-                  }
-                }
-
-                break
-              }
-
-              case "update": {
-                set.delete(change.oldValue)
-                set.add(change.newValue)
-                break
-              }
-            }
-          } finally {
-            arrayAlreadyChanged = false
-          }
+      action((change: any /*IArrayDidChange<T>*/) => {
+        if (setAlreadyChanged) {
+          return
         }
-      )
+
+        arrayAlreadyChanged = true
+
+        try {
+          switch (change.type) {
+            case "splice": {
+              {
+                const removed = change.removed
+                for (let i = 0; i < removed.length; i++) {
+                  set.delete(removed[i])
+                }
+              }
+
+              {
+                const added = change.added
+                for (let i = 0; i < added.length; i++) {
+                  set.add(added[i])
+                }
+              }
+
+              break
+            }
+
+            case "update": {
+              set.delete(change.oldValue)
+              set.add(change.newValue)
+              break
+            }
+
+            default:
+              throw failure("assertion error: unsupported array change type")
+          }
+        } finally {
+          arrayAlreadyChanged = false
+        }
+      })
     )
 
     // when the set changes also change the array
@@ -114,6 +112,9 @@ const observableSetBackedByObservableArray = action(
               }
               break
             }
+
+            default:
+              throw failure("assertion error: unsupported set change type")
           }
 
           return change

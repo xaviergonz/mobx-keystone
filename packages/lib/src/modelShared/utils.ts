@@ -18,7 +18,7 @@ export function assertIsClassOrDataModelClass(
   argName: string,
   customErrMsg = "must be a class or data model class"
 ): asserts model is ModelClass<AnyModel> | ModelClass<AnyDataModel> {
-  if (!isModelClass(model) && !isDataModelClass(model)) {
+  if (!(isModelClass(model) || isDataModelClass(model))) {
     throw failure(`${argName} ${customErrMsg}`)
   }
 }

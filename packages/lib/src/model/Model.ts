@@ -43,7 +43,6 @@ export interface _Model<
   FromSnapshotOverride extends Record<string, any>,
   ToSnapshotOverride extends Record<string, any>,
 > {
-  // eslint-disable-next-line @typescript-eslint/prefer-function-type
   new (
     data: _ComposedCreationData<SuperModel, TProps>
   ): SuperModel &

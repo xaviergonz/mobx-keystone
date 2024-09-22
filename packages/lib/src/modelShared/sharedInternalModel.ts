@@ -164,17 +164,15 @@ export function sharedInternalModel<
     if (idKeys.length > 1) {
       throw failure(`expected at most one idProp but got many: ${JSON.stringify(idKeys)}`)
     }
-  } else {
-    if (idKeys.length >= 1) {
-      throw failure(`expected no idProp but got some: ${JSON.stringify(idKeys)}`)
-    }
+  } else if (idKeys.length > 0) {
+    throw failure(`expected no idProp but got some: ${JSON.stringify(idKeys)}`)
   }
 
   const needsTypeChecker = Object.values(composedModelProps).some((mp) => !!mp._typeChecker)
 
   // transform id keys (only one really)
   let idKey: string | undefined
-  if (idKeys.length >= 1) {
+  if (idKeys.length > 0) {
     idKey = idKeys[0]
     const idProp = composedModelProps[idKey]
     let baseProp: AnyModelProp = needsTypeChecker ? tPropForId : propForId
@@ -183,7 +181,6 @@ export function sharedInternalModel<
         baseProp = baseProp.withSetter()
         break
       case "assign":
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
         baseProp = baseProp.withSetter("assign")
         break
       default:
@@ -199,7 +196,7 @@ export function sharedInternalModel<
       [k: string]: any
     } = {}
     for (const [k, mp] of Object.entries(composedModelProps)) {
-      typeCheckerObj[k] = !mp._typeChecker ? typesUnchecked() : mp._typeChecker
+      typeCheckerObj[k] = mp._typeChecker ? mp._typeChecker : typesUnchecked()
     }
     dataTypeChecker = typesObject(() => typeCheckerObj) as any
   }
@@ -218,7 +215,6 @@ export function sharedInternalModel<
     constructorOptions?: ModelConstructorOptions | DataModelConstructorOptions
   ) {
     const modelClass = constructorOptions?.modelClass ?? this.constructor
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const baseModel = new base(initialData, {
       ...constructorOptions,
       modelClass,
@@ -235,7 +231,6 @@ export function sharedInternalModel<
     }
 
     propsToDeleteFromBase.forEach((prop) => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete baseModel[prop]
     })
 
@@ -293,7 +288,6 @@ export function sharedInternalModel<
       const setterName = propNameToSetterName(propName)
 
       if (!(basePropNames as Set<string>).has(setterName)) {
-        // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
         const newPropDescriptor: any = modelAction(ThisModel.prototype, setterName, {
           value: function (this: any, value: any) {
             this[propName] = value

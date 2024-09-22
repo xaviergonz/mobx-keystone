@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/class-literal-property-style */
 import { computed, reaction, toJS } from "mobx"
 import {
   computedTree,

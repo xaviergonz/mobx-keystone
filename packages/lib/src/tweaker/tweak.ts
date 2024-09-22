@@ -39,8 +39,9 @@ export function toTreeNode<T extends object>(value: T): T
 
 // base
 export function toTreeNode(arg1: any, arg2?: any): any {
-  let value: object, type: AnyStandardType | undefined
-  let hasType
+  let value: object
+  let type: AnyStandardType | undefined
+  let hasType: boolean
   if (arguments.length === 1) {
     hasType = false
     value = arg1

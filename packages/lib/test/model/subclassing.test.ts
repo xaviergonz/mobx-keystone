@@ -593,7 +593,7 @@ test("classes using model decorator can be extended", () => {
   }
 })
 
-export function createClassWithType<T>(modelName: string) {
+function createClassWithType<T>(modelName: string) {
   const ClassWithTypeProps = Model({
     val: prop<T>(),
   })

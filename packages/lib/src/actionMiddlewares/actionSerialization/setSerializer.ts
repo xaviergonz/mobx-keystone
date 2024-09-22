@@ -6,7 +6,9 @@ export const setSerializer: ActionCallArgumentSerializer<Set<any> | ObservableSe
   id: `${namespace}/setAsArray`,
 
   serialize(set, serialize) {
-    if (!(set instanceof Set)) return cannotSerialize
+    if (!(set instanceof Set)) {
+      return cannotSerialize
+    }
 
     const arr: any[] = []
 

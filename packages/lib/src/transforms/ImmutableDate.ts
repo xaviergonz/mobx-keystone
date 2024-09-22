@@ -3,7 +3,6 @@ import { failure } from "../utils"
 /**
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface ImmutableDate
   extends Omit<
     Date,
@@ -29,7 +28,6 @@ const errMessage = "this Date object is immutable"
 /**
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class ImmutableDate extends Date {
   // disable mutable methods
 

@@ -3,7 +3,7 @@ import { addActionMiddleware, Model, modelAction, prop, tProp } from "../../src"
 import { autoDispose, testModel } from "../utils"
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   y: prop(0).withSetter(),
   z: tProp(0).withSetter(),
   sy: prop(0).withSetter("assign"),

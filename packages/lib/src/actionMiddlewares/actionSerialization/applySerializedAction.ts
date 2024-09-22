@@ -96,7 +96,7 @@ function deepScanValueForModelIdChanges(
   value: any,
   path: WritablePath
 ) {
-  if (path.length >= 1 && typeof value === "string") {
+  if (path.length > 0 && typeof value === "string") {
     // ensure the parent is an actual model
     const parent = resolvePath(root, path.slice(0, path.length - 1)).value
 

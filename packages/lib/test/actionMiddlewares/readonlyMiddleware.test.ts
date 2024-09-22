@@ -12,7 +12,7 @@ import {
 import { autoDispose, delay, testModel } from "../utils"
 
 @testModel("P2")
-export class P2 extends Model({
+class P2 extends Model({
   y: prop(() => 10),
 }) {
   @modelAction
@@ -22,7 +22,7 @@ export class P2 extends Model({
 }
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   x: prop(() => 5),
   p2: prop(() => new P2({})),
 }) {

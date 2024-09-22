@@ -11,10 +11,15 @@ import { isArray, isObject } from "../../src/utils"
 import { testModel } from "../utils"
 
 const name = (obj: object) => {
-  if (obj instanceof BaseModel) return obj.$modelType
-  else if (isArray(obj)) return "Array"
-  else if (isObject(obj)) return "Object"
-  else return "unknown"
+  if (obj instanceof BaseModel) {
+    return obj.$modelType
+  } else if (isArray(obj)) {
+    return "Array"
+  } else if (isObject(obj)) {
+    return "Object"
+  } else {
+    return "unknown"
+  }
 }
 
 const events: string[] = []

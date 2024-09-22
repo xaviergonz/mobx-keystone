@@ -160,10 +160,10 @@ export function actionTrackingMiddleware(
 
   function setCtxData(ctx: ActionContext | SimpleActionContext, partialData: Partial<Data>) {
     const currentData = ctx.data[dataSymbol]
-    if (!currentData) {
-      ctx.data[dataSymbol] = partialData
-    } else {
+    if (currentData) {
       Object.assign(currentData, partialData)
+    } else {
+      ctx.data[dataSymbol] = partialData
     }
   }
 
@@ -210,12 +210,12 @@ export function actionTrackingMiddleware(
 
         case ActionContextAsyncStepType.Resume:
         case ActionContextAsyncStepType.ResumeError:
-          if (!resumeSuspendSupport) {
-            return false
-          } else {
+          if (resumeSuspendSupport) {
             // depends if the spawn one was accepted or not
             const data = getCtxData(ctx.spawnAsyncStepContext!)
             return data ? data.startAccepted : false
+          } else {
+            return false
           }
 
         default:
@@ -243,7 +243,7 @@ export function actionTrackingMiddleware(
     let parentResumed = false
     if (parentCtx) {
       const parentData = getCtxData(parentCtx)
-      if (parentData && parentData.startAccepted && parentData.state === State.Suspended) {
+      if (parentData?.startAccepted && parentData.state === State.Suspended) {
         parentResumed = true
         resume(parentCtx, false)
       }
@@ -269,7 +269,7 @@ export function actionTrackingMiddleware(
     const parentCtx = simpleCtx.parentContext
     if (parentCtx) {
       const parentData = getCtxData(parentCtx)
-      if (parentData && parentData.startAccepted && parentData.state === State.Suspended) {
+      if (parentData?.startAccepted && parentData.state === State.Suspended) {
         resume(parentCtx, false)
       }
     }
@@ -294,7 +294,7 @@ export function actionTrackingMiddleware(
     const parentCtx = simpleCtx.parentContext
     if (parentCtx) {
       const parentData = getCtxData(parentCtx)
-      if (parentData && parentData.startAccepted && parentData.state === State.FakeResumed) {
+      if (parentData?.startAccepted && parentData.state === State.FakeResumed) {
         suspend(parentCtx)
       }
     }

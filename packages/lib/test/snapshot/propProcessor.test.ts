@@ -207,10 +207,11 @@ test("model without model type", () => {
         return { ...sn, [modelTypeKey]: "model without model type/m1" }
       },
       toSnapshot(sn): Omit<SnapshotOutOf<M1>, typeof modelTypeKey> | undefined {
-        if (!sn) return sn
+        if (!sn) {
+          return sn
+        }
 
         const snCopy = { ...sn }
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete (snCopy as any)[modelTypeKey]
         return snCopy
       },

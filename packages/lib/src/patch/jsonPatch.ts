@@ -35,7 +35,7 @@ function escapePathComponent(path: string | number): string {
   if (typeof path === "number") {
     return String(path)
   }
-  if (!path.includes("/") && !path.includes("~")) {
+  if (!(path.includes("/") || path.includes("~"))) {
     return path
   }
   return path.replace(/~/g, "~0").replace(/\//g, "~1")

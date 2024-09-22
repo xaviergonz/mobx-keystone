@@ -42,7 +42,10 @@ function initAppInstance() {
   // also listen to local actions, cancel them and send them to the server
   onActionMiddleware(rootStore, {
     onStart(actionCall, ctx) {
-      if (!serverAction) {
+      if (serverAction) {
+        // just run the server action unmodified
+        return undefined
+      } else {
         // if the action does not come from the server cancel it silently
         // and send it to the server
         // it will then be replicated by the server and properly executed
@@ -55,9 +58,6 @@ function initAppInstance() {
           result: ActionTrackingResult.Return,
           value: undefined,
         }
-      } else {
-        // just run the server action unmodified
-        return undefined
       }
     },
   })

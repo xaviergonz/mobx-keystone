@@ -21,7 +21,6 @@ import { testModel } from "../utils"
 
 test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   // unserializable args
-  // eslint-disable-next-line @typescript-eslint/no-extraneous-class
   class RandomClass {}
   const rc = new RandomClass()
 
@@ -38,7 +37,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
 
   // number (NaN)
   const serNumberNaN = { $mobxKeystoneSerializer: `${namespace}/primitiveAsString`, value: "nan" }
-  expect(serializeActionCallArgument(NaN)).toEqual(serNumberNaN)
+  expect(serializeActionCallArgument(Number.NaN)).toEqual(serNumberNaN)
   expect(deserializeActionCallArgument(serNumberNaN)).toBeNaN()
 
   // number (+Infinity)
@@ -46,16 +45,16 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
     $mobxKeystoneSerializer: `${namespace}/primitiveAsString`,
     value: "+inf",
   }
-  expect(serializeActionCallArgument(+Infinity)).toEqual(serNumberPosInf)
-  expect(deserializeActionCallArgument(serNumberPosInf)).toBe(+Infinity)
+  expect(serializeActionCallArgument(Number.POSITIVE_INFINITY)).toEqual(serNumberPosInf)
+  expect(deserializeActionCallArgument(serNumberPosInf)).toBe(Number.POSITIVE_INFINITY)
 
   // number (-Infinity)
   const serNumberNegInf = {
     $mobxKeystoneSerializer: `${namespace}/primitiveAsString`,
     value: "-inf",
   }
-  expect(serializeActionCallArgument(-Infinity)).toEqual(serNumberNegInf)
-  expect(deserializeActionCallArgument(serNumberNegInf)).toBe(-Infinity)
+  expect(serializeActionCallArgument(Number.NEGATIVE_INFINITY)).toEqual(serNumberNegInf)
+  expect(deserializeActionCallArgument(serNumberNegInf)).toBe(Number.NEGATIVE_INFINITY)
 
   // bigint
   const serBigInt = { $mobxKeystoneSerializer: `${namespace}/primitiveAsString`, value: "42" }
@@ -81,6 +80,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   expect(deserializeActionCallArgument(serBoolean)).toBe(true)
 
   // null
+  // biome-ignore lint/suspicious/noEvolvingTypes:
   const serNull = null
   expect(serializeActionCallArgument(null)).toEqual(serNull)
   expect(deserializeActionCallArgument(serNull)).toBe(null)

@@ -100,7 +100,6 @@ export class YjsTextModel extends Model({
   @computed
   get text(): string {
     this.yjsTextChangedAtom.reportObserved()
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.yjsText.toString()
   }
 

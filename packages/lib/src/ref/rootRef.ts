@@ -81,8 +81,14 @@ function isRefRootCachedTargetOk<T extends object>(
   cachedTarget: T | undefined,
   getId: RefIdResolver
 ): cachedTarget is T {
-  if (!cachedTarget) return false
-  if (ref.id !== getId(cachedTarget)) return false
-  if (refRoot !== fastGetRoot(cachedTarget, true)) return false
+  if (!cachedTarget) {
+    return false
+  }
+  if (ref.id !== getId(cachedTarget)) {
+    return false
+  }
+  if (refRoot !== fastGetRoot(cachedTarget, true)) {
+    return false
+  }
   return true
 }

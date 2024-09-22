@@ -20,7 +20,6 @@ const unboundMethodSymbol = Symbol("unboundMethod")
 const bindMethod = (method: any, instance: any) => {
   const unboundMethod = unboundMethodSymbol in method ? method[unboundMethodSymbol] : method
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const boundMethod = unboundMethod.bind(instance)
   // copy modelAction symbol, etc.
   Object.getOwnPropertySymbols(unboundMethod).forEach((s) => {
@@ -141,7 +140,6 @@ export function decorateWrapMethodOrField(
           // all of this is to make method destructuring work
           return bindMethod(method, instance)
         }
-        break
       }
 
       default:
@@ -222,13 +220,17 @@ function checkModelDecoratorTaget(decoratorName: string, target: any) {
   // check target is a model object or extended class
   const isModel =
     target instanceof BaseModel || target === BaseModel || target.prototype instanceof BaseModel
-  if (isModel) return
+  if (isModel) {
+    return
+  }
 
   const isDataModel =
     target instanceof BaseDataModel ||
     target === BaseDataModel ||
     target.prototype instanceof BaseDataModel
-  if (isDataModel) return
+  if (isDataModel) {
+    return
+  }
 
   throw failure(errMessage)
 }

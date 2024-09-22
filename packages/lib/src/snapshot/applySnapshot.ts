@@ -121,7 +121,7 @@ export function internalApplySnapshot<T extends object>(
   }
 
   if (isPlainObject(sn)) {
-    if (!isPlainObject(obj) && !isObservableObject(obj)) {
+    if (!(isPlainObject(obj) || isObservableObject(obj))) {
       // no reconciliation possible
       throw failure("if the snapshot is an object the target must be an object too")
     }

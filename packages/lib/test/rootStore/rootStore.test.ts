@@ -20,7 +20,7 @@ import { testModel } from "../utils"
 const events: string[] = []
 
 @testModel("P3")
-export class P3 extends Model({
+class P3 extends Model({
   z: prop(() => 20),
 }) {
   onAttachedToRootStore(rootStore: P) {
@@ -36,7 +36,7 @@ export class P3 extends Model({
 }
 
 @testModel("P2")
-export class P2 extends Model({
+class P2 extends Model({
   y: prop(() => 10),
   p3: prop(() => new P3({})),
 }) {
@@ -55,7 +55,7 @@ export class P2 extends Model({
 }
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   x: prop(() => 5),
   arr: prop<P2[]>(() => []),
   p2: prop<P2 | undefined>(),
@@ -84,7 +84,7 @@ export class P extends Model({
   }
 }
 
-export function createP() {
+function createP() {
   return new P({
     p2: new P2({
       y: 12,

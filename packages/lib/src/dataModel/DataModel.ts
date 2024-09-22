@@ -22,7 +22,6 @@ export type _ComposedData<SuperModel, TProps extends ModelProps> = SuperModel ex
   : ModelPropsToUntransformedCreationData<TProps> | ModelPropsToTransformedCreationData<TProps>
 
 export interface _DataModel<SuperModel, TProps extends ModelProps> {
-  // eslint-disable-next-line @typescript-eslint/prefer-function-type
   new (
     data: _ComposedData<SuperModel, TProps>
   ): SuperModel &
