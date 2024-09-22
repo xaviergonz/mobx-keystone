@@ -33,14 +33,14 @@ export const arrayActions = {
 
   copyWithin: standaloneAction(
     `${namespace}::copyWithin`,
-    <T>(array: T[], target: number, start: number, end?: number | undefined): T[] => {
+    <T>(array: T[], target: number, start: number, end?: number): T[] => {
       return array.copyWithin(target, start, end)
     }
   ),
 
   fill: standaloneAction(
     `${namespace}::fill`,
-    <T>(array: T[], value: T, start?: number | undefined, end?: number | undefined): T[] => {
+    <T>(array: T[], value: T, start?: number, end?: number): T[] => {
       return array.fill(value, start, end)
     }
   ),
@@ -63,14 +63,14 @@ export const arrayActions = {
 
   slice: standaloneAction(
     `${namespace}::slice`,
-    <T>(array: T[], start?: number | undefined, end?: number | undefined): T[] => {
+    <T>(array: T[], start?: number, end?: number): T[] => {
       return array.slice(start, end)
     }
   ),
 
   sort: standaloneAction(
     `${namespace}::sort`,
-    <T>(array: T[], compareFn?: ((a: T, b: T) => number) | undefined): T[] => {
+    <T>(array: T[], compareFn?: (a: T, b: T) => number): T[] => {
       return array.sort(compareFn)
     }
   ),

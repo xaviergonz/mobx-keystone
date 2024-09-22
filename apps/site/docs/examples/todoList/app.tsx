@@ -20,7 +20,7 @@ export const App = observer(() => {
 })
 
 export const TodoListView = observer(({ list }: { list: TodoList }) => {
-  const [newTodo, setNewTodo] = React.useState("")
+  const [newTodo, setNewTodo] = useState("")
 
   const renderTodo = (todo: Todo) => (
     <TodoView

@@ -44,7 +44,7 @@ export interface RootRefOptions<T extends object> {
  */
 export const rootRef: <T extends object>(
   modelTypeId: string,
-  options?: RootRefOptions<T> | undefined
+  options?: RootRefOptions<T>
 ) => RefConstructor<T> = action(
   "rootRef",
   <T extends object>(modelTypeId: string, options?: RootRefOptions<T>): RefConstructor<T> => {
