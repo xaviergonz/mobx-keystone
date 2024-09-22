@@ -1,10 +1,89 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "ignoreUnknown": false, "ignore": [] },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": [
+      "**/node_modules/",
+      "**/dist/",
+      "./packages/lib/coverage/",
+      "./packages/lib/api-docs/",
+      "./apps/site/.docusaurus/",
+      "./apps/site/build/",
+      "./apps/site/copy-to-build/",
+      "./apps/site/static/api/",
+      "**/.yarn/",
+      "**/.pnp.*"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "useEditorconfig": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100,
+    "attributePosition": "auto",
+    "bracketSpacing": true
+  },
   "organizeImports": { "enabled": true },
   "linter": {
     "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": { "all": true, "useKeyWithClickEvents": "off" },
+      "complexity": {
+        "all": true,
+        "noBannedTypes": "off",
+        "noExcessiveCognitiveComplexity": "off",
+        "noForEach": "off",
+        "noUselessThisAlias": "off",
+        "noVoid": "off"
+      },
+      "correctness": {
+        "all": true,
+        "noUndeclaredDependencies": "off",
+        "useImportExtensions": "off"
+      },
+      "performance": {
+        "all": true,
+        "noBarrelFile": "off",
+        "noReExportAll": "off"
+      },
+      "security": { "all": true },
+      "style": {
+        "all": true,
+        "noArguments": "off",
+        "noDefaultExport": "off",
+        "noNamespaceImport": "off",
+        "noNonNullAssertion": "off",
+        "noParameterAssign": "off",
+        "noParameterProperties": "off",
+        "noUnusedTemplateLiteral": "off",
+        "noUselessElse": "off",
+        "useConsistentArrayType": "off",
+        "useFilenamingConvention": "off",
+        "useForOf": "off",
+        "useImportType": "off",
+        "useNamingConvention": "off",
+        "useShorthandArrayType": "off",
+        "useTemplate": "off"
+      },
+      "suspicious": {
+        "all": true,
+        "noArrayIndexKey": "off",
+        "noAssignInExpressions": "off",
+        "noConfusingVoidType": "off",
+        "noConsole": "off",
+        "noEmptyBlockStatements": "off",
+        "noEmptyInterface": "off",
+        "noExplicitAny": "off",
+        "noMisplacedAssertion": "off",
+        "noReactSpecificProps": "off"
+      }
+    },
+    "ignore": ["packages/lib/src/action/modelFlowPromiseGenerator.ts"],
     "include": [
       "apps/site/src/**/*.ts",
       "apps/site/src/**/*.tsx",
@@ -14,65 +93,20 @@
       "packages/lib/test/**/*.ts",
       "packages/mobx-keystone-yjs/src/**/*.ts",
       "packages/mobx-keystone-yjs/test/**/*.ts"
-    ],
-    "ignore": ["packages/lib/src/action/modelFlowPromiseGenerator.ts"],
-    "rules": {
-      "recommended": true,
-      "a11y": { "all": true, "useKeyWithClickEvents": "off" },
-      "complexity": {
-        "all": true,
-        "noExcessiveCognitiveComplexity": "off",
-        "noVoid": "off",
-        "noBannedTypes": "off",
-        "noForEach": "off",
-        "noUselessThisAlias": "off"
-      },
-      "correctness": {
-        "all": true,
-        "noUndeclaredDependencies": "off",
-        "useImportExtensions": "off"
-      },
-      "security": {
-        "all": true
-      },
-      "style": {
-        "all": true,
-        "noParameterProperties": "off",
-        "useFilenamingConvention": "off",
-        "noDefaultExport": "off",
-        "useShorthandArrayType": "off",
-        "noNamespaceImport": "off",
-        "useNamingConvention": "off",
-        "noParameterAssign": "off",
-        "noUnusedTemplateLiteral": "off",
-        "useTemplate": "off",
-        "noUselessElse": "off",
-        "useImportType": "off",
-        "noNonNullAssertion": "off",
-        "useConsistentArrayType": "off",
-        "useForOf": "off",
-        "noArguments": "off"
-      },
-      "suspicious": {
-        "all": true,
-        "noMisplacedAssertion": "off",
-        "noConsole": "off",
-        "noReactSpecificProps": "off",
-        "noArrayIndexKey": "off",
-        "noAssignInExpressions": "off",
-        "noConfusingVoidType": "off",
-        "noEmptyBlockStatements": "off",
-        "noEmptyInterface": "off",
-        "noExplicitAny": "off"
-      },
-      "performance": {
-        "all": true,
-        "noBarrelFile": "off",
-        "noReExportAll": "off"
-      }
-    }
+    ]
   },
   "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "asNeeded",
+      "arrowParentheses": "always",
+      "bracketSameLine": false,
+      "quoteStyle": "double",
+      "attributePosition": "auto",
+      "bracketSpacing": true
+    },
     "globals": [
       "afterEach",
       "beforeEach",
