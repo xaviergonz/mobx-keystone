@@ -81,7 +81,7 @@ describe("onPatches and applyPatches", () => {
     runUnprotected(() => {
       p.x = p.x // eslint-disable-line no-self-assign
       p.arr[0] = p.arr[0] // eslint-disable-line no-self-assign
-      p.p2!.y = p.p2!.y
+      p.p2!.y = p.p2!.y // eslint-disable-line no-self-assign
     })
 
     expect(pPatches).toMatchInlineSnapshot(`[]`)

@@ -38,7 +38,7 @@ const wtf = `Daenerys Stormborn of the House Targaryen, First of Her Name, the U
 export function createHeros(count: number) {
   const data: SnapshotInOf<Hero>[] = []
   let i = 0
-  let even = true
+  let even = true // eslint-disable-line @typescript-eslint/no-unused-vars
   let n1
   let n2
   let n3

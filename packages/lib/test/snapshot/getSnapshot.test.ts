@@ -163,7 +163,7 @@ test("reactive snapshots", () => {
   // no op
   runUnprotected(() => {
     p.x = p.x // eslint-disable-line no-self-assign
-    p.p2!.y = p.p2!.y
+    p.p2!.y = p.p2!.y // eslint-disable-line no-self-assign
   })
   expect(pResult.length).toBe(3)
   expect(p2Result.length).toBe(1)
