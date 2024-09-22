@@ -1,57 +1,57 @@
 import { reaction, toJS } from "mobx"
 import { assert, _ } from "spec.ts"
 import {
-  actionTrackingMiddleware,
   AnyModel,
   AnyType,
   ArraySet,
-  arraySet,
   ArraySetTypeInfo,
   ArrayTypeInfo,
   BooleanTypeInfo,
-  customRef,
-  fromSnapshot,
   Frozen,
-  frozen,
   FrozenTypeInfo,
-  getSnapshot,
-  getTypeInfo,
-  idProp,
   LiteralTypeInfo,
   Model,
-  modelAction,
   ModelAutoTypeCheckingMode,
-  modelIdKey,
   ModelTypeInfo,
   ModelTypeInfoProps,
   NumberTypeInfo,
   ObjectMap,
-  objectMap,
   ObjectMapTypeInfo,
   ObjectTypeInfo,
   ObjectTypeInfoProps,
-  onPatches,
-  onSnapshot,
   OrTypeInfo,
   Path,
-  prop,
   RecordTypeInfo,
   Ref,
-  RefinementTypeInfo,
   RefTypeInfo,
+  RefinementTypeInfo,
+  StringTypeInfo,
+  TagTypeInfo,
+  TupleTypeInfo,
+  TypeCheckError,
+  TypeInfo,
+  TypeToData,
+  UncheckedTypeInfo,
+  actionTrackingMiddleware,
+  arraySet,
+  customRef,
+  fromSnapshot,
+  frozen,
+  getSnapshot,
+  getTypeInfo,
+  idProp,
+  modelAction,
+  modelIdKey,
+  objectMap,
+  onPatches,
+  onSnapshot,
+  prop,
   resolvePath,
   rootRef,
   setGlobalConfig,
-  StringTypeInfo,
-  TagTypeInfo,
   tProp,
-  TupleTypeInfo,
   typeCheck,
-  TypeCheckError,
-  TypeInfo,
   types,
-  TypeToData,
-  UncheckedTypeInfo,
 } from "../../src"
 import { enumValues } from "../../src/types/primitiveBased/typesEnum"
 import { resolveStandardType } from "../../src/types/resolveTypeChecker"
@@ -183,6 +183,7 @@ test("null", () => {
 })
 
 test("simple null", () => {
+  // biome-ignore lint/suspicious/noEvolvingTypes:
   const type = null
   assert(_ as TypeToData<typeof type>, null)
 
@@ -970,8 +971,8 @@ test("enum (string)", () => {
 
 test("enumValues (number)", () => {
   enum A {
-    X1,
-    X2,
+    X1 = 0,
+    X2 = 1,
   }
 
   expect(enumValues(A)).toEqual([0, 1])
@@ -979,8 +980,8 @@ test("enumValues (number)", () => {
 
 test("enum (number)", () => {
   enum A {
-    X1,
-    X2,
+    X1 = 0,
+    X2 = 1,
   }
 
   const type = types.enum(A)
@@ -1002,8 +1003,7 @@ test("enum (number)", () => {
 
 test("enumValues (mixed)", () => {
   enum A {
-    X1,
-    // eslint-disable-next-line @typescript-eslint/no-mixed-enums
+    X1 = 0,
     X15 = "x15",
     X2 = 6,
   }
@@ -1013,8 +1013,7 @@ test("enumValues (mixed)", () => {
 
 test("enum (mixed)", () => {
   enum A {
-    X1,
-    // eslint-disable-next-line @typescript-eslint/no-mixed-enums
+    X1 = 0,
     X15 = "x15",
     X2 = 6,
   }

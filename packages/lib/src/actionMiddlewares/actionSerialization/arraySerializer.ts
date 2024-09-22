@@ -6,7 +6,9 @@ export const arraySerializer: ActionCallArgumentSerializer<any[] | IObservableAr
   id: `${namespace}/array`,
 
   serialize(value, serialize) {
-    if (!isArray(value)) return cannotSerialize
+    if (!isArray(value)) {
+      return cannotSerialize
+    }
 
     // this will also transform observable arrays into non-observable ones
     return value.map(serialize)

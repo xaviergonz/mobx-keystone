@@ -16,7 +16,7 @@
     "site:serve": "turbo run site#serve",
     "build-netlify": "yarn site:build",
     "netlify-dev": "yarn build-netlify && netlify dev",
-    "lint": "turbo run lint"
+    "lint": "biome lint"
   },
   "workspaces": [
     "packages/*",
@@ -28,22 +28,12 @@
     "yjs": "^13.6.19"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.1.0",
-    "@eslint/js": "^9.11.0",
+    "@biomejs/biome": "^1.9.2",
     "codecov": "^3.8.3",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-import-x": "^4.3.0",
-    "eslint-plugin-react": "^7.36.1",
-    "eslint-plugin-react-hooks": "^4.6.2",
     "globals": "^15.9.0",
     "netlify-cli": "^17.36.2",
-    "prettier": "^3.3.3",
-    "prettier-plugin-organize-imports": "^4.1.0",
     "turbo": "^2.1.2",
-    "typescript": "^5.6.2",
-    "typescript-eslint": "8.5.0"
+    "typescript": "^5.6.2"
   },
   "packageManager": "yarn@4.5.0"
 }

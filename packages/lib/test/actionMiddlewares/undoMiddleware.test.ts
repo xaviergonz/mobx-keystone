@@ -12,6 +12,7 @@ import {
   Ref,
   registerRootStore,
   rootRef,
+  SnapshotOutOfModel,
   UndoEvent,
   UndoManager,
   undoMiddleware,
@@ -123,7 +124,7 @@ test("undoMiddleware - sync", () => {
 
   expectUndoRedoToBe(0, 0)
 
-  const snapshots = []
+  const snapshots: SnapshotOutOfModel<P>[] = []
 
   snapshots.push(getSnapshot(p))
 
@@ -292,7 +293,7 @@ test("undoMiddleware - async", async () => {
 
   expectUndoRedoToBe(0, 0)
 
-  const snapshots = []
+  const snapshots: SnapshotOutOfModel<PFlow>[] = []
 
   snapshots.push(getSnapshot(p))
 
@@ -419,10 +420,10 @@ test("issue #115", () => {
     expect(model1.selected).toBe(model1 === selectedModel)
     expect(model2.selected).toBe(model2 === selectedModel)
     expect(rootModel.state.selectedElement).toBe(selectedModel)
-    if (!selectedModel) {
-      expect(rootModel.state.selectedElementRef).toBe(undefined)
-    } else {
+    if (selectedModel) {
       expect(rootModel.state.selectedElementRef!.current).toBe(selectedModel)
+    } else {
+      expect(rootModel.state.selectedElementRef).toBe(undefined)
     }
     expect(undoManager.undoLevels).toBe(undoLevels)
     expect(undoManager.redoLevels).toBe(redoLevels)
@@ -704,14 +705,15 @@ test("withGroupFlow - throwing", async () => {
         yield* _await(
           manager.withGroupFlow(function* () {
             yield* _await(p.incX(3))
-            // eslint-disable-next-line no-throw-literal, @typescript-eslint/only-throw-error
+
+            // biome-ignore lint/style/useThrowOnlyError:
             throw "inside"
           })
         )
         fail("should have thrown")
       } catch (err) {
         expect(err).toBe("inside")
-        // eslint-disable-next-line no-throw-literal, @typescript-eslint/only-throw-error
+        // biome-ignore lint/style/useThrowOnlyError:
         throw "outside"
       }
     })

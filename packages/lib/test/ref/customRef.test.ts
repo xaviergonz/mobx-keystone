@@ -65,7 +65,9 @@ class Countries extends Model({
 const countryRef = customRef<Country>("countryRef", {
   resolve(ref) {
     const countriesParent = findParent<Countries>(ref, (n) => n instanceof Countries)
-    if (!countriesParent) return undefined
+    if (!countriesParent) {
+      return undefined
+    }
     // this is valid in mobx5 but not mobx4
     // return countriesParent.countries[ref.id]
     return get(countriesParent.countries, ref.id)
@@ -232,7 +234,9 @@ test("single selection with getRefId", () => {
 
     @modelAction
     selectTodo(todo: Todo | undefined) {
-      if (todo && !this.list.includes(todo)) throw new Error("unknown todo")
+      if (todo && !this.list.includes(todo)) {
+        throw new Error("unknown todo")
+      }
       this.selectedRef = todo ? todoRef(todo) : undefined
     }
   }
@@ -247,7 +251,9 @@ test("single selection with getRefId", () => {
       // get the todo list where this ref is
       const todoList = findParent<TodoList>(ref, (n) => n instanceof TodoList)
       // if the ref is not yet attached then it cannot be resolved
-      if (!todoList) return undefined
+      if (!todoList) {
+        return undefined
+      }
       // but if it is attached then try to find it
       return todoList.list.find((todo) => todo.id === ref.id)
     },
@@ -277,7 +283,9 @@ test("single selection with getRefId", () => {
 const countryRef2 = customRef<Country>("countryRef2", {
   resolve(ref) {
     const countriesParent = findParent<Countries>(ref, (n) => n instanceof Countries)
-    if (!countriesParent) return undefined
+    if (!countriesParent) {
+      return undefined
+    }
     // this is valid in mobx5 but not mobx4
     // return countriesParent.countries[ref.id]
     return get(countriesParent.countries, ref.id)

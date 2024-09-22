@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: "22.5.1"
+  NODE_VERSION: "22.9.0"
 
 jobs:
   lib-site-build:
@@ -92,17 +92,3 @@ jobs:
       - run: yarn lib:build
       - run: yarn build
         working-directory: ./apps/benchmark
-
-  # formatting:
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ env.NODE_VERSION }}
-  #         cache: "yarn"
-
-  #     - run: yarn install --immutable
-  #     - run: yarn prettier --check .

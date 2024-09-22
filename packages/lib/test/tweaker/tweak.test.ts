@@ -1,5 +1,7 @@
 import { getGlobalConfig, runUnprotected, setGlobalConfig, toTreeNode } from "../../src"
 
+const undefinedIsNotSupported = /^undefined is not supported inside arrays/
+
 test("array disallows undefined element when allowUndefinedArrayElements is false", () => {
   expect(getGlobalConfig().allowUndefinedArrayElements).toBeFalsy()
 
@@ -9,7 +11,7 @@ test("array disallows undefined element when allowUndefinedArrayElements is fals
     runUnprotected(() => {
       array.push(undefined)
     })
-  }).toThrow(/^undefined is not supported inside arrays/)
+  }).toThrow(undefinedIsNotSupported)
 })
 
 test("array allows undefined element when allowUndefinedArrayElements is true", () => {
@@ -21,5 +23,5 @@ test("array allows undefined element when allowUndefinedArrayElements is true", 
     runUnprotected(() => {
       array.push(undefined)
     })
-  }).not.toThrow(/^undefined is not supported inside arrays/)
+  }).not.toThrow(undefinedIsNotSupported)
 })

@@ -65,7 +65,7 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
               yjs.delete(newLength, toDelete)
             } else if (yjs.length < patch.value) {
               const toInsert = patch.value - yjs.length
-              yjs.insert(yjs.length, Array(toInsert).fill(undefined))
+              yjs.insert(yjs.length, Array.from({ length: toInsert }).fill(undefined))
             }
           } else {
             yjs.delete(Number(key))

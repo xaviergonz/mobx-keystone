@@ -145,6 +145,8 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
       return tProp(typesNumber, typeOrDefaultValue)
     case "boolean":
       return tProp(typesBoolean, typeOrDefaultValue)
+    default:
+      break
   }
 
   const hasDefaultValue = arguments.length >= 2

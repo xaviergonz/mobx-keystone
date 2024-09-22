@@ -32,7 +32,9 @@ function internalDetach(this: object): void {
   const node = this
 
   const parentPath = fastGetParentPathIncludingDataObjects(node, false)
-  if (!parentPath) return
+  if (!parentPath) {
+    return
+  }
 
   const { parent, path } = parentPath
   if (isObservableArray(parent)) {

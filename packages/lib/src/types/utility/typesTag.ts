@@ -43,7 +43,6 @@ export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: s
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
       const baseTypeName = baseChecker.getTypeName(...recursiveTypeCheckers, baseChecker)
-      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       const taggedName = typeName || "tagged"
       return `${taggedName}<${baseTypeName}>`
     }

@@ -143,7 +143,6 @@ function walkTreeAggregate<R>(
   // small optimization, if there is only one child and this
   // object provides no value we can just reuse the child ones
   if (rootVal === undefined && childrenMap.size === 1) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return recurse(ch.value!)
   }
 

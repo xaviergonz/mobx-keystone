@@ -4,7 +4,6 @@ import { createP } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 
 test("basic types", () => {
-  // eslint-disable-next-line @typescript-eslint/no-confusing-void-expression
   expect(getSnapshot(undefined)).toBe(undefined)
   expect(getSnapshot(null)).toBe(null)
   expect(getSnapshot(7)).toBe(7)
@@ -162,8 +161,9 @@ test("reactive snapshots", () => {
 
   // no op
   runUnprotected(() => {
-    p.x = p.x // eslint-disable-line no-self-assign
-    p.p2!.y = p.p2!.y // eslint-disable-line no-self-assign
+    // biome-ignore lint/correctness/noSelfAssign:
+    p.x = p.x
+    p.p2!.y = p.p2!.y
   })
   expect(pResult.length).toBe(3)
   expect(p2Result.length).toBe(1)

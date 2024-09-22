@@ -13,7 +13,7 @@ import {
 import { autoDispose, delay, testModel } from "../utils"
 
 @testModel("P2")
-export class P2 extends Model({
+class P2 extends Model({
   y: prop(() => 0),
 }) {
   private *_addY(n: number) {
@@ -38,7 +38,7 @@ export class P2 extends Model({
 }
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   p2: prop(() => new P2({})),
   x: prop(() => 0),
 }) {

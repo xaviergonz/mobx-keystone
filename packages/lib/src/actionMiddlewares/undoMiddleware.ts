@@ -95,8 +95,9 @@ function toSingleEvents(
   event: UndoEventWithoutAttachedState,
   reverse: boolean
 ): ReadonlyArray<UndoSingleEvent> {
-  if (event.type === UndoEventType.Single) return [event]
-  else {
+  if (event.type === UndoEventType.Single) {
+    return [event]
+  } else {
     const array: UndoSingleEvent[] = []
     for (const e of event.events) {
       if (reverse) {
@@ -544,10 +545,10 @@ export class UndoManager {
     const genNext = gen.next.bind(gen)
     const genThrow = gen.throw.bind(gen)
 
-    const promise = new Promise<R>(function (resolve, reject) {
+    const promise = new Promise<R>((resolve, reject) => {
       function onFulfilled(res: any): void {
         group.resume()
-        let ret
+        let ret: unknown
         try {
           ret = genNext(res)
         } catch (e) {
@@ -562,7 +563,7 @@ export class UndoManager {
 
       function onRejected(err: unknown): void {
         group.resume()
-        let ret
+        let ret: unknown
         try {
           ret = genThrow(err)
         } catch (e) {
@@ -578,7 +579,6 @@ export class UndoManager {
       function next(ret: any): void {
         if (ret && typeof ret.then === "function") {
           // an async iterator
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
           ret.then(next, reject)
         } else if (ret.done) {
           // done
@@ -611,7 +611,6 @@ export class UndoManager {
     private readonly options: UndoMiddlewareOptions<unknown> | undefined
   ) {
     if (getMobxVersion() >= 6) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       mobx6.makeObservable(this)
     }
 
@@ -666,7 +665,7 @@ export function undoMiddleware<S>(
 ): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
-  // eslint-disable-next-line prefer-const
+  // biome-ignore lint/style/useConst:
   let manager: UndoManager
 
   interface PatchRecorderData {
@@ -686,7 +685,7 @@ export function undoMiddleware<S>(
       recorder: patchRecorder(subtreeRoot, {
         recording: false,
         filter: () => {
-          return !_isGlobalUndoRecordingDisabled && !manager.isUndoRecordingDisabled
+          return !(_isGlobalUndoRecordingDisabled || manager.isUndoRecordingDisabled)
         },
       }),
       recorderStack: 0,

@@ -21,7 +21,6 @@ const byteValueNumberFormatter = Intl.NumberFormat("en", {
   unitDisplay: "narrow",
 })
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 // @ts-ignore
 function memtest(numProps: number, numInstances: number) {
   console.log(`[${numProps} props, ${numInstances} instances]`)

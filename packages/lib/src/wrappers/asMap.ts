@@ -69,6 +69,9 @@ const observableMapBackedByObservableObject = action(
               map.delete(change.name)
               break
             }
+
+            default:
+              throw failure(`assertion error: unsupported object change type`)
           }
         } finally {
           objectAlreadyChanged = false
@@ -102,6 +105,9 @@ const observableMapBackedByObservableObject = action(
               remove(obj, change.name)
               break
             }
+
+            default:
+              throw failure(`assertion error: unsupported map change type`)
           }
 
           return change
@@ -180,6 +186,9 @@ const observableMapBackedByObservableArray = action(
               map.set(change.newValue[0], change.newValue[1])
               break
             }
+
+            default:
+              throw failure(`assertion error: unsupported array change type`)
           }
         } finally {
           arrayAlreadyChanged = false
@@ -222,6 +231,9 @@ const observableMapBackedByObservableArray = action(
               }
               break
             }
+
+            default:
+              throw failure(`assertion error: unsupported map change type`)
           }
 
           return change

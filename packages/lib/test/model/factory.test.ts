@@ -30,7 +30,6 @@ test("factory pattern", () => {
   }
 
   const NumberMyModel = createModelClass("NumberMyModel", 10, 20)
-  // eslint-disable-next-line @typescript-eslint/no-redeclare
   type NumberMyModel = InstanceType<typeof NumberMyModel>
 
   const numberMyModelInstance = new NumberMyModel({}) // this will be of type NumberMyModel
@@ -42,7 +41,6 @@ test("factory pattern", () => {
   expect(numberMyModelInstance.y).toBe(60)
 
   const StringMyModel = createModelClass("StringMyModel", "10", "20")
-  // eslint-disable-next-line @typescript-eslint/no-redeclare
   type StringMyModel = InstanceType<typeof StringMyModel>
 
   type SInStr = SnapshotInOf<StringMyModel>

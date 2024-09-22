@@ -16,7 +16,7 @@ function reconcilePlainObjectSnapshot(
   modelPool: ModelPool
 ): object {
   // plain obj
-  if (!isPlainObject(value) && !isObservableObject(value)) {
+  if (!(isPlainObject(value) || isObservableObject(value))) {
     // no reconciliation possible
     return fromSnapshot(sn)
   }

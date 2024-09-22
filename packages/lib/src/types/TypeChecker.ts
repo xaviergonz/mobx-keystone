@@ -30,9 +30,15 @@ export enum TypeCheckerBaseType {
  */
 export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType {
   // array must be before object since arrays are also objects
-  if (isArray(value)) return TypeCheckerBaseType.Array
-  if (isObject(value)) return TypeCheckerBaseType.Object
-  if (isPrimitive(value)) return TypeCheckerBaseType.Primitive
+  if (isArray(value)) {
+    return TypeCheckerBaseType.Array
+  }
+  if (isObject(value)) {
+    return TypeCheckerBaseType.Object
+  }
+  if (isPrimitive(value)) {
+    return TypeCheckerBaseType.Primitive
+  }
   return TypeCheckerBaseType.Any
 }
 
@@ -210,7 +216,7 @@ export interface LateTypeChecker {
  */
 export function lateTypeChecker(fn: () => TypeChecker, typeInfoGen: TypeInfoGen): LateTypeChecker {
   let cached: TypeChecker | undefined
-  const ltc = function () {
+  const ltc = () => {
     if (cached) {
       return cached
     }

@@ -238,7 +238,9 @@ test("single selection with custom getId", () => {
 
     @modelAction
     selectTodo(todo: Todo | undefined) {
-      if (todo && !this.list.includes(todo)) throw new Error("unknown todo")
+      if (todo && !this.list.includes(todo)) {
+        throw new Error("unknown todo")
+      }
       this.selectedRef = todo ? todoRef(todo) : undefined
     }
   }

@@ -57,9 +57,9 @@ test("context with static values", () => {
 
   const p = createP()
 
-  let pCalls = 0,
-    p2Calls = 0,
-    arrCalls = 0
+  let pCalls = 0
+  let p2Calls = 0
+  let arrCalls = 0
   autoDispose(
     reaction(
       () => ctx.get(p),
@@ -155,9 +155,9 @@ test("context with computed values", () => {
 
   const p = createP()
 
-  let pCalls = 0,
-    p2Calls = 0,
-    arrCalls = 0
+  let pCalls = 0
+  let p2Calls = 0
+  let arrCalls = 0
   autoDispose(
     reaction(
       () => ctx.get(p),

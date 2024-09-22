@@ -1,5 +1,5 @@
 import { observer } from "mobx-react"
-import React, { useState } from "react"
+import { useState } from "react"
 import { LogsView } from "./logs"
 import { createRootStore, Todo, TodoList } from "./store"
 
@@ -60,6 +60,7 @@ export const TodoListView = observer(({ list }: { list: TodoList }) => {
         placeholder="I will..."
       />
       <button
+        type="button"
         onClick={() => {
           list.add(new Todo({ text: newTodo }))
           setNewTodo("")

@@ -61,6 +61,7 @@ export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: bo
   if (propDesc) {
     propDesc.enumerable = enumerable
     if (propDesc.get) {
+      // biome-ignore lint/performance/noDelete:
       delete propDesc.set
     } else {
       propDesc.writable = false
@@ -73,7 +74,9 @@ export function makePropReadonly<T>(object: T, propName: keyof T, enumerable: bo
  * @internal
  */
 export function isPlainObject(value: unknown): value is Record<PropertyKey, unknown> {
-  if (!isObject(value)) return false
+  if (!isObject(value)) {
+    return false
+  }
   const proto = Object.getPrototypeOf(value)
   return proto === Object.prototype || proto === null
 }
@@ -107,7 +110,7 @@ export function isPrimitive(value: unknown): value is PrimitiveValue {
 export function isJSONPrimitive(value: unknown): value is JSONPrimitiveValue {
   switch (typeof value) {
     case "number":
-      return isFinite(value)
+      return Number.isFinite(value)
     case "string":
     case "boolean":
       return true
@@ -220,7 +223,6 @@ export function assertIsSet(
 /**
  * @internal
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function assertIsFunction(value: unknown, argName: string): asserts value is Function {
   if (typeof value !== "function") {
     throw failure(`${argName} must be a function`)
@@ -269,7 +271,7 @@ export function addLateInitializationFunction(
   fn: (instance: any) => void
 ) {
   let array: LateInitializationFunctionsArray | undefined = target[symbol]
-  if (!array || !Object.prototype.hasOwnProperty.call(target, symbol)) {
+  if (!(array && Object.prototype.hasOwnProperty.call(target, symbol))) {
     // leave base array unmodified, create new array in the derived class
     array = array ? array.slice() : []
     addHiddenProp(target, symbol, array)
@@ -340,7 +342,6 @@ export const identityFn = <T>(x: T): T => x
  * @internal
  */
 export const mobx6 = {
-  // eslint-disable-next-line no-useless-concat
   makeObservable: (mobx as any)[
     // just to ensure import * is kept properly
     String.fromCharCode("l".charCodeAt(0) + 1) + "akeObservable"

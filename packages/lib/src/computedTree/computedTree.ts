@@ -81,7 +81,7 @@ export function computedTree(...args: any[]): any {
 
   const checkInstanceClass = (instance: any) => {
     const instanceClass = instance.constructor
-    if (!isModelClass(instanceClass) && !isDataModelClass(instanceClass)) {
+    if (!(isModelClass(instanceClass) || isDataModelClass(instanceClass))) {
       throw failure("@computedTree can only decorate 'get' accessors of class or data models")
     }
   }

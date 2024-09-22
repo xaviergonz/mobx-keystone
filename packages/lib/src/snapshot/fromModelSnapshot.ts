@@ -29,7 +29,6 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
     )
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   return new (modelInfo.class as any)(undefined, {
     snapshotInitialData: {
       unprocessedSnapshot: sn,

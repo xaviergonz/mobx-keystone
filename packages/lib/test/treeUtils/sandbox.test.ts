@@ -365,7 +365,7 @@ test("changes in sandbox are rejected when fn throws", () => {
       node.setValue(1)
       expect(a.b.value).toBe(0)
       expect(node.value).toBe(1)
-      throw new Error()
+      throw new Error("error")
     })
   }).toThrow()
 

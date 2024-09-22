@@ -69,7 +69,7 @@ basicTest("plain object", { a: 1, b: 2, c: 3 })
 basicTest("plain complex object", { a: { aa: 1 }, b: 2, c: 3 })
 
 test("a non plain object should throw in dev mode", () => {
-  expect(() => frozen(function () {})).toThrow("frozen data must be plainly serializable to JSON")
+  expect(() => frozen(() => {})).toThrow("frozen data must be plainly serializable to JSON")
 })
 
 test("data is frozen in dev mode", () => {

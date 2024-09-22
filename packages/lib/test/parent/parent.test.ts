@@ -22,12 +22,12 @@ import { testModel } from "../utils"
 const $errorMessage = "must be the model object instance instead of the '$' sub-object"
 
 @testModel("P2")
-export class P2 extends Model({
+class P2 extends Model({
   y: prop(() => 10),
 }) {}
 
 @testModel("P")
-export class P extends Model({
+class P extends Model({
   x: prop(() => 5),
   arr: prop<P2[]>(() => []),
   p2: prop<P2 | undefined>(),

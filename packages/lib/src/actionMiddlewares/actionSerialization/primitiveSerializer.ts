@@ -13,10 +13,12 @@ export const primitiveSerializer: ActionCallArgumentSerializer<
       return "nan"
     }
     switch (value) {
-      case +Infinity:
+      case Number.POSITIVE_INFINITY:
         return "+inf"
-      case -Infinity:
+      case Number.NEGATIVE_INFINITY:
         return "-inf"
+      default:
+        break
     }
 
     // bigint
@@ -35,11 +37,11 @@ export const primitiveSerializer: ActionCallArgumentSerializer<
   deserialize(str) {
     switch (str) {
       case "nan":
-        return NaN
+        return Number.NaN
       case "+inf":
-        return +Infinity
+        return Number.POSITIVE_INFINITY
       case "-inf":
-        return -Infinity
+        return Number.NEGATIVE_INFINITY
       case "undefined":
         return undefined
       default:

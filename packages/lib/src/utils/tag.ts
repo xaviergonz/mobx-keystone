@@ -17,12 +17,12 @@ export function tag<Target extends object, TagData>(
 
   return {
     for(target): TagData {
-      if (!map.has(target)) {
+      if (map.has(target)) {
+        return map.get(target)!
+      } else {
         const data = tagDataConstructor(target)
         map.set(target, data)
         return data
-      } else {
-        return map.get(target)!
       }
     },
   }

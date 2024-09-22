@@ -17,8 +17,12 @@ export function parentPathEquals(
   parentPath1: ParentPath<any> | undefined,
   parentPath2: ParentPath<any> | undefined
 ) {
-  if (!parentPath1 && !parentPath2) return true
-  if (!parentPath1 || !parentPath2) return false
+  if (!(parentPath1 || parentPath2)) {
+    return true
+  }
+  if (!(parentPath1 && parentPath2)) {
+    return false
+  }
   return parentPath1.parent === parentPath2.parent && parentPath1.path === parentPath2.path
 }
 

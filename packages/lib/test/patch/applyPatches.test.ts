@@ -107,7 +107,7 @@ describe("array", () => {
         reverse
       )
     })
-    expect(toJS(p.arr)).toEqual([1, reverse ? 10 : 11, !reverse ? 10 : 11, 2, 3])
+    expect(toJS(p.arr)).toEqual([1, reverse ? 10 : 11, reverse ? 11 : 10, 2, 3])
   })
 
   test("remove", () => {

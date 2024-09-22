@@ -14,8 +14,9 @@ export const objectPathSerializer: ActionCallArgumentSerializer<object, ObjectPa
   id: `${namespace}/objectPath`,
 
   serialize(value, _, targetRoot) {
-    if (typeof value !== "object" || value === null || !isTweakedObject(value, false))
+    if (typeof value !== "object" || value === null || !isTweakedObject(value, false)) {
       return cannotSerialize
+    }
 
     // try to serialize a ref to its path if possible instead
     if (targetRoot) {

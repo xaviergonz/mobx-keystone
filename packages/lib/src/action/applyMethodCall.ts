@@ -25,7 +25,6 @@ export function applyMethodCall<O extends object, K extends keyof O, FN extends 
  * @internal
  */
 export function internalApplyMethodCall(this: any, methodName: string | number, args: any[]): any {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   return this[methodName](...args)
 }
 

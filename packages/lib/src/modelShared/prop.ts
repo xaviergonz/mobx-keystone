@@ -401,7 +401,7 @@ export function prop<TValue>(): MaybeOptionalModelProp<TValue>
 
 // base
 export function prop(def?: any): AnyModelProp {
-  const hasDefaultValue = arguments.length >= 1
+  const hasDefaultValue = arguments.length > 0
   if (!hasDefaultValue) {
     return baseProp
   }
@@ -497,10 +497,7 @@ function toFullTransform(transformObject: ModelPropTransform<unknown, unknown>) 
 /**
  * @ignore
  */
-export function getModelPropDefaultValue(
-  propData: AnyModelProp
-): // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-unknown | typeof noDefaultValue {
+export function getModelPropDefaultValue(propData: AnyModelProp): unknown | typeof noDefaultValue {
   if (propData._defaultFn !== noDefaultValue) {
     return propData._defaultFn()
   }

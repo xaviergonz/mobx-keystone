@@ -167,7 +167,7 @@ export function draft<T extends object>(original: T): Draft<T> {
 
 function pathToTargetPathIdsIgnoringLast(root: any, path: Path) {
   const pathIds: (string | null | typeof skipIdChecking)[] = pathToTargetPathIds(root, path)
-  if (pathIds.length >= 1) {
+  if (pathIds.length > 0) {
     // never check the last object id
     pathIds[pathIds.length - 1] = skipIdChecking
   }

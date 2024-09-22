@@ -193,15 +193,15 @@ function getBackRefs<T extends object>(
     objectBackRefs.set(target, backRefs)
   }
 
-  if (!refType) {
-    return backRefs.all
-  } else {
+  if (refType) {
     let byType = backRefs.byType.get(refType)
     if (!byType) {
       byType = observable.set(undefined, { deep: false })
       backRefs.byType.set(refType, byType)
     }
     return byType
+  } else {
+    return backRefs.all
   }
 }
 
