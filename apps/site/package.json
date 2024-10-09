@@ -12,7 +12,7 @@
   "dependencies": {
     "@docusaurus/core": "^3.5.2",
     "@docusaurus/preset-classic": "^3.5.2",
-    "@easyops-cn/docusaurus-search-local": "^0.44.5",
+    "@easyops-cn/docusaurus-search-local": "^0.45.0",
     "@iframe-resizer/child": "^5.3.1",
     "@iframe-resizer/react": "^5.3.1",
     "bootstrap-icons": "^1.11.3",
@@ -41,7 +41,7 @@
     "@types/uuid": "^10.0.0",
     "raw-loader": "^4.0.2",
     "shx": "^0.3.4",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.3"
   },
   "browserslist": {
     "production": [
