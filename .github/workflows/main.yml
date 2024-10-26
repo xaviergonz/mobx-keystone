@@ -58,9 +58,14 @@ jobs:
         env:
           COMPILER: ${{ matrix.compiler }}
           MOBX_VERSION: ${{ matrix.mobx-version }}
-      - name: Upload codecov report
-        run: yarn codecov -p ./packages/lib
+
+      - uses: codecov/codecov-action@v4
+        name: Upload codecov report
         if: matrix.compiler == 'tsc' && matrix.mobx-version == '6'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./packages/lib/coverage
+          fail_ci_if_error: true
 
   yjs-lib-test:
     name: yjs-lib-test
