@@ -65,6 +65,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
+          directory: ./packages/lib/coverage
 
   yjs-lib-test:
     name: yjs-lib-test
