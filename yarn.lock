@@ -5506,12 +5506,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.8.1":
-  version: 22.8.1
-  resolution: "@types/node@npm:22.8.1"
+"@types/node@npm:*, @types/node@npm:^22.8.2":
+  version: 22.8.2
+  resolution: "@types/node@npm:22.8.2"
   dependencies:
     undici-types: "npm:~6.19.8"
-  checksum: 10c0/83550fdf72a7db5b55eceac3f4fb038844eaee20202bdd2297a8248370cfa08317bda1605b781a8043eda4f173b75e73632e652fc85509eb14dfef78fa17337f
+  checksum: 10c0/c6fa6c54c23e61015cace1517c4101602cae0ff3c4f6604f6cdb89875143921830e5602cabe8b4f90f90363451687a0497f1d07d30be8104fee758d6d44c90ac
   languageName: node
   linkType: hard
 
@@ -15163,7 +15163,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.26.0"
     "@babel/preset-typescript": "npm:^7.26.0"
     "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^22.8.1"
+    "@types/node": "npm:^22.8.2"
     babel-jest: "npm:^29.7.0"
     jest: "npm:^29.7.0"
     mobx-keystone: "workspace:packages/lib"
@@ -15194,7 +15194,7 @@ __metadata:
     "@swc/core": "npm:^1.7.40"
     "@swc/jest": "npm:^0.2.36"
     "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^22.8.1"
+    "@types/node": "npm:^22.8.2"
     babel-jest: "npm:^29.7.0"
     fast-deep-equal: "npm:^3.1.3"
     jest: "npm:^29.7.0"
