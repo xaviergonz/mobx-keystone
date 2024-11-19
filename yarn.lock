@@ -6979,7 +6979,7 @@ __metadata:
     chalk: "npm:^5.3.0"
     cross-env: "npm:^7.0.3"
     mobx-keystone: "workspace:packages/lib"
-    mobx-state-tree: "npm:^6.0.1"
+    mobx-state-tree: "npm:^7.0.0"
     shx: "npm:^0.3.4"
     tslib: "npm:^2.8.1"
     typescript: "npm:^5.6.3"
@@ -15292,12 +15292,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mobx-state-tree@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "mobx-state-tree@npm:6.0.1"
+"mobx-state-tree@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "mobx-state-tree@npm:7.0.0"
   peerDependencies:
     mobx: ^6.3.0
-  checksum: 10c0/e9e9f9e927f00258877ecf677588617a3f4069a7b2e58167e6b9f239a622d97eb02c5ebde26213697e30872c43d8284b76fb4d8bd45217839907f430d9fe525e
+  checksum: 10c0/9d885d55465e016ede816c2a22be89fb788eb59e276a4793e729f610e202f169bcab06e33de184b6ecbb5b996fe574af573891a8e2230754a0522a182950ede2
   languageName: node
   linkType: hard
 
