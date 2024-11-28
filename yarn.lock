@@ -6046,12 +6046,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.10.0":
-  version: 22.10.0
-  resolution: "@types/node@npm:22.10.0"
+"@types/node@npm:*, @types/node@npm:^22.10.1":
+  version: 22.10.1
+  resolution: "@types/node@npm:22.10.1"
   dependencies:
     undici-types: "npm:~6.20.0"
-  checksum: 10c0/efb3783b6fe74b4300c5bdd4f245f1025887d9b1d0950edae584af58a30d95cc058c10b4b3428f8300e4318468b605240c2ede8fcfb6ead2e0f05bca31e54c1b
+  checksum: 10c0/0fbb6d29fa35d807f0223a4db709c598ac08d66820240a2cd6a8a69b8f0bc921d65b339d850a666b43b4e779f967e6ed6cf6f0fca3575e08241e6b900364c234
   languageName: node
   linkType: hard
 
@@ -15727,7 +15727,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.26.0"
     "@babel/preset-typescript": "npm:^7.26.0"
     "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^22.10.0"
+    "@types/node": "npm:^22.10.1"
     babel-jest: "npm:^29.7.0"
     jest: "npm:^29.7.0"
     mobx-keystone: "workspace:packages/lib"
@@ -15758,7 +15758,7 @@ __metadata:
     "@swc/core": "npm:^1.9.3"
     "@swc/jest": "npm:^0.2.37"
     "@types/jest": "npm:^29.5.14"
-    "@types/node": "npm:^22.10.0"
+    "@types/node": "npm:^22.10.1"
     babel-jest: "npm:^29.7.0"
     fast-deep-equal: "npm:^3.1.3"
     jest: "npm:^29.7.0"
@@ -15772,7 +15772,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     ts-toolbelt: "npm:^9.6.0"
     tslib: "npm:^2.8.1"
-    typedoc: "npm:^0.27.0"
+    typedoc: "npm:^0.27.1"
     typescript: "npm:^5.7.2"
     vite: "npm:^6.0.1"
   peerDependencies:
@@ -21389,9 +21389,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:^0.27.0":
-  version: 0.27.0
-  resolution: "typedoc@npm:0.27.0"
+"typedoc@npm:^0.27.1":
+  version: 0.27.1
+  resolution: "typedoc@npm:0.27.1"
   dependencies:
     "@gerrit0/mini-shiki": "npm:^1.23.2"
     lunr: "npm:^2.3.9"
@@ -21402,7 +21402,7 @@ __metadata:
     typescript: 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x || 5.7.x
   bin:
     typedoc: bin/typedoc
-  checksum: 10c0/e2bd48f2053ce783f3ff09f7101336c6edc96e9eb3bb081d2f563013a677aa4e3296548956129f99b3a6f10c4231ad6cead7f642e7ae87ac3ef95daec92399c2
+  checksum: 10c0/28e62707c7157c1f07a24e5422143de5e8f6ed0967a7fb4f76ae220824e14d79d43589ec963ed6b7327eb4e5066c7037adad7a1a523a7d4a6aab259ef0f22570
   languageName: node
   linkType: hard
 
