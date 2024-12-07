@@ -2,13 +2,7 @@
   "name": "mobx-keystone-yjs",
   "version": "1.5.1",
   "description": "Yjs bindings for mobx-keystone",
-  "keywords": [
-    "mobx",
-    "mobx-keystone",
-    "yjs",
-    "crdt",
-    "state management"
-  ],
+  "keywords": ["mobx", "mobx-keystone", "yjs", "crdt", "state management"],
   "repository": {
     "type": "git",
     "url": "https://github.com/xaviergonz/mobx-keystone.git"
@@ -23,11 +17,11 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/types/index.d.ts",
+      "script": "./dist/mobx-keystone-yjs.umd.js",
       "import": "./dist/mobx-keystone-yjs.esm.mjs",
       "require": "./dist/mobx-keystone-yjs.umd.js",
-      "script": "./dist/mobx-keystone-yjs.umd.js",
-      "default": "./dist/mobx-keystone-yjs.esm.mjs",
-      "types": "./dist/types/index.d.ts"
+      "default": "./dist/mobx-keystone-yjs.esm.mjs"
     }
   },
   "esmodule": "./dist/mobx-keystone-yjs.esm.js",
@@ -41,13 +35,7 @@
   "types": "./dist/types/index.d.ts",
   "typings": "./dist/types/index.d.ts",
   "sideEffects": false,
-  "files": [
-    "src",
-    "dist",
-    "LICENSE",
-    "CHANGELOG.md",
-    "README.md"
-  ],
+  "files": ["src", "dist", "LICENSE", "CHANGELOG.md", "README.md"],
   "scripts": {
     "quick-build": "tsc",
     "quick-build-tests": "tsc -p test",
