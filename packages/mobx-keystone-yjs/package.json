@@ -2,7 +2,13 @@
   "name": "mobx-keystone-yjs",
   "version": "1.5.1",
   "description": "Yjs bindings for mobx-keystone",
-  "keywords": ["mobx", "mobx-keystone", "yjs", "crdt", "state management"],
+  "keywords": [
+    "mobx",
+    "mobx-keystone",
+    "yjs",
+    "crdt",
+    "state management"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/xaviergonz/mobx-keystone.git"
@@ -35,7 +41,13 @@
   "types": "./dist/types/index.d.ts",
   "typings": "./dist/types/index.d.ts",
   "sideEffects": false,
-  "files": ["src", "dist", "LICENSE", "CHANGELOG.md", "README.md"],
+  "files": [
+    "src",
+    "dist",
+    "LICENSE",
+    "CHANGELOG.md",
+    "README.md"
+  ],
   "scripts": {
     "quick-build": "tsc",
     "quick-build-tests": "tsc -p test",
@@ -57,7 +69,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-typescript": "^7.26.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "mobx-keystone": "workspace:packages/lib",
