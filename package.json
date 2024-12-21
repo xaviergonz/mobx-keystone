@@ -25,7 +25,7 @@
   ],
   "dependencies": {
     "mobx": "^6.13.5",
-    "yjs": "^13.6.20"
+    "yjs": "^13.6.21"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
