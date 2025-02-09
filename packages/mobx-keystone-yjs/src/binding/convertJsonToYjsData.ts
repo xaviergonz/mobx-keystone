@@ -27,8 +27,8 @@ function isJsonObjectWithUndefined(v: JsonValueWithUndefined): v is JsonObjectWi
  * Objects are converted to Y.Maps, arrays to Y.Arrays, primitives are untouched.
  * Frozen values are a special case and they are kept as immutable plain values.
  */
-export function convertJsonToYjsData(v: JsonValueWithUndefined | undefined): YjsData {
-  if (v === undefined || isJsonPrimitiveWithUndefined(v)) {
+export function convertJsonToYjsData(v: JsonValueWithUndefined): YjsData {
+  if (isJsonPrimitiveWithUndefined(v)) {
     return v
   }
 

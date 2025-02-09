@@ -14,5 +14,8 @@
   "search.exclude": {
     "**/.yarn": true,
     "**/.pnp.*": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
   }
 }
