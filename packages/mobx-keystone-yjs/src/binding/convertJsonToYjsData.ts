@@ -19,7 +19,7 @@ function isJsonArrayWithUndefined(v: JsonValueWithUndefined): v is JsonArrayWith
 }
 
 function isJsonObjectWithUndefined(v: JsonValueWithUndefined): v is JsonObjectWithUndefined {
-  return !isJsonArrayWithUndefined(v) && typeof v === "object"
+  return !isJsonArrayWithUndefined(v) && typeof v === "object" && v !== null
 }
 
 /**
