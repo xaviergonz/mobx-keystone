@@ -1,10 +1,6 @@
 import { Patch } from "mobx-keystone"
 import * as Y from "yjs"
-import {
-  JsonArrayWithUndefined,
-  JsonObjectWithUndefined,
-  JsonValueWithUndefined,
-} from "../jsonTypes"
+import { PlainArray, PlainObject, PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
 
 export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
@@ -87,9 +83,9 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
   return patches
 }
 
-function toPlainValue(v: Y.Map<any> | Y.Array<any> | JsonValueWithUndefined) {
+function toPlainValue(v: Y.Map<any> | Y.Array<any> | PlainValue) {
   if (v instanceof Y.Map || v instanceof Y.Array) {
-    return v.toJSON() as JsonObjectWithUndefined | JsonArrayWithUndefined
+    return v.toJSON() as PlainObject | PlainArray
   } else {
     return v
   }

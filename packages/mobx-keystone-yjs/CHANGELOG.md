@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.5.2
+
+- Just renamed some internal types.
+
 ## 1.5.1
 
 - Fixed a wrong import.

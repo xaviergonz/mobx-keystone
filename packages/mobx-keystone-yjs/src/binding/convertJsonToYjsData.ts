@@ -2,43 +2,38 @@ import * as Y from "yjs"
 import { YjsTextModel, yjsTextModelId } from "./YjsTextModel"
 import { SnapshotOutOf } from "mobx-keystone"
 import { YjsData } from "./convertYjsDataToJson"
-import {
-  JsonArrayWithUndefined,
-  JsonObjectWithUndefined,
-  JsonPrimitiveWithUndefined,
-  JsonValueWithUndefined,
-} from "../jsonTypes"
+import { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
 
-function isJsonPrimitiveWithUndefined(v: JsonValueWithUndefined): v is JsonPrimitiveWithUndefined {
+function isPlainPrimitive(v: PlainValue): v is PlainPrimitive {
   const t = typeof v
   return t === "string" || t === "number" || t === "boolean" || v === null || v === undefined
 }
 
-function isJsonArrayWithUndefined(v: JsonValueWithUndefined): v is JsonArrayWithUndefined {
+function isPlainArray(v: PlainValue): v is PlainArray {
   return Array.isArray(v)
 }
 
-function isJsonObjectWithUndefined(v: JsonValueWithUndefined): v is JsonObjectWithUndefined {
-  return !isJsonArrayWithUndefined(v) && typeof v === "object" && v !== null
+function isPlainObject(v: PlainValue): v is PlainObject {
+  return !isPlainArray(v) && typeof v === "object" && v !== null
 }
 
 /**
- * Converts a JSON value to a Y.js data structure.
+ * Converts a plain value to a Y.js data structure.
  * Objects are converted to Y.Maps, arrays to Y.Arrays, primitives are untouched.
  * Frozen values are a special case and they are kept as immutable plain values.
  */
-export function convertJsonToYjsData(v: JsonValueWithUndefined): YjsData {
-  if (isJsonPrimitiveWithUndefined(v)) {
+export function convertJsonToYjsData(v: PlainValue): YjsData {
+  if (isPlainPrimitive(v)) {
     return v
   }
 
-  if (isJsonArrayWithUndefined(v)) {
+  if (isPlainArray(v)) {
     const arr = new Y.Array()
     applyJsonArrayToYArray(arr, v)
     return arr as YjsData
   }
 
-  if (isJsonObjectWithUndefined(v)) {
+  if (isPlainObject(v)) {
     if (v.$frozen === true) {
       // frozen value, save as immutable object
       return v
@@ -64,14 +59,14 @@ export function convertJsonToYjsData(v: JsonValueWithUndefined): YjsData {
 /**
  * Applies a JSON array to a Y.Array, using the convertJsonToYjsData to convert the values.
  */
-export function applyJsonArrayToYArray(dest: Y.Array<unknown>, source: JsonArrayWithUndefined) {
+export function applyJsonArrayToYArray(dest: Y.Array<unknown>, source: PlainArray) {
   dest.push(source.map(convertJsonToYjsData))
 }
 
 /**
  * Applies a JSON object to a Y.Map, using the convertJsonToYjsData to convert the values.
  */
-export function applyJsonObjectToYMap(dest: Y.Map<unknown>, source: JsonObjectWithUndefined) {
+export function applyJsonObjectToYMap(dest: Y.Map<unknown>, source: PlainObject) {
   Object.entries(source).forEach(([k, v]) => {
     dest.set(k, convertJsonToYjsData(v))
   })

@@ -1,17 +1,17 @@
 import { modelSnapshotOutWithMetadata } from "mobx-keystone"
 import * as Y from "yjs"
-import { JsonObjectWithUndefined, JsonValueWithUndefined } from "../jsonTypes"
+import { PlainObject, PlainValue } from "../plainTypes"
 import { YjsTextModel } from "./YjsTextModel"
 
-export type YjsData = Y.Array<YjsData> | Y.Map<YjsData> | Y.Text | JsonValueWithUndefined
+export type YjsData = Y.Array<YjsData> | Y.Map<YjsData> | Y.Text | PlainValue
 
-export function convertYjsDataToJson(yjsData: YjsData): JsonValueWithUndefined {
+export function convertYjsDataToJson(yjsData: YjsData): PlainValue {
   if (yjsData instanceof Y.Array) {
     return yjsData.map((v) => convertYjsDataToJson(v))
   }
 
   if (yjsData instanceof Y.Map) {
-    const obj: JsonObjectWithUndefined = {}
+    const obj: PlainObject = {}
     yjsData.forEach((v, k) => {
       obj[k] = convertYjsDataToJson(v)
     })
@@ -23,7 +23,7 @@ export function convertYjsDataToJson(yjsData: YjsData): JsonValueWithUndefined {
 
     return modelSnapshotOutWithMetadata(YjsTextModel, {
       deltaList: deltas.length > 0 ? [{ $frozen: true, data: deltas }] : [],
-    }) as unknown as JsonValueWithUndefined
+    }) as unknown as PlainValue
   }
 
   // assume it's a primitive

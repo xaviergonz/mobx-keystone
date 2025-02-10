@@ -2,7 +2,7 @@ import { Patch } from "mobx-keystone"
 import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { convertJsonToYjsData } from "./convertJsonToYjsData"
-import { JsonValueWithUndefined } from "../jsonTypes"
+import { PlainValue } from "../plainTypes"
 
 export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): void {
   if (patch.path.length > 1) {
@@ -42,7 +42,7 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
       switch (patch.op) {
         case "add":
         case "replace": {
-          yjs.set(key, convertJsonToYjsData(patch.value as JsonValueWithUndefined))
+          yjs.set(key, convertJsonToYjsData(patch.value as PlainValue))
           break
         }
         case "remove": {
@@ -69,12 +69,12 @@ export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): v
             }
           } else {
             yjs.delete(Number(key))
-            yjs.insert(Number(key), [convertJsonToYjsData(patch.value as JsonValueWithUndefined)])
+            yjs.insert(Number(key), [convertJsonToYjsData(patch.value as PlainValue)])
           }
           break
         }
         case "add": {
-          yjs.insert(Number(key), [convertJsonToYjsData(patch.value as JsonValueWithUndefined)])
+          yjs.insert(Number(key), [convertJsonToYjsData(patch.value as PlainValue)])
           break
         }
         case "remove": {

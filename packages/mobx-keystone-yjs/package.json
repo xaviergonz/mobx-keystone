@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone-yjs",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Yjs bindings for mobx-keystone",
   "keywords": [
     "mobx",
