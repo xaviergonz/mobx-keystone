@@ -28,7 +28,7 @@ export function convertJsonToYjsData(v: PlainValue): YjsData {
   }
 
   if (isPlainArray(v)) {
-    const arr = new Y.Array()
+    const arr = new Y.Array<YjsData>()
     applyJsonArrayToYArray(arr, v)
     return arr as YjsData
   }
@@ -48,7 +48,7 @@ export function convertJsonToYjsData(v: PlainValue): YjsData {
       return text
     }
 
-    const map = new Y.Map()
+    const map = new Y.Map<YjsData>()
     applyJsonObjectToYMap(map, v)
     return map as YjsData
   }
@@ -59,14 +59,14 @@ export function convertJsonToYjsData(v: PlainValue): YjsData {
 /**
  * Applies a JSON array to a Y.Array, using the convertJsonToYjsData to convert the values.
  */
-export function applyJsonArrayToYArray(dest: Y.Array<unknown>, source: PlainArray) {
+export function applyJsonArrayToYArray(dest: Y.Array<YjsData>, source: PlainArray) {
   dest.push(source.map(convertJsonToYjsData))
 }
 
 /**
  * Applies a JSON object to a Y.Map, using the convertJsonToYjsData to convert the values.
  */
-export function applyJsonObjectToYMap(dest: Y.Map<unknown>, source: PlainObject) {
+export function applyJsonObjectToYMap(dest: Y.Map<YjsData>, source: PlainObject) {
   Object.entries(source).forEach(([k, v]) => {
     dest.set(k, convertJsonToYjsData(v))
   })
