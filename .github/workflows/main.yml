@@ -59,7 +59,7 @@ jobs:
           COMPILER: ${{ matrix.compiler }}
           MOBX_VERSION: ${{ matrix.mobx-version }}
 
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v5
         name: Upload codecov report
         if: matrix.compiler == 'tsc' && matrix.mobx-version == '6'
         with:
