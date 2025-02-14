@@ -7,7 +7,7 @@ import { getChildrenObjects } from "./getChildrenObjects"
  * Runs a callback everytime a new object is attached to a given node.
  * The callback can optionally return a disposer which will be run when the child is detached.
  *
- * The optional options parameter accepts and object with the following options:
+ * The optional options parameter accepts an object with the following options:
  * - `deep: boolean` (default: `false`) - true if the callback should be run for all children deeply
  * or false if it it should only run for shallow children.
  * - `fireForCurrentChildren: boolean` (default: `true`) - true if the callback should be immediately
