@@ -6,9 +6,9 @@ export type PathElement = string | number
 /**
  * Path from a parent to a child.
  */
-export type Path = ReadonlyArray<string | number>
+export type Path = ReadonlyArray<PathElement>
 
 /**
  * Path from a parent to a child (writable).
  */
-export type WritablePath = (string | number)[]
+export type WritablePath = PathElement[]
