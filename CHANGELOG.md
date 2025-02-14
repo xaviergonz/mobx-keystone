@@ -1,5 +1,7 @@
 # Change Log
 
+- Wrapped `onChildAttachedTo` actions in MobX actions.
+
 ## 1.11.1
 
 - Fix for `onChildAttachedTo` firing for current children even when `fireForCurrentChildren` was set to false.

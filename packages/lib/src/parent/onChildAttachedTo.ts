@@ -1,4 +1,4 @@
-import { reaction } from "mobx"
+import { action, reaction, runInAction } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction } from "../utils"
 import { getChildrenObjects } from "./getChildrenObjects"
@@ -50,7 +50,7 @@ export function onChildAttachedTo(
 
   const addDetachDisposer = (n: object, disposer: (() => void) | void) => {
     if (disposer) {
-      detachDisposers.set(n, disposer)
+      detachDisposers.set(n, action(disposer))
     }
   }
 
@@ -109,7 +109,8 @@ export function onChildAttachedTo(
         if (!currentChildren.has(n)) {
           currentChildren.add(n)
 
-          addDetachDisposer(n, fn(n))
+          const detachAction = runInAction(() => fn(n))
+          addDetachDisposer(n, detachAction)
         }
 
         newChildrenCur = newChildrenIter.next()
