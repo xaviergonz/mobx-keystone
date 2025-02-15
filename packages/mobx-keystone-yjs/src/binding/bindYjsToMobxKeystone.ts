@@ -17,7 +17,7 @@ import {
 import * as Y from "yjs"
 import { getYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
-import { YjsData, convertYjsDataToJson } from "./convertYjsDataToJson"
+import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
 import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 
@@ -38,7 +38,7 @@ export function bindYjsToMobxKeystone<
   /**
    * The bound Y.js data structure.
    */
-  yjsObject: Y.Map<unknown> | Y.Array<unknown> | Y.Text
+  yjsObject: Y.Map<any> | Y.Array<any> | Y.Text
   /**
    * The mobx-keystone model type.
    */
@@ -73,7 +73,7 @@ export function bindYjsToMobxKeystone<
     },
   }
 
-  const yjsJson = convertYjsDataToJson(yjsObject as YjsData)
+  const yjsJson = convertYjsDataToJson(yjsObject)
 
   const initializationGlobalPatches: { target: object; patches: Patch[] }[] = []
 

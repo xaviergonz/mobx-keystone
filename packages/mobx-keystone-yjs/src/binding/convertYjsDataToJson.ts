@@ -2,10 +2,11 @@ import { modelSnapshotOutWithMetadata } from "mobx-keystone"
 import * as Y from "yjs"
 import { PlainObject, PlainValue } from "../plainTypes"
 import { YjsTextModel } from "./YjsTextModel"
+import { action } from "mobx"
 
-export type YjsData = Y.Array<YjsData> | Y.Map<YjsData> | Y.Text | PlainValue
+export type YjsData = Y.Array<any> | Y.Map<any> | Y.Text | PlainValue
 
-export function convertYjsDataToJson(yjsData: YjsData): PlainValue {
+export const convertYjsDataToJson = action((yjsData: YjsData): PlainValue => {
   if (yjsData instanceof Y.Array) {
     return yjsData.map((v) => convertYjsDataToJson(v))
   }
@@ -28,4 +29,4 @@ export function convertYjsDataToJson(yjsData: YjsData): PlainValue {
 
   // assume it's a primitive
   return yjsData
-}
+})

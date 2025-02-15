@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.5.4
+
+- Fixed some more types.
+
 ## 1.5.3
 
 - Fixed some types.
