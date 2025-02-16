@@ -2,6 +2,7 @@
 
 - Wrapped `onChildAttachedTo` actions in MobX actions.
 - Make `ObjectMap` and `ArraySet` use proper iterators.
+- `asSet` and `asMap` are no longer actions.
 
 ## 1.11.1
 

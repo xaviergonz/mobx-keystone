@@ -10,6 +10,8 @@ import {
   ObservableMap,
   observe,
   remove,
+  transaction,
+  untracked,
 } from "mobx"
 import {
   assertIsMap,
@@ -35,14 +37,20 @@ const observableMapBackedByObservableObject = action(
       }
     }
 
-    const map = observable.map()
-    ;(map as any).dataObject = obj
+    const map = transaction(() =>
+      untracked(() => {
+        const map = observable.map()
 
-    const keys = Object.keys(obj)
-    for (let i = 0; i < keys.length; i++) {
-      const k = keys[i]
-      map.set(k, (obj as any)[k])
-    }
+        const keys = Object.keys(obj)
+        for (let i = 0; i < keys.length; i++) {
+          const k = keys[i]
+          map.set(k, (obj as any)[k])
+        }
+
+        return map
+      })
+    )
+    ;(map as any).dataObject = obj
 
     let mapAlreadyChanged = false
     let objectAlreadyChanged = false
@@ -121,131 +129,131 @@ const observableMapBackedByObservableObject = action(
   }
 )
 
-const observableMapBackedByObservableArray = action(
-  <T>(
-    array: IObservableArray<[string, T]>
-  ): ObservableMap<string, T> & { dataObject: typeof array } => {
-    if (inDevMode) {
-      if (!isObservableArray(array)) {
-        throw failure("assertion failed: expected an observable array")
-      }
+const observableMapBackedByObservableArray = <T>(
+  array: IObservableArray<[string, T]>
+): ObservableMap<string, T> & { dataObject: typeof array } => {
+  if (inDevMode) {
+    if (!isObservableArray(array)) {
+      throw failure("assertion failed: expected an observable array")
     }
+  }
 
-    let map: ObservableMap<string, T>
+  const map = untracked(() => {
     if (getMobxVersion() >= 6) {
-      map = observable.map(array)
+      return observable.map(array)
     } else {
-      map = observable.map()
+      const map = observable.map()
       array.forEach(([k, v]) => {
         map.set(k, v)
       })
+      return map
     }
-    ;(map as any).dataObject = array
+  })
+  ;(map as any).dataObject = array
 
-    if (map.size !== array.length) {
-      throw failure("arrays backing a map cannot contain duplicate keys")
-    }
-
-    let mapAlreadyChanged = false
-    let arrayAlreadyChanged = false
-
-    // for speed reasons we will just assume distinct values are only once in the array
-    // also we assume tuples themselves are immutable
-
-    // when the array changes the map changes
-    observe(
-      array,
-      action((change: any /*IArrayDidChange<[string, T]>*/) => {
-        if (mapAlreadyChanged) {
-          return
-        }
-
-        arrayAlreadyChanged = true
-        try {
-          switch (change.type) {
-            case "splice": {
-              {
-                const removed = change.removed
-                for (let i = 0; i < removed.length; i++) {
-                  map.delete(removed[i][0])
-                }
-              }
-
-              {
-                const added = change.added
-                for (let i = 0; i < added.length; i++) {
-                  map.set(added[i][0], added[i][1])
-                }
-              }
-
-              break
-            }
-
-            case "update": {
-              map.delete(change.oldValue[0])
-              map.set(change.newValue[0], change.newValue[1])
-              break
-            }
-
-            default:
-              throw failure(`assertion error: unsupported array change type`)
-          }
-        } finally {
-          arrayAlreadyChanged = false
-        }
-      })
-    )
-
-    // when the map changes also change the array
-    intercept(
-      map,
-      action((change: IMapWillChange<string, T>) => {
-        if (mapAlreadyChanged) {
-          return null
-        }
-
-        if (arrayAlreadyChanged) {
-          return change
-        }
-
-        mapAlreadyChanged = true
-
-        try {
-          switch (change.type) {
-            case "update": {
-              // replace the whole tuple to keep tuple immutability
-              const i = array.findIndex((i) => i[0] === change.name)
-              array[i] = [change.name, change.newValue!]
-              break
-            }
-
-            case "add": {
-              array.push([change.name, change.newValue!])
-              break
-            }
-
-            case "delete": {
-              const i = array.findIndex((i) => i[0] === change.name)
-              if (i >= 0) {
-                array.splice(i, 1)
-              }
-              break
-            }
-
-            default:
-              throw failure(`assertion error: unsupported map change type`)
-          }
-
-          return change
-        } finally {
-          mapAlreadyChanged = false
-        }
-      })
-    )
-
-    return map as any
+  if (map.size !== array.length) {
+    throw failure("arrays backing a map cannot contain duplicate keys")
   }
-)
+
+  let mapAlreadyChanged = false
+  let arrayAlreadyChanged = false
+
+  // for speed reasons we will just assume distinct values are only once in the array
+  // also we assume tuples themselves are immutable
+
+  // when the array changes the map changes
+  observe(
+    array,
+    action((change: any /*IArrayDidChange<[string, T]>*/) => {
+      if (mapAlreadyChanged) {
+        return
+      }
+
+      arrayAlreadyChanged = true
+      try {
+        switch (change.type) {
+          case "splice": {
+            {
+              const removed = change.removed
+              for (let i = 0; i < removed.length; i++) {
+                map.delete(removed[i][0])
+              }
+            }
+
+            {
+              const added = change.added
+              for (let i = 0; i < added.length; i++) {
+                map.set(added[i][0], added[i][1])
+              }
+            }
+
+            break
+          }
+
+          case "update": {
+            map.delete(change.oldValue[0])
+            map.set(change.newValue[0], change.newValue[1])
+            break
+          }
+
+          default:
+            throw failure(`assertion error: unsupported array change type`)
+        }
+      } finally {
+        arrayAlreadyChanged = false
+      }
+    })
+  )
+
+  // when the map changes also change the array
+  intercept(
+    map,
+    action((change: IMapWillChange<string, T>) => {
+      if (mapAlreadyChanged) {
+        return null
+      }
+
+      if (arrayAlreadyChanged) {
+        return change
+      }
+
+      mapAlreadyChanged = true
+
+      try {
+        switch (change.type) {
+          case "update": {
+            // replace the whole tuple to keep tuple immutability
+            const i = array.findIndex((i) => i[0] === change.name)
+            array[i] = [change.name, change.newValue!]
+            break
+          }
+
+          case "add": {
+            array.push([change.name, change.newValue!])
+            break
+          }
+
+          case "delete": {
+            const i = array.findIndex((i) => i[0] === change.name)
+            if (i >= 0) {
+              array.splice(i, 1)
+            }
+            break
+          }
+
+          default:
+            throw failure(`assertion error: unsupported map change type`)
+        }
+
+        return change
+      } finally {
+        mapAlreadyChanged = false
+      }
+    })
+  )
+
+  return map as any
+}
 
 const asMapTag = tag((objOrArray: Record<string, any> | Array<[string, any]>) => {
   if (isArray(objOrArray)) {
