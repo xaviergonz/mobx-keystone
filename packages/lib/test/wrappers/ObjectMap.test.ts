@@ -68,13 +68,13 @@ test("has", () => {
 
 test("reactivity", () => {
   const k = jest.fn()
-  autoDispose(reaction(() => map.keys(), k))
+  autoDispose(reaction(() => [...map.keys()], k))
 
   const v = jest.fn()
-  autoDispose(reaction(() => map.values(), v))
+  autoDispose(reaction(() => [...map.values()], v))
 
   const e = jest.fn()
-  autoDispose(reaction(() => map.entries(), e))
+  autoDispose(reaction(() => [...map.entries()], e))
 
   const i = jest.fn()
   autoDispose(reaction(() => [...map], i))

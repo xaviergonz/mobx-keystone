@@ -67,21 +67,23 @@ export class ArraySet<V>
     return this.items.length
   }
 
-  keys(): ReturnType<Set<V>["keys"]> {
-    return this.values() // yes, values
+  *keys(): ReturnType<Set<V>["keys"]> {
+    // yes, values
+    for (const value of values(this.items)) {
+      yield value
+    }
   }
 
-  values(): ReturnType<Set<V>["values"]> {
-    const items = this.items
-
-    return values(items)[Symbol.iterator]()
+  *values(): ReturnType<Set<V>["values"]> {
+    for (const value of values(this.items)) {
+      yield value
+    }
   }
 
-  entries(): ReturnType<Set<V>["entries"]> {
-    const items = this.items
-
-    // TODO: should use an actual iterator
-    return items.map((v) => [v, v] as [V, V]).values()
+  *entries(): ReturnType<Set<V>["entries"]> {
+    for (const v of this.items) {
+      yield [v, v]
+    }
   }
 
   [Symbol.iterator](): ReturnType<Set<V>[typeof Symbol.iterator]> {

@@ -1,6 +1,7 @@
 # Change Log
 
 - Wrapped `onChildAttachedTo` actions in MobX actions.
+- Make `ObjectMap` and `ArraySet` use proper iterators.
 
 ## 1.11.1
 
