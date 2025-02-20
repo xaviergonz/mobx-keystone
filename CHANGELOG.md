@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.11.2
+
+- Fix: in some cases, when reconciliating a model that was being moved to the end of an array it could complain that the node was duplicated.
 - Wrapped `onChildAttachedTo` actions in MobX actions.
 - Make `ObjectMap` and `ArraySet` use proper iterators.
 - `asSet` and `asMap` are no longer actions.
