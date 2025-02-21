@@ -12,7 +12,7 @@
       "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["${workspaceFolder}/**/node_modules/**/*.js", "<node_internals>/**/*.js"],
+      "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
       "cwd": "${workspaceFolder}/packages/lib"
     },
     {
@@ -23,7 +23,7 @@
       "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["${workspaceFolder}/**/node_modules/**/*.js", "<node_internals>/**/*.js"],
+      "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
       "cwd": "${workspaceFolder}/packages/mobx-keystone-yjs"
     }
   ]
