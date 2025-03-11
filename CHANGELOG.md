@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.11.3
+
+- Fix: observable data will now be turned into plain data when frozen, which also fixes an issue when undoing/redoing changes to frozen objects.
+
 ## 1.11.2
 
 - Fix: in some cases, when reconciliating a model that was being moved to the end of an array it could complain that the node was duplicated.

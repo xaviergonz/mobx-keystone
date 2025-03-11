@@ -1,3 +1,4 @@
+import { isObservable, toJS } from "mobx"
 import { getGlobalConfig } from "../globalConfig"
 import type { SnapshotInOfFrozen } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
@@ -40,6 +41,10 @@ export class Frozen<T> {
    * @param checkMode
    */
   constructor(dataToFreeze: T, checkMode: FrozenCheckMode = FrozenCheckMode.DevModeOnly) {
+    if (isObservable(dataToFreeze)) {
+      dataToFreeze = toJS(dataToFreeze)
+    }
+
     const check =
       checkMode === FrozenCheckMode.On || (inDevMode && checkMode === FrozenCheckMode.DevModeOnly)
     if (check) {

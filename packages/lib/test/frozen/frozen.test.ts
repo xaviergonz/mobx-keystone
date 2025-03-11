@@ -13,6 +13,7 @@ import {
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
 import { testModel } from "../utils"
+import { observable } from "mobx"
 
 @testModel("MWithFrozenProp")
 class MWithFrozenProp extends Model({
@@ -99,4 +100,29 @@ test("it is possible to store a snapshot in a frozen", () => {
   const p2FromSn = fromSnapshot<MWithNumber>(pFromSn.frozenStuff?.data)
   expect(p2FromSn instanceof MWithNumber).toBe(true)
   expect(p2FromSn.n).toBe(12)
+})
+
+test("an observable object can be passed to frozen", () => {
+  const plainData = {
+    a: 1,
+    b: 2,
+    nested: {
+      c: 3,
+    },
+  }
+  const obsObj = observable(plainData)
+
+  const fr = frozen(obsObj)
+
+  expect(fr instanceof Frozen).toBe(true)
+  expect(fr.data).not.toBe(obsObj)
+
+  const sn = getSnapshot(fr)
+  expect(sn[frozenKey]).toBe(true)
+  expect(sn.data).toStrictEqual(plainData)
+
+  // Test that we can create a model with the frozen observable
+  const p = new MWithFrozenProp({ frozenStuff: fr })
+  expect(getParent(fr)).toBe(p)
+  expect(p.frozenStuff).toBe(fr)
 })
