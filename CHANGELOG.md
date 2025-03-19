@@ -1,5 +1,7 @@
 # Change Log
 
+- Fix: redux devtools revert was not working correctly.
+
 ## 1.11.3
 
 - Fix: observable data will now be turned into plain data when frozen, which also fixes an issue when undoing/redoing changes to frozen objects.

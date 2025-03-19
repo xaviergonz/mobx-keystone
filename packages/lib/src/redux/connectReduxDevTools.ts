@@ -80,8 +80,11 @@ export function connectReduxDevTools(
         case "COMMIT":
           return remotedev2.init(getSnapshot(target2))
 
-        case "ROLLBACK":
-          return remotedev2.init(remotedevPackage.extractState(message))
+        case "ROLLBACK": {
+          const state = remotedevPackage.extractState(message)
+          applySnapshot(target2, state)
+          return remotedev2.init(state)
+        }
 
         case "JUMP_TO_STATE":
         case "JUMP_TO_ACTION": {
