@@ -1,5 +1,7 @@
 # Change Log
 
+## 1.11.4
+
 - Fix: redux devtools revert was not working correctly.
 
 ## 1.11.3
