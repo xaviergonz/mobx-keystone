@@ -2,8 +2,8 @@
  * Creates a tag data accessor for a target object of a certain type.
  * Tag data will be lazy created on access and reused for the same target object.
  *
- * @typeparam Target Target type.
- * @typeparam TagData Tag data type.
+ * @template Target Target type.
+ * @template TagData Tag data type.
  * @param tagDataConstructor Function that will be called the first time the tag
  * for a given object is requested.
  * @returns The tag data associated with the target object.

@@ -112,7 +112,7 @@ export type ModelToSnapshot<M extends ModelWithProps & { [toSnapshotOverrideType
  * Tricks TypeScript into accepting a particular kind of generic class as a parameter for `ExtendedModel`.
  * Does nothing in runtime.
  *
- * @typeparam T Generic model class type.
+ * @template T Generic model class type.
  * @param type Generic model class.
  * @returns
  */

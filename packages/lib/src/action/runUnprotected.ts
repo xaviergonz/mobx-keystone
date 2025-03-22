@@ -6,7 +6,7 @@ import { getActionProtection, setActionProtection } from "./protection"
  * Runs a block in unprocted mode, as if it were run inside a model action.
  * Consider using a proper model action instead since these kind of actions are not recorded.
  *
- * @typeparam T Return type.
+ * @template T Return type.
  * @param name Mobx action name.
  * @param fn Action block.
  * @returns
@@ -17,7 +17,7 @@ export function runUnprotected<T>(name: string, fn: () => T): T
  * Runs a block in unprocted mode, as if it were run inside a model action.
  * Consider using a proper model action instead since these kind of actions are not recorded.
  *
- * @typeparam T Return type.
+ * @template T Return type.
  * @param fn Action block.
  * @returns
  */

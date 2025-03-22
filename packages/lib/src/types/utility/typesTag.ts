@@ -28,9 +28,9 @@ import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChec
  * const propTypeInfo = modelTypeInfo.props.width.typeInfo as TagTypeInfo
  * const displayName = propTypeInfo.displayName
  * ```
- * @typeparam T Base type.
+ * @template T Base type.
  * @param baseType Base type.
- * @typeparam A Tag object.
+ * @template A Tag object.
  * @param tag Abitrary object that can be queried at runtime.
  * @returns
  */

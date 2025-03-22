@@ -14,7 +14,7 @@ import type { Path, PathElement, WritablePath } from "./pathTypes"
 /**
  * Path from an object to its immediate parent.
  *
- * @typeparam T Parent object type.
+ * @template T Parent object type.
  */
 export interface ParentPath<T extends object> {
   /**
@@ -30,7 +30,7 @@ export interface ParentPath<T extends object> {
 /**
  * Path from an object to its root.
  *
- * @typeparam T Root object type.
+ * @template T Root object type.
  */
 export interface RootPath<T extends object> {
   /**
@@ -53,7 +53,7 @@ export interface RootPath<T extends object> {
 /**
  * Returns the parent of the target plus the path from the parent to the target, or undefined if it has no parent.
  *
- * @typeparam T Parent object type.
+ * @template T Parent object type.
  * @param value Target object.
  * @returns
  */
@@ -98,7 +98,7 @@ export function fastGetParentPathIncludingDataObjects<T extends object = any>(
 /**
  * Returns the parent object of the target object, or undefined if there's no parent.
  *
- * @typeparam T Parent object type.
+ * @template T Parent object type.
  * @param value Target object.
  * @returns
  */
@@ -150,7 +150,7 @@ export function fastIsModelDataObject(value: object): boolean {
 /**
  * Returns the root of the target plus the path from the root to get to the target.
  *
- * @typeparam T Root object type.
+ * @template T Root object type.
  * @param value Target object.
  * @returns
  */
@@ -184,7 +184,7 @@ export function fastGetRootPath<T extends object = any>(
 /**
  * Returns the root of the target object, or itself if the target is a root.
  *
- * @typeparam T Root object type.
+ * @template T Root object type.
  * @param value Target object.
  * @returns
  */
@@ -225,7 +225,7 @@ const unresolved = { resolved: false } as const
 /**
  * Tries to resolve a path from an object.
  *
- * @typeparam T Returned value type.
+ * @template T Returned value type.
  * @param pathRootObject Object that serves as path root.
  * @param path Path as an string or number array.
  * @returns An object with `{ resolved: true, value: T }` or `{ resolved: false }`.
@@ -285,7 +285,7 @@ export const skipIdChecking = Symbol("skipIdChecking")
  *
  * Tries to resolve a path from an object while checking ids.
  *
- * @typeparam T Returned value type.
+ * @template T Returned value type.
  * @param pathRootObject Object that serves as path root.
  * @param path Path as an string or number array.
  * @param pathIds An array of ids of the models that must be checked, null if not a model or `skipIdChecking` to skip it.

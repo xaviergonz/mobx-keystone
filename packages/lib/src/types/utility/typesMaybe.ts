@@ -11,7 +11,7 @@ import { typesOr } from "./typesOr"
  * const numberOrUndefinedType = types.maybe(types.number)
  * ```
  *
- * @typeparam T Type.
+ * @template T Type.
  * @param baseType Type.
  * @returns
  */
@@ -28,7 +28,7 @@ export function typesMaybe<T extends AnyType>(baseType: T): T | IdentityType<und
  * const numberOrNullType = types.maybeNull(types.number)
  * ```
  *
- * @typeparam T Type.
+ * @template T Type.
  * @param type Type.
  * @returns
  */

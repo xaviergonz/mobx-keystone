@@ -24,7 +24,7 @@ import { typesObject } from "./typesObject"
  * const numberSetType = types.arraySet(types.number)
  * ```
  *
- * @typeparam T Value type.
+ * @template T Value type.
  * @param valueType Value type.
  * @returns
  */
@@ -102,7 +102,10 @@ export class ArraySetTypeInfo extends TypeInfo {
     return getTypeInfo(this.valueType)
   }
 
-  constructor(originalType: AnyStandardType, readonly valueType: AnyStandardType) {
+  constructor(
+    originalType: AnyStandardType,
+    readonly valueType: AnyStandardType
+  ) {
     super(originalType)
   }
 }

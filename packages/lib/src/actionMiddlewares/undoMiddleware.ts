@@ -433,7 +433,7 @@ export class UndoManager {
   /**
    * Skips the undo recording mechanism for the code block that gets run synchronously inside.
    *
-   * @typeparam T Code block return type.
+   * @template T Code block return type.
    * @param fn Code block to run.
    * @returns The value returned by the code block.
    */
@@ -782,7 +782,7 @@ export function isGlobalUndoRecordingDisabled() {
  * Globally skips the undo recording mechanism for the code block that gets run synchronously inside.
  * Consider using the `withoutUndo` method of a particular `UndoManager` instead.
  *
- * @typeparam T Code block return type.
+ * @template T Code block return type.
  * @param fn Code block to run.
  * @returns The value returned by the code block.
  */

@@ -37,7 +37,7 @@ export interface RootRefOptions<T extends object> {
  * A root ref will only be able to resolve references as long as both the Ref
  * and the referenced object share a common root.
  *
- * @typeparam T Target object type.
+ * @template T Target object type.
  * @param modelTypeId Unique model type id.
  * @param [options] Root reference options.
  * @returns A function that allows you to construct that type of root reference.

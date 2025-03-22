@@ -82,7 +82,7 @@ export interface ModelProp<
   /**
    * Sets a transform for the property instance value.
    *
-   * @typeparam TTV Transformed value type.
+   * @template TTV Transformed value type.
    * @param transform Transform to be used.
    * @returns
    */
@@ -362,7 +362,7 @@ const baseProp: AnyModelProp = {
  * x: prop<number[]>(() => []) // an optional number array, with a default empty array
  * ```
  *
- * @typeparam TValue Value type.
+ * @template TValue Value type.
  * @param defaultFn Default value generator function.
  * @returns
  */
@@ -379,7 +379,7 @@ export function prop<TValue>(defaultFn: () => TValue): OptionalModelProp<TValue>
  * x: prop(10) // an optional number, with a default value of 10
  * ```
  *
- * @typeparam TValue Value type.
+ * @template TValue Value type.
  * @param defaultValue Default primitive value.
  * @returns
  */
@@ -394,7 +394,7 @@ export function prop<TValue>(defaultValue: OnlyPrimitives<TValue>): OptionalMode
  * x: prop<number | undefined>() // an optional number, which defaults to undefined
  * ```
  *
- * @typeparam TValue Value type.
+ * @template TValue Value type.
  * @returns
  */
 export function prop<TValue>(): MaybeOptionalModelProp<TValue>

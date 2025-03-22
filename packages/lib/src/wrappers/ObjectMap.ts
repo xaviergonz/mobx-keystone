@@ -103,7 +103,7 @@ export class ObjectMap<V>
 /**
  * Creates a new ObjectMap model instance.
  *
- * @typeparam V Value type.
+ * @template V Value type.
  * @param [entries] Optional initial values.
  */
 export function objectMap<V>(entries?: ReadonlyArray<readonly [string, V]> | null): ObjectMap<V> {

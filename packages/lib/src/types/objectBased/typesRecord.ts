@@ -20,7 +20,7 @@ import { TypeCheckError } from "../TypeCheckError"
  * const numberMapType = types.record(types.number)
  * ```
  *
- * @typeparam T Type.
+ * @template T Type.
  * @param valueType Type of the values of the object-like map.
  * @returns
  */

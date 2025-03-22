@@ -25,7 +25,7 @@ const unchecked: IdentityType<any> = new TypeChecker(
  * const customUncheckedType = types.unchecked<(A & B) | C>()
  * ```
  *
- * @typeparam T Type of the value, or unkown if not given.
+ * @template T Type of the value, or unkown if not given.
  * @returns
  */
 export function typesUnchecked<T = never>(): IdentityType<T> {

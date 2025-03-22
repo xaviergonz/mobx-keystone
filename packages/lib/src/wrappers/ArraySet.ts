@@ -131,8 +131,8 @@ export class ArraySet<V>
 /**
  * Creates a new ArraySet model instance.
  *
- * @typeparam V Value type.
- * @param [entries] Optional initial values.
+ * @template V Value type.
+ * @param [values] Optional initial values.
  */
 export function arraySet<V>(values?: ReadonlyArray<V> | null): ArraySet<V> {
   const initialArr: V[] = values ? values.slice() : []

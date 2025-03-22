@@ -41,7 +41,7 @@ export interface CustomRefOptions<T extends object> {
 /**
  * Creates a custom ref to an object, which in its snapshot form has an id.
  *
- * @typeparam T Target object type.
+ * @template T Target object type.
  * @param modelTypeId Unique model type id.
  * @param options Custom reference options.
  * @returns A function that allows you to construct that type of custom reference.

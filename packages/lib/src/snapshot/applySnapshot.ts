@@ -27,7 +27,7 @@ import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param node Target object (model object, object or array).
  * @param snapshot Snapshot to apply.
  */

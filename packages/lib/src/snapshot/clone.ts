@@ -15,7 +15,7 @@ export interface CloneOptions {
 /**
  * Clones an object by doing a `fromSnapshot(getSnapshot(value), { generateNewIds: true })`.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param node Object to clone.
  * @param [options] Options.
  * @returns The cloned object.

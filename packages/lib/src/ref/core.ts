@@ -160,7 +160,7 @@ const computedIdTrees = new WeakMap<
 /**
  * Resolves a node given its ID.
  *
- * @typeparam T Target object type.
+ * @template T Target object type.
  * @param root Node where to start the search. The search will be done on it and all its children.
  * @param id ID to search for.
  * @param getId Function that will be used to get the ID from an object (`getModelRefId` by default).
@@ -208,7 +208,7 @@ function getBackRefs<T extends object>(
 /**
  * Gets all references that resolve to a given object.
  *
- * @typeparam T Referenced object type.
+ * @template T Referenced object type.
  * @param target Node the references point to.
  * @param refType Pass it to filter by only references of a given type, or omit / pass `undefined` to get references of any type.
  * @param options Options.

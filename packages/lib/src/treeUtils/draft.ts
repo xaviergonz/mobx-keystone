@@ -14,7 +14,7 @@ import { deepEquals } from "./deepEquals"
  * A class with the implementationm of draft.
  * Use `draft` to create an instance of this class.
  *
- * @typeparam T Data type.
+ * @template T Data type.
  */
 export class Draft<T extends object> {
   /**
@@ -157,7 +157,7 @@ export class Draft<T extends object> {
 /**
  * Creates a draft copy of a tree node and all its children.
  *
- * @typeparam T Data type.
+ * @template T Data type.
  * @param original Original node.
  * @returns The draft object.
  */

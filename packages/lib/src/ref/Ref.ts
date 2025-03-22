@@ -76,7 +76,7 @@ export interface RefConstructor<T extends object> {
 /**
  * Checks if a ref object is of a given ref type.
  *
- * @typeparam T Referenced object type.
+ * @template T Referenced object type.
  * @param ref Reference object.
  * @param refType Reference type.
  * @returns `true` if it is of the given type, false otherwise.

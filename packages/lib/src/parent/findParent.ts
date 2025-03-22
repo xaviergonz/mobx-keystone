@@ -8,7 +8,7 @@ import type { Path, WritablePath } from "./pathTypes"
  * If the predicate is matched it will return the found node.
  * If none is found it will return undefined.
  *
- * @typeparam T Parent object type.
+ * @template T Parent object type.
  * @param child Target object.
  * @param predicate Function that will be run for every parent of the target object, from immediate parent to the root.
  * @param maxDepth Max depth, or 0 for infinite.
@@ -45,7 +45,7 @@ export interface FoundParentPath<T extends object> {
  * path to get from the parent to the child.
  * If none is found it will return undefined.
  *
- * @typeparam T Parent object type.
+ * @template T Parent object type.
  * @param child Target object.
  * @param predicate Function that will be run for every parent of the target object, from immediate parent to the root.
  * @param maxDepth Max depth, or 0 for infinite.

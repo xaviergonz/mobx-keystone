@@ -19,8 +19,8 @@ import { TypeCheckError } from "../TypeCheckError"
  * const stringNumberTupleType = types.tuple(types.string, types.number)
  * ```
  *
- * @typeparam T Item types.
- * @param itemType Type of inner items.
+ * @template T Item types.
+ * @param itemTypes Type of inner items.
  * @returns
  */
 export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
@@ -104,7 +104,10 @@ export class TupleTypeInfo extends TypeInfo {
     return this._itemTypeInfos()
   }
 
-  constructor(thisType: AnyStandardType, readonly itemTypes: ReadonlyArray<AnyStandardType>) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly itemTypes: ReadonlyArray<AnyStandardType>
+  ) {
     super(thisType)
   }
 }

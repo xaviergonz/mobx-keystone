@@ -73,7 +73,6 @@ export function tProp(defaultValue: number): OptionalModelProp<number>
  * ```
  *
  * @param defaultValue Default value.
- * @param options Model property options.
  * @returns
  */
 export function tProp(defaultValue: boolean): OptionalModelProp<boolean>
@@ -88,7 +87,7 @@ export function tProp(defaultValue: boolean): OptionalModelProp<boolean>
  * x: tProp(types.array(types.number), () => []) // an optional number array, with a default empty array
  * ```
  *
- * @typeparam TType Type checker type.
+ * @template TType Type checker type.
  *
  * @param type Type checker.
  * @param defaultFn Default value generator function.
@@ -110,7 +109,7 @@ export function tProp<TType extends AnyType>(
  * x: tProp(types.number, 10) // an optional number, with a default value of 10
  * ```
  *
- * @typeparam TType Type checker type.
+ * @template TType Type checker type.
  *
  * @param type Type checker.
  * @param defaultValue Default value generator function.
@@ -130,7 +129,7 @@ export function tProp<TType extends AnyType>(
  * x: tProp(types.maybe(types.number)) // an optional number, which defaults to undefined
  * ```
  *
- * @typeparam TType Type checker type.
+ * @template TType Type checker type.
  *
  * @param type Type checker.
  * @returns

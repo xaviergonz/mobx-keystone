@@ -25,7 +25,7 @@ export const frozenKey = "$frozen"
  * A class that contains frozen data.
  * Use `frozen` to create an instance of this class.
  *
- * @typeparam T Data type.
+ * @template T Data type.
  */
 export class Frozen<T> {
   /**

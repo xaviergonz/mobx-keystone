@@ -151,8 +151,8 @@ export class SandboxManager {
    * Executes `fn` with sandbox copies of the elements of `nodes`. The changes made to the sandbox
    * in `fn` can be accepted, i.e. applied to the original subtree, or rejected.
    *
-   * @typeparam T Object type.
-   * @typeparam R Return type.
+   * @template T Object type.
+   * @template R Return type.
    * @param nodes Tuple of objects for which to obtain sandbox copies.
    * @param fn Function that is called with sandbox copies of the elements of `nodes`. Any changes
    * made to the sandbox are applied to the original subtree when `fn` returns `true` or

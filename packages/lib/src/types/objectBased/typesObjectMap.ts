@@ -24,7 +24,7 @@ import { typesRecord } from "./typesRecord"
  * const numberMapType = types.objectMap(types.number)
  * ```
  *
- * @typeparam T Value type.
+ * @template T Value type.
  * @param valueType Value type.
  * @returns
  */
@@ -115,7 +115,10 @@ export class ObjectMapTypeInfo extends TypeInfo {
     return getTypeInfo(this.valueType)
   }
 
-  constructor(thisType: AnyStandardType, readonly valueType: AnyStandardType) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly valueType: AnyStandardType
+  ) {
     super(thisType)
   }
 }

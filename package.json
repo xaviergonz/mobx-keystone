@@ -23,15 +23,15 @@
     "apps/*"
   ],
   "dependencies": {
-    "mobx": "^6.13.6",
-    "yjs": "^13.6.23"
+    "mobx": "^6.13.7",
+    "yjs": "^13.6.24"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "globals": "^15.14.0",
-    "netlify-cli": "^18.0.4",
-    "turbo": "^2.4.0",
-    "typescript": "^5.7.3"
+    "globals": "^16.0.0",
+    "netlify-cli": "^19.0.3",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2"
   },
   "packageManager": "yarn@4.5.1"
 }

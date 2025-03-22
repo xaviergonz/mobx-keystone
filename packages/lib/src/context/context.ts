@@ -63,7 +63,7 @@ export interface Context<T> {
    * Applies a value override while the given function is running and, if a node is returned,
    * sets the node as a provider of the value.
    *
-   * @typeparam R
+   * @template R
    * @param fn Function to run.
    * @param value Value to apply.
    * @returns The value returned from the function.
@@ -74,9 +74,9 @@ export interface Context<T> {
    * Applies a computed value override while the given function is running and, if a node is returned,
    * sets the node as a provider of the computed value.
    *
-   * @typeparam R
+   * @template R
    * @param fn Function to run.
-   * @param value Value to apply.
+   * @param valueFn Function that returns the value to apply.
    * @returns The value returned from the function.
    */
   applyComputed<R>(fn: () => R, valueFn: () => T): R
@@ -264,7 +264,7 @@ class ContextClass<T> implements Context<T> {
 /**
  * Creates a new context with no default value, thus making its default value undefined.
  *
- * @typeparam T Context value type.
+ * @template T Context value type.
  * @returns
  */
 export function createContext<T>(): Context<T | undefined>
@@ -272,7 +272,7 @@ export function createContext<T>(): Context<T | undefined>
 /**
  * Creates a new context with a default value.
  *
- * @typeparam T Context value type.
+ * @template T Context value type.
  * @param defaultValue
  * @returns
  */

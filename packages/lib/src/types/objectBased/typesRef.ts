@@ -17,7 +17,7 @@ import { typesObject } from "./typesObject"
  * const refToSomeObject = types.ref(SomeObject)
  * ```
  *
- * @typeparam O Object or model type.
+ * @template O Object or model type.
  * @param refConstructor Ref object type.
  * @returns
  */

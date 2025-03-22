@@ -48,7 +48,7 @@ export interface FromSnapshotContext {
 /**
  * Given a type deserializes a data structure from its snapshot form.
  *
- * @typeparam TType Object type.
+ * @template TType Object type.
  * @param type Type.
  * @param snapshot Snapshot, even if a primitive.
  * @param options Options.
@@ -65,7 +65,7 @@ export function fromSnapshot<
 /**
  * Deserializes a data structure from its snapshot form.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param snapshot Snapshot, even if a primitive.
  * @param options Options.
  * @returns The deserialized object.

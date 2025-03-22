@@ -52,7 +52,7 @@ export type ReduxMiddleware<T> = (store: ReduxStore<T>) => ReduxRunner<T>
 /**
  * Generates a redux compatible store out of a mobx-keystone object.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param target Root object.
  * @param middlewares Optional list of redux middlewares.
  * @returns A redux compatible store.

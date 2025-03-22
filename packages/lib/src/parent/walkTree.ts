@@ -21,7 +21,7 @@ export enum WalkTreeMode {
  * If the predicate function returns something other than undefined,
  * then the walk will be stopped and the function will return the returned value.
  *
- * @typeparam T Returned object type, defaults to void.
+ * @template T Returned object type, defaults to void.
  * @param root Subtree root object.
  * @param visit Function that will be run for each node of the tree.
  * @param mode Mode to walk the tree, as defined in `WalkTreeMode`.

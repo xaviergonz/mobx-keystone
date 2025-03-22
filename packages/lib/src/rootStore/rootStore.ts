@@ -24,7 +24,7 @@ const getOrCreateRootStoreEntry = (node: object) =>
  *   These hooks can be used for example to attach effects and serve as some sort of initialization.
  * - It allows auto detachable references to work properly.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param node Node object to register as root store.
  * @returns The same model object that was passed.
  */
@@ -97,7 +97,7 @@ export function fastIsRootStoreNoAtom(node: object): boolean {
 /**
  * Gets the root store of a given tree child, or undefined if none.
  *
- * @typeparam T Root store type.
+ * @template T Root store type.
  * @param node Target to find the root store for.
  * @returns
  */

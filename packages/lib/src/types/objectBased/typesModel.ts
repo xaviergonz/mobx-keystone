@@ -35,7 +35,7 @@ type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
  * const someModelType = types.model<SomeModel>(() => SomeModel)
  * ```
  *
- * @typeparam M Model type.
+ * @template M Model type.
  * @param modelClass Model class.
  * @returns
  */

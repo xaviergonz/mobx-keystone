@@ -19,7 +19,7 @@ import { TypeCheckError } from "../TypeCheckError"
  * const numberArrayType = types.array(types.number)
  * ```
  *
- * @typeparam T Item type.
+ * @template T Item type.
  * @param itemType Type of inner items.
  * @returns
  */
@@ -100,7 +100,10 @@ export class ArrayTypeInfo extends TypeInfo {
     return getTypeInfo(this.itemType)
   }
 
-  constructor(thisType: AnyStandardType, readonly itemType: AnyStandardType) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly itemType: AnyStandardType
+  ) {
     super(thisType)
   }
 }

@@ -16,7 +16,7 @@ const standardTypeResolvers: StandardTypeResolverFn[] = []
  * const number5Type = types.literal(5) // the number with value 5
  * ```
  *
- * @typeparam T Literal value type.
+ * @template T Literal value type.
  * @param literal Literal value.
  * @returns
  */
@@ -58,7 +58,10 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
  * `types.literal` type info.
  */
 export class LiteralTypeInfo extends TypeInfo {
-  constructor(thisType: AnyStandardType, readonly literal: PrimitiveValue) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly literal: PrimitiveValue
+  ) {
     super(thisType)
   }
 }

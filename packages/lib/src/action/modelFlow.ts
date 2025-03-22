@@ -215,8 +215,8 @@ export function modelFlow(...args: any[]): void {
  * Tricks the TS compiler into thinking that a model flow generator function can be awaited
  * (is a promise).
  *
- * @typeparam A Function arguments.
- * @typeparam R Return value.
+ * @template A Function arguments.
+ * @template R Return value.
  * @param fn Flow function.
  * @returns
  */
@@ -229,7 +229,7 @@ export function _async<A extends any[], R>(
 /**
  * Makes a promise a flow, so it can be awaited with yield*.
  *
- * @typeparam T Promise return type.
+ * @template T Promise return type.
  * @param promise Promise.
  * @returns
  */

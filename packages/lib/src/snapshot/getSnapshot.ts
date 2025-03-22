@@ -14,7 +14,7 @@ import type { SnapshotOutOf } from "./SnapshotOf"
  * Since returned snapshots are immutable they will respect shallow equality, this is,
  * if no changes are made then the snapshot will be kept the same.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param nodeOrPrimitive Data structure, including primtives.
  * @returns The snapshot.
  */
@@ -28,7 +28,7 @@ export function getSnapshot<T extends AnyType>(
  * Since returned snapshots are immutable they will respect shallow equality, this is,
  * if no changes are made then the snapshot will be kept the same.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param nodeOrPrimitive Data structure, including primtives.
  * @returns The snapshot.
  */

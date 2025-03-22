@@ -16,7 +16,7 @@ import {
  * Creates a transaction middleware, which reverts changes made by an action / child
  * actions when the root action throws an exception by applying inverse patches.
  *
- * @typeparam M Model
+ * @template M Model
  * @param target Object with the root target model object (`model`) and root action name (`actionName`).
  * @returns The middleware disposer.
  */

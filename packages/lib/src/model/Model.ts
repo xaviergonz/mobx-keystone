@@ -61,8 +61,8 @@ export type ExtractModelIdProp<TProps extends ModelProps> = {
 /**
  * Base abstract class for models that extends another model.
  *
- * @typeparam TProps New model properties type.
- * @typeparam TModelClass Model class type.
+ * @template TProps New model properties type.
+ * @template TModelClass Model class type.
  * @param genFn Function that returns the base model and model properties.
  * @param modelOptions Model options.
  * @returns
@@ -84,8 +84,8 @@ export function ExtendedModel<
 /**
  * Base abstract class for models that extends another model.
  *
- * @typeparam TProps New model properties type.
- * @typeparam TModelClass Model class type.
+ * @template TProps New model properties type.
+ * @template TModelClass Model class type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @param modelOptions Model options.
@@ -139,7 +139,7 @@ export function ExtendedModel<
  *
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
- * @typeparam TProps Model properties type.
+ * @template TProps Model properties type.
  * @param fnModelProps Function that generates model properties.
  * @param modelOptions Model options.
  */
@@ -158,7 +158,7 @@ export function Model<
  *
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
- * @typeparam TProps Model properties type.
+ * @template TProps Model properties type.
  * @param modelProps Model properties.
  * @param modelOptions Model options.
  */

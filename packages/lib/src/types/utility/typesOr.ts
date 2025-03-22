@@ -22,7 +22,7 @@ import { typesUnchecked } from "./typesUnchecked"
  * Accepts a dispatcher that, given a snapshot, returns the type
  * that snapshot is.
  *
- * @typeparam T Type.
+ * @template T Type.
  * @param dispatcher Function that given a snapshot returns the type.
  * @param orTypes Possible types.
  * @returns
@@ -40,7 +40,7 @@ export function typesOr<T extends AnyType[]>(
  * const booleanOrNumberType = types.or(types.boolean, types.number)
  * ```
  *
- * @typeparam T Type.
+ * @template T Type.
  * @param orTypes Possible types.
  * @returns
  */
@@ -180,7 +180,10 @@ export class OrTypeInfo extends TypeInfo {
     return this._orTypeInfos()
   }
 
-  constructor(thisType: AnyStandardType, readonly orTypes: ReadonlyArray<AnyStandardType>) {
+  constructor(
+    thisType: AnyStandardType,
+    readonly orTypes: ReadonlyArray<AnyStandardType>
+  ) {
     super(thisType)
   }
 }

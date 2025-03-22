@@ -28,7 +28,7 @@ import { TypeCheckError } from "../TypeCheckError"
  * })
  * ```
  *
- * @typeparam T Base type.
+ * @template T Base type.
  * @param baseType Base type.
  * @param checkFn Function that will receive the data (if it passes the base type
  * check) and return null or false if there were no errors or either a TypeCheckError instance or

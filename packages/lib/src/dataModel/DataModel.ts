@@ -33,8 +33,8 @@ export interface _DataModel<SuperModel, TProps extends ModelProps> {
 /**
  * Base abstract class for data models that extends another model.
  *
- * @typeparam TProps New model properties type.
- * @typeparam TModel Model type.
+ * @template TProps New model properties type.
+ * @template TModel Model type.
  * @param genFn Function that returns the base model and model properties.
  * @returns
  */
@@ -52,8 +52,8 @@ export function ExtendedDataModel<
 /**
  * Base abstract class for data models that extends another model.
  *
- * @typeparam TProps New model properties type.
- * @typeparam TModel Model type.
+ * @template TProps New model properties type.
+ * @template TModel Model type.
  * @param baseModel Base model type.
  * @param modelProps Model properties.
  * @returns
@@ -89,7 +89,7 @@ export function ExtendedDataModel<TProps extends ModelProps, TModel extends AnyD
  *
  * Never override the constructor, use `onLazyInit` or `onLazyAttachedToRootStore` instead.
  *
- * @typeparam TProps Model properties type.
+ * @template TProps Model properties type.
  * @param fnModelProps Function that generates model properties.
  */
 export function DataModel<TProps extends ModelProps, A extends []>(
@@ -101,7 +101,7 @@ export function DataModel<TProps extends ModelProps, A extends []>(
  *
  * Never override the constructor, use `onLazyInit` or `onLazyAttachedToRootStore` instead.
  *
- * @typeparam TProps Model properties type.
+ * @template TProps Model properties type.
  * @param modelProps Model properties.
  */
 export function DataModel<TProps extends ModelProps>(

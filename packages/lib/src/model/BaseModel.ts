@@ -42,9 +42,9 @@ export type ModelIdPropertyType<TProps extends ModelProps, ModelIdPropertyName e
  *
  * Never override the constructor, use `onInit` or `onAttachedToRootStore` instead.
  *
- * @typeparam Data Data type.
- * @typeparam CreationData Creation data type.
- * @typeparam ModelIdPropertyName Model id property name.
+ * @template Data Data type.
+ * @template CreationData Creation data type.
+ * @template ModelIdPropertyName Model id property name.
  */
 export abstract class BaseModel<
   TProps extends ModelProps,
@@ -201,7 +201,7 @@ export interface AnyModel extends BaseModel<any, any, any, any> {}
  * Tricks TypeScript into accepting abstract classes as a parameter for `ExtendedModel`.
  * Does nothing in runtime.
  *
- * @typeparam T Abstract model class type.
+ * @template T Abstract model class type.
  * @param type Abstract model class.
  * @returns
  */
@@ -218,7 +218,7 @@ export type ModelIdPropertyName<M extends AnyModel> = M[typeof modelIdPropertyNa
  * Add missing model metadata to a model creation snapshot to generate a proper model snapshot.
  * Usually used alongside `fromSnapshot`.
  *
- * @typeparam M Model type.
+ * @template M Model type.
  * @param modelClass Model class.
  * @param snapshot Model creation snapshot without metadata.
  * @returns The model snapshot (including metadata).
@@ -242,7 +242,7 @@ export function modelSnapshotInWithMetadata<M extends AnyModel>(
  * Add missing model metadata to a model output snapshot to generate a proper model snapshot.
  * Usually used alongside `applySnapshot`.
  *
- * @typeparam M Model type.
+ * @template M Model type.
  * @param modelClass Model class.
  * @param snapshot Model output snapshot without metadata.
  * @returns The model snapshot (including metadata).

@@ -26,7 +26,7 @@ const dataModelInstanceCache = new WeakMap<ModelClass<AnyDataModel>, WeakMap<any
  *
  * Never override the constructor, use `onLazyInit` instead.
  *
- * @typeparam Data Props data type.
+ * @template Data Props data type.
  */
 export abstract class BaseDataModel<TProps extends ModelProps> {
   // just to make typing work properly

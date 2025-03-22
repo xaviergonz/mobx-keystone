@@ -16,7 +16,7 @@ export type OnSnapshotDisposer = () => void
 /**
  * Adds a reaction that will trigger every time an snapshot changes.
  *
- * @typeparam T Object type.
+ * @template T Object type.
  * @param nodeOrFn Object to get the snapshot from or a function to get it.
  * @param listener Function that will be triggered when the snapshot changes.
  * @returns A disposer.

@@ -134,7 +134,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
  * }))
  * ```
  *
- * @typeparam T Type.
+ * @template T Type.
  * @param objectFunction Function that generates an object with types.
  * @returns
  */
@@ -194,7 +194,7 @@ export class ObjectTypeInfo extends TypeInfo {
  * const frozenUncheckedNumberArrayType = types.frozen(types.unchecked<number[]>())
  * ```
  *
- * @typeparam T Type.
+ * @template T Type.
  * @param dataType Type of the frozen data.
  * @returns
  */
