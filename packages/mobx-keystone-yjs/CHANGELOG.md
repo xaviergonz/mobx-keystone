@@ -1,5 +1,7 @@
 # Change Log
 
+- `applyJsonArrayToYArray` / `applyJsonObjectToYMap` are no longer wrapped in mobx actions in case they want to track the original values.
+
 ## 1.5.4
 
 - Fixed some more types.

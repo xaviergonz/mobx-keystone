@@ -3,7 +3,6 @@ import { YjsTextModel, yjsTextModelId } from "./YjsTextModel"
 import { SnapshotOutOf } from "mobx-keystone"
 import { YjsData } from "./convertYjsDataToJson"
 import { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
-import { action, runInAction } from "mobx"
 
 function isPlainPrimitive(v: PlainValue): v is PlainPrimitive {
   const t = typeof v
@@ -24,53 +23,51 @@ function isPlainObject(v: PlainValue): v is PlainObject {
  * Frozen values are a special case and they are kept as immutable plain values.
  */
 export function convertJsonToYjsData(v: PlainValue): YjsData {
-  return runInAction(() => {
-    if (isPlainPrimitive(v)) {
+  if (isPlainPrimitive(v)) {
+    return v
+  }
+
+  if (isPlainArray(v)) {
+    const arr = new Y.Array()
+    applyJsonArrayToYArray(arr, v)
+    return arr
+  }
+
+  if (isPlainObject(v)) {
+    if (v.$frozen === true) {
+      // frozen value, save as immutable object
       return v
     }
 
-    if (isPlainArray(v)) {
-      const arr = new Y.Array()
-      applyJsonArrayToYArray(arr, v)
-      return arr
+    if (v.$modelType === yjsTextModelId) {
+      const text = new Y.Text()
+      const yjsTextModel = v as unknown as SnapshotOutOf<YjsTextModel>
+      yjsTextModel.deltaList.forEach((frozenDeltas) => {
+        text.applyDelta(frozenDeltas.data)
+      })
+      return text
     }
 
-    if (isPlainObject(v)) {
-      if (v.$frozen === true) {
-        // frozen value, save as immutable object
-        return v
-      }
+    const map = new Y.Map()
+    applyJsonObjectToYMap(map, v)
+    return map
+  }
 
-      if (v.$modelType === yjsTextModelId) {
-        const text = new Y.Text()
-        const yjsTextModel = v as unknown as SnapshotOutOf<YjsTextModel>
-        yjsTextModel.deltaList.forEach((frozenDeltas) => {
-          text.applyDelta(frozenDeltas.data)
-        })
-        return text
-      }
-
-      const map = new Y.Map()
-      applyJsonObjectToYMap(map, v)
-      return map
-    }
-
-    throw new Error(`unsupported value type: ${v}`)
-  })
+  throw new Error(`unsupported value type: ${v}`)
 }
 
 /**
  * Applies a JSON array to a Y.Array, using the convertJsonToYjsData to convert the values.
  */
-export const applyJsonArrayToYArray = action((dest: Y.Array<any>, source: PlainArray) => {
+export const applyJsonArrayToYArray = (dest: Y.Array<any>, source: PlainArray) => {
   dest.push(source.map(convertJsonToYjsData))
-})
+}
 
 /**
  * Applies a JSON object to a Y.Map, using the convertJsonToYjsData to convert the values.
  */
-export const applyJsonObjectToYMap = action((dest: Y.Map<any>, source: PlainObject) => {
+export const applyJsonObjectToYMap = (dest: Y.Map<any>, source: PlainObject) => {
   Object.entries(source).forEach(([k, v]) => {
     dest.set(k, convertJsonToYjsData(v))
   })
-})
+}
