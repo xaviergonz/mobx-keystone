@@ -24,14 +24,14 @@
   ],
   "dependencies": {
     "mobx": "^6.13.7",
-    "yjs": "^13.6.24"
+    "yjs": "^13.6.26"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "globals": "^16.0.0",
-    "netlify-cli": "^19.0.3",
-    "turbo": "^2.4.4",
-    "typescript": "^5.8.2"
+    "netlify-cli": "^20.1.1",
+    "turbo": "^2.5.2",
+    "typescript": "^5.8.3"
   },
-  "packageManager": "yarn@4.5.1"
+  "packageManager": "yarn@4.9.1"
 }
