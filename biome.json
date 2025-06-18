@@ -1,18 +1,20 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true, "defaultBranch": "master" },
   "files": {
-    "ignore": [
-      "**/node_modules/",
-      "**/dist/",
-      "./packages/lib/coverage/",
-      "./packages/lib/api-docs/",
-      "./apps/site/.docusaurus/",
-      "./apps/site/build/",
-      "./apps/site/copy-to-build/",
-      "./apps/site/static/api/",
-      "**/.yarn/",
-      "**/.pnp.*"
+    "includes": [
+      "**",
+      "!**/node_modules/**",
+      "!**/dist/**",
+      "!packages/lib/coverage/**",
+      "!packages/lib/api-docs/**",
+      "!apps/site/.docusaurus/**",
+      "!apps/site/build/**",
+      "!apps/site/copy-to-build/**",
+      "!apps/site/static/api/**",
+      "!apps/site/docs/examples/**",
+      "!**/.yarn/**",
+      "!**/.pnp.*"
     ]
   },
   "formatter": {
@@ -23,36 +25,32 @@
     "lineEnding": "lf",
     "lineWidth": 100
   },
-  "organizeImports": { "enabled": true },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
-      "a11y": { "all": true, "useKeyWithClickEvents": "off" },
+      "a11y": { "useKeyWithClickEvents": "off" },
       "complexity": {
-        "all": true,
         "noBannedTypes": "off",
         "noExcessiveCognitiveComplexity": "off",
         "noForEach": "off",
         "noUselessThisAlias": "off",
-        "noVoid": "off"
+        "noVoid": "off",
+        "noArguments": "off"
       },
       "correctness": {
-        "all": true,
         "noUndeclaredDependencies": "off",
         "useImportExtensions": "off"
       },
       "performance": {
-        "all": true,
         "noBarrelFile": "off",
-        "noReExportAll": "off"
+        "noReExportAll": "off",
+        "noNamespaceImport": "off"
       },
-      "security": { "all": true },
+      "security": {},
       "style": {
-        "all": true,
-        "noArguments": "off",
         "noDefaultExport": "off",
-        "noNamespaceImport": "off",
         "noNonNullAssertion": "off",
         "noParameterAssign": "off",
         "noParameterProperties": "off",
@@ -63,11 +61,16 @@
         "useForOf": "off",
         "useImportType": "off",
         "useNamingConvention": "off",
-        "useShorthandArrayType": "off",
-        "useTemplate": "off"
+        "useTemplate": "off",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error"
       },
       "suspicious": {
-        "all": true,
         "noArrayIndexKey": "off",
         "noAssignInExpressions": "off",
         "noConfusingVoidType": "off",
@@ -79,16 +82,16 @@
         "noReactSpecificProps": "off"
       }
     },
-    "ignore": ["packages/lib/src/action/modelFlowPromiseGenerator.ts"],
-    "include": [
-      "apps/site/src/**/*.ts",
-      "apps/site/src/**/*.tsx",
-      "apps/site/docs/**/*.ts",
-      "apps/site/docs/**/*.tsx",
-      "packages/lib/src/**/*.ts",
-      "packages/lib/test/**/*.ts",
-      "packages/mobx-keystone-yjs/src/**/*.ts",
-      "packages/mobx-keystone-yjs/test/**/*.ts"
+    "includes": [
+      "**/apps/site/src/**/*.ts",
+      "**/apps/site/src/**/*.tsx",
+      "**/apps/site/docs/**/*.ts",
+      "**/apps/site/docs/**/*.tsx",
+      "**/packages/lib/src/**/*.ts",
+      "**/packages/lib/test/**/*.ts",
+      "**/packages/mobx-keystone-yjs/src/**/*.ts",
+      "**/packages/mobx-keystone-yjs/test/**/*.ts",
+      "!**/packages/lib/src/action/modelFlowPromiseGenerator.ts"
     ]
   },
   "javascript": {

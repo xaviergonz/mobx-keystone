@@ -66,12 +66,12 @@
     "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.27.1",
+    "@babel/core": "^7.27.4",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@babel/plugin-proposal-decorators": "^7.27.1",
-    "@babel/preset-env": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
     "@babel/preset-typescript": "^7.27.1",
-    "@swc/core": "^1.11.24",
+    "@swc/core": "^1.12.1",
     "@swc/jest": "^0.2.38",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.3",
@@ -82,11 +82,11 @@
     "rollup-plugin-typescript2": "^0.36.0",
     "shx": "^0.4.0",
     "spec.ts": "^1.1.3",
-    "ts-jest": "^29.3.2",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
-    "typedoc": "^0.28.3",
+    "typedoc": "^0.28.5",
     "typescript": "^5.8.3",
-    "vite": "^6.3.4"
+    "vite": "^6.3.5"
   },
   "dependencies": {
     "fast-deep-equal": "^3.1.3",

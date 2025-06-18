@@ -128,7 +128,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
 
     const instance = instancesForModelClass.get(tweakedData)
     if (instance) {
-      // biome-ignore lint/correctness/noConstructorReturn:
+      // biome-ignore lint/correctness/noConstructorReturn: no other way to return an instance
       return instance
     }
 
@@ -182,6 +182,6 @@ export interface AnyDataModel extends BaseDataModel<any> {}
  * A data model class declaration, made of a base model and the model interface.
  */
 export type DataModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
-  // biome-ignore lint/style/useShorthandFunctionType:
+  // biome-ignore lint/style/useShorthandFunctionType: make type recursive
   (...args: any[]): ModelInterface
 }

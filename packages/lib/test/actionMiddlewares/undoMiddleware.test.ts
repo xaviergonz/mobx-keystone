@@ -706,14 +706,12 @@ test("withGroupFlow - throwing", async () => {
           manager.withGroupFlow(function* () {
             yield* _await(p.incX(3))
 
-            // biome-ignore lint/style/useThrowOnlyError:
             throw "inside"
           })
         )
         fail("should have thrown")
       } catch (err) {
         expect(err).toBe("inside")
-        // biome-ignore lint/style/useThrowOnlyError:
         throw "outside"
       }
     })

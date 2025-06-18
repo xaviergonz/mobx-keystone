@@ -214,7 +214,6 @@ export function deserializeActionCall(
     serialized: undefined,
     args: actionCall.args.map(deserialize),
   }
-  // biome-ignore lint/performance/noDelete:
   delete (deserializedActionCall as O.Writable<ActionCall>).serialized
   return deserializedActionCall
 }

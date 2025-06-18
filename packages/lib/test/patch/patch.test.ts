@@ -79,9 +79,9 @@ describe("onPatches and applyPatches", () => {
     const { p, pPatches, pInvPatches, p2Patches, p2InvPatches } = setup(true)
 
     runUnprotected(() => {
-      // biome-ignore lint/correctness/noSelfAssign:
+      // biome-ignore lint/correctness/noSelfAssign: this is intentional
       p.x = p.x
-      // biome-ignore lint/correctness/noSelfAssign:
+      // biome-ignore lint/correctness/noSelfAssign: this is intentional
       p.arr[0] = p.arr[0]
       p.p2!.y = p.p2!.y
     })
@@ -1010,7 +1010,6 @@ test("patches with reserved prop names", () => {
   // no changes should result in no patches
   reset()
   runUnprotected(() => {
-    // biome-ignore lint/style/useShorthandAssign:
     p.$.onInit = p.$.onInit + 0
   })
 

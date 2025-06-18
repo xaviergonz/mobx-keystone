@@ -193,7 +193,7 @@ export function isModelFlow(fn: unknown) {
  * Decorator that turns a function generator into a model flow.
  */
 export function modelFlow(...args: any[]): void {
-  // biome-ignore lint/correctness/noVoidTypeReturn:
+  // biome-ignore lint/correctness/noVoidTypeReturn: proper way to declare a decorator
   return decorateWrapMethodOrField("modelFlow", args, (data, fn) => {
     if (isModelFlow(fn)) {
       return fn

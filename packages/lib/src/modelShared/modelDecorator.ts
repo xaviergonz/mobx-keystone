@@ -197,7 +197,7 @@ function tsDecorate(decorators: any, target: any, key: any, desc: any) {
     r = (Reflect as any).decorate(decorators, target, key, desc)
   } else {
     for (
-      // biome-ignore lint:
+      // biome-ignore lint/correctness/noInnerDeclarations: minified file
       var i = decorators.length - 1;
       i >= 0;
       i--
@@ -207,7 +207,7 @@ function tsDecorate(decorators: any, target: any, key: any, desc: any) {
       }
     }
   }
-  // biome-ignore lint/style/noCommaOperator:
+  // biome-ignore lint/complexity/noCommaOperator: minified file
   return c > 3 && r && Object.defineProperty(target, key, r), r
 }
 

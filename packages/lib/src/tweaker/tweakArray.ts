@@ -43,9 +43,9 @@ export function tweakArray<T extends any[]>(
     tweakedArr.length = originalArr.length
   }
 
-  // biome-ignore lint/style/useConst:
+  // biome-ignore lint/style/useConst: gets reassigned later
   let interceptDisposer: () => void
-  // biome-ignore lint/style/useConst:
+  // biome-ignore lint/style/useConst: gets reassigned later
   let observeDisposer: () => void
 
   const untweak = () => {
