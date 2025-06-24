@@ -12,8 +12,8 @@ import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTreeNode } from "../tweaker/core"
 import { toTreeNode } from "../tweaker/tweak"
 import { typesDataModelData } from "../types/objectBased/typesDataModelData"
-import { typeCheck } from "../types/typeCheck"
 import type { TypeCheckError } from "../types/TypeCheckError"
+import { typeCheck } from "../types/typeCheck"
 import { failure, isObject } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
@@ -128,7 +128,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
 
     const instance = instancesForModelClass.get(tweakedData)
     if (instance) {
-      // biome-ignore lint/correctness/noConstructorReturn: intended
+      // biome-ignore lint/correctness/noConstructorReturn: no other way to return an instance
       return instance
     }
 
@@ -182,6 +182,6 @@ export interface AnyDataModel extends BaseDataModel<any> {}
  * A data model class declaration, made of a base model and the model interface.
  */
 export type DataModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
-  // biome-ignore lint/style/useShorthandFunctionType: intended
+  // biome-ignore lint/style/useShorthandFunctionType: make type recursive
   (...args: any[]): ModelInterface
 }

@@ -1,7 +1,7 @@
 import {
-  intercept,
   IObjectDidChange,
   IObjectWillChange,
+  intercept,
   isObservableObject,
   observable,
   observe,
@@ -18,15 +18,15 @@ import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
   freezeInternalSnapshot,
   getInternalSnapshot,
-  setNewInternalSnapshot,
   SnapshotTransformFn,
+  setNewInternalSnapshot,
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, isPlainObject, isPrimitive } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { registerTweaker, tweak } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
+import { registerTweaker, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -44,9 +44,9 @@ export function tweakPlainObject<T extends Record<string, any>>(
     ? originalObj
     : observable.object({}, undefined, observableOptions)
 
-  // biome-ignore lint/style/useConst: intended
+  // biome-ignore lint/style/useConst: gets reassigned later
   let interceptDisposer: () => void
-  // biome-ignore lint/style/useConst: intended
+  // biome-ignore lint/style/useConst: gets reassigned later
   let observeDisposer: () => void
 
   const untweak = () => {

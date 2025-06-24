@@ -79,9 +79,9 @@ describe("onPatches and applyPatches", () => {
     const { p, pPatches, pInvPatches, p2Patches, p2InvPatches } = setup(true)
 
     runUnprotected(() => {
-      // biome-ignore lint/correctness/noSelfAssign: intended
+      // biome-ignore lint/correctness/noSelfAssign: this is intentional
       p.x = p.x
-      // biome-ignore lint/correctness/noSelfAssign: intended
+      // biome-ignore lint/correctness/noSelfAssign: this is intentional
       p.arr[0] = p.arr[0]
       p.p2!.y = p.p2!.y
     })

@@ -270,7 +270,7 @@ export function addLateInitializationFunction(
   fn: (instance: any) => void
 ) {
   let array: LateInitializationFunctionsArray | undefined = target[symbol]
-  // biome-ignore lint/suspicious/noPrototypeBuiltins: support for older browsers
+  // biome-ignore lint/suspicious/noPrototypeBuiltins: support old browsers
   if (!(array && Object.prototype.hasOwnProperty.call(target, symbol))) {
     // leave base array unmodified, create new array in the derived class
     array = array ? array.slice() : []

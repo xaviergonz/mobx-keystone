@@ -1,8 +1,8 @@
 import {
   IArrayWillChange,
   IArrayWillSplice,
-  intercept,
   IObservableArray,
+  intercept,
   isObservableArray,
   observable,
   observe,
@@ -22,8 +22,8 @@ import {
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
-import { registerTweaker, tweak } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
+import { registerTweaker, tweak } from "./tweak"
 import { runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
@@ -43,9 +43,9 @@ export function tweakArray<T extends any[]>(
     tweakedArr.length = originalArr.length
   }
 
-  // biome-ignore lint/style/useConst: intended
+  // biome-ignore lint/style/useConst: gets reassigned later
   let interceptDisposer: () => void
-  // biome-ignore lint/style/useConst: intended
+  // biome-ignore lint/style/useConst: gets reassigned later
   let observeDisposer: () => void
 
   const untweak = () => {

@@ -50,7 +50,7 @@ export interface ObjectType<S>
   > {}
 
 export interface ObjectTypeFunction {
-  // biome-ignore lint/style/useShorthandFunctionType: intended
+  // biome-ignore lint/style/useShorthandFunctionType: make the type recursive
   (): ObjectOfTypes
 }
 

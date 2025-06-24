@@ -1,4 +1,3 @@
-import { AnyFunction } from "../utils/AnyFunction"
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
@@ -22,6 +21,7 @@ import {
   runBeforeOnInitSymbol,
   runLateInitializationFunctions,
 } from "../utils"
+import { AnyFunction } from "../utils/AnyFunction"
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` or `DataModel` abstract classes)
@@ -197,7 +197,7 @@ function tsDecorate(decorators: any, target: any, key: any, desc: any) {
     r = (Reflect as any).decorate(decorators, target, key, desc)
   } else {
     for (
-      // biome-ignore lint: intended
+      // biome-ignore lint/correctness/noInnerDeclarations: minified file
       var i = decorators.length - 1;
       i >= 0;
       i--
@@ -207,7 +207,7 @@ function tsDecorate(decorators: any, target: any, key: any, desc: any) {
       }
     }
   }
-  // biome-ignore lint/complexity/noCommaOperator: copied from ts
+  // biome-ignore lint/complexity/noCommaOperator: minified file
   return c > 3 && r && Object.defineProperty(target, key, r), r
 }
 

@@ -665,7 +665,7 @@ export function undoMiddleware<S>(
 ): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
-  // biome-ignore lint/style/useConst: intended
+  // biome-ignore lint/style/useConst: is reassigned later
   let manager: UndoManager
 
   interface PatchRecorderData {

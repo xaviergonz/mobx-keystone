@@ -161,7 +161,7 @@ test("reactive snapshots", () => {
 
   // no op
   runUnprotected(() => {
-    // biome-ignore lint/correctness/noSelfAssign: intended
+    // biome-ignore lint/correctness/noSelfAssign: this is intentional
     p.x = p.x
     p.p2!.y = p.p2!.y
   })
