@@ -80,7 +80,6 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   expect(deserializeActionCallArgument(serBoolean)).toBe(true)
 
   // null
-  // biome-ignore lint/suspicious/noEvolvingTypes:
   const serNull = null
   expect(serializeActionCallArgument(null)).toEqual(serNull)
   expect(deserializeActionCallArgument(serNull)).toBe(null)

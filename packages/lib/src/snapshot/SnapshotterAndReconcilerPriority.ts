@@ -1,7 +1,7 @@
 /**
  * @internal
  */
-// biome-ignore lint/style/useEnumInitializers:
+// biome-ignore lint/style/useEnumInitializers: intended
 export enum SnapshotterAndReconcilerPriority {
   Array,
   Frozen,

@@ -183,7 +183,6 @@ test("null", () => {
 })
 
 test("simple null", () => {
-  // biome-ignore lint/suspicious/noEvolvingTypes:
   const type = null
   assert(_ as TypeToData<typeof type>, null)
 
