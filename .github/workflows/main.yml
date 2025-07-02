@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: "23.11.0"
+  NODE_VERSION: "24.3.0"
 
 jobs:
   lib-site-build:

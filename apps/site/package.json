@@ -32,7 +32,7 @@
     "yjs": "^13.0.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-decorators": "^7.27.1",
+    "@babel/plugin-proposal-decorators": "^7.28.0",
     "@docusaurus/module-type-aliases": "^3.8.1",
     "@docusaurus/tsconfig": "^3.8.1",
     "@svgr/webpack": "^8.1.0",

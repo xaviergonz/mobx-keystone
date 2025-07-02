@@ -27,9 +27,9 @@
     "yjs": "^13.6.27"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.5",
-    "globals": "^16.2.0",
-    "netlify-cli": "^22.1.6",
+    "@biomejs/biome": "^2.0.6",
+    "globals": "^16.3.0",
+    "netlify-cli": "^22.2.1",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   },
