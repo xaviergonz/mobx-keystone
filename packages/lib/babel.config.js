@@ -1,4 +1,4 @@
-const { mobxVersion } = require("./env")
+const { mobxVersion } = require("./env").env
 
 module.exports = {
   presets: [

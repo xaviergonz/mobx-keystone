@@ -1,6 +1,8 @@
 import type { Config } from "jest"
+import { env } from "./env.js"
+import swcConfig from "./swc.config.js"
 
-import { mobxVersion, compiler } from "./env"
+const { mobxVersion, compiler } = env
 
 const tsconfigFiles = {
   6: compiler === "tsc" ? "tsconfig.json" : "tsconfig.experimental-decorators.json",
@@ -43,7 +45,7 @@ switch (compiler) {
   case "swc":
     Object.assign(config, {
       transform: {
-        "^.+\\.ts$": ["@swc/jest", require("./swc.config.js")],
+        "^.+\\.ts$": ["@swc/jest", swcConfig],
       },
     })
     break
