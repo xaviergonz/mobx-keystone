@@ -1,7 +1,7 @@
 import { ActionContextActionType } from "../action"
 import {
-  actionTrackingMiddleware,
   ActionTrackingResult,
+  actionTrackingMiddleware,
   SimpleActionContext,
 } from "../actionMiddlewares"
 import { fastGetRootPath, RootPath } from "../parent/path"
@@ -15,7 +15,6 @@ import { assertTweakedObject } from "../tweaker/core"
  * @param remotedevPackage The remotedev package (usually the result of `require("remoteDev")`) (https://www.npmjs.com/package/remotedev).
  * @param remotedevConnection The result of a connect method from the remotedev package (usually the result of `remoteDev.connectViaExtension(...)`).
  * @param target Object to use as root.
- * @param storeName Name to be shown in the redux dev tools.
  * @param [options] Optional options object. `logArgsNearName` if it should show the arguments near the action name (default is `true`).
  */
 export function connectReduxDevTools(

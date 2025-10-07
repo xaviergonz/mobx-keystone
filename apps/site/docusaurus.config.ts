@@ -1,5 +1,5 @@
-import type { Config } from "@docusaurus/types"
 import type * as Preset from "@docusaurus/preset-classic"
+import type { Config } from "@docusaurus/types"
 
 const docsRouteBasePath = "/"
 
@@ -10,10 +10,14 @@ const config: Config = {
   url: "https://mobx-keystone.js.org",
   baseUrl: "/",
   onBrokenLinks: "ignore", // because of /api/ links
-  onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
   organizationName: "xaviergonz",
   projectName: "mobx-keystone",
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
   presets: [
     [
       "@docusaurus/preset-classic",

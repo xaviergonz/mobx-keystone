@@ -10,19 +10,19 @@
     "serve": "docusaurus serve"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.8.1",
-    "@docusaurus/preset-classic": "^3.8.1",
+    "@docusaurus/core": "^3.9.1",
+    "@docusaurus/preset-classic": "^3.9.1",
     "@easyops-cn/docusaurus-search-local": "^0.52.1",
-    "@iframe-resizer/child": "^5.5.2",
-    "@iframe-resizer/react": "^5.5.2",
+    "@iframe-resizer/child": "^5.5.7",
+    "@iframe-resizer/react": "^5.5.7",
     "bootstrap-icons": "^1.13.1",
     "bufferutil": "^4.0.9",
     "mobx-keystone": "workspace:packages/lib",
     "mobx-keystone-yjs": "workspace:packages/mobx-keystone-yjs",
-    "mobx-react": "^9.2.0",
+    "mobx-react": "^9.2.1",
     "nanoid": "^3.3.11",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "remotedev": "^0.2.9",
     "utf-8-validate": "^6.0.5",
     "y-webrtc": "^10.3.0"
@@ -33,15 +33,15 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.28.0",
-    "@docusaurus/module-type-aliases": "^3.8.1",
-    "@docusaurus/tsconfig": "^3.8.1",
+    "@docusaurus/module-type-aliases": "^3.9.1",
+    "@docusaurus/tsconfig": "^3.9.1",
     "@svgr/webpack": "^8.1.0",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
-    "@types/uuid": "^10.0.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "@types/uuid": "^11.0.0",
     "raw-loader": "^4.0.2",
     "shx": "^0.4.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   },
   "browserslist": {
     "production": [
