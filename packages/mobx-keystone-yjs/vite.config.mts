@@ -1,6 +1,6 @@
 import path from "path"
-import typescript2 from "rollup-plugin-typescript2"
 import { defineConfig } from "vite"
+import dts from "vite-plugin-dts"
 
 const resolvePath = (str: string) => path.resolve(__dirname, str)
 
@@ -35,11 +35,9 @@ export default defineConfig({
     },
   },
   plugins: [
-    {
-      ...typescript2({
-        useTsconfigDeclarationDir: true,
-      }),
-      enforce: "pre",
-    },
+    dts({
+      tsconfigPath: resolvePath("./tsconfig.json"),
+      outDir: resolvePath("./dist/types"),
+    }),
   ],
 })

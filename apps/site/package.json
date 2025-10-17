@@ -10,8 +10,8 @@
     "serve": "docusaurus serve"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.9.1",
-    "@docusaurus/preset-classic": "^3.9.1",
+    "@docusaurus/core": "^3.9.2",
+    "@docusaurus/preset-classic": "^3.9.2",
     "@easyops-cn/docusaurus-search-local": "^0.52.1",
     "@iframe-resizer/child": "^5.5.7",
     "@iframe-resizer/react": "^5.5.7",
@@ -33,11 +33,11 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-decorators": "^7.28.0",
-    "@docusaurus/module-type-aliases": "^3.9.1",
-    "@docusaurus/tsconfig": "^3.9.1",
+    "@docusaurus/module-type-aliases": "^3.9.2",
+    "@docusaurus/tsconfig": "^3.9.2",
     "@svgr/webpack": "^8.1.0",
     "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.1",
+    "@types/react-dom": "^19.2.2",
     "@types/uuid": "^11.0.0",
     "raw-loader": "^4.0.2",
     "shx": "^0.4.0",
