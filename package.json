@@ -27,12 +27,12 @@
     "yjs": "^13.6.27"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.6",
-    "globals": "^16.4.0",
-    "netlify-cli": "^23.9.1",
-    "turbo": "^2.5.8",
+    "@biomejs/biome": "^2.3.4",
+    "globals": "^16.5.0",
+    "netlify-cli": "^23.10.0",
+    "turbo": "^2.6.0",
     "typescript": "^5.9.3",
-    "vite": "^7.1.10",
+    "vite": "^7.2.2",
     "vite-plugin-dts": "^4.5.4"
   },
   "packageManager": "yarn@4.10.3"
