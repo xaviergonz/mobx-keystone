@@ -32,7 +32,7 @@
     "mobx-keystone#test": {
       "dependsOn": [],
       "outputs": [],
-      "env": ["COMPILER", "MOBX_VERSION"]
+      "env": ["COMPILER", "MOBX-VERSION"]
     },
     "mobx-keystone-yjs#test": {
       "dependsOn": ["mobx-keystone#build"],
@@ -41,7 +41,7 @@
     "mobx-keystone#test:ci": {
       "dependsOn": [],
       "outputs": [],
-      "env": ["COMPILER", "MOBX_VERSION"]
+      "env": ["COMPILER", "MOBX-VERSION"]
     },
     "mobx-keystone-yjs#test:ci": {
       "dependsOn": ["mobx-keystone#build"],
