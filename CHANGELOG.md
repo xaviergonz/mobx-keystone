@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.11.5
+
+- Fix: Some retrocompatibility issues with MobX 4/5.
+
 ## 1.11.4
 
 - Fix: redux devtools revert was not working correctly.

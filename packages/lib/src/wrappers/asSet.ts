@@ -1,12 +1,13 @@
 import {
   action,
-  intercept,
   IObservableArray,
   ISetWillChange,
+  intercept,
   isObservableArray,
-  observable,
   ObservableSet,
+  observable,
   observe,
+  runInAction,
   transaction,
   untracked,
 } from "mobx"
@@ -28,8 +29,10 @@ const observableSetBackedByObservableArray = <T>(
         return observable.set(array)
       } else {
         const set = observable.set()
-        array.forEach((item) => {
-          set.add(item)
+        runInAction(() => {
+          array.forEach((item) => {
+            set.add(item)
+          })
         })
         return set
       }

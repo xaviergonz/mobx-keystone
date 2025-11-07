@@ -3,6 +3,7 @@ import { env } from "./env.js"
 import swcConfig from "./swc.config.js"
 
 const { mobxVersion, compiler } = env
+console.log(`Using mobxVersion=${mobxVersion}, compiler=${compiler}`)
 
 const tsconfigFiles = {
   6: compiler === "tsc" ? "tsconfig.json" : "tsconfig.experimental-decorators.json",

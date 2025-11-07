@@ -1,15 +1,16 @@
 import {
   action,
   IMapWillChange,
-  intercept,
   IObjectDidChange,
   IObservableArray,
+  intercept,
   isObservableArray,
   isObservableObject,
-  observable,
   ObservableMap,
+  observable,
   observe,
   remove,
+  runInAction,
   transaction,
   untracked,
 } from "mobx"
@@ -143,8 +144,10 @@ const observableMapBackedByObservableArray = <T>(
       return observable.map(array)
     } else {
       const map = observable.map()
-      array.forEach(([k, v]) => {
-        map.set(k, v)
+      runInAction(() => {
+        array.forEach(([k, v]) => {
+          map.set(k, v)
+        })
       })
       return map
     }
