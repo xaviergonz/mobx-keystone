@@ -20,5 +20,6 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"
-  }
+  },
+  "cmake.ignoreCMakeListsMissing": true
 }
