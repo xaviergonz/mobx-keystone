@@ -12,7 +12,7 @@
   "dependencies": {
     "@docusaurus/core": "^3.9.2",
     "@docusaurus/preset-classic": "^3.9.2",
-    "@easyops-cn/docusaurus-search-local": "^0.52.1",
+    "@easyops-cn/docusaurus-search-local": "^0.52.2",
     "@iframe-resizer/child": "^5.5.7",
     "@iframe-resizer/react": "^5.5.7",
     "bootstrap-icons": "^1.13.1",
@@ -21,8 +21,8 @@
     "mobx-keystone-yjs": "workspace:packages/mobx-keystone-yjs",
     "mobx-react": "^9.2.1",
     "nanoid": "^3.3.11",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "remotedev": "^0.2.9",
     "utf-8-validate": "^6.0.5",
     "y-webrtc": "^10.3.0"
@@ -36,7 +36,7 @@
     "@docusaurus/module-type-aliases": "^3.9.2",
     "@docusaurus/tsconfig": "^3.9.2",
     "@svgr/webpack": "^8.1.0",
-    "@types/react": "^19.2.5",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^11.0.0",
     "raw-loader": "^4.0.2",
