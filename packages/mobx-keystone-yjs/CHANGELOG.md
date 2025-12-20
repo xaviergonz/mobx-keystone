@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.5.5
+
+- Fixed an issue where data was not readable from detached models/arrays/records (e.g. after being detached from a bound tree).
+- Fixed `YjsTextModel.text` throwing when accessed in a detached state.
+- Improved handling of "dead" Yjs objects (deleted or document destroyed) to avoid unnecessary sync attempts and ensure proper disposal.
 - `applyJsonArrayToYArray` / `applyJsonObjectToYMap` are no longer wrapped in mobx actions in case they want to track the original values.
 
 ## 1.5.4

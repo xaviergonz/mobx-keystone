@@ -1,8 +1,8 @@
+import { action } from "mobx"
 import { modelSnapshotOutWithMetadata } from "mobx-keystone"
 import * as Y from "yjs"
 import { PlainObject, PlainValue } from "../plainTypes"
 import { YjsTextModel } from "./YjsTextModel"
-import { action } from "mobx"
 
 export type YjsData = Y.Array<any> | Y.Map<any> | Y.Text | PlainValue
 

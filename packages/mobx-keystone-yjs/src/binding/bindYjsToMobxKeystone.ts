@@ -3,19 +3,20 @@ import {
   AnyDataModel,
   AnyModel,
   AnyStandardType,
-  ModelClass,
-  Patch,
-  SnapshotInOf,
-  TypeToData,
   applyPatches,
   fromSnapshot,
   getParentToChildPath,
+  ModelClass,
   onGlobalPatches,
   onPatches,
   onSnapshot,
+  Patch,
+  SnapshotInOf,
+  TypeToData,
 } from "mobx-keystone"
 import * as Y from "yjs"
 import { getYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
+import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
 import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
 import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
@@ -140,6 +141,10 @@ export function bindYjsToMobxKeystone<
     const arrayOfArrayOfPatches = pendingArrayOfArrayOfPatches
     pendingArrayOfArrayOfPatches = []
 
+    if (isYjsValueDeleted(yjsObject)) {
+      return
+    }
+
     yjsDoc.transact(() => {
       arrayOfArrayOfPatches.forEach((arrayOfPatches) => {
         arrayOfPatches.forEach((patch) => {
@@ -180,13 +185,18 @@ export function bindYjsToMobxKeystone<
     })
   }, yjsOrigin)
 
+  const dispose = () => {
+    yjsDoc.off("destroy", dispose)
+    disposeOnPatches()
+    disposeOnSnapshot()
+    yjsObject.unobserveDeep(observeDeepCb)
+  }
+
+  yjsDoc.on("destroy", dispose)
+
   return {
     boundObject,
-    dispose: () => {
-      disposeOnPatches()
-      disposeOnSnapshot()
-      yjsObject.unobserveDeep(observeDeepCb)
-    },
+    dispose,
     yjsOrigin,
   }
 }

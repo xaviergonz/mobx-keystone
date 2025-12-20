@@ -1,9 +1,9 @@
-import { IAtom, computed, createAtom, observe, reaction } from "mobx"
+import { computed, createAtom, IAtom, observe, reaction } from "mobx"
 import {
   Frozen,
-  Model,
   frozen,
   getParentToChildPath,
+  Model,
   model,
   onSnapshot,
   tProp,
@@ -11,8 +11,9 @@ import {
 } from "mobx-keystone"
 import * as Y from "yjs"
 import { failure } from "../utils/error"
-import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
+import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
 import { resolveYjsPath } from "./resolveYjsPath"
+import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 
 // Delta[][], since each single change is a Delta[]
 // we use frozen so that we can reuse each delta change
@@ -100,7 +101,32 @@ export class YjsTextModel extends Model({
   @computed
   get text(): string {
     this.yjsTextChangedAtom.reportObserved()
-    return this.yjsText.toString()
+
+    const ctx = yjsBindingContext.get(this)
+    if (ctx?.boundObject != null) {
+      try {
+        const yjsTextString = this.yjsText.toString()
+        // if the yjsText is detached, toString() returns an empty string
+        // in that case we should use the deltaList as a fallback
+        if (yjsTextString !== "" || this.deltaList.length === 0) {
+          return yjsTextString
+        }
+      } catch {
+        // fall back
+      }
+    }
+
+    // fall back to deltaList
+    return this.deltaListToText()
+  }
+
+  private deltaListToText(): string {
+    const doc = new Y.Doc()
+    const text = doc.getText()
+    this.deltaList.forEach((d) => {
+      text.applyDelta(d.data)
+    })
+    return text.toString()
   }
 
   protected onInit() {
@@ -153,6 +179,9 @@ export class YjsTextModel extends Model({
 
           if (shouldReplicateToYjs(ctx)) {
             const { yjsText } = this
+            if (isYjsValueDeleted(yjsText)) {
+              throw failure("cannot reapply deltas to deleted Yjs.Text")
+            }
 
             ctx.yjsDoc.transact(() => {
               // didn't find a better way than this to reapply all deltas
@@ -171,6 +200,9 @@ export class YjsTextModel extends Model({
 
           if (shouldReplicateToYjs(ctx)) {
             const { yjsText } = this
+            if (isYjsValueDeleted(yjsText)) {
+              throw failure("cannot reapply deltas to deleted Yjs.Text")
+            }
 
             ctx.yjsDoc.transact(() => {
               newDeltas.forEach((frozenDeltas) => {
@@ -215,7 +247,8 @@ function hookYjsTextChangedAtom(getYjsText: () => Y.Text, textChangedAtom: IAtom
   const disposeReactionToYTextChange = reaction(
     () => {
       try {
-        return getYjsText()
+        const yjsText = getYjsText()
+        return isYjsValueDeleted(yjsText) ? undefined : yjsText
       } catch {
         return undefined
       }

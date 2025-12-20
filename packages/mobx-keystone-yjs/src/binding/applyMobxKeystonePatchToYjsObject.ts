@@ -1,10 +1,15 @@
 import { Patch } from "mobx-keystone"
 import * as Y from "yjs"
-import { failure } from "../utils/error"
-import { convertJsonToYjsData } from "./convertJsonToYjsData"
 import { PlainValue } from "../plainTypes"
+import { failure } from "../utils/error"
+import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
+import { convertJsonToYjsData } from "./convertJsonToYjsData"
 
 export function applyMobxKeystonePatchToYjsObject(patch: Patch, yjs: unknown): void {
+  if (isYjsValueDeleted(yjs)) {
+    throw failure("cannot apply patch to deleted Yjs value")
+  }
+
   if (patch.path.length > 1) {
     const [key, ...rest] = patch.path
 

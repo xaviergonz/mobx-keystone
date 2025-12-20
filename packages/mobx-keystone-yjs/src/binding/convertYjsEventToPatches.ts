@@ -1,7 +1,7 @@
 import { Patch } from "mobx-keystone"
 import * as Y from "yjs"
-import { PlainArray, PlainObject, PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
+import { convertYjsDataToJson } from "./convertYjsDataToJson"
 
 export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
   const patches: Patch[] = []
@@ -17,7 +17,7 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
           patches.push({
             op: "add",
             path,
-            value: toPlainValue(source.get(key)),
+            value: convertYjsDataToJson(source.get(key)),
           })
           break
 
@@ -25,7 +25,7 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
           patches.push({
             op: "replace",
             path,
-            value: toPlainValue(source.get(key)),
+            value: convertYjsDataToJson(source.get(key)),
           })
           break
 
@@ -65,7 +65,7 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
           patches.push({
             op: "add",
             path,
-            value: toPlainValue(v),
+            value: convertYjsDataToJson(v),
           })
           retain++
         })
@@ -81,12 +81,4 @@ export function convertYjsEventToPatches(event: Y.YEvent<any>): Patch[] {
   }
 
   return patches
-}
-
-function toPlainValue(v: Y.Map<any> | Y.Array<any> | PlainValue) {
-  if (v instanceof Y.Map || v instanceof Y.Array) {
-    return v.toJSON() as PlainObject | PlainArray
-  } else {
-    return v
-  }
 }

@@ -1,7 +1,7 @@
 import { reaction } from "mobx"
-import { Model, frozen, getSnapshot, runUnprotected, tProp, types } from "mobx-keystone"
+import { frozen, getSnapshot, Model, runUnprotected, tProp, types } from "mobx-keystone"
 import * as Y from "yjs"
-import { YjsTextModel, bindYjsToMobxKeystone } from "../../src"
+import { bindYjsToMobxKeystone, YjsTextModel } from "../../src"
 import { autoDispose, testModel } from "../utils"
 
 test("bind a text as root object", () => {
@@ -356,9 +356,7 @@ test("detach/reattach same YJsText", () => {
   boundObject.setText(undefined)
   expect(boundObject.text).toBeUndefined()
   expect(yTestModel.get("text")).toBeUndefined()
-  expect(() => abcText.text).toThrow(
-    "the YjsTextModel instance must be part of a bound object before it can be accessed"
-  )
+  expect(abcText.text).toBe("abc")
   expect(textChanges).toMatchInlineSnapshot(`[]`)
   textChanges.length = 0
 
@@ -404,9 +402,7 @@ test("detach/reattach different YJsText", () => {
   boundObject.setText(undefined)
   expect(boundObject.text).toBeUndefined()
   expect(yTestModel.get("text")).toBeUndefined()
-  expect(() => abcText.text).toThrow(
-    "the YjsTextModel instance must be part of a bound object before it can be accessed"
-  )
+  expect(abcText.text).toBe("abc")
   expect(textChanges).toMatchInlineSnapshot(`[]`)
   textChanges.length = 0
 
