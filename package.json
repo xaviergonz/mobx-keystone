@@ -24,15 +24,15 @@
   ],
   "dependencies": {
     "mobx": "^6.15.0",
-    "yjs": "^13.6.27"
+    "yjs": "^13.6.28"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.8",
+    "@biomejs/biome": "^2.3.10",
     "globals": "^16.5.0",
-    "netlify-cli": "^23.12.2",
-    "turbo": "^2.6.2",
+    "netlify-cli": "^23.13.0",
+    "turbo": "^2.7.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.6",
+    "vite": "^7.3.0",
     "vite-plugin-dts": "^4.5.4"
   },
   "packageManager": "yarn@4.11.0"
