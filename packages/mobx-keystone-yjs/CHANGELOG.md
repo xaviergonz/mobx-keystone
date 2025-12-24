@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.6.0 (unreleased)
+
+- `applyJsonArrayToYArray` / `applyJsonObjectToYMap` are no longer wrapped in mobx actions.
+
 ## 1.5.5
 
 - Fixed an issue where data was not readable from detached models/arrays/records (e.g. after being detached from a bound tree).

@@ -14985,6 +14985,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"loro-crdt@npm:^1.10.3":
+  version: 1.10.3
+  resolution: "loro-crdt@npm:1.10.3"
+  checksum: 10c0/f2d43f008d261678980c537c7058be0058fd5341355138a662ecc1cbeab047223ca414df4ad51ed006871455dcf0ef3df5369517bec60e1d62f09822537e96d8
+  languageName: node
+  linkType: hard
+
 "lower-case@npm:^2.0.2":
   version: 2.0.2
   resolution: "lower-case@npm:2.0.2"
@@ -16336,6 +16343,34 @@ __metadata:
   checksum: 10c0/f174b844ae066c71e9b128046677868e2e28694f0bbeeffbe760b2a9d8ff24de0748d0fde6fabe706700c1d2e11d3c0d7a53071b5ea99671592fac03364604ab
   languageName: node
   linkType: hard
+
+"mobx-keystone-loro@workspace:packages/mobx-keystone-loro":
+  version: 0.0.0-use.local
+  resolution: "mobx-keystone-loro@workspace:packages/mobx-keystone-loro"
+  dependencies:
+    "@babel/core": "npm:^7.28.5"
+    "@babel/plugin-proposal-class-properties": "npm:^7.18.6"
+    "@babel/plugin-proposal-decorators": "npm:^7.28.0"
+    "@babel/preset-env": "npm:^7.28.5"
+    "@babel/preset-typescript": "npm:^7.28.5"
+    "@types/jest": "npm:^30.0.0"
+    "@types/node": "npm:^25.0.3"
+    babel-jest: "npm:^30.2.0"
+    jest: "npm:^30.2.0"
+    mobx-keystone: "workspace:packages/lib"
+    nanoid: "npm:^3.3.11"
+    shx: "npm:^0.4.0"
+    spec.ts: "npm:^1.1.3"
+    ts-jest: "npm:^29.4.6"
+    ts-node: "npm:^10.9.2"
+    tslib: "npm:^2.8.1"
+    typescript: "npm:^5.9.3"
+  peerDependencies:
+    loro-crdt: ^1.10.3
+    mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
+    mobx-keystone: ^1.16.0
+  languageName: unknown
+  linkType: soft
 
 "mobx-keystone-yjs@workspace:packages/mobx-keystone-yjs":
   version: 0.0.0-use.local
@@ -19841,6 +19876,7 @@ __metadata:
   dependencies:
     "@biomejs/biome": "npm:^2.3.10"
     globals: "npm:^16.5.0"
+    loro-crdt: "npm:^1.10.3"
     mobx: "npm:^6.15.0"
     netlify-cli: "npm:^23.13.0"
     turbo: "npm:^2.7.0"
@@ -20481,6 +20517,7 @@ __metadata:
     bootstrap-icons: "npm:^1.13.1"
     bufferutil: "npm:^4.1.0"
     mobx-keystone: "workspace:packages/lib"
+    mobx-keystone-loro: "workspace:packages/mobx-keystone-loro"
     mobx-keystone-yjs: "workspace:packages/mobx-keystone-yjs"
     mobx-react: "npm:^9.2.1"
     nanoid: "npm:^3.3.11"
@@ -20493,6 +20530,7 @@ __metadata:
     utf-8-validate: "npm:^6.0.6"
     y-webrtc: "npm:^10.3.0"
   peerDependencies:
+    loro-crdt: ^1.10.3
     mobx: ^6.0.0
     yjs: ^13.0.0
   languageName: unknown

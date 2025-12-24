@@ -1,4 +1,4 @@
-import { IAtom, createAtom } from "mobx"
+import { createAtom, IAtom } from "mobx"
 import * as Y from "yjs"
 
 const yjsCollectionAtoms = new WeakMap<Y.Map<unknown> | Y.Array<unknown>, IAtom>()

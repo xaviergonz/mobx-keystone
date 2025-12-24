@@ -1,6 +1,6 @@
 import { isObservable, toJS } from "mobx"
 import { getGlobalConfig } from "../globalConfig"
-import type { SnapshotInOfFrozen } from "../snapshot"
+import type { FrozenData } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
 
@@ -82,6 +82,19 @@ export function frozen<T>(
   return new Frozen<T>(data, checkMode)
 }
 
+/**
+ * Converts some data into a frozen snapshot.
+ *
+ * @param data Data to convert.
+ * @returns The frozen snapshot.
+ */
+export function toFrozenSnapshot<T>(data: T): FrozenData<T> {
+  return {
+    [frozenKey]: true,
+    data,
+  }
+}
+
 function checkDataIsSerializableAndFreeze(data: any) {
   // TODO: detect cycles and throw if present?
 
@@ -123,13 +136,11 @@ function checkDataIsSerializableAndFreeze(data: any) {
 }
 
 /**
- * @internal
- *
  * Checks if an snapshot is an snapshot for a frozen data.
  *
  * @param snapshot
  * @returns
  */
-export function isFrozenSnapshot(snapshot: unknown): snapshot is SnapshotInOfFrozen<Frozen<any>> {
+export function isFrozenSnapshot<T = unknown>(snapshot: unknown): snapshot is FrozenData<T> {
   return isPlainObject(snapshot) && frozenKey in snapshot
 }

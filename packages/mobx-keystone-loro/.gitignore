@@ -1,0 +1,6 @@
+/*.log
+/node_modules/
+/dist/
+/LICENSE
+/*.local
+/coverage/

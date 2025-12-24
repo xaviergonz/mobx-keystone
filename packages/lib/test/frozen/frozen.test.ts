@@ -1,19 +1,21 @@
+import { observable } from "mobx"
 import {
   applySnapshot,
+  Frozen,
   fromSnapshot,
   frozen,
-  Frozen,
   getParent,
   getRoot,
   getSnapshot,
+  isFrozenSnapshot,
   Model,
   prop,
   runUnprotected,
+  toFrozenSnapshot,
   types,
 } from "../../src"
 import { frozenKey } from "../../src/frozen/Frozen"
 import { testModel } from "../utils"
-import { observable } from "mobx"
 
 @testModel("MWithFrozenProp")
 class MWithFrozenProp extends Model({
@@ -125,4 +127,19 @@ test("an observable object can be passed to frozen", () => {
   const p = new MWithFrozenProp({ frozenStuff: fr })
   expect(getParent(fr)).toBe(p)
   expect(p.frozenStuff).toBe(fr)
+})
+
+test("toFrozenSnapshot and isFrozenSnapshot", () => {
+  const data = { a: 1, b: 2 }
+  const sn = toFrozenSnapshot(data)
+  expect(sn).toEqual({ [frozenKey]: true, data })
+  expect(isFrozenSnapshot(sn)).toBe(true)
+  expect(isFrozenSnapshot(data)).toBe(false)
+  expect(isFrozenSnapshot(null)).toBe(false)
+  expect(isFrozenSnapshot(undefined)).toBe(false)
+  expect(isFrozenSnapshot(5)).toBe(false)
+
+  const fr = fromSnapshot(types.frozen(types.unchecked<typeof data>()), sn)
+  expect(fr instanceof Frozen).toBe(true)
+  expect(fr.data).toBe(data)
 })

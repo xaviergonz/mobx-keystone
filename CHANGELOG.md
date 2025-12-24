@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.12.0 (unreleased)
+
+- Adds `isModelSnapshot`, `getSnapshotModelId` utilities.
+- Adds support for Loro CRDT via the new `mobx-keystone-loro` package.
+
 ## 1.11.5
 
 - Fix: Some retrocompatibility issues with MobX 4/5.

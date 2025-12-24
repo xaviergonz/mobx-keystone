@@ -46,6 +46,26 @@ const config: Config = {
         indexPages: false,
       },
     ],
+    () => ({
+      name: "webpack-wasm-plugin",
+      configureWebpack() {
+        return {
+          resolve: {
+            alias: {
+              "loro-crdt": require.resolve("loro-crdt/base64/index.js"),
+            },
+            fallback: {
+              fs: false,
+              path: false,
+            },
+          },
+          experiments: {
+            asyncWebAssembly: true,
+            topLevelAwait: true,
+          },
+        }
+      },
+    }),
   ],
 
   themeConfig: {

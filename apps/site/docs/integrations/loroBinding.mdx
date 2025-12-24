@@ -1,0 +1,73 @@
+---
+title: Loro Binding (mobx-keystone-loro)
+slug: /integrations/loro-binding
+---
+
+The [`mobx-keystone-loro`](https://www.npmjs.com/package/mobx-keystone-loro) package ensures a [`Loro`](https://loro.dev/) document is kept in sync with a `mobx-keystone` store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
+
+## Binding `Loro` data to a model instance
+
+```ts
+const {
+  // The bound mobx-keystone instance.
+  boundObject,
+  // Disposes the binding.
+  dispose,
+  // The Loro origin string used for binding transactions.
+  loroOrigin,
+} = bindLoroToMobxKeystone({
+  // The mobx-keystone model type.
+  mobxKeystoneType,
+  // The Loro document.
+  loroDoc,
+  // The bound Loro data structure.
+  loroObject,
+})
+```
+
+Note that the `loroObject` must be a `LoroMap`, `LoroMovableList` or a `LoroText` and its structure must be compatible with the provided `mobx-keystone` type (or, to be more precise, its snapshot form).
+
+## First migration - converting JSON to `Loro` data
+
+If you already have a model instance snapshot stored somewhere and want to start binding it to a `Loro` data structure you can use the `convertJsonToLoroData` function to make this first migration.
+
+`convertJsonToLoroData` takes a single argument, a JSON value (usually a snapshot of the model you want to bind) and returns a `Loro` data structure (`LoroMap`, `LoroMovableList`, etc.) ready to be bound to that model. Frozen values are a special case and they are kept as immutable plain values.
+
+## Using LoroText as a model node
+
+The special model `LoroTextModel` can be used to bind a `LoroText` to a `mobx-keystone` model.
+
+```ts
+const text = new LoroTextModel();
+const boundModel.setText(text);
+text.loroText.insert(0, 'Hello world!');
+```
+
+Note that `loroText` will return `undefined` if you try to access while it is not part of a bounded tree.
+
+## Move Operations
+
+Unlike Y.js, Loro's `LoroMovableList` supports native move operations. The binding automatically detects when you move an item in a `mobx-keystone` array (by removing it and adding it back in the same transaction) and uses the native `loroList.move()` operation. This preserves the identity and history of the moved item across all clients.
+
+## The `LoroBindingContext`
+
+All nodes inside a bound tree have access to a `LoroBindingContext` instance.
+
+The instance can be accessed using:
+
+```ts
+loroBindingContext.get(nodePartOfTheBoundTree)
+```
+
+And this instance provides access to the following data:
+
+- `loroDoc`: The `Loro` document.
+- `loroObject`: The bound `Loro` data structure.
+- `mobxKeystoneType`: The `mobx-keystone` model type.
+- `loroOrigin`: The origin string used for transactions.
+- `boundObject`: The bound `mobx-keystone` instance.
+- `isApplyingLoroChangesToMobxKeystone`: Whether we are currently applying `Loro` changes to the `mobx-keystone` model.
+
+## Example
+
+A full example is available [here](../examples/loroBinding/loroBinding.mdx).

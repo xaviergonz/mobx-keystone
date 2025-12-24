@@ -1,8 +1,8 @@
+import { frozenKey, modelTypeKey, SnapshotOutOf } from "mobx-keystone"
 import * as Y from "yjs"
-import { YjsTextModel, yjsTextModelId } from "./YjsTextModel"
-import { SnapshotOutOf } from "mobx-keystone"
-import { YjsData } from "./convertYjsDataToJson"
 import { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
+import { YjsData } from "./convertYjsDataToJson"
+import { YjsTextModel, yjsTextModelId } from "./YjsTextModel"
 
 function isPlainPrimitive(v: PlainValue): v is PlainPrimitive {
   const t = typeof v
@@ -14,7 +14,7 @@ function isPlainArray(v: PlainValue): v is PlainArray {
 }
 
 function isPlainObject(v: PlainValue): v is PlainObject {
-  return !isPlainArray(v) && typeof v === "object" && v !== null
+  return typeof v === "object" && v !== null && !Array.isArray(v)
 }
 
 /**
@@ -34,12 +34,12 @@ export function convertJsonToYjsData(v: PlainValue): YjsData {
   }
 
   if (isPlainObject(v)) {
-    if (v.$frozen === true) {
+    if (v[frozenKey] === true) {
       // frozen value, save as immutable object
       return v
     }
 
-    if (v.$modelType === yjsTextModelId) {
+    if (v[modelTypeKey] === yjsTextModelId) {
       const text = new Y.Text()
       const yjsTextModel = v as unknown as SnapshotOutOf<YjsTextModel>
       yjsTextModel.deltaList.forEach((frozenDeltas) => {

@@ -1,18 +1,22 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true, "defaultBranch": "master" },
   "files": {
     "includes": [
       "**",
-      "!**/node_modules/**",
-      "!**/dist/**",
-      "!packages/lib/coverage/**",
-      "!packages/lib/api-docs/**",
-      "!apps/site/.docusaurus/**",
-      "!apps/site/build/**",
-      "!apps/site/copy-to-build/**",
-      "!apps/site/static/api/**",
-      "!**/.yarn/**",
+      "!**/node_modules",
+      "!**/dist",
+      "!packages/lib/coverage",
+      "!packages/lib/api-docs",
+      "!packages/mobx-keystone-yjs/coverage",
+      "!packages/mobx-keystone-yjs/api-docs",
+      "!packages/mobx-keystone-loro/coverage",
+      "!packages/mobx-keystone-loro/api-docs",
+      "!apps/site/.docusaurus",
+      "!apps/site/build",
+      "!apps/site/copy-to-build",
+      "!apps/site/static/api",
+      "!**/.yarn",
       "!**/.pnp.*"
     ]
   },
@@ -90,6 +94,8 @@
       "**/packages/lib/test/**/*.ts",
       "**/packages/mobx-keystone-yjs/src/**/*.ts",
       "**/packages/mobx-keystone-yjs/test/**/*.ts",
+      "**/packages/mobx-keystone-loro/src/**/*.ts",
+      "**/packages/mobx-keystone-loro/test/**/*.ts",
       "!**/packages/lib/src/action/modelFlowPromiseGenerator.ts",
       "!**/apps/site/docs/examples/**"
     ]

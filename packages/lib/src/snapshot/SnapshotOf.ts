@@ -4,6 +4,13 @@ import type { modelIdKey, modelTypeKey } from "../model/metadata"
 import type { ModelFromSnapshot, ModelToSnapshot } from "../modelShared/BaseModelShared"
 import type { ArraySet, ObjectMap } from "../wrappers"
 
+// this must be a type rather than an interface to ensure compatibility with index signatures
+// (e.g. PlainObject)
+export type FrozenData<D> = {
+  [frozenKey]: true
+  data: D
+}
+
 // snapshot out
 
 // infer is there just to cache type generation
@@ -14,10 +21,7 @@ export type SnapshotOutOfObject<T> = {
 
 export type SnapshotOutOfModel<M extends AnyModel> = ModelToSnapshot<M>
 
-export interface SnapshotOutOfFrozen<F extends Frozen<any>> {
-  [frozenKey]: true
-  data: F["data"]
-}
+export interface SnapshotOutOfFrozen<F extends Frozen<any>> extends FrozenData<F["data"]> {}
 
 export interface SnapshotOutOfObjectMap<V> {
   items: { [k: string]: SnapshotOutOf<V> }
@@ -62,10 +66,7 @@ export type SnapshotInOfObject<T> = {
 
 export type SnapshotInOfModel<M extends AnyModel> = ModelFromSnapshot<M>
 
-export interface SnapshotInOfFrozen<F extends Frozen<any>> {
-  [frozenKey]: true
-  data: F["data"]
-}
+export interface SnapshotInOfFrozen<F extends Frozen<any>> extends FrozenData<F["data"]> {}
 
 export interface SnapshotInOfObjectMap<V> {
   items?: { [k: string]: SnapshotOutOf<V> }

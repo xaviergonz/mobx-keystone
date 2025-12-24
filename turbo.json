@@ -13,8 +13,17 @@
       "dependsOn": ["mobx-keystone#build"],
       "outputs": ["dist/**"]
     },
+    "mobx-keystone-loro#build": {
+      "dependsOn": ["mobx-keystone#build"],
+      "outputs": ["dist/**"]
+    },
     "site#build": {
-      "dependsOn": ["mobx-keystone#build", "mobx-keystone-yjs#build", "mobx-keystone#build-docs"],
+      "dependsOn": [
+        "mobx-keystone#build",
+        "mobx-keystone-yjs#build",
+        "mobx-keystone-loro#build",
+        "mobx-keystone#build-docs"
+      ],
       "outputs": ["build/**"]
     },
     "site#serve": {
@@ -25,7 +34,12 @@
     },
     "site#start": {
       "cache": false,
-      "dependsOn": ["mobx-keystone#build", "mobx-keystone-yjs#build", "mobx-keystone#build-docs"],
+      "dependsOn": [
+        "mobx-keystone#build",
+        "mobx-keystone-yjs#build",
+        "mobx-keystone-loro#build",
+        "mobx-keystone#build-docs"
+      ],
       "outputs": [],
       "persistent": true
     },
@@ -38,12 +52,20 @@
       "dependsOn": ["mobx-keystone#build"],
       "outputs": []
     },
+    "mobx-keystone-loro#test": {
+      "dependsOn": ["mobx-keystone#build"],
+      "outputs": []
+    },
     "mobx-keystone#test:ci": {
       "dependsOn": [],
       "outputs": [],
       "env": ["COMPILER", "MOBX_VERSION"]
     },
     "mobx-keystone-yjs#test:ci": {
+      "dependsOn": ["mobx-keystone#build"],
+      "outputs": []
+    },
+    "mobx-keystone-loro#test:ci": {
       "dependsOn": ["mobx-keystone#build"],
       "outputs": []
     }

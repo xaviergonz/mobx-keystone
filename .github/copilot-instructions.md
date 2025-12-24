@@ -10,6 +10,7 @@ This repository is a monorepo containing the `mobx-keystone` library and its eco
 
 - `packages/lib`: The core `mobx-keystone` library.
 - `packages/mobx-keystone-yjs`: Yjs integration for `mobx-keystone`.
+- `packages/mobx-keystone-loro`: Loro CRDT integration for `mobx-keystone`.
 - `apps/site`: Documentation site (Docusaurus).
 - `apps/benchmark`: Performance benchmarks.
 - Root-level `README.md`, `LICENSE`, `CHANGELOG.md` are copied into the package on build.
@@ -48,6 +49,11 @@ When performing tasks, use the following `yarn` commands from the root directory
 - `yarn yjs-lib:build`: Build the Yjs integration library.
 - `yarn yjs-lib:test`: Run tests for the Yjs integration library.
 - `yarn yjs-lib:test:ci`: Run tests for the Yjs integration library in CI mode.
+
+### Loro Integration (`mobx-keystone-loro`)
+- `yarn loro-lib:build`: Build the Loro integration library.
+- `yarn loro-lib:test`: Run tests for the Loro integration library.
+- `yarn loro-lib:test:ci`: Run tests for the Loro integration library in CI mode.
 
 ### Documentation Site
 - `yarn site:start`: Start the documentation site in development mode.

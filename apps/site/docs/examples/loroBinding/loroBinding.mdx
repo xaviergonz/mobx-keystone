@@ -1,0 +1,37 @@
+---
+title: Loro Binding Example
+slug: /examples/loro-binding
+---
+
+import CodeBlock from "@theme/CodeBlock"
+import { AppInstance } from "./appInstance"
+
+import appSource from "!!raw-loader!./app.tsx"
+import appInstanceSource from "!!raw-loader!./appInstance.tsx"
+
+In this example we will be synchronizing two separate root stores via the `mobx-keystone-loro` package (documentation [here](../../integrations/loroBinding.mdx)). This package ensures a `Loro` document is kept in sync with a `mobx-keystone` store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
+
+Note: This example uses `BroadcastChannel` to share state between the two instances in the same browser.
+
+<div style={{ display: "flex", border: "1px solid #ccc", borderRadius: "4px", padding: "10px" }}>
+  <div style={{ flex: "0 0 50%", padding: "10px", borderRight: "1px solid #ccc" }}>
+    <AppInstance />
+  </div>
+  <div style={{ flex: "0 0 50%", padding: "10px" }}>
+    <AppInstance />
+  </div>
+</div>
+
+## Code
+
+### `appInstance.tsx`
+
+<CodeBlock className="language-tsx" title="examples/loroBinding/appInstance.tsx">
+  {appInstanceSource}
+</CodeBlock>
+
+### `app.tsx`
+
+<CodeBlock className="language-tsx" title="examples/loroBinding/app.tsx">
+  {appSource}
+</CodeBlock>
