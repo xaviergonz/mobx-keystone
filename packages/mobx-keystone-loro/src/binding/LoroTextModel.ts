@@ -3,11 +3,10 @@ import { computed, createAtom } from "mobx"
 import {
   frozen,
   getParentToChildPath,
-  isModelSnapshot,
+  getSnapshotModelType,
   Model,
   model,
   modelAction,
-  modelTypeKey,
   type SnapshotOutOf,
   tProp,
   types,
@@ -208,5 +207,5 @@ export const loroTextModelType = types.model(LoroTextModel)
  * Checks if a snapshot is a LoroTextModel snapshot.
  */
 export function isLoroTextModelSnapshot(value: unknown): value is SnapshotOutOf<LoroTextModel> {
-  return isModelSnapshot(value) && value[modelTypeKey] === loroTextModelId
+  return getSnapshotModelType(value) === loroTextModelId
 }

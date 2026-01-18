@@ -2,7 +2,7 @@
 
 ## 1.6.0 (unreleased)
 
-- `applyJsonArrayToYArray` / `applyJsonObjectToYMap` are no longer wrapped in mobx actions.
+- Refactored internal synchronization to use deep change observation instead of JSON patches. This provides proper array splice detection, avoiding the previous behavior where array operations were converted to individual element patches. The result is more efficient array synchronization and better alignment with how Y.js handles array modifications.
 
 ## 1.5.5
 

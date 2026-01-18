@@ -1,33 +1,43 @@
-import { type LoroDoc, type LoroEventBatch, LoroMovableList } from "loro-crdt"
+import {
+  type ContainerID,
+  type LoroDoc,
+  type LoroEventBatch,
+  LoroMap,
+  LoroMovableList,
+  LoroText,
+} from "loro-crdt"
 import { action } from "mobx"
 import {
   AnyDataModel,
   AnyModel,
   AnyStandardType,
-  applyPatches,
+  DeepChange,
   fromSnapshot,
   getParentToChildPath,
   getSnapshot,
   ModelClass,
-  onGlobalPatches,
-  onPatches,
+  onDeepChange,
+  onGlobalDeepChange,
   onSnapshot,
-  Patch,
   SnapshotOutOf,
   TypeToData,
 } from "mobx-keystone"
 import { nanoid } from "nanoid"
+import type { PlainArray, PlainObject } from "../plainTypes"
 import { getOrCreateLoroCollectionAtom } from "../utils/getOrCreateLoroCollectionAtom"
+import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
+import { applyLoroEventToMobx, ReconciliationMap } from "./applyLoroEventToMobx"
+import { applyMobxChangeToLoroObject } from "./applyMobxChangeToLoroObject"
 import {
-  type BindableLoroContainer,
-  isBindableLoroContainer,
-} from "../utils/isBindableLoroContainer"
-import { applyMobxKeystonePatchToLoroObject } from "./applyMobxKeystonePatchToLoroObject"
+  applyDeltaToLoroText,
+  applyJsonArrayToLoroMovableList,
+  applyJsonObjectToLoroMap,
+  extractTextDeltaFromSnapshot,
+} from "./convertJsonToLoroData"
 import { convertLoroDataToJson } from "./convertLoroDataToJson"
-import { convertLoroEventToPatches } from "./convertLoroEventToPatches"
+import { loroTextModelId } from "./LoroTextModel"
 import { type LoroBindingContext, loroBindingContext } from "./loroBindingContext"
-import { detectMoves, type MoveOperation } from "./moveDetection"
-import { resolveLoroPath } from "./resolveLoroPath"
+import { setLoroContainerSnapshot } from "./loroSnapshotTracking"
 
 /**
  * Creates a bidirectional binding between a Loro data structure and a mobx-keystone model.
@@ -83,154 +93,201 @@ export function bindLoroToMobxKeystone<
 
   const loroJson = convertLoroDataToJson(loroObject) as SnapshotOutOf<TypeToData<TType>>
 
-  const initializationGlobalPatches: { target: object; patches: Patch[] }[] = []
+  let boundObject: TypeToData<TType>
+
+  // Track if any init changes occurred during fromSnapshot
+  // If they did, we need to sync the model snapshot to the CRDT
+  let hasInitChanges = false
 
   const createBoundObject = () => {
-    const disposeOnGlobalPatches = onGlobalPatches((target, patches) => {
-      initializationGlobalPatches.push({ target, patches })
+    // Set up a temporary global listener to detect init changes during fromSnapshot
+    const disposeGlobalListener = onGlobalDeepChange((_target, change) => {
+      if (change.isInit) {
+        hasInitChanges = true
+      }
     })
 
     try {
-      const boundObject = loroBindingContext.apply(
+      const result = loroBindingContext.apply(
         () => fromSnapshot(mobxKeystoneType, loroJson),
         bindingContext
       )
-      loroBindingContext.set(boundObject, { ...bindingContext, boundObject })
-      return boundObject
+      loroBindingContext.set(result, { ...bindingContext, boundObject: result })
+      return result
     } finally {
-      disposeOnGlobalPatches()
+      disposeGlobalListener()
     }
   }
 
-  const boundObject = createBoundObject()
+  boundObject = createBoundObject()
 
-  // Get the container ID of the root Loro object for path resolution
-  const loroContainerId = loroObject.id
-
-  // Track previous snapshot for move detection
-  let previousSnapshot = getSnapshot(boundObject)
+  // Get the path to the root Loro object for path resolution
+  const rootLoroPath = loroDoc.getPathToContainer(loroObject.id) ?? []
 
   // bind any changes from Loro to mobx-keystone
   const loroSubscribeCb = action((eventBatch: LoroEventBatch) => {
-    // Skip if the change originated from us
+    // Skip changes that originated from this binding
     if (eventBatch.origin === loroOrigin) {
       return
     }
 
-    // Notify MobX that containers have changed (for text, map, list reactivity)
-    for (const event of eventBatch.events) {
-      const container = loroDoc.getContainerById(event.target)
-      if (container && isBindableLoroContainer(container)) {
-        getOrCreateLoroCollectionAtom(container).reportChanged()
+    // Track newly inserted containers to avoid double-processing their events
+    const newlyInsertedContainers = new Set<ContainerID>()
+
+    // Create a map to store reconciliation data for this batch
+    const reconciliationMap: ReconciliationMap = new Map()
+
+    // Collect init changes that occur during event application
+    // (e.g., fromSnapshot calls that trigger onInit hooks)
+    // We store both target and change so we can compute the correct path later
+    const initChanges: { target: object; change: DeepChange }[] = []
+    const disposeGlobalListener = onGlobalDeepChange((target, change) => {
+      if (change.isInit) {
+        initChanges.push({ target, change })
       }
-    }
+    })
 
     applyingLoroChangesToMobxKeystone++
     try {
-      const patches: Patch[][] = eventBatch.events.map((event) =>
-        convertLoroEventToPatches(event, loroDoc, loroContainerId)
-      )
-
-      if (patches.length > 0) {
-        applyPatches(boundObject, patches)
+      try {
+        for (const event of eventBatch.events) {
+          applyLoroEventToMobx(
+            event,
+            loroDoc,
+            boundObject,
+            rootLoroPath,
+            reconciliationMap,
+            newlyInsertedContainers
+          )
+        }
+      } finally {
+        disposeGlobalListener()
       }
 
-      previousSnapshot = getSnapshot(boundObject)
+      // Sync back any init-time mutations from fromSnapshot calls
+      // (e.g., onInit hooks that modify the model)
+      // This is needed because init changes during Loro event handling are not
+      // captured by the main onDeepChange (it skips changes when applyingLoroChangesToMobxKeystone > 0)
+      if (initChanges.length > 0) {
+        loroDoc.setNextCommitOrigin(loroOrigin)
+
+        for (const { target, change } of initChanges) {
+          // Compute the path from boundObject to the target
+          const pathToTarget = getParentToChildPath(boundObject, target)
+          if (pathToTarget !== undefined) {
+            // Create a new change with the correct path from the root
+            const changeWithCorrectPath: DeepChange = {
+              ...change,
+              path: [...pathToTarget, ...change.path],
+            }
+            applyMobxChangeToLoroObject(changeWithCorrectPath, loroObject)
+          }
+        }
+
+        loroDoc.commit()
+      }
+
+      // Update snapshot tracking: the Loro container is now in sync with the current MobX snapshot
+      // This enables the merge optimization to skip unchanged subtrees during reconciliation
+      if (loroObject instanceof LoroMap || loroObject instanceof LoroMovableList) {
+        setLoroContainerSnapshot(loroObject, getSnapshot(boundObject))
+      }
     } finally {
       applyingLoroChangesToMobxKeystone--
     }
   })
-
   const loroUnsubscribe = loroDoc.subscribe(loroSubscribeCb)
 
   // bind any changes from mobx-keystone to Loro
-  let pendingArrayOfArrayOfPatches: Patch[][] = []
-  const disposeOnPatches = onPatches(boundObject, (patches) => {
-    if (applyingLoroChangesToMobxKeystone > 0) {
+  // Collect changes during an action and apply them after the action completes
+  let pendingChanges: DeepChange[] = []
+
+  const disposeOnDeepChange = onDeepChange(boundObject, (change) => {
+    // Skip if we're currently applying Loro changes to MobX
+    if (bindingContext.isApplyingLoroChangesToMobxKeystone) {
       return
     }
 
-    pendingArrayOfArrayOfPatches.push(patches)
+    // Skip init changes - they are handled by the getSnapshot + merge at the end of binding
+    if (change.isInit) {
+      return
+    }
+
+    // Collect the change to be applied after the action completes
+    pendingChanges.push(change)
   })
 
-  // this is only used so we can batch all patches to the snapshot boundary
+  // Apply collected changes when snapshot changes (i.e., after action completes)
+  // Also notify that the loro container atoms have been updated
   const disposeOnSnapshot = onSnapshot(boundObject, () => {
-    if (pendingArrayOfArrayOfPatches.length === 0) {
+    if (pendingChanges.length === 0) {
       return
     }
 
-    const arrayOfArrayOfPatches = pendingArrayOfArrayOfPatches
-    pendingArrayOfArrayOfPatches = []
+    const changesToApply = pendingChanges
+    pendingChanges = []
 
-    // Get current snapshot for move detection
-    const currentSnapshot = getSnapshot(boundObject)
-
-    // Flatten patches for move detection
-    const allPatches = arrayOfArrayOfPatches.flat()
-
-    // Detect moves in array patches
-    const { regularPatches, moveOperations } = detectMoves(
-      allPatches,
-      previousSnapshot,
-      currentSnapshot
-    )
+    // Skip if we're currently applying Loro changes to MobX
+    if (bindingContext.isApplyingLoroChangesToMobxKeystone) {
+      return
+    }
 
     loroDoc.setNextCommitOrigin(loroOrigin)
 
-    // Apply regular patches first (to create/populate arrays)
-    // This ensures arrays and their items exist before move operations are applied
-    for (const patch of regularPatches) {
-      applyMobxKeystonePatchToLoroObject(loroObject, patch)
+    for (const change of changesToApply) {
+      applyMobxChangeToLoroObject(change, loroObject)
     }
 
-    // Apply move operations after (using native Loro move)
-    // At this point, the arrays and items are guaranteed to exist
-    for (const move of moveOperations) {
-      applyMoveToLoro(loroObject, move)
-    }
-
-    // Commit the changes
     loroDoc.commit()
 
-    previousSnapshot = currentSnapshot
+    // Update snapshot tracking: the Loro container is now in sync with the current MobX snapshot
+    if (loroObject instanceof LoroMap || loroObject instanceof LoroMovableList) {
+      setLoroContainerSnapshot(loroObject, getSnapshot(boundObject))
+    }
+
+    // Notify MobX that the Loro container has been updated
+    getOrCreateLoroCollectionAtom(loroObject).reportChanged()
   })
 
-  // sync initial patches, that might include setting defaults, IDs, etc
-  loroDoc.setNextCommitOrigin(loroOrigin)
+  // Sync the model snapshot to the CRDT if any init changes occurred.
+  // Init changes include: defaults being applied, onInit hooks mutating the model.
+  // This is an optimization: if no init changes occurred, we skip the sync entirely.
+  const finalSnapshot = getSnapshot(boundObject)
 
-  // we need to skip initializations until we hit the initialization of the bound object
-  // this is because default objects might be created and initialized before the main object
-  // but we just need to catch when those are actually assigned to the bound object
-  let boundObjectFound = false
+  if (hasInitChanges) {
+    loroDoc.setNextCommitOrigin(loroOrigin)
 
-  for (const { target, patches } of initializationGlobalPatches) {
-    if (!boundObjectFound) {
-      if (target !== boundObject) {
-        continue // skip
+    if (loroObject instanceof LoroMap) {
+      applyJsonObjectToLoroMap(loroObject, finalSnapshot as PlainObject, { mode: "merge" })
+    } else if (loroObject instanceof LoroMovableList) {
+      applyJsonArrayToLoroMovableList(loroObject, finalSnapshot as PlainArray, { mode: "merge" })
+    } else if (loroObject instanceof LoroText) {
+      // For LoroText, we need to handle LoroTextModel snapshot
+      const snapshot = finalSnapshot as Record<string, unknown>
+      if (snapshot.$modelType === loroTextModelId) {
+        // Clear existing content and apply deltas
+        if (loroObject.length > 0) {
+          loroObject.delete(0, loroObject.length)
+        }
+        const deltas = extractTextDeltaFromSnapshot(snapshot.deltaList)
+        if (deltas.length > 0) {
+          applyDeltaToLoroText(loroObject, deltas)
+        }
       }
-      boundObjectFound = true
     }
 
-    const parentToChildPath = getParentToChildPath(boundObject, target)
-    // this is undefined only if target is not a child of boundModel
-    if (parentToChildPath !== undefined) {
-      for (const patch of patches) {
-        applyMobxKeystonePatchToLoroObject(loroObject, {
-          ...patch,
-          path: [...parentToChildPath, ...patch.path],
-        })
-      }
-    }
+    loroDoc.commit()
   }
 
-  loroDoc.commit()
-
-  // Update previous snapshot after initial sync
-  previousSnapshot = getSnapshot(boundObject)
+  // Always update snapshot tracking after binding initialization
+  // This ensures the merge optimization can skip unchanged subtrees in future reconciliations
+  if (loroObject instanceof LoroMap || loroObject instanceof LoroMovableList) {
+    setLoroContainerSnapshot(loroObject, finalSnapshot)
+  }
 
   const dispose = () => {
     loroUnsubscribe()
-    disposeOnPatches()
+    disposeOnDeepChange()
     disposeOnSnapshot()
   }
 
@@ -238,18 +295,5 @@ export function bindLoroToMobxKeystone<
     boundObject,
     dispose,
     loroOrigin,
-  }
-}
-
-/**
- * Applies a move operation to a Loro document.
- */
-function applyMoveToLoro(loroObject: BindableLoroContainer, move: MoveOperation): void {
-  const parent = move.path.length === 0 ? loroObject : resolveLoroPath(loroObject, move.path)
-
-  if (parent instanceof LoroMovableList) {
-    if (move.fromIndex >= 0 && move.fromIndex < parent.length) {
-      parent.move(move.fromIndex, move.toIndex)
-    }
   }
 }

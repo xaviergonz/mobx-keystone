@@ -4,12 +4,12 @@ import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
 import { isModelClass } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { TypeChecker, isLateTypeChecker } from "../types/TypeChecker"
 import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
+import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { failure, isMap, isPrimitive, isSet } from "../utils"
-import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
+import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 
 /**
  * @internal
@@ -162,8 +162,9 @@ function snapshotToInitialData(
     const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
+      const snapshotValue = internalFromSnapshot(v, ctx)
       // setIfDifferent not required
-      set(initialData, k, internalFromSnapshot(v, ctx))
+      set(initialData, k, snapshotValue)
     }
   }
   return initialData

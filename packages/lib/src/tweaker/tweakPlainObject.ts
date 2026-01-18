@@ -6,7 +6,9 @@ import {
   observable,
   observe,
 } from "mobx"
+import { Path } from "parent/pathTypes"
 import { assertCanWrite } from "../action/protection"
+import { DeepChangeType, emitDeepChange, getIsInInitPhase } from "../deepChange/onDeepChange"
 import type { AnyModel } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
 import type { ModelClass } from "../modelShared/BaseModelShared"
@@ -44,9 +46,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
     ? originalObj
     : observable.object({}, undefined, observableOptions)
 
-  // biome-ignore lint/style/useConst: gets reassigned later
   let interceptDisposer: () => void
-  // biome-ignore lint/style/useConst: gets reassigned later
   let observeDisposer: () => void
 
   const untweak = () => {
@@ -143,7 +143,13 @@ function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
 
 const patchRecorder = new InternalPatchRecorder()
 
+const emptyPath: Path = Object.freeze([])
+
 function objectDidChange(change: IObjectDidChange): void {
+  if (typeof change.name !== "string") {
+    throw failure("change.name is not a string")
+  }
+
   const obj = change.object
   const actualNode = dataToModelNode(obj)
   const oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
@@ -153,14 +159,48 @@ function objectDidChange(change: IObjectDidChange): void {
   let mutate: ((sn: any) => void) | undefined
 
   switch (change.type) {
-    case "add":
-    case "update":
+    case "add": {
       mutate = objectDidChangeAddOrUpdate(change, oldUntransformedSn)
+      // Emit deep change for add
+      emitDeepChange(actualNode, {
+        type: DeepChangeType.ObjectAdd,
+        target: obj as object,
+        path: emptyPath,
+        key: change.name,
+        newValue: change.newValue,
+        isInit: getIsInInitPhase(),
+      })
       break
+    }
 
-    case "remove":
-      mutate = objectDidChangeRemove(change, oldUntransformedSn)
+    case "update": {
+      mutate = objectDidChangeAddOrUpdate(change, oldUntransformedSn)
+      // Emit deep change for update
+      emitDeepChange(actualNode, {
+        type: DeepChangeType.ObjectUpdate,
+        target: obj as object,
+        path: emptyPath,
+        key: change.name,
+        newValue: change.newValue,
+        oldValue: change.oldValue,
+        isInit: getIsInInitPhase(),
+      })
       break
+    }
+
+    case "remove": {
+      mutate = objectDidChangeRemove(change, oldUntransformedSn)
+      // Emit deep change for remove
+      emitDeepChange(actualNode, {
+        type: DeepChangeType.ObjectRemove,
+        target: obj as object,
+        path: emptyPath,
+        key: change.name,
+        oldValue: change.oldValue,
+        isInit: getIsInInitPhase(),
+      })
+      break
+    }
 
     default:
       throw failure("assertion error: unsupported object change type")

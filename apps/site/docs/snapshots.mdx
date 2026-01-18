@@ -34,6 +34,34 @@ This means, as mentioned before, that snapshots generation is automatically opti
 
 Note: Never change the contents of a snapshot object returned by `getSnapshot` directly, clone it first! If you do weird things might happen.
 
+## Snapshot utilities
+
+### `getSnapshotModelType`
+
+```ts
+getSnapshotModelType(snapshot: unknown): string | undefined
+```
+
+Gets the model type name (`$modelType`) from a snapshot. Returns `undefined` if the value is not a model snapshot.
+
+```ts
+const sn = getSnapshot(todo)
+const typeName = getSnapshotModelType(sn) // "myApp/Todo"
+
+// Check if something is a model snapshot
+if (getSnapshotModelType(sn) !== undefined) {
+  // it's a model snapshot
+}
+```
+
+### `getSnapshotModelId`
+
+```ts
+getSnapshotModelId(snapshot: unknown): string | undefined
+```
+
+Gets the model ID from a model snapshot. This reads the value of the ID property as declared with `idProp`.
+
 ## Getting the snapshot of an instance
 
 ### `getSnapshot`

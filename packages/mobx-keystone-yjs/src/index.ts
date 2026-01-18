@@ -1,4 +1,5 @@
 export { bindYjsToMobxKeystone } from "./binding/bindYjsToMobxKeystone"
+export type { ApplyJsonToYjsOptions } from "./binding/convertJsonToYjsData"
 export {
   applyJsonArrayToYArray,
   applyJsonObjectToYMap,

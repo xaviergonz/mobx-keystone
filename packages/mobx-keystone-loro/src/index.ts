@@ -1,4 +1,5 @@
 export { bindLoroToMobxKeystone } from "./binding/bindLoroToMobxKeystone"
+export type { ApplyJsonToLoroOptions } from "./binding/convertJsonToLoroData"
 export {
   applyJsonArrayToLoroMovableList,
   applyJsonObjectToLoroMap,

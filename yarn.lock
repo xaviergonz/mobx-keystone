@@ -16368,7 +16368,7 @@ __metadata:
   peerDependencies:
     loro-crdt: ^1.10.3
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
-    mobx-keystone: ^1.16.0
+    mobx-keystone: ^1.12.0
   languageName: unknown
   linkType: soft
 
@@ -16394,7 +16394,7 @@ __metadata:
     typescript: "npm:^5.9.3"
   peerDependencies:
     mobx: ^6.0.0 || ^5.0.0 || ^4.0.0
-    mobx-keystone: ^1.9.0
+    mobx-keystone: ^1.12.0
     yjs: ^13.0.0
   languageName: unknown
   linkType: soft

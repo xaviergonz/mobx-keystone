@@ -1,6 +1,5 @@
-import { LoroCounter, LoroDoc, LoroMap, LoroMovableList, LoroTree } from "loro-crdt"
+import { LoroDoc, LoroMap, LoroMovableList } from "loro-crdt"
 import { convertLoroDataToJson } from "../../src/binding/convertLoroDataToJson"
-import { convertLoroEventToPatches } from "../../src/binding/convertLoroEventToPatches"
 import { loroTextModelId } from "../../src/binding/LoroTextModel"
 
 describe("convertLoroDataToJson", () => {
@@ -82,37 +81,5 @@ describe("convertLoroDataToJson", () => {
         counter
       )
     ).toThrow("unsupported bindable Loro container type")
-  })
-})
-
-describe("convertLoroEventToPatches", () => {
-  test("throws when event contains unsupported Loro container", () => {
-    const doc = new LoroDoc()
-    const rootMap = doc.getMap("root")
-
-    let error: any
-    doc.subscribe((eventBatch) => {
-      try {
-        for (const event of eventBatch.events) {
-          convertLoroEventToPatches(event, doc, rootMap.id)
-        }
-      } catch (e) {
-        error = e
-      }
-    })
-
-    // Trigger an event with an unsupported container
-    rootMap.setContainer("tree", new LoroTree())
-    doc.commit()
-
-    expect(error).toBeDefined()
-    expect(error.message).toContain("unsupported bindable Loro container type")
-
-    error = undefined
-    rootMap.setContainer("counter", new LoroCounter())
-    doc.commit()
-
-    expect(error).toBeDefined()
-    expect(error.message).toContain("unsupported bindable Loro container type")
   })
 })

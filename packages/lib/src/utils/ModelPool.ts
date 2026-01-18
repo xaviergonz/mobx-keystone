@@ -1,7 +1,7 @@
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
-import { isModel, isModelSnapshot } from "../model/utils"
+import { getSnapshotModelType, isModel } from "../model/utils"
 import { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { dataObjectParent } from "../parent/core"
@@ -11,7 +11,7 @@ import {
 } from "../parent/coreObjectChildren"
 
 function byModelTypeAndIdKey(modelType: string, modelId: string) {
-  return modelType + " " + modelId
+  return JSON.stringify([modelType, modelId])
 }
 
 export class ModelPool {
@@ -29,11 +29,11 @@ export class ModelPool {
   }
 
   findModelForSnapshot(sn: any): AnyModel | undefined {
-    if (!isModelSnapshot(sn)) {
+    const modelType = getSnapshotModelType(sn)
+    if (modelType === undefined) {
       return undefined
     }
 
-    const modelType = sn[modelTypeKey]
     const modelInfo = getModelInfoForName(modelType)!
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
 

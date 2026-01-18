@@ -65,13 +65,16 @@ export function assertIsModelClass(
 }
 
 /**
- * Checks if an object is a model snapshot.
+ * Gets the model type name from a model snapshot.
  *
- * @param sn - The object to check.
- * @returns `true` if it is a model snapshot, `false` otherwise.
+ * @param snapshot - The snapshot to get the model type from.
+ * @returns The model type name if the snapshot is a model snapshot, `undefined` otherwise.
  */
-export function isModelSnapshot(sn: unknown): sn is { [modelTypeKey]: string } {
-  return isPlainObject(sn) && modelTypeKey in sn
+export function getSnapshotModelType(snapshot: unknown): string | undefined {
+  if (isPlainObject(snapshot) && modelTypeKey in snapshot) {
+    return (snapshot as { [modelTypeKey]: string })[modelTypeKey]
+  }
+  return undefined
 }
 
 /**
@@ -85,11 +88,11 @@ export function isModelSnapshot(sn: unknown): sn is { [modelTypeKey]: string } {
  * @returns The model ID if the snapshot has an ID property, or `undefined` if not.
  */
 export function getSnapshotModelId(snapshot: unknown): string | undefined {
-  if (!isModelSnapshot(snapshot)) {
+  const modelType = getSnapshotModelType(snapshot)
+  if (modelType === undefined) {
     return undefined
   }
 
-  const modelType = snapshot[modelTypeKey]
   const modelInfo = getModelInfoForName(modelType)
   if (!modelInfo) {
     return undefined

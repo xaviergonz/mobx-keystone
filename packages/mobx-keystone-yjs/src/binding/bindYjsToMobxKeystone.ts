@@ -3,24 +3,28 @@ import {
   AnyDataModel,
   AnyModel,
   AnyStandardType,
-  applyPatches,
+  DeepChange,
   fromSnapshot,
   getParentToChildPath,
+  getSnapshot,
   ModelClass,
-  onGlobalPatches,
-  onPatches,
+  onDeepChange,
+  onGlobalDeepChange,
   onSnapshot,
-  Patch,
   SnapshotInOf,
   TypeToData,
 } from "mobx-keystone"
 import * as Y from "yjs"
+import type { PlainArray, PlainObject } from "../plainTypes"
+import { failure } from "../utils/error"
 import { getYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
 import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
-import { applyMobxKeystonePatchToYjsObject } from "./applyMobxKeystonePatchToYjsObject"
+import { applyMobxChangeToYjsObject } from "./applyMobxChangeToYjsObject"
+import { applyYjsEventToMobx, ReconciliationMap } from "./applyYjsEventToMobx"
+import { applyJsonArrayToYArray, applyJsonObjectToYMap } from "./convertJsonToYjsData"
 import { convertYjsDataToJson } from "./convertYjsDataToJson"
-import { convertYjsEventToPatches } from "./convertYjsEventToPatches"
 import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
+import { setYjsContainerSnapshot } from "./yjsSnapshotTracking"
 
 /**
  * Creates a bidirectional binding between a Y.js data structure and a mobx-keystone model.
@@ -74,35 +78,47 @@ export function bindYjsToMobxKeystone<
     },
   }
 
+  if (isYjsValueDeleted(yjsObject)) {
+    throw failure("cannot apply patch to deleted Yjs value")
+  }
+
   const yjsJson = convertYjsDataToJson(yjsObject)
 
-  const initializationGlobalPatches: { target: object; patches: Patch[] }[] = []
+  let boundObject: TypeToData<TType>
+
+  // Track if any init changes occur during fromSnapshot
+  // (e.g., defaults being applied, onInit hooks mutating the model)
+  let hasInitChanges = false
 
   const createBoundObject = () => {
-    const disposeOnGlobalPatches = onGlobalPatches((target, patches) => {
-      initializationGlobalPatches.push({ target, patches })
+    // Set up a temporary global listener to detect if any init changes occur during fromSnapshot
+    const disposeGlobalListener = onGlobalDeepChange((_target, change) => {
+      if (change.isInit) {
+        hasInitChanges = true
+      }
     })
 
     try {
-      const boundObject = yjsBindingContext.apply(
+      const result = yjsBindingContext.apply(
         () => fromSnapshot(mobxKeystoneType, yjsJson as unknown as SnapshotInOf<TypeToData<TType>>),
         bindingContext
       )
-      yjsBindingContext.set(boundObject, { ...bindingContext, boundObject })
-      return boundObject
+      yjsBindingContext.set(result, { ...bindingContext, boundObject: result })
+      return result
     } finally {
-      disposeOnGlobalPatches()
+      disposeGlobalListener()
     }
   }
 
-  const boundObject = createBoundObject()
+  boundObject = createBoundObject()
 
   // bind any changes from yjs to mobx-keystone
   const observeDeepCb = action((events: Y.YEvent<any>[]) => {
-    const patches: Patch[] = []
+    const eventsToApply: Y.YEvent<any>[] = []
+
     events.forEach((event) => {
       if (event.transaction.origin !== yjsOrigin) {
-        patches.push(...convertYjsEventToPatches(event))
+        eventsToApply.push(event)
       }
 
       if (event.target instanceof Y.Map || event.target instanceof Y.Array) {
@@ -110,10 +126,55 @@ export function bindYjsToMobxKeystone<
       }
     })
 
-    if (patches.length > 0) {
+    if (eventsToApply.length > 0) {
       applyingYjsChangesToMobxKeystone++
       try {
-        applyPatches(boundObject, patches)
+        const reconciliationMap: ReconciliationMap = new Map()
+
+        // Collect init changes that occur during event application
+        // (e.g., fromSnapshot calls that trigger onInit hooks)
+        // We store both target and change so we can compute the correct path later
+        const initChanges: { target: object; change: DeepChange }[] = []
+        const disposeGlobalListener = onGlobalDeepChange((target, change) => {
+          if (change.isInit) {
+            initChanges.push({ target, change })
+          }
+        })
+
+        try {
+          eventsToApply.forEach((event) => {
+            applyYjsEventToMobx(event, boundObject, reconciliationMap)
+          })
+        } finally {
+          disposeGlobalListener()
+        }
+
+        // Sync back any init-time mutations from fromSnapshot calls
+        // (e.g., onInit hooks that modify the model)
+        // This is needed because init changes during Yjs event handling are not
+        // captured by the main onDeepChange (it skips changes when applyingYjsChangesToMobxKeystone > 0)
+        if (initChanges.length > 0 && !isYjsValueDeleted(yjsObject)) {
+          yjsDoc.transact(() => {
+            for (const { target, change } of initChanges) {
+              // Compute the path from boundObject to the target
+              const pathToTarget = getParentToChildPath(boundObject, target)
+              if (pathToTarget !== undefined) {
+                // Create a new change with the correct path from the root
+                const changeWithCorrectPath: DeepChange = {
+                  ...change,
+                  path: [...pathToTarget, ...change.path],
+                }
+                applyMobxChangeToYjsObject(changeWithCorrectPath, yjsObject)
+              }
+            }
+          }, yjsOrigin)
+        }
+
+        // Update snapshot tracking: the Y.js container is now in sync with the current MobX snapshot
+        // This enables the merge optimization to skip unchanged subtrees during reconciliation
+        if (yjsObject instanceof Y.Map || yjsObject instanceof Y.Array) {
+          setYjsContainerSnapshot(yjsObject, getSnapshot(boundObject))
+        }
       } finally {
         applyingYjsChangesToMobxKeystone--
       }
@@ -122,72 +183,79 @@ export function bindYjsToMobxKeystone<
 
   yjsObject.observeDeep(observeDeepCb)
 
-  // bind any changes from mobx-keystone to yjs
-  let pendingArrayOfArrayOfPatches: Patch[][] = []
-  const disposeOnPatches = onPatches(boundObject, (patches) => {
+  // bind any changes from mobx-keystone to yjs using deep change observation
+  // This provides proper splice detection for array operations
+  let pendingChanges: DeepChange[] = []
+
+  const disposeOnDeepChange = onDeepChange(boundObject, (change) => {
     if (applyingYjsChangesToMobxKeystone > 0) {
       return
     }
 
-    pendingArrayOfArrayOfPatches.push(patches)
-  })
-
-  // this is only used so we can transact all patches to the snapshot boundary
-  const disposeOnSnapshot = onSnapshot(boundObject, () => {
-    if (pendingArrayOfArrayOfPatches.length === 0) {
+    // Skip init changes - they are handled by the getSnapshot + merge at the end of binding
+    if (change.isInit) {
       return
     }
 
-    const arrayOfArrayOfPatches = pendingArrayOfArrayOfPatches
-    pendingArrayOfArrayOfPatches = []
+    pendingChanges.push(change)
+  })
 
+  // this is only used so we can transact all changes to the snapshot boundary
+  const disposeOnSnapshot = onSnapshot(boundObject, (boundObjectSnapshot) => {
+    if (pendingChanges.length === 0) {
+      return
+    }
+
+    const changesToApply = pendingChanges
+    pendingChanges = []
+
+    // Skip syncing to Yjs if the Yjs object has been deleted/detached
     if (isYjsValueDeleted(yjsObject)) {
       return
     }
 
     yjsDoc.transact(() => {
-      arrayOfArrayOfPatches.forEach((arrayOfPatches) => {
-        arrayOfPatches.forEach((patch) => {
-          applyMobxKeystonePatchToYjsObject(patch, yjsObject)
-        })
+      changesToApply.forEach((change) => {
+        applyMobxChangeToYjsObject(change, yjsObject)
       })
     }, yjsOrigin)
+
+    // Update snapshot tracking: the Y.js container is now in sync with the current MobX snapshot
+    if (yjsObject instanceof Y.Map || yjsObject instanceof Y.Array) {
+      setYjsContainerSnapshot(yjsObject, boundObjectSnapshot)
+    }
   })
 
-  // sync initial patches, that might include setting defaults, IDs, etc
-  yjsDoc.transact(() => {
-    // we need to skip initializations until we hit the initialization of the bound object
-    // this is because default objects might be created and initialized before the main object
-    // but we just need to catch when those are actually assigned to the bound object
-    let boundObjectFound = false
+  // Sync the init changes to the CRDT.
+  // Init changes include: defaults being applied, onInit hooks mutating the model.
+  // We use getSnapshot + merge because the per-change approach has issues with reference mutation
+  // (values captured in DeepChange can be mutated before we apply them).
+  // The snapshot tracking optimization ensures unchanged subtrees are skipped during merge.
+  const finalSnapshot = getSnapshot(boundObject)
 
-    initializationGlobalPatches.forEach(({ target, patches }) => {
-      if (!boundObjectFound) {
-        if (target !== boundObject) {
-          return // skip
-        }
-        boundObjectFound = true
-      }
-
-      const parentToChildPath = getParentToChildPath(boundObject, target)
-      // this is undefined only if target is not a child of boundModel
-      if (parentToChildPath !== undefined) {
-        patches.forEach((patch) => {
-          applyMobxKeystonePatchToYjsObject(
-            {
-              ...patch,
-              path: [...parentToChildPath, ...patch.path],
-            },
-            yjsObject
-          )
+  if (hasInitChanges) {
+    yjsDoc.transact(() => {
+      if (yjsObject instanceof Y.Map) {
+        applyJsonObjectToYMap(yjsObject, finalSnapshot as unknown as PlainObject, {
+          mode: "merge",
+        })
+      } else if (yjsObject instanceof Y.Array) {
+        applyJsonArrayToYArray(yjsObject, finalSnapshot as unknown as PlainArray, {
+          mode: "merge",
         })
       }
-    })
-  }, yjsOrigin)
+    }, yjsOrigin)
+  }
+
+  // Always update snapshot tracking after binding initialization
+  // This ensures the merge optimization can skip unchanged subtrees in future reconciliations
+  if (yjsObject instanceof Y.Map || yjsObject instanceof Y.Array) {
+    setYjsContainerSnapshot(yjsObject, finalSnapshot)
+  }
 
   const dispose = () => {
     yjsDoc.off("destroy", dispose)
-    disposeOnPatches()
+    disposeOnDeepChange()
     disposeOnSnapshot()
     yjsObject.unobserveDeep(observeDeepCb)
   }
