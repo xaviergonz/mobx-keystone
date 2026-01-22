@@ -2,8 +2,10 @@ import { LoroDoc, LoroMap, LoroMovableList } from "loro-crdt"
 import {
   frozen,
   getSnapshot,
+  idProp,
   Model,
   modelTypeKey,
+  prop,
   runUnprotected,
   tProp,
   types,
@@ -369,5 +371,223 @@ describe("snapshot tracking optimization", () => {
     const snapshot2 = getSnapshot(boundObject)
     expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, snapshot2)).toBe(true)
     expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, snapshot1)).toBe(false)
+  })
+})
+
+describe("array update with same ID", () => {
+  @testModel("binding-item-with-id")
+  class ItemWithId extends Model({
+    id: idProp,
+    name: tProp(types.string),
+    value: tProp(types.number, 0),
+  }) {}
+
+  test("replacing model with same ID but different content should preserve updates", () => {
+    @testModel("binding-replace-same-id-container")
+    class ContainerForReplaceTest extends Model({
+      items: prop<ItemWithId[]>(() => []),
+    }) {}
+
+    const doc = new LoroDoc()
+    const loroMap = doc.getMap("root")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: loroMap,
+      mobxKeystoneType: ContainerForReplaceTest,
+    })
+    autoDispose(dispose)
+
+    // Add initial items
+    runUnprotected(() => {
+      boundObject.items = [
+        new ItemWithId({ name: "A", value: 1 }),
+        new ItemWithId({ name: "B", value: 2 }),
+      ]
+    })
+
+    const loroItems = loroMap.get("items") as LoroMovableList
+
+    // Get the ID of first item
+    const firstItemId = boundObject.items[0].$modelId
+
+    // Create a new item with same model type but we're replacing at index
+    runUnprotected(() => {
+      boundObject.items[0] = new ItemWithId({ name: "A-updated", value: 100 })
+    })
+
+    // The new item should have different content
+    expect(boundObject.items[0].name).toBe("A-updated")
+    expect(boundObject.items[0].value).toBe(100)
+
+    // Loro should reflect the update
+    const loroItem = loroItems.get(0) as LoroMap
+    expect(loroItem.get("name")).toBe("A-updated")
+    expect(loroItem.get("value")).toBe(100)
+
+    // And it should be a different model ID (new instance)
+    expect(boundObject.items[0].$modelId).not.toBe(firstItemId)
+  })
+
+  test("modifying model properties after move should sync correctly", () => {
+    @testModel("binding-move-modify-container")
+    class ContainerForMoveModifyTest extends Model({
+      items: prop<ItemWithId[]>(() => []),
+    }) {}
+
+    const doc = new LoroDoc()
+    const loroMap = doc.getMap("root")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: loroMap,
+      mobxKeystoneType: ContainerForMoveModifyTest,
+    })
+    autoDispose(dispose)
+
+    runUnprotected(() => {
+      boundObject.items = [
+        new ItemWithId({ name: "A", value: 1 }),
+        new ItemWithId({ name: "B", value: 2 }),
+        new ItemWithId({ name: "C", value: 3 }),
+      ]
+    })
+
+    const itemA = boundObject.items[0]
+    const loroItems = loroMap.get("items") as LoroMovableList
+
+    // Move A to end and modify it in same action
+    runUnprotected(() => {
+      boundObject.items.splice(0, 1)
+      boundObject.items.push(itemA)
+      itemA.value = 999
+      itemA.name = "A-modified"
+    })
+
+    expect(boundObject.items[2].name).toBe("A-modified")
+    expect(boundObject.items[2].value).toBe(999)
+
+    // Loro should have the updated values
+    const loroItemA = loroItems.get(2) as LoroMap
+    expect(loroItemA.get("name")).toBe("A-modified")
+    expect(loroItemA.get("value")).toBe(999)
+  })
+})
+
+describe("frozen objects", () => {
+  test("frozen objects should work correctly", () => {
+    @testModel("binding-frozen-object-container")
+    class FrozenObjectContainer extends Model({
+      data: tProp(types.frozen(types.unchecked<{ value: number }>()), () => frozen({ value: 0 })),
+    }) {}
+
+    const doc = new LoroDoc()
+    const loroMap = doc.getMap("root")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: loroMap,
+      mobxKeystoneType: FrozenObjectContainer,
+    })
+    autoDispose(dispose)
+
+    // Set frozen data
+    runUnprotected(() => {
+      boundObject.data = frozen({ value: 42 })
+    })
+
+    // Frozen snapshots include $frozen marker
+    const loroData = loroMap.toJSON().data as { $frozen: boolean; data: { value: number } }
+    expect(loroData.$frozen).toBe(true)
+    expect(loroData.data.value).toBe(42)
+
+    // Update to new frozen value
+    runUnprotected(() => {
+      boundObject.data = frozen({ value: 100 })
+    })
+
+    const loroData2 = loroMap.toJSON().data as { $frozen: boolean; data: { value: number } }
+    expect(loroData2.data.value).toBe(100)
+  })
+})
+
+describe("path key collisions", () => {
+  @testModel("binding-path-item")
+  class PathItem extends Model({
+    id: idProp,
+    name: tProp(types.string),
+    value: tProp(types.number, 0),
+  }) {}
+
+  test("object key '1' vs array index 1 should not collide", () => {
+    @testModel("binding-path-collision-container")
+    class PathCollisionContainer extends Model({
+      // Record with string keys
+      recordItems: prop<Record<string, PathItem>>(() => ({})),
+      // Array with numeric indices
+      arrayItems: prop<PathItem[]>(() => []),
+    }) {}
+
+    const doc = new LoroDoc()
+    const loroMap = doc.getMap("root")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: loroMap,
+      mobxKeystoneType: PathCollisionContainer,
+    })
+    autoDispose(dispose)
+
+    // Add items to both
+    runUnprotected(() => {
+      boundObject.recordItems["1"] = new PathItem({ name: "record-1", value: 1 })
+      boundObject.arrayItems[0] = new PathItem({ name: "array-0", value: 0 })
+      boundObject.arrayItems[1] = new PathItem({ name: "array-1", value: 1 })
+    })
+
+    // Modify both in same action
+    runUnprotected(() => {
+      boundObject.recordItems["1"].value = 100
+      boundObject.arrayItems[1].value = 200
+    })
+
+    // Both should have updated correctly
+    expect(boundObject.recordItems["1"].value).toBe(100)
+    expect(boundObject.arrayItems[1].value).toBe(200)
+
+    // Check Loro
+    const loroRecord = loroMap.get("recordItems") as LoroMap
+    const loroArray = loroMap.get("arrayItems") as LoroMovableList
+    expect((loroRecord.get("1") as LoroMap).get("value")).toBe(100)
+    expect((loroArray.get(1) as LoroMap).get("value")).toBe(200)
+  })
+})
+
+describe("type validation", () => {
+  test("reconcile should handle non-array paths gracefully", () => {
+    @testModel("binding-type-validation-container")
+    class TypeValidationContainer extends Model({
+      notAnArray: tProp(types.string, "hello"),
+      items: prop<string[]>(() => []),
+    }) {}
+
+    const doc = new LoroDoc()
+    const loroMap = doc.getMap("root")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: loroMap,
+      mobxKeystoneType: TypeValidationContainer,
+    })
+    autoDispose(dispose)
+
+    // Normal operation should work
+    runUnprotected(() => {
+      boundObject.notAnArray = "world"
+      boundObject.items.push("test")
+    })
+
+    expect(boundObject.notAnArray).toBe("world")
+    expect(boundObject.items.length).toBe(1)
   })
 })

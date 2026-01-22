@@ -47,7 +47,10 @@ export function getModelMetadata(
 const modelIdPropertyNameCache = new WeakMap<object, string | undefined>()
 
 /**
- * @internal
+ * Returns the ID property name for a model class, or `undefined` if the model has no ID property.
+ *
+ * @param modelClass The model class.
+ * @returns The ID property name or `undefined`.
  */
 export function getModelIdPropertyName(modelClass: ModelClass<AnyModel>): string | undefined {
   return getOrCreate(

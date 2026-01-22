@@ -1,5 +1,5 @@
 import { LoroMap, LoroMovableList, LoroText } from "loro-crdt"
-import { DeepChange, DeepChangeType, getSnapshot } from "mobx-keystone"
+import { DeepChangeType } from "mobx-keystone"
 import type { PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
@@ -8,25 +8,29 @@ import {
   convertJsonToLoroData,
   extractTextDeltaFromSnapshot,
 } from "./convertJsonToLoroData"
+import type { EnhancedDeepChange } from "./enhanceDeepChange"
 import { isLoroTextModelSnapshot } from "./LoroTextModel"
 import { resolveLoroPath } from "./resolveLoroPath"
 
-function convertValue(v: unknown): unknown {
+/**
+ * Converts a snapshot value (already captured) to a Loro-compatible value.
+ * This is used with enhanced changes that have pre-captured snapshots.
+ */
+function convertSnapshotValue(v: unknown): unknown {
   // Handle primitives directly
   if (v === null || v === undefined || typeof v !== "object") {
     return v
   }
-  // Handle plain arrays (not MobX observables) - used for empty array init
+  // Handle plain arrays - used for empty array init
   if (Array.isArray(v) && v.length === 0) {
     return new LoroMovableList()
   }
-  const sn = getSnapshot(v)
   // Handle LoroTextModel snapshot specially - we need to return it as-is
   // so the caller can handle creating the LoroText container properly
-  if (isLoroTextModelSnapshot(sn)) {
-    return sn
+  if (isLoroTextModelSnapshot(v)) {
+    return v
   }
-  return convertJsonToLoroData(sn as PlainValue)
+  return convertJsonToLoroData(v as PlainValue)
 }
 
 /**
@@ -69,8 +73,13 @@ function setInMap(map: LoroMap, key: string, value: unknown): void {
   }
 }
 
+/**
+ * Applies an enhanced MobX change to a Loro object.
+ * Enhanced changes contain pre-captured snapshots, so we don't need to call getSnapshot()
+ * on live references (which could give incorrect results if the object was mutated).
+ */
 export function applyMobxChangeToLoroObject(
-  change: DeepChange,
+  change: EnhancedDeepChange,
   loroObject: BindableLoroContainer
 ): void {
   const loroContainer = resolveLoroPath(loroObject, change.path)
@@ -87,14 +96,14 @@ export function applyMobxChangeToLoroObject(
       if (change.removedValues.length > 0) {
         loroContainer.delete(change.index, change.removedValues.length)
       }
-      if (change.addedValues.length > 0) {
-        const valuesToInsert = change.addedValues.map(convertValue)
+      if (change.addedSnapshots.length > 0) {
+        const valuesToInsert = change.addedSnapshots.map(convertSnapshotValue)
         for (let i = 0; i < valuesToInsert.length; i++) {
           insertIntoList(loroContainer, change.index + i, valuesToInsert[i])
         }
       }
     } else if (change.type === DeepChangeType.ArrayUpdate) {
-      const converted = convertValue(change.newValue)
+      const converted = convertSnapshotValue(change.newValueSnapshot)
       if (
         converted instanceof LoroMap ||
         converted instanceof LoroMovableList ||
@@ -116,7 +125,7 @@ export function applyMobxChangeToLoroObject(
   } else if (loroContainer instanceof LoroMap) {
     if (change.type === DeepChangeType.ObjectAdd || change.type === DeepChangeType.ObjectUpdate) {
       const key = change.key
-      const converted = convertValue(change.newValue)
+      const converted = convertSnapshotValue(change.newValueSnapshot)
       setInMap(loroContainer, key, converted)
     } else if (change.type === DeepChangeType.ObjectRemove) {
       const key = change.key
@@ -129,9 +138,8 @@ export function applyMobxChangeToLoroObject(
     if (change.type === DeepChangeType.ObjectAdd || change.type === DeepChangeType.ObjectUpdate) {
       const key = change.key
       if (key === "deltaList") {
-        // Apply deltas to the LoroText
-        const deltaFieldValue = getSnapshot(change.newValue)
-        const deltas = extractTextDeltaFromSnapshot(deltaFieldValue)
+        // Apply deltas to the LoroText - use the pre-captured snapshot
+        const deltas = extractTextDeltaFromSnapshot(change.newValueSnapshot)
         // Clear existing text first
         if (loroContainer.length > 0) {
           loroContainer.delete(0, loroContainer.length)
