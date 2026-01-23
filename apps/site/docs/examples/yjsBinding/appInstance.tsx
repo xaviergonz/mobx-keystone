@@ -6,7 +6,7 @@ import { useState } from "react"
 import { WebrtcProvider } from "y-webrtc"
 import * as Y from "yjs"
 import { TodoListView } from "../todoList/app"
-import { TodoList, createDefaultTodoList } from "../todoList/store"
+import { createDefaultTodoList, TodoList } from "../todoList/store"
 
 function getInitialState() {
   // here we just generate what a client would have saved from a previous session,

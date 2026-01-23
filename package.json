@@ -11,6 +11,9 @@
     "yjs-lib:build": "turbo run mobx-keystone-yjs#build",
     "yjs-lib:test": "turbo run mobx-keystone-yjs#test",
     "yjs-lib:test:ci": "turbo run mobx-keystone-yjs#test:ci",
+    "loro-lib:build": "turbo run mobx-keystone-loro#build",
+    "loro-lib:test": "turbo run mobx-keystone-loro#test",
+    "loro-lib:test:ci": "turbo run mobx-keystone-loro#test:ci",
     "site:start": "turbo run site#start",
     "site:build": "turbo run site#build",
     "site:serve": "turbo run site#serve",
@@ -23,6 +26,7 @@
     "apps/*"
   ],
   "dependencies": {
+    "loro-crdt": "^1.10.3",
     "mobx": "^6.15.0",
     "yjs": "^13.6.28"
   },

@@ -46,6 +46,32 @@ const config: Config = {
         indexPages: false,
       },
     ],
+    () => ({
+      name: "webpack-wasm-plugin",
+      configureWebpack(_config, isServer) {
+        if (isServer) {
+          // For SSR, mark loro-crdt and mobx-keystone-loro as external to avoid bundling WebAssembly
+          return {
+            externals: ["loro-crdt", "mobx-keystone-loro"],
+          }
+        }
+        return {
+          resolve: {
+            alias: {
+              "loro-crdt": require.resolve("loro-crdt/base64/index.js"),
+            },
+            fallback: {
+              fs: false,
+              path: false,
+            },
+          },
+          experiments: {
+            asyncWebAssembly: true,
+            topLevelAwait: true,
+          },
+        }
+      },
+    }),
   ],
 
   themeConfig: {

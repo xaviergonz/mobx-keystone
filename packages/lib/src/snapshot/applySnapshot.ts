@@ -6,7 +6,7 @@ import { isFrozenSnapshot } from "../frozen/Frozen"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
-import { isModel, isModelSnapshot } from "../model/utils"
+import { getSnapshotModelType, isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, modelInfoByClass } from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
@@ -82,12 +82,11 @@ export function internalApplySnapshot<T extends object>(
     sn = { ...sn, [modelTypeKey]: modelInfo.name }
   }
 
-  if (isModelSnapshot(sn)) {
-    const type = (sn as { [modelTypeKey]: string })[modelTypeKey]
-
-    const modelInfo = getModelInfoForName(type)
+  const modelType = getSnapshotModelType(sn)
+  if (modelType !== undefined) {
+    const modelInfo = getModelInfoForName(modelType)
     if (!modelInfo) {
-      throw failure(`model with name "${type}" not found in the registry`)
+      throw failure(`model with name "${modelType}" not found in the registry`)
     }
 
     // we don't check by actual instance since the class might be a different one due to hot reloading
@@ -96,10 +95,10 @@ export function internalApplySnapshot<T extends object>(
       throw failure(`the target for a model snapshot must be a model instance`)
     }
 
-    if (obj[modelTypeKey] !== type) {
+    if (obj[modelTypeKey] !== modelType) {
       // different kind of model, no reconciliation possible
       throw failure(
-        `snapshot model type '${type}' does not match target model type '${
+        `snapshot model type '${modelType}' does not match target model type '${
           (obj as any)[modelTypeKey]
         }'`
       )

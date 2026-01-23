@@ -34,7 +34,11 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Integrations",
-      items: ["integrations/reduxCompatibility", "integrations/yjsBinding"],
+      items: [
+        "integrations/reduxCompatibility",
+        "integrations/yjsBinding",
+        "integrations/loroBinding",
+      ],
     },
     {
       type: "category",
@@ -43,6 +47,7 @@ const sidebars: SidebarsConfig = {
         "examples/todoList/todoList",
         "examples/clientServer/clientServer",
         "examples/yjsBinding/yjsBinding",
+        "examples/loroBinding/loroBinding",
       ],
     },
   ],

@@ -3,7 +3,7 @@ import type { AnyModel } from "../model/BaseModel"
 import type { ModelClass } from "./BaseModelShared"
 
 /**
- * @internal
+ * Information about a registered model.
  */
 export interface ModelInfo {
   name: string
@@ -23,7 +23,10 @@ export const modelInfoByName: {
 export const modelInfoByClass = new WeakMap<ModelClass<AnyModel | AnyDataModel>, ModelInfo>()
 
 /**
- * @internal
+ * Returns the model info for a model type name, or `undefined` if not found.
+ *
+ * @param name The model type name (from `$modelType`).
+ * @returns The model info or `undefined`.
  */
 export function getModelInfoForName(name: string): ModelInfo | undefined {
   return modelInfoByName[name]

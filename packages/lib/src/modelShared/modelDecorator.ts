@@ -2,6 +2,7 @@ import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import { isDataModelClass } from "../dataModel/utils"
+import { enterInitPhase, exitInitPhase } from "../deepChange/onDeepChange"
 import { getGlobalConfig } from "../globalConfig"
 import type { AnyModel } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
@@ -86,18 +87,23 @@ const runAfterClassInitialization = (
   // the object is ready
   instance[modelInitializedSymbol] = true
 
-  runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
+  enterInitPhase()
+  try {
+    runLateInitializationFunctions(instance, runBeforeOnInitSymbol)
 
-  if (tag.type === "class" && instance.onInit) {
-    wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
+    if (tag.type === "class" && instance.onInit) {
+      wrapModelMethodInActionIfNeeded(instance, "onInit", HookAction.OnInit)
 
-    instance.onInit()
-  }
+      instance.onInit()
+    }
 
-  if (tag.type === "data" && instance.onLazyInit) {
-    wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
+    if (tag.type === "data" && instance.onLazyInit) {
+      wrapModelMethodInActionIfNeeded(instance, "onLazyInit", HookAction.OnLazyInit)
 
-    instance.onLazyInit()
+      instance.onLazyInit()
+    }
+  } finally {
+    exitInitPhase()
   }
 }
 

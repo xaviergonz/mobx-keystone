@@ -1,20 +1,26 @@
 import { action, set } from "mobx"
 import type { O } from "ts-toolbelt"
+import {
+  DeepChangeType,
+  emitDeepChange,
+  ObjectAddChange,
+  ObjectUpdateChange,
+} from "../deepChange/onDeepChange"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import type { ModelClass, ModelCreationData } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
 import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
-import { Patch } from "../patch/Patch"
 import { createPatchForObjectValueChange, emitPatches } from "../patch/emitPatch"
+import { Patch } from "../patch/Patch"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { setIfDifferent, setIfDifferentWithReturn } from "../utils/setIfDifferent"
 import type { AnyModel } from "./BaseModel"
-import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
+import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelTypeKey } from "./metadata"
 import { assertIsModelClass } from "./utils"
 
@@ -141,6 +147,7 @@ export const internalFromSnapshotModel = action(
 
     const patches: Patch[] = []
     const inversePatches: Patch[] = []
+    const defaultsApplied: { key: string; oldValue: unknown; newValue: unknown }[] = []
 
     if (modelIdPropertyName) {
       const initialValue = initialData[modelIdPropertyName]
@@ -191,6 +198,9 @@ export const internalFromSnapshotModel = action(
 
           patches.push(createPatchForObjectValueChange(propPath, initialValue, newValue))
           inversePatches.push(createPatchForObjectValueChange(propPath, newValue, initialValue))
+
+          // Track defaults applied for deep change emission
+          defaultsApplied.push({ key: k, oldValue: initialValue, newValue })
         }
       }
     }
@@ -210,6 +220,36 @@ export const internalFromSnapshotModel = action(
     finalizeNewModel(modelObj, initialData, modelClass)
 
     emitPatches(modelObj, patches, inversePatches)
+
+    // Emit deep changes for defaults applied during fromSnapshot
+    // These are emitted with isInit: true so bindings can sync them to CRDTs
+    for (const { key, oldValue } of defaultsApplied) {
+      const target = modelObj.$
+      if (oldValue === undefined) {
+        // Key was added (didn't exist in snapshot)
+        const change: ObjectAddChange = {
+          type: DeepChangeType.ObjectAdd,
+          path: [],
+          target,
+          key,
+          newValue: target[key], // Use the tweaked value from $
+          isInit: true,
+        }
+        emitDeepChange(modelObj, change)
+      } else {
+        // Key was updated (had a different value in snapshot, e.g., null -> default)
+        const change: ObjectUpdateChange = {
+          type: DeepChangeType.ObjectUpdate,
+          path: [],
+          target,
+          key,
+          newValue: target[key], // Use the tweaked value from $
+          oldValue,
+          isInit: true,
+        }
+        emitDeepChange(modelObj, change)
+      }
+    }
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {

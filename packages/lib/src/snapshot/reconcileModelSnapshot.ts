@@ -2,7 +2,7 @@ import { remove } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
-import { isModel, isModelSnapshot } from "../model/utils"
+import { getSnapshotModelType, isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
@@ -13,11 +13,11 @@ import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { failure, isArray } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
-import type { SnapshotInOfModel } from "./SnapshotOf"
-import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
+import type { SnapshotInOfModel } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function reconcileModelSnapshot(
   value: any,
@@ -126,7 +126,7 @@ function reconcileModelSnapshot(
  */
 export function registerModelSnapshotReconciler() {
   registerReconciler(SnapshotterAndReconcilerPriority.Model, (value, sn, modelPool, parent) => {
-    if (isModelSnapshot(sn)) {
+    if (getSnapshotModelType(sn) !== undefined) {
       return reconcileModelSnapshot(value, sn, modelPool, parent)
     }
     return undefined

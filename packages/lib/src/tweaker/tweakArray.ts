@@ -7,7 +7,9 @@ import {
   observable,
   observe,
 } from "mobx"
+import { Path } from "parent/pathTypes"
 import { assertCanWrite } from "../action/protection"
+import { DeepChangeType, emitDeepChange, getIsInInitPhase } from "../deepChange/onDeepChange"
 import { getGlobalConfig } from "../globalConfig"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
@@ -43,9 +45,7 @@ export function tweakArray<T extends any[]>(
     tweakedArr.length = originalArr.length
   }
 
-  // biome-ignore lint/style/useConst: gets reassigned later
   let interceptDisposer: () => void
-  // biome-ignore lint/style/useConst: gets reassigned later
   let observeDisposer: () => void
 
   const untweak = () => {
@@ -118,6 +118,8 @@ function mutateSplice(index: number, removedCount: number, addedItems: any[], sn
 
 const patchRecorder = new InternalPatchRecorder()
 
+const emptyPath: Path = Object.freeze([])
+
 function arrayDidChange(change: any /*IArrayDidChange*/) {
   const arr = change.object
   const oldSnapshot = getInternalSnapshot(arr as Array<unknown>)!.untransformed
@@ -129,10 +131,31 @@ function arrayDidChange(change: any /*IArrayDidChange*/) {
   switch (change.type) {
     case "splice":
       mutate = arrayDidChangeSplice(change, oldSnapshot)
+      // Emit deep change for splice
+      emitDeepChange(arr, {
+        type: DeepChangeType.ArraySplice,
+        target: arr,
+        path: emptyPath,
+        index: change.index as number,
+        addedValues: change.added,
+        removedValues: change.removed,
+        isInit: getIsInInitPhase(),
+      })
       break
 
     case "update":
       mutate = arrayDidChangeUpdate(change, oldSnapshot)
+      // Emit deep change for update
+      emitDeepChange(arr, {
+        type: DeepChangeType.ArrayUpdate,
+        target: arr,
+        path: emptyPath,
+        index: change.index as number,
+        newValue: change.newValue,
+        oldValue: change.oldValue,
+        isInit: getIsInInitPhase(),
+      })
+
       break
 
     default:

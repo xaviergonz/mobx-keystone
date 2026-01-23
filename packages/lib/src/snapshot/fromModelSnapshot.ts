@@ -1,8 +1,8 @@
 import { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
-import { modelTypeKey } from "../model/metadata"
 import { ModelConstructorOptions } from "../model/ModelConstructorOptions"
-import { isModelSnapshot } from "../model/utils"
+import { modelTypeKey } from "../model/metadata"
+import { getSnapshotModelType } from "../model/utils"
 import { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { failure } from "../utils"
@@ -49,7 +49,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
  */
 export function registerFromModelSnapshotter() {
   registerSnapshotter(SnapshotterAndReconcilerPriority.Model, (sn, ctx) => {
-    if (isModelSnapshot(sn)) {
+    if (getSnapshotModelType(sn) !== undefined) {
       return fromModelSnapshot(sn, ctx)
     }
     return undefined

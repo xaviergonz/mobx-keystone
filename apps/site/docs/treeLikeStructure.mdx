@@ -240,6 +240,35 @@ The optional `options` parameter accepts an object with the following options:
 
 Returns a disposer, which has a boolean parameter which should be `true` if pending detachment callbacks should be run, or `false` otherwise.
 
+### `onDeepChange`
+
+```ts
+onDeepChange(target: object, listener: OnDeepChangeListener): OnDeepChangeDisposer
+```
+
+`onDeepChange` allows you to observe raw MobX change information for a tree node and all its children. This is useful when you need to detect the actual operation that occurred, such as array splices:
+
+```ts
+const disposer = onDeepChange(todo, (change) => {
+  // change contains the raw change info including proper splice detection
+  if (change.type === "splice") {
+    console.log(`Array at ${change.path} had ${change.removedCount} items removed and ${change.addedCount} items added at index ${change.index}`)
+  }
+})
+```
+
+The `DeepChange` type is a discriminated union of:
+
+- `ArraySpliceChange` - array splice with `index`, `addedCount`, `removedCount`
+- `ArrayUpdateChange` - direct array index assignment with `index`, `newValue`
+- `ObjectAddChange` - property added with `key`, `newValue`
+- `ObjectUpdateChange` - property updated with `key`, `newValue`
+- `ObjectRemoveChange` - property removed with `key`
+
+Each change includes a `path` array indicating the path from the listener target to the changed object, and a `target` reference to the actual object that changed.
+
+Note that the listener callback is called _immediately_ after an observable value has changed and before the outermost action has completed. This behavior differs from, e.g., `onSnapshot` or a MobX reaction.
+
 ### `applySet`
 
 ```ts

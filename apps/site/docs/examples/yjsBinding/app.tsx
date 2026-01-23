@@ -1,4 +1,3 @@
-import { observer } from "mobx-react"
 import { AppInstance } from "./appInstance"
 
 let iframeResizerChildInited = false
@@ -10,7 +9,7 @@ function initIframeResizerChild() {
   }
 }
 
-export const App = observer(() => {
+export const App = () => {
   initIframeResizerChild()
 
   return (
@@ -26,4 +25,4 @@ export const App = observer(() => {
       </div>
     </>
   )
-})
+}

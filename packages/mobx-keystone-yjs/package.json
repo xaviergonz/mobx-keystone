@@ -1,13 +1,16 @@
 {
   "name": "mobx-keystone-yjs",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "description": "Yjs bindings for mobx-keystone",
   "keywords": [
     "mobx",
     "mobx-keystone",
     "yjs",
     "crdt",
-    "state management"
+    "state",
+    "state-management",
+    "reactive",
+    "collaborative"
   ],
   "repository": {
     "type": "git",
@@ -54,12 +57,11 @@
     "copy-root-files": "shx cp ../../LICENSE .",
     "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone-yjs.esm.mjs dist/mobx-keystone-yjs.esm.js",
     "test": "jest",
-    "test:ci": "yarn test -i",
-    "test:perf": "yarn build && yarn test:perf:run"
+    "test:ci": "yarn test -i"
   },
   "peerDependencies": {
     "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0",
-    "mobx-keystone": "^1.9.0",
+    "mobx-keystone": "^1.12.0",
     "yjs": "^13.0.0"
   },
   "devDependencies": {
