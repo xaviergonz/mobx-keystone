@@ -2,7 +2,7 @@
 
 ## 1.12.0 (unreleased)
 
-- Adds `getSnapshotModelType`, `getSnapshotModelId` utilities.
+- Adds `getSnapshotModelType`, `getSnapshotModelId` and other utilities.
 - Adds support for Loro CRDT via the new `mobx-keystone-loro` package.
 
 ## 1.11.5
