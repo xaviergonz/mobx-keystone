@@ -5,13 +5,13 @@ import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { fastGetRootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
-import { Patch, PatchRecorder, applyPatches, patchRecorder } from "../patch"
+import { applyPatches, Patch, PatchRecorder, patchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../types/arrayBased/typesArray"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { failure, getMobxVersion, mobx6, namespace } from "../utils"
-import { SimpleActionContext, actionTrackingMiddleware } from "./actionTrackingMiddleware"
+import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
 
 /**
  * An undo/redo event without attached state.
@@ -665,7 +665,6 @@ export function undoMiddleware<S>(
 ): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
 
-  // biome-ignore lint/style/useConst: is reassigned later
   let manager: UndoManager
 
   interface PatchRecorderData {

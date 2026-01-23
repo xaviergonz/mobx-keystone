@@ -48,7 +48,13 @@ const config: Config = {
     ],
     () => ({
       name: "webpack-wasm-plugin",
-      configureWebpack() {
+      configureWebpack(_config, isServer) {
+        if (isServer) {
+          // For SSR, mark loro-crdt and mobx-keystone-loro as external to avoid bundling WebAssembly
+          return {
+            externals: ["loro-crdt", "mobx-keystone-loro"],
+          }
+        }
         return {
           resolve: {
             alias: {
