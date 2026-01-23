@@ -4,7 +4,7 @@ slug: /examples/loro-binding
 ---
 
 import CodeBlock from "@theme/CodeBlock"
-import { AppInstance } from "./appInstance"
+import IframeResizer from "@iframe-resizer/react"
 
 import appSource from "!!raw-loader!./app.tsx"
 import appInstanceSource from "!!raw-loader!./appInstance.tsx"
@@ -13,14 +13,7 @@ In this example we will be synchronizing two separate root stores via the `mobx-
 
 Note: This example uses `BroadcastChannel` to share state between the two instances in the same browser.
 
-<div style={{ display: "flex", border: "1px solid #ccc", borderRadius: "4px", padding: "10px" }}>
-  <div style={{ flex: "0 0 50%", padding: "10px", borderRight: "1px solid #ccc" }}>
-    <AppInstance />
-  </div>
-  <div style={{ flex: "0 0 50%", padding: "10px" }}>
-    <AppInstance />
-  </div>
-</div>
+<IframeResizer license="GPLv3" src="/example-apps/loro-binding" style={{ width: "100%" }} />
 
 ## Code
 
