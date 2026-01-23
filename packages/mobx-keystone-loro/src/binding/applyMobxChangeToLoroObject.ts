@@ -1,5 +1,5 @@
 import { LoroMap, LoroMovableList, LoroText } from "loro-crdt"
-import { DeepChangeType } from "mobx-keystone"
+import { DeepChange, DeepChangeType } from "mobx-keystone"
 import type { PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
@@ -8,15 +8,15 @@ import {
   convertJsonToLoroData,
   extractTextDeltaFromSnapshot,
 } from "./convertJsonToLoroData"
-import type { EnhancedDeepChange } from "./enhanceDeepChange"
 import { isLoroTextModelSnapshot } from "./LoroTextModel"
+import type { ArrayMoveChange } from "./moveWithinArray"
 import { resolveLoroPath } from "./resolveLoroPath"
 
 /**
- * Converts a snapshot value (already captured) to a Loro-compatible value.
- * This is used with enhanced changes that have pre-captured snapshots.
+ * Converts a snapshot value to a Loro-compatible value.
+ * Note: All values passed here are already snapshots (captured at change time).
  */
-function convertSnapshotValue(v: unknown): unknown {
+function convertValue(v: unknown): unknown {
   // Handle primitives directly
   if (v === null || v === undefined || typeof v !== "object") {
     return v
@@ -30,6 +30,7 @@ function convertSnapshotValue(v: unknown): unknown {
   if (isLoroTextModelSnapshot(v)) {
     return v
   }
+  // Value is already a snapshot, convert to Loro data
   return convertJsonToLoroData(v as PlainValue)
 }
 
@@ -74,12 +75,10 @@ function setInMap(map: LoroMap, key: string, value: unknown): void {
 }
 
 /**
- * Applies an enhanced MobX change to a Loro object.
- * Enhanced changes contain pre-captured snapshots, so we don't need to call getSnapshot()
- * on live references (which could give incorrect results if the object was mutated).
+ * Applies a MobX DeepChange or an ArrayMoveChange to a Loro object.
  */
 export function applyMobxChangeToLoroObject(
-  change: EnhancedDeepChange,
+  change: DeepChange | ArrayMoveChange,
   loroObject: BindableLoroContainer
 ): void {
   const loroContainer = resolveLoroPath(loroObject, change.path)
@@ -91,19 +90,36 @@ export function applyMobxChangeToLoroObject(
     )
   }
 
-  if (loroContainer instanceof LoroMovableList) {
-    if (change.type === DeepChangeType.ArraySplice) {
+  switch (change.type) {
+    case "ArrayMove": {
+      if (!(loroContainer instanceof LoroMovableList)) {
+        throw failure(`ArrayMove change requires a LoroMovableList container`)
+      }
+      loroContainer.move(change.fromIndex, change.toIndex)
+      break
+    }
+
+    case DeepChangeType.ArraySplice: {
+      if (!(loroContainer instanceof LoroMovableList)) {
+        throw failure(`ArraySplice change requires a LoroMovableList container`)
+      }
       if (change.removedValues.length > 0) {
         loroContainer.delete(change.index, change.removedValues.length)
       }
-      if (change.addedSnapshots.length > 0) {
-        const valuesToInsert = change.addedSnapshots.map(convertSnapshotValue)
+      if (change.addedValues.length > 0) {
+        const valuesToInsert = change.addedValues.map(convertValue)
         for (let i = 0; i < valuesToInsert.length; i++) {
           insertIntoList(loroContainer, change.index + i, valuesToInsert[i])
         }
       }
-    } else if (change.type === DeepChangeType.ArrayUpdate) {
-      const converted = convertSnapshotValue(change.newValueSnapshot)
+      break
+    }
+
+    case DeepChangeType.ArrayUpdate: {
+      if (!(loroContainer instanceof LoroMovableList)) {
+        throw failure(`ArrayUpdate change requires a LoroMovableList container`)
+      }
+      const converted = convertValue(change.newValue)
       if (
         converted instanceof LoroMap ||
         converted instanceof LoroMovableList ||
@@ -119,43 +135,48 @@ export function applyMobxChangeToLoroObject(
       } else {
         loroContainer.set(change.index, converted)
       }
-    } else {
-      throw failure(`unsupported array change type: ${change.type}`)
+      break
     }
-  } else if (loroContainer instanceof LoroMap) {
-    if (change.type === DeepChangeType.ObjectAdd || change.type === DeepChangeType.ObjectUpdate) {
-      const key = change.key
-      const converted = convertSnapshotValue(change.newValueSnapshot)
-      setInMap(loroContainer, key, converted)
-    } else if (change.type === DeepChangeType.ObjectRemove) {
-      const key = change.key
-      loroContainer.delete(key)
-    } else {
-      throw failure(`unsupported object change type: ${change.type}`)
-    }
-  } else if (loroContainer instanceof LoroText) {
-    // Handle changes to LoroText properties (mainly deltaList)
-    if (change.type === DeepChangeType.ObjectAdd || change.type === DeepChangeType.ObjectUpdate) {
-      const key = change.key
-      if (key === "deltaList") {
-        // Apply deltas to the LoroText - use the pre-captured snapshot
-        const deltas = extractTextDeltaFromSnapshot(change.newValueSnapshot)
-        // Clear existing text first
-        if (loroContainer.length > 0) {
-          loroContainer.delete(0, loroContainer.length)
+
+    case DeepChangeType.ObjectAdd:
+    case DeepChangeType.ObjectUpdate: {
+      if (loroContainer instanceof LoroText) {
+        // Handle changes to LoroText properties (mainly deltaList)
+        if (change.key === "deltaList") {
+          // change.newValue is already a snapshot (captured at change time)
+          const deltas = extractTextDeltaFromSnapshot(change.newValue)
+          if (loroContainer.length > 0) {
+            loroContainer.delete(0, loroContainer.length)
+          }
+          if (deltas.length > 0) {
+            applyDeltaToLoroText(loroContainer, deltas)
+          }
         }
-        // Apply new delta if not empty
-        if (deltas.length > 0) {
-          applyDeltaToLoroText(loroContainer, deltas)
-        }
+        // ignore other property changes on LoroText as they're not synced
+      } else if (loroContainer instanceof LoroMap) {
+        const converted = convertValue(change.newValue)
+        setInMap(loroContainer, change.key, converted)
+      } else {
+        throw failure(`ObjectAdd/ObjectUpdate change requires a LoroMap or LoroText container`)
       }
-      // ignore other property changes on LoroText as they're not synced
-    } else if (change.type === DeepChangeType.ObjectRemove) {
-      // ignore removes on LoroText properties
-    } else {
-      throw failure(`unsupported LoroText change type: ${change.type}`)
+      break
     }
-  } else {
-    throw failure(`unsupported Loro container type: ${loroContainer}`)
+
+    case DeepChangeType.ObjectRemove: {
+      if (loroContainer instanceof LoroText) {
+        // ignore removes on LoroText properties
+      } else if (loroContainer instanceof LoroMap) {
+        loroContainer.delete(change.key)
+      } else {
+        throw failure(`ObjectRemove change requires a LoroMap or LoroText container`)
+      }
+      break
+    }
+
+    default: {
+      // Exhaustive check - TypeScript will error if we miss a case
+      const _exhaustiveCheck: never = change
+      throw failure(`unsupported change type: ${(_exhaustiveCheck as any).type}`)
+    }
   }
 }

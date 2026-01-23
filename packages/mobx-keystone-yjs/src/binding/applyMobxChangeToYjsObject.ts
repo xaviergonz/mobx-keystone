@@ -1,20 +1,25 @@
-import { DeepChange, DeepChangeType, getSnapshot } from "mobx-keystone"
+import { DeepChange, DeepChangeType } from "mobx-keystone"
 import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
 import { convertJsonToYjsData } from "./convertJsonToYjsData"
 import { resolveYjsPath } from "./resolveYjsPath"
 
+/**
+ * Converts a snapshot value to a Yjs-compatible value.
+ * Note: All values passed here are already snapshots (captured at change time).
+ */
 function convertValue(v: unknown): any {
   // Handle primitives directly
   if (v === null || v === undefined || typeof v !== "object") {
     return v
   }
-  // Handle plain arrays (not MobX observables) - used for empty array init
+  // Handle plain arrays - used for empty array init
   if (Array.isArray(v) && v.length === 0) {
     return new Y.Array()
   }
-  return convertJsonToYjsData(getSnapshot(v) as any)
+  // Value is already a snapshot, convert to Yjs data
+  return convertJsonToYjsData(v as any)
 }
 
 export function applyMobxChangeToYjsObject(

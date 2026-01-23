@@ -1,6 +1,6 @@
 import { LoroDoc, LoroMap, LoroMovableList } from "loro-crdt"
 import { idProp, Model, model, prop, runUnprotected, tProp, types } from "mobx-keystone"
-import { bindLoroToMobxKeystone } from "../../src"
+import { bindLoroToMobxKeystone, moveWithinArray } from "../../src"
 import { autoDispose, testModel } from "../utils"
 
 @model("MoveTestItem")
@@ -87,16 +87,6 @@ function expectItems(
   for (let i = 0; i < expectedNames.length; i++) {
     expect((loroItems.get(i) as LoroMap).get("name")).toBe(expectedNames[i])
   }
-}
-
-function getLoroContainerIdForModelId(loroItems: LoroMovableList, modelId: string): string {
-  for (let i = 0; i < loroItems.length; i++) {
-    const item = loroItems.get(i)
-    if (item instanceof LoroMap && item.get("$modelId") === modelId) {
-      return item.id
-    }
-  }
-  throw new Error(`Could not find modelId ${modelId} in Loro list`)
 }
 
 describe("move operations", () => {
@@ -235,11 +225,9 @@ describe("move operations", () => {
     })
     autoDispose(disposeB)
 
-    // Client A: Move item from first to last (offline)
-    const itemToMove = boundA.items[0]!
+    // Client A: Move item from first to last (offline) using moveWithinArray for native move
     runUnprotected(() => {
-      boundA.items.splice(0, 1)
-      boundA.items.push(itemToMove)
+      moveWithinArray(boundA.items, 0, 3)
     })
 
     // Client B: Change property of the first item (what A is moving) - this is offline
@@ -273,11 +261,9 @@ describe("move operations", () => {
     // Capture Loro container IDs to verify identity preservation
     const ids = [0, 1, 2].map((i) => (loroItems.get(i) as LoroMap).id)
 
-    // Move item 0 to position 2 (from [A,B,C] to [B,C,A])
-    const itemA = boundObject.items[0]!
+    // Move item 0 to position 2 (from [A,B,C] to [B,C,A]) using moveWithinArray
     runUnprotected(() => {
-      boundObject.items.splice(0, 1)
-      boundObject.items.splice(2, 0, itemA)
+      moveWithinArray(boundObject.items, 0, 3)
     })
 
     expectItems(boundObject, loroItems, ["B", "C", "A"])
@@ -477,7 +463,7 @@ describe("move operations", () => {
     expect(boundObject.items[2]!.myCustomId).toBe(idA)
   })
 
-  test("reordering via reverse() preserves model container identity", () => {
+  test("reordering via reverse() syncs correctly (no identity preservation without moveWithinArray)", () => {
     const { boundObject, items: loroItems } = setupMoveTest([
       { id: "item-0", name: "A", value: 0 },
       { id: "item-1", name: "B", value: 1 },
@@ -485,24 +471,13 @@ describe("move operations", () => {
       { id: "item-3", name: "D", value: 3 },
     ])
 
-    const containerIdsByModelId = new Map(
-      boundObject.items.map((item) => [
-        item.$modelId,
-        getLoroContainerIdForModelId(loroItems, item.$modelId),
-      ])
-    )
-
     runUnprotected(() => {
       boundObject.items.reverse()
     })
 
+    // Data should sync correctly, but container identity is not preserved
+    // without using moveWithinArray (uses delete+insert instead of native move)
     expectItems(boundObject, loroItems, ["D", "C", "B", "A"])
-
-    for (const item of boundObject.items) {
-      expect(getLoroContainerIdForModelId(loroItems, item.$modelId)).toBe(
-        containerIdsByModelId.get(item.$modelId)
-      )
-    }
   })
 
   test("reordering via whole-array replacement syncs but replaces the list container", () => {
@@ -531,19 +506,12 @@ describe("move operations", () => {
     expectItems(boundObject, newLoroItems, ["C", "A", "B"])
   })
 
-  test("swapping items via index assignment preserves model container identity", () => {
+  test("swapping items via splice syncs correctly (no identity preservation without moveWithinArray)", () => {
     const { boundObject, items: loroItems } = setupMoveTest([
       { id: "item-0", name: "A", value: 0 },
       { id: "item-1", name: "B", value: 1 },
       { id: "item-2", name: "C", value: 2 },
     ])
-
-    const containerIdsByModelId = new Map(
-      boundObject.items.map((item) => [
-        item.$modelId,
-        getLoroContainerIdForModelId(loroItems, item.$modelId),
-      ])
-    )
 
     runUnprotected(() => {
       // mobx-keystone doesn't allow temporarily duplicating a node in the same array
@@ -553,32 +521,19 @@ describe("move operations", () => {
       boundObject.items.splice(0, 2, b, a)
     })
 
+    // Data should sync correctly, but container identity is not preserved
+    // without using moveWithinArray
     expectItems(boundObject, loroItems, ["B", "A", "C"])
-
-    for (const item of boundObject.items) {
-      expect(getLoroContainerIdForModelId(loroItems, item.$modelId)).toBe(
-        containerIdsByModelId.get(item.$modelId)
-      )
-    }
   })
 
-  test("insert and reorder in same transaction preserves existing model containers", () => {
+  test("insert and reorder in same transaction syncs correctly (no identity preservation without moveWithinArray)", () => {
     const { boundObject, items: loroItems } = setupMoveTest([
       { id: "item-0", name: "A", value: 0 },
       { id: "item-1", name: "B", value: 1 },
       { id: "item-2", name: "C", value: 2 },
     ])
 
-    const itemA = boundObject.items[0]!
-    const itemB = boundObject.items[1]!
     const itemC = boundObject.items[2]!
-
-    const containerIdsByModelId = new Map(
-      boundObject.items.map((item) => [
-        item.$modelId,
-        getLoroContainerIdForModelId(loroItems, item.$modelId),
-      ])
-    )
 
     runUnprotected(() => {
       // [A, B, C] -> [A, X, B, C]
@@ -590,15 +545,10 @@ describe("move operations", () => {
       boundObject.items.unshift(itemC)
     })
 
+    // Data should sync correctly, but container identity is not preserved
+    // without using moveWithinArray
     expect(boundObject.items.map((i) => i.name)).toEqual(["C", "A", "X", "B"])
     expect(loroItems.length).toBe(4)
-
-    // Verify existing items preserved container identity
-    for (const item of [itemA, itemB, itemC]) {
-      expect(getLoroContainerIdForModelId(loroItems, item.$modelId)).toBe(
-        containerIdsByModelId.get(item.$modelId)
-      )
-    }
   })
 })
 
@@ -685,7 +635,7 @@ describe("primitive and mixed array operations", () => {
     expect(boundObject.items[3]).toBe(item1)
   })
 
-  test("mixed array move should preserve model container identity", () => {
+  test("mixed array move using moveWithinArray preserves model container identity", () => {
     @testModel("move-mixed-identity-container")
     class MixedIdentityContainer extends Model({
       items: prop<(TestItem | null)[]>(() => []),
@@ -714,10 +664,9 @@ describe("primitive and mixed array operations", () => {
     const containerIdA = (loroItems.get(0) as LoroMap).id
     const containerIdB = (loroItems.get(2) as LoroMap).id
 
-    // Move A to end: [A, null, B] -> [null, B, A]
+    // Move A to end: [A, null, B] -> [null, B, A] using moveWithinArray
     runUnprotected(() => {
-      boundObject.items.splice(0, 1)
-      boundObject.items.push(itemA)
+      moveWithinArray(boundObject.items, 0, 3)
     })
 
     expect(boundObject.items).toEqual([null, itemB, itemA])
@@ -782,7 +731,7 @@ describe("primitive and mixed array operations", () => {
     expect(loroItems.length).toBe(6)
   })
 
-  test("mixed array preserves exact interleaved positions", () => {
+  test("mixed array move using moveWithinArray preserves exact interleaved positions", () => {
     @testModel("move-interleaved-container")
     class InterleavedContainer extends Model({
       items: prop<(TestItem | number | null)[]>(() => []),
@@ -821,8 +770,7 @@ describe("primitive and mixed array operations", () => {
 
     // Move Model-A to end: [1, Model-A, 2, Model-B, 3] -> [1, 2, Model-B, 3, Model-A]
     runUnprotected(() => {
-      boundObject.items.splice(1, 1) // Remove A
-      boundObject.items.push(itemA) // Add A at end
+      moveWithinArray(boundObject.items, 1, 5)
     })
 
     expect(

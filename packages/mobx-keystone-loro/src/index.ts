@@ -12,4 +12,5 @@ export {
 } from "./binding/LoroTextModel"
 export type { LoroBindingContext } from "./binding/loroBindingContext"
 export { loroBindingContext } from "./binding/loroBindingContext"
+export { moveWithinArray } from "./binding/moveWithinArray"
 export { MobxKeystoneLoroError } from "./utils/error"

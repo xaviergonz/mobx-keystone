@@ -47,7 +47,24 @@ Note that `loroText` will return `undefined` if you try to access while it is no
 
 ## Move Operations
 
-Unlike Y.js, Loro's `LoroMovableList` supports native move operations. The binding automatically detects when you move an item in a `mobx-keystone` array (by removing it and adding it back in the same transaction) and uses the native `loroList.move()` operation. This preserves the identity and history of the moved item across all clients.
+Unlike Y.js, Loro's `LoroMovableList` supports native move operations. To take advantage of this, use the `moveWithinArray` helper function:
+
+```ts
+import { moveWithinArray } from "mobx-keystone-loro"
+
+runUnprotected(() => {
+  // Move item from index 0 to index 3
+  moveWithinArray(boundObject.items, 0, 3)
+})
+```
+
+`moveWithinArray(array, fromIndex, toIndex)` moves an item within an array:
+- **fromIndex**: The current index of the item to move
+- **toIndex**: The target index (position before the move happens)
+
+When used on a mobx-keystone array bound to Loro, this translates to a native `loroList.move()` operation, preserving the identity and history of the moved item across all clients.
+
+For unbound arrays, it performs a standard splice-based move.
 
 ## The `LoroBindingContext`
 

@@ -4,9 +4,11 @@ import {
   AnyModel,
   AnyStandardType,
   DeepChange,
+  DeepChangeType,
   fromSnapshot,
   getParentToChildPath,
   getSnapshot,
+  isTreeNode,
   ModelClass,
   onDeepChange,
   onGlobalDeepChange,
@@ -25,6 +27,28 @@ import { applyJsonArrayToYArray, applyJsonObjectToYMap } from "./convertJsonToYj
 import { convertYjsDataToJson } from "./convertYjsDataToJson"
 import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 import { setYjsContainerSnapshot } from "./yjsSnapshotTracking"
+
+/**
+ * Captures snapshots of tree nodes in a DeepChange.
+ * This ensures values are captured at change time, not at apply time,
+ * preventing issues when values are mutated after being added to a collection.
+ */
+function captureChangeSnapshots(change: DeepChange): DeepChange {
+  if (change.type === DeepChangeType.ArraySplice && change.addedValues.length > 0) {
+    const snapshots = change.addedValues.map((v) => (isTreeNode(v) ? getSnapshot(v) : v))
+    return { ...change, addedValues: snapshots }
+  } else if (change.type === DeepChangeType.ArrayUpdate) {
+    const snapshot = isTreeNode(change.newValue) ? getSnapshot(change.newValue) : change.newValue
+    return { ...change, newValue: snapshot }
+  } else if (
+    change.type === DeepChangeType.ObjectAdd ||
+    change.type === DeepChangeType.ObjectUpdate
+  ) {
+    const snapshot = isTreeNode(change.newValue) ? getSnapshot(change.newValue) : change.newValue
+    return { ...change, newValue: snapshot }
+  }
+  return change
+}
 
 /**
  * Creates a bidirectional binding between a Y.js data structure and a mobx-keystone model.
@@ -134,10 +158,11 @@ export function bindYjsToMobxKeystone<
         // Collect init changes that occur during event application
         // (e.g., fromSnapshot calls that trigger onInit hooks)
         // We store both target and change so we can compute the correct path later
+        // Snapshots are captured immediately to preserve values at init time
         const initChanges: { target: object; change: DeepChange }[] = []
         const disposeGlobalListener = onGlobalDeepChange((target, change) => {
           if (change.isInit) {
-            initChanges.push({ target, change })
+            initChanges.push({ target, change: captureChangeSnapshots(change) })
           }
         })
 
@@ -197,7 +222,12 @@ export function bindYjsToMobxKeystone<
       return
     }
 
-    pendingChanges.push(change)
+    // Capture snapshots now before the values can be mutated within the same transaction.
+    // This is necessary because changes are collected and applied after the action completes,
+    // by which time the original values may have been modified.
+    // Example: `obj.items = [a, b]; obj.items.splice(0, 1)` - without early capture,
+    // the ObjectUpdate for `items` would get the post-splice array state.
+    pendingChanges.push(captureChangeSnapshots(change))
   })
 
   // this is only used so we can transact all changes to the snapshot boundary

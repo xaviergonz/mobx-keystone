@@ -11,9 +11,12 @@ import {
   AnyDataModel,
   AnyModel,
   AnyStandardType,
+  DeepChange,
+  DeepChangeType,
   fromSnapshot,
   getParentToChildPath,
   getSnapshot,
+  isTreeNode,
   ModelClass,
   onDeepChange,
   onGlobalDeepChange,
@@ -26,7 +29,7 @@ import { nanoid } from "nanoid"
 import type { PlainArray, PlainObject } from "../plainTypes"
 import { getOrCreateLoroCollectionAtom } from "../utils/getOrCreateLoroCollectionAtom"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
-import { analyzeChanges } from "./analyzeArrayChanges"
+
 import { applyLoroEventToMobx, ReconciliationMap } from "./applyLoroEventToMobx"
 import { applyMobxChangeToLoroObject } from "./applyMobxChangeToLoroObject"
 import {
@@ -36,12 +39,36 @@ import {
   extractTextDeltaFromSnapshot,
 } from "./convertJsonToLoroData"
 import { convertLoroDataToJson } from "./convertLoroDataToJson"
-import { type EnhancedDeepChange, enhanceDeepChange } from "./enhanceDeepChange"
 import { loroTextModelId } from "./LoroTextModel"
 import { type LoroBindingContext, loroBindingContext } from "./loroBindingContext"
 import { setLoroContainerSnapshot } from "./loroSnapshotTracking"
-import { reconcileLoroMovableList } from "./reconcileLoroMovableList"
-import { resolveLoroPath } from "./resolveLoroPath"
+import {
+  type ArrayMoveChange,
+  isInMoveContextForArray,
+  processChangeForMove,
+} from "./moveWithinArray"
+
+/**
+ * Captures snapshots of tree nodes in a DeepChange.
+ * This ensures values are captured at change time, not at apply time,
+ * preventing issues when values are mutated after being added to a collection.
+ */
+function captureChangeSnapshots(change: DeepChange): DeepChange {
+  if (change.type === DeepChangeType.ArraySplice && change.addedValues.length > 0) {
+    const snapshots = change.addedValues.map((v) => (isTreeNode(v) ? getSnapshot(v) : v))
+    return { ...change, addedValues: snapshots }
+  } else if (change.type === DeepChangeType.ArrayUpdate) {
+    const snapshot = isTreeNode(change.newValue) ? getSnapshot(change.newValue) : change.newValue
+    return { ...change, newValue: snapshot }
+  } else if (
+    change.type === DeepChangeType.ObjectAdd ||
+    change.type === DeepChangeType.ObjectUpdate
+  ) {
+    const snapshot = isTreeNode(change.newValue) ? getSnapshot(change.newValue) : change.newValue
+    return { ...change, newValue: snapshot }
+  }
+  return change
+}
 
 /**
  * Creates a bidirectional binding between a Loro data structure and a mobx-keystone model.
@@ -144,12 +171,11 @@ export function bindLoroToMobxKeystone<
     // Collect init changes that occur during event application
     // (e.g., fromSnapshot calls that trigger onInit hooks)
     // We store both target and change so we can compute the correct path later
-    // Enhanced changes have snapshots captured at emission time
-    const initChanges: { target: object; change: EnhancedDeepChange }[] = []
+    // Snapshots are captured immediately to preserve values at init time
+    const initChanges: { target: object; change: DeepChange }[] = []
     const disposeGlobalListener = onGlobalDeepChange((target, change) => {
       if (change.isInit) {
-        // Enhance immediately to capture snapshot before any further mutations
-        initChanges.push({ target, change: enhanceDeepChange(change) })
+        initChanges.push({ target, change: captureChangeSnapshots(change) })
       }
     })
 
@@ -182,8 +208,7 @@ export function bindLoroToMobxKeystone<
           const pathToTarget = getParentToChildPath(boundObject, target)
           if (pathToTarget !== undefined) {
             // Create a new change with the correct path from the root
-            // The change is already enhanced with snapshots
-            const changeWithCorrectPath: EnhancedDeepChange = {
+            const changeWithCorrectPath: DeepChange = {
               ...change,
               path: [...pathToTarget, ...change.path],
             }
@@ -206,9 +231,8 @@ export function bindLoroToMobxKeystone<
   const loroUnsubscribe = loroDoc.subscribe(loroSubscribeCb)
 
   // bind any changes from mobx-keystone to Loro
-  // Collect enhanced changes during an action and apply them after the action completes
-  // Changes are enhanced immediately to capture snapshots before any further mutations
-  let pendingChanges: EnhancedDeepChange[] = []
+  // Collect changes during an action and apply them after the action completes
+  let pendingChanges: (DeepChange | ArrayMoveChange)[] = []
 
   const disposeOnDeepChange = onDeepChange(boundObject, (change) => {
     // Skip if we're currently applying Loro changes to MobX
@@ -221,8 +245,29 @@ export function bindLoroToMobxKeystone<
       return
     }
 
-    // Enhance the change immediately to capture snapshot before any further mutations
-    pendingChanges.push(enhanceDeepChange(change))
+    // Check if this is part of a moveWithinArray operation
+    if (change.type === DeepChangeType.ArraySplice) {
+      const resolved = resolvePath(boundObject, change.path)
+      if (resolved.resolved && isInMoveContextForArray(resolved.value as unknown[])) {
+        const moveResult = processChangeForMove(change)
+
+        if (moveResult === undefined) {
+          // Intercepted but move not complete - skip this change
+          return
+        }
+
+        // Move complete - add the move change instead
+        pendingChanges.push(moveResult)
+        return
+      }
+    }
+
+    // Capture snapshots now before the values can be mutated within the same transaction.
+    // This is necessary because changes are collected and applied after the action completes,
+    // by which time the original values may have been modified.
+    // Example: `obj.items = [a, b]; obj.items.splice(0, 1)` - without early capture,
+    // the ObjectUpdate for `items` would get the post-splice array state.
+    pendingChanges.push(captureChangeSnapshots(change))
   })
 
   // Apply collected changes when snapshot changes (i.e., after action completes)
@@ -242,28 +287,9 @@ export function bindLoroToMobxKeystone<
 
     loroDoc.setNextCommitOrigin(loroOrigin)
 
-    // Analyze changes to detect array moves. Returns ordered actions that preserve
-    // the original change order. Only run full reconciliation when a model is both
-    // removed AND re-added (indicating a move/reorder).
-    const actions = analyzeChanges(changesToApply)
-
-    for (const action of actions) {
-      switch (action.type) {
-        case "applyDirectly":
-          // Apply change directly (works for both array and non-array changes)
-          applyMobxChangeToLoroObject(action.change, loroObject)
-          break
-
-        case "reconcileArray": {
-          // Array changes with moves: need to reconcile to preserve container identity
-          const resolved = resolvePath(boundObject, action.path)
-          const mobxArray = resolved.value as unknown[]
-          const loroList = resolveLoroPath(loroObject, action.path) as LoroMovableList
-
-          reconcileLoroMovableList(loroList, mobxArray)
-          break
-        }
-      }
+    // Apply all changes directly to Loro
+    for (const change of changesToApply) {
+      applyMobxChangeToLoroObject(change, loroObject)
     }
 
     loroDoc.commit()
