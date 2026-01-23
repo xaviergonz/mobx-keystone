@@ -5,7 +5,6 @@ import {
   frozen,
   getSnapshot,
   getSnapshotModelId,
-  getSnapshotModelType,
   isFrozenSnapshot,
   isModel,
   Path,
@@ -59,6 +58,16 @@ function processDeletedValue(val: unknown, reconciliationMap: ReconciliationMap)
 }
 
 function reviveValue(jsonValue: any, reconciliationMap: ReconciliationMap): any {
+  // Handle primitives
+  if (jsonValue === null || typeof jsonValue !== "object") {
+    return jsonValue
+  }
+
+  // Handle frozen
+  if (isFrozenSnapshot(jsonValue)) {
+    return frozen(jsonValue.data)
+  }
+
   // If we have a reconciliation map and the value looks like a model with an ID, check if we have it
   if (reconciliationMap && jsonValue && typeof jsonValue === "object") {
     const modelId = getSnapshotModelId(jsonValue)
@@ -71,22 +80,7 @@ function reviveValue(jsonValue: any, reconciliationMap: ReconciliationMap): any 
     }
   }
 
-  // Handle primitives
-  if (jsonValue === null || typeof jsonValue !== "object") {
-    return jsonValue
-  }
-
-  // Handle frozen
-  if (isFrozenSnapshot(jsonValue)) {
-    return frozen(jsonValue.data)
-  }
-
-  // Handle models by using fromSnapshot which auto-detects the type from $modelType
-  if (getSnapshotModelType(jsonValue)) {
-    return fromSnapshot(jsonValue)
-  }
-
-  return jsonValue
+  return fromSnapshot(jsonValue)
 }
 
 function applyYMapEventToMobx(

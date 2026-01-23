@@ -6,7 +6,6 @@ import {
   fromSnapshot,
   frozen,
   getSnapshotModelId,
-  getSnapshotModelType,
   isDataModel,
   isFrozenSnapshot,
   isModel,
@@ -100,24 +99,19 @@ function reviveValue(jsonValue: unknown, reconciliationMap: ReconciliationMap): 
     return frozen(jsonValue.data)
   }
 
-  // Handle models by using fromSnapshot which auto-detects the type from $modelType
-  if (getSnapshotModelType(jsonValue)) {
-    // If we have a reconciliation map and the value looks like a model with an ID, check if we have it
-    if (reconciliationMap) {
-      const modelId = getSnapshotModelId(jsonValue)
-      if (modelId) {
-        const existing = reconciliationMap.get(modelId)
-        if (existing) {
-          reconciliationMap.delete(modelId)
-          return existing
-        }
+  // If we have a reconciliation map and the value looks like a model with an ID, check if we have it
+  if (reconciliationMap) {
+    const modelId = getSnapshotModelId(jsonValue)
+    if (modelId) {
+      const existing = reconciliationMap.get(modelId)
+      if (existing) {
+        reconciliationMap.delete(modelId)
+        return existing
       }
     }
-
-    return fromSnapshot(jsonValue)
   }
 
-  return jsonValue
+  return fromSnapshot(jsonValue)
 }
 
 function applyMapEventToMobx(
