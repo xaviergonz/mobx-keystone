@@ -1,14 +1,14 @@
 import {
-  actionTrackingMiddleware,
+  _async,
+  _await,
   ActionTrackingResult,
+  actionTrackingMiddleware,
   getSnapshot,
   Model,
   modelAction,
   modelFlow,
   prop,
   SimpleActionContext,
-  _async,
-  _await,
 } from "../../src"
 import { autoDispose, delay, testModel } from "../utils"
 
@@ -265,7 +265,7 @@ test("actionTrackingMiddleware - flow", async () => {
   const oldX = p.x
   try {
     await p.throwFlow(10)
-    fail("flow must throw")
+    expect.fail("flow must throw")
   } catch (err: any) {
     expect(err.message).toBe("flow failed")
   } finally {

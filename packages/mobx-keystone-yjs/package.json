@@ -56,8 +56,8 @@
     "quick-build-tests": "tsc -p test",
     "copy-root-files": "shx cp ../../LICENSE .",
     "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone-yjs.esm.mjs dist/mobx-keystone-yjs.esm.js",
-    "test": "jest",
-    "test:ci": "yarn test -i"
+    "test": "vitest run",
+    "test:ci": "vitest run"
   },
   "peerDependencies": {
     "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0",
@@ -70,16 +70,13 @@
     "@babel/plugin-proposal-decorators": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
     "@babel/preset-typescript": "^7.28.5",
-    "@types/jest": "^30.0.0",
     "@types/node": "^25.2.1",
-    "babel-jest": "^30.2.0",
-    "jest": "^30.2.0",
     "mobx-keystone": "workspace:packages/lib",
     "shx": "^0.4.0",
     "spec.ts": "^1.1.3",
-    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "tslib": "^2.8.1"

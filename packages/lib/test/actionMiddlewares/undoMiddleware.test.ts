@@ -15,8 +15,8 @@ import {
   SnapshotOutOfModel,
   UndoEvent,
   UndoManager,
-  undoMiddleware,
   UndoStore,
+  undoMiddleware,
   withoutUndo,
 } from "../../src"
 import { autoDispose, testModel, timeMock } from "../utils"
@@ -308,7 +308,7 @@ test("undoMiddleware - async", async () => {
 
   try {
     await p.incXY(3, 20)
-    fail("should have thrown")
+    expect.fail("should have thrown")
   } catch (e: any) {
     expect(e.message).toBe("incXY")
   }
@@ -709,13 +709,13 @@ test("withGroupFlow - throwing", async () => {
             throw "inside"
           })
         )
-        fail("should have thrown")
+        expect.fail("should have thrown")
       } catch (err) {
         expect(err).toBe("inside")
         throw "outside"
       }
     })
-    fail("should have thrown")
+    expect.fail("should have thrown")
   } catch (err) {
     expect(err).toBe("outside")
   }

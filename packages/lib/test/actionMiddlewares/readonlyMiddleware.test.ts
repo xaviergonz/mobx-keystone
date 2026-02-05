@@ -1,4 +1,6 @@
 import {
+  _async,
+  _await,
   applyPatches,
   Model,
   modelAction,
@@ -6,8 +8,6 @@ import {
   onPatches,
   prop,
   readonlyMiddleware,
-  _async,
-  _await,
 } from "../../src"
 import { autoDispose, delay, testModel } from "../utils"
 
@@ -120,7 +120,7 @@ test("root node (async)", async () => {
   const oldY1 = p.p2.y
   try {
     await p.setXYAsync(5, 10)
-    fail("should have failed")
+    expect.fail("should have failed")
   } catch (e: any) {
     expect(e.message).toBe("tried to invoke action 'setXYAsync' over a readonly node")
   }

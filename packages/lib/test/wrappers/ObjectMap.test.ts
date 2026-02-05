@@ -67,22 +67,22 @@ test("has", () => {
 })
 
 test("reactivity", () => {
-  const k = jest.fn()
+  const k = vi.fn()
   autoDispose(reaction(() => [...map.keys()], k))
 
-  const v = jest.fn()
+  const v = vi.fn()
   autoDispose(reaction(() => [...map.values()], v))
 
-  const e = jest.fn()
+  const e = vi.fn()
   autoDispose(reaction(() => [...map.entries()], e))
 
-  const i = jest.fn()
+  const i = vi.fn()
   autoDispose(reaction(() => [...map], i))
 
-  const s = jest.fn()
+  const s = vi.fn()
   autoDispose(reaction(() => map.size, s))
 
-  const h = jest.fn()
+  const h = vi.fn()
   autoDispose(reaction(() => map.has("3"), h))
 
   expect(k).toHaveBeenCalledTimes(0)
@@ -100,7 +100,7 @@ test("reactivity", () => {
   expect(i).toHaveBeenCalledTimes(1)
   expect(s).toHaveBeenCalledTimes(0)
   expect(h).toHaveBeenCalledTimes(0)
-  jest.resetAllMocks()
+  vi.resetAllMocks()
 
   // add
   map.set("10", 10)
@@ -110,7 +110,7 @@ test("reactivity", () => {
   expect(i).toHaveBeenCalledTimes(1)
   expect(s).toHaveBeenCalledTimes(1)
   expect(h).toHaveBeenCalledTimes(0)
-  jest.resetAllMocks()
+  vi.resetAllMocks()
 
   // delete
   map.delete("3")
@@ -120,7 +120,7 @@ test("reactivity", () => {
   expect(i).toHaveBeenCalledTimes(1)
   expect(s).toHaveBeenCalledTimes(1)
   expect(h).toHaveBeenCalledTimes(1)
-  jest.resetAllMocks()
+  vi.resetAllMocks()
 })
 
 test("detach", () => {

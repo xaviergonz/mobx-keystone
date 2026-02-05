@@ -1,4 +1,6 @@
 import {
+  _async,
+  _await,
   findParent,
   Model,
   modelAction,
@@ -6,8 +8,6 @@ import {
   prop,
   transaction,
   transactionMiddleware,
-  _async,
-  _await,
 } from "../../src"
 import { testModel } from "../utils"
 
@@ -190,7 +190,7 @@ describe("transactionMiddleware - async", () => {
 
     try {
       await p.addX(20, true)
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch (e: any) {
       expect(e.message).toBe("addX - Error")
     }
@@ -210,7 +210,7 @@ describe("transactionMiddleware - async", () => {
       expect(p.p2.z).toBe(100)
 
       await promise
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch (e: any) {
       expect(e.message).toBe("addY - Error")
     }
@@ -225,7 +225,7 @@ describe("transactionMiddleware - async", () => {
 
     try {
       await p.p2.addY(20, true)
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch (e: any) {
       expect(e.message).toBe("addY - Error")
     }
@@ -237,7 +237,7 @@ describe("transactionMiddleware - async", () => {
 
     try {
       await p.p2.addParentX(20, true)
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch (e: any) {
       expect(e.message).toBe("addX - Error")
     }

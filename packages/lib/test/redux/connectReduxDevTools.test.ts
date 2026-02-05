@@ -1,4 +1,6 @@
 import {
+  _async,
+  _await,
   applySnapshot,
   connectReduxDevTools,
   idProp,
@@ -8,12 +10,10 @@ import {
   modelIdKey,
   modelSnapshotOutWithMetadata,
   prop,
-  _async,
-  _await,
 } from "../../src"
 import { testModel } from "../utils"
 
-jest.useRealTimers()
+vi.useRealTimers()
 
 const waitAsync = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const waitAsyncReject = async (ms: number) => {
@@ -28,7 +28,7 @@ test("waitAsync helper works", async () => {
 test("waitAsyncReject helper works", async () => {
   try {
     await waitAsyncReject(10)
-    fail("should have failed")
+    expect.fail("should have failed")
   } catch {
     // do nothing
   }
@@ -177,14 +177,14 @@ class M extends Model({
 
 let m = new M({})
 function mockDevTools() {
-  return { init: jest.fn(), subscribe: jest.fn(), send: jest.fn() }
+  return { init: vi.fn(), subscribe: vi.fn(), send: vi.fn() }
 }
 let devTools = mockDevTools()
 
 function initTest() {
   const devToolsManager = {
     connectViaExtension: () => mockDevTools(),
-    extractState: jest.fn(),
+    extractState: vi.fn(),
   }
   devTools = devToolsManager.connectViaExtension()
 
@@ -213,7 +213,7 @@ function addStandardTests() {
   test("m.setXAsyncThrowSync()", async () => {
     try {
       await m.setXAsyncThrowSync()
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch {
       // ignore
     }
@@ -223,7 +223,7 @@ function addStandardTests() {
   test("m.setXAsyncThrowAsync()", async () => {
     try {
       await m.setXAsyncThrowAsync()
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch {
       // ignore
     }
@@ -251,7 +251,7 @@ function addStandardTests() {
   test("m.setXYAsyncThrowSync() -> m.setXAsyncThrowSync()", async () => {
     try {
       await m.setXYAsyncThrowSync()
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch {
       // ignore
     }
@@ -261,7 +261,7 @@ function addStandardTests() {
   test("m.setXYAsyncThrowAsync() -> m.setXYAsyncThrowAsync()", async () => {
     try {
       await m.setXYAsyncThrowAsync()
-      fail("should have thrown")
+      expect.fail("should have thrown")
     } catch {
       // ignore
     }
