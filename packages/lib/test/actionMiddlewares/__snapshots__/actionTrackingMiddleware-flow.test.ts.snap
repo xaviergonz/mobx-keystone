@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`actionTrackingMiddleware - flow: addX 1`] = `
+exports[`actionTrackingMiddleware - flow > addX 1`] = `
 [
   {
     "context": {
@@ -977,7 +977,7 @@ exports[`actionTrackingMiddleware - flow: addX 1`] = `
 ]
 `;
 
-exports[`actionTrackingMiddleware - flow: addXY 1`] = `
+exports[`actionTrackingMiddleware - flow > addXY 1`] = `
 [
   {
     "context": {
@@ -5247,9 +5247,9 @@ exports[`actionTrackingMiddleware - flow: addXY 1`] = `
 ]
 `;
 
-exports[`actionTrackingMiddleware - flow: disposing 1`] = `[]`;
+exports[`actionTrackingMiddleware - flow > disposing 1`] = `[]`;
 
-exports[`actionTrackingMiddleware - flow: overriding flow start 1`] = `
+exports[`actionTrackingMiddleware - flow > overriding flow start 1`] = `
 [
   {
     "context": {
@@ -5391,7 +5391,7 @@ exports[`actionTrackingMiddleware - flow: overriding flow start 1`] = `
 ]
 `;
 
-exports[`actionTrackingMiddleware - flow: throwFlow 1`] = `
+exports[`actionTrackingMiddleware - flow > throwFlow 1`] = `
 [
   {
     "context": {

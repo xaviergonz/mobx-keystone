@@ -40,7 +40,7 @@ export interface GlobalConfig {
 
   /**
    * Enables/disables warnings related to duplicated model names (defaults to `true`).
-   * Usually set to false in test environments (e.g. jest).
+   * Usually set to false in test environments (e.g. vitest).
    */
   showDuplicateModelNameWarnings: boolean
 }

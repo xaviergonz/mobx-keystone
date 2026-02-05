@@ -1,25 +1,25 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`dynamic target: add Todo 1`] = `
+exports[`dynamic target > add Todo 1`] = `
 [
   "attached to Array <- dynamic target/Todo at [2]",
 ]
 `;
 
-exports[`dynamic target: initial 1`] = `
+exports[`dynamic target > initial 1`] = `
 [
   "attached to Array <- dynamic target/Todo at [0]",
   "attached to Array <- dynamic target/Todo at [1]",
 ]
 `;
 
-exports[`dynamic target: remove Todo 1`] = `
+exports[`dynamic target > remove Todo 1`] = `
 [
   "detached from Array <- dynamic target/Todo at [1]",
 ]
 `;
 
-exports[`onChildAttachedTo (deep: false): initial 1`] = `
+exports[`onChildAttachedTo (deep: false) > initial 1`] = `
 [
   "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
   "attached to onChildAttachedTo (deep: false)/A-deep:false <- onChildAttachedTo (deep: false)/B-deep:false at [b]",
@@ -27,7 +27,7 @@ exports[`onChildAttachedTo (deep: false): initial 1`] = `
 ]
 `;
 
-exports[`onChildAttachedTo (deep: false): new A 1`] = `
+exports[`onChildAttachedTo (deep: false) > new A 1`] = `
 [
   "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
   "attached to onChildAttachedTo (deep: false)/A-deep:false <- onChildAttachedTo (deep: false)/B-deep:false at [b]",
@@ -36,7 +36,7 @@ exports[`onChildAttachedTo (deep: false): new A 1`] = `
 ]
 `;
 
-exports[`onChildAttachedTo (deep: false): new B 1`] = `
+exports[`onChildAttachedTo (deep: false) > new B 1`] = `
 [
   "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
   "detached from onChildAttachedTo (deep: false)/A-deep:false <- onChildAttachedTo (deep: false)/B-deep:false at [b]",
@@ -44,14 +44,14 @@ exports[`onChildAttachedTo (deep: false): new B 1`] = `
 ]
 `;
 
-exports[`onChildAttachedTo (deep: false): new arr 1`] = `
+exports[`onChildAttachedTo (deep: false) > new arr 1`] = `
 [
   "detached from onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
   "attached to onChildAttachedTo (deep: false)/B-deep:false <- Array at [arr]",
 ]
 `;
 
-exports[`onChildAttachedTo (deep: true): initial 1`] = `
+exports[`onChildAttachedTo (deep: true) > initial 1`] = `
 [
   "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
   "attached to onChildAttachedTo (deep: true)/A-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [b]",
@@ -62,7 +62,7 @@ exports[`onChildAttachedTo (deep: true): initial 1`] = `
 ]
 `;
 
-exports[`onChildAttachedTo (deep: true): new A 1`] = `
+exports[`onChildAttachedTo (deep: true) > new A 1`] = `
 [
   "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
   "attached to onChildAttachedTo (deep: true)/A-deep:true <- onChildAttachedTo (deep: true)/B-deep:true at [b]",
@@ -76,7 +76,7 @@ exports[`onChildAttachedTo (deep: true): new A 1`] = `
 ]
 `;
 
-exports[`onChildAttachedTo (deep: true): new B 1`] = `
+exports[`onChildAttachedTo (deep: true) > new B 1`] = `
 [
   "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
   "detached from onChildAttachedTo (deep: true)/A-deep:true <- Array at [b/arr]",
@@ -90,7 +90,7 @@ exports[`onChildAttachedTo (deep: true): new B 1`] = `
 ]
 `;
 
-exports[`onChildAttachedTo (deep: true): new arr 1`] = `
+exports[`onChildAttachedTo (deep: true) > new arr 1`] = `
 [
   "detached from onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",
   "attached to onChildAttachedTo (deep: true)/B-deep:true <- Array at [arr]",

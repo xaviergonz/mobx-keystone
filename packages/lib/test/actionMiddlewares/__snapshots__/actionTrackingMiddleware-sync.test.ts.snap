@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`actionTrackingMiddleware - sync: action on the child 1`] = `
+exports[`actionTrackingMiddleware - sync > action on the child 1`] = `
 [
   {
     "context": {
@@ -142,7 +142,7 @@ exports[`actionTrackingMiddleware - sync: action on the child 1`] = `
 ]
 `;
 
-exports[`actionTrackingMiddleware - sync: action on the root 1`] = `
+exports[`actionTrackingMiddleware - sync > action on the root 1`] = `
 [
   {
     "context": {
@@ -319,7 +319,7 @@ exports[`actionTrackingMiddleware - sync: action on the root 1`] = `
 ]
 `;
 
-exports[`actionTrackingMiddleware - sync: action on the root with sub-action on the child 1`] = `
+exports[`actionTrackingMiddleware - sync > action on the root with sub-action on the child 1`] = `
 [
   {
     "context": {
@@ -1430,9 +1430,9 @@ exports[`actionTrackingMiddleware - sync: action on the root with sub-action on 
 ]
 `;
 
-exports[`actionTrackingMiddleware - sync: disposing 1`] = `[]`;
+exports[`actionTrackingMiddleware - sync > disposing 1`] = `[]`;
 
-exports[`actionTrackingMiddleware - sync: override action on start 1`] = `
+exports[`actionTrackingMiddleware - sync > override action on start 1`] = `
 [
   {
     "context": {
@@ -1614,7 +1614,7 @@ exports[`actionTrackingMiddleware - sync: override action on start 1`] = `
 ]
 `;
 
-exports[`actionTrackingMiddleware - sync: throwing 1`] = `
+exports[`actionTrackingMiddleware - sync > throwing 1`] = `
 [
   {
     "context": {

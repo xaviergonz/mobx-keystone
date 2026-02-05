@@ -45,7 +45,7 @@ beforeEach(() => {
         (child) => {
           const path = getParentToChildPath(node, child)
           if (!path) {
-            fail("path between node and child could not be found")
+            expect.fail("path between node and child could not be found")
           }
           log("attached", node, child, path)
           return () => {

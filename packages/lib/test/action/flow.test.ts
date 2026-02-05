@@ -1,5 +1,7 @@
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
+  _async,
+  _await,
   ActionCall,
   ActionContext,
   ExtendedModel,
@@ -9,8 +11,6 @@ import {
   modelFlow,
   onActionMiddleware,
   prop,
-  _async,
-  _await,
 } from "../../src"
 import { autoDispose, delay, testModel } from "../utils"
 
@@ -214,7 +214,7 @@ test("flow", async () => {
   const oldX = p.x
   try {
     await p.throwFlow(10)
-    fail("flow must throw")
+    expect.fail("flow must throw")
   } catch (err: any) {
     expect(err.message).toBe("flow failed")
   } finally {
