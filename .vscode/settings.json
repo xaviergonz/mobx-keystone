@@ -15,8 +15,7 @@
     "commandCenter.border": "#e7e7e799"
   },
   "search.exclude": {
-    "**/.yarn": true,
-    "**/.pnp.*": true
+    "**/.pnpm-store": true
   },
   "[typescript]": {
     "editor.defaultFormatter": "biomejs.biome"

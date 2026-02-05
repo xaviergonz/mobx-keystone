@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true, "defaultBranch": "master" },
   "files": {
     "includes": [
@@ -15,9 +15,7 @@
       "!apps/site/.docusaurus",
       "!apps/site/build",
       "!apps/site/copy-to-build",
-      "!apps/site/static/api",
-      "!**/.yarn",
-      "!**/.pnp.*"
+      "!apps/site/static/api"
     ]
   },
   "formatter": {

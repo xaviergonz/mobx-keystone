@@ -55,7 +55,7 @@
     "quick-build": "tsc",
     "quick-build-tests": "tsc -p test",
     "copy-root-files": "shx cp ../../LICENSE .",
-    "build": "yarn quick-build && yarn copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone-yjs.esm.mjs dist/mobx-keystone-yjs.esm.js",
+    "build": "pnpm run quick-build && pnpm run copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone-yjs.esm.mjs dist/mobx-keystone-yjs.esm.js",
     "test": "vitest run",
     "test:ci": "vitest run"
   },
@@ -71,7 +71,7 @@
     "@babel/preset-env": "^7.29.0",
     "@babel/preset-typescript": "^7.28.5",
     "@types/node": "^25.2.1",
-    "mobx-keystone": "workspace:packages/lib",
+    "mobx-keystone": "workspace:*",
     "shx": "^0.4.0",
     "spec.ts": "^1.1.3",
     "ts-node": "^10.9.2",

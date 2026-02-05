@@ -1,7 +1,7 @@
 import { values } from "mobx"
 import { modelAction } from "../action/modelAction"
-import { modelIdKey } from "../model/metadata"
 import { Model } from "../model/Model"
+import { modelIdKey } from "../model/metadata"
 import { model } from "../modelShared/modelDecorator"
 import { idProp } from "../modelShared/prop"
 import { typesArray } from "../types/arrayBased/typesArray"
@@ -40,7 +40,7 @@ export class ArraySet<V>
   delete(value: V): boolean {
     const items = this.items
 
-    const index = items.findIndex((t) => t === value)
+    const index = items.indexOf(value)
     if (index >= 0) {
       items.splice(index, 1)
       return true

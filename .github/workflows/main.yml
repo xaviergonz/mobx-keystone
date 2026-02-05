@@ -10,9 +10,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-env:
-  NODE_VERSION: "24.3.0"
-
 jobs:
   lib-site-build:
     runs-on: ubuntu-latest
@@ -20,13 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-
-      - run: yarn install --immutable
-      - run: yarn site:build
+      - uses: ./.github/actions/setup-workspace
+      - run: pnpm site:build
 
   lib-test:
     name: lib-test (${{ matrix.compiler }} - mobx${{ matrix.mobx-version }})
@@ -48,13 +40,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-
-      - run: yarn install --immutable
-      - run: yarn lib:test:ci
+      - uses: ./.github/actions/setup-workspace
+      - run: pnpm lib:test:ci
         env:
           COMPILER: ${{ matrix.compiler }}
           MOBX_VERSION: ${{ matrix.mobx-version }}
@@ -67,35 +54,24 @@ jobs:
           directory: ./packages/lib/coverage
           fail_ci_if_error: true
 
-  yjs-lib-test:
-    name: yjs-lib-test
+  integration-lib-test:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: yjs-lib-test
+            script: yjs-lib:test:ci
+          - name: loro-lib-test
+            script: loro-lib:test:ci
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-
-      - run: yarn install --immutable
-      - run: yarn yjs-lib:test:ci
-
-  loro-lib-test:
-    name: loro-lib-test
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-
-      - run: yarn install --immutable
-      - run: yarn loro-lib:test:ci
+      - uses: ./.github/actions/setup-workspace
+      - run: pnpm ${{ matrix.script }}
 
   benchmark-build:
     runs-on: ubuntu-latest
@@ -103,12 +79,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-
-      - run: yarn install --immutable
-      - run: yarn lib:build
-      - run: yarn build
+      - uses: ./.github/actions/setup-workspace
+      - run: pnpm lib:build
+      - run: pnpm build
         working-directory: ./apps/benchmark

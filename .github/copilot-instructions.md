@@ -21,7 +21,7 @@ This repository is a monorepo containing the `mobx-keystone` library and its eco
 
 - **State**: MobX (supports MobX 4/5/6 via peerDependency ranges)
 - **Language**: TypeScript (Strict mode)
-- **Monorepo Tooling**: Turbo, Yarn (Berry/Plug'n'Play)
+- **Monorepo Tooling**: Turbo, pnpm
 - **Linting & Formatting**: Biome
 - **Testing**: Jest
 - **Documentation**: Docusaurus (Site), TypeDoc (API)
@@ -39,43 +39,43 @@ When working with the library, keep these concepts in mind:
 
 ## Commands
 
-When performing tasks, use the following `yarn` commands from the root directory:
+When performing tasks, use the following `pnpm` commands from the root directory:
 
 ### Core Library (`mobx-keystone`)
-- `yarn lib:build`: Build the main library.
-- `yarn lib:test`: Run tests for the main library. Might add `test test/<file>.test.ts` to target specific tests.
-- `yarn lib:test:ci`: Run tests for the main library in CI mode.
-- `yarn lib:build-docs`: Build API documentation for the main library.
+- `pnpm lib:build`: Build the main library.
+- `pnpm lib:test`: Run tests for the main library. Might add `test test/<file>.test.ts` to target specific tests.
+- `pnpm lib:test:ci`: Run tests for the main library in CI mode.
+- `pnpm lib:build-docs`: Build API documentation for the main library.
 
 ### Yjs Integration (`mobx-keystone-yjs`)
-- `yarn yjs-lib:build`: Build the Yjs integration library.
-- `yarn yjs-lib:test`: Run tests for the Yjs integration library.
-- `yarn yjs-lib:test:ci`: Run tests for the Yjs integration library in CI mode.
+- `pnpm yjs-lib:build`: Build the Yjs integration library.
+- `pnpm yjs-lib:test`: Run tests for the Yjs integration library.
+- `pnpm yjs-lib:test:ci`: Run tests for the Yjs integration library in CI mode.
 
 ### Loro Integration (`mobx-keystone-loro`)
-- `yarn loro-lib:build`: Build the Loro integration library.
-- `yarn loro-lib:test`: Run tests for the Loro integration library.
-- `yarn loro-lib:test:ci`: Run tests for the Loro integration library in CI mode.
+- `pnpm loro-lib:build`: Build the Loro integration library.
+- `pnpm loro-lib:test`: Run tests for the Loro integration library.
+- `pnpm loro-lib:test:ci`: Run tests for the Loro integration library in CI mode.
 
 ### Documentation Site
-- `yarn site:start`: Start the documentation site in development mode.
-- `yarn site:build`: Build the documentation site.
-- `yarn site:serve`: Serve the built documentation site locally.
-- `yarn build-netlify`: Build the site for Netlify deployment.
-- `yarn netlify-dev`: Run the Netlify development environment.
+- `pnpm site:start`: Start the documentation site in development mode.
+- `pnpm site:build`: Build the documentation site.
+- `pnpm site:serve`: Serve the built documentation site locally.
+- `pnpm build-netlify`: Build the site for Netlify deployment.
+- `pnpm netlify-dev`: Run the Netlify development environment.
 
 ### General
-- `yarn lint`: Lint the codebase using Biome.
+- `pnpm lint`: Lint the codebase using Biome.
 
 ## Standards
 
-- **Linting**: Biome is used for linting and formatting. Let it handle all formatting and linting concerns automatically. Always run `yarn lint` before finishing a task.
+- **Linting**: Biome is used for linting and formatting. Let it handle all formatting and linting concerns automatically. Always run `pnpm lint` before finishing a task.
 - **Imports**: Biome is configured to organize imports automatically on save.
 - **Exports**: Use barrel files (`index.ts`) to export public APIs from directories.
 - **TypeScript**: Use strict typing. Avoid `any` where possible. Use `unknown` or specific types instead.
 - **Naming**: Follow existing naming conventions (e.g., `Model` suffix for model classes).
 - **Build artifacts**: Don’t edit generated files in `dist/`, `api-docs/`, `coverage/`, `apps/site/build/`, or `apps/site/copy-to-build/`. Always change source and re-generate.
-- Use `yarn` for package management.
+- Use `pnpm` for package management.
 - This project uses `turbo` for task orchestration.
 - Follow the existing coding style and patterns found in the codebase.
 - **Testing**: Always add or update tests when fixing bugs or adding features. Tests are located in `test/` directories within each package. Turbo test tasks declare `MOBX_VERSION` as an env input. When validating compatibility, run tests with a specific MobX version, e.g. `MOBX_VERSION=6 pnpm lib:test` (and similarly for 4/5 if supported by the test setup).

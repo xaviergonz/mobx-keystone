@@ -1,0 +1,18 @@
+name: Setup workspace
+description: Configure toolchain and install workspace dependencies
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 10.28.2
+        run_install: false
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "24.3.0"
+        cache: "pnpm"
+
+    - run: pnpm install --frozen-lockfile
+      shell: bash
