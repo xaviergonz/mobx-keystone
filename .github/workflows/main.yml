@@ -23,10 +23,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: "pnpm"
 
-      - run: yarn install --immutable
-      - run: yarn site:build
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm site:build
 
   lib-test:
     name: lib-test (${{ matrix.compiler }} - mobx${{ matrix.mobx-version }})
@@ -51,10 +55,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: "pnpm"
 
-      - run: yarn install --immutable
-      - run: yarn lib:test:ci
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lib:test:ci
         env:
           COMPILER: ${{ matrix.compiler }}
           MOBX_VERSION: ${{ matrix.mobx-version }}
@@ -77,10 +85,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: "pnpm"
 
-      - run: yarn install --immutable
-      - run: yarn yjs-lib:test:ci
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm yjs-lib:test:ci
 
   loro-lib-test:
     name: loro-lib-test
@@ -92,10 +104,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: "pnpm"
 
-      - run: yarn install --immutable
-      - run: yarn loro-lib:test:ci
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm loro-lib:test:ci
 
   benchmark-build:
     runs-on: ubuntu-latest
@@ -106,9 +122,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
+          cache: "pnpm"
 
-      - run: yarn install --immutable
-      - run: yarn lib:build
-      - run: yarn build
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+          run_install: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lib:build
+      - run: pnpm build
         working-directory: ./apps/benchmark

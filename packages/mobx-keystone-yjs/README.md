@@ -50,3 +50,5 @@ By leveraging `Y.js`'s P2P capabilities, `mobx-keystone-yjs` enables direct clie
 > `npm install mobx-keystone-yjs`
 
 > `yarn add mobx-keystone-yjs`
+
+> `pnpm add mobx-keystone-yjs`

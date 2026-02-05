@@ -18,6 +18,8 @@ This package provides bidirectional synchronization between mobx-keystone models
 npm install mobx-keystone-loro
 # or
 yarn add mobx-keystone-loro
+# or
+pnpm add mobx-keystone-loro
 ```
 
 ## Peer Dependencies

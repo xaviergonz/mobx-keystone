@@ -9,7 +9,7 @@
   "scripts": {
     "build": "shx rm -rf dist && tsc -p .",
     "bench-only": "cross-env NODE_ENV=production node dist/index.js",
-    "bench": "yarn build && yarn bench-only"
+    "bench": "pnpm run build && pnpm run bench-only"
   },
   "peerDependencies": {
     "mobx": "^6.0.0"
@@ -17,7 +17,7 @@
   "dependencies": {
     "benchmark": "^2.1.4",
     "chalk": "^5.6.2",
-    "mobx-keystone": "workspace:packages/lib",
+    "mobx-keystone": "workspace:*",
     "mobx-state-tree": "^7.0.2",
     "tslib": "^2.8.1"
   },

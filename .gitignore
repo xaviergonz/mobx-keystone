@@ -4,10 +4,5 @@
 .turbo
 /**/.DS_Store
 
-.yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-.pnp.*
+.pnpm-store
+pnpm-debug.log*

@@ -17,9 +17,10 @@
     "site:start": "turbo run site#start",
     "site:build": "turbo run site#build",
     "site:serve": "turbo run site#serve",
-    "build-netlify": "yarn site:build",
-    "netlify-dev": "yarn build-netlify && netlify dev",
-    "lint": "biome lint"
+    "build-netlify": "pnpm run site:build",
+    "netlify-dev": "pnpm run build-netlify && netlify dev",
+    "lint": "biome lint",
+    "upgrade-interactive": "pnpm -r up -i --latest"
   },
   "workspaces": [
     "packages/*",
@@ -39,5 +40,5 @@
     "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4"
   },
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "pnpm@10.28.2"
 }

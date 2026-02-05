@@ -84,3 +84,5 @@ If you are using TypeScript, then version >= 4.2.0 is recommended, though it _mi
 > `npm install mobx-keystone`
 
 > `yarn add mobx-keystone`
+
+> `pnpm add mobx-keystone`
