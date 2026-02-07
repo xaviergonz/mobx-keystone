@@ -1,6 +1,10 @@
 # Change Log
 
-## 1.12.0 (unreleased)
+## next
+
+- Fix: `toSnapshotProcessor` now correctly defers execution until the model instance is fully initialized, allowing access to model properties and computed values (#560).
+
+## 1.12.0
 
 - Adds `getSnapshotModelType`, `getSnapshotModelId` and other utilities.
 - Adds support for Loro CRDT via the new `mobx-keystone-loro` package.

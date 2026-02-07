@@ -319,6 +319,10 @@ export function sharedInternalModel<
   if (toSnapshotProcessor) {
     const fn = toSnapshotProcessor
     toSnapshotProcessor = (sn, modelInstance) => {
+      if (modelInstance && !(modelInstance as any)[modelInitializedSymbol]) {
+        return sn
+      }
+
       return {
         ...fn(sn, modelInstance),
         [modelTypeKey]: sn[modelTypeKey],

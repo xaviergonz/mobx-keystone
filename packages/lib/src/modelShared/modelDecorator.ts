@@ -13,6 +13,7 @@ import {
   modelUnwrappedClassSymbol,
   runAfterModelDecoratorSymbol,
 } from "../modelShared/modelSymbols"
+import { refreshInternalSnapshot } from "../snapshot/internal"
 import {
   failure,
   getMobxVersion,
@@ -86,6 +87,7 @@ const runAfterClassInitialization = (
 
   // the object is ready
   instance[modelInitializedSymbol] = true
+  refreshInternalSnapshot(instance)
 
   enterInitPhase()
   try {
