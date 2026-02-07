@@ -302,6 +302,11 @@ test("output snapshot processor can access model instance data during creation",
     get idAndText() {
       return `${this.id} - ${this.text}`
     }
+
+    @modelAction
+    setText(text: string) {
+      this.text = text
+    }
   }
 
   const todo = new Todo({
@@ -323,6 +328,16 @@ test("output snapshot processor can access model instance data during creation",
       id: todo.id,
       text: "Hello",
       idAndText: `${todo.id} - Hello`,
+    })
+  )
+
+  // verify snapshot updates after mutation
+  todo.setText("World")
+  expect(getSnapshot(todo)).toEqual(
+    modelSnapshotOutWithMetadata(Todo, {
+      id: todo.id,
+      text: "World",
+      idAndText: `${todo.id} - World`,
     })
   )
 })
