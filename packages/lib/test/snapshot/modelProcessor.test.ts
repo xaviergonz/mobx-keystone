@@ -1,11 +1,12 @@
-import { toJS } from "mobx"
-import { assert, _ } from "spec.ts"
+import { computed, toJS } from "mobx"
+import { _, assert } from "spec.ts"
 import {
   applyPatches,
   applySnapshot,
-  fromSnapshot,
   FromSnapshotDefaultType,
+  fromSnapshot,
   getSnapshot,
+  idProp,
   Model,
   modelAction,
   modelSnapshotInWithMetadata,
@@ -274,6 +275,67 @@ test("output snapshot processor", () => {
       child: modelSnapshotOutWithMetadata(IP4, {
         y: "300,400",
       }),
+    })
+  )
+})
+
+test("output snapshot processor can access model instance data during creation", () => {
+  const toSnapshotProcessorCalls: Array<{ sn: any; modelInstance: any }> = []
+
+  @testModel("outputSnapshotProcessorCanAccessDataDuringCreation")
+  class Todo extends Model(
+    {
+      id: idProp,
+      text: prop(""),
+    },
+    {
+      toSnapshotProcessor(sn, modelInstance) {
+        toSnapshotProcessorCalls.push({ sn, modelInstance })
+        return {
+          ...sn,
+          idAndText: modelInstance.idAndText,
+        }
+      },
+    }
+  ) {
+    @computed
+    get idAndText() {
+      return `${this.id} - ${this.text}`
+    }
+
+    @modelAction
+    setText(text: string) {
+      this.text = text
+    }
+  }
+
+  const todo = new Todo({
+    text: "Hello",
+  })
+
+  expect(toSnapshotProcessorCalls).toHaveLength(1)
+  expect(toSnapshotProcessorCalls[0].modelInstance).toBe(todo)
+  expect(toSnapshotProcessorCalls[0].sn).toEqual({
+    [modelTypeKey]: todo[modelTypeKey],
+    id: todo.id,
+    text: "Hello",
+  })
+
+  expect(getSnapshot(todo)).toEqual(
+    modelSnapshotOutWithMetadata(Todo, {
+      id: todo.id,
+      text: "Hello",
+      idAndText: `${todo.id} - Hello`,
+    })
+  )
+
+  // verify snapshot updates after mutation
+  todo.setText("World")
+  expect(getSnapshot(todo)).toEqual(
+    modelSnapshotOutWithMetadata(Todo, {
+      id: todo.id,
+      text: "World",
+      idAndText: `${todo.id} - World`,
     })
   )
 })
