@@ -1,17 +1,17 @@
 import { computed, toJS } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   applyPatches,
   applySnapshot,
-  fromSnapshot,
   FromSnapshotDefaultType,
+  fromSnapshot,
   getSnapshot,
+  idProp,
   Model,
   modelAction,
   modelSnapshotInWithMetadata,
   modelSnapshotOutWithMetadata,
   modelTypeKey,
-  idProp,
   prop,
   SnapshotInOf,
   SnapshotOutOf,
@@ -315,13 +315,11 @@ test("output snapshot processor can access model instance data during creation",
 
   expect(toSnapshotProcessorCalls).toHaveLength(1)
   expect(toSnapshotProcessorCalls[0].modelInstance).toBe(todo)
-  expect(toSnapshotProcessorCalls[0].sn).toEqual(
-    {
-      [modelTypeKey]: todo[modelTypeKey],
-      id: todo.id,
-      text: "Hello",
-    }
-  )
+  expect(toSnapshotProcessorCalls[0].sn).toEqual({
+    [modelTypeKey]: todo[modelTypeKey],
+    id: todo.id,
+    text: "Hello",
+  })
 
   expect(getSnapshot(todo)).toEqual(
     modelSnapshotOutWithMetadata(Todo, {
