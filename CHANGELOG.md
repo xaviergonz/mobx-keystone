@@ -1,6 +1,6 @@
 # Change Log
 
-## next
+## 1.12.1
 
 - Fix: `toSnapshotProcessor` now correctly defers execution until the model instance is fully initialized, allowing access to model properties and computed values (#560).
 
