@@ -122,6 +122,13 @@ getRoot<T extends object = any>(value: object): T
 
 Returns the root of the target object, or itself if the target is a root.
 
+:::warning Detached nodes
+If a node gets detached from its parent tree, `getRoot(node)` will return that same node.
+
+This matters in reactive code (`computed`, `autorun`, etc.). If a computed uses `getRoot(this)` and then reads a property that resolves back to the same computed, MobX will throw a cycle error.
+
+When you need to access an actual registered root store, prefer `getRootStore` and guard for `undefined`:
+
 ### `isRoot`
 
 ```ts
