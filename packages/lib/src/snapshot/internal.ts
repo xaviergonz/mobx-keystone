@@ -162,7 +162,7 @@ export const updateInternalSnapshot = action(
 /**
  * @internal
  */
-export const refreshInternalSnapshot = action((value: any): void => {
+export const refreshInternalSnapshot = action("refreshInternalSnapshot", (value: any): void => {
   const sn = getInternalSnapshot(value) as SnapshotData | undefined
   if (!sn?.transformFn) {
     return
