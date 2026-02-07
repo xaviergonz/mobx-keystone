@@ -3,7 +3,7 @@ import { ActionContextActionType } from "../action/context"
 import { HookAction } from "../action/hookActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { AnyModel, BaseModel } from "../model/BaseModel"
-import { walkTree, WalkTreeMode } from "../parent/walkTree"
+import { WalkTreeMode, walkTree } from "../parent/walkTree"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
 const attachedToRootStore = new WeakSet<object>()

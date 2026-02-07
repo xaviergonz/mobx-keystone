@@ -2,6 +2,8 @@ import { action } from "mobx"
 import type { O } from "ts-toolbelt"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
+import { AnyFunction } from "../utils/AnyFunction"
+import { copyFunctionMetadata } from "../utils/decorators"
 import {
   ActionContext,
   ActionContextActionType,
@@ -12,7 +14,6 @@ import { isModelAction, modelActionSymbol } from "./isModelAction"
 import { getPerObjectActionMiddlewares } from "./middleware"
 import type { FlowFinisher } from "./modelFlow"
 import { tryRunPendingActions } from "./pendingActions"
-import { AnyFunction } from "../utils/AnyFunction"
 
 /**
  * @internal
@@ -121,6 +122,8 @@ export function wrapInAction<T extends Function>({
     }
   }
   ;(wrappedAction as unknown as { [modelActionSymbol]: true })[modelActionSymbol] = true
+
+  copyFunctionMetadata(fn, wrappedAction)
 
   return wrappedAction as unknown as T
 }

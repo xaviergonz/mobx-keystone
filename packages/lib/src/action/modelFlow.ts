@@ -1,9 +1,9 @@
 import type { O } from "ts-toolbelt"
 import { failure } from "../utils"
+import { copyFunctionMetadata, decorateWrapMethodOrField } from "../utils/decorators"
 import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { WrapInActionOverrideContextFn, wrapInAction } from "./wrapInAction"
-import { decorateWrapMethodOrField } from "../utils/decorators"
 import { promiseGenerator } from "./modelFlowPromiseGenerator"
+import { WrapInActionOverrideContextFn, wrapInAction } from "./wrapInAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
 
@@ -164,6 +164,8 @@ export function flow<R, Args extends any[]>({
     return promise
   }
   ;(flowFn as any)[modelFlowSymbol] = true
+
+  copyFunctionMetadata(generator, flowFn)
 
   return flowFn
 }
