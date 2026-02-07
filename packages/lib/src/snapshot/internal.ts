@@ -101,6 +101,27 @@ export const setNewInternalSnapshot = action(
 
 type MutateInternalSnapshotFn<T> = (prevSn: T) => void
 
+function updateParentSnapshots(value: any, sn: SnapshotData): void {
+  // also update parent(s) snapshot(s) if needed
+  const parent = getInternalSnapshotParent(sn, fastGetParentPath(value, false))
+  if (!parent) {
+    return
+  }
+
+  const { parentSnapshot, parentPath } = parent
+  // might be false in the cases where the parent has not yet been created
+  if (!parentSnapshot) {
+    return
+  }
+
+  const path = parentPath.path
+
+  // patches for parent changes should not be emitted
+  updateInternalSnapshot(parentPath.parent, (objOrArray: any) => {
+    objOrArray[path] = sn.transformed
+  })
+}
+
 /**
  * @internal
  */
@@ -134,23 +155,37 @@ export const updateInternalSnapshot = action(
     }
 
     sn.atom?.reportChanged()
-
-    // also update parent(s) snapshot(s) if needed
-    const parent = getInternalSnapshotParent(sn, fastGetParentPath(value, false))
-    if (parent) {
-      const { parentSnapshot, parentPath } = parent
-      // might be false in the cases where the parent has not yet been created
-      if (parentSnapshot) {
-        const path = parentPath.path
-
-        // patches for parent changes should not be emitted
-        updateInternalSnapshot(parentPath.parent, (objOrArray: any) => {
-          objOrArray[path] = sn.transformed
-        })
-      }
-    }
+    updateParentSnapshots(value, sn)
   }
 )
+
+/**
+ * @internal
+ */
+export const refreshInternalSnapshot = action((value: any): void => {
+  const sn = getInternalSnapshot(value) as SnapshotData | undefined
+  if (!sn?.transformFn) {
+    return
+  }
+
+  const oldTransformed = sn.transformed
+  const newTransformed: any = sn.transformFn(sn.untransformed)
+
+  if (oldTransformed === newTransformed) {
+    return
+  }
+
+  sn.transformed = newTransformed
+
+  // transformed snapshots created by internal transforms must be tracked as mutable
+  // until they are exposed through getSnapshot / freezeInternalSnapshot.
+  if (frozenState.get(newTransformed) === undefined) {
+    frozenState.set(newTransformed, false)
+  }
+
+  sn.atom?.reportChanged()
+  updateParentSnapshots(value, sn)
+})
 
 /**
  * @internal
