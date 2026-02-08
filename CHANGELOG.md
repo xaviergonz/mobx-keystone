@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.12.2
+
+- Fix: preserve third-party decorator metadata when wrapping model actions, flows, computed getters, lifecycle hooks, and standalone actions/flows (#559).
+
 ## 1.12.1
 
 - Fix: `toSnapshotProcessor` now correctly defers execution until the model instance is fully initialized, allowing access to model properties and computed values (#560).
