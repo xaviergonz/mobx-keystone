@@ -158,18 +158,36 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.13)
+      fast-glob:
+        specifier: ^3.3.3
+        version: 3.3.3
       get-llms-txt:
         specifier: ^1.0.1
         version: 1.0.1
       raw-loader:
         specifier: ^4.0.2
         version: 4.0.2(webpack@5.105.0(@swc/core@1.15.11))
+      remark-mdx:
+        specifier: ^3.1.1
+        version: 3.1.1
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
       shx:
         specifier: ^0.4.0
         version: 0.4.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
+      unist-util-visit:
+        specifier: ^5.1.0
+        version: 5.1.0
 
   packages/lib:
     dependencies:
