@@ -14,7 +14,7 @@
       "!packages/mobx-keystone-loro/api-docs",
       "!apps/site/.docusaurus",
       "!apps/site/build",
-      "!apps/site/copy-to-build",
+      "!apps/site/generated-static",
       "!apps/site/static/api"
     ]
   },

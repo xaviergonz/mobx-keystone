@@ -4,4 +4,4 @@
 /build
 /node_modules
 /static/api
-/copy-to-build
+/generated-static

@@ -3,7 +3,7 @@
   "tasks": {
     "mobx-keystone#build-docs": {
       "dependsOn": ["build"],
-      "outputs": ["api-docs/**", "../../apps/site/copy-to-build/api/**"]
+      "outputs": ["api-docs/**", "../../apps/site/generated-static/api/**"]
     },
     "mobx-keystone#build": {
       "dependsOn": [],
