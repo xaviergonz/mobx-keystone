@@ -9,6 +9,7 @@ Use API pages for symbol-level details and examples for end-to-end implementatio
 ## Project Links
 
 - [GitHub Repository](https://github.com/xaviergonz/mobx-keystone): Source code, issues, and discussions.
+- [API Docs](https://mobx-keystone.js.org/api/): Generated full API documentation index.
 - [Changelog](https://github.com/xaviergonz/mobx-keystone/blob/master/CHANGELOG.md): Version history and notable changes.
 - [npm: mobx-keystone](https://www.npmjs.com/package/mobx-keystone): Core package.
 - [npm: mobx-keystone-yjs](https://www.npmjs.com/package/mobx-keystone-yjs): Y.js integration package.
