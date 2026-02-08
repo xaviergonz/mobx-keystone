@@ -1,10 +1,11 @@
-import { AnyFunction } from "../utils/AnyFunction"
 import { ActionContextActionType } from "../action/context"
 import { isModelAction } from "../action/isModelAction"
 import { flow, isModelFlow } from "../action/modelFlow"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertIsTreeNode } from "../tweaker/core"
 import { assertIsFunction, failure, logWarning } from "../utils"
+import { AnyFunction } from "../utils/AnyFunction"
+import { copyFunctionMetadata } from "../utils/decorators"
 
 /**
  * A function with an object as target.
@@ -55,6 +56,9 @@ export function addStandaloneAction(fullActionName: string, fn: TargetedAction, 
     // we need to put the target into this
     return wrappedAction.call(target, target, ...args)
   }
+  // note: copyFunctionMetadata is already called inside wrapInAction/flow,
+  // so we only need to forward from wrappedAction to finalAction
+  copyFunctionMetadata(wrappedAction, finalAction)
 
   standaloneActionRegistry.set(fullActionName, finalAction)
   return finalAction

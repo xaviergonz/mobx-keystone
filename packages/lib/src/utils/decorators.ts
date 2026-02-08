@@ -2,10 +2,10 @@ import { WrapInActionOverrideContextFn } from "../action/wrapInAction"
 import { setDataModelAction } from "../dataModel/actions"
 import { BaseDataModel } from "../dataModel/BaseDataModel"
 import { isDataModel, isDataModelClass } from "../dataModel/utils"
-import { addLateInitializationFunction, failure, inDevMode, runAfterNewSymbol } from "./index"
 import { BaseModel } from "../model/BaseModel"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { runAfterModelDecoratorSymbol } from "../modelShared/modelSymbols"
+import { addLateInitializationFunction, failure, inDevMode, runAfterNewSymbol } from "./index"
 
 type WrapFunction = (
   data: {
@@ -17,14 +17,91 @@ type WrapFunction = (
 
 const unboundMethodSymbol = Symbol("unboundMethod")
 
+const functionPropertiesToSkip = new Set<PropertyKey>([
+  "arguments",
+  "caller",
+  "length",
+  "name",
+  "prototype",
+  unboundMethodSymbol,
+])
+
+type ReflectWithMetadata = typeof Reflect & {
+  getOwnMetadataKeys?: (target: object) => any[]
+  getOwnMetadata?: (metadataKey: any, target: object) => any
+  defineMetadata?: (metadataKey: any, metadataValue: any, target: object) => void
+}
+
+/**
+ * @internal
+ */
+export function copyFunctionMetadata(source: unknown, target: unknown): void {
+  if (typeof source !== "function" || typeof target !== "function" || source === target) {
+    return
+  }
+
+  const keys = Reflect.ownKeys(source)
+  for (let i = 0, len = keys.length; i < len; i++) {
+    const key = keys[i]
+    if (functionPropertiesToSkip.has(key)) {
+      continue
+    }
+
+    const descriptor = Object.getOwnPropertyDescriptor(source, key)
+    if (!descriptor) {
+      continue
+    }
+
+    try {
+      Object.defineProperty(target, key, descriptor)
+    } catch {
+      // ignore non-copyable properties
+    }
+  }
+
+  const reflect = Reflect as ReflectWithMetadata
+  if (
+    typeof reflect.getOwnMetadataKeys === "function" &&
+    typeof reflect.getOwnMetadata === "function" &&
+    typeof reflect.defineMetadata === "function"
+  ) {
+    try {
+      const metadataKeys = reflect.getOwnMetadataKeys(source)
+      for (let i = 0, len = metadataKeys.length; i < len; i++) {
+        try {
+          reflect.defineMetadata!(
+            metadataKeys[i],
+            reflect.getOwnMetadata!(metadataKeys[i], source),
+            target
+          )
+        } catch {
+          // ignore non-copyable metadata entries
+        }
+      }
+    } catch {
+      // ignore metadata providers that throw during key discovery
+    }
+  }
+}
+
+function wrapAndCopyFnMetadata(
+  wrap: WrapFunction,
+  data: {
+    actionName: string | (() => string)
+    overrideContext: WrapInActionOverrideContextFn | undefined
+  },
+  fn: any
+) {
+  // note: copyFunctionMetadata is already called inside wrapInAction/flow,
+  // so we don't need to call it again here
+  return wrap(data, fn)
+}
+
 const bindMethod = (method: any, instance: any) => {
   const unboundMethod = unboundMethodSymbol in method ? method[unboundMethodSymbol] : method
 
   const boundMethod = unboundMethod.bind(instance)
-  // copy modelAction symbol, etc.
-  Object.getOwnPropertySymbols(unboundMethod).forEach((s) => {
-    boundMethod[s] = unboundMethod[s]
-  })
+  copyFunctionMetadata(unboundMethod, boundMethod)
   boundMethod[unboundMethodSymbol] = unboundMethod
 
   return boundMethod
@@ -52,7 +129,7 @@ export function decorateWrapMethodOrField(
 
     const addFieldDecorator = () => {
       addLateInitializationFunction(target, runAfterNewSymbol, (instance) => {
-        const method = wrap(data, instance[propertyKey])
+        const method = wrapAndCopyFnMetadata(wrap, data, instance[propertyKey])
 
         // all of this is to make method destructuring work
         instance[propertyKey] = bindMethod(method, instance)
@@ -71,7 +148,7 @@ export function decorateWrapMethodOrField(
           enumerable: false,
           writable: true,
           configurable: true,
-          value: wrap(data, baseDescriptor.value),
+          value: wrapAndCopyFnMetadata(wrap, data, baseDescriptor.value),
         }
       } else {
         // babel - field decorator: @action method = () => {}
@@ -112,7 +189,8 @@ export function decorateWrapMethodOrField(
             nextProto = Object.getPrototypeOf(proto)
           }
 
-          proto[propertyKey] = wrap(
+          proto[propertyKey] = wrapAndCopyFnMetadata(
+            wrap,
             getActionNameAndContextOverride(target, propertyKey, false),
             proto[propertyKey]
           )
@@ -135,7 +213,7 @@ export function decorateWrapMethodOrField(
             data = getActionNameAndContextOverride(instance, propertyKey, false)
           }
 
-          const method = wrap(data, value)
+          const method = wrapAndCopyFnMetadata(wrap, data, value)
 
           // all of this is to make method destructuring work
           return bindMethod(method, instance)

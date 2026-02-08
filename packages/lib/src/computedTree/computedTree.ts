@@ -7,7 +7,7 @@ import { isTreeNode } from "../tweaker/core"
 import { tweak } from "../tweaker/tweak"
 import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
-import { checkDecoratorContext } from "../utils/decorators"
+import { checkDecoratorContext, copyFunctionMetadata } from "../utils/decorators"
 
 const computedTreeContext = createContext(false)
 
@@ -113,7 +113,9 @@ export function computedTree(...args: any[]): any {
       runLateInit(instance, original, propertyKey)
     })
 
-    return createGetter(propertyKey)
+    const getter = createGetter(propertyKey)
+    copyFunctionMetadata(original, getter)
+    return getter
   } else {
     // non-standard decorators
     const instance = args[0]
@@ -130,7 +132,9 @@ export function computedTree(...args: any[]): any {
 
     const original = descriptor.get
 
-    descriptor.get = createGetter(propertyKey)
+    const getter = createGetter(propertyKey)
+    copyFunctionMetadata(original, getter)
+    descriptor.get = getter
 
     addLateInitializationFunction(instance, runBeforeOnInitSymbol, (instance) => {
       runLateInit(instance, original, propertyKey)
