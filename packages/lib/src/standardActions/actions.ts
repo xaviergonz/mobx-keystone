@@ -56,9 +56,8 @@ export function addStandaloneAction(fullActionName: string, fn: TargetedAction, 
     // we need to put the target into this
     return wrappedAction.call(target, target, ...args)
   }
-  // note: copyFunctionMetadata is already called inside wrapInAction/flow,
-  // so we only need to forward from wrappedAction to finalAction
-  copyFunctionMetadata(wrappedAction, finalAction)
+  // preserve user-provided metadata without leaking internal action/flow markers.
+  copyFunctionMetadata(fn, finalAction)
 
   standaloneActionRegistry.set(fullActionName, finalAction)
   return finalAction

@@ -2,6 +2,8 @@ import { computed } from "mobx"
 import {
   _await,
   computedTree,
+  isModelAction,
+  isModelFlow,
   Model,
   modelAction,
   modelFlow,
@@ -194,6 +196,7 @@ test("issue #559 - metadata is preserved for standaloneAction", () => {
 
   // the wrapper should carry over our metadata
   expect((wrappedFn as any)[metaKey]).toBe("standalone-meta")
+  expect(isModelAction(wrappedFn as any)).toBe(false)
 })
 
 test("issue #559 - metadata is preserved for standaloneFlow", () => {
@@ -208,6 +211,7 @@ test("issue #559 - metadata is preserved for standaloneFlow", () => {
 
   // the wrapper should carry over our metadata
   expect((wrappedFn as any)[metaKey]).toBe("standalone-flow-meta")
+  expect(isModelFlow(wrappedFn as any)).toBe(false)
 })
 
 test("issue #559 - metadata is preserved for onInit lifecycle hook", () => {

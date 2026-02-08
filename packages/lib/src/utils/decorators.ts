@@ -1,4 +1,4 @@
-import { WrapInActionOverrideContextFn } from "../action/wrapInAction"
+import type { WrapInActionOverrideContextFn } from "../action/wrapInAction"
 import { setDataModelAction } from "../dataModel/actions"
 import { BaseDataModel } from "../dataModel/BaseDataModel"
 import { isDataModel, isDataModelClass } from "../dataModel/utils"
@@ -84,19 +84,6 @@ export function copyFunctionMetadata(source: unknown, target: unknown): void {
   }
 }
 
-function wrapAndCopyFnMetadata(
-  wrap: WrapFunction,
-  data: {
-    actionName: string | (() => string)
-    overrideContext: WrapInActionOverrideContextFn | undefined
-  },
-  fn: any
-) {
-  // note: copyFunctionMetadata is already called inside wrapInAction/flow,
-  // so we don't need to call it again here
-  return wrap(data, fn)
-}
-
 const bindMethod = (method: any, instance: any) => {
   const unboundMethod = unboundMethodSymbol in method ? method[unboundMethodSymbol] : method
 
@@ -129,7 +116,7 @@ export function decorateWrapMethodOrField(
 
     const addFieldDecorator = () => {
       addLateInitializationFunction(target, runAfterNewSymbol, (instance) => {
-        const method = wrapAndCopyFnMetadata(wrap, data, instance[propertyKey])
+        const method = wrap(data, instance[propertyKey])
 
         // all of this is to make method destructuring work
         instance[propertyKey] = bindMethod(method, instance)
@@ -148,7 +135,7 @@ export function decorateWrapMethodOrField(
           enumerable: false,
           writable: true,
           configurable: true,
-          value: wrapAndCopyFnMetadata(wrap, data, baseDescriptor.value),
+          value: wrap(data, baseDescriptor.value),
         }
       } else {
         // babel - field decorator: @action method = () => {}
@@ -189,8 +176,7 @@ export function decorateWrapMethodOrField(
             nextProto = Object.getPrototypeOf(proto)
           }
 
-          proto[propertyKey] = wrapAndCopyFnMetadata(
-            wrap,
+          proto[propertyKey] = wrap(
             getActionNameAndContextOverride(target, propertyKey, false),
             proto[propertyKey]
           )
@@ -213,7 +199,7 @@ export function decorateWrapMethodOrField(
             data = getActionNameAndContextOverride(instance, propertyKey, false)
           }
 
-          const method = wrapAndCopyFnMetadata(wrap, data, value)
+          const method = wrap(data, value)
 
           // all of this is to make method destructuring work
           return bindMethod(method, instance)
