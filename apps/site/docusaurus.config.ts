@@ -9,6 +9,7 @@ const config: Config = {
     "A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more",
   url: "https://mobx-keystone.js.org",
   baseUrl: "/",
+  staticDirectories: ["static", "generated-static"],
   onBrokenLinks: "ignore", // because of /api/ links
   favicon: "img/favicon.ico",
   organizationName: "xaviergonz",
@@ -23,14 +24,14 @@ const config: Config = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          sidebarPath: require.resolve("./sidebars.js"),
+          sidebarPath: "./sidebars.ts",
           editUrl: "https://github.com/xaviergonz/mobx-keystone/edit/master/apps/site/",
           routeBasePath: docsRouteBasePath,
         },
         blog: false,
         sitemap: {},
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: "./src/css/custom.css",
         },
       } satisfies Preset.Options,
     ],
@@ -58,7 +59,7 @@ const config: Config = {
         return {
           resolve: {
             alias: {
-              "loro-crdt": require.resolve("loro-crdt/base64/index.js"),
+              "loro-crdt": "loro-crdt/base64/index.js",
             },
             fallback: {
               fs: false,
@@ -114,4 +115,4 @@ const config: Config = {
   } satisfies Preset.ThemeConfig,
 }
 
-module.exports = config
+export default config

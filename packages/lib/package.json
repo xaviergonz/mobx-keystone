@@ -60,7 +60,7 @@
     "test:perf": "pnpm run build && pnpm run test:perf:run",
     "test:perf:run": "cd perf_bench && NODE_ENV=production /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
     "memtest": "cd perf_bench && NODE_ENV=production node --expose-gc --require ts-node/register ./memtest.ts",
-    "build-docs": "shx rm -rf api-docs && typedoc --options ./typedocconfig.js src/index.ts && shx rm -rf ../../apps/site/copy-to-build/api && shx mkdir -p ../../apps/site/copy-to-build/api && shx cp -R ./api-docs/* ../../apps/site/copy-to-build/api"
+    "build-docs": "shx rm -rf api-docs && typedoc --options ./typedocconfig.js src/index.ts && shx rm -rf ../../apps/site/generated-static/api && shx mkdir -p ../../apps/site/generated-static/api && shx cp -R ./api-docs/* ../../apps/site/generated-static/api"
   },
   "peerDependencies": {
     "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0"

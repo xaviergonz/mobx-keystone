@@ -1,0 +1,59 @@
+# mobx-keystone
+
+> mobx-keystone is a MobX-powered state management library based on protected data trees, with first-class TypeScript support, snapshots, patches, and action middleware.
+
+This file is a curated map of documentation for LLM retrieval.
+Prefer the Markdown links under `https://mobx-keystone.js.org/md/...` for clean context.
+Use API pages for symbol-level details and examples for end-to-end implementation patterns.
+
+## Project Links
+
+- [GitHub Repository](https://github.com/xaviergonz/mobx-keystone): Source code, issues, and discussions.
+- [Changelog](https://github.com/xaviergonz/mobx-keystone/blob/master/CHANGELOG.md): Version history and notable changes.
+- [npm: mobx-keystone](https://www.npmjs.com/package/mobx-keystone): Core package.
+- [npm: mobx-keystone-yjs](https://www.npmjs.com/package/mobx-keystone-yjs): Y.js integration package.
+- [npm: mobx-keystone-loro](https://www.npmjs.com/package/mobx-keystone-loro): Loro integration package.
+
+## Core Docs
+
+- [Introduction](https://mobx-keystone.js.org/md/intro.md): High-level overview, design goals, and core concepts.
+- [Installation](https://mobx-keystone.js.org/md/installation.md): Requirements and setup instructions.
+- [Comparison with mobx-state-tree](https://mobx-keystone.js.org/md/mstComparison.md): Similarities, differences, and migration context.
+- [Class Models](https://mobx-keystone.js.org/md/classModels.md): Model types, model APIs, and object structure.
+- [Data Models](https://mobx-keystone.js.org/md/dataModels.md): Data-oriented models and tradeoffs.
+- [Standard and Standalone Actions](https://mobx-keystone.js.org/md/standardAndStandaloneActions.md): Defining replayable model actions and standalone actions.
+- [Tree-Like Structure](https://mobx-keystone.js.org/md/treeLikeStructure.md): Tree rules, node identity, and ownership.
+- [Root Stores](https://mobx-keystone.js.org/md/rootStores.md): App-level store composition and root lifecycle.
+- [Snapshots](https://mobx-keystone.js.org/md/snapshots.md): Immutable snapshots and structural sharing.
+- [Patches](https://mobx-keystone.js.org/md/patches.md): Patch emission, patch semantics, and patch application.
+- [Maps, Sets, Dates, BigInt](https://mobx-keystone.js.org/md/mapsSetsDates.md): JSON-compatible patterns for non-JSON native data.
+- [Contexts](https://mobx-keystone.js.org/md/contexts.md): Propagating environment/context through trees.
+- [References](https://mobx-keystone.js.org/md/references.md): Cross-node references and reference lifecycles.
+- [Frozen Data](https://mobx-keystone.js.org/md/frozen.md): Efficient handling of immutable payloads.
+- [Runtime Type Checking](https://mobx-keystone.js.org/md/runtimeTypeChecking.md): Enforcing runtime validation beyond TypeScript.
+- [Drafts](https://mobx-keystone.js.org/md/drafts.md): Edit isolated state copies and commit changes.
+- [Sandboxes](https://mobx-keystone.js.org/md/sandboxes.md): Temporary editable branches for safe experimentation.
+- [Computed Trees](https://mobx-keystone.js.org/md/computedTrees.md): Reactive derived trees from existing state.
+
+## Action Middlewares
+
+- [onActionMiddleware](https://mobx-keystone.js.org/md/actionMiddlewares/onActionMiddleware.md): Observe and replicate top-level actions.
+- [transactionMiddleware](https://mobx-keystone.js.org/md/actionMiddlewares/transactionMiddleware.md): Roll back changes when transactional actions fail.
+- [undoMiddleware](https://mobx-keystone.js.org/md/actionMiddlewares/undoMiddleware.md): Undo/redo history management.
+- [readonlyMiddleware](https://mobx-keystone.js.org/md/actionMiddlewares/readonlyMiddleware.md): Enforce read-only behavior on a subtree.
+- [Custom Middlewares](https://mobx-keystone.js.org/md/actionMiddlewares/customMiddlewares.md): Build custom middleware with tracking hooks.
+
+## Integrations
+
+- [Redux Compatibility](https://mobx-keystone.js.org/md/integrations/reduxCompatibility.md): Expose mobx-keystone state through Redux-compatible patterns.
+- [Y.js Binding (mobx-keystone-yjs)](https://mobx-keystone.js.org/md/integrations/yjsBinding.md): Sync a store with Y.js CRDT documents.
+- [Loro Binding (mobx-keystone-loro)](https://mobx-keystone.js.org/md/integrations/loroBinding.md): Sync a store with Loro CRDT documents.
+
+## Optional
+
+- [Todo List Example](https://mobx-keystone.js.org/md/examples/todoList/todoList.md): Minimal project showing typical model and action usage.
+- [Client/Server Example](https://mobx-keystone.js.org/md/examples/clientServer/clientServer.md): Action capture/replay flow between client and server.
+- [Y.js Binding Example](https://mobx-keystone.js.org/md/examples/yjsBinding/yjsBinding.md): Multi-client synchronization with Y.js.
+- [Loro Binding Example](https://mobx-keystone.js.org/md/examples/loroBinding/loroBinding.md): Multi-client synchronization with Loro.
+- [API Reference](https://mobx-keystone.js.org/api/): Generated API documentation index.
+- [API Type Hierarchy](https://mobx-keystone.js.org/api/hierarchy.html): Inheritance and type relationships.
