@@ -5,11 +5,12 @@
   "description": "Documentation site for mobx-keystone",
   "license": "MIT",
   "scripts": {
-    "start": "pnpm run llms:generate && pnpm run llms:patch-examples && pnpm run llms:sync-root && docusaurus start",
-    "llms:generate": "get-llms-txt --content-dir ./docs --output-dir ./generated-static --base-url https://mobx-keystone.js.org --project-name mobx-keystone --project-description \"Documentation site for mobx-keystone\"",
-    "llms:patch-examples": "node ./scripts/patch-llms-md-examples.mjs",
+    "start": "pnpm run llms:generate && pnpm run llms:sync-root && docusaurus start",
+    "llms:generate": "pnpm run llms:generate:raw && pnpm run llms:generate:full",
+    "llms:generate:raw": "get-llms-txt --content-dir ./docs --output-dir ./generated-static --base-url https://mobx-keystone.js.org --project-name mobx-keystone --project-description \"Documentation site for mobx-keystone\" && node --experimental-strip-types ./scripts/patch-llms-md.mts",
+    "llms:generate:full": "node --experimental-strip-types ./scripts/generate-llms-full.mts",
     "llms:sync-root": "shx cp ../../llms.txt ./generated-static/llms.txt",
-    "build": "pnpm run llms:generate && pnpm run llms:patch-examples && pnpm run llms:sync-root && docusaurus build",
+    "build": "pnpm run llms:generate && pnpm run llms:sync-root && docusaurus build",
     "serve": "docusaurus serve"
   },
   "dependencies": {
