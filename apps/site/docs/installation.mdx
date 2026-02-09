@@ -39,68 +39,115 @@ This library requires a more or less modern JavaScript environment to work, name
 
 In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
 
-If you are using TypeScript, then version 4.2.0+ is recommended, though it _might_ work with older versions.
+If you are using TypeScript:
+
+- Version 5.0+ is recommended (standard decorators).
+- Legacy decorators are also supported (`experimentalDecorators: true`).
 
 ## Transpiler configuration
 
-This library uses JavaScript decorators and class properties which are supported via the following transpiler configurations:
+This library uses JavaScript decorators and class properties.
+
+### Standard decorators
+
+Use this mode if you are on TypeScript 5+ and want standard decorators.
+For Babel, ensure class static blocks are transformed (for example via `@babel/preset-env` targets, or by adding `@babel/plugin-transform-class-static-block`).
 
 <Tabs>
-<TabItem value="tsc" label="TypeScript Compiler">
+<TabItem value="standard-tsc" label="TypeScript">
 
-```json title="tsconfig.json"
+```jsonc title="tsconfig.json"
 {
-  // ...
   "compilerOptions": {
-    // ...
-    "experimentalDecorators": true,
-    // MobX 5/6
+    "experimentalDecorators": false,
     "useDefineForClassFields": true
-    // MobX 4
-    "useDefineForClassFields": false
   }
 }
 ```
 
 </TabItem>
-<TabItem value="babel" label="Babel">
+<TabItem value="standard-babel" label="Babel">
 
-```json title="babel.config.json"
+```jsonc title="babel.config.json"
 {
   "presets": [
-    // ...
-    // If you use TypeScript
-    ["@babel/preset-typescript", { "allowDeclareFields": true }]
+    ["@babel/preset-typescript", { "allowDeclareFields": true }], // if using TypeScript
+    ["@babel/preset-env"]
   ],
   "plugins": [
-    ["@babel/plugin-proposal-decorators", { "version": "legacy" }],
-    // MobX 5/6
-    ["@babel/plugin-proposal-class-properties"]
-    // MobX 4
-    ["@babel/plugin-proposal-class-properties", { "loose": true }]
+    ["@babel/plugin-proposal-decorators", { "version": "2023-11" }],
+    ["@babel/plugin-proposal-class-properties", { "loose": false }]
   ]
 }
 ```
 
 </TabItem>
-<TabItem value="swc" label="SWC">
+<TabItem value="standard-swc" label="SWC">
 
-```json title=".swcrc"
+```jsonc title=".swcrc"
 {
   "jsc": {
     "parser": {
-      "syntax": "typescript", // "ecmascript" if you use JavaScript
+      "syntax": "typescript", // or "ecmascript" for JavaScript
       "decorators": true
     },
     "transform": {
-      // Optional if you use TypeScript
-      // Required if you use JavaScript
-      "legacyDecorator": true
+      "decoratorVersion": "2022-03",
+      "useDefineForClassFields": true
     },
-    // MobX 5/6
     "loose": false
-    // MobX 4
-    "loose": true
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Legacy decorators
+
+Use this mode if your project is on legacy decorators (`experimentalDecorators: true`).
+
+<Tabs>
+<TabItem value="legacy-tsc" label="TypeScript">
+
+```jsonc title="tsconfig.json"
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "useDefineForClassFields": true
+  }
+}
+```
+
+</TabItem>
+<TabItem value="legacy-babel" label="Babel">
+
+```jsonc title="babel.config.json"
+{
+  "presets": [
+    ["@babel/preset-typescript", { "allowDeclareFields": true }] // if using TypeScript
+  ],
+  "plugins": [
+    ["@babel/plugin-proposal-decorators", { "version": "legacy" }],
+    ["@babel/plugin-proposal-class-properties", { "loose": false }]
+  ]
+}
+```
+
+</TabItem>
+<TabItem value="legacy-swc" label="SWC">
+
+```jsonc title=".swcrc"
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript", // or "ecmascript" for JavaScript
+      "decorators": true
+    },
+    "transform": {
+      "legacyDecorator": true // required for JavaScript, optional for TypeScript
+    },
+    "loose": false
   }
 }
 ```
