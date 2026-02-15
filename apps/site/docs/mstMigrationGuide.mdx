@@ -17,7 +17,7 @@ If you want a high-level feature comparison first, see [Comparison with mobx-sta
 - MST references are identifier-like; `mobx-keystone` references are explicit `Ref<T>` objects.
 - MST `getEnv(self)` becomes a context (`createContext`) in `mobx-keystone`.
 
-### Decide upfront (saves time)
+### Decide upfront
 
 1. **Runtime type checking or not**
    - If you only need TypeScript, prefer `prop<T>()`.
@@ -28,7 +28,7 @@ If you want a high-level feature comparison first, see [Comparison with mobx-sta
 3. **Reference strategy**
    - Decide which relationships should be actual tree children vs references.
 
-## Migration strategy (phases)
+## Migration strategy
 
 This order keeps the diff reviewable and avoids chasing cascading runtime issues:
 
@@ -51,7 +51,7 @@ When converting a file/model, apply these in order:
 5. Convert MST `flow` into `@modelFlow` and replace `yield promise` with `yield* _await(promise)`.
 6. Convert `volatile` to plain class fields (add MobX `@observable` if you need reactivity).
 
-## Common gotchas (read once)
+## Common gotchas
 
 ### 1) No implicit snapshot assignment
 
@@ -274,7 +274,7 @@ const rootStore = envCtx.apply(() => new RootStore({}), env)
 registerRootStore(rootStore)
 ```
 
-## Topic guides (basics -> advanced)
+## Topic guides
 
 ### Environment migration (`getEnv`)
 
@@ -325,7 +325,7 @@ fromSnapshot(Store, {
 
 This also applies to ref snapshots when using runtime type checking, e.g. `tProp(types.ref(todoRef))` can accept `{ id: "..." }` without `$modelType` for the ref object.
 
-### Snapshot processor migration (advanced, but common for persisted data)
+### Snapshot processor migration
 
 MST offers `preProcessSnapshot`/`postProcessSnapshot` (on model types) and `types.snapshotProcessor` (as a wrapper type).
 In `mobx-keystone` there are two levels:
@@ -367,7 +367,7 @@ class Settings extends Model({
 }) {}
 ```
 
-### Model composition / inheritance (advanced)
+### Model composition / inheritance
 
 MST's `types.compose(A, B)` merges two model types. In `mobx-keystone`, use `ExtendedModel`:
 
@@ -387,13 +387,13 @@ class Person extends ExtendedModel(Named, { age: prop<number>() }) {}
 
 Note: `ExtendedModel` extends a single base class. If you need to merge more than two MST models, flatten the props or chain multiple `ExtendedModel` calls.
 
-### Action replay, serialization, patches (advanced)
+### Action replay, serialization, patches
 
 - `onPatch`/`applyPatch` becomes `onPatches`/`applyPatches`.
 - `onAction` becomes `onActionMiddleware`.
 - If you serialize actions over the wire, use `serializeActionCall`/`deserializeActionCall` and `applySerializedActionAndTrackNewModelIds`/`applySerializedActionAndSyncNewModelIds` as documented in [onActionMiddleware](./actionMiddlewares/onActionMiddleware.mdx).
 
-## Appendix: API mapping cheat sheet (reference)
+## Appendix: API mapping cheat sheet
 
 ### Models and properties
 
