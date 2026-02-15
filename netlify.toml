@@ -6,7 +6,7 @@ redirects = [
 [build]
   command = "pnpm build-netlify"
   publish = "apps/site/build"
-  environment = { NODE_VERSION = "24.3.0", PNPM_VERSION = "10.28.2" }
+  environment = { NODE_VERSION = "25.6.1", PNPM_VERSION = "10.29.3" }
 
 [dev]
   publish = "apps/site/build"

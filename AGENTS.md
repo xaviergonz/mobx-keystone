@@ -8,13 +8,13 @@ This repository is a pnpm + Turbo monorepo for:
 
 ## Quick facts
 
-- Package manager: `pnpm` (`pnpm@10.28.2`)
+- Package manager: `pnpm` (`pnpm@10.29.3`)
 - Task runner: `turbo`
 - Build tool: Vite (library packaging) + `tsc` (type-checking)
 - Language: TypeScript (`strict: true` across packages)
 - Test runner: Vitest (not Jest)
 - Lint/format: Biome (`pnpm lint`; auto-fix with `pnpm exec biome check --write .`)
-- CI runtime: Node `24.3.0`
+- CI runtime: Node `25.6.1`
 
 ## Monorepo map (source of truth)
 
