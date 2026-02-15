@@ -1,7 +1,5 @@
 # Agent instructions for mobx-keystone
 
-This /.gemini/GEMINI.md and .github/copilot-instructions.md should be kept in sync.
-
 This repository is a monorepo containing the `mobx-keystone` library and its ecosystem.
 
 ## Overview
