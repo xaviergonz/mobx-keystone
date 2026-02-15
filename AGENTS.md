@@ -165,6 +165,14 @@ These are read by `packages/lib/env.js` and used by `packages/lib/vitest.config.
 
 All packages use `test/commonSetup.ts` as a vitest setup file.
 
+For TypeScript type assertions in tests, use `spec.ts` helpers:
+
+```ts
+import { _, assert } from "spec.ts"
+```
+
+Use `assert` and `_` for new tests that verify TypeScript types.
+
 ## Code standards
 
 - Use strict TypeScript; avoid `any` unless there is no practical alternative.
