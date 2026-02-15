@@ -187,6 +187,7 @@ Use `assert` and `_` for new tests that verify TypeScript types.
 ## Git safety
 
 - Do not run any git write/mutation commands without express user permission (for example: staging/unstaging files, creating/amending commits, checking out/switching branches, rebasing, merging, or resetting).
+- Use GitHub CLI (`gh`) for GitHub-related operations (for example: PRs, issues, checks/workflows, releases) instead of manual/browser or ad-hoc API calls when possible.
 
 ## Error handling conventions
 
