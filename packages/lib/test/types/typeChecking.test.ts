@@ -1,5 +1,5 @@
 import { reaction, toJS } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   AnyModel,
   AnyType,
@@ -1304,6 +1304,72 @@ test("syntax sugar for primitives in tProp", () => {
     // expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
   }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
   ss.setOr(5)
+})
+
+test("syntax sugar for union types in tProp", () => {
+  @testModel("syntaxSugarOrArray")
+  class SS extends Model({
+    or: tProp([String, Number, Boolean]),
+    orDefault: tProp([String, Number], "foo"),
+    orDefaultFn: tProp([String, Number], () => 10),
+    maybeString: tProp([String, undefined]),
+  }) {
+    @modelAction
+    setOr(o: string | number | boolean) {
+      this.or = o
+    }
+
+    @modelAction
+    setOrDefault(o: string | number) {
+      this.orDefault = o
+    }
+
+    @modelAction
+    setOrDefaultFn(o: string | number) {
+      this.orDefaultFn = o
+    }
+
+    @modelAction
+    setMaybeString(v: string | undefined) {
+      this.maybeString = v
+    }
+  }
+
+  const ss = new SS({ or: 5, orDefault: undefined, orDefaultFn: null, maybeString: undefined })
+  const type = types.model(SS)
+  assert(_ as TypeToData<typeof type>, _ as SS)
+
+  assert(ss.or, _ as string | number | boolean)
+  assert(ss.orDefault, _ as string | number)
+  assert(ss.orDefaultFn, _ as string | number)
+  assert(ss.maybeString, _ as string | undefined)
+
+  expect(ss.or).toBe(5)
+  expect(ss.orDefault).toBe("foo")
+  expect(ss.orDefaultFn).toBe(10)
+  expect(ss.maybeString).toBe(undefined)
+
+  expectTypeCheckOk(type, ss)
+
+  expect(() => {
+    ss.setOr({} as any)
+  }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
+  ss.setOr(5)
+
+  expect(() => {
+    ss.setOrDefault(true as any)
+  }).toThrow(`snapshot 'true' does not match the following type: string | number`)
+  ss.setOrDefault("foo")
+
+  expect(() => {
+    ss.setOrDefaultFn(true as any)
+  }).toThrow(`snapshot 'true' does not match the following type: string | number`)
+  ss.setOrDefaultFn(10)
+
+  expect(() => {
+    ss.setMaybeString(5 as any)
+  }).toThrow(`snapshot '5' does not match the following type: string | undefined`)
+  ss.setMaybeString(undefined)
 })
 
 test("types.tag", () => {

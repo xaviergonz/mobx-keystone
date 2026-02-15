@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- Added array syntax as a `tProp` union shorthand, for example `tProp([String, Number])` as an alias for `tProp(types.or(String, Number))`.
+
 ## 1.12.2
 
 - Fix: preserve third-party decorator metadata when wrapping model actions, flows, computed getters, lifecycle hooks, and standalone actions/flows (#559).

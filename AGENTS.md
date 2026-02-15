@@ -110,6 +110,8 @@ Tests are organized similarly under `packages/lib/test/<area>`, though not every
 
 Use these when you need targeted debugging or one-off commands.
 
+- `pnpm --dir packages/lib quick-build`
+- `pnpm --dir packages/lib quick-build-tests`
 - `pnpm --dir packages/lib test test/<file>.test.ts`
 - `pnpm --dir packages/mobx-keystone-yjs test test/<file>.test.ts`
 - `pnpm --dir packages/mobx-keystone-loro test test/<file>.test.ts`
@@ -264,6 +266,7 @@ Before finishing, ensure all applicable items are done:
 2. Public exports updated (`index.ts` barrels) when API surface changed.
 3. Relevant tests pass (`lib`, `yjs`, `loro` as needed).
 4. Compatibility checks run for MobX/compiler-sensitive changes.
-5. `pnpm lint` passes.
-6. Docs/changelog updated for public behavior changes.
-7. No generated artifact edited manually.
+5. `pnpm --dir packages/lib quick-build` and `pnpm --dir packages/lib quick-build-tests` pass for core library changes.
+6. `pnpm lint` passes.
+7. Docs/changelog updated for public behavior changes.
+8. No generated artifact edited manually.

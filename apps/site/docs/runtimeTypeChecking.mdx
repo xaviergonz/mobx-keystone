@@ -128,6 +128,18 @@ A type that represents the union of several other types (`a | b | c | ...`).
 const booleanOrNumberType = types.or(types.boolean, types.number)
 ```
 
+`types.or` also supports a dispatcher overload:
+
+```ts
+const shapeType = types.or(
+  (sn) => (sn.kind === "circle" ? Circle : Rectangle),
+  Circle,
+  Rectangle
+)
+```
+
+The dispatcher receives the snapshot and must return one of the provided union types.
+
 ### `types.maybe(type)`
 
 A type that represents either a type or `undefined`.
@@ -318,6 +330,18 @@ const displayName = propTypeInfo.tag.displayName
 
 You can also do `tProp(defaultValue: string | number | boolean)`, which is equivalent to `tProp(types.string|number|boolean, defaultValue)`.
 In other words, if you use `tProp(42)`, then the property will be a number and take the default value `42` when the value on the snapshot / model creation data is `undefined`.
+
+### Syntactic sugar for union types in `tProp`
+
+You can also use array syntax in `tProp` as an alias for `types.or(...)`.
+
+```ts
+tProp([String, Number]) // equivalent to tProp(types.or(String, Number))
+tProp([String, undefined]) // equivalent to tProp(types.maybe(String))
+tProp([String, null]) // equivalent to tProp(types.maybeNull(String))
+```
+
+If you need a union dispatcher, use `types.or(dispatcher, ...types)` explicitly.
 
 ### `TypeToData<type>`
 

@@ -15,6 +15,8 @@ const noDefaultValueSymbol = Symbol("noDefaultValue")
 
 const tPropCache = new WeakMap<TypeChecker | LateTypeChecker, Map<unknown, AnyModelProp>>()
 
+type AnyTypeOrArray = AnyType | ReadonlyArray<AnyType>
+
 function getOrCreateTProp(
   type: TypeChecker | LateTypeChecker,
   defKey: unknown,
@@ -99,6 +101,27 @@ export function tProp<TType extends AnyType>(
 ): OptionalModelProp<TypeToData<TType>>
 
 /**
+ * Defines a model property using array syntax as a shorthand for `types.or(...)`,
+ * with an optional function to generate a default value if the input snapshot /
+ * model creation data is `null` or `undefined`.
+ *
+ * Example:
+ * ```ts
+ * x: tProp([String, Number], () => 10) // equivalent to tProp(types.or(String, Number), () => 10)
+ * ```
+ *
+ * @template TType Array of possible type checkers.
+ *
+ * @param type Array shorthand for `types.or(...)`.
+ * @param defaultFn Default value generator function.
+ * @returns
+ */
+export function tProp<TType extends ReadonlyArray<AnyType>>(
+  type: TType,
+  defaultFn: () => TypeToData<TType[number]>
+): OptionalModelProp<TypeToData<TType[number]>>
+
+/**
  * Defines a model property, with an optional default value
  * if the input snapshot / model creation data is `null` or `undefined` and with an associated type checker.
  * You should only use this with primitive values and never with object values
@@ -121,6 +144,27 @@ export function tProp<TType extends AnyType>(
 ): OptionalModelProp<TypeToData<TType>>
 
 /**
+ * Defines a model property using array syntax as a shorthand for `types.or(...)`,
+ * with an optional default value if the input snapshot / model creation data is
+ * `null` or `undefined`.
+ *
+ * Example:
+ * ```ts
+ * x: tProp([String, Number], "foo") // equivalent to tProp(types.or(String, Number), "foo")
+ * ```
+ *
+ * @template TType Array of possible type checkers.
+ *
+ * @param type Array shorthand for `types.or(...)`.
+ * @param defaultValue Default value.
+ * @returns
+ */
+export function tProp<TType extends ReadonlyArray<AnyType>>(
+  type: TType,
+  defaultValue: TypeToData<TType[number]>
+): OptionalModelProp<TypeToData<TType[number]>>
+
+/**
  * Defines a model property with no default value and an associated type checker.
  *
  * Example:
@@ -136,6 +180,24 @@ export function tProp<TType extends AnyType>(
  */
 export function tProp<TType extends AnyType>(type: TType): MaybeOptionalModelProp<TypeToData<TType>>
 
+/**
+ * Defines a model property with no default value using array syntax as a shorthand
+ * for `types.or(...)`.
+ *
+ * Example:
+ * ```ts
+ * x: tProp([String, undefined]) // equivalent to tProp(types.or(String, undefined))
+ * ```
+ *
+ * @template TType Array of possible type checkers.
+ *
+ * @param type Array shorthand for `types.or(...)`.
+ * @returns
+ */
+export function tProp<TType extends ReadonlyArray<AnyType>>(
+  type: TType
+): MaybeOptionalModelProp<TypeToData<TType[number]>>
+
 export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
   switch (typeof typeOrDefaultValue) {
     case "string":
@@ -150,7 +212,12 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
 
   const hasDefaultValue = arguments.length >= 2
 
-  const typeChecker = resolveStandardType(typeOrDefaultValue) as unknown as
+  const typeOrArray: AnyTypeOrArray = typeOrDefaultValue
+  const resolvedType: AnyType = Array.isArray(typeOrArray)
+    ? typesOr(...(typeOrArray as ReadonlyArray<AnyType>))
+    : (typeOrArray as AnyType)
+
+  const typeChecker = resolveStandardType(resolvedType) as unknown as
     | TypeChecker
     | LateTypeChecker
 
