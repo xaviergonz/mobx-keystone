@@ -50,6 +50,7 @@ const sidebars: SidebarsConfig = {
         "examples/loroBinding/loroBinding",
       ],
     },
+    "mstMigrationGuide",
   ],
 }
 

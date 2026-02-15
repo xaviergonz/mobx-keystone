@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added array syntax as a `tProp` union shorthand, for example `tProp([String, Number])` as an alias for `tProp(types.or(String, Number))`.
+- Docs: added a migration guide for moving from `mobx-state-tree` to `mobx-keystone`.
 
 ## 1.12.2
 

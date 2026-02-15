@@ -58,3 +58,4 @@ Use API pages for symbol-level details and examples for end-to-end implementatio
 - [Loro Binding Example](https://mobx-keystone.js.org/md/examples/loroBinding/loroBinding.md): Multi-client synchronization with Loro.
 - [API Reference](https://mobx-keystone.js.org/api/): Generated API documentation index.
 - [API Type Hierarchy](https://mobx-keystone.js.org/api/hierarchy.html): Inheritance and type relationships.
+- [Migration Guide: mobx-state-tree -> mobx-keystone](https://mobx-keystone.js.org/md/mstMigrationGuide.md): Practical, LLM-friendly playbook for converting MST codebases.
