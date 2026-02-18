@@ -20,6 +20,7 @@
     "build-netlify": "pnpm run site:build",
     "netlify-dev": "pnpm run build-netlify && netlify dev",
     "lint": "biome lint",
+    "skills:sync": "npx -y skills add ./skills --skill '*' --agent codex claude-code github-copilot antigravity -y",
     "upgrade-interactive": "pnpm -r up -i --latest"
   },
   "workspaces": [
