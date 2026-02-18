@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.6.0 (unreleased)
+## 1.6.0
 
 - Refactored internal synchronization to use deep change observation instead of JSON patches. This provides proper array splice detection, avoiding the previous behavior where array operations were converted to individual element patches. The result is more efficient array synchronization and better alignment with how Y.js handles array modifications.
 - Fixed a synchronization issue where values added to a collection and then mutated within the same action could cause desync. Snapshots are now captured at change time rather than at action completion time.

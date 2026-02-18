@@ -229,6 +229,14 @@ When public behavior or public API changes:
 
 `apps/site` build/start also runs LLM docs generation (`llms` scripts) and syncs root `llms.txt` into site generated output.
 
+## Changelog policy (always apply)
+
+After code changes, update the changelog for the specific project/package touched, unless the user explicitly says not to:
+- Core library changes (`packages/lib/**`): update root `CHANGELOG.md`.
+- Yjs package changes (`packages/mobx-keystone-yjs/**`): update `packages/mobx-keystone-yjs/CHANGELOG.md`.
+- Loro package changes (`packages/mobx-keystone-loro/**`): update `packages/mobx-keystone-loro/CHANGELOG.md`.
+- If multiple packages are touched, update each corresponding changelog.
+
 ## Task playbooks
 
 ### Bug fix in core library
@@ -269,5 +277,5 @@ Before finishing, ensure all applicable items are done:
 4. Compatibility checks run for MobX/compiler-sensitive changes.
 5. `pnpm --dir packages/lib quick-build` and `pnpm --dir packages/lib quick-build-tests` pass for core library changes.
 6. `pnpm lint` passes.
-7. Docs/changelog updated for public behavior changes.
+7. Changelog updated for each touched package (unless explicitly skipped by user); docs updated when behavior/API changes.
 8. No generated artifact edited manually.
