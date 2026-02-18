@@ -58,6 +58,8 @@ Tag format: `v<version>` by default. If that tag already exists, stop and ask wh
 - Always present all three bump options and the resulting versions.
 - Always ask the user to choose bump type, even if one option is recommended.
 - Never perform writes (file edits, commit, tag, push, publish) before explicit user confirmation.
+- The release/tag commit must not keep `## Unreleased` in the changelog.
+- After successful publish, re-add `## Unreleased` as the top changelog section and commit it as next-release preparation.
 - Ask for a final confirmation before push+publish.
 
 ## Semver Recommendation Rules
@@ -91,8 +93,8 @@ Tag format: `v<version>` by default. If that tag already exists, stop and ask wh
 11. Ask the user to select bump type.
 12. After selection, compute target version and draft the exact edits to apply (do not write files yet):
     - Update selected package `package.json` version to `<target-version>`.
-    - Keep `## Unreleased` as the top section and leave it empty.
-    - Insert a new section `## <target-version>` directly below `## Unreleased`.
+    - Remove `## Unreleased` from the release/tag commit so it is not part of the published changelog version.
+    - Insert a new section `## <target-version>` at the top of the changelog.
     - Move unreleased bullets into the new version section.
 13. Show planned diff summary and ask for confirmation to apply edits and execute pre-push steps.
 14. If confirmed, run release commands in order:
@@ -105,11 +107,15 @@ Tag format: `v<version>` by default. If that tag already exists, stop and ask wh
    - Verify tag `v<target-version>` does not already exist locally or on `origin`.
    - Commit: `git commit -m "v<target-version>"`.
    - Tag: `git tag "v<target-version>"`.
-15. Ask for final confirmation before push+publish.
+15. Ask for final confirmation before push+publish+post-publish changelog prep.
 16. If confirmed, finish release:
    - Push commit and tag to `origin master`.
    - Publish from selected package directory using `npm publish`.
-17. Report exact outputs for commit SHA, tag, push status, and publish result.
+17. After publish succeeds:
+   - Re-add `## Unreleased` as the top changelog section and leave it empty.
+   - Commit the changelog-only prep commit.
+   - Push the prep commit to `origin master`.
+18. Report exact outputs for release commit SHA, tag, publish result, and post-publish prep commit SHA.
 
 ## Command Template
 
@@ -141,6 +147,8 @@ rg -n "^## Unreleased|^## [0-9]" packages/mobx-keystone-loro/CHANGELOG.md
 
 # after user selects bump and confirms writes
 # edit selected changelog + selected package.json
+# remove `## Unreleased` from changelog in the release commit
+# create `## X.Y.Z` at top and move unreleased bullets there
 
 # package checks (choose based on PACKAGE)
 # lib: pnpm lib:build && pnpm lib:test
@@ -153,12 +161,18 @@ git add <selected-changelog> <selected-package-json>
 git commit -m "vX.Y.Z"
 git tag "vX.Y.Z"
 
-# ask for final confirmation before running push/publish
+# ask for final confirmation before running push/publish/post-publish prep
 git push origin master
 git push origin "vX.Y.Z"
 
 cd <selected-publish-dir>
 npm publish
+
+# after successful publish, re-add top `## Unreleased` and commit prep
+cd -
+git add <selected-changelog>
+git commit -m "chore: prepare next release"
+git push origin master
 ```
 
 ## Stop Conditions
@@ -169,3 +183,4 @@ npm publish
 - If `master` cannot be fast-forwarded, stop and ask user how to proceed.
 - If tag `v<target-version>` already exists, stop and ask user for tag strategy.
 - If publish fails, do not retry destructive changes automatically; report error and ask.
+- If post-publish re-add/commit/push of `## Unreleased` fails, report the exact state and ask before taking follow-up actions.

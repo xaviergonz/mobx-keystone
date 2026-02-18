@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 1.0.0
 
 - Refactored internal synchronization to use deep change observation instead of JSON patches. This provides proper array splice detection, avoiding the previous behavior where array operations were converted to individual element patches. The result is more efficient array synchronization and better alignment with how Loro handles array modifications.

@@ -1,6 +1,7 @@
 # Agent instructions for mobx-keystone
 
 This repository is a pnpm + Turbo monorepo for:
+
 - `mobx-keystone` (core library)
 - `mobx-keystone-yjs` (Yjs bindings)
 - `mobx-keystone-loro` (Loro bindings)
@@ -15,6 +16,12 @@ This repository is a pnpm + Turbo monorepo for:
 - Test runner: Vitest (not Jest)
 - Lint/format: Biome (`pnpm lint`; auto-fix with `pnpm exec biome check --write .`)
 - CI runtime: Node `25.6.1`
+
+## Skills
+
+- Source-of-truth skills live in `skills/**`.
+- Do not manually edit mirrored skill folders.
+- After editing skills, sync mirrored skill folders by running `pnpm skills:sync` from repo root.
 
 ## Monorepo map (source of truth)
 
