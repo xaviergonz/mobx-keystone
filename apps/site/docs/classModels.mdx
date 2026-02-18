@@ -113,6 +113,10 @@ myTodo.setDone(true)
 
 If for some reason you still require to change these without using a `modelAction`, consider using `objectActions.set`, `objectActions.delete`, `objectActions.call`, `arrayActions.push`, etc. if needed.
 
+`withSetter` also accepts a value transform function. For example `withSetter(cloneTreeValue)` clones incoming non-primitive values before setting them, which is useful when the same object instance may be reused across different places in the tree. If you need clone options, wrap it (for example `withSetter((x) => cloneTreeValue(x, { generateNewIds: false }))`).
+
+Note that the transform function is only applied when using the generated setter method (for example, `model.setX(3)`); it is **not** applied during model construction (`new Model({ x: 3 })`) or snapshot deserialization, where the value is assigned as provided.
+
 ## Life-cycle event hooks
 
 Class models can optionally include an implementation for each of the life-cycle hooks:

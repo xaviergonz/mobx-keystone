@@ -8,6 +8,10 @@ import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
  */
 export const noDefaultValue = Symbol("noDefaultValue")
 
+type SetterMode = boolean | "assign"
+
+export type ModelPropSetterValueTransform<T> = (value: T) => T
+
 /**
  * A model property.
  */
@@ -35,7 +39,8 @@ export interface ModelProp<
   _defaultFn: (() => TPropValue) | typeof noDefaultValue
   _defaultValue: TPropValue | typeof noDefaultValue
   _typeChecker: TypeChecker | LateTypeChecker | undefined
-  _setter: boolean | "assign"
+  _setter: SetterMode
+  _setterValueTransform: ((value: unknown) => unknown) | undefined
   _isId: boolean
   _transform:
     | {
@@ -52,6 +57,19 @@ export interface ModelProp<
   _toSnapshotProcessor?: (sn: unknown) => unknown
 
   withSetter(): ModelProp<
+    TPropValue,
+    TPropCreationValue,
+    TTransformedValue,
+    TTransformedCreationValue,
+    TIsRequired,
+    TIsId,
+    string,
+    TFromSnapshotOverride,
+    TToSnapshotOverride
+  >
+  withSetter(
+    valueTransform: ModelPropSetterValueTransform<TTransformedValue>
+  ): ModelProp<
     TPropValue,
     TPropCreationValue,
     TTransformedValue,
@@ -238,11 +256,14 @@ export type ModelIdProp<T extends string = string> = ModelProp<
  */
 export const idProp = {
   _setter: false,
+  _setterValueTransform: undefined,
   _isId: true,
 
-  withSetter(mode?: boolean | "assign") {
+  withSetter(modeOrValueTransform?: SetterMode | ModelPropSetterValueTransform<unknown>) {
     const obj: AnyModelProp = Object.create(this)
-    obj._setter = mode ?? true
+    const setterConfig = parseSetterConfig(modeOrValueTransform)
+    obj._setter = setterConfig.mode
+    obj._setterValueTransform = setterConfig.valueTransform
     return obj
   },
 
@@ -302,14 +323,17 @@ const baseProp: AnyModelProp = {
   _defaultValue: noDefaultValue,
   _typeChecker: undefined,
   _setter: false,
+  _setterValueTransform: undefined,
   _isId: false,
   _transform: undefined,
   _fromSnapshotProcessor: undefined,
   _toSnapshotProcessor: undefined,
 
-  withSetter(mode?: boolean | "assign") {
+  withSetter(modeOrValueTransform?: SetterMode | ModelPropSetterValueTransform<unknown>) {
     const obj: AnyModelProp = Object.create(this)
-    obj._setter = mode ?? true
+    const setterConfig = parseSetterConfig(modeOrValueTransform)
+    obj._setter = setterConfig.mode
+    obj._setterValueTransform = setterConfig.valueTransform
     return obj
   },
 
@@ -421,6 +445,36 @@ export function prop(def?: any): AnyModelProp {
   }
 
   return p!
+}
+
+function parseSetterConfig(
+  modeOrValueTransform?: SetterMode | ModelPropSetterValueTransform<unknown>
+): {
+  mode: SetterMode
+  valueTransform: ((value: unknown) => unknown) | undefined
+} {
+  if (typeof modeOrValueTransform === "function") {
+    return {
+      mode: true,
+      valueTransform: modeOrValueTransform,
+    }
+  }
+
+  if (
+    modeOrValueTransform === undefined ||
+    typeof modeOrValueTransform === "boolean" ||
+    modeOrValueTransform === "assign"
+  ) {
+    return {
+      mode: modeOrValueTransform ?? true,
+      valueTransform: undefined,
+    }
+  }
+
+  return {
+    mode: true,
+    valueTransform: undefined,
+  }
 }
 
 const propCache = new Map<unknown, AnyModelProp>()

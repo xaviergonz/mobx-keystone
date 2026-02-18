@@ -1,5 +1,6 @@
 export * from "./applySnapshot"
 export * from "./clone"
+export * from "./cloneTreeValue"
 export * from "./fromSnapshot"
 export * from "./getSnapshot"
 export * from "./onSnapshot"

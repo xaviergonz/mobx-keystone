@@ -4,6 +4,8 @@
 
 - Added array syntax as a `tProp` union shorthand, for example `tProp([String, Number])` as an alias for `tProp(types.or(String, Number))`.
 - Docs: added a migration guide for moving from `mobx-state-tree` to `mobx-keystone`.
+- `withSetter` now supports a value transform function (for example `withSetter(cloneTreeValue)`) for preprocessing setter values.
+- `cloneTreeValue` now accepts clone options (same as `clone`), so callers can customize behavior (for example `generateNewIds: false`).
 
 ## 1.12.2
 

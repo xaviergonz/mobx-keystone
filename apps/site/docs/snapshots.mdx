@@ -207,3 +207,29 @@ Snapshots can also be used to clone values. `clone` is just sugar syntax around 
 ```ts
 const clonedTodo = clone(todo)
 ```
+
+### `cloneTreeValue`
+
+```ts
+cloneTreeValue<T>(value: T, options?: Partial<CloneOptions>): T
+```
+
+`cloneTreeValue` is a more permissive clone helper intended for incoming values (for example from setters).
+
+- If `value` is a tree node, it behaves like `clone`.
+- If `value` is a plain object / array, it clones it via snapshots.
+- If `value` is a primitive (or not tree/snapshot-like), it returns it unchanged.
+
+Like `clone`, `generateNewIds` defaults to `true`.
+
+```ts
+@model("myApp/Store")
+class Store extends Model({
+  data: prop<MyData | undefined>().withSetter(cloneTreeValue),
+}) {}
+
+// custom clone options:
+// data: prop<MyData | undefined>().withSetter((x) =>
+//   cloneTreeValue(x, { generateNewIds: false })
+// )
+```

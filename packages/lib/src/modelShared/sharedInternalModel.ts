@@ -70,6 +70,10 @@ const setModelInstanceDataField: SetModelInstanceDataFieldFn = (
     return
   }
 
+  if (modelProp._setterValueTransform) {
+    value = modelProp._setterValueTransform(value)
+  }
+
   let untransformedValue = modelProp._transform
     ? modelProp._transform.untransform(value, model, modelPropName)
     : value
