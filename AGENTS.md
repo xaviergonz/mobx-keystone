@@ -168,6 +168,7 @@ The core library test matrix is controlled by two environment variables:
 - `MOBX_VERSION` (default: `6`): selects MobX version — `6`, `5`, or `4`.
 
 These are read by `packages/lib/env.js` and used by `packages/lib/vitest.config.ts` to:
+
 - Pick the correct `test/tsconfig*.json` file (e.g. `tsconfig.experimental-decorators.json` for legacy decorators, `tsconfig.mobx4.json` / `tsconfig.mobx5.json` for older MobX).
 - Alias the `mobx` import to `mobx-v4` or `mobx-v5` npm packages when testing older MobX versions.
 - Apply the selected compiler via a Vite plugin that transpiles `.ts` files before test execution.
@@ -239,6 +240,7 @@ When public behavior or public API changes:
 ## Changelog policy (always apply)
 
 After code changes, update the changelog for the specific project/package touched, unless the user explicitly says not to:
+
 - Core library changes (`packages/lib/**`): update root `CHANGELOG.md`.
 - Yjs package changes (`packages/mobx-keystone-yjs/**`): update `packages/mobx-keystone-yjs/CHANGELOG.md`.
 - Loro package changes (`packages/mobx-keystone-loro/**`): update `packages/mobx-keystone-loro/CHANGELOG.md`.
