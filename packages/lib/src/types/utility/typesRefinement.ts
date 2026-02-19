@@ -1,8 +1,8 @@
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, TypeToData } from "../schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
+import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChecker"
 
 /**
  * A refinement over a given type. This allows you to do extra checks
@@ -24,7 +24,11 @@ import { TypeCheckError } from "../TypeCheckError"
  *   return rightResult
  *
  *   // this will return that the result field is wrong
- *   return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
+ *   return rightResult ? null : new TypeCheckError({
+ *     path: ["result"],
+ *     expectedTypeName: "a+b",
+ *     actualValue: sum.result,
+ *   })
  * })
  * ```
  *
@@ -66,15 +70,20 @@ export function typesRefinement<T extends AnyType>(
         if (refinementErr === true || refinementErr == null) {
           return null
         } else if (refinementErr === false) {
-          return new TypeCheckError(path, getTypeName(thisTc), data, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: data,
+            typeCheckedValue,
+          })
         } else {
           // override typeCheckedValue
-          return new TypeCheckError(
-            refinementErr.path,
-            refinementErr.expectedTypeName,
-            refinementErr.actualValue,
-            typeCheckedValue
-          )
+          return new TypeCheckError({
+            path: refinementErr.path,
+            expectedTypeName: refinementErr.expectedTypeName,
+            actualValue: refinementErr.actualValue,
+            typeCheckedValue,
+          })
         }
       },
 

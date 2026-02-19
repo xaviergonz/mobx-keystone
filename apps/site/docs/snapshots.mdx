@@ -194,6 +194,8 @@ applySnapshot(todo, {
 
 In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused (since they have the same model ID).
 
+When `fromSnapshot` or `applySnapshot` fails due to snapshot processing issues, it throws `SnapshotProcessingError` (extends `MobxKeystoneError`) and includes diagnostic metadata such as `path`, `actualSnapshot` (when available), and `modelTrail` (when available). Its error message is also enriched with this metadata (plus a safe value preview when available).
+
 ## Cloning via snapshots
 
 ### `clone`

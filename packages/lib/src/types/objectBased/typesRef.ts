@@ -37,7 +37,12 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
 
     (value, path, typeCheckedValue) => {
       if (!(value instanceof Ref)) {
-        return new TypeCheckError(path, typeName, value, typeCheckedValue)
+        return new TypeCheckError({
+          path,
+          expectedTypeName: typeName,
+          actualValue: value,
+          typeCheckedValue,
+        })
       }
 
       return refDataTypeChecker.check(value.$, path, typeCheckedValue)

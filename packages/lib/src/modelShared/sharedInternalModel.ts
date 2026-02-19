@@ -15,6 +15,7 @@ import type { AnyType } from "../types/schemas"
 import { tProp } from "../types/tProp"
 import type { LateTypeChecker } from "../types/TypeChecker"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
+import { withErrorPathSegment } from "../utils/errorDiagnostics"
 import { addHiddenProp, assertIsObject, failure, propNameToSetterName } from "../utils"
 import { chainFns } from "../utils/chainFns"
 import { ModelClass, modelInitializedSymbol } from "./BaseModelShared"
@@ -75,7 +76,9 @@ const setModelInstanceDataField: SetModelInstanceDataFieldFn = (
   }
 
   let untransformedValue = modelProp._transform
-    ? modelProp._transform.untransform(value, model, modelPropName)
+    ? withErrorPathSegment(modelPropName, () =>
+        modelProp._transform!.untransform(value, model, modelPropName)
+      )
     : value
 
   // apply default value if applicable
@@ -354,7 +357,9 @@ function getModelPropsFromSnapshotProcessor(
     const newSn = { ...sn }
     for (const [propName, propData] of propsWithFromSnapshotProcessor) {
       if (propData._fromSnapshotProcessor) {
-        newSn[propName] = propData._fromSnapshotProcessor(sn[propName])
+        newSn[propName] = withErrorPathSegment(propName, () =>
+          propData._fromSnapshotProcessor!(sn[propName])
+        )
       }
     }
     return newSn
@@ -376,7 +381,7 @@ function getModelPropsToSnapshotProcessor(
     const newSn = { ...sn }
     for (const [propName, propData] of propsWithToSnapshotProcessor) {
       if (propData._toSnapshotProcessor) {
-        newSn[propName] = propData._toSnapshotProcessor(sn[propName])
+        newSn[propName] = withErrorPathSegment(propName, () => propData._toSnapshotProcessor!(sn[propName]))
       }
     }
     return newSn

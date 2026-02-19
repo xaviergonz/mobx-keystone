@@ -333,13 +333,13 @@ test("three level subclassing", () => {
   expect(() => {
     p2.setX("10" as any)
   }).toThrow(
-    'TypeCheckError: [/x] Expected a value of type <number> but got the value <"10"> instead'
+    'TypeCheckError: Expected a value of type <number> but got an incompatible value - Path: /x - Value: "10"'
   )
 
   expect(() => {
     p2.setB("10" as any)
   }).toThrow(
-    'TypeCheckError: [/b] Expected a value of type <number> but got the value <"10"> instead'
+    'TypeCheckError: Expected a value of type <number> but got an incompatible value - Path: /b - Value: "10"'
   )
 })
 

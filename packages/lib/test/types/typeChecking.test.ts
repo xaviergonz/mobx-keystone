@@ -6,52 +6,55 @@ import {
   ArraySet,
   ArraySetTypeInfo,
   ArrayTypeInfo,
+  actionTrackingMiddleware,
+  arraySet,
   BooleanTypeInfo,
+  customRef,
   Frozen,
   FrozenTypeInfo,
+  fromSnapshot,
+  frozen,
+  getSnapshot,
+  getTypeInfo,
+  idProp,
   LiteralTypeInfo,
+  MobxKeystoneError,
   Model,
   ModelAutoTypeCheckingMode,
   ModelTypeInfo,
   ModelTypeInfoProps,
+  modelAction,
+  modelIdKey,
   NumberTypeInfo,
   ObjectMap,
   ObjectMapTypeInfo,
   ObjectTypeInfo,
   ObjectTypeInfoProps,
   OrTypeInfo,
-  Path,
-  RecordTypeInfo,
-  Ref,
-  RefTypeInfo,
-  RefinementTypeInfo,
-  StringTypeInfo,
-  TagTypeInfo,
-  TupleTypeInfo,
-  TypeCheckError,
-  TypeInfo,
-  TypeToData,
-  UncheckedTypeInfo,
-  actionTrackingMiddleware,
-  arraySet,
-  customRef,
-  fromSnapshot,
-  frozen,
-  getSnapshot,
-  getTypeInfo,
-  idProp,
-  modelAction,
-  modelIdKey,
   objectMap,
   onPatches,
   onSnapshot,
+  Path,
   prop,
+  RecordTypeInfo,
+  Ref,
+  RefinementTypeInfo,
+  RefTypeInfo,
   resolvePath,
   rootRef,
+  SnapshotTypeMismatchError,
+  StringTypeInfo,
   setGlobalConfig,
+  TagTypeInfo,
+  TupleTypeInfo,
+  TypeCheckError,
+  TypeCheckErrorFailure,
+  TypeInfo,
+  TypeToData,
   tProp,
   typeCheck,
   types,
+  UncheckedTypeInfo,
 } from "../../src"
 import { enumValues } from "../../src/types/primitiveBased/typesEnum"
 import { resolveStandardType } from "../../src/types/resolveTypeChecker"
@@ -121,7 +124,14 @@ function expectTypeCheckFail<T extends AnyType>(
 
   const err = typeCheck(t, val)!
   expect(err).toBeInstanceOf(TypeCheckError)
-  expect(err).toEqual(new TypeCheckError(path, expected, actualValue, typeCheckedValue))
+  expect(err).toEqual(
+    new TypeCheckError({
+      path,
+      expectedTypeName: expected,
+      actualValue,
+      typeCheckedValue,
+    })
+  )
 }
 
 function expectValidTypeInfo<TI extends TypeInfo>(
@@ -134,6 +144,36 @@ function expectValidTypeInfo<TI extends TypeInfo>(
   expect(typeInfo.thisType).toBe(resolveStandardType(type))
   return typeInfo
 }
+
+test("TypeCheckError constructor supports both object and positional signatures", () => {
+  const objectErr = new TypeCheckError({
+    path: ["x"],
+    expectedTypeName: "number",
+    actualValue: "10",
+  })
+  const positionalErr = new TypeCheckError(["x"], "number", "10")
+
+  expect(objectErr).toEqual(positionalErr)
+  expect(objectErr.message).toBe(positionalErr.message)
+})
+
+test("TypeCheckError.throw() throws TypeCheckErrorFailure", () => {
+  const err = new TypeCheckError({
+    path: ["x"],
+    expectedTypeName: "number",
+    actualValue: "10",
+  })
+
+  expect(err).not.toBeInstanceOf(MobxKeystoneError)
+
+  try {
+    err.throw()
+    throw new Error("expected throw() to throw")
+  } catch (thrown) {
+    expect(thrown).toBeInstanceOf(TypeCheckErrorFailure)
+    expect(thrown).toBeInstanceOf(MobxKeystoneError)
+  }
+})
 
 test("literal", () => {
   const type = types.literal("hi")
@@ -465,7 +505,14 @@ test("model", () => {
   expectTypeCheckFail(type, new MR({}), [], `Model(${m.$modelType})`)
   m.setX("10" as any)
   expectTypeCheckFail(type, m, ["x"], "number")
-  expect(m.typeCheck()).toEqual(new TypeCheckError(["x"], "number", "10", m))
+  expect(m.typeCheck()).toEqual(
+    new TypeCheckError({
+      path: ["x"],
+      expectedTypeName: "number",
+      actualValue: "10",
+      typeCheckedValue: m,
+    })
+  )
 
   const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
   expect(typeInfo.modelClass).toBe(M)
@@ -551,7 +598,7 @@ test("new model with typechecking enabled", () => {
   })
 
   expect(() => new M({ x: 10, y: 20 as any })).toThrow(
-    "TypeCheckError: [/y] Expected a value of type <string> but got the value <20> instead"
+    "TypeCheckError: Expected a value of type <string> but got an incompatible value - Path: /y - Value: 20"
   )
 })
 
@@ -1097,7 +1144,14 @@ test("refinement (complex)", () => {
   const type = types.refinement(sumObjType, (sum) => {
     const rightResult = sum.a + sum.b === sum.result
 
-    return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result, sum)
+    return rightResult
+      ? null
+      : new TypeCheckError({
+          path: ["result"],
+          expectedTypeName: "a+b",
+          actualValue: sum.result,
+          typeCheckedValue: sum,
+        })
   })
   assert(_ as TypeToData<typeof type>, _ as { b: number; a: number; result: number })
 
@@ -1302,7 +1356,9 @@ test("syntax sugar for primitives in tProp", () => {
   expect(() => {
     ss.setOr({} as any)
     // expectTypeCheckFail(type, ss, ["or"], "string | number | boolean")
-  }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
+  }).toThrow(
+    `snapshot does not match the following type: <string | number | boolean> - Path: / - Value: {}`
+  )
   ss.setOr(5)
 })
 
@@ -1353,23 +1409,123 @@ test("syntax sugar for union types in tProp", () => {
 
   expect(() => {
     ss.setOr({} as any)
-  }).toThrow(`snapshot '{}' does not match the following type: string | number | boolean`)
+  }).toThrow(
+    `snapshot does not match the following type: <string | number | boolean> - Path: / - Value: {}`
+  )
   ss.setOr(5)
 
   expect(() => {
     ss.setOrDefault(true as any)
-  }).toThrow(`snapshot 'true' does not match the following type: string | number`)
+  }).toThrow(
+    `snapshot does not match the following type: <string | number> - Path: / - Value: true`
+  )
   ss.setOrDefault("foo")
 
   expect(() => {
     ss.setOrDefaultFn(true as any)
-  }).toThrow(`snapshot 'true' does not match the following type: string | number`)
+  }).toThrow(
+    `snapshot does not match the following type: <string | number> - Path: / - Value: true`
+  )
   ss.setOrDefaultFn(10)
 
   expect(() => {
     ss.setMaybeString(5 as any)
-  }).toThrow(`snapshot '5' does not match the following type: string | undefined`)
+  }).toThrow(
+    `snapshot does not match the following type: <string | undefined> - Path: / - Value: 5`
+  )
   ss.setMaybeString(undefined)
+})
+
+test("fromSnapshot union mismatch includes full path", () => {
+  @testModel("issue #487/UnionModel")
+  class UnionModel extends Model({
+    value: tProp([String, Number]),
+  }) {}
+
+  expect(() => {
+    fromSnapshot(UnionModel, {
+      value: {},
+    } as any)
+  }).toThrow(
+    `snapshot does not match the following type: <string | number> - Path: /value - Value: {}`
+  )
+
+  try {
+    fromSnapshot(UnionModel, {
+      value: {},
+    } as any)
+    throw new Error("expected fromSnapshot to throw")
+  } catch (err) {
+    const e = err as any
+    expect(e).toBeInstanceOf(SnapshotTypeMismatchError)
+    expect(e).toBeInstanceOf(MobxKeystoneError)
+    expect(e.path).toEqual(["value"])
+    expect(e.expectedTypeName).toBe("string | number")
+    expect(e.actualValue).toEqual({})
+  }
+})
+
+test("fromSnapshot deep type errors include full path and model trail metadata", () => {
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+
+  @testModel("issue #487/TestModel3")
+  class TestModel3 extends Model({
+    test3_1: tProp(types.string),
+  }) {}
+
+  @testModel("issue #487/TestModel2")
+  class TestModel2 extends Model({
+    test2_1: tProp(types.string),
+    test2_2: tProp(TestModel3),
+  }) {}
+
+  @testModel("issue #487/TestModel1")
+  class TestModel1 extends Model({
+    test1_1: tProp(types.string),
+    test1_2: tProp(TestModel2),
+  }) {}
+
+  const badSnapshot = {
+    test1_1: "ok",
+    test1_2: {
+      test2_1: "ok2",
+      test2_2: {
+        test3_1: 123,
+      },
+    },
+  }
+
+  const testName = expect.getState().currentTestName
+  const expectedModelTrail = [
+    `${testName}/issue #487/TestModel1`,
+    `${testName}/issue #487/TestModel2`,
+    `${testName}/issue #487/TestModel3`,
+  ]
+
+  expect(() => {
+    fromSnapshot(TestModel1, badSnapshot as any)
+  }).toThrow(
+    `TypeCheckError: Expected a value of type <string> but got an incompatible value - Path: /test1_2/test2_2/test3_1 - Value: 123 - Model trail: ${expectedModelTrail.join(
+      " -> "
+    )}`
+  )
+
+  try {
+    fromSnapshot(TestModel1, badSnapshot as any)
+    throw new Error("expected fromSnapshot to throw")
+  } catch (err) {
+    const e = err as any
+    expect(e.path).toEqual(["test1_2", "test2_2", "test3_1"])
+    expect(e.expectedTypeName).toBe("string")
+    expect(e.actualValue).toBe(123)
+    expect(e.modelTrail).toEqual(expectedModelTrail)
+  }
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+  })
 })
 
 test("types.tag", () => {

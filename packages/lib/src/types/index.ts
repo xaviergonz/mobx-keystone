@@ -1,5 +1,6 @@
+export * from "./SnapshotTypeMismatchError"
 export * from "./schemas"
+export * from "./TypeCheckError"
 export * from "./tProp"
 export * from "./typeCheck"
-export * from "./TypeCheckError"
 export * from "./types"

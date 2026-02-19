@@ -1,7 +1,9 @@
 import { isObject } from "../../utils"
+import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, RecordType } from "../schemas"
+import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -9,7 +11,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { TypeCheckError } from "../TypeCheckError"
 
 /**
  * A type that represents an object-like map, an object with string keys and values all of a same given type.
@@ -43,10 +44,11 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       const keys = Object.keys(obj)
       for (let i = 0; i < keys.length; i++) {
         const k = keys[i]
-        const v =
+        const v = withErrorPathSegment(k, () =>
           mode === "from"
             ? valueChecker.fromSnapshotProcessor(obj[k])
             : valueChecker.toSnapshotProcessor(obj[k])
+        )
         newObj[k] = v
       }
 
@@ -58,7 +60,12 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
 
       (obj, path, typeCheckedValue) => {
         if (!isObject(obj)) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: obj,
+            typeCheckedValue,
+          })
         }
 
         if (!valueChecker.unchecked) {

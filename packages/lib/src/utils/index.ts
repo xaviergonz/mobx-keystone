@@ -18,7 +18,7 @@ export class MobxKeystoneError extends Error {
     super(msg)
 
     // Set the prototype explicitly.
-    Object.setPrototypeOf(this, MobxKeystoneError.prototype)
+    Object.setPrototypeOf(this, new.target.prototype)
   }
 }
 

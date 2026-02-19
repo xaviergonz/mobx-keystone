@@ -132,12 +132,12 @@ export class TypeChecker {
     }
 
     if (cachedResult) {
-      return new TypeCheckError(
-        [...path, ...cachedResult.path],
-        cachedResult.expectedTypeName,
-        cachedResult.actualValue,
-        typeCheckedValue
-      )
+      return new TypeCheckError({
+        path: [...path, ...cachedResult.path],
+        expectedTypeName: cachedResult.expectedTypeName,
+        actualValue: cachedResult.actualValue,
+        typeCheckedValue,
+      })
     } else {
       return null
     }

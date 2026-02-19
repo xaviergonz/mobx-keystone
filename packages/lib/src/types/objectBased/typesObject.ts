@@ -1,6 +1,7 @@
 import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
 import { assertIsFunction, assertIsObject, isObject, lazy } from "../../utils"
+import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type {
@@ -10,15 +11,15 @@ import type {
   ObjectTypeFunction,
   TypeToData,
 } from "../schemas"
+import { TypeCheckError } from "../TypeCheckError"
 import {
-  lateTypeChecker,
   LateTypeChecker,
+  lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { TypeCheckError } from "../TypeCheckError"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
@@ -53,8 +54,9 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         const unresolvedTc = objectSchema[k]
         if (unresolvedTc) {
           const tc = resolveTypeChecker(unresolvedTc)
-          newObj[k] =
+          newObj[k] = withErrorPathSegment(k, () =>
             mode === "from" ? tc.fromSnapshotProcessor(obj[k]) : tc.toSnapshotProcessor(obj[k])
+          )
         } else {
           // unknown prop, copy as is
           newObj[k] = obj[k]
@@ -69,7 +71,12 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
 
       (obj, path, typeCheckedValue) => {
         if (!isObject(obj) || (frozen && !(obj instanceof Frozen))) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: obj,
+            typeCheckedValue,
+          })
         }
 
         // note: we allow excess properties when checking objects

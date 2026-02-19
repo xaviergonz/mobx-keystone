@@ -1,7 +1,9 @@
 import { isArray, lazy } from "../../utils"
+import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
+import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -9,7 +11,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { TypeCheckError } from "../TypeCheckError"
 
 /**
  * A type that represents an tuple of values of a given type.
@@ -45,7 +46,12 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
 
       (array, path, typeCheckedValue) => {
         if (!isArray(array) || array.length !== itemTypes.length) {
-          return new TypeCheckError(path, getTypeName(thisTc), array, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: array,
+            typeCheckedValue,
+          })
         }
 
         for (let i = 0; i < array.length; i++) {
@@ -78,13 +84,13 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
 
       (array: unknown[]) => {
         return array.map((item, i) => {
-          return checkers[i].fromSnapshotProcessor(item)
+          return withErrorPathSegment(i, () => checkers[i].fromSnapshotProcessor(item))
         })
       },
 
       (array: unknown[]) => {
         return array.map((item, i) => {
-          return checkers[i].toSnapshotProcessor(item)
+          return withErrorPathSegment(i, () => checkers[i].toSnapshotProcessor(item))
         })
       }
     )

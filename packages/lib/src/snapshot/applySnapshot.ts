@@ -10,19 +10,14 @@ import { getSnapshotModelType, isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, modelInfoByClass } from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
+import { assertIsObject, inDevMode, isArray, isMap, isPlainObject, isSet, lazy } from "../utils"
 import {
-  assertIsObject,
-  failure,
-  inDevMode,
-  isArray,
-  isMap,
-  isPlainObject,
-  isSet,
-  lazy,
-} from "../utils"
+  runWithErrorDiagnosticsContext,
+} from "../utils/errorDiagnostics"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
+import { SnapshotProcessingError } from "./SnapshotProcessingError"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
@@ -40,7 +35,9 @@ export function applySnapshot(node: object, snapshot: unknown): void {
   assertTweakedObject(node, "node")
   assertIsObject(snapshot, "snapshot")
 
-  wrappedInternalApplySnapshot().call(node, snapshot)
+  runWithErrorDiagnosticsContext(() => {
+    wrappedInternalApplySnapshot().call(node, snapshot)
+  })
 }
 
 /**
@@ -58,14 +55,20 @@ export function internalApplySnapshot<T extends object>(
 
     if (inDevMode) {
       if (ret !== obj) {
-        throw failure("assertion failed: reconciled object has to be the same")
+        throw new SnapshotProcessingError({
+          message: "assertion failed: reconciled object has to be the same",
+          actualSnapshot: sn,
+        })
       }
     }
   }
 
   if (isArray(sn)) {
     if (!isArray(obj)) {
-      throw failure("if the snapshot is an array the target must be an array too")
+      throw new SnapshotProcessingError({
+        message: "if the snapshot is an array the target must be an array too",
+        actualSnapshot: sn,
+      })
     }
 
     reconcile()
@@ -73,7 +76,10 @@ export function internalApplySnapshot<T extends object>(
   }
 
   if (isFrozenSnapshot(sn)) {
-    throw failure("applySnapshot cannot be used over frozen objects")
+    throw new SnapshotProcessingError({
+      message: "applySnapshot cannot be used over frozen objects",
+      actualSnapshot: sn,
+    })
   }
 
   // adapt snapshot to target model if possible
@@ -86,22 +92,29 @@ export function internalApplySnapshot<T extends object>(
   if (modelType !== undefined) {
     const modelInfo = getModelInfoForName(modelType)
     if (!modelInfo) {
-      throw failure(`model with name "${modelType}" not found in the registry`)
+      throw new SnapshotProcessingError({
+        message: `model with name "${modelType}" not found in the registry`,
+        actualSnapshot: sn,
+      })
     }
 
     // we don't check by actual instance since the class might be a different one due to hot reloading
     if (!isModel(obj)) {
       // not a model instance, no reconciliation possible
-      throw failure(`the target for a model snapshot must be a model instance`)
+      throw new SnapshotProcessingError({
+        message: "the target for a model snapshot must be a model instance",
+        actualSnapshot: sn,
+      })
     }
 
     if (obj[modelTypeKey] !== modelType) {
       // different kind of model, no reconciliation possible
-      throw failure(
-        `snapshot model type '${modelType}' does not match target model type '${
+      throw new SnapshotProcessingError({
+        message: `snapshot model type '${modelType}' does not match target model type '${
           (obj as any)[modelTypeKey]
-        }'`
-      )
+        }'`,
+        actualSnapshot: sn,
+      })
     }
 
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
@@ -109,9 +122,12 @@ export function internalApplySnapshot<T extends object>(
       const id = (sn as any)[modelIdPropertyName]
       if (obj[modelIdKey] !== id) {
         // different id, no reconciliation possible
-        throw failure(
-          `snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`
-        )
+        throw new SnapshotProcessingError({
+          message: `snapshot model id '${id}' does not match target model id '${
+            obj[modelIdKey]
+          }'`,
+          actualSnapshot: sn,
+        })
       }
     }
 
@@ -122,7 +138,10 @@ export function internalApplySnapshot<T extends object>(
   if (isPlainObject(sn)) {
     if (!(isPlainObject(obj) || isObservableObject(obj))) {
       // no reconciliation possible
-      throw failure("if the snapshot is an object the target must be an object too")
+      throw new SnapshotProcessingError({
+        message: "if the snapshot is an object the target must be an object too",
+        actualSnapshot: sn,
+      })
     }
 
     reconcile()
@@ -130,14 +149,23 @@ export function internalApplySnapshot<T extends object>(
   }
 
   if (isMap(sn)) {
-    throw failure("a snapshot must not contain maps")
+    throw new SnapshotProcessingError({
+      message: "a snapshot must not contain maps",
+      actualSnapshot: sn,
+    })
   }
 
   if (isSet(sn)) {
-    throw failure("a snapshot must not contain sets")
+    throw new SnapshotProcessingError({
+      message: "a snapshot must not contain sets",
+      actualSnapshot: sn,
+    })
   }
 
-  throw failure(`unsupported snapshot - ${sn}`)
+  throw new SnapshotProcessingError({
+    message: "unsupported snapshot",
+    actualSnapshot: sn,
+  })
 }
 
 const wrappedInternalApplySnapshot = lazy(() =>

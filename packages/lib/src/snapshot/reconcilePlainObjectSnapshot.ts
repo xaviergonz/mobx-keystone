@@ -2,13 +2,14 @@ import { isObservableObject, remove } from "mobx"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isPlainObject } from "../utils"
+import { withErrorPathSegment } from "../utils/errorDiagnostics"
 import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
-import type { SnapshotInOfObject } from "./SnapshotOf"
-import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
+import type { SnapshotInOfObject } from "./SnapshotOf"
+import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function reconcilePlainObjectSnapshot(
   value: any,
@@ -43,7 +44,9 @@ function reconcilePlainObjectSnapshot(
       const v = sn[k]
 
       const oldValue = plainObj[k]
-      const newValue = reconcileSnapshot(oldValue, v, modelPool, plainObj)
+      const newValue = withErrorPathSegment(k, () =>
+        reconcileSnapshot(oldValue, v, modelPool, plainObj)
+      )
 
       detachIfNeeded(newValue, oldValue, modelPool)
 
