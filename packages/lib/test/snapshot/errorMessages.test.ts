@@ -19,19 +19,11 @@ class ApplyErrorModel extends Model({}) {}
 @testModel("issue #487/ApplyOtherModel")
 class ApplyOtherModel extends Model({}) {}
 
-@testModel("issue #487/ApplyIdModel")
-class ApplyIdModel extends Model({
+@testModel("issue #487/ApplyMismatchModel")
+class ApplyMismatchModel extends Model({
   [modelIdKey]: idProp,
   n: prop(1),
-}) {}
-
-@testModel("issue #487/ApplyArrayTargetModel")
-class ApplyArrayTargetModel extends Model({
   arr: prop<number[]>(() => []),
-}) {}
-
-@testModel("issue #487/ApplyPlainObjectTargetModel")
-class ApplyPlainObjectTargetModel extends Model({
   obj: prop<Record<string, unknown>>(() => ({})),
 }) {}
 
@@ -163,8 +155,11 @@ test("applySnapshot model mismatch and target mismatch errors are path-aware", (
   const knownModelSnapshot = {
     [modelTypeKey]: "issue #487/ApplyErrorModel",
   }
-  const plainTarget = new ApplyPlainObjectTargetModel({})
-  expect(() => applySnapshot(plainTarget.obj as any, knownModelSnapshot as any)).toThrow(
+  const mismatch = new ApplyMismatchModel({
+    [modelIdKey]: "id-1",
+    n: 1,
+  })
+  expect(() => applySnapshot(mismatch.obj as any, knownModelSnapshot as any)).toThrow(
     `the target for a model snapshot must be a model instance - Path: / - Value: ${JSON.stringify(
       knownModelSnapshot
     )}`
@@ -177,24 +172,19 @@ test("applySnapshot model mismatch and target mismatch errors are path-aware", (
     )}`
   )
 
-  const withId = new ApplyIdModel({
-    [modelIdKey]: "id-1",
-    n: 1,
-  })
   const idMismatchSnapshot = {
-    [modelTypeKey]: "issue #487/ApplyIdModel",
+    [modelTypeKey]: "issue #487/ApplyMismatchModel",
     [modelIdKey]: "id-2",
     n: 1,
   }
-  expect(() => applySnapshot(withId, idMismatchSnapshot as any)).toThrow(
+  expect(() => applySnapshot(mismatch, idMismatchSnapshot as any)).toThrow(
     `snapshot model id 'id-2' does not match target model id 'id-1' - Path: / - Value: ${JSON.stringify(
       idMismatchSnapshot
     )}`
   )
 
-  const arrTarget = new ApplyArrayTargetModel({})
   const objectSnapshot = { x: 1 }
-  expect(() => applySnapshot(arrTarget.arr as any, objectSnapshot as any)).toThrow(
+  expect(() => applySnapshot(mismatch.arr as any, objectSnapshot as any)).toThrow(
     `if the snapshot is an object the target must be an object too - Path: / - Value: ${JSON.stringify(
       objectSnapshot
     )}`
@@ -221,11 +211,11 @@ test("fromSnapshot model-snapshot structural errors include path and value", () 
   )
 
   const missingIdSnapshot = {
-    [modelTypeKey]: "issue #487/ApplyIdModel",
+    [modelTypeKey]: "issue #487/ApplyMismatchModel",
     n: 5,
   }
   expect(() => fromSnapshot(missingIdSnapshot as any)).toThrow(
-    `a model snapshot of type 'issue #487/ApplyIdModel' must contain an id key (${modelIdKey}), but none was found - Path: / - Value: ${JSON.stringify(
+    `a model snapshot of type 'issue #487/ApplyMismatchModel' must contain an id key (${modelIdKey}), but none was found - Path: / - Value: ${JSON.stringify(
       missingIdSnapshot
     )}`
   )

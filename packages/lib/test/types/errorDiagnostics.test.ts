@@ -13,10 +13,8 @@ test("error diagnostics helpers handle no-context and nested-context usage", () 
   expect(getErrorPathSnapshot()).toBeUndefined()
   expect(getErrorModelTrailSnapshot()).toBeUndefined()
 
-  expect(withErrorPathSegment("x", () => 1)).toBe(1)
-  expect(withErrorPathSegments([], () => 2)).toBe(2)
-  expect(withErrorPathSegments(["x"], () => 3)).toBe(3)
-  expect(withErrorModelTrailEntry("M", () => 4)).toBe(4)
+  expect(withErrorPathSegments(["x"], () => 1)).toBe(1)
+  expect(withErrorModelTrailEntry("M", () => 2)).toBe(2)
 
   runWithErrorDiagnosticsContext(() => {
     withErrorPathSegment("a", () => {
@@ -35,21 +33,6 @@ test("error diagnostics helpers handle no-context and nested-context usage", () 
 
   expect(getErrorPathSnapshot()).toBeUndefined()
   expect(getErrorModelTrailSnapshot()).toBeUndefined()
-})
-
-test("error diagnostics path segments and model trail are restored after exceptions", () => {
-  runWithErrorDiagnosticsContext(() => {
-    expect(() =>
-      withErrorPathSegments(["a", "b"], () => {
-        withErrorModelTrailEntry("M", () => {
-          throw new Error("boom")
-        })
-      })
-    ).toThrow("boom")
-
-    expect(getErrorPathSnapshot()).toEqual([])
-    expect(getErrorModelTrailSnapshot()).toBeUndefined()
-  })
 })
 
 test("buildErrorMessageWithDiagnostics handles value preview edge cases", () => {

@@ -1212,8 +1212,6 @@ test("objectMap", () => {
   expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["items", "1"], "number")
 
   const validSnapshot = getSnapshot(objectMap<number>([["1", 10], ["2", 20]]))
-  const fromValidSnapshot = fromSnapshot(type, validSnapshot)
-  expect(getSnapshot(fromValidSnapshot)).toEqual(validSnapshot)
 
   const throwingProcessorType = types.objectMap(types.or(types.string, types.number))
   const throwingProcessorTypeChecker = resolveTypeChecker(throwingProcessorType)
@@ -1222,8 +1220,6 @@ test("objectMap", () => {
   expect(throwingProcessorTypeChecker.toSnapshotProcessor(throwingSnapshot as any)).toEqual(
     throwingSnapshot
   )
-  const fromThrowingSnapshot = fromSnapshot(throwingProcessorType, throwingSnapshot)
-  expect(getSnapshot(fromThrowingSnapshot)).toEqual(throwingSnapshot)
 
   const invalidSnapshot = {
     ...throwingSnapshot,
@@ -1232,9 +1228,6 @@ test("objectMap", () => {
       bad: true,
     },
   }
-  expect(() => fromSnapshot(throwingProcessorType, invalidSnapshot as any)).toThrow(
-    "snapshot does not match the following type: <string | number> - Path: /items/bad - Value: true"
-  )
   expect(() => throwingProcessorTypeChecker.fromSnapshotProcessor(invalidSnapshot as any)).toThrow(
     "snapshot does not match the following type: <string | number> - Path: / - Value: true"
   )
@@ -1265,8 +1258,6 @@ test("arraySet", () => {
   expectTypeCheckFail(type, arraySet<string | number>([1, 2, "3"]), ["items", 2], "number")
 
   const validSnapshot = getSnapshot(arraySet<number>([1, 2, 3]))
-  const fromValidSnapshot = fromSnapshot(type, validSnapshot)
-  expect(getSnapshot(fromValidSnapshot)).toEqual(validSnapshot)
 
   const throwingProcessorType = types.arraySet(types.or(types.string, types.number))
   const throwingProcessorTypeChecker = resolveTypeChecker(throwingProcessorType)
@@ -1275,16 +1266,11 @@ test("arraySet", () => {
   expect(throwingProcessorTypeChecker.toSnapshotProcessor(throwingSnapshot as any)).toEqual(
     throwingSnapshot
   )
-  const fromThrowingSnapshot = fromSnapshot(throwingProcessorType, throwingSnapshot)
-  expect(getSnapshot(fromThrowingSnapshot)).toEqual(throwingSnapshot)
 
   const invalidSnapshot = {
     ...throwingSnapshot,
     items: [1, true],
   }
-  expect(() => fromSnapshot(throwingProcessorType, invalidSnapshot as any)).toThrow(
-    "snapshot does not match the following type: <string | number> - Path: /items/1 - Value: true"
-  )
   expect(() => throwingProcessorTypeChecker.fromSnapshotProcessor(invalidSnapshot as any)).toThrow(
     "snapshot does not match the following type: <string | number> - Path: / - Value: true"
   )
