@@ -3,6 +3,17 @@ import chalk from "chalk"
 
 export type ExtrasToRun = ("es6" | "mobx")[]
 
+function readPositiveNumberEnv(varName: string, fallback: number): number {
+  const rawValue = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process
+    ?.env?.[varName]
+  if (!rawValue) {
+    return fallback
+  }
+
+  const parsedValue = Number(rawValue)
+  return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : fallback
+}
+
 export function bench(
   name: string,
   mobxKeyStoneImpl: Function,
@@ -11,6 +22,9 @@ export function bench(
   mobxImpl: Function,
   extrasToRun: ExtrasToRun
 ) {
+  const maxTime = readPositiveNumberEnv("BENCH_MAX_TIME", 0.5)
+  const minSamples = Math.floor(readPositiveNumberEnv("BENCH_MIN_SAMPLES", 30))
+
   let suite = new Benchmark.Suite(name)
 
   let results: Record<string, Benchmark.Target> = {}
@@ -20,18 +34,18 @@ export function bench(
   const es6 = chalk.magenta("raw es6")
   const mobx = chalk.blue("raw mobx")
 
-  suite = suite.add(keystone, mobxKeyStoneImpl)
+  suite = suite.add(keystone, mobxKeyStoneImpl, { maxTime, minSamples })
 
   const runMst = true
   if (runMst) {
-    suite = suite.add(mst, mstImpl)
+    suite = suite.add(mst, mstImpl, { maxTime, minSamples })
   }
 
   if (extrasToRun.includes("mobx")) {
-    suite = suite.add(mobx, mobxImpl)
+    suite = suite.add(mobx, mobxImpl, { maxTime, minSamples })
   }
   if (extrasToRun.includes("es6")) {
-    suite = suite.add(es6, es6Impl)
+    suite = suite.add(es6, es6Impl, { maxTime, minSamples })
   }
 
   // add listeners

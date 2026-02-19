@@ -24,7 +24,8 @@ const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
   ModelAutoTypeCheckingMode.AlwaysOff,
 ]
 
-const waitBetweenBenchmarks = () => sleep(1000)
+const waitBetweenBenchmarks = () => sleep(200)
+const nextSimplePropValue = (value: string) => (value.length >= 1 ? "" : "x")
 
 for (const tcMode of tcModes) {
   let name = ""
@@ -198,19 +199,19 @@ for (const tcMode of tcModes) {
     bigModelBigVars.forEach((bmbv) => {
       const small = x[bmbv]
       smallModelVars.forEach((smv) => {
-        small["set" + smv.toUpperCase()](small[smv] + "x")
+        small["set" + smv.toUpperCase()](nextSimplePropValue(small[smv]))
       })
     })
     bigModelSmallVars.forEach((bmsv) => {
-      x["set" + bmsv.toUpperCase()](x[bmsv] + "x")
+      x["set" + bmsv.toUpperCase()](nextSimplePropValue(x[bmsv]))
     })
   })
 
   {
     const bm1 = new bigModel({})
     const bm2 = mstBigModel.create({})
-    const bm3 = mstBigModel.create({})
-    const bm4 = mstBigModel.create({})
+    const bm3 = new ESBigModel({})
+    const bm4 = new MobxBigModel({})
 
     bench(
       `already created, change all simple props (${name})`,
@@ -240,19 +241,19 @@ for (const tcMode of tcModes) {
     bench(
       `already created, change one simple props + getSnapshot (${name})`,
       () => {
-        bm1.setA(bm1.a + "x")
+        bm1.setA(nextSimplePropValue(bm1.a))
         getSnapshot(bm1)
       },
       () => {
-        bm2.setA(bm2.a + "x")
+        bm2.setA(nextSimplePropValue(bm2.a))
         mstGetSnapshot(bm2)
       },
       () => {
-        bm3.setA(bm3.a + "x")
+        bm3.setA(nextSimplePropValue(bm3.a))
         bm3.toJSON()
       },
       () => {
-        bm4.setA(bm4.a + "x")
+        bm4.setA(nextSimplePropValue(bm4.a))
         bm4.toJSON()
       },
       extrasToRun
