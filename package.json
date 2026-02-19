@@ -21,7 +21,7 @@
     "netlify-dev": "pnpm run build-netlify && netlify dev",
     "lint": "biome lint",
     "skills:sync": "npx -y skills add ./skills --skill '*' --agent codex claude-code github-copilot antigravity -y",
-    "upgrade-interactive": "pnpm -r up -i --latest"
+    "upgrade-interactive": "pnpm -r up -i --latest && pnpm dedupe"
   },
   "workspaces": [
     "packages/*",
@@ -33,10 +33,10 @@
     "yjs": "^13.6.29"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.0",
+    "@biomejs/biome": "^2.4.2",
     "globals": "^17.3.0",
     "netlify-cli": "^23.15.1",
-    "turbo": "^2.8.9",
+    "turbo": "^2.8.10",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4"
