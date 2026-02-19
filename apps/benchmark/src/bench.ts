@@ -14,6 +14,12 @@ function readPositiveNumberEnv(varName: string, fallback: number): number {
   return Number.isFinite(parsedValue) && parsedValue > 0 ? parsedValue : fallback
 }
 
+function readStringEnv(varName: string): string | undefined {
+  const rawValue = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process
+    ?.env?.[varName]
+  return rawValue ? rawValue : undefined
+}
+
 export function bench(
   name: string,
   mobxKeyStoneImpl: Function,
@@ -22,6 +28,11 @@ export function bench(
   mobxImpl: Function,
   extrasToRun: ExtrasToRun
 ) {
+  const nameIncludesFilter = readStringEnv("BENCH_FILTER")
+  if (nameIncludesFilter && !name.includes(nameIncludesFilter)) {
+    return
+  }
+
   const maxTime = readPositiveNumberEnv("BENCH_MAX_TIME", 0.5)
   const minSamples = Math.floor(readPositiveNumberEnv("BENCH_MIN_SAMPLES", 30))
 
