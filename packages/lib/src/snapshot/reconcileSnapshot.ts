@@ -2,10 +2,11 @@ import { set } from "mobx"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { fastGetParentPathIncludingDataObjects } from "../parent"
-import { failure, isMap, isPrimitive, isSet } from "../utils"
+import { isMap, isPrimitive, isSet } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { getSnapshot } from "./getSnapshot"
 import { registerDefaultReconcilers } from "./registerDefaultReconcilers"
+import { SnapshotProcessingError } from "./SnapshotProcessingError"
 
 type Reconciler = (value: any, sn: any, modelPool: ModelPool, parent: any) => any
 
@@ -45,14 +46,23 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, par
   }
 
   if (isMap(sn)) {
-    throw failure("a snapshot must not contain maps")
+    throw new SnapshotProcessingError({
+      message: "a snapshot must not contain maps",
+      actualSnapshot: sn,
+    })
   }
 
   if (isSet(sn)) {
-    throw failure("a snapshot must not contain sets")
+    throw new SnapshotProcessingError({
+      message: "a snapshot must not contain sets",
+      actualSnapshot: sn,
+    })
   }
 
-  throw failure(`unsupported snapshot - ${sn}`)
+  throw new SnapshotProcessingError({
+    message: "unsupported snapshot",
+    actualSnapshot: sn,
+  })
 }
 
 /**

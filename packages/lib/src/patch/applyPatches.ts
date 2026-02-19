@@ -8,6 +8,7 @@ import type { Patch } from "../patch/Patch"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure, inDevMode, isArray, lazy } from "../utils"
+import { runWithErrorDiagnosticsContext, withErrorPathSegments } from "../utils/errorDiagnostics"
 import { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
 
@@ -40,36 +41,38 @@ export function internalApplyPatches(
   patches: ReadonlyArray<Patch> | ReadonlyArray<ReadonlyArray<Patch>>,
   reverse = false
 ): void {
-  const obj = this
-  const modelPool = new ModelPool(obj)
+  runWithErrorDiagnosticsContext(() => {
+    const obj = this
+    const modelPool = new ModelPool(obj)
 
-  if (reverse) {
-    let i = patches.length
-    while (i--) {
-      const p = patches[i]
-      if (isArray(p)) {
-        let j = p.length
-        while (j--) {
-          applySinglePatch(obj, p[j], modelPool)
+    if (reverse) {
+      let i = patches.length
+      while (i--) {
+        const p = patches[i]
+        if (isArray(p)) {
+          let j = p.length
+          while (j--) {
+            applySinglePatchWithPath(obj, p[j], modelPool)
+          }
+        } else {
+          applySinglePatchWithPath(obj, p as Patch, modelPool)
         }
-      } else {
-        applySinglePatch(obj, p as Patch, modelPool)
+      }
+    } else {
+      const len = patches.length
+      for (let i = 0; i < len; i++) {
+        const p = patches[i]
+        if (isArray(p)) {
+          const len2 = p.length
+          for (let j = 0; j < len2; j++) {
+            applySinglePatchWithPath(obj, p[j], modelPool)
+          }
+        } else {
+          applySinglePatchWithPath(obj, p as Patch, modelPool)
+        }
       }
     }
-  } else {
-    const len = patches.length
-    for (let i = 0; i < len; i++) {
-      const p = patches[i]
-      if (isArray(p)) {
-        const len2 = p.length
-        for (let j = 0; j < len2; j++) {
-          applySinglePatch(obj, p[j], modelPool)
-        }
-      } else {
-        applySinglePatch(obj, p as Patch, modelPool)
-      }
-    }
-  }
+  })
 }
 
 const wrappedInternalApplyPatches = lazy(() =>
@@ -147,6 +150,12 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
         throw failure(`unsupported patch operation: ${(patch as any).op}`)
     }
   }
+}
+
+function applySinglePatchWithPath(obj: object, patch: Patch, modelPool: ModelPool): void {
+  withErrorPathSegments(patch.path, () => {
+    applySinglePatch(obj, patch, modelPool)
+  })
 }
 
 function pathArrayToObjectAndProp(

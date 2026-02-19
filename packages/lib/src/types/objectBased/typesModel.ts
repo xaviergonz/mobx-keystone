@@ -8,17 +8,17 @@ import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
 import { isObject, lazy } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, ModelType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
+  lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-  lateTypeChecker,
 } from "../TypeChecker"
-import { getTypeInfo } from "../getTypeInfo"
-import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType, ModelType } from "../schemas"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
 
@@ -71,7 +71,12 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
 
         (value, path, typeCheckedValue) => {
           if (!(value instanceof modelClazz)) {
-            return new TypeCheckError(path, typeName, value, typeCheckedValue)
+            return new TypeCheckError({
+              path,
+              expectedTypeName: typeName,
+              actualValue: value,
+              typeCheckedValue,
+            })
           }
 
           if (resolvedDataTypeChecker) {
@@ -101,6 +106,8 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
           return null
         },
 
+        // No withErrorPathSegment wrapping needed here — model snapshot processors
+        // delegate to the data type checker, which handles path segments at the property level.
         (sn) => {
           if (sn[modelTypeKey]) {
             return sn

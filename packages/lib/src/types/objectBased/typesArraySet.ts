@@ -1,11 +1,13 @@
 import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { isObject } from "../../utils"
+import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { ArraySet } from "../../wrappers/ArraySet"
 import { typesArray } from "../arrayBased/typesArray"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas"
+import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -13,7 +15,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { TypeCheckError } from "../TypeCheckError"
 import { typesObject } from "./typesObject"
 
 /**
@@ -48,7 +49,12 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
 
       (obj, path, typeCheckedValue) => {
         if (!(obj instanceof ArraySet)) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: obj,
+            typeCheckedValue,
+          })
         }
 
         const resolvedTc = resolveTypeChecker(dataTypeChecker)
@@ -73,17 +79,27 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
       },
 
       (sn: { items: unknown[] }) => {
+        const items = withErrorPathSegment("items", () =>
+          sn.items.map((v, i) =>
+            withErrorPathSegment(i, () => valueChecker.fromSnapshotProcessor(v))
+          )
+        )
+
         return {
           ...sn,
           [modelTypeKey]: modelInfo.name,
-          items: sn.items.map((v) => valueChecker.fromSnapshotProcessor(v)),
+          items,
         }
       },
 
       (sn: { items: unknown[]; [modelTypeKey]?: string }) => {
+        const items = withErrorPathSegment("items", () =>
+          sn.items.map((v, i) => withErrorPathSegment(i, () => valueChecker.toSnapshotProcessor(v)))
+        )
+
         const snCopy = {
           ...sn,
-          items: sn.items.map((v) => valueChecker.toSnapshotProcessor(v)),
+          items,
         }
 
         return snCopy

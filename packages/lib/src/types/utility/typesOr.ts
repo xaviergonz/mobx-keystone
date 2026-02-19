@@ -5,7 +5,9 @@ import {
   resolveStandardTypeNoThrow,
   resolveTypeChecker,
 } from "../resolveTypeChecker"
+import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import type { AnyStandardType, AnyType } from "../schemas"
+import { TypeCheckError } from "../TypeCheckError"
 import {
   getTypeCheckerBaseTypeFromValue,
   lateTypeChecker,
@@ -14,7 +16,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { TypeCheckError } from "../TypeCheckError"
 import { typesUnchecked } from "./typesUnchecked"
 
 /**
@@ -106,7 +107,12 @@ export function typesOr(
         if (someMatchingType) {
           return null
         } else {
-          return new TypeCheckError(path, getTypeName(thisTc), value, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: value,
+            typeCheckedValue,
+          })
         }
       },
 
@@ -141,11 +147,10 @@ export function typesOr(
       (sn) => {
         const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
         if (!type) {
-          throw failure(
-            `snapshot '${JSON.stringify(sn)}' does not match the following type: ${getTypeName(
-              thisTc
-            )}`
-          )
+          throw new SnapshotTypeMismatchError({
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: sn,
+          })
         }
 
         return type.fromSnapshotProcessor(sn)
@@ -154,11 +159,10 @@ export function typesOr(
       (sn) => {
         const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
         if (!type) {
-          throw failure(
-            `snapshot '${JSON.stringify(sn)}' does not match the following type: ${getTypeName(
-              thisTc
-            )}`
-          )
+          throw new SnapshotTypeMismatchError({
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: sn,
+          })
         }
 
         return type.toSnapshotProcessor(sn)

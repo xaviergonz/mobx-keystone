@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- `TypeCheckError` now supports a single object parameter and still accepts positional constructor arguments for backward compatibility.
+- `TypeCheckError.throw()` now throws `TypeCheckErrorFailure` (which extends `MobxKeystoneError`), and union snapshot mismatches now throw `SnapshotTypeMismatchError` (also extending `MobxKeystoneError`) with structured metadata.
+- Snapshot processing now throws a dedicated `SnapshotProcessingError` (extends `MobxKeystoneError`) across `fromSnapshot` / `applySnapshot` / reconciliation paths.
+- `SnapshotProcessingError` messages now include enriched diagnostics text (full deep path, value preview, and model trail when available), making it much easier to pinpoint failing nested fields quickly.
+- `SnapshotProcessingError`, `SnapshotTypeMismatchError`, and `TypeCheckError` now share one diagnostics message formatter and a consistent layout: `MSG - Path: ... - Value: ... - Model trail: ...`, so error output is predictable across snapshot and type-check flows.
+- Improved snapshot/type error diagnostics end-to-end: path-aware messages across `fromSnapshot` / `applySnapshot` / union snapshot processing, plus structured error metadata (`path`, `expectedTypeName`, `actualValue`, `typeCheckedValue`, `modelTrail`) on thrown errors when available for easier tooling and debugging.
+- Note: because diagnostics were improved, error message text changed in these paths (`TypeCheckError`, `SnapshotProcessingError`, `SnapshotTypeMismatchError`, and related snapshot/apply patches flows). If you assert exact error strings, update expectations.
+- `applyPatches` reconciliation errors now also include accurate patch paths in diagnostics.
+
 ## 1.13.0
 
 - Added array syntax as a `tProp` union shorthand, for example `tProp([String, Number])` as an alias for `tProp(types.or(String, Number))`.

@@ -1,10 +1,12 @@
 import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { isObject } from "../../utils"
+import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { ObjectMap } from "../../wrappers/ObjectMap"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas"
+import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -12,7 +14,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { TypeCheckError } from "../TypeCheckError"
 import { typesObject } from "./typesObject"
 import { typesRecord } from "./typesRecord"
 
@@ -51,7 +52,12 @@ export function typesObjectMap<T extends AnyType>(
 
       (obj, path, typeCheckedValue) => {
         if (!(obj instanceof ObjectMap)) {
-          return new TypeCheckError(path, getTypeName(thisTc), obj, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: obj,
+            typeCheckedValue,
+          })
         }
 
         return resolvedDataTypeChecker.check(obj.$, path, typeCheckedValue)
@@ -76,9 +82,13 @@ export function typesObjectMap<T extends AnyType>(
       (sn: { items: Record<string, unknown> }) => {
         const newItems: (typeof sn)["items"] = {}
 
-        for (const k of Object.keys(sn.items)) {
-          newItems[k] = valueChecker.fromSnapshotProcessor(sn.items[k])
-        }
+        withErrorPathSegment("items", () => {
+          for (const k of Object.keys(sn.items)) {
+            newItems[k] = withErrorPathSegment(k, () =>
+              valueChecker.fromSnapshotProcessor(sn.items[k])
+            )
+          }
+        })
 
         return {
           ...sn,
@@ -90,9 +100,13 @@ export function typesObjectMap<T extends AnyType>(
       (sn: { items: Record<string, unknown>; [modelTypeKey]?: string }) => {
         const newItems: (typeof sn)["items"] = {}
 
-        for (const k of Object.keys(sn.items)) {
-          newItems[k] = valueChecker.toSnapshotProcessor(sn.items[k])
-        }
+        withErrorPathSegment("items", () => {
+          for (const k of Object.keys(sn.items)) {
+            newItems[k] = withErrorPathSegment(k, () =>
+              valueChecker.toSnapshotProcessor(sn.items[k])
+            )
+          }
+        })
 
         const snCopy = {
           ...sn,

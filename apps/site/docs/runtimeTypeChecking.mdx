@@ -62,7 +62,11 @@ In all cases the returned value will be `null` if there are no errors or an inst
 - `path: Path` - Sub-path where the type-check failed, or an empty array if the actual object/value failed the type-check.
 - `expectedTypeName: string` - String representation of the expected type.
 - `actualValue: any` - The actual value/sub-value that failed the type-check
-- `throw(typeCheckedValue: any)` - Throws the error as an exception.
+- `typeCheckedValue?: any` - The value/object where the type-check was invoked.
+- `modelTrail?: readonly string[]` - Optional model/type trail (for example during snapshot processing of nested models).
+- `throw()` - Throws a `TypeCheckErrorFailure` as an exception.
+
+`TypeCheckErrorFailure` extends `MobxKeystoneError`, so `instanceof MobxKeystoneError` checks work on thrown failures.
 
 While models are usually automatically type-checked, it is worth noting that other values (primitives, plain objects, arrays) are not until they become attached to some model. If you need to type-check those before they become attached to a model it is always possible to use `typeCheck(type, value)` as shown previously to trigger a manual validation.
 
@@ -139,6 +143,7 @@ const shapeType = types.or(
 ```
 
 The dispatcher receives the snapshot and must return one of the provided union types.
+When no union branch matches during snapshot conversion, `types.or` throws `SnapshotTypeMismatchError` (a `MobxKeystoneError`) with path/type/value metadata.
 
 ### `types.maybe(type)`
 
@@ -290,7 +295,13 @@ const sumModelType = types.refinement(types.model(Sum), (sum) => {
   return rightResult
 
   // this will return that the result field is wrong
-  return rightResult ? null : new TypeCheckError(["result"], "a+b", sum.result)
+  return rightResult
+    ? null
+    : new TypeCheckError({
+        path: ["result"],
+        expectedTypeName: "a+b",
+        actualValue: sum.result,
+      })
 })
 ```
 

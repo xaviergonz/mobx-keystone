@@ -1,7 +1,9 @@
 import { isArray } from "../../utils"
+import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
+import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -9,7 +11,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { TypeCheckError } from "../TypeCheckError"
 
 /**
  * A type that represents an array of values of a given type.
@@ -37,7 +38,12 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
 
       (array, path, typeCheckedValue) => {
         if (!isArray(array)) {
-          return new TypeCheckError(path, getTypeName(thisTc), array, typeCheckedValue)
+          return new TypeCheckError({
+            path,
+            expectedTypeName: getTypeName(thisTc),
+            actualValue: array,
+            typeCheckedValue,
+          })
         }
 
         if (!itemChecker.unchecked) {
@@ -76,7 +82,9 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
           return sn
         }
 
-        return sn.map((item) => itemChecker.fromSnapshotProcessor(item))
+        return sn.map((item, i) =>
+          withErrorPathSegment(i, () => itemChecker.fromSnapshotProcessor(item))
+        )
       },
 
       (sn: unknown[]) => {
@@ -84,7 +92,9 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
           return sn
         }
 
-        return sn.map((item) => itemChecker.toSnapshotProcessor(item))
+        return sn.map((item, i) =>
+          withErrorPathSegment(i, () => itemChecker.toSnapshotProcessor(item))
+        )
       }
     )
 

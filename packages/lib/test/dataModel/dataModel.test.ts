@@ -769,7 +769,7 @@ test("type checking", () => {
   }
 
   const errorMsg =
-    'TypeCheckError: [/x] Expected a value of type <number> but got the value <"10"> instead'
+    'TypeCheckError: Expected a value of type <number> but got an incompatible value - Path: /x - Value: "10"'
 
   expect(() => new TypeCheck(wrongData as any)).toThrow(errorMsg)
 })

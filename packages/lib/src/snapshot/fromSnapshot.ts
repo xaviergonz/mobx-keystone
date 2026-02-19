@@ -7,8 +7,13 @@ import type { ModelClass } from "../modelShared/BaseModelShared"
 import { resolveTypeChecker } from "../types/resolveTypeChecker"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
-import { failure, isMap, isPrimitive, isSet } from "../utils"
+import { isMap, isPrimitive, isSet } from "../utils"
+import {
+  runWithErrorDiagnosticsContext,
+  withErrorPathSegment,
+} from "../utils/errorDiagnostics"
 import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
+import { SnapshotProcessingError } from "./SnapshotProcessingError"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 
 /**
@@ -76,22 +81,24 @@ export function fromSnapshot<T>(
 ): T
 
 export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
-  let snapshot: any
-  let unprocessedSnapshot: unknown
-  let options: Partial<FromSnapshotOptions> | undefined
+  return runWithErrorDiagnosticsContext(() => {
+    let snapshot: any
+    let unprocessedSnapshot: unknown
+    let options: Partial<FromSnapshotOptions> | undefined
 
-  if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || isModelClass(arg1)) {
-    const typeChecker = resolveTypeChecker(arg1)
-    unprocessedSnapshot = arg2
-    snapshot = typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
-    options = arg3
-  } else {
-    snapshot = arg1
-    unprocessedSnapshot = snapshot
-    options = arg2
-  }
+    if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || isModelClass(arg1)) {
+      const typeChecker = resolveTypeChecker(arg1)
+      unprocessedSnapshot = arg2
+      snapshot = typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
+      options = arg3
+    } else {
+      snapshot = arg1
+      unprocessedSnapshot = snapshot
+      options = arg2
+    }
 
-  return fromSnapshotAction(snapshot, unprocessedSnapshot, options)
+    return fromSnapshotAction(snapshot, unprocessedSnapshot, options)
+  })
 }
 
 const fromSnapshotAction = action(
@@ -140,14 +147,23 @@ export function internalFromSnapshot<T>(
   }
 
   if (isMap(sn)) {
-    throw failure("a snapshot must not contain maps")
+    throw new SnapshotProcessingError({
+      message: "a snapshot must not contain maps",
+      actualSnapshot: sn,
+    })
   }
 
   if (isSet(sn)) {
-    throw failure("a snapshot must not contain sets")
+    throw new SnapshotProcessingError({
+      message: "a snapshot must not contain sets",
+      actualSnapshot: sn,
+    })
   }
 
-  throw failure(`unsupported snapshot - ${sn}`)
+  throw new SnapshotProcessingError({
+    message: "unsupported snapshot",
+    actualSnapshot: sn,
+  })
 }
 
 function snapshotToInitialData(
@@ -162,7 +178,7 @@ function snapshotToInitialData(
     const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
-      const snapshotValue = internalFromSnapshot(v, ctx)
+      const snapshotValue = withErrorPathSegment(k, () => internalFromSnapshot(v, ctx))
       // setIfDifferent not required
       set(initialData, k, snapshotValue)
     }
