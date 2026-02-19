@@ -166,6 +166,28 @@ That being said, there are actually two ways to skip this requirement (having `$
 - If a property is typed using `tProp` then the model(s) in that property won't need `$modelType`.
 - If a model is constructed using the `fromSnapshot` overload that takes a type as first parameter then that snapshot won't need `$modelType`.
 
+### Runtime model registration (`registerModels`)
+
+Most applications do not need to do anything special: importing and using model classes normally is enough for `@model(...)` decorators to register them.
+
+You may need manual registration when your app mainly deserializes snapshots and some model imports are only used as TypeScript types (or otherwise elided by your build pipeline). In that case, `fromSnapshot` may fail with:
+
+```txt
+model with name "..." not found in the registry
+```
+
+To make registration explicit, call `registerModels(...)` once at app startup with runtime class references:
+
+```ts
+import { registerModels } from "mobx-keystone"
+import { RootStore } from "./RootStore"
+import { User } from "./User"
+
+registerModels(RootStore, User)
+```
+
+This does not instantiate models; it only verifies the classes are loaded and registered.
+
 ## Setting an ID property
 
 Note that it is also possible to assign a property as the ID property using `idProp`. Setting a dedicated ID property has some advantages:

@@ -8,7 +8,11 @@ import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getSnapshotModelType, isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName, modelInfoByClass } from "../modelShared/modelInfo"
+import {
+  getModelInfoForName,
+  getModelNotRegisteredErrorMessage,
+  modelInfoByClass,
+} from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, inDevMode, isArray, isMap, isPlainObject, isSet, lazy } from "../utils"
 import {
@@ -93,7 +97,7 @@ export function internalApplySnapshot<T extends object>(
     const modelInfo = getModelInfoForName(modelType)
     if (!modelInfo) {
       throw new SnapshotProcessingError({
-        message: `model with name "${modelType}" not found in the registry`,
+        message: getModelNotRegisteredErrorMessage(modelType),
         actualSnapshot: sn,
       })
     }

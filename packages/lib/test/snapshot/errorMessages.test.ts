@@ -3,6 +3,7 @@ import {
   applySnapshot,
   fromSnapshot,
   frozen,
+  getModelNotRegisteredErrorMessage,
   getSnapshot,
   idProp,
   Model,
@@ -147,7 +148,7 @@ test("applySnapshot model mismatch and target mismatch errors are path-aware", (
     [modelTypeKey]: "issue #487/UnknownModel",
   }
   expect(() => applySnapshot(m, unknownModelSnapshot as any)).toThrow(
-    `model with name "issue #487/UnknownModel" not found in the registry - Path: / - Value: ${JSON.stringify(
+    `${getModelNotRegisteredErrorMessage("issue #487/UnknownModel")} - Path: / - Value: ${JSON.stringify(
       unknownModelSnapshot
     )}`
   )
@@ -205,7 +206,7 @@ test("fromSnapshot model-snapshot structural errors include path and value", () 
     [modelTypeKey]: "issue #487/UnknownModel",
   }
   expect(() => fromSnapshot(unknownTypeSnapshot as any)).toThrow(
-    `model with name "issue #487/UnknownModel" not found in the registry - Path: / - Value: ${JSON.stringify(
+    `${getModelNotRegisteredErrorMessage("issue #487/UnknownModel")} - Path: / - Value: ${JSON.stringify(
       unknownTypeSnapshot
     )}`
   )

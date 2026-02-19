@@ -1,4 +1,12 @@
-import { getSnapshot, getSnapshotModelId, idProp, Model, tProp, types } from "../../src"
+import {
+  getSnapshot,
+  getSnapshotModelId,
+  idProp,
+  Model,
+  registerModels,
+  tProp,
+  types,
+} from "../../src"
 import { testModel } from "../utils"
 
 describe("getSnapshotModelId", () => {
@@ -68,5 +76,28 @@ describe("getSnapshotModelId", () => {
       $modelType: "getSnapshotModelId/MissingIdInSnapshot",
     }
     expect(getSnapshotModelId(sn)).toBeUndefined()
+  })
+})
+
+describe("registerModels", () => {
+  test("accepts decorated model classes", () => {
+    @testModel("registerModels/DecoratedModel")
+    class DecoratedModel extends Model({}) {}
+
+    expect(() => registerModels(DecoratedModel)).not.toThrow()
+  })
+
+  test("throws for undecorated model classes", () => {
+    class UndecoratedModel extends Model({}) {}
+
+    expect(() => registerModels(UndecoratedModel as any)).toThrow(
+      "modelClasses[0] (UndecoratedModel) is not registered. Ensure the class is decorated with @model and that its module has been evaluated."
+    )
+  })
+
+  test("throws for non-model values", () => {
+    expect(() => registerModels(undefined as any)).toThrow(
+      "modelClasses[0] must be a model class or data model class"
+    )
   })
 })

@@ -4,7 +4,7 @@ import { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { modelTypeKey } from "../model/metadata"
 import { getModelOrSnapshotTypeAndId, getSnapshotModelType } from "../model/utils"
 import { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName } from "../modelShared/modelInfo"
+import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { withErrorModelTrailEntry } from "../utils/errorDiagnostics"
 import { FromSnapshotContext, registerSnapshotter } from "./fromSnapshot"
 import { SnapshotInOfModel } from "./SnapshotOf"
@@ -24,7 +24,7 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   const modelInfo = getModelInfoForName(type)
   if (!modelInfo) {
     throw new SnapshotProcessingError({
-      message: `model with name "${type}" not found in the registry`,
+      message: getModelNotRegisteredErrorMessage(type),
       actualSnapshot: sn,
     })
   }
