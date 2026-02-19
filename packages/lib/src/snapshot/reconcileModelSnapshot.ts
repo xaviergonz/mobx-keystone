@@ -4,7 +4,7 @@ import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
 import { getModelOrSnapshotTypeAndId, getSnapshotModelType, isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName } from "../modelShared/modelInfo"
+import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { AnyModelProp, getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { deepEquals } from "../treeUtils/deepEquals"
@@ -35,7 +35,7 @@ function reconcileModelSnapshot(
   const modelInfo = getModelInfoForName(type)
   if (!modelInfo) {
     throw new SnapshotProcessingError({
-      message: `model with name "${type}" not found in the registry`,
+      message: getModelNotRegisteredErrorMessage(type),
       actualSnapshot: sn,
     })
   }

@@ -12,7 +12,7 @@ import { DeepChangeType, emitDeepChange, getIsInInitPhase } from "../deepChange/
 import type { AnyModel } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName } from "../modelShared/modelInfo"
+import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { dataToModelNode } from "../parent/core"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
@@ -108,7 +108,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
 
     const modelInfo = getModelInfoForName(snapshotModelType)
     if (!modelInfo) {
-      throw failure(`model with name "${snapshotModelType}" not found in the registry`)
+      throw failure(getModelNotRegisteredErrorMessage(snapshotModelType))
     }
 
     const originalTransformFn = (modelInfo.class as ModelClass<AnyModel>).toSnapshotProcessor

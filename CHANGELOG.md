@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added `registerModels(...)` to explicitly keep model/data-model class references at runtime (useful in snapshot-heavy apps where imports may be elided).
+- Improved unknown model registry errors to include actionable guidance (`registerModels`, side-effect/runtime imports, and typed/runtime model references).
+
 ## 1.14.0
 
 - `TypeCheckError` now supports a single object parameter and still accepts positional constructor arguments for backward compatibility.

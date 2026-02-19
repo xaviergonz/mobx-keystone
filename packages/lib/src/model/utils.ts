@@ -1,7 +1,7 @@
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
-import { isDataModel } from "../dataModel/utils"
+import { isDataModel, isDataModelClass } from "../dataModel/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName, ModelInfo } from "../modelShared/modelInfo"
+import { getModelInfoForName, ModelInfo, modelInfoByClass } from "../modelShared/modelInfo"
 import { failure, isPlainObject } from "../utils"
 import { AnyModel, BaseModel } from "./BaseModel"
 import { getModelIdPropertyName } from "./getModelMetadata"
@@ -92,6 +92,35 @@ export function getSnapshotModelType(snapshot: unknown): string | undefined {
  */
 export function getSnapshotModelId(snapshot: unknown): string | undefined {
   return getSnapshotModelTypeAndId(snapshot)?.modelId
+}
+
+/**
+ * Ensures the given model classes are referenced at runtime and already present in the model registry.
+ *
+ * This helper is mostly useful when your app primarily uses snapshots and your bundler/compiler
+ * may elide otherwise-unused model imports.
+ *
+ * @param modelClasses Model and/or data model classes to keep as runtime references.
+ */
+export function registerModels(
+  ...modelClasses: Array<ModelClass<AnyModel> | ModelClass<AnyDataModel>>
+): void {
+  const len = modelClasses.length
+  for (let i = 0; i < len; i++) {
+    const modelClass = modelClasses[i]
+
+    if (!(isModelClass(modelClass) || isDataModelClass(modelClass))) {
+      throw failure(`modelClasses[${i}] must be a model class or data model class`)
+    }
+
+    if (!modelInfoByClass.get(modelClass)) {
+      const modelClassName = modelClass.name || "<anonymous>"
+      throw failure(
+        `modelClasses[${i}] (${modelClassName}) is not registered. ` +
+          "Ensure the class is decorated with @model and that its module has been evaluated."
+      )
+    }
+  }
 }
 
 /**
