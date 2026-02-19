@@ -25,6 +25,7 @@ import {
   ModelTypeInfoProps,
   modelAction,
   modelIdKey,
+  modelTypeKey,
   NumberTypeInfo,
   ObjectMap,
   ObjectMapTypeInfo,
@@ -57,7 +58,7 @@ import {
   UncheckedTypeInfo,
 } from "../../src"
 import { enumValues } from "../../src/types/primitiveBased/typesEnum"
-import { resolveStandardType } from "../../src/types/resolveTypeChecker"
+import { resolveStandardType, resolveTypeChecker } from "../../src/types/resolveTypeChecker"
 import { autoDispose, testModel } from "../utils"
 
 beforeEach(() => {
@@ -173,6 +174,45 @@ test("TypeCheckError.throw() throws TypeCheckErrorFailure", () => {
     expect(thrown).toBeInstanceOf(TypeCheckErrorFailure)
     expect(thrown).toBeInstanceOf(MobxKeystoneError)
   }
+})
+
+test("TypeCheckError full path resolution handles relative, empty and rooted paths", () => {
+  @testModel("issue #570/TypeCheckPathInner")
+  class TypeCheckPathInner extends Model({
+    value: tProp(types.string),
+  }) {}
+
+  @testModel("issue #570/TypeCheckPathOuter")
+  class TypeCheckPathOuter extends Model({
+    child: tProp(TypeCheckPathInner),
+  }) {}
+
+  const outer = new TypeCheckPathOuter({
+    child: new TypeCheckPathInner({
+      value: "ok",
+    }),
+  })
+
+  const check = (path: Path, expectedPath: Path) => {
+    const err = new TypeCheckError({
+      path,
+      expectedTypeName: "string",
+      actualValue: 123,
+      typeCheckedValue: outer.child,
+    })
+
+    try {
+      err.throw()
+      throw new Error("expected throw() to throw")
+    } catch (thrown) {
+      const e = thrown as TypeCheckErrorFailure
+      expect(e.path).toEqual(expectedPath)
+    }
+  }
+
+  check([], ["child"])
+  check(["value"], ["child", "value"])
+  check(["child", "value"], ["child", "value"])
 })
 
 test("literal", () => {
@@ -1168,7 +1208,47 @@ test("objectMap", () => {
   assert(_ as TypeToData<typeof type>, _ as ObjectMap<number>)
 
   expectTypeCheckOk(type, objectMap<number>([["1", 10]]))
+  expectTypeCheckFail(type, {} as any, [], "ObjectMap<number>")
   expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["items", "1"], "number")
+
+  const validSnapshot = getSnapshot(objectMap<number>([["1", 10], ["2", 20]]))
+  const fromValidSnapshot = fromSnapshot(type, validSnapshot)
+  expect(getSnapshot(fromValidSnapshot)).toEqual(validSnapshot)
+
+  const throwingProcessorType = types.objectMap(types.or(types.string, types.number))
+  const throwingProcessorTypeChecker = resolveTypeChecker(throwingProcessorType)
+  const throwingSnapshot = getSnapshot(objectMap<string | number>([["1", 10], ["2", "20"]]))
+  throwingProcessorTypeChecker.fromSnapshotProcessor(throwingSnapshot as any)
+  expect(throwingProcessorTypeChecker.toSnapshotProcessor(throwingSnapshot as any)).toEqual(
+    throwingSnapshot
+  )
+  const fromThrowingSnapshot = fromSnapshot(throwingProcessorType, throwingSnapshot)
+  expect(getSnapshot(fromThrowingSnapshot)).toEqual(throwingSnapshot)
+
+  const invalidSnapshot = {
+    ...throwingSnapshot,
+    items: {
+      ...throwingSnapshot.items,
+      bad: true,
+    },
+  }
+  expect(() => fromSnapshot(throwingProcessorType, invalidSnapshot as any)).toThrow(
+    "snapshot does not match the following type: <string | number> - Path: /items/bad - Value: true"
+  )
+  expect(() => throwingProcessorTypeChecker.fromSnapshotProcessor(invalidSnapshot as any)).toThrow(
+    "snapshot does not match the following type: <string | number> - Path: / - Value: true"
+  )
+  expect(() => throwingProcessorTypeChecker.toSnapshotProcessor(invalidSnapshot as any)).toThrow(
+    "snapshot does not match the following type: <string | number> - Path: / - Value: true"
+  )
+
+  const typeChecker = resolveTypeChecker(type)
+  expect(typeChecker.snapshotType(5 as any)).toBeNull()
+  expect(typeChecker.snapshotType({ [modelTypeKey]: validSnapshot[modelTypeKey] } as any)).toBe(
+    typeChecker
+  )
+  expect(typeChecker.snapshotType({ items: { a: 1 } } as any)).toBe(typeChecker)
+  expect(typeChecker.snapshotType({ items: { a: "1" } } as any)).toBeNull()
 
   const typeInfo = expectValidTypeInfo(type, ObjectMapTypeInfo)
   expect(typeInfo.valueType).toBe(types.number)
@@ -1181,7 +1261,44 @@ test("arraySet", () => {
   assert(_ as TypeToData<typeof type>, _ as ArraySet<number>)
 
   expectTypeCheckOk(type, arraySet<number>([1, 2, 3]))
+  expectTypeCheckFail(type, {} as any, [], "ArraySet<number>")
   expectTypeCheckFail(type, arraySet<string | number>([1, 2, "3"]), ["items", 2], "number")
+
+  const validSnapshot = getSnapshot(arraySet<number>([1, 2, 3]))
+  const fromValidSnapshot = fromSnapshot(type, validSnapshot)
+  expect(getSnapshot(fromValidSnapshot)).toEqual(validSnapshot)
+
+  const throwingProcessorType = types.arraySet(types.or(types.string, types.number))
+  const throwingProcessorTypeChecker = resolveTypeChecker(throwingProcessorType)
+  const throwingSnapshot = getSnapshot(arraySet<string | number>([1, "2"]))
+  throwingProcessorTypeChecker.fromSnapshotProcessor(throwingSnapshot as any)
+  expect(throwingProcessorTypeChecker.toSnapshotProcessor(throwingSnapshot as any)).toEqual(
+    throwingSnapshot
+  )
+  const fromThrowingSnapshot = fromSnapshot(throwingProcessorType, throwingSnapshot)
+  expect(getSnapshot(fromThrowingSnapshot)).toEqual(throwingSnapshot)
+
+  const invalidSnapshot = {
+    ...throwingSnapshot,
+    items: [1, true],
+  }
+  expect(() => fromSnapshot(throwingProcessorType, invalidSnapshot as any)).toThrow(
+    "snapshot does not match the following type: <string | number> - Path: /items/1 - Value: true"
+  )
+  expect(() => throwingProcessorTypeChecker.fromSnapshotProcessor(invalidSnapshot as any)).toThrow(
+    "snapshot does not match the following type: <string | number> - Path: / - Value: true"
+  )
+  expect(() => throwingProcessorTypeChecker.toSnapshotProcessor(invalidSnapshot as any)).toThrow(
+    "snapshot does not match the following type: <string | number> - Path: / - Value: true"
+  )
+
+  const typeChecker = resolveTypeChecker(type)
+  expect(typeChecker.snapshotType(5 as any)).toBeNull()
+  expect(typeChecker.snapshotType({ [modelTypeKey]: validSnapshot[modelTypeKey] } as any)).toBe(
+    typeChecker
+  )
+  expect(typeChecker.snapshotType({ items: [1] } as any)).toBe(typeChecker)
+  expect(typeChecker.snapshotType({ items: ["1"] } as any)).toBeNull()
 
   const typeInfo = expectValidTypeInfo(type, ArraySetTypeInfo)
   expect(typeInfo.valueType).toBe(types.number)
