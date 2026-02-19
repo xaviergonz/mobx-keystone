@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.14.0
 
 - `TypeCheckError` now supports a single object parameter and still accepts positional constructor arguments for backward compatibility.
 - `TypeCheckError.throw()` now throws `TypeCheckErrorFailure` (which extends `MobxKeystoneError`), and union snapshot mismatches now throw `SnapshotTypeMismatchError` (also extending `MobxKeystoneError`) with structured metadata.
