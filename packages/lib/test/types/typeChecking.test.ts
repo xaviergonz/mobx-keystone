@@ -278,6 +278,16 @@ test("TypeCheckError full path resolution handles relative, empty and rooted pat
   check(["child", "value"], ["child", "value"])
 })
 
+test("TypeInfo default traversal methods", () => {
+  const typeInfo = new TypeInfo(types.number)
+
+  expect(typeInfo.kind).toBe("typeInfo")
+  expect(typeInfo.isTopLevelPropertyContainer()).toBe(false)
+  expect(typeInfo.getTopLevelPropertyTypeInfo("x")).toBeUndefined()
+  expect(typeInfo.shouldTraverseChildrenAfterTopLevelPropertySelection()).toBe(true)
+  expect(typeInfo.findChildTypeInfo(() => true)).toBeUndefined()
+})
+
 test("literal", () => {
   const type = types.literal("hi")
   assert(_ as TypeToData<typeof type>, "hi")
@@ -405,8 +415,13 @@ test("or - simple types", () => {
   expectTypeCheckFail(type, "ho", [], "number | boolean")
 
   const typeInfo = expectValidTypeInfo(type, OrTypeInfo)
+  expect(typeInfo.kind).toBe("or")
   expect(typeInfo.orTypes).toEqual([types.number, types.boolean])
   expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.boolean)])
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.boolean))).toBe(
+    getTypeInfo(types.boolean)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("or - simple simple types", () => {
@@ -448,6 +463,18 @@ test("maybeNull", () => {
   expect(typeInfo.orTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.null)])
 })
 
+test("or - dispatcher (public api)", () => {
+  const type = types.or(
+    (sn) => (typeof sn === "string" ? types.string : types.number),
+    types.number,
+    types.string
+  )
+
+  expectTypeCheckOk(type, 6)
+  expectTypeCheckOk(type, "ok")
+  expectTypeCheckFail(type, true, [], "number | string")
+})
+
 test("array - simple types", () => {
   const type = types.array(types.number)
   assert(_ as TypeToData<typeof type>, _ as number[])
@@ -458,8 +485,13 @@ test("array - simple types", () => {
   expectTypeCheckFail(type, ["ho"], [0], "number")
 
   const typeInfo = expectValidTypeInfo(type, ArrayTypeInfo)
+  expect(typeInfo.kind).toBe("array")
   expect(typeInfo.itemType).toEqual(types.number)
   expect(typeInfo.itemTypeInfo).toEqual(getTypeInfo(types.number))
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.number))).toBe(
+    getTypeInfo(types.number)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("tuple - simple types", () => {
@@ -472,8 +504,13 @@ test("tuple - simple types", () => {
   expectTypeCheckFail(type, [1, 2], [1], "string")
 
   const typeInfo = expectValidTypeInfo(type, TupleTypeInfo)
+  expect(typeInfo.kind).toBe("tuple")
   expect(typeInfo.itemTypes).toEqual([types.number, types.string])
   expect(typeInfo.itemTypeInfos).toEqual([getTypeInfo(types.number), getTypeInfo(types.string)])
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.string))).toBe(
+    getTypeInfo(types.string)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("record - simple types", () => {
@@ -488,8 +525,13 @@ test("record - simple types", () => {
   expectTypeCheckFail(type, wrongValue, ["y"], "number")
 
   const typeInfo = expectValidTypeInfo(type, RecordTypeInfo)
+  expect(typeInfo.kind).toBe("record")
   expect(typeInfo.valueType).toEqual(types.number)
   expect(typeInfo.valueTypeInfo).toEqual(getTypeInfo(types.number))
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.number))).toBe(
+    getTypeInfo(types.number)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("unchecked", () => {
@@ -519,6 +561,10 @@ test("object - simple types", () => {
   expectTypeCheckOk(type, { x: 5, y: "6", z: 10 } as any)
 
   const typeInfo = expectValidTypeInfo(type, ObjectTypeInfo)
+  expect(typeInfo.kind).toBe("object")
+  expect(typeInfo.isTopLevelPropertyContainer()).toBe(true)
+  expect(typeInfo.getTopLevelPropertyTypeInfo("x")).toBe(getTypeInfo(types.number))
+  expect(typeInfo.getTopLevelPropertyTypeInfo("missing")).toBeUndefined()
   expect(typeInfo.props).toBe(typeInfo.props) // always return same object
   expect(typeInfo.props).toStrictEqual({
     x: {
@@ -530,6 +576,10 @@ test("object - simple types", () => {
       typeInfo: getTypeInfo(types.string),
     },
   } as ObjectTypeInfoProps)
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.string))).toBe(
+    getTypeInfo(types.string)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("object - all optional simple types", () => {
@@ -744,6 +794,16 @@ test("typeCheck with touched paths forwards through types.dataModelData", () => 
 
   const type = types.dataModelData(TouchedPathDataModel)
   const value = { a: 1, b: 2 }
+  const typeInfo = getTypeInfo(type)
+  const propATypeInfo = typeInfo.getTopLevelPropertyTypeInfo("a")
+
+  expect(typeInfo.kind).toBe("dataModelData")
+  expect(typeInfo.isTopLevelPropertyContainer()).toBe(true)
+  expect(typeInfo.getTopLevelPropertyTypeInfo("missing")).toBeUndefined()
+  expect(typeInfo.shouldTraverseChildrenAfterTopLevelPropertySelection()).toBe(false)
+  expect(propATypeInfo).toBeDefined()
+  expect(typeInfo.findChildTypeInfo((ti) => ti === propATypeInfo)).toBe(propATypeInfo)
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 
   counters = { a: 0, b: 0 }
   expect(typeCheckWithTouchedPaths(type, value, [["a"]])).toBeNull()
@@ -1078,8 +1138,13 @@ test("model", () => {
   )
 
   const typeInfo = expectValidTypeInfo(type, ModelTypeInfo)
+  expect(typeInfo.kind).toBe("model")
   expect(typeInfo.modelClass).toBe(M)
   expect(typeInfo.modelType).toBe("M")
+  expect(typeInfo.isTopLevelPropertyContainer()).toBe(true)
+  expect(typeInfo.getTopLevelPropertyTypeInfo("x")).toBe(getTypeInfo(types.number))
+  expect(typeInfo.getTopLevelPropertyTypeInfo("missing")).toBeUndefined()
+  expect(typeInfo.shouldTraverseChildrenAfterTopLevelPropertySelection()).toBe(false)
   expect(typeInfo.props).toBe(typeInfo.props) // always return same object
   expect(typeInfo.props).toStrictEqual({
     x: {
@@ -1113,6 +1178,10 @@ test("model", () => {
       default: 5,
     },
   } as ModelTypeInfoProps)
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.string))).toBe(
+    getTypeInfo(types.string)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("model typechecking", () => {
@@ -1349,6 +1418,46 @@ test("auto typechecking on nested model changes enforces parent property refinem
   expect(parent.typeCheck()).toBeNull()
 })
 
+test("auto typechecking promotion traverses tagged wrapper types", () => {
+  @testModel("TaggedWrapperChild")
+  class TaggedWrapperChild extends Model({
+    x: tProp(types.number),
+  }) {
+    @modelAction
+    setX(v: number) {
+      this.x = v
+    }
+  }
+
+  const taggedPositiveChildType = types.tag(
+    types.refinement(types.model(TaggedWrapperChild), (child) => child.x > 0, "positiveTaggedChild"),
+    { source: "wrapper" },
+    "taggedPositiveChild"
+  )
+
+  @testModel("TaggedWrapperParent")
+  class TaggedWrapperParent extends Model({
+    child: tProp(taggedPositiveChildType),
+  }) {}
+
+  const parent = new TaggedWrapperParent({
+    child: new TaggedWrapperChild({ x: 1 }),
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    expect(() => parent.child.setX(-1)).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(parent.child.x).toBe(1)
+})
+
 test("auto typechecking does NOT promote when child model has own refinement but parent has none", () => {
   // Child model uses types.integer (a refinement) on its own prop.
   // Parent model wraps child WITHOUT any parent-level refinement.
@@ -1387,6 +1496,83 @@ test("auto typechecking does NOT promote when child model has own refinement but
 
   expect(parent.child.x).toBe(1)
   expect(parent.typeCheck()).toBeNull()
+})
+
+test("auto typechecking does NOT promote through untyped parent props", () => {
+  @testModel("NoPromoteUntypedChildModel")
+  class NoPromoteUntypedChildModel extends Model({
+    x: tProp(types.integer),
+  }) {
+    @modelAction
+    setX(v: number) {
+      this.x = v
+    }
+  }
+
+  @testModel("NoPromoteUntypedParentModel")
+  class NoPromoteUntypedParentModel extends Model({
+    typed: tProp(types.number, 1),
+    child: prop<NoPromoteUntypedChildModel>(),
+  }) {}
+
+  const parent = new NoPromoteUntypedParentModel({
+    child: new NoPromoteUntypedChildModel({ x: 1 }),
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    expect(() => parent.child.setX(1.5)).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(parent.child.x).toBe(1)
+})
+
+test("auto typechecking skips ancestor promotion when top-level prop is untyped", () => {
+  @testModel("NoPromoteUntypedGrandchildModel")
+  class NoPromoteUntypedGrandchildModel extends Model({
+    x: tProp(types.integer),
+  }) {
+    @modelAction
+    setX(v: number) {
+      this.x = v
+    }
+  }
+
+  @testModel("NoPromoteUntypedIntermediateModel")
+  class NoPromoteUntypedIntermediateModel extends Model({
+    child: prop<NoPromoteUntypedGrandchildModel>(),
+  }) {}
+
+  @testModel("NoPromoteUntypedAncestorModel")
+  class NoPromoteUntypedAncestorModel extends Model({
+    typed: tProp(types.number, 1),
+    middle: prop<NoPromoteUntypedIntermediateModel>(),
+  }) {}
+
+  const root = new NoPromoteUntypedAncestorModel({
+    middle: new NoPromoteUntypedIntermediateModel({
+      child: new NoPromoteUntypedGrandchildModel({ x: 1 }),
+    }),
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    expect(() => root.middle.child.setX(1.5)).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(root.middle.child.x).toBe(1)
 })
 
 test("auto typechecking promotes through deeply nested grandparent refinement", () => {
@@ -1898,8 +2084,13 @@ test("frozen - simple type", () => {
   expectTypeCheckFail(type, 5, [], "{ data: number; }")
 
   const typeInfo = expectValidTypeInfo(type, FrozenTypeInfo)
+  expect(typeInfo.kind).toBe("frozen")
   expect(typeInfo.dataType).toBe(types.number)
   expect(typeInfo.dataTypeInfo).toBe(getTypeInfo(types.number))
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.number))).toBe(
+    getTypeInfo(types.number)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("frozen - complex type", () => {
@@ -2055,10 +2246,15 @@ test("refinement (simple)", () => {
   expectTypeCheckFail(type, 5.5, [], "integer<number>")
 
   const typeInfo = expectValidTypeInfo(type, RefinementTypeInfo)
+  expect(typeInfo.kind).toBe("refinement")
   expect(typeInfo.baseType).toBe(types.number)
   expect(typeInfo.baseTypeInfo).toBe(getTypeInfo(types.number))
   expect(typeInfo.checkFunction).toBe(checkFn)
   expect(typeInfo.typeName).toBe("integer")
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.number))).toBe(
+    getTypeInfo(types.number)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("refinement (simple child)", () => {
@@ -2152,8 +2348,13 @@ test("objectMap", () => {
   expect(typeChecker.snapshotType({ items: { a: "1" } } as any)).toBeNull()
 
   const typeInfo = expectValidTypeInfo(type, ObjectMapTypeInfo)
+  expect(typeInfo.kind).toBe("objectMap")
   expect(typeInfo.valueType).toBe(types.number)
   expect(typeInfo.valueTypeInfo).toBe(getTypeInfo(types.number))
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.number))).toBe(
+    getTypeInfo(types.number)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("arraySet", () => {
@@ -2195,8 +2396,13 @@ test("arraySet", () => {
   expect(typeChecker.snapshotType({ items: ["1"] } as any)).toBeNull()
 
   const typeInfo = expectValidTypeInfo(type, ArraySetTypeInfo)
+  expect(typeInfo.kind).toBe("arraySet")
   expect(typeInfo.valueType).toBe(types.number)
   expect(typeInfo.valueTypeInfo).toBe(getTypeInfo(types.number))
+  expect(typeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.number))).toBe(
+    getTypeInfo(types.number)
+  )
+  expect(typeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("typing of optional values", () => {
@@ -2552,8 +2758,13 @@ test("types.tag", () => {
   const type = types.model<typeof Model>(m.constructor)
   const modelTypeInfo = getTypeInfo(type) as ModelTypeInfo
   const propTypeInfo = modelTypeInfo.props.p.typeInfo as TagTypeInfo<{ displayName: string }>
+  expect(propTypeInfo.kind).toBe("tag")
   expect(propTypeInfo.tag).toBe(tagData)
   expect(propTypeInfo.typeName).toEqual("someTypeName")
+  expect(propTypeInfo.findChildTypeInfo((ti) => ti === getTypeInfo(types.string))).toBe(
+    getTypeInfo(types.string)
+  )
+  expect(propTypeInfo.findChildTypeInfo(() => false)).toBeUndefined()
 })
 
 test("issue #445", () => {
