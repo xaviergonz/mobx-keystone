@@ -23,6 +23,7 @@ import {
   TypeInfoGen,
 } from "../TypeChecker"
 import { getChildCheckScope, isTypeCheckScopeAll, type TypeCheckScope } from "../typeCheckScope"
+import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
@@ -31,18 +32,45 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
     const objectSchema: Record<string, TypeChecker | LateTypeChecker> = objFn()
     assertIsObject(objectSchema, "objectSchema")
 
-    const schemaEntries = Object.entries(objectSchema)
+    type SchemaEntry = Readonly<{
+      propName: string
+      getResolvedChecker: () => TypeChecker
+    }>
+
+    const schemaEntries: ReadonlyArray<SchemaEntry> = Object.entries(objectSchema).map(
+      ([propName, unresolvedChecker]) => {
+        let resolvedChecker: TypeChecker | undefined
+        return {
+          propName,
+          getResolvedChecker: () => {
+            if (!resolvedChecker) {
+              resolvedChecker = resolveTypeChecker(unresolvedChecker)
+            }
+            return resolvedChecker
+          },
+        }
+      }
+    )
+
+    const schemaEntryByPropName: Record<string, SchemaEntry> = Object.create(null)
+    for (let i = 0; i < schemaEntries.length; i++) {
+      const schemaEntry = schemaEntries[i]
+      schemaEntryByPropName[schemaEntry.propName] = schemaEntry
+    }
+
     const cachedPropCheckResults = new WeakMap<object, Map<string, TypeCheckError | null>>()
+    const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
       const propsMsg: string[] = []
-      for (const [k, unresolvedTc] of schemaEntries) {
-        const tc = resolveTypeChecker(unresolvedTc)
+      for (let i = 0; i < schemaEntries.length; i++) {
+        const { propName, getResolvedChecker } = schemaEntries[i]
+        const tc = getResolvedChecker()
         let propTypename = "..."
         if (!recursiveTypeCheckers.includes(tc)) {
           propTypename = tc.getTypeName(...recursiveTypeCheckers, tc)
         }
-        propsMsg.push(`${k}: ${propTypename};`)
+        propsMsg.push(`${propName}: ${propTypename};`)
       }
 
       return `{ ${propsMsg.join(" ")} }`
@@ -55,9 +83,9 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       const keys = Object.keys(obj)
       for (let i = 0; i < keys.length; i++) {
         const k = keys[i]
-        const unresolvedTc = objectSchema[k]
-        if (unresolvedTc) {
-          const tc = resolveTypeChecker(unresolvedTc)
+        const schemaEntry = schemaEntryByPropName[k]
+        if (schemaEntry) {
+          const tc = schemaEntry.getResolvedChecker()
           newObj[k] = withErrorPathSegment(k, () =>
             mode === "from" ? tc.fromSnapshotProcessor(obj[k]) : tc.toSnapshotProcessor(obj[k])
           )
@@ -104,8 +132,9 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       const isPropCacheableObject = isTweakedObject(obj, true)
       let propCheckResultsByName: Map<string, TypeCheckError | null> | undefined
 
-      const checkProp = (k: string, unresolvedTc: TypeChecker | LateTypeChecker) => {
-        const childCheckScope = getChildCheckScope(typeCheckScope, k)
+      const checkProp = (schemaEntry: SchemaEntry) => {
+        const propName = schemaEntry.propName
+        const childCheckScope = getChildCheckScope(typeCheckScope, propName)
         if (childCheckScope === null) {
           return null
         }
@@ -117,18 +146,19 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         }
 
         let valueError: TypeCheckError | null | undefined
-        if (canUsePropCache && propCheckResultsByName!.has(k)) {
-          valueError = propCheckResultsByName!.get(k)!
+        const cachedValue = canUsePropCache ? propCheckResultsByName!.get(propName) : undefined
+        if (cachedValue !== undefined) {
+          valueError = cachedValue
         } else {
-          const tc = resolveTypeChecker(unresolvedTc)
-          valueError = tc.check(obj[k], [...path, k], typeCheckedValue, childCheckScope)
+          const tc = schemaEntry.getResolvedChecker()
+          valueError = tc.check(obj[propName], emptyChildPath, typeCheckedValue, childCheckScope)
           if (canUsePropCache) {
-            propCheckResultsByName!.set(k, valueError)
+            propCheckResultsByName!.set(propName, valueError)
           }
         }
 
         if (valueError) {
-          return valueError
+          return prependPathElementToTypeCheckError(valueError, path, propName, typeCheckedValue)
         }
 
         return null
@@ -139,18 +169,18 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
           throw failure("assertion error: object path element must be a string")
         }
 
-        const unresolvedTc = objectSchema[pathElement]
-        if (!unresolvedTc) {
+        const schemaEntry = schemaEntryByPropName[pathElement]
+        if (!schemaEntry) {
           return null
         }
 
-        return checkProp(pathElement, unresolvedTc)
+        return checkProp(schemaEntry)
       }
 
       if (isTypeCheckScopeAll(typeCheckScope)) {
         // note: we allow excess properties when checking objects
-        for (const [k, unresolvedTc] of schemaEntries) {
-          const valueError = checkProp(k, unresolvedTc)
+        for (let i = 0; i < schemaEntries.length; i++) {
+          const valueError = checkProp(schemaEntries[i])
           if (valueError) {
             return valueError
           }
@@ -219,9 +249,10 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         }
 
         // note: we allow excess properties when checking objects
-        for (const [k, unresolvedTc] of schemaEntries) {
-          const tc = resolveTypeChecker(unresolvedTc)
-          const objVal = obj[k]
+        for (let i = 0; i < schemaEntries.length; i++) {
+          const schemaEntry = schemaEntries[i]
+          const tc = schemaEntry.getResolvedChecker()
+          const objVal = obj[schemaEntry.propName]
 
           const valueActualChecker = tc.snapshotType(objVal)
           if (!valueActualChecker) {

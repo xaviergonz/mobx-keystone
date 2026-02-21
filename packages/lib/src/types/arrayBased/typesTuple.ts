@@ -1,3 +1,4 @@
+import type { Path } from "../../parent/pathTypes"
 import { failure, isArray, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
@@ -11,6 +12,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
 
 /**
@@ -30,6 +32,7 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
 
   return lateTypeChecker(() => {
     const checkers = itemTypes.map(resolveTypeChecker)
+    const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
       const typeNames = checkers.map((tc) => {
@@ -70,24 +73,29 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
             throw failure("assertion error: tuple child scope should not be null")
           }
 
-          return checkers[index].check(
+          const itemError = checkers[index].check(
             array[index],
-            [...path, index],
+            emptyChildPath,
             typeCheckedValue,
             childCheckScope
           )
+          if (!itemError) {
+            return null
+          }
+
+          return prependPathElementToTypeCheckError(itemError, path, index, typeCheckedValue)
         }
 
         if (isTypeCheckScopeAll(typeCheckScope)) {
           for (let i = 0; i < array.length; i++) {
             const itemError = checkers[i].check(
               array[i],
-              [...path, i],
+              emptyChildPath,
               typeCheckedValue,
               allTypeCheckScope
             )
             if (itemError) {
-              return itemError
+              return prependPathElementToTypeCheckError(itemError, path, i, typeCheckedValue)
             }
           }
         } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {

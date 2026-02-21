@@ -100,6 +100,49 @@ export function typesOr(
       thisTcBaseType = checkers[0].baseType
     }
 
+    const anyCheckers: TypeChecker[] = []
+    const primitiveOrAnyCheckers: TypeChecker[] = []
+    const objectOrAnyCheckers: TypeChecker[] = []
+    const arrayOrAnyCheckers: TypeChecker[] = []
+
+    for (let i = 0; i < checkers.length; i++) {
+      const checker = checkers[i]
+      switch (checker.baseType) {
+        case TypeCheckerBaseType.Primitive:
+          primitiveOrAnyCheckers.push(checker)
+          break
+        case TypeCheckerBaseType.Object:
+          objectOrAnyCheckers.push(checker)
+          break
+        case TypeCheckerBaseType.Array:
+          arrayOrAnyCheckers.push(checker)
+          break
+        case TypeCheckerBaseType.Any:
+          anyCheckers.push(checker)
+          primitiveOrAnyCheckers.push(checker)
+          objectOrAnyCheckers.push(checker)
+          arrayOrAnyCheckers.push(checker)
+          break
+        default:
+          break
+      }
+    }
+
+    const getCandidateCheckers = (valueBaseType: TypeCheckerBaseType): ReadonlyArray<TypeChecker> => {
+      switch (valueBaseType) {
+        case TypeCheckerBaseType.Primitive:
+          return primitiveOrAnyCheckers
+        case TypeCheckerBaseType.Object:
+          return objectOrAnyCheckers
+        case TypeCheckerBaseType.Array:
+          return arrayOrAnyCheckers
+        case TypeCheckerBaseType.Any:
+          return anyCheckers
+        default:
+          return anyCheckers
+      }
+    }
+
     const thisTc: TypeChecker = new TypeChecker(
       thisTcBaseType,
 
@@ -107,19 +150,22 @@ export function typesOr(
         // Union types must always full-check every alternative. Partial checking could
         // produce false positives when overlapping alternatives each pass on different
         // property subsets without any single alternative passing in full.
-        const someMatchingType = checkers.some(
-          (tc) => !tc.check(value, path, typeCheckedValue, allTypeCheckScope)
-        )
-        if (someMatchingType) {
-          return null
-        } else {
-          return new TypeCheckError({
-            path,
-            expectedTypeName: getTypeName(thisTc),
-            actualValue: value,
-            typeCheckedValue,
-          })
+        const valueBaseType = getTypeCheckerBaseTypeFromValue(value)
+        const candidateCheckers = getCandidateCheckers(valueBaseType)
+
+        for (let i = 0; i < candidateCheckers.length; i++) {
+          const tc = candidateCheckers[i]
+          if (!tc.check(value, path, typeCheckedValue, allTypeCheckScope)) {
+            return null
+          }
         }
+
+        return new TypeCheckError({
+          path,
+          expectedTypeName: getTypeName(thisTc),
+          actualValue: value,
+          typeCheckedValue,
+        })
       },
       undefined,
 
@@ -128,10 +174,7 @@ export function typesOr(
 
       (value) => {
         const valueBaseType = getTypeCheckerBaseTypeFromValue(value)
-
-        const checkerForBaseType = checkers.filter(
-          (c) => c.baseType === valueBaseType || c.baseType === TypeCheckerBaseType.Any
-        )
+        const checkerForBaseType = getCandidateCheckers(valueBaseType)
 
         if (checkerForBaseType.length === 1 && checkerForBaseType[0].baseType === valueBaseType) {
           // when there is only one valid option accept it without asking

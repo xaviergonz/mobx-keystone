@@ -1,3 +1,4 @@
+import type { Path } from "../../parent/pathTypes"
 import { failure, isArray } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
@@ -12,6 +13,7 @@ import {
   TypeInfoGen,
 } from "../TypeChecker"
 import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
+import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 /**
  * A type that represents an array of values of a given type.
@@ -30,6 +32,7 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
 
   return lateTypeChecker(() => {
     const itemChecker = resolveTypeChecker(itemType)
+    const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Array<${itemChecker.getTypeName(...recursiveTypeCheckers, itemChecker)}>`
@@ -66,24 +69,29 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
             throw failure("assertion error: array child scope should not be null")
           }
 
-          return itemChecker.check(
+          const itemError = itemChecker.check(
             array[index],
-            [...path, index],
+            emptyChildPath,
             typeCheckedValue,
             childCheckScope
           )
+          if (!itemError) {
+            return null
+          }
+
+          return prependPathElementToTypeCheckError(itemError, path, index, typeCheckedValue)
         }
 
         if (isTypeCheckScopeAll(typeCheckScope)) {
           for (let i = 0; i < array.length; i++) {
             const itemError = itemChecker.check(
               array[i],
-              [...path, i],
+              emptyChildPath,
               typeCheckedValue,
               allTypeCheckScope
             )
             if (itemError) {
-              return itemError
+              return prependPathElementToTypeCheckError(itemError, path, i, typeCheckedValue)
             }
           }
         } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
@@ -160,7 +168,9 @@ export class ArrayTypeInfo extends TypeInfo {
     return getTypeInfo(this.itemType)
   }
 
-  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+  override findChildTypeInfo(
+    predicate: (childTypeInfo: TypeInfo) => boolean
+  ): TypeInfo | undefined {
     return predicate(this.itemTypeInfo) ? this.itemTypeInfo : undefined
   }
 
