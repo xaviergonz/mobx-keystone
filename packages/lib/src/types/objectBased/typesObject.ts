@@ -1,5 +1,7 @@
 import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
+import type { Path } from "../../parent/pathTypes"
+import { isTweakedObject } from "../../tweaker/core"
 import { assertIsFunction, assertIsObject, isObject, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
@@ -20,6 +22,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { getChildCheckScope, isTypeCheckScopeAll, type TypeCheckScope } from "../typeCheckScope"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
@@ -29,6 +32,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
     assertIsObject(objectSchema, "objectSchema")
 
     const schemaEntries = Object.entries(objectSchema)
+    const cachedPropCheckResults = new WeakMap<object, Map<string, TypeCheckError | null>>()
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
       const propsMsg: string[] = []
@@ -66,31 +70,144 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       return newObj
     }
 
-    const thisTc: TypeChecker = new TypeChecker(
-      TypeCheckerBaseType.Object,
+    const checkObjectType = (obj: any, path: Path, typeCheckedValue: any) => {
+      if (!isObject(obj) || (frozen && !(obj instanceof Frozen))) {
+        return new TypeCheckError({
+          path,
+          expectedTypeName: getTypeName(thisTc),
+          actualValue: obj,
+          typeCheckedValue,
+        })
+      }
 
-      (obj, path, typeCheckedValue) => {
-        if (!isObject(obj) || (frozen && !(obj instanceof Frozen))) {
-          return new TypeCheckError({
-            path,
-            expectedTypeName: getTypeName(thisTc),
-            actualValue: obj,
-            typeCheckedValue,
-          })
+      return null
+    }
+
+    const checkObjectProps = (
+      obj: any,
+      path: Path,
+      typeCheckedValue: any,
+      typeCheckScope: TypeCheckScope
+    ) => {
+      const getOrCreateCachedPropCheckResults = (
+        cacheObj: object
+      ): Map<string, TypeCheckError | null> => {
+        let cache = cachedPropCheckResults.get(cacheObj)
+        if (!cache) {
+          cache = new Map<string, TypeCheckError | null>()
+          cachedPropCheckResults.set(cacheObj, cache)
+          thisTc.registerExternalCachedResult(cacheObj)
+        }
+        return cache
+      }
+
+      const isPropCacheableObject = isTweakedObject(obj, true)
+      let propCheckResultsByName: Map<string, TypeCheckError | null> | undefined
+
+      const checkProp = (k: string, unresolvedTc: TypeChecker | LateTypeChecker) => {
+        const childCheckScope = getChildCheckScope(typeCheckScope, k)
+        if (childCheckScope === null) {
+          return null
         }
 
+        const canUsePropCache = isPropCacheableObject && isTypeCheckScopeAll(childCheckScope)
+
+        if (canUsePropCache && !propCheckResultsByName) {
+          propCheckResultsByName = getOrCreateCachedPropCheckResults(obj)
+        }
+
+        let valueError: TypeCheckError | null | undefined
+        if (canUsePropCache && propCheckResultsByName!.has(k)) {
+          valueError = propCheckResultsByName!.get(k)!
+        } else {
+          const tc = resolveTypeChecker(unresolvedTc)
+          valueError = tc.check(obj[k], [...path, k], typeCheckedValue, childCheckScope)
+          if (canUsePropCache) {
+            propCheckResultsByName!.set(k, valueError)
+          }
+        }
+
+        if (valueError) {
+          return valueError
+        }
+
+        return null
+      }
+
+      const checkPropByPathElement = (pathElement: unknown): TypeCheckError | null => {
+        if (typeof pathElement !== "string") {
+          return null
+        }
+
+        const unresolvedTc = objectSchema[pathElement]
+        if (!unresolvedTc) {
+          return null
+        }
+
+        return checkProp(pathElement, unresolvedTc)
+      }
+
+      if (isTypeCheckScopeAll(typeCheckScope)) {
         // note: we allow excess properties when checking objects
         for (const [k, unresolvedTc] of schemaEntries) {
-          const tc = resolveTypeChecker(unresolvedTc)
-          const objVal = obj[k]
-
-          const valueError = tc.check(objVal, [...path, k], typeCheckedValue)
+          const valueError = checkProp(k, unresolvedTc)
           if (valueError) {
             return valueError
           }
         }
 
         return null
+      }
+
+      if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
+        return checkPropByPathElement(typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset])
+      }
+
+      for (const touchedChild of typeCheckScope.touchedChildren) {
+        const valueError = checkPropByPathElement(touchedChild)
+        if (valueError) {
+          return valueError
+        }
+      }
+
+      return null
+    }
+
+    const thisTc: TypeChecker = new TypeChecker(
+      TypeCheckerBaseType.Object,
+
+      (obj, path, typeCheckedValue, typeCheckScope) => {
+        const objectTypeError = checkObjectType(obj, path, typeCheckedValue)
+        if (objectTypeError) {
+          return objectTypeError
+        }
+
+        return checkObjectProps(obj, path, typeCheckedValue, typeCheckScope)
+      },
+
+      (obj, touchedChildren) => {
+        if (touchedChildren === "all") {
+          cachedPropCheckResults.delete(obj)
+          return
+        }
+
+        const propCheckResultsByName = cachedPropCheckResults.get(obj)
+        if (!propCheckResultsByName) {
+          return
+        }
+
+        if (touchedChildren.size <= 0) {
+          return
+        }
+        for (const keyOrIndex of touchedChildren) {
+          if (typeof keyOrIndex === "string") {
+            propCheckResultsByName.delete(keyOrIndex)
+          }
+        }
+
+        if (propCheckResultsByName.size <= 0) {
+          cachedPropCheckResults.delete(obj)
+        }
       },
 
       getTypeName,

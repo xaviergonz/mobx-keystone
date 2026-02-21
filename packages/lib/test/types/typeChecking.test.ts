@@ -10,6 +10,7 @@ import {
   arraySet,
   BooleanTypeInfo,
   customRef,
+  DataModel,
   Frozen,
   FrozenTypeInfo,
   fromSnapshot,
@@ -36,6 +37,7 @@ import {
   onPatches,
   onSnapshot,
   Path,
+  PathElement,
   prop,
   RecordTypeInfo,
   Ref,
@@ -59,6 +61,7 @@ import {
 } from "../../src"
 import { enumValues } from "../../src/types/primitiveBased/typesEnum"
 import { resolveStandardType, resolveTypeChecker } from "../../src/types/resolveTypeChecker"
+import { typeCheckInternal } from "../../src/types/typeCheck"
 import { autoDispose, testModel } from "../utils"
 
 beforeEach(() => {
@@ -112,6 +115,65 @@ function tsCheck<T>(_val: T): void {}
 function expectTypeCheckOk<T extends AnyType>(t: T, val: TypeToData<T>) {
   const err = typeCheck(t, val)
   expect(err).toBeNull()
+}
+
+function pathsEqual(pathA: Path, pathB: Path): boolean {
+  if (pathA.length !== pathB.length) {
+    return false
+  }
+  for (let i = 0; i < pathA.length; i++) {
+    if (pathA[i] !== pathB[i]) {
+      return false
+    }
+  }
+  return true
+}
+
+function typeCheckWithTouchedPaths<T extends AnyType>(
+  type: T,
+  value: TypeToData<T>,
+  touchedPaths: ReadonlyArray<Path>
+): TypeCheckError | null {
+  if (touchedPaths.length <= 0) {
+    return null
+  }
+
+  const firstTouchedPath = touchedPaths[0]
+  if (firstTouchedPath.length <= 0) {
+    throw new Error(
+      "typeCheckWithTouchedPaths only supports non-empty paths; use typeCheck(...) for full checks"
+    )
+  }
+
+  const changedObjPath = firstTouchedPath.slice(0, -1)
+  const touchedChildren = new Set<PathElement>([firstTouchedPath[firstTouchedPath.length - 1]])
+  for (let i = 1; i < touchedPaths.length; i++) {
+    const touchedPath = touchedPaths[i]
+    if (touchedPath.length <= 0) {
+      throw new Error(
+        "typeCheckWithTouchedPaths only supports non-empty paths; use typeCheck(...) for full checks"
+      )
+    }
+
+    const touchedPathParent = touchedPath.slice(0, -1)
+    if (!pathsEqual(touchedPathParent, changedObjPath)) {
+      throw new Error(
+        "typeCheckWithTouchedPaths only supports touched paths with the same parent path"
+      )
+    }
+
+    touchedChildren.add(touchedPath[touchedPath.length - 1])
+  }
+
+  return typeCheckInternal<any>(type as any, value as any, changedObjPath, touchedChildren)
+}
+
+function modelTypeCheckWithTouchedPaths(model: AnyModel, touchedPaths: ReadonlyArray<Path>) {
+  return typeCheckWithTouchedPaths(
+    types.model<any, any>(model.constructor as any),
+    model as any,
+    touchedPaths
+  )
 }
 
 function expectTypeCheckFail<T extends AnyType>(
@@ -506,6 +568,466 @@ test("object - all optional simple types", () => {
   } as ObjectTypeInfoProps)
 })
 
+test("typeCheck with touched paths", () => {
+  const type = types.object(() => ({
+    x: types.number,
+    y: types.string,
+  }))
+
+  const wrongValue = { x: "bad" as any, y: "ok" }
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["y"]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["x"]])).toEqual(
+    new TypeCheckError({
+      path: ["x"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+  expectTypeCheckFail(type, wrongValue, ["x"], "number")
+})
+
+test("typeCheckInternal with empty touched children skips checks", () => {
+  const type = types.object(() => ({
+    x: types.number,
+  }))
+  const wrongValue = { x: "bad" as any }
+
+  expect(
+    typeCheckInternal<any>(type as any, wrongValue as any, [], new Set<PathElement>())
+  ).toBeNull()
+  expectTypeCheckFail(type, wrongValue, ["x"], "number")
+})
+
+test("typeCheckInternal full checks require touchedChildren='all'", () => {
+  const type = types.number
+
+  expect(() =>
+    typeCheckInternal<any>(type as any, 1 as any, undefined, new Set<PathElement>())
+  ).toThrow("assertion failed: full internal type-check must use touchedChildren='all'")
+})
+
+test("typeCheck with touched paths forwards through types.or", () => {
+  let counters = { a: 0, b: 0 }
+  const objectType = types.object(() => ({
+    a: types.refinement(types.number, () => {
+      counters.a++
+      return true
+    }),
+    b: types.refinement(types.number, () => {
+      counters.b++
+      return true
+    }),
+  }))
+
+  const type = types.or(objectType, types.string)
+  const value = { a: 1, b: 2 }
+
+  // types.or always does a full check to avoid false positives with overlapping unions
+  counters = { a: 0, b: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["a"]])).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 1 })
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["b"]])).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 1 })
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheck(type, value)).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 1 })
+})
+
+test("typeCheck with touched paths for types.or with overlapping object unions detects errors", () => {
+  // types.or with overlapping object types must full-check to avoid false positives.
+  // If partially checked, a value could pass by matching different alternatives for different properties.
+  const type = types.or(
+    types.object(() => ({ a: types.number, b: types.number })),
+    types.object(() => ({ a: types.string, b: types.string }))
+  )
+
+  // Start with a valid value for the first alternative
+  const value: { a: number; b: number } | { a: string; b: string } = { a: 1, b: 2 }
+  expect(typeCheck(type, value)).toBeNull()
+
+  // Mutate `a` to a string — now value is { a: "hello", b: 2 } which doesn't fully match either alternative
+  ;(value as { a: string | number; b: number }).a = "hello"
+
+  // Full check correctly detects the error
+  expect(typeCheck(type, value)).not.toBeNull()
+
+  // Partial check touching only "a" must also detect the error (not produce a false positive pass)
+  expect(typeCheckWithTouchedPaths(type, value, [["a"]])).not.toBeNull()
+})
+
+test("typeCheck with touched paths forwards through types.refinement", () => {
+  let counters = { a: 0, b: 0, refinement: 0 }
+  const baseType = types.object(() => ({
+    a: types.refinement(types.number, () => {
+      counters.a++
+      return true
+    }),
+    b: types.refinement(types.number, () => {
+      counters.b++
+      return true
+    }),
+  }))
+
+  const type = types.refinement(baseType, () => {
+    counters.refinement++
+    return null
+  })
+  const value = { a: 1, b: 2 }
+
+  counters = { a: 0, b: 0, refinement: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["a"]])).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 0, refinement: 1 })
+
+  counters = { a: 0, b: 0, refinement: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["b"]])).toBeNull()
+  expect(counters).toEqual({ a: 0, b: 1, refinement: 1 })
+
+  counters = { a: 0, b: 0, refinement: 0 }
+  expect(typeCheck(type, value)).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 1, refinement: 1 })
+})
+
+test("typeCheck with touched paths forwards through types.tag", () => {
+  let counters = { a: 0, b: 0 }
+  const baseType = types.object(() => ({
+    a: types.refinement(types.number, () => {
+      counters.a++
+      return true
+    }),
+    b: types.refinement(types.number, () => {
+      counters.b++
+      return true
+    }),
+  }))
+
+  const type = types.tag(baseType, { purpose: "touched-path-test" }, "taggedTestType")
+  const value = { a: 1, b: 2 }
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["a"]])).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 0 })
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["b"]])).toBeNull()
+  expect(counters).toEqual({ a: 0, b: 1 })
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheck(type, value)).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 1 })
+})
+
+test("typeCheck with touched paths forwards through types.dataModelData", () => {
+  let counters = { a: 0, b: 0 }
+
+  @testModel("TouchedPathDataModel")
+  class TouchedPathDataModel extends DataModel({
+    a: tProp(
+      types.refinement(types.number, () => {
+        counters.a++
+        return true
+      })
+    ),
+    b: tProp(
+      types.refinement(types.number, () => {
+        counters.b++
+        return true
+      })
+    ),
+  }) {}
+
+  const type = types.dataModelData(TouchedPathDataModel)
+  const value = { a: 1, b: 2 }
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["a"]])).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 0 })
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheckWithTouchedPaths(type, value, [["b"]])).toBeNull()
+  expect(counters).toEqual({ a: 0, b: 1 })
+
+  counters = { a: 0, b: 0 }
+  expect(typeCheck(type, value)).toBeNull()
+  expect(counters).toEqual({ a: 1, b: 1 })
+})
+
+test("array typeCheck with touched paths", () => {
+  const type = types.array(types.number)
+
+  const wrongValue = [1, "bad" as any, 3]
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[0]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[1]])).toEqual(
+    new TypeCheckError({
+      path: [1],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+
+  // out-of-bounds touched indexes can happen on remove operations; they should be ignored
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[10]])).toBeNull()
+})
+
+test("array typeCheck with nested touched paths", () => {
+  const type = types.array(
+    types.object(() => ({
+      x: types.number,
+      y: types.number,
+    }))
+  )
+
+  const wrongValue = [{ x: 1, y: "bad" as any }]
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[0, "x"]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[0, "y"]])).toEqual(
+    new TypeCheckError({
+      path: [0, "y"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+})
+
+test("record typeCheck with touched paths", () => {
+  const type = types.record(types.number)
+
+  const wrongValue = { x: "bad" as any, y: 1 }
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["y"]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["x"]])).toEqual(
+    new TypeCheckError({
+      path: ["x"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+})
+
+test("record typeCheck with nested touched paths", () => {
+  const type = types.record(
+    types.object(() => ({
+      x: types.number,
+      y: types.number,
+    }))
+  )
+
+  const wrongValue = { a: { x: 1, y: "bad" as any } }
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["a", "x"]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["a", "y"]])).toEqual(
+    new TypeCheckError({
+      path: ["a", "y"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+})
+
+test("tuple typeCheck with touched paths", () => {
+  const type = types.tuple(types.number, types.string)
+
+  const wrongValue = [1, 2 as any] as [number, any]
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[0]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[1]])).toEqual(
+    new TypeCheckError({
+      path: [1],
+      expectedTypeName: "string",
+      actualValue: 2,
+      typeCheckedValue: wrongValue,
+    })
+  )
+})
+
+test("tuple typeCheck with nested touched paths", () => {
+  const type = types.tuple(
+    types.object(() => ({
+      x: types.number,
+      y: types.number,
+    })),
+    types.string
+  )
+
+  const wrongValue = [{ x: 1, y: "bad" as any }, "ok"] as [any, string]
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[0, "x"]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[0, "y"]])).toEqual(
+    new TypeCheckError({
+      path: [0, "y"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+
+  // out-of-bounds touched indexes can happen on remove operations; they should be ignored
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [[10]])).toBeNull()
+})
+
+test("objectMap typeCheck with touched paths", () => {
+  const type = types.objectMap(types.number)
+
+  const wrongValue = objectMap<number | any>([
+    ["a", 1],
+    ["b", "bad"],
+  ])
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue as any, [["items", "a"]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue as any, [["items", "b"]])).toEqual(
+    new TypeCheckError({
+      path: ["items", "b"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+})
+
+test("arraySet typeCheck with touched paths", () => {
+  const type = types.arraySet(types.number)
+
+  const wrongValue = arraySet<number | any>([1, "bad"])
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue as any, [["items", 0]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue as any, [["items", 1]])).toEqual(
+    new TypeCheckError({
+      path: ["items", 1],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: wrongValue,
+    })
+  )
+})
+
+test("ref typeCheck with touched paths", () => {
+  const m = new M({ y: "6" })
+  const customR = customRef<M>("customRefM_touched", {
+    resolve() {
+      return m
+    },
+    getId(target) {
+      return "" + (target as M).y
+    },
+  })
+  const type = types.ref(customR)
+
+  const wrongValue = new customR.refClass({ id: 10 as any }) as Ref<M>
+
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["otherProp"]])).toBeNull()
+  expect(typeCheckWithTouchedPaths(type, wrongValue, [["id"]])).toEqual(
+    new TypeCheckError({
+      path: ["id"],
+      expectedTypeName: "string",
+      actualValue: 10,
+      typeCheckedValue: wrongValue,
+    })
+  )
+})
+
+@testModel("TouchedPathNestedStaleCacheModel")
+class TouchedPathNestedStaleCacheModel extends Model({
+  nested: tProp(
+    types.object(() => ({
+      x: types.number,
+      y: types.number,
+    }))
+  ),
+}) {
+  @modelAction
+  setNestedX(v: number) {
+    this.nested.x = v
+  }
+
+  @modelAction
+  setNestedY(v: number) {
+    this.nested.y = v
+  }
+}
+
+test("typeCheck with touched paths does not reuse stale cache for different nested paths", () => {
+  const m = new TouchedPathNestedStaleCacheModel({ nested: { x: 1, y: 2 } })
+
+  m.setNestedY("bad" as any)
+  expect(modelTypeCheckWithTouchedPaths(m, [["nested", "x"]])).toBeNull()
+  expect(modelTypeCheckWithTouchedPaths(m, [["nested", "y"]])).toEqual(
+    new TypeCheckError({
+      path: ["nested", "y"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: m,
+    })
+  )
+
+  m.setNestedY(2)
+  m.setNestedX("bad" as any)
+  expect(modelTypeCheckWithTouchedPaths(m, [["nested", "y"]])).toBeNull()
+  expect(modelTypeCheckWithTouchedPaths(m, [["nested", "x"]])).toEqual(
+    new TypeCheckError({
+      path: ["nested", "x"],
+      expectedTypeName: "number",
+      actualValue: "bad",
+      typeCheckedValue: m,
+    })
+  )
+})
+
+let touchedPathCacheValidationCounters = { a: 0, b: 0 }
+const touchedPathCacheValidationNestedType = types.object(() => ({
+  a: types.refinement(types.number, () => {
+    touchedPathCacheValidationCounters.a++
+    return true
+  }),
+  b: types.refinement(types.number, () => {
+    touchedPathCacheValidationCounters.b++
+    return true
+  }),
+}))
+
+@testModel("TouchedPathCacheValidationModel")
+class TouchedPathCacheValidationModel extends Model({
+  nested: tProp(touchedPathCacheValidationNestedType),
+}) {
+  @modelAction
+  setA(v: number) {
+    this.nested.a = v
+  }
+
+  @modelAction
+  setB(v: number) {
+    this.nested.b = v
+  }
+}
+
+test("touched paths invalidate only touched key typecheck caches", () => {
+  touchedPathCacheValidationCounters = { a: 0, b: 0 }
+  const m = new TouchedPathCacheValidationModel({ nested: { a: 1, b: 2 } })
+
+  expect(m.typeCheck()).toBeNull()
+  expect(touchedPathCacheValidationCounters).toEqual({ a: 1, b: 1 })
+
+  m.setA(3)
+  expect(modelTypeCheckWithTouchedPaths(m, [["nested", "a"]])).toBeNull()
+  expect(touchedPathCacheValidationCounters).toEqual({ a: 2, b: 1 })
+
+  m.setB(4)
+  expect(modelTypeCheckWithTouchedPaths(m, [["nested", "b"]])).toBeNull()
+  expect(touchedPathCacheValidationCounters).toEqual({ a: 2, b: 2 })
+
+  expect(m.typeCheck()).toBeNull()
+  expect(touchedPathCacheValidationCounters).toEqual({ a: 2, b: 2 })
+})
+
 const mArrType = types.array(types.number)
 const mArrDefault = () => []
 
@@ -630,6 +1152,78 @@ test("model typechecking", () => {
     m.addArr("3" as any)
   })
   expect(toJS(m.arr)).toEqual([1, 2])
+})
+
+test("model typechecking with touched paths", () => {
+  const m = new M({ y: "6" })
+
+  m.setX("10" as any)
+  expect(modelTypeCheckWithTouchedPaths(m, [["y"]])).toBeNull()
+  expect(modelTypeCheckWithTouchedPaths(m, [["x"]])).toEqual(
+    new TypeCheckError({
+      path: ["x"],
+      expectedTypeName: "number",
+      actualValue: "10",
+      typeCheckedValue: m,
+    })
+  )
+
+  m.setX(10)
+  m.setArr([1, "2" as any])
+  expect(modelTypeCheckWithTouchedPaths(m, [["arr", 1]])).toEqual(
+    new TypeCheckError({
+      path: ["arr", 1],
+      expectedTypeName: "number",
+      actualValue: "2",
+      typeCheckedValue: m,
+    })
+  )
+})
+
+@testModel("TouchedPathDollarKeyModel")
+class TouchedPathDollarKeyModel extends Model({
+  nested: tProp(
+    types.object(() => ({
+      $: types.object(() => ({
+        x: types.number,
+      })),
+    }))
+  ),
+}) {
+  @modelAction
+  setNestedDollarX(v: number) {
+    this.nested.$.x = v
+  }
+}
+
+test("auto typechecking keeps real '$' object keys in changed-object path", () => {
+  const m = new TouchedPathDollarKeyModel({
+    nested: {
+      $: { x: 1 },
+    },
+  })
+
+  expectTypeCheckError(m, () => {
+    m.setNestedDollarX("bad" as any)
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+
+  try {
+    m.setNestedDollarX("bad" as any)
+    throw new Error("expected setNestedDollarX to throw")
+  } catch (thrown) {
+    expect(thrown).toBeInstanceOf(TypeCheckErrorFailure)
+    expect((thrown as TypeCheckErrorFailure).path).toEqual(["nested", "$", "x"])
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(m.nested.$.x).toBe(1)
 })
 
 test("new model with typechecking enabled", () => {
@@ -1211,11 +1805,21 @@ test("objectMap", () => {
   expectTypeCheckFail(type, {} as any, [], "ObjectMap<number>")
   expectTypeCheckFail(type, objectMap<string>([["1", "10"]]), ["items", "1"], "number")
 
-  const validSnapshot = getSnapshot(objectMap<number>([["1", 10], ["2", 20]]))
+  const validSnapshot = getSnapshot(
+    objectMap<number>([
+      ["1", 10],
+      ["2", 20],
+    ])
+  )
 
   const throwingProcessorType = types.objectMap(types.or(types.string, types.number))
   const throwingProcessorTypeChecker = resolveTypeChecker(throwingProcessorType)
-  const throwingSnapshot = getSnapshot(objectMap<string | number>([["1", 10], ["2", "20"]]))
+  const throwingSnapshot = getSnapshot(
+    objectMap<string | number>([
+      ["1", 10],
+      ["2", "20"],
+    ])
+  )
   throwingProcessorTypeChecker.fromSnapshotProcessor(throwingSnapshot as any)
   expect(throwingProcessorTypeChecker.toSnapshotProcessor(throwingSnapshot as any)).toEqual(
     throwingSnapshot

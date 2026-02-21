@@ -85,9 +85,10 @@ export function typesDataModelData<M = never, K = M>(
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
 
-        (value, path, typeCheckedValue) => {
-          return resolvedDataTypeChecker.check(value, path, typeCheckedValue)
+        (value, path, typeCheckedValue, partialCheckScope) => {
+          return resolvedDataTypeChecker.check(value, path, typeCheckedValue, partialCheckScope)
         },
+        undefined,
 
         () => typeName,
         typeInfoGen,

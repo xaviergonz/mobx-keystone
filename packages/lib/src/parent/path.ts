@@ -350,6 +350,17 @@ export function getParentToChildPath(fromParent: object, toChild: object): Path 
   assertTweakedObject(fromParent, "fromParent")
   assertTweakedObject(toChild, "toChild")
 
+  return fastGetParentToChildPath(fromParent, toChild, true)
+}
+
+/**
+ * @internal
+ */
+export function fastGetParentToChildPath(
+  fromParent: object,
+  toChild: object,
+  useAtom: boolean
+): Path | undefined {
   if (fromParent === toChild) {
     return []
   }
@@ -358,7 +369,7 @@ export function getParentToChildPath(fromParent: object, toChild: object): Path 
 
   let current = toChild
   let parentPath: ParentPath<any> | undefined
-  while ((parentPath = fastGetParentPath(current, true))) {
+  while ((parentPath = fastGetParentPath(current, useAtom))) {
     path.unshift(parentPath.path)
 
     current = parentPath.parent

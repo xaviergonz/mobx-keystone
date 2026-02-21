@@ -49,6 +49,7 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
             actualValue: value,
             typeCheckedValue,
           }),
+    undefined,
 
     () => typeName,
     typeInfoGen,
@@ -116,6 +117,7 @@ export const typesBoolean: IdentityType<boolean> = new TypeChecker(
           actualValue: value,
           typeCheckedValue,
         }),
+  undefined,
 
   () => "boolean",
   (t) => new BooleanTypeInfo(t),
@@ -151,6 +153,7 @@ export const typesNumber: IdentityType<number> = new TypeChecker(
           actualValue: value,
           typeCheckedValue,
         }),
+  undefined,
 
   () => "number",
   (t) => new NumberTypeInfo(t),
@@ -186,6 +189,7 @@ export const typesString: IdentityType<string> = new TypeChecker(
           actualValue: value,
           typeCheckedValue,
         }),
+  undefined,
 
   () => "string",
   (t) => new StringTypeInfo(t),

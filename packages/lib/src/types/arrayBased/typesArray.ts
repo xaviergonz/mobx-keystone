@@ -11,6 +11,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
 
 /**
  * A type that represents an array of values of a given type.
@@ -36,7 +37,7 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
-      (array, path, typeCheckedValue) => {
+      (array, path, typeCheckedValue, typeCheckScope) => {
         if (!isArray(array)) {
           return new TypeCheckError({
             path,
@@ -46,9 +47,55 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
           })
         }
 
-        if (!itemChecker.unchecked) {
+        if (itemChecker.unchecked) {
+          return null
+        }
+
+        const checkItemAtIndex = (index: unknown): TypeCheckError | null => {
+          if (
+            typeof index !== "number" ||
+            !Number.isInteger(index) ||
+            index < 0 ||
+            index >= array.length
+          ) {
+            return null
+          }
+
+          const childCheckScope = getChildCheckScope(typeCheckScope, index)
+          if (childCheckScope === null) {
+            return null
+          }
+
+          return itemChecker.check(
+            array[index],
+            [...path, index],
+            typeCheckedValue,
+            childCheckScope
+          )
+        }
+
+        if (isTypeCheckScopeAll(typeCheckScope)) {
           for (let i = 0; i < array.length; i++) {
-            const itemError = itemChecker.check(array[i], [...path, i], typeCheckedValue)
+            const itemError = itemChecker.check(
+              array[i],
+              [...path, i],
+              typeCheckedValue,
+              allTypeCheckScope
+            )
+            if (itemError) {
+              return itemError
+            }
+          }
+        } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
+          const itemError = checkItemAtIndex(
+            typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset]
+          )
+          if (itemError) {
+            return itemError
+          }
+        } else {
+          for (const index of typeCheckScope.touchedChildren) {
+            const itemError = checkItemAtIndex(index)
             if (itemError) {
               return itemError
             }
@@ -57,6 +104,7 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
 
         return null
       },
+      undefined,
       getTypeName,
       typeInfoGen,
 

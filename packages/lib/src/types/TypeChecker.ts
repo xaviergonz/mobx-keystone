@@ -1,12 +1,29 @@
-import { fastGetParentIncludingDataObjects } from "../parent/path"
-import type { Path } from "../parent/pathTypes"
+import { fastGetParentPathIncludingDataObjects } from "../parent/path"
+import type { Path, PathElement } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
 import { isArray, isObject, isPrimitive, lazy } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
+import {
+  allTypeCheckScope,
+  isTypeCheckScopeAll,
+  isTypeCheckScopeEmpty,
+  type TouchedChildren,
+  type TypeCheckScope,
+} from "./typeCheckScope"
 
-type CheckFunction = (value: any, path: Path, typeCheckedValue: any) => TypeCheckError | null
+type CheckFunction = (
+  value: any,
+  path: Path,
+  typeCheckedValue: any,
+  typeCheckScope: TypeCheckScope
+) => TypeCheckError | null
+
+type InvalidateCachedResultByPathsFunction = (
+  value: object,
+  touchedChildren: TouchedChildren
+) => void
 
 const emptyPath: Path = []
 
@@ -45,21 +62,61 @@ export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType
 /**
  * @internal
  */
-export function invalidateCachedTypeCheckerResult(obj: object) {
-  // we need to invalidate it for the object and all its parents
-  let current: any = obj
-  while (current) {
-    const set = typeCheckersWithCachedResultsOfObject.get(current)
-    if (set) {
-      typeCheckersWithCachedResultsOfObject.delete(current)
-      set.forEach((typeChecker) => {
-        typeChecker.invalidateCachedResult(current)
-      })
+export function invalidateCachedTypeCheckerResult(obj: object, touchedChildren: TouchedChildren) {
+  if (touchedChildren !== "all" && touchedChildren.size <= 0) {
+    return
+  }
+
+  const invalidateForCurrentObject = (
+    currentObj: object,
+    currentTouchedChildren: TouchedChildren
+  ) => {
+    const set = typeCheckersWithCachedResultsOfObject.get(currentObj)
+    if (!set) {
+      return
     }
 
-    current = fastGetParentIncludingDataObjects(current, false)
+    if (currentTouchedChildren === "all") {
+      // Full invalidation for this object: clear listener bookkeeping and clear
+      // each checker cache entirely. The `set` local still holds the reference,
+      // so the forEach below works correctly even after the WeakMap entry is deleted.
+      typeCheckersWithCachedResultsOfObject.delete(currentObj)
+    }
+
+    set.forEach((typeChecker) => {
+      typeChecker.invalidateCachedResultByPaths(currentObj, currentTouchedChildren)
+    })
+  }
+
+  // we need to invalidate it for the object and all its parents
+  let current: object | undefined = obj
+  let currentTouchedChildren: TouchedChildren = touchedChildren
+  while (current !== undefined) {
+    const currentObj: object = current
+    invalidateForCurrentObject(currentObj, currentTouchedChildren)
+
+    const nextParentPath = fastGetParentPathIncludingDataObjects(currentObj, false)
+    if (!nextParentPath) {
+      break
+    }
+
+    // For parent objects, the changed branch is always the direct child we came from.
+    // Reuse a single Set instance to avoid per-level allocations during the walk-up.
+    // This is safe because invalidateCachedResultByPaths consumes touchedChildren synchronously.
+    if (currentTouchedChildren !== "all") {
+      reusableSingleChildSet.clear()
+      reusableSingleChildSet.add(nextParentPath.path)
+      currentTouchedChildren = reusableSingleChildSet
+    }
+
+    current = nextParentPath.parent
   }
 }
+
+// Reusable single-element set to avoid allocations during the parent walk-up
+// in invalidateCachedTypeCheckerResult. Safe because the walk-up is synchronous
+// and consumers read the set contents immediately without storing references.
+const reusableSingleChildSet = new Set<PathElement>()
 
 const typeCheckersWithCachedSnapshotProcessorResultsOfObject = new WeakMap<
   object,
@@ -98,27 +155,55 @@ export class TypeChecker {
   setCachedResult(obj: object, newCacheValue: CheckResult) {
     this.createCacheIfNeeded().set(obj, newCacheValue)
 
+    this.registerCachedResultListener(obj)
+  }
+
+  /**
+   * Registers this type checker as a cache listener for external caches
+   * that are not stored in `checkResultCache` (for example per-prop caches).
+   */
+  registerExternalCachedResult(obj: object) {
+    this.registerCachedResultListener(obj)
+  }
+
+  private registerCachedResultListener(obj: object) {
     // register this type checker as listener of that object changes
     const typeCheckerSet = getOrCreate(typeCheckersWithCachedResultsOfObject, obj, () => new Set())
 
     typeCheckerSet.add(this)
   }
 
-  invalidateCachedResult(obj: object) {
+  invalidateCachedResultByPaths(obj: object, touchedChildren: TouchedChildren) {
+    if (touchedChildren !== "all" && touchedChildren.size <= 0) {
+      return
+    }
+
     this.checkResultCache?.delete(obj)
+    this._invalidateCachedResultByPaths?.(obj, touchedChildren)
   }
 
   private getCachedResult(obj: object): CheckResult | undefined {
     return this.checkResultCache?.get(obj)
   }
 
-  check(value: any, path: Path, typeCheckedValue: any): TypeCheckError | null {
-    if (this.unchecked) {
+  check(
+    value: any,
+    path: Path,
+    typeCheckedValue: any,
+    typeCheckScope: TypeCheckScope
+  ): TypeCheckError | null {
+    if (this.unchecked || isTypeCheckScopeEmpty(typeCheckScope)) {
       return null
     }
 
+    if (!isTypeCheckScopeAll(typeCheckScope)) {
+      // uncached check with provided partial-check scope
+      return this._check!(value, path, typeCheckedValue, typeCheckScope)
+    }
+
     if (!isTweakedObject(value, true)) {
-      return this._check!(value, path, typeCheckedValue)
+      // non-object values are not cacheable, so we check them directly without caching
+      return this._check!(value, path, typeCheckedValue, allTypeCheckScope)
     }
 
     // optimized checking with cached values
@@ -127,20 +212,20 @@ export class TypeChecker {
 
     if (cachedResult === undefined) {
       // we set the path empty and no parent, since the result could be used for paths other than this base
-      cachedResult = this._check!(value, emptyPath, undefined)
+      cachedResult = this._check!(value, emptyPath, undefined, allTypeCheckScope)
       this.setCachedResult(value, cachedResult)
     }
 
-    if (cachedResult) {
-      return new TypeCheckError({
-        path: [...path, ...cachedResult.path],
-        expectedTypeName: cachedResult.expectedTypeName,
-        actualValue: cachedResult.actualValue,
-        typeCheckedValue,
-      })
-    } else {
+    if (!cachedResult) {
       return null
     }
+
+    return new TypeCheckError({
+      path: [...path, ...cachedResult.path],
+      expectedTypeName: cachedResult.expectedTypeName,
+      actualValue: cachedResult.actualValue,
+      typeCheckedValue,
+    })
   }
 
   private _cachedTypeInfoGen: TypeInfoGen
@@ -152,6 +237,9 @@ export class TypeChecker {
   constructor(
     readonly baseType: TypeCheckerBaseType,
     private readonly _check: CheckFunction | null,
+    private readonly _invalidateCachedResultByPaths:
+      | InvalidateCachedResultByPathsFunction
+      | undefined,
     readonly getTypeName: (...recursiveTypeCheckers: TypeChecker[]) => string,
     readonly typeInfoGen: TypeInfoGen,
     readonly snapshotType: (sn: unknown) => TypeChecker | null,

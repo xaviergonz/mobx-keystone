@@ -11,6 +11,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
 
 /**
  * A type that represents an object-like map, an object with string keys and values all of a same given type.
@@ -58,7 +59,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
-      (obj, path, typeCheckedValue) => {
+      (obj, path, typeCheckedValue, typeCheckScope) => {
         if (!isObject(obj)) {
           return new TypeCheckError({
             path,
@@ -68,12 +69,48 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
           })
         }
 
-        if (!valueChecker.unchecked) {
+        if (valueChecker.unchecked) {
+          return null
+        }
+
+        const checkValueAtKey = (key: unknown): TypeCheckError | null => {
+          if (typeof key !== "string" || !Object.hasOwn(obj, key)) {
+            return null
+          }
+
+          const childCheckScope = getChildCheckScope(typeCheckScope, key)
+          if (childCheckScope === null) {
+            return null
+          }
+
+          return valueChecker.check(obj[key], [...path, key], typeCheckedValue, childCheckScope)
+        }
+
+        if (isTypeCheckScopeAll(typeCheckScope)) {
           const keys = Object.keys(obj)
           for (let i = 0; i < keys.length; i++) {
             const k = keys[i]
             const v = obj[k]
-            const valueError = valueChecker.check(v, [...path, k], typeCheckedValue)
+            const valueError = valueChecker.check(
+              v,
+              [...path, k],
+              typeCheckedValue,
+              allTypeCheckScope
+            )
+            if (valueError) {
+              return valueError
+            }
+          }
+        } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
+          const valueError = checkValueAtKey(
+            typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset]
+          )
+          if (valueError) {
+            return valueError
+          }
+        } else {
+          for (const touchedChild of typeCheckScope.touchedChildren) {
+            const valueError = checkValueAtKey(touchedChild)
             if (valueError) {
               return valueError
             }
@@ -82,6 +119,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
 
         return null
       },
+      undefined,
 
       getTypeName,
       typeInfoGen,
