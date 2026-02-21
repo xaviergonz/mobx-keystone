@@ -1,4 +1,4 @@
-import { isObject } from "../../utils"
+import { failure, isObject } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
@@ -80,7 +80,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
 
           const childCheckScope = getChildCheckScope(typeCheckScope, key)
           if (childCheckScope === null) {
-            return null
+            throw failure("assertion error: record child scope should not be null")
           }
 
           return valueChecker.check(obj[key], [...path, key], typeCheckedValue, childCheckScope)

@@ -2,7 +2,7 @@ import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
 import type { Path } from "../../parent/pathTypes"
 import { isTweakedObject } from "../../tweaker/core"
-import { assertIsFunction, assertIsObject, isObject, lazy } from "../../utils"
+import { assertIsFunction, assertIsObject, failure, isObject, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
@@ -136,7 +136,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
 
       const checkPropByPathElement = (pathElement: unknown): TypeCheckError | null => {
         if (typeof pathElement !== "string") {
-          return null
+          throw failure("assertion error: object path element must be a string")
         }
 
         const unresolvedTc = objectSchema[pathElement]
@@ -197,7 +197,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         }
 
         if (touchedChildren.size <= 0) {
-          return
+          throw failure("assertion error: touchedChildren must not be empty")
         }
         for (const keyOrIndex of touchedChildren) {
           if (typeof keyOrIndex === "string") {

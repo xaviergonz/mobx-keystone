@@ -7,6 +7,7 @@ import {
   ArraySetTypeInfo,
   ArrayTypeInfo,
   actionTrackingMiddleware,
+  applySnapshot,
   arraySet,
   BooleanTypeInfo,
   customRef,
@@ -1178,6 +1179,133 @@ test("model typechecking with touched paths", () => {
       typeCheckedValue: m,
     })
   )
+})
+
+@testModel("TouchedPathMultiPatchModel")
+class TouchedPathMultiPatchModel extends Model({
+  a: tProp(types.number),
+  b: tProp(types.number),
+}) {
+  @modelAction
+  setBoth(a: number, b: number) {
+    this.a = a
+    this.b = b
+  }
+}
+
+test("auto typechecking handles actions that touch multiple children", () => {
+  const m = new TouchedPathMultiPatchModel({ a: 1, b: 2 })
+
+  expectTypeCheckError(m, () => {
+    m.setBoth("bad" as any, 3)
+  })
+
+  expect(m.a).toBe(1)
+  expect(m.b).toBe(2)
+})
+
+test("single action can touch multiple children", () => {
+  const m = new TouchedPathMultiPatchModel({ a: 1, b: 2 })
+  const touchedChildren = new Set<PathElement>()
+  const disposer = onPatches(m, (patches: any[]) => {
+    for (const p of patches) {
+      touchedChildren.add(p.path[0])
+    }
+  })
+
+  m.setBoth(3, 4)
+  disposer()
+
+  expect(touchedChildren).toEqual(new Set<PathElement>(["a", "b"]))
+})
+
+@testModel("TouchedPathArraySpliceMultiPatchModel")
+class TouchedPathArraySpliceMultiPatchModel extends Model({
+  arr: tProp(types.array(types.number)),
+}) {
+  @modelAction
+  spliceReplaceOneWithTwo() {
+    this.arr.splice(0, 1, 9, 8)
+  }
+}
+
+test("array splice can emit multiple patches in one batch", () => {
+  const m = new TouchedPathArraySpliceMultiPatchModel({ arr: [1, 2, 3] })
+  let sawMultiPatchBatch = false
+  const disposer = onPatches(m, (patches) => {
+    if (patches.length > 1) {
+      sawMultiPatchBatch = true
+    }
+  })
+
+  m.spliceReplaceOneWithTwo()
+  disposer()
+
+  expect(sawMultiPatchBatch).toBe(true)
+})
+
+@testModel("AutoTypecheckApplySnapshotRollbackModel")
+class AutoTypecheckApplySnapshotRollbackModel extends Model({
+  nested: tProp(
+    types.object(() => ({
+      x: types.number,
+    }))
+  ),
+}) {
+  @modelAction
+  setNestedX(v: number) {
+    this.nested.x = v
+  }
+}
+
+test("applySnapshot rolls back on auto typecheck errors", () => {
+  const m = new AutoTypecheckApplySnapshotRollbackModel({ nested: { x: 1 } })
+  const beforeSnapshot = getSnapshot(m.nested)
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    expect(() =>
+      applySnapshot(m.nested, {
+        ...beforeSnapshot,
+        x: "bad" as any,
+      })
+    ).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(m.nested.x).toBe(1)
+})
+
+@testModel("AutoTypecheckUntypedOnlyModel")
+class AutoTypecheckUntypedOnlyModel extends Model({
+  value: prop(1),
+}) {
+  @modelAction
+  setValue(v: number) {
+    this.value = v
+  }
+}
+
+test("auto typechecking skips models without a runtime type checker", () => {
+  const m = new AutoTypecheckUntypedOnlyModel({ value: 1 })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    m.setValue("bad" as any)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(m.value).toBe("bad")
 })
 
 @testModel("TouchedPathDollarKeyModel")

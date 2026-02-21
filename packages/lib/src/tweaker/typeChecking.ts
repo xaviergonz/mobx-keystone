@@ -13,6 +13,7 @@ import { typesModel } from "../types/objectBased/typesModel"
 import { invalidateCachedTypeCheckerResult } from "../types/TypeChecker"
 import { typeCheckInternal } from "../types/typeCheck"
 import { type TouchedChildren } from "../types/typeCheckScope"
+import { failure } from "../utils"
 import { runWithoutSnapshotOrPatches } from "./core"
 import { isTypeCheckingAllowed } from "./withoutTypeChecking"
 
@@ -75,7 +76,7 @@ function getTouchedChildrenRelativeToChangedObj(
 
   const patchesLength = patches.length
   if (patchesLength <= 0) {
-    return new Set<PathElement>()
+    throw failure("assertion error: patches must be non-empty when provided")
   }
 
   // Hot path: most updates produce a single patch.
@@ -145,5 +146,5 @@ function findNearestParentModelWithTypeCheckerAndPath(child: object):
     current = parent
   }
 
-  return undefined
+  throw failure("assertion error: failed to resolve parent path for type checking")
 }

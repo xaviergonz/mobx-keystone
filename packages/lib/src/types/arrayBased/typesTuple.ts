@@ -1,4 +1,4 @@
-import { isArray, lazy } from "../../utils"
+import { failure, isArray, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
@@ -67,7 +67,7 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
 
           const childCheckScope = getChildCheckScope(typeCheckScope, index)
           if (childCheckScope === null) {
-            return null
+            throw failure("assertion error: tuple child scope should not be null")
           }
 
           return checkers[index].check(

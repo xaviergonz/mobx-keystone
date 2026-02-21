@@ -1,4 +1,4 @@
-import { isArray } from "../../utils"
+import { failure, isArray } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
@@ -63,7 +63,7 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
 
           const childCheckScope = getChildCheckScope(typeCheckScope, index)
           if (childCheckScope === null) {
-            return null
+            throw failure("assertion error: array child scope should not be null")
           }
 
           return itemChecker.check(

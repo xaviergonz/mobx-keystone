@@ -1,7 +1,7 @@
 import { fastGetParentPathIncludingDataObjects } from "../parent/path"
 import type { Path, PathElement } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
-import { isArray, isObject, isPrimitive, lazy } from "../utils"
+import { failure, isArray, isObject, isPrimitive, lazy } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { AnyStandardType } from "./schemas"
 import { TypeCheckError } from "./TypeCheckError"
@@ -64,7 +64,7 @@ export function getTypeCheckerBaseTypeFromValue(value: any): TypeCheckerBaseType
  */
 export function invalidateCachedTypeCheckerResult(obj: object, touchedChildren: TouchedChildren) {
   if (touchedChildren !== "all" && touchedChildren.size <= 0) {
-    return
+    throw failure("assertion error: touchedChildren must not be empty")
   }
 
   const invalidateForCurrentObject = (
@@ -175,7 +175,7 @@ export class TypeChecker {
 
   invalidateCachedResultByPaths(obj: object, touchedChildren: TouchedChildren) {
     if (touchedChildren !== "all" && touchedChildren.size <= 0) {
-      return
+      throw failure("assertion error: touchedChildren must not be empty")
     }
 
     this.checkResultCache?.delete(obj)

@@ -82,6 +82,7 @@ export function getChildCheckScope(
   const remainingLength = pathToChangedObj.length - pathOffset
   if (remainingLength > 0) {
     if (pathToChangedObj[pathOffset] !== childPathElement) {
+      // different branch than the one touched: skip partial validation for this child
       return null
     }
 
@@ -92,6 +93,7 @@ export function getChildCheckScope(
         touchedChildren
       )
       if (isTypeCheckScopeEmpty(childCheckScope)) {
+        // path is consumed but no child was touched under it
         return null
       }
       return childCheckScope
