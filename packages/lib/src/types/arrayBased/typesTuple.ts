@@ -1,4 +1,4 @@
-import { isArray, lazy } from "../../utils"
+import { failure, isArray, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
@@ -11,6 +11,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
 
 /**
  * A type that represents an tuple of values of a given type.
@@ -44,7 +45,7 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
-      (array, path, typeCheckedValue) => {
+      (array, path, typeCheckedValue, typeCheckScope) => {
         if (!isArray(array) || array.length !== itemTypes.length) {
           return new TypeCheckError({
             path,
@@ -54,15 +55,60 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
           })
         }
 
-        for (let i = 0; i < array.length; i++) {
-          const itemError = checkers[i].check(array[i], [...path, i], typeCheckedValue)
+        const checkItemAtIndex = (index: unknown): TypeCheckError | null => {
+          if (
+            typeof index !== "number" ||
+            !Number.isInteger(index) ||
+            index < 0 ||
+            index >= array.length
+          ) {
+            return null
+          }
+
+          const childCheckScope = getChildCheckScope(typeCheckScope, index)
+          if (childCheckScope === null) {
+            throw failure("assertion error: tuple child scope should not be null")
+          }
+
+          return checkers[index].check(
+            array[index],
+            [...path, index],
+            typeCheckedValue,
+            childCheckScope
+          )
+        }
+
+        if (isTypeCheckScopeAll(typeCheckScope)) {
+          for (let i = 0; i < array.length; i++) {
+            const itemError = checkers[i].check(
+              array[i],
+              [...path, i],
+              typeCheckedValue,
+              allTypeCheckScope
+            )
+            if (itemError) {
+              return itemError
+            }
+          }
+        } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
+          const itemError = checkItemAtIndex(
+            typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset]
+          )
           if (itemError) {
             return itemError
+          }
+        } else {
+          for (const index of typeCheckScope.touchedChildren) {
+            const itemError = checkItemAtIndex(index)
+            if (itemError) {
+              return itemError
+            }
           }
         }
 
         return null
       },
+      undefined,
 
       getTypeName,
       typeInfoGen,

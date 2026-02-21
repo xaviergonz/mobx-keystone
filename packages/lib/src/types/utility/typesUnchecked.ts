@@ -5,6 +5,7 @@ import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
 const unchecked: IdentityType<any> = new TypeChecker(
   TypeCheckerBaseType.Any,
   null,
+  undefined,
   () => "any",
   (t) => new UncheckedTypeInfo(t),
 

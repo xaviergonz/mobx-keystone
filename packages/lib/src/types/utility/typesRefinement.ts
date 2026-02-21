@@ -59,12 +59,15 @@ export function typesRefinement<T extends AnyType>(
     const thisTc: TypeChecker = new TypeChecker(
       baseChecker.baseType,
 
-      (data, path, typeCheckedValue) => {
-        const baseErr = baseChecker.check(data, path, typeCheckedValue)
+      (data, path, typeCheckedValue, partialCheckScope) => {
+        const baseErr = baseChecker.check(data, path, typeCheckedValue, partialCheckScope)
         if (baseErr) {
           return baseErr
         }
 
+        // The refinement function always runs with the full data value regardless of
+        // the partial check scope. This is intentional: cross-property invariants
+        // enforced by refinements must remain fully validated after every change.
         const refinementErr = checkFn(data)
 
         if (refinementErr === true || refinementErr == null) {
@@ -86,6 +89,7 @@ export function typesRefinement<T extends AnyType>(
           })
         }
       },
+      undefined,
 
       getTypeName,
       typeInfoGen,

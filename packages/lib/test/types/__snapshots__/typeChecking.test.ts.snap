@@ -1,5 +1,129 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`auto typechecking handles actions that touch multiple children 1`] = `
+[
+  {
+    "ctx": {
+      "actionName": "setBoth",
+      "args": [
+        "bad",
+        3,
+      ],
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": TouchedPathMultiPatchModel {
+        "$": {
+          "a": 1,
+          "b": 2,
+        },
+        "$modelType": "TouchedPathMultiPatchModel",
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  {
+    "ctx": {
+      "actionName": "setBoth",
+      "args": [
+        "bad",
+        3,
+      ],
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": TouchedPathMultiPatchModel {
+        "$": {
+          "a": 1,
+          "b": 2,
+        },
+        "$modelType": "TouchedPathMultiPatchModel",
+      },
+      "type": "sync",
+    },
+    "result": "throw",
+    "type": "finish",
+  },
+]
+`;
+
+exports[`auto typechecking keeps real '$' object keys in changed-object path 1`] = `
+[
+  {
+    "ctx": {
+      "actionName": "setNestedDollarX",
+      "args": [
+        "bad",
+      ],
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": TouchedPathDollarKeyModel {
+        "$": {
+          "nested": {
+            "$": {
+              "x": 1,
+            },
+          },
+        },
+        "$modelType": "TouchedPathDollarKeyModel",
+      },
+      "type": "sync",
+    },
+    "type": "start",
+  },
+  {
+    "ctx": {
+      "actionName": "setNestedDollarX",
+      "args": [
+        "bad",
+      ],
+      "data": {
+        Symbol(actionTrackingMiddlewareData): {
+          "startAccepted": true,
+          "state": "finished",
+        },
+        Symbol(simpleDataContext): [Circular],
+      },
+      "parentContext": undefined,
+      "rootContext": [Circular],
+      "target": TouchedPathDollarKeyModel {
+        "$": {
+          "nested": {
+            "$": {
+              "x": 1,
+            },
+          },
+        },
+        "$modelType": "TouchedPathDollarKeyModel",
+      },
+      "type": "sync",
+    },
+    "result": "throw",
+    "type": "finish",
+  },
+]
+`;
+
 exports[`model typechecking 1`] = `
 [
   {

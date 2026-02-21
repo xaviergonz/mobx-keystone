@@ -16,6 +16,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { allTypeCheckScope } from "../typeCheckScope"
 import { typesUnchecked } from "./typesUnchecked"
 
 /**
@@ -102,8 +103,13 @@ export function typesOr(
     const thisTc: TypeChecker = new TypeChecker(
       thisTcBaseType,
 
-      (value, path, typeCheckedValue) => {
-        const someMatchingType = checkers.some((tc) => !tc.check(value, path, typeCheckedValue))
+      (value, path, typeCheckedValue, _partialCheckScope) => {
+        // Union types must always full-check every alternative. Partial checking could
+        // produce false positives when overlapping alternatives each pass on different
+        // property subsets without any single alternative passing in full.
+        const someMatchingType = checkers.some(
+          (tc) => !tc.check(value, path, typeCheckedValue, allTypeCheckScope)
+        )
         if (someMatchingType) {
           return null
         } else {
@@ -115,6 +121,7 @@ export function typesOr(
           })
         }
       },
+      undefined,
 
       getTypeName,
       typeInfoGen,

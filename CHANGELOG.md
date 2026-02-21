@@ -4,6 +4,7 @@
 
 - Added `registerModels(...)` to explicitly keep model/data-model class references at runtime (useful in snapshot-heavy apps where imports may be elided).
 - Improved unknown model registry errors to include actionable guidance (`registerModels`, side-effect/runtime imports, and typed/runtime model references).
+- Performance: model auto type-checking is now significantly faster by validating only changed branches and invalidating caches more selectively (including arrays, tuples, records, and wrapper types such as `or`/`refinement`). Before these changes setting a single type-checked property had a penalty of a 95% vs the non type-checked version. After changes this penalty is reduced to a 25% instead.
 
 ## 1.14.0
 

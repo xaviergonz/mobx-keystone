@@ -5,8 +5,12 @@ import { isObject } from "../../utils"
 import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"
 import type { ModelType } from "../schemas"
-import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
 import { TypeCheckError } from "../TypeCheckError"
+import {
+  TypeChecker,
+  TypeCheckerBaseType,
+  TypeInfo,
+} from "../TypeChecker"
 import { typesObject } from "./typesObject"
 
 /**
@@ -35,7 +39,7 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
   const thisTc: TypeChecker = new TypeChecker(
     TypeCheckerBaseType.Object,
 
-    (value, path, typeCheckedValue) => {
+    (value, path, typeCheckedValue, typeCheckScope) => {
       if (!(value instanceof Ref)) {
         return new TypeCheckError({
           path,
@@ -45,8 +49,9 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
         })
       }
 
-      return refDataTypeChecker.check(value.$, path, typeCheckedValue)
+      return refDataTypeChecker.check(value.$, path, typeCheckedValue, typeCheckScope)
     },
+    undefined,
 
     () => typeName,
     (t) => new RefTypeInfo(t),
