@@ -109,8 +109,14 @@ export function typesRefinement<T extends AnyType>(
  * `types.refinement` type info.
  */
 export class RefinementTypeInfo extends TypeInfo {
+  readonly kind = "refinement"
+
   get baseTypeInfo(): TypeInfo {
     return getTypeInfo(this.baseType)
+  }
+
+  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return predicate(this.baseTypeInfo) ? this.baseTypeInfo : undefined
   }
 
   constructor(

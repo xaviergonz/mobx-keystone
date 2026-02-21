@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed a long-standing bug: model auto type-checking now enforces ancestor property refinements (for example refinements on `a.b`) when mutating nested child model data (for example `a.b.x`), while still avoiding unnecessary ancestor checks when no refinement is present on the path.
+- Performance: reduced runtime type-check overhead by caching object prop checker resolution, avoiding success-path child path allocations in object/array/tuple/record checks, and narrowing `types.or` branch checks by base type.
+
 ## 1.15.0
 
 - Added `registerModels(...)` to explicitly keep model/data-model class references at runtime (useful in snapshot-heavy apps where imports may be elided).

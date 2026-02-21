@@ -115,8 +115,14 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
  * `types.arraySet` type info.
  */
 export class ArraySetTypeInfo extends TypeInfo {
+  readonly kind = "arraySet"
+
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
+  }
+
+  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return predicate(this.valueTypeInfo) ? this.valueTypeInfo : undefined
   }
 
   constructor(

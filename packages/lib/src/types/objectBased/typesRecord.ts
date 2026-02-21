@@ -1,3 +1,4 @@
+import type { Path } from "../../parent/pathTypes"
 import { failure, isObject } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { getTypeInfo } from "../getTypeInfo"
@@ -12,6 +13,7 @@ import {
   TypeInfoGen,
 } from "../TypeChecker"
 import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
+import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 /**
  * A type that represents an object-like map, an object with string keys and values all of a same given type.
@@ -31,6 +33,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
 
   return lateTypeChecker(() => {
     const valueChecker = resolveTypeChecker(valueType)
+    const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Record<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
@@ -83,7 +86,17 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
             throw failure("assertion error: record child scope should not be null")
           }
 
-          return valueChecker.check(obj[key], [...path, key], typeCheckedValue, childCheckScope)
+          const valueError = valueChecker.check(
+            obj[key],
+            emptyChildPath,
+            typeCheckedValue,
+            childCheckScope
+          )
+          if (!valueError) {
+            return null
+          }
+
+          return prependPathElementToTypeCheckError(valueError, path, key, typeCheckedValue)
         }
 
         if (isTypeCheckScopeAll(typeCheckScope)) {
@@ -93,12 +106,12 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
             const v = obj[k]
             const valueError = valueChecker.check(
               v,
-              [...path, k],
+              emptyChildPath,
               typeCheckedValue,
               allTypeCheckScope
             )
             if (valueError) {
-              return valueError
+              return prependPathElementToTypeCheckError(valueError, path, k, typeCheckedValue)
             }
           }
         } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
@@ -161,8 +174,16 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
  * `types.record` type info.
  */
 export class RecordTypeInfo extends TypeInfo {
+  readonly kind = "record"
+
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
+  }
+
+  override findChildTypeInfo(
+    predicate: (childTypeInfo: TypeInfo) => boolean
+  ): TypeInfo | undefined {
+    return predicate(this.valueTypeInfo) ? this.valueTypeInfo : undefined
   }
 
   constructor(

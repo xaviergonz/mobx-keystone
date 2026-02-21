@@ -338,7 +338,25 @@ export function isLateTypeChecker(ltc: unknown): ltc is LateTypeChecker {
  * Type info base class.
  */
 export class TypeInfo {
+  readonly kind: string = "typeInfo"
+
   constructor(readonly thisType: AnyStandardType) {}
+
+  isTopLevelPropertyContainer(): boolean {
+    return false
+  }
+
+  getTopLevelPropertyTypeInfo(_propertyName: string): TypeInfo | undefined {
+    return undefined
+  }
+
+  shouldTraverseChildrenAfterTopLevelPropertySelection(): boolean {
+    return true
+  }
+
+  findChildTypeInfo(_predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return undefined
+  }
 }
 
 /**

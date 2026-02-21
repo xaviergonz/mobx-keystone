@@ -89,4 +89,6 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
 /**
  * `types.ref` type info.
  */
-export class RefTypeInfo extends TypeInfo {}
+export class RefTypeInfo extends TypeInfo {
+  readonly kind = "ref"
+}
