@@ -184,11 +184,26 @@ export function typesOr(
  * `types.or` type info.
  */
 export class OrTypeInfo extends TypeInfo {
+  readonly kind = "or"
+
   // memoize to always return the same array on the getter
   private _orTypeInfos = lazy(() => this.orTypes.map(getTypeInfo))
 
   get orTypeInfos(): ReadonlyArray<TypeInfo> {
     return this._orTypeInfos()
+  }
+
+  override findChildTypeInfo(
+    predicate: (childTypeInfo: TypeInfo) => boolean
+  ): TypeInfo | undefined {
+    const { orTypeInfos } = this
+    for (let i = 0; i < orTypeInfos.length; i++) {
+      const childTypeInfo = orTypeInfos[i]
+      if (predicate(childTypeInfo)) {
+        return childTypeInfo
+      }
+    }
+    return undefined
   }
 
   constructor(

@@ -126,8 +126,14 @@ export function typesObjectMap<T extends AnyType>(
  * `types.objectMap` type info.
  */
 export class ObjectMapTypeInfo extends TypeInfo {
+  readonly kind = "objectMap"
+
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
+  }
+
+  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return predicate(this.valueTypeInfo) ? this.valueTypeInfo : undefined
   }
 
   constructor(

@@ -154,8 +154,14 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
  * `types.array` type info.
  */
 export class ArrayTypeInfo extends TypeInfo {
+  readonly kind = "array"
+
   get itemTypeInfo(): TypeInfo {
     return getTypeInfo(this.itemType)
+  }
+
+  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return predicate(this.itemTypeInfo) ? this.itemTypeInfo : undefined
   }
 
   constructor(

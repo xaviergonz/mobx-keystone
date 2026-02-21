@@ -66,6 +66,8 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
  * `types.literal` type info.
  */
 export class LiteralTypeInfo extends TypeInfo {
+  readonly kind = "literal"
+
   constructor(
     thisType: AnyStandardType,
     readonly literal: PrimitiveValue
@@ -132,7 +134,9 @@ standardTypeResolvers.push((v) => (v === Boolean ? typesBoolean : undefined))
 /**
  * `types.boolean` type info.
  */
-export class BooleanTypeInfo extends TypeInfo {}
+export class BooleanTypeInfo extends TypeInfo {
+  readonly kind = "boolean"
+}
 
 /**
  * A type that represents any number value.
@@ -168,7 +172,9 @@ standardTypeResolvers.push((v) => (v === Number ? typesNumber : undefined))
 /**
  * `types.number` type info.
  */
-export class NumberTypeInfo extends TypeInfo {}
+export class NumberTypeInfo extends TypeInfo {
+  readonly kind = "number"
+}
 
 /**
  * A type that represents any string value.
@@ -204,7 +210,9 @@ standardTypeResolvers.push((v) => (v === String ? typesString : undefined))
 /**
  * `types.string` type info.
  */
-export class StringTypeInfo extends TypeInfo {}
+export class StringTypeInfo extends TypeInfo {
+  readonly kind = "string"
+}
 
 /**
  * @internal

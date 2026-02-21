@@ -1308,6 +1308,182 @@ test("auto typechecking skips models without a runtime type checker", () => {
   expect(m.value).toBe("bad")
 })
 
+test("auto typechecking on nested model changes enforces parent property refinement", () => {
+  @testModel("AutoTypecheckParentRefinementChildModel")
+  class AutoTypecheckParentRefinementChildModel extends Model({
+    x: tProp(types.number),
+  }) {
+    @modelAction
+    setX(v: number) {
+      this.x = v
+    }
+  }
+
+  const positiveXChildType = types.refinement(
+    types.model(AutoTypecheckParentRefinementChildModel),
+    (child) => child.x > 0,
+    "positiveXChild"
+  )
+
+  @testModel("AutoTypecheckParentRefinementParentModel")
+  class AutoTypecheckParentRefinementParentModel extends Model({
+    child: tProp(positiveXChildType),
+  }) {}
+
+  const parent = new AutoTypecheckParentRefinementParentModel({
+    child: new AutoTypecheckParentRefinementChildModel({ x: 1 }),
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    expect(() => parent.child.setX(-1)).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(parent.child.x).toBe(1)
+  expect(parent.typeCheck()).toBeNull()
+})
+
+test("auto typechecking does NOT promote when child model has own refinement but parent has none", () => {
+  // Child model uses types.integer (a refinement) on its own prop.
+  // Parent model wraps child WITHOUT any parent-level refinement.
+  // Mutating the child should be caught by the child model's own type-checking,
+  // not by promoting to the parent.
+  @testModel("NoPromoteChildWithOwnRefinement")
+  class NoPromoteChild extends Model({
+    x: tProp(types.integer),
+  }) {
+    @modelAction
+    setX(v: number) {
+      this.x = v
+    }
+  }
+
+  @testModel("NoPromoteParentNoRefinement")
+  class NoPromoteParent extends Model({
+    child: tProp(types.model(NoPromoteChild)),
+  }) {}
+
+  const parent = new NoPromoteParent({
+    child: new NoPromoteChild({ x: 1 }),
+  })
+
+  // Setting a non-integer should be caught by the child's own type-checking
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    expect(() => parent.child.setX(1.5)).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(parent.child.x).toBe(1)
+  expect(parent.typeCheck()).toBeNull()
+})
+
+test("auto typechecking promotes through deeply nested grandparent refinement", () => {
+  @testModel("DeepRefinementGrandchild")
+  class DeepGrandchild extends Model({
+    value: tProp(types.number),
+  }) {
+    @modelAction
+    setValue(v: number) {
+      this.value = v
+    }
+  }
+
+  @testModel("DeepRefinementChild")
+  class DeepChild extends Model({
+    grandchild: tProp(types.model(DeepGrandchild)),
+  }) {}
+
+  const positiveGrandchildValueType = types.refinement(
+    types.model(DeepChild),
+    (child) => child.grandchild.value > 0,
+    "positiveGrandchildValue"
+  )
+
+  @testModel("DeepRefinementGrandparent")
+  class DeepGrandparent extends Model({
+    child: tProp(positiveGrandchildValueType),
+  }) {}
+
+  const gp = new DeepGrandparent({
+    child: new DeepChild({
+      grandchild: new DeepGrandchild({ value: 5 }),
+    }),
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    expect(() => gp.child.grandchild.setValue(-1)).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+
+  expect(gp.child.grandchild.value).toBe(5)
+  expect(gp.typeCheck()).toBeNull()
+})
+
+test("refinement cache is reused across multiple mutations on same model class", () => {
+  @testModel("CacheReuseChild")
+  class CacheReuseChild extends Model({
+    x: tProp(types.number),
+  }) {
+    @modelAction
+    setX(v: number) {
+      this.x = v
+    }
+  }
+
+  const positiveChildType = types.refinement(
+    types.model(CacheReuseChild),
+    (child) => child.x > 0,
+    "positiveChild"
+  )
+
+  @testModel("CacheReuseParent")
+  class CacheReuseParent extends Model({
+    child: tProp(positiveChildType),
+  }) {}
+
+  const p1 = new CacheReuseParent({
+    child: new CacheReuseChild({ x: 1 }),
+  })
+  const p2 = new CacheReuseParent({
+    child: new CacheReuseChild({ x: 2 }),
+  })
+
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+  try {
+    // First mutation triggers cache population
+    expect(() => p1.child.setX(-1)).toThrow(TypeCheckErrorFailure)
+    expect(p1.child.x).toBe(1)
+
+    // Second mutation on a different instance of the same class should hit cache
+    expect(() => p2.child.setX(-2)).toThrow(TypeCheckErrorFailure)
+    expect(p2.child.x).toBe(2)
+  } finally {
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff,
+    })
+  }
+})
+
 @testModel("TouchedPathDollarKeyModel")
 class TouchedPathDollarKeyModel extends Model({
   nested: tProp(

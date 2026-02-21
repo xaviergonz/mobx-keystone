@@ -283,6 +283,8 @@ export interface ObjectTypeInfoProps {
  * `types.object` type info.
  */
 export class ObjectTypeInfo extends TypeInfo {
+  readonly kind = "object"
+
   // memoize to always return the same object
   private _props = lazy(() => {
     const objSchema = this._objTypeFn()
@@ -297,6 +299,28 @@ export class ObjectTypeInfo extends TypeInfo {
 
   get props(): ObjectTypeInfoProps {
     return this._props()
+  }
+
+  override isTopLevelPropertyContainer(): boolean {
+    return true
+  }
+
+  override getTopLevelPropertyTypeInfo(propertyName: string): TypeInfo | undefined {
+    return this.props[propertyName]?.typeInfo
+  }
+
+  override findChildTypeInfo(
+    predicate: (childTypeInfo: TypeInfo) => boolean
+  ): TypeInfo | undefined {
+    const props = this.props
+    const propNames = Object.keys(props)
+    for (let i = 0; i < propNames.length; i++) {
+      const childTypeInfo = props[propNames[i]].typeInfo
+      if (predicate(childTypeInfo)) {
+        return childTypeInfo
+      }
+    }
+    return undefined
   }
 
   constructor(
@@ -336,8 +360,14 @@ export function typesFrozen<T extends AnyType>(dataType: T): ModelType<Frozen<Ty
  * `types.frozen` type info.
  */
 export class FrozenTypeInfo extends TypeInfo {
+  readonly kind = "frozen"
+
   get dataTypeInfo(): TypeInfo {
     return getTypeInfo(this.dataType)
+  }
+
+  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return predicate(this.dataTypeInfo) ? this.dataTypeInfo : undefined
   }
 
   constructor(

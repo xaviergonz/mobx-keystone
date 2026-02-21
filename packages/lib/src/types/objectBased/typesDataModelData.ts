@@ -131,6 +131,8 @@ export interface DataModelDataTypeInfoProps {
  * `types.dataModelData` type info.
  */
 export class DataModelDataTypeInfo extends TypeInfo {
+  readonly kind = "dataModelData"
+
   private _props = lazy(() => {
     const objSchema = getInternalModelClassPropsInfo(this.modelClass)
 
@@ -167,6 +169,32 @@ export class DataModelDataTypeInfo extends TypeInfo {
 
   get props(): DataModelDataTypeInfoProps {
     return this._props()
+  }
+
+  override isTopLevelPropertyContainer(): boolean {
+    return true
+  }
+
+  override getTopLevelPropertyTypeInfo(propertyName: string): TypeInfo | undefined {
+    return this.props[propertyName]?.typeInfo
+  }
+
+  override shouldTraverseChildrenAfterTopLevelPropertySelection(): boolean {
+    return false
+  }
+
+  override findChildTypeInfo(
+    predicate: (childTypeInfo: TypeInfo) => boolean
+  ): TypeInfo | undefined {
+    const props = this.props
+    const propNames = Object.keys(props)
+    for (let i = 0; i < propNames.length; i++) {
+      const childTypeInfo = props[propNames[i]].typeInfo
+      if (childTypeInfo && predicate(childTypeInfo)) {
+        return childTypeInfo
+      }
+    }
+    return undefined
   }
 
   get modelType(): string {

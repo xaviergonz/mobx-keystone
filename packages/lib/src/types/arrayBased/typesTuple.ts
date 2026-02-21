@@ -149,11 +149,26 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
  * `types.tuple` type info.
  */
 export class TupleTypeInfo extends TypeInfo {
+  readonly kind = "tuple"
+
   // memoize to always return the same array on the getter
   private _itemTypeInfos = lazy(() => this.itemTypes.map(getTypeInfo))
 
   get itemTypeInfos(): ReadonlyArray<TypeInfo> {
     return this._itemTypeInfos()
+  }
+
+  override findChildTypeInfo(
+    predicate: (childTypeInfo: TypeInfo) => boolean
+  ): TypeInfo | undefined {
+    const itemTypeInfos = this.itemTypeInfos
+    for (let i = 0; i < itemTypeInfos.length; i++) {
+      const childTypeInfo = itemTypeInfos[i]
+      if (predicate(childTypeInfo)) {
+        return childTypeInfo
+      }
+    }
+    return undefined
   }
 
   constructor(

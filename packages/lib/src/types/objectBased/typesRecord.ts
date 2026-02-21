@@ -161,8 +161,14 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
  * `types.record` type info.
  */
 export class RecordTypeInfo extends TypeInfo {
+  readonly kind = "record"
+
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
+  }
+
+  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return predicate(this.valueTypeInfo) ? this.valueTypeInfo : undefined
   }
 
   constructor(

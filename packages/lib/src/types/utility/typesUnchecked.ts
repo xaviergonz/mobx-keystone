@@ -36,4 +36,6 @@ export function typesUnchecked<T = never>(): IdentityType<T> {
 /**
  * `types.unchecked` type info.
  */
-export class UncheckedTypeInfo extends TypeInfo {}
+export class UncheckedTypeInfo extends TypeInfo {
+  readonly kind = "unchecked"
+}

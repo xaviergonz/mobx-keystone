@@ -72,8 +72,14 @@ export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: s
  * `types.tag` type info.
  */
 export class TagTypeInfo<A> extends TypeInfo {
+  readonly kind = "tag"
+
   get baseTypeInfo(): TypeInfo {
     return getTypeInfo(this.baseType)
+  }
+
+  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
+    return predicate(this.baseTypeInfo) ? this.baseTypeInfo : undefined
   }
 
   constructor(
