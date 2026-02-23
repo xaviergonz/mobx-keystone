@@ -16,7 +16,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { allTypeCheckScope } from "../typeCheckScope"
 import { typesUnchecked } from "./typesUnchecked"
 
 /**
@@ -128,7 +127,9 @@ export function typesOr(
       }
     }
 
-    const getCandidateCheckers = (valueBaseType: TypeCheckerBaseType): ReadonlyArray<TypeChecker> => {
+    const getCandidateCheckers = (
+      valueBaseType: TypeCheckerBaseType
+    ): ReadonlyArray<TypeChecker> => {
       switch (valueBaseType) {
         case TypeCheckerBaseType.Primitive:
           return primitiveOrAnyCheckers
@@ -146,7 +147,7 @@ export function typesOr(
     const thisTc: TypeChecker = new TypeChecker(
       thisTcBaseType,
 
-      (value, path, typeCheckedValue, _partialCheckScope) => {
+      (value, path, typeCheckedValue) => {
         // Union types must always full-check every alternative. Partial checking could
         // produce false positives when overlapping alternatives each pass on different
         // property subsets without any single alternative passing in full.
@@ -155,7 +156,7 @@ export function typesOr(
 
         for (let i = 0; i < candidateCheckers.length; i++) {
           const tc = candidateCheckers[i]
-          if (!tc.check(value, path, typeCheckedValue, allTypeCheckScope)) {
+          if (!tc.check(value, path, typeCheckedValue)) {
             return null
           }
         }
@@ -167,7 +168,6 @@ export function typesOr(
           typeCheckedValue,
         })
       },
-      undefined,
 
       getTypeName,
       typeInfoGen,
@@ -234,19 +234,6 @@ export class OrTypeInfo extends TypeInfo {
 
   get orTypeInfos(): ReadonlyArray<TypeInfo> {
     return this._orTypeInfos()
-  }
-
-  override findChildTypeInfo(
-    predicate: (childTypeInfo: TypeInfo) => boolean
-  ): TypeInfo | undefined {
-    const { orTypeInfos } = this
-    for (let i = 0; i < orTypeInfos.length; i++) {
-      const childTypeInfo = orTypeInfos[i]
-      if (predicate(childTypeInfo)) {
-        return childTypeInfo
-      }
-    }
-    return undefined
   }
 
   constructor(

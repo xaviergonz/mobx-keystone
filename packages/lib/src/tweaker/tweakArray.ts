@@ -1,4 +1,5 @@
 import {
+  IArrayDidChange,
   IArrayWillChange,
   IArrayWillSplice,
   IObservableArray,
@@ -120,7 +121,7 @@ const patchRecorder = new InternalPatchRecorder()
 
 const emptyPath: Path = Object.freeze([])
 
-function arrayDidChange(change: any /*IArrayDidChange*/) {
+function arrayDidChange(change: IArrayDidChange) {
   const arr = change.object
   const oldSnapshot = getInternalSnapshot(arr as Array<unknown>)!.untransformed
 

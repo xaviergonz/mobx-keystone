@@ -17,6 +17,7 @@ import { typeCheck } from "../types/typeCheck"
 import { failure, isObject } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
+import { getDataModelMetadata } from "./getDataModelMetadata"
 import { internalNewDataModel } from "./newDataModel"
 
 const dataModelInstanceCache = new WeakMap<ModelClass<AnyDataModel>, WeakMap<any, AnyDataModel>>()
@@ -51,6 +52,10 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
    * @returns A `TypeCheckError` or `null` if there is no error.
    */
   typeCheck(): TypeCheckError | null {
+    // Data models without a dataType have nothing to check.
+    if (!getDataModelMetadata(this.constructor as any).dataType) {
+      return null
+    }
     const type = typesDataModelData<this>(this.constructor as any)
     return typeCheck(type, this.$ as any)
   }

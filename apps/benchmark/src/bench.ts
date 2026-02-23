@@ -4,8 +4,8 @@ import chalk from "chalk"
 export type ExtrasToRun = ("es6" | "mobx")[]
 
 function readPositiveNumberEnv(varName: string, fallback: number): number {
-  const rawValue = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process
-    ?.env?.[varName]
+  const rawValue = (globalThis as { process?: { env?: Record<string, string | undefined> } })
+    .process?.env?.[varName]
   if (!rawValue) {
     return fallback
   }
@@ -15,8 +15,8 @@ function readPositiveNumberEnv(varName: string, fallback: number): number {
 }
 
 function readStringEnv(varName: string): string | undefined {
-  const rawValue = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process
-    ?.env?.[varName]
+  const rawValue = (globalThis as { process?: { env?: Record<string, string | undefined> } })
+    .process?.env?.[varName]
   return rawValue ? rawValue : undefined
 }
 
@@ -33,8 +33,8 @@ export function bench(
     return
   }
 
-  const maxTime = readPositiveNumberEnv("BENCH_MAX_TIME", 0.5)
-  const minSamples = Math.floor(readPositiveNumberEnv("BENCH_MIN_SAMPLES", 30))
+  const maxTime = readPositiveNumberEnv("BENCH_MAX_TIME", 2)
+  const minSamples = Math.floor(readPositiveNumberEnv("BENCH_MIN_SAMPLES", 50))
 
   let suite = new Benchmark.Suite(name)
 

@@ -11,16 +11,16 @@ import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
 import { failure, lazy } from "../../utils"
+import { getTypeInfo } from "../getTypeInfo"
+import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
+import type { AnyStandardType, IdentityType } from "../schemas"
 import {
+  lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   TypeInfoGen,
-  lateTypeChecker,
 } from "../TypeChecker"
-import { getTypeInfo } from "../getTypeInfo"
-import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
-import type { AnyStandardType, IdentityType } from "../schemas"
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
 
@@ -85,10 +85,9 @@ export function typesDataModelData<M = never, K = M>(
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
 
-        (value, path, typeCheckedValue, partialCheckScope) => {
-          return resolvedDataTypeChecker.check(value, path, typeCheckedValue, partialCheckScope)
+        (value, path, typeCheckedValue) => {
+          return resolvedDataTypeChecker.check(value, path, typeCheckedValue)
         },
-        undefined,
 
         () => typeName,
         typeInfoGen,
@@ -169,32 +168,6 @@ export class DataModelDataTypeInfo extends TypeInfo {
 
   get props(): DataModelDataTypeInfoProps {
     return this._props()
-  }
-
-  override isTopLevelPropertyContainer(): boolean {
-    return true
-  }
-
-  override getTopLevelPropertyTypeInfo(propertyName: string): TypeInfo | undefined {
-    return this.props[propertyName]?.typeInfo
-  }
-
-  override shouldTraverseChildrenAfterTopLevelPropertySelection(): boolean {
-    return false
-  }
-
-  override findChildTypeInfo(
-    predicate: (childTypeInfo: TypeInfo) => boolean
-  ): TypeInfo | undefined {
-    const props = this.props
-    const propNames = Object.keys(props)
-    for (let i = 0; i < propNames.length; i++) {
-      const childTypeInfo = props[propNames[i]].typeInfo
-      if (childTypeInfo && predicate(childTypeInfo)) {
-        return childTypeInfo
-      }
-    }
-    return undefined
   }
 
   get modelType(): string {

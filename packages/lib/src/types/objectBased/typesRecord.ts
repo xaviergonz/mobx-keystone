@@ -1,6 +1,8 @@
+import { isObservableObject, keys } from "mobx"
 import type { Path } from "../../parent/pathTypes"
 import { failure, isObject } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
+import { createPerEntryCachedCheck, recordCachePruning } from "../createPerEntryCachedCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, RecordType } from "../schemas"
@@ -12,7 +14,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 /**
@@ -59,10 +60,32 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       return newObj
     }
 
+    const checkRecordValues = createPerEntryCachedCheck(
+      (obj, checkEntry) => {
+        // Use keys() from MobX for observable objects to track key additions/removals
+        // in MobX 4 (which lacks Proxy). Object.keys() doesn't establish MobX tracking
+        // in MobX 4, so the aggregation computed would miss newly added keys.
+        const objKeys = isObservableObject(obj) ? keys(obj) : Object.keys(obj)
+        for (let i = 0; i < objKeys.length; i++) {
+          const error = checkEntry(objKeys[i])
+          if (error) return error
+        }
+        return null
+      },
+      (obj, key, path, typeCheckedValue) => {
+        if (typeof key !== "string") {
+          throw failure(`record type keys must be strings, got ${typeof key}`)
+        }
+        const error = valueChecker.check(obj[key], emptyChildPath, typeCheckedValue)
+        return error ? prependPathElementToTypeCheckError(error, path, key, typeCheckedValue) : null
+      },
+      recordCachePruning
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
-      (obj, path, typeCheckedValue, typeCheckScope) => {
+      (obj, path, typeCheckedValue) => {
         if (!isObject(obj)) {
           return new TypeCheckError({
             path,
@@ -76,63 +99,8 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
           return null
         }
 
-        const checkValueAtKey = (key: unknown): TypeCheckError | null => {
-          if (typeof key !== "string" || !Object.hasOwn(obj, key)) {
-            return null
-          }
-
-          const childCheckScope = getChildCheckScope(typeCheckScope, key)
-          if (childCheckScope === null) {
-            throw failure("assertion error: record child scope should not be null")
-          }
-
-          const valueError = valueChecker.check(
-            obj[key],
-            emptyChildPath,
-            typeCheckedValue,
-            childCheckScope
-          )
-          if (!valueError) {
-            return null
-          }
-
-          return prependPathElementToTypeCheckError(valueError, path, key, typeCheckedValue)
-        }
-
-        if (isTypeCheckScopeAll(typeCheckScope)) {
-          const keys = Object.keys(obj)
-          for (let i = 0; i < keys.length; i++) {
-            const k = keys[i]
-            const v = obj[k]
-            const valueError = valueChecker.check(
-              v,
-              emptyChildPath,
-              typeCheckedValue,
-              allTypeCheckScope
-            )
-            if (valueError) {
-              return prependPathElementToTypeCheckError(valueError, path, k, typeCheckedValue)
-            }
-          }
-        } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
-          const valueError = checkValueAtKey(
-            typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset]
-          )
-          if (valueError) {
-            return valueError
-          }
-        } else {
-          for (const touchedChild of typeCheckScope.touchedChildren) {
-            const valueError = checkValueAtKey(touchedChild)
-            if (valueError) {
-              return valueError
-            }
-          }
-        }
-
-        return null
+        return checkRecordValues(obj, path, typeCheckedValue)
       },
-      undefined,
 
       getTypeName,
       typeInfoGen,
@@ -178,12 +146,6 @@ export class RecordTypeInfo extends TypeInfo {
 
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
-  }
-
-  override findChildTypeInfo(
-    predicate: (childTypeInfo: TypeInfo) => boolean
-  ): TypeInfo | undefined {
-    return predicate(this.valueTypeInfo) ? this.valueTypeInfo : undefined
   }
 
   constructor(
