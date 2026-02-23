@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.17.0
 
 - Performance: model auto type-checking is now faster for updates in large or deeply nested models. Type checks now re-run only for changed properties while unchanged branches reuse cached results, reducing repeated validation work during frequent updates. This is an internal optimization and does not change the public API.
 
