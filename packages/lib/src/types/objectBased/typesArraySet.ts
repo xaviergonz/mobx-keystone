@@ -47,7 +47,7 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object, // because it is really a model
 
-      (obj, path, typeCheckedValue, partialCheckScope) => {
+      (obj, path, typeCheckedValue) => {
         if (!(obj instanceof ArraySet)) {
           return new TypeCheckError({
             path,
@@ -58,9 +58,8 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
         }
 
         const resolvedTc = resolveTypeChecker(dataTypeChecker)
-        return resolvedTc.check(obj.$, path, typeCheckedValue, partialCheckScope)
+        return resolvedTc.check(obj.$, path, typeCheckedValue)
       },
-      undefined,
 
       getTypeName,
       typeInfoGen,
@@ -119,10 +118,6 @@ export class ArraySetTypeInfo extends TypeInfo {
 
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
-  }
-
-  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
-    return predicate(this.valueTypeInfo) ? this.valueTypeInfo : undefined
   }
 
   constructor(

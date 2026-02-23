@@ -1,9 +1,9 @@
 import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
 import type { Path } from "../../parent/pathTypes"
-import { isTweakedObject } from "../../tweaker/core"
-import { assertIsFunction, assertIsObject, failure, isObject, lazy } from "../../utils"
+import { assertIsFunction, assertIsObject, isObject, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
+import { createPerEntryCachedCheck } from "../createPerEntryCachedCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type {
@@ -22,7 +22,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { getChildCheckScope, isTypeCheckScopeAll, type TypeCheckScope } from "../typeCheckScope"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
@@ -35,6 +34,10 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
     type SchemaEntry = Readonly<{
       propName: string
       getResolvedChecker: () => TypeChecker
+    }>
+    type CheckedSchemaEntry = Readonly<{
+      propName: string
+      checker: TypeChecker
     }>
 
     const schemaEntries: ReadonlyArray<SchemaEntry> = Object.entries(objectSchema).map(
@@ -58,7 +61,23 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       schemaEntryByPropName[schemaEntry.propName] = schemaEntry
     }
 
-    const cachedPropCheckResults = new WeakMap<object, Map<string, TypeCheckError | null>>()
+    // Precompute the entries we actually need to type-check.
+    // This avoids per-check branching for unchecked props and checker re-resolution.
+    const checkedSchemaEntries = lazy(() => {
+      const checkedEntries: CheckedSchemaEntry[] = []
+      for (let i = 0; i < schemaEntries.length; i++) {
+        const schemaEntry = schemaEntries[i]
+        const checker = schemaEntry.getResolvedChecker()
+        if (!checker.unchecked) {
+          checkedEntries.push({
+            propName: schemaEntry.propName,
+            checker,
+          })
+        }
+      }
+      return checkedEntries
+    })
+
     const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
@@ -111,133 +130,40 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       return null
     }
 
-    const checkObjectProps = (
-      obj: any,
-      path: Path,
-      typeCheckedValue: any,
-      typeCheckScope: TypeCheckScope
-    ) => {
-      const getOrCreateCachedPropCheckResults = (
-        cacheObj: object
-      ): Map<string, TypeCheckError | null> => {
-        let cache = cachedPropCheckResults.get(cacheObj)
-        if (!cache) {
-          cache = new Map<string, TypeCheckError | null>()
-          cachedPropCheckResults.set(cacheObj, cache)
-          thisTc.registerExternalCachedResult(cacheObj)
+    // No setupCachePruning needed: iterates fixed schemaEntries, not dynamic object keys,
+    // so entries never become stale.
+    const checkObjectProps = createPerEntryCachedCheck<number>(
+      (_obj, checkEntry) => {
+        const entries = checkedSchemaEntries()
+        for (let i = 0; i < entries.length; i++) {
+          const error = checkEntry(i)
+          if (error) return error
         }
-        return cache
-      }
-
-      const isPropCacheableObject = isTweakedObject(obj, true)
-      let propCheckResultsByName: Map<string, TypeCheckError | null> | undefined
-
-      const checkProp = (schemaEntry: SchemaEntry) => {
-        const propName = schemaEntry.propName
-        const childCheckScope = getChildCheckScope(typeCheckScope, propName)
-        if (childCheckScope === null) {
+        return null
+      },
+      (obj, entryIndex, path, typeCheckedValue) => {
+        const entry = checkedSchemaEntries()[entryIndex]
+        if (!entry) {
           return null
         }
 
-        const canUsePropCache = isPropCacheableObject && isTypeCheckScopeAll(childCheckScope)
-
-        if (canUsePropCache && !propCheckResultsByName) {
-          propCheckResultsByName = getOrCreateCachedPropCheckResults(obj)
-        }
-
-        let valueError: TypeCheckError | null | undefined
-        const cachedValue = canUsePropCache ? propCheckResultsByName!.get(propName) : undefined
-        if (cachedValue !== undefined) {
-          valueError = cachedValue
-        } else {
-          const tc = schemaEntry.getResolvedChecker()
-          valueError = tc.check(obj[propName], emptyChildPath, typeCheckedValue, childCheckScope)
-          if (canUsePropCache) {
-            propCheckResultsByName!.set(propName, valueError)
-          }
-        }
-
-        if (valueError) {
-          return prependPathElementToTypeCheckError(valueError, path, propName, typeCheckedValue)
-        }
-
-        return null
+        const error = entry.checker.check(obj[entry.propName], emptyChildPath, typeCheckedValue)
+        return error
+          ? prependPathElementToTypeCheckError(error, path, entry.propName, typeCheckedValue)
+          : null
       }
-
-      const checkPropByPathElement = (pathElement: unknown): TypeCheckError | null => {
-        if (typeof pathElement !== "string") {
-          throw failure("assertion error: object path element must be a string")
-        }
-
-        const schemaEntry = schemaEntryByPropName[pathElement]
-        if (!schemaEntry) {
-          return null
-        }
-
-        return checkProp(schemaEntry)
-      }
-
-      if (isTypeCheckScopeAll(typeCheckScope)) {
-        // note: we allow excess properties when checking objects
-        for (let i = 0; i < schemaEntries.length; i++) {
-          const valueError = checkProp(schemaEntries[i])
-          if (valueError) {
-            return valueError
-          }
-        }
-
-        return null
-      }
-
-      if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
-        return checkPropByPathElement(typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset])
-      }
-
-      for (const touchedChild of typeCheckScope.touchedChildren) {
-        const valueError = checkPropByPathElement(touchedChild)
-        if (valueError) {
-          return valueError
-        }
-      }
-
-      return null
-    }
+    )
 
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
-      (obj, path, typeCheckedValue, typeCheckScope) => {
+      (obj, path, typeCheckedValue) => {
         const objectTypeError = checkObjectType(obj, path, typeCheckedValue)
         if (objectTypeError) {
           return objectTypeError
         }
 
-        return checkObjectProps(obj, path, typeCheckedValue, typeCheckScope)
-      },
-
-      (obj, touchedChildren) => {
-        if (touchedChildren === "all") {
-          cachedPropCheckResults.delete(obj)
-          return
-        }
-
-        const propCheckResultsByName = cachedPropCheckResults.get(obj)
-        if (!propCheckResultsByName) {
-          return
-        }
-
-        if (touchedChildren.size <= 0) {
-          throw failure("assertion error: touchedChildren must not be empty")
-        }
-        for (const keyOrIndex of touchedChildren) {
-          if (typeof keyOrIndex === "string") {
-            propCheckResultsByName.delete(keyOrIndex)
-          }
-        }
-
-        if (propCheckResultsByName.size <= 0) {
-          cachedPropCheckResults.delete(obj)
-        }
+        return checkObjectProps(obj, path, typeCheckedValue)
       },
 
       getTypeName,
@@ -332,28 +258,6 @@ export class ObjectTypeInfo extends TypeInfo {
     return this._props()
   }
 
-  override isTopLevelPropertyContainer(): boolean {
-    return true
-  }
-
-  override getTopLevelPropertyTypeInfo(propertyName: string): TypeInfo | undefined {
-    return this.props[propertyName]?.typeInfo
-  }
-
-  override findChildTypeInfo(
-    predicate: (childTypeInfo: TypeInfo) => boolean
-  ): TypeInfo | undefined {
-    const props = this.props
-    const propNames = Object.keys(props)
-    for (let i = 0; i < propNames.length; i++) {
-      const childTypeInfo = props[propNames[i]].typeInfo
-      if (predicate(childTypeInfo)) {
-        return childTypeInfo
-      }
-    }
-    return undefined
-  }
-
   constructor(
     thisType: AnyStandardType,
     private _objTypeFn: ObjectTypeFunction
@@ -395,10 +299,6 @@ export class FrozenTypeInfo extends TypeInfo {
 
   get dataTypeInfo(): TypeInfo {
     return getTypeInfo(this.dataType)
-  }
-
-  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
-    return predicate(this.dataTypeInfo) ? this.dataTypeInfo : undefined
   }
 
   constructor(

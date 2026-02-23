@@ -19,7 +19,7 @@ import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { setIfDifferent, setIfDifferentWithReturn } from "../utils/setIfDifferent"
 import type { AnyModel } from "./BaseModel"
-import { getModelIdPropertyName, getModelMetadata } from "./getModelMetadata"
+import { getModelIdPropertyName } from "./getModelMetadata"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelTypeKey } from "./metadata"
 import { assertIsModelClass } from "./utils"
@@ -98,7 +98,7 @@ export const internalNewModel = action(
     finalizeNewModel(modelObj, initialData, modelClass)
 
     // type check it if needed
-    if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {
+    if (isModelAutoTypeCheckingEnabled()) {
       const err = modelObj.typeCheck()
       if (err) {
         err.throw()
@@ -252,7 +252,7 @@ export const internalFromSnapshotModel = action(
     }
 
     // type check it if needed
-    if (isModelAutoTypeCheckingEnabled() && getModelMetadata(modelClass).dataType) {
+    if (isModelAutoTypeCheckingEnabled()) {
       const err = modelObj.typeCheck()
       if (err) {
         err.throw()

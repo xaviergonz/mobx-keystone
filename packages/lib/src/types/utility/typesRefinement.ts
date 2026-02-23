@@ -59,8 +59,8 @@ export function typesRefinement<T extends AnyType>(
     const thisTc: TypeChecker = new TypeChecker(
       baseChecker.baseType,
 
-      (data, path, typeCheckedValue, partialCheckScope) => {
-        const baseErr = baseChecker.check(data, path, typeCheckedValue, partialCheckScope)
+      (data, path, typeCheckedValue) => {
+        const baseErr = baseChecker.check(data, path, typeCheckedValue)
         if (baseErr) {
           return baseErr
         }
@@ -89,7 +89,6 @@ export function typesRefinement<T extends AnyType>(
           })
         }
       },
-      undefined,
 
       getTypeName,
       typeInfoGen,
@@ -113,10 +112,6 @@ export class RefinementTypeInfo extends TypeInfo {
 
   get baseTypeInfo(): TypeInfo {
     return getTypeInfo(this.baseType)
-  }
-
-  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
-    return predicate(this.baseTypeInfo) ? this.baseTypeInfo : undefined
   }
 
   constructor(

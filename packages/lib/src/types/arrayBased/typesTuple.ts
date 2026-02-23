@@ -1,6 +1,7 @@
 import type { Path } from "../../parent/pathTypes"
-import { failure, isArray, lazy } from "../../utils"
+import { isArray, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
+import { createPerEntryCachedCheck } from "../createPerEntryCachedCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
@@ -13,7 +14,6 @@ import {
   TypeInfoGen,
 } from "../TypeChecker"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
-import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
 
 /**
  * A type that represents an tuple of values of a given type.
@@ -45,10 +45,27 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
       return "[" + typeNames.join(", ") + "]"
     }
 
+    // No setupCachePruning needed: tuple length is fixed, so entries never become stale.
+    const checkTupleItems = createPerEntryCachedCheck<number>(
+      (_array, checkEntry) => {
+        for (let i = 0; i < checkers.length; i++) {
+          const error = checkEntry(i)
+          if (error) return error
+        }
+        return null
+      },
+      (array, index, path, typeCheckedValue) => {
+        const error = checkers[index].check(array[index], emptyChildPath, typeCheckedValue)
+        return error
+          ? prependPathElementToTypeCheckError(error, path, index, typeCheckedValue)
+          : null
+      }
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
-      (array, path, typeCheckedValue, typeCheckScope) => {
+      (array, path, typeCheckedValue) => {
         if (!isArray(array) || array.length !== itemTypes.length) {
           return new TypeCheckError({
             path,
@@ -58,65 +75,8 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
           })
         }
 
-        const checkItemAtIndex = (index: unknown): TypeCheckError | null => {
-          if (
-            typeof index !== "number" ||
-            !Number.isInteger(index) ||
-            index < 0 ||
-            index >= array.length
-          ) {
-            return null
-          }
-
-          const childCheckScope = getChildCheckScope(typeCheckScope, index)
-          if (childCheckScope === null) {
-            throw failure("assertion error: tuple child scope should not be null")
-          }
-
-          const itemError = checkers[index].check(
-            array[index],
-            emptyChildPath,
-            typeCheckedValue,
-            childCheckScope
-          )
-          if (!itemError) {
-            return null
-          }
-
-          return prependPathElementToTypeCheckError(itemError, path, index, typeCheckedValue)
-        }
-
-        if (isTypeCheckScopeAll(typeCheckScope)) {
-          for (let i = 0; i < array.length; i++) {
-            const itemError = checkers[i].check(
-              array[i],
-              emptyChildPath,
-              typeCheckedValue,
-              allTypeCheckScope
-            )
-            if (itemError) {
-              return prependPathElementToTypeCheckError(itemError, path, i, typeCheckedValue)
-            }
-          }
-        } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
-          const itemError = checkItemAtIndex(
-            typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset]
-          )
-          if (itemError) {
-            return itemError
-          }
-        } else {
-          for (const index of typeCheckScope.touchedChildren) {
-            const itemError = checkItemAtIndex(index)
-            if (itemError) {
-              return itemError
-            }
-          }
-        }
-
-        return null
+        return checkTupleItems(array, path, typeCheckedValue)
       },
-      undefined,
 
       getTypeName,
       typeInfoGen,
@@ -164,19 +124,6 @@ export class TupleTypeInfo extends TypeInfo {
 
   get itemTypeInfos(): ReadonlyArray<TypeInfo> {
     return this._itemTypeInfos()
-  }
-
-  override findChildTypeInfo(
-    predicate: (childTypeInfo: TypeInfo) => boolean
-  ): TypeInfo | undefined {
-    const itemTypeInfos = this.itemTypeInfos
-    for (let i = 0; i < itemTypeInfos.length; i++) {
-      const childTypeInfo = itemTypeInfos[i]
-      if (predicate(childTypeInfo)) {
-        return childTypeInfo
-      }
-    }
-    return undefined
   }
 
   constructor(

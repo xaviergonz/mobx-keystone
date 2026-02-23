@@ -1,6 +1,7 @@
 import type { Path } from "../../parent/pathTypes"
-import { failure, isArray } from "../../utils"
+import { isArray } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
+import { arrayCachePruning, createPerEntryCachedCheck } from "../createPerEntryCachedCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
@@ -12,7 +13,6 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
-import { allTypeCheckScope, getChildCheckScope, isTypeCheckScopeAll } from "../typeCheckScope"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 /**
@@ -37,10 +37,27 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Array<${itemChecker.getTypeName(...recursiveTypeCheckers, itemChecker)}>`
 
+    const checkArrayItems = createPerEntryCachedCheck<number>(
+      (array, checkEntry) => {
+        for (let i = 0; i < array.length; i++) {
+          const error = checkEntry(i)
+          if (error) return error
+        }
+        return null
+      },
+      (array, index, path, typeCheckedValue) => {
+        const error = itemChecker.check(array[index], emptyChildPath, typeCheckedValue)
+        return error
+          ? prependPathElementToTypeCheckError(error, path, index, typeCheckedValue)
+          : null
+      },
+      arrayCachePruning
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
-      (array, path, typeCheckedValue, typeCheckScope) => {
+      (array, path, typeCheckedValue) => {
         if (!isArray(array)) {
           return new TypeCheckError({
             path,
@@ -54,65 +71,8 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
           return null
         }
 
-        const checkItemAtIndex = (index: unknown): TypeCheckError | null => {
-          if (
-            typeof index !== "number" ||
-            !Number.isInteger(index) ||
-            index < 0 ||
-            index >= array.length
-          ) {
-            return null
-          }
-
-          const childCheckScope = getChildCheckScope(typeCheckScope, index)
-          if (childCheckScope === null) {
-            throw failure("assertion error: array child scope should not be null")
-          }
-
-          const itemError = itemChecker.check(
-            array[index],
-            emptyChildPath,
-            typeCheckedValue,
-            childCheckScope
-          )
-          if (!itemError) {
-            return null
-          }
-
-          return prependPathElementToTypeCheckError(itemError, path, index, typeCheckedValue)
-        }
-
-        if (isTypeCheckScopeAll(typeCheckScope)) {
-          for (let i = 0; i < array.length; i++) {
-            const itemError = itemChecker.check(
-              array[i],
-              emptyChildPath,
-              typeCheckedValue,
-              allTypeCheckScope
-            )
-            if (itemError) {
-              return prependPathElementToTypeCheckError(itemError, path, i, typeCheckedValue)
-            }
-          }
-        } else if (typeCheckScope.pathToChangedObj.length > typeCheckScope.pathOffset) {
-          const itemError = checkItemAtIndex(
-            typeCheckScope.pathToChangedObj[typeCheckScope.pathOffset]
-          )
-          if (itemError) {
-            return itemError
-          }
-        } else {
-          for (const index of typeCheckScope.touchedChildren) {
-            const itemError = checkItemAtIndex(index)
-            if (itemError) {
-              return itemError
-            }
-          }
-        }
-
-        return null
+        return checkArrayItems(array, path, typeCheckedValue)
       },
-      undefined,
       getTypeName,
       typeInfoGen,
 
@@ -166,12 +126,6 @@ export class ArrayTypeInfo extends TypeInfo {
 
   get itemTypeInfo(): TypeInfo {
     return getTypeInfo(this.itemType)
-  }
-
-  override findChildTypeInfo(
-    predicate: (childTypeInfo: TypeInfo) => boolean
-  ): TypeInfo | undefined {
-    return predicate(this.itemTypeInfo) ? this.itemTypeInfo : undefined
   }
 
   constructor(

@@ -69,7 +69,7 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
 
-        (value, path, typeCheckedValue, typeCheckScope) => {
+        (value, path, typeCheckedValue) => {
           if (!(value instanceof modelClazz)) {
             return new TypeCheckError({
               path,
@@ -80,17 +80,11 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
           }
 
           if (resolvedDataTypeChecker) {
-            return resolvedDataTypeChecker.check(
-              value.$,
-              path,
-              typeCheckedValue,
-              typeCheckScope
-            )
+            return resolvedDataTypeChecker.check(value.$, path, typeCheckedValue)
           }
 
           return null
         },
-        undefined,
         () => typeName,
         typeInfoGen,
 
@@ -191,32 +185,6 @@ export class ModelTypeInfo extends TypeInfo {
 
   get props(): ModelTypeInfoProps {
     return this._props()
-  }
-
-  override isTopLevelPropertyContainer(): boolean {
-    return true
-  }
-
-  override getTopLevelPropertyTypeInfo(propertyName: string): TypeInfo | undefined {
-    return this.props[propertyName]?.typeInfo
-  }
-
-  override shouldTraverseChildrenAfterTopLevelPropertySelection(): boolean {
-    return false
-  }
-
-  override findChildTypeInfo(
-    predicate: (childTypeInfo: TypeInfo) => boolean
-  ): TypeInfo | undefined {
-    const props = this.props
-    const propNames = Object.keys(props)
-    for (let i = 0; i < propNames.length; i++) {
-      const childTypeInfo = props[propNames[i]].typeInfo
-      if (childTypeInfo && predicate(childTypeInfo)) {
-        return childTypeInfo
-      }
-    }
-    return undefined
   }
 
   get modelType(): string {

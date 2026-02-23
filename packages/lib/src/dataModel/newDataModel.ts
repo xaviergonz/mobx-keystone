@@ -7,7 +7,6 @@ import { applyModelInitializers } from "../modelShared/newModel"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import type { AnyDataModel } from "./BaseDataModel"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
-import { getDataModelMetadata } from "./getDataModelMetadata"
 import { assertIsDataModelClass } from "./utils"
 
 /**
@@ -46,7 +45,7 @@ export const internalNewDataModel = action(
     applyModelInitializers(modelClass, modelObj)
 
     // type check it if needed
-    if (isModelAutoTypeCheckingEnabled() && getDataModelMetadata(modelClass).dataType) {
+    if (isModelAutoTypeCheckingEnabled()) {
       const err = modelObj.typeCheck()
       if (err) {
         err.throw()

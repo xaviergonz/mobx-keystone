@@ -50,7 +50,7 @@ export function typesObjectMap<T extends AnyType>(
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
-      (obj, path, typeCheckedValue, partialCheckScope) => {
+      (obj, path, typeCheckedValue) => {
         if (!(obj instanceof ObjectMap)) {
           return new TypeCheckError({
             path,
@@ -60,9 +60,8 @@ export function typesObjectMap<T extends AnyType>(
           })
         }
 
-        return resolvedDataTypeChecker.check(obj.$, path, typeCheckedValue, partialCheckScope)
+        return resolvedDataTypeChecker.check(obj.$, path, typeCheckedValue)
       },
-      undefined,
 
       getTypeName,
       typeInfoGen,
@@ -130,10 +129,6 @@ export class ObjectMapTypeInfo extends TypeInfo {
 
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
-  }
-
-  override findChildTypeInfo(predicate: (childTypeInfo: TypeInfo) => boolean): TypeInfo | undefined {
-    return predicate(this.valueTypeInfo) ? this.valueTypeInfo : undefined
   }
 
   constructor(

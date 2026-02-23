@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Performance: model auto type-checking is now faster for updates in large or deeply nested models. Type checks now re-run only for changed properties while unchanged branches reuse cached results, reducing repeated validation work during frequent updates. This is an internal optimization and does not change the public API.
+
 ## 1.16.0
 
 - Fixed a long-standing bug: model auto type-checking now enforces ancestor property refinements (for example refinements on `a.b`) when mutating nested child model data (for example `a.b.x`), while still avoiding unnecessary ancestor checks when no refinement is present on the path.
