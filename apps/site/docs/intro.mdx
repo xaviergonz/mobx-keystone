@@ -3,6 +3,16 @@ title: Introduction
 slug: /
 ---
 
+`mobx-keystone` helps you build complex client-side apps with a single source of truth, mutable model code, and immutable traceability built in. You write straightforward actions and computed values, while the library gives you snapshots, patches, undo/redo, and runtime protection on top.
+
+You can think of it as a TypeScript-first model layer on top of MobX that scales better as your domain grows.
+
+- Start here: [Installation](./installation.mdx)
+- Learn by building: [Class Models](./classModels.mdx)
+- See a full example: [Todo List Example](./examples/todoList/todoList.mdx)
+- Migrating from MST: [Migration Guide](./mstMigrationGuide.mdx)
+- API reference: [API docs](/api/)
+
 [![npm](https://img.shields.io/npm/v/mobx-keystone.svg?style=for-the-badge&logo=npm&labelColor=333)](https://www.npmjs.com/package/mobx-keystone)
 ![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=for-the-badge&labelColor=333)
 ![types](https://img.shields.io/npm/types/mobx-keystone.svg?style=for-the-badge&logo=typescript&labelColor=333)<br />
@@ -10,32 +20,85 @@ slug: /
 [![codecov](https://img.shields.io/codecov/c/github/xaviergonz/mobx-keystone?token=6MLRFUBK8V&label=codecov&logo=codecov&style=for-the-badge&labelColor=333)](https://codecov.io/gh/xaviergonz/mobx-keystone)
 [![Netlify Status](https://img.shields.io/netlify/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429?label=netlify&logo=netlify&style=for-the-badge&labelColor=333)](https://app.netlify.com/sites/mobx-keystone/deploys)
 
-`mobx-keystone` is a state container that combines the _simplicity and ease of mutable data_ with the _traceability of immutable data_ and the _reactiveness and performance of observable data_, all with a fully compatible TypeScript syntax.
+## Quick glance
 
-Simply put, it tries to combine the best features of both immutability (transactionality, traceability and composition) and mutability (discoverability, co-location and encapsulation) based approaches to state management; everything to provide the best developer experience possible.
-Unlike MobX itself, `mobx-keystone` is very opinionated about how data should be structured and updated.
-This makes it possible to solve many common problems out of the box.
+```ts
+import { computed } from "mobx"
+import { Model, model, modelAction, prop, registerRootStore } from "mobx-keystone"
 
-Central in `mobx-keystone` is the concept of a _living tree_. The tree consists of mutable, but strictly protected objects (models, arrays and plain objects).
-From this living tree, immutable, structurally shared snapshots are automatically generated.
+@model("todo/Todo")
+class Todo extends Model({
+  text: prop<string>(""),
+  done: prop(false),
+}) {
+  @modelAction
+  toggle() {
+    this.done = !this.done
+  }
+}
 
-Another core design goal of `mobx-keystone` is to offer a great TypeScript syntax out of the box, be it for models (and other kinds of data such as plain objects and arrays) or for its generated snapshots.
+@model("todo/Store")
+class TodoStore extends Model({
+  todos: prop<Todo[]>(() => []),
+}) {
+  @computed
+  get pendingCount() {
+    return this.todos.filter((t) => !t.done).length
+  }
 
-Need markdown exports for LLM workflows? See [llms.txt](pathname:///llms.txt), [llms-full.txt](pathname:///llms-full.txt), or the [MD docs intro](pathname:///md/intro.md).
+  @modelAction
+  addTodo(text: string) {
+    this.todos.push(new Todo({ text }))
+  }
+}
 
-To see some code and get a glimpse of how it works check the [Todo List Example](./examples/todoList/todoList.mdx).
+const store = new TodoStore({})
+registerRootStore(store)
+```
 
-Because state trees are living, mutable models, actions are straightforward to write; just modify local instance properties where appropriate. It is not necessary to produce a new state tree yourself, `mobx-keystone`'s snapshot functionality will derive one for you automatically.
+## Why teams choose mobx-keystone
 
-Although mutable sounds scary to some, fear not, actions have many interesting properties.
-By default, trees can only be modified by using an action that belongs to the same subtree.
-Furthermore, actions are replayable and can be used to distribute changes.
+- Mutable action code with protected updates, so state changes stay explicit and safe.
+- Runtime snapshots and JSON patches for persistence, sync, replay, and debugging.
+- Built-in primitives for references, transactions, action middlewares, and undo/redo.
+- Strong TypeScript inference for models, snapshots, and actions.
+- Composable domain models that stay maintainable as app complexity grows.
+- Seamless integration with MobX and `mobx-react`.
 
-Moreover, because changes can be detected on a fine-grained level, JSON patches are supported out of the box.
-Simply subscribing to the patch stream of a tree is another way to sync diffs with, for example, back-end servers or other clients.
+## What users are saying
 
-Since `mobx-keystone` uses MobX behind the scenes, it integrates seamlessly with [`mobx`](https://mobx.js.org) and [`mobx-react`](https://github.com/mobxjs/mobx-react).
-Even cooler, because it supports snapshots, action middlewares and replayable actions out of the box, it is possible to replace a Redux store and reducer with a MobX data model.
-This makes it possible to connect the Redux devtools to `mobx-keystone`.
+> "I've never been so in love with a tool. [...] In my eyes it is the perfect state management tool for TS/React projects. [...] Building complex clientside apps has never been so easy and fun for me."
+>  
+> - [@finallyblueskies](https://github.com/finallyblueskies), [#538](https://github.com/xaviergonz/mobx-keystone/issues/538)
 
-Like React, `mobx-keystone` consists of composable components, called _models_, which capture small pieces of state. They are instantiated from props and after that manage and protect their own internal state (using actions). Moreover, when applying snapshots, tree nodes are reconciled as much as possible.
+> "I'm absolutely loving this project. [...] It's taken all the best bits from mobx and mobx-state-tree and put them into a single package that's a joy to work with. [...] You've literally thought of everything!"
+>  
+> - [@robclouth](https://github.com/robclouth), [#146](https://github.com/xaviergonz/mobx-keystone/issues/146)
+
+> "Thank you for this amazing library. [...] After evaluating every state library out there, mobx-keystone stands out [...] a true single source of truth for records, first-class relationships [...] first-class reactivity."
+>  
+> - [@lolmaus](https://github.com/lolmaus), [#566](https://github.com/xaviergonz/mobx-keystone/issues/566)
+
+> "First of all thank you for this amazing library, it really is a joy to work with."
+>  
+> - [@exception-producer](https://github.com/exception-producer), [#559](https://github.com/xaviergonz/mobx-keystone/issues/559)
+
+> "mobx-keystone is awesome and way easier to use for typesafe domain modeling than MST."
+>  
+> - [@krnsk0](https://github.com/krnsk0), [#467](https://github.com/xaviergonz/mobx-keystone/issues/467)
+
+## How it works
+
+At the center of `mobx-keystone` is a _living tree_ of mutable but strictly protected models, arrays, and plain objects. You update state through model actions, and immutable structurally shared snapshots are derived automatically.
+
+This gives you mutability where it helps developer experience, plus immutable traceability where it helps reliability.
+
+Trees can only be modified by actions that belong to the same subtree. Actions are replayable and can be distributed, and fine-grained changes can be observed as JSON patches.
+
+Because `mobx-keystone` uses MobX behind the scenes, it integrates naturally with [`mobx`](https://mobx.js.org) and [`mobx-react`](https://github.com/mobxjs/mobx-react). The snapshot and middleware system also makes it possible to replace a Redux reducer/store pair with model-driven state and connect Redux devtools.
+
+`mobx-keystone` consists of composable _models_ that capture domain state and behavior together. Model instances are created from props, protect their own updates, and reconcile efficiently when applying snapshots.
+
+## Resources for LLM workflows
+
+Need markdown exports for AI/LLM tools? See [llms.txt](pathname:///llms.txt), [llms-full.txt](pathname:///llms-full.txt), or the [MD docs intro](pathname:///md/intro.md).
