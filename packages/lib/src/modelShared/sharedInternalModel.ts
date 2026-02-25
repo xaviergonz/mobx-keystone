@@ -109,11 +109,11 @@ const setModelInstanceDataFieldWithPrecheck: SetModelInstanceDataFieldFn = (
   return true
 }
 
-const idGenerator = () => getGlobalConfig().modelIdGenerator()
-const tPropForId = tProp(typesString, idGenerator)
-tPropForId._isId = true
-const propForId = prop(idGenerator)
-propForId._isId = true
+const defaultModelIdGenerator = () => getGlobalConfig().modelIdGenerator()
+const tPropForDefaultId = tProp(typesString, defaultModelIdGenerator)
+tPropForDefaultId._isId = true
+const propForDefaultId = prop(defaultModelIdGenerator)
+propForDefaultId._isId = true
 
 type FromSnapshotProcessorFn = (sn: any) => any
 type ToSnapshotProcessorFn = (sn: any, instance: any) => any
@@ -153,11 +153,12 @@ export function sharedInternalModel<
   }
 
   const composedModelProps: ModelProps = modelProps
+  let baseModelProps: ModelProps | undefined
   if (baseModel) {
-    const oldModelProps = getInternalModelClassPropsInfo(baseModel)
-    for (const oldModelPropKey of Object.keys(oldModelProps)) {
+    baseModelProps = getInternalModelClassPropsInfo(baseModel)
+    for (const oldModelPropKey of Object.keys(baseModelProps)) {
       if (!modelProps[oldModelPropKey]) {
-        composedModelProps[oldModelPropKey] = oldModelProps[oldModelPropKey]
+        composedModelProps[oldModelPropKey] = baseModelProps[oldModelPropKey]
       }
     }
   }
@@ -182,17 +183,41 @@ export function sharedInternalModel<
   if (idKeys.length > 0) {
     idKey = idKeys[0]
     const idProp = composedModelProps[idKey]
-    let baseProp: AnyModelProp = needsTypeChecker ? tPropForId : propForId
-    switch (idProp._setter) {
-      case true:
-        baseProp = baseProp.withSetter()
-        break
-      case "assign":
-        baseProp = baseProp.withSetter("assign")
-        break
-      default:
-        break
+    const idPropGenerator = idProp._idGenerator
+    const baseIdProp = baseModelProps?.[idKey]
+    const baseIdPropGenerator = baseIdProp?._idGenerator
+    const isOverridingBaseIdProp = !!baseIdProp?._isId && Object.hasOwn(modelProps, idKey)
+    if (isOverridingBaseIdProp && baseIdPropGenerator !== idPropGenerator) {
+      throw failure(
+        `expected same idProp.withGenerator function when overriding a base idProp, but got different references`
+      )
     }
+    const resolvedIdGenerator = idPropGenerator ?? baseIdPropGenerator
+    const effectiveModelIdGenerator = resolvedIdGenerator ?? defaultModelIdGenerator
+    let baseProp: AnyModelProp
+    if (effectiveModelIdGenerator === defaultModelIdGenerator) {
+      baseProp = needsTypeChecker ? tPropForDefaultId : propForDefaultId
+    } else {
+      baseProp = needsTypeChecker
+        ? tProp(typesString, effectiveModelIdGenerator)
+        : prop(effectiveModelIdGenerator)
+      baseProp._isId = true
+    }
+    if (idProp._setterValueTransform) {
+      baseProp = baseProp.withSetter(idProp._setterValueTransform)
+    } else {
+      switch (idProp._setter) {
+        case true:
+          baseProp = baseProp.withSetter()
+          break
+        case "assign":
+          baseProp = baseProp.withSetter("assign")
+          break
+        default:
+          break
+      }
+    }
+    baseProp._idGenerator = resolvedIdGenerator
     composedModelProps[idKey] = baseProp
   }
 

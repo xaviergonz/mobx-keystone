@@ -253,6 +253,22 @@ setGlobalConfig({
 })
 ```
 
+You can also define a generator per model ID field using `idProp.withGenerator(...)`:
+
+```ts
+@model("myApp/Todo")
+class Todo extends Model({
+  id: idProp.withGenerator(() => `todo-${uuid()}`),
+  text: prop<string>(),
+}) {}
+```
+
+For `ExtendedModel`, the generator follows inheritance:
+
+- If base has one and extended does not override the id prop, extended uses base generator.
+- If extended overrides a base id prop, `withGenerator(...)` must match the base one exactly (including `undefined`).
+- If base has no id prop and extended defines one, extended uses its own generator.
+
 ## Getting the TypeScript types for model data and model creation data
 
 - `ModelData<Model>` is the type of the model props without transformations (as accessible via `model.$`).
