@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added `idProp.withGenerator(...)` to define per-model ID generation for `idProp` fields, including inheritance-aware behavior in `ExtendedModel`.
+
 ## 1.18.0
 
 - Added `defineModelMixin` and `composeMixins` helpers for type-safe class-model mixin composition without per-factory cast boilerplate.

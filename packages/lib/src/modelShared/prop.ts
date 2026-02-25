@@ -42,6 +42,7 @@ export interface ModelProp<
   _setter: SetterMode
   _setterValueTransform: ((value: unknown) => unknown) | undefined
   _isId: boolean
+  _idGenerator?: (() => string) | undefined
   _transform:
     | {
         transform: (
@@ -56,6 +57,10 @@ export interface ModelProp<
   _fromSnapshotProcessor?: (sn: unknown) => unknown
   _toSnapshotProcessor?: (sn: unknown) => unknown
 
+  /**
+   * Adds a setter to the property. The setter will be named `set${CapitalizedPropName}`
+   * and will be available in the model instance.
+   */
   withSetter(): ModelProp<
     TPropValue,
     TPropCreationValue,
@@ -67,6 +72,10 @@ export interface ModelProp<
     TFromSnapshotOverride,
     TToSnapshotOverride
   >
+  /**
+   * Adds a setter with a transform to the property. The setter will be named `set${CapitalizedPropName}`
+   * and will be available in the model instance.
+   */
   withSetter(
     valueTransform: ModelPropSetterValueTransform<TTransformedValue>
   ): ModelProp<
@@ -118,6 +127,12 @@ export interface ModelProp<
     TToSnapshotOverride
   >
 
+  /**
+   * Sets snapshot processors for this property.
+   *
+   * `fromSnapshot` runs before assigning snapshot data into the model prop.
+   * `toSnapshot` runs when exporting model data back to snapshot form.
+   */
   withSnapshotProcessor<
     FS = TFromSnapshotOverride,
     TS = TToSnapshotOverride,
@@ -160,12 +175,18 @@ export type ModelPropToSnapshot<MP extends AnyModelProp> = IsNeverType<
  * A model prop transform.
  */
 export interface ModelPropTransform<TOriginal, TTransformed> {
+  /**
+   * Converts the stored/original value into the transformed value exposed by the model prop.
+   */
   transform(params: {
     originalValue: TOriginal
     cachedTransformedValue: TTransformed | undefined
     setOriginalValue(value: TOriginal): void
   }): TTransformed
 
+  /**
+   * Converts the transformed model value back into the original stored value.
+   */
   untransform(params: {
     transformedValue: TTransformed
     cacheTransformedValue: () => void
@@ -250,6 +271,35 @@ export type ModelIdProp<T extends string = string> = ModelProp<
   true
 >
 
+type TypedModelIdProp<T extends string = string, THasSetter = never> = Omit<
+  ModelProp<T, T | undefined, T, T | undefined, never, true, THasSetter>,
+  "withSetter"
+> & {
+  /**
+   * Enables generation of a setter method for the ID prop (`setId` for `id`, `setCustomId` for `customId`).
+   */
+  withSetter(): TypedModelIdProp<T, string>
+  /**
+   * Enables generation of a setter method for the ID prop and applies a value transform to setter input.
+   */
+  withSetter(valueTransform: ModelPropSetterValueTransform<T>): TypedModelIdProp<T, string>
+  /**
+   * @deprecated Setter methods are preferred.
+   */
+  withSetter(mode: "assign"): TypedModelIdProp<T, string>
+
+  /**
+   * Sets a custom generator for missing model IDs in this `idProp`.
+   */
+  withGenerator(generator: () => T): TypedModelIdProp<T, THasSetter>
+
+  /**
+   * Same as `idProp`, except that it might have an specific TypeScript string template as type.
+   * E.g. `typedIdProp<`custom-${string}`>()`
+   */
+  typedAs<U extends string>(): TypedModelIdProp<U, THasSetter>
+}
+
 /**
  * A property that will be used as model id, accessible through $modelId.
  * Can only be used in models and there can be only one per model.
@@ -258,6 +308,7 @@ export const idProp = {
   _setter: false,
   _setterValueTransform: undefined,
   _isId: true,
+  _idGenerator: undefined,
 
   withSetter(modeOrValueTransform?: SetterMode | ModelPropSetterValueTransform<unknown>) {
     const obj: AnyModelProp = Object.create(this)
@@ -267,16 +318,16 @@ export const idProp = {
     return obj
   },
 
-  typedAs() {
-    return idProp
+  withGenerator(generator: () => string) {
+    const obj: AnyModelProp = Object.create(this)
+    obj._idGenerator = generator
+    return obj
   },
-} as any as ModelIdProp & {
-  /**
-   * Same as `idProp`, except that it might have an specific TypeScript string template as type.
-   * E.g. `typedIdProp<`custom-${string}`>()`
-   */
-  typedAs<T extends string>(): ModelIdProp<T>
-}
+
+  typedAs() {
+    return this
+  },
+} as unknown as TypedModelIdProp
 
 /**
  * @ignore

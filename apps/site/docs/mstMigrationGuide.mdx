@@ -105,6 +105,18 @@ getRefId() {
 }
 ```
 
+If your MST model used a generated default identifier, for example:
+
+```ts
+id: types.optional(types.identifier, () => `todo-${nanoid()}`)
+```
+
+the equivalent in `mobx-keystone` is:
+
+```ts
+id: idProp.withGenerator(() => `todo-${nanoid()}`)
+```
+
 ### 7) Identifier mutability differs
 
 MST identifiers are effectively immutable in typical usage.
@@ -406,6 +418,7 @@ Note: `ExtendedModel` extends a single base class. If you need to merge more tha
 | `types.maybe(T)` | `prop<T \| undefined>()` or `tProp(types.maybe(T))` | Optional value; `T` must include `undefined` explicitly. |
 | `types.maybeNull(T)` | `prop<T \| null>()` or `tProp(types.maybeNull(T))` | Nullable value; `T` must include `null` explicitly. |
 | `types.identifier` | `idProp` | Preferred model ID field. |
+| `types.optional(types.identifier, () => id)` | `idProp.withGenerator(() => id)` | Per-model ID generator. |
 | `types.identifierNumber` | Prefer string IDs (`idProp`) or keep numeric field + override `getRefId()` to return `String(id)` | `mobx-keystone` refs require string IDs. |
 | `types.late(() => T)` | Usually not needed with class references | Circular/lazy types are class references; use `types.late(() => T)` only in runtime type-checking declarations if needed. |
 
