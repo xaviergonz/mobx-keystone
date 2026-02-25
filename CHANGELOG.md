@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.18.0
 
 - Added `defineModelMixin` and `composeMixins` helpers for type-safe class-model mixin composition without per-factory cast boilerplate.
 - Fix: preserve intermediate model props when composing extended/decorated model classes in inheritance chains (for example chained mixins), so runtime-composed classes keep all props from previous composition steps.
