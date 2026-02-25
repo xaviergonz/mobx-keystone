@@ -12,6 +12,7 @@ import {
   ModelCreationData,
   ModelData,
   modelClass,
+  prop,
   req,
   tProp,
   types,
@@ -261,6 +262,52 @@ test("composeMixins requirement failure in middle of chain", () => {
   assert(_ as ValidInstance["seen"], _ as boolean)
 })
 
+test("composeMixins without a base uses implicit empty base", () => {
+  const countableMixin = defineModelMixin(
+    { quantity: tProp(types.number, 42) },
+    (Base) =>
+      class Countable extends Base {
+        incrementBy(delta: number): number {
+          return this.quantity + delta
+        }
+      }
+  )
+
+  const producerMixin = defineModelMixin(
+    { produced: tProp(types.number, 7) },
+    req<{ quantity: number }>()
+  )
+
+  const ProductBase = composeMixins(countableMixin, producerMixin)
+  type ProductInstance = InstanceType<typeof ProductBase>
+  type ProductData = ModelData<ProductInstance>
+  type ProductCreationData = ModelCreationData<ProductInstance>
+
+  assert(_ as ProductInstance["quantity"], _ as number)
+  assert(_ as ProductInstance["produced"], _ as number)
+  assert(_ as ProductInstance["incrementBy"], _ as (delta: number) => number)
+  assert(_ as ProductData["quantity"], _ as number)
+  assert(_ as ProductData["produced"], _ as number)
+  assert(_ as ProductCreationData["quantity"], _ as number | null | undefined)
+  assert(_ as ProductCreationData["produced"], _ as number | null | undefined)
+
+  @testModel("mixins/NoBase/Product")
+  class Product extends ExtendedModel(ProductBase, {}) {}
+
+  const p = new Product({})
+  expect(p.quantity).toBe(42)
+  expect(p.produced).toBe(7)
+  expect(p.incrementBy(8)).toBe(50)
+
+  const p2 = new Product({ quantity: 10, produced: 3 })
+  expect(p2.quantity).toBe(10)
+  expect(p2.produced).toBe(3)
+
+  const sn = getSnapshot(p2)
+  expect(sn.quantity).toBe(10)
+  expect(sn.produced).toBe(3)
+})
+
 test("defineModelMixin props-first: accurate ModelData and ModelCreationData (type and runtime)", () => {
   @testModel("mixins/PropsFirst/Entity")
   class Entity extends Model({
@@ -337,4 +384,79 @@ test("defineModelMixin props-first: accurate ModelData and ModelCreationData (ty
 
   const snm = getSnapshot(pm2)
   expect(snm.quantity).toBe(10)
+})
+
+test("req<Req> is checked against the transformed instance type, not the snapshot type", () => {
+  // countMixin stores count as string in the snapshot but exposes it as number on the instance
+  // (via withTransform). The requirement of a consuming mixin must use the *transformed* type.
+  const stringToNumberTransform = {
+    transform({ originalValue }: { originalValue: string; cachedTransformedValue: number | undefined; setOriginalValue(v: string): void }): number {
+      return Number(originalValue)
+    },
+    untransform({ transformedValue }: { transformedValue: number; cacheTransformedValue(): void }): string {
+      return String(transformedValue)
+    },
+  }
+
+  const countMixin = defineModelMixin({
+    // stored as string (snapshot), exposed as number (instance)
+    count: prop<string>("0").withTransform(stringToNumberTransform),
+  })
+
+  // req uses the *transformed* instance type (number), which is what `this.count` gives
+  const doublerMixin = defineModelMixin(
+    { doubled: prop<number>(0) },
+    req<{ count: number }>(),
+    (Base) =>
+      class Doubler extends Base {
+        computeDoubled(): number {
+          return this.count * 2
+        }
+      }
+  )
+
+  // req<{ count: string }> would be wrong because the instance type is number after transform
+  const doublerMixinWrong = defineModelMixin(
+    { doubled: prop<number>(0) },
+    req<{ count: string }>()
+  )
+
+  const ProductBase = composeMixins(countMixin, doublerMixin)
+  type ProductInstance = InstanceType<typeof ProductBase>
+  type ProductData = ModelData<ProductInstance>
+  type ProductCreationData = ModelCreationData<ProductInstance>
+
+  // instance type: transformed number
+  assert(_ as ProductInstance["count"], _ as number)
+  // ModelData: transformed type
+  assert(_ as ProductData["count"], _ as number)
+  // ModelCreationData: withTransform also changes the creation type to the transformed type
+  assert(_ as ProductCreationData["count"], _ as number | null | undefined)
+
+  // applying doublerMixin (requires number) after countMixin (provides number) is valid
+  const Valid = composeMixins(countMixin, doublerMixin)
+  void Valid
+
+  // applying doublerMixinWrong (requires string) after countMixin (provides number) is a type error
+  // @ts-expect-error count is number (transformed), not string, so req<{count:string}> is not satisfied
+  const Invalid = composeMixins(countMixin, doublerMixinWrong)
+  void Invalid
+
+  @testModel("mixins/Transform/Product")
+  class Product extends ExtendedModel(ProductBase, {}) {}
+
+  // runtime: default from prop<string>("0") → transform → 0
+  const p = new Product({})
+  expect(p.count).toBe(0)
+  expect(p.computeDoubled()).toBe(0)
+
+  // runtime: construction uses transformed type (number)
+  const p2 = new Product({ count: 42 })
+  expect(p2.count).toBe(42)
+  expect(p2.computeDoubled()).toBe(84)
+
+  // snapshot stores the *original* (string) type
+  const sn = getSnapshot(p2)
+  assert(_ as typeof sn["count"], _ as string)
+  expect(sn.count).toBe("42")
 })

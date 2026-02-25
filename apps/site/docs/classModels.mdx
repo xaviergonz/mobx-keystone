@@ -548,6 +548,30 @@ const CountableBase = composeMixins(Entity, countableWithMethodsMixin)
 type Countable = InstanceType<typeof CountableBase>
 ```
 
+You can also call `composeMixins` **without a base class** when you want to bundle mixins for reuse without any shared base.
+An implicit empty base is used, so you can apply the bundle to multiple concrete classes:
+
+```ts
+// Bundle mixins independently of any base
+const ProductBundle = composeMixins(countableWithMethodsMixin, producerMixin)
+
+@model("myApp/Product")
+class Product extends ExtendedModel(ProductBundle, {}) {}
+
+@model("myApp/Order")
+class Order extends ExtendedModel(ProductBundle, {}) {}
+```
+
+You can also inline `composeMixins` directly into `ExtendedModel` when you don't need the composed base as a separate variable:
+
+```ts
+@model("myApp/Product")
+class Product extends ExtendedModel(
+  composeMixins(Entity, countableWithMethodsMixin, producerMixin),
+  { /* any additional own props */ }
+) {}
+```
+
 ## Snapshot pre/post-processors: `fromSnapshotProcessor` / `toSnapshotProcessor`
 
 `fromSnapshotProcessor` might be used to transform an input snapshot into the model's expected input snapshot.

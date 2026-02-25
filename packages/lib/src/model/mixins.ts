@@ -6,7 +6,8 @@ import {
 } from "../modelShared/BaseModelShared"
 import type { ModelProps, ModelPropsToTransformedData } from "../modelShared/prop"
 import type { AnyModel, BaseModelKeys } from "./BaseModel"
-import { ExtendedModel } from "./Model"
+import { ExtendedModel, Model } from "./Model"
+import { isModelClass } from "./utils"
 
 type ReqObj<Req> = [unknown] extends [Req] ? unknown : Req extends object ? Req : never
 
@@ -228,10 +229,35 @@ export function defineModelMixin(...args: any[]): any {
   }) as ModelMixin<any, any, any>
 }
 
+// Empty base used when composeMixins is called without an explicit base class.
+class MixinEmptyBase extends Model({}) {}
+
+/**
+ * Composes several model mixins without an explicit base model class.
+ *
+ * An implicit empty base (`Model({})`) is used. Useful for bundling mixins to reuse across
+ * multiple concrete classes:
+ *
+ * ```ts
+ * const ProductBase = composeMixins(countableMixin, producerMixin)
+ *
+ * @model("myApp/Product")
+ * class Product extends ExtendedModel(ProductBase, {}) {}
+ * ```
+ *
+ * @template M Mixin tuple type.
+ * @param mixins Mixins to apply.
+ * @returns A model class with all mixin additions applied over an empty base.
+ */
+export function composeMixins<M extends readonly ModelMixin<any, any, any>[]>(
+  ...mixins: M & ValidateMixins<typeof MixinEmptyBase, M>
+): ComposedModelClass<typeof MixinEmptyBase, M>
+
 /**
  * Composes several model mixins over a base model class.
  *
  * @template B Base model class.
+ * @template M Mixin tuple type.
  * @param base Base model class.
  * @param mixins Mixins to apply.
  * @returns A model class with all mixin additions applied.
@@ -239,12 +265,24 @@ export function defineModelMixin(...args: any[]): any {
 export function composeMixins<
   B extends ModelClass<AnyModel>,
   M extends readonly ModelMixin<any, any, any>[],
->(base: B, ...mixins: M & ValidateMixins<B, M>): ComposedModelClass<B, M> {
-  let current = base as ModelClass<AnyModel>
+>(base: B, ...mixins: M & ValidateMixins<B, M>): ComposedModelClass<B, M>
 
+// implementation
+export function composeMixins(...args: any[]): any {
+  let base: ModelClass<AnyModel>
+  let mixins: ModelMixin<any, any, any>[]
+
+  if (isModelClass(args[0])) {
+    base = args[0]
+    mixins = args.slice(1)
+  } else {
+    base = MixinEmptyBase
+    mixins = args
+  }
+
+  let current = base
   for (const mixin of mixins) {
     current = mixin(current)
   }
-
-  return current as ComposedModelClass<B, M>
+  return current
 }
