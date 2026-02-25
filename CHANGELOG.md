@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 1.18.0
 
 - Added `defineModelMixin` and `composeMixins` helpers for type-safe class-model mixin composition without per-factory cast boilerplate.
