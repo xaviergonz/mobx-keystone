@@ -493,6 +493,57 @@ class X extends ExtendedModel(modelClass<SomeGenericClass<string>>(SomeGenericCl
 
 If you don't it will still compile, but the generic will be assumed to have `unknown` for all its generic parameters.
 
+## Mixins
+
+If you want a constrained mixin-style API for class models you can use `defineModelMixin` and `composeMixins`.
+This avoids repeating `as unknown as ModelClass<...>` in each factory.
+
+```ts
+@model("myApp/Entity")
+class Entity extends Model({}) {}
+
+const countableMixin = defineModelMixin<{
+  quantity: number
+  incrementBy(delta: number): number
+}>((Base) =>
+  class Countable extends ExtendedModel(modelClass(Base), {
+    quantity: tProp(types.number, 0),
+  }) {
+    incrementBy(delta: number) {
+      return this.quantity + delta
+    }
+  }
+)
+
+const producerMixin = defineModelMixin<
+  {
+    produced: number
+    produceTotal(): number
+  },
+  {
+    quantity: number
+  }
+>((Base) =>
+  class Producer extends ExtendedModel(modelClass(Base), {
+    produced: tProp(types.number, 0),
+  }) {
+    produceTotal() {
+      return this.produced + this.quantity
+    }
+  }
+)
+
+const ProductBase = composeMixins(Entity, countableMixin, producerMixin)
+type Product = InstanceType<typeof ProductBase>
+```
+
+When you need to constrain another mixin by an existing mixin result, prefer composing first and extracting the instance type:
+
+```ts
+const CountableBase = composeMixins(Entity, countableMixin)
+type Countable = InstanceType<typeof CountableBase>
+```
+
 ## Snapshot pre/post-processors: `fromSnapshotProcessor` / `toSnapshotProcessor`
 
 `fromSnapshotProcessor` might be used to transform an input snapshot into the model's expected input snapshot.

@@ -7,17 +7,17 @@ import type { DataModelMetadata } from "../dataModel/getDataModelMetadata"
 import { getGlobalConfig } from "../globalConfig/globalConfig"
 import { AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
 import type { ModelMetadata } from "../model/getModelMetadata"
-import { modelTypeKey } from "../model/metadata"
 import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
+import { modelTypeKey } from "../model/metadata"
 import { typesObject } from "../types/objectBased/typesObject"
 import { typesString } from "../types/primitiveBased/typesPrimitive"
 import type { AnyType } from "../types/schemas"
-import { tProp } from "../types/tProp"
 import type { LateTypeChecker } from "../types/TypeChecker"
+import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
-import { withErrorPathSegment } from "../utils/errorDiagnostics"
 import { addHiddenProp, assertIsObject, failure, propNameToSetterName } from "../utils"
 import { chainFns } from "../utils/chainFns"
+import { withErrorPathSegment } from "../utils/errorDiagnostics"
 import { ModelClass, modelInitializedSymbol } from "./BaseModelShared"
 import { ModelClassInitializer, modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
@@ -246,6 +246,7 @@ export function sharedInternalModel<
 
   // copy static props from base
   Object.assign(ThisModel, base)
+  delete (ThisModel as any)[modelUnwrappedClassSymbol]
 
   const initializers: ModelClassInitializer[] = base[modelInitializersSymbol]
   if (initializers) {
@@ -381,7 +382,9 @@ function getModelPropsToSnapshotProcessor(
     const newSn = { ...sn }
     for (const [propName, propData] of propsWithToSnapshotProcessor) {
       if (propData._toSnapshotProcessor) {
-        newSn[propName] = withErrorPathSegment(propName, () => propData._toSnapshotProcessor!(sn[propName]))
+        newSn[propName] = withErrorPathSegment(propName, () =>
+          propData._toSnapshotProcessor!(sn[propName])
+        )
       }
     }
     return newSn
