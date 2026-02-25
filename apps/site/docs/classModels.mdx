@@ -498,49 +498,53 @@ If you don't it will still compile, but the generic will be assumed to have `unk
 If you want a constrained mixin-style API for class models you can use `defineModelMixin` and `composeMixins`.
 This avoids repeating `as unknown as ModelClass<...>` in each factory.
 
+Pass the model properties as the first argument; an optional builder as the last argument adds methods.
+Use `req<Req>()` as the second argument to declare that the base model must already expose a given shape before the mixin is applied.
+
 ```ts
 @model("myApp/Entity")
 class Entity extends Model({}) {}
 
-const countableMixin = defineModelMixin<{
-  quantity: number
-  incrementBy(delta: number): number
-}>((Base) =>
-  class Countable extends ExtendedModel(modelClass(Base), {
-    quantity: tProp(types.number, 0),
-  }) {
-    incrementBy(delta: number) {
-      return this.quantity + delta
-    }
-  }
+// Props only – no builder needed
+const countableMixin = defineModelMixin(
+  { quantity: tProp(types.number, 0) }
 )
 
-const producerMixin = defineModelMixin<
-  {
-    produced: number
-    produceTotal(): number
-  },
-  {
-    quantity: number
-  }
->((Base) =>
-  class Producer extends ExtendedModel(modelClass(Base), {
-    produced: tProp(types.number, 0),
-  }) {
-    produceTotal() {
-      return this.produced + this.quantity
+// Props + methods via builder
+const countableWithMethodsMixin = defineModelMixin(
+  { quantity: tProp(types.number, 0) },
+  (Base) =>
+    class Countable extends Base {
+      incrementBy(delta: number) {
+        return this.quantity + delta
+      }
     }
-  }
 )
 
-const ProductBase = composeMixins(Entity, countableMixin, producerMixin)
+// Constrained mixin – requires `quantity` to already be on the base
+const producerMixin = defineModelMixin(
+  { produced: tProp(types.number, 0) },
+  req<{ quantity: number }>(),
+  (Base) =>
+    class Producer extends Base {
+      produceTotal() {
+        return this.produced + this.quantity
+      }
+    }
+)
+
+const ProductBase = composeMixins(Entity, countableWithMethodsMixin, producerMixin)
 type Product = InstanceType<typeof ProductBase>
 ```
 
-When you need to constrain another mixin by an existing mixin result, prefer composing first and extracting the instance type:
+`ModelData<Product>` and `ModelCreationData<Product>` reflect the exact prop types from all composed mixins.
+
+`composeMixins` enforces requirements at the type level: applying `producerMixin` before `countableWithMethodsMixin` is a TypeScript error.
+
+When you need to derive a constraint from an already-composed base, extract the instance type:
 
 ```ts
-const CountableBase = composeMixins(Entity, countableMixin)
+const CountableBase = composeMixins(Entity, countableWithMethodsMixin)
 type Countable = InstanceType<typeof CountableBase>
 ```
 

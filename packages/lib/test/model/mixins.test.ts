@@ -9,7 +9,10 @@ import {
   getSnapshot,
   Model,
   ModelClass,
+  ModelCreationData,
+  ModelData,
   modelClass,
+  req,
   tProp,
   types,
 } from "../../src"
@@ -20,33 +23,21 @@ test("defineModelMixin + composeMixins type-level composition", () => {
   @testModel("mixins/Entity")
   class Entity extends Model({}) {}
 
-  const countableMixin = defineModelMixin<{
-    quantity: number
-    incrementBy(delta: number): number
-  }>(
+  const countableMixin = defineModelMixin(
+    { quantity: tProp(types.number, 0) },
     (Base) =>
-      class Countable extends ExtendedModel(modelClass(Base), {
-        quantity: tProp(types.number, 0),
-      }) {
+      class Countable extends Base {
         incrementBy(delta: number) {
           return this.quantity + delta
         }
       }
   )
 
-  const producerMixin = defineModelMixin<
-    {
-      produced: number
-      produceTotal(): number
-    },
-    {
-      quantity: number
-    }
-  >(
+  const producerMixin = defineModelMixin(
+    { produced: tProp(types.number, 0) },
+    req<{ quantity: number }>(),
     (Base) =>
-      class Producer extends ExtendedModel(modelClass(Base), {
-        produced: tProp(types.number, 0),
-      }) {
+      class Producer extends Base {
         produceTotal() {
           return this.produced + this.quantity
         }
@@ -62,11 +53,17 @@ test("defineModelMixin + composeMixins type-level composition", () => {
     typeof Entity,
     [typeof countableMixin, typeof producerMixin]
   >
+  type ProductData = ModelData<Product>
+  type ProductCreationData = ModelCreationData<Product>
 
   assert(_ as Product["quantity"], _ as number)
   assert(_ as Product["produced"], _ as number)
   assert(_ as Product["incrementBy"], _ as (delta: number) => number)
   assert(_ as Product["produceTotal"], _ as () => number)
+  assert(_ as ProductData["quantity"], _ as number)
+  assert(_ as ProductData["produced"], _ as number)
+  assert(_ as ProductCreationData["quantity"], _ as number | null | undefined)
+  assert(_ as ProductCreationData["produced"], _ as number | null | undefined)
   assert(_ as ProductFromUtility["quantity"], _ as number)
   assert(_ as ProductFromUtility["produced"], _ as number)
   assert(_ as ProductFromUtility["incrementBy"], _ as (delta: number) => number)
@@ -85,45 +82,33 @@ test("composeMixins runtime model composition", () => {
     base: tProp(types.number, 1),
   }) {}
 
-  const addQuantity = defineModelMixin<{ quantity: number }>(
-    (Base) =>
-      class AddQuantity extends ExtendedModel(modelClass(Base), {
-        quantity: tProp(types.number, 2),
-      }) {}
-  )
+  const addQuantity = defineModelMixin({ quantity: tProp(types.number, 2) })
 
-  const addProduced = defineModelMixin<
-    { produced: number },
-    {
-      quantity: number
-    }
-  >(
-    (Base) =>
-      class AddProduced extends ExtendedModel(modelClass(Base), {
-        produced: tProp(types.number, 3),
-      }) {}
+  const addProduced = defineModelMixin(
+    { produced: tProp(types.number, 3) },
+    req<{ quantity: number }>()
   )
 
   const afterQuantity = addQuantity(Entity)
-  const afterQuantityProps = Object.keys(getInternalModelClassPropsInfo(afterQuantity as any))
+  const afterQuantityProps = Object.keys(getInternalModelClassPropsInfo(afterQuantity as ModelClass<AnyModel>))
   expect(afterQuantityProps).toContain("quantity")
   expect(afterQuantityProps).toContain("base")
 
   const afterProduced = addProduced(afterQuantity)
-  const afterProducedProps = Object.keys(getInternalModelClassPropsInfo(afterProduced as any))
+  const afterProducedProps = Object.keys(getInternalModelClassPropsInfo(afterProduced as ModelClass<AnyModel>))
   expect(afterProducedProps).toContain("produced")
   expect(afterProducedProps).toContain("quantity")
   expect(afterProducedProps).toContain("base")
 
   const RuntimeBase = composeMixins(Entity, addQuantity, addProduced)
-  const runtimeBaseModelProps = Object.keys(getInternalModelClassPropsInfo(RuntimeBase as any))
+  const runtimeBaseModelProps = Object.keys(getInternalModelClassPropsInfo(RuntimeBase as ModelClass<AnyModel>))
   expect(runtimeBaseModelProps).toContain("base")
   expect(runtimeBaseModelProps).toContain("quantity")
   expect(runtimeBaseModelProps).toContain("produced")
 
   @testModel("mixins/runtime/Product")
   class Product extends ExtendedModel(RuntimeBase, {}) {}
-  const productModelProps = Object.keys(getInternalModelClassPropsInfo(Product as any))
+  const productModelProps = Object.keys(getInternalModelClassPropsInfo(Product as ModelClass<AnyModel>))
   expect(productModelProps).toContain("base")
   expect(productModelProps).toContain("quantity")
   expect(productModelProps).toContain("produced")
@@ -137,12 +122,12 @@ test("composeMixins runtime model composition", () => {
     base: 10,
     quantity: 20,
     produced: 30,
-  } as any)
+  })
   expect(p2.base).toBe(10)
   expect(p2.quantity).toBe(20)
   expect(p2.produced).toBe(30)
 
-  const sn = getSnapshot(p2) as any
+  const sn = getSnapshot(p2)
   expect(sn.base).toBe(10)
   expect(sn.quantity).toBe(20)
   expect(sn.produced).toBe(30)
@@ -212,30 +197,16 @@ test("composeMixins enforces requirements", () => {
   @testModel("mixins/Req/Entity")
   class Entity extends Model({}) {}
 
-  const requiresCountable = defineModelMixin<
-    {
-      produced: number
-    },
-    {
-      quantity: number
-    }
-  >(
-    (Base) =>
-      class Producer extends ExtendedModel(modelClass(Base), {
-        produced: tProp(types.number, 0),
-      }) {}
+  const requiresCountable = defineModelMixin(
+    { produced: tProp(types.number, 0) },
+    req<{ quantity: number }>()
   )
 
   // @ts-expect-error quantity requirement is missing on Entity
   const Invalid = composeMixins(Entity, requiresCountable)
   void Invalid
 
-  const countableMixin = defineModelMixin<{ quantity: number }>(
-    (Base) =>
-      class Countable extends ExtendedModel(modelClass(Base), {
-        quantity: tProp(types.number, 0),
-      }) {}
-  )
+  const countableMixin = defineModelMixin({ quantity: tProp(types.number, 0) })
 
   const Valid = composeMixins(Entity, countableMixin, requiresCountable)
   type ValidInstance = InstanceType<typeof Valid>
@@ -247,27 +218,13 @@ test("composeMixins supports 6+ mixins", () => {
   @testModel("mixins/Many/Entity")
   class Entity extends Model({}) {}
 
-  const m1 = defineModelMixin<{ p1: number }>(
-    (Base) => class M1 extends ExtendedModel(modelClass(Base), { p1: tProp(types.number, 1) }) {}
-  )
-  const m2 = defineModelMixin<{ p2: number }>(
-    (Base) => class M2 extends ExtendedModel(modelClass(Base), { p2: tProp(types.number, 2) }) {}
-  )
-  const m3 = defineModelMixin<{ p3: number }>(
-    (Base) => class M3 extends ExtendedModel(modelClass(Base), { p3: tProp(types.number, 3) }) {}
-  )
-  const m4 = defineModelMixin<{ p4: number }>(
-    (Base) => class M4 extends ExtendedModel(modelClass(Base), { p4: tProp(types.number, 4) }) {}
-  )
-  const m5 = defineModelMixin<{ p5: number }>(
-    (Base) => class M5 extends ExtendedModel(modelClass(Base), { p5: tProp(types.number, 5) }) {}
-  )
-  const m6 = defineModelMixin<{ p6: number }>(
-    (Base) => class M6 extends ExtendedModel(modelClass(Base), { p6: tProp(types.number, 6) }) {}
-  )
-  const m7 = defineModelMixin<{ p7: number }>(
-    (Base) => class M7 extends ExtendedModel(modelClass(Base), { p7: tProp(types.number, 7) }) {}
-  )
+  const m1 = defineModelMixin({ p1: tProp(types.number, 1) })
+  const m2 = defineModelMixin({ p2: tProp(types.number, 2) })
+  const m3 = defineModelMixin({ p3: tProp(types.number, 3) })
+  const m4 = defineModelMixin({ p4: tProp(types.number, 4) })
+  const m5 = defineModelMixin({ p5: tProp(types.number, 5) })
+  const m6 = defineModelMixin({ p6: tProp(types.number, 6) })
+  const m7 = defineModelMixin({ p7: tProp(types.number, 7) })
 
   const ManyBase = composeMixins(Entity, m1, m2, m3, m4, m5, m6, m7)
   type Many = InstanceType<typeof ManyBase>
@@ -285,26 +242,14 @@ test("composeMixins requirement failure in middle of chain", () => {
   @testModel("mixins/ReqMid/Entity")
   class Entity extends Model({}) {}
 
-  const addQuantity = defineModelMixin<{ quantity: number }>(
-    (Base) =>
-      class AddQuantity extends ExtendedModel(modelClass(Base), {
-        quantity: tProp(types.number, 0),
-      }) {}
+  const addQuantity = defineModelMixin({ quantity: tProp(types.number, 0) })
+
+  const requiresProduced = defineModelMixin(
+    { seen: tProp(types.boolean, true) },
+    req<{ produced: number }>()
   )
 
-  const requiresProduced = defineModelMixin<{ seen: boolean }, { produced: number }>(
-    (Base) =>
-      class RequiresProduced extends ExtendedModel(modelClass(Base), {
-        seen: tProp(types.boolean, true),
-      }) {}
-  )
-
-  const addProduced = defineModelMixin<{ produced: number }>(
-    (Base) =>
-      class AddProduced extends ExtendedModel(modelClass(Base), {
-        produced: tProp(types.number, 0),
-      }) {}
-  )
+  const addProduced = defineModelMixin({ produced: tProp(types.number, 0) })
 
   // @ts-expect-error second mixin requires produced, but produced is only added later
   const Invalid = composeMixins(Entity, addQuantity, requiresProduced, addProduced)
@@ -314,4 +259,82 @@ test("composeMixins requirement failure in middle of chain", () => {
   type ValidInstance = InstanceType<typeof Valid>
   assert(_ as ValidInstance["produced"], _ as number)
   assert(_ as ValidInstance["seen"], _ as boolean)
+})
+
+test("defineModelMixin props-first: accurate ModelData and ModelCreationData (type and runtime)", () => {
+  @testModel("mixins/PropsFirst/Entity")
+  class Entity extends Model({
+    base: tProp(types.number, 100),
+  }) {}
+
+  // --- props only (no builder) ---
+
+  const countableMixin = defineModelMixin({ quantity: tProp(types.number, 0) })
+  const producerMixin = defineModelMixin({ produced: tProp(types.number, 0) })
+
+  const ProductBase = composeMixins(Entity, countableMixin, producerMixin)
+  type Product = InstanceType<typeof ProductBase>
+  type ProductData = ModelData<Product>
+  type ProductCreationData = ModelCreationData<Product>
+
+  assert(_ as Product["quantity"], _ as number)
+  assert(_ as Product["produced"], _ as number)
+  assert(_ as ProductData["quantity"], _ as number)
+  assert(_ as ProductData["produced"], _ as number)
+  assert(_ as ProductCreationData["quantity"], _ as number | null | undefined)
+  assert(_ as ProductCreationData["produced"], _ as number | null | undefined)
+
+  @testModel("mixins/PropsFirst/Product")
+  class ProductModel extends ExtendedModel(ProductBase, {}) {}
+
+  const p = new ProductModel({})
+  expect(p.base).toBe(100)
+  expect(p.quantity).toBe(0)
+  expect(p.produced).toBe(0)
+
+  const p2 = new ProductModel({ base: 1, quantity: 42, produced: 7 })
+  expect(p2.base).toBe(1)
+  expect(p2.quantity).toBe(42)
+  expect(p2.produced).toBe(7)
+
+  const sn = getSnapshot(p2)
+  expect(sn.base).toBe(1)
+  expect(sn.quantity).toBe(42)
+  expect(sn.produced).toBe(7)
+
+  // --- props + builder ---
+
+  const countableWithMethodsMixin = defineModelMixin(
+    { quantity: tProp(types.number, 0) },
+    (Base) =>
+      class Countable extends Base {
+        incrementBy(delta: number): number {
+          return this.quantity + delta
+        }
+      }
+  )
+
+  const ProductWithMethodsBase = composeMixins(Entity, countableWithMethodsMixin)
+  type ProductWithMethods = InstanceType<typeof ProductWithMethodsBase>
+  type ProductWithMethodsData = ModelData<ProductWithMethods>
+  type ProductWithMethodsCreationData = ModelCreationData<ProductWithMethods>
+
+  assert(_ as ProductWithMethods["quantity"], _ as number)
+  assert(_ as ProductWithMethods["incrementBy"], _ as (delta: number) => number)
+  assert(_ as ProductWithMethodsData["quantity"], _ as number)
+  assert(_ as ProductWithMethodsCreationData["quantity"], _ as number | null | undefined)
+
+  @testModel("mixins/PropsFirstBuilder/Product")
+  class ProductWithMethodsModel extends ExtendedModel(ProductWithMethodsBase, {}) {}
+
+  const pm = new ProductWithMethodsModel({})
+  expect(pm.quantity).toBe(0)
+  expect(pm.incrementBy(5)).toBe(5)
+
+  const pm2 = new ProductWithMethodsModel({ quantity: 10 })
+  expect(pm2.quantity).toBe(10)
+  expect(pm2.incrementBy(3)).toBe(13)
+
+  const snm = getSnapshot(pm2)
+  expect(snm.quantity).toBe(10)
 })
