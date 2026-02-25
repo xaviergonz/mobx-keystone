@@ -224,10 +224,10 @@ Notes:
 
 ## Documentation and API updates
 
-When public behavior or public API changes:
+When public-facing behavior or public API changes:
 
 1. Update docs in `apps/site/docs/**`.
-2. Update changelog for affected package(s):
+2. Update changelog for affected package(s) only when the change is public-facing (for example: new features, public API changes, user-visible behavior changes/fixes, or meaningful performance improvements):
    - Core: `CHANGELOG.md` (root, copied into `packages/lib` during build)
    - Yjs: `packages/mobx-keystone-yjs/CHANGELOG.md`
    - Loro: `packages/mobx-keystone-loro/CHANGELOG.md`
@@ -235,16 +235,30 @@ When public behavior or public API changes:
    - `pnpm lib:build-docs`
    - `pnpm site:build`
 
+Do not update changelogs for internal-only work unless explicitly requested (for example: unit tests, refactors, comments, CI/tooling changes, or other implementation details that do not affect users).
+
 `apps/site` build/start also runs LLM docs generation (`llms` scripts) and syncs root `llms.txt` into site generated output.
 
-## Changelog policy (always apply)
+## Changelog policy (public-facing only)
 
-After code changes, update the changelog for the specific project/package touched, unless the user explicitly says not to:
+After code changes, update the changelog only for public-facing changes (unless the user explicitly says not to):
+
+- Public API changes (added/removed/changed exports or behavior contracts).
+- New features or capabilities.
+- User-visible behavior changes/fixes.
+- Meaningful performance improvements users are expected to notice.
+
+Do not update changelogs for internal-only changes such as:
+
+- Adding/updating unit tests.
+- Internal refactors or cleanup with no user-visible effect.
+- Comment/docs wording tweaks that do not change behavior.
+- CI/build/tooling maintenance with no user-facing impact.
 
 - Core library changes (`packages/lib/**`): update root `CHANGELOG.md`.
 - Yjs package changes (`packages/mobx-keystone-yjs/**`): update `packages/mobx-keystone-yjs/CHANGELOG.md`.
 - Loro package changes (`packages/mobx-keystone-loro/**`): update `packages/mobx-keystone-loro/CHANGELOG.md`.
-- If multiple packages are touched, update each corresponding changelog.
+- If multiple packages have public-facing changes, update each corresponding changelog.
 
 ## Task playbooks
 
@@ -286,5 +300,5 @@ Before finishing, ensure all applicable items are done:
 4. Compatibility checks run for MobX/compiler-sensitive changes.
 5. `pnpm --dir packages/lib quick-build` and `pnpm --dir packages/lib quick-build-tests` pass for core library changes.
 6. `pnpm lint` passes.
-7. Changelog updated for each touched package (unless explicitly skipped by user); docs updated when behavior/API changes.
+7. Changelog updated for each package with public-facing changes (unless explicitly skipped by user); docs updated when behavior/API changes.
 8. No generated artifact edited manually.

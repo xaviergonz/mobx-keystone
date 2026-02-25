@@ -2,12 +2,18 @@ import {
   _async,
   _await,
   findParent,
+  getGlobalConfig,
   Model,
+  ModelAutoTypeCheckingMode,
   modelAction,
   modelFlow,
   prop,
+  setGlobalConfig,
+  TypeCheckErrorFailure,
+  tProp,
   transaction,
   transactionMiddleware,
+  types,
 } from "../../src"
 import { testModel } from "../utils"
 
@@ -97,6 +103,39 @@ describe("transactionMiddleware - sync", () => {
 
     expect(() => p.p2.addParentX(20, true)).toThrow("addX")
     expect(p.x).toBe(10)
+  })
+
+  test("it composes with auto typechecking rollback for repeated writes to the same property", () => {
+    @testModel("TransactionTypecheckRollbackModel")
+    class TransactionTypecheckRollbackModel extends Model({
+      items: tProp(
+        types.refinement(types.array(types.string), (arr) => arr.length <= 2, "arrayLenAtMost2"),
+        () => ["a"]
+      ),
+    }) {
+      @transaction
+      @modelAction
+      pushTwo() {
+        this.items.push("b")
+        this.items.push("c")
+      }
+    }
+
+    const previousAutoTypeChecking = getGlobalConfig().modelAutoTypeChecking
+    setGlobalConfig({
+      modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+    })
+    try {
+      const m = new TransactionTypecheckRollbackModel({})
+
+      expect(() => m.pushTwo()).toThrow(TypeCheckErrorFailure)
+      expect([...m.items]).toEqual(["a"])
+      expect(m.typeCheck()).toBeNull()
+    } finally {
+      setGlobalConfig({
+        modelAutoTypeChecking: previousAutoTypeChecking,
+      })
+    }
   })
 })
 
