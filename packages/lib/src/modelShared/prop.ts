@@ -294,8 +294,8 @@ type TypedModelIdProp<T extends string = string, THasSetter = never> = Omit<
   withGenerator(generator: () => T): TypedModelIdProp<T, THasSetter>
 
   /**
-   * Same as `idProp`, except that it might have an specific TypeScript string template as type.
-   * E.g. `typedIdProp<`custom-${string}`>()`
+   * Same as `idProp`, except that it might have a specific TypeScript string template as type.
+   * E.g. `idProp.typedAs<`custom-${string}`>()`
    */
   typedAs<U extends string>(): TypedModelIdProp<U, THasSetter>
 }
