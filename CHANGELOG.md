@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 1.19.0
 
 - Added `idProp.withGenerator(...)` to define per-model ID generation for `idProp` fields, including inheritance-aware behavior in `ExtendedModel`.
