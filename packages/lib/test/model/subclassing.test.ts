@@ -1,16 +1,16 @@
 import { computed } from "mobx"
 import { _, assert } from "spec.ts"
 import {
+  _async,
+  _await,
   ExtendedModel,
+  fromSnapshot,
+  getSnapshot,
+  idProp,
   Model,
   ModelClassDeclaration,
   ModelCreationData,
   ModelData,
-  _async,
-  _await,
-  fromSnapshot,
-  getSnapshot,
-  idProp,
   modelAction,
   modelClass,
   modelFlow,
@@ -341,6 +341,46 @@ test("three level subclassing", () => {
   }).toThrow(
     'TypeCheckError: Expected a value of type <number> but got an incompatible value - Path: /b - Value: "10"'
   )
+})
+
+test("three level subclassing with decorated base keeps intermediate props", () => {
+  @testModel("decorated base three levels/A")
+  class A extends Model({
+    a: tProp(types.number, 1),
+  }) {}
+
+  class B extends ExtendedModel(A, {
+    b: tProp(types.number, 2),
+  }) {}
+
+  @testModel("decorated base three levels/C")
+  class C extends ExtendedModel(B, {
+    c: tProp(types.number, 3),
+  }) {}
+
+  const c = new C({})
+  expect(c.a).toBe(1)
+  expect(c.b).toBe(2)
+  expect(c.c).toBe(3)
+
+  const c2 = new C({
+    a: 10,
+    b: 20,
+    c: 30,
+  })
+  expect(c2.a).toBe(10)
+  expect(c2.b).toBe(20)
+  expect(c2.c).toBe(30)
+
+  const sn = getSnapshot(c2)
+  expect(sn).toMatchInlineSnapshot(`
+    {
+      "$modelType": "three level subclassing with decorated base keeps intermediate props/decorated base three levels/C",
+      "a": 10,
+      "b": 20,
+      "c": 30,
+    }
+  `)
 })
 
 test("abstract-ish model classes with factory", () => {
@@ -745,12 +785,11 @@ test("issue #358", () => {
   }))<T> {}
 
   @testModel("issue #358/Container")
-  class Container<V extends Value<T>, T extends DataType> extends Model(<
-    V extends Value<T>,
-    T extends DataType,
-  >() => ({
-    value: prop<V>(),
-  }))<V, T> {}
+  class Container<V extends Value<T>, T extends DataType> extends Model(
+    <V extends Value<T>, T extends DataType>() => ({
+      value: prop<V>(),
+    })
+  )<V, T> {}
 
   const c = new Container<Value<number>, number>({
     value: new Value<number>({

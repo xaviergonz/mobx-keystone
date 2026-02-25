@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Tests: added coverage for `transactionMiddleware` + auto type-check rollback interaction, including repeated writes to the same array property (`push` twice with a length refinement) to ensure state is fully restored on failure.
+- Added `defineModelMixin` and `composeMixins` helpers for type-safe class-model mixin composition without per-factory cast boilerplate.
+- Fix: preserve intermediate model props when composing extended/decorated model classes in inheritance chains (for example chained mixins), so runtime-composed classes keep all props from previous composition steps.
+- Fix: `composeMixins` now keeps mixin-added model prop typing markers for non-function fields, so `ModelData<>` and `ModelCreationData<>` reflect mixed-in props.
 
 ## 1.17.0
 

@@ -1,5 +1,6 @@
 export * from "./BaseModel"
 export * from "./getModelMetadata"
-export * from "./metadata"
 export * from "./Model"
+export * from "./metadata"
+export * from "./mixins"
 export * from "./utils"
