@@ -61,6 +61,12 @@ export const rootRef: <T extends object>(
           return cachedTarget
         }
 
+        // Detached refs cannot resolve a rootRef target until they are attached.
+        // Skipping resolveId here avoids creating one computed id tree per detached ref.
+        if (refRoot === ref) {
+          return undefined
+        }
+
         // when not found, everytime a child is added/removed or its id changes we will perform another search
         // this search is only done once for every distinct getId function
         const newTarget = resolveId<T>(refRoot, ref.id, getId)

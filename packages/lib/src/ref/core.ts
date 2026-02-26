@@ -1,4 +1,4 @@
-import { action, observable, ObservableSet, reaction, when } from "mobx"
+import { action, ObservableSet, observable, reaction, when } from "mobx"
 import { isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { model } from "../modelShared/modelDecorator"
@@ -69,6 +69,10 @@ export function internalCustomRef<T extends object>(
       const oldTarget = this.savedOldTarget
       // update early in case of thrown exceptions
       this.savedOldTarget = newTarget
+
+      if (newTarget === oldTarget) {
+        return
+      }
 
       updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
     }
