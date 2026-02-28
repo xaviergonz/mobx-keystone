@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Performance: optimized `rootRef` resolution and backref updates in large reference-heavy initialization flows by skipping `resolveId(...)` work for detached refs and avoiding no-op backref update actions.
+
 ## 1.19.0
 
 - Added `idProp.withGenerator(...)` to define per-model ID generation for `idProp` fields, including inheritance-aware behavior in `ExtendedModel`.

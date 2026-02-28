@@ -1,4 +1,10 @@
-import { action, observable, ObservableSet, reaction, when } from "mobx"
+import {
+  action,
+  ObservableSet,
+  observable,
+  reaction,
+  when,
+} from "mobx"
 import { isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { model } from "../modelShared/modelDecorator"
@@ -42,6 +48,8 @@ export type RefOnResolvedValueChange<T extends object> = (
   oldValue: T | undefined
 ) => void
 
+const trackedRefs = new WeakSet<Ref<object>>()
+
 /**
  * @internal
  */
@@ -51,11 +59,11 @@ export function internalCustomRef<T extends object>(
   getId: RefIdResolver,
   onResolvedValueChange: RefOnResolvedValueChange<T> | undefined
 ): RefConstructor<T> {
-  @model(modelTypeId)
-  class CustomRef extends Ref<T> {
+  class CustomRefBase extends Ref<T> {
     private resolver?: RefResolver<T>
+    private trackingStarted = false
 
-    resolve(): T | undefined {
+    protected resolve(): T | undefined {
       if (!this.resolver) {
         this.resolver = resolverGen(this)
       }
@@ -65,45 +73,68 @@ export function internalCustomRef<T extends object>(
 
     private savedOldTarget: T | undefined
 
-    private internalForceUpdateBackRefs(newTarget: T | undefined) {
+    protected internalForceUpdateBackRefs(newTarget: T | undefined) {
       const oldTarget = this.savedOldTarget
       // update early in case of thrown exceptions
       this.savedOldTarget = newTarget
 
+      if (newTarget === oldTarget) {
+        return
+      }
+
       updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
     }
 
-    @action
-    forceUpdateBackRefs() {
-      this.internalForceUpdateBackRefs(this.maybeCurrent)
-    }
+    protected startTracking(initialTarget: T | undefined): boolean {
+      if (this.trackingStarted) {
+        return false
+      }
 
-    onInit() {
-      // listen to changes
-
-      let savedOldTarget: T | undefined
-      let savedFirstTime = true
+      this.trackingStarted = true
+      trackedRefs.add(this as Ref<object>)
+      this.internalForceUpdateBackRefs(initialTarget)
 
       // according to mwestrate this won't leak as long as we don't keep the disposer around
       reaction(
         () => this.maybeCurrent,
-        (newTarget) => {
+        (newTarget, oldTarget) => {
           this.internalForceUpdateBackRefs(newTarget)
 
-          const oldTarget = savedOldTarget
-          const firstTime = savedFirstTime
-          // update early in case of thrown exceptions
-          savedOldTarget = newTarget
-          savedFirstTime = false
-
-          if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
+          if (onResolvedValueChange && newTarget !== oldTarget) {
             onResolvedValueChange(this, newTarget, oldTarget)
           }
-        },
-        { fireImmediately: true }
+        }
       )
+
+      return true
+    }
+
+    @action
+    forceUpdateBackRefs() {
+      const currentTarget = this.maybeCurrent
+      if (!this.startTracking(currentTarget)) {
+        this.internalForceUpdateBackRefs(currentTarget)
+      }
     }
   }
+
+  const CustomRef = (() => {
+    if (onResolvedValueChange) {
+      @model(modelTypeId)
+      class TrackedCustomRef extends CustomRefBase {
+        onInit() {
+          this.startTracking(this.maybeCurrent)
+        }
+      }
+
+      return TrackedCustomRef
+    }
+
+    @model(modelTypeId)
+    class LazyCustomRef extends CustomRefBase {}
+
+    return LazyCustomRef
+  })()
 
   const fn = (target: T) => {
     let id: string | undefined
@@ -184,7 +215,7 @@ function getBackRefs<T extends object>(
   target: T,
   refType?: RefConstructor<T>
 ): ObservableSet<Ref<T>> {
-  let backRefs = objectBackRefs.get(target)
+  let backRefs = objectBackRefs.get(target) as BackRefs<T> | undefined
   if (!backRefs) {
     backRefs = {
       all: observable.set(undefined, { deep: false }),
@@ -223,31 +254,35 @@ export function getRefsResolvingTo<T extends object>(
 ): ObservableSet<Ref<T>> {
   assertTweakedObject(target, "target")
 
-  if (options?.updateAllRefsIfNeeded && isReactionDelayed()) {
+  const shouldForceUpdateTrackedRefs = options?.updateAllRefsIfNeeded && isReactionDelayed()
+  const refsChecked = new Set<Ref<object>>()
+  const updateRef = (ref: Ref<any>) => {
+    if (!refsChecked.has(ref)) {
+      if (
+        (!refType || ref instanceof refType.refClass) &&
+        (shouldForceUpdateTrackedRefs || !trackedRefs.has(ref as Ref<object>))
+      ) {
+        ref.forceUpdateBackRefs()
+      }
+      refsChecked.add(ref)
+    }
+  }
+
+  if (shouldForceUpdateTrackedRefs) {
     // in this case the reference update might have been delayed
     // so we will make a best effort to update them
-    const refsChecked = new Set<Ref<object>>()
-    const updateRef = (ref: Ref<any>) => {
-      if (!refsChecked.has(ref)) {
-        if (!refType || ref instanceof refType.refClass) {
-          ref.forceUpdateBackRefs()
-        }
-        refsChecked.add(ref)
-      }
-    }
-
     const oldBackRefs = getBackRefs(target, refType)
     oldBackRefs.forEach(updateRef)
-
-    const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target, true)))
-    let refs: Set<Ref<object>> | undefined
-    if (refType) {
-      refs = refsChildrenOfRoot.byType.get(refType.refClass)
-    } else {
-      refs = refsChildrenOfRoot.all
-    }
-    refs?.forEach(updateRef)
   }
+
+  const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target, true)))
+  let refs: Set<Ref<object>> | undefined
+  if (refType) {
+    refs = refsChildrenOfRoot.byType.get(refType.refClass)
+  } else {
+    refs = refsChildrenOfRoot.all
+  }
+  refs?.forEach(updateRef)
 
   return getBackRefs(target, refType)
 }

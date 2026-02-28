@@ -7,6 +7,7 @@ import {
   findParent,
   getParent,
   getParentPath,
+  getRefsResolvingTo,
   getSnapshot,
   idProp,
   isRefOfType,
@@ -297,7 +298,107 @@ const countryRef2 = customRef<Country>("countryRef2", {
   },
 })
 
+test("customRef onResolvedValueChange cleanup works without observing the ref first", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const ref = countryRef(c.countries.spain)
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  c.removeCountry("spain")
+
+  expect(c.selectedCountryRef).toBeUndefined()
+  expect(getParent(ref)).toBeUndefined()
+})
+
 describe("resolution", () => {
+  test("string-created customRef participates in backrefs without prior observation", () => {
+    @testModel("customRef/backrefs/Todo")
+    class Todo extends Model({ id: prop<string>() }) {
+      getRefId() {
+        return this.id
+      }
+    }
+
+    @testModel("customRef/backrefs/TodoList")
+    class TodoList extends Model({
+      list: prop<Todo[]>(() => []),
+      selectedRef: prop<Ref<Todo> | undefined>(),
+    }) {
+      @modelAction
+      removeTodo(id: string) {
+        const todoIndex = this.list.findIndex((todo) => todo.id === id)
+        if (todoIndex >= 0) {
+          this.list.splice(todoIndex, 1)
+        }
+      }
+
+      @modelAction
+      addTodo(todo: Todo) {
+        this.list.push(todo)
+      }
+    }
+
+    const todoRef = customRef<Todo>("customRef/backrefs/TodoRef", {
+      resolve(ref) {
+        const todoList = findParent<TodoList>(ref, (node) => node instanceof TodoList)
+        return todoList?.list.find((todo) => todo.id === ref.id)
+      },
+    })
+
+    const list = new TodoList({
+      list: [new Todo({ id: "a" })],
+      selectedRef: undefined,
+    })
+    const todo = list.list[0]
+    const ref = todoRef("a")
+
+    runUnprotected(() => {
+      list.selectedRef = ref
+    })
+
+    expect(Array.from(getRefsResolvingTo(todo, todoRef))).toEqual([ref])
+
+    list.removeTodo("a")
+    expect(Array.from(getRefsResolvingTo(todo, todoRef))).toEqual([])
+
+    list.addTodo(todo)
+    expect(Array.from(getRefsResolvingTo(todo, todoRef))).toEqual([ref])
+  })
+
+  test("queried customRef backrefs set stays reactive without re-querying", () => {
+    const c = new Countries({
+      countries: initialCountries(),
+    })
+    const cSpain = c.countries.spain
+    const ref = countryRef2(cSpain)
+
+    runUnprotected(() => {
+      c.selectedCountryRef = ref
+    })
+
+    const backRefs = getRefsResolvingTo(cSpain, countryRef2)
+    const snapshots: Ref<Country>[][] = []
+
+    autoDispose(
+      reaction(
+        () => Array.from(backRefs.values()),
+        (refs) => {
+          snapshots.push(refs)
+        },
+        { fireImmediately: true }
+      )
+    )
+
+    c.removeCountry("spain")
+    c.addCountry("spain", cSpain)
+
+    expect(snapshots).toEqual([[ref], [], [ref]])
+  })
+
   test("is reactive", () => {
     const c = new Countries({
       countries: initialCountries(),
