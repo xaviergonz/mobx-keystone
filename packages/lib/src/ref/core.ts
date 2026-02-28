@@ -42,6 +42,8 @@ export type RefOnResolvedValueChange<T extends object> = (
   oldValue: T | undefined
 ) => void
 
+const trackedRefs = new WeakSet<Ref<object>>()
+
 /**
  * @internal
  */
@@ -54,6 +56,7 @@ export function internalCustomRef<T extends object>(
   @model(modelTypeId)
   class CustomRef extends Ref<T> {
     private resolver?: RefResolver<T>
+    private trackingStarted = false
 
     resolve(): T | undefined {
       if (!this.resolver) {
@@ -77,35 +80,42 @@ export function internalCustomRef<T extends object>(
       updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
     }
 
-    @action
-    forceUpdateBackRefs() {
-      this.internalForceUpdateBackRefs(this.maybeCurrent)
-    }
+    private startTracking(initialTarget: T | undefined): boolean {
+      if (this.trackingStarted) {
+        return false
+      }
 
-    onInit() {
-      // listen to changes
-
-      let savedOldTarget: T | undefined
-      let savedFirstTime = true
+      this.trackingStarted = true
+      trackedRefs.add(this as Ref<object>)
+      this.internalForceUpdateBackRefs(initialTarget)
 
       // according to mwestrate this won't leak as long as we don't keep the disposer around
       reaction(
         () => this.maybeCurrent,
-        (newTarget) => {
+        (newTarget, oldTarget) => {
           this.internalForceUpdateBackRefs(newTarget)
 
-          const oldTarget = savedOldTarget
-          const firstTime = savedFirstTime
-          // update early in case of thrown exceptions
-          savedOldTarget = newTarget
-          savedFirstTime = false
-
-          if (!firstTime && onResolvedValueChange && newTarget !== oldTarget) {
+          if (onResolvedValueChange && newTarget !== oldTarget) {
             onResolvedValueChange(this, newTarget, oldTarget)
           }
-        },
-        { fireImmediately: true }
+        }
       )
+
+      return true
+    }
+
+    @action
+    forceUpdateBackRefs() {
+      const currentTarget = this.maybeCurrent
+      if (!this.startTracking(currentTarget)) {
+        this.internalForceUpdateBackRefs(currentTarget)
+      }
+    }
+
+    onInit() {
+      if (onResolvedValueChange) {
+        this.startTracking(this.maybeCurrent)
+      }
     }
   }
 
@@ -227,31 +237,35 @@ export function getRefsResolvingTo<T extends object>(
 ): ObservableSet<Ref<T>> {
   assertTweakedObject(target, "target")
 
-  if (options?.updateAllRefsIfNeeded && isReactionDelayed()) {
+  const shouldForceUpdateTrackedRefs = options?.updateAllRefsIfNeeded && isReactionDelayed()
+  const refsChecked = new Set<Ref<object>>()
+  const updateRef = (ref: Ref<any>) => {
+    if (!refsChecked.has(ref)) {
+      if (
+        (!refType || ref instanceof refType.refClass) &&
+        (shouldForceUpdateTrackedRefs || !trackedRefs.has(ref as Ref<object>))
+      ) {
+        ref.forceUpdateBackRefs()
+      }
+      refsChecked.add(ref)
+    }
+  }
+
+  if (shouldForceUpdateTrackedRefs) {
     // in this case the reference update might have been delayed
     // so we will make a best effort to update them
-    const refsChecked = new Set<Ref<object>>()
-    const updateRef = (ref: Ref<any>) => {
-      if (!refsChecked.has(ref)) {
-        if (!refType || ref instanceof refType.refClass) {
-          ref.forceUpdateBackRefs()
-        }
-        refsChecked.add(ref)
-      }
-    }
-
     const oldBackRefs = getBackRefs(target, refType)
     oldBackRefs.forEach(updateRef)
-
-    const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target, true)))
-    let refs: Set<Ref<object>> | undefined
-    if (refType) {
-      refs = refsChildrenOfRoot.byType.get(refType.refClass)
-    } else {
-      refs = refsChildrenOfRoot.all
-    }
-    refs?.forEach(updateRef)
   }
+
+  const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target, true)))
+  let refs: Set<Ref<object>> | undefined
+  if (refType) {
+    refs = refsChildrenOfRoot.byType.get(refType.refClass)
+  } else {
+    refs = refsChildrenOfRoot.all
+  }
+  refs?.forEach(updateRef)
 
   return getBackRefs(target, refType)
 }

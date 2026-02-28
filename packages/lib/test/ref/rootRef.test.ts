@@ -1,5 +1,5 @@
 import { computed, reaction, remove, runInAction, set } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   applyPatches,
   applySnapshot,
@@ -34,6 +34,11 @@ class Country extends Model({
 }) {
   getRefId() {
     return this.id
+  }
+
+  @modelAction
+  setId(id: string) {
+    this.id = id
   }
 }
 
@@ -309,6 +314,164 @@ test("moving ref between roots", () => {
   })
   expect(c2.selectedCountryRef).toBe(undefined)
   expect(c1.selectedCountryRef!.current).toBe(c1Spain)
+})
+
+test("detached ref does not return stale cached target", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+
+  const ref = countryRef2(c.countries.spain)
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  // ref resolves successfully, seeding the internal cachedTarget
+  expect(ref.current).toBe(c.countries.spain)
+
+  // detach the ref from its parent tree
+  runUnprotected(() => {
+    c.selectedCountryRef = undefined
+  })
+
+  // ref is now its own root (detached); must return undefined, not the stale cache
+  expect(ref.maybeCurrent).toBe(undefined)
+  expect(ref.isValid).toBe(false)
+
+  // re-attaching to the same root should resolve again
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+  expect(ref.current).toBe(c.countries.spain)
+})
+
+test("ref created from a detached object still resolves by id in the attached root", () => {
+  const externalSpain = new Country({
+    id: "spain",
+    weather: "external",
+  })
+
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+
+  const ref = countryRef2(externalSpain)
+
+  expect(ref.isValid).toBe(false)
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  expect(ref.current).toBe(c.countries.spain)
+  expect(ref.current).not.toBe(externalSpain)
+})
+
+test("ref can resolve to a replacement object with the same id", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+
+  const originalSpain = c.countries.spain
+  const ref = countryRef2(originalSpain)
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  expect(ref.current).toBe(originalSpain)
+
+  c.removeCountry("spain")
+
+  const replacementSpain = new Country({
+    id: "spain",
+    weather: "cloudy",
+  })
+  c.addCountry(replacementSpain)
+
+  expect(ref.current).toBe(replacementSpain)
+  expect(ref.current).not.toBe(originalSpain)
+})
+
+test("string-created rootRef using getRefId stops resolving when the target id changes", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+
+  const ref = countryRef2("spain")
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  expect(ref.current).toBe(c.countries.spain)
+
+  c.countries.spain.setId("iberia")
+
+  expect(ref.maybeCurrent).toBe(undefined)
+})
+
+test("string-created rootRef participates in backrefs without prior observation", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const cSpain = c.countries.spain
+  const ref = countryRef2("spain")
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  expect(Array.from(getRefsResolvingTo(cSpain, countryRef2))).toEqual([ref])
+
+  c.removeCountry("spain")
+  expect(Array.from(getRefsResolvingTo(cSpain, countryRef2))).toEqual([])
+
+  c.addCountry(cSpain)
+  expect(Array.from(getRefsResolvingTo(cSpain, countryRef2))).toEqual([ref])
+})
+
+test("rootRef onResolvedValueChange cleanup works without observing the ref first", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const ref = countryRef(c.countries.spain)
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  c.removeCountry("spain")
+
+  expect(c.selectedCountryRef).toBeUndefined()
+  expect(getParent(ref)).toBeUndefined()
+})
+
+test("default rootRef resolves empty string ids", () => {
+  @testModel("EmptyIdTodo")
+  class EmptyIdTodo extends Model({
+    id: prop<string>(),
+  }) {
+    getRefId() {
+      return this.id
+    }
+  }
+
+  @testModel("EmptyIdRoot")
+  class EmptyIdRoot extends Model({
+    todo: prop<EmptyIdTodo>(),
+    selectedTodoRef: prop<Ref<EmptyIdTodo> | undefined>(),
+  }) {}
+
+  const todoRef = rootRef<EmptyIdTodo>("emptyIdTodoRef")
+
+  const root = new EmptyIdRoot({
+    todo: new EmptyIdTodo({ id: "" }),
+    selectedTodoRef: todoRef(""),
+  })
+
+  expect(root.selectedTodoRef!.current).toBe(root.todo)
 })
 
 describe("resolution", () => {
