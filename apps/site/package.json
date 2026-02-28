@@ -16,7 +16,7 @@
   "dependencies": {
     "@docusaurus/core": "^3.9.2",
     "@docusaurus/preset-classic": "^3.9.2",
-    "@easyops-cn/docusaurus-search-local": "^0.55.0",
+    "@easyops-cn/docusaurus-search-local": "^0.55.1",
     "@iframe-resizer/child": "^5.5.9",
     "@iframe-resizer/react": "^5.5.9",
     "bootstrap-icons": "^1.13.1",
