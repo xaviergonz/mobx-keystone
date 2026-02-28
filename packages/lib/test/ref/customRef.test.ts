@@ -369,6 +369,36 @@ describe("resolution", () => {
     expect(Array.from(getRefsResolvingTo(todo, todoRef))).toEqual([ref])
   })
 
+  test("queried customRef backrefs set stays reactive without re-querying", () => {
+    const c = new Countries({
+      countries: initialCountries(),
+    })
+    const cSpain = c.countries.spain
+    const ref = countryRef2(cSpain)
+
+    runUnprotected(() => {
+      c.selectedCountryRef = ref
+    })
+
+    const backRefs = getRefsResolvingTo(cSpain, countryRef2)
+    const snapshots: Ref<Country>[][] = []
+
+    autoDispose(
+      reaction(
+        () => Array.from(backRefs.values()),
+        (refs) => {
+          snapshots.push(refs)
+        },
+        { fireImmediately: true }
+      )
+    )
+
+    c.removeCountry("spain")
+    c.addCountry("spain", cSpain)
+
+    expect(snapshots).toEqual([[ref], [], [ref]])
+  })
+
   test("is reactive", () => {
     const c = new Countries({
       countries: initialCountries(),

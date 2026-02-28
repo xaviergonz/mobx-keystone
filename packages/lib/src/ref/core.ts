@@ -1,4 +1,10 @@
-import { action, ObservableSet, observable, reaction, when } from "mobx"
+import {
+  action,
+  ObservableSet,
+  observable,
+  reaction,
+  when,
+} from "mobx"
 import { isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { model } from "../modelShared/modelDecorator"
@@ -53,12 +59,11 @@ export function internalCustomRef<T extends object>(
   getId: RefIdResolver,
   onResolvedValueChange: RefOnResolvedValueChange<T> | undefined
 ): RefConstructor<T> {
-  @model(modelTypeId)
-  class CustomRef extends Ref<T> {
+  class CustomRefBase extends Ref<T> {
     private resolver?: RefResolver<T>
     private trackingStarted = false
 
-    resolve(): T | undefined {
+    protected resolve(): T | undefined {
       if (!this.resolver) {
         this.resolver = resolverGen(this)
       }
@@ -68,7 +73,7 @@ export function internalCustomRef<T extends object>(
 
     private savedOldTarget: T | undefined
 
-    private internalForceUpdateBackRefs(newTarget: T | undefined) {
+    protected internalForceUpdateBackRefs(newTarget: T | undefined) {
       const oldTarget = this.savedOldTarget
       // update early in case of thrown exceptions
       this.savedOldTarget = newTarget
@@ -80,7 +85,7 @@ export function internalCustomRef<T extends object>(
       updateBackRefs(this, thisRefConstructor, newTarget, oldTarget)
     }
 
-    private startTracking(initialTarget: T | undefined): boolean {
+    protected startTracking(initialTarget: T | undefined): boolean {
       if (this.trackingStarted) {
         return false
       }
@@ -111,13 +116,25 @@ export function internalCustomRef<T extends object>(
         this.internalForceUpdateBackRefs(currentTarget)
       }
     }
-
-    onInit() {
-      if (onResolvedValueChange) {
-        this.startTracking(this.maybeCurrent)
-      }
-    }
   }
+
+  const CustomRef = (() => {
+    if (onResolvedValueChange) {
+      @model(modelTypeId)
+      class TrackedCustomRef extends CustomRefBase {
+        onInit() {
+          this.startTracking(this.maybeCurrent)
+        }
+      }
+
+      return TrackedCustomRef
+    }
+
+    @model(modelTypeId)
+    class LazyCustomRef extends CustomRefBase {}
+
+    return LazyCustomRef
+  })()
 
   const fn = (target: T) => {
     let id: string | undefined
@@ -198,7 +215,7 @@ function getBackRefs<T extends object>(
   target: T,
   refType?: RefConstructor<T>
 ): ObservableSet<Ref<T>> {
-  let backRefs = objectBackRefs.get(target)
+  let backRefs = objectBackRefs.get(target) as BackRefs<T> | undefined
   if (!backRefs) {
     backRefs = {
       all: observable.set(undefined, { deep: false }),

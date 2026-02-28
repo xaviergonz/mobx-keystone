@@ -4,7 +4,7 @@ import { fastGetParent } from "./path"
 interface DeepObjectChildren {
   deep: Set<object>
 
-  extensionsData: WeakMap<object, any>
+  extensionsData: Map<object, unknown>
 }
 
 interface ObjectChildrenData extends DeepObjectChildren {
@@ -69,8 +69,8 @@ export function getDeepObjectChildren(node: object): DeepObjectChildren {
 
 function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
   data.deep.add(node)
-  extensions.forEach((extension, dataSymbol) => {
-    extension.addNode(node, data.extensionsData.get(dataSymbol))
+  data.extensionsData.forEach((extensionData, dataSymbol) => {
+    extensions.get(dataSymbol)!.addNode(node, extensionData)
   })
 }
 
@@ -81,7 +81,7 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
   }
 
   obj.deep = new Set()
-  obj.extensionsData = initExtensionsData()
+  obj.extensionsData = initExtensionsData(obj.extensionsData)
 
   const childrenIterator = obj.shallow.values()
   let childrenIteratorResult = childrenIterator.next()
@@ -157,15 +157,23 @@ export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChil
   extensions.set(dataSymbol, extension)
 
   return (data: DeepObjectChildren): D => {
-    return data.extensionsData.get(dataSymbol) as D
+    let extensionData = data.extensionsData.get(dataSymbol) as D | undefined
+    if (!data.extensionsData.has(dataSymbol)) {
+      extensionData = extension.initData()
+      data.extensionsData.set(dataSymbol, extensionData)
+      data.deep.forEach((node) => {
+        extension.addNode(node, extensionData!)
+      })
+    }
+    return extensionData!
   }
 }
 
-function initExtensionsData() {
-  const extensionsData = new WeakMap<object, unknown>()
+function initExtensionsData(previousData?: ReadonlyMap<object, unknown>) {
+  const extensionsData = new Map<object, unknown>()
 
-  extensions.forEach((extension, dataSymbol) => {
-    extensionsData.set(dataSymbol, extension.initData())
+  previousData?.forEach((_, dataSymbol) => {
+    extensionsData.set(dataSymbol, extensions.get(dataSymbol)!.initData())
   })
 
   return extensionsData

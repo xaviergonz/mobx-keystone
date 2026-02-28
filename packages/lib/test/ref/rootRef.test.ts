@@ -432,6 +432,36 @@ test("string-created rootRef participates in backrefs without prior observation"
   expect(Array.from(getRefsResolvingTo(cSpain, countryRef2))).toEqual([ref])
 })
 
+test("queried rootRef backrefs set stays reactive without re-querying", () => {
+  const c = new Countries({
+    countries: initialCountries(),
+  })
+  const cSpain = c.countries.spain
+  const ref = countryRef2(cSpain)
+
+  runUnprotected(() => {
+    c.selectedCountryRef = ref
+  })
+
+  const backRefs = getRefsResolvingTo(cSpain, countryRef2)
+  const snapshots: Ref<Country>[][] = []
+
+  autoDispose(
+    reaction(
+      () => Array.from(backRefs.values()),
+      (refs) => {
+        snapshots.push(refs)
+      },
+      { fireImmediately: true }
+    )
+  )
+
+  c.removeCountry("spain")
+  c.addCountry(cSpain)
+
+  expect(snapshots).toEqual([[ref], [], [ref]])
+})
+
 test("rootRef onResolvedValueChange cleanup works without observing the ref first", () => {
   const c = new Countries({
     countries: initialCountries(),
