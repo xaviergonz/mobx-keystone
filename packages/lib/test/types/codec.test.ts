@@ -197,7 +197,7 @@ test("skipCheck with codec inside composite types preserves round-trip", () => {
 
   // fromSnapshot converts string[] → bigint[]
   const value = fromSnapshot(arrayOfSkippedBigint, ["10", "20", "30"])
-  expect(value).toEqual([10n, 20n, 30n])
+  expect(Array.from(value)).toEqual([10n, 20n, 30n])
 
   // getSnapshot converts bigint[] → string[]
   expect(getSnapshot(arrayOfSkippedBigint, [10n, 20n, 30n])).toEqual(["10", "20", "30"])

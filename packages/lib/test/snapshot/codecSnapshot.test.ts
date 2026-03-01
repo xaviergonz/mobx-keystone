@@ -8,6 +8,7 @@ import {
   TypeToData,
   TypeToSnapshotIn,
   TypeToSnapshotOut,
+  typeCheck,
   types,
 } from "../../src"
 
@@ -218,4 +219,109 @@ test("codec runtime arrays support mutating array helpers on runtime values", ()
   })
 
   expect(getSnapshot(idsType, ids)).toEqual(["10", "10", "2"])
+})
+
+test("codec map snapshots support mutable codec values and direct runtime maps", () => {
+  class MutableBox {
+    private onChange?: (next: string) => void
+
+    constructor(readonly value: string) {}
+
+    withChangeHandler(onChange: (next: string) => void) {
+      this.onChange = onChange
+      return this
+    }
+
+    setValue(next: string) {
+      this.onChange?.(next)
+    }
+  }
+
+  const mutableBoxType = types.codec({
+    typeName: "mutableBox",
+    encodedType: types.string,
+    is(value): value is MutableBox {
+      return value instanceof MutableBox
+    },
+    transform({ originalValue, cachedTransformedValue, setOriginalValue }) {
+      return (cachedTransformedValue ?? new MutableBox(originalValue)).withChangeHandler(
+        setOriginalValue
+      )
+    },
+    untransform({ transformedValue, cacheTransformedValue }) {
+      cacheTransformedValue()
+      return transformedValue.value
+    },
+  })
+
+  const objectMapType = types.mapFromObject(mutableBoxType)
+  const arrayMapType = types.mapFromArray(types.bigint, mutableBoxType)
+
+  const objectMap = fromSnapshot(objectMapType, { a: "one" })
+  const arrayMap = fromSnapshot(arrayMapType, [["1", "two"]])
+
+  expect(Object.prototype.toString.call(objectMap)).toBe("[object Map]")
+  expect(Object.prototype.toString.call(arrayMap)).toBe("[object Map]")
+  expect(objectMap.get("missing")).toBeUndefined()
+  expect(
+    typeCheck(objectMapType, new Map([[1 as any, new MutableBox("bad-key")]]) as never)
+  ).not.toBeNull()
+  expect(typeCheck(arrayMapType, new Map([[1n, new MutableBox("ok")]]))).toBeNull()
+
+  runUnprotected(() => {
+    objectMap.get("a")!.setValue("two")
+    objectMap.forEach((value, key, map) => {
+      expect(key).toBe("a")
+      expect(map).toBe(objectMap)
+      value.setValue("three")
+    })
+    for (const [, value] of objectMap.entries()) {
+      value.setValue("four")
+    }
+    for (const value of objectMap.values()) {
+      value.setValue("five")
+    }
+    arrayMap.get(1n)!.setValue("six")
+  })
+
+  expect(getSnapshot(objectMapType, objectMap)).toEqual({
+    a: "five",
+  })
+  expect(getSnapshot(arrayMapType, arrayMap)).toEqual([["1", "six"]])
+  expect(getSnapshot(objectMapType, new Map([["b", new MutableBox("seven")]]))).toEqual({
+    b: "seven",
+  })
+  expect(getSnapshot(arrayMapType, new Map([[2n, new MutableBox("eight")]]))).toEqual([
+    ["2", "eight"],
+  ])
+})
+
+test("codec set snapshots support direct runtime sets", () => {
+  const setType = types.setFromArray(types.bigint)
+  const set = fromSnapshot(setType, ["1", "2"])
+
+  expect(Object.prototype.toString.call(set)).toBe("[object Set]")
+
+  const forEachValues: Array<[bigint, bigint, boolean]> = []
+  set.forEach((value, key, runtimeSet) => {
+    forEachValues.push([value, key, runtimeSet === set])
+  })
+  expect(forEachValues).toEqual([
+    [1n, 1n, true],
+    [2n, 2n, true],
+  ])
+  expect(Array.from(set.entries())).toEqual([
+    [1n, 1n],
+    [2n, 2n],
+  ])
+  expect(Array.from(set.keys())).toEqual([1n, 2n])
+  expect(Array.from(set.values())).toEqual([1n, 2n])
+
+  runUnprotected(() => {
+    set.add(3n)
+    set.delete(1n)
+  })
+
+  expect(getSnapshot(setType, set)).toEqual(["2", "3"])
+  expect(getSnapshot(setType, new Set([4n, 5n]))).toEqual(["4", "5"])
 })

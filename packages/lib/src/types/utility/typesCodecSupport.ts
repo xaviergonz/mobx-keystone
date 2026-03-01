@@ -1,4 +1,4 @@
-import { isObservableObject, remove } from "mobx"
+import { isObservableArray, isObservableObject, remove } from "mobx"
 import type { ModelPropTransform } from "../../modelShared/prop"
 import { isArray, isObject, lazy } from "../../utils"
 import { setIfDifferent } from "../../utils/setIfDifferent"
@@ -300,6 +300,12 @@ function createArrayLikeRuntimeAdapter(
           const index = getArrayIndex(prop)
           if (index !== undefined) {
             return decodeIndex(target, index)
+          }
+
+          // MobX 4 observable arrays are array-like but fail `Array.isArray`, so native
+          // `Array.prototype.concat` won't spread this proxy unless we opt in explicitly.
+          if (prop === Symbol.isConcatSpreadable && isObservableArray(target) && !Array.isArray(target)) {
+            return true
           }
 
           switch (prop) {
