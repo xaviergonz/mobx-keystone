@@ -71,7 +71,11 @@ export function typesOr(
     throw failure("or type must have at least 1 possible type")
   }
 
-  const typeInfoGen: TypeInfoGen = (t) => new OrTypeInfo(t, orTypes.map(resolveStandardType))
+  const originalDispatcher = firstTypeChecker
+    ? undefined
+    : (dispatcherOrType as (sn: any) => AnyType)
+  const typeInfoGen: TypeInfoGen = (t) =>
+    new OrTypeInfo(t, orTypes.map(resolveStandardType), originalDispatcher)
 
   return lateTypeChecker(() => {
     const checkers = orTypes.map(resolveTypeChecker)
@@ -156,7 +160,12 @@ export function typesOr(
 
         for (let i = 0; i < candidateCheckers.length; i++) {
           const tc = candidateCheckers[i]
-          if (!tc.check(value, path, typeCheckedValue)) {
+          if (tc.skipCheck) {
+            // For skipCheck branches, verify structural match without deep validation
+            if (tc.snapshotType(value)) {
+              return null
+            }
+          } else if (!tc.check(value, path, typeCheckedValue)) {
             return null
           }
         }
@@ -176,7 +185,11 @@ export function typesOr(
         const valueBaseType = getTypeCheckerBaseTypeFromValue(value)
         const checkerForBaseType = getCandidateCheckers(valueBaseType)
 
-        if (checkerForBaseType.length === 1 && checkerForBaseType[0].baseType === valueBaseType) {
+        if (
+          checkerForBaseType.length === 1 &&
+          checkerForBaseType[0].baseType === valueBaseType &&
+          !checkerForBaseType[0].skipCheck
+        ) {
           // when there is only one valid option accept it without asking
           // this is done because:
           // 1) performance (avoid checking structure if not needed)
@@ -238,7 +251,8 @@ export class OrTypeInfo extends TypeInfo {
 
   constructor(
     thisType: AnyStandardType,
-    readonly orTypes: ReadonlyArray<AnyStandardType>
+    readonly orTypes: ReadonlyArray<AnyStandardType>,
+    readonly dispatcher: ((sn: any) => AnyType) | undefined
   ) {
     super(thisType)
   }

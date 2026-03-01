@@ -1,5 +1,6 @@
 import { values } from "mobx"
 import { modelAction } from "../action/modelAction"
+import type { AnyModel } from "../model/BaseModel"
 import { Model } from "../model/Model"
 import { modelIdKey } from "../model/metadata"
 import { model } from "../modelShared/modelDecorator"
@@ -9,18 +10,25 @@ import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { namespace } from "../utils"
 
+const arraySetBase = Model({
+  [modelIdKey]: idProp,
+  items: tProp(typesArray(typesUnchecked<any>()), () => []), // will be properly checked by types.arraySet(subType)
+}) as abstract new (
+  data: any
+) => AnyModel & {
+  readonly $: {
+    items: any[]
+  }
+  readonly items: any[]
+}
+
 /**
  * A set that is backed by an array.
  * Use `arraySet` to create it.
  */
 @model(`${namespace}/ArraySet`)
-export class ArraySet<V>
-  extends Model({
-    [modelIdKey]: idProp,
-    items: tProp(typesArray(typesUnchecked<any>()), () => []), // will be properly checked by types.arraySet(subType)
-  })
-  implements Set<V>
-{
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: model base defines these properties at runtime.
+export class ArraySet<V> extends arraySetBase implements Set<V> {
   @modelAction
   add(value: V): this {
     const items = this.items
@@ -70,13 +78,13 @@ export class ArraySet<V>
   *keys(): ReturnType<Set<V>["keys"]> {
     // yes, values
     for (const value of values(this.items)) {
-      yield value
+      yield value as V
     }
   }
 
   *values(): ReturnType<Set<V>["values"]> {
     for (const value of values(this.items)) {
-      yield value
+      yield value as V
     }
   }
 
@@ -126,6 +134,13 @@ export class ArraySet<V>
     const s = new Set(this)
     return s.isDisjointFrom(other)
   }
+}
+
+export interface ArraySet<V> {
+  readonly $: {
+    items: V[]
+  }
+  readonly items: V[]
 }
 
 /**

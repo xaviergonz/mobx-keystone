@@ -69,7 +69,10 @@ export abstract class BaseModel<
    */
   get [modelIdKey](): ModelIdPropertyType<TProps, ModelIdPropertyName> {
     const idProp = getModelIdPropertyName(this.constructor as any)
-    return idProp ? this.$[idProp] : (undefined as any)
+    return (idProp ? (this.$ as any)[idProp] : undefined) as ModelIdPropertyType<
+      TProps,
+      ModelIdPropertyName
+    >
   }
 
   set [modelIdKey](newId: ModelIdPropertyType<TProps, ModelIdPropertyName>) {

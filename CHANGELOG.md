@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+- Added `types.codec(...)` plus built-in codecs/factories for `bigint`, dates, maps, and sets (`types.bigint`, `types.dateAsTimestamp`, `types.dateAsIsoString`, `types.mapFromObject(...)`, `types.mapFromArray(...)`, `types.setFromArray(...)`).
+- Added `TypeToSnapshotIn<T>` / `TypeToSnapshotOut<T>` helper types and `CodecTypeInfo`.
+- Fixed `$modelId` getter typing to return the proper `ModelIdPropertyType` instead of a loosely-typed value.
 - Performance: optimized `rootRef` resolution and backref updates in large reference-heavy initialization flows by skipping `resolveId(...)` work for detached refs and avoiding no-op backref update actions.
+- Added `types.skipCheck(type)` — a wrapper type that disables runtime validation while preserving snapshot processing, codec conversions, and transforms.
+- Deprecated built-in transform helpers in favor of codec equivalents with `types.skipCheck(...)`: `timestampToDateTransform`, `isoStringToDateTransform`, `stringToBigIntTransform`, `objectToMapTransform`, `arrayToMapTransform`, `arrayToSetTransform`. Also soft-deprecated `.withTransform(...)` — prefer `tProp(types.codec(...))` or `tProp(types.skipCheck(...))` for new code.
 
 ## 1.19.0
 

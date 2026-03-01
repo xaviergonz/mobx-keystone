@@ -28,11 +28,23 @@ import {
 } from "./primitiveBased/typesPrimitive"
 import { typesInteger, typesNonEmptyString } from "./primitiveBased/typesRefinedPrimitive"
 import type { AnyType } from "./schemas"
+import {
+  CodecTypeInfo,
+  typesBigInt,
+  typesCodec,
+  typesDateAsIsoString,
+  typesDateAsTimestamp,
+  typesMapFromArray,
+  typesMapFromObject,
+  typesSetFromArray,
+} from "./utility/typesCodec"
 import { typesMaybe, typesMaybeNull } from "./utility/typesMaybe"
 import { OrTypeInfo, typesOr } from "./utility/typesOr"
 import { RefinementTypeInfo, typesRefinement } from "./utility/typesRefinement"
+import { SkipCheckTypeInfo, typesSkipCheck } from "./utility/typesSkipCheck"
 import { TagTypeInfo, typesTag } from "./utility/typesTag"
 import { typesUnchecked, UncheckedTypeInfo } from "./utility/typesUnchecked"
+
 export { getTypeInfo } from "./getTypeInfo"
 export { TypeInfo } from "./TypeChecker"
 export type { ObjectTypeInfoProps, ModelTypeInfoProps }
@@ -48,12 +60,14 @@ export {
   RecordTypeInfo,
   RefTypeInfo,
   UncheckedTypeInfo,
+  SkipCheckTypeInfo,
   ObjectTypeInfo,
   ArraySetTypeInfo,
   ArrayTypeInfo,
   ModelTypeInfo,
   OrTypeInfo,
   TupleTypeInfo,
+  CodecTypeInfo,
 }
 
 export const types = {
@@ -69,6 +83,7 @@ export const types = {
   array: typesArray,
   record: typesRecord,
   unchecked: typesUnchecked,
+  skipCheck: typesSkipCheck,
   model: typesModel,
   dataModelData: typesDataModelData,
   object: typesObject,
@@ -77,21 +92,51 @@ export const types = {
   enum: typesEnum,
   tag: typesTag,
   refinement: typesRefinement,
+  codec: typesCodec,
   integer: typesInteger,
   nonEmptyString: typesNonEmptyString,
   objectMap: typesObjectMap,
   arraySet: typesArraySet,
   tuple: typesTuple,
-
+  bigint: typesBigInt,
+  dateAsTimestamp: typesDateAsTimestamp,
+  dateAsIsoString: typesDateAsIsoString,
+  /**
+   * @deprecated Prefer `types.mapFromArray(...)` for runtime `Map` values.
+   */
   mapArray<T extends AnyType>(valueType: T) {
     return typesArray(typesTuple(typesString, valueType))
   },
+  /**
+   * @deprecated Prefer `types.setFromArray(...)` for runtime `Set` values.
+   */
   setArray<T extends AnyType>(valueType: T) {
     return typesArray(valueType)
   },
+  /**
+   * @deprecated Prefer `types.mapFromObject(...)` for runtime `Map` values.
+   */
   mapObject<T extends AnyType>(valueType: T) {
     return typesRecord(valueType)
   },
+  mapFromObject<T extends AnyType>(valueType: T) {
+    return typesMapFromObject(valueType)
+  },
+  mapFromArray<TKeyType extends AnyType, TValueType extends AnyType>(
+    keyType: TKeyType,
+    valueType: TValueType
+  ) {
+    return typesMapFromArray(keyType, valueType)
+  },
+  setFromArray<T extends AnyType>(valueType: T) {
+    return typesSetFromArray(valueType)
+  },
+  /**
+   * @deprecated Prefer `types.dateAsIsoString` instead.
+   */
   dateString: typesNonEmptyString,
+  /**
+   * @deprecated Prefer `types.dateAsTimestamp` instead.
+   */
   dateTimestamp: typesInteger,
 }

@@ -55,7 +55,11 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
         return null
       },
       (array, index, path, typeCheckedValue) => {
-        const error = checkers[index].check(array[index], emptyChildPath, typeCheckedValue)
+        const checker = checkers[index]
+        if (checker.unchecked || checker.skipCheck) {
+          return null
+        }
+        const error = checker.check(array[index], emptyChildPath, typeCheckedValue)
         return error
           ? prependPathElementToTypeCheckError(error, path, index, typeCheckedValue)
           : null

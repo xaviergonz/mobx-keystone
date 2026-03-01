@@ -1,6 +1,7 @@
 import { registerDataModelDataStandardTypeResolver } from "./objectBased/typesDataModelData"
 import { registerModelStandardTypeResolver } from "./objectBased/typesModel"
 import { registerPrimitiveStandardTypeResolvers } from "./primitiveBased/typesPrimitive"
+import { registerCodecStandardTypeResolvers } from "./utility/typesCodec"
 
 let defaultStandardTypeResolversRegistered = false
 
@@ -16,4 +17,5 @@ export function registerDefaultStandardTypeResolvers() {
   registerModelStandardTypeResolver()
   registerDataModelDataStandardTypeResolver()
   registerPrimitiveStandardTypeResolvers()
+  registerCodecStandardTypeResolvers()
 }

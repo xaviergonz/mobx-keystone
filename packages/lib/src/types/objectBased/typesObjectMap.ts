@@ -14,6 +14,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { resolveCodecSupport } from "../utility/typesCodec"
 import { typesObject } from "./typesObject"
 import { typesRecord } from "./typesRecord"
 
@@ -38,12 +39,14 @@ export function typesObjectMap<T extends AnyType>(
     const modelInfo = modelInfoByClass.get(ObjectMap)!
 
     const valueChecker = resolveTypeChecker(valueType)
+    const valueSupport = resolveCodecSupport(valueType)
+    const storedValueChecker = resolveTypeChecker(valueSupport.storedType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `ObjectMap<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
     const dataTypeChecker = typesObject(() => ({
-      items: typesRecord(valueChecker as any),
+      items: typesRecord(valueSupport.storedType as any),
     }))
     const resolvedDataTypeChecker = resolveTypeChecker(dataTypeChecker)
 
@@ -85,7 +88,7 @@ export function typesObjectMap<T extends AnyType>(
         withErrorPathSegment("items", () => {
           for (const k of Object.keys(sn.items)) {
             newItems[k] = withErrorPathSegment(k, () =>
-              valueChecker.fromSnapshotProcessor(sn.items[k])
+              storedValueChecker.fromSnapshotProcessor(sn.items[k])
             )
           }
         })
@@ -103,7 +106,7 @@ export function typesObjectMap<T extends AnyType>(
         withErrorPathSegment("items", () => {
           for (const k of Object.keys(sn.items)) {
             newItems[k] = withErrorPathSegment(k, () =>
-              valueChecker.toSnapshotProcessor(sn.items[k])
+              storedValueChecker.toSnapshotProcessor(sn.items[k])
             )
           }
         })

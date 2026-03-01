@@ -1,5 +1,5 @@
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
-import type { LateTypeChecker, TypeChecker } from "../types/TypeChecker"
+import type { AnyStandardType } from "../types/schemas"
 import { getOrCreate } from "../utils/mapUtils"
 import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
 
@@ -38,7 +38,7 @@ export interface ModelProp<
 
   _defaultFn: (() => TPropValue) | typeof noDefaultValue
   _defaultValue: TPropValue | typeof noDefaultValue
-  _typeChecker: TypeChecker | LateTypeChecker | undefined
+  _typeChecker: AnyStandardType | undefined
   _setter: SetterMode
   _setterValueTransform: ((value: unknown) => unknown) | undefined
   _isId: boolean
@@ -109,6 +109,11 @@ export interface ModelProp<
   /**
    * Sets a transform for the property instance value.
    *
+   * @deprecated Prefer using `tProp(types.codec(...))` or one of the built-in codec types
+   * (e.g. `types.dateAsTimestamp`, `types.bigint`, `types.mapFromObject(...)`) instead.
+   * Wrap with `types.skipCheck(...)` if you don't need runtime validation.
+   * Use `.withTransform(...)` only for one-off custom transforms without a codec equivalent.
+   *
    * @template TTV Transformed value type.
    * @param transform Transform to be used.
    * @returns
@@ -157,9 +162,9 @@ export interface ModelProp<
  * The snapshot in type of a model property.
  */
 export type ModelPropFromSnapshot<MP extends AnyModelProp> = IsNeverType<
-  MP["$fromSnapshotOverride"],
-  SnapshotInOf<MP["$creationValueType"]>,
-  MP["$fromSnapshotOverride"]
+  ModelPropFromSnapshotOverride<MP>,
+  SnapshotInOf<ModelPropStoredCreationValue<MP>>,
+  ModelPropFromSnapshotOverride<MP>
 >
 
 /**
@@ -167,9 +172,27 @@ export type ModelPropFromSnapshot<MP extends AnyModelProp> = IsNeverType<
  */
 export type ModelPropToSnapshot<MP extends AnyModelProp> = IsNeverType<
   MP["$toSnapshotOverride"],
-  SnapshotOutOf<MP["$valueType"]>,
+  SnapshotOutOf<ModelPropStoredValue<MP>>,
   MP["$toSnapshotOverride"]
 >
+
+export type ModelPropStoredValue<MP extends AnyModelProp> = MP extends {
+  $storedValueType: infer TStoredValue
+}
+  ? TStoredValue
+  : MP["$valueType"]
+
+export type ModelPropStoredCreationValue<MP extends AnyModelProp> = MP extends {
+  $storedCreationValueType: infer TStoredCreationValue
+}
+  ? TStoredCreationValue
+  : MP["$creationValueType"]
+
+export type ModelPropFromSnapshotOverride<MP extends AnyModelProp> = MP extends {
+  $typedFromSnapshotOverride: infer TFromSnapshotOverride
+}
+  ? TFromSnapshotOverride
+  : MP["$fromSnapshotOverride"]
 
 /**
  * A model prop transform.
@@ -210,7 +233,7 @@ export type RequiredModelProps<MP extends ModelProps> = {
 }[keyof MP]
 
 export type ModelPropsToUntransformedData<MP extends ModelProps> = Flatten<{
-  [k in keyof MP]: MP[k]["$valueType"]
+  [k in keyof MP]: ModelPropStoredValue<MP[k]>
 }>
 
 export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
@@ -221,9 +244,9 @@ export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
 // also if we use Pick over the optional props we will loose the ability to infer generics
 // we also don't use Flatten because if we do some generics won't work
 export type ModelPropsToUntransformedCreationData<MP extends ModelProps> = {
-  [k in keyof MP]?: MP[k]["$creationValueType"]
+  [k in keyof MP]?: ModelPropStoredCreationValue<MP[k]>
 } & {
-  [k in RequiredModelProps<MP>]: MP[k]["$creationValueType"]
+  [k in RequiredModelProps<MP>]: ModelPropStoredCreationValue<MP[k]>
 }
 
 // we don't use O.Optional anymore since it generates unions too heavy
@@ -234,9 +257,9 @@ export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = Flatten<
   } & {
     [k in {
       [K in keyof MP]: IsNeverType<
-        MP[K]["$fromSnapshotOverride"],
+        ModelPropFromSnapshotOverride<MP[K]>,
         MP[K]["$isRequired"] & K, // no override
-        IsOptionalValue<MP[K]["$fromSnapshotOverride"], never, K> // with override
+        IsOptionalValue<ModelPropFromSnapshotOverride<MP[K]>, never, K> // with override
       >
     }[keyof MP]]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
   }
@@ -390,7 +413,7 @@ const baseProp: AnyModelProp = {
 
   withTransform(transform: ModelPropTransform<unknown, unknown>) {
     const obj: AnyModelProp = Object.create(this)
-    obj._transform = toFullTransform(transform)
+    obj._transform = composeFullTransforms(this._transform, toFullTransform(transform))
     return obj
   },
 
@@ -595,6 +618,52 @@ function toFullTransform(transformObject: ModelPropTransform<unknown, unknown>) 
       }
 
       return originalValue
+    },
+  }
+}
+
+function composeFullTransforms(
+  outerTransform:
+    | {
+        transform(
+          originalValue: unknown,
+          model: object,
+          propName: PropertyKey,
+          setOriginalValue: (newOriginalValue: unknown) => void
+        ): unknown
+        untransform(transformedValue: unknown, model: object, propName: PropertyKey): unknown
+      }
+    | undefined,
+  innerTransform: {
+    transform(
+      originalValue: unknown,
+      model: object,
+      propName: PropertyKey,
+      setOriginalValue: (newOriginalValue: unknown) => void
+    ): unknown
+    untransform(transformedValue: unknown, model: object, propName: PropertyKey): unknown
+  }
+) {
+  if (!outerTransform) {
+    return innerTransform
+  }
+
+  return {
+    transform(
+      originalValue: unknown,
+      model: object,
+      propName: PropertyKey,
+      setOriginalValue: (newOriginalValue: unknown) => void
+    ) {
+      const outerValue = outerTransform.transform(originalValue, model, propName, setOriginalValue)
+      return innerTransform.transform(outerValue, model, propName, (newOuterValue) => {
+        setOriginalValue(outerTransform.untransform(newOuterValue, model, propName))
+      })
+    },
+
+    untransform(transformedValue: unknown, model: object, propName: PropertyKey) {
+      const outerValue = innerTransform.untransform(transformedValue, model, propName)
+      return outerTransform.untransform(outerValue, model, propName)
     },
   }
 }

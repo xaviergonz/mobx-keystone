@@ -5,148 +5,125 @@ slug: /maps-sets-dates
 
 ## Overview
 
-Although `mobx-keystone` doesn't support properties which are Maps/Sets/Dates/BigInt directly (for JSON compatibility purposes), you can still simulate them in three ways:
+Although `mobx-keystone` keeps snapshots JSON-friendly, you can still work with `Map`, `Set`, `Date`, and `bigint` values. The recommended approaches are:
 
-1. The new property transforms.
-2. The `ObjectMap` and `ArraySet` collection models.
-3. The `asSet` and `asMap` collection wrappers.
+1. **Codecs** (`types.codec(...)` and built-in codecs) — reusable typed schemas that convert between a runtime value and its snapshot representation. Recommended for most use cases.
+2. **Collection wrappers** (`asMap` / `asSet`) — lightweight function wrappers that present a `Map`/`Set` interface over plain arrays/objects.
 
-## The new property transforms
+## Codecs
 
-`mobx-keystone` provides out of the box these property transforms:
+Codecs are typed schemas where the runtime value differs from the encoded snapshot value. They are part of the `types.*` system and integrate seamlessly with `tProp(...)`, `typeCheck(...)`, `fromSnapshot(...)`, and `getSnapshot(...)`.
 
-- `timestampToDateTransform()` - Transforms between a `number` and a `Date`.
-- `isoStringToDateTransform()` - Transforms between a `string` and a `Date`.
-- `objectToMapTransform()` - Transforms between a `Record<string, V>` and a `Map<string, V>`. Note this uses `asMap` internally, so the same limitations described below apply.
-- `arrayToMapTransform()` - Transforms between a `Array<[K, V]>` and a `Map<K, V>`. Note this uses `asMap` internally, so the same limitations described below apply.
-- `arrayToSetTransform()` - Transforms between a `Array<V>` and a `Set<V>`. Note this uses `asSet` internally, so the same limitations described below apply.
-- `stringToBigIntTransform()` - Transforms between a `string` and a `bigint`.
+### Built-in codecs
 
-Using a transform is as easy as calling `.withTransform(transform)` as part of a model property definition. For example:
+These codecs are built in:
+
+| Codec | Runtime type | Snapshot type |
+|---|---|---|
+| `types.bigint` | `bigint` | `string` |
+| `types.dateAsTimestamp` | `Date` | `number` (timestamp) |
+| `types.dateAsIsoString` | `Date` | `string` (ISO 8601) |
+| `types.mapFromObject(valueType)` | `Map<string, V>` | `Record<string, V>` |
+| `types.mapFromArray(keyType, valueType)` | `Map<K, V>` | `Array<[K, V]>` |
+| `types.setFromArray(valueType)` | `Set<V>` | `Array<V>` |
+
+### Basic example
 
 ```ts
-@model(...)
+@model("MyApp/M")
 class M extends Model({
-  date: prop<number>().withTransform(timestampToDateTransform()).withSetter()
+  id: tProp(types.bigint),
+  createdAt: tProp(types.dateAsTimestamp),
+  totals: tProp(types.mapFromObject(types.number), () => new Map()),
+  tags: tProp(types.setFromArray(types.string), () => new Set<string>()),
 }) {}
 
 const m = new M({
-  date: new Date()
+  id: 1n,
+  createdAt: new Date(),
+  totals: new Map([["a", 1]]),
+  tags: new Set(["x"]),
 })
 
-m.date // `Date`
-m.setDate(new Date()) // ok
-m.$.date // `number`
+m.id // bigint
+m.createdAt // Date
+m.totals // Map<string, number>
+m.tags // Set<string>
 
-getSnapshot(m) // `{ date: number, ... }`
+getSnapshot(m) // { id: "1", createdAt: 1234567890, totals: { a: 1 }, tags: ["x"], ... }
 ```
 
-Another example:
+### Nested / composed codecs
+
+Codecs compose naturally with each other and with other `types.*` combinators:
 
 ```ts
-@model(...)
-class M extends Model({
-  map: prop<Record<string, number>>().withTransform(objectToMapTransform())
+@model("MyApp/Schedule")
+class Schedule extends Model({
+  // Map with codec-converted keys AND values
+  events: tProp(
+    types.mapFromArray(types.dateAsIsoString, types.bigint),
+    () => new Map()
+  ),
+  // Optional bigint
+  limit: tProp(types.maybe(types.bigint)),
+  // Array of dates
+  holidays: tProp(types.array(types.dateAsTimestamp), () => []),
 }) {}
 
-const m = new M({
-  map: new Map(...)
+const s = new Schedule({
+  events: new Map([[new Date("2024-01-01"), 42n]]),
+  limit: undefined,
+  holidays: [new Date("2024-12-25")],
 })
 
-m.map // `Map<string, number>`
-m.$.map // `Record<string, number>`
+s.events // Map<Date, bigint>
+s.limit // bigint | undefined
+s.holidays // Date[]
 
-getSnapshot(m) // `{ map: Record<string, number>, ... }`
+// Snapshot is fully JSON-serializable:
+// { events: [["2024-01-01T00:00:00.000Z", "42"]], limit: undefined, holidays: [1735084800000], ... }
 ```
 
-### Creating your own custom property transform
+### Custom codecs
+
+You can create your own codecs with `types.codec(...)`:
 
 ```ts
-// first we designate the transform, with the type
-// `ModelPropTransform<TOriginalValue, TTransformedValue>`
-const _timestampToDateTransform: ModelPropTransform<number, Date> = {
-  transform({ originalValue, cachedTransformedValue, setOriginalValue }) {
-    // `originalValue` is the original (number) value to transform
-
-    // `cachedTransformedValue` is previously transformed value (`Date`) related
-    // to that original value (if any)
-
-    // `setOriginalValue` can be called in case we want to change the original value
-
-    return cachedTransformedValue ?? new ImmutableDate(originalValue)
+const urlType = types.codec({
+  typeName: "url",
+  encodedType: types.string,
+  is(value): value is URL {
+    return value instanceof URL
   },
-
+  transform({ originalValue, cachedTransformedValue }) {
+    return cachedTransformedValue ?? new URL(originalValue)
+  },
   untransform({ transformedValue, cacheTransformedValue }) {
-    // `transformedValue` is the transformed value (`Date`)
-
-    // `cacheTransformedValue()` can be called if we want to save into the cache
-    // that the current `transformedValue` can be cached and reused for that particular
-    // original value
-
-    if (transformedValue instanceof ImmutableDate) {
-      cacheTransformedValue()
-    }
-    return +transformedValue
+    cacheTransformedValue()
+    return transformedValue.toString()
   },
-}
+})
 
-// we need to export it as a function that returns the transform to keep TS happy
-// whenever a generic is involed (e.g. see the source code of `arrayToSetTransform`)
-// we will always return the same instance though instead of recreating it every time
-export const timestampToDateTransform = () => _timestampToDateTransform
-```
-
-## Collection models
-
-### `ObjectMap` collection model
-
-```ts
-class ... extends Model({
-  myNumberMap: prop(() => objectMap<number>())
-  // or if there's no default value
-  myNumberMap: prop<ObjectMap<number>>()
+// Use it like any other type:
+@model("MyApp/Link")
+class Link extends Model({
+  href: tProp(urlType),
+  altUrls: tProp(types.array(urlType), () => []),
 }) {}
 ```
 
-All the usual map operations are available (clear, set, get, has, keys, values, ...), and the snapshot representation of this model will be something like:
+See the [Runtime Type Checking](/runtime-type-checking) page for the full `types.codec(...)` API reference.
 
-```ts
-{
-  $modelType: "mobx-keystone/ObjectMap",
-  $modelId: "Td244...",
-  items: {
-    "key1": value1,
-    "key2": value2,
-  }
-}
-```
-
-### `ArraySet` collection model
-
-```ts
-class ... extends Model({
-  myNumberSet: prop(() => arraySet<number>())
-  // or if there's no default value
-  myNumberSet: prop<ArraySet<number>>()
-}) {}
-```
-
-All the usual set operations are available (clear, add, has, keys, values, ...), and the snapshot representation of this model will be something like:
-
-```ts
-{
-  $modelType: "mobx-keystone/ArraySet",
-  $modelId: "Td244...",
-  items: [
-    value1,
-    value2
-  ]
-}
-```
+:::note
+There are also `types.dateTimestamp` (equivalent to `types.integer`) and `types.dateString` (equivalent to `types.nonEmptyString`), but these are plain type checkers with no runtime `Date` conversion. Prefer the codec versions `types.dateAsTimestamp` and `types.dateAsIsoString` for new code.
+:::
 
 ## Collection wrappers
 
-**Note: Collection wrappers will return the same collection given a same backed object.**
+`asMap` and `asSet` are low-level utility functions that wrap plain observable objects/arrays into `Map`/`Set`-like interfaces. They can be useful when you need direct control over the underlying data. Unlike codecs, they do **not** convert values — they only provide a different interface over the same underlying data.
+
+**Note: Collection wrappers will return the same collection given the same backed object.**
 
 ### `asMap` collection wrapper
 
@@ -217,3 +194,149 @@ class ... {
 ```
 
 To convert it back to an array you can use `setToArray(set)`. When the map is a collection wrapper it will return the backed object rather than do a conversion.
+
+---
+
+## Deprecated approaches
+
+The following approaches are still functional but deprecated. For each one, the recommended alternative is listed.
+
+### Property transforms (`.withTransform(...)`) {#deprecated-property-transforms}
+
+**Alternative:** Use `tProp(types.codec(...))` or a built-in codec type. Wrap with `types.skipCheck(...)` if you don't need runtime validation.
+
+Property transforms are applied per-property on top of a plain `prop(...)` declaration. They convert between the stored value and the value exposed on the model instance.
+
+Compared to codecs, property transforms:
+- Don't integrate with the type system (no `typeCheck(...)`, no typed `fromSnapshot`/`getSnapshot`)
+- Don't compose — each property declares its own transform
+- Don't support nested conversion (e.g. a `Map<string, Date>`)
+- Require you to manually declare snapshot types via `prop<StoredType>()`
+
+```ts
+// ❌ Deprecated
+@model("MyApp/M")
+class M extends Model({
+  date: prop<number>().withTransform(timestampToDateTransform()).withSetter(),
+}) {}
+
+// ✅ Preferred
+@model("MyApp/M")
+class M extends Model({
+  date: tProp(types.dateAsTimestamp).withSetter(),
+  // or without runtime checking:
+  // date: tProp(types.skipCheck(types.dateAsTimestamp)).withSetter(),
+}) {}
+```
+
+#### Creating a custom property transform
+
+If you have a one-off conversion that doesn't warrant a full codec, you can still create a custom property transform:
+
+```ts
+// ModelPropTransform<TOriginalValue, TTransformedValue>
+const _timestampToDateTransform: ModelPropTransform<number, Date> = {
+  transform({ originalValue, cachedTransformedValue, setOriginalValue }) {
+    return cachedTransformedValue ?? new ImmutableDate(originalValue)
+  },
+  untransform({ transformedValue, cacheTransformedValue }) {
+    if (transformedValue instanceof ImmutableDate) {
+      cacheTransformedValue()
+    }
+    return +transformedValue
+  },
+}
+
+export const timestampToDateTransform = () => _timestampToDateTransform
+```
+
+However, for reusable conversions, prefer `types.codec(...)` — see the [Custom codecs](#custom-codecs) section above.
+
+### Built-in transform helpers {#deprecated-built-in-transforms}
+
+All built-in transform helpers are deprecated. Use the corresponding codec instead:
+
+| Deprecated transform | Codec alternative |
+|---|---|
+| `timestampToDateTransform()` | `types.dateAsTimestamp` |
+| `isoStringToDateTransform()` | `types.dateAsIsoString` |
+| `stringToBigIntTransform()` | `types.bigint` |
+| `objectToMapTransform()` | `types.mapFromObject(valueType)` |
+| `arrayToMapTransform()` | `types.mapFromArray(keyType, valueType)` |
+| `arrayToSetTransform()` | `types.setFromArray(valueType)` |
+
+:::tip
+Codecs additionally support nested conversion. For example, `types.mapFromArray(types.dateAsIsoString, types.bigint)` converts both keys and values, which is not possible with `arrayToMapTransform()`.
+
+If you want the codec conversion without runtime type-checking overhead, wrap with `types.skipCheck(...)`:
+
+```ts
+tProp(types.skipCheck(types.dateAsTimestamp))
+// equivalent to: prop<number>().withTransform(timestampToDateTransform())
+// but with proper snapshot typing and composability
+```
+:::
+
+### Collection models (`ObjectMap` / `ArraySet`) {#deprecated-collection-models}
+
+**Alternative:** Use `tProp(types.mapFromObject(...))`, `tProp(types.mapFromArray(...))`, or `tProp(types.setFromArray(...))`.
+
+`ObjectMap` and `ArraySet` are special model wrappers that provide `Map`-like and `Set`-like interfaces. They produce snapshots that include `$modelType` and `$modelId` metadata, whereas codecs produce clean plain objects/arrays.
+
+#### `ObjectMap` collection model
+
+```ts
+// ❌ Deprecated
+class ... extends Model({
+  myNumberMap: prop(() => objectMap<number>())
+  // or if there's no default value
+  myNumberMap: prop<ObjectMap<number>>()
+}) {}
+
+// ✅ Preferred
+class ... extends Model({
+  myNumberMap: tProp(types.mapFromObject(types.number), () => new Map())
+}) {}
+```
+
+Snapshot representation of `ObjectMap` (includes model metadata):
+
+```ts
+{
+  $modelType: "mobx-keystone/ObjectMap",
+  $modelId: "Td244...",
+  items: {
+    "key1": value1,
+    "key2": value2,
+  }
+}
+```
+
+#### `ArraySet` collection model
+
+```ts
+// ❌ Deprecated
+class ... extends Model({
+  myNumberSet: prop(() => arraySet<number>())
+  // or if there's no default value
+  myNumberSet: prop<ArraySet<number>>()
+}) {}
+
+// ✅ Preferred
+class ... extends Model({
+  myNumberSet: tProp(types.setFromArray(types.number), () => new Set())
+}) {}
+```
+
+Snapshot representation of `ArraySet` (includes model metadata):
+
+```ts
+{
+  $modelType: "mobx-keystone/ArraySet",
+  $modelId: "Td244...",
+  items: [
+    value1,
+    value2
+  ]
+}
+```

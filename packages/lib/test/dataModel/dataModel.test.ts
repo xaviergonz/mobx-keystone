@@ -1,6 +1,8 @@
 import { computed, reaction } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
+  _async,
+  _await,
   addActionMiddleware,
   applyAction,
   DataModel,
@@ -8,17 +10,16 @@ import {
   getParent,
   idProp,
   Model,
+  ModelData,
+  type ModelUntransformedCreationData,
   modelAction,
   modelClass,
-  ModelData,
   modelFlow,
   prop,
   registerRootStore,
   toTreeNode,
   tProp,
   types,
-  _async,
-  _await,
 } from "../../src"
 import { autoDispose, delay, testModel } from "../utils"
 
@@ -993,4 +994,38 @@ test("data model can be used as tprop", () => {
   const dataModelClassTProp = tProp(SomeDataModel)
 
   expect(dataModelTypeTProp).toBe(dataModelClassTProp)
+})
+
+test("data model codec props accept encoded untransformed creation data", () => {
+  @testModel("CodecDataModel")
+  class CodecDataModel extends DataModel({
+    id: tProp(types.bigint),
+    createdAt: tProp(types.dateAsTimestamp),
+    ids: tProp(types.array(types.bigint), () => []),
+  }) {}
+
+  assert(_ as ModelUntransformedCreationData<CodecDataModel>["id"], _ as string)
+  assert(_ as ModelUntransformedCreationData<CodecDataModel>["createdAt"], _ as number)
+  assert(
+    _ as ModelUntransformedCreationData<CodecDataModel>["ids"],
+    _ as string[] | null | undefined
+  )
+
+  const fromEncoded = new CodecDataModel({
+    id: "1",
+    createdAt: 1000,
+    ids: ["2", "3"],
+  })
+  expect(fromEncoded.id).toBe(1n)
+  expect(+fromEncoded.createdAt).toBe(1000)
+  expect(Array.from(fromEncoded.ids)).toEqual([2n, 3n])
+
+  const fromRuntime = new CodecDataModel({
+    id: 4n,
+    createdAt: new Date(2000),
+    ids: [5n],
+  })
+  expect(fromRuntime.$.id).toBe("4")
+  expect(fromRuntime.$.createdAt).toBe(2000)
+  expect(Array.from(fromRuntime.$.ids)).toEqual(["5"])
 })

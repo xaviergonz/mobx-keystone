@@ -13,4 +13,8 @@ const _stringToBigIntTransform: ModelPropTransform<string, bigint> = {
   },
 }
 
+/**
+ * @deprecated Prefer the codec equivalent: `tProp(types.bigint)`.
+ * Use `tProp(types.skipCheck(types.bigint))` if you don't need runtime validation.
+ */
 export const stringToBigIntTransform = () => _stringToBigIntTransform

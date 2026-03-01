@@ -67,7 +67,7 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
           })
         }
 
-        if (itemChecker.unchecked) {
+        if (itemChecker.unchecked || itemChecker.skipCheck) {
           return null
         }
 

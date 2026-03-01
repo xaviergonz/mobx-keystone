@@ -95,7 +95,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
           })
         }
 
-        if (valueChecker.unchecked) {
+        if (valueChecker.unchecked || valueChecker.skipCheck) {
           return null
         }
 

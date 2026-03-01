@@ -13,7 +13,7 @@ import type { TypeCheckError } from "./TypeCheckError"
 export function typeCheck<T extends AnyType>(type: T, value: TypeToData<T>): TypeCheckError | null {
   const typeChecker = resolveTypeChecker(type)
 
-  if (typeChecker.unchecked) {
+  if (typeChecker.unchecked || typeChecker.skipCheck) {
     return null
   }
 

@@ -107,6 +107,30 @@ A type that represents any integer number value.
 
 A type that represents any string value.
 
+### `types.codec({ ... })`
+
+Creates a reusable typed codec whose runtime value differs from its encoded snapshot value.
+
+```ts
+const urlType = types.codec({
+  typeName: "url",
+  encodedType: types.string,
+  is(value): value is URL {
+    return value instanceof URL
+  },
+  transform({ originalValue, cachedTransformedValue }) {
+    return cachedTransformedValue ?? new URL(originalValue)
+  },
+  untransform({ transformedValue }) {
+    return transformedValue.toString()
+  },
+})
+```
+
+Codecs are a typed-system feature. Use them with `types.*`, `tProp(...)`, `typeCheck(...)`, typed `fromSnapshot(...)`, and typed `getSnapshot(...)`.
+For plain `prop(...)` or one-off property-local transforms, keep using `.withTransform(...)`.
+See [Maps, Sets, Dates, BigInt](/maps-sets-dates) for guidance on when to use codecs vs. property transforms.
+
 ### `types.nonEmptyString`
 
 A type that represents any string value other than "".
@@ -199,6 +223,54 @@ A type that represents an object-like map, an object with string keys and values
 const numberMapType = types.record(types.number)
 ```
 
+### `types.bigint`
+
+A built-in codec that stores snapshots as strings and exposes `bigint` values at runtime.
+
+```ts
+const bigintType = types.bigint
+```
+
+### `types.dateAsTimestamp`
+
+A built-in codec that stores snapshots as timestamps (`number`) and exposes `Date` values at runtime.
+
+```ts
+const dateType = types.dateAsTimestamp
+```
+
+### `types.dateAsIsoString`
+
+A built-in codec that stores snapshots as ISO strings and exposes `Date` values at runtime.
+
+```ts
+const dateType = types.dateAsIsoString
+```
+
+### `types.mapFromObject(valueType)`
+
+A built-in codec that stores snapshots as `Record<string, V>` and exposes `Map<string, V>` values at runtime.
+
+```ts
+const numberMapType = types.mapFromObject(types.number)
+```
+
+### `types.mapFromArray(keyType, valueType)`
+
+A built-in codec that stores snapshots as `Array<[K, V]>` and exposes `Map<K, V>` values at runtime.
+
+```ts
+const keyedDateMapType = types.mapFromArray(types.dateAsIsoString, types.bigint)
+```
+
+### `types.setFromArray(valueType)`
+
+A built-in codec that stores snapshots as arrays and exposes `Set<V>` / `ObservableSet<V>` values at runtime.
+
+```ts
+const numberSetType = types.setFromArray(types.number)
+```
+
 ### `types.model<M>(modelClass)`
 
 A type that represents a model. The type referenced in the model decorator will be used for type checking.
@@ -233,6 +305,33 @@ const uncheckedSomeModel = types.unchecked<SomeModel>()
 const anyType = types.unchecked<any>()
 const customUncheckedType = types.unchecked<(A & B) | C>()
 ```
+
+### `types.skipCheck(type)`
+
+A type that wraps another type but skips runtime validation while preserving all snapshot processing, codec conversions, and transforms. Unlike `types.unchecked()`, the wrapped type's runtime and snapshot typing is fully preserved.
+
+Use this when you want codec conversions (e.g. `types.dateAsTimestamp`, `types.bigint`, `types.mapFromObject(...)`) without paying the cost of runtime type checking on every change.
+
+```ts
+// Date codec with no runtime validation
+const skippedDate = types.skipCheck(types.dateAsTimestamp)
+
+// BigInt codec with no runtime validation
+const skippedBigInt = types.skipCheck(types.bigint)
+
+// In a model
+@model("MyApp/M")
+class M extends Model({
+  date: tProp(types.skipCheck(types.dateAsTimestamp)),
+  value: tProp(types.skipCheck(types.bigint)),
+}) {}
+```
+
+**`types.unchecked()` vs `types.skipCheck(type)`:**
+
+- `types.unchecked()` is a hard escape hatch with no type information — processors and codecs are not active.
+- `types.skipCheck(type)` preserves the wrapped type — processors, codecs, and transforms remain active.
+- In unions, `types.unchecked()` collapses the whole union; `types.skipCheck(type)` is branch-only.
 
 ### `types.ref(refConstructor)`
 
@@ -354,9 +453,9 @@ tProp([String, null]) // equivalent to tProp(types.maybeNull(String))
 
 If you need a union dispatcher, use `types.or(dispatcher, ...types)` explicitly.
 
-### `TypeToData<type>`
+### `TypeToData<type>` / `TypeToSnapshotIn<type>` / `TypeToSnapshotOut<type>`
 
-It is also possible to get the type represented by a type via `TypeToData`:
+It is also possible to get the runtime and snapshot types represented by a type:
 
 ```ts
 const t = types.object(() => {
@@ -369,6 +468,9 @@ const t = types.object(() => {
 //   x: number,
 //   y: number
 // }
+
+// TypeToSnapshotIn<typeof types.bigint> = string
+// TypeToSnapshotOut<typeof types.bigint> = string
 ```
 
 ### Reflection of runtime type info
@@ -387,7 +489,9 @@ Thanks to `getTypeInfo(type: AnyType): TypeInfo` it is possible to get the runti
 - `ObjectMapTypeInfo` (`types.objectMap`)
 - `ArraySetTypeInfo` (`types.arraySet`)
 - `RecordTypeInfo` (`types.record`)
+- `CodecTypeInfo` (`types.codec`, `types.bigint`, `types.dateAsTimestamp`, `types.dateAsIsoString`, `types.mapFromObject`, `types.mapFromArray`, `types.setFromArray`)
 - `UncheckedTypeInfo` (`types.unchecked`)
+- `SkipCheckTypeInfo` (`types.skipCheck`)
 - `RefTypeInfo` (`types.ref`)
 - `FrozenTypeInfo` (`types.frozen`)
 

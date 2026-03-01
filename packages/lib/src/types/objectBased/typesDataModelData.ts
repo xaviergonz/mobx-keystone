@@ -23,6 +23,7 @@ import {
 } from "../TypeChecker"
 
 const cachedDataModelTypeChecker = new WeakMap<ModelClass<AnyDataModel>, TypeChecker>()
+const dataModelDataStandardTypes = new WeakSet<object>()
 
 type _Class<T> = abstract new (...args: any[]) => T
 type _ClassOrObject<M, K> = K extends M ? object : _Class<K> | (() => _Class<K>)
@@ -58,7 +59,9 @@ export function typesDataModelData<M = never, K = M>(
     // resolve later
     const modelClassFn = modelClass as () => ModelClass<AnyDataModel>
     const typeInfoGen: TypeInfoGen = (t) => new DataModelDataTypeInfo(t, modelClassFn())
-    return lateTypeChecker(() => typesDataModelData(modelClassFn()) as any, typeInfoGen) as any
+    const tc = lateTypeChecker(() => typesDataModelData(modelClassFn()) as any, typeInfoGen) as any
+    dataModelDataStandardTypes.add(tc as object)
+    return tc
   } else {
     const modelClazz: ModelClass<AnyDataModel> = modelClass as any
 
@@ -109,6 +112,7 @@ export function typesDataModelData<M = never, K = M>(
     }, typeInfoGen) as any
 
     cachedDataModelTypeChecker.set(modelClazz, tc)
+    dataModelDataStandardTypes.add(tc as object)
 
     return tc
   }
@@ -139,7 +143,7 @@ export class DataModelDataTypeInfo extends TypeInfo {
     Object.keys(objSchema).forEach((propName) => {
       const propData = objSchema[propName]
 
-      const type = propData._typeChecker as any as AnyStandardType | undefined
+      const type = propData._typeChecker
 
       let typeInfo: TypeInfo | undefined
       if (type) {
@@ -188,4 +192,13 @@ export class DataModelDataTypeInfo extends TypeInfo {
  */
 export function registerDataModelDataStandardTypeResolver() {
   registerStandardTypeResolver((v) => (isDataModelClass(v) ? typesDataModelData(v) : undefined))
+}
+
+/**
+ * @internal
+ */
+export function isDataModelDataStandardType(value: unknown): boolean {
+  return typeof value === "object" || typeof value === "function"
+    ? dataModelDataStandardTypes.has(value as object)
+    : false
 }
