@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.20.0
 
 - Added `types.codec(...)` plus built-in codecs/factories for `bigint`, dates, maps, and sets (`types.bigint`, `types.dateAsTimestamp`, `types.dateAsIsoString`, `types.mapFromObject(...)`, `types.mapFromArray(...)`, `types.setFromArray(...)`).
 - Added `TypeToSnapshotIn<T>` / `TypeToSnapshotOut<T>` helper types and `CodecTypeInfo`.
