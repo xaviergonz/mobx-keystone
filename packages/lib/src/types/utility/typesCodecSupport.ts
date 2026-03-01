@@ -304,7 +304,11 @@ function createArrayLikeRuntimeAdapter(
 
           // MobX 4 observable arrays are array-like but fail `Array.isArray`, so native
           // `Array.prototype.concat` won't spread this proxy unless we opt in explicitly.
-          if (prop === Symbol.isConcatSpreadable && isObservableArray(target) && !Array.isArray(target)) {
+          if (
+            prop === Symbol.isConcatSpreadable &&
+            isObservableArray(target) &&
+            !Array.isArray(target)
+          ) {
             return true
           }
 
@@ -551,7 +555,14 @@ function createOrRuntimeAdapter(
     const supports = getChildSupports()
     for (let i = 0; i < supports.length; i++) {
       const childType = childTypes[i]
-      if (!resolveTypeChecker(childType).check(value, [], value)) {
+      const tc = resolveTypeChecker(childType)
+      if (tc.skipCheck) {
+        // For skipCheck branches, use snapshotType for structural matching
+        // instead of check (which always passes and would match any value)
+        if (tc.snapshotType(value)) {
+          return supports[i]
+        }
+      } else if (!tc.check(value, [], value)) {
         return supports[i]
       }
     }
@@ -769,7 +780,16 @@ export function createCodecPropTransform(type: AnyType): ModelPropTransform<any,
   const adapter = resolveCodecSupport(type).adapter
 
   return {
-    transform({ originalValue, setOriginalValue }) {
+    transform({ originalValue, cachedTransformedValue, setOriginalValue }) {
+      // For leaf codecs backed by primitive stored data (e.g. timestamps, ISO strings),
+      // the adapter's WeakMap cache can't work. Thread the model's cachedTransformedValue
+      // to avoid creating new runtime objects when the stored value hasn't changed.
+      if (cachedTransformedValue !== undefined) {
+        const cachedStored = adapter.toStoredIfCached(cachedTransformedValue)
+        if (cachedStored.found && cachedStored.value === originalValue) {
+          return cachedTransformedValue
+        }
+      }
       return adapter.toRuntime(originalValue, setOriginalValue)
     },
 
