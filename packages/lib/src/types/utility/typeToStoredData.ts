@@ -20,9 +20,6 @@ type ObjectStoredData<S> = O.Optional<
   ObjectOptionalKeys<S>
 >
 
-/**
- * @internal
- */
 export type TypeToStoredData<S> = S extends ObjectTypeFunction
   ? ObjectStoredData<ReturnType<S>> extends infer R
     ? R

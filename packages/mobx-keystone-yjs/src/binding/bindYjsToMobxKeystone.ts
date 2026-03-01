@@ -13,8 +13,8 @@ import {
   onDeepChange,
   onGlobalDeepChange,
   onSnapshot,
-  SnapshotInOf,
   TypeToData,
+  TypeToSnapshotIn,
 } from "mobx-keystone"
 import * as Y from "yjs"
 import type { PlainArray, PlainObject } from "../plainTypes"
@@ -124,7 +124,7 @@ export function bindYjsToMobxKeystone<
 
     try {
       const result = yjsBindingContext.apply(
-        () => fromSnapshot(mobxKeystoneType, yjsJson as unknown as SnapshotInOf<TypeToData<TType>>),
+        () => fromSnapshot(mobxKeystoneType, yjsJson as unknown as TypeToSnapshotIn<TType>),
         bindingContext
       )
       yjsBindingContext.set(result, { ...bindingContext, boundObject: result })
