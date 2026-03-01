@@ -1,4 +1,5 @@
 import { AnyModelProp, MaybeOptionalModelProp, OptionalModelProp, prop } from "../modelShared/prop"
+import { lazy } from "../utils"
 import {
   typesBoolean,
   typesNull,
@@ -7,18 +8,35 @@ import {
   typesUndefined,
 } from "./primitiveBased/typesPrimitive"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
-import type { AnyType, TypeToData } from "./schemas"
-import { LateTypeChecker, TypeChecker } from "./TypeChecker"
+import type { AnyStandardType, AnyType, TypeToData, TypeToSnapshotIn } from "./schemas"
+import { createCodecPropTransform, resolveCodecSupport } from "./utility/typesCodec"
 import { typesOr } from "./utility/typesOr"
+import type { TypeToStoredData } from "./utility/typeToStoredData"
 
 const noDefaultValueSymbol = Symbol("noDefaultValue")
 
-const tPropCache = new WeakMap<TypeChecker | LateTypeChecker, Map<unknown, AnyModelProp>>()
+const tPropCache = new WeakMap<AnyStandardType, Map<unknown, AnyModelProp>>()
 
 type AnyTypeOrArray = AnyType | ReadonlyArray<AnyType>
 
+type StoredRequiredPropMetadata<TType extends AnyType> = {
+  $storedValueType: TypeToStoredData<TType>
+  $storedCreationValueType: TypeToStoredData<TType>
+}
+
+type TypedMaybeOptionalModelProp<TType extends AnyType> = MaybeOptionalModelProp<
+  TypeToData<TType>
+> &
+  StoredRequiredPropMetadata<TType>
+
+type TypedOptionalModelProp<TType extends AnyType> = OptionalModelProp<TypeToData<TType>> & {
+  $storedValueType: TypeToStoredData<TType>
+  $storedCreationValueType: TypeToStoredData<TType> | null | undefined
+  $typedFromSnapshotOverride: TypeToSnapshotIn<TType> | null | undefined
+}
+
 function getOrCreateTProp(
-  type: TypeChecker | LateTypeChecker,
+  type: AnyStandardType,
   defKey: unknown,
   createTProp: () => AnyModelProp
 ): AnyModelProp {
@@ -49,7 +67,7 @@ function getOrCreateTProp(
  * @param defaultValue Default value.
  * @returns
  */
-export function tProp(defaultValue: string): OptionalModelProp<string>
+export function tProp(defaultValue: string): TypedOptionalModelProp<typeof typesString>
 
 /**
  * Defines a number model property with a default value.
@@ -63,7 +81,7 @@ export function tProp(defaultValue: string): OptionalModelProp<string>
  * @param defaultValue Default value.
  * @returns
  */
-export function tProp(defaultValue: number): OptionalModelProp<number>
+export function tProp(defaultValue: number): TypedOptionalModelProp<typeof typesNumber>
 
 /**
  * Defines a boolean model property with a default value.
@@ -77,7 +95,7 @@ export function tProp(defaultValue: number): OptionalModelProp<number>
  * @param defaultValue Default value.
  * @returns
  */
-export function tProp(defaultValue: boolean): OptionalModelProp<boolean>
+export function tProp(defaultValue: boolean): TypedOptionalModelProp<typeof typesBoolean>
 
 /**
  * Defines a model property, with an optional function to generate a default value
@@ -98,7 +116,7 @@ export function tProp(defaultValue: boolean): OptionalModelProp<boolean>
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultFn: () => TypeToData<TType>
-): OptionalModelProp<TypeToData<TType>>
+): TypedOptionalModelProp<TType>
 
 /**
  * Defines a model property using array syntax as a shorthand for `types.or(...)`,
@@ -119,7 +137,7 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends ReadonlyArray<AnyType>>(
   type: TType,
   defaultFn: () => TypeToData<TType[number]>
-): OptionalModelProp<TypeToData<TType[number]>>
+): TypedOptionalModelProp<TType[number]>
 
 /**
  * Defines a model property, with an optional default value
@@ -141,7 +159,7 @@ export function tProp<TType extends ReadonlyArray<AnyType>>(
 export function tProp<TType extends AnyType>(
   type: TType,
   defaultValue: TypeToData<TType>
-): OptionalModelProp<TypeToData<TType>>
+): TypedOptionalModelProp<TType>
 
 /**
  * Defines a model property using array syntax as a shorthand for `types.or(...)`,
@@ -162,7 +180,7 @@ export function tProp<TType extends AnyType>(
 export function tProp<TType extends ReadonlyArray<AnyType>>(
   type: TType,
   defaultValue: TypeToData<TType[number]>
-): OptionalModelProp<TypeToData<TType[number]>>
+): TypedOptionalModelProp<TType[number]>
 
 /**
  * Defines a model property with no default value and an associated type checker.
@@ -178,7 +196,7 @@ export function tProp<TType extends ReadonlyArray<AnyType>>(
  * @param type Type checker.
  * @returns
  */
-export function tProp<TType extends AnyType>(type: TType): MaybeOptionalModelProp<TypeToData<TType>>
+export function tProp<TType extends AnyType>(type: TType): TypedMaybeOptionalModelProp<TType>
 
 /**
  * Defines a model property with no default value using array syntax as a shorthand
@@ -196,7 +214,7 @@ export function tProp<TType extends AnyType>(type: TType): MaybeOptionalModelPro
  */
 export function tProp<TType extends ReadonlyArray<AnyType>>(
   type: TType
-): MaybeOptionalModelProp<TypeToData<TType[number]>>
+): TypedMaybeOptionalModelProp<TType[number]>
 
 export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
   switch (typeof typeOrDefaultValue) {
@@ -217,42 +235,34 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
     ? typesOr(...(typeOrArray as ReadonlyArray<AnyType>))
     : (typeOrArray as AnyType)
 
-  const typeChecker = resolveStandardType(resolvedType) as unknown as
-    | TypeChecker
-    | LateTypeChecker
+  const typeChecker = resolveStandardType(resolvedType)
+  const codecSupport = resolveCodecSupport(typeChecker)
 
   return getOrCreateTProp(typeChecker, hasDefaultValue ? def : noDefaultValueSymbol, () => {
     const fromSnapshotTypeChecker = hasDefaultValue
-      ? typesOr(typeChecker as unknown as AnyType, typesUndefined, typesNull)
-      : typeChecker
+      ? typesOr(codecSupport.storedType, typesUndefined, typesNull)
+      : codecSupport.storedType
+    const getFromSnapshotProcessor = lazy(
+      () => resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
+    )
+    const getToSnapshotProcessor = lazy(
+      () => resolveTypeChecker(codecSupport.storedType).toSnapshotProcessor
+    )
 
     // we use Object.create to avoid messing up with the prop cache
-    const newProp = Object.create(hasDefaultValue ? prop(def) : prop())
+    const baseProp = hasDefaultValue ? prop(def) : prop()
+    const newProp = codecSupport.hasCodec
+      ? baseProp.withTransform(createCodecPropTransform(typeChecker))
+      : Object.create(baseProp)
 
     Object.assign(newProp, {
       _typeChecker: typeChecker,
 
-      _fromSnapshotProcessor: tPropFromSnapshotProcessor.bind(undefined, fromSnapshotTypeChecker),
+      _fromSnapshotProcessor: (sn) => getFromSnapshotProcessor()(sn),
 
-      _toSnapshotProcessor: tPropToSnapshotProcessor.bind(undefined, typeChecker),
+      _toSnapshotProcessor: (sn) => getToSnapshotProcessor()(sn),
     } satisfies Partial<AnyModelProp>)
 
     return newProp
   })
-}
-
-function tPropFromSnapshotProcessor(
-  fromSnapshotTypeChecker: AnyType | TypeChecker | LateTypeChecker,
-  sn: unknown
-): unknown {
-  const fsnp = resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
-  return fsnp ? fsnp(sn) : sn
-}
-
-function tPropToSnapshotProcessor(
-  typeChecker: AnyType | TypeChecker | LateTypeChecker,
-  sn: unknown
-): unknown {
-  const tsnp = resolveTypeChecker(typeChecker).toSnapshotProcessor
-  return tsnp ? tsnp(sn) : sn
 }

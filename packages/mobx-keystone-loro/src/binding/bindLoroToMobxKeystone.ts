@@ -22,8 +22,8 @@ import {
   onGlobalDeepChange,
   onSnapshot,
   resolvePath,
-  SnapshotOutOf,
   TypeToData,
+  TypeToSnapshotIn,
 } from "mobx-keystone"
 import { nanoid } from "nanoid"
 import type { PlainArray, PlainObject } from "../plainTypes"
@@ -122,7 +122,7 @@ export function bindLoroToMobxKeystone<
     },
   }
 
-  const loroJson = convertLoroDataToJson(loroObject) as SnapshotOutOf<TypeToData<TType>>
+  const loroJson = convertLoroDataToJson(loroObject) as TypeToSnapshotIn<TType>
 
   let boundObject: TypeToData<TType>
 

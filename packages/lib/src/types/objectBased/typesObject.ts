@@ -68,7 +68,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       for (let i = 0; i < schemaEntries.length; i++) {
         const schemaEntry = schemaEntries[i]
         const checker = schemaEntry.getResolvedChecker()
-        if (!checker.unchecked) {
+        if (!checker.unchecked && !checker.skipCheck) {
           checkedEntries.push({
             propName: schemaEntry.propName,
             checker,

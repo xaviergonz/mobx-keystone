@@ -1,6 +1,8 @@
-import { assertTweakedObject } from "../tweaker/core"
+import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
+import { toTreeNode } from "../tweaker/tweak"
 import { resolveTypeChecker } from "../types/resolveTypeChecker"
-import { AnyType, TypeToData } from "../types/schemas"
+import { AnyType, TypeToData, TypeToSnapshotOut } from "../types/schemas"
+import { resolveCodecSupport } from "../types/utility/typesCodec"
 import { failure, identityFn, isPrimitive } from "../utils"
 import {
   freezeInternalSnapshot,
@@ -21,7 +23,7 @@ import type { SnapshotOutOf } from "./SnapshotOf"
 export function getSnapshot<T extends AnyType>(
   type: T,
   nodeOrPrimitive: TypeToData<T>
-): SnapshotOutOf<TypeToData<T>>
+): TypeToSnapshotOut<T>
 
 /**
  * Retrieves an immutable snapshot for a data structure.
@@ -35,10 +37,25 @@ export function getSnapshot<T extends AnyType>(
 export function getSnapshot<T>(nodeOrPrimitive: T): SnapshotOutOf<T>
 
 export function getSnapshot(arg1: any, arg2?: any): any {
-  let toSnapshotProcessor = identityFn as (sn: any) => unknown
+  let toSnapshotProcessor: (sn: unknown) => unknown = identityFn
   let nodeOrPrimitive: any
 
   if (arguments.length >= 2) {
+    const codecSupport = resolveCodecSupport(arg1)
+    if (codecSupport.hasCodec) {
+      const storedTypeChecker = resolveTypeChecker(codecSupport.storedType)
+      const storedValue = codecSupport.adapter.toStored(arg2)
+
+      if (isPrimitive(storedValue)) {
+        return storedTypeChecker.toSnapshotProcessor(storedValue)
+      }
+
+      const storedTree = isTweakedObject(storedValue, true)
+        ? storedValue
+        : toTreeNode(codecSupport.storedType, storedValue)
+      return storedTypeChecker.toSnapshotProcessor(getSnapshot(storedTree))
+    }
+
     toSnapshotProcessor = resolveTypeChecker(arg1).toSnapshotProcessor
     nodeOrPrimitive = arg2
   } else {

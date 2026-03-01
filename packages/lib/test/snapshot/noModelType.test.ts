@@ -11,9 +11,10 @@ import {
   modelSnapshotOutWithMetadata,
   prop,
   SnapshotInOf,
+  TypeToData,
+  TypeToSnapshotIn,
   tProp,
   types,
-  TypeToData,
 } from "../../src"
 import { testModel } from "../utils"
 
@@ -94,7 +95,7 @@ test("model without model type thanks to a type passed to fromSnapshot", () => {
     TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
   >(
     type: TType,
-    sn: SnapshotInOf<TypeToData<TType>>,
+    sn: TypeToSnapshotIn<TType>,
     getInstance?: (val: TypeToData<TType>) => M1 | M2 | undefined | null
   ) => {
     const fsn = fromSnapshot(type, sn)

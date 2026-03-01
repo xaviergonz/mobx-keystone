@@ -57,9 +57,10 @@ export function invalidateCachedToSnapshotProcessorResult(obj: object) {
  */
 export class TypeChecker {
   unchecked: boolean
+  skipCheck = false
 
   check(value: any, path: Path, typeCheckedValue: any): TypeCheckError | null {
-    if (this.unchecked) {
+    if (this.unchecked || this.skipCheck) {
       return null
     }
 

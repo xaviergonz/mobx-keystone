@@ -12,8 +12,8 @@ import { modelTypeKey } from "../model/metadata"
 import { typesObject } from "../types/objectBased/typesObject"
 import { typesString } from "../types/primitiveBased/typesPrimitive"
 import type { AnyType } from "../types/schemas"
-import type { LateTypeChecker } from "../types/TypeChecker"
 import { tProp } from "../types/tProp"
+import { resolveStoredType } from "../types/utility/typesCodec"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { addHiddenProp, assertIsObject, failure, propNameToSetterName } from "../utils"
 import { chainFns } from "../utils/chainFns"
@@ -222,15 +222,15 @@ export function sharedInternalModel<
   }
 
   // create type checker if needed
-  let dataTypeChecker: LateTypeChecker | undefined
+  let dataTypeChecker: AnyType | undefined
   if (needsTypeChecker) {
     const typeCheckerObj: {
       [k: string]: any
     } = {}
     for (const [k, mp] of Object.entries(composedModelProps)) {
-      typeCheckerObj[k] = mp._typeChecker ? mp._typeChecker : typesUnchecked()
+      typeCheckerObj[k] = mp._typeChecker ? resolveStoredType(mp._typeChecker) : typesUnchecked()
     }
-    dataTypeChecker = typesObject(() => typeCheckerObj) as any
+    dataTypeChecker = typesObject(() => typeCheckerObj)
   }
 
   const base: any = baseModel ?? (type === "class" ? BaseModel : BaseDataModel)
@@ -282,14 +282,14 @@ export function sharedInternalModel<
 
   if (type === "class") {
     const metadata: ModelMetadata = {
-      dataType: dataTypeChecker as unknown as AnyType | undefined,
+      dataType: dataTypeChecker,
       modelIdProperty: idKey,
       valueType,
     }
     ThisModel[modelMetadataSymbol] = metadata
   } else {
     const metadata: DataModelMetadata = {
-      dataType: dataTypeChecker as unknown as AnyType | undefined,
+      dataType: dataTypeChecker,
     }
     ThisModel[modelMetadataSymbol] = metadata
   }

@@ -14,5 +14,9 @@ const _arrayToSetTransform: ModelPropTransform<Array<unknown>, ObservableSet<unk
   },
 }
 
+/**
+ * @deprecated Prefer the codec equivalent: `tProp(types.setFromArray(valueType))`.
+ * Use `tProp(types.skipCheck(types.setFromArray(valueType)))` if you don't need runtime validation.
+ */
 export const arrayToSetTransform = <T>() =>
   _arrayToSetTransform as ModelPropTransform<Array<T>, Set<T> | ObservableSet<T>>

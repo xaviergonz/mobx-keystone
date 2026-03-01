@@ -15,6 +15,7 @@ import {
   TypeInfo,
   TypeInfoGen,
 } from "../TypeChecker"
+import { resolveCodecSupport } from "../utility/typesCodec"
 import { typesObject } from "./typesObject"
 
 /**
@@ -36,12 +37,14 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
     const modelInfo = modelInfoByClass.get(ArraySet)!
 
     const valueChecker = resolveTypeChecker(valueType)
+    const valueSupport = resolveCodecSupport(valueType)
+    const storedValueChecker = resolveTypeChecker(valueSupport.storedType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `ArraySet<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
     const dataTypeChecker = typesObject(() => ({
-      items: typesArray(valueChecker as any),
+      items: typesArray(valueSupport.storedType as any),
     }))
 
     const thisTc: TypeChecker = new TypeChecker(
@@ -81,7 +84,7 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
       (sn: { items: unknown[] }) => {
         const items = withErrorPathSegment("items", () =>
           sn.items.map((v, i) =>
-            withErrorPathSegment(i, () => valueChecker.fromSnapshotProcessor(v))
+            withErrorPathSegment(i, () => storedValueChecker.fromSnapshotProcessor(v))
           )
         )
 
@@ -94,7 +97,9 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
 
       (sn: { items: unknown[]; [modelTypeKey]?: string }) => {
         const items = withErrorPathSegment("items", () =>
-          sn.items.map((v, i) => withErrorPathSegment(i, () => valueChecker.toSnapshotProcessor(v)))
+          sn.items.map((v, i) =>
+            withErrorPathSegment(i, () => storedValueChecker.toSnapshotProcessor(v))
+          )
         )
 
         const snCopy = {

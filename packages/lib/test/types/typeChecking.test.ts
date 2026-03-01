@@ -45,6 +45,7 @@ import {
   RefTypeInfo,
   resolvePath,
   rootRef,
+  SkipCheckTypeInfo,
   SnapshotTypeMismatchError,
   StringTypeInfo,
   setGlobalConfig,
@@ -2536,4 +2537,201 @@ test("per-entry cache pruning is immediate (observer-based, before typeCheck)", 
   // Correctness still holds after immediate pruning
   expect(arrM.typeCheck()).toBeNull()
   expect(recM.typeCheck()).toBeNull()
+})
+
+// --- types.skipCheck tests ---
+
+test("types.skipCheck(types.number) - manual typeCheck always returns null", () => {
+  const skipped = types.skipCheck(types.number)
+  // Valid value
+  expect(typeCheck(skipped, 42)).toBeNull()
+  // Invalid values should also pass (no validation)
+  expect(typeCheck(skipped, "hello" as any)).toBeNull()
+  expect(typeCheck(skipped, false as any)).toBeNull()
+  expect(typeCheck(skipped, null as any)).toBeNull()
+  expect(typeCheck(skipped, { x: 1 } as any)).toBeNull()
+})
+
+test("SkipCheckTypeInfo reflection", () => {
+  const skipped = types.skipCheck(types.number)
+  const typeInfo = getTypeInfo(skipped)
+
+  expect(typeInfo).toBeInstanceOf(SkipCheckTypeInfo)
+  const skipInfo = typeInfo as SkipCheckTypeInfo
+  expect(skipInfo.kind).toBe("skipCheck")
+  expect(skipInfo.baseType).toBeDefined()
+  expect(skipInfo.baseTypeInfo).toBeInstanceOf(NumberTypeInfo)
+})
+
+test("types.skipCheck in object type - skipped prop accepts any, normal prop validates", () => {
+  const objType = types.object(() => ({
+    skipped: types.skipCheck(types.number),
+    validated: types.string,
+  }))
+
+  // Both valid
+  expect(typeCheck(objType, { skipped: 42, validated: "hello" })).toBeNull()
+
+  // skipped prop with wrong value - should still pass
+  expect(typeCheck(objType, { skipped: "wrong" as any, validated: "hello" })).toBeNull()
+
+  // validated prop with wrong value - should fail
+  expect(typeCheck(objType, { skipped: 42, validated: 123 as any })).not.toBeNull()
+})
+
+test("types.skipCheck wrapping object - whole subtree skipped", () => {
+  const innerObj = types.object(() => ({
+    x: types.number,
+    y: types.string,
+  }))
+  const skippedObj = types.skipCheck(innerObj)
+
+  // Valid value
+  expect(typeCheck(skippedObj, { x: 42, y: "hello" })).toBeNull()
+
+  // Invalid inner values - should still pass because entire subtree is skipped
+  expect(typeCheck(skippedObj, { x: "wrong" as any, y: 123 as any })).toBeNull()
+  expect(typeCheck(skippedObj, "not an object" as any)).toBeNull()
+})
+
+test("types.array(types.skipCheck(types.number)) - array structure validated, items not", () => {
+  const arrType = types.array(types.skipCheck(types.number))
+
+  // Valid array
+  expect(typeCheck(arrType, [1, 2, 3])).toBeNull()
+
+  // Array with wrong item types - should pass (items not validated)
+  expect(typeCheck(arrType, ["a", "b", "c"] as any)).toBeNull()
+  expect(typeCheck(arrType, [true, null, {}] as any)).toBeNull()
+
+  // Not an array - should fail (array structure is validated)
+  expect(typeCheck(arrType, "not an array" as any)).not.toBeNull()
+  expect(typeCheck(arrType, 42 as any)).not.toBeNull()
+})
+
+test("types.tuple with skipCheck - position 0 skipped, position 1 validates", () => {
+  const tupleType = types.tuple(types.skipCheck(types.number), types.string)
+
+  // Both valid
+  expect(typeCheck(tupleType, [42, "hello"])).toBeNull()
+
+  // Position 0 with wrong type - should pass (skipped)
+  expect(typeCheck(tupleType, ["wrong" as any, "hello"])).toBeNull()
+
+  // Position 1 with wrong type - should fail (validated)
+  expect(typeCheck(tupleType, [42, 123 as any])).not.toBeNull()
+})
+
+test("types.record(types.skipCheck(types.number)) - record structure validated, values not", () => {
+  const recType = types.record(types.skipCheck(types.number))
+
+  // Valid record
+  expect(typeCheck(recType, { a: 1, b: 2 })).toBeNull()
+
+  // Record with wrong value types - should pass (values not validated)
+  expect(typeCheck(recType, { a: "hello", b: true } as any)).toBeNull()
+
+  // Not a record - should fail
+  expect(typeCheck(recType, "not a record" as any)).not.toBeNull()
+})
+
+test("types.or with skipCheck branch - union behavior", () => {
+  const unionType = types.or(types.skipCheck(types.string), types.number)
+
+  // String value matches skipCheck(string) branch structurally
+  expect(typeCheck(unionType, "hello")).toBeNull()
+
+  // Number value matches number branch via normal check
+  expect(typeCheck(unionType, 123)).toBeNull()
+
+  // Boolean doesn't match either branch
+  expect(typeCheck(unionType, false as any)).not.toBeNull()
+
+  // Object doesn't match either branch
+  expect(typeCheck(unionType, {} as any)).not.toBeNull()
+})
+
+test("types.skipCheck nested - equivalent to single skipCheck", () => {
+  const nested = types.skipCheck(types.skipCheck(types.number))
+
+  // Valid value
+  expect(typeCheck(nested, 42)).toBeNull()
+
+  // Invalid value - should pass (check skipped)
+  expect(typeCheck(nested, "wrong" as any)).toBeNull()
+
+  // Reflection: outer is SkipCheckTypeInfo
+  const typeInfo = getTypeInfo(nested)
+  expect(typeInfo).toBeInstanceOf(SkipCheckTypeInfo)
+})
+
+test("types.skipCheck getTypeName includes wrapped type", () => {
+  const skipped = types.skipCheck(types.number)
+  const tc = resolveTypeChecker(skipped)
+  expect(tc.getTypeName()).toContain("number")
+  expect(tc.getTypeName()).toContain("skipCheck")
+})
+
+test("types.skipCheck model integration - stored-type preservation disables auto validation", () => {
+  setGlobalConfig({
+    modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
+  })
+
+  @testModel("skipCheck/storedType")
+  class M extends Model({
+    // skipCheck wrapping disables auto type checking for this prop
+    skipped: tProp(types.skipCheck(types.object(() => ({ x: types.number }))), () => ({ x: 0 })),
+    // This prop still validates normally
+    validated: tProp(types.number, 0),
+  }) {
+    @modelAction
+    setSkippedX(v: any) {
+      ;(this.skipped as any).x = v
+    }
+
+    @modelAction
+    setValidated(v: any) {
+      ;(this as any).validated = v
+    }
+  }
+
+  const m = new M({})
+
+  // Setting invalid value on skipped prop should NOT throw
+  expect(() => {
+    m.setSkippedX("not a number")
+  }).not.toThrow()
+
+  // Setting invalid value on validated prop SHOULD throw
+  expect(() => {
+    m.setValidated("not a number")
+  }).toThrow()
+})
+
+test("skipCheck is idempotent", () => {
+  const doubleSkipped = types.skipCheck(types.skipCheck(types.number))
+
+  // Validation skipped
+  expect(typeCheck(doubleSkipped, 42)).toBeNull()
+  expect(typeCheck(doubleSkipped, "not a number" as any)).toBeNull()
+
+  // TypeInfo wraps correctly
+  const info = getTypeInfo(doubleSkipped) as SkipCheckTypeInfo
+  expect(info).toBeInstanceOf(SkipCheckTypeInfo)
+  expect(info.kind).toBe("skipCheck")
+  const innerInfo = getTypeInfo(info.baseType) as SkipCheckTypeInfo
+  expect(innerInfo).toBeInstanceOf(SkipCheckTypeInfo)
+})
+
+test("skipCheck with types.maybe", () => {
+  const maybeSkipped = types.maybe(types.skipCheck(types.number))
+
+  // undefined passes (maybe allows it)
+  expect(typeCheck(maybeSkipped, undefined)).toBeNull()
+
+  // number passes (skipCheck skips validation but structural match works)
+  expect(typeCheck(maybeSkipped, 42)).toBeNull()
+
+  // wrong type fails (boolean is not undefined and not structurally a number)
+  expect(typeCheck(maybeSkipped, true as any)).not.toBeNull()
 })

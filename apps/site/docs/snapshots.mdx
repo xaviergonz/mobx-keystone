@@ -68,6 +68,8 @@ Gets the model ID from a model snapshot. This reads the value of the ID property
 
 ```ts
 getSnapshot<T>(value: T): SnapshotOutOf<T>
+// or typed
+getSnapshot<TType>(type: TType, value: TypeToData<TType>): TypeToSnapshotOut<TType>
 ```
 
 Getting the snapshot out of any tree node is as easy as this:
@@ -115,7 +117,7 @@ Note that `getSnapshot` can actually be used over any tree nodes (any model, or 
 ```ts
 fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T
 // or typed
-fromSnapshot<TType>(type: TType, sn: SnapshotInOf<TypeToData<TType>>, options?: FromSnapshotOptions): TypeToData<TType>
+fromSnapshot<TType>(type: TType, sn: TypeToSnapshotIn<TType>, options?: FromSnapshotOptions): TypeToData<TType>
 ```
 
 Restoring a snapshot is pretty easy as well:
@@ -124,6 +126,9 @@ Restoring a snapshot is pretty easy as well:
 const todo = fromSnapshot<Todo>(todoSnapshot)
 // or typed
 const todo = fromSnapshot(Todo, todoSnapshot)
+
+const bigintValue = fromSnapshot(types.bigint, "123")
+const createdAtSnapshot = getSnapshot(types.dateAsTimestamp, new Date(1000))
 ```
 
 If a snapshot includes `$modelType` and deserialization says the model is not in the registry, it usually means that model module was not imported at runtime (for example, import elision). In such cases either keep a runtime import (or side-effect import) or call `registerModels(...)` at startup. See [Class Models](./classModels.mdx#runtime-model-registration-registermodels).

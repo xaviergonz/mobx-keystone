@@ -1,5 +1,6 @@
 import { entries, get, has, keys, remove, values } from "mobx"
 import { modelAction } from "../action/modelAction"
+import type { AnyModel } from "../model/BaseModel"
 import { Model } from "../model/Model"
 import { modelIdKey } from "../model/metadata"
 import { model } from "../modelShared/modelDecorator"
@@ -10,18 +11,25 @@ import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { namespace } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 
+const objectMapBase = Model({
+  [modelIdKey]: idProp,
+  items: tProp(typesRecord(typesUnchecked<any>()), () => ({})), // will be properly checked by types.objectMap(subType)
+}) as abstract new (
+  data: any
+) => AnyModel & {
+  readonly $: {
+    items: Record<string, any>
+  }
+  readonly items: Record<string, any>
+}
+
 /**
  * A map that is backed by an object-like map.
  * Use `objectMap` to create it.
  */
 @model(`${namespace}/ObjectMap`)
-export class ObjectMap<V>
-  extends Model({
-    [modelIdKey]: idProp,
-    items: tProp(typesRecord(typesUnchecked<any>()), () => ({})), // will be properly checked by types.objectMap(subType)
-  })
-  implements Map<string, V>
-{
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: model base defines these properties at runtime.
+export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
   @modelAction
   clear(): void {
     const items = this.items
@@ -98,6 +106,13 @@ export class ObjectMap<V>
   }
 
   readonly [Symbol.toStringTag] = "ObjectMap"
+}
+
+export interface ObjectMap<V> {
+  readonly $: {
+    items: Record<string, V>
+  }
+  readonly items: Record<string, V>
 }
 
 /**

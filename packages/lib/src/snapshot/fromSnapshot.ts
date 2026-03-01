@@ -1,20 +1,15 @@
 import { action, observable, set } from "mobx"
-import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
-import { isModelClass } from "../model/utils"
-import type { ModelClass } from "../modelShared/BaseModelShared"
-import { resolveTypeChecker } from "../types/resolveTypeChecker"
-import type { AnyStandardType, TypeToData } from "../types/schemas"
+import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolveTypeChecker"
+import type { AnyType, TypeToData, TypeToSnapshotIn } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
+import { resolveCodecSupport } from "../types/utility/typesCodec"
 import { isMap, isPrimitive, isSet } from "../utils"
-import {
-  runWithErrorDiagnosticsContext,
-  withErrorPathSegment,
-} from "../utils/errorDiagnostics"
+import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
 import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
-import { SnapshotProcessingError } from "./SnapshotProcessingError"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
+import { SnapshotProcessingError } from "./SnapshotProcessingError"
 
 /**
  * @internal
@@ -59,11 +54,9 @@ export interface FromSnapshotContext {
  * @param options Options.
  * @returns The deserialized object.
  */
-export function fromSnapshot<
-  TType extends AnyStandardType | ModelClass<AnyModel> | ModelClass<AnyDataModel>,
->(
+export function fromSnapshot<TType extends AnyType>(
   type: TType,
-  snapshot: SnapshotInOf<TypeToData<TType>>,
+  snapshot: TypeToSnapshotIn<TType>,
   options?: Partial<FromSnapshotOptions>
 ): TypeToData<TType>
 
@@ -85,9 +78,23 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
     let snapshot: any
     let unprocessedSnapshot: unknown
     let options: Partial<FromSnapshotOptions> | undefined
+    const standardType = arguments.length >= 2 ? resolveStandardTypeNoThrow(arg1) : undefined
 
-    if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || isModelClass(arg1)) {
-      const typeChecker = resolveTypeChecker(arg1)
+    if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || standardType) {
+      const resolvedType = standardType ?? arg1
+      const codecSupport = resolveCodecSupport(resolvedType)
+
+      if (codecSupport.hasCodec) {
+        unprocessedSnapshot = arg2
+        snapshot = resolveTypeChecker(codecSupport.storedType).fromSnapshotProcessor(
+          unprocessedSnapshot
+        )
+        options = arg3
+        const storedValue = fromSnapshotAction(snapshot, unprocessedSnapshot, options)
+        return codecSupport.adapter.toRuntime(storedValue)
+      }
+
+      const typeChecker = resolveTypeChecker(resolvedType)
       unprocessedSnapshot = arg2
       snapshot = typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
       options = arg3

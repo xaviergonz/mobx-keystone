@@ -22,6 +22,7 @@ If you want a high-level feature comparison first, see [Comparison with mobx-sta
 1. **Runtime type checking or not**
    - If you only need TypeScript, prefer `prop<T>()`.
    - If you need runtime validation, use `tProp(...)` and `types.*`.
+   - The worked `mobx-keystone` examples below use `tProp(...)` because it maps more directly from MST's runtime schemas and helps with snapshot migration.
 2. **Persistence format**
    - MST persisted snapshots will not have `$modelType`. Plan a snapshot migration strategy (typed `fromSnapshot`, snapshot processors, or a one-time data migration).
    - If you use `tProp(...)` for a property, input snapshots for values stored in that property can often omit `$modelType` because the type is known from the property (useful when migrating persisted MST snapshots).
@@ -45,7 +46,7 @@ This order keeps the diff reviewable and avoids chasing cascading runtime issues
 When converting a file/model, apply these in order:
 
 1. Convert each `types.model(...)` to a class model: `@model("app/Type") class X extends Model({ ... }) {}`.
-2. Convert properties into `prop(...)` (or `tProp(...)` only if you want runtime type checking).
+2. Convert properties into `tProp(...)` if you want MST-like runtime schemas during migration, or `prop(...)` if you only want TypeScript checking.
 3. Convert `views` into `@computed` getters and normal methods (use `this`, not `self`).
 4. Convert synchronous `actions` into `@modelAction` methods.
 5. Convert MST `flow` into `@modelFlow` and replace `yield promise` with `yield* _await(promise)`.
@@ -195,11 +196,10 @@ import {
   Model,
   modelAction,
   modelFlow,
-  prop,
-  Ref,
   registerRootStore,
   rootRef,
-  timestampToDateTransform,
+  tProp,
+  types,
 } from "mobx-keystone"
 
 // Environment context replaces getEnv()
@@ -209,9 +209,9 @@ const envCtx = createContext<Env>()
 @model("todoApp/Todo")
 class Todo extends Model({
   id: idProp,
-  text: prop<string>().withSetter(),
-  done: prop(false),
-  createdAt: prop<number>().withTransform(timestampToDateTransform()),
+  text: tProp(types.string).withSetter(),
+  done: tProp(types.boolean, false),
+  createdAt: tProp(types.skipCheck(types.dateAsTimestamp)),
 }) {
   // volatile -> observable runtime field (not part of snapshots)
   @observable
@@ -256,8 +256,8 @@ const todoRef = rootRef<Todo>("todoApp/TodoRef", {
 
 @model("todoApp/RootStore")
 class RootStore extends Model({
-  todos: prop<Todo[]>(() => []),
-  selectedTodoRef: prop<Ref<Todo> | undefined>(),
+  todos: tProp(types.array(Todo), () => []),
+  selectedTodoRef: tProp(types.maybe(types.ref(todoRef))),
 }) {
   @computed
   get selectedTodo() {
@@ -427,10 +427,10 @@ Note: `ExtendedModel` extends a single base class. If you need to merge more tha
 | MST | mobx-keystone | Notes |
 | --- | --- | --- |
 | `types.array(T)` | `prop<T[]>(() => [])` | Must provide default factory explicitly (MST auto-wraps in `types.optional`). |
-| `types.map(T)` | `ObjectMap`, `asMap`, or `prop<Record<string, T>>(() => ({}))` | Choose based on API needs. `ObjectMap` is a model wrapper; `asMap` gives a `Map`-like API over an object/array. |
-| `types.Date` | `prop<number>().withTransform(timestampToDateTransform())` | Or use `isoStringToDateTransform()` for ISO string snapshots. |
+| `types.map(T)` | `tProp(types.mapFromObject(T))`, `ObjectMap`, `asMap`, or `prop<Record<string, T>>(() => ({}))` | Prefer codecs when you want a typed `Map` runtime view over JSON-safe snapshots. Wrap with `types.skipCheck(...)` to disable runtime validation. |
+| `types.Date` | `tProp(types.dateAsTimestamp)` or `tProp(types.dateAsIsoString)` | Codec types include runtime validation. Use `types.skipCheck(...)` to opt out of validation while keeping conversions. |
 | `types.frozen(...)` | `frozen(data)` and/or `tProp(types.frozen(...))` | Preserve immutability + JSON-compat behavior. |
-| `types.custom(...)` | Use property transforms (`.withTransform(...)`) | No direct `types.custom` equivalent; transforms handle snapshot to/from runtime conversion. |
+| `types.custom(...)` | `types.codec(...)` | Prefer codecs for reusable typed runtime/snapshot conversions. Use `types.skipCheck(...)` to disable validation. Use `.withTransform(...)` for prop-local transforms. |
 
 ### Runtime type checking (only needed if using `tProp`)
 
@@ -515,7 +515,7 @@ Requirements:
 12. Migrate snapshot processors to model-level `fromSnapshotProcessor`/`toSnapshotProcessor` or per-property `.withSnapshotProcessor(...)`.
 13. Replace `unprotect`-style broad writes with `@modelAction` methods; use `runUnprotected` only where unavoidable.
 14. Preserve ID semantics (especially if MST code relied on immutable identifiers).
-15. Convert `types.Date` to `prop<number>().withTransform(timestampToDateTransform())`.
+15. Convert `types.Date` to `tProp(types.dateAsTimestamp)` or `tProp(types.dateAsIsoString)` when using typed runtime schemas.
 16. Convert `types.compose` to `ExtendedModel`.
 
 After conversion, list:
@@ -532,7 +532,7 @@ After conversion, list:
 - [ ] Actions/flows still enforce mutation boundaries correctly.
 - [ ] References resolve and clean up as expected (including safe-reference behavior).
 - [ ] Snapshot load/save round-trips are still valid (including `$modelType` metadata).
-- [ ] `types.Date` properties migrated to property transforms.
+- [ ] `types.Date` properties migrated to codecs or property transforms.
 - [ ] `types.map`/`types.array` defaults provided explicitly.
 - [ ] Volatile state migrated to class fields with correct observability.
 - [ ] Patch/action replication paths still work (note `onPatch` -> `onPatches`, `applyPatch` -> `applyPatches`).
