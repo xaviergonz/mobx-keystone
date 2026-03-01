@@ -201,7 +201,7 @@ To convert it back to an array you can use `setToArray(set)`. When the map is a 
 
 The following approaches are still functional but deprecated. For each one, the recommended alternative is listed.
 
-### Property transforms (`.withTransform(...)`) {#deprecated-property-transforms}
+### Property transforms (`.withTransform(...)`)
 
 **Alternative:** Use `tProp(types.codec(...))` or a built-in codec type. Wrap with `types.skipCheck(...)` if you don't need runtime validation.
 
@@ -252,7 +252,7 @@ export const timestampToDateTransform = () => _timestampToDateTransform
 
 However, for reusable conversions, prefer `types.codec(...)` — see the [Custom codecs](#custom-codecs) section above.
 
-### Built-in transform helpers {#deprecated-built-in-transforms}
+### Built-in transform helpers
 
 All built-in transform helpers are deprecated. Use the corresponding codec instead:
 
@@ -277,7 +277,7 @@ tProp(types.skipCheck(types.dateAsTimestamp))
 ```
 :::
 
-### Collection models (`ObjectMap` / `ArraySet`) {#deprecated-collection-models}
+### Collection models (`ObjectMap` / `ArraySet`)
 
 **Alternative:** Use `tProp(types.mapFromObject(...))`, `tProp(types.mapFromArray(...))`, or `tProp(types.setFromArray(...))`.
 
