@@ -12,10 +12,10 @@ import {
   namespace,
   onActionMiddleware,
   prop,
-  serializeActionCall,
-  serializeActionCallArgument,
   SerializedActionCall,
   SerializedActionCallArgument,
+  serializeActionCall,
+  serializeActionCallArgument,
 } from "../../src"
 import { testModel } from "../utils"
 

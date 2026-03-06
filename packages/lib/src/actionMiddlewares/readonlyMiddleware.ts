@@ -3,8 +3,8 @@ import type { ActionMiddlewareDisposer } from "../action/middleware"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"
 import {
-  actionTrackingMiddleware,
   ActionTrackingResult,
+  actionTrackingMiddleware,
   SimpleActionContext,
 } from "./actionTrackingMiddleware"
 

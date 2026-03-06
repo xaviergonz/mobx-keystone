@@ -1,5 +1,5 @@
 import { computed, toJS } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   customRef,
   getNodeSandboxManager,
@@ -15,8 +15,8 @@ import {
   Ref,
   registerRootStore,
   runUnprotected,
-  sandbox,
   SandboxManager,
+  sandbox,
   undoMiddleware,
   unregisterRootStore,
 } from "../../src"

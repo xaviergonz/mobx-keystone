@@ -1,4 +1,3 @@
-import { checkDecoratorContext } from "../utils/decorators"
 import type { ActionMiddlewareDisposer } from "../action/middleware"
 import type { AnyModel } from "../model/BaseModel"
 import { assertIsModel } from "../model/utils"
@@ -6,9 +5,10 @@ import { addModelClassInitializer } from "../modelShared/modelClassInitializer"
 import { applyPatches } from "../patch"
 import { internalPatchRecorder, PatchRecorder } from "../patch/patchRecorder"
 import { assertIsObject, failure } from "../utils"
+import { checkDecoratorContext } from "../utils/decorators"
 import {
-  actionTrackingMiddleware,
   ActionTrackingResult,
+  actionTrackingMiddleware,
   SimpleActionContext,
 } from "./actionTrackingMiddleware"
 

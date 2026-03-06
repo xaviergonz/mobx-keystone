@@ -31,8 +31,8 @@ import {
   resolvePath,
   rootRef,
   unregisterRootStore,
-  walkTree,
   WalkTreeMode,
+  walkTree,
 } from "../../src"
 import { autoDispose, testModel } from "../utils"
 
@@ -326,53 +326,53 @@ describe("tree traversal functions", () => {
     expect(children.has(r.model)).toBeTruthy()
   })
 
-  test.each([WalkTreeMode.ChildrenFirst, WalkTreeMode.ParentFirst])(
-    "computed tree supports walkTree (mode=%s)",
-    (mode) => {
-      const r = new R({})
+  test.each([
+    WalkTreeMode.ChildrenFirst,
+    WalkTreeMode.ParentFirst,
+  ])("computed tree supports walkTree (mode=%s)", (mode) => {
+    const r = new R({})
 
-      const nodes: unknown[] = []
+    const nodes: unknown[] = []
 
-      walkTree(
-        r,
-        (node) => {
-          if (isArray(node)) {
-            nodes.push(node)
-          }
-        },
-        mode
-      )
-      expect(nodes).toEqual([r.array, r.arrayOfModels])
+    walkTree(
+      r,
+      (node) => {
+        if (isArray(node)) {
+          nodes.push(node)
+        }
+      },
+      mode
+    )
+    expect(nodes).toEqual([r.array, r.arrayOfModels])
 
-      // reset
-      nodes.length = 0
+    // reset
+    nodes.length = 0
 
-      walkTree(
-        r,
-        (node) => {
-          if (isPlainObject(node)) {
-            nodes.push(node)
-          }
-        },
-        mode
-      )
-      expect(nodes).toEqual([r.plainObject])
+    walkTree(
+      r,
+      (node) => {
+        if (isPlainObject(node)) {
+          nodes.push(node)
+        }
+      },
+      mode
+    )
+    expect(nodes).toEqual([r.plainObject])
 
-      // reset
-      nodes.length = 0
+    // reset
+    nodes.length = 0
 
-      walkTree(
-        r,
-        (node) => {
-          if (node instanceof M) {
-            nodes.push(node)
-          }
-        },
-        mode
-      )
-      expect(nodes).toEqual([...r.arrayOfModels, r.model])
-    }
-  )
+    walkTree(
+      r,
+      (node) => {
+        if (node instanceof M) {
+          nodes.push(node)
+        }
+      },
+      mode
+    )
+    expect(nodes).toEqual([...r.arrayOfModels, r.model])
+  })
 })
 
 describe("tree utility functions", () => {

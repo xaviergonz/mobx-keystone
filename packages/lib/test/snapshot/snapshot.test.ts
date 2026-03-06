@@ -1,8 +1,8 @@
 import { toJS } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
-  applySnapshot,
   ArraySet,
+  applySnapshot,
   BaseModel,
   clone,
   fromSnapshot,

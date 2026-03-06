@@ -1,6 +1,6 @@
 import { observable, reaction, runInAction } from "mobx"
 import { _, assert } from "spec.ts"
-import { Model, createContext, fromSnapshot, getSnapshot, prop, runUnprotected } from "../../src"
+import { createContext, fromSnapshot, getSnapshot, Model, prop, runUnprotected } from "../../src"
 import { createP } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 

@@ -1,5 +1,5 @@
 import { computed, reaction, set, toJS } from "mobx"
-import { asMap, mapToArray, mapToObject, Model, modelAction, prop, runUnprotected } from "../../src"
+import { asMap, Model, mapToArray, mapToObject, modelAction, prop, runUnprotected } from "../../src"
 import { testModel } from "../utils"
 
 test("asMap - object", () => {

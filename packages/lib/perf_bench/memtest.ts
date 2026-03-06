@@ -2,9 +2,9 @@ import { observable } from "mobx"
 import {
   idProp,
   Model,
+  ModelAutoTypeCheckingMode,
   model,
   modelAction,
-  ModelAutoTypeCheckingMode,
   prop,
   Ref,
   registerRootStore,

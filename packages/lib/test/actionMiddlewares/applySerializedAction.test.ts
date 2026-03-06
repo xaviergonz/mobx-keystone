@@ -10,8 +10,8 @@ import {
   modelIdKey,
   onActionMiddleware,
   prop,
-  serializeActionCall,
   SerializedActionCall,
+  serializeActionCall,
 } from "../../src"
 import { testModel } from "../utils"
 

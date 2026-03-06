@@ -1,13 +1,13 @@
 import { computed, isComputedProp } from "mobx"
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   decoratedModel,
   ExtendedModel,
   getSnapshot,
   idProp,
   isModelAction,
-  model,
   Model,
+  model,
   modelAction,
   modelIdKey,
   modelTypeKey,

@@ -1,12 +1,12 @@
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   Model,
   ModelAutoTypeCheckingMode,
   prop,
   setGlobalConfig,
+  TypeToData,
   tProp,
   types,
-  TypeToData,
 } from "../../src"
 import { testModel } from "../utils"
 

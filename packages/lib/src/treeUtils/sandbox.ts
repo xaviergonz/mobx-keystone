@@ -1,7 +1,7 @@
 import { reaction, runInAction } from "mobx"
 import {
-  readonlyMiddleware,
   ReadonlyMiddlewareReturn,
+  readonlyMiddleware,
 } from "../actionMiddlewares/readonlyMiddleware"
 import { createContext } from "../context"
 import { getParentToChildPath, resolvePath } from "../parent/path"

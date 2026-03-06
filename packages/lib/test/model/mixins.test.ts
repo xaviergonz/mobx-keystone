@@ -91,25 +91,33 @@ test("composeMixins runtime model composition", () => {
   )
 
   const afterQuantity = addQuantity(Entity)
-  const afterQuantityProps = Object.keys(getInternalModelClassPropsInfo(afterQuantity as ModelClass<AnyModel>))
+  const afterQuantityProps = Object.keys(
+    getInternalModelClassPropsInfo(afterQuantity as ModelClass<AnyModel>)
+  )
   expect(afterQuantityProps).toContain("quantity")
   expect(afterQuantityProps).toContain("base")
 
   const afterProduced = addProduced(afterQuantity)
-  const afterProducedProps = Object.keys(getInternalModelClassPropsInfo(afterProduced as ModelClass<AnyModel>))
+  const afterProducedProps = Object.keys(
+    getInternalModelClassPropsInfo(afterProduced as ModelClass<AnyModel>)
+  )
   expect(afterProducedProps).toContain("produced")
   expect(afterProducedProps).toContain("quantity")
   expect(afterProducedProps).toContain("base")
 
   const RuntimeBase = composeMixins(Entity, addQuantity, addProduced)
-  const runtimeBaseModelProps = Object.keys(getInternalModelClassPropsInfo(RuntimeBase as ModelClass<AnyModel>))
+  const runtimeBaseModelProps = Object.keys(
+    getInternalModelClassPropsInfo(RuntimeBase as ModelClass<AnyModel>)
+  )
   expect(runtimeBaseModelProps).toContain("base")
   expect(runtimeBaseModelProps).toContain("quantity")
   expect(runtimeBaseModelProps).toContain("produced")
 
   @testModel("mixins/runtime/Product")
   class Product extends ExtendedModel(RuntimeBase, {}) {}
-  const productModelProps = Object.keys(getInternalModelClassPropsInfo(Product as ModelClass<AnyModel>))
+  const productModelProps = Object.keys(
+    getInternalModelClassPropsInfo(Product as ModelClass<AnyModel>)
+  )
   expect(productModelProps).toContain("base")
   expect(productModelProps).toContain("quantity")
   expect(productModelProps).toContain("produced")
@@ -390,10 +398,21 @@ test("req<Req> is checked against the transformed instance type, not the snapsho
   // countMixin stores count as string in the snapshot but exposes it as number on the instance
   // (via withTransform). The requirement of a consuming mixin must use the *transformed* type.
   const stringToNumberTransform = {
-    transform({ originalValue }: { originalValue: string; cachedTransformedValue: number | undefined; setOriginalValue(v: string): void }): number {
+    transform({
+      originalValue,
+    }: {
+      originalValue: string
+      cachedTransformedValue: number | undefined
+      setOriginalValue(v: string): void
+    }): number {
       return Number(originalValue)
     },
-    untransform({ transformedValue }: { transformedValue: number; cacheTransformedValue(): void }): string {
+    untransform({
+      transformedValue,
+    }: {
+      transformedValue: number
+      cacheTransformedValue(): void
+    }): string {
       return String(transformedValue)
     },
   }
@@ -416,10 +435,7 @@ test("req<Req> is checked against the transformed instance type, not the snapsho
   )
 
   // req<{ count: string }> would be wrong because the instance type is number after transform
-  const doublerMixinWrong = defineModelMixin(
-    { doubled: prop<number>(0) },
-    req<{ count: string }>()
-  )
+  const doublerMixinWrong = defineModelMixin({ doubled: prop<number>(0) }, req<{ count: string }>())
 
   const ProductBase = composeMixins(countMixin, doublerMixin)
   type ProductInstance = InstanceType<typeof ProductBase>
@@ -457,6 +473,6 @@ test("req<Req> is checked against the transformed instance type, not the snapsho
 
   // snapshot stores the *original* (string) type
   const sn = getSnapshot(p2)
-  assert(_ as typeof sn["count"], _ as string)
+  assert(_ as (typeof sn)["count"], _ as string)
   expect(sn.count).toBe("42")
 })

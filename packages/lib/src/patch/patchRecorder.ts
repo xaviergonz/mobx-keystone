@@ -1,6 +1,6 @@
 import { observable } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
-import { onGlobalPatches, onPatches, OnPatchesDisposer, OnPatchesListener } from "./emitPatch"
+import { OnPatchesDisposer, OnPatchesListener, onGlobalPatches, onPatches } from "./emitPatch"
 import type { Patch } from "./Patch"
 
 /**

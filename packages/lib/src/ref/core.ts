@@ -1,10 +1,4 @@
-import {
-  action,
-  ObservableSet,
-  observable,
-  reaction,
-  when,
-} from "mobx"
+import { action, ObservableSet, observable, reaction, when } from "mobx"
 import { isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { model } from "../modelShared/modelDecorator"

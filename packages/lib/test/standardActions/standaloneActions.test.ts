@@ -1,5 +1,7 @@
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
+  _async,
+  _await,
   addActionMiddleware,
   applyAction,
   Model,
@@ -8,12 +10,10 @@ import {
   registerRootStore,
   standaloneAction,
   standaloneFlow,
+  TypeToData,
   tag,
   toTreeNode,
   types,
-  TypeToData,
-  _async,
-  _await,
 } from "../../src"
 import { autoDispose, testModel } from "../utils"
 

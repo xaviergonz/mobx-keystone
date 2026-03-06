@@ -6,8 +6,8 @@ import { isModelClass } from "../model/utils"
 import { isTreeNode } from "../tweaker/core"
 import { tweak } from "../tweaker/tweak"
 import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
-import { getOrCreate } from "../utils/mapUtils"
 import { checkDecoratorContext, copyFunctionMetadata } from "../utils/decorators"
+import { getOrCreate } from "../utils/mapUtils"
 
 const computedTreeContext = createContext(false)
 

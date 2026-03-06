@@ -1,4 +1,4 @@
-import { assert, _ } from "spec.ts"
+import { _, assert } from "spec.ts"
 import {
   idProp,
   Model,

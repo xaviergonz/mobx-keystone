@@ -15,9 +15,7 @@ import {
 } from "../modelShared/modelInfo"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, inDevMode, isArray, isMap, isPlainObject, isSet, lazy } from "../utils"
-import {
-  runWithErrorDiagnosticsContext,
-} from "../utils/errorDiagnostics"
+import { runWithErrorDiagnosticsContext } from "../utils/errorDiagnostics"
 import { ModelPool } from "../utils/ModelPool"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
@@ -127,9 +125,7 @@ export function internalApplySnapshot<T extends object>(
       if (obj[modelIdKey] !== id) {
         // different id, no reconciliation possible
         throw new SnapshotProcessingError({
-          message: `snapshot model id '${id}' does not match target model id '${
-            obj[modelIdKey]
-          }'`,
+          message: `snapshot model id '${id}' does not match target model id '${obj[modelIdKey]}'`,
           actualSnapshot: sn,
         })
       }

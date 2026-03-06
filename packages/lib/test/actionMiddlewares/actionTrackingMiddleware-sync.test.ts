@@ -1,6 +1,6 @@
 import {
-  actionTrackingMiddleware,
   ActionTrackingResult,
+  actionTrackingMiddleware,
   idProp,
   Model,
   modelAction,

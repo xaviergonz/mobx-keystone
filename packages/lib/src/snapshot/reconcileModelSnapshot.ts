@@ -11,10 +11,7 @@ import { deepEquals } from "../treeUtils/deepEquals"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isArray } from "../utils"
-import {
-  withErrorModelTrailEntry,
-  withErrorPathSegment,
-} from "../utils/errorDiagnostics"
+import { withErrorModelTrailEntry, withErrorPathSegment } from "../utils/errorDiagnostics"
 import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { fromSnapshot } from "./fromSnapshot"

@@ -2,8 +2,8 @@ import { isModel } from "../model/utils"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { tweakedObjects } from "./core"
-import { registerTweaker } from "./tweak"
 import { TweakerPriority } from "./TweakerPriority"
+import { registerTweaker } from "./tweak"
 
 /**
  * @internal

@@ -1,17 +1,17 @@
 import { reaction, toJS } from "mobx"
 import {
-  Model,
   applySnapshot,
   getRootStore,
   getSnapshot,
   idProp,
   isRootStore,
+  Model,
   modelAction,
   prop,
   registerRootStore,
   runUnprotected,
-  tProp,
   toTreeNode,
+  tProp,
   types,
   unregisterRootStore,
 } from "../../src"

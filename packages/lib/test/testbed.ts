@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { idProp, model, Model, modelAction, modelIdKey, prop } from "../src"
+import { idProp, Model, model, modelAction, modelIdKey, prop } from "../src"
 
 @model("P2")
 export class P2 extends Model({
