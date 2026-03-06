@@ -1,6 +1,6 @@
 import { isObservableObject } from "mobx"
 import { isPlainObject, namespace } from "../../utils"
-import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
+import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const plainObjectSerializer: ActionCallArgumentSerializer<object, object> = {
   id: `${namespace}/plainObject`,

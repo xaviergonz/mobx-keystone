@@ -1,4 +1,4 @@
-import { DeepChange } from "mobx-keystone"
+import type { DeepChange } from "mobx-keystone"
 
 /**
  * Synthetic change type for array moves.

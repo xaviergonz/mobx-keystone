@@ -2,7 +2,7 @@ import { fromSnapshot } from "../../snapshot/fromSnapshot"
 import { getSnapshot } from "../../snapshot/getSnapshot"
 import { isTweakedObject } from "../../tweaker/core"
 import { namespace } from "../../utils"
-import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
+import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const objectSnapshotSerializer: ActionCallArgumentSerializer<object, object> = {
   id: `${namespace}/objectSnapshot`,

@@ -5,13 +5,13 @@ import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { fastGetRootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
-import { applyPatches, Patch, PatchRecorder, patchRecorder } from "../patch"
+import { applyPatches, type Patch, type PatchRecorder, patchRecorder } from "../patch"
 import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../types/arrayBased/typesArray"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { failure, getMobxVersion, mobx6, namespace } from "../utils"
-import { actionTrackingMiddleware, SimpleActionContext } from "./actionTrackingMiddleware"
+import { actionTrackingMiddleware, type SimpleActionContext } from "./actionTrackingMiddleware"
 
 /**
  * An undo/redo event without attached state.
@@ -293,6 +293,10 @@ export class UndoStore extends Model({
  * Manager class returned by `undoMiddleware` that allows you to perform undo/redo actions.
  */
 export class UndoManager {
+  private readonly disposer: ActionMiddlewareDisposer
+  private readonly subtreeRoot: object
+  private readonly options: UndoMiddlewareOptions<unknown> | undefined
+
   /**
    * The store currently being used to store undo/redo action events.
    */
@@ -605,11 +609,15 @@ export class UndoManager {
    * @param [store]
    */
   constructor(
-    private readonly disposer: ActionMiddlewareDisposer,
-    private readonly subtreeRoot: object,
+    disposer: ActionMiddlewareDisposer,
+    subtreeRoot: object,
     store: UndoStore | undefined,
-    private readonly options: UndoMiddlewareOptions<unknown> | undefined
+    options: UndoMiddlewareOptions<unknown> | undefined
   ) {
+    this.disposer = disposer
+    this.subtreeRoot = subtreeRoot
+    this.options = options
+
     if (getMobxVersion() >= 6) {
       mobx6.makeObservable(this)
     }

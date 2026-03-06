@@ -1,5 +1,5 @@
-import { AnyType, createContext } from "mobx-keystone"
-import * as Y from "yjs"
+import { type AnyType, createContext } from "mobx-keystone"
+import type * as Y from "yjs"
 
 /**
  * Context with info on how a mobx-keystone model is bound to a Y.js data structure.

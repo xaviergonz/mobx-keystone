@@ -26,7 +26,7 @@ import {
   onChildAttachedTo,
   onPatches,
   prop,
-  Ref,
+  type Ref,
   registerRootStore,
   resolvePath,
   rootRef,

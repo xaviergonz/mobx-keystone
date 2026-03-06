@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { model, Model, modelAction, tProp, types } from "mobx-keystone"
+import { Model, model, modelAction, tProp, types } from "mobx-keystone"
 
 @model("TcSmallModel")
 export class TcSmallModel extends Model({

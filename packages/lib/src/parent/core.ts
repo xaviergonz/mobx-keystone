@@ -1,4 +1,4 @@
-import { createAtom, IAtom } from "mobx"
+import { createAtom, type IAtom } from "mobx"
 import { isModel } from "../model/utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { ParentPath } from "./path"

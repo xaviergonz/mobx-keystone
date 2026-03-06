@@ -6,7 +6,7 @@ import { getModelOrSnapshotTypeAndId, getSnapshotModelType, isModel } from "../m
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
-import { AnyModelProp, getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
+import { type AnyModelProp, getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { deepEquals } from "../treeUtils/deepEquals"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"

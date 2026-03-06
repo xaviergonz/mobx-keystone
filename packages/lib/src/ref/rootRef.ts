@@ -3,9 +3,9 @@ import { fastGetRoot } from "../parent/path"
 import {
   getModelRefId,
   internalCustomRef,
-  RefIdResolver,
-  RefOnResolvedValueChange,
-  RefResolver,
+  type RefIdResolver,
+  type RefOnResolvedValueChange,
+  type RefResolver,
   resolveId,
 } from "./core"
 import type { Ref, RefConstructor } from "./Ref"

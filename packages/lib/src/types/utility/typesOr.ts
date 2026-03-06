@@ -14,7 +14,7 @@ import {
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 import { typesUnchecked } from "./typesUnchecked"
 
@@ -241,6 +241,8 @@ export function typesOr(
  */
 export class OrTypeInfo extends TypeInfo {
   readonly kind = "or"
+  readonly orTypes: ReadonlyArray<AnyStandardType>
+  readonly dispatcher: ((sn: any) => AnyType) | undefined
 
   // memoize to always return the same array on the getter
   private _orTypeInfos = lazy(() => this.orTypes.map(getTypeInfo))
@@ -251,9 +253,11 @@ export class OrTypeInfo extends TypeInfo {
 
   constructor(
     thisType: AnyStandardType,
-    readonly orTypes: ReadonlyArray<AnyStandardType>,
-    readonly dispatcher: ((sn: any) => AnyType) | undefined
+    orTypes: ReadonlyArray<AnyStandardType>,
+    dispatcher: ((sn: any) => AnyType) | undefined
   ) {
     super(thisType)
+    this.orTypes = orTypes
+    this.dispatcher = dispatcher
   }
 }

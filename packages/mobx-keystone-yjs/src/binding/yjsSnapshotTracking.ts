@@ -1,4 +1,4 @@
-import * as Y from "yjs"
+import type * as Y from "yjs"
 
 /**
  * WeakMap that tracks which snapshot each Y.js container was last synced from.

@@ -10,7 +10,7 @@ import {
   modelTypeKey,
   onGlobalPatches,
   onPatches,
-  Patch,
+  type Patch,
   prop,
   registerRootStore,
   runUnprotected,

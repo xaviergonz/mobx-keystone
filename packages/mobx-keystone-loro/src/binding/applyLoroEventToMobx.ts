@@ -2,7 +2,7 @@ import type { ContainerID, ListDiff, LoroDoc, LoroEvent, MapDiff } from "loro-cr
 import { isContainer, LoroMap, LoroMovableList, LoroText } from "loro-crdt"
 import { remove } from "mobx"
 import {
-  Frozen,
+  type Frozen,
   fromSnapshot,
   frozen,
   getSnapshotModelId,
@@ -10,7 +10,7 @@ import {
   isFrozenSnapshot,
   isModel,
   modelIdKey,
-  Path,
+  type Path,
   resolvePath,
   runUnprotected,
 } from "mobx-keystone"

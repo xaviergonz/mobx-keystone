@@ -1,4 +1,12 @@
-import { Draft, draft, getSnapshot, Model, modelAction, prop, SnapshotOutOf } from "../../src"
+import {
+  type Draft,
+  draft,
+  getSnapshot,
+  Model,
+  modelAction,
+  prop,
+  type SnapshotOutOf,
+} from "../../src"
 import { testModel } from "../utils"
 
 @testModel("M")

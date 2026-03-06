@@ -1,9 +1,9 @@
 import type { O } from "ts-toolbelt"
 import { failure } from "../utils"
 import { copyFunctionMetadata, decorateWrapMethodOrField } from "../utils/decorators"
-import { ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
+import { type ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
 import { promiseGenerator } from "./modelFlowPromiseGenerator"
-import { WrapInActionOverrideContextFn, wrapInAction } from "./wrapInAction"
+import { type WrapInActionOverrideContextFn, wrapInAction } from "./wrapInAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
 

@@ -1,4 +1,4 @@
-import { ObservableSet, set, toJS } from "mobx"
+import { type ObservableSet, set, toJS } from "mobx"
 import { _, assert } from "spec.ts"
 import {
   arrayToMapTransform,

@@ -15,7 +15,7 @@ import {
   modelAction,
   modelIdKey,
   prop,
-  Ref,
+  type Ref,
   runUnprotected,
 } from "../../src"
 import { autoDispose, testModel } from "../utils"

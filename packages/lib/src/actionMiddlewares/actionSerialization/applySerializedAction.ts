@@ -10,7 +10,7 @@ import { onPatches } from "../../patch/emitPatch"
 import type { Patch } from "../../patch/Patch"
 import { assertTweakedObject } from "../../tweaker/core"
 import { failure, isObject } from "../../utils"
-import { deserializeActionCall, SerializedActionCall } from "./actionSerialization"
+import { deserializeActionCall, type SerializedActionCall } from "./actionSerialization"
 
 /**
  * Serialized action call with model ID overrides.

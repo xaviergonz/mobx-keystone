@@ -1,14 +1,14 @@
 import * as mobx from "mobx"
 import {
-  IObservableArray,
+  type IObservableArray,
   isObservableArray,
   isObservableMap,
   isObservableObject,
   isObservableSet,
-  ObservableMap,
-  ObservableSet,
+  type ObservableMap,
+  type ObservableSet,
 } from "mobx"
-import { JSONPrimitiveValue, PrimitiveValue } from "./types"
+import type { JSONPrimitiveValue, PrimitiveValue } from "./types"
 
 /**
  * A mobx-keystone error.
@@ -307,9 +307,11 @@ export function logWarning(type: "warn" | "error", msg: string, uniqueKey?: stri
   msg = "[mobx-keystone] " + msg
   switch (type) {
     case "warn":
+      // biome-ignore lint/suspicious/noConsole: this internal helper intentionally emits user-facing warnings.
       console.warn(msg)
       break
     case "error":
+      // biome-ignore lint/suspicious/noConsole: this internal helper intentionally emits user-facing errors.
       console.error(msg)
       break
     default:

@@ -19,7 +19,7 @@
     "site:serve": "turbo run site#serve",
     "build-netlify": "pnpm run site:build",
     "netlify-dev": "pnpm run build-netlify && netlify dev",
-    "lint": "biome lint",
+    "lint": "biome check",
     "skills:sync": "npx -y skills add ./skills --skill '*' --agent codex claude-code github-copilot antigravity -y",
     "upgrade-interactive": "pnpm -r up -i --latest && pnpm dedupe"
   },
@@ -37,9 +37,7 @@
     "globals": "^17.3.0",
     "netlify-cli": "^24.0.1",
     "turbo": "^2.8.12",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vite-plugin-dts": "^4.5.4"
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.29.3"
 }

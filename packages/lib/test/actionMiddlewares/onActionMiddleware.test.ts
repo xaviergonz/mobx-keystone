@@ -1,7 +1,7 @@
 import { observable } from "mobx"
 import {
-  ActionCall,
-  ActionContext,
+  type ActionCall,
+  type ActionContext,
   applySnapshot,
   getSnapshot,
   idProp,

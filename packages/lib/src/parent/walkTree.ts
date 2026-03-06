@@ -1,4 +1,4 @@
-import { computed, IComputedValue } from "mobx"
+import { computed, type IComputedValue } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { getObjectChildren } from "./coreObjectChildren"
 

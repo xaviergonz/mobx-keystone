@@ -1,6 +1,6 @@
 import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
-import { Ref, RefConstructor } from "../../ref/Ref"
+import { Ref, type RefConstructor } from "../../ref/Ref"
 import { isObject } from "../../utils"
 import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"

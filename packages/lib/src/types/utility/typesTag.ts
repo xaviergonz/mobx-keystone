@@ -1,7 +1,7 @@
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType } from "../schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChecker"
+import { lateTypeChecker, TypeChecker, TypeInfo, type TypeInfoGen } from "../TypeChecker"
 
 /**
  * Wrap a given type with tag information.
@@ -66,6 +66,9 @@ export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: s
  */
 export class TagTypeInfo<A> extends TypeInfo {
   readonly kind = "tag"
+  readonly baseType: AnyStandardType
+  readonly tag: A
+  readonly typeName: string | undefined
 
   get baseTypeInfo(): TypeInfo {
     return getTypeInfo(this.baseType)
@@ -73,10 +76,13 @@ export class TagTypeInfo<A> extends TypeInfo {
 
   constructor(
     thisType: AnyStandardType,
-    readonly baseType: AnyStandardType,
-    readonly tag: A,
-    readonly typeName: string | undefined
+    baseType: AnyStandardType,
+    tag: A,
+    typeName: string | undefined
   ) {
     super(thisType)
+    this.baseType = baseType
+    this.tag = tag
+    this.typeName = typeName
   }
 }

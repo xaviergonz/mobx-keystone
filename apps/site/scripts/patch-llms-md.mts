@@ -101,10 +101,14 @@ async function patchExampleCodeBlocks(mdxPath: string) {
 
   const sourceMap = new Map<string, string>(
     await Promise.all(
-      specs.map(async (s): Promise<[string, string]> => [
-        s.relFile,
-        (await fs.readFile(path.join(mdxDir, s.relFile), "utf8")).replace(/\r\n/g, "\n").trimEnd(),
-      ])
+      specs.map(
+        async (s): Promise<[string, string]> => [
+          s.relFile,
+          (await fs.readFile(path.join(mdxDir, s.relFile), "utf8"))
+            .replace(/\r\n/g, "\n")
+            .trimEnd(),
+        ]
+      )
     )
   )
 
@@ -145,7 +149,11 @@ async function patchFileTitles() {
 async function main() {
   const mdxFiles = await fg("**/*.mdx", { cwd: docsExamplesDir, absolute: true, onlyFiles: true })
   let patchedExamplesCount = 0
-  for (const mdxPath of mdxFiles) if (await patchExampleCodeBlocks(mdxPath)) patchedExamplesCount += 1
+  for (const mdxPath of mdxFiles) {
+    if (await patchExampleCodeBlocks(mdxPath)) {
+      patchedExamplesCount += 1
+    }
+  }
   const titledCount = await patchFileTitles()
   process.stdout.write(
     `Patched ${patchedExamplesCount} generated markdown example files and titled ${titledCount} markdown files.\n`

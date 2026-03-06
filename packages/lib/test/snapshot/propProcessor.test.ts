@@ -11,8 +11,8 @@ import {
   modelSnapshotOutWithMetadata,
   modelTypeKey,
   prop,
-  SnapshotInOf,
-  SnapshotOutOf,
+  type SnapshotInOf,
+  type SnapshotOutOf,
 } from "../../src"
 import { testModel } from "../utils"
 

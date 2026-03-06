@@ -498,11 +498,13 @@ export function prop<TValue>(defaultValue: OnlyPrimitives<TValue>): OptionalMode
 export function prop<TValue>(): MaybeOptionalModelProp<TValue>
 
 // base
-export function prop(def?: any): AnyModelProp {
-  const hasDefaultValue = arguments.length > 0
+export function prop(...args: [] | [def: any]): AnyModelProp {
+  const hasDefaultValue = args.length > 0
   if (!hasDefaultValue) {
     return baseProp
   }
+
+  const [def] = args
 
   let p = propCache.get(def)
 

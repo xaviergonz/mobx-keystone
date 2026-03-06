@@ -1,7 +1,7 @@
 import { isObservable, remove } from "mobx"
 import { toTreeNode } from "../tweaker/tweak"
 import { assertIsObject, namespace as ns } from "../utils"
-import { AnyFunction } from "../utils/AnyFunction"
+import type { AnyFunction } from "../utils/AnyFunction"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { standaloneAction } from "./standaloneActions"
 

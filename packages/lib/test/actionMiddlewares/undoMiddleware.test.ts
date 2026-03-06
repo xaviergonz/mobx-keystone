@@ -1,4 +1,4 @@
-import { computed, IObservableArray, reaction, toJS } from "mobx"
+import { computed, type IObservableArray, reaction, toJS } from "mobx"
 import {
   _async,
   _await,
@@ -9,11 +9,11 @@ import {
   modelFlow,
   modelIdKey,
   prop,
-  Ref,
+  type Ref,
   registerRootStore,
   rootRef,
-  SnapshotOutOfModel,
-  UndoEvent,
+  type SnapshotOutOfModel,
+  type UndoEvent,
   UndoManager,
   UndoStore,
   undoMiddleware,

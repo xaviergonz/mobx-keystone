@@ -1,20 +1,20 @@
 import { action } from "mobx"
 import {
-  AnyDataModel,
-  AnyModel,
-  AnyStandardType,
-  DeepChange,
+  type AnyDataModel,
+  type AnyModel,
+  type AnyStandardType,
+  type DeepChange,
   DeepChangeType,
   fromSnapshot,
   getParentToChildPath,
   getSnapshot,
   isTreeNode,
-  ModelClass,
+  type ModelClass,
   onDeepChange,
   onGlobalDeepChange,
   onSnapshot,
-  TypeToData,
-  TypeToSnapshotIn,
+  type TypeToData,
+  type TypeToSnapshotIn,
 } from "mobx-keystone"
 import * as Y from "yjs"
 import type { PlainArray, PlainObject } from "../plainTypes"
@@ -22,10 +22,10 @@ import { failure } from "../utils/error"
 import { getYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
 import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
 import { applyMobxChangeToYjsObject } from "./applyMobxChangeToYjsObject"
-import { applyYjsEventToMobx, ReconciliationMap } from "./applyYjsEventToMobx"
+import { applyYjsEventToMobx, type ReconciliationMap } from "./applyYjsEventToMobx"
 import { applyJsonArrayToYArray, applyJsonObjectToYMap } from "./convertJsonToYjsData"
 import { convertYjsDataToJson } from "./convertYjsDataToJson"
-import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
+import { type YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 import { setYjsContainerSnapshot } from "./yjsSnapshotTracking"
 
 /**

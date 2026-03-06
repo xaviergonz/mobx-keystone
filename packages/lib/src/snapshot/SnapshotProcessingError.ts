@@ -1,4 +1,4 @@
-import { Path } from "../parent/pathTypes"
+import type { Path } from "../parent/pathTypes"
 import { MobxKeystoneError } from "../utils"
 import {
   buildErrorMessageWithDiagnostics,

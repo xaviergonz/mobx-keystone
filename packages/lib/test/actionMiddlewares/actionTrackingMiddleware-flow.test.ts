@@ -8,7 +8,7 @@ import {
   modelAction,
   modelFlow,
   prop,
-  SimpleActionContext,
+  type SimpleActionContext,
 } from "../../src"
 import { autoDispose, delay, testModel } from "../utils"
 

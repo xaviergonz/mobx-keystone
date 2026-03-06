@@ -12,7 +12,7 @@ import {
   modelAction,
   modelIdKey,
   prop,
-  Ref,
+  type Ref,
   registerRootStore,
   runUnprotected,
   SandboxManager,

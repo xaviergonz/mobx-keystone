@@ -4,7 +4,7 @@ import {
   Model,
   modelAction,
   onChildAttachedTo,
-  Path,
+  type Path,
   prop,
 } from "../../src"
 import { isArray, isObject } from "../../src/utils"

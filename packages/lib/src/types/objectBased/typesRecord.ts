@@ -12,7 +12,7 @@ import {
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
@@ -143,15 +143,14 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
  */
 export class RecordTypeInfo extends TypeInfo {
   readonly kind = "record"
+  readonly valueType: AnyStandardType
 
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly valueType: AnyStandardType
-  ) {
+  constructor(thisType: AnyStandardType, valueType: AnyStandardType) {
     super(thisType)
+    this.valueType = valueType
   }
 }

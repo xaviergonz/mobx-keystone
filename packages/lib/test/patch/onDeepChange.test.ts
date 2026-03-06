@@ -1,6 +1,6 @@
 import {
   DataModel,
-  DeepChange,
+  type DeepChange,
   DeepChangeType,
   fromSnapshot,
   Model,

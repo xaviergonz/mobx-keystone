@@ -1,6 +1,6 @@
 import { fromSnapshot } from ".."
 import { createHeros, createMonsters, createTreasure } from "./fixtures/fixture-data"
-import { Hero, Monster, Treasure } from "./fixtures/fixture-models"
+import type { Hero, Monster, Treasure } from "./fixtures/fixture-models"
 import { start } from "./timer"
 
 /**

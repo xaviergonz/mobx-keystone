@@ -1,5 +1,5 @@
-import { autorun, ObservableMap, observable, runInAction } from "mobx"
-import { AnyModel, detach, Model, prop, WalkTreeMode, walkTree } from "../../src"
+import { autorun, type ObservableMap, observable, runInAction } from "mobx"
+import { type AnyModel, detach, Model, prop, WalkTreeMode, walkTree } from "../../src"
 import { testModel } from "../utils"
 
 test("walktree should be reactive", () => {

@@ -13,7 +13,7 @@ import {
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 import { resolveCodecSupport } from "../utility/typesCodec"
 import { typesObject } from "./typesObject"
@@ -120,15 +120,14 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
  */
 export class ArraySetTypeInfo extends TypeInfo {
   readonly kind = "arraySet"
+  readonly valueType: AnyStandardType
 
   get valueTypeInfo(): TypeInfo {
     return getTypeInfo(this.valueType)
   }
 
-  constructor(
-    originalType: AnyStandardType,
-    readonly valueType: AnyStandardType
-  ) {
+  constructor(originalType: AnyStandardType, valueType: AnyStandardType) {
     super(originalType)
+    this.valueType = valueType
   }
 }

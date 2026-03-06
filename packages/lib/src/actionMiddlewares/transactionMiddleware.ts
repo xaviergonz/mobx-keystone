@@ -3,13 +3,13 @@ import type { AnyModel } from "../model/BaseModel"
 import { assertIsModel } from "../model/utils"
 import { addModelClassInitializer } from "../modelShared/modelClassInitializer"
 import { applyPatches } from "../patch"
-import { internalPatchRecorder, PatchRecorder } from "../patch/patchRecorder"
+import { internalPatchRecorder, type PatchRecorder } from "../patch/patchRecorder"
 import { assertIsObject, failure } from "../utils"
 import { checkDecoratorContext } from "../utils/decorators"
 import {
   ActionTrackingResult,
   actionTrackingMiddleware,
-  SimpleActionContext,
+  type SimpleActionContext,
 } from "./actionTrackingMiddleware"
 
 /**

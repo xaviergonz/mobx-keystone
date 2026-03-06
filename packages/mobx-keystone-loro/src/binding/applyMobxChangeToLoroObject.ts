@@ -1,5 +1,5 @@
 import { LoroMap, LoroMovableList, LoroText } from "loro-crdt"
-import { DeepChange, DeepChangeType } from "mobx-keystone"
+import { type DeepChange, DeepChangeType } from "mobx-keystone"
 import type { PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"

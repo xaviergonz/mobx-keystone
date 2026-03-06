@@ -4,7 +4,7 @@ import { flow, isModelFlow } from "../action/modelFlow"
 import { wrapInAction } from "../action/wrapInAction"
 import { assertIsTreeNode } from "../tweaker/core"
 import { assertIsFunction, failure, logWarning } from "../utils"
-import { AnyFunction } from "../utils/AnyFunction"
+import type { AnyFunction } from "../utils/AnyFunction"
 import { copyFunctionMetadata } from "../utils/decorators"
 
 /**

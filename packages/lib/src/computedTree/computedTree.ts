@@ -1,4 +1,4 @@
-import { computed, IComputedValue } from "mobx"
+import { computed, type IComputedValue } from "mobx"
 import { readonlyMiddleware } from "../actionMiddlewares/readonlyMiddleware"
 import { createContext } from "../context/context"
 import { isDataModelClass } from "../dataModel/utils"

@@ -1,6 +1,6 @@
 import { assertTweakedObject } from "../tweaker/core"
 import { lazy } from "../utils"
-import { AnyFunction } from "../utils/AnyFunction"
+import type { AnyFunction } from "../utils/AnyFunction"
 import { BuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
 import { wrapInAction } from "./wrapInAction"

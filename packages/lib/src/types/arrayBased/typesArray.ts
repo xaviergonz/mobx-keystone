@@ -11,7 +11,7 @@ import {
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
@@ -123,15 +123,14 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
  */
 export class ArrayTypeInfo extends TypeInfo {
   readonly kind = "array"
+  readonly itemType: AnyStandardType
 
   get itemTypeInfo(): TypeInfo {
     return getTypeInfo(this.itemType)
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly itemType: AnyStandardType
-  ) {
+  constructor(thisType: AnyStandardType, itemType: AnyStandardType) {
     super(thisType)
+    this.itemType = itemType
   }
 }

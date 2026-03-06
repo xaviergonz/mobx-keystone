@@ -1,4 +1,4 @@
-import { action, createAtom, IAtom } from "mobx"
+import { action, createAtom, type IAtom } from "mobx"
 import { fastGetParent } from "./path"
 
 interface DeepObjectChildren {

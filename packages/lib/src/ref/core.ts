@@ -1,4 +1,4 @@
-import { action, ObservableSet, observable, reaction, when } from "mobx"
+import { action, type ObservableSet, observable, reaction, when } from "mobx"
 import { isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { model } from "../modelShared/modelDecorator"
@@ -7,11 +7,11 @@ import {
   registerDeepObjectChildrenExtension,
 } from "../parent/coreObjectChildren"
 import { fastGetRoot } from "../parent/path"
-import { ComputedWalkTreeAggregate, computedWalkTreeAggregate } from "../parent/walkTree"
+import { type ComputedWalkTreeAggregate, computedWalkTreeAggregate } from "../parent/walkTree"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
-import { Ref, RefConstructor } from "./Ref"
+import { Ref, type RefConstructor } from "./Ref"
 
 interface BackRefs<T extends object> {
   all: ObservableSet<Ref<T>>

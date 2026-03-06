@@ -6,7 +6,7 @@ import {
   model,
   modelAction,
   prop,
-  Ref,
+  type Ref,
   registerRootStore,
   rootRef,
   setGlobalConfig,
@@ -21,7 +21,6 @@ const byteValueNumberFormatter = Intl.NumberFormat("en", {
   unitDisplay: "narrow",
 })
 
-// @ts-ignore
 function memtest(numProps: number, numInstances: number) {
   console.log(`[${numProps} props, ${numInstances} instances]`)
   console.log()

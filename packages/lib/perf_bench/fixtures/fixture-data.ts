@@ -1,4 +1,4 @@
-import { modelSnapshotInWithMetadata, SnapshotInOf } from "../.."
+import { modelSnapshotInWithMetadata, type SnapshotInOf } from "../.."
 import { Hero, HeroRoles, Monster, Treasure } from "./fixture-models"
 
 /**
@@ -39,9 +39,9 @@ export function createHeros(count: number) {
   const data: SnapshotInOf<Hero>[] = []
   let i = 0
   let even = true
-  let n1
-  let n2
-  let n3
+  let n1 = ""
+  let n2 = ""
+  let n3 = ""
   do {
     n1 = titles[i % titles.length]
     n2 = givenNames[i % givenNames.length]

@@ -1,13 +1,13 @@
 import { remove } from "mobx"
 import {
-  Frozen,
+  type Frozen,
   fromSnapshot,
   frozen,
   getSnapshot,
   getSnapshotModelId,
   isFrozenSnapshot,
   isModel,
-  Path,
+  type Path,
   resolvePath,
   runUnprotected,
 } from "mobx-keystone"

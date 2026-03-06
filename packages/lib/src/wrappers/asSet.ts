@@ -1,10 +1,10 @@
 import {
   action,
-  IObservableArray,
-  ISetWillChange,
+  type IObservableArray,
+  type ISetWillChange,
   intercept,
   isObservableArray,
-  ObservableSet,
+  type ObservableSet,
   observable,
   observe,
   runInAction,

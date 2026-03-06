@@ -2,9 +2,9 @@ import { ActionContextActionType } from "../action"
 import {
   ActionTrackingResult,
   actionTrackingMiddleware,
-  SimpleActionContext,
+  type SimpleActionContext,
 } from "../actionMiddlewares"
-import { fastGetRootPath, RootPath } from "../parent/path"
+import { fastGetRootPath, type RootPath } from "../parent/path"
 import { applySnapshot } from "../snapshot/applySnapshot"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { assertTweakedObject } from "../tweaker/core"

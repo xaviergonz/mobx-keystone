@@ -6,7 +6,7 @@ import {
   modelAction,
   modelIdKey,
   prop,
-  SimpleActionContext,
+  type SimpleActionContext,
 } from "../../src"
 import { autoDispose, testModel } from "../utils"
 

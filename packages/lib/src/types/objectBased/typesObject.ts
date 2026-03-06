@@ -15,12 +15,12 @@ import type {
 } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
-  LateTypeChecker,
+  type LateTypeChecker,
   lateTypeChecker,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
@@ -241,6 +241,7 @@ export interface ObjectTypeInfoProps {
  */
 export class ObjectTypeInfo extends TypeInfo {
   readonly kind = "object"
+  private readonly _objTypeFn: ObjectTypeFunction
 
   // memoize to always return the same object
   private _props = lazy(() => {
@@ -258,11 +259,9 @@ export class ObjectTypeInfo extends TypeInfo {
     return this._props()
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    private _objTypeFn: ObjectTypeFunction
-  ) {
+  constructor(thisType: AnyStandardType, objTypeFn: ObjectTypeFunction) {
     super(thisType)
+    this._objTypeFn = objTypeFn
   }
 }
 
@@ -296,15 +295,14 @@ export function typesFrozen<T extends AnyType>(dataType: T): ModelType<Frozen<Ty
  */
 export class FrozenTypeInfo extends TypeInfo {
   readonly kind = "frozen"
+  readonly dataType: AnyStandardType
 
   get dataTypeInfo(): TypeInfo {
     return getTypeInfo(this.dataType)
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly dataType: AnyStandardType
-  ) {
+  constructor(thisType: AnyStandardType, dataType: AnyStandardType) {
     super(thisType)
+    this.dataType = dataType
   }
 }

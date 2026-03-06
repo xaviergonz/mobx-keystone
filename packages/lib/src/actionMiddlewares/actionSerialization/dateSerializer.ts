@@ -1,5 +1,5 @@
 import { namespace } from "../../utils"
-import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
+import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const dateSerializer: ActionCallArgumentSerializer<Date, number> = {
   id: `${namespace}/dateAsTimestamp`,

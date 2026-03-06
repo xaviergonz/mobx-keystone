@@ -1,9 +1,9 @@
 import { assertIsPrimitive, identityFn } from "../../utils"
 import type { PrimitiveValue } from "../../utils/types"
-import { registerStandardTypeResolver, StandardTypeResolverFn } from "../resolveTypeChecker"
+import { registerStandardTypeResolver, type StandardTypeResolverFn } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
-import { TypeChecker, TypeCheckerBaseType, TypeInfo, TypeInfoGen } from "../TypeChecker"
+import { TypeChecker, TypeCheckerBaseType, TypeInfo, type TypeInfoGen } from "../TypeChecker"
 
 const standardTypeResolvers: StandardTypeResolverFn[] = []
 
@@ -66,12 +66,11 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
  */
 export class LiteralTypeInfo extends TypeInfo {
   readonly kind = "literal"
+  readonly literal: PrimitiveValue
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly literal: PrimitiveValue
-  ) {
+  constructor(thisType: AnyStandardType, literal: PrimitiveValue) {
     super(thisType)
+    this.literal = literal
   }
 }
 

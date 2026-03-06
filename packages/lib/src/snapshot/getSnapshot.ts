@@ -1,7 +1,7 @@
 import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { toTreeNode } from "../tweaker/tweak"
 import { resolveTypeChecker } from "../types/resolveTypeChecker"
-import { AnyType, TypeToData, TypeToSnapshotOut } from "../types/schemas"
+import type { AnyType, TypeToData, TypeToSnapshotOut } from "../types/schemas"
 import { resolveCodecSupport } from "../types/utility/typesCodec"
 import { failure, identityFn, isPrimitive } from "../utils"
 import {
@@ -36,11 +36,12 @@ export function getSnapshot<T extends AnyType>(
  */
 export function getSnapshot<T>(nodeOrPrimitive: T): SnapshotOutOf<T>
 
-export function getSnapshot(arg1: any, arg2?: any): any {
+export function getSnapshot(...args: [arg1: any] | [arg1: any, arg2: any]): any {
+  const [arg1, arg2] = args
   let toSnapshotProcessor: (sn: unknown) => unknown = identityFn
   let nodeOrPrimitive: any
 
-  if (arguments.length >= 2) {
+  if (args.length >= 2) {
     const codecSupport = resolveCodecSupport(arg1)
     if (codecSupport.hasCodec) {
       const storedTypeChecker = resolveTypeChecker(codecSupport.storedType)

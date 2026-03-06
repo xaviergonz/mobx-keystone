@@ -6,7 +6,7 @@ import {
   setGlobalConfig,
 } from "mobx-keystone"
 import { getSnapshot as mstGetSnapshot } from "mobx-state-tree"
-import { bench, ExtrasToRun } from "./bench.js"
+import { bench, type ExtrasToRun } from "./bench.js"
 import { ESBigModel } from "./models/es6.js"
 import { BigModel } from "./models/ks-nonTypeChecked.js"
 import { TcBigModel } from "./models/ks-typeChecked.js"

@@ -2,10 +2,10 @@ import { computed } from "mobx"
 import {
   connectReduxDevTools,
   idProp,
-  model,
   Model,
-  modelAction,
   ModelAutoTypeCheckingMode,
+  model,
+  modelAction,
   registerRootStore,
   setGlobalConfig,
   tProp,

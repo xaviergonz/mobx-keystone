@@ -7,7 +7,7 @@ import { getGlobalConfig } from "../globalConfig"
 import type { AnyModel } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
 import { isModelClass } from "../model/utils"
-import { ModelClass, modelInitializedSymbol } from "../modelShared/BaseModelShared"
+import { type ModelClass, modelInitializedSymbol } from "../modelShared/BaseModelShared"
 import { modelInfoByClass, modelInfoByName } from "../modelShared/modelInfo"
 import {
   modelUnwrappedClassSymbol,
@@ -23,7 +23,7 @@ import {
   runBeforeOnInitSymbol,
   runLateInitializationFunctions,
 } from "../utils"
-import { AnyFunction } from "../utils/AnyFunction"
+import type { AnyFunction } from "../utils/AnyFunction"
 
 /**
  * Decorator that marks this class (which MUST inherit from the `Model` or `DataModel` abstract classes)
@@ -196,8 +196,15 @@ const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
 }
 
 // basically taken from TS
-function tsDecorate(decorators: any, target: any, key: any, desc: any) {
-  const c = arguments.length
+function tsDecorate(
+  ...args:
+    | [decorators: any, target: any]
+    | [decorators: any, target: any, key: any]
+    | [decorators: any, target: any, key: any, desc: any]
+) {
+  const [decorators, target, key] = args
+  let desc = args[3]
+  const c = args.length
   let r =
     c < 3 ? target : desc === null ? (desc = Object.getOwnPropertyDescriptor(target, key)) : desc
   let d: any

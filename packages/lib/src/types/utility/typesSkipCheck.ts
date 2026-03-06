@@ -1,7 +1,7 @@
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType } from "../schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, TypeInfoGen } from "../TypeChecker"
+import { lateTypeChecker, TypeChecker, TypeInfo, type TypeInfoGen } from "../TypeChecker"
 
 /**
  * A type that wraps another type but skips runtime validation.
@@ -56,15 +56,14 @@ export function typesSkipCheck<T extends AnyType>(baseType: T): T {
  */
 export class SkipCheckTypeInfo extends TypeInfo {
   readonly kind = "skipCheck"
+  readonly baseType: AnyStandardType
 
   get baseTypeInfo(): TypeInfo {
     return getTypeInfo(this.baseType)
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly baseType: AnyStandardType
-  ) {
+  constructor(thisType: AnyStandardType, baseType: AnyStandardType) {
     super(thisType)
+    this.baseType = baseType
   }
 }

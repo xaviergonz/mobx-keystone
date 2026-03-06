@@ -2,10 +2,10 @@ import { action } from "mobx"
 import type { O } from "ts-toolbelt"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
-import { AnyFunction } from "../utils/AnyFunction"
+import type { AnyFunction } from "../utils/AnyFunction"
 import { copyFunctionMetadata } from "../utils/decorators"
 import {
-  ActionContext,
+  type ActionContext,
   ActionContextActionType,
   getCurrentActionContext,
   setCurrentActionContext,

@@ -6,7 +6,7 @@ import {
   modelAction,
   modelIdKey,
   onPatches,
-  Patch,
+  type Patch,
   prop,
 } from "../../src"
 import { testModel } from "../utils"

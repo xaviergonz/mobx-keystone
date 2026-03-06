@@ -10,7 +10,7 @@ import {
   registerRootStore,
   standaloneAction,
   standaloneFlow,
-  TypeToData,
+  type TypeToData,
   tag,
   toTreeNode,
   types,

@@ -5,9 +5,9 @@ import { fastGetRootPath } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject } from "../utils"
 import {
-  ActionTrackingReturn,
+  type ActionTrackingReturn,
   actionTrackingMiddleware,
-  SimpleActionContext,
+  type SimpleActionContext,
 } from "./actionTrackingMiddleware"
 import { rootPathToTargetPathIds } from "./utils"
 

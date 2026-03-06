@@ -5,9 +5,9 @@ import {
   Model,
   modelAction,
   prop,
-  ReduxAction,
-  ReduxMiddleware,
-  SnapshotOutOfModel,
+  type ReduxAction,
+  type ReduxMiddleware,
+  type SnapshotOutOfModel,
 } from "../../src"
 import { autoDispose, testModel } from "../utils"
 

@@ -2,8 +2,8 @@ import { _, assert } from "spec.ts"
 import {
   _async,
   _await,
-  ActionCall,
-  ActionContext,
+  type ActionCall,
+  type ActionContext,
   ExtendedModel,
   getSnapshot,
   Model,

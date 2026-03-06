@@ -8,29 +8,29 @@ import {
 } from "loro-crdt"
 import { action } from "mobx"
 import {
-  AnyDataModel,
-  AnyModel,
-  AnyStandardType,
-  DeepChange,
+  type AnyDataModel,
+  type AnyModel,
+  type AnyStandardType,
+  type DeepChange,
   DeepChangeType,
   fromSnapshot,
   getParentToChildPath,
   getSnapshot,
   isTreeNode,
-  ModelClass,
+  type ModelClass,
   onDeepChange,
   onGlobalDeepChange,
   onSnapshot,
   resolvePath,
-  TypeToData,
-  TypeToSnapshotIn,
+  type TypeToData,
+  type TypeToSnapshotIn,
 } from "mobx-keystone"
 import { nanoid } from "nanoid"
 import type { PlainArray, PlainObject } from "../plainTypes"
 import { getOrCreateLoroCollectionAtom } from "../utils/getOrCreateLoroCollectionAtom"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 
-import { applyLoroEventToMobx, ReconciliationMap } from "./applyLoroEventToMobx"
+import { applyLoroEventToMobx, type ReconciliationMap } from "./applyLoroEventToMobx"
 import { applyMobxChangeToLoroObject } from "./applyMobxChangeToLoroObject"
 import {
   applyDeltaToLoroText,

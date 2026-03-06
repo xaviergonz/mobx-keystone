@@ -1,13 +1,14 @@
+import { createRequire } from "node:module"
+import path from "node:path"
+import { fileURLToPath } from "node:url"
 import * as babel from "@babel/core"
 import * as swc from "@swc/core"
-import { createRequire } from "module"
-import path from "path"
 import ts from "typescript"
-import { fileURLToPath } from "url"
 import { defineConfig } from "vitest/config"
 import { env } from "./env.js"
 
 const { mobxVersion, compiler } = env
+// biome-ignore lint/suspicious/noConsole: this config intentionally prints the active test matrix for local runs.
 console.log(`Using mobxVersion=${mobxVersion}, compiler=${compiler}`)
 
 const require = createRequire(import.meta.url)

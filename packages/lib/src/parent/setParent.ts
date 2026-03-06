@@ -17,7 +17,7 @@ import {
   reportParentPathChanged,
 } from "./core"
 import { addObjectChild, removeObjectChild } from "./coreObjectChildren"
-import { fastGetParentPath, fastGetRoot, ParentPath } from "./path"
+import { fastGetParentPath, fastGetRoot, type ParentPath } from "./path"
 
 /**
  * @internal

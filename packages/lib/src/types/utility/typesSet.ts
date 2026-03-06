@@ -1,4 +1,4 @@
-import { type ObservableSet } from "mobx"
+import type { ObservableSet } from "mobx"
 import type { ModelPropTransform } from "../../modelShared/prop"
 import { isSet } from "../../utils"
 import { asSet } from "../../wrappers/asSet"

@@ -2,7 +2,7 @@ import type { Path } from "../parent/pathTypes"
 import { isArray, isObject, isPrimitive, lazy } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { AnyStandardType } from "./schemas"
-import { TypeCheckError } from "./TypeCheckError"
+import type { TypeCheckError } from "./TypeCheckError"
 
 type CheckFunction = (value: any, path: Path, typeCheckedValue: any) => TypeCheckError | null
 
@@ -58,6 +58,13 @@ export function invalidateCachedToSnapshotProcessorResult(obj: object) {
 export class TypeChecker {
   unchecked: boolean
   skipCheck = false
+  readonly baseType: TypeCheckerBaseType
+  private readonly _check: CheckFunction | null
+  readonly getTypeName: (...recursiveTypeCheckers: TypeChecker[]) => string
+  readonly typeInfoGen: TypeInfoGen
+  readonly snapshotType: (sn: unknown) => TypeChecker | null
+  private readonly _fromSnapshotProcessor: (sn: any) => unknown
+  private readonly _toSnapshotProcessor: (sn: any) => unknown
 
   check(value: any, path: Path, typeCheckedValue: any): TypeCheckError | null {
     if (this.unchecked || this.skipCheck) {
@@ -74,14 +81,21 @@ export class TypeChecker {
   }
 
   constructor(
-    readonly baseType: TypeCheckerBaseType,
-    private readonly _check: CheckFunction | null,
-    readonly getTypeName: (...recursiveTypeCheckers: TypeChecker[]) => string,
-    readonly typeInfoGen: TypeInfoGen,
-    readonly snapshotType: (sn: unknown) => TypeChecker | null,
-    private readonly _fromSnapshotProcessor: (sn: any) => unknown,
-    private readonly _toSnapshotProcessor: (sn: any) => unknown
+    baseType: TypeCheckerBaseType,
+    _check: CheckFunction | null,
+    getTypeName: (...recursiveTypeCheckers: TypeChecker[]) => string,
+    typeInfoGen: TypeInfoGen,
+    snapshotType: (sn: unknown) => TypeChecker | null,
+    _fromSnapshotProcessor: (sn: any) => unknown,
+    _toSnapshotProcessor: (sn: any) => unknown
   ) {
+    this.baseType = baseType
+    this._check = _check
+    this.getTypeName = getTypeName
+    this.typeInfoGen = typeInfoGen
+    this.snapshotType = snapshotType
+    this._fromSnapshotProcessor = _fromSnapshotProcessor
+    this._toSnapshotProcessor = _toSnapshotProcessor
     this.unchecked = !_check
     this._cachedTypeInfoGen = lazy(typeInfoGen)
   }
@@ -175,8 +189,11 @@ export function isLateTypeChecker(ltc: unknown): ltc is LateTypeChecker {
  */
 export class TypeInfo {
   readonly kind: string = "typeInfo"
+  readonly thisType: AnyStandardType
 
-  constructor(readonly thisType: AnyStandardType) {}
+  constructor(thisType: AnyStandardType) {
+    this.thisType = thisType
+  }
 }
 
 /**

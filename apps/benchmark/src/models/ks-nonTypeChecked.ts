@@ -1,5 +1,5 @@
 import { computed } from "mobx"
-import { model, Model, modelAction, prop } from "mobx-keystone"
+import { Model, model, modelAction, prop } from "mobx-keystone"
 
 @model("SmallModel")
 export class SmallModel extends Model({

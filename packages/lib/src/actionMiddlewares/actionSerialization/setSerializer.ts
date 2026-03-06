@@ -1,6 +1,6 @@
 import type { ObservableSet } from "mobx"
 import { namespace } from "../../utils"
-import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
+import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const setSerializer: ActionCallArgumentSerializer<Set<any> | ObservableSet<any>, any[]> = {
   id: `${namespace}/setAsArray`,

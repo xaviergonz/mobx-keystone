@@ -1,4 +1,10 @@
-import { computed, IArrayDidChange, type IComputedValue, IObjectDidChange, observe } from "mobx"
+import {
+  computed,
+  type IArrayDidChange,
+  type IComputedValue,
+  type IObjectDidChange,
+  observe,
+} from "mobx"
 import type { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
 import type { TypeCheckError } from "./TypeCheckError"

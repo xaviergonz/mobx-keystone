@@ -1,7 +1,7 @@
 import { observable } from "mobx"
 import {
   fromSnapshotOverrideTypeSymbol,
-  ModelClass,
+  type ModelClass,
   propsTypeSymbol,
   toSnapshotOverrideTypeSymbol,
 } from "../modelShared/BaseModelShared"
@@ -132,8 +132,10 @@ export abstract class BaseModel<
    */
   constructor(data: ModelPropsToTransformedCreationData<TProps>) {
     const initialData = data as any
-    const { snapshotInitialData, modelClass, generateNewIds }: ModelConstructorOptions =
-      arguments[1]
+    const constructorOptions =
+      // biome-ignore lint/complexity/noArguments: internal factory code passes hidden constructor options through super().
+      arguments[1] as ModelConstructorOptions
+    const { snapshotInitialData, modelClass, generateNewIds } = constructorOptions
 
     Object.setPrototypeOf(this, modelClass!.prototype)
 

@@ -5,11 +5,11 @@ import {
   getSnapshot,
   idProp,
   Model,
-  ModelIdPropertyName,
+  type ModelIdPropertyName,
   modelIdKey,
   runUnprotected,
-  SnapshotInOf,
-  SnapshotOutOf,
+  type SnapshotInOf,
+  type SnapshotOutOf,
 } from "../../src"
 import { testModel } from "../utils"
 

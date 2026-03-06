@@ -11,7 +11,7 @@ import {
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
@@ -122,6 +122,7 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
  */
 export class TupleTypeInfo extends TypeInfo {
   readonly kind = "tuple"
+  readonly itemTypes: ReadonlyArray<AnyStandardType>
 
   // memoize to always return the same array on the getter
   private _itemTypeInfos = lazy(() => this.itemTypes.map(getTypeInfo))
@@ -130,10 +131,8 @@ export class TupleTypeInfo extends TypeInfo {
     return this._itemTypeInfos()
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly itemTypes: ReadonlyArray<AnyStandardType>
-  ) {
+  constructor(thisType: AnyStandardType, itemTypes: ReadonlyArray<AnyStandardType>) {
     super(thisType)
+    this.itemTypes = itemTypes
   }
 }

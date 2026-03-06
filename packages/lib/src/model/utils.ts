@@ -1,9 +1,9 @@
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import { isDataModel, isDataModelClass } from "../dataModel/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName, ModelInfo, modelInfoByClass } from "../modelShared/modelInfo"
+import { getModelInfoForName, type ModelInfo, modelInfoByClass } from "../modelShared/modelInfo"
 import { failure, isPlainObject } from "../utils"
-import { AnyModel, BaseModel } from "./BaseModel"
+import { type AnyModel, BaseModel } from "./BaseModel"
 import { getModelIdPropertyName } from "./getModelMetadata"
 import { modelIdKey, modelTypeKey } from "./metadata"
 

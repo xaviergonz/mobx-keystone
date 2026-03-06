@@ -3,7 +3,7 @@ import { _, assert } from "spec.ts"
 import {
   applyPatches,
   applySnapshot,
-  FromSnapshotDefaultType,
+  type FromSnapshotDefaultType,
   fromSnapshot,
   getSnapshot,
   idProp,
@@ -13,8 +13,8 @@ import {
   modelSnapshotOutWithMetadata,
   modelTypeKey,
   prop,
-  SnapshotInOf,
-  SnapshotOutOf,
+  type SnapshotInOf,
+  type SnapshotOutOf,
 } from "../../src"
 import { testModel } from "../utils"
 

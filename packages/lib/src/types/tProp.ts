@@ -1,4 +1,9 @@
-import { AnyModelProp, MaybeOptionalModelProp, OptionalModelProp, prop } from "../modelShared/prop"
+import {
+  type AnyModelProp,
+  type MaybeOptionalModelProp,
+  type OptionalModelProp,
+  prop,
+} from "../modelShared/prop"
 import { lazy } from "../utils"
 import {
   typesBoolean,
@@ -216,7 +221,10 @@ export function tProp<TType extends ReadonlyArray<AnyType>>(
   type: TType
 ): TypedMaybeOptionalModelProp<TType[number]>
 
-export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
+export function tProp(
+  ...args: [typeOrDefaultValue: any] | [typeOrDefaultValue: any, def: any]
+): AnyModelProp {
+  const [typeOrDefaultValue, def] = args
   switch (typeof typeOrDefaultValue) {
     case "string":
       return tProp(typesString, typeOrDefaultValue)
@@ -228,7 +236,7 @@ export function tProp(typeOrDefaultValue: any, def?: any): AnyModelProp {
       break
   }
 
-  const hasDefaultValue = arguments.length >= 2
+  const hasDefaultValue = args.length >= 2
 
   const typeOrArray: AnyTypeOrArray = typeOrDefaultValue
   const resolvedType: AnyType = Array.isArray(typeOrArray)

@@ -2,7 +2,7 @@ import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getSnapshotModelType, isModel } from "../model/utils"
-import { ModelClass } from "../modelShared/BaseModelShared"
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
 import { dataObjectParent } from "../parent/core"
 import {

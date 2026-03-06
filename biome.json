@@ -38,10 +38,10 @@
         "noForEach": "off",
         "noUselessThisAlias": "off",
         "noVoid": "off",
-        "noArguments": "off"
+        "noArguments": "error"
       },
       "correctness": {
-        "noUndeclaredDependencies": "off",
+        "noUndeclaredDependencies": "error",
         "useImportExtensions": "off"
       },
       "performance": {
@@ -51,16 +51,16 @@
       },
       "security": {},
       "style": {
-        "noDefaultExport": "off",
+        "noDefaultExport": "error",
         "noNonNullAssertion": "off",
         "noParameterAssign": "off",
-        "noParameterProperties": "off",
+        "noParameterProperties": "error",
         "noUnusedTemplateLiteral": "off",
         "noUselessElse": "off",
         "useConsistentArrayType": "off",
         "useFilenamingConvention": "off",
         "useForOf": "off",
-        "useImportType": "off",
+        "useImportType": "error",
         "useNamingConvention": "off",
         "useTemplate": "off",
         "useAsConstAssertion": "error",
@@ -72,32 +72,79 @@
         "noInferrableTypes": "error"
       },
       "suspicious": {
-        "noArrayIndexKey": "off",
         "noAssignInExpressions": "off",
+        "noConsole": "error",
         "noConfusingVoidType": "off",
-        "noConsole": "off",
         "noEmptyBlockStatements": "off",
         "noEmptyInterface": "off",
         "noExplicitAny": "off",
-        "noMisplacedAssertion": "off",
-        "noReactSpecificProps": "off"
+        "noMisplacedAssertion": "off"
       }
     },
     "includes": [
-      "**/apps/site/src/**/*.ts",
-      "**/apps/site/src/**/*.tsx",
-      "**/apps/site/docs/**/*.ts",
-      "**/apps/site/docs/**/*.tsx",
-      "**/packages/lib/src/**/*.ts",
-      "**/packages/lib/test/**/*.ts",
-      "**/packages/mobx-keystone-yjs/src/**/*.ts",
-      "**/packages/mobx-keystone-yjs/test/**/*.ts",
-      "**/packages/mobx-keystone-loro/src/**/*.ts",
-      "**/packages/mobx-keystone-loro/test/**/*.ts",
+      "**/*.js",
+      "**/*.cjs",
+      "**/*.mjs",
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.mts",
+      "**/*.cts",
+      "**/*.json",
       "!**/packages/lib/src/action/modelFlowPromiseGenerator.ts",
       "!**/apps/site/docs/examples/**"
     ]
   },
+  "overrides": [
+    {
+      "includes": [
+        "**/test/**",
+        "**/perf_bench/**",
+        "apps/benchmark/**",
+        "apps/site/docs/examples/**"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/site/src/**/*.tsx", "apps/site/docs/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noArrayIndexKey": "off",
+            "noReactSpecificProps": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/site/src/pages/example-apps/**/*.tsx"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUndeclaredDependencies": "off"
+          },
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/vite.config.mts", "**/vitest.config.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "trailingCommas": "es5",

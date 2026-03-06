@@ -1,4 +1,4 @@
-import { DeepChange, DeepChangeType } from "mobx-keystone"
+import { type DeepChange, DeepChangeType } from "mobx-keystone"
 import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"

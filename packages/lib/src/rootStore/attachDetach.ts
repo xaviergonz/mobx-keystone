@@ -2,7 +2,7 @@ import { action } from "mobx"
 import { ActionContextActionType } from "../action/context"
 import { HookAction } from "../action/hookActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
-import { AnyModel, BaseModel } from "../model/BaseModel"
+import { type AnyModel, BaseModel } from "../model/BaseModel"
 import { WalkTreeMode, walkTree } from "../parent/walkTree"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()

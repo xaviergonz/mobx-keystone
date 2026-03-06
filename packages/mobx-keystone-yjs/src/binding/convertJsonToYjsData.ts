@@ -1,8 +1,8 @@
-import { frozenKey, modelTypeKey, SnapshotOutOf } from "mobx-keystone"
+import { frozenKey, modelTypeKey, type SnapshotOutOf } from "mobx-keystone"
 import * as Y from "yjs"
-import { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
-import { YjsData } from "./convertYjsDataToJson"
-import { YjsTextModel, yjsTextModelId } from "./YjsTextModel"
+import type { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
+import type { YjsData } from "./convertYjsDataToJson"
+import { type YjsTextModel, yjsTextModelId } from "./YjsTextModel"
 import { isYjsContainerUpToDate, setYjsContainerSnapshot } from "./yjsSnapshotTracking"
 
 /**

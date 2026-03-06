@@ -10,7 +10,7 @@ import {
   getParent,
   idProp,
   Model,
-  ModelData,
+  type ModelData,
   type ModelUntransformedCreationData,
   modelAction,
   modelClass,

@@ -1,7 +1,7 @@
 import { toJS } from "mobx"
 import { _, assert } from "spec.ts"
 import {
-  ArraySet,
+  type ArraySet,
   applySnapshot,
   BaseModel,
   clone,
@@ -13,16 +13,16 @@ import {
   modelIdKey,
   modelSnapshotOutWithMetadata,
   modelTypeKey,
-  ObjectMap,
+  type ObjectMap,
   onPatches,
   onSnapshot,
-  Patch,
+  type Patch,
   prop,
   runUnprotected,
-  SnapshotInOf,
-  SnapshotOutOf,
+  type SnapshotInOf,
+  type SnapshotOutOf,
 } from "../../src"
-import { createP, P, P2 } from "../testbed"
+import { createP, type P, type P2 } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 
 test("onSnapshot and applySnapshot", () => {

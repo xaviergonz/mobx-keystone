@@ -1,4 +1,4 @@
-import { action, createAtom, IAtom } from "mobx"
+import { action, createAtom, type IAtom } from "mobx"
 import { fastGetRoot, isRoot } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
 import { failure } from "../utils"

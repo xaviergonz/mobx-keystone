@@ -1,12 +1,11 @@
 import {
-  IObjectDidChange,
-  IObjectWillChange,
+  type IObjectDidChange,
+  type IObjectWillChange,
   intercept,
   isObservableObject,
   observable,
   observe,
 } from "mobx"
-import { Path } from "parent/pathTypes"
 import { assertCanWrite } from "../action/protection"
 import { DeepChangeType, emitDeepChange, getIsInInitPhase } from "../deepChange/onDeepChange"
 import type { AnyModel } from "../model/BaseModel"
@@ -15,12 +14,13 @@ import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { dataToModelNode } from "../parent/core"
 import type { ParentPath } from "../parent/path"
+import type { Path } from "../parent/pathTypes"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import {
   freezeInternalSnapshot,
   getInternalSnapshot,
-  SnapshotTransformFn,
+  type SnapshotTransformFn,
   setNewInternalSnapshot,
   updateInternalSnapshot,
 } from "../snapshot/internal"

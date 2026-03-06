@@ -5,7 +5,7 @@ import { failure } from "../utils"
 import {
   ActionTrackingResult,
   actionTrackingMiddleware,
-  SimpleActionContext,
+  type SimpleActionContext,
 } from "./actionTrackingMiddleware"
 
 /**

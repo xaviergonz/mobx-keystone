@@ -2,14 +2,14 @@ import { _, assert } from "spec.ts"
 import {
   idProp,
   Model,
-  ModelCreationData,
-  ModelData,
+  type ModelCreationData,
+  type ModelData,
   modelIdKey,
   prop,
   tProp,
   types,
 } from "../../src"
-import { Flatten } from "../../src/utils/types"
+import type { Flatten } from "../../src/utils/types"
 import { testModel } from "../utils"
 
 @testModel("M")

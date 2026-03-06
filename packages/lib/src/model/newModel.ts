@@ -3,8 +3,8 @@ import type { O } from "ts-toolbelt"
 import {
   DeepChangeType,
   emitDeepChange,
-  ObjectAddChange,
-  ObjectUpdateChange,
+  type ObjectAddChange,
+  type ObjectUpdateChange,
 } from "../deepChange/onDeepChange"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import type { ModelClass, ModelCreationData } from "../modelShared/BaseModelShared"
@@ -13,7 +13,7 @@ import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
 import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { createPatchForObjectValueChange, emitPatches } from "../patch/emitPatch"
-import { Patch } from "../patch/Patch"
+import type { Patch } from "../patch/Patch"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"

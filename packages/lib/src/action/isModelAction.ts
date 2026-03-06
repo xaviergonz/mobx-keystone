@@ -1,4 +1,4 @@
-import { AnyFunction } from "../utils/AnyFunction"
+import type { AnyFunction } from "../utils/AnyFunction"
 
 /**
  * @internal

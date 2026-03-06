@@ -1,11 +1,11 @@
-import { ModelClass, propsTypeSymbol } from "../modelShared/BaseModelShared"
+import { type ModelClass, propsTypeSymbol } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import {
-  ModelProps,
-  ModelPropsToTransformedCreationData,
-  ModelPropsToUntransformedCreationData,
-  ModelPropsToUntransformedData,
+  type ModelProps,
+  type ModelPropsToTransformedCreationData,
+  type ModelPropsToUntransformedCreationData,
+  type ModelPropsToUntransformedData,
   noDefaultValue,
 } from "../modelShared/prop"
 import { getSnapshot } from "../snapshot/getSnapshot"
@@ -72,7 +72,10 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
       throw failure("data models can only work over data objects")
     }
 
-    const { modelClass: _modelClass }: DataModelConstructorOptions = arguments[1]
+    const constructorOptions =
+      // biome-ignore lint/complexity/noArguments: internal factory code passes hidden constructor options through super().
+      arguments[1] as DataModelConstructorOptions
+    const { modelClass: _modelClass } = constructorOptions
     const modelClass = _modelClass!
 
     type Data = ModelPropsToUntransformedData<TProps>

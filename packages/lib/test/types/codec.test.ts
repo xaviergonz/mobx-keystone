@@ -9,18 +9,21 @@ import {
   fromSnapshot,
   getSnapshot,
   getTypeInfo,
-  TypeToData,
-  TypeToSnapshotIn,
-  TypeToSnapshotOut,
+  type TypeToData,
+  type TypeToSnapshotIn,
+  type TypeToSnapshotOut,
   typeCheck,
   types,
 } from "../../src"
 
 class Point {
-  constructor(
-    readonly x: number,
-    readonly y: number
-  ) {}
+  readonly x: number
+  readonly y: number
+
+  constructor(x: number, y: number) {
+    this.x = x
+    this.y = y
+  }
 }
 
 const urlType = types.codec({

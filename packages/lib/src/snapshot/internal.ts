@@ -1,8 +1,8 @@
-import { action, createAtom, IAtom } from "mobx"
-import { fastGetParentPath, ParentPath } from "../parent/path"
+import { action, createAtom, type IAtom } from "mobx"
+import { fastGetParentPath, type ParentPath } from "../parent/path"
 import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
 import { isPrimitive } from "../utils"
-import { PrimitiveValue } from "../utils/types"
+import type { PrimitiveValue } from "../utils/types"
 
 /**
  * @internal

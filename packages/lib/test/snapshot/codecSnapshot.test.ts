@@ -5,9 +5,9 @@ import {
   getSnapshot,
   isArray,
   runUnprotected,
-  TypeToData,
-  TypeToSnapshotIn,
-  TypeToSnapshotOut,
+  type TypeToData,
+  type TypeToSnapshotIn,
+  type TypeToSnapshotOut,
   typeCheck,
   types,
 } from "../../src"
@@ -224,8 +224,11 @@ test("codec runtime arrays support mutating array helpers on runtime values", ()
 test("codec map snapshots support mutable codec values and direct runtime maps", () => {
   class MutableBox {
     private onChange?: (next: string) => void
+    readonly value: string
 
-    constructor(readonly value: string) {}
+    constructor(value: string) {
+      this.value = value
+    }
 
     withChangeHandler(onChange: (next: string) => void) {
       this.onChange = onChange

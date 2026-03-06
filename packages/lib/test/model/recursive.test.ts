@@ -4,7 +4,7 @@ import {
   ModelAutoTypeCheckingMode,
   prop,
   setGlobalConfig,
-  TypeToData,
+  type TypeToData,
   tProp,
   types,
 } from "../../src"

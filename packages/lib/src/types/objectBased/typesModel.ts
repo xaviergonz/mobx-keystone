@@ -17,7 +17,7 @@ import {
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
@@ -152,6 +152,7 @@ export interface ModelTypeInfoProps {
  */
 export class ModelTypeInfo extends TypeInfo {
   readonly kind = "model"
+  readonly modelClass: ModelClass<AnyModel>
 
   private _props = lazy(() => {
     const objSchema = getInternalModelClassPropsInfo(this.modelClass)
@@ -196,11 +197,9 @@ export class ModelTypeInfo extends TypeInfo {
     return modelInfo.name
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly modelClass: ModelClass<AnyModel>
-  ) {
+  constructor(thisType: AnyStandardType, modelClass: ModelClass<AnyModel>) {
     super(thisType)
+    this.modelClass = modelClass
   }
 }
 

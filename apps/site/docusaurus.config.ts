@@ -115,4 +115,5 @@ const config: Config = {
   } satisfies Preset.ThemeConfig,
 }
 
+// biome-ignore lint/style/noDefaultExport: Docusaurus loads this config via a default export.
 export default config

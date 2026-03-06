@@ -1,18 +1,18 @@
 import {
-  IArrayDidChange,
-  IArrayWillChange,
-  IArrayWillSplice,
-  IObservableArray,
+  type IArrayDidChange,
+  type IArrayWillChange,
+  type IArrayWillSplice,
+  type IObservableArray,
   intercept,
   isObservableArray,
   observable,
   observe,
 } from "mobx"
-import { Path } from "parent/pathTypes"
 import { assertCanWrite } from "../action/protection"
 import { DeepChangeType, emitDeepChange, getIsInInitPhase } from "../deepChange/onDeepChange"
 import { getGlobalConfig } from "../globalConfig"
 import type { ParentPath } from "../parent/path"
+import type { Path } from "../parent/pathTypes"
 import { setParent } from "../parent/setParent"
 import { InternalPatchRecorder } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"

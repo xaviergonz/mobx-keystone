@@ -1,11 +1,11 @@
 import {
-  ActionContext,
+  type ActionContext,
   ActionContextActionType,
   ActionContextAsyncStepType,
 } from "../action/context"
 import {
-  ActionMiddleware,
-  ActionMiddlewareDisposer,
+  type ActionMiddleware,
+  type ActionMiddlewareDisposer,
   addActionMiddleware,
 } from "../action/middleware"
 import type { FlowFinisher } from "../action/modelFlow"

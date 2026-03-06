@@ -1,6 +1,6 @@
-import { computed, createAtom, IAtom, observe, reaction } from "mobx"
+import { computed, createAtom, type IAtom, observe, reaction } from "mobx"
 import {
-  Frozen,
+  type Frozen,
   frozen,
   getParentToChildPath,
   Model,
@@ -13,7 +13,7 @@ import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
 import { resolveYjsPath } from "./resolveYjsPath"
-import { YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
+import { type YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
 
 // Delta[][], since each single change is a Delta[]
 // we use frozen so that we can reuse each delta change

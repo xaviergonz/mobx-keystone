@@ -16,7 +16,7 @@ import {
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
-  TypeInfoGen,
+  type TypeInfoGen,
 } from "../TypeChecker"
 import type { TypeToStoredData } from "./typeToStoredData"
 
@@ -76,17 +76,17 @@ export const identityRuntimeAdapter: RuntimeAdapter<any, any> = {
  */
 export class CodecTypeInfo extends TypeInfo {
   readonly kind = "codec"
+  readonly typeName: string
+  readonly encodedType: AnyStandardType
 
   get encodedTypeInfo(): TypeInfo {
     return getTypeInfo(this.encodedType)
   }
 
-  constructor(
-    thisType: AnyStandardType,
-    readonly typeName: string,
-    readonly encodedType: AnyStandardType
-  ) {
+  constructor(thisType: AnyStandardType, typeName: string, encodedType: AnyStandardType) {
     super(thisType)
+    this.typeName = typeName
+    this.encodedType = encodedType
   }
 }
 

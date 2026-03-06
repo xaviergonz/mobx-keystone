@@ -2,11 +2,11 @@ import { ArrayTypeInfo, typesArray } from "./arrayBased/typesArray"
 import { TupleTypeInfo, typesTuple } from "./arrayBased/typesTuple"
 import { ArraySetTypeInfo, typesArraySet } from "./objectBased/typesArraySet"
 import { typesDataModelData } from "./objectBased/typesDataModelData"
-import { ModelTypeInfo, ModelTypeInfoProps, typesModel } from "./objectBased/typesModel"
+import { ModelTypeInfo, type ModelTypeInfoProps, typesModel } from "./objectBased/typesModel"
 import {
   FrozenTypeInfo,
   ObjectTypeInfo,
-  ObjectTypeInfoProps,
+  type ObjectTypeInfoProps,
   typesFrozen,
   typesObject,
 } from "./objectBased/typesObject"

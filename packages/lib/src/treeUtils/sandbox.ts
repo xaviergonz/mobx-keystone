@@ -1,6 +1,6 @@
 import { reaction, runInAction } from "mobx"
 import {
-  ReadonlyMiddlewareReturn,
+  type ReadonlyMiddlewareReturn,
   readonlyMiddleware,
 } from "../actionMiddlewares/readonlyMiddleware"
 import { createContext } from "../context"
@@ -8,7 +8,7 @@ import { getParentToChildPath, resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { onPatches } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
-import { PatchRecorder, patchRecorder } from "../patch/patchRecorder"
+import { type PatchRecorder, patchRecorder } from "../patch/patchRecorder"
 import {
   fastIsRootStoreNoAtom,
   isRootStore,
@@ -83,13 +83,16 @@ export class SandboxManager {
    */
   private isCommitting = false
 
+  private readonly subtreeRoot: object
+
   /**
    * Creates an instance of `SandboxManager`.
    * Do not use directly, use `sandbox` instead.
    *
    * @param subtreeRoot Subtree root target object.
    */
-  constructor(private readonly subtreeRoot: object) {
+  constructor(subtreeRoot: object) {
+    this.subtreeRoot = subtreeRoot
     assertTweakedObject(subtreeRoot, "subtreeRoot")
 
     // we temporarily set the default value of the context manager so that

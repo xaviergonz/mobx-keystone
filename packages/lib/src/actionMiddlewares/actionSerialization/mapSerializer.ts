@@ -1,6 +1,6 @@
-import { isObservableMap, ObservableMap } from "mobx"
+import { isObservableMap, type ObservableMap } from "mobx"
 import { namespace } from "../../utils"
-import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
+import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const mapSerializer: ActionCallArgumentSerializer<
   Map<any, any> | ObservableMap<any, any>,

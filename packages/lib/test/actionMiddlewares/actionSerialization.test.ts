@@ -12,8 +12,8 @@ import {
   namespace,
   onActionMiddleware,
   prop,
-  SerializedActionCall,
-  SerializedActionCallArgument,
+  type SerializedActionCall,
+  type SerializedActionCallArgument,
   serializeActionCall,
   serializeActionCallArgument,
 } from "../../src"

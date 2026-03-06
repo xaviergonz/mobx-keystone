@@ -2,9 +2,9 @@ import { action } from "mobx"
 import {
   getModelRefId,
   internalCustomRef,
-  RefIdResolver,
-  RefOnResolvedValueChange,
-  RefResolver,
+  type RefIdResolver,
+  type RefOnResolvedValueChange,
+  type RefResolver,
 } from "./core"
 import type { RefConstructor } from "./Ref"
 

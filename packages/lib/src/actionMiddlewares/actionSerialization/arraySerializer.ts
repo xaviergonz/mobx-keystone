@@ -1,6 +1,6 @@
 import type { IObservableArray } from "mobx"
 import { isArray, namespace } from "../../utils"
-import { ActionCallArgumentSerializer, cannotSerialize } from "./core"
+import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const arraySerializer: ActionCallArgumentSerializer<any[] | IObservableArray<any>, any[]> = {
   id: `${namespace}/array`,

@@ -1,7 +1,7 @@
 import { failure } from "../utils"
 import { registerDefaultStandardTypeResolvers } from "./registerDefaultStandardTypeResolvers"
 import type { AnyStandardType, AnyType } from "./schemas"
-import { isLateTypeChecker, LateTypeChecker, TypeChecker } from "./TypeChecker"
+import { isLateTypeChecker, type LateTypeChecker, TypeChecker } from "./TypeChecker"
 
 /**
  * @internal

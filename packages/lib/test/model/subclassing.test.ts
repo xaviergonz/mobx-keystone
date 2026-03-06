@@ -8,9 +8,9 @@ import {
   getSnapshot,
   idProp,
   Model,
-  ModelClassDeclaration,
-  ModelCreationData,
-  ModelData,
+  type ModelClassDeclaration,
+  type ModelCreationData,
+  type ModelData,
   modelAction,
   modelClass,
   modelFlow,
@@ -18,7 +18,7 @@ import {
   tProp,
   types,
 } from "../../src"
-import { Flatten } from "../../src/utils/types"
+import type { Flatten } from "../../src/utils/types"
 import { testModel } from "../utils"
 
 // @testModel("P")

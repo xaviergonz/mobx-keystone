@@ -1,5 +1,5 @@
 import { reaction, toJS } from "mobx"
-import { ArraySet, arraySet, detach } from "../../src"
+import { type ArraySet, arraySet, detach } from "../../src"
 import { autoDispose } from "../utils"
 
 let arr!: ArraySet<number>["items"]

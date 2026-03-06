@@ -2,7 +2,7 @@ import { action } from "mobx"
 import { isDataModel } from "../dataModel/utils"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import { getObjectChildren } from "../parent/coreObjectChildren"
-import { fastGetParent, ParentPath } from "../parent/path"
+import { fastGetParent, type ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { unsetInternalSnapshot } from "../snapshot/internal"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
@@ -38,11 +38,12 @@ export function toTreeNode<TType extends AnyStandardType, V extends TypeToData<T
 export function toTreeNode<T extends object>(value: T): T
 
 // base
-export function toTreeNode(arg1: any, arg2?: any): any {
+export function toTreeNode(...args: [arg1: any] | [arg1: any, arg2: any]): any {
+  const [arg1, arg2] = args
   let value: object
   let type: AnyStandardType | undefined
   let hasType: boolean
-  if (arguments.length === 1) {
+  if (args.length === 1) {
     hasType = false
     value = arg1
   } else {

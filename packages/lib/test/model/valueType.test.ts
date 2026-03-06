@@ -1,5 +1,5 @@
 import { set } from "mobx"
-import { applySnapshot, Model, modelAction, onPatches, Patch, prop } from "../../src"
+import { applySnapshot, Model, modelAction, onPatches, type Patch, prop } from "../../src"
 import { testModel } from "../utils"
 
 @testModel("P")

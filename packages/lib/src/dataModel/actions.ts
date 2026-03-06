@@ -1,4 +1,4 @@
-import { ModelClass } from "../modelShared/BaseModelShared"
+import type { ModelClass } from "../modelShared/BaseModelShared"
 import type { AnyDataModel } from "./BaseDataModel"
 
 const dataModelActionRegistry = new Map<

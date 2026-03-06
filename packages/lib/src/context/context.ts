@@ -1,4 +1,4 @@
-import { action, computed, createAtom, IAtom, IComputedValue, observable } from "mobx"
+import { action, computed, createAtom, type IAtom, type IComputedValue, observable } from "mobx"
 import { fastGetParent } from "../parent/path"
 import { assertTweakedObject, isTweakedObject } from "../tweaker/core"
 import { getOrCreate } from "../utils/mapUtils"

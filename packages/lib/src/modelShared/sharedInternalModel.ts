@@ -1,11 +1,15 @@
 import { applySet } from "../action/applySet"
 import { getCurrentActionContext } from "../action/context"
 import { modelAction } from "../action/modelAction"
-import { AnyDataModel, BaseDataModel, baseDataModelPropNames } from "../dataModel/BaseDataModel"
+import {
+  type AnyDataModel,
+  BaseDataModel,
+  baseDataModelPropNames,
+} from "../dataModel/BaseDataModel"
 import type { DataModelConstructorOptions } from "../dataModel/DataModelConstructorOptions"
 import type { DataModelMetadata } from "../dataModel/getDataModelMetadata"
 import { getGlobalConfig } from "../globalConfig/globalConfig"
-import { AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
+import { type AnyModel, BaseModel, baseModelPropNames } from "../model/BaseModel"
 import type { ModelMetadata } from "../model/getModelMetadata"
 import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { modelTypeKey } from "../model/metadata"
@@ -18,11 +22,17 @@ import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { addHiddenProp, assertIsObject, failure, propNameToSetterName } from "../utils"
 import { chainFns } from "../utils/chainFns"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
-import { ModelClass, modelInitializedSymbol } from "./BaseModelShared"
-import { ModelClassInitializer, modelInitializersSymbol } from "./modelClassInitializer"
+import { type ModelClass, modelInitializedSymbol } from "./BaseModelShared"
+import { type ModelClassInitializer, modelInitializersSymbol } from "./modelClassInitializer"
 import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "./modelPropsInfo"
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
-import { AnyModelProp, getModelPropDefaultValue, ModelProps, noDefaultValue, prop } from "./prop"
+import {
+  type AnyModelProp,
+  getModelPropDefaultValue,
+  type ModelProps,
+  noDefaultValue,
+  prop,
+} from "./prop"
 import { assertIsClassOrDataModelClass } from "./utils"
 
 function createGetModelInstanceDataField<M extends AnyModel | AnyDataModel>(

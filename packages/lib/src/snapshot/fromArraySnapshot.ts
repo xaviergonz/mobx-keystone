@@ -3,12 +3,12 @@ import { tweakArray } from "../tweaker/tweakArray"
 import { isArray } from "../utils"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
 import {
-  FromSnapshotContext,
+  type FromSnapshotContext,
   internalFromSnapshot,
   observableOptions,
   registerSnapshotter,
 } from "./fromSnapshot"
-import { SnapshotInOfObject } from "./SnapshotOf"
+import type { SnapshotInOfObject } from "./SnapshotOf"
 import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function fromArraySnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): any[] {

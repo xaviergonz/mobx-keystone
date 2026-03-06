@@ -1,5 +1,5 @@
 import { fastGetRootPath } from "../parent/path"
-import { Path } from "../parent/pathTypes"
+import type { Path } from "../parent/pathTypes"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
 import { MobxKeystoneError } from "../utils"

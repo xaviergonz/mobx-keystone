@@ -78,6 +78,7 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
     let snapshot: any
     let unprocessedSnapshot: unknown
     let options: Partial<FromSnapshotOptions> | undefined
+    // biome-ignore lint/complexity/noArguments: overload resolution needs the real call arity to distinguish omitted snapshots from omitted type args.
     const standardType = arguments.length >= 2 ? resolveStandardTypeNoThrow(arg1) : undefined
 
     if (isLateTypeChecker(arg1) || arg1 instanceof TypeChecker || standardType) {

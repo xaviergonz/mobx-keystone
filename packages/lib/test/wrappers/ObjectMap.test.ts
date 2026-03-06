@@ -1,5 +1,5 @@
 import { entries, reaction } from "mobx"
-import { detach, ObjectMap, objectMap } from "../../src"
+import { detach, type ObjectMap, objectMap } from "../../src"
 import { autoDispose } from "../utils"
 
 let map!: ObjectMap<number>
