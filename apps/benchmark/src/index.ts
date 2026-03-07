@@ -25,7 +25,7 @@ const tcModes: (ModelAutoTypeCheckingMode | false)[] = [
 ]
 
 const waitBetweenBenchmarks = () => sleep(200)
-const nextSimplePropValue = (value: string) => (value.length >= 1 ? "" : "x")
+const nextSimplePropValue = (value: string) => (value.length > 0 ? "" : "x")
 
 for (const tcMode of tcModes) {
   let name = ""

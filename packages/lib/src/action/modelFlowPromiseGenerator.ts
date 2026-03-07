@@ -1,3 +1,5 @@
+// biome-ignore-all lint: transpiled TypeScript ES5 helper kept verbatim; its generated shape intentionally violates style and complexity rules.
+
 /*
 function* promiseGenerator<T>(
   this: Promise<T>

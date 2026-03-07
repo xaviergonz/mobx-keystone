@@ -41,8 +41,12 @@
         "noArguments": "error"
       },
       "correctness": {
+        "noUnusedImports": "error",
         "noUndeclaredDependencies": "error",
         "useImportExtensions": "off"
+      },
+      "nursery": {
+        "noFloatingPromises": "error"
       },
       "performance": {
         "noBarrelFile": "off",
@@ -55,12 +59,25 @@
         "noNonNullAssertion": "off",
         "noParameterAssign": "off",
         "noParameterProperties": "error",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["**/src/**"],
+                "message": "Import package public APIs instead of reaching into src/ internals outside tests and benchmarks."
+              }
+            ]
+          }
+        },
         "noUnusedTemplateLiteral": "off",
         "noUselessElse": "off",
         "useConsistentArrayType": "off",
+        "useExplicitLengthCheck": "error",
         "useFilenamingConvention": "off",
         "useForOf": "off",
         "useImportType": "error",
+        "useNodejsImportProtocol": "error",
         "useNamingConvention": "off",
         "useTemplate": "off",
         "useAsConstAssertion": "error",
@@ -90,7 +107,6 @@
       "**/*.mts",
       "**/*.cts",
       "**/*.json",
-      "!**/packages/lib/src/action/modelFlowPromiseGenerator.ts",
       "!**/apps/site/docs/examples/**"
     ]
   },
@@ -106,6 +122,16 @@
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/test/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
           }
         }
       }

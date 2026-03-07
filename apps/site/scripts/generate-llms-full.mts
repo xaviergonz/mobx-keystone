@@ -68,7 +68,7 @@ async function main() {
     }
   }
 
-  if (missing.length) {
+  if (missing.length > 0) {
     throw new Error(
       `Could not build llms-full.txt. Missing ${missing.length} markdown files:\n${missing.join("\n")}`
     )

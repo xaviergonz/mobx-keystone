@@ -57,7 +57,7 @@ function extractCodeSpecs(mdxContent: string) {
 
 function trimTrailingJsx(nodes: any[]) {
   const out = [...nodes]
-  while (out.length) {
+  while (out.length > 0) {
     const last = out.at(-1)
     if (last?.type === "html" && JSX_TAG_LINE_RE.test(String(last.value ?? "").trim())) out.pop()
     else break
@@ -87,7 +87,7 @@ function withFilenameTitle(content: string, mdRelativePath: string) {
 async function patchExampleCodeBlocks(mdxPath: string) {
   const mdxDir = path.dirname(mdxPath)
   const specs = extractCodeSpecs(await fs.readFile(mdxPath, "utf8"))
-  if (!specs.length) return false
+  if (specs.length === 0) return false
 
   const relFromExamples = path.relative(docsExamplesDir, mdxPath)
   const generatedMdPath = path.join(generatedExamplesDir, relFromExamples.replace(/\.mdx$/, ".md"))
