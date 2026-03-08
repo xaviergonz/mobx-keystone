@@ -694,6 +694,28 @@ test("applyAction", () => {
   }).toThrow('object at path ["p2"] with ids ["NOT A GOOD ID"] could not be resolved')
 })
 
+test("applyAction rejects replaying non-action methods", () => {
+  @testModel("ReplayNonActionTarget")
+  class ReplayNonActionTarget extends Model({
+    [modelIdKey]: idProp,
+  }) {
+    nonAction() {
+      return "sensitive-value"
+    }
+  }
+
+  const target = new ReplayNonActionTarget({})
+
+  expect(() =>
+    applyAction(target, {
+      targetPath: [],
+      targetPathIds: [],
+      actionName: "nonAction",
+      args: [],
+    })
+  ).toThrow("action 'nonAction' is not a model action")
+})
+
 test("action protection", () => {
   const p = new P({})
 

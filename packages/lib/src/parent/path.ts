@@ -1,7 +1,7 @@
 import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
-import { isArray, isObject } from "../utils"
+import { hasOwnProp, isArray, isObject } from "../utils"
 import {
   dataObjectParent,
   dataToModelNode,
@@ -319,7 +319,12 @@ export function resolvePathCheckingIds<T = any>(
     const p = path[i]
 
     // check just to avoid mobx warnings about trying to access out of bounds index
-    if (isArray(current) && +p >= current.length) {
+    if (isArray(current)) {
+      if (+p >= current.length) {
+        return { resolved: false }
+      }
+    } else if (!hasOwnProp(current, p)) {
+      // we only check props for non-arrays
       return { resolved: false }
     }
 

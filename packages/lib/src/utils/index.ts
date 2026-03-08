@@ -90,6 +90,68 @@ export function isObject(value: unknown): value is Record<PropertyKey, unknown> 
 /**
  * @internal
  */
+export let hasOwnProp: (object: object, propName: PropertyKey) => boolean = (
+  object,
+  propName
+): boolean => {
+  const impl: (object: object, propName: PropertyKey) => boolean =
+    typeof Object.hasOwn === "function"
+      ? Object.hasOwn
+      : (object, propName) => {
+          // biome-ignore lint/suspicious/noPrototypeBuiltins: legacy fallback for runtimes without Object.hasOwn.
+          return Object.prototype.hasOwnProperty.call(object, propName)
+        }
+
+  hasOwnProp = impl
+  return impl(object, propName)
+}
+
+/**
+ * @internal
+ */
+export function setOwnProp(target: any, propName: PropertyKey, value: unknown): void {
+  if (propName !== "__proto__") {
+    target[propName] = value
+    return
+  }
+
+  Object.defineProperty(target, "__proto__", {
+    enumerable: true,
+    writable: true,
+    configurable: true,
+    value,
+  })
+}
+
+/**
+ * @internal
+ */
+export function copyOwnEnumerableProps<TTarget extends Record<string, any>>(
+  target: TTarget,
+  source: Record<string, any>,
+  mapValue?: (value: unknown, key: string) => unknown
+): TTarget {
+  const keys = Object.keys(source)
+  const len = keys.length
+  for (let i = 0; i < len; i++) {
+    const key = keys[i]
+    const value = source[key]
+    setOwnProp(target, key, mapValue ? mapValue(value, key) : value)
+  }
+
+  return target
+}
+
+/**
+ * @internal
+ */
+export function clonePlainObject<T extends Record<string, any>>(source: T): T {
+  return copyOwnEnumerableProps({} as T, source)
+}
+
+/**
+ * @internal
+ */
 export function isPrimitive(value: unknown): value is PrimitiveValue {
   switch (typeof value) {
     case "number":

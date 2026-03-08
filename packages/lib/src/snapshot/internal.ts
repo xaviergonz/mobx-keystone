@@ -1,7 +1,7 @@
 import { action, createAtom, type IAtom } from "mobx"
 import { fastGetParentPath, type ParentPath } from "../parent/path"
 import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
-import { isPrimitive } from "../utils"
+import { clonePlainObject, isPrimitive, setOwnProp } from "../utils"
 import type { PrimitiveValue } from "../utils/types"
 
 /**
@@ -118,7 +118,7 @@ function updateParentSnapshots(value: any, sn: SnapshotData): void {
 
   // patches for parent changes should not be emitted
   updateInternalSnapshot(parentPath.parent, (objOrArray: any) => {
-    objOrArray[path] = sn.transformed
+    setOwnProp(objOrArray, path, sn.transformed)
   })
 }
 
@@ -136,7 +136,7 @@ export const updateInternalSnapshot = action(
       if (Array.isArray(untransformed)) {
         untransformed = untransformed.slice()
       } else {
-        untransformed = Object.assign({}, untransformed)
+        untransformed = clonePlainObject(untransformed)
       }
     } else {
       // the processor cached result is no longer valid since we will

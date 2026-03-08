@@ -1,5 +1,5 @@
 import { isObservableObject } from "mobx"
-import { isPlainObject, namespace } from "../../utils"
+import { copyOwnEnumerableProps, isPlainObject, namespace } from "../../utils"
 import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
 export const plainObjectSerializer: ActionCallArgumentSerializer<object, object> = {
@@ -20,13 +20,5 @@ export const plainObjectSerializer: ActionCallArgumentSerializer<object, object>
 }
 
 function mapObjectFields(originalObj: any, mapFn: (x: any) => any): any {
-  const obj: any = {}
-  const keys = Object.keys(originalObj)
-  const len = keys.length
-  for (let i = 0; i < len; i++) {
-    const k = keys[i]
-    const v = originalObj[k]
-    obj[k] = mapFn(v)
-  }
-  return obj
+  return copyOwnEnumerableProps({}, originalObj, mapFn)
 }

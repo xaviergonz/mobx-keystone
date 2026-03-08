@@ -24,7 +24,7 @@ import {
   setNewInternalSnapshot,
   updateInternalSnapshot,
 } from "../snapshot/internal"
-import { failure, isPlainObject, isPrimitive } from "../utils"
+import { failure, isPlainObject, isPrimitive, setOwnProp } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
@@ -77,7 +77,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
       if (!doNotTweakChildren) {
         setIfDifferent(tweakedObj, k, v)
       }
-      untransformedSn[k] = v
+      setOwnProp(untransformedSn, k, v)
     } else {
       const path = { parent: tweakedObj, path: k }
 
@@ -98,13 +98,13 @@ export function tweakPlainObject<T extends Record<string, any>>(
       }
 
       const valueSn = getInternalSnapshot(tweakedValue)!
-      untransformedSn[k] = valueSn.transformed
+      setOwnProp(untransformedSn, k, valueSn.transformed)
     }
   }
 
   let transformFn: SnapshotTransformFn | undefined
   if (snapshotModelType) {
-    untransformedSn[modelTypeKey] = snapshotModelType
+    setOwnProp(untransformedSn, modelTypeKey, snapshotModelType)
 
     const modelInfo = getModelInfoForName(snapshotModelType)
     if (!modelInfo) {
@@ -134,7 +134,7 @@ const observableOptions = {
 }
 
 function mutateSet(k: PropertyKey, v: unknown, sn: Record<PropertyKey, unknown>) {
-  sn[k] = v
+  setOwnProp(sn, k, v)
 }
 
 function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {

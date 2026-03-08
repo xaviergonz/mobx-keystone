@@ -13,6 +13,8 @@ import { applyMethodCall } from "./applyMethodCall"
 import { applySet } from "./applySet"
 import { BuiltInAction, isBuiltInAction } from "./builtInActions"
 import { isHookAction } from "./hookActions"
+import { isModelAction } from "./isModelAction"
+import { isModelFlow } from "./modelFlow"
 
 /**
  * An action call.
@@ -110,5 +112,14 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
     return standaloneAction.apply(current, call.args as any)
   }
 
-  return (current as any)[call.actionName].apply(current, call.args)
+  const actionFn = (current as any)[call.actionName]
+  if (typeof actionFn !== "function") {
+    throw failure(`action '${call.actionName}' could not be resolved to a function`)
+  }
+
+  if (!isModelAction(actionFn) && !isModelFlow(actionFn)) {
+    throw failure(`action '${call.actionName}' is not a model action`)
+  }
+
+  return actionFn.apply(current, call.args)
 }

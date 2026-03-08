@@ -14,7 +14,7 @@ import { toTreeNode } from "../tweaker/tweak"
 import { typesDataModelData } from "../types/objectBased/typesDataModelData"
 import type { TypeCheckError } from "../types/TypeCheckError"
 import { typeCheck } from "../types/typeCheck"
-import { failure, isObject } from "../utils"
+import { clonePlainObject, failure, isObject } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
 import { getDataModelMetadata } from "./getDataModelMetadata"
@@ -93,7 +93,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
 
       const modelProps = getInternalModelClassPropsInfo(modelClass)
 
-      const initialData: Record<string, any> = Object.assign({}, data)
+      const initialData: Record<string, any> = clonePlainObject(data)
 
       const modelPropsKeys = Object.keys(modelProps)
       for (let i = 0; i < modelPropsKeys.length; i++) {

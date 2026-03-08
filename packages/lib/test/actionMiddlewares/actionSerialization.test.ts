@@ -223,6 +223,50 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
   }
 })
 
+function serializedPlainObjectWithProtoValue(value: object) {
+  const serializedValue = JSON.parse('{"__proto__":null,"safe":1}')
+  serializedValue.__proto__ = {
+    $mobxKeystoneSerializer: `${namespace}/plainObject`,
+    value,
+  }
+  return serializedValue
+}
+
+test("deserializeActionCallArgument preserves '__proto__' as data in plain objects", () => {
+  const deserialized = deserializeActionCallArgument({
+    $mobxKeystoneSerializer: `${namespace}/plainObject`,
+    value: serializedPlainObjectWithProtoValue({
+      isAdmin: true,
+    }),
+  })
+
+  expect((deserialized as any).safe).toBe(1)
+  expect(Object.hasOwn(deserialized, "__proto__")).toBe(true)
+  expect((deserialized as any).isAdmin).toBeUndefined()
+})
+
+test("deserializeActionCallArgument rejects prototype-chain object paths", () => {
+  @testModel("ActionSerializationPathExploit")
+  class ActionSerializationPathExploit extends Model({
+    [modelIdKey]: idProp,
+  }) {}
+
+  const root = new ActionSerializationPathExploit({})
+
+  expect(() =>
+    deserializeActionCallArgument(
+      {
+        $mobxKeystoneSerializer: `${namespace}/objectPath`,
+        value: {
+          targetPath: ["constructor"],
+          targetPathIds: [null],
+        },
+      },
+      root
+    )
+  ).toThrow()
+})
+
 describe("concurrency", () => {
   @testModel("TodoList")
   class TodoList extends Model({
