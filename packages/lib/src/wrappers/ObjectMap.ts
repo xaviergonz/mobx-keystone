@@ -69,6 +69,25 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
     return get(this.items, key)
   }
 
+  getOrInsert(key: string, defaultValue: V): V {
+    if (this.has(key)) {
+      return this.get(key) as V
+    }
+
+    this.set(key, defaultValue)
+    return defaultValue
+  }
+
+  getOrInsertComputed(key: string, callback: (key: string) => V): V {
+    if (this.has(key)) {
+      return this.get(key) as V
+    }
+
+    const value = callback(key)
+    this.set(key, value)
+    return value
+  }
+
   has(key: string): boolean {
     return has(this.items, key)
   }

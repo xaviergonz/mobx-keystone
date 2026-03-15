@@ -114,3 +114,56 @@ test("asMap - array", () => {
     expect(m.map.get("f")).toBe(6)
   })
 })
+
+test("asMap - getOrInsert / getOrInsertComputed", () => {
+  @testModel("M")
+  class M extends Model({
+    obj: prop<Record<string, number>>(() => ({ a: 1 })),
+    arr: prop<Array<[string, number]>>(() => [["a", 1]]),
+  }) {
+    @computed
+    get objectMap() {
+      return asMap(this.obj)
+    }
+
+    @computed
+    get arrayMap() {
+      return asMap(this.arr)
+    }
+  }
+
+  const m = new M({})
+
+  runUnprotected(() => {
+    expect(m.objectMap.getOrInsert("b", 2)).toBe(2)
+  })
+  expect(m.obj).toEqual({ a: 1, b: 2 })
+
+  const existingObjectValue = vi.fn(() => 99)
+  expect(m.objectMap.getOrInsertComputed("a", existingObjectValue)).toBe(1)
+  expect(existingObjectValue).not.toHaveBeenCalled()
+  expect(m.obj).toEqual({ a: 1, b: 2 })
+
+  runUnprotected(() => {
+    expect(m.arrayMap.getOrInsert("b", 2)).toBe(2)
+  })
+  expect(toJS(m.arr)).toEqual([
+    ["a", 1],
+    ["b", 2],
+  ])
+
+  const newArrayValue = vi.fn((key: string) => key.length)
+  runUnprotected(() => {
+    expect(m.arrayMap.getOrInsertComputed("ccc", newArrayValue)).toBe(3)
+  })
+  expect(newArrayValue).toHaveBeenCalledWith("ccc")
+  expect(toJS(m.arr)).toEqual([
+    ["a", 1],
+    ["b", 2],
+    ["ccc", 3],
+  ])
+
+  const existingArrayValue = vi.fn(() => 999)
+  expect(m.arrayMap.getOrInsertComputed("a", existingArrayValue)).toBe(1)
+  expect(existingArrayValue).not.toHaveBeenCalled()
+})

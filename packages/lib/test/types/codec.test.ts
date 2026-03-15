@@ -9,6 +9,7 @@ import {
   fromSnapshot,
   getSnapshot,
   getTypeInfo,
+  runUnprotected,
   type TypeToData,
   type TypeToSnapshotIn,
   type TypeToSnapshotOut,
@@ -67,8 +68,11 @@ const pointType = types.codec({
 })
 
 test("types.codec helper types and built-ins", () => {
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const mapFromObjectType = types.mapFromObject(types.bigint)
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const mapFromArrayType = types.mapFromArray(types.dateAsIsoString, types.bigint)
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const setFromArrayType = types.setFromArray(types.number)
 
   assert(_ as TypeToData<typeof types.bigint>, _ as bigint)
@@ -168,6 +172,42 @@ test("typeCheck rejects wrong runtime values for built-in codecs", () => {
   // mapFromObject codec rejects non-Map values
   expect(typeCheck(types.mapFromObject(types.number), { a: 1 } as never)).not.toBeNull()
   expect(typeCheck(types.mapFromObject(types.number), new Map([["a", 1]]))).toBeNull()
+})
+
+test("map codecs support getOrInsert helpers", () => {
+  const objectMapType = types.mapFromObject(types.bigint)
+  const objectMap = fromSnapshot(objectMapType, {
+    a: "1",
+  })
+
+  runUnprotected(() => {
+    expect(objectMap.getOrInsert("b", 2n)).toBe(2n)
+  })
+  expect(getSnapshot(objectMapType, objectMap)).toEqual({
+    a: "1",
+    b: "2",
+  })
+
+  const existingObjectValue = vi.fn(() => 99n)
+  expect(objectMap.getOrInsertComputed("a", existingObjectValue)).toBe(1n)
+  expect(existingObjectValue).not.toHaveBeenCalled()
+
+  const arrayMapType = types.mapFromArray(types.dateAsIsoString, types.bigint)
+  const arrayMap = fromSnapshot(arrayMapType, [["2026-01-01T00:00:00.000Z", "1"]])
+
+  const existingDateValue = vi.fn(() => 99n)
+  expect(
+    arrayMap.getOrInsertComputed(new Date("2026-01-01T00:00:00.000Z"), existingDateValue)
+  ).toBe(1n)
+  expect(existingDateValue).not.toHaveBeenCalled()
+
+  runUnprotected(() => {
+    expect(arrayMap.getOrInsert(new Date("2026-01-02T00:00:00.000Z"), 2n)).toBe(2n)
+  })
+  expect(getSnapshot(arrayMapType, arrayMap)).toEqual([
+    ["2026-01-01T00:00:00.000Z", "1"],
+    ["2026-01-02T00:00:00.000Z", "2"],
+  ])
 })
 
 // --- types.skipCheck with codec types ---

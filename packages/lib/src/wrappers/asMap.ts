@@ -26,12 +26,47 @@ import {
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { tag } from "../utils/tag"
 
+type Ts6MapExtras<K, V> = {
+  getOrInsert(key: K, defaultValue: V): V
+  getOrInsertComputed(key: K, callback: (key: K) => V): V
+}
+
+type ObservableMapWithDataObject<K, V, TDataObject> = ObservableMap<K, V> &
+  Ts6MapExtras<K, V> & {
+    dataObject: TDataObject
+  }
+
+function addTs6MapExtras<K, V>(map: ObservableMap<K, V>): ObservableMap<K, V> & Ts6MapExtras<K, V> {
+  const mapWithExtras = map as ObservableMap<K, V> & Partial<Ts6MapExtras<K, V>>
+
+  if (!mapWithExtras.getOrInsert) {
+    mapWithExtras.getOrInsert = function (key: K, defaultValue: V): V {
+      if (this.has(key)) {
+        return this.get(key) as V
+      }
+
+      this.set(key, defaultValue)
+      return defaultValue
+    }
+  }
+
+  if (!mapWithExtras.getOrInsertComputed) {
+    mapWithExtras.getOrInsertComputed = function (key: K, callback: (key: K) => V): V {
+      if (this.has(key)) {
+        return this.get(key) as V
+      }
+
+      const value = callback(key)
+      this.set(key, value)
+      return value
+    }
+  }
+
+  return mapWithExtras as ObservableMap<K, V> & Ts6MapExtras<K, V>
+}
+
 const observableMapBackedByObservableObject = action(
-  <T>(
-    obj: object
-  ): ObservableMap<string, T> & {
-    dataObject: typeof obj
-  } => {
+  <T>(obj: object): ObservableMapWithDataObject<string, T, typeof obj> => {
     if (inDevMode) {
       if (!isObservableObject(obj)) {
         throw failure("assertion failed: expected an observable object")
@@ -40,7 +75,7 @@ const observableMapBackedByObservableObject = action(
 
     const map = transaction(() =>
       untracked(() => {
-        const map = observable.map()
+        const map = observable.map<string, T>()
 
         const keys = Object.keys(obj)
         for (let i = 0; i < keys.length; i++) {
@@ -51,7 +86,8 @@ const observableMapBackedByObservableObject = action(
         return map
       })
     )
-    ;(map as any).dataObject = obj
+    const mapWithExtras = addTs6MapExtras(map)
+    ;(mapWithExtras as any).dataObject = obj
 
     let mapAlreadyChanged = false
     let objectAlreadyChanged = false
@@ -70,12 +106,12 @@ const observableMapBackedByObservableObject = action(
           switch (change.type) {
             case "add":
             case "update": {
-              map.set(change.name, change.newValue)
+              mapWithExtras.set(change.name as string, change.newValue)
               break
             }
 
             case "remove": {
-              map.delete(change.name)
+              mapWithExtras.delete(change.name as string)
               break
             }
 
@@ -126,24 +162,24 @@ const observableMapBackedByObservableObject = action(
       })
     )
 
-    return map as any
+    return mapWithExtras as any
   }
 )
 
 const observableMapBackedByObservableArray = <T>(
   array: IObservableArray<[string, T]>
-): ObservableMap<string, T> & { dataObject: typeof array } => {
+): ObservableMapWithDataObject<string, T, typeof array> => {
   if (inDevMode) {
     if (!isObservableArray(array)) {
       throw failure("assertion failed: expected an observable array")
     }
   }
 
-  const map = untracked(() => {
+  const map: ObservableMap<string, T> = untracked(() => {
     if (getMobxVersion() >= 6) {
-      return observable.map(array)
+      return observable.map<string, T>(array)
     } else {
-      const map = observable.map()
+      const map = observable.map<string, T>()
       runInAction(() => {
         array.forEach(([k, v]) => {
           map.set(k, v)
@@ -152,9 +188,10 @@ const observableMapBackedByObservableArray = <T>(
       return map
     }
   })
-  ;(map as any).dataObject = array
+  const mapWithExtras = addTs6MapExtras(map)
+  ;(mapWithExtras as any).dataObject = array
 
-  if (map.size !== array.length) {
+  if (mapWithExtras.size !== array.length) {
     throw failure("arrays backing a map cannot contain duplicate keys")
   }
 
@@ -179,14 +216,14 @@ const observableMapBackedByObservableArray = <T>(
             {
               const removed = change.removed
               for (let i = 0; i < removed.length; i++) {
-                map.delete(removed[i][0])
+                mapWithExtras.delete(removed[i][0])
               }
             }
 
             {
               const added = change.added
               for (let i = 0; i < added.length; i++) {
-                map.set(added[i][0], added[i][1])
+                mapWithExtras.set(added[i][0], added[i][1])
               }
             }
 
@@ -194,8 +231,8 @@ const observableMapBackedByObservableArray = <T>(
           }
 
           case "update": {
-            map.delete(change.oldValue[0])
-            map.set(change.newValue[0], change.newValue[1])
+            mapWithExtras.delete(change.oldValue[0])
+            mapWithExtras.set(change.newValue[0], change.newValue[1])
             break
           }
 
@@ -255,7 +292,7 @@ const observableMapBackedByObservableArray = <T>(
     })
   )
 
-  return map as any
+  return mapWithExtras as any
 }
 
 const asMapTag = tag((objOrArray: Record<string, any> | Array<[string, any]>) => {
@@ -273,9 +310,7 @@ const asMapTag = tag((objOrArray: Record<string, any> | Array<[string, any]>) =>
  *
  * @param array Array.
  */
-export function asMap<K, V>(
-  array: Array<[K, V]>
-): ObservableMap<K, V> & { dataObject: Array<[K, V]> }
+export function asMap<K, V>(array: Array<[K, V]>): ObservableMapWithDataObject<K, V, Array<[K, V]>>
 
 /**
  * Wraps an observable object or a tuple array to offer a map like interface.
@@ -284,7 +319,7 @@ export function asMap<K, V>(
  */
 export function asMap<T>(
   object: Record<string, T>
-): ObservableMap<string, T> & { dataObject: Record<string, T> }
+): ObservableMapWithDataObject<string, T, Record<string, T>>
 
 /**
  * Wraps an observable object or a tuple array to offer a map like interface.
@@ -293,7 +328,7 @@ export function asMap<T>(
  */
 export function asMap(
   objOrArray: Record<string, unknown> | Array<[unknown, unknown]>
-): ObservableMap<unknown, unknown> & { dataObject: typeof objOrArray } {
+): ObservableMapWithDataObject<unknown, unknown, typeof objOrArray> {
   return asMapTag.for(objOrArray) as any
 }
 

@@ -213,10 +213,17 @@ export function isArray(val: unknown): val is any[] | IObservableArray {
   return Array.isArray(val) || isObservableArray(val)
 }
 
+declare const process:
+  | {
+      env?: Record<string, string | undefined>
+    }
+  | undefined
+
 /**
  * @internal
  */
-export const inDevMode = process.env.NODE_ENV !== "production"
+export const inDevMode =
+  process?.env?.NODE_ENV !== undefined && process.env.NODE_ENV !== "production"
 
 /**
  * @internal

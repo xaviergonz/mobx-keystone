@@ -45,6 +45,7 @@ test("defineModelMixin + composeMixins type-level composition", () => {
       }
   )
 
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const ProductBase = composeMixins(Entity, countableMixin, producerMixin)
   type Product = InstanceType<typeof ProductBase>
   type ProductFromUtility = InstanceType<
@@ -194,6 +195,7 @@ test("issue #494 legacy factory pattern with explicit return types", () => {
   ) => ModelClass<Producer<InstanceType<TBase>>> = makeProducer
 
   const CountableEntity = makeCountable(Entity)
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const ProducerEntity = makeProducerUsingFactoryType(CountableEntity)
   type ProducerEntityInstance = InstanceType<typeof ProducerEntity>
   assert(_ as ProducerEntityInstance["produced"], _ as number)
@@ -217,6 +219,7 @@ test("composeMixins enforces requirements", () => {
 
   const countableMixin = defineModelMixin({ quantity: tProp(types.number, 0) })
 
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const Valid = composeMixins(Entity, countableMixin, requiresCountable)
   type ValidInstance = InstanceType<typeof Valid>
   assert(_ as ValidInstance["quantity"], _ as number)
@@ -235,6 +238,7 @@ test("composeMixins supports 6+ mixins", () => {
   const m6 = defineModelMixin({ p6: tProp(types.number, 6) })
   const m7 = defineModelMixin({ p7: tProp(types.number, 7) })
 
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const ManyBase = composeMixins(Entity, m1, m2, m3, m4, m5, m6, m7)
   type Many = InstanceType<typeof ManyBase>
 
@@ -264,6 +268,7 @@ test("composeMixins requirement failure in middle of chain", () => {
   const Invalid = composeMixins(Entity, addQuantity, requiresProduced, addProduced)
   void Invalid
 
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const Valid = composeMixins(Entity, addProduced, requiresProduced)
   type ValidInstance = InstanceType<typeof Valid>
   assert(_ as ValidInstance["produced"], _ as number)
