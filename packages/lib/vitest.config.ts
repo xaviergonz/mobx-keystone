@@ -190,5 +190,5 @@ export default defineConfig({
     environment: "node",
     globals: true,
   },
-  esbuild: false,
+  oxc: false,
 })
