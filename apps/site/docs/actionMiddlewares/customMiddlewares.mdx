@@ -31,7 +31,7 @@ The `ActionTrackingMiddleware` object has the following structure:
 
   Called when an action just started.
   Takes as parameter a simplified action context (more on that later).
-  Can optionally return a result that will cancel the original action and finish it with the returned value / error to be thrown. In either case case resume / suspend / finish will still be called normally.
+  Can optionally return a result that will cancel the original action and finish it with the returned value / error to be thrown. In either case, resume / suspend / finish will still be called normally.
 
 - `onResume?(ctx: SimpleActionContext): void`
 
@@ -41,7 +41,7 @@ The `ActionTrackingMiddleware` object has the following structure:
 
 - `onSuspend?(ctx: SimpleActionContext): void`
 
-  Called when an action just finished a synchronous pice of code execution.
+  Called when an action just finished a synchronous piece of code execution.
   Note that this doesn't necessarily mean the action is finished.
   Gets called once for sync actions and multiple times for flows.
   Takes as parameter a simplified action context (more on that later).
@@ -53,7 +53,7 @@ The `ActionTrackingMiddleware` object has the following structure:
   Takes as parameters:
 
   - `ctx` - Simplified action context (more on that later).
-  - `ret: { result: ActionTackingResult; value: any }` - If the action finished normally or due to a thrown error and the returned / thrown value.
+  - `ret: { result: ActionTrackingResult; value: any }` - Whether the action finished normally or due to a thrown error, and the returned / thrown value.
 
   Can optionally return a new return / error value to override the result of the action.
 
@@ -69,7 +69,7 @@ Simplified version of action context, which includes the following readonly data
 - `rootContext: SimpleActionContext` - Root action context, or itself if the root.
 - `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.
 
-It is simplified as in it treats all single synchronous steps of asynchronous actions as if they were in the same context, therefore eliminating the differences between the action contexts of sync actions and flows.
+It is simplified in the sense that it treats all synchronous steps of an asynchronous action as part of the same context, which removes most of the differences between sync actions and flows.
 
 ## `addActionMiddleware`
 

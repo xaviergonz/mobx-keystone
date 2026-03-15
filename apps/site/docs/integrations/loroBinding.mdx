@@ -3,7 +3,7 @@ title: Loro Binding (mobx-keystone-loro)
 slug: /integrations/loro-binding
 ---
 
-The [`mobx-keystone-loro`](https://www.npmjs.com/package/mobx-keystone-loro) package ensures a [`Loro`](https://loro.dev/) document is kept in sync with a `mobx-keystone` store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
+The [`mobx-keystone-loro`](https://www.npmjs.com/package/mobx-keystone-loro) package keeps a [`Loro`](https://loro.dev/) document in sync with a `mobx-keystone` store and vice versa. This is useful when multiple clients need to stay in sync through peer-to-peer networking, an intermediate server, or another transport. Since `Loro` is a CRDT, concurrent edits remain conflict-free, which makes optimistic updates practical even when clients go offline temporarily.
 
 ## Binding `Loro` data to a model instance
 
@@ -33,17 +33,54 @@ If you already have a model instance snapshot stored somewhere and want to start
 
 `convertJsonToLoroData` takes a single argument, a JSON value (usually a snapshot of the model you want to bind) and returns a `Loro` data structure (`LoroMap`, `LoroMovableList`, etc.) ready to be bound to that model. Frozen values are a special case and they are kept as immutable plain values.
 
+If you already have an existing `LoroMap` or `LoroMovableList` and want to copy JSON data into it, use the helper functions:
+
+- `applyJsonObjectToLoroMap(dest, source, options?)`
+- `applyJsonArrayToLoroMovableList(dest, source, options?)`
+
+These are useful when seeding or refreshing part of a document without rebuilding the container tree manually.
+
+The optional `options.mode` controls how data is applied:
+
+- `"add"` - Create and insert new Loro containers from the JSON data. This is the default.
+- `"merge"` - Recursively merge into existing `LoroMap` / `LoroMovableList` containers when possible, preserving existing container references.
+
+For example:
+
+```ts
+const loroRoot = doc.getMap("rootStore")
+
+// First seed
+applyJsonObjectToLoroMap(loroRoot, snapshot)
+
+// Later, merge an updated snapshot while preserving existing nested containers
+applyJsonObjectToLoroMap(loroRoot, nextSnapshot, { mode: "merge" })
+```
+
 ## Using LoroText as a model node
 
 The special model `LoroTextModel` can be used to bind a `LoroText` to a `mobx-keystone` model.
 
 ```ts
-const text = new LoroTextModel();
-const boundModel.setText(text);
-text.loroText.insert(0, 'Hello world!');
+const text = LoroTextModel.withText("Hello world!")
+
+// once `text` is part of a bound tree:
+text.insertText(0, "Say: ")
+text.text // "Say: Hello world!"
 ```
 
-Note that `loroText` will return `undefined` if you try to access while it is not part of a bounded tree.
+Note that `loroText` returns `undefined` while the model is not part of a bound tree.
+
+If you want to use `LoroTextModel` in a runtime type-checked property, `loroTextModelType` is the exported `types.model(...)` helper for that:
+
+```ts
+@model("myApp/Doc")
+class DocModel extends Model({
+  text: tProp(loroTextModelType),
+}) {}
+```
+
+When working with snapshots, `isLoroTextModelSnapshot(value)` can be useful to detect whether a snapshot represents a `LoroTextModel`.
 
 ## Move Operations
 

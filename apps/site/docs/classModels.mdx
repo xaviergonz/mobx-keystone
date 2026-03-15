@@ -132,21 +132,23 @@ Runtime data (data that doesn't need to be snapshotable, or that needs to be tra
 
 ```ts
 @model("myApp/SomeModel")
-class SomeModel extends Model({...}) {
+class SomeModel extends Model({
+  title: prop("demo"),
+}) {
   // non-observable runtime data
-  x = 10;
+  saveCount = 0
 
-  setX(x: number) {
-    this.x = x
+  markSaved() {
+    this.saveCount++
   }
 
   // or observable in the usual MobX way
   @observable
-  y = 20;
+  isSaving = false
 
   @action
-  setY(y: number) {
-    this.y = y
+  setSaving(isSaving: boolean) {
+    this.isSaving = isSaving
   }
 }
 ```
@@ -159,7 +161,7 @@ It is interesting to observe that class models include a property named `$modelT
 myTodo1.$modelType // "myCoolApp/Todo"
 ```
 
-This property will end up in the snapshot representation of the model and it will serve to be able to properly reconstruct the proper model class from the snapshot, therefore it is usually required.
+This property ends up in the snapshot representation of the model and allows `fromSnapshot` to reconstruct the correct model class, so it is usually required.
 
 That being said, there are actually two ways to skip this requirement (having `$modelType` in input snapshots):
 
@@ -212,7 +214,7 @@ Note that when using the `new` operator to create a new instance you can either 
 
 ```ts
 const myTodo = new Todo({
-  myId: "my custom id",
+  customId: "my custom id",
 })
 ```
 
@@ -382,7 +384,7 @@ class MyColors extends Model({
 myColors.setPrimary(myColors.secondary)
 ```
 
-Note that it is an actual clone, this is, changing the primary color won't change the secondary one.
+Note that it is an actual clone, meaning changing the primary color won't change the secondary one.
 
 ## Factory pattern / Generics
 

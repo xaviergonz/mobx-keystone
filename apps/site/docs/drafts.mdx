@@ -5,15 +5,15 @@ slug: /drafts
 
 ## Overview
 
-Sometimes it is useful to get hold of a copy of part of the state in order to edit it (while still having the original part of the state unmodified) and only commit changes to the original state once some bulk editing is finished. For example, say that your state contains a preferences section that can be edited in a form, yet you want to be able to commit/reset changes to this form to the original state in a single operation. `draft` allows exactly this.
+Sometimes you want to edit a copy of part of the state while leaving the original state untouched, then either commit or discard those edits in one step. A common example is a settings form: the user can make several changes locally, then click Save or Reset. `draft` is built for exactly that workflow.
 
-To create a draft all that is needed is to do this:
+To create a draft:
 
 ```ts
 const myDraftObject = draft(originalObject)
 ```
 
-The `draft` function generates an instance with the following properties / methods:
+The `draft` function returns an object with the following properties and methods:
 
 ### `data: T`
 
@@ -56,7 +56,7 @@ Note that model IDs are checked to be the same when resolving the paths.
 
 ## Example
 
-Given the preferences example mentioned above, let's imagine we have a model (part of our whole app state) such as this one:
+Using the preferences example above, imagine a model in your app state like this:
 
 ```ts
 @model("myApp/Preferences")
@@ -82,15 +82,15 @@ class Preferences extends Model({
 }
 ```
 
-Also let's imagine that we want a form that allows the user to change some preferences, and we want this form to have a "Save" and a "Reset" button. This is, we don't want any changes to the form to affect the app store preferences directly.
+Now imagine a form that lets the user change those preferences, but only applies the changes when they click Save. Until then, we do not want the live app state to change.
 
-To achieve this, first we will create a draft copy of the preferences:
+First, create a draft copy of the preferences:
 
 ```ts
 const preferencesDraft = draft(myRootStore.preferences)
 ```
 
-We could then pass the data and the actions as separate properties to our own form component:
+You can then pass the draft data and actions separately to a form component:
 
 ```tsx
 <PreferencesForm
@@ -103,7 +103,7 @@ We could then pass the data and the actions as separate properties to our own fo
 />
 ```
 
-Alternatively we could pass the draft itself and let the component use the draft properties / methods internally:
+Alternatively, pass the draft object itself and let the component use the draft methods internally:
 
 ```tsx
 <PreferencesForm draft={preferencesDraft} />

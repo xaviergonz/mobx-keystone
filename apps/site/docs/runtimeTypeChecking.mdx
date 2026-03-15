@@ -6,7 +6,7 @@ slug: /runtime-type-checking
 ## Overview
 
 While `mobx-keystone` was built with first-class TypeScript support in mind, it is also possible to enforce runtime type checking.
-This feature is, however, **completely optional**. This is, if you are happy with the type safety that TypeScript offers at compilation time you are free to stick to it exclusively.
+This feature is **completely optional**. If the type safety you get from TypeScript at compile time is enough for your app, you can skip runtime checking entirely.
 
 ## Type definitions
 
@@ -17,9 +17,7 @@ Type definitions are like the schemas for your data. They are usually associated
 class Todo extends Model({
   text: tProp(types.string),
   done: tProp(types.boolean, false),
-}) {
-  // ...
-}
+}) {}
 
 // ModelData<Todo> = {
 //   text: string,

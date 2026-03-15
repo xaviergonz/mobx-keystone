@@ -13,14 +13,15 @@ To create a computed tree, decorate a `get` accessor of a class or data model wi
 @model("myApp/M")
 class M extends Model({
   id: idProp,
-  // ...
+  title: prop("draft spec"),
+  done: prop(false),
 }) {
   @computedTree
   get view() {
     return new V({
       // compute a stable/deterministic ID
       id: `${this.id}.view`,
-      // ...
+      summary: `${this.done ? "DONE" : "TODO"} ${this.title}`,
     })
   }
 }
@@ -28,9 +29,12 @@ class M extends Model({
 @model("myApp/V")
 class V extends Model({
   id: idProp,
-  // ...
+  summary: prop<string>(),
 }) {
-  // ...
+  @computed
+  get summaryLength() {
+    return this.summary.length
+  }
 }
 ```
 

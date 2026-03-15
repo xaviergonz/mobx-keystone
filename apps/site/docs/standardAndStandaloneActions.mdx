@@ -29,16 +29,32 @@ Note the following prerequisites apply to standalone actions:
 - The name provided must be unique across your whole application.
 - The first argument (the target) must always be an existing tree node.
 
+### `standaloneFlow`
+
+If the same idea needs asynchronous steps, use `standaloneFlow`. It follows the same rules as `standaloneAction`, but behaves like a flow and returns a promise:
+
+```ts
+const renameAfterSave = standaloneFlow(
+  "myApp/renameAfterSave",
+  function* (todo: Todo, newText: string) {
+    yield api.saveTodo(todo.id, { text: newText })
+    todo.setText(newText)
+  }
+)
+```
+
+This is useful when you want middleware support for reusable async logic without attaching that logic to a specific model class.
+
 ## Standard Actions
 
 In order to work over objects and arrays without requiring declaring custom actions you can use the already predefined `objectActions` and `arrayActions` (note these also work over class models).
 
-`objectActions` work over any kinds of objects (including models themselves) and offer:
+`objectActions` work over any kind of object (including models themselves) and offer:
 
 - `set(obj, key, value)` to set a key.
 - `delete(obj, key)` to delete a key.
 - `assign(obj, partialObj)` to assign values (similar to `Object.assign`).
-- `call(methodName, ...args)` to call a method.
+- `call(obj, methodName, ...args)` to call a method.
 
 `arrayActions` work over arrays and offer:
 

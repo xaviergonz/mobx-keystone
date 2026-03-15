@@ -12,7 +12,7 @@ slug: /tree-like-structure
 - An array.
 - A primitive value (`string`, `boolean`, `number`, `null`, `undefined`).
 
-About arrays, it is interesting to note that by default they _cannot_ hold `undefined` values, but they _can_ hold `null` values. This rule is enforced to ensure compatibility with JSON. If you really need arrays with `undefined` values, it can be enabled in the global configuration:
+By default, arrays _cannot_ hold `undefined` values, but they _can_ hold `null` values. This rule exists for JSON compatibility. If you really need arrays with `undefined` values, you can enable them in the global configuration:
 
 ```ts
 setGlobalConfig({
@@ -24,8 +24,8 @@ Since the structure is a tree, this means these tree rules apply:
 
 1. A non-primitive (object) node can have zero or one parent.
 2. A non-primitive (object) node can have zero to infinite children.
-3. From rule 1 and 2 we can extract that a same non-primitve node can only be in a single tree and only once.
-4. Primitive nodes are always copied by value (as usual in JavaScript), so none of the rules above apply.
+3. From rules 1 and 2 we can extract that the same non-primitive node can only be in a single tree and only once.
+4. Primitive nodes are always copied by value, so none of the rules above apply.
 5. Note that class models with the `valueType: true` option will get cloned automatically before getting inserted as a child of another node so, for all practical purposes, rule 3 does not apply and acts more akin to a primitive.
 
 As an example of rule 1, this would not be allowed:
@@ -129,6 +129,16 @@ This matters in reactive code (`computed`, `autorun`, etc.). If a computed uses 
 
 When you need to access an actual registered root store, prefer `getRootStore` and guard for `undefined`:
 
+```ts
+const rootStore = getRootStore<MyRootStore>(this)
+if (!rootStore) {
+  return undefined
+}
+
+return rootStore.someValue
+```
+:::
+
 ### `isRoot`
 
 ```ts
@@ -199,7 +209,7 @@ Pass the options object with the `deep` option (defaults to `false`) set to `tru
 getChildrenObjects(node: object, options?: { deep?: boolean }): ReadonlySet<object>
 ```
 
-Returns an observable set with all the children objects (this is, excluding primitives) of an object.
+Returns an observable set with all the child objects (that is, excluding primitives) of an object.
 
 Pass the options object with the `deep` option (defaults to `false`) set to `true` to get the children deeply or `false` to get them shallowly.
 
@@ -242,7 +252,7 @@ The callback can optionally return a disposer which will be run when the child i
 
 The optional `options` parameter accepts an object with the following options:
 
-- `deep: boolean` (default: `false`) - `true` if the callback should be run for all children deeply or `false` if it it should only run for shallow children.
+- `deep: boolean` (default: `false`) - `true` if the callback should be run for all children deeply or `false` if it should only run for shallow children.
 - `fireForCurrentChildren: boolean` (default: `true`) - `true` if the callback should be immediately called for currently attached children, `false` if only for future attachments.
 
 Returns a disposer, which has a boolean parameter which should be `true` if pending detachment callbacks should be run, or `false` otherwise.
@@ -258,23 +268,46 @@ onDeepChange(target: object, listener: OnDeepChangeListener): OnDeepChangeDispos
 ```ts
 const disposer = onDeepChange(todo, (change) => {
   // change contains the raw change info including proper splice detection
-  if (change.type === "splice") {
-    console.log(`Array at ${change.path} had ${change.removedCount} items removed and ${change.addedCount} items added at index ${change.index}`)
+  if (change.type === DeepChangeType.ArraySplice) {
+    console.log(
+      `Array at ${change.path} had ${change.removedValues.length} items removed and ${change.addedValues.length} items added at index ${change.index}`
+    )
   }
 })
 ```
 
 The `DeepChange` type is a discriminated union of:
 
-- `ArraySpliceChange` - array splice with `index`, `addedCount`, `removedCount`
+- `ArraySpliceChange` - array splice with `index`, `addedValues`, `removedValues`
 - `ArrayUpdateChange` - direct array index assignment with `index`, `newValue`
 - `ObjectAddChange` - property added with `key`, `newValue`
 - `ObjectUpdateChange` - property updated with `key`, `newValue`
 - `ObjectRemoveChange` - property removed with `key`
 
-Each change includes a `path` array indicating the path from the listener target to the changed object, and a `target` reference to the actual object that changed.
+Each change includes:
+
+- `path` - the path from the listener target to the changed object.
+- `target` - the actual object that changed.
+- `isInit` - whether the change happened while the tree was being initialized from defaults / snapshot data.
 
 Note that the listener callback is called _immediately_ after an observable value has changed and before the outermost action has completed. This behavior differs from, e.g., `onSnapshot` or a MobX reaction.
+
+### `onGlobalDeepChange`
+
+```ts
+onGlobalDeepChange(listener: (target: object, change: DeepChange) => void): OnDeepChangeDisposer
+```
+
+`onGlobalDeepChange` listens to deep changes anywhere, rather than under one specific subtree:
+
+```ts
+const disposer = onGlobalDeepChange((target, change) => {
+  console.log("target", target)
+  console.log("change", change)
+})
+```
+
+This is mainly useful for tooling and diagnostics. In application code, prefer `onDeepChange` when you know the subtree you want to observe.
 
 ### `applySet`
 
@@ -303,7 +336,11 @@ applyDelete(someObject, "field")
 ### `applyMethodCall`
 
 ```ts
-applyMethodCall<O extends object, K extends keyof O, FN extends O[K]>(node: O, methodName: K, ...args: Parameters<FN> : ReturnType<FN>
+applyMethodCall<O extends object, K extends keyof O, FN extends O[K]>(
+  node: O,
+  methodName: K,
+  ...args: FN extends (...args: any[]) => any ? Parameters<FN> : never
+): FN extends (...args: any[]) => any ? ReturnType<FN> : never
 ```
 
 Allows calling an model/object/array method without the need to wrap it in `modelAction`. Unlike `runUnprotected`, this is actually an action that can be captured and replicated.

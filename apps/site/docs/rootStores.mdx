@@ -24,6 +24,8 @@ registerRootStore(myTodoList)
 unregisterRootStore(myTodoList)
 ```
 
+If you need to check whether a node is currently registered as a root store, use `isRootStore(node)`.
+
 ## `onAttachedToRootStore`
 
 By registering the instance above the first thing that will happen is that the `onAttachedToRootStore` hook will be invoked for the todo list model as well as any submodels that it might contain. Additionally, any models that eventually get added to the tree will invoke such hook too.
@@ -49,7 +51,7 @@ class UserPreferences extends Model({ theme: prop<Theme>().withSetter() }) {
       () => getSnapshot(this),
       (sn) => {
         // save the config to local storage
-        localStorage.set("myPreferences", JSON.stringify(sn))
+        localStorage.setItem("myPreferences", JSON.stringify(sn))
       },
       {
         // also run the reaction the first time
@@ -77,13 +79,15 @@ class RootStore extends Model({
 ... then we will need some code to initialize our application, loading the preferences already stored in local storage ...
 
 ```ts
-const myPreferencesObj = JSON.parse(localStorage.get("myPreferences"))
+const myPreferencesRaw = localStorage.getItem("myPreferences")
 
-// this will create a `UserPrefernces` model instance, but won't save any changes yet
+// this will create a `UserPreferences` model instance, but won't save any changes yet
 // since it is not yet part of a root store
 // this means we can manipulate it without fear of overwriting the
 // config in local storage
-const myPreferences = fromSnapshot<UserPreferences>(myPreferencesObj)
+const myPreferences = myPreferencesRaw
+  ? fromSnapshot(UserPreferences, JSON.parse(myPreferencesRaw))
+  : new UserPreferences({ theme: "light" })
 ```
 
 ... and finally creating the root store itself with the initial data ...
@@ -116,39 +120,52 @@ formPreferences.setTheme("dark")
 myRootStore.setUserPreferences(formPreferences)
 ```
 
-After that last line, the old preferences object (`myPreferences`) will become detached from the root store tree and therefore will stop saving changes (by running the disposer).
-At the same time the new preferences object (`formPreferences`) will become part of the root store tree, running the hook and therefore saving its data and reacting to changes by saving any future changes.
+After that last line, the old preferences object (`myPreferences`) becomes detached from the root store tree, so it stops saving changes when its disposer runs.
+At the same time, the new preferences object (`formPreferences`) becomes part of the root store tree, runs the hook, and starts saving future changes.
 
-As you can see, such hook is really a great place to manage side effects.
+This is why `onAttachedToRootStore` is such a good place to manage side effects.
 
 ## Sharing contextual data
 
-Although usually contexts are preferred for this case (see the [contexts](./contexts.mdx) section), root stores can be also an alternative to store global contextual/environmental runtime data that doesn't really need to be serialized anywhere yet does need to be shared across the whole application.
-For this we would just need to follow a pattern like this one:
+Although contexts are usually preferred for this case (see the [contexts](./contexts.mdx) section), root stores can also hold global runtime environment data that should be shared across the application but does not need to be serialized.
+For example:
 
 In reactive code, prefer `getRootStore` over `getRoot` when you need the application root store. Detached nodes can make `getRoot(node)` resolve to `node` itself.
 
 ```ts
 @model("myApp/RootStore")
-class RootStore extends Model({...}) {
-  myEnvData!: { ... }
+class RootStore extends Model({
+  currentUserId: prop("user-1"),
+}) {
+  env!: {
+    environment: "development" | "staging" | "production"
+    releaseChannel: "internal" | "public"
+    enableDebugTools: boolean
+  }
 }
 
-const rootStore = new RootStore({...})
-rootStore.myEnvData = { ... }
+const rootStore = new RootStore({})
+rootStore.env = {
+  environment: "development",
+  releaseChannel: "internal",
+  enableDebugTools: true,
+}
 registerRootStore(rootStore)
 
 // then on another model
-class ... extends Model({ ... }) {
-  // on some getter or method ...
-  something() {
-    const rootStore = getRootStore<RootStore>(someModel)
-    const myEnvData = rootStore && rootStore.myEnvData
+@model("myApp/Profile")
+class Profile extends Model({}) {
+  get shouldShowInternalFeatures() {
+    const rootStore = getRootStore<RootStore>(this)
+    return rootStore?.env.releaseChannel === "internal"
   }
 
-  // or ...
   onAttachedToRootStore(rootStore) {
-    const myEnvData = rootStore.myEnvData
+    if (rootStore.env.environment !== "production" && rootStore.env.enableDebugTools) {
+      console.log("debug tools enabled?", rootStore.env.enableDebugTools)
+    }
   }
 }
 ```
+
+`getRootStore(node)` is also usually preferable to manually walking to the root and then checking it yourself, since it directly returns the registered root store or `undefined`.

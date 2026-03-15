@@ -15,8 +15,8 @@ class EvenNumber extends Model({
   value: prop<number>().withSetter(),
 }) {
   @computed
-  get isValid(): number {
-    return value % 2 === 0
+  get isValid(): boolean {
+    return this.value % 2 === 0
   }
 }
 ```
@@ -98,7 +98,7 @@ numSandbox.withSandbox([num], (numCopy1) => {
 })
 ```
 
-When changes made in nested `withSandbox` calls are to be committed, only the outermost `withSandbox` call commits changes to the original subtree. Changes made in any inner `withSandbox` call are either retained or rolled back depending on the commit flag. E.g.:
+When changes made in nested `withSandbox` calls are meant to be committed, only the outermost `withSandbox` call commits changes to the original subtree. Changes made in any inner `withSandbox` call are either retained or rolled back depending on the commit flag. For example:
 
 ```ts
 numSandbox.withSandbox([num], (numCopy1) => {
@@ -144,7 +144,7 @@ These might be useful for example to filter out reactions that should only run o
 
 ### Store of polymorphic items
 
-Consider a store of polymorphic items which can generally co-exist in the same store, but each item type implements validation rules that determine whether the item is valid in the context of the other items currently present in the store.
+Consider a store of polymorphic items that can generally coexist in the same store, but where each item type implements validation rules based on the other items currently present.
 
 Let all items implement the following interface:
 
@@ -154,10 +154,10 @@ interface Item {
 }
 ```
 
-Further, let the item store be a model which contains ...
+Let the item store be a model that contains:
 
 - an array of items currently present in the store,
-- a computed property which returns an array of errors accumulated from all items in the store,
+- a computed property that returns an array of errors accumulated from all items in the store,
 - a method (action) to add a new item, and
 - a method that assesses whether a new item can be added to the store without error.
 
@@ -222,5 +222,5 @@ However, adding a second item of type `ItemA` would incur an error:
 
 ```ts
 const item2 = new ItemA({})
-console.log(store.canAddItem(item2)) // => `["only 1 instance of ItemA allowed"]`
+console.log(store.canAddItem(item2)) // => `false`
 ```

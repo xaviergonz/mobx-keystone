@@ -5,27 +5,48 @@ slug: /frozen-data
 
 ## Overview
 
-When performance is key and there are big chunks of data that don't change at all we can use `frozen`.
+When performance matters and you have large chunks of data that do not change after insertion, you can use `frozen`.
 
-`frozen` basically wraps a plain chunk of data (composed of plain objects, arrays, primitives, or a mix of them) inside a model-like structure, turns such data into immutable (in dev mode) and therefore keeps it still observable (by reference), snapshotable, patchable and reactive, but skipping the overhead of turning every single object inside the frozen data into separate tree nodes.
+`frozen` wraps a plain chunk of data (plain objects, arrays, primitives, or a mix of them) inside a model-like container. In development mode it makes that data immutable, while still keeping it observable by reference, snapshotable, patchable, and reactive. The main benefit is that it avoids the overhead of turning every nested object into its own tree node.
 
-Additionally, in dev mode only (for performance reasons), frozen will deeply freeze the object passed to it (ensuring it stays immutable) and will ensure the structure passed is compatible with JSON in order for it to be properly snapshotable.
+Additionally, in development mode only, `frozen` deeply freezes the value you pass in and verifies that the structure is JSON-compatible so it can be snapshotted safely.
 
-As an example, say that your app uses lists of lots of points (polygons), and you know that once a polygon is added to your store the polygon itself won't change. In order to make it faster it could be modeled like this:
+For example, imagine your app stores large polygon point lists, and you know that once a polygon is added to the store it will not change. `frozen` is a good fit for that kind of immutable payload:
 
 ```ts
 type Polygon = { x: number; y: number }[]
 
-// not frozen polygon, `getSnaphot` for example still won't work on it
+// not frozen yet, so `getSnapshot` won't work on it directly
 const myPolygon = [
   { x: 10, y: 10 },
   { x: 20, y: 10 },
 ]
 
-// now `myPolygon` will be frozen, in dev mode it cannot be changed anymore
-// and things like `getSnapshot` will work over it
+// now it is frozen; in dev mode it cannot be changed anymore
+// and utilities like `getSnapshot` will work on it
 const myFrozenPolygon = frozen(myPolygon)
 
-// to access the frozen object data we have to use `data`
+// access the wrapped value through `.data`
 const firstPoint = myFrozenPolygon.data[0]
 ```
+
+## Check modes
+
+`frozen(value, checkMode)` accepts an optional `FrozenCheckMode`:
+
+- `FrozenCheckMode.DevModeOnly` - the default; validate and freeze only in development.
+- `FrozenCheckMode.On` - always validate and freeze.
+- `FrozenCheckMode.Off` - skip validation and freezing.
+
+Most applications should keep the default. The other modes are mainly useful when you want stricter checks everywhere or you are deliberately trading safety for speed in a hot path.
+
+## Snapshot helpers
+
+If you are working directly with snapshots, two helpers are also public:
+
+```ts
+toFrozenSnapshot<T>(data: T): FrozenData<T>
+isFrozenSnapshot<T = unknown>(snapshot: unknown): snapshot is FrozenData<T>
+```
+
+`toFrozenSnapshot` creates the snapshot representation used for frozen values, and `isFrozenSnapshot` lets you detect that representation before converting or inspecting it.

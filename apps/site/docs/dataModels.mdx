@@ -5,10 +5,10 @@ slug: /data-models
 
 ## Overview
 
-Data models, like class models, define the behaviors (actions/views) that can be performed over data, but without tainting the data itself with `$modelType`. This however comes with some disadvantages as well, namely:
+Data models, like class models, define the behaviors (actions/views) that can be performed over data, but without tainting the data itself with `$modelType`. This comes with some disadvantages as well:
 
 - The model instances are created lazily and when needed rather than eagerly.
-- The only life-cycle event hook available, `onLazyInit`, is run lazily, this is, the first time the data model wrapper is created, rather than eagerly.
+- The only life-cycle event hook available, `onLazyInit`, runs lazily, meaning the first time the data model wrapper is created rather than eagerly.
 - Reconciliation is somewhat worse due to the lack of an ID property to uniquely identify the instances.
 
 That being said, they have some use cases (for example to represent a backend response that does not include `$modelType` yet needs to be modified locally and eventually sent back).
@@ -79,7 +79,7 @@ The rules that need to be followed to declare a data model are:
 - Model actions need to be used in order to be able to change such data.
 - Never declare your own constructor, there are life-cycle events for that (more on that later).
 
-Of course primitives are not the only kinds of data that a class model can hold. Arrays, plain objects and other objects can be used as well.
+Of course primitives are not the only kinds of data that a data model can hold. Arrays, plain objects, and other objects can be used as well.
 
 Note that there is one more rule that really sets it apart from class models.
 
@@ -122,13 +122,13 @@ newTodo.setText("buy milk")
 todoList.push(newTodo.$);
 ```
 
-## Automatic class model actions for property setters
+## Automatic data model actions for property setters
 
 Most times, the only action we need for a property is a setter. We can use the prop modifier `withSetter()` (`withSetter("assign")` has been deprecated) to reduce boilerplate and generate property setters. For example, the model above could be written as:
 
 ```ts
 @model("myCoolApp/Todo")
-export class Todo extends Model({
+export class Todo extends DataModel({
   text: prop<string>().withSetter(),
   done: prop<boolean>().withSetter(),
 }) {}
@@ -160,21 +160,23 @@ Runtime data (data that doesn't need to be snapshotable, or that needs to be tra
 
 ```ts
 @model("myApp/SomeModel")
-class SomeModel extends Model({...}) {
+class SomeModel extends DataModel({
+  title: prop("demo"),
+}) {
   // non-observable runtime data
-  x = 10;
+  saveCount = 0
 
-  setX(x: number) {
-    this.x = x
+  markSaved() {
+    this.saveCount++
   }
 
   // or observable in the usual MobX way
   @observable
-  y = 20;
+  isSaving = false
 
   @action
-  setY(y: number) {
-    this.y = y
+  setSaving(isSaving: boolean) {
+    this.isSaving = isSaving
   }
 }
 ```

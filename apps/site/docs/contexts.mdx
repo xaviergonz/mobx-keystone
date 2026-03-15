@@ -5,10 +5,10 @@ slug: /contexts
 
 ## Overview
 
-Contexts serve as a way to share contextual/environmental data deeply across a tree without having to know the exact structure of such tree.
+Contexts let you share contextual or environment data deeply across a tree without having to know the exact structure of that tree.
 Think of it as a dependency injection system.
 
-For example, imagine a state where some children need to know the current username to perform certain operations. We could make the children use `getRoot` to access the username, but that means we need a root for unit testing any of the children, therefore, we created a dependency from a child to one of its parents.
+For example, imagine a state where some children need to know the current username to perform certain operations. We could make the children use `getRoot` to access the username, but that would force every unit test to provide a suitable root store. In other words, it would create an unnecessary dependency from a child to one of its parents.
 
 With contexts we could make it like this:
 
@@ -18,7 +18,6 @@ const usernameCtx = createContext<string>()
 @model("MyApp/SomeParent")
 class SomeParent extends Model({
   username: prop<string>(),
-  // ...
 }) {
   onInit() {
     usernameCtx.setComputed(this, () => this.username)
@@ -26,11 +25,11 @@ class SomeParent extends Model({
 }
 
 @model("MyApp/SomeDeepChild")
-class SomeDeepChild extends Model({...}) {
+class SomeDeepChild extends Model({}) {
   @modelAction
   someActionThatRequiresUsername() {
     const username = usernameCtx.get(this)
-    // ...
+    console.log(`running as ${username}`)
   }
 
   @computed
@@ -44,7 +43,7 @@ With this code, whenever the child is attached to the parent the username will b
 The fact that we can set the context value at any point of the tree also makes it easier to unit test the child model in isolation:
 
 ```ts
-const child = new SomeDeepChild(...)
+const child = new SomeDeepChild({})
 usernameCtx.set(child, "RandomUsername")
 expect(child.someComputedThatRequiresUsername).toBe("RandomUsername is awesome!")
 ```
@@ -64,14 +63,16 @@ The returned context object has the following methods:
 - `apply(fn, value)` - Applies a value override while the given function is running and, if a node is returned, sets the node as a provider of the value.
 - `applyComputed(fn, () => value)` - Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the computed value.
 
-In particular, `apply` is more useful than it may seem, since it allows you to pass volatile (non-property) data to your nodes at construction time (be it through `new`, `fromSnapshot`, `clone`, `toTreeNode`, etc.).
+In particular, `apply` is useful because it lets you pass volatile (non-property) data to your nodes at construction time, whether that happens through `new`, `fromSnapshot`, `clone`, `toTreeNode`, and so on.
 For example:
 
 ```ts
 const envCtx = createContext(0)
 
-@model(...)
-class M extends Model({...}) {
+@model("MyApp/M")
+class M extends Model({
+  title: prop("demo"),
+}) {
   onInit() {
     const value = envCtx.get(this)
   }
@@ -81,7 +82,7 @@ class M extends Model({...}) {
   }
 }
 
-const m = envCtx.apply(() => new M({...}), 9000)
+const m = envCtx.apply(() => new M({}), 9000)
 // onInit's "value" will be 9000
 m.value // this will also be 9000
 ```

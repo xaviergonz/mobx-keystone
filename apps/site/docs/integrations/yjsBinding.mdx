@@ -3,7 +3,7 @@ title: Y.js Binding (mobx-keystone-yjs)
 slug: /integrations/yjs-binding
 ---
 
-The [`mobx-keystone-yjs`](https://www.npmjs.com/package/mobx-keystone-yjs) package ensures a `Y.js` document is kept in sync with a `mobx-keystone` store and vice-versa. This is useful for example when you when you want to have multiple clients that keep in sync with each other using a peer-to-peer connection, an intermediate server, etc. Another nice feature of CRDTs is that they are conflict-free, so you don't have to worry about conflicts when two clients edit the same data at the same time, even if they were offline while doing such changes. Due to this all updates become optimistic updates and perceived performance is great since it does not require a server confirming the operation.
+The [`mobx-keystone-yjs`](https://www.npmjs.com/package/mobx-keystone-yjs) package keeps a `Y.js` document in sync with a `mobx-keystone` store and vice versa. This is useful when multiple clients need to stay in sync through peer-to-peer networking, an intermediate server, or another transport. Since `Y.js` is a CRDT, concurrent edits remain conflict-free, which makes optimistic updates practical even when clients go offline temporarily.
 
 ## Binding `Y.js` data to a model instance
 
@@ -33,17 +33,43 @@ If you already have a model instance snapshot stored somewhere and want to start
 
 `convertJsonToYjsData` takes a single argument, a JSON value (usually a snapshot of the model you want to bind) and returns a `Y.js` data structure (`Y.Map`, `Y.Array`, etc.) ready to be bound to that model. Frozen values are a special case and they are kept as immutable plain values.
 
+If you already have an existing `Y.Map` or `Y.Array` and want to copy JSON data into it, use the helper functions:
+
+- `applyJsonObjectToYMap(dest, source, options?)`
+- `applyJsonArrayToYArray(dest, source, options?)`
+
+These are useful when seeding or refreshing part of a document without manually building nested `Y.js` containers yourself.
+
+The optional `options.mode` controls how data is applied:
+
+- `"add"` - Create and insert new `Y.js` containers from the JSON data. This is the default.
+- `"merge"` - Recursively merge into existing `Y.Map` / `Y.Array` containers when possible, preserving existing container references.
+
+For example:
+
+```ts
+const ymap = ydoc.getMap("rootStore")
+
+// First seed
+applyJsonObjectToYMap(ymap, snapshot)
+
+// Later, merge an updated snapshot while preserving existing nested containers
+applyJsonObjectToYMap(ymap, nextSnapshot, { mode: "merge" })
+```
+
 ## Using Y.Text as a model node
 
 The special model `YjsTextModel` can be used to bind a `Y.Text` to a `mobx-keystone` model.
 
 ```ts
-const text = new YjsTextModel();
-const boundModel.setText(text);
-text.yjsText.insert(0, 'Hello world!');
+const text = YjsTextModel.withText("Hello world!")
+
+// once `text` is part of a bound tree:
+text.yjsText.insert(0, "Say: ")
+text.text // "Say: Hello world!"
 ```
 
-Note that `yjsText` will throw an error if you try to access while it is not part of a bounded tree. This is due to a limitation of `Y.js` itself, since it allows limited manipulation of types while they are outside a `Y.Doc` tree.
+Note that `yjsText` throws if you access it while the model is not part of a bound tree. This is due to a limitation of `Y.js`, since it only allows limited manipulation of types while they are outside a `Y.Doc` tree.
 
 ## The `YjsBindingContext`
 
