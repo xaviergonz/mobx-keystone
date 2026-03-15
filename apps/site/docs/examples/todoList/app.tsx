@@ -3,7 +3,7 @@ import { useState } from "react"
 import { LogsView } from "./logs"
 import { createRootStore, Todo, TodoList } from "./store"
 
-// we use mobx-react-lite to connect to the data, as it is usual in mobx
+// we use mobx-react-lite to connect to the data, as is usual in MobX
 // this library is framework agnostic, so it can work anywhere mobx can work
 // (even outside of a UI)
 
