@@ -840,11 +840,13 @@ test("generic model instance factory", () => {
   }))<T> {}
 
   function createParent<T>(a: T) {
+    // biome-ignore lint/correctness/noUnusedVariables: type-only assertion below intentionally uses this symbol only in a type position.
     const parent = new Parent({ a })
     assert(_ as typeof parent, _ as Parent<T>)
   }
 
   function createChild<T>(a: T, b: T) {
+    // biome-ignore lint/correctness/noUnusedVariables: type-only assertion below intentionally uses this symbol only in a type position.
     const child = new Child({ a, b })
     assert(_ as typeof child, _ as Child<T>)
   }

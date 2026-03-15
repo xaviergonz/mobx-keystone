@@ -1804,6 +1804,7 @@ test("arraySet", () => {
 })
 
 test("typing of optional values", () => {
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const t1 = types.object(() => ({
     n: types.number,
     ns: types.or(types.number, types.string),
@@ -1826,6 +1827,7 @@ test("typing of optional values", () => {
   )
 
   const a = types.array(types.number)
+  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const t2 = types.object(() => ({
     n: a,
     ns: types.or(a, types.string),

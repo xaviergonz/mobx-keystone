@@ -11,17 +11,20 @@ import { typesDateAsIsoString, typesDateAsTimestamp } from "./typesDate"
 import { typesMapFromArray, typesMapFromObject } from "./typesMap"
 import { typesSetFromArray } from "./typesSet"
 
-export { CodecTypeInfo, typesCodec }
 export {
+  CodecTypeInfo,
   createCodecPropTransform,
   resolveCodecSupport,
   resolveStoredType,
   resolveStoredTypeChecker,
+  typesBigInt,
+  typesCodec,
+  typesDateAsIsoString,
+  typesDateAsTimestamp,
+  typesMapFromArray,
+  typesMapFromObject,
+  typesSetFromArray,
 }
-export { typesBigInt }
-export { typesDateAsIsoString, typesDateAsTimestamp }
-export { typesMapFromArray, typesMapFromObject }
-export { typesSetFromArray }
 
 let codecStandardTypeResolversRegistered = false
 

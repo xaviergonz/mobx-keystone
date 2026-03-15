@@ -47,27 +47,27 @@ import { typesUnchecked, UncheckedTypeInfo } from "./utility/typesUnchecked"
 
 export { getTypeInfo } from "./getTypeInfo"
 export { TypeInfo } from "./TypeChecker"
-export type { ObjectTypeInfoProps, ModelTypeInfoProps }
+export type { ModelTypeInfoProps, ObjectTypeInfoProps }
 export {
-  BooleanTypeInfo,
-  LiteralTypeInfo,
-  NumberTypeInfo,
-  StringTypeInfo,
-  FrozenTypeInfo,
-  ObjectMapTypeInfo,
-  TagTypeInfo,
-  RefinementTypeInfo,
-  RecordTypeInfo,
-  RefTypeInfo,
-  UncheckedTypeInfo,
-  SkipCheckTypeInfo,
-  ObjectTypeInfo,
   ArraySetTypeInfo,
   ArrayTypeInfo,
-  ModelTypeInfo,
-  OrTypeInfo,
-  TupleTypeInfo,
+  BooleanTypeInfo,
   CodecTypeInfo,
+  FrozenTypeInfo,
+  LiteralTypeInfo,
+  ModelTypeInfo,
+  NumberTypeInfo,
+  ObjectMapTypeInfo,
+  ObjectTypeInfo,
+  OrTypeInfo,
+  RecordTypeInfo,
+  RefinementTypeInfo,
+  RefTypeInfo,
+  SkipCheckTypeInfo,
+  StringTypeInfo,
+  TagTypeInfo,
+  TupleTypeInfo,
+  UncheckedTypeInfo,
 }
 
 export const types = {

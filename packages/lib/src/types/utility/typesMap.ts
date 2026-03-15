@@ -36,6 +36,37 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
               }
             )
           }
+        case "getOrInsert":
+          return (key: TKeyRuntime, defaultValue: TValueRuntime) => {
+            const storedKey = keyAdapter.toStored(key)
+            if (target.has(storedKey)) {
+              return valueAdapter.toRuntime(
+                target.get(storedKey) as TValueStored,
+                (newStoredValue) => {
+                  target.set(storedKey, newStoredValue)
+                }
+              )
+            }
+
+            target.set(storedKey, valueAdapter.toStored(defaultValue))
+            return defaultValue
+          }
+        case "getOrInsertComputed":
+          return (key: TKeyRuntime, callback: (key: TKeyRuntime) => TValueRuntime) => {
+            const storedKey = keyAdapter.toStored(key)
+            if (target.has(storedKey)) {
+              return valueAdapter.toRuntime(
+                target.get(storedKey) as TValueStored,
+                (newStoredValue) => {
+                  target.set(storedKey, newStoredValue)
+                }
+              )
+            }
+
+            const value = callback(key)
+            target.set(storedKey, valueAdapter.toStored(value))
+            return value
+          }
         case "set":
           return (key: TKeyRuntime, value: TValueRuntime) => {
             target.set(keyAdapter.toStored(key), valueAdapter.toStored(value))
