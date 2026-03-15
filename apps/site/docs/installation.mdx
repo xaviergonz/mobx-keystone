@@ -6,25 +6,57 @@ slug: /installation
 import Tabs from "@theme/Tabs"
 import TabItem from "@theme/TabItem"
 
+This page is only about setup: install the packages, choose your decorator mode, and make sure your toolchain is configured correctly.
+
+If you want to build a first working store after setup, continue with [Getting Started](./gettingStarted.mdx).
+
 <Tabs>
 <TabItem value="yarn" label="yarn">
 
 ```bash
-yarn add mobx-keystone
+yarn add mobx mobx-keystone
 ```
 
 </TabItem>
 <TabItem value="pnpm" label="pnpm">
 
 ```bash
-pnpm add mobx-keystone
+pnpm add mobx mobx-keystone
 ```
 
 </TabItem>
 <TabItem value="npm" label="npm">
 
 ```bash
-npm install --save mobx-keystone
+npm install --save mobx mobx-keystone
+```
+
+</TabItem>
+</Tabs>
+
+`mobx-keystone` requires `mobx` as a peer dependency, so both packages need to be installed.
+
+If you are using React, add `mobx-react-lite` too:
+
+<Tabs>
+<TabItem value="react-yarn" label="yarn">
+
+```bash
+yarn add mobx-react-lite
+```
+
+</TabItem>
+<TabItem value="react-pnpm" label="pnpm">
+
+```bash
+pnpm add mobx-react-lite
+```
+
+</TabItem>
+<TabItem value="react-npm" label="npm">
+
+```bash
+npm install --save mobx-react-lite
 ```
 
 </TabItem>
@@ -43,6 +75,15 @@ If you are using TypeScript:
 
 - Version 5.0+ is recommended (standard decorators).
 - Legacy decorators are also supported (`experimentalDecorators: true`).
+
+## Setup checklist
+
+Before writing your first model, make sure your app setup matches these assumptions:
+
+- `mobx` is installed next to `mobx-keystone`.
+- Your TypeScript / Babel / SWC config consistently uses either standard decorators or legacy decorators.
+- If your app has a long-lived application store, registering it as a root store is recommended.
+- Your UI layer uses a MobX binding such as `mobx-react-lite` if you want React components to observe model changes.
 
 ## Transpiler configuration
 
@@ -154,3 +195,7 @@ Use this mode if your project is on legacy decorators (`experimentalDecorators: 
 
 </TabItem>
 </Tabs>
+
+## Next step
+
+Once installation and transpiler setup are done, move on to [Getting Started](./gettingStarted.mdx) for the first working store.

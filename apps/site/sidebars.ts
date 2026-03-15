@@ -4,6 +4,7 @@ const sidebars: SidebarsConfig = {
   docs: [
     "intro",
     "installation",
+    "gettingStarted",
     "mstComparison",
     "classModels",
     "dataModels",

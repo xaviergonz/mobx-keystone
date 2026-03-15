@@ -94,7 +94,7 @@ registerRootStore(store)
 - Built-in primitives for references, transactions, action middlewares, and undo/redo.
 - Strong TypeScript inference for models, snapshots, and actions.
 - Composable domain models that stay maintainable as app complexity grows.
-- Seamless integration with MobX and `mobx-react`.
+- Seamless integration with MobX and `mobx-react-lite`.
 
 ### What users are saying
 
@@ -116,7 +116,7 @@ This gives you mutability where it helps developer experience, plus immutable tr
 Trees can only be modified by actions that belong to the same subtree.
 Actions are replayable and can be distributed, and fine-grained changes can be observed as JSON patches.
 
-Because `mobx-keystone` uses MobX behind the scenes, it integrates naturally with [`mobx`](https://mobx.js.org) and [`mobx-react`](https://github.com/mobxjs/mobx-react).
+Because `mobx-keystone` uses MobX behind the scenes, it integrates naturally with [`mobx`](https://mobx.js.org) and [`mobx-react-lite`](https://github.com/mobxjs/mobx/tree/main/packages/mobx-react-lite).
 The snapshot and middleware system also makes it possible to replace a Redux reducer/store pair with model-driven state and connect Redux devtools.
 
 `mobx-keystone` consists of composable _models_ that capture domain state and behavior together.

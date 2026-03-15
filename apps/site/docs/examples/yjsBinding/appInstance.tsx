@@ -1,7 +1,7 @@
 import { observable } from "mobx"
 import { getSnapshot, registerRootStore } from "mobx-keystone"
 import { applyJsonObjectToYMap, bindYjsToMobxKeystone } from "mobx-keystone-yjs"
-import { observer } from "mobx-react"
+import { observer } from "mobx-react-lite"
 import { useState } from "react"
 import { WebrtcProvider } from "y-webrtc"
 import * as Y from "yjs"
