@@ -1,5 +1,5 @@
 import { ActionCall, getSnapshot, onActionMiddleware, onPatches, Patch } from "mobx-keystone"
-import { observer, useLocalObservable } from "mobx-react"
+import { observer, useLocalObservable } from "mobx-react-lite"
 import React, { useEffect } from "react"
 import { TodoList } from "./store"
 

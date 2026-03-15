@@ -10,7 +10,7 @@ Snapshots are immutable, structurally shared, representations of tree nodes (mod
 Snapshots in `mobx-keystone` mainly serve these two purposes:
 
 - As a serialization / deserialization mechanism (be it to store it or send it over the wire).
-- As a way to bridge data to non-`mobx-react`-enabled React components.
+- As a way to bridge data to non-`mobx-react-lite`-enabled React components.
 
 When a change is performed over a tree node, a new immutable snapshot of that node is generated. New immutable snapshots are also generated for all of its parents. Unchanged objects, however, keep their previous snapshot references.
 

@@ -1,0 +1,133 @@
+---
+title: Getting Started
+slug: /getting-started
+---
+
+This guide takes you from an empty project to a small working `mobx-keystone` store connected to React.
+
+Before starting here, finish [Installation](./installation.mdx) so `mobx`, `mobx-keystone`, and your decorator/transpiler setup are already in place.
+
+If you are still deciding between model styles, start with [Class Models](./classModels.mdx). They are the most direct fit for application state.
+
+## 1. Define your domain models
+
+Create models for the state you want to keep live in your app. The example below uses class models, model actions, and MobX computed values.
+
+```ts title="store.ts"
+import { computed } from "mobx"
+import { Model, model, modelAction, prop, registerRootStore } from "mobx-keystone"
+
+@model("todo/Todo")
+export class Todo extends Model({
+  text: prop<string>(""),
+  done: prop(false),
+}) {
+  @modelAction
+  toggle() {
+    this.done = !this.done
+  }
+}
+
+@model("todo/Store")
+export class TodoStore extends Model({
+  todos: prop<Todo[]>(() => []),
+}) {
+  @computed
+  get pendingCount() {
+    return this.todos.filter((todo) => !todo.done).length
+  }
+
+  @modelAction
+  addTodo(text: string) {
+    this.todos.push(new Todo({ text }))
+  }
+}
+
+export function createTodoStore() {
+  const store = new TodoStore({})
+  registerRootStore(store)
+  return store
+}
+```
+
+Why register the root store?
+
+- It enables `onAttachedToRootStore`.
+- It makes `getRootStore(...)` work.
+- It marks this tree as your live application state.
+- Later guides build on this for middleware, persistence, and app-wide side effects.
+
+## 2. Render the store in React
+
+Use `observer` so the component re-renders when observable model data changes.
+
+```tsx title="App.tsx"
+import { observer } from "mobx-react-lite"
+import { useState } from "react"
+import { createTodoStore } from "./store"
+
+export const App = observer(() => {
+  const [store] = useState(() => createTodoStore())
+  const [text, setText] = useState("")
+
+  return (
+    <main>
+      <h1>Todos</h1>
+      <p>Pending: {store.pendingCount}</p>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          if (!text.trim()) return
+          store.addTodo(text.trim())
+          setText("")
+        }}
+      >
+        <input value={text} onChange={(event) => setText(event.target.value)} />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul>
+        {store.todos.map((todo) => (
+          <li key={todo.$modelId}>
+            <label>
+              <input
+                type="checkbox"
+                checked={todo.done}
+                onChange={() => {
+                  todo.toggle()
+                }}
+              />
+              {todo.text}
+            </label>
+          </li>
+        ))}
+      </ul>
+    </main>
+  )
+})
+```
+
+## 3. Know the core ideas
+
+`mobx-keystone` feels easier once you know which primitive solves which problem:
+
+| Need | Use |
+| --- | --- |
+| Mutable domain objects with actions and hooks | [Class Models](./classModels.mdx) |
+| Backend-shaped data without `$modelType` in the payload | [Data Models](./dataModels.mdx) |
+| Async actions | [Standard and Standalone Actions](./standardAndStandaloneActions.mdx) |
+| App-level lifecycle and side effects | [Root Stores](./rootStores.mdx) |
+| Serialization and persistence | [Snapshots](./snapshots.mdx) |
+| Fine-grained change streams | [Patches](./patches.mdx) |
+| Runtime validation | [Runtime Type Checking](./runtimeTypeChecking.mdx) |
+
+## 4. Recommended next steps
+
+Once the basic store is running, the next guides usually depend on what you need next:
+
+- Want a deeper model walkthrough? Read [Class Models](./classModels.mdx).
+- Need to persist or hydrate state? Read [Snapshots](./snapshots.mdx).
+- Want undo/redo or interception? Read [Action Middlewares](./actionMiddlewares/undoMiddleware.mdx).
+- Need references between entities? Read [References](./references.mdx).
+- Prefer learning from a complete example? Open the [Todo List Example](./examples/todoList/todoList.mdx).

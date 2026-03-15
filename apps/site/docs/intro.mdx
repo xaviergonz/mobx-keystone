@@ -7,7 +7,8 @@ slug: /
 
 You can think of it as a TypeScript-first model layer on top of MobX that scales better as your domain grows.
 
-- Start here: [Installation](./installation.mdx)
+- Install and configure: [Installation](./installation.mdx)
+- Start here: [Getting Started](./gettingStarted.mdx)
 - Learn by building: [Class Models](./classModels.mdx)
 - See a full example: [Todo List Example](./examples/todoList/todoList.mdx)
 - Migrating from MST: [Migration Guide](./mstMigrationGuide.mdx)
@@ -63,7 +64,20 @@ registerRootStore(store)
 - Built-in primitives for references, transactions, action middlewares, and undo/redo.
 - Strong TypeScript inference for models, snapshots, and actions.
 - Composable domain models that stay maintainable as app complexity grows.
-- Seamless integration with MobX and `mobx-react`.
+- Seamless integration with MobX and `mobx-react-lite`.
+
+## Choose your starting point
+
+Different readers usually want different first docs. These are the fastest paths through the site:
+
+| If you want to... | Start here |
+| --- | --- |
+| Set up a first store in a real app | [Getting Started](./gettingStarted.mdx) |
+| Learn the main model style used for app state | [Class Models](./classModels.mdx) |
+| Work with backend-shaped data that should not gain `$modelType` | [Data Models](./dataModels.mdx) |
+| Understand app lifecycle and where side effects belong | [Root Stores](./rootStores.mdx) |
+| Explore from a complete example instead of an API guide | [Todo List Example](./examples/todoList/todoList.mdx) |
+| Compare with MST concepts and terminology | [MST Migration Guide](./mstMigrationGuide.mdx) |
 
 ## What users are saying
 
@@ -95,7 +109,7 @@ This gives you mutability where it helps developer experience, plus immutable tr
 
 Trees can only be modified by actions that belong to the same subtree. Actions are replayable and can be distributed, and fine-grained changes can be observed as JSON patches.
 
-Because `mobx-keystone` uses MobX behind the scenes, it integrates naturally with [`mobx`](https://mobx.js.org) and [`mobx-react`](https://github.com/mobxjs/mobx-react). The snapshot and middleware system also makes it possible to replace a Redux reducer/store pair with model-driven state and connect Redux devtools.
+Because `mobx-keystone` uses MobX behind the scenes, it integrates naturally with [`mobx`](https://mobx.js.org) and [`mobx-react-lite`](https://github.com/mobxjs/mobx/tree/main/packages/mobx-react-lite). The snapshot and middleware system also makes it possible to replace a Redux reducer/store pair with model-driven state and connect Redux devtools.
 
 `mobx-keystone` consists of composable _models_ that capture domain state and behavior together. Model instances are created from props, protect their own updates, and reconcile efficiently when applying snapshots.
 
