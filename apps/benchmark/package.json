@@ -25,6 +25,6 @@
     "@types/benchmark": "^2.1.5",
     "cross-env": "^10.1.0",
     "shx": "^0.4.0",
-    "typescript": "^6.0.1-rc"
+    "typescript": "^6.0.2"
   }
 }
