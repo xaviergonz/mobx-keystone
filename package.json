@@ -28,15 +28,15 @@
     "apps/*"
   ],
   "dependencies": {
-    "loro-crdt": "^1.10.6",
+    "loro-crdt": "^1.10.8",
     "mobx": "^6.15.0",
     "yjs": "^13.6.30"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.7",
+    "@biomejs/biome": "^2.4.9",
     "globals": "^17.4.0",
-    "netlify-cli": "^24.2.0",
-    "turbo": "^2.8.17",
+    "netlify-cli": "^24.8.1",
+    "turbo": "^2.8.21",
     "typescript": "^6.0.2"
   },
   "packageManager": "pnpm@10.29.3"
