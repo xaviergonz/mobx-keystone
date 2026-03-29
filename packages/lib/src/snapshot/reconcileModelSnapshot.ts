@@ -6,7 +6,11 @@ import { getModelOrSnapshotTypeAndId, getSnapshotModelType, isModel } from "../m
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
-import { type AnyModelProp, getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
+import {
+  type AnyModelProp,
+  getModelPropStoredDefaultValue,
+  noDefaultValue,
+} from "../modelShared/prop"
 import { deepEquals } from "../treeUtils/deepEquals"
 import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
@@ -90,7 +94,9 @@ function reconcileModelSnapshot(
         if (!(k in processedSn)) {
           // use default value if applicable
           const modelProp = modelProps[k] as AnyModelProp | undefined
-          const defaultValue = modelProp ? getModelPropDefaultValue(modelProp) : noDefaultValue
+          const defaultValue = modelProp
+            ? getModelPropStoredDefaultValue(modelProp, modelObj, k)
+            : noDefaultValue
           if (defaultValue === noDefaultValue) {
             remove(data, k)
           } else {
@@ -115,7 +121,9 @@ function reconcileModelSnapshot(
           // use default value if applicable
           if (newValue == null) {
             const modelProp = modelProps[k] as AnyModelProp | undefined
-            const defaultValue = modelProp ? getModelPropDefaultValue(modelProp) : noDefaultValue
+            const defaultValue = modelProp
+              ? getModelPropStoredDefaultValue(modelProp, modelObj, k)
+              : noDefaultValue
             if (defaultValue !== noDefaultValue) {
               newValue = defaultValue
             }

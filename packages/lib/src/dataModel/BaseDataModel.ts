@@ -2,6 +2,7 @@ import { type ModelClass, propsTypeSymbol } from "../modelShared/BaseModelShared
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import {
+  getModelPropStoredDefaultValue,
   type ModelProps,
   type ModelPropsToTransformedCreationData,
   type ModelPropsToUntransformedCreationData,
@@ -111,12 +112,10 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
 
         // apply default value (if needed)
         if (newValue == null) {
-          if (propData._defaultFn !== noDefaultValue) {
+          const defaultValue = getModelPropStoredDefaultValue(propData, this, k)
+          if (defaultValue !== noDefaultValue) {
             changed = true
-            newValue = propData._defaultFn()
-          } else if (propData._defaultValue !== noDefaultValue) {
-            changed = true
-            newValue = propData._defaultValue
+            newValue = defaultValue
           }
         }
 

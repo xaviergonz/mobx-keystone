@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed codec-backed `tProp(...)` defaults so runtime `Map`/`Set` values (including custom codec defaults) are encoded before being stored, avoiding initialization errors and keeping default-fallback error paths accurate.
 - Security: hardened action replay and serialized/snapshot plain-object handling to reject prototype-chain paths, avoid `__proto__` prototype poisoning during object reconstruction, and refuse replay of non-action methods.
 - `inDevMode` now treats missing `process.env.NODE_ENV` as non-dev mode instead of implicitly treating it as development. This avoids enabling dev-only behavior when bundlers do not inject `NODE_ENV`, but it is a behavioral change for environments that previously relied on an unset `NODE_ENV`.
 

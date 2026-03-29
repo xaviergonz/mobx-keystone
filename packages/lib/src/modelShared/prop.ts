@@ -1,5 +1,6 @@
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
 import type { AnyStandardType } from "../types/schemas"
+import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
 import { getOrCreate } from "../utils/mapUtils"
 import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
 
@@ -38,6 +39,9 @@ export interface ModelProp<
 
   _defaultFn: (() => TPropValue) | typeof noDefaultValue
   _defaultValue: TPropValue | typeof noDefaultValue
+  // True when the declared default is a runtime/transformed value and must be
+  // converted before it can be stored in `$`.
+  _defaultValueIsTransformed: boolean
   _typeChecker: AnyStandardType | undefined
   _setter: SetterMode
   _setterValueTransform: ((value: unknown) => unknown) | undefined
@@ -395,6 +399,7 @@ const baseProp: AnyModelProp = {
 
   _defaultFn: noDefaultValue,
   _defaultValue: noDefaultValue,
+  _defaultValueIsTransformed: false,
   _typeChecker: undefined,
   _setter: false,
   _setterValueTransform: undefined,
@@ -683,4 +688,26 @@ export function getModelPropDefaultValue(propData: AnyModelProp): unknown | type
   }
 
   return noDefaultValue
+}
+
+/**
+ * @ignore
+ */
+export function getModelPropStoredDefaultValue(
+  propData: AnyModelProp,
+  model: object,
+  propName: PropertyKey
+): unknown | typeof noDefaultValue {
+  const defaultValue = getModelPropDefaultValue(propData)
+  if (defaultValue === noDefaultValue || !propData._defaultValueIsTransformed) {
+    return defaultValue
+  }
+
+  return propData._transform
+    ? runWithErrorDiagnosticsContext(() =>
+        withErrorPathSegment(propName, () =>
+          propData._transform!.untransform(defaultValue, model, propName)
+        )
+      )
+    : defaultValue
 }
