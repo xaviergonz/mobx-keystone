@@ -9,6 +9,7 @@ import {
   runUnprotected,
   type SnapshotInOf,
   type SnapshotOutOf,
+  TypeCheckError,
   tProp,
   types,
 } from "../../src"
@@ -245,6 +246,139 @@ test("applySnapshot updates codec props in-place", () => {
   expect(Array.from(model.ids)).toEqual([20n, 30n])
   expect(model.totals.get("b")).toBe(40n)
   expect(model.totals.has("a")).toBe(false)
+})
+
+test("codec prop defaults are encoded before storing them", () => {
+  @testModel("codecProps/defaultEncoding")
+  class M extends Model({
+    totals: tProp(types.mapFromObject(types.bigint), () => new Map()),
+    flags: tProp(types.setFromArray(types.number), () => new Set<number>()),
+  }) {}
+
+  const created = new M({})
+
+  expect(created.totals.size).toBe(0)
+  expect(created.flags.size).toBe(0)
+  expect(created.$.totals).toEqual({})
+  expect(Array.from(created.$.flags)).toEqual([])
+
+  const restored = fromSnapshot(M, {
+    ...getSnapshot(created),
+    totals: undefined,
+    flags: undefined,
+  })
+
+  expect(restored.totals.size).toBe(0)
+  expect(restored.flags.size).toBe(0)
+  expect(restored.$.totals).toEqual({})
+  expect(Array.from(restored.$.flags)).toEqual([])
+
+  const model = new M({
+    totals: new Map([["a", 1n]]),
+    flags: new Set([2]),
+  })
+
+  applySnapshot(model, {
+    $modelType: model.$modelType,
+  })
+
+  expect(model.totals.size).toBe(0)
+  expect(model.flags.size).toBe(0)
+  expect(model.$.totals).toEqual({})
+  expect(Array.from(model.$.flags)).toEqual([])
+
+  const reassigned = new M({
+    totals: new Map([["b", 3n]]),
+    flags: new Set([4]),
+  })
+
+  runUnprotected(() => {
+    ;(reassigned as any).totals = undefined
+    ;(reassigned as any).flags = undefined
+  })
+
+  expect(reassigned.totals.size).toBe(0)
+  expect(reassigned.flags.size).toBe(0)
+  expect(reassigned.$.totals).toEqual({})
+  expect(Array.from(reassigned.$.flags)).toEqual([])
+})
+
+test("custom codec defaults are encoded before storing them", () => {
+  const boxedNumberType = types.codec({
+    typeName: "boxedNumber",
+    encodedType: types.number,
+    is(value): value is { value: number } {
+      return (
+        typeof value === "object" &&
+        value !== null &&
+        "value" in value &&
+        typeof (value as { value: unknown }).value === "number"
+      )
+    },
+    transform({ originalValue }) {
+      return { value: originalValue }
+    },
+    untransform({ transformedValue }) {
+      return transformedValue.value
+    },
+  })
+
+  @testModel("codecProps/customDefaultEncoding")
+  class M extends Model({
+    score: tProp(boxedNumberType, () => ({ value: 7 })),
+  }) {}
+
+  const created = new M({})
+  expect(created.score).toEqual({ value: 7 })
+  expect(created.$.score).toBe(7)
+
+  const restored = fromSnapshot(M, {
+    ...getSnapshot(created),
+    score: undefined,
+  })
+  expect(restored.score).toEqual({ value: 7 })
+  expect(restored.$.score).toBe(7)
+})
+
+test("codec default fallback keeps the property path in runtime assignment errors", () => {
+  const checkedNumberType = types.codec({
+    typeName: "checkedNumber",
+    encodedType: types.number,
+    is(value): value is number {
+      return typeof value === "number"
+    },
+    transform({ originalValue }) {
+      return originalValue
+    },
+    untransform({ transformedValue }) {
+      if (typeof transformedValue !== "number") {
+        new TypeCheckError({
+          path: [],
+          expectedTypeName: "number",
+          actualValue: transformedValue,
+        }).throw()
+      }
+
+      return transformedValue
+    },
+  })
+
+  @testModel("codecProps/defaultErrorPath")
+  class M extends Model({
+    score: tProp(checkedNumberType, (() => "bad-default") as unknown as () => number),
+  }) {}
+
+  const model = new M({
+    score: 1,
+  })
+
+  expect(() => {
+    runUnprotected(() => {
+      ;(model as any).score = undefined
+    })
+  }).toThrow(
+    'TypeCheckError: Expected a value of type <number> but got an incompatible value - Path: /score - Value: "bad-default"'
+  )
 })
 
 test("typed getSnapshot keeps codec-backed stored nodes attached to the model tree", () => {

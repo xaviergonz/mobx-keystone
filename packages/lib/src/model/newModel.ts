@@ -11,7 +11,7 @@ import type { ModelClass, ModelCreationData } from "../modelShared/BaseModelShar
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
-import { getModelPropDefaultValue, noDefaultValue } from "../modelShared/prop"
+import { getModelPropStoredDefaultValue, noDefaultValue } from "../modelShared/prop"
 import { createPatchForObjectValueChange, emitPatches } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
 import { tweakModel } from "../tweaker/tweakModel"
@@ -79,7 +79,7 @@ export const internalNewModel = action(
 
       // apply default value (if needed)
       if (newValue == null) {
-        const defaultValue = getModelPropDefaultValue(propData)
+        const defaultValue = getModelPropStoredDefaultValue(propData, modelObj, k)
         if (defaultValue !== noDefaultValue) {
           changed = true
           newValue = defaultValue
@@ -179,7 +179,7 @@ export const internalFromSnapshotModel = action(
 
       // apply default value (if needed)
       if (newValue == null) {
-        const defaultValue = getModelPropDefaultValue(propData)
+        const defaultValue = getModelPropStoredDefaultValue(propData, modelObj, k)
         if (defaultValue !== noDefaultValue) {
           changed = true
           newValue = defaultValue

@@ -1029,3 +1029,18 @@ test("data model codec props accept encoded untransformed creation data", () => 
   expect(fromRuntime.$.createdAt).toBe(2000)
   expect(Array.from(fromRuntime.$.ids)).toEqual(["5"])
 })
+
+test("data model codec defaults are encoded before storing them", () => {
+  @testModel("CodecDataModel/defaultEncoding")
+  class CodecDataModel extends DataModel({
+    totals: tProp(types.mapFromObject(types.bigint), () => new Map()),
+    flags: tProp(types.setFromArray(types.number), () => new Set<number>()),
+  }) {}
+
+  const model = new CodecDataModel({})
+
+  expect(model.totals.size).toBe(0)
+  expect(model.flags.size).toBe(0)
+  expect(model.$.totals).toEqual({})
+  expect(Array.from(model.$.flags)).toEqual([])
+})

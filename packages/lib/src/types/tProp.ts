@@ -264,6 +264,7 @@ export function tProp(
       : Object.create(baseProp)
 
     Object.assign(newProp, {
+      _defaultValueIsTransformed: codecSupport.hasCodec,
       _typeChecker: typeChecker,
 
       _fromSnapshotProcessor: (sn) => getFromSnapshotProcessor()(sn),

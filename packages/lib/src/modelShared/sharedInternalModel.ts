@@ -28,7 +28,7 @@ import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
   type AnyModelProp,
-  getModelPropDefaultValue,
+  getModelPropStoredDefaultValue,
   type ModelProps,
   noDefaultValue,
   prop,
@@ -93,7 +93,7 @@ const setModelInstanceDataField: SetModelInstanceDataFieldFn = (
 
   // apply default value if applicable
   if (untransformedValue == null) {
-    const defaultValue = getModelPropDefaultValue(modelProp)
+    const defaultValue = getModelPropStoredDefaultValue(modelProp, model, modelPropName)
     if (defaultValue !== noDefaultValue) {
       untransformedValue = defaultValue
     }
