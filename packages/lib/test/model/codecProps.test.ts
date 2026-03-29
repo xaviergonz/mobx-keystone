@@ -365,7 +365,7 @@ test("codec default fallback keeps the property path in runtime assignment error
 
   @testModel("codecProps/defaultErrorPath")
   class M extends Model({
-    score: tProp(checkedNumberType, (() => "bad-default") as () => number),
+    score: tProp(checkedNumberType, (() => "bad-default") as unknown as () => number),
   }) {}
 
   const model = new M({

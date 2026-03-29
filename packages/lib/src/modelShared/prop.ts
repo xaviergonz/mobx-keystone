@@ -696,7 +696,7 @@ export function getModelPropDefaultValue(propData: AnyModelProp): unknown | type
 export function getModelPropStoredDefaultValue(
   propData: AnyModelProp,
   model: object,
-  propName: PropertyKey
+  propName: string
 ): unknown | typeof noDefaultValue {
   const defaultValue = getModelPropDefaultValue(propData)
   if (defaultValue === noDefaultValue || !propData._defaultValueIsTransformed) {
