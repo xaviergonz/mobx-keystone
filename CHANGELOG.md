@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.21.0
 
 - Fixed codec-backed `tProp(...)` defaults so runtime `Map`/`Set` values (including custom codec defaults) are encoded before being stored, avoiding initialization errors and keeping default-fallback error paths accurate.
 - Security: hardened action replay and serialized/snapshot plain-object handling to reject prototype-chain paths, avoid `__proto__` prototype poisoning during object reconstruction, and refuse replay of non-action methods.
