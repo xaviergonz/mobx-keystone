@@ -68,11 +68,8 @@ const pointType = types.codec({
 })
 
 test("types.codec helper types and built-ins", () => {
-  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const mapFromObjectType = types.mapFromObject(types.bigint)
-  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const mapFromArrayType = types.mapFromArray(types.dateAsIsoString, types.bigint)
-  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const setFromArrayType = types.setFromArray(types.number)
 
   assert(_ as TypeToData<typeof types.bigint>, _ as bigint)
