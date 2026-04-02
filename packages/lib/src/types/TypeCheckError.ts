@@ -30,14 +30,32 @@ export class TypeCheckError {
 
   /**
    * Creates a type check error from an object payload.
-   * Prefer the object form; the positional form is kept for backwards compatibility.
+   * @param data Type check error data.
    */
+  constructor(data: TypeCheckErrorData)
+  /**
+   * @deprecated Use the object payload constructor instead for better readability and maintainability.
+   *
+   * Creates a type check error from positional parameters.
+   * @param path Sub-path (where the root is the value being type checked) where the error occurred.
+   * @param expectedTypeName Name of the expected type.
+   * @param actualValue Actual value.
+   * @param typeCheckedValue The value where the type check was invoked.
+   */
+  constructor(path: Path, expectedTypeName: string, actualValue: any, typeCheckedValue?: any)
+
   constructor(
-    ...args:
-      | [data: TypeCheckErrorData]
-      | [path: Path, expectedTypeName: string, actualValue: any, typeCheckedValue?: any]
+    dataOrPath: TypeCheckErrorData | Path,
+    expectedTypeName?: string,
+    actualValue?: any,
+    typeCheckedValue?: any
   ) {
-    const data = normalizeTypeCheckErrorData(args[0], args[1], args[2], args[3])
+    const data = normalizeTypeCheckErrorData(
+      dataOrPath,
+      expectedTypeName,
+      actualValue,
+      typeCheckedValue
+    )
     const resolvedData = resolveTypeCheckErrorData(data)
 
     this.path = data.path
