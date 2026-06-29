@@ -4,7 +4,8 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
   },
-  "typescript.tsdk": "./node_modules/typescript/lib",
+  "biome.lsp.bin": "./node_modules/.bin/biome",
+  "js/ts.tsdk.path": "./node_modules/typescript/lib",
   "peacock.color": "#68217A",
   "workbench.colorCustomizations": {
     "titleBar.activeBackground": "#68217a",
