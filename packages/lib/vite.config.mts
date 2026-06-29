@@ -35,7 +35,8 @@ export default defineConfig({
   plugins: [
     dts({
       tsconfigPath: resolvePath("./tsconfig.json"),
-      outDir: resolvePath("./dist/types"),
+      outDirs: resolvePath("./dist/types"),
+      entryRoot: resolvePath("./src"),
     }),
   ],
 })

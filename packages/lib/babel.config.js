@@ -1,12 +1,10 @@
 const { mobxVersion } = require("./env").env
 
 module.exports = {
-  presets: [
-    ["@babel/preset-env", { targets: { node: "current" } }],
-    ["@babel/preset-typescript", { allowDeclareFields: true }],
-  ],
+  presets: [["@babel/preset-env", { targets: { node: "current" } }]],
   plugins: [
+    ["@babel/plugin-transform-typescript"],
     ["@babel/plugin-proposal-decorators", { version: "legacy" }],
-    ["@babel/plugin-proposal-class-properties", { loose: mobxVersion <= 5 }],
+    ["@babel/plugin-transform-class-properties", { loose: mobxVersion <= 5 }],
   ],
 }
