@@ -1,23 +1,18 @@
-import { observable } from "mobx"
 import { tweakArray } from "../tweaker/tweakArray"
 import { isArray } from "../utils"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
-import {
-  type FromSnapshotContext,
-  internalFromSnapshot,
-  observableOptions,
-  registerSnapshotter,
-} from "./fromSnapshot"
+import { type FromSnapshotContext, internalFromSnapshot, registerSnapshotter } from "./fromSnapshot"
 import type { SnapshotInOfObject } from "./SnapshotOf"
 import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function fromArraySnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): any[] {
-  const arr = observable.array([] as any[], observableOptions)
+  const arr: any[] = []
   const ln = sn.length
+  arr.length = ln
   for (let i = 0; i < ln; i++) {
-    arr.push(withErrorPathSegment(i, () => internalFromSnapshot(sn[i], ctx)))
+    arr[i] = withErrorPathSegment(i, () => internalFromSnapshot(sn[i], ctx))
   }
-  return tweakArray(arr, undefined, true)
+  return tweakArray(arr, undefined, true, true)
 }
 
 /**

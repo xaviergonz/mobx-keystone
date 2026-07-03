@@ -1,4 +1,5 @@
 import {
+  extendObservable,
   type IObjectDidChange,
   type IObjectWillChange,
   intercept,
@@ -39,12 +40,17 @@ export function tweakPlainObject<T extends Record<string, any>>(
   parentPath: ParentPath<any> | undefined,
   snapshotModelType: string | undefined,
   doNotTweakChildren: boolean,
-  isDataObject: boolean
+  isDataObject: boolean,
+  prepopulateObservableObject = false
 ): T {
   const originalObj: Record<string, any> = value
-  const tweakedObj = isObservableObject(originalObj)
+  const originalObjIsObservable = isObservableObject(originalObj)
+  const tweakedObjWasPrepopulated = !originalObjIsObservable && prepopulateObservableObject
+  const tweakedObj = originalObjIsObservable
     ? originalObj
-    : observable.object({}, undefined, observableOptions)
+    : tweakedObjWasPrepopulated
+      ? extendObservable({}, originalObj, undefined, observableOptions)
+      : observable.object({}, undefined, observableOptions)
 
   let interceptDisposer: () => void
   let observeDisposer: () => void
@@ -74,7 +80,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
     const v = originalObj[k]
 
     if (isPrimitive(v)) {
-      if (!doNotTweakChildren) {
+      if (!doNotTweakChildren && !tweakedObjWasPrepopulated) {
         setIfDifferent(tweakedObj, k, v)
       }
       setOwnProp(untransformedSn, k, v)
@@ -347,8 +353,16 @@ function interceptObjectMutation(change: IObjectWillChange) {
 export function registerPlainObjectTweaker() {
   registerTweaker(TweakerPriority.PlainObject, (value, parentPath) => {
     // plain object
-    if (isObservableObject(value) || isPlainObject(value)) {
-      return tweakPlainObject(value as Record<string, any>, parentPath, undefined, false, false)
+    const valueIsPlainObject = isPlainObject(value)
+    if (isObservableObject(value) || valueIsPlainObject) {
+      return tweakPlainObject(
+        value as Record<string, any>,
+        parentPath,
+        undefined,
+        false,
+        false,
+        valueIsPlainObject
+      )
     }
     return undefined
   })

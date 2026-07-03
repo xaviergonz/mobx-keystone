@@ -35,14 +35,22 @@ import { runTypeCheckingAfterChange } from "./typeChecking"
 export function tweakArray<T extends any[]>(
   value: T,
   parentPath: ParentPath<any> | undefined,
-  doNotTweakChildren: boolean
+  doNotTweakChildren: boolean,
+  prepopulateObservableArray = false
 ): T {
   const originalArr: ReadonlyArray<any> = value
   const arrLn = originalArr.length
-  const tweakedArr = isObservableArray(originalArr)
+  const originalArrIsObservable = isObservableArray(originalArr)
+  const tweakedArrWasPrepopulated =
+    !originalArrIsObservable && prepopulateObservableArray && doNotTweakChildren
+  const shouldPushInitialItems = !originalArrIsObservable && !tweakedArrWasPrepopulated
+  const tweakedArr = originalArrIsObservable
     ? originalArr
-    : observable.array(undefined, observableOptions)
-  if (tweakedArr !== originalArr) {
+    : observable.array(
+        tweakedArrWasPrepopulated ? (originalArr as any[]) : undefined,
+        observableOptions
+      )
+  if (tweakedArr !== originalArr && !shouldPushInitialItems) {
     tweakedArr.length = originalArr.length
   }
 
@@ -72,7 +80,9 @@ export function tweakArray<T extends any[]>(
     const v = originalArr[i]
 
     if (isPrimitive(v)) {
-      if (!doNotTweakChildren) {
+      if (shouldPushInitialItems) {
+        tweakedArr.push(v)
+      } else if (!doNotTweakChildren && !tweakedArrWasPrepopulated) {
         setIfDifferent(tweakedArr, i, v)
       }
 
@@ -93,6 +103,11 @@ export function tweakArray<T extends any[]>(
         )
       } else {
         tweakedValue = tweak(v, path)
+      }
+
+      if (shouldPushInitialItems) {
+        tweakedArr.push(tweakedValue)
+      } else if (!doNotTweakChildren) {
         setIfDifferent(tweakedArr, i, tweakedValue)
       }
 
@@ -444,8 +459,9 @@ function interceptArrayMutationSplice(change: IArrayWillSplice) {
  */
 export function registerArrayTweaker() {
   registerTweaker(TweakerPriority.Array, (value, parentPath) => {
+    const valueIsArray = Array.isArray(value)
     if (isArray(value)) {
-      return tweakArray(value, parentPath, false)
+      return tweakArray(value, parentPath, false, valueIsArray)
     }
     return undefined
   })

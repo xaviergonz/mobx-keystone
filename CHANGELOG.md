@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Performance: sped up snapshot hydration and initial array tweaking by bulk-building plain-object snapshot data before making it observable and by appending fresh observable-array items with `push` instead of setting pre-sized indexes. Focused benchmarks showed improvements for wide/nested plain-object snapshots and fresh primitive/object array initialization.
+
 ## 1.21.0
 
 - Fixed codec-backed `tProp(...)` defaults so runtime `Map`/`Set` values (including custom codec defaults) are encoded before being stored, avoiding initialization errors and keeping default-fallback error paths accurate.
