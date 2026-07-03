@@ -17,11 +17,11 @@ The `draft` function returns an object with the following properties and methods
 
 ### `data: T`
 
-Draft data object (a copy of `myRootStore.preferences` in this case).
+Draft data object (a copy of `originalObject`).
 
 ### `originalData: T`
 
-Original data object (`myRootStore.preferences`).
+Original data object (`originalObject`).
 
 ### `commit(): void`
 
@@ -56,7 +56,7 @@ Note that model IDs are checked to be the same when resolving the paths.
 
 ## Example
 
-Using the preferences example above, imagine a model in your app state like this:
+Going back to the settings-form use case, imagine a preferences model in your app state like this:
 
 ```ts
 @model("myApp/Preferences")

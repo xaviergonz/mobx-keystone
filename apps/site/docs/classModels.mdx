@@ -213,7 +213,7 @@ Just make sure that ID is unique for every model object (no matter its type).
 Note that when using the `new` operator to create a new instance you can either not specify the property so it will be auto-generated, or you can specify it directly:
 
 ```ts
-const myTodo = new Todo({
+const myModel = new ModelWithCustomId({
   customId: "my custom id",
 })
 ```
@@ -222,7 +222,7 @@ as well as writing to it at a later time inside a model action:
 
 ```ts
 // inside some model action
-this.myId = "my new custom id"
+this.customId = "my new custom id"
 // or alternatively
 this.$modelId = "my new custom id"
 ```
@@ -230,7 +230,7 @@ this.$modelId = "my new custom id"
 If you wish to type the ID property even further (for example by using a string template) you may do it like this:
 
 ```ts
-idProp.typedAs<`custom-${string}`>
+customId: idProp.typedAs<`custom-${string}`>()
 ```
 
 ## Customizing the ID generator function
@@ -372,6 +372,7 @@ class Color extends Model(
 Usually, without `valueType: true`, whenever we wanted to use the same color in two separate paths of the tree we would need to clone it first, or else we would get an error about the node trying to have two parents at once. With `valueType` set this would be no longer the case, since the node would get cloned automatically if it already had a parent:
 
 ```ts
+@model("myApp/MyColors")
 class MyColors extends Model({
   primary: prop<Color>(),
   secondary: prop<Color>(),
@@ -662,15 +663,15 @@ class M extends Model({
   names:
     prop<string[]>(() => [])
       .withSnapshotProcessor({
-        fromSnapshot: (sn: string) => sn.split(",")
-        toSnapshot: (sn) => sn.join(",")
+        fromSnapshot: (sn: string) => sn.split(","),
+        toSnapshot: (sn) => sn.join(","),
       })
 })
 ```
 
 ## Usage without decorators
 
-Although this library was primarily intented to be used with decorators it is also possible to use it without them.
+Although this library was primarily intended to be used with decorators it is also possible to use it without them.
 
 To do so you can use the `decoratedModel` function as shown below:
 
@@ -702,7 +703,6 @@ const Todo = decoratedModel(
   // you may pass `undefined` if you don't want the model to be registered yet (e.g. for a base class)
   "myCoolApp/Todo",
   _Todo,
-  ,
   // here we pass what we would use as decorators to the class methods/properties above
   // if we want to use multiple chained decorators we can pass an array of them instead
   // note that any kind of TypeScript-compatible decorator is supported, not only the built-in ones!

@@ -183,7 +183,7 @@ A type that represents either a type or `null`.
 const numberOrNullType = types.maybeNull(types.number)
 ```
 
-### `types.object(() => ({ ... })`
+### `types.object(() => ({ ... }))`
 
 A type that represents a plain object.
 Note that the parameter must be a function that returns an object. This is done so objects can support self / cross types.
@@ -333,10 +333,12 @@ class M extends Model({
 
 ### `types.ref(refConstructor)`
 
-A type that represents a reference to an object or model.
+A type that represents a reference to an object or model. It takes the ref constructor returned by `rootRef` / `customRef` (see the [references](./references.mdx) section).
 
 ```ts
-const refToSomeObject = types.ref(SomeObject)
+const todoRef = rootRef<Todo>("myApp/TodoRef")
+
+const refToTodoType = types.ref(todoRef)
 ```
 
 ### `types.frozen(type)`
@@ -391,14 +393,15 @@ const sumModelType = types.refinement(types.model(Sum), (sum) => {
   // simple mode that will just return that the whole model is incorrect
   return rightResult
 
-  // this will return that the result field is wrong
-  return rightResult
-    ? null
-    : new TypeCheckError({
-        path: ["result"],
-        expectedTypeName: "a+b",
-        actualValue: sum.result,
-      })
+  // alternatively, return a `TypeCheckError` to report that the `result` field
+  // in particular is wrong:
+  // return rightResult
+  //   ? null
+  //   : new TypeCheckError({
+  //       path: ["result"],
+  //       expectedTypeName: "a+b",
+  //       actualValue: sum.result,
+  //     })
 })
 ```
 
@@ -456,10 +459,10 @@ If you need a union dispatcher, use `types.or(dispatcher, ...types)` explicitly.
 It is also possible to get the runtime and snapshot types represented by a type:
 
 ```ts
-const t = types.object(() => {
+const t = types.object(() => ({
   x: types.number,
-  y: types.number
-})
+  y: types.number,
+}))
 
 // TypeToData<typeof t> =
 // {

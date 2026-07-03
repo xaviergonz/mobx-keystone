@@ -128,9 +128,10 @@ This is why `onAttachedToRootStore` is such a good place to manage side effects.
 ## Sharing contextual data
 
 Although contexts are usually preferred for this case (see the [contexts](./contexts.mdx) section), root stores can also hold global runtime environment data that should be shared across the application but does not need to be serialized.
-For example:
 
 In reactive code, prefer `getRootStore` over `getRoot` when you need the application root store. Detached nodes can make `getRoot(node)` resolve to `node` itself.
+
+For example:
 
 ```ts
 @model("myApp/RootStore")

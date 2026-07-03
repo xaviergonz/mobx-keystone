@@ -420,7 +420,7 @@ Note: `ExtendedModel` extends a single base class. If you need to merge more tha
 | `types.identifier` | `idProp` | Preferred model ID field. |
 | `types.optional(types.identifier, () => id)` | `idProp.withGenerator(() => id)` | Per-model ID generator. |
 | `types.identifierNumber` | Prefer string IDs (`idProp`) or keep numeric field + override `getRefId()` to return `String(id)` | `mobx-keystone` refs require string IDs. |
-| `types.late(() => T)` | Usually not needed with class references | Circular/lazy types are class references; use `types.late(() => T)` only in runtime type-checking declarations if needed. |
+| `types.late(() => T)` | Usually not needed with class references | Circular/lazy types work as plain class references; in runtime type-checking declarations use the lambda overload, e.g. `types.model<SomeModel>(() => SomeModel)`. |
 
 ### Collections, dates, and frozen data
 

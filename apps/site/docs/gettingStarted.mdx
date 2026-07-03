@@ -15,10 +15,11 @@ Create models for the state you want to keep live in your app. The example below
 
 ```ts title="store.ts"
 import { computed } from "mobx"
-import { Model, model, modelAction, prop, registerRootStore } from "mobx-keystone"
+import { idProp, Model, model, modelAction, prop, registerRootStore } from "mobx-keystone"
 
 @model("todo/Todo")
 export class Todo extends Model({
+  id: idProp, // auto-generated unique id, accessible as `$modelId`
   text: prop<string>(""),
   done: prop(false),
 }) {

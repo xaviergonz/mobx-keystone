@@ -31,10 +31,10 @@ const disposer = onActionMiddleware(myTodoList, {
     }
 
     // or by returning a different value
-    return {
-      result: ActionTrackingResult.Return,
-      value: 42,
-    }
+    // return {
+    //   result: ActionTrackingResult.Return,
+    //   value: 42,
+    // }
 
     // or do nothing / return `undefined` to continue it
   },

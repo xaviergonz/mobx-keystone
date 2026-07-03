@@ -37,7 +37,8 @@ If the same idea needs asynchronous steps, use `standaloneFlow`. It follows the 
 const renameAfterSave = standaloneFlow(
   "myApp/renameAfterSave",
   function* (todo: Todo, newText: string) {
-    yield api.saveTodo(todo.id, { text: newText })
+    // like model flows, use `yield* _await(X)` where you would use `await X`
+    yield* _await(api.saveTodo(todo.id, { text: newText }))
     todo.setText(newText)
   }
 )

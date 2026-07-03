@@ -103,7 +103,7 @@ All this means that usually you will just pass the data around and only do a `ne
 Some examples:
 
 ```ts
-const todoList: ModelData<Todo> = [...];
+const todoList: ModelData<Todo>[] = [...];
 // usually we would use `todoList[x]` to access the data ...
 
 // until the moment we want to edit a particular todo
@@ -113,7 +113,7 @@ editableTodo.setText("hi there")
 ```
 
 ```ts
-const todoList: ModelData<Todo> = [...];
+const todoList: ModelData<Todo>[] = [...];
 
 const newTodo = new Todo({ done: false, text: "" })
 // ...
@@ -291,7 +291,7 @@ numberMyModelInstance.setXY(50, 60)
 const StringMyModel = createModelClass("StringMyModel", "10", "20")
 type StringMyModel = InstanceType<typeof StringMyModel>
 
-const stringMyModelInstance = new StringMyModel({}) // this will be of type`StringMyModel`
+const stringMyModelInstance = new StringMyModel({}) // this will be of type `StringMyModel`
 stringMyModelInstance.setXY("50", "60")
 ```
 
@@ -339,7 +339,7 @@ class Point extends DataModel({
   }
 }
 
-// note how `ExtendedModel` is used
+// note how `ExtendedDataModel` is used
 @model("MyApp/Point3d")
 class Point3d extends ExtendedDataModel(Point, {
   z: prop<number>(),
@@ -362,7 +362,7 @@ If you don't it will still compile, but the generic will be assumed to have `unk
 
 ## Usage without decorators
 
-Although this library was primarily intented to be used with decorators it is also possible to use it without them.
+Although this library was primarily intended to be used with decorators it is also possible to use it without them.
 
 To do so you can use the `decoratedModel` function as shown below:
 
@@ -370,7 +370,7 @@ To do so you can use the `decoratedModel` function as shown below:
 // note the `_` at the beginning of the name to distinguish it from the decorated version
 class _Todo extends DataModel({
   text: prop<string>(),
-  done: prop<string>(),
+  done: prop<boolean>(),
 }) {
   // note how here we don't decorate the method directly, but on the next parameter instead
   // @modelAction
@@ -394,7 +394,6 @@ const Todo = decoratedModel(
   // you may pass `undefined` if you don't want the model to be registered yet (e.g. for a base class)
   "myCoolApp/Todo",
   _Todo,
-  ,
   // here we pass what we would use as decorators to the class methods/properties above
   // if we want to use multiple chained decorators we can pass an array of them instead
   // note that any kind of TypeScript-compatible decorator is supported, not only the built-in ones!
