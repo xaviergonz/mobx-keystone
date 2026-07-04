@@ -6,9 +6,8 @@ import type { SnapshotInOfObject } from "./SnapshotOf"
 import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
 function fromArraySnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): any[] {
-  const arr: any[] = []
   const ln = sn.length
-  arr.length = ln
+  const arr: any[] = new Array(ln)
   for (let i = 0; i < ln; i++) {
     arr[i] = withErrorPathSegment(i, () => internalFromSnapshot(sn[i], ctx))
   }
