@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 1.22.0
 
 - Performance: sped up large snapshot and array initialization by reducing per-item MobX writes during initial tree tweaking.
