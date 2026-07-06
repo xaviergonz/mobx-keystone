@@ -40,5 +40,6 @@ connectReduxDevTools(remotedev, connection, todoList)
 This function also accepts an optional options object with the following properties:
 
 - `logArgsNearName` - if it should show the arguments near the action name (default is `true`).
+- `logChildActions` - if it should log child actions when they run inside another action tracked by the same target tree (default is `true`). Set it to `false` to keep nested action calls grouped under the outermost tracked action.
 
 If you want to see it in action feel free to check the [Todo List Example](../examples/todoList/todoList.mdx), open the Redux DevTools and perform some actions.

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a `logChildActions` option to `connectReduxDevTools` for suppressing nested action entries and logging the outermost tracked action instead.
+
 ## 1.21.0
 
 - Fixed codec-backed `tProp(...)` defaults so runtime `Map`/`Set` values (including custom codec defaults) are encoded before being stored, avoiding initialization errors and keeping default-fallback error paths accurate.
