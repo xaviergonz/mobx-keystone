@@ -19,7 +19,7 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotC
       withErrorPathSegment(k, () => internalFromSnapshot(v, ctx))
     )
   }
-  return tweakPlainObject(plainObj, undefined, undefined, true, false, true)
+  return tweakPlainObject(plainObj, undefined, undefined, true, false)
 }
 
 /**

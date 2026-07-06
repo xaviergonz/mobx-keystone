@@ -1,5 +1,4 @@
 import {
-  extendObservable,
   type IObjectDidChange,
   type IObjectWillChange,
   intercept,
@@ -40,18 +39,13 @@ export function tweakPlainObject<T extends Record<string, any>>(
   parentPath: ParentPath<any> | undefined,
   snapshotModelType: string | undefined,
   doNotTweakChildren: boolean,
-  isDataObject: boolean,
-  prepopulateObservableObject = false
+  isDataObject: boolean
 ): T {
   const originalObj: Record<string, any> = value
   const originalObjIsObservable = isObservableObject(originalObj)
-  const tweakedObjWasPrepopulated =
-    !originalObjIsObservable && prepopulateObservableObject && doNotTweakChildren
   const tweakedObj = originalObjIsObservable
     ? originalObj
-    : tweakedObjWasPrepopulated
-      ? extendObservable({}, originalObj, undefined, observableOptions)
-      : observable.object({}, undefined, observableOptions)
+    : observable.object({}, undefined, observableOptions)
 
   let interceptDisposer: () => void
   let observeDisposer: () => void
@@ -81,9 +75,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
     const v = originalObj[k]
 
     if (isPrimitive(v)) {
-      if (!doNotTweakChildren && !tweakedObjWasPrepopulated) {
-        setIfDifferent(tweakedObj, k, v)
-      }
+      setIfDifferent(tweakedObj, k, v)
       setOwnProp(untransformedSn, k, v)
     } else {
       const path = { parent: tweakedObj, path: k }
@@ -101,8 +93,8 @@ export function tweakPlainObject<T extends Record<string, any>>(
         )
       } else {
         tweakedValue = tweak(v, path)
-        setIfDifferent(tweakedObj, k, tweakedValue)
       }
+      setIfDifferent(tweakedObj, k, tweakedValue)
 
       const valueSn = getInternalSnapshot(tweakedValue)!
       setOwnProp(untransformedSn, k, valueSn.transformed)
