@@ -225,6 +225,7 @@ test("serializeActionCallArgument and deserializeActionCallArgument", () => {
 
 function serializedPlainObjectWithProtoValue(value: object) {
   const serializedValue = JSON.parse('{"__proto__":null,"safe":1}')
+  // biome-ignore lint/suspicious/noProto: this test intentionally covers "__proto__" serializer metadata.
   serializedValue.__proto__ = {
     $mobxKeystoneSerializer: `${namespace}/plainObject`,
     value,

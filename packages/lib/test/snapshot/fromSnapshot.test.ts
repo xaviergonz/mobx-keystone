@@ -1,5 +1,5 @@
 import { isObservable } from "mobx"
-import { fromSnapshot, modelSnapshotInWithMetadata } from "../../src"
+import { fromSnapshot, getSnapshot, modelSnapshotInWithMetadata } from "../../src"
 import { P, P2 } from "../testbed"
 
 const snapshot = modelSnapshotInWithMetadata(P, {
@@ -42,4 +42,14 @@ test("basic", () => {
   expect(isObservable(p.p2!.$)).toBeTruthy()
   expect(p.p2 instanceof P2).toBeTruthy()
   expect(isObservable(p.arr)).toBeTruthy()
+})
+
+test("plain object snapshots preserve __proto__ as data", () => {
+  const sn = JSON.parse('{"obj":{"a":1,"__proto__":{"polluted":true}}}')
+  const node = fromSnapshot<any>(sn)
+
+  expect(node.obj.polluted).toBeUndefined()
+  expect(Object.hasOwn(node.obj, "__proto__")).toBe(true)
+  expect(Reflect.get(node.obj, "__proto__")).toStrictEqual({ polluted: true })
+  expect(getSnapshot(node)).toStrictEqual(sn)
 })

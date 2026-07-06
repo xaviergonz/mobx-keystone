@@ -1,11 +1,11 @@
-import { action, observable, set } from "mobx"
+import { action, observable } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
 import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolveTypeChecker"
 import type { AnyType, TypeToData, TypeToSnapshotIn } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { resolveCodecSupport } from "../types/utility/typesCodec"
-import { isMap, isPrimitive, isSet } from "../utils"
+import { isMap, isPrimitive, isSet, setOwnProp } from "../utils"
 import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
 import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
@@ -178,7 +178,7 @@ function snapshotToInitialData(
   ctx: FromSnapshotContext,
   processedSn: SnapshotInOfModel<AnyModel>
 ): any {
-  const initialData = observable.object({}, undefined, observableOptions)
+  const initialData: Record<string, unknown> = {}
 
   const processedSnKeys = Object.keys(processedSn)
   const processedSnKeysLen = processedSnKeys.length
@@ -187,11 +187,10 @@ function snapshotToInitialData(
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
       const snapshotValue = withErrorPathSegment(k, () => internalFromSnapshot(v, ctx))
-      // setIfDifferent not required
-      set(initialData, k, snapshotValue)
+      setOwnProp(initialData, k, snapshotValue)
     }
   }
-  return initialData
+  return observable.object(initialData, undefined, observableOptions)
 }
 
 export const observableOptions = {
