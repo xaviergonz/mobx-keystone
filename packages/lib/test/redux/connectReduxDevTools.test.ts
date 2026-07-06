@@ -175,13 +175,23 @@ class M extends Model({
   setXYAsyncThrowAsync = _async(this._setXYAsyncThrowAsync)
 }
 
+@testModel("TestRootModel")
+class RootM extends Model({
+  child: prop<M>(),
+}) {
+  @modelAction
+  runChildSetXY() {
+    this.child.setXY()
+  }
+}
+
 let m = new M({})
 function mockDevTools() {
   return { init: vi.fn(), subscribe: vi.fn(), send: vi.fn() }
 }
 let devTools = mockDevTools()
 
-function initTest() {
+function initTest(options?: Parameters<typeof connectReduxDevTools>[3]) {
   const devToolsManager = {
     connectViaExtension: () => mockDevTools(),
     extractState: vi.fn(),
@@ -189,7 +199,7 @@ function initTest() {
   devTools = devToolsManager.connectViaExtension()
 
   m = new M({})
-  connectReduxDevTools(devToolsManager, devTools, m)
+  connectReduxDevTools(devToolsManager, devTools, m, options)
 }
 
 function addStandardTests() {
@@ -296,3 +306,44 @@ beforeEach(() => {
 })
 
 addStandardTests()
+
+test("m.setXY() -> m.setX(), m.setY() with logChildActions false", () => {
+  initTest({ logChildActions: false })
+
+  m.setXY()
+
+  expect(devTools.send.mock.calls).toHaveLength(1)
+  expect(devTools.send.mock.calls[0][0]).toMatchObject({
+    args: [],
+    path: [],
+    type: "[/] setXY() (id 0)",
+  })
+  expect(devTools.send.mock.calls[0][1]).toMatchObject({
+    x: "setXY ends",
+    y: "setY",
+  })
+})
+
+test("subtree action called from untracked parent with logChildActions false", () => {
+  const devToolsManager = {
+    connectViaExtension: () => mockDevTools(),
+    extractState: vi.fn(),
+  }
+  devTools = devToolsManager.connectViaExtension()
+
+  const root = new RootM({ child: new M({}) })
+  connectReduxDevTools(devToolsManager, devTools, root.child, { logChildActions: false })
+
+  root.runChildSetXY()
+
+  expect(devTools.send.mock.calls).toHaveLength(1)
+  expect(devTools.send.mock.calls[0][0]).toMatchObject({
+    args: [],
+    path: ["child"],
+  })
+  expect(devTools.send.mock.calls[0][0].type).toContain("[/child] setXY() (id 0)")
+  expect(devTools.send.mock.calls[0][1]).toMatchObject({
+    x: "setXY ends",
+    y: "setY",
+  })
+})

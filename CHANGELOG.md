@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Performance: sped up large snapshot and array initialization by reducing per-item MobX writes during initial tree tweaking.
+- Added a `logChildActions` option to `connectReduxDevTools` for suppressing nested action entries and logging the outermost tracked action instead.
 
 ## 1.21.0
 

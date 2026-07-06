@@ -9,26 +9,42 @@ import { applySnapshot } from "../snapshot/applySnapshot"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 
+export interface ConnectReduxDevToolsOptions {
+  /**
+   * If it should show the arguments near the action name.
+   *
+   * @default true
+   */
+  logArgsNearName?: boolean
+
+  /**
+   * If it should log child actions when they run inside another action tracked
+   * by the same target tree.
+   *
+   * @default true
+   */
+  logChildActions?: boolean
+}
+
 /**
  * Connects a tree node to a redux dev tools instance.
  *
  * @param remotedevPackage The remotedev package (usually the result of `require("remoteDev")`) (https://www.npmjs.com/package/remotedev).
  * @param remotedevConnection The result of a connect method from the remotedev package (usually the result of `remoteDev.connectViaExtension(...)`).
  * @param target Object to use as root.
- * @param [options] Optional options object. `logArgsNearName` if it should show the arguments near the action name (default is `true`).
+ * @param [options] Optional options object.
  */
 export function connectReduxDevTools(
   remotedevPackage: any,
   remotedevConnection: any,
   target: object,
-  options?: {
-    logArgsNearName?: boolean
-  }
+  options?: ConnectReduxDevToolsOptions
 ) {
   assertTweakedObject(target, "target")
 
   const opts = {
     logArgsNearName: true,
+    logChildActions: true,
     ...options,
   }
 
@@ -48,12 +64,15 @@ export function connectReduxDevTools(
   const actionIdSymbol = Symbol("actionId")
 
   actionTrackingMiddleware(target, {
+    filter(ctx) {
+      return opts.logChildActions || !hasDevToolsTrackedParentContext(ctx)
+    },
     onStart(ctx) {
       ctx.data[actionIdSymbol] = currentActionId++
     },
     onResume(ctx) {
       // give a chance to the parent to log its own changes before the child starts
-      if (ctx.parentContext) {
+      if (opts.logChildActions && ctx.parentContext) {
         log(ctx.parentContext, undefined)
       }
       log(ctx, undefined)
@@ -183,5 +202,18 @@ export function connectReduxDevTools(
     }
 
     return name
+  }
+
+  function hasDevToolsTrackedParentContext(ctx: SimpleActionContext) {
+    let parentContext = ctx.parentContext
+
+    while (parentContext) {
+      if (parentContext.data[actionIdSymbol] !== undefined) {
+        return true
+      }
+      parentContext = parentContext.parentContext
+    }
+
+    return false
   }
 }
