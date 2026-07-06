@@ -26,10 +26,10 @@ function memtest(numProps: number, numInstances: number) {
   console.log()
 
   function measure<R>(name: string, fn: () => R): R {
-    global.gc!()
+    globalThis.gc!()
     const start = process.memoryUsage().heapUsed
     const v = fn()
-    global.gc!()
+    globalThis.gc!()
     const end = process.memoryUsage().heapUsed
 
     const diff = end - start

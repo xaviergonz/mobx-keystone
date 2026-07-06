@@ -64,9 +64,7 @@ plan.forEach((fn) => {
     return
   }
   // trigger awkward gc up front if we can
-  if (global.gc) {
-    global.gc()
-  }
+  globalThis.gc?.()
   // run the report
   const result = fn()
   // calculate some fields

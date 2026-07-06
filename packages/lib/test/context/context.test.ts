@@ -246,21 +246,18 @@ test("context with computed values", () => {
 })
 
 test("context typings", () => {
-  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const ctx1 = createContext<number>()
   assert(_ as ReturnType<typeof ctx1.getDefault>, _ as number | undefined)
   assert(_ as ReturnType<typeof ctx1.get>, _ as number | undefined)
   assert(_ as typeof ctx1.setDefault, _ as (v: number | undefined) => void)
   assert(_ as typeof ctx1.set, _ as (n: object, v: number | undefined) => void)
   assert(_ as typeof ctx1.setComputed, _ as (n: object, v: () => number | undefined) => void)
-  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const ctx2 = createContext(5)
   assert(_ as ReturnType<typeof ctx2.getDefault>, _ as number)
   assert(_ as ReturnType<typeof ctx2.get>, _ as number)
   assert(_ as typeof ctx2.setDefault, _ as (v: number) => void)
   assert(_ as typeof ctx2.set, _ as (n: object, v: number) => void)
   assert(_ as typeof ctx2.setComputed, _ as (n: object, v: () => number) => void)
-  // biome-ignore lint/correctness/noUnusedVariables: type-only assertions below intentionally use this symbol only in type positions.
   const ctx3 = createContext<number>(5)
   assert(_ as ReturnType<typeof ctx3.getDefault>, _ as number)
   assert(_ as ReturnType<typeof ctx3.get>, _ as number)
