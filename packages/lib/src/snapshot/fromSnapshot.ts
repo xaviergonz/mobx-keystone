@@ -1,4 +1,4 @@
-import { action, extendObservable } from "mobx"
+import { action, observable } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
 import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolveTypeChecker"
@@ -190,7 +190,7 @@ function snapshotToInitialData(
       setOwnProp(initialData, k, snapshotValue)
     }
   }
-  return extendObservable({}, initialData, undefined, observableOptions)
+  return observable.object(initialData, undefined, observableOptions)
 }
 
 export const observableOptions = {
