@@ -23,7 +23,6 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
-import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
 import { registerTweaker, tweak } from "./tweak"
@@ -35,23 +34,25 @@ import { runTypeCheckingAfterChange } from "./typeChecking"
 export function tweakArray<T extends any[]>(
   value: T,
   parentPath: ParentPath<any> | undefined,
-  doNotTweakChildren: boolean,
-  prepopulateObservableArray = false
+  childrenAlreadyTweaked: boolean
 ): T {
   const originalArr: ReadonlyArray<any> = value
   const arrLn = originalArr.length
   const originalArrIsObservable = isObservableArray(originalArr)
-  const tweakedArrWasPrepopulated =
-    !originalArrIsObservable && prepopulateObservableArray && doNotTweakChildren
-  const shouldPushInitialItems = !originalArrIsObservable && !tweakedArrWasPrepopulated
-  const tweakedArr = originalArrIsObservable
-    ? originalArr
-    : observable.array(
-        tweakedArrWasPrepopulated ? (originalArr as any[]) : undefined,
-        observableOptions
-      )
-  if (tweakedArr !== originalArr && !shouldPushInitialItems) {
-    tweakedArr.length = originalArr.length
+  const tweakedArrWasPrepopulated = !originalArrIsObservable && childrenAlreadyTweaked
+  let tweakedArr: IObservableArray<any>
+  // when the source array is fresh (not observable, not prepopulated) items are
+  // collected into a plain buffer and inserted in a single bulk replace at the end,
+  // which avoids going through the whole mobx mutation pipeline once per item
+  let buffer: any[] | undefined
+
+  if (originalArrIsObservable) {
+    tweakedArr = originalArr as IObservableArray<any>
+  } else if (tweakedArrWasPrepopulated) {
+    tweakedArr = observable.array(originalArr as any[], observableOptions)
+  } else {
+    tweakedArr = observable.array(undefined, observableOptions)
+    buffer = new Array(arrLn)
   }
 
   let interceptDisposer: () => void
@@ -75,15 +76,47 @@ export function tweakArray<T extends any[]>(
   const untransformedSn: any[] = []
   untransformedSn.length = arrLn
 
+  // externally provided observable arrays keep unchanged slots untouched, but
+  // consecutive child replacements can still be applied as single splice ranges
+  let replacementRangeStart = -1
+  let replacementRangeItems: any[] | undefined
+
+  const flushReplacementRange = () => {
+    if (replacementRangeStart >= 0) {
+      tweakedArr.spliceWithArray(
+        replacementRangeStart,
+        replacementRangeItems!.length,
+        replacementRangeItems!
+      )
+      replacementRangeStart = -1
+      replacementRangeItems = undefined
+    }
+  }
+
+  const queueReplacementIfDifferent = (index: number, value: unknown) => {
+    if (tweakedArr[index] === value && index in tweakedArr) {
+      flushReplacementRange()
+      return
+    }
+
+    if (replacementRangeStart + (replacementRangeItems?.length ?? 0) === index) {
+      replacementRangeItems!.push(value)
+    } else {
+      flushReplacementRange()
+      replacementRangeStart = index
+      replacementRangeItems = [value]
+    }
+  }
+
   // substitute initial values by proxied values
   for (let i = 0; i < arrLn; i++) {
     const v = originalArr[i]
 
     if (isPrimitive(v)) {
-      if (shouldPushInitialItems) {
-        tweakedArr.push(v)
-      } else if (!doNotTweakChildren && !tweakedArrWasPrepopulated) {
-        setIfDifferent(tweakedArr, i, v)
+      if (buffer) {
+        buffer[i] = v
+      } else if (!childrenAlreadyTweaked && !tweakedArrWasPrepopulated) {
+        queueReplacementIfDifferent(i, v)
       }
 
       untransformedSn[i] = v
@@ -91,7 +124,7 @@ export function tweakArray<T extends any[]>(
       const path = { parent: tweakedArr, path: i }
 
       let tweakedValue: any
-      if (doNotTweakChildren) {
+      if (childrenAlreadyTweaked) {
         tweakedValue = v
         setParent(
           tweakedValue, // value
@@ -105,10 +138,10 @@ export function tweakArray<T extends any[]>(
         tweakedValue = tweak(v, path)
       }
 
-      if (shouldPushInitialItems) {
-        tweakedArr.push(tweakedValue)
-      } else if (!doNotTweakChildren) {
-        setIfDifferent(tweakedArr, i, tweakedValue)
+      if (buffer) {
+        buffer[i] = tweakedValue
+      } else if (!childrenAlreadyTweaked) {
+        queueReplacementIfDifferent(i, tweakedValue)
       }
 
       const valueSn = getInternalSnapshot(tweakedValue)!
@@ -116,6 +149,13 @@ export function tweakArray<T extends any[]>(
     }
   }
 
+  if (buffer) {
+    // done before the intercept/observe handlers are installed, so this
+    // is a single plain mobx bulk insertion
+    tweakedArr.replace(buffer)
+  } else {
+    flushReplacementRange()
+  }
   setNewInternalSnapshot(tweakedArr, untransformedSn, undefined)
 
   interceptDisposer = intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
@@ -459,9 +499,8 @@ function interceptArrayMutationSplice(change: IArrayWillSplice) {
  */
 export function registerArrayTweaker() {
   registerTweaker(TweakerPriority.Array, (value, parentPath) => {
-    const valueIsArray = Array.isArray(value)
     if (isArray(value)) {
-      return tweakArray(value, parentPath, false, valueIsArray)
+      return tweakArray(value, parentPath, false)
     }
     return undefined
   })

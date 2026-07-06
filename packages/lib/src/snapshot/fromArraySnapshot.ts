@@ -11,7 +11,7 @@ function fromArraySnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext
   for (let i = 0; i < ln; i++) {
     arr[i] = withErrorPathSegment(i, () => internalFromSnapshot(sn[i], ctx))
   }
-  return tweakArray(arr, undefined, true, true)
+  return tweakArray(arr, undefined, true)
 }
 
 /**

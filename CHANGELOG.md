@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Performance: sped up snapshot hydration and initial array tweaking by bulk-building plain-object snapshot data before making it observable and by appending fresh observable-array items with `push` instead of setting pre-sized indexes. Focused benchmarks showed improvements for wide/nested plain-object snapshots and fresh primitive/object array initialization.
+- Performance: sped up large snapshot and array initialization by reducing per-item MobX writes during initial tree tweaking.
 
 ## 1.21.0
 
