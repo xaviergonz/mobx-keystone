@@ -1,7 +1,13 @@
+import { observable } from "mobx"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { isPlainObject, setOwnProp } from "../utils"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
-import { type FromSnapshotContext, internalFromSnapshot, registerSnapshotter } from "./fromSnapshot"
+import {
+  type FromSnapshotContext,
+  internalFromSnapshot,
+  observableOptions,
+  registerSnapshotter,
+} from "./fromSnapshot"
 import type { SnapshotInOfObject } from "./SnapshotOf"
 import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
@@ -19,7 +25,13 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotC
       withErrorPathSegment(k, () => internalFromSnapshot(v, ctx))
     )
   }
-  return tweakPlainObject(plainObj, undefined, undefined, true, false)
+  return tweakPlainObject(
+    observable.object(plainObj, undefined, observableOptions),
+    undefined,
+    undefined,
+    true,
+    false
+  )
 }
 
 /**
