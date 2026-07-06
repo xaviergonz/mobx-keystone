@@ -39,16 +39,16 @@ export function tweakArray<T extends any[]>(
   const originalArr: ReadonlyArray<any> = value
   const arrLn = originalArr.length
   const originalArrIsObservable = isObservableArray(originalArr)
-  const tweakedArrWasPrepopulated = !originalArrIsObservable && childrenAlreadyTweaked
   let tweakedArr: IObservableArray<any>
-  // when the source array is fresh (not observable, not prepopulated) items are
-  // collected into a plain buffer and inserted in a single bulk replace at the end,
-  // which avoids going through the whole mobx mutation pipeline once per item
+  // Fresh arrays whose children still need tweaking are collected into a plain
+  // buffer and inserted in one bulk replace at the end.
   let buffer: any[] | undefined
 
   if (originalArrIsObservable) {
     tweakedArr = originalArr as IObservableArray<any>
-  } else if (tweakedArrWasPrepopulated) {
+  } else if (childrenAlreadyTweaked) {
+    // Snapshot arrays already contain tweaked children, so MobX can initialize
+    // the observable array directly from the source values.
     tweakedArr = observable.array(originalArr as any[], observableOptions)
   } else {
     tweakedArr = observable.array(undefined, observableOptions)
@@ -115,7 +115,7 @@ export function tweakArray<T extends any[]>(
     if (isPrimitive(v)) {
       if (buffer) {
         buffer[i] = v
-      } else if (!childrenAlreadyTweaked && !tweakedArrWasPrepopulated) {
+      } else if (!childrenAlreadyTweaked) {
         queueReplacementIfDifferent(i, v)
       }
 
