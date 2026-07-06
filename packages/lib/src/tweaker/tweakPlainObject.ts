@@ -75,7 +75,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
     const v = originalObj[k]
 
     if (isPrimitive(v)) {
-      setIfDifferent(tweakedObj, k, v)
+      setInitialValueIfDifferent(tweakedObj, k, v)
       setOwnProp(untransformedSn, k, v)
     } else {
       const path = { parent: tweakedObj, path: k }
@@ -94,7 +94,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
       } else {
         tweakedValue = tweak(v, path)
       }
-      setIfDifferent(tweakedObj, k, tweakedValue)
+      setInitialValueIfDifferent(tweakedObj, k, tweakedValue)
 
       const valueSn = getInternalSnapshot(tweakedValue)!
       setOwnProp(untransformedSn, k, valueSn.transformed)
@@ -130,6 +130,14 @@ export function tweakPlainObject<T extends Record<string, any>>(
 
 const observableOptions = {
   deep: false,
+}
+
+function setInitialValueIfDifferent(target: any, key: PropertyKey, value: unknown): void {
+  if (key !== "__proto__") {
+    setIfDifferent(target, key, value)
+  } else if (target[key] !== value || !Object.hasOwn(target, key)) {
+    setOwnProp(target, key, value)
+  }
 }
 
 function mutateSet(k: PropertyKey, v: unknown, sn: Record<PropertyKey, unknown>) {
