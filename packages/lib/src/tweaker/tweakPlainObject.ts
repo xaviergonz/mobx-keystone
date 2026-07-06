@@ -45,7 +45,8 @@ export function tweakPlainObject<T extends Record<string, any>>(
 ): T {
   const originalObj: Record<string, any> = value
   const originalObjIsObservable = isObservableObject(originalObj)
-  const tweakedObjWasPrepopulated = !originalObjIsObservable && prepopulateObservableObject
+  const tweakedObjWasPrepopulated =
+    !originalObjIsObservable && prepopulateObservableObject && doNotTweakChildren
   const tweakedObj = originalObjIsObservable
     ? originalObj
     : tweakedObjWasPrepopulated
@@ -353,16 +354,8 @@ function interceptObjectMutation(change: IObjectWillChange) {
 export function registerPlainObjectTweaker() {
   registerTweaker(TweakerPriority.PlainObject, (value, parentPath) => {
     // plain object
-    const valueIsPlainObject = isPlainObject(value)
-    if (isObservableObject(value) || valueIsPlainObject) {
-      return tweakPlainObject(
-        value as Record<string, any>,
-        parentPath,
-        undefined,
-        false,
-        false,
-        valueIsPlainObject
-      )
+    if (isObservableObject(value) || isPlainObject(value)) {
+      return tweakPlainObject(value as Record<string, any>, parentPath, undefined, false, false)
     }
     return undefined
   })
