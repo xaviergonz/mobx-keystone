@@ -33,11 +33,11 @@
     "yjs": "^13.6.31"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.1",
+    "@biomejs/biome": "2.5.2",
     "globals": "^17.7.0",
-    "netlify-cli": "^26.1.0",
-    "turbo": "^2.10.0",
-    "typescript": "^6.0.3"
+    "netlify-cli": "^26.2.0",
+    "turbo": "^2.10.4",
+    "typescript": "^7.0.2"
   },
-  "packageManager": "pnpm@10.29.3"
+  "packageManager": "pnpm@11.10.0"
 }

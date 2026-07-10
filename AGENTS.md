@@ -3,8 +3,8 @@
 ## Scope and stack
 
 - Monorepo packages: `mobx-keystone` (core), `mobx-keystone-yjs`, `mobx-keystone-loro`, docs site, benchmark app.
-- Tooling: `pnpm@10.29.3`, `turbo`, Vite + `tsc`, TypeScript strict mode, Vitest, Biome.
-- CI runtime: Node `25.6.1`.
+- Tooling: `pnpm`, `turbo`, Vite + `tsc`, TypeScript strict mode, Vitest, Biome.
+- CI runtime: Node.
 
 ## Skills
 

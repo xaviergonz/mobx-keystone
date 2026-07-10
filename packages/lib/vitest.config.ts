@@ -1,9 +1,11 @@
+import { spawnSync } from "node:child_process"
+import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import { createRequire } from "node:module"
+import os from "node:os"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import * as babel from "@babel/core"
 import * as swc from "@swc/core"
-import ts from "typescript"
 import { defineConfig } from "vitest/config"
 import { env } from "./env.js"
 
@@ -12,15 +14,10 @@ const { mobxVersion, compiler } = env
 console.log(`Using mobxVersion=${mobxVersion}, compiler=${compiler}`)
 
 const require = createRequire(import.meta.url)
-const babelConfig = require("./babel.config.js") as babel.TransformOptions
+const babelConfig = require("./babel.config.js") as babel.InputOptions
 const swcConfig = require("./swc.config.js") as swc.Options
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
-const diagnosticHost: ts.FormatDiagnosticsHost = {
-  getCanonicalFileName: (fileName) => fileName,
-  getCurrentDirectory: () => process.cwd(),
-  getNewLine: () => "\n",
-}
 
 const tsconfigFiles = {
   6: compiler === "tsc" ? "tsconfig.json" : "tsconfig.experimental-decorators.json",
@@ -45,43 +42,81 @@ if (!tsconfigFile || !mobxModuleName) {
   throw new Error("$MOBX_VERSION must be one of {4,5,6}")
 }
 
-const getTsCompilerOptions = () => {
-  const tsconfigPath = path.resolve(rootDir, "test", tsconfigFile)
-  const tsconfig = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
-  if (tsconfig.error) {
-    throw new Error(ts.formatDiagnosticsWithColorAndContext([tsconfig.error], diagnosticHost))
+const createTscOutputReader = () => {
+  let tempDir: string | undefined
+
+  const reset = () => {
+    if (tempDir) {
+      rmSync(tempDir, { force: true, recursive: true })
+      tempDir = undefined
+    }
   }
 
-  const parsed = ts.parseJsonConfigFileContent(
-    tsconfig.config,
-    ts.sys,
-    path.dirname(tsconfigPath),
-    {},
-    tsconfigPath
-  )
+  const read = (filePath: string) => {
+    if (!tempDir) {
+      tempDir = mkdtempSync(path.join(os.tmpdir(), `mobx-keystone-vitest-${compiler}-`))
+      const outDir = path.join(tempDir, "js")
+      const declarationDir = path.join(tempDir, "types")
+      const typescriptDir = path.dirname(require.resolve("typescript/package.json"))
+      const tscBin = path.join(typescriptDir, "bin", "tsc")
+      const result = spawnSync(
+        process.execPath,
+        [
+          tscBin,
+          "-p",
+          path.resolve(rootDir, "test", tsconfigFile),
+          "--noEmit",
+          "false",
+          "--outDir",
+          outDir,
+          "--declarationDir",
+          declarationDir,
+          "--sourceMap",
+          "true",
+          "--inlineSources",
+          "true",
+          "--module",
+          "ESNext",
+          "--pretty",
+          "false",
+        ],
+        {
+          cwd: rootDir,
+          encoding: "utf8",
+        }
+      )
 
-  if (parsed.errors.length > 0) {
-    throw new Error(ts.formatDiagnosticsWithColorAndContext(parsed.errors, diagnosticHost))
+      if (result.status !== 0) {
+        throw new Error([result.stdout, result.stderr].filter(Boolean).join("\n"))
+      }
+    }
+
+    const outDir = path.join(tempDir, "js")
+    const relativePath = path.relative(rootDir, filePath)
+    const emittedPath = path.join(outDir, relativePath).replace(/\.tsx?$/, ".js")
+    const code = readFileSync(emittedPath, "utf8")
+    const mapPath = `${emittedPath}.map`
+
+    return {
+      code,
+      map: JSON.parse(readFileSync(mapPath, "utf8")),
+    }
   }
 
-  return {
-    ...parsed.options,
-    module: ts.ModuleKind.ESNext,
-    sourceMap: true,
-    inlineSourceMap: false,
-    inlineSources: true,
-  } satisfies ts.CompilerOptions
+  process.once("exit", reset)
+
+  return { read, reset }
 }
 
-const tsCompilerOptions = getTsCompilerOptions()
-const babelPresets = (babelConfig.presets as babel.TransformOptions["presets"])?.map((preset) => {
+const tscOutputReader = createTscOutputReader()
+const babelPresets: babel.PresetItem[] | undefined = babelConfig.presets?.map((preset) => {
   if (Array.isArray(preset) && preset[0] === "@babel/preset-env") {
     const presetOptions =
       typeof preset[1] === "object" && preset[1] !== null ? (preset[1] as object) : {}
-    return [preset[0], { ...presetOptions, modules: false }]
+    return [preset[0], { ...presetOptions, modules: false }] as babel.PresetItem
   }
   return preset
-}) as babel.TransformOptions["presets"]
+})
 
 const compilerPlugin = () => {
   return {
@@ -99,25 +134,8 @@ const compilerPlugin = () => {
 
       switch (compiler) {
         case "tsc":
-        case "tsc-experimental-decorators": {
-          const transformed = ts.transpileModule(code, {
-            compilerOptions: tsCompilerOptions,
-            fileName: filePath,
-            reportDiagnostics: true,
-          })
-
-          const diagnostics = transformed.diagnostics?.filter(
-            (d) => d.category === ts.DiagnosticCategory.Error
-          )
-          if (diagnostics && diagnostics.length > 0) {
-            throw new Error(ts.formatDiagnosticsWithColorAndContext(diagnostics, diagnosticHost))
-          }
-
-          return {
-            code: transformed.outputText,
-            map: transformed.sourceMapText ? JSON.parse(transformed.sourceMapText) : null,
-          }
-        }
+        case "tsc-experimental-decorators":
+          return tscOutputReader.read(filePath)
 
         case "babel": {
           const transformed = await babel.transformAsync(code, {
@@ -155,7 +173,7 @@ const compilerPlugin = () => {
               },
               transform: {
                 legacyDecorator: true,
-                useDefineForClassFields: tsCompilerOptions.useDefineForClassFields ?? true,
+                useDefineForClassFields: mobxVersion !== 4,
                 ...((swcConfig.jsc?.transform as object | undefined) ?? {}),
               },
             },
@@ -174,6 +192,9 @@ const compilerPlugin = () => {
         default:
           throw new Error("$COMPILER must be one of {tsc,tsc-experimental-decorators,babel,swc}")
       }
+    },
+    handleHotUpdate() {
+      tscOutputReader.reset()
     },
   }
 }
