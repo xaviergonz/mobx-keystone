@@ -2,14 +2,13 @@ packages:
   - packages/*
   - apps/*
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@swc/core'
-  - bufferutil
-  - core-js
-  - core-js-pure
-  - esbuild
-  - netlify-cli
-  - sharp
-  - unix-dgram
-  - utf-8-validate
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  bufferutil: true
+  core-js: true
+  esbuild: true
+  netlify-cli: true
+  sharp: true
+  unix-dgram: true
+  utf-8-validate: true
