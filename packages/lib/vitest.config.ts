@@ -54,9 +54,9 @@ const createTscOutputReader = () => {
 
   const read = (filePath: string) => {
     if (!tempDir) {
-      tempDir = mkdtempSync(path.join(os.tmpdir(), `mobx-keystone-vitest-${compiler}-`))
-      const outDir = path.join(tempDir, "js")
-      const declarationDir = path.join(tempDir, "types")
+      const newTempDir = mkdtempSync(path.join(os.tmpdir(), `mobx-keystone-vitest-${compiler}-`))
+      const outDir = path.join(newTempDir, "js")
+      const declarationDir = path.join(newTempDir, "types")
       const typescriptDir = path.dirname(require.resolve("typescript/package.json"))
       const tscBin = path.join(typescriptDir, "bin", "tsc")
       const result = spawnSync(
@@ -86,9 +86,22 @@ const createTscOutputReader = () => {
         }
       )
 
-      if (result.status !== 0) {
-        throw new Error([result.stdout, result.stderr].filter(Boolean).join("\n"))
+      if (result.error || result.status !== 0) {
+        // Compilation failed: clean up the temp dir and leave tempDir unset so a
+        // later read retries the compilation and surfaces the same error, rather
+        // than skipping recompilation and crashing on the missing emitted files.
+        rmSync(newTempDir, { force: true, recursive: true })
+        const details = [
+          result.error ? `Failed to spawn tsc: ${result.error.message}` : undefined,
+          result.stdout,
+          result.stderr,
+        ]
+          .filter(Boolean)
+          .join("\n")
+        throw new Error(details || `tsc exited with status ${result.status}`)
       }
+
+      tempDir = newTempDir
     }
 
     const outDir = path.join(tempDir, "js")
