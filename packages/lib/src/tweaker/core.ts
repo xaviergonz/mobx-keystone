@@ -2,10 +2,31 @@ import { runInAction } from "mobx"
 import { dataObjectParent } from "../parent/core"
 import { failure, isPrimitive } from "../utils"
 
+type Untweaker = (() => void) & {
+  [secondaryUntweakerSymbol]?: () => void
+}
+
+const secondaryUntweakerSymbol = Symbol("secondaryUntweaker")
+
 /**
  * @internal
  */
-export const tweakedObjects = new WeakMap<object, undefined | (() => void)>()
+export const tweakedObjects = new WeakMap<object, undefined | Untweaker>()
+
+/**
+ * Stores two existing cleanup functions without allocating a third function to
+ * close over them. The primary function is internal and never exposed.
+ *
+ * @internal
+ */
+export function setTweakedObjectUntweakers(
+  value: object,
+  primaryUntweaker: Untweaker,
+  secondaryUntweaker: () => void
+): void {
+  primaryUntweaker[secondaryUntweakerSymbol] = secondaryUntweaker
+  tweakedObjects.set(value, primaryUntweaker)
+}
 
 /**
  * @internal
@@ -15,6 +36,14 @@ export function isTweakedObject(value: unknown, canBeDataObject: boolean): value
     return false
   }
   return tweakedObjects.has(value as object)
+}
+
+/**
+ * @internal
+ */
+export function runTweakedObjectUntweakers(untweaker: Untweaker): void {
+  untweaker()
+  untweaker[secondaryUntweakerSymbol]?.()
 }
 
 /**

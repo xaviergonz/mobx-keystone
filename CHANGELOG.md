@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Performance: reduced large-tree hydration and mutation overhead by skipping listener-less initialization change bookkeeping, lazily constructing patch payloads only for relevant listeners or type-check rollback, and eliminating an extra per-container cleanup closure. Patch and deep-change emission on deep trees is also faster, as the target-to-root path prefixing is now linear in depth instead of quadratic.
+
 ## 1.22.0
 
 - Performance: sped up large snapshot and array initialization by reducing per-item MobX writes during initial tree tweaking.

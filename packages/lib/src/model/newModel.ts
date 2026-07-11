@@ -3,6 +3,7 @@ import type { O } from "ts-toolbelt"
 import {
   DeepChangeType,
   emitDeepChange,
+  hasGlobalDeepChangeListeners,
   type ObjectAddChange,
   type ObjectUpdateChange,
 } from "../deepChange/onDeepChange"
@@ -12,7 +13,11 @@ import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import { applyModelInitializers } from "../modelShared/newModel"
 import { getModelPropStoredDefaultValue, noDefaultValue } from "../modelShared/prop"
-import { createPatchForObjectValueChange, emitPatches } from "../patch/emitPatch"
+import {
+  createPatchForObjectValueChange,
+  emitPatches,
+  hasGlobalPatchListeners,
+} from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
@@ -145,17 +150,24 @@ export const internalFromSnapshotModel = action(
     const modelObj = origModelObj as O.Writable<M>
     modelObj[modelTypeKey] = modelInfo.name
 
-    const patches: Patch[] = []
-    const inversePatches: Patch[] = []
-    const defaultsApplied: { key: string; oldValue: unknown; newValue: unknown }[] = []
+    // At this point the model is not attached to a tree yet, so initialization
+    // corrections can only be observed by global listeners. Tree-local listeners
+    // will observe the eventual insertion of the fully initialized model instead.
+    const shouldEmitPatches = hasGlobalPatchListeners()
+    const shouldEmitDeepChanges = hasGlobalDeepChangeListeners()
+    let patches: Patch[] | undefined
+    let inversePatches: Patch[] | undefined
+    let defaultsApplied: { key: string; oldValue: unknown; newValue: unknown }[] | undefined
 
     if (modelIdPropertyName) {
       const initialValue = initialData[modelIdPropertyName]
       const valueChanged = setIfDifferentWithReturn(initialData, modelIdPropertyName, id)
 
-      if (valueChanged) {
+      if (valueChanged && shouldEmitPatches) {
         const modelIdPath = [modelIdPropertyName]
 
+        patches ??= []
+        inversePatches ??= []
         patches.push(createPatchForObjectValueChange(modelIdPath, initialValue, id))
         inversePatches.push(createPatchForObjectValueChange(modelIdPath, id, initialValue))
       }
@@ -194,13 +206,20 @@ export const internalFromSnapshotModel = action(
         set(initialData, k, newValue)
 
         if (newValue !== initialValue) {
-          const propPath = [k]
+          if (shouldEmitPatches) {
+            const propPath = [k]
 
-          patches.push(createPatchForObjectValueChange(propPath, initialValue, newValue))
-          inversePatches.push(createPatchForObjectValueChange(propPath, newValue, initialValue))
+            patches ??= []
+            inversePatches ??= []
+            patches.push(createPatchForObjectValueChange(propPath, initialValue, newValue))
+            inversePatches.push(createPatchForObjectValueChange(propPath, newValue, initialValue))
+          }
 
           // Track defaults applied for deep change emission
-          defaultsApplied.push({ key: k, oldValue: initialValue, newValue })
+          if (shouldEmitDeepChanges) {
+            defaultsApplied ??= []
+            defaultsApplied.push({ key: k, oldValue: initialValue, newValue })
+          }
         }
       }
     }
@@ -208,9 +227,11 @@ export const internalFromSnapshotModel = action(
     // also emit a patch for modelType, since it will get included in the snapshot
     const initialModelType = snapshotInitialData?.unprocessedModelType
     const newModelType = modelInfo.name
-    if (initialModelType !== newModelType) {
+    if (initialModelType !== newModelType && shouldEmitPatches) {
       const modelTypePath = [modelTypeKey]
 
+      patches ??= []
+      inversePatches ??= []
       patches.push(createPatchForObjectValueChange(modelTypePath, initialModelType, newModelType))
       inversePatches.push(
         createPatchForObjectValueChange(modelTypePath, newModelType, initialModelType)
@@ -219,35 +240,39 @@ export const internalFromSnapshotModel = action(
 
     finalizeNewModel(modelObj, initialData, modelClass)
 
-    emitPatches(modelObj, patches, inversePatches)
+    if (patches && inversePatches) {
+      emitPatches(modelObj, patches, inversePatches)
+    }
 
     // Emit deep changes for defaults applied during fromSnapshot
     // These are emitted with isInit: true so bindings can sync them to CRDTs
-    for (const { key, oldValue } of defaultsApplied) {
-      const target = modelObj.$
-      if (oldValue === undefined) {
-        // Key was added (didn't exist in snapshot)
-        const change: ObjectAddChange = {
-          type: DeepChangeType.ObjectAdd,
-          path: [],
-          target,
-          key,
-          newValue: target[key], // Use the tweaked value from $
-          isInit: true,
+    if (defaultsApplied) {
+      for (const { key, oldValue } of defaultsApplied) {
+        const target = modelObj.$
+        if (oldValue === undefined) {
+          // Key was added (didn't exist in snapshot)
+          const change: ObjectAddChange = {
+            type: DeepChangeType.ObjectAdd,
+            path: [],
+            target,
+            key,
+            newValue: target[key], // Use the tweaked value from $
+            isInit: true,
+          }
+          emitDeepChange(modelObj, change)
+        } else {
+          // Key was updated (had a different value in snapshot, e.g., null -> default)
+          const change: ObjectUpdateChange = {
+            type: DeepChangeType.ObjectUpdate,
+            path: [],
+            target,
+            key,
+            newValue: target[key], // Use the tweaked value from $
+            oldValue,
+            isInit: true,
+          }
+          emitDeepChange(modelObj, change)
         }
-        emitDeepChange(modelObj, change)
-      } else {
-        // Key was updated (had a different value in snapshot, e.g., null -> default)
-        const change: ObjectUpdateChange = {
-          type: DeepChangeType.ObjectUpdate,
-          path: [],
-          target,
-          key,
-          newValue: target[key], // Use the tweaked value from $
-          oldValue,
-          isInit: true,
-        }
-        emitDeepChange(modelObj, change)
       }
     }
 

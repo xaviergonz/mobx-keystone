@@ -18,6 +18,15 @@ import { isTypeCheckingAllowed } from "./withoutTypeChecking"
 // still be invalid, causing another rollback attempt).
 let isRollingBackTypeCheckFailure = false
 
+/**
+ * @internal
+ */
+export function isTypeCheckingAfterChangeEnabled(): boolean {
+  return (
+    isTypeCheckingAllowed() && isModelAutoTypeCheckingEnabled() && !isRollingBackTypeCheckFailure
+  )
+}
+
 function isModelWithTypeChecker(obj: object): obj is AnyModel {
   return isModel(obj) && !!getModelMetadata(obj).dataType
 }
@@ -68,7 +77,7 @@ export function runTypeCheckingAfterChange(
     return
   }
 
-  if (patchRecorder && patchRecorder.patches.length <= 0) {
+  if (patchRecorder && !patchRecorder.hasChanges) {
     // No patches means no effective change.
     return
   }

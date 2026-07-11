@@ -8,7 +8,7 @@ import { unsetInternalSnapshot } from "../snapshot/internal"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { typeCheck } from "../types/typeCheck"
 import { failure, inDevMode, isMap, isObject, isPrimitive, isSet } from "../utils"
-import { isTweakedObject, tweakedObjects } from "./core"
+import { isTweakedObject, runTweakedObjectUntweakers, tweakedObjects } from "./core"
 import { registerDefaultTweakers } from "./registerDefaultTweakers"
 
 /**
@@ -176,7 +176,7 @@ export function tryUntweak(value: any): (() => void) | undefined {
 
   return () => {
     // post-untweaking, call the untweaker
-    untweaker()
+    runTweakedObjectUntweakers(untweaker)
 
     tweakedObjects.delete(value)
     unsetInternalSnapshot(value)

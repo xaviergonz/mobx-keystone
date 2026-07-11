@@ -9,12 +9,11 @@ import {
   observe,
 } from "mobx"
 import { assertCanWrite } from "../action/protection"
-import { DeepChangeType, emitDeepChange, getIsInInitPhase } from "../deepChange/onDeepChange"
+import { emitArraySpliceDeepChange, emitArrayUpdateDeepChange } from "../deepChange/onDeepChange"
 import { getGlobalConfig } from "../globalConfig"
 import type { ParentPath } from "../parent/path"
-import type { Path } from "../parent/pathTypes"
 import { setParent } from "../parent/setParent"
-import { InternalPatchRecorder } from "../patch/emitPatch"
+import { hasPatchListenersFor, InternalPatchRecorder } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
 import {
   freezeInternalSnapshot,
@@ -23,10 +22,10 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
-import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
+import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers, tweakedObjects } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
 import { registerTweaker, tweak } from "./tweak"
-import { runTypeCheckingAfterChange } from "./typeChecking"
+import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
  * @internal
@@ -55,15 +54,9 @@ export function tweakArray<T extends any[]>(
     buffer = new Array(arrLn)
   }
 
-  let interceptDisposer: () => void
-  let observeDisposer: () => void
-
-  const untweak = () => {
-    interceptDisposer()
-    observeDisposer()
-  }
-
-  tweakedObjects.set(tweakedArr, untweak)
+  // Mark it as tweaked before processing children. The cleanup functions are
+  // installed after the MobX handlers have been registered.
+  tweakedObjects.set(tweakedArr, undefined)
   setParent(
     tweakedArr, // value
     parentPath,
@@ -76,37 +69,10 @@ export function tweakArray<T extends any[]>(
   const untransformedSn: any[] = []
   untransformedSn.length = arrLn
 
-  // externally provided observable arrays keep unchanged slots untouched, but
-  // consecutive child replacements can still be applied as single splice ranges
-  let replacementRangeStart = -1
-  let replacementRangeItems: any[] | undefined
-
-  const flushReplacementRange = () => {
-    if (replacementRangeStart >= 0) {
-      tweakedArr.spliceWithArray(
-        replacementRangeStart,
-        replacementRangeItems!.length,
-        replacementRangeItems!
-      )
-      replacementRangeStart = -1
-      replacementRangeItems = undefined
-    }
-  }
-
-  const queueReplacementIfDifferent = (index: number, value: unknown) => {
-    if (tweakedArr[index] === value && index in tweakedArr) {
-      flushReplacementRange()
-      return
-    }
-
-    if (replacementRangeStart + (replacementRangeItems?.length ?? 0) === index) {
-      replacementRangeItems!.push(value)
-    } else {
-      flushReplacementRange()
-      replacementRangeStart = index
-      replacementRangeItems = [value]
-    }
-  }
+  // Only externally supplied observable arrays need replacement ranges. Fresh
+  // arrays use the bulk buffer path, while snapshot arrays are already populated.
+  const replacementQueue =
+    !buffer && !childrenAlreadyTweaked ? new ObservableArrayReplacementQueue(tweakedArr) : undefined
 
   // substitute initial values by proxied values
   for (let i = 0; i < arrLn; i++) {
@@ -116,7 +82,7 @@ export function tweakArray<T extends any[]>(
       if (buffer) {
         buffer[i] = v
       } else if (!childrenAlreadyTweaked) {
-        queueReplacementIfDifferent(i, v)
+        replacementQueue!.queueIfDifferent(i, v)
       }
 
       untransformedSn[i] = v
@@ -141,7 +107,7 @@ export function tweakArray<T extends any[]>(
       if (buffer) {
         buffer[i] = tweakedValue
       } else if (!childrenAlreadyTweaked) {
-        queueReplacementIfDifferent(i, tweakedValue)
+        replacementQueue!.queueIfDifferent(i, tweakedValue)
       }
 
       const valueSn = getInternalSnapshot(tweakedValue)!
@@ -154,12 +120,16 @@ export function tweakArray<T extends any[]>(
     // is a single plain mobx bulk insertion
     tweakedArr.replace(buffer)
   } else {
-    flushReplacementRange()
+    replacementQueue?.flush()
   }
   setNewInternalSnapshot(tweakedArr, untransformedSn, undefined)
 
-  interceptDisposer = intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
-  observeDisposer = observe(tweakedArr, arrayDidChange)
+  const interceptDisposer = intercept(
+    tweakedArr,
+    interceptArrayMutation.bind(undefined, tweakedArr)
+  )
+  const observeDisposer = observe(tweakedArr, arrayDidChange)
+  setTweakedObjectUntweakers(tweakedArr, interceptDisposer, observeDisposer)
 
   return tweakedArr as any
 }
@@ -174,43 +144,18 @@ function mutateSplice(index: number, removedCount: number, addedItems: any[], sn
 
 const patchRecorder = new InternalPatchRecorder()
 
-const emptyPath: Path = Object.freeze([])
-
 function arrayDidChange(change: IArrayDidChange) {
   const arr = change.object
-  const oldSnapshot = getInternalSnapshot(arr as Array<unknown>)!.untransformed
 
   patchRecorder.reset()
 
-  let mutate: ((sn: any[]) => void) | undefined
-
   switch (change.type) {
     case "splice":
-      mutate = arrayDidChangeSplice(change, oldSnapshot)
-      // Emit deep change for splice
-      emitDeepChange(arr, {
-        type: DeepChangeType.ArraySplice,
-        target: arr,
-        path: emptyPath,
-        index: change.index as number,
-        addedValues: change.added,
-        removedValues: change.removed,
-        isInit: getIsInInitPhase(),
-      })
+      emitArraySpliceDeepChange(arr, arr, change.index as number, change.added, change.removed)
       break
 
     case "update":
-      mutate = arrayDidChangeUpdate(change, oldSnapshot)
-      // Emit deep change for update
-      emitDeepChange(arr, {
-        type: DeepChangeType.ArrayUpdate,
-        target: arr,
-        path: emptyPath,
-        index: change.index as number,
-        newValue: change.newValue,
-        oldValue: change.oldValue,
-        isInit: getIsInInitPhase(),
-      })
+      emitArrayUpdateDeepChange(arr, arr, change.index as number, change.newValue, change.oldValue)
 
       break
 
@@ -218,9 +163,38 @@ function arrayDidChange(change: IArrayDidChange) {
       break
   }
 
-  runTypeCheckingAfterChange(arr, patchRecorder)
+  if (runningWithoutSnapshotOrPatches) {
+    return
+  }
 
-  if (!runningWithoutSnapshotOrPatches && mutate) {
+  const oldSnapshot = getInternalSnapshot(arr as Array<unknown>)!.untransformed
+  const shouldEmitPatches = hasPatchListenersFor(arr)
+  const shouldBuildInversePatches = shouldEmitPatches || isTypeCheckingAfterChangeEnabled()
+
+  let mutate: ((sn: any[]) => void) | undefined
+  switch (change.type) {
+    case "splice":
+      mutate = arrayDidChangeSplice(
+        change,
+        oldSnapshot,
+        shouldEmitPatches,
+        shouldBuildInversePatches
+      )
+      break
+    case "update":
+      mutate = arrayDidChangeUpdate(
+        change,
+        oldSnapshot,
+        shouldEmitPatches,
+        shouldBuildInversePatches
+      )
+      break
+    default:
+      break
+  }
+
+  runTypeCheckingAfterChange(arr, patchRecorder)
+  if (mutate) {
     updateInternalSnapshot(arr, mutate)
     patchRecorder.emit(arr)
   }
@@ -229,7 +203,12 @@ function arrayDidChange(change: IArrayDidChange) {
 const undefinedInsideArrayErrorMsg =
   "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
 
-function arrayDidChangeUpdate(change: any /*IArrayDidChange*/, oldSnapshot: any) {
+function arrayDidChangeUpdate(
+  change: any /*IArrayDidChange*/,
+  oldSnapshot: any,
+  shouldEmitPatches: boolean,
+  shouldBuildInversePatches: boolean
+) {
   const k = change.index
   const val = change.newValue
   const oldVal = oldSnapshot[k]
@@ -242,28 +221,25 @@ function arrayDidChangeUpdate(change: any /*IArrayDidChange*/, oldSnapshot: any)
   }
   const mutate = mutateSet.bind(undefined, k, newVal)
 
-  const path = [k]
-
-  patchRecorder.record(
-    [
-      {
-        op: "replace",
-        path,
-        value: freezeInternalSnapshot(newVal),
-      },
-    ],
-    [
-      {
-        op: "replace",
-        path,
-        value: freezeInternalSnapshot(oldVal),
-      },
-    ]
-  )
+  if (shouldEmitPatches || shouldBuildInversePatches) {
+    const path = [k]
+    const patches = shouldEmitPatches
+      ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(newVal) }]
+      : undefined
+    const invPatches = shouldBuildInversePatches
+      ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(oldVal) }]
+      : undefined
+    patchRecorder.record(patches, invPatches)
+  }
   return mutate
 }
 
-function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any) {
+function arrayDidChangeSplice(
+  change: any /*IArrayDidChange*/,
+  oldSnapshot: any,
+  shouldEmitPatches: boolean,
+  shouldBuildInversePatches: boolean
+) {
   const index = change.index as number
   const addedCount = change.addedCount as number
   const removedCount = change.removedCount as number
@@ -282,8 +258,8 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
   const oldLen = oldSnapshot.length
   const mutate = mutateSplice.bind(undefined, index, removedCount, addedItems)
 
-  const patches: Patch[] = []
-  const invPatches: Patch[] = []
+  const patches: Patch[] | undefined = shouldEmitPatches ? [] : undefined
+  const invPatches: Patch[] | undefined = shouldBuildInversePatches ? [] : undefined
 
   // optimization: if we add as many as we remove then remove/readd instead
 
@@ -294,8 +270,8 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
   // validation might fail
 
   if (addedCount === removedCount) {
-    const readdPatches: Patch[] = []
-    const readdInvPatches: Patch[] = []
+    const readdPatches: Patch[] | undefined = shouldEmitPatches ? [] : undefined
+    const readdInvPatches: Patch[] | undefined = shouldBuildInversePatches ? [] : undefined
     let removed = 0
 
     for (let i = 0; i < addedCount; i++) {
@@ -306,11 +282,11 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
 
       if (newVal !== oldVal) {
         const removePath = [realIndex - removed]
-        patches.push({
+        patches?.push({
           op: "remove",
           path: removePath,
         })
-        invPatches.push({
+        invPatches?.push({
           op: "remove",
           path: removePath,
         })
@@ -318,13 +294,13 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
         removed++
 
         const readdPath = [realIndex]
-        readdPatches.push({
+        readdPatches?.push({
           op: "add",
           path: readdPath,
           value: freezeInternalSnapshot(newVal),
         })
 
-        readdInvPatches.push({
+        readdInvPatches?.push({
           op: "add",
           path: readdPath,
           value: freezeInternalSnapshot(oldVal),
@@ -332,10 +308,17 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
       }
     }
 
-    patches.push(...readdPatches)
-    invPatches.push(...readdInvPatches)
-    // we need to reverse since inverse patches are applied in reverse
-    invPatches.reverse()
+    if (patches && readdPatches && readdPatches.length > 0) {
+      patches.push(...readdPatches)
+    }
+    if (invPatches && readdInvPatches && readdInvPatches.length > 0) {
+      invPatches.push(...readdInvPatches)
+    }
+    // We need to reverse once since inverse patches are applied in reverse.
+    // Repeated unshift calls here would make a large splice quadratic.
+    if (invPatches && invPatches.length > 0) {
+      invPatches.reverse()
+    }
   } else {
     const interimLen = oldLen - removedCount
 
@@ -344,7 +327,7 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
       // optimization, when removing from the end set the length instead
       const removeUsingSetLength = index >= interimLen
       if (removeUsingSetLength) {
-        patches.push({
+        patches?.push({
           op: "replace",
           path: ["length"],
           value: interimLen,
@@ -357,14 +340,14 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
 
         if (!removeUsingSetLength) {
           // remove ...2, 1, 0
-          patches.push({
+          patches?.push({
             op: "remove",
             path,
           })
         }
 
         // add 0, 1, 2... since inverse patches are applied in reverse
-        invPatches.push({
+        invPatches?.push({
           op: "add",
           path,
           value: freezeInternalSnapshot(oldSnapshot[realIndex]),
@@ -377,7 +360,7 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
       // optimization, for inverse patches, when adding from the end set the length to restore instead
       const restoreUsingSetLength = index >= interimLen
       if (restoreUsingSetLength) {
-        invPatches.push({
+        invPatches?.push({
           op: "replace",
           path: ["length"],
           value: interimLen,
@@ -389,7 +372,7 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
         const path = [realIndex]
 
         // add 0, 1, 2...
-        patches.push({
+        patches?.push({
           op: "add",
           path,
           value: freezeInternalSnapshot(
@@ -399,7 +382,7 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
 
         // remove ...2, 1, 0 since inverse patches are applied in reverse
         if (!restoreUsingSetLength) {
-          invPatches.push({
+          invPatches?.push({
             op: "remove",
             path,
           })
@@ -408,7 +391,9 @@ function arrayDidChangeSplice(change: any /*IArrayDidChange*/, oldSnapshot: any)
     }
   }
 
-  patchRecorder.record(patches, invPatches)
+  if (patches || invPatches) {
+    patchRecorder.record(patches, invPatches)
+  }
   return mutate
 }
 
@@ -508,6 +493,39 @@ export function registerArrayTweaker() {
 
 const observableOptions = {
   deep: false,
+}
+
+class ObservableArrayReplacementQueue {
+  private readonly array: IObservableArray<any>
+  private rangeStart = -1
+  private rangeItems: any[] | undefined
+
+  constructor(array: IObservableArray<any>) {
+    this.array = array
+  }
+
+  queueIfDifferent(index: number, value: unknown): void {
+    if (this.array[index] === value && index in this.array) {
+      this.flush()
+      return
+    }
+
+    if (this.rangeStart + (this.rangeItems?.length ?? 0) === index) {
+      this.rangeItems!.push(value)
+    } else {
+      this.flush()
+      this.rangeStart = index
+      this.rangeItems = [value]
+    }
+  }
+
+  flush(): void {
+    if (this.rangeStart >= 0) {
+      this.array.spliceWithArray(this.rangeStart, this.rangeItems!.length, this.rangeItems!)
+      this.rangeStart = -1
+      this.rangeItems = undefined
+    }
+  }
 }
 
 function getValueAfterSplice<T>(
