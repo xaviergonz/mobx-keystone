@@ -1,8 +1,9 @@
 import { action, createAtom, type IAtom } from "mobx"
-import { fastGetParentPath, type ParentPath } from "../parent/path"
+import { fastGetParentPath } from "../parent/path"
 import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
 import { clonePlainObject, failure, inDevMode, isPrimitive, setOwnProp } from "../utils"
 import type { PrimitiveValue } from "../utils/types"
+import { PathElement } from "../parent/pathTypes"
 
 /**
  * @internal
@@ -14,14 +15,31 @@ interface SnapshotData {
   readonly transformFn: SnapshotTransformFn | undefined
   transformed: any
   atom: IAtom | undefined
-  dirtyChildren: Set<object> | undefined
+  // Source of truth for copy-on-write of this snapshot's untransformed data.
+  untransformedFrozen: boolean
+  dirtyChild: object | undefined
+  dirtyChildSnapshot: SnapshotData | undefined
+  dirtyChildPath: PathElement | undefined
+  additionalDirtyChildren: Map<object, DirtyChild> | undefined
+  isUnset: boolean
+}
+
+interface DirtyChild {
+  readonly snapshot: SnapshotData
+  readonly path: PathElement
 }
 
 const snapshots = new WeakMap<object, SnapshotData>()
 
-// true if it has been accessed publicly and therefore should be cloned
-// rather than modified in place
+// `false` means the generic freezer must traverse this raw value; `true` means
+// it is frozen. `undefined` is either external/untracked data or a fused
+// frozen clone, whose owning SnapshotData tracks its state directly.
 const frozenState = new WeakMap<object, boolean>()
+
+// Mutable untransformed snapshot containers are the only raw values whose
+// frozen state must be reflected back into their owning SnapshotData. Fused
+// frozen clones deliberately have no entry here or in frozenState.
+const mutableSnapshotDataByValue = new WeakMap<object, SnapshotData>()
 
 /**
  * @internal
@@ -36,12 +54,14 @@ export function getInternalSnapshot<T extends object>(
  * @internal
  */
 export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any) => {
-  const oldSn = getInternalSnapshot(value)
+  const oldSn = snapshots.get(value)
 
   if (oldSn) {
-    if (inDevMode && (oldSn.dirtyChildren?.size ?? 0) > 0) {
+    if (inDevMode && oldSn.dirtyChild !== undefined) {
       throw failure("assertion failed: cannot unset an internal snapshot with dirty children")
     }
+    oldSn.isUnset = true
+    mutableSnapshotDataByValue.delete(oldSn.untransformed)
     snapshots.delete(value)
     oldSn.atom?.reportChanged()
   }
@@ -65,10 +85,18 @@ export const setNewInternalSnapshot = action(
       transformFn,
       transformed,
       atom: undefined, // will be created when first observed
-      dirtyChildren: undefined,
+      untransformedFrozen: markAsFrozen,
+      dirtyChild: undefined,
+      dirtyChildSnapshot: undefined,
+      dirtyChildPath: undefined,
+      additionalDirtyChildren: undefined,
+      isUnset: false,
     }
 
     frozenState.set(untransformed, markAsFrozen)
+    if (!markAsFrozen) {
+      mutableSnapshotDataByValue.set(untransformed, sn)
+    }
 
     if (transformed !== undefined && transformed !== untransformed) {
       frozenState.set(transformed, markAsFrozen)
@@ -84,7 +112,7 @@ type MutateInternalSnapshotFn<T> = (prevSn: T) => void
 
 function makeSnapshotMutable(sn: SnapshotData): any {
   let untransformed = sn.untransformed
-  if (frozenState.get(untransformed)) {
+  if (sn.untransformedFrozen) {
     untransformed = Array.isArray(untransformed)
       ? untransformed.slice()
       : clonePlainObject(untransformed)
@@ -94,15 +122,20 @@ function makeSnapshotMutable(sn: SnapshotData): any {
   return untransformed
 }
 
-function setSnapshotData(sn: SnapshotData, untransformed: any): void {
-  const wasFrozen = frozenState.get(sn.untransformed) === true
+function setSnapshotData(sn: SnapshotData, untransformed: any, freezeIfCloned = false): void {
+  // `makeSnapshotMutable` returns a new container exactly when this snapshot
+  // was frozen. All callers obtain `untransformed` through that helper.
+  const wasFrozen = untransformed !== sn.untransformed
   const transformed = sn.transformFn ? sn.transformFn(untransformed) : untransformed
 
   sn.untransformed = untransformed
   sn.transformed = transformed
 
-  if (wasFrozen) {
+  const keepFrozen = freezeIfCloned && wasFrozen && !sn.transformFn
+  sn.untransformedFrozen = keepFrozen
+  if (wasFrozen && !keepFrozen) {
     frozenState.set(untransformed, false)
+    mutableSnapshotDataByValue.set(untransformed, sn)
   }
   if (
     sn.transformFn &&
@@ -120,36 +153,80 @@ function updateOwnSnapshot<T>(sn: SnapshotData, mutate: MutateInternalSnapshotFn
   sn.atom?.reportChanged()
 }
 
-function updateParentSlot(parentSn: SnapshotData, path: ParentPath<any>["path"], value: any): void {
+function updateParentSlot(parentSn: SnapshotData, path: PathElement, value: any): void {
   const untransformed = makeSnapshotMutable(parentSn)
   setOwnProp(untransformed, path, value)
   setSnapshotData(parentSn, untransformed)
   parentSn.atom?.reportChanged()
 }
 
-function flushDirtyChildren(node: object, sn: SnapshotData): void {
-  const dirtyChildren = sn.dirtyChildren
-  if (!dirtyChildren || dirtyChildren.size === 0) {
+function flushDirtyChild(
+  node: object,
+  untransformed: any,
+  child: object,
+  childSn: SnapshotData,
+  childPath: PathElement,
+  freezeAfterFlush: boolean,
+  freezeClonedContainer: boolean
+): void {
+  if (childSn.isUnset) {
     return
   }
 
-  sn.dirtyChildren = undefined
-  const untransformed = makeSnapshotMutable(sn)
-
-  for (const child of dirtyChildren) {
-    const childSn = snapshots.get(child)
-    if (!childSn) {
-      continue
-    }
-
-    flushDirtyChildren(child, childSn)
-    const parentPath = fastGetParentPath(child, false)
-    if (parentPath?.parent === node) {
-      setOwnProp(untransformed, parentPath.path, childSn.transformed)
+  if (inDevMode) {
+    const currentParentPath = fastGetParentPath(child, false)
+    if (currentParentPath?.parent !== node || currentParentPath.path !== childPath) {
+      throw failure("assertion failed: dirty child parent path changed before flush")
     }
   }
 
-  setSnapshotData(sn, untransformed)
+  const childIsFrozen = flushDirtyChildren(child, childSn, freezeAfterFlush)
+  if (freezeClonedContainer && !childIsFrozen) {
+    freezeInternalSnapshot(childSn.transformed)
+  }
+  setOwnProp(untransformed, childPath, childSn.transformed)
+}
+
+function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: boolean): boolean {
+  const dirtyChild = sn.dirtyChild
+  const dirtyChildSnapshot = sn.dirtyChildSnapshot
+  const dirtyChildPath = sn.dirtyChildPath
+  if (!dirtyChild || !dirtyChildSnapshot || dirtyChildPath === undefined) {
+    return false
+  }
+
+  const additionalDirtyChildren = sn.additionalDirtyChildren
+  sn.dirtyChild = undefined
+  sn.dirtyChildSnapshot = undefined
+  sn.dirtyChildPath = undefined
+  sn.additionalDirtyChildren = undefined
+  const untransformed = makeSnapshotMutable(sn)
+  const freezeClonedContainer =
+    freezeAfterFlush && untransformed !== sn.untransformed && !sn.transformFn
+
+  flushDirtyChild(
+    node,
+    untransformed,
+    dirtyChild,
+    dirtyChildSnapshot,
+    dirtyChildPath,
+    freezeAfterFlush,
+    freezeClonedContainer
+  )
+  additionalDirtyChildren?.forEach((dirtyChild, child) => {
+    flushDirtyChild(
+      node,
+      untransformed,
+      child,
+      dirtyChild.snapshot,
+      dirtyChild.path,
+      freezeAfterFlush,
+      freezeClonedContainer
+    )
+  })
+
+  setSnapshotData(sn, untransformed, freezeClonedContainer)
+  return freezeClonedContainer
 }
 
 /**
@@ -157,10 +234,10 @@ function flushDirtyChildren(node: object, sn: SnapshotData): void {
  *
  * @internal
  */
-export function flushInternalSnapshot(value: object): void {
+export function flushInternalSnapshot(value: object, freezeAfterFlush: boolean): void {
   const sn = snapshots.get(value)
   if (sn) {
-    flushDirtyChildren(value, sn)
+    flushDirtyChildren(value, sn, freezeAfterFlush)
   }
 }
 
@@ -183,16 +260,25 @@ function updateAncestorSnapshots(value: object, sn: SnapshotData): void {
       // Model output snapshot processors are part of the public mutation
       // contract. Keep their invocation eager, flushing any plain segment below
       // this model before recomputing it.
-      flushDirtyChildren(child, childSn)
-      flushDirtyChildren(parentPath.parent, parentSn)
+      flushDirtyChildren(child, childSn, false)
+      flushDirtyChildren(parentPath.parent, parentSn, false)
       updateParentSlot(parentSn, parentPath.path, childSn.transformed)
       child = parentPath.parent
       childSn = parentSn
       continue
     }
 
-    const wasDirty = (parentSn.dirtyChildren?.size ?? 0) > 0
-    ;(parentSn.dirtyChildren ??= new Set()).add(child)
+    const wasDirty = parentSn.dirtyChild !== undefined
+    if (!wasDirty) {
+      parentSn.dirtyChild = child
+      parentSn.dirtyChildSnapshot = childSn
+      parentSn.dirtyChildPath = parentPath.path
+    } else if (parentSn.dirtyChild !== child) {
+      ;(parentSn.additionalDirtyChildren ??= new Map()).set(child, {
+        snapshot: childSn,
+        path: parentPath.path,
+      })
+    }
     parentSn.atom?.reportChanged()
     if (wasDirty) {
       return
@@ -210,7 +296,7 @@ export const updateInternalSnapshot = action(
   "updateInternalSnapshot",
   <T extends object>(value: any, mutate: MutateInternalSnapshotFn<T>): void => {
     const sn = getInternalSnapshot(value)! as SnapshotData
-    flushDirtyChildren(value, sn)
+    flushDirtyChildren(value, sn, false)
     updateOwnSnapshot(sn, mutate)
     updateAncestorSnapshots(value, sn)
   }
@@ -262,7 +348,9 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
     return data
   }
 
-  // this might be undefined if the data comes from example from transforms
+  // `undefined` means external/untracked data (for example, from a transform).
+  // For a tracked frozen value, all reachable tracked descendants were frozen
+  // first, so returning early here preserves snapshot immutability.
   const isFrozen = frozenState.get(data)
 
   if (isFrozen === undefined || isFrozen) {
@@ -282,6 +370,12 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
   }
 
   frozenState.set(data, true)
+
+  const mutableSn = mutableSnapshotDataByValue.get(data)
+  if (mutableSn?.untransformed === data) {
+    mutableSn.untransformedFrozen = true
+    mutableSnapshotDataByValue.delete(data)
+  }
 
   return data
 }

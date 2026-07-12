@@ -279,7 +279,7 @@ function interceptObjectMutation(change: IObjectWillChange) {
   // This must happen before detach/reparent work below. It keeps the old value
   // available for inverse patches and folds a departing dirty child into its
   // parent snapshot while its parent path still exists.
-  flushInternalSnapshot(dataToModelNode(change.object))
+  flushInternalSnapshot(dataToModelNode(change.object), false)
 
   switch (change.type) {
     case "add":

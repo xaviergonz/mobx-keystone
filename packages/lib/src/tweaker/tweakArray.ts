@@ -409,14 +409,14 @@ function interceptArrayMutation(
     case "splice":
       validateArrayMutationSplice(change)
       // Flush before removed values are untweaked and indexes are reassigned.
-      flushInternalSnapshot(array)
+      flushInternalSnapshot(array, false)
       interceptArrayMutationSplice(change)
       break
 
     case "update":
       validateArrayMutationUpdate(change)
       // Flush before the old value is detached below.
-      flushInternalSnapshot(array)
+      flushInternalSnapshot(array, false)
       interceptArrayMutationUpdate(change, array)
       break
 

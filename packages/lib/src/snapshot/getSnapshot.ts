@@ -75,7 +75,7 @@ export function getSnapshot(...args: [arg1: any] | [arg1: any, arg2: any]): any 
     throw failure("getSnapshot is not supported for this kind of object")
   }
 
-  flushInternalSnapshot(nodeOrPrimitive)
+  flushInternalSnapshot(nodeOrPrimitive, true)
   freezeInternalSnapshot(snapshot.transformed)
   reportInternalSnapshotObserved(snapshot)
   return toSnapshotProcessor(snapshot.transformed)
