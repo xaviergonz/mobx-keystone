@@ -26,7 +26,13 @@ import { autoDispose, testModel } from "../utils"
 class A extends Model({
   [modelIdKey]: idProp,
   b: prop<B>(),
-}) {}
+}) {
+  @modelAction
+  setBValueTwice(first: number, second: number): void {
+    this.b.setValue(first)
+    this.b.setValue(second)
+  }
+}
 
 @testModel("B")
 class B extends Model({
@@ -265,6 +271,21 @@ test("sandbox is patched when original tree changes", () => {
 
   manager.withSandbox([a.b], (node) => {
     expect(node.value).toBe(1)
+    return false
+  })
+})
+
+test("sandbox receives the final snapshot from batched deep mutations", () => {
+  const a = new A({ b: new B({ value: 0 }) })
+  const manager = sandbox(a)
+  autoDispose(() => {
+    manager.dispose()
+  })
+
+  a.setBValueTwice(1, 2)
+
+  manager.withSandbox([a.b], (node) => {
+    expect(node.value).toBe(2)
     return false
   })
 })

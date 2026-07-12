@@ -16,6 +16,7 @@ import { setParent } from "../parent/setParent"
 import { hasPatchListenersFor, InternalPatchRecorder } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
 import {
+  flushInternalSnapshot,
   freezeInternalSnapshot,
   getInternalSnapshot,
   setNewInternalSnapshot,
@@ -406,10 +407,16 @@ function interceptArrayMutation(
 
   switch (change.type) {
     case "splice":
+      validateArrayMutationSplice(change)
+      // Flush before removed values are untweaked and indexes are reassigned.
+      flushInternalSnapshot(array)
       interceptArrayMutationSplice(change)
       break
 
     case "update":
+      validateArrayMutationUpdate(change)
+      // Flush before the old value is detached below.
+      flushInternalSnapshot(array)
       interceptArrayMutationUpdate(change, array)
       break
 
@@ -419,7 +426,7 @@ function interceptArrayMutation(
   return change
 }
 
-function interceptArrayMutationUpdate(change: IArrayWillChange, array: IObservableArray) {
+function validateArrayMutationUpdate(change: IArrayWillChange) {
   if (
     inDevMode &&
     !getGlobalConfig().allowUndefinedArrayElements &&
@@ -427,7 +434,9 @@ function interceptArrayMutationUpdate(change: IArrayWillChange, array: IObservab
   ) {
     throw failure(undefinedInsideArrayErrorMsg)
   }
+}
 
+function interceptArrayMutationUpdate(change: IArrayWillChange, array: IObservableArray) {
   // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
   const oldVal = array[change.index]
   tweak(oldVal, undefined) // set old prop obj parent to undefined
@@ -435,7 +444,7 @@ function interceptArrayMutationUpdate(change: IArrayWillChange, array: IObservab
   change.newValue = tweak(change.newValue, { parent: array, path: change.index })
 }
 
-function interceptArrayMutationSplice(change: IArrayWillSplice) {
+function validateArrayMutationSplice(change: IArrayWillSplice) {
   if (inDevMode && !getGlobalConfig().allowUndefinedArrayElements) {
     const len = change.added.length
     for (let i = 0; i < len; i++) {
@@ -445,7 +454,9 @@ function interceptArrayMutationSplice(change: IArrayWillSplice) {
       }
     }
   }
+}
 
+function interceptArrayMutationSplice(change: IArrayWillSplice) {
   for (let i = 0; i < change.removedCount; i++) {
     const removedValue = change.object[change.index + i]
     tweak(removedValue, undefined)

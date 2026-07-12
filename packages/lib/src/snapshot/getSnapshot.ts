@@ -5,6 +5,7 @@ import type { AnyType, TypeToData, TypeToSnapshotOut } from "../types/schemas"
 import { resolveCodecSupport } from "../types/utility/typesCodec"
 import { failure, identityFn, isPrimitive } from "../utils"
 import {
+  flushInternalSnapshot,
   freezeInternalSnapshot,
   getInternalSnapshot,
   reportInternalSnapshotObserved,
@@ -74,6 +75,7 @@ export function getSnapshot(...args: [arg1: any] | [arg1: any, arg2: any]): any 
     throw failure("getSnapshot is not supported for this kind of object")
   }
 
+  flushInternalSnapshot(nodeOrPrimitive)
   freezeInternalSnapshot(snapshot.transformed)
   reportInternalSnapshotObserved(snapshot)
   return toSnapshotProcessor(snapshot.transformed)

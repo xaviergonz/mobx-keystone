@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Performance: reduced large-tree hydration and mutation overhead by skipping listener-less initialization change bookkeeping, lazily constructing patch payloads only for relevant listeners or type-check rollback, and eliminating an extra per-container cleanup closure. Patch and deep-change emission on deep trees is also faster, as the target-to-root path prefixing is now linear in depth instead of quadratic.
+- Performance: faster initialization, updates, and change notifications in large trees, especially when no listeners are registered.
 
 ## 1.22.0
 

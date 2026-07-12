@@ -6,6 +6,7 @@
   "scripts": {
     "lib:build": "turbo run mobx-keystone#build",
     "lib:build-docs": "turbo run mobx-keystone#build-docs",
+    "benchmark:build": "turbo run benchmark#build",
     "lib:test": "turbo run mobx-keystone#test",
     "lib:test:ci": "turbo run mobx-keystone#test:ci",
     "yjs-lib:build": "turbo run mobx-keystone-yjs#build",

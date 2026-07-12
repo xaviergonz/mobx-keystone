@@ -9,7 +9,8 @@
   "scripts": {
     "build": "shx rm -rf dist && tsc -p .",
     "bench-only": "cross-env NODE_ENV=production node dist/index.js",
-    "bench": "pnpm run build && pnpm run bench-only"
+    "bench": "pnpm run build && pnpm run bench-only",
+    "bench:mutations": "cross-env NODE_ENV=production node dist/mutationBench.js"
   },
   "peerDependencies": {
     "mobx": "^6.0.0"
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/benchmark": "^2.1.5",
+    "@types/node": "^26.1.1",
     "cross-env": "^10.1.0",
     "shx": "^0.4.0",
     "typescript": "^7.0.2"

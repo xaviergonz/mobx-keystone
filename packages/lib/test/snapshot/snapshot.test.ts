@@ -209,6 +209,24 @@ test("onSnapshot and applySnapshot", () => {
   `)
 })
 
+test("deep ancestor snapshots flush on a mid-action read", () => {
+  const p = createP()
+  const snapshots: SnapshotOutOf<P>[] = []
+  autoDispose(onSnapshot(p, (snapshot) => snapshots.push(snapshot)))
+
+  runUnprotected(() => {
+    p.p2!.y = 13
+    expect(getSnapshot(p).p2!.y).toBe(13)
+
+    p.p2!.y = 14
+    expect(getSnapshot(p.p2!).y).toBe(14)
+  })
+
+  expect(getSnapshot(p).p2!.y).toBe(14)
+  expect(snapshots).toHaveLength(1)
+  expect(snapshots[0].p2!.y).toBe(14)
+})
+
 test("applySnapshot can create a new submodel", () => {
   const p = createP()
   const originalSn = getSnapshot(p)

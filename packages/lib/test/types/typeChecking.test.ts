@@ -2735,3 +2735,28 @@ test("skipCheck with types.maybe", () => {
   // wrong type fails (boolean is not undefined and not structurally a number)
   expect(typeCheck(maybeSkipped, true as any)).not.toBeNull()
 })
+
+test("type-check rollback keeps earlier batched snapshots current", () => {
+  @testModel("deferredSnapshotRollback/Child")
+  class Child extends Model({
+    value: tProp(types.number, 0),
+  }) {}
+
+  @testModel("deferredSnapshotRollback/Root")
+  class Root extends Model({
+    child: prop<Child>(),
+  }) {
+    @modelAction
+    updateThenFailTypeCheck(): void {
+      this.child.value = 1
+      this.child.value = "invalid" as any
+    }
+  }
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  const root = new Root({ child: new Child({}) })
+
+  expect(() => root.updateThenFailTypeCheck()).toThrow(TypeCheckErrorFailure)
+  expect(root.child.value).toBe(1)
+  expect(getSnapshot(root)).toMatchObject({ child: { value: 1 } })
+})

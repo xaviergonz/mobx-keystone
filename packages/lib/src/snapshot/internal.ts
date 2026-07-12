@@ -1,7 +1,7 @@
 import { action, createAtom, type IAtom } from "mobx"
 import { fastGetParentPath, type ParentPath } from "../parent/path"
 import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
-import { clonePlainObject, isPrimitive, setOwnProp } from "../utils"
+import { clonePlainObject, failure, inDevMode, isPrimitive, setOwnProp } from "../utils"
 import type { PrimitiveValue } from "../utils/types"
 
 /**
@@ -14,6 +14,7 @@ interface SnapshotData {
   readonly transformFn: SnapshotTransformFn | undefined
   transformed: any
   atom: IAtom | undefined
+  dirtyChildren: Set<object> | undefined
 }
 
 const snapshots = new WeakMap<object, SnapshotData>()
@@ -31,30 +32,6 @@ export function getInternalSnapshot<T extends object>(
   return snapshots.get(value)
 }
 
-interface InternalSnapshotParent {
-  parentSnapshot: SnapshotData | undefined
-  parentPath: ParentPath<any>
-}
-
-function getInternalSnapshotParent(
-  sn: Readonly<SnapshotData> | undefined,
-  parentPath: ParentPath<any> | undefined
-): InternalSnapshotParent | undefined {
-  if (!(parentPath && sn)) {
-    return undefined
-  }
-
-  const parentSn = getInternalSnapshot(parentPath.parent)
-  if (!parentSn) {
-    return undefined
-  }
-
-  return {
-    parentSnapshot: parentSn,
-    parentPath: parentPath,
-  }
-}
-
 /**
  * @internal
  */
@@ -62,6 +39,9 @@ export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any
   const oldSn = getInternalSnapshot(value)
 
   if (oldSn) {
+    if (inDevMode && (oldSn.dirtyChildren?.size ?? 0) > 0) {
+      throw failure("assertion failed: cannot unset an internal snapshot with dirty children")
+    }
     snapshots.delete(value)
     oldSn.atom?.reportChanged()
   }
@@ -85,6 +65,7 @@ export const setNewInternalSnapshot = action(
       transformFn,
       transformed,
       atom: undefined, // will be created when first observed
+      dirtyChildren: undefined,
     }
 
     frozenState.set(untransformed, markAsFrozen)
@@ -101,25 +82,125 @@ export const setNewInternalSnapshot = action(
 
 type MutateInternalSnapshotFn<T> = (prevSn: T) => void
 
-function updateParentSnapshots(value: any, sn: SnapshotData): void {
-  // also update parent(s) snapshot(s) if needed
-  const parent = getInternalSnapshotParent(sn, fastGetParentPath(value, false))
-  if (!parent) {
+function makeSnapshotMutable(sn: SnapshotData): any {
+  let untransformed = sn.untransformed
+  if (frozenState.get(untransformed)) {
+    untransformed = Array.isArray(untransformed)
+      ? untransformed.slice()
+      : clonePlainObject(untransformed)
+  } else {
+    invalidateCachedToSnapshotProcessorResult(untransformed)
+  }
+  return untransformed
+}
+
+function setSnapshotData(sn: SnapshotData, untransformed: any): void {
+  const wasFrozen = frozenState.get(sn.untransformed) === true
+  const transformed = sn.transformFn ? sn.transformFn(untransformed) : untransformed
+
+  sn.untransformed = untransformed
+  sn.transformed = transformed
+
+  if (wasFrozen) {
+    frozenState.set(untransformed, false)
+  }
+  if (
+    sn.transformFn &&
+    transformed !== undefined &&
+    (!wasFrozen || transformed !== untransformed)
+  ) {
+    frozenState.set(transformed, false)
+  }
+}
+
+function updateOwnSnapshot<T>(sn: SnapshotData, mutate: MutateInternalSnapshotFn<T>): void {
+  const untransformed = makeSnapshotMutable(sn)
+  mutate(untransformed)
+  setSnapshotData(sn, untransformed)
+  sn.atom?.reportChanged()
+}
+
+function updateParentSlot(parentSn: SnapshotData, path: ParentPath<any>["path"], value: any): void {
+  const untransformed = makeSnapshotMutable(parentSn)
+  setOwnProp(untransformed, path, value)
+  setSnapshotData(parentSn, untransformed)
+  parentSn.atom?.reportChanged()
+}
+
+function flushDirtyChildren(node: object, sn: SnapshotData): void {
+  const dirtyChildren = sn.dirtyChildren
+  if (!dirtyChildren || dirtyChildren.size === 0) {
     return
   }
 
-  const { parentSnapshot, parentPath } = parent
-  // might be false in the cases where the parent has not yet been created
-  if (!parentSnapshot) {
-    return
+  sn.dirtyChildren = undefined
+  const untransformed = makeSnapshotMutable(sn)
+
+  for (const child of dirtyChildren) {
+    const childSn = snapshots.get(child)
+    if (!childSn) {
+      continue
+    }
+
+    flushDirtyChildren(child, childSn)
+    const parentPath = fastGetParentPath(child, false)
+    if (parentPath?.parent === node) {
+      setOwnProp(untransformed, parentPath.path, childSn.transformed)
+    }
   }
 
-  const path = parentPath.path
+  setSnapshotData(sn, untransformed)
+}
 
-  // patches for parent changes should not be emitted
-  updateInternalSnapshot(parentPath.parent, (objOrArray: any) => {
-    setOwnProp(objOrArray, path, sn.transformed)
-  })
+/**
+ * Flushes any pending descendant snapshot updates for a node.
+ *
+ * @internal
+ */
+export function flushInternalSnapshot(value: object): void {
+  const sn = snapshots.get(value)
+  if (sn) {
+    flushDirtyChildren(value, sn)
+  }
+}
+
+function updateAncestorSnapshots(value: object, sn: SnapshotData): void {
+  let child = value
+  let childSn = sn
+
+  while (true) {
+    const parentPath = fastGetParentPath(child, false)
+    if (!parentPath) {
+      return
+    }
+
+    const parentSn = snapshots.get(parentPath.parent)
+    if (!parentSn) {
+      return
+    }
+
+    if (parentSn.transformFn) {
+      // Model output snapshot processors are part of the public mutation
+      // contract. Keep their invocation eager, flushing any plain segment below
+      // this model before recomputing it.
+      flushDirtyChildren(child, childSn)
+      flushDirtyChildren(parentPath.parent, parentSn)
+      updateParentSlot(parentSn, parentPath.path, childSn.transformed)
+      child = parentPath.parent
+      childSn = parentSn
+      continue
+    }
+
+    const wasDirty = (parentSn.dirtyChildren?.size ?? 0) > 0
+    ;(parentSn.dirtyChildren ??= new Set()).add(child)
+    parentSn.atom?.reportChanged()
+    if (wasDirty) {
+      return
+    }
+
+    child = parentPath.parent
+    childSn = parentSn
+  }
 }
 
 /**
@@ -129,33 +210,9 @@ export const updateInternalSnapshot = action(
   "updateInternalSnapshot",
   <T extends object>(value: any, mutate: MutateInternalSnapshotFn<T>): void => {
     const sn = getInternalSnapshot(value)! as SnapshotData
-
-    let untransformed = sn.untransformed
-    const snFrozen = frozenState.get(untransformed)!
-    if (snFrozen) {
-      if (Array.isArray(untransformed)) {
-        untransformed = untransformed.slice()
-      } else {
-        untransformed = clonePlainObject(untransformed)
-      }
-    } else {
-      // the processor cached result is no longer valid since we will
-      // mutate the object
-      invalidateCachedToSnapshotProcessorResult(untransformed)
-    }
-
-    mutate(untransformed)
-
-    sn.untransformed = untransformed
-    sn.transformed = sn.transformFn ? sn.transformFn(untransformed) : untransformed
-
-    frozenState.set(sn.untransformed, false)
-    if (sn.transformed !== undefined) {
-      frozenState.set(sn.transformed, false)
-    }
-
-    sn.atom?.reportChanged()
-    updateParentSnapshots(value, sn)
+    flushDirtyChildren(value, sn)
+    updateOwnSnapshot(sn, mutate)
+    updateAncestorSnapshots(value, sn)
   }
 )
 
@@ -184,7 +241,7 @@ export const refreshInternalSnapshot = action("refreshInternalSnapshot", (value:
   }
 
   sn.atom?.reportChanged()
-  updateParentSnapshots(value, sn)
+  updateAncestorSnapshots(value, sn)
 })
 
 /**

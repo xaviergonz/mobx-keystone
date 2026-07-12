@@ -21,6 +21,7 @@ import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { hasPatchListenersFor, InternalPatchRecorder } from "../patch/emitPatch"
 import {
+  flushInternalSnapshot,
   freezeInternalSnapshot,
   getInternalSnapshot,
   type SnapshotTransformFn,
@@ -274,6 +275,11 @@ function interceptObjectMutation(change: IObjectWillChange) {
   if (typeof change.name === "symbol") {
     throw failure("symbol properties are not supported")
   }
+
+  // This must happen before detach/reparent work below. It keeps the old value
+  // available for inverse patches and folds a departing dirty child into its
+  // parent snapshot while its parent path still exists.
+  flushInternalSnapshot(dataToModelNode(change.object))
 
   switch (change.type) {
     case "add":
