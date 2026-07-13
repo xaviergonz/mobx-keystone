@@ -1,7 +1,7 @@
 import { observable } from "mobx"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { isPlainObject, setOwnProp } from "../utils"
-import { withErrorPathSegment } from "../utils/errorDiagnostics"
+import { isPlainObject, setProtoProp } from "../utils"
+import { getCurrentErrorDiagnosticsContext } from "../utils/errorDiagnostics"
 import {
   type FromSnapshotContext,
   internalFromSnapshot,
@@ -13,17 +13,28 @@ import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPrio
 
 function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotContext): object {
   const plainObj: Record<string, unknown> = {}
+  // Hydration visits every property. Keep this direct stack use rather than
+  // withErrorPathSegment: it avoids one callback closure per property and has
+  // a measured production hydration win.
+  const errorDiagnosticsContext = getCurrentErrorDiagnosticsContext()
 
   const snKeys = Object.keys(sn)
   const snKeysLen = snKeys.length
   for (let i = 0; i < snKeysLen; i++) {
     const k = snKeys[i]
     const v = sn[k]
-    setOwnProp(
-      plainObj,
-      k,
-      withErrorPathSegment(k, () => internalFromSnapshot(v, ctx))
-    )
+    errorDiagnosticsContext?.pushPath(k)
+    let snapshotValue: unknown
+    try {
+      snapshotValue = internalFromSnapshot(v, ctx)
+    } finally {
+      errorDiagnosticsContext?.popPath()
+    }
+    if (k === "__proto__") {
+      setProtoProp(plainObj, snapshotValue)
+    } else {
+      plainObj[k] = snapshotValue
+    }
   }
   return tweakPlainObject(
     observable.object(plainObj, undefined, observableOptions),

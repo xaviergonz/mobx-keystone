@@ -84,7 +84,6 @@ function reconcileModelSnapshot(
   }
 
   const trailModelId = typeof incomingModelId === "string" ? incomingModelId : undefined
-
   return withErrorModelTrailEntry(type, trailModelId, () => {
     // we don't check by actual instance since the class might be a different one due to hot reloading
     if (!isModel(value) || value[modelTypeKey] !== type) {

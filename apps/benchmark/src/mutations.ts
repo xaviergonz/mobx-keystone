@@ -95,6 +95,32 @@ export function createRunUnprotectedReverseProfile(rebuildInsideBatch: boolean):
   }
 }
 
+export function createObservedSnapshotProfile(options: {
+  depth: number
+  mutationsPerAction: number
+  observeRoot: boolean
+  readRootAfterAction: boolean
+}): () => void {
+  const { root, leaf } = makeDepth(options.depth)
+  const dispose = options.observeRoot ? onSnapshot(root, () => {}) : undefined
+
+  return () => {
+    runUnprotected(() => {
+      for (let i = 0; i < options.mutationsPerAction; i++) {
+        leaf.value = leaf.value === 0 ? 1 : 0
+      }
+    })
+
+    if (options.readRootAfterAction) {
+      getSnapshot(root)
+    }
+
+    // Keep the reaction alive for the lifetime of the profile closure. This
+    // branch is unreachable, but makes its ownership explicit to TypeScript.
+    void dispose
+  }
+}
+
 export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult) => void): void {
   benchKeystone(
     "model-action-noop",
@@ -121,6 +147,20 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
         run: () => {
           runUnprotected(() => {
             node.value = node.value === 0 ? 1 : 0
+          })
+        },
+      }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "array-update-no-listener",
+    () => {
+      const root = new MutationList({ values: [0] })
+      return {
+        run: () => {
+          runUnprotected(() => {
+            root.values[0] = root.values[0] === 0 ? 1 : 0
           })
         },
       }
@@ -212,6 +252,45 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
     },
     onCycle
   )
+  benchKeystone(
+    "run-unprotected-replace-10k-primitives-no-listener",
+    () => {
+      const initial = Array.from({ length: 10_000 }, (_, index) => index)
+      const root = new MutationList({ values: initial })
+      const replacement = Array.from({ length: 10_000 }, (_, index) => -index)
+      let useInitial = false
+      return {
+        run: () => {
+          runUnprotected(() => {
+            const next = useInitial ? initial : replacement
+            root.values.splice(0, root.values.length, ...next)
+            useInitial = !useInitial
+          })
+        },
+      }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "run-unprotected-replace-10k-primitives-patch-listener",
+    () => {
+      const initial = Array.from({ length: 10_000 }, (_, index) => index)
+      const root = new MutationList({ values: initial })
+      const replacement = Array.from({ length: 10_000 }, (_, index) => -index)
+      let useInitial = false
+      return {
+        run: () => {
+          runUnprotected(() => {
+            const next = useInitial ? initial : replacement
+            root.values.splice(0, root.values.length, ...next)
+            useInitial = !useInitial
+          })
+        },
+        dispose: onPatches(root, () => {}),
+      }
+    },
+    onCycle
+  )
 
   {
     const { leaf } = makeDepth(1)
@@ -292,6 +371,23 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
       () => ({
         run: () => {
           fromSnapshot(MutationList, snapshot)
+        },
+      }),
+      onCycle
+    )
+  }
+  {
+    const snapshot = {
+      items: Array.from({ length: 2000 }, (_, index) => ({
+        $modelType: "benchmark/MutationActionItem",
+        id: `item-${index}`,
+      })),
+    }
+    benchKeystone(
+      "fromSnapshot-2000-item-model-list",
+      () => ({
+        run: () => {
+          fromSnapshot(MutationActionList, snapshot)
         },
       }),
       onCycle

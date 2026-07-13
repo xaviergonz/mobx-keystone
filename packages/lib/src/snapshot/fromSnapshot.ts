@@ -5,8 +5,11 @@ import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolve
 import type { AnyType, TypeToData, TypeToSnapshotIn } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { resolveCodecSupport } from "../types/utility/typesCodec"
-import { isMap, isPrimitive, isSet, setOwnProp } from "../utils"
-import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
+import { isMap, isPrimitive, isSet, setProtoProp } from "../utils"
+import {
+  getCurrentErrorDiagnosticsContext,
+  runWithErrorDiagnosticsContext,
+} from "../utils/errorDiagnostics"
 import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 import { SnapshotProcessingError } from "./SnapshotProcessingError"
@@ -179,6 +182,10 @@ function snapshotToInitialData(
   processedSn: SnapshotInOfModel<AnyModel>
 ): any {
   const initialData: Record<string, unknown> = {}
+  // Model hydration visits every data slot. Keep this direct stack use rather
+  // than withErrorPathSegment: it avoids one callback closure per slot and
+  // has a measured production hydration win.
+  const errorDiagnosticsContext = getCurrentErrorDiagnosticsContext()
 
   const processedSnKeys = Object.keys(processedSn)
   const processedSnKeysLen = processedSnKeys.length
@@ -186,8 +193,18 @@ function snapshotToInitialData(
     const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
-      const snapshotValue = withErrorPathSegment(k, () => internalFromSnapshot(v, ctx))
-      setOwnProp(initialData, k, snapshotValue)
+      errorDiagnosticsContext?.pushPath(k)
+      let snapshotValue: unknown
+      try {
+        snapshotValue = internalFromSnapshot(v, ctx)
+      } finally {
+        errorDiagnosticsContext?.popPath()
+      }
+      if (k === "__proto__") {
+        setProtoProp(initialData, snapshotValue)
+      } else {
+        initialData[k] = snapshotValue
+      }
     }
   }
   return observable.object(initialData, undefined, observableOptions)

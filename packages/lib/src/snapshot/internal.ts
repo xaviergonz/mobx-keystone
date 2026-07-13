@@ -2,7 +2,7 @@ import { action, createAtom, type IAtom } from "mobx"
 import { fastGetParentPath } from "../parent/path"
 import type { PathElement } from "../parent/pathTypes"
 import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
-import { clonePlainObject, failure, inDevMode, isPrimitive, setOwnProp } from "../utils"
+import { clonePlainObject, failure, inDevMode, isPrimitive, setProtoProp } from "../utils"
 import type { PrimitiveValue } from "../utils/types"
 
 /**
@@ -155,7 +155,11 @@ function updateOwnSnapshot<T>(sn: SnapshotData, mutate: MutateInternalSnapshotFn
 
 function updateParentSlot(parentSn: SnapshotData, path: PathElement, value: any): void {
   const untransformed = makeSnapshotMutable(parentSn)
-  setOwnProp(untransformed, path, value)
+  if (path === "__proto__") {
+    setProtoProp(untransformed, value)
+  } else {
+    untransformed[path] = value
+  }
   setSnapshotData(parentSn, untransformed)
   parentSn.atom?.reportChanged()
 }
@@ -184,7 +188,14 @@ function flushDirtyChild(
   if (freezeClonedContainer && !childIsFrozen) {
     freezeInternalSnapshot(childSn.transformed)
   }
-  setOwnProp(untransformed, childPath, childSn.transformed)
+  // The overwhelmingly common snapshot path is a normal property or array
+  // index. Keep the `__proto__` safe-definition behavior for the exceptional
+  // key without paying its helper call on every observed ancestor flush.
+  if (childPath === "__proto__") {
+    setProtoProp(untransformed, childSn.transformed)
+  } else {
+    untransformed[childPath] = childSn.transformed
+  }
 }
 
 function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: boolean): boolean {

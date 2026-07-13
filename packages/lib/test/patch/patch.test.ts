@@ -136,6 +136,16 @@ describe("onPatches and applyPatches", () => {
     expect(p2InvPatches).toMatchInlineSnapshot(`[]`)
   })
 
+  test("splice keeps the snapshot current without patch listeners", () => {
+    const arr = fromSnapshot([1, 2, 3])
+
+    runUnprotected(() => {
+      arr.splice(1, 1, 4, 5)
+    })
+
+    expect(getSnapshot(arr)).toStrictEqual([1, 4, 5, 3])
+  })
+
   test("increment numbers", () => {
     const { p, pPatches, pInvPatches, p2Patches, p2InvPatches, expectSameSnapshotOnceReverted } =
       setup()

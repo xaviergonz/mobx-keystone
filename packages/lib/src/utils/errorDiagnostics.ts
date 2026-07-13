@@ -1,14 +1,59 @@
 import type { Path, PathElement, WritablePath } from "../parent/pathTypes"
 
-interface ErrorDiagnosticsContext {
-  path: WritablePath
-  modelTrailTypes: string[]
-  modelTrailIds: (string | undefined)[]
+/**
+ * @internal
+ */
+export class ErrorDiagnosticsContext {
+  private readonly path: WritablePath = []
+  private readonly modelTrailTypes: string[] = []
+  private readonly modelTrailIds: (string | undefined)[] = []
+
+  pushPath(segment: PathElement): void {
+    this.path.push(segment)
+  }
+
+  popPath(): void {
+    this.path.pop()
+  }
+
+  getPathLength(): number {
+    return this.path.length
+  }
+
+  truncatePath(length: number): void {
+    this.path.length = length
+  }
+
+  pushModelTrail(modelType: string, modelId: string | undefined): void {
+    this.modelTrailTypes.push(modelType)
+    this.modelTrailIds.push(modelId)
+  }
+
+  popModelTrail(): void {
+    this.modelTrailTypes.pop()
+    this.modelTrailIds.pop()
+  }
+
+  getPathSnapshot(): Path {
+    return [...this.path]
+  }
+
+  getModelTrailSnapshot(): readonly string[] | undefined {
+    if (this.modelTrailTypes.length <= 0) {
+      return undefined
+    }
+    return this.modelTrailTypes.map((modelType, index) =>
+      formatErrorModelTrailEntry(modelType, this.modelTrailIds[index])
+    )
+  }
 }
 
 const errorDiagnosticsContextStack: ErrorDiagnosticsContext[] = []
 
-function getCurrentErrorDiagnosticsContext(): ErrorDiagnosticsContext | undefined {
+/**
+ * @internal
+ */
+export function getCurrentErrorDiagnosticsContext(): ErrorDiagnosticsContext | undefined {
   return errorDiagnosticsContextStack.length > 0
     ? errorDiagnosticsContextStack[errorDiagnosticsContextStack.length - 1]
     : undefined
@@ -23,11 +68,7 @@ export function runWithErrorDiagnosticsContext<T>(fn: () => T): T {
     return fn()
   }
 
-  const ctx: ErrorDiagnosticsContext = {
-    path: [],
-    modelTrailTypes: [],
-    modelTrailIds: [],
-  }
+  const ctx = new ErrorDiagnosticsContext()
   errorDiagnosticsContextStack.push(ctx)
   try {
     return fn()
@@ -45,11 +86,11 @@ export function withErrorPathSegment<T>(segment: PathElement, fn: () => T): T {
     return fn()
   }
 
-  ctx.path.push(segment)
+  ctx.pushPath(segment)
   try {
     return fn()
   } finally {
-    ctx.path.pop()
+    ctx.popPath()
   }
 }
 
@@ -66,16 +107,16 @@ export function withErrorPathSegments<T>(segments: readonly PathElement[], fn: (
     return fn()
   }
 
-  const initialLen = ctx.path.length
+  const initialLen = ctx.getPathLength()
   const segmentsLen = segments.length
   for (let i = 0; i < segmentsLen; i++) {
-    ctx.path.push(segments[i]!)
+    ctx.pushPath(segments[i]!)
   }
 
   try {
     return fn()
   } finally {
-    ctx.path.length = initialLen
+    ctx.truncatePath(initialLen)
   }
 }
 
@@ -114,13 +155,11 @@ export function withErrorModelTrailEntry<T>(
     return fn()
   }
 
-  ctx.modelTrailTypes.push(modelType)
-  ctx.modelTrailIds.push(modelId)
+  ctx.pushModelTrail(modelType, modelId)
   try {
     return fn()
   } finally {
-    ctx.modelTrailTypes.pop()
-    ctx.modelTrailIds.pop()
+    ctx.popModelTrail()
   }
 }
 
@@ -129,7 +168,7 @@ export function withErrorModelTrailEntry<T>(
  */
 export function getErrorPathSnapshot(): Path | undefined {
   const ctx = getCurrentErrorDiagnosticsContext()
-  return ctx ? [...ctx.path] : undefined
+  return ctx?.getPathSnapshot()
 }
 
 /**
@@ -137,13 +176,7 @@ export function getErrorPathSnapshot(): Path | undefined {
  */
 export function getErrorModelTrailSnapshot(): readonly string[] | undefined {
   const ctx = getCurrentErrorDiagnosticsContext()
-  if (!ctx || ctx.modelTrailTypes.length <= 0) {
-    return undefined
-  }
-
-  return ctx.modelTrailTypes.map((modelType, index) =>
-    formatErrorModelTrailEntry(modelType, ctx.modelTrailIds[index])
-  )
+  return ctx?.getModelTrailSnapshot()
 }
 
 /**

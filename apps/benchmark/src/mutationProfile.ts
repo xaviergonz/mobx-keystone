@@ -1,11 +1,48 @@
 import { writeFileSync } from "node:fs"
 import { Session } from "node:inspector"
-import { createRunUnprotectedReverseProfile } from "./mutations.js"
+import { createObservedSnapshotProfile, createRunUnprotectedReverseProfile } from "./mutations.js"
 
 const rawIterations = Number(process.env.PROFILE_ITERATIONS ?? 100)
 const iterations = Number.isSafeInteger(rawIterations) && rawIterations > 0 ? rawIterations : 100
+const scenario = process.env.PROFILE_SCENARIO ?? "reverse"
 const rebuildInsideBatch = process.env.PROFILE_FORCE_REBUILD === "true"
-const run = createRunUnprotectedReverseProfile(rebuildInsideBatch)
+const run =
+  scenario === "observed-d32"
+    ? createObservedSnapshotProfile({
+        depth: 32,
+        mutationsPerAction: 1,
+        observeRoot: true,
+        readRootAfterAction: false,
+      })
+    : scenario === "observed-d128"
+      ? createObservedSnapshotProfile({
+          depth: 128,
+          mutationsPerAction: 1,
+          observeRoot: true,
+          readRootAfterAction: false,
+        })
+      : scenario === "batch-read-d128"
+        ? createObservedSnapshotProfile({
+            depth: 128,
+            mutationsPerAction: 100,
+            observeRoot: false,
+            readRootAfterAction: true,
+          })
+        : scenario === "read-d128"
+          ? createObservedSnapshotProfile({
+              depth: 128,
+              mutationsPerAction: 1,
+              observeRoot: false,
+              readRootAfterAction: true,
+            })
+          : scenario === "deferred-d128"
+            ? createObservedSnapshotProfile({
+                depth: 128,
+                mutationsPerAction: 1,
+                observeRoot: false,
+                readRootAfterAction: false,
+              })
+            : createRunUnprotectedReverseProfile(rebuildInsideBatch)
 const heapProfileOutput = process.env.PROFILE_HEAP_OUTPUT
 const session = heapProfileOutput ? new Session() : undefined
 
@@ -45,6 +82,7 @@ console.log(
     elapsedMs,
     iterations,
     rebuildInsideBatch,
+    scenario,
     opsPerSecond: (iterations / elapsedMs) * 1_000,
     heapProfileOutput,
   })

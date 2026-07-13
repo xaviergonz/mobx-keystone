@@ -256,8 +256,16 @@ function arrayDidChangeSplice(
     }
   }
 
-  const oldLen = oldSnapshot.length
   const mutate = mutateSplice.bind(undefined, index, removedCount, addedItems)
+
+  // With neither patch listeners nor type checking, there is no inverse-patch
+  // data to build. The snapshot mutation above is all the post-change work we
+  // need to retain.
+  if (!shouldEmitPatches && !shouldBuildInversePatches) {
+    return mutate
+  }
+
+  const oldLen = oldSnapshot.length
 
   const patches: Patch[] | undefined = shouldEmitPatches ? [] : undefined
   const invPatches: Patch[] | undefined = shouldBuildInversePatches ? [] : undefined
