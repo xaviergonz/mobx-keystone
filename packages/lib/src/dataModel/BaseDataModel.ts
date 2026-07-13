@@ -32,7 +32,7 @@ const dataModelInstanceCache = new WeakMap<ModelClass<AnyDataModel>, WeakMap<any
  */
 export abstract class BaseDataModel<TProps extends ModelProps> {
   // just to make typing work properly
-  [propsTypeSymbol]!: TProps
+  declare [propsTypeSymbol]: TProps
 
   /**
    * Called after the instance is created when there's the first call to `fn(M, data)`.
@@ -142,11 +142,6 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
     instancesForModelClass.set(tweakedData, this)
 
     Object.setPrototypeOf(this, modelClass.prototype)
-
-    const self = this as any
-
-    // delete unnecessary props
-    delete self[propsTypeSymbol]
 
     internalNewDataModel(this, tweakedData as any, {
       modelClass,

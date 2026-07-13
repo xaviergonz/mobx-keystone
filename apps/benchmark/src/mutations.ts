@@ -121,6 +121,19 @@ export function createObservedSnapshotProfile(options: {
   }
 }
 
+/** Repeated direct construction of the same model-tree shape used by hydration. */
+export function createModelConstructionProfile(): () => void {
+  const ids = Array.from({ length: 2_000 }, (_, index) => `item-${index}`)
+
+  return () => {
+    const items = new Array<MutationActionItem>(ids.length)
+    for (let i = 0; i < ids.length; i++) {
+      items[i] = new MutationActionItem({ id: ids[i] })
+    }
+    new MutationActionList({ items })
+  }
+}
+
 /**
  * Repeated model hydration for CPU and allocation profiling. This intentionally
  * uses the same shape as the model-list benchmark below, rather than the
@@ -389,6 +402,22 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
       () => ({
         run: () => {
           fromSnapshot(MutationList, snapshot)
+        },
+      }),
+      onCycle
+    )
+  }
+  {
+    const ids = Array.from({ length: 2000 }, (_, index) => `item-${index}`)
+    benchKeystone(
+      "new-2000-item-model-list",
+      () => ({
+        run: () => {
+          const items = new Array<MutationActionItem>(ids.length)
+          for (let i = 0; i < ids.length; i++) {
+            items[i] = new MutationActionItem({ id: ids[i] })
+          }
+          new MutationActionList({ items })
         },
       }),
       onCycle

@@ -32,14 +32,10 @@ interface DirtyChild {
 const snapshots = new WeakMap<object, SnapshotData>()
 
 // `false` means the generic freezer must traverse this raw value; `true` means
-// it is frozen. `undefined` is either external/untracked data or a fused
-// frozen clone, whose owning SnapshotData tracks its state directly.
-const frozenState = new WeakMap<object, boolean>()
-
-// Mutable untransformed snapshot containers are the only raw values whose
-// frozen state must be reflected back into their owning SnapshotData. Fused
-// frozen clones deliberately have no entry here or in frozenState.
-const mutableSnapshotDataByValue = new WeakMap<object, SnapshotData>()
+// it is frozen; a SnapshotData value means it is mutable and its frozen state
+// must be reflected back into that owner. `undefined` is either external /
+// untracked data or a fused frozen clone, whose owner tracks its state directly.
+const snapshotStates = new WeakMap<object, boolean | SnapshotData>()
 
 /**
  * @internal
@@ -61,7 +57,10 @@ export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any
       throw failure("assertion failed: cannot unset an internal snapshot with dirty children")
     }
     oldSn.isUnset = true
-    mutableSnapshotDataByValue.delete(oldSn.untransformed)
+    if (snapshotStates.get(oldSn.untransformed) === oldSn) {
+      // Preserve the former frozen-state tracking after dropping the owner.
+      snapshotStates.set(oldSn.untransformed, false)
+    }
     snapshots.delete(value)
     oldSn.atom?.reportChanged()
   }
@@ -93,13 +92,10 @@ export const setNewInternalSnapshot = action(
       isUnset: false,
     }
 
-    frozenState.set(untransformed, markAsFrozen)
-    if (!markAsFrozen) {
-      mutableSnapshotDataByValue.set(untransformed, sn)
-    }
+    snapshotStates.set(untransformed, markAsFrozen ? true : sn)
 
     if (transformed !== undefined && transformed !== untransformed) {
-      frozenState.set(transformed, markAsFrozen)
+      snapshotStates.set(transformed, markAsFrozen)
     }
 
     snapshots.set(value, sn)
@@ -134,15 +130,14 @@ function setSnapshotData(sn: SnapshotData, untransformed: any, freezeIfCloned = 
   const keepFrozen = freezeIfCloned && wasFrozen && !sn.transformFn
   sn.untransformedFrozen = keepFrozen
   if (wasFrozen && !keepFrozen) {
-    frozenState.set(untransformed, false)
-    mutableSnapshotDataByValue.set(untransformed, sn)
+    snapshotStates.set(untransformed, sn)
   }
   if (
     sn.transformFn &&
     transformed !== undefined &&
     (!wasFrozen || transformed !== untransformed)
   ) {
-    frozenState.set(transformed, false)
+    snapshotStates.set(transformed, false)
   }
 }
 
@@ -333,8 +328,8 @@ export const refreshInternalSnapshot = action("refreshInternalSnapshot", (value:
 
   // transformed snapshots created by internal transforms must be tracked as mutable
   // until they are exposed through getSnapshot / freezeInternalSnapshot.
-  if (frozenState.get(newTransformed) === undefined) {
-    frozenState.set(newTransformed, false)
+  if (snapshotStates.get(newTransformed) === undefined) {
+    snapshotStates.set(newTransformed, false)
   }
 
   sn.atom?.reportChanged()
@@ -362,9 +357,9 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
   // `undefined` means external/untracked data (for example, from a transform).
   // For a tracked frozen value, all reachable tracked descendants were frozen
   // first, so returning early here preserves snapshot immutability.
-  const isFrozen = frozenState.get(data)
+  const state = snapshotStates.get(data)
 
-  if (isFrozen === undefined || isFrozen) {
+  if (state === undefined || state === true) {
     // already frozen or an external data (e.g. from a transform)
     return data
   }
@@ -380,12 +375,10 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
     }
   }
 
-  frozenState.set(data, true)
+  snapshotStates.set(data, true)
 
-  const mutableSn = mutableSnapshotDataByValue.get(data)
-  if (mutableSn?.untransformed === data) {
-    mutableSn.untransformedFrozen = true
-    mutableSnapshotDataByValue.delete(data)
+  if (typeof state === "object" && state.untransformed === data) {
+    state.untransformedFrozen = true
   }
 
   return data

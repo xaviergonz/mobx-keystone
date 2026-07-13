@@ -1,6 +1,7 @@
 import { writeFileSync } from "node:fs"
 import { Session } from "node:inspector"
 import {
+  createModelConstructionProfile,
   createModelHydrationProfile,
   createObservedSnapshotProfile,
   createRunUnprotectedReverseProfile,
@@ -12,6 +13,9 @@ const scenario = process.env.PROFILE_SCENARIO ?? "reverse"
 const rebuildInsideBatch = process.env.PROFILE_FORCE_REBUILD === "true"
 let run: () => void
 switch (scenario) {
+  case "model-construction":
+    run = createModelConstructionProfile()
+    break
   case "model-hydration":
     run = createModelHydrationProfile()
     break
