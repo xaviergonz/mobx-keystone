@@ -1,5 +1,5 @@
 import { isObservable } from "mobx"
-import { fromSnapshot, getSnapshot, modelSnapshotInWithMetadata } from "../../src"
+import { fromSnapshot, getSnapshot, modelSnapshotInWithMetadata, runUnprotected } from "../../src"
 import { P, P2 } from "../testbed"
 
 const snapshot = modelSnapshotInWithMetadata(P, {
@@ -62,4 +62,40 @@ test("caller-owned snapshot mutation does not affect the hydrated tree", () => {
   input.values.push(5)
 
   expect(getSnapshot(node)).toStrictEqual({ child: { value: 1 }, values: [2, 3] })
+})
+
+test("scalar model snapshots remain detached from input and copy on write", () => {
+  const input = modelSnapshotInWithMetadata(P2, { $modelId: "id-1", y: 12 })
+  const node = fromSnapshot(P2, input)
+
+  input.y = 13
+  expect(getSnapshot(node)).toStrictEqual(
+    modelSnapshotInWithMetadata(P2, { $modelId: "id-1", y: 12 })
+  )
+
+  runUnprotected(() => {
+    node.y = 14
+  })
+  expect(getSnapshot(node)).toStrictEqual(
+    modelSnapshotInWithMetadata(P2, { $modelId: "id-1", y: 14 })
+  )
+})
+
+test("scalar model defaults retain their hydrated snapshot", () => {
+  const node = fromSnapshot(P2, modelSnapshotInWithMetadata(P2, { $modelId: "id-1" }))
+
+  expect(getSnapshot(node)).toStrictEqual(
+    modelSnapshotInWithMetadata(P2, { $modelId: "id-1", y: 10 })
+  )
+})
+
+test("generateNewIds keeps the hydrated snapshot ID in sync", () => {
+  const node = fromSnapshot(
+    P2,
+    modelSnapshotInWithMetadata(P2, { $modelId: "snapshot-id", y: 12 }),
+    { generateNewIds: true }
+  )
+
+  expect(node.$modelId).not.toBe("snapshot-id")
+  expect(getSnapshot(node).$modelId).toBe(node.$modelId)
 })

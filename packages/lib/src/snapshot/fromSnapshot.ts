@@ -10,6 +10,7 @@ import {
   getCurrentErrorDiagnosticsContext,
   runWithErrorDiagnosticsContext,
 } from "../utils/errorDiagnostics"
+import { setModelInitialDataSnapshot } from "./modelInitialData"
 import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 import { SnapshotProcessingError } from "./SnapshotProcessingError"
@@ -182,6 +183,7 @@ function snapshotToInitialData(
   processedSn: SnapshotInOfModel<AnyModel>
 ): any {
   const initialData: Record<string, unknown> = {}
+  let allValuesPrimitive = true
   // Model hydration visits every data slot. Keep this direct stack use rather
   // than withErrorPathSegment: it avoids one callback closure per slot and
   // has a measured production hydration win.
@@ -200,6 +202,7 @@ function snapshotToInitialData(
       } finally {
         errorDiagnosticsContext?.popPath()
       }
+      allValuesPrimitive &&= isPrimitive(snapshotValue)
       if (k === "__proto__") {
         setProtoProp(initialData, snapshotValue)
       } else {
@@ -207,7 +210,9 @@ function snapshotToInitialData(
       }
     }
   }
-  return observable.object(initialData, undefined, observableOptions)
+  const observableInitialData = observable.object(initialData, undefined, observableOptions)
+  setModelInitialDataSnapshot(observableInitialData, initialData, allValuesPrimitive)
+  return observableInitialData
 }
 
 export const observableOptions = {

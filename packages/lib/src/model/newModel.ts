@@ -19,6 +19,7 @@ import {
   hasGlobalPatchListeners,
 } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
+import { invalidateModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { failure, inDevMode, makePropReadonly } from "../utils"
@@ -163,6 +164,10 @@ export const internalFromSnapshotModel = action(
       const initialValue = initialData[modelIdPropertyName]
       const valueChanged = setIfDifferentWithReturn(initialData, modelIdPropertyName, id)
 
+      if (valueChanged) {
+        invalidateModelInitialDataSnapshot(initialData)
+      }
+
       if (valueChanged && shouldEmitPatches) {
         const modelIdPath = [modelIdPropertyName]
 
@@ -204,6 +209,7 @@ export const internalFromSnapshotModel = action(
       if (changed) {
         // setIfDifferent not required
         set(initialData, k, newValue)
+        invalidateModelInitialDataSnapshot(initialData)
 
         if (newValue !== initialValue) {
           if (shouldEmitPatches) {

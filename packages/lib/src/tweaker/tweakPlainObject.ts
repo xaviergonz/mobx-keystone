@@ -28,6 +28,7 @@ import {
   setNewInternalSnapshot,
   updateInternalSnapshot,
 } from "../snapshot/internal"
+import { takeModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import { failure, isPlainObject, isPrimitive, setProtoProp } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers, tweakedObjects } from "./core"
@@ -62,10 +63,14 @@ export function tweakPlainObject<T extends Record<string, any>>(
     false // cloneIfApplicable
   )
 
-  const untransformedSn: any = {}
+  const initialDataSnapshot =
+    isDataObject && snapshotModelType ? takeModelInitialDataSnapshot(tweakedObj) : undefined
+  const reuseInitialDataSnapshot =
+    !!initialDataSnapshot?.reusable && initialDataSnapshot.allValuesPrimitive
+  const untransformedSn: any = reuseInitialDataSnapshot ? initialDataSnapshot.snapshot : {}
 
   // substitute initial values by tweaked values
-  const originalObjKeys = Object.keys(originalObj)
+  const originalObjKeys = reuseInitialDataSnapshot ? [] : Object.keys(originalObj)
   const originalObjKeysLen = originalObjKeys.length
   for (let i = 0; i < originalObjKeysLen; i++) {
     const k = originalObjKeys[i]

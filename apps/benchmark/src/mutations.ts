@@ -121,6 +121,24 @@ export function createObservedSnapshotProfile(options: {
   }
 }
 
+/**
+ * Repeated model hydration for CPU and allocation profiling. This intentionally
+ * uses the same shape as the model-list benchmark below, rather than the
+ * primitive-list control.
+ */
+export function createModelHydrationProfile(): () => void {
+  const snapshot = {
+    items: Array.from({ length: 2_000 }, (_, index) => ({
+      $modelType: "benchmark/MutationActionItem",
+      id: `item-${index}`,
+    })),
+  }
+
+  return () => {
+    fromSnapshot(MutationActionList, snapshot)
+  }
+}
+
 export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult) => void): void {
   benchKeystone(
     "model-action-noop",
