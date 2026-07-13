@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Performance: faster initialization, updates, and change notifications in large trees, especially when no listeners are registered.
+- Performance: no-op `applySnapshot` calls can now skip model/property input snapshot processors when the input equals the model's current canonical output snapshot. Snapshot processors are now explicitly required to be pure, deterministic, and round-trip canonical output to the same stored data.
+- Performance: tree reorders within mobx-keystone actions and `runUnprotected` blocks now coalesce inverse child detach/attach operations, avoiding unnecessary deep-child and ModelPool index rebuilds when membership is unchanged. This also benefits `applySnapshot`, patch batches/undo-redo, and standard array/model actions.
 
 ## 1.22.0
 

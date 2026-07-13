@@ -2,7 +2,8 @@ import type { Path, PathElement, WritablePath } from "../parent/pathTypes"
 
 interface ErrorDiagnosticsContext {
   path: WritablePath
-  modelTrail: string[]
+  modelTrailTypes: string[]
+  modelTrailIds: (string | undefined)[]
 }
 
 const errorDiagnosticsContextStack: ErrorDiagnosticsContext[] = []
@@ -24,7 +25,8 @@ export function runWithErrorDiagnosticsContext<T>(fn: () => T): T {
 
   const ctx: ErrorDiagnosticsContext = {
     path: [],
-    modelTrail: [],
+    modelTrailTypes: [],
+    modelTrailIds: [],
   }
   errorDiagnosticsContextStack.push(ctx)
   try {
@@ -112,12 +114,13 @@ export function withErrorModelTrailEntry<T>(
     return fn()
   }
 
-  const entry = formatErrorModelTrailEntry(modelType, modelId)
-  ctx.modelTrail.push(entry)
+  ctx.modelTrailTypes.push(modelType)
+  ctx.modelTrailIds.push(modelId)
   try {
     return fn()
   } finally {
-    ctx.modelTrail.pop()
+    ctx.modelTrailTypes.pop()
+    ctx.modelTrailIds.pop()
   }
 }
 
@@ -134,7 +137,13 @@ export function getErrorPathSnapshot(): Path | undefined {
  */
 export function getErrorModelTrailSnapshot(): readonly string[] | undefined {
   const ctx = getCurrentErrorDiagnosticsContext()
-  return ctx && ctx.modelTrail.length > 0 ? [...ctx.modelTrail] : undefined
+  if (!ctx || ctx.modelTrailTypes.length <= 0) {
+    return undefined
+  }
+
+  return ctx.modelTrailTypes.map((modelType, index) =>
+    formatErrorModelTrailEntry(modelType, ctx.modelTrailIds[index])
+  )
 }
 
 /**

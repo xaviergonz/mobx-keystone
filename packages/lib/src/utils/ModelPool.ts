@@ -10,12 +10,11 @@ import {
   registerDeepObjectChildrenExtension,
 } from "../parent/coreObjectChildren"
 
-function byModelTypeAndIdKey(modelType: string, modelId: string) {
-  return JSON.stringify([modelType, modelId])
-}
+type ModelsById = Map<string, AnyModel>
+type ModelsByTypeAndId = Map<string, ModelsById>
 
 export class ModelPool {
-  private pool: ReadonlyMap<string, AnyModel>
+  private pool: ReadonlyMap<string, ReadonlyMap<string, AnyModel>>
 
   constructor(root: object) {
     // make sure we don't use the sub-data $ object
@@ -25,7 +24,7 @@ export class ModelPool {
   }
 
   findModelByTypeAndId(modelType: string, modelId: string | undefined): AnyModel | undefined {
-    return modelId ? this.pool.get(byModelTypeAndIdKey(modelType, modelId)) : undefined
+    return modelId ? this.pool.get(modelType)?.get(modelId) : undefined
   }
 
   findModelForSnapshot(sn: any): AnyModel | undefined {
@@ -43,7 +42,7 @@ export class ModelPool {
   }
 }
 
-const getDeepChildrenModels = registerDeepObjectChildrenExtension<Map<string, AnyModel>>({
+const getDeepChildrenModels = registerDeepObjectChildrenExtension<ModelsByTypeAndId>({
   initData() {
     return new Map()
   },
@@ -52,7 +51,13 @@ const getDeepChildrenModels = registerDeepObjectChildrenExtension<Map<string, An
     if (isModel(node)) {
       const id = node[modelIdKey]
       if (id) {
-        data.set(byModelTypeAndIdKey(node[modelTypeKey], id), node)
+        const modelType = node[modelTypeKey]
+        let modelsById = data.get(modelType)
+        if (!modelsById) {
+          modelsById = new Map()
+          data.set(modelType, modelsById)
+        }
+        modelsById.set(id, node)
       }
     }
   },

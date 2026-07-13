@@ -4,12 +4,14 @@ import {
   applyAction,
   applySnapshot,
   ExtendedModel,
+  getCurrentActionContext,
   getSnapshot,
   idProp,
   Model,
   modelAction,
   modelIdKey,
   prop,
+  runUnprotected,
 } from "../../src"
 import { autoDispose, testModel } from "../utils"
 
@@ -54,6 +56,30 @@ class P extends Model({
     set(this.obj, String(n), n)
   }
 }
+
+test("runUnprotected remains outside the public action context", () => {
+  const p = new P({})
+  let middlewareCalls = 0
+  autoDispose(
+    addActionMiddleware({
+      subtreeRoot: p,
+      middleware(_ctx, next) {
+        middlewareCalls++
+        return next()
+      },
+    })
+  )
+
+  const result = runUnprotected("unrecorded update", () => {
+    expect(getCurrentActionContext()).toBeUndefined()
+    p.x = 2
+    return 7
+  })
+
+  expect(result).toBe(7)
+  expect(p.x).toBe(2)
+  expect(middlewareCalls).toBe(0)
+})
 
 test("action tracking", () => {
   const events: any[] = []

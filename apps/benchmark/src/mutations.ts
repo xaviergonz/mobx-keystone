@@ -1,9 +1,14 @@
 import {
+  applyPatches,
+  arrayActions,
   fromSnapshot,
+  getChildrenObjects,
   getSnapshot,
+  idProp,
   Model,
   ModelAutoTypeCheckingMode,
   model,
+  modelAction,
   onDeepChange,
   onPatches,
   onSnapshot,
@@ -13,23 +18,38 @@ import {
   tProp,
   types,
 } from "mobx-keystone"
-import {
-  benchKeystone,
-  type KeystoneBenchmarkResult,
-  type KeystoneBenchmarkSetup,
-} from "./bench.js"
+import { benchKeystone, type KeystoneBenchmarkResult } from "./bench.js"
 
 @model("benchmark/MutationNode")
 class MutationNode extends Model({
   value: prop(0),
   child: prop<MutationNode | undefined>(),
   other: prop<MutationNode | undefined>(),
-}) {}
+}) {
+  @modelAction
+  noOp() {}
+
+  @modelAction
+  toggleValue() {
+    this.value = this.value === 0 ? 1 : 0
+  }
+}
 
 @model("benchmark/MutationList")
 class MutationList extends Model({
   values: prop<number[]>(() => []),
 }) {}
+
+@model("benchmark/MutationActionItem")
+class MutationActionItem extends Model({ id: idProp }) {}
+
+@model("benchmark/MutationActionList")
+class MutationActionList extends Model({ items: prop<MutationActionItem[]>(() => []) }) {
+  @modelAction
+  rotateFirstToEnd() {
+    this.items.push(this.items.shift()!)
+  }
+}
 
 @model("benchmark/TypedMutationNode")
 class TypedMutationNode extends Model({
@@ -58,20 +78,146 @@ function mutate(node: MutationNode): void {
   })
 }
 
-function addMutationScenario(
-  name: string,
-  setup: () => KeystoneBenchmarkSetup,
-  onCycle: (result: KeystoneBenchmarkResult) => void
-): void {
-  benchKeystone(name, setup, onCycle)
+export function createRunUnprotectedReverseProfile(rebuildInsideBatch: boolean): () => void {
+  const root = new MutationActionList({
+    items: Array.from({ length: 10_000 }, () => new MutationActionItem({})),
+  })
+  getChildrenObjects(root, { deep: true })
+
+  return () => {
+    runUnprotected(() => {
+      root.items.reverse()
+      if (rebuildInsideBatch) {
+        getChildrenObjects(root, { deep: true })
+      }
+    })
+    getChildrenObjects(root, { deep: true })
+  }
 }
 
 export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult) => void): void {
+  benchKeystone(
+    "model-action-noop",
+    () => {
+      const node = new MutationNode({})
+      return { run: () => node.noOp() }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "model-action-scalar",
+    () => {
+      const node = new MutationNode({})
+      return { run: () => node.toggleValue() }
+    },
+    onCycle
+  )
+  benchKeystone("run-unprotected-noop", () => ({ run: () => runUnprotected(() => {}) }), onCycle)
+  benchKeystone(
+    "run-unprotected-scalar",
+    () => {
+      const node = new MutationNode({})
+      return {
+        run: () => {
+          runUnprotected(() => {
+            node.value = node.value === 0 ? 1 : 0
+          })
+        },
+      }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "array-action-swap-1k-models",
+    () => {
+      const root = new MutationActionList({
+        items: Array.from({ length: 1_000 }, () => new MutationActionItem({})),
+      })
+      getChildrenObjects(root, { deep: true })
+      return {
+        run: () => {
+          arrayActions.swap(root.items, 0, root.items.length - 1)
+          getChildrenObjects(root, { deep: true })
+        },
+      }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "apply-patches-move-1k-models",
+    () => {
+      const root = new MutationActionList({
+        items: Array.from({ length: 1_000 }, () => new MutationActionItem({})),
+      })
+      const firstSnapshot = getSnapshot(root.items[0])
+      const secondSnapshot = getSnapshot(root.items[1])
+      let moveFirst = true
+      getChildrenObjects(root, { deep: true })
+      return {
+        run: () => {
+          applyPatches(root, [
+            { op: "remove", path: ["items", 0] },
+            {
+              op: "add",
+              path: ["items", 1],
+              value: moveFirst ? firstSnapshot : secondSnapshot,
+            },
+          ])
+          moveFirst = !moveFirst
+          getChildrenObjects(root, { deep: true })
+        },
+      }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "model-action-rotate-1k-models",
+    () => {
+      const root = new MutationActionList({
+        items: Array.from({ length: 1_000 }, () => new MutationActionItem({})),
+      })
+      getChildrenObjects(root, { deep: true })
+      return {
+        run: () => {
+          root.rotateFirstToEnd()
+          getChildrenObjects(root, { deep: true })
+        },
+      }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "run-unprotected-rotate-1k-models",
+    () => {
+      const root = new MutationActionList({
+        items: Array.from({ length: 1_000 }, () => new MutationActionItem({})),
+      })
+      getChildrenObjects(root, { deep: true })
+      return {
+        run: () => {
+          runUnprotected(() => {
+            root.items.push(root.items.shift()!)
+          })
+          getChildrenObjects(root, { deep: true })
+        },
+      }
+    },
+    onCycle
+  )
+  benchKeystone(
+    "run-unprotected-reverse-10k-models",
+    () => {
+      const run = createRunUnprotectedReverseProfile(false)
+      return { run }
+    },
+    onCycle
+  )
+
   {
     const { leaf } = makeDepth(1)
-    addMutationScenario("shallow-mutate-no-listener", () => ({ run: () => mutate(leaf) }), onCycle)
+    benchKeystone("shallow-mutate-no-listener", () => ({ run: () => mutate(leaf) }), onCycle)
   }
-  addMutationScenario(
+  benchKeystone(
     "shallow-mutate-patch-listener",
     () => {
       const { root, leaf } = makeDepth(1)
@@ -79,7 +225,7 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
     },
     onCycle
   )
-  addMutationScenario(
+  benchKeystone(
     "shallow-mutate-deep-change-listener",
     () => {
       const { root, leaf } = makeDepth(1)
@@ -87,7 +233,7 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
     },
     onCycle
   )
-  addMutationScenario(
+  benchKeystone(
     "shallow-mutate-unrelated-subtree-listener",
     () => {
       const { root, leaf } = makeDepth(1)
@@ -101,7 +247,7 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
   )
 
   for (const depth of [8, 32, 128]) {
-    addMutationScenario(
+    benchKeystone(
       `deep-mutate-d${depth}-no-listener`,
       () => {
         const { leaf } = makeDepth(depth)
@@ -112,7 +258,7 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
   }
 
   for (const depth of [8, 32, 128]) {
-    addMutationScenario(
+    benchKeystone(
       `deep-mutate-d${depth}-root-onSnapshot`,
       () => {
         const { root, leaf } = makeDepth(depth)
@@ -121,7 +267,7 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
       onCycle
     )
   }
-  addMutationScenario(
+  benchKeystone(
     "bulk-mutate-100-in-one-action-d128",
     () => {
       const { root, leaf } = makeDepth(128)
@@ -141,7 +287,7 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
 
   {
     const snapshot = { values: Array.from({ length: 2000 }, (_, index) => index) }
-    addMutationScenario(
+    benchKeystone(
       "fromSnapshot-2000-item-list",
       () => ({
         run: () => {
@@ -151,7 +297,7 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
       onCycle
     )
   }
-  addMutationScenario(
+  benchKeystone(
     "typed-mutate-typecheck-on",
     () => {
       setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })

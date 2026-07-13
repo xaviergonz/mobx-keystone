@@ -101,8 +101,8 @@ export class TypeChecker {
   }
 
   fromSnapshotProcessor = (sn: any): unknown => {
-    // we cannot cache fromSnapshotProcessor since nobody ensures us
-    // the original snapshot won't be tweaked after use
+    // Processor functions are pure and deterministic, but caller-owned object
+    // snapshots may be mutated after use, so identity alone is not a safe key.
     return this._fromSnapshotProcessor(sn)
   }
 

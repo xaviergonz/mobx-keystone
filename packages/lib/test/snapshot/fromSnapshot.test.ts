@@ -53,3 +53,13 @@ test("plain object snapshots preserve __proto__ as data", () => {
   expect(Reflect.get(node.obj, "__proto__")).toStrictEqual({ polluted: true })
   expect(getSnapshot(node)).toStrictEqual(sn)
 })
+
+test("caller-owned snapshot mutation does not affect the hydrated tree", () => {
+  const input = { child: { value: 1 }, values: [2, 3] }
+  const node = fromSnapshot(input)
+
+  input.child.value = 4
+  input.values.push(5)
+
+  expect(getSnapshot(node)).toStrictEqual({ child: { value: 1 }, values: [2, 3] })
+})

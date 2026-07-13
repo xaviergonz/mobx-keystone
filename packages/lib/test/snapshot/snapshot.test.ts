@@ -655,6 +655,227 @@ test("id-full reconciliation", () => {
   expect(r.m.id).toBe(2)
 })
 
+test("applySnapshot preserves identified array models across stable updates, moves, inserts, and deletes", () => {
+  let onInitCalls = 0
+
+  @testModel("applySnapshot/reconcileItem")
+  class Item extends Model({
+    id: idProp,
+    value: prop(0),
+  }) {
+    onInit() {
+      onInitCalls++
+    }
+  }
+
+  @testModel("applySnapshot/reconcileRoot")
+  class Root extends Model({
+    items: prop<Item[]>(() => []),
+  }) {}
+
+  const first = new Item({ id: "first", value: 1 })
+  const second = new Item({ id: "second", value: 2 })
+  const third = new Item({ id: "third", value: 3 })
+  const root = new Root({ items: [first, second, third] })
+  const captured = getSnapshot(root)
+
+  applySnapshot(root, captured)
+  expect(root.items).toHaveLength(3)
+  expect(root.items[0]).toBe(first)
+  expect(root.items[1]).toBe(second)
+  expect(root.items[2]).toBe(third)
+  expect(onInitCalls).toBe(3)
+
+  applySnapshot(root, JSON.parse(JSON.stringify(captured)))
+  expect(root.items).toHaveLength(3)
+  expect(root.items[0]).toBe(first)
+  expect(root.items[1]).toBe(second)
+  expect(root.items[2]).toBe(third)
+  expect(onInitCalls).toBe(3)
+
+  const onePercentStyleUpdate = {
+    ...captured,
+    items: captured.items.map((item) => (item.id === "second" ? { ...item, value: 20 } : item)),
+  }
+  applySnapshot(root, onePercentStyleUpdate)
+  expect(root.items).toHaveLength(3)
+  expect(root.items[0]).toBe(first)
+  expect(root.items[1]).toBe(second)
+  expect(root.items[2]).toBe(third)
+  expect(second.value).toBe(20)
+  expect(onInitCalls).toBe(3)
+
+  const reversed = {
+    ...captured,
+    items: [...captured.items].reverse(),
+  }
+  applySnapshot(root, reversed)
+  expect(root.items).toHaveLength(3)
+  expect(root.items[0]).toBe(third)
+  expect(root.items[1]).toBe(second)
+  expect(root.items[2]).toBe(first)
+  expect(onInitCalls).toBe(3)
+
+  const withInserted = {
+    ...captured,
+    items: [
+      captured.items[0],
+      { ...captured.items[1], id: "inserted", value: 4 },
+      captured.items[1],
+      captured.items[2],
+    ],
+  }
+  applySnapshot(root, withInserted)
+  expect(root.items[0]).toBe(first)
+  expect(root.items[2]).toBe(second)
+  expect(root.items[3]).toBe(third)
+  expect(onInitCalls).toBe(4)
+
+  applySnapshot(root, captured)
+  expect(root.items).toHaveLength(3)
+  expect(root.items[0]).toBe(first)
+  expect(root.items[1]).toBe(second)
+  expect(root.items[2]).toBe(third)
+  expect(onInitCalls).toBe(4)
+})
+
+describe("processor-aware applySnapshot fast path", () => {
+  test("skips pure deterministic model input processors for canonical snapshots", () => {
+    let processorCalls = 0
+
+    @testModel("applySnapshot/inputProcessor")
+    class Processed extends Model(
+      {
+        value: prop(0),
+      },
+      {
+        fromSnapshotProcessor(sn) {
+          processorCalls++
+          return sn
+        },
+      }
+    ) {}
+
+    const model = new Processed({ value: 1 })
+    const snapshot = JSON.parse(JSON.stringify(getSnapshot(model)))
+    processorCalls = 0
+
+    applySnapshot(model, snapshot)
+
+    expect(processorCalls).toBe(0)
+
+    applySnapshot(model, { ...snapshot })
+    expect(processorCalls).toBe(0)
+
+    runUnprotected(() => {
+      model.value = 2
+    })
+    applySnapshot(model, { ...snapshot })
+    expect(processorCalls).toBe(1)
+    expect(model.value).toBe(1)
+  })
+
+  test("accepts canonical and normalized input-processed snapshots", () => {
+    let processorCalls = 0
+
+    @testModel("applySnapshot/inputProcessorNormalized")
+    class Processed extends Model(
+      {
+        value: prop(0),
+      },
+      {
+        fromSnapshotProcessor(sn: any) {
+          processorCalls++
+          return {
+            ...sn,
+            value: Number(sn.value),
+          }
+        },
+        toSnapshotProcessor(sn) {
+          return {
+            ...sn,
+            value: String(sn.value),
+          }
+        },
+      }
+    ) {}
+
+    const model = new Processed({ value: 1 })
+    const inputSnapshot = JSON.parse(JSON.stringify(getSnapshot(model)))
+    processorCalls = 0
+
+    applySnapshot(model, inputSnapshot)
+
+    expect(model.value).toBe(1)
+    expect(processorCalls).toBe(0)
+    expect(getSnapshot(model)).toStrictEqual(inputSnapshot)
+
+    applySnapshot(model, { ...inputSnapshot })
+    expect(processorCalls).toBe(0)
+
+    applySnapshot(model, { ...inputSnapshot, value: "01" })
+    expect(processorCalls).toBe(1)
+    expect(model.value).toBe(1)
+  })
+
+  test("skips pure deterministic property processors for canonical snapshots", () => {
+    let processorCalls = 0
+
+    @testModel("applySnapshot/propertyInputProcessor")
+    class Processed extends Model({
+      value: prop(0).withSnapshotProcessor({
+        fromSnapshot(sn: string) {
+          processorCalls++
+          return Number(sn)
+        },
+        toSnapshot(sn) {
+          return String(sn)
+        },
+      }),
+    }) {}
+
+    const model = new Processed({ value: 1 })
+    const snapshot = JSON.parse(JSON.stringify(getSnapshot(model)))
+    processorCalls = 0
+
+    applySnapshot(model, snapshot)
+    expect(processorCalls).toBe(0)
+
+    applySnapshot(model, { ...snapshot })
+    expect(processorCalls).toBe(0)
+  })
+
+  test("still processes non-canonical caller-owned object inputs", () => {
+    let processorCalls = 0
+
+    @testModel("applySnapshot/objectInputProcessor")
+    class Processed extends Model(
+      { value: prop(0) },
+      {
+        fromSnapshotProcessor(sn: any) {
+          processorCalls++
+          return { $modelType: sn.$modelType, value: sn.nested.value }
+        },
+      }
+    ) {}
+
+    const model = new Processed({ value: 1 })
+    const snapshot = {
+      ...getSnapshot(model),
+      nested: { value: 1 },
+    }
+
+    applySnapshot(model, snapshot)
+    applySnapshot(model, snapshot)
+    expect(processorCalls).toBe(2)
+
+    snapshot.nested.value = 2
+    applySnapshot(model, snapshot)
+    expect(processorCalls).toBe(3)
+    expect(model.value).toBe(2)
+  })
+})
+
 test("applySnapshot should respect default initializers", () => {
   @testModel("M")
   class M extends Model({

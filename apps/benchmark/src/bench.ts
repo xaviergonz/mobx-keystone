@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs"
 import Benchmark from "benchmark"
 import chalk from "chalk"
 
@@ -153,4 +154,18 @@ export function benchKeystone(
     })
     .on("complete", () => dispose?.())
     .run({ async: false })
+}
+
+export function runBenchSuiteToJson(
+  runBenchmarks: (onCycle: (result: KeystoneBenchmarkResult) => void) => void
+): void {
+  const results: Array<{ readonly schemaVersion: 1 } & KeystoneBenchmarkResult> = []
+
+  runBenchmarks((result) => {
+    results.push({ schemaVersion: 1, ...result })
+  })
+
+  if (process.env.BENCH_JSON) {
+    writeFileSync(process.env.BENCH_JSON, `${JSON.stringify(results, undefined, 2)}\n`)
+  }
 }

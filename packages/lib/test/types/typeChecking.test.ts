@@ -760,6 +760,70 @@ test("applySnapshot rolls back on auto typecheck errors", () => {
   expect(m.nested.x).toBe(1)
 })
 
+test("applySnapshot rolls back model data on auto typecheck errors", () => {
+  @testModel("AutoTypecheckApplyModelSnapshotRollback/Child")
+  class Child extends Model({
+    value: tProp(types.number, 1),
+  }) {}
+
+  const positiveChild = types.refinement(
+    types.model(Child),
+    (child) => child.value > 0,
+    "positiveChild"
+  )
+
+  @testModel("AutoTypecheckApplyModelSnapshotRollback/Root")
+  class Root extends Model({
+    child: tProp(positiveChild),
+  }) {}
+
+  const root = new Root({ child: new Child({}) })
+  const beforeSnapshot = getSnapshot(root.child)
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  try {
+    expect(() =>
+      applySnapshot(root.child, {
+        ...beforeSnapshot,
+        value: -1,
+      })
+    ).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  }
+
+  expect(root.child.value).toBe(1)
+})
+
+test("applySnapshot rolls back arrays on ancestor refinement errors", () => {
+  @testModel("AutoTypecheckApplyArraySnapshotRollback/Child")
+  class Child extends Model({
+    values: prop<number[]>(() => []),
+  }) {}
+
+  const shortChild = types.refinement(
+    types.model(Child),
+    (child) => child.values.length <= 1,
+    "shortChild"
+  )
+
+  @testModel("AutoTypecheckApplyArraySnapshotRollback/Root")
+  class Root extends Model({
+    child: tProp(shortChild),
+  }) {}
+
+  const root = new Root({ child: new Child({ values: [1] }) })
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  try {
+    expect(() => applySnapshot(root.child.values, [1, 2])).toThrow(TypeCheckErrorFailure)
+  } finally {
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  }
+
+  expect([...root.child.values]).toStrictEqual([1])
+})
+
 @testModel("AutoTypecheckUntypedOnlyModel")
 class AutoTypecheckUntypedOnlyModel extends Model({
   value: prop(1),

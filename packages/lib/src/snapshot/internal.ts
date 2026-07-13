@@ -1,9 +1,9 @@
 import { action, createAtom, type IAtom } from "mobx"
 import { fastGetParentPath } from "../parent/path"
+import type { PathElement } from "../parent/pathTypes"
 import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
 import { clonePlainObject, failure, inDevMode, isPrimitive, setOwnProp } from "../utils"
 import type { PrimitiveValue } from "../utils/types"
-import { PathElement } from "../parent/pathTypes"
 
 /**
  * @internal

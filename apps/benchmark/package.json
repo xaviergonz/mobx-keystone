@@ -10,7 +10,10 @@
     "build": "shx rm -rf dist && tsc -p .",
     "bench-only": "cross-env NODE_ENV=production node dist/index.js",
     "bench": "pnpm run build && pnpm run bench-only",
-    "bench:mutations": "cross-env NODE_ENV=production node dist/mutationBench.js"
+    "bench:mutations": "cross-env NODE_ENV=production node dist/mutationBench.js",
+    "bench:apply-snapshot": "cross-env NODE_ENV=production node dist/applySnapshotBench.js",
+    "profile:apply-snapshot": "cross-env NODE_ENV=production node dist/applySnapshotProfile.js",
+    "profile:mutations": "cross-env NODE_ENV=production node dist/mutationProfile.js"
   },
   "peerDependencies": {
     "mobx": "^6.0.0"

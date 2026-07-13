@@ -1,4 +1,7 @@
-import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
+import {
+  isTypeCheckingAfterChangeEnabled,
+  runTypeCheckingAfterChange,
+} from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isArray } from "../utils"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
@@ -20,7 +23,8 @@ function reconcileArraySnapshot(
     return fromSnapshot(sn)
   }
 
-  const snapshotBeforeChanges = getSnapshot(value)
+  const typeCheckingAfterChangeEnabled = isTypeCheckingAfterChangeEnabled()
+  const snapshotBeforeChanges = typeCheckingAfterChangeEnabled ? getSnapshot(value) : undefined
 
   withoutTypeChecking(() => {
     // remove excess items
@@ -52,7 +56,9 @@ function reconcileArraySnapshot(
     }
   })
 
-  runTypeCheckingAfterChange(value, undefined, snapshotBeforeChanges)
+  if (typeCheckingAfterChangeEnabled) {
+    runTypeCheckingAfterChange(value, undefined, snapshotBeforeChanges)
+  }
 
   return value
 }

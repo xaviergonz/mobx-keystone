@@ -141,6 +141,9 @@ export interface ModelProp<
    *
    * `fromSnapshot` runs before assigning snapshot data into the model prop.
    * `toSnapshot` runs when exporting model data back to snapshot form.
+   * Both processors must be pure and deterministic, and their canonical output
+   * must round-trip to the same stored value. Reconciliation and snapshot
+   * generation may skip calls when that canonical snapshot is already current.
    */
   withSnapshotProcessor<
     FS = TFromSnapshotOverride,

@@ -109,6 +109,11 @@ A type that represents any string value.
 
 Creates a reusable typed codec whose runtime value differs from its encoded snapshot value.
 
+Codec transforms must be pure and deterministic, and `transform`/`untransform`
+must round-trip canonical values. The library may skip or reuse conversions for
+an already-current canonical value, so transforms must not rely on side effects
+or external mutable state.
+
 ```ts
 const urlType = types.codec({
   typeName: "url",

@@ -13,6 +13,7 @@ import {
 import { isModelAction, modelActionSymbol } from "./isModelAction"
 import { getPerObjectActionMiddlewares } from "./middleware"
 import type { FlowFinisher } from "./modelFlow"
+import { finishMutationBatch, startMutationBatch } from "./mutationBatch"
 import { tryRunPendingActions } from "./pendingActions"
 
 /**
@@ -100,6 +101,7 @@ export function wrapInAction<T extends Function>({
       return filterPassed ? mwareData.middleware(context, runNextMiddleware) : runNextMiddleware()
     }
 
+    const mutationBatchOwner = startMutationBatch()
     try {
       const ret = runNextMiddleware()
 
@@ -117,7 +119,9 @@ export function wrapInAction<T extends Function>({
       }
     } finally {
       setCurrentActionContext(context.parentContext)
-
+      if (mutationBatchOwner) {
+        finishMutationBatch()
+      }
       tryRunPendingActions()
     }
   }
