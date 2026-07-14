@@ -123,6 +123,10 @@ function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
 }
 
 const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
+  return updateDeepObjectChildrenRecursive(node)
+})
+
+function updateDeepObjectChildrenRecursive(node: object): DeepObjectChildren {
   const obj = getObjectChildrenObject(node)
   if (!obj.deepDirty) {
     return obj
@@ -151,7 +155,7 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
   while (!childrenIteratorResult.done) {
     addNodeToDeepLists(childrenIteratorResult.value, obj)
 
-    const childDeepChildren = updateDeepObjectChildren(childrenIteratorResult.value).deep
+    const childDeepChildren = updateDeepObjectChildrenRecursive(childrenIteratorResult.value).deep
     const childDeepChildrenIterator = childDeepChildren.values()
     let childDeepChildrenIteratorResult = childDeepChildrenIterator.next()
     while (!childDeepChildrenIteratorResult.done) {
@@ -166,12 +170,14 @@ const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
   obj.deepAtom?.reportChanged()
 
   return obj
-})
+}
 
 /**
+ * Must run inside the action-wrapped `setParent`, its only source caller.
+ *
  * @internal
  */
-export const addObjectChild = action((node: object, child: object) => {
+export function addObjectChild(node: object, child: object): void {
   const obj = getObjectChildrenObject(node)
   const shallow = obj.shallow
   const previousShallowSize = shallow.size
@@ -181,19 +187,21 @@ export const addObjectChild = action((node: object, child: object) => {
   }
 
   onShallowChildrenChanged(node, obj, child, true)
-})
+}
 
 /**
+ * Must run inside the action-wrapped `setParent`, its only source caller.
+ *
  * @internal
  */
-export const removeObjectChild = action((node: object, child: object) => {
+export function removeObjectChild(node: object, child: object): void {
   const obj = getObjectChildrenObject(node)
   if (!obj.shallow.delete(child)) {
     return
   }
 
   onShallowChildrenChanged(node, obj, child, false)
-})
+}
 
 function onShallowChildrenChanged(
   node: object,

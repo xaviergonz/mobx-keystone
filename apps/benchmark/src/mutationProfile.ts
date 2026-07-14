@@ -1,9 +1,11 @@
 import { writeFileSync } from "node:fs"
 import { Session } from "node:inspector"
 import {
+  createDeepIndexConstructionProfile,
   createModelConstructionProfile,
   createModelHydrationProfile,
   createObservedSnapshotProfile,
+  createPlainSubtreeDetachProfile,
   createRunUnprotectedReverseProfile,
 } from "./mutations.js"
 
@@ -13,8 +15,14 @@ const scenario = process.env.PROFILE_SCENARIO ?? "reverse"
 const rebuildInsideBatch = process.env.PROFILE_FORCE_REBUILD === "true"
 let run: () => void
 switch (scenario) {
+  case "deep-index-construction":
+    run = createDeepIndexConstructionProfile()
+    break
   case "model-construction":
     run = createModelConstructionProfile()
+    break
+  case "plain-subtree-detach":
+    run = createPlainSubtreeDetachProfile()
     break
   case "model-hydration":
     run = createModelHydrationProfile()

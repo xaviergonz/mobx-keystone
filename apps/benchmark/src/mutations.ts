@@ -40,6 +40,11 @@ class MutationList extends Model({
   values: prop<number[]>(() => []),
 }) {}
 
+@model("benchmark/PlainSubtreeHolder")
+class PlainSubtreeHolder extends Model({
+  value: prop<any[]>(() => []),
+}) {}
+
 @model("benchmark/MutationActionItem")
 class MutationActionItem extends Model({ id: idProp }) {}
 
@@ -131,6 +136,37 @@ export function createModelConstructionProfile(): () => void {
       items[i] = new MutationActionItem({ id: ids[i] })
     }
     new MutationActionList({ items })
+  }
+}
+
+/** Repeated construction followed by first-time materialization of the deep-child index. */
+export function createDeepIndexConstructionProfile(): () => void {
+  const ids = Array.from({ length: 2_000 }, (_, index) => `item-${index}`)
+
+  return () => {
+    const items = new Array<MutationActionItem>(ids.length)
+    for (let i = 0; i < ids.length; i++) {
+      items[i] = new MutationActionItem({ id: ids[i] })
+    }
+    const root = new MutationActionList({ items })
+    getChildrenObjects(root, { deep: true })
+  }
+}
+
+/** Repeated recursive untweaking and retweaking of a plain-object/array subtree. */
+export function createPlainSubtreeDetachProfile(): () => void {
+  const value = Array.from({ length: 1_000 }, (_, index) => ({
+    child: { value: index },
+    values: [index, index + 1],
+  }))
+  const root = new PlainSubtreeHolder({ value })
+
+  return () => {
+    runUnprotected(() => {
+      const oldValue = root.value
+      root.value = []
+      root.value = oldValue
+    })
   }
 }
 
