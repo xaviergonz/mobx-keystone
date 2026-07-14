@@ -1,12 +1,8 @@
 import { createAtom, type IAtom } from "mobx"
 import { isModel } from "../model/utils"
+import { treeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { getOrCreate } from "../utils/mapUtils"
 import type { ParentPath } from "./path"
-
-/**
- * @internal
- */
-export const objectParents = new WeakMap<object, ParentPath<object> | undefined>()
 
 const objectParentsAtoms = new WeakMap<object, IAtom>()
 
@@ -44,16 +40,26 @@ export function reportParentPathChanged(node: object) {
   objectParentsAtoms.get(node)?.reportChanged()
 }
 
-/**
- * @internal
- */
-export const dataObjectParent = new WeakMap<object, object>()
+/** @internal */
+export function getDataObjectParent(node: object): object | undefined {
+  return treeNodeMetadata.get(node)?.dataObjectParent
+}
+
+/** @internal */
+export function hasDataObjectParent(node: object): boolean {
+  return treeNodeMetadata.get(node)?.dataObjectParent !== undefined
+}
+
+/** @internal */
+export function setDataObjectParent(node: object, parent: object): void {
+  treeNodeMetadata.get(node)!.dataObjectParent = parent
+}
 
 /**
  * @internal
  */
 export function dataToModelNode<T extends object>(node: T): T {
-  const modelNode = dataObjectParent.get(node)
+  const modelNode = getDataObjectParent(node)
   return (modelNode as T | undefined) ?? node
 }
 

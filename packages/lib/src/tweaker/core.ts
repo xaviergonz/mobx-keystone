@@ -1,17 +1,13 @@
 import { runInAction } from "mobx"
-import { dataObjectParent } from "../parent/core"
+import { hasDataObjectParent } from "../parent/core"
 import { failure, isPrimitive } from "../utils"
+import { treeNodeMetadata } from "./treeNodeMetadata"
 
 type Untweaker = (() => void) & {
   [secondaryUntweakerSymbol]?: () => void
 }
 
 const secondaryUntweakerSymbol = Symbol("secondaryUntweaker")
-
-/**
- * @internal
- */
-export const tweakedObjects = new WeakMap<object, undefined | Untweaker>()
 
 /**
  * Stores two existing cleanup functions without allocating a third function to
@@ -25,17 +21,17 @@ export function setTweakedObjectUntweakers(
   secondaryUntweaker: () => void
 ): void {
   primaryUntweaker[secondaryUntweakerSymbol] = secondaryUntweaker
-  tweakedObjects.set(value, primaryUntweaker)
+  treeNodeMetadata.get(value)!.untweaker = primaryUntweaker
 }
 
 /**
  * @internal
  */
 export function isTweakedObject(value: unknown, canBeDataObject: boolean): value is object {
-  if (!canBeDataObject && dataObjectParent.has(value as object)) {
+  if (!canBeDataObject && hasDataObjectParent(value as object)) {
     return false
   }
-  return tweakedObjects.has(value as object)
+  return treeNodeMetadata.get(value as object)?.tweaked === true
 }
 
 /**
@@ -64,7 +60,7 @@ export function assertTweakedObject(
   argName: string,
   canBeDataObject = false
 ): asserts treeNode is object {
-  if (!canBeDataObject && dataObjectParent.has(treeNode as object)) {
+  if (!canBeDataObject && hasDataObjectParent(treeNode as object)) {
     throw failure(`${argName} must be the model object instance instead of the '$' sub-object`)
   }
   if (isPrimitive(treeNode) || !isTweakedObject(treeNode, true)) {

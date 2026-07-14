@@ -1,6 +1,7 @@
 import { action, createAtom, type IAtom } from "mobx"
 import { fastGetParentPath } from "../parent/path"
 import type { PathElement } from "../parent/pathTypes"
+import { getOrCreateTreeNodeMetadata, treeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { invalidateCachedToSnapshotProcessorResult } from "../types/TypeChecker"
 import { clonePlainObject, failure, inDevMode, isPrimitive, setProtoProp } from "../utils"
 import type { PrimitiveValue } from "../utils/types"
@@ -29,8 +30,6 @@ interface DirtyChild {
   readonly path: PathElement
 }
 
-const snapshots = new WeakMap<object, SnapshotData>()
-
 // `false` means the generic freezer must traverse this raw value; `true` means
 // it is frozen; a SnapshotData value means it is mutable and its frozen state
 // must be reflected back into that owner. `undefined` is either external /
@@ -43,27 +42,33 @@ const snapshotStates = new WeakMap<object, boolean | SnapshotData>()
 export function getInternalSnapshot<T extends object>(
   value: T
 ): Readonly<SnapshotData> | undefined {
-  return snapshots.get(value)
+  return treeNodeMetadata.get(value)?.snapshot as SnapshotData | undefined
 }
 
 /**
  * @internal
  */
 export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any) => {
-  const oldSn = snapshots.get(value)
-
-  if (oldSn) {
-    if (inDevMode && oldSn.dirtyChild !== undefined) {
-      throw failure("assertion failed: cannot unset an internal snapshot with dirty children")
-    }
-    oldSn.isUnset = true
-    if (snapshotStates.get(oldSn.untransformed) === oldSn) {
-      // Preserve the former frozen-state tracking after dropping the owner.
-      snapshotStates.set(oldSn.untransformed, false)
-    }
-    snapshots.delete(value)
-    oldSn.atom?.reportChanged()
+  const metadata = treeNodeMetadata.get(value)
+  if (!metadata) {
+    return
   }
+
+  const oldSn = metadata.snapshot as SnapshotData | undefined
+  if (!oldSn) {
+    return
+  }
+
+  if (inDevMode && oldSn.dirtyChild !== undefined) {
+    throw failure("assertion failed: cannot unset an internal snapshot with dirty children")
+  }
+  oldSn.isUnset = true
+  if (snapshotStates.get(oldSn.untransformed) === oldSn) {
+    // Preserve the former frozen-state tracking after dropping the owner.
+    snapshotStates.set(oldSn.untransformed, false)
+  }
+  metadata.snapshot = undefined
+  oldSn.atom?.reportChanged()
 })
 
 /**
@@ -98,7 +103,7 @@ export const setNewInternalSnapshot = action(
       snapshotStates.set(transformed, markAsFrozen)
     }
 
-    snapshots.set(value, sn)
+    getOrCreateTreeNodeMetadata(value).snapshot = sn
 
     sn.atom?.reportChanged()
   }
@@ -241,7 +246,7 @@ function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: bo
  * @internal
  */
 export function flushInternalSnapshot(value: object, freezeAfterFlush: boolean): void {
-  const sn = snapshots.get(value)
+  const sn = treeNodeMetadata.get(value)?.snapshot as SnapshotData | undefined
   if (sn) {
     flushDirtyChildren(value, sn, freezeAfterFlush)
   }
@@ -257,7 +262,7 @@ function updateAncestorSnapshots(value: object, sn: SnapshotData): void {
       return
     }
 
-    const parentSn = snapshots.get(parentPath.parent)
+    const parentSn = treeNodeMetadata.get(parentPath.parent)?.snapshot as SnapshotData | undefined
     if (!parentSn) {
       return
     }

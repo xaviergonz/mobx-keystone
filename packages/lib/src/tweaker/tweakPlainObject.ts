@@ -31,8 +31,9 @@ import {
 import { takeModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import { failure, isPlainObject, isPrimitive, setProtoProp } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
-import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers, tweakedObjects } from "./core"
+import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
+import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker, tweak } from "./tweak"
 import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
@@ -53,7 +54,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
 
   // Mark it as tweaked before processing children. The cleanup functions are
   // installed after the MobX handlers have been registered.
-  tweakedObjects.set(tweakedObj, undefined)
+  markAsTweakedObject(tweakedObj)
   setParent(
     tweakedObj, // value
     parentPath,

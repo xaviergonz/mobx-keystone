@@ -23,8 +23,9 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
-import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers, tweakedObjects } from "./core"
+import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
+import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker, tweak } from "./tweak"
 import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
@@ -57,7 +58,7 @@ export function tweakArray<T extends any[]>(
 
   // Mark it as tweaked before processing children. The cleanup functions are
   // installed after the MobX handlers have been registered.
-  tweakedObjects.set(tweakedArr, undefined)
+  markAsTweakedObject(tweakedArr)
   setParent(
     tweakedArr, // value
     parentPath,

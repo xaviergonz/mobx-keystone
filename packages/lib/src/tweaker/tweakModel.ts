@@ -1,15 +1,15 @@
 import { isModel } from "../model/utils"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
-import { tweakedObjects } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
+import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker } from "./tweak"
 
 /**
  * @internal
  */
 export function tweakModel<T extends object>(value: T, parentPath: ParentPath<any> | undefined): T {
-  tweakedObjects.set(value, undefined)
+  markAsTweakedObject(value)
   setParent(
     value,
     parentPath,
