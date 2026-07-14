@@ -1,22 +1,22 @@
 import { action, createAtom, type IAtom } from "mobx"
 import { addMutationBatchFinisher, isMutationBatchActive } from "../action/mutationBatch"
+import { getOrCreateTreeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { fastGetParent } from "./path"
 
 interface DeepObjectChildren {
   deep: Set<object>
 
-  extensionsData: Map<object, unknown>
+  extensionsData: Map<object, unknown> | undefined
 }
 
-interface ObjectChildrenData extends DeepObjectChildren {
+/** @internal */
+export interface ObjectChildrenData extends DeepObjectChildren {
   shallow: Set<object>
   shallowAtom: IAtom | undefined // will be created when first observed
 
   deepDirty: boolean
   deepAtom: IAtom | undefined // will be created when first observed
 }
-
-const objectChildren = new WeakMap<object, ObjectChildrenData>()
 
 interface DeepChildrenInvalidationEntry {
   readonly obj: ObjectChildrenData
@@ -65,7 +65,8 @@ function getOrCreateDeepChildrenMutationTransaction(): DeepChildrenMutationTrans
 }
 
 function getObjectChildrenObject(node: object) {
-  let obj = objectChildren.get(node)
+  const metadata = getOrCreateTreeNodeMetadata(node)
+  let obj = metadata.objectChildren
 
   if (!obj) {
     obj = {
@@ -78,7 +79,7 @@ function getObjectChildrenObject(node: object) {
 
       extensionsData: initExtensionsData(),
     }
-    objectChildren.set(node, obj)
+    metadata.objectChildren = obj
   }
 
   return obj
@@ -116,7 +117,7 @@ export function getDeepObjectChildren(node: object): DeepObjectChildren {
 
 function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
   data.deep.add(node)
-  data.extensionsData.forEach((extensionData, dataSymbol) => {
+  data.extensionsData?.forEach((extensionData, dataSymbol) => {
     extensions.get(dataSymbol)!.addNode(node, extensionData)
   })
 }
@@ -340,10 +341,12 @@ export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChil
   extensions.set(dataSymbol, extension)
 
   return (data: DeepObjectChildren): D => {
-    let extensionData = data.extensionsData.get(dataSymbol) as D | undefined
-    if (!data.extensionsData.has(dataSymbol)) {
+    let extensionsData = data.extensionsData
+    let extensionData = extensionsData?.get(dataSymbol) as D | undefined
+    if (!extensionsData?.has(dataSymbol)) {
+      extensionsData = data.extensionsData ??= new Map()
       extensionData = extension.initData()
-      data.extensionsData.set(dataSymbol, extensionData)
+      extensionsData.set(dataSymbol, extensionData)
       data.deep.forEach((node) => {
         extension.addNode(node, extensionData!)
       })
@@ -353,6 +356,10 @@ export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChil
 }
 
 function initExtensionsData(previousData?: ReadonlyMap<object, unknown>) {
+  if (previousData === undefined || previousData.size === 0) {
+    return undefined
+  }
+
   const extensionsData = new Map<object, unknown>()
 
   previousData?.forEach((_, dataSymbol) => {

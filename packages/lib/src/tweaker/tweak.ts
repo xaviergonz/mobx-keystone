@@ -186,7 +186,9 @@ export function tryUntweak(value: any): (() => void) | undefined {
     metadata.tweaked = false
     metadata.untweaker = undefined
     unsetInternalSnapshot(value)
-    if (metadata.dataObjectParent === undefined) {
+    // These associations previously lived in independent WeakMaps and remain
+    // valid across untweak/retweak, so keep their shared record when present.
+    if (metadata.dataObjectParent === undefined && metadata.objectChildren === undefined) {
       treeNodeMetadata.delete(value)
     }
   }

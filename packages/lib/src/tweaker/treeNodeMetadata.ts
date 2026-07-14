@@ -1,15 +1,15 @@
-/**
- * State shared by the core tree-node subsystems. The concrete field types stay
- * private to their owning modules to keep this low-level store dependency-free.
- *
- * @internal
- */
+import type { ObjectChildrenData } from "../parent/coreObjectChildren"
+import type { ParentPath } from "../parent/path"
+import type { SnapshotData } from "../snapshot/internal"
+
+/** @internal */
 export interface TreeNodeMetadata {
   tweaked: boolean
   untweaker: (() => void) | undefined
-  parentPath: unknown
+  parentPath: ParentPath<object> | undefined
   dataObjectParent: object | undefined
-  snapshot: unknown
+  objectChildren: ObjectChildrenData | undefined
+  snapshot: SnapshotData | undefined
 }
 
 /** @internal */
@@ -24,6 +24,7 @@ export function getOrCreateTreeNodeMetadata(value: object): TreeNodeMetadata {
       untweaker: undefined,
       parentPath: undefined,
       dataObjectParent: undefined,
+      objectChildren: undefined,
       snapshot: undefined,
     }
     treeNodeMetadata.set(value, metadata)

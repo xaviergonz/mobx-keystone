@@ -11,7 +11,8 @@ import type { PrimitiveValue } from "../utils/types"
  */
 export type SnapshotTransformFn = (sn: unknown) => unknown
 
-interface SnapshotData {
+/** @internal */
+export interface SnapshotData {
   untransformed: any
   readonly transformFn: SnapshotTransformFn | undefined
   transformed: any
@@ -42,7 +43,7 @@ const snapshotStates = new WeakMap<object, boolean | SnapshotData>()
 export function getInternalSnapshot<T extends object>(
   value: T
 ): Readonly<SnapshotData> | undefined {
-  return treeNodeMetadata.get(value)?.snapshot as SnapshotData | undefined
+  return treeNodeMetadata.get(value)?.snapshot
 }
 
 /**
@@ -54,7 +55,7 @@ export const unsetInternalSnapshot = action("unsetInternalSnapshot", (value: any
     return
   }
 
-  const oldSn = metadata.snapshot as SnapshotData | undefined
+  const oldSn = metadata.snapshot
   if (!oldSn) {
     return
   }
@@ -246,7 +247,7 @@ function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: bo
  * @internal
  */
 export function flushInternalSnapshot(value: object, freezeAfterFlush: boolean): void {
-  const sn = treeNodeMetadata.get(value)?.snapshot as SnapshotData | undefined
+  const sn = treeNodeMetadata.get(value)?.snapshot
   if (sn) {
     flushDirtyChildren(value, sn, freezeAfterFlush)
   }
@@ -262,7 +263,7 @@ function updateAncestorSnapshots(value: object, sn: SnapshotData): void {
       return
     }
 
-    const parentSn = treeNodeMetadata.get(parentPath.parent)?.snapshot as SnapshotData | undefined
+    const parentSn = treeNodeMetadata.get(parentPath.parent)?.snapshot
     if (!parentSn) {
       return
     }
