@@ -2,15 +2,10 @@
 
 ## Unreleased
 
-- Performance: typed model props with identity-only input/output snapshot behavior no longer install eager model snapshot processors, and action middleware dispatch avoids redundant subtree checks and recursive filter skipping.
-- Performance: faster initialization, initial runtime type checking, deep-child indexing, updates, and change notifications in large trees, especially when no listeners are registered.
-- Fix cached runtime type-check errors retaining an outdated path after their typed container is moved.
-- Fix cached `types.object(...)` checks under MobX 4 so adding a previously omitted optional property invalidates the cached result.
-- Performance: no-op `applySnapshot` calls can now skip model/property input snapshot processors when the input equals the model's current canonical output snapshot. Snapshot processors are now explicitly required to be pure, deterministic, and round-trip canonical output to the same stored data.
-- Performance: tree reorders within mobx-keystone actions and `runUnprotected` blocks now coalesce inverse child detach/attach operations, avoiding unnecessary deep-child and ModelPool index rebuilds when membership is unchanged. This also benefits `applySnapshot`, patch batches/undo-redo, and standard array/model actions.
-- Performance: `fromSnapshot` now avoids rebuilding the initial internal snapshot for scalar-only model data when no generated IDs or defaults change it.
-- Performance: reduced tree-node and snapshot bookkeeping/garbage-collection overhead across creation, hydration, traversal, mutation copy-on-write, patches, and `getSnapshot` by consolidating internal tweak, parent/model-data, and snapshot-state tracking.
-- Performance: model and data-model type markers no longer create and delete runtime fields for every instance, reducing constructor bookkeeping and improving subsequent model property access while preserving stable `$modelType` and `$` slots.
+- Performance: reduced model and tree bookkeeping across creation, snapshot hydration, traversal, mutation, and `getSnapshot`, especially for large trees.
+- Performance: snapshot processing is now lazy for identity-only typed properties and can skip unchanged canonical snapshots during `applySnapshot`. Snapshot processors must be pure, deterministic, and round-trip canonical output without changing stored data.
+- Performance: reduced index rebuilding and middleware work during tree reorders, batched changes, and action dispatch.
+- Runtime type checking is faster, preserves the correct error path when a typed container moves, and correctly invalidates `types.object(...)` checks when an omitted optional property is added under MobX 4.
 
 ## 1.22.0
 
