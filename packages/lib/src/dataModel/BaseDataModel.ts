@@ -105,9 +105,10 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
         let changed = false
 
         // apply untransform (if any)
-        if (propData._transform) {
+        const transform = propData._getTransform ? propData._getTransform() : propData._transform
+        if (transform) {
           changed = true
-          newValue = propData._transform.untransform(newValue, this, k)
+          newValue = transform.untransform(newValue, this, k)
         }
 
         // apply default value (if needed)

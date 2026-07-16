@@ -8,6 +8,7 @@ import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -28,10 +29,10 @@ import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
  * @returns
  */
 export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
-  const typeInfoGen: TypeInfoGen = (t) => new ArrayTypeInfo(t, resolveStandardType(itemType))
-
-  return lateTypeChecker(() => {
-    const itemChecker = resolveTypeChecker(itemType)
+  const resolvedItemType = resolveStandardType(itemType)
+  const typeInfoGen: TypeInfoGen = (t) => new ArrayTypeInfo(t, resolvedItemType)
+  const typeChecker = lateTypeChecker(() => {
+    const itemChecker = resolveTypeChecker(resolvedItemType)
     const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
@@ -89,29 +90,30 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
         return thisTc
       },
 
-      (sn: unknown[]) => {
-        if (itemChecker.unchecked) {
-          return sn
-        }
+      snapshotProcessorPlan(
+        () => [itemChecker],
+        ([itemProcessor]) =>
+          itemProcessor
+            ? (sn: unknown[]) => {
+                return sn.map((item, i) => withErrorPathSegment(i, () => itemProcessor(item)))
+              }
+            : undefined
+      ),
 
-        return sn.map((item, i) =>
-          withErrorPathSegment(i, () => itemChecker.fromSnapshotProcessor(item))
-        )
-      },
-
-      (sn: unknown[]) => {
-        if (itemChecker.unchecked) {
-          return sn
-        }
-
-        return sn.map((item, i) =>
-          withErrorPathSegment(i, () => itemChecker.toSnapshotProcessor(item))
-        )
-      }
+      snapshotProcessorPlan(
+        () => [itemChecker],
+        ([itemProcessor]) =>
+          itemProcessor
+            ? (sn: unknown[]) => {
+                return sn.map((item, i) => withErrorPathSegment(i, () => itemProcessor(item)))
+              }
+            : undefined
+      )
     )
 
     return thisTc
-  }, typeInfoGen) as any
+  }, typeInfoGen)
+  return typeChecker as any
 }
 
 /**

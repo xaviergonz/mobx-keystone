@@ -1,5 +1,6 @@
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
 import type { AnyStandardType } from "../types/schemas"
+import { lazy } from "../utils"
 import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
 import { getOrCreate } from "../utils/mapUtils"
 import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
@@ -12,6 +13,17 @@ export const noDefaultValue = Symbol("noDefaultValue")
 type SetterMode = boolean | "assign"
 
 export type ModelPropSetterValueTransform<T> = (value: T) => T
+
+/** @internal */
+export interface FullModelPropTransform {
+  transform: (
+    original: unknown,
+    model: object,
+    propName: PropertyKey,
+    setOriginalValue: (newOriginalValue: unknown) => void
+  ) => unknown
+  untransform: (transformed: unknown, model: object, propName: PropertyKey) => unknown
+}
 
 /**
  * A model property.
@@ -42,24 +54,18 @@ export interface ModelProp<
   // True when the declared default is a runtime/transformed value and must be
   // converted before it can be stored in `$`.
   _defaultValueIsTransformed: boolean
+  _getDefaultValueIsTransformed?: () => boolean
   _typeChecker: AnyStandardType | undefined
   _setter: SetterMode
   _setterValueTransform: ((value: unknown) => unknown) | undefined
   _isId: boolean
   _idGenerator?: (() => string) | undefined
-  _transform:
-    | {
-        transform: (
-          original: unknown,
-          model: object,
-          propName: PropertyKey,
-          setOriginalValue: (newOriginalValue: unknown) => void
-        ) => unknown
-        untransform: (transformed: unknown, model: object, propName: PropertyKey) => unknown
-      }
-    | undefined
+  _transform: FullModelPropTransform | undefined
+  _getTransform?: () => FullModelPropTransform | undefined
   _fromSnapshotProcessor?: (sn: unknown) => unknown
   _toSnapshotProcessor?: (sn: unknown) => unknown
+  _getFromSnapshotProcessor?: () => ((sn: unknown) => unknown) | undefined
+  _getToSnapshotProcessor?: () => ((sn: unknown) => unknown) | undefined
 
   /**
    * Adds a setter to the property. The setter will be named `set${CapitalizedPropName}`
@@ -403,13 +409,17 @@ const baseProp: AnyModelProp = {
   _defaultFn: noDefaultValue,
   _defaultValue: noDefaultValue,
   _defaultValueIsTransformed: false,
+  _getDefaultValueIsTransformed: undefined,
   _typeChecker: undefined,
   _setter: false,
   _setterValueTransform: undefined,
   _isId: false,
   _transform: undefined,
+  _getTransform: undefined,
   _fromSnapshotProcessor: undefined,
   _toSnapshotProcessor: undefined,
+  _getFromSnapshotProcessor: undefined,
+  _getToSnapshotProcessor: undefined,
 
   withSetter(modeOrValueTransform?: SetterMode | ModelPropSetterValueTransform<unknown>) {
     const obj: AnyModelProp = Object.create(this)
@@ -421,41 +431,86 @@ const baseProp: AnyModelProp = {
 
   withTransform(transform: ModelPropTransform<unknown, unknown>) {
     const obj: AnyModelProp = Object.create(this)
-    obj._transform = composeFullTransforms(this._transform, toFullTransform(transform))
+    const innerTransform = toFullModelPropTransform(transform)
+    if (this._getTransform) {
+      const oldGet = this._getTransform
+      obj._getTransform = lazy(() => composeFullTransforms(oldGet(), innerTransform))
+      obj._transform = undefined
+    } else {
+      obj._transform = composeFullTransforms(this._transform, innerTransform)
+    }
     return obj
   },
 
   withSnapshotProcessor({ fromSnapshot, toSnapshot }) {
-    let newFromSnapshot: ((sn: any) => any) | undefined
-
-    if (this._fromSnapshotProcessor && fromSnapshot) {
-      const oldFn = this._fromSnapshotProcessor
-      const newFn = fromSnapshot
-      newFromSnapshot = (sn: any) => oldFn(newFn(sn))
-    } else if (fromSnapshot) {
-      newFromSnapshot = fromSnapshot
-    } else {
-      newFromSnapshot = this._fromSnapshotProcessor
-    }
-
-    let newToSnapshot: ((sn: any) => any) | undefined
-
-    if (this._toSnapshotProcessor && toSnapshot) {
-      const oldFn: (sn: unknown) => any = this._toSnapshotProcessor
-      const newFn = toSnapshot
-      newToSnapshot = (sn: unknown) => newFn(oldFn(sn))
-    } else if (toSnapshot) {
-      newToSnapshot = toSnapshot
-    } else {
-      newToSnapshot = this._toSnapshotProcessor
-    }
-
     const obj: AnyModelProp = Object.create(this)
-    obj._fromSnapshotProcessor = newFromSnapshot
-    obj._toSnapshotProcessor = newToSnapshot
+
+    if (fromSnapshot) {
+      const newProcessor = fromSnapshot as (sn: unknown) => unknown
+      if (this._getFromSnapshotProcessor) {
+        const oldGet = this._getFromSnapshotProcessor
+        obj._getFromSnapshotProcessor = lazy(() => {
+          const oldProcessor = oldGet()
+          return oldProcessor ? (sn: unknown) => oldProcessor(newProcessor(sn)) : newProcessor
+        })
+        obj._fromSnapshotProcessor = undefined
+      } else {
+        const oldProcessor = this._fromSnapshotProcessor
+        obj._fromSnapshotProcessor = oldProcessor
+          ? (sn: unknown) => oldProcessor(newProcessor(sn))
+          : newProcessor
+      }
+    }
+
+    if (toSnapshot) {
+      const newProcessor = toSnapshot as (sn: unknown) => unknown
+      if (this._getToSnapshotProcessor) {
+        const oldGet = this._getToSnapshotProcessor
+        obj._getToSnapshotProcessor = lazy(() => {
+          const oldProcessor = oldGet()
+          return oldProcessor ? (sn: unknown) => newProcessor(oldProcessor(sn)) : newProcessor
+        })
+        obj._toSnapshotProcessor = undefined
+      } else {
+        const oldProcessor = this._toSnapshotProcessor
+        obj._toSnapshotProcessor = oldProcessor
+          ? (sn: unknown) => newProcessor(oldProcessor(sn))
+          : newProcessor
+      }
+    }
 
     return obj
   },
+}
+
+/** @internal */
+export function getModelPropFromSnapshotProcessor(
+  modelProp: AnyModelProp
+): ((sn: unknown) => unknown) | undefined {
+  return modelProp._getFromSnapshotProcessor
+    ? modelProp._getFromSnapshotProcessor()
+    : modelProp._fromSnapshotProcessor
+}
+
+/** @internal */
+export function getModelPropToSnapshotProcessor(
+  modelProp: AnyModelProp
+): ((sn: unknown) => unknown) | undefined {
+  return modelProp._getToSnapshotProcessor
+    ? modelProp._getToSnapshotProcessor()
+    : modelProp._toSnapshotProcessor
+}
+
+/** @internal */
+export function getModelPropTransform(modelProp: AnyModelProp): FullModelPropTransform | undefined {
+  return modelProp._getTransform ? modelProp._getTransform() : modelProp._transform
+}
+
+/** @internal */
+export function getModelPropDefaultValueIsTransformed(modelProp: AnyModelProp): boolean {
+  return modelProp._getDefaultValueIsTransformed
+    ? modelProp._getDefaultValueIsTransformed()
+    : modelProp._defaultValueIsTransformed
 }
 
 /**
@@ -568,7 +623,10 @@ const cacheTransformedValueFn = () => {
   cacheTransformResult = true
 }
 
-function toFullTransform(transformObject: ModelPropTransform<unknown, unknown>) {
+/** @internal */
+export function toFullModelPropTransform(
+  transformObject: ModelPropTransform<unknown, unknown>
+): FullModelPropTransform {
   const cache = new WeakMap<
     object,
     Map<PropertyKey, { originalValue: unknown; transformedValue: unknown }>
@@ -633,27 +691,9 @@ function toFullTransform(transformObject: ModelPropTransform<unknown, unknown>) 
 }
 
 function composeFullTransforms(
-  outerTransform:
-    | {
-        transform(
-          originalValue: unknown,
-          model: object,
-          propName: PropertyKey,
-          setOriginalValue: (newOriginalValue: unknown) => void
-        ): unknown
-        untransform(transformedValue: unknown, model: object, propName: PropertyKey): unknown
-      }
-    | undefined,
-  innerTransform: {
-    transform(
-      originalValue: unknown,
-      model: object,
-      propName: PropertyKey,
-      setOriginalValue: (newOriginalValue: unknown) => void
-    ): unknown
-    untransform(transformedValue: unknown, model: object, propName: PropertyKey): unknown
-  }
-) {
+  outerTransform: FullModelPropTransform | undefined,
+  innerTransform: FullModelPropTransform
+): FullModelPropTransform {
   if (!outerTransform) {
     return innerTransform
   }
@@ -702,15 +742,14 @@ export function getModelPropStoredDefaultValue(
   propName: string
 ): unknown | typeof noDefaultValue {
   const defaultValue = getModelPropDefaultValue(propData)
-  if (defaultValue === noDefaultValue || !propData._defaultValueIsTransformed) {
+  if (defaultValue === noDefaultValue || !getModelPropDefaultValueIsTransformed(propData)) {
     return defaultValue
   }
 
-  return propData._transform
+  const transform = getModelPropTransform(propData)
+  return transform
     ? runWithErrorDiagnosticsContext(() =>
-        withErrorPathSegment(propName, () =>
-          propData._transform!.untransform(defaultValue, model, propName)
-        )
+        withErrorPathSegment(propName, () => transform.untransform(defaultValue, model, propName))
       )
     : defaultValue
 }

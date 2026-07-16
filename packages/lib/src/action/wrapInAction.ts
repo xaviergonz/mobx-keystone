@@ -2,6 +2,7 @@ import { action } from "mobx"
 import type { O } from "ts-toolbelt"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
+import { fastGetParent } from "../parent/path"
 import type { AnyFunction } from "../utils/AnyFunction"
 import { copyFunctionMetadata } from "../utils/decorators"
 import {
@@ -15,6 +16,17 @@ import { getPerObjectActionMiddlewares } from "./middleware"
 import type { FlowFinisher } from "./modelFlow"
 import { finishMutationBatch, startMutationBatch } from "./mutationBatch"
 import { tryRunPendingActions } from "./pendingActions"
+
+function isActionTargetInSubtree(target: object, subtreeRoot: object): boolean {
+  let current: object | undefined = target
+  while (current) {
+    if (current === subtreeRoot) {
+      return true
+    }
+    current = fastGetParent(current, false)
+  }
+  return false
+}
 
 /**
  * @internal
@@ -78,27 +90,41 @@ export function wrapInAction<T extends Function>({
     setCurrentActionContext(context)
 
     const perObjectMiddlewares = getPerObjectActionMiddlewares(context.target)
-
     let objectIndex = perObjectMiddlewares.length - 1 // from topmost parent to the object itself
     let objectMwareIndex = 0
+    let scopeMayHaveChanged = false
 
     const runNextMiddleware = (): unknown => {
-      const objectMwares = perObjectMiddlewares[objectIndex]
-      if (!objectMwares) {
-        // no more middlewares, run base action
-        return fn.apply(this, args)
-      }
-      const mwareData = objectMwares[objectMwareIndex]
+      while (objectIndex >= 0) {
+        const objectMwares = perObjectMiddlewares[objectIndex]
+        const mwareData = objectMwares[objectMwareIndex]
 
-      // advance to the next middleware
-      objectMwareIndex++
-      if (objectMwareIndex >= objectMwares.length) {
-        objectMwareIndex = 0
-        objectIndex--
+        // Advance before calling user code so next() continues with the following middleware.
+        objectMwareIndex++
+        if (objectMwareIndex >= objectMwares.length) {
+          objectMwareIndex = 0
+          objectIndex--
+        }
+
+        if (
+          scopeMayHaveChanged &&
+          !isActionTargetInSubtree(context.target, mwareData.subtreeRoot)
+        ) {
+          continue
+        }
+
+        if (mwareData.filter) {
+          scopeMayHaveChanged = true
+          if (!mwareData.filter(context)) {
+            continue
+          }
+        }
+
+        scopeMayHaveChanged = true
+        return mwareData.middleware(context, runNextMiddleware)
       }
 
-      const filterPassed = mwareData.filter ? mwareData.filter(context) : true
-      return filterPassed ? mwareData.middleware(context, runNextMiddleware) : runNextMiddleware()
+      return fn.apply(this, args)
     }
 
     const mutationBatchOwner = startMutationBatch()

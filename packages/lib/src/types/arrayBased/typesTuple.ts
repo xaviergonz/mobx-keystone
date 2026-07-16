@@ -8,6 +8,7 @@ import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -28,10 +29,10 @@ import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
  * @returns
  */
 export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
-  const typeInfoGen: TypeInfoGen = (t) => new TupleTypeInfo(t, itemTypes.map(resolveStandardType))
-
-  return lateTypeChecker(() => {
-    const checkers = itemTypes.map(resolveTypeChecker)
+  const resolvedItemTypes = itemTypes.map(resolveStandardType)
+  const typeInfoGen: TypeInfoGen = (t) => new TupleTypeInfo(t, resolvedItemTypes)
+  const typeChecker = lateTypeChecker(() => {
+    const checkers = resolvedItemTypes.map(resolveTypeChecker)
     const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
@@ -101,21 +102,36 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
         return thisTc
       },
 
-      (array: unknown[]) => {
-        return array.map((item, i) => {
-          return withErrorPathSegment(i, () => checkers[i].fromSnapshotProcessor(item))
-        })
-      },
+      snapshotProcessorPlan(
+        () => checkers,
+        (processors) =>
+          processors.some(Boolean)
+            ? (array: unknown[]) => {
+                return array.map((item, i) => {
+                  const processor = processors[i]
+                  return processor ? withErrorPathSegment(i, () => processor(item)) : item
+                })
+              }
+            : undefined
+      ),
 
-      (array: unknown[]) => {
-        return array.map((item, i) => {
-          return withErrorPathSegment(i, () => checkers[i].toSnapshotProcessor(item))
-        })
-      }
+      snapshotProcessorPlan(
+        () => checkers,
+        (processors) =>
+          processors.some(Boolean)
+            ? (array: unknown[]) => {
+                return array.map((item, i) => {
+                  const processor = processors[i]
+                  return processor ? withErrorPathSegment(i, () => processor(item)) : item
+                })
+              }
+            : undefined
+      )
     )
 
     return thisTc
-  }, typeInfoGen) as any
+  }, typeInfoGen)
+  return typeChecker as any
 }
 
 /**

@@ -3,6 +3,7 @@ import {
   addActionMiddleware,
   applyAction,
   applySnapshot,
+  detach,
   ExtendedModel,
   getCurrentActionContext,
   getSnapshot,
@@ -79,6 +80,75 @@ test("runUnprotected remains outside the public action context", () => {
   expect(result).toBe(7)
   expect(p.x).toBe(2)
   expect(middlewareCalls).toBe(0)
+})
+
+test("action middleware scope follows the target parent chain", () => {
+  const first = new P({})
+  const second = new P({})
+  const calls: string[] = []
+
+  autoDispose(
+    addActionMiddleware({
+      subtreeRoot: first,
+      filter() {
+        calls.push("filtered")
+        return false
+      },
+      middleware(_ctx, next) {
+        calls.push("unexpected")
+        return next()
+      },
+    })
+  )
+  autoDispose(
+    addActionMiddleware({
+      subtreeRoot: first,
+      middleware(ctx, next) {
+        expect(ctx.target).toBe(first.p2)
+        calls.push("matched")
+        return next()
+      },
+    })
+  )
+
+  first.p2.addY(1)
+  second.p2.addY(1)
+
+  expect(calls).toEqual(["filtered", "matched"])
+})
+
+test("action middleware scope is rechecked after parentage changes", () => {
+  const p = new P({})
+  const child = p.p2
+  let laterMiddlewareCalls = 0
+
+  autoDispose(
+    addActionMiddleware({
+      subtreeRoot: p,
+      middleware(ctx, next) {
+        if (ctx.actionName === "addY") {
+          detach(ctx.target)
+        }
+        return next()
+      },
+    })
+  )
+  autoDispose(
+    addActionMiddleware({
+      subtreeRoot: p,
+      middleware(ctx, next) {
+        if (ctx.actionName === "addY") {
+          laterMiddlewareCalls++
+        }
+        return next()
+      },
+    })
+  )
+
+  child.addY(1)
+
+  expect(child.y).toBe(1)
+  expect(laterMiddlewareCalls).toBe(0)
 })
 
 test("action tracking", () => {

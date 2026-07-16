@@ -9,6 +9,7 @@ import type { AnyStandardType, AnyType, RecordType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -30,16 +31,19 @@ import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
  * @returns
  */
 export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
-  const typeInfoGen: TypeInfoGen = (tc) => new RecordTypeInfo(tc, resolveStandardType(valueType))
-
-  return lateTypeChecker(() => {
-    const valueChecker = resolveTypeChecker(valueType)
+  const resolvedValueType = resolveStandardType(valueType)
+  const typeInfoGen: TypeInfoGen = (tc) => new RecordTypeInfo(tc, resolvedValueType)
+  const typeChecker = lateTypeChecker(() => {
+    const valueChecker = resolveTypeChecker(resolvedValueType)
     const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Record<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
-    const applySnapshotProcessor = (obj: Record<string, unknown>, mode: "from" | "to") => {
+    const applySnapshotProcessor = (
+      obj: Record<string, unknown>,
+      processor: (snapshot: any) => unknown
+    ) => {
       if (valueChecker.unchecked) {
         return obj
       }
@@ -49,11 +53,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       const keys = Object.keys(obj)
       for (let i = 0; i < keys.length; i++) {
         const k = keys[i]
-        const v = withErrorPathSegment(k, () =>
-          mode === "from"
-            ? valueChecker.fromSnapshotProcessor(obj[k])
-            : valueChecker.toSnapshotProcessor(obj[k])
-        )
+        const v = withErrorPathSegment(k, () => processor(obj[k]))
         newObj[k] = v
       }
 
@@ -136,17 +136,26 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
         return thisTc
       },
 
-      (obj: Record<string, unknown>) => {
-        return applySnapshotProcessor(obj, "from")
-      },
+      snapshotProcessorPlan(
+        () => [valueChecker],
+        ([processor]) =>
+          processor
+            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processor)
+            : undefined
+      ),
 
-      (obj: Record<string, unknown>) => {
-        return applySnapshotProcessor(obj, "to")
-      }
+      snapshotProcessorPlan(
+        () => [valueChecker],
+        ([processor]) =>
+          processor
+            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processor)
+            : undefined
+      )
     )
 
     return thisTc
-  }, typeInfoGen) as any
+  }, typeInfoGen)
+  return typeChecker as any
 }
 
 /**

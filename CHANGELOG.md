@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Performance: typed model props with identity-only input/output snapshot behavior no longer install eager model snapshot processors, and action middleware dispatch avoids redundant subtree checks and recursive filter skipping.
 - Performance: faster initialization, initial runtime type checking, deep-child indexing, updates, and change notifications in large trees, especially when no listeners are registered.
 - Fix cached runtime type-check errors retaining an outdated path after their typed container is moved.
 - Fix cached `types.object(...)` checks under MobX 4 so adding a previously omitted optional property invalidates the cached result.

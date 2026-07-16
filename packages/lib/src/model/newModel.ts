@@ -78,9 +78,10 @@ export const internalNewModel = action(
       let changed = false
 
       // apply untransform (if any) if not in snapshot mode
-      if (propData._transform) {
+      const transform = propData._getTransform ? propData._getTransform() : propData._transform
+      if (transform) {
         changed = true
-        newValue = propData._transform.untransform(newValue, modelObj, k)
+        newValue = transform.untransform(newValue, modelObj, k)
       }
 
       // apply default value (if needed)

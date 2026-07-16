@@ -49,16 +49,19 @@ export function getSnapshot(...args: [arg1: any] | [arg1: any, arg2: any]): any 
       const storedValue = codecSupport.adapter.toStored(arg2)
 
       if (isPrimitive(storedValue)) {
-        return storedTypeChecker.toSnapshotProcessor(storedValue)
+        const processor = storedTypeChecker.getToSnapshotProcessor()
+        return processor ? processor(storedValue) : storedValue
       }
 
       const storedTree = isTweakedObject(storedValue, true)
         ? storedValue
         : toTreeNode(codecSupport.storedType, storedValue)
-      return storedTypeChecker.toSnapshotProcessor(getSnapshot(storedTree))
+      const storedSnapshot = getSnapshot(storedTree)
+      const processor = storedTypeChecker.getToSnapshotProcessor()
+      return processor ? processor(storedSnapshot) : storedSnapshot
     }
 
-    toSnapshotProcessor = resolveTypeChecker(arg1).toSnapshotProcessor
+    toSnapshotProcessor = resolveTypeChecker(arg1).getToSnapshotProcessor() ?? identityFn
     nodeOrPrimitive = arg2
   } else {
     nodeOrPrimitive = arg1

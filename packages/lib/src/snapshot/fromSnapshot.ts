@@ -91,9 +91,8 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
 
       if (codecSupport.hasCodec) {
         unprocessedSnapshot = arg2
-        snapshot = resolveTypeChecker(codecSupport.storedType).fromSnapshotProcessor(
-          unprocessedSnapshot
-        )
+        const processor = resolveTypeChecker(codecSupport.storedType).getFromSnapshotProcessor()
+        snapshot = processor ? processor(unprocessedSnapshot) : unprocessedSnapshot
         options = arg3
         const storedValue = fromSnapshotAction(snapshot, unprocessedSnapshot, options)
         return codecSupport.adapter.toRuntime(storedValue)
@@ -101,7 +100,8 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
 
       const typeChecker = resolveTypeChecker(resolvedType)
       unprocessedSnapshot = arg2
-      snapshot = typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
+      const processor = typeChecker.getFromSnapshotProcessor()
+      snapshot = processor ? processor(unprocessedSnapshot) : unprocessedSnapshot
       options = arg3
     } else {
       snapshot = arg1

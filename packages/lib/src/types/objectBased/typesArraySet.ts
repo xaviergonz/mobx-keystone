@@ -10,6 +10,7 @@ import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -31,13 +32,13 @@ import { typesObject } from "./typesObject"
  * @returns
  */
 export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArraySet<TypeToData<T>>> {
-  const typeInfoGen: TypeInfoGen = (t) => new ArraySetTypeInfo(t, resolveStandardType(valueType))
-
+  const resolvedValueType = resolveStandardType(valueType)
+  const typeInfoGen: TypeInfoGen = (t) => new ArraySetTypeInfo(t, resolvedValueType)
   return lateTypeChecker(() => {
     const modelInfo = modelInfoByClass.get(ArraySet)!
 
-    const valueChecker = resolveTypeChecker(valueType)
-    const valueSupport = resolveCodecSupport(valueType)
+    const valueChecker = resolveTypeChecker(resolvedValueType)
+    const valueSupport = resolveCodecSupport(resolvedValueType)
     const storedValueChecker = resolveTypeChecker(valueSupport.storedType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
@@ -81,34 +82,43 @@ export function typesArraySet<T extends AnyType>(valueType: T): ModelType<ArrayS
         return resolvedTc.snapshotType(obj) ? thisTc : null
       },
 
-      (sn: { items: unknown[] }) => {
-        const items = withErrorPathSegment("items", () =>
-          sn.items.map((v, i) =>
-            withErrorPathSegment(i, () => storedValueChecker.fromSnapshotProcessor(v))
-          )
-        )
+      snapshotProcessorPlan(
+        () => [storedValueChecker],
+        ([itemProcessor]) =>
+          (sn: { items: unknown[] }) => {
+            const items = itemProcessor
+              ? withErrorPathSegment("items", () =>
+                  sn.items.map((v, i) => withErrorPathSegment(i, () => itemProcessor(v)))
+                )
+              : sn.items
 
-        return {
-          ...sn,
-          [modelTypeKey]: modelInfo.name,
-          items,
-        }
-      },
+            return {
+              ...sn,
+              [modelTypeKey]: modelInfo.name,
+              items,
+            }
+          },
+        true
+      ),
 
-      (sn: { items: unknown[]; [modelTypeKey]?: string }) => {
-        const items = withErrorPathSegment("items", () =>
-          sn.items.map((v, i) =>
-            withErrorPathSegment(i, () => storedValueChecker.toSnapshotProcessor(v))
-          )
-        )
+      snapshotProcessorPlan(
+        () => [storedValueChecker],
+        ([itemProcessor]) =>
+          itemProcessor
+            ? (sn: { items: unknown[]; [modelTypeKey]?: string }) => {
+                const items = withErrorPathSegment("items", () =>
+                  sn.items.map((v, i) => withErrorPathSegment(i, () => itemProcessor(v)))
+                )
 
-        const snCopy = {
-          ...sn,
-          items,
-        }
+                const snCopy = {
+                  ...sn,
+                  items,
+                }
 
-        return snCopy
-      }
+                return snCopy
+              }
+            : undefined
+      )
     )
 
     return thisTc
