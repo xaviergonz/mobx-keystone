@@ -432,6 +432,8 @@ export function propNameToSetterName(propName: string): string {
 export function getMobxVersion(): number {
   if (mobx6.makeObservable!) {
     return 6
+  } else if ("extendShallowObservable" in mobx) {
+    return 4
   } else {
     return 5
   }

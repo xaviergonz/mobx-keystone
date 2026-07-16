@@ -2,7 +2,7 @@ import { isObservableObject, keys } from "mobx"
 import type { Path } from "../../parent/pathTypes"
 import { failure, isObject } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
-import { createPerEntryCachedCheck, recordCachePruning } from "../createPerEntryCachedCheck"
+import { createAdaptiveRecordCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, RecordType } from "../schemas"
@@ -60,26 +60,37 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       return newObj
     }
 
-    const checkRecordValues = createPerEntryCachedCheck(
-      (obj, checkEntry) => {
-        // Use keys() from MobX for observable objects to track key additions/removals
-        // in MobX 4 (which lacks Proxy). Object.keys() doesn't establish MobX tracking
-        // in MobX 4, so the aggregation computed would miss newly added keys.
-        const objKeys = isObservableObject(obj) ? keys(obj) : Object.keys(obj)
-        for (let i = 0; i < objKeys.length; i++) {
-          const error = checkEntry(objKeys[i])
-          if (error) return error
-        }
-        return null
-      },
-      (obj, key, path, typeCheckedValue) => {
-        if (typeof key !== "string") {
-          throw failure(`record type keys must be strings, got ${typeof key}`)
-        }
-        const error = valueChecker.check(obj[key], emptyChildPath, typeCheckedValue)
-        return error ? prependPathElementToTypeCheckError(error, path, key, typeCheckedValue) : null
-      },
-      recordCachePruning
+    const iterateRecordEntries = (
+      obj: Record<string, unknown>,
+      checkEntry: (key: PropertyKey) => TypeCheckError | null
+    ): TypeCheckError | null => {
+      // Use keys() from MobX for observable objects to track key additions/removals
+      // in MobX 4 (which lacks Proxy). Object.keys() doesn't establish MobX tracking
+      // in MobX 4, so the aggregation computed would miss newly added keys.
+      const objKeys = isObservableObject(obj) ? keys(obj) : Object.keys(obj)
+      for (let i = 0; i < objKeys.length; i++) {
+        const error = checkEntry(objKeys[i])
+        if (error) return error
+      }
+      return null
+    }
+
+    const checkRecordEntry = (
+      obj: Record<string, unknown>,
+      key: PropertyKey,
+      path: Path,
+      typeCheckedValue: any
+    ): TypeCheckError | null => {
+      if (typeof key !== "string") {
+        throw failure(`record type keys must be strings, got ${typeof key}`)
+      }
+      const error = valueChecker.check(obj[key], emptyChildPath, typeCheckedValue)
+      return error ? prependPathElementToTypeCheckError(error, path, key, typeCheckedValue) : null
+    }
+
+    const checkRecordValues = createAdaptiveRecordCachedCheck(
+      iterateRecordEntries,
+      checkRecordEntry
     )
 
     const thisTc: TypeChecker = new TypeChecker(

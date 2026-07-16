@@ -19,6 +19,7 @@ import {
   types,
 } from "mobx-keystone"
 import { benchKeystone, type KeystoneBenchmarkResult } from "./bench.js"
+import { TcBigModel } from "./models/ks-typeChecked.js"
 
 @model("benchmark/MutationNode")
 class MutationNode extends Model({
@@ -59,6 +60,63 @@ class MutationActionList extends Model({ items: prop<MutationActionItem[]>(() =>
 @model("benchmark/TypedMutationNode")
 class TypedMutationNode extends Model({
   value: tProp(types.number, 0),
+}) {}
+
+@model("benchmark/TypedMediumMutationNode")
+class TypedMediumMutationNode extends Model({
+  a: tProp(types.number, 0),
+  b: tProp(types.number, 0),
+  c: tProp(types.number, 0),
+  d: tProp(types.number, 0),
+}) {}
+
+@model("benchmark/TypedWideMutationNode")
+class TypedWideMutationNode extends Model({
+  a: tProp(types.number, 0),
+  b: tProp(types.number, 0),
+  c: tProp(types.number, 0),
+  d: tProp(types.number, 0),
+  e: tProp(types.number, 0),
+  f: tProp(types.number, 0),
+  g: tProp(types.number, 0),
+  h: tProp(types.number, 0),
+}) {}
+
+@model("benchmark/TypedTupleMutationNode")
+class TypedTupleMutationNode extends Model({
+  value: tProp(
+    types.tuple(
+      types.number,
+      types.number,
+      types.number,
+      types.number,
+      types.number,
+      types.number,
+      types.number,
+      types.number
+    ),
+    () =>
+      [0, 0, 0, 0, 0, 0, 0, 0] as [number, number, number, number, number, number, number, number]
+  ),
+}) {}
+
+@model("benchmark/TypedArrayMutationNode")
+class TypedArrayMutationNode extends Model({
+  value: tProp(types.array(types.number), () => [0, 0, 0, 0, 0, 0, 0, 0]),
+}) {}
+
+@model("benchmark/TypedRecordMutationNode")
+class TypedRecordMutationNode extends Model({
+  value: tProp(types.record(types.number), () => ({
+    a: 0,
+    b: 0,
+    c: 0,
+    d: 0,
+    e: 0,
+    f: 0,
+    g: 0,
+    h: 0,
+  })),
 }) {}
 
 function makeDepth(depth: number): { root: MutationNode; leaf: MutationNode } {
@@ -188,7 +246,36 @@ export function createModelHydrationProfile(): () => void {
   }
 }
 
+/** Repeated construction of an empty model with a wide runtime type schema. */
+export function createEmptyTypeCheckedModelProfile(): () => void {
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  return () => {
+    new TcBigModel({})
+  }
+}
+
 export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult) => void): void {
+  const benchTypeCheckAlwaysOn = (name: string, createRun: () => () => void): void => {
+    benchKeystone(
+      name,
+      () => {
+        setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+        try {
+          return {
+            run: createRun(),
+            dispose: () => {
+              setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+            },
+          }
+        } catch (error) {
+          setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+          throw error
+        }
+      },
+      onCycle
+    )
+  }
+
   benchKeystone(
     "model-action-noop",
     () => {
@@ -476,22 +563,67 @@ export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
       onCycle
     )
   }
-  benchKeystone(
-    "typed-mutate-typecheck-on",
-    () => {
-      setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
-      const node = new TypedMutationNode({})
-      return {
-        run: () => {
-          runUnprotected(() => {
-            node.value = node.value === 0 ? 1 : 0
-          })
-        },
-        dispose: () => {
-          setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
-        },
-      }
-    },
-    onCycle
-  )
+  benchTypeCheckAlwaysOn("typed-mutate-typecheck-on", () => {
+    const node = new TypedMutationNode({})
+    return () => {
+      runUnprotected(() => {
+        node.value = node.value === 0 ? 1 : 0
+      })
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-medium-mutate-typecheck-on", () => {
+    const node = new TypedMediumMutationNode({})
+    return () => {
+      runUnprotected(() => {
+        node.a = node.a === 0 ? 1 : 0
+      })
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-wide-mutate-typecheck-on", () => {
+    const node = new TypedWideMutationNode({})
+    return () => {
+      runUnprotected(() => {
+        node.a = node.a === 0 ? 1 : 0
+      })
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-tuple-creation-typecheck-on", () => {
+    return () => {
+      new TypedTupleMutationNode({})
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-tuple-mutate-typecheck-on", () => {
+    const node = new TypedTupleMutationNode({})
+    return () => {
+      runUnprotected(() => {
+        node.value[0] = node.value[0] === 0 ? 1 : 0
+      })
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-array-creation-typecheck-on", () => {
+    return () => {
+      new TypedArrayMutationNode({})
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-array-mutate-typecheck-on", () => {
+    const node = new TypedArrayMutationNode({})
+    return () => {
+      runUnprotected(() => {
+        node.value[0] = node.value[0] === 0 ? 1 : 0
+      })
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-record-creation-typecheck-on", () => {
+    return () => {
+      new TypedRecordMutationNode({})
+    }
+  })
+  benchTypeCheckAlwaysOn("typed-record-mutate-typecheck-on", () => {
+    const node = new TypedRecordMutationNode({})
+    return () => {
+      runUnprotected(() => {
+        node.value.a = node.value.a === 0 ? 1 : 0
+      })
+    }
+  })
 }

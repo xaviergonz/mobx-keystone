@@ -60,7 +60,6 @@ import {
   types,
   UncheckedTypeInfo,
 } from "../../src"
-import { __getPerEntryCacheSize } from "../../src/types/createPerEntryCachedCheck"
 import { enumValues } from "../../src/types/primitiveBased/typesEnum"
 import { resolveStandardType, resolveTypeChecker } from "../../src/types/resolveTypeChecker"
 import { autoDispose, testModel } from "../utils"
@@ -1202,6 +1201,291 @@ test("new model with typechecking enabled", () => {
   expect(() => new M({ x: 10, y: 20 as any })).toThrow(
     "TypeCheckError: Expected a value of type <string> but got an incompatible value - Path: /y - Value: 20"
   )
+})
+
+test("fixed object checks cache eagerly and promote to per-entry checks after a change", () => {
+  const checks = [0, 0, 0, 0]
+  const checkedNumber = (index: number) =>
+    types.refinement(types.number, () => {
+      checks[index]++
+      return true
+    })
+
+  @testModel("PromotedFixedObjectTypeCheckCache")
+  class PromotedCacheModel extends Model({
+    a: tProp(checkedNumber(0), 0),
+    b: tProp(checkedNumber(1), 0),
+    c: tProp(checkedNumber(2), 0),
+    d: tProp(checkedNumber(3), 0),
+  }) {
+    @modelAction
+    setA(value: number) {
+      this.a = value
+    }
+  }
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  try {
+    const m = new PromotedCacheModel({})
+    expect(checks).toEqual([1, 1, 1, 1])
+
+    expect(m.typeCheck()).toBeNull()
+    expect(checks).toEqual([1, 1, 1, 1])
+
+    m.setA(1)
+    expect(checks).toEqual([2, 2, 2, 2])
+
+    m.setA(2)
+    expect(checks).toEqual([3, 2, 2, 2])
+  } finally {
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  }
+})
+
+test("object checks invalidate when an omitted optional property is added", () => {
+  @testModel("AddedOptionalObjectPropertyTypeCheckCache")
+  class AddedOptionalObjectPropertyModel extends Model({
+    value: tProp(
+      types.object(() => ({
+        optional: types.maybe(types.refinement(types.number, (value) => value >= 0)),
+      })),
+      () => ({})
+    ),
+  }) {
+    @modelAction
+    setOptional(value: number) {
+      set(this.value, "optional", value)
+    }
+  }
+
+  const m = new AddedOptionalObjectPropertyModel({})
+  expect(m.typeCheck()).toBeNull()
+
+  m.setOptional(-1)
+  expect(m.value.optional).toBe(-1)
+  expect(m.typeCheck()?.path).toEqual(["value", "optional"])
+})
+
+test("record checks cache eagerly and promote to per-entry checks after a change", () => {
+  let checks = 0
+  const checkedNumber = types.refinement(types.number, () => {
+    checks++
+    return true
+  })
+
+  @testModel("PromotedRecordTypeCheckCache")
+  class PromotedRecordCacheModel extends Model({
+    value: tProp(types.record(checkedNumber), () => ({ a: 0, b: 0, c: 0, d: 0 })),
+  }) {
+    @modelAction
+    set(key: string, value: number) {
+      this.value[key] = value
+    }
+  }
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  try {
+    const m = new PromotedRecordCacheModel({})
+    expect(checks).toBe(4)
+
+    expect(m.typeCheck()).toBeNull()
+    expect(checks).toBe(4)
+
+    m.set("a", 1)
+    expect(checks).toBe(8)
+
+    m.set("a", 2)
+    expect(checks).toBe(9)
+
+    m.set("b", 1)
+    expect(checks).toBe(10)
+  } finally {
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  }
+})
+
+test("tuple checks cache the complete array as one MobX dependency", () => {
+  const checks = [0, 0, 0, 0]
+  const checkedNumber = (index: number) =>
+    types.refinement(types.number, () => {
+      checks[index]++
+      return true
+    })
+
+  @testModel("PromotedTupleTypeCheckCache")
+  class PromotedTupleCacheModel extends Model({
+    value: tProp(
+      types.tuple(checkedNumber(0), checkedNumber(1), checkedNumber(2), checkedNumber(3))
+    ),
+  }) {
+    @modelAction
+    setFirst(value: number) {
+      this.value[0] = value
+    }
+  }
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  try {
+    const m = new PromotedTupleCacheModel({ value: [0, 0, 0, 0] })
+    expect(checks).toEqual([1, 1, 1, 1])
+
+    expect(m.typeCheck()).toBeNull()
+    expect(checks).toEqual([1, 1, 1, 1])
+
+    m.setFirst(1)
+    expect(checks).toEqual([2, 2, 2, 2])
+
+    m.setFirst(2)
+    expect(checks).toEqual([3, 3, 3, 3])
+  } finally {
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  }
+})
+
+test("array checks cache the complete array as one MobX dependency", () => {
+  let checks = 0
+  const checkedNumber = types.refinement(types.number, () => {
+    checks++
+    return true
+  })
+
+  @testModel("WholeArrayTypeCheckCache")
+  class WholeArrayCacheModel extends Model({
+    value: tProp(types.array(checkedNumber), () => [0, 0, 0, 0]),
+  }) {
+    @modelAction
+    setFirst(value: number) {
+      this.value[0] = value
+    }
+  }
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  try {
+    const m = new WholeArrayCacheModel({})
+    expect(checks).toBe(4)
+
+    expect(m.typeCheck()).toBeNull()
+    expect(checks).toBe(4)
+
+    m.setFirst(1)
+    expect(checks).toBe(8)
+
+    m.setFirst(2)
+    expect(checks).toBe(12)
+  } finally {
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  }
+})
+
+test("cached type-check errors use the current path after a container moves", () => {
+  @testModel("MovedCachedTypeCheckError")
+  class MovedCachedTypeCheckError extends Model({
+    a: tProp(types.array(types.number), () => [0]),
+    b: tProp(types.array(types.number), () => []),
+  }) {
+    @modelAction
+    makeAInvalid() {
+      this.a[0] = "invalid" as any
+    }
+
+    @modelAction
+    moveAToB() {
+      const moved = this.a
+      this.a = []
+      this.b = moved
+    }
+  }
+
+  const m = new MovedCachedTypeCheckError({})
+  m.makeAInvalid()
+  expect(m.typeCheck()?.path).toEqual(["a", 0])
+
+  m.moveAToB()
+  expect(m.typeCheck()?.path).toEqual(["b", 0])
+})
+
+test("adaptive record cached errors use the current path after a container moves", () => {
+  @testModel("MovedAdaptiveRecordCachedTypeCheckError")
+  class MovedAdaptiveRecordCachedTypeCheckError extends Model({
+    a: tProp(types.record(types.number), () => ({ value: 0 })),
+    b: tProp(types.record(types.number), () => ({})),
+  }) {
+    @modelAction
+    makeAInvalid() {
+      this.a.value = "invalid" as any
+    }
+
+    @modelAction
+    moveAToB() {
+      const moved = this.a
+      this.a = {}
+      this.b = moved
+    }
+  }
+
+  const m = new MovedAdaptiveRecordCachedTypeCheckError({})
+  expect(m.typeCheck()).toBeNull()
+
+  m.makeAInvalid()
+  expect(m.typeCheck()?.path).toEqual(["a", "value"])
+
+  m.moveAToB()
+  expect(m.typeCheck()?.path).toEqual(["b", "value"])
+})
+
+test("indexed object cached errors use the current path after a container moves", () => {
+  const valueType = types.object(() => ({ value: types.number }))
+
+  @testModel("MovedIndexedObjectCachedTypeCheckError")
+  class MovedIndexedObjectCachedTypeCheckError extends Model({
+    a: tProp(valueType, () => ({ value: 0 })),
+    b: tProp(valueType, () => ({ value: 0 })),
+  }) {
+    @modelAction
+    makeAInvalid() {
+      this.a.value = "invalid" as any
+    }
+
+    @modelAction
+    moveAToB() {
+      const moved = this.a
+      this.a = { value: 0 }
+      this.b = moved
+    }
+  }
+
+  const m = new MovedIndexedObjectCachedTypeCheckError({})
+  expect(m.typeCheck()).toBeNull()
+
+  m.makeAInvalid()
+  expect(m.typeCheck()?.path).toEqual(["a", "value"])
+
+  m.moveAToB()
+  expect(m.typeCheck()?.path).toEqual(["b", "value"])
+})
+
+test("cached type-check errors do not execute refinements more than once", () => {
+  let negativeChecks = 0
+  const alternatingRefinement = types.refinement(types.number, (value) => {
+    return value >= 0 || ++negativeChecks % 2 === 0
+  })
+
+  @testModel("SingleCachedTypeCheckErrorEvaluation")
+  class SingleCachedTypeCheckErrorEvaluation extends Model({
+    value: tProp(types.array(alternatingRefinement), () => [0]),
+  }) {
+    @modelAction
+    makeInvalid() {
+      this.value[0] = -1
+    }
+  }
+
+  const m = new SingleCachedTypeCheckErrorEvaluation({})
+  expect(m.typeCheck()).toBeNull()
+
+  m.makeInvalid()
+  expect(m.typeCheck()?.path).toEqual(["value", 0])
+  expect(negativeChecks).toBe(1)
 })
 
 test("array - complex types", () => {
@@ -2378,7 +2662,7 @@ test("issue #454", () => {
   expect(getSnapshot(todo3)).toEqual(getSnapshot(todo1))
 })
 
-test("per-entry cache pruning - array shrink", () => {
+test("whole-array type-check cache handles shrink and growth", () => {
   @testModel("PerEntryCachePrune_ArrayShrink")
   class M extends Model({
     arr: tProp(types.array(types.number), () => [1, 2, 3]),
@@ -2402,21 +2686,15 @@ test("per-entry cache pruning - array shrink", () => {
   setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
   try {
     const m = new M({})
-    // Trigger type checks for all 3 entries
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.arr)).toBe(3)
 
-    // Shrink: indices 1,2 should be pruned from the cache
     m.shrink()
     expect(toJS(m.arr)).toEqual([1])
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.arr)).toBe(1)
 
-    // Push back a valid value; cache grows to 2
     m.push(42)
     expect(toJS(m.arr)).toEqual([1, 42])
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.arr)).toBe(2)
 
     // Invalid value should still be caught
     expect(() => m.setAt(0, "bad" as any)).toThrow(TypeCheckErrorFailure)
@@ -2426,7 +2704,7 @@ test("per-entry cache pruning - array shrink", () => {
   }
 })
 
-test("per-entry cache pruning - record key removal", () => {
+test("record type-check cache handles key removal", () => {
   @testModel("PerEntryCachePrune_RecordRemove")
   class M extends Model({
     rec: tProp(types.record(types.number), () => ({ a: 1, b: 2 })),
@@ -2446,19 +2724,14 @@ test("per-entry cache pruning - record key removal", () => {
   try {
     const m = new M({})
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.rec)).toBe(2)
 
-    // Remove key "a" — cache should shrink to 1
     m.removeKey("a")
     expect(toJS(m.rec)).toEqual({ b: 2 })
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.rec)).toBe(1)
 
-    // Add new key "c" — cache should grow to 2
     m.setKey("c", 3)
     expect(toJS(m.rec)).toEqual({ b: 2, c: 3 })
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.rec)).toBe(2)
 
     // Invalid value should still be caught
     expect(() => m.setKey("b", "bad" as any)).toThrow(TypeCheckErrorFailure)
@@ -2468,7 +2741,7 @@ test("per-entry cache pruning - record key removal", () => {
   }
 })
 
-test("per-entry cache pruning - record key rename (delete + add in one action)", () => {
+test("record type-check cache handles key rename", () => {
   @testModel("PerEntryCachePrune_RecordRename")
   class M extends Model({
     rec: tProp(types.record(types.number), () => ({ a: 1, b: 2 })),
@@ -2490,20 +2763,14 @@ test("per-entry cache pruning - record key rename (delete + add in one action)",
   try {
     const m = new M({})
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.rec)).toBe(2)
 
-    // Rename "a" -> "c" in a single action — old key "a" pruned, new key "c" added
-    // cache should still be 2 ("b" + "c")
     m.renameKey("a", "c")
     expect(toJS(m.rec)).toEqual({ b: 2, c: 1 })
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.rec)).toBe(2)
 
-    // After rename, adding back old key grows cache to 3
     m.setKey("a", 99)
     expect(toJS(m.rec)).toEqual({ a: 99, b: 2, c: 1 })
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.rec)).toBe(3)
 
     // Invalid value should still be caught after rename
     expect(() => m.setKey("c", "bad" as any)).toThrow(TypeCheckErrorFailure)
@@ -2513,7 +2780,7 @@ test("per-entry cache pruning - record key rename (delete + add in one action)",
   }
 })
 
-test("per-entry cache pruning - array splice (remove middle elements)", () => {
+test("whole-array type-check cache handles splices", () => {
   @testModel("PerEntryCachePrune_ArraySplice")
   class M extends Model({
     arr: tProp(types.array(types.number), () => [10, 20, 30, 40, 50]),
@@ -2533,19 +2800,15 @@ test("per-entry cache pruning - array splice (remove middle elements)", () => {
   try {
     const m = new M({})
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.arr)).toBe(5)
 
-    // Splice removes indices 1,2,3 — cache should shrink from 5 to 2
     m.spliceMiddle()
     expect(toJS(m.arr)).toEqual([10, 50])
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.arr)).toBe(2)
 
     // Values at remaining indices should work
     m.setAt(0, 100)
     expect(m.arr[0]).toBe(100)
     expect(m.typeCheck()).toBeNull()
-    expect(__getPerEntryCacheSize(m.$.arr)).toBe(2)
 
     // Invalid value still caught
     expect(() => m.setAt(1, "bad" as any)).toThrow(TypeCheckErrorFailure)
@@ -2555,21 +2818,16 @@ test("per-entry cache pruning - array splice (remove middle elements)", () => {
   }
 })
 
-test("per-entry cache pruning is immediate (observer-based, before typeCheck)", () => {
-  @testModel("PerEntryCachePrune_Immediate_Array")
-  class ArrModel extends Model({
-    arr: tProp(types.array(types.number), () => [1, 2, 3, 4, 5]),
-  }) {
-    @modelAction
-    shrink() {
-      this.arr.length = 2
-    }
-  }
-
+test("record type-check cache handles multiple removals before the next check", () => {
   @testModel("PerEntryCachePrune_Immediate_Record")
   class RecModel extends Model({
     rec: tProp(types.record(types.number), () => ({ a: 1, b: 2, c: 3 })),
   }) {
+    @modelAction
+    setB(value: number) {
+      this.rec.b = value
+    }
+
     @modelAction
     removeKeys() {
       remove(this.rec, "a")
@@ -2580,26 +2838,13 @@ test("per-entry cache pruning is immediate (observer-based, before typeCheck)", 
   // AlwaysOff so that no auto-typecheck runs at action end
   setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
 
-  // Array: seed cache then verify immediate pruning
-  const arrM = new ArrModel({})
-  expect(arrM.typeCheck()).toBeNull()
-  expect(__getPerEntryCacheSize(arrM.$.arr)).toBe(5)
-
-  arrM.shrink()
-  // Cache is pruned immediately by the observer — no typeCheck() needed
-  expect(__getPerEntryCacheSize(arrM.$.arr)).toBe(2)
-
-  // Record: seed cache then verify immediate pruning
   const recM = new RecModel({})
   expect(recM.typeCheck()).toBeNull()
-  expect(__getPerEntryCacheSize(recM.$.rec)).toBe(3)
+
+  recM.setB(20)
+  expect(recM.typeCheck()).toBeNull()
 
   recM.removeKeys()
-  // Cache is pruned immediately by the observer — no typeCheck() needed
-  expect(__getPerEntryCacheSize(recM.$.rec)).toBe(1)
-
-  // Correctness still holds after immediate pruning
-  expect(arrM.typeCheck()).toBeNull()
   expect(recM.typeCheck()).toBeNull()
 })
 

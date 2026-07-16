@@ -12,8 +12,9 @@
     "bench": "pnpm run build && pnpm run bench-only",
     "bench:mutations": "cross-env NODE_ENV=production node dist/mutationBench.js",
     "bench:apply-snapshot": "cross-env NODE_ENV=production node dist/applySnapshotBench.js",
-    "profile:apply-snapshot": "cross-env NODE_ENV=production node dist/applySnapshotProfile.js",
-    "profile:mutations": "cross-env NODE_ENV=production node dist/mutationProfile.js"
+    "profile:empty-creation": "cross-env NODE_ENV=production node dist/profile.js empty-typechecked-model",
+    "profile:apply-snapshot": "cross-env NODE_ENV=production node dist/profile.js apply-prop",
+    "profile:mutations": "cross-env NODE_ENV=production node dist/profile.js reverse"
   },
   "peerDependencies": {
     "mobx": "^6.0.0"

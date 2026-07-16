@@ -1,9 +1,10 @@
+import { isObservableObject, keys } from "mobx"
 import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
 import type { Path } from "../../parent/pathTypes"
-import { assertIsFunction, assertIsObject, isObject, lazy } from "../../utils"
+import { assertIsFunction, assertIsObject, getMobxVersion, isObject, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
-import { createPerEntryCachedCheck } from "../createPerEntryCachedCheck"
+import { createIndexedPerEntryCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type {
@@ -23,6 +24,8 @@ import {
   type TypeInfoGen,
 } from "../TypeChecker"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
+
+const needsObservableObjectKeyTracking = getMobxVersion() < 5
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
@@ -130,17 +133,26 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       return null
     }
 
-    // No setupCachePruning needed: iterates fixed schemaEntries, not dynamic object keys,
-    // so entries never become stale.
-    const checkObjectProps = createPerEntryCachedCheck<number>(
-      (_obj, checkEntry) => {
-        const entries = checkedSchemaEntries()
-        for (let i = 0; i < entries.length; i++) {
-          const error = checkEntry(i)
-          if (error) return error
-        }
-        return null
-      },
+    const iterateObjectProps = (
+      obj: any,
+      checkEntry: (entryIndex: number) => TypeCheckError | null
+    ): TypeCheckError | null => {
+      const entries = checkedSchemaEntries()
+      // MobX 4 does not track reads of absent properties. Newer versions can
+      // avoid the extra key-set read.
+      if (needsObservableObjectKeyTracking && isObservableObject(obj)) {
+        void keys(obj)
+      }
+
+      for (let i = 0; i < entries.length; i++) {
+        const error = checkEntry(i)
+        if (error) return error
+      }
+      return null
+    }
+
+    const checkObjectProps = createIndexedPerEntryCachedCheck(
+      iterateObjectProps,
       (obj, entryIndex, path, typeCheckedValue) => {
         const entry = checkedSchemaEntries()[entryIndex]
         if (!entry) {

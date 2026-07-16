@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Performance: faster initialization, deep-child indexing, updates, and change notifications in large trees, especially when no listeners are registered.
+- Performance: faster initialization, initial runtime type checking, deep-child indexing, updates, and change notifications in large trees, especially when no listeners are registered.
+- Fix cached runtime type-check errors retaining an outdated path after their typed container is moved.
+- Fix cached `types.object(...)` checks under MobX 4 so adding a previously omitted optional property invalidates the cached result.
 - Performance: no-op `applySnapshot` calls can now skip model/property input snapshot processors when the input equals the model's current canonical output snapshot. Snapshot processors are now explicitly required to be pure, deterministic, and round-trip canonical output to the same stored data.
 - Performance: tree reorders within mobx-keystone actions and `runUnprotected` blocks now coalesce inverse child detach/attach operations, avoiding unnecessary deep-child and ModelPool index rebuilds when membership is unchanged. This also benefits `applySnapshot`, patch batches/undo-redo, and standard array/model actions.
 - Performance: `fromSnapshot` now avoids rebuilding the initial internal snapshot for scalar-only model data when no generated IDs or defaults change it.
