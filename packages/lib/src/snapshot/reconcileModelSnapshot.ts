@@ -2,7 +2,7 @@ import { remove } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
-import { getModelOrSnapshotTypeAndId, getSnapshotModelType, isModel } from "../model/utils"
+import { getSnapshotModelType, isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
@@ -12,7 +12,10 @@ import {
   noDefaultValue,
 } from "../modelShared/prop"
 import { deepEquals } from "../treeUtils/deepEquals"
-import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
+import {
+  isTypeCheckingAfterChangeEnabled,
+  runTypeCheckingAfterChange,
+} from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isArray } from "../utils"
 import { withErrorModelTrailEntry, withErrorPathSegment } from "../utils/errorDiagnostics"
@@ -20,6 +23,7 @@ import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { fromSnapshot } from "./fromSnapshot"
 import { getSnapshot } from "./getSnapshot"
+import { flushInternalSnapshot, getInternalSnapshot } from "./internal"
 import { detachIfNeeded, reconcileSnapshot, registerReconciler } from "./reconcileSnapshot"
 import type { SnapshotInOfModel } from "./SnapshotOf"
 import { SnapshotProcessingError } from "./SnapshotProcessingError"
@@ -42,15 +46,45 @@ function reconcileModelSnapshot(
   }
 
   const modelClass = modelInfo.class as ModelClass<AnyModel>
-  const trailModelId = getModelOrSnapshotTypeAndId(sn)?.modelId
 
-  return withErrorModelTrailEntry(type, trailModelId, () => {
-    // try to use model from pool if possible
-    const modelInPool = modelPool.findModelForSnapshot(sn)
+  // Snapshot processors are pure, deterministic, and required to round-trip
+  // the canonical output snapshot. A successful canonical no-op therefore
+  // cannot produce a diagnostic, so keep this hottest path outside the
+  // model-trail bookkeeping and defer id metadata until needed. The
+  // positional value was already flushed by the getSnapshot call in
+  // reconcileSnapshot, so its transformed snapshot is current.
+  if (isCanonicalSnapshotNoOp(value, type, sn)) {
+    return value
+  }
+
+  const modelIdPropertyName = getModelIdPropertyName(modelClass)
+  const incomingModelId = modelIdPropertyName ? sn[modelIdPropertyName] : undefined
+  const positionalModelMatches =
+    isModel(value) &&
+    value[modelTypeKey] === type &&
+    (!modelIdPropertyName || value[modelIdKey] === incomingModelId)
+
+  // The positional model is already the desired instance in the common
+  // stable-update case. Only moved identified models need a pool lookup.
+  if (!positionalModelMatches && modelIdPropertyName) {
+    const modelInPool = modelPool.findModelByTypeAndId(type, incomingModelId)
     if (modelInPool) {
       value = modelInPool
-    }
 
+      // A pool model may carry snapshot updates still pending propagation from
+      // earlier mutations in the same action, so flush before comparing.
+      flushInternalSnapshot(modelInPool, false)
+
+      // Repeat the canonical comparison so moved models can also avoid
+      // processor and property-by-property reconciliation.
+      if (isCanonicalSnapshotNoOp(modelInPool, type, sn)) {
+        return modelInPool
+      }
+    }
+  }
+
+  const trailModelId = typeof incomingModelId === "string" ? incomingModelId : undefined
+  return withErrorModelTrailEntry(type, trailModelId, () => {
     // we don't check by actual instance since the class might be a different one due to hot reloading
     if (!isModel(value) || value[modelTypeKey] !== type) {
       // different kind of model type, no reconciliation possible
@@ -58,12 +92,8 @@ function reconcileModelSnapshot(
     }
 
     const modelProps = getInternalModelClassPropsInfo(modelClass)
-    const modelIdPropertyName = getModelIdPropertyName(modelClass)
-
     if (modelIdPropertyName) {
-      const id = sn[modelIdPropertyName]
-
-      if (value[modelIdKey] !== id) {
+      if (value[modelIdKey] !== incomingModelId) {
         // different id, no reconciliation possible
         return fromSnapshot<AnyModel>(sn)
       }
@@ -76,13 +106,26 @@ function reconcileModelSnapshot(
     }
 
     const modelObj: AnyModel = value
-    const snapshotBeforeChanges = getSnapshot(modelObj)
+    const typeCheckingAfterChangeEnabled = isTypeCheckingAfterChangeEnabled()
+    const actualModelClass = (modelObj as any).constructor as ModelClass<AnyModel>
+    const fromSnapshotProcessor = actualModelClass.fromSnapshotProcessor
+    const snapshotBeforeChanges = typeCheckingAfterChangeEnabled ? getSnapshot(modelObj) : undefined
 
     withoutTypeChecking(() => {
-      const modelClass: ModelClass<AnyModel> = (modelObj as any).constructor
-      const processedSn = modelClass.fromSnapshotProcessor
-        ? modelClass.fromSnapshotProcessor(sn)
-        : sn
+      const processedSn = fromSnapshotProcessor ? fromSnapshotProcessor(sn) : sn
+
+      // Non-canonical inputs still run the input processor. Once converted to
+      // the model's stored shape, avoid reconciliation when that shape is
+      // already current. Comparing against the untransformed snapshot is
+      // essential because an output processor may have changed its shape.
+      if (fromSnapshotProcessor) {
+        if (!snapshotBeforeChanges) {
+          flushInternalSnapshot(modelObj, false)
+        }
+        if (snapshotSlotsAreEqual(getInternalSnapshot(modelObj)!.untransformed, processedSn)) {
+          return
+        }
+      }
 
       const data = modelObj.$
 
@@ -136,10 +179,47 @@ function reconcileModelSnapshot(
       }
     })
 
-    runTypeCheckingAfterChange(modelObj, undefined, snapshotBeforeChanges)
+    if (typeCheckingAfterChangeEnabled) {
+      runTypeCheckingAfterChange(modelObj, undefined, snapshotBeforeChanges)
+    }
 
     return modelObj
   })
+}
+
+function isCanonicalSnapshotNoOp(value: any, type: string, sn: any): boolean {
+  return (
+    isModel(value) &&
+    value[modelTypeKey] === type &&
+    snapshotSlotsAreEqual(getInternalSnapshot(value)!.transformed, sn)
+  )
+}
+
+function snapshotSlotsAreEqual(
+  currentSnapshot: Record<string, unknown>,
+  incomingSnapshot: any
+): boolean {
+  const currentKeys = Object.keys(currentSnapshot)
+  const incomingKeys = Object.keys(incomingSnapshot)
+  if (currentKeys.length !== incomingKeys.length) {
+    return false
+  }
+
+  for (let i = 0; i < currentKeys.length; i++) {
+    const key = currentKeys[i]
+    // a matching key at the same index proves the key is an own property of
+    // the incoming snapshot without an Object.hasOwn call; canonical snapshots
+    // keep key order, so the fallback is rare (never trust inherited values,
+    // e.g. a crafted __proto__ chain, without an own-property proof)
+    if (incomingKeys[i] !== key && !Object.hasOwn(incomingSnapshot, key)) {
+      return false
+    }
+    if (currentSnapshot[key] !== incomingSnapshot[key]) {
+      return false
+    }
+  }
+
+  return true
 }
 
 /**

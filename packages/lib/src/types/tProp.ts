@@ -3,6 +3,7 @@ import {
   type MaybeOptionalModelProp,
   type OptionalModelProp,
   prop,
+  toFullModelPropTransform,
 } from "../modelShared/prop"
 import { lazy } from "../utils"
 import {
@@ -14,6 +15,7 @@ import {
 } from "./primitiveBased/typesPrimitive"
 import { resolveStandardType, resolveTypeChecker } from "./resolveTypeChecker"
 import type { AnyStandardType, AnyType, TypeToData, TypeToSnapshotIn } from "./schemas"
+import { type SnapshotProcessor, TypeChecker } from "./TypeChecker"
 import { createCodecPropTransform, resolveCodecSupport } from "./utility/typesCodec"
 import { typesOr } from "./utility/typesOr"
 import type { TypeToStoredData } from "./utility/typeToStoredData"
@@ -21,6 +23,28 @@ import type { TypeToStoredData } from "./utility/typeToStoredData"
 const noDefaultValueSymbol = Symbol("noDefaultValue")
 
 const tPropCache = new WeakMap<AnyStandardType, Map<unknown, AnyModelProp>>()
+
+function createFromSnapshotProcessorGetter(
+  getType: () => AnyStandardType,
+  eagerType: AnyStandardType | undefined
+): (() => SnapshotProcessor | undefined) | undefined {
+  if (eagerType instanceof TypeChecker) {
+    const processor = eagerType.getFromSnapshotProcessor()
+    return processor ? () => processor : undefined
+  }
+  return lazy(() => resolveTypeChecker(getType()).getFromSnapshotProcessor())
+}
+
+function createToSnapshotProcessorGetter(
+  getType: () => AnyStandardType,
+  eagerType: AnyStandardType | undefined
+): (() => SnapshotProcessor | undefined) | undefined {
+  if (eagerType instanceof TypeChecker) {
+    const processor = eagerType.getToSnapshotProcessor()
+    return processor ? () => processor : undefined
+  }
+  return lazy(() => resolveTypeChecker(getType()).getToSnapshotProcessor())
+}
 
 type AnyTypeOrArray = AnyType | ReadonlyArray<AnyType>
 
@@ -38,26 +62,6 @@ type TypedOptionalModelProp<TType extends AnyType> = OptionalModelProp<TypeToDat
   $storedValueType: TypeToStoredData<TType>
   $storedCreationValueType: TypeToStoredData<TType> | null | undefined
   $typedFromSnapshotOverride: TypeToSnapshotIn<TType> | null | undefined
-}
-
-function getOrCreateTProp(
-  type: AnyStandardType,
-  defKey: unknown,
-  createTProp: () => AnyModelProp
-): AnyModelProp {
-  let defValueCache = tPropCache.get(type)
-  if (!defValueCache) {
-    defValueCache = new Map()
-    tPropCache.set(type, defValueCache)
-  }
-
-  let prop = defValueCache.get(defKey)
-  if (!prop) {
-    prop = createTProp()
-    defValueCache.set(defKey, prop)
-  }
-
-  return prop
 }
 
 /**
@@ -244,34 +248,66 @@ export function tProp(
     : (typeOrArray as AnyType)
 
   const typeChecker = resolveStandardType(resolvedType)
-  const codecSupport = resolveCodecSupport(typeChecker)
+  const defKey = hasDefaultValue ? def : noDefaultValueSymbol
 
-  return getOrCreateTProp(typeChecker, hasDefaultValue ? def : noDefaultValueSymbol, () => {
-    const fromSnapshotTypeChecker = hasDefaultValue
-      ? typesOr(codecSupport.storedType, typesUndefined, typesNull)
-      : codecSupport.storedType
-    const getFromSnapshotProcessor = lazy(
-      () => resolveTypeChecker(fromSnapshotTypeChecker).fromSnapshotProcessor
-    )
-    const getToSnapshotProcessor = lazy(
-      () => resolveTypeChecker(codecSupport.storedType).toSnapshotProcessor
-    )
+  let defValueCache = tPropCache.get(typeChecker)
+  if (!defValueCache) {
+    defValueCache = new Map()
+    tPropCache.set(typeChecker, defValueCache)
+  }
 
-    // we use Object.create to avoid messing up with the prop cache
-    const baseProp = hasDefaultValue ? prop(def) : prop()
-    const newProp = codecSupport.hasCodec
-      ? baseProp.withTransform(createCodecPropTransform(typeChecker))
-      : Object.create(baseProp)
+  const cachedProp = defValueCache.get(defKey)
+  if (cachedProp) {
+    return cachedProp
+  }
 
-    Object.assign(newProp, {
-      _defaultValueIsTransformed: codecSupport.hasCodec,
-      _typeChecker: typeChecker,
+  const eagerCodecSupport =
+    typeChecker instanceof TypeChecker ? resolveCodecSupport(typeChecker) : undefined
+  const getCodecSupport = eagerCodecSupport
+    ? () => eagerCodecSupport
+    : lazy(() => resolveCodecSupport(typeChecker))
+  const eagerStoredType = eagerCodecSupport?.storedType
+  const getStoredType = eagerStoredType
+    ? () => eagerStoredType
+    : lazy(() => getCodecSupport().storedType)
+  const eagerFromSnapshotType = eagerStoredType
+    ? hasDefaultValue
+      ? typesOr(eagerStoredType, typesUndefined, typesNull)
+      : eagerStoredType
+    : undefined
+  const getFromSnapshotType = eagerFromSnapshotType
+    ? () => eagerFromSnapshotType
+    : lazy(() => {
+        const storedType = getStoredType()
+        return hasDefaultValue ? typesOr(storedType, typesUndefined, typesNull) : storedType
+      })
 
-      _fromSnapshotProcessor: (sn) => getFromSnapshotProcessor()(sn),
+  // we use Object.create to avoid messing up with the prop cache
+  const baseProp = hasDefaultValue ? prop(def) : prop()
+  const newProp = eagerCodecSupport?.hasCodec
+    ? baseProp.withTransform(createCodecPropTransform(typeChecker))
+    : Object.create(baseProp)
 
-      _toSnapshotProcessor: (sn) => getToSnapshotProcessor()(sn),
-    } satisfies Partial<AnyModelProp>)
+  Object.assign(newProp, {
+    _defaultValueIsTransformed: eagerCodecSupport?.hasCodec ?? false,
+    _getDefaultValueIsTransformed: eagerCodecSupport
+      ? undefined
+      : lazy(() => getCodecSupport().hasCodec),
+    _typeChecker: typeChecker,
+    _getTransform: eagerCodecSupport
+      ? undefined
+      : lazy(() =>
+          getCodecSupport().hasCodec
+            ? toFullModelPropTransform(createCodecPropTransform(typeChecker))
+            : undefined
+        ),
+    _getFromSnapshotProcessor: createFromSnapshotProcessorGetter(
+      getFromSnapshotType,
+      eagerFromSnapshotType
+    ),
+    _getToSnapshotProcessor: createToSnapshotProcessorGetter(getStoredType, eagerStoredType),
+  } satisfies Partial<AnyModelProp>)
 
-    return newProp
-  })
+  defValueCache.set(defKey, newProp)
+  return newProp
 }

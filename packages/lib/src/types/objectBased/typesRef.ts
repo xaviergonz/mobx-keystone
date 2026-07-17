@@ -75,7 +75,7 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
       }
     },
 
-    (sn) => sn
+    undefined
   )
 
   return thisTc as any

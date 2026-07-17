@@ -1,7 +1,21 @@
+import { writeFileSync } from "node:fs"
 import Benchmark from "benchmark"
 import chalk from "chalk"
 
 export type ExtrasToRun = ("es6" | "mobx")[]
+
+export interface KeystoneBenchmarkResult {
+  readonly suite: string
+  readonly target: "mobx-keystone"
+  readonly hz: number
+  readonly rme: number
+  readonly samples: number
+}
+
+export interface KeystoneBenchmarkSetup {
+  readonly run: () => void
+  readonly dispose?: () => void
+}
 
 function readPositiveNumberEnv(varName: string, fallback: number): number {
   const rawValue = (globalThis as { process?: { env?: Record<string, string | undefined> } })
@@ -20,6 +34,17 @@ function readStringEnv(varName: string): string | undefined {
   return rawValue ? rawValue : undefined
 }
 
+function shouldRunBenchmark(name: string): boolean {
+  const nameIncludesFilter = readStringEnv("BENCH_FILTER")
+  return !nameIncludesFilter || name.includes(nameIncludesFilter)
+}
+
+function benchmarkOptions() {
+  const maxTime = readPositiveNumberEnv("BENCH_MAX_TIME", 2)
+  const minSamples = Math.floor(readPositiveNumberEnv("BENCH_MIN_SAMPLES", 50))
+  return { maxTime, minSamples }
+}
+
 export function bench(
   name: string,
   mobxKeyStoneImpl: Function,
@@ -28,14 +53,11 @@ export function bench(
   mobxImpl: Function,
   extrasToRun: ExtrasToRun
 ) {
-  const nameIncludesFilter = readStringEnv("BENCH_FILTER")
-  if (nameIncludesFilter && !name.includes(nameIncludesFilter)) {
+  if (!shouldRunBenchmark(name)) {
     return
   }
 
-  const maxTime = readPositiveNumberEnv("BENCH_MAX_TIME", 2)
-  const minSamples = Math.floor(readPositiveNumberEnv("BENCH_MIN_SAMPLES", 50))
-
+  const options = benchmarkOptions()
   let suite = new Benchmark.Suite(name)
 
   let results: Record<string, Benchmark.Target> = {}
@@ -45,18 +67,18 @@ export function bench(
   const es6 = chalk.magenta("raw es6")
   const mobx = chalk.blue("raw mobx")
 
-  suite = suite.add(keystone, mobxKeyStoneImpl, { maxTime, minSamples })
+  suite = suite.add(keystone, mobxKeyStoneImpl, options)
 
   const runMst = true
   if (runMst) {
-    suite = suite.add(mst, mstImpl, { maxTime, minSamples })
+    suite = suite.add(mst, mstImpl, options)
   }
 
   if (extrasToRun.includes("mobx")) {
-    suite = suite.add(mobx, mobxImpl, { maxTime, minSamples })
+    suite = suite.add(mobx, mobxImpl, options)
   }
   if (extrasToRun.includes("es6")) {
-    suite = suite.add(es6, es6Impl, { maxTime, minSamples })
+    suite = suite.add(es6, es6Impl, options)
   }
 
   // add listeners
@@ -98,4 +120,52 @@ export function bench(
       console.log()
     })
     .run({ async: false })
+}
+
+export function benchKeystone(
+  name: string,
+  setup: () => KeystoneBenchmarkSetup,
+  onCycle: (result: KeystoneBenchmarkResult) => void
+): void {
+  if (!shouldRunBenchmark(name)) {
+    return
+  }
+
+  const { run, dispose } = setup()
+  const suite = new Benchmark.Suite(name).add("mobx-keystone", run, benchmarkOptions())
+
+  suite
+    .on("error", (event: Benchmark.Event) => {
+      throw (event.target as Benchmark.Target & { error?: unknown }).error
+    })
+    .on("cycle", (event: Benchmark.Event) => {
+      const target = event.target as Benchmark.Target & {
+        hz: number
+        stats: { rme: number; sample: unknown[] }
+      }
+      onCycle({
+        suite: name,
+        target: "mobx-keystone",
+        hz: target.hz,
+        rme: target.stats.rme,
+        samples: target.stats.sample.length,
+      })
+      console.log(String(target))
+    })
+    .on("complete", () => dispose?.())
+    .run({ async: false })
+}
+
+export function runBenchSuiteToJson(
+  runBenchmarks: (onCycle: (result: KeystoneBenchmarkResult) => void) => void
+): void {
+  const results: Array<{ readonly schemaVersion: 1 } & KeystoneBenchmarkResult> = []
+
+  runBenchmarks((result) => {
+    results.push({ schemaVersion: 1, ...result })
+  })
+
+  if (process.env.BENCH_JSON) {
+    writeFileSync(process.env.BENCH_JSON, `${JSON.stringify(results, undefined, 2)}\n`)
+  }
 }

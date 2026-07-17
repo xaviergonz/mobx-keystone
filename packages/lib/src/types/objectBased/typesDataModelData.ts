@@ -12,10 +12,15 @@ import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo
 import { noDefaultValue } from "../../modelShared/prop"
 import { failure, lazy } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
-import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
+import {
+  registerStandardTypeResolver,
+  resolveStandardType,
+  resolveTypeChecker,
+} from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -71,19 +76,19 @@ export function typesDataModelData<M = never, K = M>(
     }
 
     const typeInfoGen: TypeInfoGen = (t) => new DataModelDataTypeInfo(t, modelClazz)
-
+    const dataType = getDataModelMetadata(modelClazz).dataType
+    const standardDataType = dataType ? resolveStandardType(dataType) : undefined
     const tc = lateTypeChecker(() => {
       const modelInfo = modelInfoByClass.get(modelClazz)!
       const typeName = `DataModelData(${modelInfo.name})`
 
-      const dataTypeChecker = getDataModelMetadata(modelClazz).dataType
-      if (!dataTypeChecker) {
+      if (!standardDataType) {
         throw failure(
           `type checking cannot be performed over data model data of type '${modelInfo.name}' since that model type has no data type declared, consider adding a data type or using types.unchecked() instead`
         )
       }
 
-      const resolvedDataTypeChecker = resolveTypeChecker(dataTypeChecker)
+      const resolvedDataTypeChecker = resolveTypeChecker(standardDataType)
 
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
@@ -99,13 +104,15 @@ export function typesDataModelData<M = never, K = M>(
           return resolvedDataTypeChecker.snapshotType(value) ? thisTc : null
         },
 
-        (sn: Record<string, unknown>) => {
-          return resolvedDataTypeChecker.fromSnapshotProcessor(sn)
-        },
+        snapshotProcessorPlan(
+          () => [resolvedDataTypeChecker],
+          ([processor]) => processor
+        ),
 
-        (sn: Record<string, unknown>) => {
-          return resolvedDataTypeChecker.toSnapshotProcessor(sn)
-        }
+        snapshotProcessorPlan(
+          () => [resolvedDataTypeChecker],
+          ([processor]) => processor
+        )
       )
 
       return thisTc

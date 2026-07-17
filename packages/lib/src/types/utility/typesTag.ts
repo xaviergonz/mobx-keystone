@@ -1,7 +1,13 @@
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType } from "../schemas"
-import { lateTypeChecker, TypeChecker, TypeInfo, type TypeInfoGen } from "../TypeChecker"
+import {
+  lateTypeChecker,
+  snapshotProcessorPlan,
+  TypeChecker,
+  TypeInfo,
+  type TypeInfoGen,
+} from "../TypeChecker"
 
 /**
  * Wrap a given type with tag information.
@@ -35,11 +41,10 @@ import { lateTypeChecker, TypeChecker, TypeInfo, type TypeInfoGen } from "../Typ
  * @returns
  */
 export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: string): T {
-  const typeInfoGen: TypeInfoGen = (t) =>
-    new TagTypeInfo(t, resolveStandardType(baseType), tag, typeName)
-
-  return lateTypeChecker(() => {
-    const baseChecker = resolveTypeChecker(baseType)
+  const resolvedBaseType = resolveStandardType(baseType)
+  const typeInfoGen: TypeInfoGen = (t) => new TagTypeInfo(t, resolvedBaseType, tag, typeName)
+  const typeChecker = lateTypeChecker(() => {
+    const baseChecker = resolveTypeChecker(resolvedBaseType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
       const baseTypeName = baseChecker.getTypeName(...recursiveTypeCheckers, baseChecker)
@@ -53,12 +58,19 @@ export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: s
       getTypeName,
       typeInfoGen,
       (sn) => baseChecker.snapshotType(sn),
-      (sn) => baseChecker.fromSnapshotProcessor(sn),
-      (sn) => baseChecker.toSnapshotProcessor(sn)
+      snapshotProcessorPlan(
+        () => [baseChecker],
+        ([processor]) => processor
+      ),
+      snapshotProcessorPlan(
+        () => [baseChecker],
+        ([processor]) => processor
+      )
     )
 
     return thisTc
-  }, typeInfoGen) as any
+  }, typeInfoGen)
+  return typeChecker as any
 }
 
 /**

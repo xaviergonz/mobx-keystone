@@ -1,13 +1,14 @@
 import type { Path } from "../../parent/pathTypes"
 import { isArray } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
-import { arrayCachePruning, createPerEntryCachedCheck } from "../createPerEntryCachedCheck"
+import { createWholeContainerCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -28,31 +29,27 @@ import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
  * @returns
  */
 export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
-  const typeInfoGen: TypeInfoGen = (t) => new ArrayTypeInfo(t, resolveStandardType(itemType))
-
-  return lateTypeChecker(() => {
-    const itemChecker = resolveTypeChecker(itemType)
+  const resolvedItemType = resolveStandardType(itemType)
+  const typeInfoGen: TypeInfoGen = (t) => new ArrayTypeInfo(t, resolvedItemType)
+  const typeChecker = lateTypeChecker(() => {
+    const itemChecker = resolveTypeChecker(resolvedItemType)
     const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Array<${itemChecker.getTypeName(...recursiveTypeCheckers, itemChecker)}>`
 
-    const checkArrayItems = createPerEntryCachedCheck<number>(
-      (array, checkEntry) => {
-        for (let i = 0; i < array.length; i++) {
-          const error = checkEntry(i)
-          if (error) return error
-        }
-        return null
-      },
-      (array, index, path, typeCheckedValue) => {
+    // MobX observable arrays invalidate reads at collection granularity. Per-index
+    // computeds would therefore all be invalidated by the same mutation while adding
+    // a computed and cache entry per item.
+    const checkArrayItems = createWholeContainerCachedCheck((array, path, typeCheckedValue) => {
+      for (let index = 0; index < array.length; index++) {
         const error = itemChecker.check(array[index], emptyChildPath, typeCheckedValue)
-        return error
-          ? prependPathElementToTypeCheckError(error, path, index, typeCheckedValue)
-          : null
-      },
-      arrayCachePruning
-    )
+        if (error) {
+          return prependPathElementToTypeCheckError(error, path, index, typeCheckedValue)
+        }
+      }
+      return null
+    })
 
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
@@ -93,29 +90,30 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
         return thisTc
       },
 
-      (sn: unknown[]) => {
-        if (itemChecker.unchecked) {
-          return sn
-        }
+      snapshotProcessorPlan(
+        () => [itemChecker],
+        ([itemProcessor]) =>
+          itemProcessor
+            ? (sn: unknown[]) => {
+                return sn.map((item, i) => withErrorPathSegment(i, () => itemProcessor(item)))
+              }
+            : undefined
+      ),
 
-        return sn.map((item, i) =>
-          withErrorPathSegment(i, () => itemChecker.fromSnapshotProcessor(item))
-        )
-      },
-
-      (sn: unknown[]) => {
-        if (itemChecker.unchecked) {
-          return sn
-        }
-
-        return sn.map((item, i) =>
-          withErrorPathSegment(i, () => itemChecker.toSnapshotProcessor(item))
-        )
-      }
+      snapshotProcessorPlan(
+        () => [itemChecker],
+        ([itemProcessor]) =>
+          itemProcessor
+            ? (sn: unknown[]) => {
+                return sn.map((item, i) => withErrorPathSegment(i, () => itemProcessor(item)))
+              }
+            : undefined
+      )
     )
 
     return thisTc
-  }, typeInfoGen) as any
+  }, typeInfoGen)
+  return typeChecker as any
 }
 
 /**

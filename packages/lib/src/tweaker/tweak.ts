@@ -8,8 +8,9 @@ import { unsetInternalSnapshot } from "../snapshot/internal"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { typeCheck } from "../types/typeCheck"
 import { failure, inDevMode, isMap, isObject, isPrimitive, isSet } from "../utils"
-import { isTweakedObject, tweakedObjects } from "./core"
+import { isTweakedObject, runTweakedObjectUntweakers } from "./core"
 import { registerDefaultTweakers } from "./registerDefaultTweakers"
+import { treeNodeMetadata } from "./treeNodeMetadata"
 
 /**
  * Turns an object (array, plain object) into a tree node,
@@ -153,7 +154,8 @@ export function tryUntweak(value: any): (() => void) | undefined {
     }
   }
 
-  const untweaker = tweakedObjects.get(value)
+  const metadata = treeNodeMetadata.get(value)
+  const untweaker = metadata?.untweaker
   if (!untweaker) {
     return undefined
   }
@@ -176,9 +178,18 @@ export function tryUntweak(value: any): (() => void) | undefined {
 
   return () => {
     // post-untweaking, call the untweaker
-    untweaker()
+    runTweakedObjectUntweakers(untweaker)
 
-    tweakedObjects.delete(value)
+    // Match the former independent-map ordering: the node stops being tweaked
+    // before its snapshot is unset, but the shared record must stay alive until
+    // snapshot cleanup has consumed it.
+    metadata.tweaked = false
+    metadata.untweaker = undefined
     unsetInternalSnapshot(value)
+    // These associations previously lived in independent WeakMaps and remain
+    // valid across untweak/retweak, so keep their shared record when present.
+    if (metadata.dataObjectParent === undefined && metadata.objectChildren === undefined) {
+      treeNodeMetadata.delete(value)
+    }
   }
 }

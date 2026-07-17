@@ -7,29 +7,35 @@ import {
   observe,
 } from "mobx"
 import { assertCanWrite } from "../action/protection"
-import { DeepChangeType, emitDeepChange, getIsInInitPhase } from "../deepChange/onDeepChange"
+import {
+  emitObjectAddDeepChange,
+  emitObjectRemoveDeepChange,
+  emitObjectUpdateDeepChange,
+} from "../deepChange/onDeepChange"
 import type { AnyModel } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { dataToModelNode } from "../parent/core"
 import type { ParentPath } from "../parent/path"
-import type { Path } from "../parent/pathTypes"
 import { setParent } from "../parent/setParent"
-import { InternalPatchRecorder } from "../patch/emitPatch"
+import { hasPatchListenersFor, InternalPatchRecorder } from "../patch/emitPatch"
 import {
+  flushInternalSnapshot,
   freezeInternalSnapshot,
   getInternalSnapshot,
   type SnapshotTransformFn,
   setNewInternalSnapshot,
   updateInternalSnapshot,
 } from "../snapshot/internal"
-import { failure, isPlainObject, isPrimitive, setOwnProp } from "../utils"
+import { takeModelInitialDataSnapshot } from "../snapshot/modelInitialData"
+import { failure, isPlainObject, isPrimitive, setProtoProp } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
-import { runningWithoutSnapshotOrPatches, tweakedObjects } from "./core"
+import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
+import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker, tweak } from "./tweak"
-import { runTypeCheckingAfterChange } from "./typeChecking"
+import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
  * @internal
@@ -46,15 +52,9 @@ export function tweakPlainObject<T extends Record<string, any>>(
     ? originalObj
     : observable.object({}, undefined, observableOptions)
 
-  let interceptDisposer: () => void
-  let observeDisposer: () => void
-
-  const untweak = () => {
-    interceptDisposer()
-    observeDisposer()
-  }
-
-  tweakedObjects.set(tweakedObj, untweak)
+  // Mark it as tweaked before processing children. The cleanup functions are
+  // installed after the MobX handlers have been registered.
+  markAsTweakedObject(tweakedObj)
   setParent(
     tweakedObj, // value
     parentPath,
@@ -64,10 +64,14 @@ export function tweakPlainObject<T extends Record<string, any>>(
     false // cloneIfApplicable
   )
 
-  const untransformedSn: any = {}
+  const initialDataSnapshot =
+    isDataObject && snapshotModelType ? takeModelInitialDataSnapshot(tweakedObj) : undefined
+  const reuseInitialDataSnapshot =
+    !!initialDataSnapshot?.reusable && initialDataSnapshot.allValuesPrimitive
+  const untransformedSn: any = reuseInitialDataSnapshot ? initialDataSnapshot.snapshot : {}
 
   // substitute initial values by tweaked values
-  const originalObjKeys = Object.keys(originalObj)
+  const originalObjKeys = reuseInitialDataSnapshot ? [] : Object.keys(originalObj)
   const originalObjKeysLen = originalObjKeys.length
   for (let i = 0; i < originalObjKeysLen; i++) {
     const k = originalObjKeys[i]
@@ -77,7 +81,11 @@ export function tweakPlainObject<T extends Record<string, any>>(
       if (!doNotTweakChildren) {
         setIfDifferent(tweakedObj, k, v)
       }
-      setOwnProp(untransformedSn, k, v)
+      if (k === "__proto__") {
+        setProtoProp(untransformedSn, v)
+      } else {
+        untransformedSn[k] = v
+      }
     } else {
       const path = { parent: tweakedObj, path: k }
 
@@ -98,13 +106,17 @@ export function tweakPlainObject<T extends Record<string, any>>(
       }
 
       const valueSn = getInternalSnapshot(tweakedValue)!
-      setOwnProp(untransformedSn, k, valueSn.transformed)
+      if (k === "__proto__") {
+        setProtoProp(untransformedSn, valueSn.transformed)
+      } else {
+        untransformedSn[k] = valueSn.transformed
+      }
     }
   }
 
   let transformFn: SnapshotTransformFn | undefined
   if (snapshotModelType) {
-    setOwnProp(untransformedSn, modelTypeKey, snapshotModelType)
+    untransformedSn[modelTypeKey] = snapshotModelType
 
     const modelInfo = getModelInfoForName(snapshotModelType)
     if (!modelInfo) {
@@ -123,8 +135,9 @@ export function tweakPlainObject<T extends Record<string, any>>(
     transformFn
   )
 
-  interceptDisposer = intercept(tweakedObj, interceptObjectMutation)
-  observeDisposer = observe(tweakedObj, objectDidChange)
+  const interceptDisposer = intercept(tweakedObj, interceptObjectMutation)
+  const observeDisposer = observe(tweakedObj, objectDidChange)
+  setTweakedObjectUntweakers(tweakedObj, interceptDisposer, observeDisposer)
 
   return tweakedObj as any
 }
@@ -134,7 +147,11 @@ const observableOptions = {
 }
 
 function mutateSet(k: PropertyKey, v: unknown, sn: Record<PropertyKey, unknown>) {
-  setOwnProp(sn, k, v)
+  if (k === "__proto__") {
+    setProtoProp(sn, v)
+  } else {
+    sn[k] = v
+  }
 }
 
 function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
@@ -143,8 +160,6 @@ function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
 
 const patchRecorder = new InternalPatchRecorder()
 
-const emptyPath: Path = Object.freeze([])
-
 function objectDidChange(change: IObjectDidChange): void {
   if (typeof change.name !== "string") {
     throw failure("change.name is not a string")
@@ -152,99 +167,88 @@ function objectDidChange(change: IObjectDidChange): void {
 
   const obj = change.object
   const actualNode = dataToModelNode(obj)
-  const oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
 
   patchRecorder.reset()
 
-  let mutate: ((sn: any) => void) | undefined
-
   switch (change.type) {
-    case "add": {
-      mutate = objectDidChangeAddOrUpdate(change, oldUntransformedSn)
-      // Emit deep change for add
-      emitDeepChange(actualNode, {
-        type: DeepChangeType.ObjectAdd,
-        target: obj as object,
-        path: emptyPath,
-        key: change.name,
-        newValue: change.newValue,
-        isInit: getIsInInitPhase(),
-      })
+    case "add":
+      emitObjectAddDeepChange(actualNode, obj, change.name, change.newValue)
       break
-    }
 
-    case "update": {
-      mutate = objectDidChangeAddOrUpdate(change, oldUntransformedSn)
-      // Emit deep change for update
-      emitDeepChange(actualNode, {
-        type: DeepChangeType.ObjectUpdate,
-        target: obj as object,
-        path: emptyPath,
-        key: change.name,
-        newValue: change.newValue,
-        oldValue: change.oldValue,
-        isInit: getIsInInitPhase(),
-      })
+    case "update":
+      emitObjectUpdateDeepChange(actualNode, obj, change.name, change.newValue, change.oldValue)
       break
-    }
 
-    case "remove": {
-      mutate = objectDidChangeRemove(change, oldUntransformedSn)
-      // Emit deep change for remove
-      emitDeepChange(actualNode, {
-        type: DeepChangeType.ObjectRemove,
-        target: obj as object,
-        path: emptyPath,
-        key: change.name,
-        oldValue: change.oldValue,
-        isInit: getIsInInitPhase(),
-      })
+    case "remove":
+      emitObjectRemoveDeepChange(actualNode, obj, change.name, change.oldValue)
       break
-    }
 
     default:
       throw failure("assertion error: unsupported object change type")
   }
 
-  runTypeCheckingAfterChange(obj, patchRecorder)
-
-  if (!runningWithoutSnapshotOrPatches) {
-    updateInternalSnapshot(actualNode, mutate)
-    patchRecorder.emit(actualNode)
+  if (runningWithoutSnapshotOrPatches) {
+    return
   }
+
+  const oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
+  const shouldEmitPatches = hasPatchListenersFor(actualNode)
+  const shouldBuildInversePatches = shouldEmitPatches || isTypeCheckingAfterChangeEnabled()
+
+  let mutate: ((sn: any) => void) | undefined
+  switch (change.type) {
+    case "add":
+    case "update":
+      mutate = objectDidChangeAddOrUpdate(
+        change,
+        oldUntransformedSn,
+        shouldEmitPatches,
+        shouldBuildInversePatches
+      )
+      break
+    case "remove":
+      mutate = objectDidChangeRemove(
+        change,
+        oldUntransformedSn,
+        shouldEmitPatches,
+        shouldBuildInversePatches
+      )
+      break
+    default:
+      throw failure("assertion error: unsupported object change type")
+  }
+
+  runTypeCheckingAfterChange(obj, patchRecorder)
+  updateInternalSnapshot(actualNode, mutate)
+  patchRecorder.emit(actualNode)
 }
 
 function objectDidChangeRemove(
   change: IObjectDidChange & { type: "remove" },
-  oldUntransformedSn: any
+  oldUntransformedSn: any,
+  shouldEmitPatches: boolean,
+  shouldBuildInversePatches: boolean
 ) {
   const k = change.name
   const oldVal = oldUntransformedSn[k]
   const mutate = mutateDelete.bind(undefined, k)
 
-  const path = [k as string]
-
-  patchRecorder.record(
-    [
-      {
-        op: "remove",
-        path,
-      },
-    ],
-    [
-      {
-        op: "add",
-        path,
-        value: freezeInternalSnapshot(oldVal),
-      },
-    ]
-  )
+  if (shouldEmitPatches || shouldBuildInversePatches) {
+    const path = [k as string]
+    const patches = shouldEmitPatches ? [{ op: "remove" as const, path }] : undefined
+    const invPatches = shouldBuildInversePatches
+      ? [{ op: "add" as const, path, value: freezeInternalSnapshot(oldVal) }]
+      : undefined
+    patchRecorder.record(patches, invPatches)
+  }
   return mutate
 }
 
 function objectDidChangeAddOrUpdate(
   change: IObjectWillChange & { type: "add" | "update" },
-  oldUntransformedSn: any
+  oldUntransformedSn: any,
+  shouldEmitPatches: boolean,
+  shouldBuildInversePatches: boolean
 ) {
   const k = change.name
   const val = change.newValue
@@ -261,40 +265,23 @@ function objectDidChangeAddOrUpdate(
 
   const mutate = mutateSet.bind(undefined, k, newVal)
 
-  const path = [k as string]
-  if (change.type === "add") {
-    patchRecorder.record(
-      [
-        {
-          op: "add",
-          path,
-          value: freezeInternalSnapshot(newVal),
-        },
-      ],
-      [
-        {
-          op: "remove",
-          path,
-        },
-      ]
-    )
-  } else {
-    patchRecorder.record(
-      [
-        {
-          op: "replace",
-          path,
-          value: freezeInternalSnapshot(newVal),
-        },
-      ],
-      [
-        {
-          op: "replace",
-          path,
-          value: freezeInternalSnapshot(oldVal),
-        },
-      ]
-    )
+  if (shouldEmitPatches || shouldBuildInversePatches) {
+    const path = [k as string]
+    if (change.type === "add") {
+      const patches = shouldEmitPatches
+        ? [{ op: "add" as const, path, value: freezeInternalSnapshot(newVal) }]
+        : undefined
+      const invPatches = shouldBuildInversePatches ? [{ op: "remove" as const, path }] : undefined
+      patchRecorder.record(patches, invPatches)
+    } else {
+      const patches = shouldEmitPatches
+        ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(newVal) }]
+        : undefined
+      const invPatches = shouldBuildInversePatches
+        ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(oldVal) }]
+        : undefined
+      patchRecorder.record(patches, invPatches)
+    }
   }
 
   return mutate
@@ -306,6 +293,11 @@ function interceptObjectMutation(change: IObjectWillChange) {
   if (typeof change.name === "symbol") {
     throw failure("symbol properties are not supported")
   }
+
+  // This must happen before detach/reparent work below. It keeps the old value
+  // available for inverse patches and folds a departing dirty child into its
+  // parent snapshot while its parent path still exists.
+  flushInternalSnapshot(dataToModelNode(change.object), false)
 
   switch (change.type) {
     case "add":

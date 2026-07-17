@@ -1,9 +1,10 @@
+import { isObservableObject, keys } from "mobx"
 import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
 import type { Path } from "../../parent/pathTypes"
-import { assertIsFunction, assertIsObject, isObject, lazy } from "../../utils"
+import { assertIsFunction, assertIsObject, getMobxVersion, isObject, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
-import { createPerEntryCachedCheck } from "../createPerEntryCachedCheck"
+import { createIndexedPerEntryCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type {
@@ -17,12 +18,16 @@ import { TypeCheckError } from "../TypeCheckError"
 import {
   type LateTypeChecker,
   lateTypeChecker,
+  type SnapshotProcessor,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
+
+const needsObservableObjectKeyTracking = getMobxVersion() < 5
 
 function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGen): S {
   assertIsFunction(objFn, "objFn")
@@ -33,6 +38,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
 
     type SchemaEntry = Readonly<{
       propName: string
+      processorIndex: number
       getResolvedChecker: () => TypeChecker
     }>
     type CheckedSchemaEntry = Readonly<{
@@ -41,10 +47,11 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
     }>
 
     const schemaEntries: ReadonlyArray<SchemaEntry> = Object.entries(objectSchema).map(
-      ([propName, unresolvedChecker]) => {
+      ([propName, unresolvedChecker], processorIndex) => {
         let resolvedChecker: TypeChecker | undefined
         return {
           propName,
+          processorIndex,
           getResolvedChecker: () => {
             if (!resolvedChecker) {
               resolvedChecker = resolveTypeChecker(unresolvedChecker)
@@ -95,7 +102,10 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       return `{ ${propsMsg.join(" ")} }`
     }
 
-    const applySnapshotProcessor = (obj: Record<string, unknown>, mode: "from" | "to") => {
+    const applySnapshotProcessor = (
+      obj: Record<string, unknown>,
+      processors: ReadonlyArray<SnapshotProcessor | undefined>
+    ) => {
       const newObj: typeof obj = {}
 
       // note: we allow excess properties when checking objects
@@ -104,10 +114,8 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         const k = keys[i]
         const schemaEntry = schemaEntryByPropName[k]
         if (schemaEntry) {
-          const tc = schemaEntry.getResolvedChecker()
-          newObj[k] = withErrorPathSegment(k, () =>
-            mode === "from" ? tc.fromSnapshotProcessor(obj[k]) : tc.toSnapshotProcessor(obj[k])
-          )
+          const processor = processors[schemaEntry.processorIndex]
+          newObj[k] = processor ? withErrorPathSegment(k, () => processor(obj[k])) : obj[k]
         } else {
           // unknown prop, copy as is
           newObj[k] = obj[k]
@@ -130,17 +138,26 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       return null
     }
 
-    // No setupCachePruning needed: iterates fixed schemaEntries, not dynamic object keys,
-    // so entries never become stale.
-    const checkObjectProps = createPerEntryCachedCheck<number>(
-      (_obj, checkEntry) => {
-        const entries = checkedSchemaEntries()
-        for (let i = 0; i < entries.length; i++) {
-          const error = checkEntry(i)
-          if (error) return error
-        }
-        return null
-      },
+    const iterateObjectProps = (
+      obj: any,
+      checkEntry: (entryIndex: number) => TypeCheckError | null
+    ): TypeCheckError | null => {
+      const entries = checkedSchemaEntries()
+      // MobX 4 does not track reads of absent properties. Newer versions can
+      // avoid the extra key-set read.
+      if (needsObservableObjectKeyTracking && isObservableObject(obj)) {
+        void keys(obj)
+      }
+
+      for (let i = 0; i < entries.length; i++) {
+        const error = checkEntry(i)
+        if (error) return error
+      }
+      return null
+    }
+
+    const checkObjectProps = createIndexedPerEntryCachedCheck(
+      iterateObjectProps,
       (obj, entryIndex, path, typeCheckedValue) => {
         const entry = checkedSchemaEntries()[entryIndex]
         if (!entry) {
@@ -189,13 +206,21 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         return thisTc
       },
 
-      (obj: Record<string, unknown>) => {
-        return applySnapshotProcessor(obj, "from")
-      },
+      snapshotProcessorPlan(
+        () => schemaEntries.map((entry) => entry.getResolvedChecker()),
+        (processors) =>
+          processors.some(Boolean)
+            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processors)
+            : undefined
+      ),
 
-      (obj: Record<string, unknown>) => {
-        return applySnapshotProcessor(obj, "to")
-      }
+      snapshotProcessorPlan(
+        () => schemaEntries.map((entry) => entry.getResolvedChecker()),
+        (processors) =>
+          processors.some(Boolean)
+            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processors)
+            : undefined
+      )
     )
 
     return thisTc
@@ -223,6 +248,9 @@ export function typesObject<T>(objectFunction: T): T {
   // we can't type this function or else we won't be able to make it work recursively
   const typeInfoGen: TypeInfoGen = (t) => new ObjectTypeInfo(t, objectFunction as any)
 
+  // The schema callback cannot be evaluated here because it may reference the
+  // object type recursively. Keep the unresolved capability conservative; the
+  // concrete checker still omits processors when every schema entry is identity-only.
   return typesObjectHelper(objectFunction, false, typeInfoGen) as any
 }
 
@@ -281,12 +309,13 @@ export class ObjectTypeInfo extends TypeInfo {
  * @returns
  */
 export function typesFrozen<T extends AnyType>(dataType: T): ModelType<Frozen<TypeToData<T>>> {
+  const resolvedDataType = resolveStandardType(dataType)
   return typesObjectHelper(
     () => ({
-      data: dataType,
+      data: resolvedDataType,
     }),
     true,
-    (t) => new FrozenTypeInfo(t, resolveStandardType(dataType))
+    (t) => new FrozenTypeInfo(t, resolvedDataType)
   ) as any
 }
 

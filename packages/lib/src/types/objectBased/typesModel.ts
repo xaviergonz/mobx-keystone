@@ -122,7 +122,7 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
           }
         },
 
-        (sn) => sn
+        undefined
       )
 
       return thisTc

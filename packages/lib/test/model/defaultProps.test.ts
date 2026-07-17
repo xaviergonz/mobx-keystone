@@ -1,5 +1,6 @@
 import { _, assert } from "spec.ts"
 import {
+  ExtendedModel,
   idProp,
   Model,
   type ModelCreationData,
@@ -9,6 +10,10 @@ import {
   tProp,
   types,
 } from "../../src"
+import {
+  getModelPropFromSnapshotProcessor,
+  getModelPropToSnapshotProcessor,
+} from "../../src/modelShared/prop"
 import type { Flatten } from "../../src/utils/types"
 import { testModel } from "../utils"
 
@@ -211,4 +216,103 @@ test("default props", () => {
   expect(m3.bb).toBe(undefined)
   expect(m3.bbb).toBe(7)
   expect(m3.bbbb).toBe(undefined)
+})
+
+test("tProp only installs output snapshot processing when needed", () => {
+  const getProcessor = (type: any) => getModelPropToSnapshotProcessor(tProp(type))
+
+  expect(getProcessor(types.string)).toBeUndefined()
+  expect(getProcessor(types.literal("value"))).toBeUndefined()
+  expect(getProcessor(types.model(M))).toBeUndefined()
+  expect(getProcessor(types.array(types.string))).toBeUndefined()
+  expect(getProcessor(types.array(types.unchecked()))).toBeUndefined()
+  expect(getProcessor(types.tuple(types.string, types.number))).toBeUndefined()
+  expect(getProcessor(types.record(types.string))).toBeUndefined()
+  expect(getProcessor(types.refinement(types.number, () => true))).toBeUndefined()
+  expect(getProcessor(types.skipCheck(types.string))).toBeUndefined()
+  expect(getProcessor(types.frozen(types.number))).toBeUndefined()
+  expect(getProcessor(types.arraySet(types.number))).toBeUndefined()
+  expect(getProcessor(types.objectMap(types.number))).toBeUndefined()
+  expect(getProcessor(types.or(types.unchecked(), types.string))).toBeUndefined()
+  expect(getProcessor(types.bigint)).toBeUndefined()
+  expect(getProcessor(types.array(types.bigint))).toBeUndefined()
+  expect(getProcessor(types.or(types.string, types.number))).toBeTypeOf("function")
+  expect(getProcessor(types.arraySet(types.or(types.string, types.number)))).toBeTypeOf("function")
+  expect(getProcessor(types.array(types.or(types.string, types.number)))).toBeTypeOf("function")
+
+  const propWithExplicitProcessor = tProp(types.string).withSnapshotProcessor({
+    toSnapshot: (value) => value.toUpperCase(),
+  })
+  expect(getModelPropToSnapshotProcessor(propWithExplicitProcessor)?.("value")).toBe("VALUE")
+})
+
+test("tProp only installs input snapshot processing when needed", () => {
+  const getProcessor = (type: any) => getModelPropFromSnapshotProcessor(tProp(type))
+
+  expect(getProcessor(types.string)).toBeUndefined()
+  expect(getProcessor(types.literal("value"))).toBeUndefined()
+  expect(getProcessor(types.unchecked())).toBeUndefined()
+  expect(getProcessor(types.array(types.string))).toBeUndefined()
+  expect(getProcessor(types.array(types.unchecked()))).toBeUndefined()
+  expect(getProcessor(types.tuple(types.string, types.number))).toBeUndefined()
+  expect(getProcessor(types.record(types.string))).toBeUndefined()
+  expect(getProcessor(types.refinement(types.number, () => true))).toBeUndefined()
+  expect(getProcessor(types.skipCheck(types.string))).toBeUndefined()
+  expect(getProcessor(types.bigint)).toBeUndefined()
+  expect(getProcessor(types.array(types.bigint))).toBeUndefined()
+  expect(getProcessor(types.frozen(types.number))).toBeUndefined()
+  expect(getProcessor(types.or(types.unchecked(), types.string))).toBeUndefined()
+
+  expect(getProcessor(types.model(M))).toBeTypeOf("function")
+  expect(getProcessor(types.arraySet(types.number))).toBeTypeOf("function")
+  expect(getProcessor(types.objectMap(types.number))).toBeTypeOf("function")
+  expect(getProcessor(types.or(types.string, types.number))).toBeTypeOf("function")
+  expect(getProcessor(types.array(types.or(types.string, types.number)))).toBeTypeOf("function")
+  expect(getModelPropFromSnapshotProcessor(tProp(types.string, "default"))).toBeTypeOf("function")
+
+  const arraySetSnapshot = { items: [1, 2] }
+  const processedArraySetSnapshot = getModelPropFromSnapshotProcessor(
+    tProp(types.arraySet(types.number))
+  )?.(arraySetSnapshot) as typeof arraySetSnapshot
+  expect(processedArraySetSnapshot).not.toBe(arraySetSnapshot)
+  expect(processedArraySetSnapshot.items).toBe(arraySetSnapshot.items)
+
+  const objectMapSnapshot = { items: { a: 1, b: 2 } }
+  const processedObjectMapSnapshot = getModelPropFromSnapshotProcessor(
+    tProp(types.objectMap(types.number))
+  )?.(objectMapSnapshot) as typeof objectMapSnapshot
+  expect(processedObjectMapSnapshot).not.toBe(objectMapSnapshot)
+  expect(processedObjectMapSnapshot.items).toBe(objectMapSnapshot.items)
+
+  const propWithExplicitProcessor = tProp(types.array(types.string)).withSnapshotProcessor<string>({
+    fromSnapshot: (value) => value.split(","),
+  })
+  expect(getModelPropFromSnapshotProcessor(propWithExplicitProcessor)?.("a,b")).toEqual(["a", "b"])
+})
+
+test("model processor graphs stay lazy through subclass declaration", () => {
+  let schemaCalls = 0
+  let recursiveType: any
+  recursiveType = types.object(() => {
+    schemaCalls++
+    return {
+      value: types.string,
+      children: types.array(recursiveType),
+    }
+  })
+
+  const recursiveProp = tProp(recursiveType)
+  expect(schemaCalls).toBe(0)
+
+  class Base extends Model({ node: recursiveProp }) {}
+  expect(schemaCalls).toBe(0)
+  class Derived extends ExtendedModel(Base, {}) {}
+
+  expect(schemaCalls).toBe(0)
+  expect((Base as any).fromSnapshotProcessor).toBeUndefined()
+  expect(schemaCalls).toBeGreaterThan(0)
+  const schemaCallsAfterResolution = schemaCalls
+  expect(Object.getOwnPropertyDescriptor(Base, "fromSnapshotProcessor")?.get).toBeUndefined()
+  expect((Derived as any).fromSnapshotProcessor).toBeUndefined()
+  expect(schemaCalls).toBe(schemaCallsAfterResolution)
 })

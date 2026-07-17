@@ -75,6 +75,50 @@ describe("onPatches and applyPatches", () => {
     }
   }
 
+  test("a listener on an unrelated tree does not receive patches", () => {
+    const listenerTree = createP()
+    const changedTree = createP()
+    const patches: Patch[][] = []
+
+    autoDispose(
+      onPatches(listenerTree, (newPatches) => {
+        patches.push(newPatches)
+      })
+    )
+
+    runUnprotected(() => {
+      changedTree.x++
+    })
+
+    expect(patches).toStrictEqual([])
+  })
+
+  test("a listener two levels above a change receives a correctly ordered multi-segment path", () => {
+    @testModel("PatchDepthLeaf")
+    class Leaf extends Model({ value: prop<number>(0) }) {}
+    @testModel("PatchDepthMid")
+    class Mid extends Model({ leaf: prop<Leaf>(() => new Leaf({})) }) {}
+    @testModel("PatchDepthRoot")
+    class Root extends Model({ mid: prop<Mid>(() => new Mid({})) }) {}
+
+    const root = new Root({})
+    const rootPatches: Patch[][] = []
+    autoDispose(
+      onPatches(root, (newPatches) => {
+        rootPatches.push(newPatches)
+      })
+    )
+
+    runUnprotected(() => {
+      root.mid.leaf.value = 42
+    })
+
+    // the prefix ["mid", "leaf"] must be in root-to-leaf order, not reversed
+    expect(rootPatches).toStrictEqual([
+      [{ op: "replace", path: ["mid", "leaf", "value"], value: 42 }],
+    ])
+  })
+
   test("no changes should result in no patches", () => {
     const { p, pPatches, pInvPatches, p2Patches, p2InvPatches } = setup(true)
 
@@ -90,6 +134,16 @@ describe("onPatches and applyPatches", () => {
     expect(pInvPatches).toMatchInlineSnapshot(`[]`)
     expect(p2Patches).toMatchInlineSnapshot(`[]`)
     expect(p2InvPatches).toMatchInlineSnapshot(`[]`)
+  })
+
+  test("splice keeps the snapshot current without patch listeners", () => {
+    const arr = fromSnapshot([1, 2, 3])
+
+    runUnprotected(() => {
+      arr.splice(1, 1, 4, 5)
+    })
+
+    expect(getSnapshot(arr)).toStrictEqual([1, 4, 5, 3])
   })
 
   test("increment numbers", () => {

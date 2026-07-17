@@ -1,4 +1,4 @@
-import { assertIsPrimitive, identityFn } from "../../utils"
+import { assertIsPrimitive } from "../../utils"
 import type { PrimitiveValue } from "../../utils/types"
 import { registerStandardTypeResolver, type StandardTypeResolverFn } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
@@ -54,8 +54,8 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
     typeInfoGen,
 
     (value) => (value === literal ? thisTc : null),
-    identityFn,
-    identityFn
+    undefined,
+    undefined
   )
 
   return thisTc as any
@@ -122,8 +122,8 @@ export const typesBoolean: IdentityType<boolean> = new TypeChecker(
   (t) => new BooleanTypeInfo(t),
 
   (value) => (typeof value === "boolean" ? (typesBoolean as any) : null),
-  identityFn,
-  identityFn
+  undefined,
+  undefined
 ) as any
 
 standardTypeResolvers.push((v) => (v === Boolean ? typesBoolean : undefined))
@@ -159,8 +159,8 @@ export const typesNumber: IdentityType<number> = new TypeChecker(
   (t) => new NumberTypeInfo(t),
 
   (value) => (typeof value === "number" ? (typesNumber as any) : null),
-  identityFn,
-  identityFn
+  undefined,
+  undefined
 ) as any
 
 standardTypeResolvers.push((v) => (v === Number ? typesNumber : undefined))
@@ -196,8 +196,8 @@ export const typesString: IdentityType<string> = new TypeChecker(
   (t) => new StringTypeInfo(t),
 
   (value) => (typeof value === "string" ? (typesString as any) : null),
-  identityFn,
-  identityFn
+  undefined,
+  undefined
 ) as any
 
 standardTypeResolvers.push((v) => (v === String ? typesString : undefined))

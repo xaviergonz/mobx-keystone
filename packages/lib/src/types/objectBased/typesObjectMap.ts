@@ -9,6 +9,7 @@ import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -33,13 +34,13 @@ import { typesRecord } from "./typesRecord"
 export function typesObjectMap<T extends AnyType>(
   valueType: T
 ): ModelType<ObjectMap<TypeToData<T>>> {
-  const typeInfoGen: TypeInfoGen = (t) => new ObjectMapTypeInfo(t, resolveStandardType(valueType))
-
+  const resolvedValueType = resolveStandardType(valueType)
+  const typeInfoGen: TypeInfoGen = (t) => new ObjectMapTypeInfo(t, resolvedValueType)
   return lateTypeChecker(() => {
     const modelInfo = modelInfoByClass.get(ObjectMap)!
 
-    const valueChecker = resolveTypeChecker(valueType)
-    const valueSupport = resolveCodecSupport(valueType)
+    const valueChecker = resolveTypeChecker(resolvedValueType)
+    const valueSupport = resolveCodecSupport(resolvedValueType)
     const storedValueChecker = resolveTypeChecker(valueSupport.storedType)
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
@@ -82,42 +83,52 @@ export function typesObjectMap<T extends AnyType>(
         return resolvedDataTypeChecker.snapshotType(obj) ? thisTc : null
       },
 
-      (sn: { items: Record<string, unknown> }) => {
-        const newItems: (typeof sn)["items"] = {}
+      snapshotProcessorPlan(
+        () => [storedValueChecker],
+        ([itemProcessor]) =>
+          (sn: { items: Record<string, unknown> }) => {
+            let items = sn.items
 
-        withErrorPathSegment("items", () => {
-          for (const k of Object.keys(sn.items)) {
-            newItems[k] = withErrorPathSegment(k, () =>
-              storedValueChecker.fromSnapshotProcessor(sn.items[k])
-            )
-          }
-        })
+            if (itemProcessor) {
+              items = {}
+              withErrorPathSegment("items", () => {
+                for (const k of Object.keys(sn.items)) {
+                  items[k] = withErrorPathSegment(k, () => itemProcessor(sn.items[k]))
+                }
+              })
+            }
 
-        return {
-          ...sn,
-          [modelTypeKey]: modelInfo.name,
-          items: newItems,
-        }
-      },
+            return {
+              ...sn,
+              [modelTypeKey]: modelInfo.name,
+              items,
+            }
+          },
+        true
+      ),
 
-      (sn: { items: Record<string, unknown>; [modelTypeKey]?: string }) => {
-        const newItems: (typeof sn)["items"] = {}
+      snapshotProcessorPlan(
+        () => [storedValueChecker],
+        ([itemProcessor]) =>
+          itemProcessor
+            ? (sn: { items: Record<string, unknown>; [modelTypeKey]?: string }) => {
+                const newItems: (typeof sn)["items"] = {}
 
-        withErrorPathSegment("items", () => {
-          for (const k of Object.keys(sn.items)) {
-            newItems[k] = withErrorPathSegment(k, () =>
-              storedValueChecker.toSnapshotProcessor(sn.items[k])
-            )
-          }
-        })
+                withErrorPathSegment("items", () => {
+                  for (const k of Object.keys(sn.items)) {
+                    newItems[k] = withErrorPathSegment(k, () => itemProcessor(sn.items[k]))
+                  }
+                })
 
-        const snCopy = {
-          ...sn,
-          items: newItems,
-        }
+                const snCopy = {
+                  ...sn,
+                  items: newItems,
+                }
 
-        return snCopy
-      }
+                return snCopy
+              }
+            : undefined
+      )
     )
 
     return thisTc

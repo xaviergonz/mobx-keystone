@@ -1,5 +1,4 @@
 import { fastGetParent } from "../parent/path"
-import { isChildOfParent } from "../parent/path2"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, assertIsObject, deleteFromArray, failure } from "../utils"
 import type { ActionContext } from "./context"
@@ -31,7 +30,7 @@ export interface ActionMiddleware {
  */
 export type ActionMiddlewareDisposer = () => void
 
-type PartialActionMiddleware = Pick<ActionMiddleware, "filter" | "middleware">
+type PartialActionMiddleware = Pick<ActionMiddleware, "subtreeRoot" | "filter" | "middleware">
 
 const perObjectActionMiddlewares = new WeakMap<object, PartialActionMiddleware[]>()
 
@@ -96,7 +95,7 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
   assertIsObject(mware, "middleware")
 
   const { middleware, subtreeRoot } = mware
-  let { filter } = mware
+  const { filter } = mware
 
   assertTweakedObject(subtreeRoot, "middleware.subtreeRoot")
   assertIsFunction(middleware, "middleware.middleware")
@@ -107,21 +106,10 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
   // reminder: never turn middlewares into actions or else
   // reactions will not be picked up by the undo manager
 
-  if (subtreeRoot) {
-    const targetFilter = (ctx: ActionContext) =>
-      ctx.target === subtreeRoot || isChildOfParent(ctx.target, subtreeRoot)
+  // Middleware collection establishes the initial subtree match. The runner
+  // revalidates it after user middleware or filter code may have changed parentage.
 
-    if (filter) {
-      const customFilter = filter
-      filter = (ctx) => {
-        return targetFilter(ctx) && customFilter(ctx)
-      }
-    } else {
-      filter = targetFilter
-    }
-  }
-
-  const actualMware = { middleware, filter }
+  const actualMware = { middleware, subtreeRoot, filter }
 
   let objMwares = perObjectActionMiddlewares.get(subtreeRoot)
   if (objMwares) {
@@ -130,7 +118,6 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
     objMwares = [actualMware]
     perObjectActionMiddlewares.set(subtreeRoot, objMwares)
   }
-
   return () => {
     deleteFromArray(objMwares, actualMware)
   }

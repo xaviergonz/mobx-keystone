@@ -593,6 +593,18 @@ class Product extends ExtendedModel(
 
 ## Snapshot pre/post-processors: `fromSnapshotProcessor` / `toSnapshotProcessor`
 
+Snapshot processors must be **pure and deterministic**: they must not have
+observable side effects, and the same input must always produce the same output.
+They must also preserve the canonical snapshot round trip: passing the current
+output snapshot through `fromSnapshotProcessor` must reproduce the same stored
+model data. The library may skip the input processor when applying that already
+current canonical snapshot. Do not use processors for logging, counters,
+external-state reads, or other work that relies on every invocation being
+observable.
+
+This contract also applies to property snapshot processors, typed-property
+processors, and codecs.
+
 `fromSnapshotProcessor` might be used to transform an input snapshot into the model's expected input snapshot.
 This is useful, for example, for versioning.
 Note that the `$modelType` property will always be there and will remain unchanged no matter the transformation.

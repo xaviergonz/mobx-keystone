@@ -1,5 +1,6 @@
 import { action, isAction } from "mobx"
-import { fastGetParentPath } from "../parent/path"
+import { dataToModelNode } from "../parent/core"
+import { fastGetParentPath, type ParentPath } from "../parent/path"
 import type { PathElement } from "../parent/pathTypes"
 import { freezeInternalSnapshot, getInternalSnapshot } from "../snapshot/internal"
 import { assertTweakedObject } from "../tweaker/core"
@@ -14,19 +15,27 @@ const emptyPatchArray: Patch[] = []
 export class InternalPatchRecorder {
   patches: Patch[] = emptyPatchArray
   invPatches: Patch[] = emptyPatchArray
+  hasChanges = false
 
   reset() {
     this.patches = emptyPatchArray
     this.invPatches = emptyPatchArray
+    this.hasChanges = false
   }
 
-  record(patches: Patch[], invPatches: Patch[]) {
-    this.patches = patches
-    this.invPatches = invPatches
+  record(patches: Patch[] | undefined, invPatches: Patch[] | undefined) {
+    this.patches = patches ?? emptyPatchArray
+    this.invPatches = invPatches ?? emptyPatchArray
+    // An effective change requires at least one forward or inverse patch. A no-op
+    // mutation (e.g. an equal-count splice where every value is identical) records
+    // empty arrays and must not trigger ancestor type checking.
+    this.hasChanges = this.patches.length > 0 || this.invPatches.length > 0
   }
 
   emit(obj: object) {
-    emitPatches(obj, this.patches, this.invPatches)
+    if (this.patches.length > 0) {
+      emitPatches(obj, this.patches, this.invPatches)
+    }
     this.reset()
   }
 }
@@ -35,9 +44,11 @@ export class InternalPatchRecorder {
  * @internal
  */
 export function emitPatches(obj: object, patches: Patch[], invPatches: Patch[]): void {
-  if (patches.length > 0 || invPatches.length > 0) {
+  if (patches.length > 0) {
     emitGlobalPatch(obj, patches, invPatches)
-    emitPatch(obj, patches, invPatches)
+    if (patchListenerCount > 0) {
+      emitPatch(obj, patches, invPatches)
+    }
   }
 }
 
@@ -62,6 +73,37 @@ export type OnPatchesDisposer = () => void
 
 const patchListeners = new WeakMap<object, OnPatchesListener[]>()
 const globalPatchListeners: OnGlobalPatchesListener[] = []
+let patchListenerCount = 0
+
+/**
+ * @internal
+ */
+export function hasGlobalPatchListeners(): boolean {
+  return globalPatchListeners.length > 0
+}
+
+/**
+ * @internal
+ */
+export function hasPatchListenersFor(target: object): boolean {
+  if (hasGlobalPatchListeners()) {
+    return true
+  }
+  if (patchListenerCount === 0) {
+    return false
+  }
+
+  let current: object | undefined = dataToModelNode(target)
+  while (current) {
+    if ((patchListeners.get(current)?.length ?? 0) > 0) {
+      return true
+    }
+
+    const parentPath: ParentPath<object> | undefined = fastGetParentPath(current, false)
+    current = parentPath?.parent
+  }
+  return false
+}
 
 /**
  * Adds a listener that will be called every time a patch is generated for the tree of the given target object.
@@ -85,8 +127,11 @@ export function onPatches(subtreeRoot: object, listener: OnPatchesListener): OnP
   }
 
   listenersForObject.push(listener)
+  patchListenerCount++
   return () => {
-    deleteFromArray(listenersForObject, listener)
+    if (deleteFromArray(listenersForObject, listener)) {
+      patchListenerCount--
+    }
   }
 }
 
@@ -117,11 +162,16 @@ function emitGlobalPatch(obj: object, patches: Patch[], inversePatches: Patch[])
   }
 }
 
+// `reversedPrefix` holds the path segments from the changed node up to (but not
+// including) the current target, in child-to-root order. The prefix to prepend to
+// a patch is that slice reversed (root-to-child); `prefixCount` is how many of the
+// leading entries are relevant for the current target.
 function emitPatchForTarget(
   obj: object,
   patches: Patch[],
   inversePatches: Patch[],
-  pathPrefix: PathElement[]
+  reversedPrefix: readonly PathElement[],
+  prefixCount: number
 ): void {
   const listenersForObject = patchListeners.get(obj)
 
@@ -129,11 +179,10 @@ function emitPatchForTarget(
     return
   }
 
-  const fixPath = (patchesArray: Patch[]) =>
-    pathPrefix.length > 0 ? patchesArray.map((p) => addPathToPatch(p, pathPrefix)) : patchesArray
-
-  const patchesWithPathPrefix = fixPath(patches)
-  const invPatchesWithPathPrefix = fixPath(inversePatches)
+  const patchesWithPathPrefix =
+    prefixCount > 0 ? prefixPatches(patches, reversedPrefix, prefixCount) : patches
+  const invPatchesWithPathPrefix =
+    prefixCount > 0 ? prefixPatches(inversePatches, reversedPrefix, prefixCount) : inversePatches
 
   for (let i = 0; i < listenersForObject.length; i++) {
     const listener = listenersForObject[i]
@@ -142,24 +191,57 @@ function emitPatchForTarget(
 }
 
 function emitPatch(obj: object, patches: Patch[], inversePatches: Patch[]): void {
-  const pathPrefix: PathElement[] = []
+  // Segments are pushed in child-to-root order (O(1) each) rather than unshifted
+  // at the front (O(depth) each), keeping the whole walk O(depth) instead of
+  // O(depth^2) on deep trees.
+  const reversedPrefix: PathElement[] = []
 
-  emitPatchForTarget(obj, patches, inversePatches, pathPrefix)
+  emitPatchForTarget(obj, patches, inversePatches, reversedPrefix, 0)
 
   // and also emit subtree listeners all the way to the root
   let parentPath = fastGetParentPath(obj, false)
   while (parentPath) {
-    pathPrefix.unshift(parentPath.path)
-    emitPatchForTarget(parentPath.parent, patches, inversePatches, pathPrefix)
+    reversedPrefix.push(parentPath.path)
+    emitPatchForTarget(
+      parentPath.parent,
+      patches,
+      inversePatches,
+      reversedPrefix,
+      reversedPrefix.length
+    )
 
     parentPath = fastGetParentPath(parentPath.parent, false)
   }
 }
 
-function addPathToPatch(patch: Patch, pathPrefix: readonly PathElement[]): Patch {
+function prefixPatches(
+  patchesArray: Patch[],
+  reversedPrefix: readonly PathElement[],
+  prefixCount: number
+): Patch[] {
+  const result = new Array<Patch>(patchesArray.length)
+  for (let i = 0; i < patchesArray.length; i++) {
+    result[i] = addPathToPatch(patchesArray[i], reversedPrefix, prefixCount)
+  }
+  return result
+}
+
+function addPathToPatch(
+  patch: Patch,
+  reversedPrefix: readonly PathElement[],
+  prefixCount: number
+): Patch {
+  const patchPath = patch.path
+  const newPath = new Array<PathElement>(prefixCount + patchPath.length)
+  for (let i = 0; i < prefixCount; i++) {
+    newPath[i] = reversedPrefix[prefixCount - 1 - i]
+  }
+  for (let j = 0; j < patchPath.length; j++) {
+    newPath[prefixCount + j] = patchPath[j]
+  }
   return {
     ...patch,
-    path: [...pathPrefix, ...patch.path],
+    path: newPath,
   }
 }
 

@@ -9,6 +9,10 @@
       "dependsOn": [],
       "outputs": ["dist/**"]
     },
+    "benchmark#build": {
+      "dependsOn": ["mobx-keystone#build"],
+      "outputs": ["dist/**"]
+    },
     "mobx-keystone-yjs#build": {
       "dependsOn": ["mobx-keystone#build"],
       "outputs": ["dist/**"]
