@@ -11,6 +11,7 @@ import { TypeCheckError } from "../TypeCheckError"
 import {
   getTypeCheckerBaseTypeFromValue,
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -74,11 +75,11 @@ export function typesOr(
   const originalDispatcher = firstTypeChecker
     ? undefined
     : (dispatcherOrType as (sn: any) => AnyType)
-  const typeInfoGen: TypeInfoGen = (t) =>
-    new OrTypeInfo(t, orTypes.map(resolveStandardType), originalDispatcher)
+  const resolvedOrTypes = orTypes.map(resolveStandardType)
+  const typeInfoGen: TypeInfoGen = (t) => new OrTypeInfo(t, resolvedOrTypes, originalDispatcher)
 
   return lateTypeChecker(() => {
-    const checkers = orTypes.map(resolveTypeChecker)
+    const checkers = resolvedOrTypes.map(resolveTypeChecker)
 
     // if the or includes unchecked then it is unchecked
     if (checkers.some((tc) => tc.unchecked)) {
@@ -207,29 +208,39 @@ export function typesOr(
         return null
       },
 
-      (sn) => {
-        const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
-        if (!type) {
-          throw new SnapshotTypeMismatchError({
-            expectedTypeName: getTypeName(thisTc),
-            actualValue: sn,
-          })
-        }
+      snapshotProcessorPlan(
+        () => checkers,
+        () => (sn) => {
+          const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
+          if (!type) {
+            throw new SnapshotTypeMismatchError({
+              expectedTypeName: getTypeName(thisTc),
+              actualValue: sn,
+            })
+          }
 
-        return type.fromSnapshotProcessor(sn)
-      },
+          const processor = type.getFromSnapshotProcessor()
+          return processor ? processor(sn) : sn
+        },
+        true
+      ),
 
-      (sn) => {
-        const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
-        if (!type) {
-          throw new SnapshotTypeMismatchError({
-            expectedTypeName: getTypeName(thisTc),
-            actualValue: sn,
-          })
-        }
+      snapshotProcessorPlan(
+        () => checkers,
+        () => (sn) => {
+          const type = finalDispatcher ? finalDispatcher(sn) : thisTc.snapshotType(sn)
+          if (!type) {
+            throw new SnapshotTypeMismatchError({
+              expectedTypeName: getTypeName(thisTc),
+              actualValue: sn,
+            })
+          }
 
-        return type.toSnapshotProcessor(sn)
-      }
+          const processor = type.getToSnapshotProcessor()
+          return processor ? processor(sn) : sn
+        },
+        true
+      )
     )
 
     return thisTc

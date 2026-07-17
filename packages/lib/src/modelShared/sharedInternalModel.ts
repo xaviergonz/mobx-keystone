@@ -28,7 +28,10 @@ import { getInternalModelClassPropsInfo, setInternalModelClassPropsInfo } from "
 import { modelMetadataSymbol, modelUnwrappedClassSymbol } from "./modelSymbols"
 import {
   type AnyModelProp,
+  getModelPropFromSnapshotProcessor,
   getModelPropStoredDefaultValue,
+  getModelPropToSnapshotProcessor,
+  getModelPropTransform,
   type ModelProps,
   noDefaultValue,
   prop,
@@ -39,21 +42,36 @@ function createGetModelInstanceDataField<M extends AnyModel | AnyDataModel>(
   modelProp: AnyModelProp,
   modelPropName: string
 ): (this: M) => unknown {
-  const transformFn = modelProp._transform?.transform
+  const fixedTransform = modelProp._getTransform ? undefined : modelProp._transform
 
-  if (!transformFn) {
+  if (!modelProp._getTransform && !fixedTransform) {
     // no need to use get since these vars always get on the initial $
     return function (this) {
       return this.$[modelPropName]
     }
   }
 
-  const transformValue = (model: M, value: unknown) =>
-    transformFn(value, model, modelPropName, (newValue) => {
-      // use apply set instead to wrap it in an action
-      // set the $ object to set the original value directly
-      applySet(model.$, modelPropName, newValue)
-    })
+  type TransformValue = (model: M, value: unknown) => unknown
+  const createTransformValue =
+    (transform: NonNullable<ReturnType<typeof getModelPropTransform>>): TransformValue =>
+    (model, value) =>
+      transform.transform(value, model, modelPropName, (newValue) => {
+        // use apply set instead to wrap it in an action
+        // set the $ object to set the original value directly
+        applySet(model.$, modelPropName, newValue)
+      })
+  let transformValue: TransformValue
+  if (fixedTransform) {
+    transformValue = createTransformValue(fixedTransform)
+  } else {
+    transformValue = (model, value) => {
+      const transform = getModelPropTransform(modelProp)
+      transformValue = transform
+        ? createTransformValue(transform)
+        : (_model, storedValue) => storedValue
+      return transformValue(model, value)
+    }
+  }
 
   return function (this) {
     // no need to use get since these vars always get on the initial $
@@ -85,10 +103,9 @@ const setModelInstanceDataField: SetModelInstanceDataFieldFn = (
     value = modelProp._setterValueTransform(value)
   }
 
-  let untransformedValue = modelProp._transform
-    ? withErrorPathSegment(modelPropName, () =>
-        modelProp._transform!.untransform(value, model, modelPropName)
-      )
+  const transform = modelProp._getTransform ? modelProp._getTransform() : modelProp._transform
+  let untransformedValue = transform
+    ? withErrorPathSegment(modelPropName, () => transform.untransform(value, model, modelPropName))
     : value
 
   // apply default value if applicable
@@ -127,6 +144,27 @@ propForDefaultId._isId = true
 
 type FromSnapshotProcessorFn = (sn: any) => any
 type ToSnapshotProcessorFn = (sn: any, instance: any) => any
+
+function defineLazySnapshotProcessor(
+  modelClass: object,
+  property: "fromSnapshotProcessor" | "toSnapshotProcessor",
+  compile: () => FromSnapshotProcessorFn | ToSnapshotProcessorFn | undefined
+): void {
+  Object.defineProperty(modelClass, property, {
+    configurable: true,
+    enumerable: true,
+    get() {
+      const processor = compile()
+      Object.defineProperty(modelClass, property, {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: processor,
+      })
+      return processor
+    },
+  })
+}
 
 export function sharedInternalModel<
   TProps extends ModelProps,
@@ -234,13 +272,13 @@ export function sharedInternalModel<
   // create type checker if needed
   let dataTypeChecker: AnyType | undefined
   if (needsTypeChecker) {
-    const typeCheckerObj: {
-      [k: string]: any
-    } = {}
-    for (const [k, mp] of Object.entries(composedModelProps)) {
-      typeCheckerObj[k] = mp._typeChecker ? resolveStoredType(mp._typeChecker) : typesUnchecked()
-    }
-    dataTypeChecker = typesObject(() => typeCheckerObj)
+    dataTypeChecker = typesObject(() => {
+      const typeCheckerObj: Record<string, AnyType> = {}
+      for (const [k, mp] of Object.entries(composedModelProps)) {
+        typeCheckerObj[k] = mp._typeChecker ? resolveStoredType(mp._typeChecker) : typesUnchecked()
+      }
+      return typeCheckerObj
+    })
   }
 
   const base: any = baseModel ?? (type === "class" ? BaseModel : BaseDataModel)
@@ -279,8 +317,17 @@ export function sharedInternalModel<
     return baseModel
   }
 
-  // copy static props from base
-  Object.assign(ThisModel, base)
+  // Copy static props from the base without reading its lazy snapshot processor
+  // accessors. This keeps subclass declaration from compiling the parent model's
+  // processor graph before snapshot processing is actually needed.
+  for (const key of Reflect.ownKeys(base)) {
+    if (key === "fromSnapshotProcessor" || key === "toSnapshotProcessor") {
+      continue
+    }
+    if (Object.prototype.propertyIsEnumerable.call(base, key)) {
+      ;(ThisModel as any)[key] = (base as any)[key]
+    }
+  }
   delete (ThisModel as any)[modelUnwrappedClassSymbol]
 
   const initializers: ModelClassInitializer[] = base[modelInitializersSymbol]
@@ -345,10 +392,6 @@ export function sharedInternalModel<
     }
   }
 
-  const modelPropsFromSnapshotProcessor = getModelPropsFromSnapshotProcessor(composedModelProps)
-
-  const modelPropsToSnapshotProcessor = getModelPropsToSnapshotProcessor(composedModelProps)
-
   if (fromSnapshotProcessor) {
     const fn = fromSnapshotProcessor
     fromSnapshotProcessor = (sn) => {
@@ -373,54 +416,42 @@ export function sharedInternalModel<
     }
   }
 
-  ThisModel.fromSnapshotProcessor = chainFns(fromSnapshotProcessor, modelPropsFromSnapshotProcessor)
-  ThisModel.toSnapshotProcessor = chainFns(modelPropsToSnapshotProcessor, toSnapshotProcessor)
+  defineLazySnapshotProcessor(ThisModel, "fromSnapshotProcessor", () =>
+    chainFns(
+      fromSnapshotProcessor,
+      getModelPropsSnapshotProcessor(composedModelProps, getModelPropFromSnapshotProcessor)
+    )
+  )
+  defineLazySnapshotProcessor(ThisModel, "toSnapshotProcessor", () =>
+    chainFns(
+      getModelPropsSnapshotProcessor(composedModelProps, getModelPropToSnapshotProcessor),
+      toSnapshotProcessor
+    )
+  )
 
   return ThisModel
 }
 
-function getModelPropsFromSnapshotProcessor(
-  composedModelProps: ModelProps
+function getModelPropsSnapshotProcessor(
+  composedModelProps: ModelProps,
+  getProcessor: (prop: AnyModelProp) => ((sn: unknown) => unknown) | undefined
 ): FromSnapshotProcessorFn | undefined {
-  const propsWithFromSnapshotProcessor = Object.entries(composedModelProps).filter(
-    ([_propName, propData]) => propData._fromSnapshotProcessor
-  )
-  if (propsWithFromSnapshotProcessor.length <= 0) {
-    return undefined
-  }
-
-  return (sn) => {
-    const newSn = { ...sn }
-    for (const [propName, propData] of propsWithFromSnapshotProcessor) {
-      if (propData._fromSnapshotProcessor) {
-        newSn[propName] = withErrorPathSegment(propName, () =>
-          propData._fromSnapshotProcessor!(sn[propName])
-        )
-      }
+  const propsWithProcessor: Array<readonly [string, (sn: unknown) => unknown]> = []
+  for (const [propName, propData] of Object.entries(composedModelProps)) {
+    const processor = getProcessor(propData)
+    if (processor) {
+      propsWithProcessor.push([propName, processor])
     }
-    return newSn
   }
-}
 
-function getModelPropsToSnapshotProcessor(
-  composedModelProps: ModelProps
-): ToSnapshotProcessorFn | undefined {
-  const propsWithToSnapshotProcessor = Object.entries(composedModelProps).filter(
-    ([_propName, propData]) => propData._toSnapshotProcessor
-  )
-
-  if (propsWithToSnapshotProcessor.length <= 0) {
+  if (propsWithProcessor.length === 0) {
     return undefined
   }
 
   return (sn) => {
     const newSn = { ...sn }
-    for (const [propName, propData] of propsWithToSnapshotProcessor) {
-      if (propData._toSnapshotProcessor) {
-        newSn[propName] = withErrorPathSegment(propName, () =>
-          propData._toSnapshotProcessor!(sn[propName])
-        )
-      }
+    for (const [propName, processor] of propsWithProcessor) {
+      newSn[propName] = withErrorPathSegment(propName, () => processor(sn[propName]))
     }
     return newSn
   }

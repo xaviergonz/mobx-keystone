@@ -1,12 +1,13 @@
 import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
+import { treeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { hasOwnProp, isArray, isObject } from "../utils"
 import {
-  dataObjectParent,
   dataToModelNode,
+  getDataObjectParent,
+  hasDataObjectParent,
   modelToDataNode,
-  objectParents,
   reportParentPathObserved,
 } from "./core"
 import type { Path, PathElement, WritablePath } from "./pathTypes"
@@ -73,7 +74,7 @@ export function fastGetParentPath<T extends object = any>(
   if (useAtom) {
     reportParentPathObserved(value)
   }
-  return objectParents.get(value) as ParentPath<T> | undefined
+  return treeNodeMetadata.get(value)?.parentPath as ParentPath<T> | undefined
 }
 
 /**
@@ -83,7 +84,7 @@ export function fastGetParentPathIncludingDataObjects<T extends object = any>(
   value: object,
   useAtom: boolean
 ): ParentPath<T> | undefined {
-  const parentModel = dataObjectParent.get(value)
+  const parentModel = getDataObjectParent(value)
   if (parentModel) {
     return { parent: parentModel as T, path: "$" }
   }
@@ -144,7 +145,7 @@ export function isModelDataObject(value: object): boolean {
  * @internal
  */
 export function fastIsModelDataObject(value: object): boolean {
-  return dataObjectParent.has(value)
+  return hasDataObjectParent(value)
 }
 
 /**

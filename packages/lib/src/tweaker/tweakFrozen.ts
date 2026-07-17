@@ -2,8 +2,8 @@ import { Frozen, frozenKey } from "../frozen/Frozen"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { setNewInternalSnapshot } from "../snapshot/internal"
-import { tweakedObjects } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
+import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker } from "./tweak"
 
 /**
@@ -13,7 +13,7 @@ export function tweakFrozen<T extends Frozen<any>>(
   frozenObj: T,
   parentPath: ParentPath<any> | undefined
 ): T {
-  tweakedObjects.set(frozenObj, undefined)
+  markAsTweakedObject(frozenObj)
   setParent(
     frozenObj, // value
     parentPath,

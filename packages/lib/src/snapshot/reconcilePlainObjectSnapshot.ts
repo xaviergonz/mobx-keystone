@@ -1,5 +1,8 @@
 import { isObservableObject, remove } from "mobx"
-import { runTypeCheckingAfterChange } from "../tweaker/typeChecking"
+import {
+  isTypeCheckingAfterChangeEnabled,
+  runTypeCheckingAfterChange,
+} from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
 import { isPlainObject } from "../utils"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
@@ -23,7 +26,8 @@ function reconcilePlainObjectSnapshot(
   }
 
   const plainObj = value
-  const snapshotBeforeChanges = getSnapshot(plainObj)
+  const typeCheckingAfterChangeEnabled = isTypeCheckingAfterChangeEnabled()
+  const snapshotBeforeChanges = typeCheckingAfterChangeEnabled ? getSnapshot(plainObj) : undefined
 
   withoutTypeChecking(() => {
     // remove excess props
@@ -54,7 +58,9 @@ function reconcilePlainObjectSnapshot(
     }
   })
 
-  runTypeCheckingAfterChange(plainObj, undefined, snapshotBeforeChanges)
+  if (typeCheckingAfterChangeEnabled) {
+    runTypeCheckingAfterChange(plainObj, undefined, snapshotBeforeChanges)
+  }
 
   return plainObj
 }

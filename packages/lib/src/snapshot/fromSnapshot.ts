@@ -5,8 +5,12 @@ import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolve
 import type { AnyType, TypeToData, TypeToSnapshotIn } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { resolveCodecSupport } from "../types/utility/typesCodec"
-import { isMap, isPrimitive, isSet, setOwnProp } from "../utils"
-import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
+import { isMap, isPrimitive, isSet, setProtoProp } from "../utils"
+import {
+  getCurrentErrorDiagnosticsContext,
+  runWithErrorDiagnosticsContext,
+} from "../utils/errorDiagnostics"
+import { setModelInitialDataSnapshot } from "./modelInitialData"
 import { registerDefaultSnapshotters } from "./registerDefaultSnapshotters"
 import type { SnapshotInOf, SnapshotInOfModel, SnapshotOutOf } from "./SnapshotOf"
 import { SnapshotProcessingError } from "./SnapshotProcessingError"
@@ -87,9 +91,8 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
 
       if (codecSupport.hasCodec) {
         unprocessedSnapshot = arg2
-        snapshot = resolveTypeChecker(codecSupport.storedType).fromSnapshotProcessor(
-          unprocessedSnapshot
-        )
+        const processor = resolveTypeChecker(codecSupport.storedType).getFromSnapshotProcessor()
+        snapshot = processor ? processor(unprocessedSnapshot) : unprocessedSnapshot
         options = arg3
         const storedValue = fromSnapshotAction(snapshot, unprocessedSnapshot, options)
         return codecSupport.adapter.toRuntime(storedValue)
@@ -97,7 +100,8 @@ export function fromSnapshot<T>(arg1: any, arg2: any, arg3?: any): T {
 
       const typeChecker = resolveTypeChecker(resolvedType)
       unprocessedSnapshot = arg2
-      snapshot = typeChecker.fromSnapshotProcessor(unprocessedSnapshot)
+      const processor = typeChecker.getFromSnapshotProcessor()
+      snapshot = processor ? processor(unprocessedSnapshot) : unprocessedSnapshot
       options = arg3
     } else {
       snapshot = arg1
@@ -179,6 +183,11 @@ function snapshotToInitialData(
   processedSn: SnapshotInOfModel<AnyModel>
 ): any {
   const initialData: Record<string, unknown> = {}
+  let allValuesPrimitive = true
+  // Model hydration visits every data slot. Keep this direct stack use rather
+  // than withErrorPathSegment: it avoids one callback closure per slot and
+  // has a measured production hydration win.
+  const errorDiagnosticsContext = getCurrentErrorDiagnosticsContext()
 
   const processedSnKeys = Object.keys(processedSn)
   const processedSnKeysLen = processedSnKeys.length
@@ -186,11 +195,24 @@ function snapshotToInitialData(
     const k = processedSnKeys[i]
     if (!isReservedModelKey(k)) {
       const v = processedSn[k]
-      const snapshotValue = withErrorPathSegment(k, () => internalFromSnapshot(v, ctx))
-      setOwnProp(initialData, k, snapshotValue)
+      errorDiagnosticsContext?.pushPath(k)
+      let snapshotValue: unknown
+      try {
+        snapshotValue = internalFromSnapshot(v, ctx)
+      } finally {
+        errorDiagnosticsContext?.popPath()
+      }
+      allValuesPrimitive &&= isPrimitive(snapshotValue)
+      if (k === "__proto__") {
+        setProtoProp(initialData, snapshotValue)
+      } else {
+        initialData[k] = snapshotValue
+      }
     }
   }
-  return observable.object(initialData, undefined, observableOptions)
+  const observableInitialData = observable.object(initialData, undefined, observableOptions)
+  setModelInitialDataSnapshot(observableInitialData, initialData, allValuesPrimitive)
+  return observableInitialData
 }
 
 export const observableOptions = {

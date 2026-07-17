@@ -2,13 +2,14 @@ import { isObservableObject, keys } from "mobx"
 import type { Path } from "../../parent/pathTypes"
 import { failure, isObject } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
-import { createPerEntryCachedCheck, recordCachePruning } from "../createPerEntryCachedCheck"
+import { createAdaptiveRecordCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, RecordType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -30,16 +31,19 @@ import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
  * @returns
  */
 export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
-  const typeInfoGen: TypeInfoGen = (tc) => new RecordTypeInfo(tc, resolveStandardType(valueType))
-
-  return lateTypeChecker(() => {
-    const valueChecker = resolveTypeChecker(valueType)
+  const resolvedValueType = resolveStandardType(valueType)
+  const typeInfoGen: TypeInfoGen = (tc) => new RecordTypeInfo(tc, resolvedValueType)
+  const typeChecker = lateTypeChecker(() => {
+    const valueChecker = resolveTypeChecker(resolvedValueType)
     const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Record<${valueChecker.getTypeName(...recursiveTypeCheckers, valueChecker)}>`
 
-    const applySnapshotProcessor = (obj: Record<string, unknown>, mode: "from" | "to") => {
+    const applySnapshotProcessor = (
+      obj: Record<string, unknown>,
+      processor: (snapshot: any) => unknown
+    ) => {
       if (valueChecker.unchecked) {
         return obj
       }
@@ -49,37 +53,44 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       const keys = Object.keys(obj)
       for (let i = 0; i < keys.length; i++) {
         const k = keys[i]
-        const v = withErrorPathSegment(k, () =>
-          mode === "from"
-            ? valueChecker.fromSnapshotProcessor(obj[k])
-            : valueChecker.toSnapshotProcessor(obj[k])
-        )
+        const v = withErrorPathSegment(k, () => processor(obj[k]))
         newObj[k] = v
       }
 
       return newObj
     }
 
-    const checkRecordValues = createPerEntryCachedCheck(
-      (obj, checkEntry) => {
-        // Use keys() from MobX for observable objects to track key additions/removals
-        // in MobX 4 (which lacks Proxy). Object.keys() doesn't establish MobX tracking
-        // in MobX 4, so the aggregation computed would miss newly added keys.
-        const objKeys = isObservableObject(obj) ? keys(obj) : Object.keys(obj)
-        for (let i = 0; i < objKeys.length; i++) {
-          const error = checkEntry(objKeys[i])
-          if (error) return error
-        }
-        return null
-      },
-      (obj, key, path, typeCheckedValue) => {
-        if (typeof key !== "string") {
-          throw failure(`record type keys must be strings, got ${typeof key}`)
-        }
-        const error = valueChecker.check(obj[key], emptyChildPath, typeCheckedValue)
-        return error ? prependPathElementToTypeCheckError(error, path, key, typeCheckedValue) : null
-      },
-      recordCachePruning
+    const iterateRecordEntries = (
+      obj: Record<string, unknown>,
+      checkEntry: (key: PropertyKey) => TypeCheckError | null
+    ): TypeCheckError | null => {
+      // Use keys() from MobX for observable objects to track key additions/removals
+      // in MobX 4 (which lacks Proxy). Object.keys() doesn't establish MobX tracking
+      // in MobX 4, so the aggregation computed would miss newly added keys.
+      const objKeys = isObservableObject(obj) ? keys(obj) : Object.keys(obj)
+      for (let i = 0; i < objKeys.length; i++) {
+        const error = checkEntry(objKeys[i])
+        if (error) return error
+      }
+      return null
+    }
+
+    const checkRecordEntry = (
+      obj: Record<string, unknown>,
+      key: PropertyKey,
+      path: Path,
+      typeCheckedValue: any
+    ): TypeCheckError | null => {
+      if (typeof key !== "string") {
+        throw failure(`record type keys must be strings, got ${typeof key}`)
+      }
+      const error = valueChecker.check(obj[key], emptyChildPath, typeCheckedValue)
+      return error ? prependPathElementToTypeCheckError(error, path, key, typeCheckedValue) : null
+    }
+
+    const checkRecordValues = createAdaptiveRecordCachedCheck(
+      iterateRecordEntries,
+      checkRecordEntry
     )
 
     const thisTc: TypeChecker = new TypeChecker(
@@ -125,17 +136,26 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
         return thisTc
       },
 
-      (obj: Record<string, unknown>) => {
-        return applySnapshotProcessor(obj, "from")
-      },
+      snapshotProcessorPlan(
+        () => [valueChecker],
+        ([processor]) =>
+          processor
+            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processor)
+            : undefined
+      ),
 
-      (obj: Record<string, unknown>) => {
-        return applySnapshotProcessor(obj, "to")
-      }
+      snapshotProcessorPlan(
+        () => [valueChecker],
+        ([processor]) =>
+          processor
+            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processor)
+            : undefined
+      )
     )
 
     return thisTc
-  }, typeInfoGen) as any
+  }, typeInfoGen)
+  return typeChecker as any
 }
 
 /**

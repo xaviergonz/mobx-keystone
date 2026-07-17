@@ -7,14 +7,14 @@ import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetac
 import { fastIsRootStoreNoAtom } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
 import { isTweakedObject } from "../tweaker/core"
+import { treeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { tryUntweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPrimitive } from "../utils"
 import {
-  dataObjectParent,
   dataToModelNode,
-  objectParents,
   parentPathEquals,
   reportParentPathChanged,
+  setDataObjectParent,
 } from "./core"
 import { addObjectChild, removeObjectChild } from "./coreObjectChildren"
 import { fastGetParentPath, fastGetRoot, type ParentPath } from "./path"
@@ -62,7 +62,7 @@ export const setParent = action(
     }
 
     if (isDataObject) {
-      dataObjectParent.set(value, parentPath!.parent)
+      setDataObjectParent(value, parentPath!.parent)
       // data object will proxy to use the actual parent model for child/parent stuff
       return value
     }
@@ -94,7 +94,7 @@ export const setParent = action(
     if (oldParentPath && parentPath) {
       if (oldParentPath.parent === parentPath.parent && indexChangeAllowed) {
         // just changing the index
-        objectParents.set(value, parentPath)
+        treeNodeMetadata.get(value)!.parentPath = parentPath
         reportParentPathChanged(value)
         return value
       } else {
@@ -119,7 +119,7 @@ export const setParent = action(
     }
 
     // attach to new
-    objectParents.set(value, parentPath)
+    treeNodeMetadata.get(value)!.parentPath = parentPath
     if (parentPath?.parent) {
       addObjectChild(parentPath.parent, value)
     }

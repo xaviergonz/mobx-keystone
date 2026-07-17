@@ -53,10 +53,10 @@ export abstract class BaseModel<
   ModelIdPropertyName extends string = never,
 > {
   // just to make typing work properly
-  [propsTypeSymbol]!: TProps;
-  [fromSnapshotOverrideTypeSymbol]!: FromSnapshotOverride;
-  [toSnapshotOverrideTypeSymbol]!: ToSnapshotOverride;
-  [modelIdPropertyNameSymbol]!: ModelIdPropertyName
+  declare [propsTypeSymbol]: TProps
+  declare [fromSnapshotOverrideTypeSymbol]: FromSnapshotOverride
+  declare [toSnapshotOverrideTypeSymbol]: ToSnapshotOverride
+  declare [modelIdPropertyNameSymbol]: ModelIdPropertyName
 
   /**
    * Model type name.
@@ -138,14 +138,6 @@ export abstract class BaseModel<
     const { snapshotInitialData, modelClass, generateNewIds } = constructorOptions
 
     Object.setPrototypeOf(this, modelClass!.prototype)
-
-    const self = this as any
-
-    // delete unnecessary props
-    delete self[propsTypeSymbol]
-    delete self[fromSnapshotOverrideTypeSymbol]
-    delete self[toSnapshotOverrideTypeSymbol]
-    delete self[modelIdPropertyNameSymbol]
 
     if (snapshotInitialData) {
       // from snapshot

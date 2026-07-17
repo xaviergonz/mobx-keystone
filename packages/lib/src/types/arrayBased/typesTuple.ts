@@ -1,13 +1,14 @@
 import type { Path } from "../../parent/pathTypes"
 import { isArray, lazy } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
-import { createPerEntryCachedCheck } from "../createPerEntryCachedCheck"
+import { createWholeContainerCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
+  snapshotProcessorPlan,
   TypeChecker,
   TypeCheckerBaseType,
   TypeInfo,
@@ -28,10 +29,10 @@ import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
  * @returns
  */
 export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
-  const typeInfoGen: TypeInfoGen = (t) => new TupleTypeInfo(t, itemTypes.map(resolveStandardType))
-
-  return lateTypeChecker(() => {
-    const checkers = itemTypes.map(resolveTypeChecker)
+  const resolvedItemTypes = itemTypes.map(resolveStandardType)
+  const typeInfoGen: TypeInfoGen = (t) => new TupleTypeInfo(t, resolvedItemTypes)
+  const typeChecker = lateTypeChecker(() => {
+    const checkers = resolvedItemTypes.map(resolveTypeChecker)
     const emptyChildPath: Path = []
 
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) => {
@@ -45,26 +46,27 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
       return "[" + typeNames.join(", ") + "]"
     }
 
-    // No setupCachePruning needed: tuple length is fixed, so entries never become stale.
-    const checkTupleItems = createPerEntryCachedCheck<number>(
-      (_array, checkEntry) => {
-        for (let i = 0; i < checkers.length; i++) {
-          const error = checkEntry(i)
-          if (error) return error
-        }
-        return null
-      },
-      (array, index, path, typeCheckedValue) => {
-        const checker = checkers[index]
+    const checkTupleItemsImperatively = (
+      array: unknown[],
+      path: Path,
+      typeCheckedValue: any
+    ): TypeCheckError | null => {
+      for (let i = 0; i < checkers.length; i++) {
+        const checker = checkers[i]
         if (checker.unchecked || checker.skipCheck) {
-          return null
+          continue
         }
-        const error = checker.check(array[index], emptyChildPath, typeCheckedValue)
-        return error
-          ? prependPathElementToTypeCheckError(error, path, index, typeCheckedValue)
-          : null
+        const error = checker.check(array[i], emptyChildPath, typeCheckedValue)
+        if (error) {
+          return prependPathElementToTypeCheckError(error, path, i, typeCheckedValue)
+        }
       }
-    )
+      return null
+    }
+
+    // MobX observable arrays invalidate reads at collection granularity, so indexed
+    // computeds cannot isolate tuple-item changes and only add allocation overhead.
+    const checkTupleItems = createWholeContainerCachedCheck(checkTupleItemsImperatively)
 
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
@@ -100,21 +102,36 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
         return thisTc
       },
 
-      (array: unknown[]) => {
-        return array.map((item, i) => {
-          return withErrorPathSegment(i, () => checkers[i].fromSnapshotProcessor(item))
-        })
-      },
+      snapshotProcessorPlan(
+        () => checkers,
+        (processors) =>
+          processors.some(Boolean)
+            ? (array: unknown[]) => {
+                return array.map((item, i) => {
+                  const processor = processors[i]
+                  return processor ? withErrorPathSegment(i, () => processor(item)) : item
+                })
+              }
+            : undefined
+      ),
 
-      (array: unknown[]) => {
-        return array.map((item, i) => {
-          return withErrorPathSegment(i, () => checkers[i].toSnapshotProcessor(item))
-        })
-      }
+      snapshotProcessorPlan(
+        () => checkers,
+        (processors) =>
+          processors.some(Boolean)
+            ? (array: unknown[]) => {
+                return array.map((item, i) => {
+                  const processor = processors[i]
+                  return processor ? withErrorPathSegment(i, () => processor(item)) : item
+                })
+              }
+            : undefined
+      )
     )
 
     return thisTc
-  }, typeInfoGen) as any
+  }, typeInfoGen)
+  return typeChecker as any
 }
 
 /**

@@ -4,10 +4,16 @@ import {
   DeepChangeType,
   fromSnapshot,
   Model,
+  ModelAutoTypeCheckingMode,
+  modelAction,
   onDeepChange,
   onGlobalDeepChange,
+  onPatches,
+  type Patch,
   prop,
   runUnprotected,
+  setGlobalConfig,
+  TypeCheckErrorFailure,
   tProp,
   types,
 } from "../../src"
@@ -21,6 +27,160 @@ class TestModel extends Model({
 }) {}
 
 describe("onDeepChange", () => {
+  test("a listener on an unrelated tree does not receive deep changes", () => {
+    const listenerTree = new TestModel({})
+    const changedTree = new TestModel({})
+    const changes: DeepChange[] = []
+
+    autoDispose(
+      onDeepChange(listenerTree, (change) => {
+        changes.push(change)
+      })
+    )
+
+    runUnprotected(() => {
+      changedTree.value++
+    })
+
+    expect(changes).toStrictEqual([])
+  })
+
+  test("on a type-check failure, deep-change listeners see the invalid change and its rollback but patch listeners see nothing", () => {
+    @testModel("DeepChangeRollbackModel")
+    class RollbackModel extends Model({
+      x: tProp(types.integer, 1),
+    }) {
+      @modelAction
+      setX(v: number) {
+        this.x = v
+      }
+    }
+
+    const m = new RollbackModel({})
+    const deepChanges: DeepChange[] = []
+    const patchBatches: Patch[][] = []
+
+    autoDispose(
+      onDeepChange(m, (change) => {
+        deepChanges.push(change)
+      })
+    )
+    autoDispose(
+      onPatches(m, (patches) => {
+        patchBatches.push(patches)
+      })
+    )
+
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+    try {
+      expect(() => m.setX(1.5)).toThrow(TypeCheckErrorFailure)
+    } finally {
+      setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+    }
+
+    // the invalid value was rolled back
+    expect(m.x).toBe(1)
+
+    // patch listeners never observe the invalid mutation nor its rollback: the
+    // forward patch is emitted only after type checking passes, and rollback runs
+    // under runWithoutSnapshotOrPatches
+    expect(patchBatches).toStrictEqual([])
+
+    // deep-change listeners, by contrast, observe both the invalid mutation and
+    // the compensating rollback mutation (they are emitted before type checking
+    // and are not suppressed during rollback)
+    expect(deepChanges).toStrictEqual([
+      {
+        type: DeepChangeType.ObjectUpdate,
+        target: m.$,
+        path: [],
+        key: "x",
+        newValue: 1.5,
+        oldValue: 1,
+        isInit: false,
+      },
+      {
+        type: DeepChangeType.ObjectUpdate,
+        target: m.$,
+        path: [],
+        key: "x",
+        newValue: 1,
+        oldValue: 1.5,
+        isInit: false,
+      },
+    ])
+  })
+
+  test("a listener two levels above a change receives a correctly ordered multi-segment path", () => {
+    @testModel("DeepChangeDepthLeaf")
+    class Leaf extends Model({ value: prop<number>(0) }) {}
+    @testModel("DeepChangeDepthMid")
+    class Mid extends Model({ leaf: prop<Leaf>(() => new Leaf({})) }) {}
+    @testModel("DeepChangeDepthRoot")
+    class Root extends Model({ mid: prop<Mid>(() => new Mid({})) }) {}
+
+    const root = new Root({})
+    const changes: DeepChange[] = []
+    autoDispose(
+      onDeepChange(root, (change) => {
+        changes.push(change)
+      })
+    )
+
+    runUnprotected(() => {
+      root.mid.leaf.value = 42
+    })
+
+    // the prefix ["mid", "leaf"] must be in root-to-leaf order, not reversed
+    expect(changes).toStrictEqual([
+      {
+        type: DeepChangeType.ObjectUpdate,
+        target: root.mid.leaf.$,
+        path: ["mid", "leaf"],
+        key: "value",
+        newValue: 42,
+        oldValue: 0,
+        isInit: false,
+      },
+    ])
+  })
+
+  test("a deep-change listener that mutates during emission does not drop the outer patch", () => {
+    @testModel("DeepChangeReentrantModel")
+    class ReentrantModel extends Model({
+      a: prop<number>(0),
+      b: prop<number>(0),
+    }) {}
+
+    const m = new ReentrantModel({})
+    const patchBatches: Patch[][] = []
+    let reentered = false
+
+    autoDispose(
+      onDeepChange(m, (change) => {
+        // while observing the change to `a`, synchronously mutate `b` once; this
+        // reenters the shared patch recorder, which must not drop the outer patch
+        if (!reentered && change.type === DeepChangeType.ObjectUpdate && change.key === "a") {
+          reentered = true
+          m.b = 1
+        }
+      })
+    )
+    autoDispose(
+      onPatches(m, (patches) => {
+        patchBatches.push(patches)
+      })
+    )
+
+    runUnprotected(() => {
+      m.a = 5
+    })
+
+    const allPatches = patchBatches.flat()
+    expect(allPatches).toContainEqual({ op: "replace", path: ["b"], value: 1 })
+    expect(allPatches).toContainEqual({ op: "replace", path: ["a"], value: 5 })
+  })
+
   test("various change types", () => {
     const model = new TestModel({})
     const changes: DeepChange[] = []

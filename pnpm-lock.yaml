@@ -26,7 +26,7 @@ importers:
         version: 17.7.0
       netlify-cli:
         specifier: ^26.2.0
-        version: 26.2.0(@swc/core@1.15.43)(@types/node@26.1.1)(bufferutil@4.1.0)(picomatch@4.0.5)(rollup@4.57.1)(utf-8-validate@6.0.6)
+        version: 26.2.0(@swc/core@1.15.43)(@types/node@26.1.1)(bufferutil@4.1.0)(picomatch@4.0.5)(rollup@4.57.1)(supports-color@10.2.2)(utf-8-validate@6.0.6)
       turbo:
         specifier: ^2.10.4
         version: 2.10.4
@@ -58,6 +58,9 @@ importers:
       '@types/benchmark':
         specifier: ^2.1.5
         version: 2.1.5
+      '@types/node':
+        specifier: ^26.1.1
+        version: 26.1.1
       cross-env:
         specifier: ^10.1.0
         version: 10.1.0
@@ -72,13 +75,13 @@ importers:
     dependencies:
       '@docusaurus/core':
         specifier: ^3.10.1
-        version: 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+        version: 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/preset-classic':
         specifier: ^3.10.1
         version: 3.10.1(@algolia/client-search@5.55.1)(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(@types/react@19.2.17)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(search-insights@2.17.3)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@easyops-cn/docusaurus-search-local':
         specifier: ^0.55.2
-        version: 0.55.2(@docusaurus/theme-common@3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(open-ask-ai@0.7.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+        version: 0.55.2(@docusaurus/theme-common@3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(open-ask-ai@0.7.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(supports-color@10.2.2)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@iframe-resizer/child':
         specifier: ^5.5.9
         version: 5.5.9
@@ -126,7 +129,7 @@ importers:
         version: 6.0.6
       y-webrtc:
         specifier: ^10.3.0
-        version: 10.3.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yjs@13.6.31)
+        version: 10.3.0(bufferutil@4.1.0)(supports-color@10.2.2)(utf-8-validate@6.0.6)(yjs@13.6.31)
       yjs:
         specifier: ^13.0.0
         version: 13.6.31
@@ -139,7 +142,7 @@ importers:
         version: 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/plugin-content-docs':
         specifier: ^3.10.1
-        version: 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+        version: 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/tsconfig':
         specifier: ^3.10.1
         version: 3.10.1
@@ -260,7 +263,7 @@ importers:
         version: 8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)
       vite-plugin-dts:
         specifier: ^5.0.3
-        version: 5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
+        version: 5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(supports-color@10.2.2)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
@@ -318,7 +321,7 @@ importers:
         version: 8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)
       vite-plugin-dts:
         specifier: ^5.0.3
-        version: 5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
+        version: 5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(supports-color@10.2.2)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
@@ -373,7 +376,7 @@ importers:
         version: 8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)
       vite-plugin-dts:
         specifier: ^5.0.3
-        version: 5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
+        version: 5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(supports-color@10.2.2)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
       vitest:
         specifier: ^4.1.10
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(@vitest/coverage-v8@4.1.10)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
@@ -13110,7 +13113,7 @@ snapshots:
       - uglify-js
       - webpack-cli
 
-  '@docusaurus/core@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
+  '@docusaurus/core@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
       '@docusaurus/babel': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/bundler': 3.10.1(@swc/core@1.15.43)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)
@@ -13155,7 +13158,7 @@ snapshots:
       update-notifier: 6.0.2
       webpack: 5.108.2(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)
       webpack-bundle-analyzer: 4.10.2(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      webpack-dev-server: 5.2.5(bufferutil@4.1.0)(debug@4.4.3)(tslib@2.8.1)(utf-8-validate@6.0.6)(webpack@5.108.2(@swc/core@1.15.43)(postcss@8.5.16))
+      webpack-dev-server: 5.2.5(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(tslib@2.8.1)(utf-8-validate@6.0.6)(webpack@5.108.2(@swc/core@1.15.43)(postcss@8.5.16))
       webpack-merge: 6.0.1
     transitivePeerDependencies:
       - '@minify-html/node'
@@ -13264,10 +13267,10 @@ snapshots:
 
   '@docusaurus/plugin-content-blog@3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/logger': 3.10.1
       '@docusaurus/mdx-loader': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/theme-common': 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13310,9 +13313,9 @@ snapshots:
       - utf-8-validate
       - webpack-cli
 
-  '@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
+  '@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/logger': 3.10.1
       '@docusaurus/mdx-loader': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/module-type-aliases': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13358,7 +13361,7 @@ snapshots:
 
   '@docusaurus/plugin-content-pages@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/mdx-loader': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13394,7 +13397,7 @@ snapshots:
 
   '@docusaurus/plugin-css-cascade-layers@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils-validation': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13427,7 +13430,7 @@ snapshots:
 
   '@docusaurus/plugin-debug@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       fs-extra: 11.3.5
@@ -13461,7 +13464,7 @@ snapshots:
 
   '@docusaurus/plugin-google-analytics@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils-validation': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
@@ -13493,7 +13496,7 @@ snapshots:
 
   '@docusaurus/plugin-google-gtag@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils-validation': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@types/gtag.js': 0.0.20
@@ -13526,7 +13529,7 @@ snapshots:
 
   '@docusaurus/plugin-google-tag-manager@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils-validation': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react: 19.2.7
@@ -13558,7 +13561,7 @@ snapshots:
 
   '@docusaurus/plugin-sitemap@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/logger': 3.10.1
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13595,7 +13598,7 @@ snapshots:
 
   '@docusaurus/plugin-svgr@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/types': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils-validation': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13631,9 +13634,9 @@ snapshots:
 
   '@docusaurus/preset-classic@3.10.1(@algolia/client-search@5.55.1)(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(@types/react@19.2.17)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(search-insights@2.17.3)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/plugin-content-blog': 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
-      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/plugin-content-pages': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/plugin-css-cascade-layers': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/plugin-debug': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
@@ -13682,12 +13685,12 @@ snapshots:
 
   '@docusaurus/theme-classic@3.10.1(@swc/core@1.15.43)(@types/react@19.2.17)(bufferutil@4.1.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/logger': 3.10.1
       '@docusaurus/mdx-loader': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/module-type-aliases': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/plugin-content-blog': 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
-      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/plugin-content-pages': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/theme-common': 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/theme-translations': 3.10.1
@@ -13737,7 +13740,7 @@ snapshots:
     dependencies:
       '@docusaurus/mdx-loader': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/module-type-aliases': 3.10.1(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/utils-common': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@types/history': 4.7.11
@@ -13770,9 +13773,9 @@ snapshots:
     dependencies:
       '@algolia/autocomplete-core': 1.19.9(@algolia/client-search@5.55.1)(algoliasearch@5.55.1)(search-insights@2.17.3)
       '@docsearch/react': 4.6.3(@algolia/client-search@5.55.1)(@types/react@19.2.17)(algoliasearch@5.55.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(search-insights@2.17.3)
-      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/core': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/logger': 3.10.1
-      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/theme-common': 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/theme-translations': 3.10.1
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -13947,9 +13950,9 @@ snapshots:
       cssesc: 3.0.0
       immediate: 3.3.0
 
-  '@easyops-cn/docusaurus-search-local@0.55.2(@docusaurus/theme-common@3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(open-ask-ai@0.7.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)':
+  '@easyops-cn/docusaurus-search-local@0.55.2(@docusaurus/theme-common@3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(open-ask-ai@0.7.3(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(supports-color@10.2.2)(typescript@7.0.2)(utf-8-validate@6.0.6)':
     dependencies:
-      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
+      '@docusaurus/plugin-content-docs': 3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6)
       '@docusaurus/theme-common': 3.10.1(@docusaurus/plugin-content-docs@3.10.1(@mdx-js/react@3.1.1(@types/react@19.2.17)(react@19.2.7))(@swc/core@1.15.43)(bufferutil@4.1.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@7.0.2)(utf-8-validate@6.0.6))(@swc/core@1.15.43)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@docusaurus/theme-translations': 3.10.1
       '@docusaurus/utils': 3.10.1(@swc/core@1.15.43)(clean-css@5.3.3)(cssnano@6.1.2(postcss@8.5.16))(html-minifier-terser@7.2.0)(postcss@8.5.16)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -14746,7 +14749,7 @@ snapshots:
       semver: 7.8.5
       tmp-promise: 3.0.3
 
-  '@netlify/dev@4.18.9(rollup@4.57.1)':
+  '@netlify/dev@4.18.9(rollup@4.57.1)(supports-color@10.2.2)':
     dependencies:
       '@netlify/ai': 0.4.2
       '@netlify/blobs': 10.7.9(supports-color@10.2.2)
@@ -14754,9 +14757,9 @@ snapshots:
       '@netlify/database-dev': 0.10.1
       '@netlify/dev-utils': 4.4.6
       '@netlify/edge-functions-dev': 1.0.22
-      '@netlify/functions-dev': 1.3.1(rollup@4.57.1)
+      '@netlify/functions-dev': 1.3.1(rollup@4.57.1)(supports-color@10.2.2)
       '@netlify/headers': 2.1.11
-      '@netlify/images': 1.3.10(@netlify/blobs@10.7.9)
+      '@netlify/images': 1.3.10(@netlify/blobs@10.7.9(supports-color@10.2.2))
       '@netlify/redirects': 3.1.13
       '@netlify/runtime': 4.1.25
       '@netlify/static': 3.1.10
@@ -14829,7 +14832,7 @@ snapshots:
     dependencies:
       '@netlify/types': 2.8.0
 
-  '@netlify/functions-dev@1.3.1(rollup@4.57.1)':
+  '@netlify/functions-dev@1.3.1(rollup@4.57.1)(supports-color@10.2.2)':
     dependencies:
       '@netlify/blobs': 10.7.9(supports-color@10.2.2)
       '@netlify/dev-utils': 4.4.6
@@ -14837,7 +14840,7 @@ snapshots:
       '@netlify/zip-it-and-ship-it': 14.7.1(rollup@4.57.1)(supports-color@10.2.2)
       cron-parser: 4.9.0
       decache: 4.6.2
-      extract-zip: 2.0.1
+      extract-zip: 2.0.1(supports-color@10.2.2)
       is-stream: 4.0.1
       jwt-decode: 4.0.0
       lambda-local: 2.2.0
@@ -14889,9 +14892,9 @@ snapshots:
     dependencies:
       '@netlify/headers-parser': 9.0.3
 
-  '@netlify/images@1.3.10(@netlify/blobs@10.7.9)':
+  '@netlify/images@1.3.10(@netlify/blobs@10.7.9(supports-color@10.2.2))':
     dependencies:
-      ipx: 3.1.1(@netlify/blobs@10.7.9)
+      ipx: 3.1.1(@netlify/blobs@10.7.9(supports-color@10.2.2))
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -15429,7 +15432,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@pnpm/tabtab@0.5.4':
+  '@pnpm/tabtab@0.5.4(supports-color@10.2.2)':
     dependencies:
       debug: 4.4.3(supports-color@10.2.2)
       enquirer: 2.4.1
@@ -17042,7 +17045,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  body-parser@2.3.0:
+  body-parser@2.3.0(supports-color@10.2.2):
     dependencies:
       bytes: 3.1.2
       content-type: 2.0.0
@@ -18362,10 +18365,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  express@5.2.1:
+  express@5.2.1(supports-color@10.2.2):
     dependencies:
       accepts: 2.0.0
-      body-parser: 2.3.0
+      body-parser: 2.3.0(supports-color@10.2.2)
       content-disposition: 1.1.0
       content-type: 1.0.5
       cookie: 0.7.2
@@ -18375,7 +18378,7 @@ snapshots:
       encodeurl: 2.0.0
       escape-html: 1.0.3
       etag: 1.8.1
-      finalhandler: 2.1.1
+      finalhandler: 2.1.1(supports-color@10.2.2)
       fresh: 2.0.0
       http-errors: 2.0.1
       merge-descriptors: 2.0.0
@@ -18386,8 +18389,8 @@ snapshots:
       proxy-addr: 2.0.7
       qs: 6.15.3
       range-parser: 1.3.0
-      router: 2.2.0
-      send: 1.2.1
+      router: 2.2.0(supports-color@10.2.2)
+      send: 1.2.1(supports-color@10.2.2)
       serve-static: 2.2.1
       statuses: 2.0.2
       type-is: 2.1.0
@@ -18403,7 +18406,7 @@ snapshots:
 
   extend@3.0.2: {}
 
-  extract-zip@2.0.1:
+  extract-zip@2.0.1(supports-color@10.2.2):
     dependencies:
       debug: 4.4.3(supports-color@10.2.2)
       get-stream: 5.2.0
@@ -18537,7 +18540,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  finalhandler@2.1.1:
+  finalhandler@2.1.1(supports-color@10.2.2):
     dependencies:
       debug: 4.4.3(supports-color@10.2.2)
       encodeurl: 2.0.0
@@ -18585,7 +18588,7 @@ snapshots:
     dependencies:
       from2: 2.3.0
 
-  follow-redirects@1.16.0(debug@4.4.3):
+  follow-redirects@1.16.0(debug@4.4.3(supports-color@10.2.2)):
     optionalDependencies:
       debug: 4.4.3(supports-color@10.2.2)
 
@@ -19122,10 +19125,10 @@ snapshots:
 
   http-parser-js@0.5.10: {}
 
-  http-proxy-middleware@2.0.10(@types/express@4.17.25)(debug@4.4.3):
+  http-proxy-middleware@2.0.10(@types/express@4.17.25)(debug@4.4.3(supports-color@10.2.2)):
     dependencies:
       '@types/http-proxy': 1.17.17
-      http-proxy: 1.18.1(debug@4.4.3)
+      http-proxy: 1.18.1(debug@4.4.3(supports-color@10.2.2))
       is-glob: 4.0.3
       is-plain-obj: 3.0.0
       micromatch: 4.0.8
@@ -19134,21 +19137,21 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  http-proxy-middleware@3.0.7:
+  http-proxy-middleware@3.0.7(supports-color@10.2.2):
     dependencies:
       '@types/http-proxy': 1.17.17
       debug: 4.4.3(supports-color@10.2.2)
-      http-proxy: 1.18.1(debug@4.4.3)
+      http-proxy: 1.18.1(debug@4.4.3(supports-color@10.2.2))
       is-glob: 4.0.3
       is-plain-object: 5.0.0
       micromatch: 4.0.8
     transitivePeerDependencies:
       - supports-color
 
-  http-proxy@1.18.1(debug@4.4.3):
+  http-proxy@1.18.1(debug@4.4.3(supports-color@10.2.2)):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.16.0(debug@4.4.3)
+      follow-redirects: 1.16.0(debug@4.4.3(supports-color@10.2.2))
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -19167,7 +19170,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  https-proxy-agent@8.0.0:
+  https-proxy-agent@8.0.0(supports-color@10.2.2):
     dependencies:
       agent-base: 8.0.0
       debug: 4.4.3(supports-color@10.2.2)
@@ -19288,7 +19291,7 @@ snapshots:
 
   ipaddr.js@2.4.0: {}
 
-  ipx@3.1.1(@netlify/blobs@10.7.9):
+  ipx@3.1.1(@netlify/blobs@10.7.9(supports-color@10.2.2)):
     dependencies:
       '@fastify/accept-negotiator': 2.0.1
       citty: 0.1.6
@@ -19304,7 +19307,7 @@ snapshots:
       sharp: 0.34.5
       svgo: 4.0.1
       ufo: 1.6.4
-      unstorage: 1.17.5(@netlify/blobs@10.7.9)
+      unstorage: 1.17.5(@netlify/blobs@10.7.9(supports-color@10.2.2))
       xss: 1.0.15
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -20727,7 +20730,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  netlify-cli@26.2.0(@swc/core@1.15.43)(@types/node@26.1.1)(bufferutil@4.1.0)(picomatch@4.0.5)(rollup@4.57.1)(utf-8-validate@6.0.6):
+  netlify-cli@26.2.0(@swc/core@1.15.43)(@types/node@26.1.1)(bufferutil@4.1.0)(picomatch@4.0.5)(rollup@4.57.1)(supports-color@10.2.2)(utf-8-validate@6.0.6):
     dependencies:
       '@fastify/static': 9.3.0
       '@netlify/ai': 0.4.2
@@ -20736,19 +20739,19 @@ snapshots:
       '@netlify/build': 35.15.0(@opentelemetry/api@1.9.1)(@swc/core@1.15.43)(@types/node@26.1.1)(picomatch@4.0.5)(rollup@4.57.1)
       '@netlify/build-info': 10.5.1
       '@netlify/config': 24.6.0
-      '@netlify/dev': 4.18.9(rollup@4.57.1)
+      '@netlify/dev': 4.18.9(rollup@4.57.1)(supports-color@10.2.2)
       '@netlify/dev-utils': 4.4.6
       '@netlify/edge-bundler': 14.10.3
       '@netlify/edge-functions': 3.0.8
       '@netlify/edge-functions-bootstrap': 2.17.1
       '@netlify/headers-parser': 9.0.3
-      '@netlify/images': 1.3.10(@netlify/blobs@10.7.9)
+      '@netlify/images': 1.3.10(@netlify/blobs@10.7.9(supports-color@10.2.2))
       '@netlify/local-functions-proxy': 2.0.3
       '@netlify/redirect-parser': 15.0.4
       '@netlify/zip-it-and-ship-it': 14.7.1(rollup@4.57.1)(supports-color@10.2.2)
       '@octokit/rest': 22.0.1
       '@opentelemetry/api': 1.9.1
-      '@pnpm/tabtab': 0.5.4
+      '@pnpm/tabtab': 0.5.4(supports-color@10.2.2)
       ansi-escapes: 7.3.0
       ansi-to-html: 0.7.2
       ascii-table: 0.0.9
@@ -20771,7 +20774,7 @@ snapshots:
       envinfo: 7.21.0
       etag: 1.8.1
       execa: 5.1.1
-      express: 5.2.1
+      express: 5.2.1(supports-color@10.2.2)
       express-logging: 1.1.1
       fastest-levenshtein: 1.0.16
       fastify: 5.10.0
@@ -20781,9 +20784,9 @@ snapshots:
       get-port: 5.1.1
       git-repo-info: 2.1.1
       gitconfiglocal: 2.1.0
-      http-proxy: 1.18.1(debug@4.4.3)
-      http-proxy-middleware: 3.0.7
-      https-proxy-agent: 8.0.0
+      http-proxy: 1.18.1(debug@4.4.3(supports-color@10.2.2))
+      http-proxy-middleware: 3.0.7(supports-color@10.2.2)
+      https-proxy-agent: 8.0.0(supports-color@10.2.2)
       inquirer: 8.2.7(@types/node@26.1.1)
       inquirer-autocomplete-prompt: 1.4.0(inquirer@8.2.7(@types/node@26.1.1))
       is-docker: 4.0.0
@@ -22483,7 +22486,7 @@ snapshots:
       fsevents: 2.3.3
     optional: true
 
-  router@2.2.0:
+  router@2.2.0(supports-color@10.2.2):
     dependencies:
       debug: 4.4.3(supports-color@10.2.2)
       depd: 2.0.0
@@ -22625,7 +22628,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  send@1.2.1:
+  send@1.2.1(supports-color@10.2.2):
     dependencies:
       debug: 4.4.3(supports-color@10.2.2)
       encodeurl: 2.0.0
@@ -22681,7 +22684,7 @@ snapshots:
       encodeurl: 2.0.0
       escape-html: 1.0.3
       parseurl: 1.3.3
-      send: 1.2.1
+      send: 1.2.1(supports-color@10.2.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -22812,7 +22815,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  simple-peer@9.11.1:
+  simple-peer@9.11.1(supports-color@10.2.2):
     dependencies:
       buffer: 6.0.3
       debug: 4.4.3(supports-color@10.2.2)
@@ -23544,7 +23547,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-dts@1.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16)):
+  unplugin-dts@1.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(supports-color@10.2.2)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16)):
     dependencies:
       '@rollup/pluginutils': 5.4.0(rollup@4.57.1)
       '@volar/typescript': 2.4.28
@@ -23572,7 +23575,7 @@ snapshots:
       picomatch: 4.0.5
       webpack-virtual-modules: 0.6.2
 
-  unstorage@1.17.5(@netlify/blobs@10.7.9):
+  unstorage@1.17.5(@netlify/blobs@10.7.9(supports-color@10.2.2)):
     dependencies:
       anymatch: 3.1.3
       chokidar: 5.0.0
@@ -23713,9 +23716,9 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-dts@5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16)):
+  vite-plugin-dts@5.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(supports-color@10.2.2)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16)):
     dependencies:
-      unplugin-dts: 1.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
+      unplugin-dts: 1.0.3(@microsoft/api-extractor@7.56.2(@types/node@26.1.1))(esbuild@0.28.0)(rolldown@1.1.5)(rollup@4.57.1)(supports-color@10.2.2)(typescript@7.0.2)(vite@8.1.4(@types/node@26.1.1)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))(webpack@5.108.2(@swc/core@1.15.43)(esbuild@0.28.0)(postcss@8.5.16))
     optionalDependencies:
       '@microsoft/api-extractor': 7.56.2(@types/node@26.1.1)
       rollup: 4.57.1
@@ -23824,7 +23827,7 @@ snapshots:
     transitivePeerDependencies:
       - tslib
 
-  webpack-dev-server@5.2.5(bufferutil@4.1.0)(debug@4.4.3)(tslib@2.8.1)(utf-8-validate@6.0.6)(webpack@5.108.2(@swc/core@1.15.43)(postcss@8.5.16)):
+  webpack-dev-server@5.2.5(bufferutil@4.1.0)(debug@4.4.3(supports-color@10.2.2))(tslib@2.8.1)(utf-8-validate@6.0.6)(webpack@5.108.2(@swc/core@1.15.43)(postcss@8.5.16)):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -23842,7 +23845,7 @@ snapshots:
       connect-history-api-fallback: 2.0.0
       express: 4.22.2
       graceful-fs: 4.2.11
-      http-proxy-middleware: 2.0.10(@types/express@4.17.25)(debug@4.4.3)
+      http-proxy-middleware: 2.0.10(@types/express@4.17.25)(debug@4.4.3(supports-color@10.2.2))
       ipaddr.js: 2.4.0
       launch-editor: 2.14.1
       open: 10.2.0
@@ -24162,10 +24165,10 @@ snapshots:
       lib0: 0.2.117
       yjs: 13.6.31
 
-  y-webrtc@10.3.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)(yjs@13.6.31):
+  y-webrtc@10.3.0(bufferutil@4.1.0)(supports-color@10.2.2)(utf-8-validate@6.0.6)(yjs@13.6.31):
     dependencies:
       lib0: 0.2.117
-      simple-peer: 9.11.1
+      simple-peer: 9.11.1(supports-color@10.2.2)
       y-protocols: 1.0.7(yjs@13.6.31)
       yjs: 13.6.31
     optionalDependencies:

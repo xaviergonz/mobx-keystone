@@ -217,6 +217,9 @@ export interface ModelOptions<TProps extends ModelProps, FS, TS> {
   /**
    * Optional transformation that will be run when converting from a snapshot to the data part of the model.
    * Useful for example to do versioning and keep the data part up to date with the latest version of the model.
+   * Snapshot processors must be pure and deterministic. The model's canonical output snapshot must round-trip
+   * through this processor to the same model data. Reconciliation may skip invoking it when the input already
+   * equals the model's current canonical output snapshot.
    *
    * @param sn The custom input snapshot.
    * @returns An input snapshot that must match the expected model input snapshot.
@@ -225,6 +228,8 @@ export interface ModelOptions<TProps extends ModelProps, FS, TS> {
 
   /**
    * Optional transformation that will be run when converting the data part of the model into a snapshot.
+   * Snapshot processors must be pure and deterministic, and their canonical output must round-trip through the
+   * corresponding input processor to the same model data. Snapshot generation may cache processor results.
    *
    * @param sn The output snapshot.
    * @param modelInstance The model instance.

@@ -109,12 +109,7 @@ export let hasOwnProp: (object: object, propName: PropertyKey) => boolean = (
 /**
  * @internal
  */
-export function setOwnProp(target: any, propName: PropertyKey, value: unknown): void {
-  if (propName !== "__proto__") {
-    target[propName] = value
-    return
-  }
-
+export function setProtoProp(target: object, value: unknown): void {
   Object.defineProperty(target, "__proto__", {
     enumerable: true,
     writable: true,
@@ -136,7 +131,12 @@ export function copyOwnEnumerableProps<TTarget extends Record<string, any>>(
   for (let i = 0; i < len; i++) {
     const key = keys[i]
     const value = source[key]
-    setOwnProp(target, key, mapValue ? mapValue(value, key) : value)
+    const mappedValue = mapValue ? mapValue(value, key) : value
+    if (key === "__proto__") {
+      setProtoProp(target, mappedValue)
+    } else {
+      ;(target as Record<PropertyKey, unknown>)[key] = mappedValue
+    }
   }
 
   return target
@@ -432,6 +432,8 @@ export function propNameToSetterName(propName: string): string {
 export function getMobxVersion(): number {
   if (mobx6.makeObservable!) {
     return 6
+  } else if ("extendShallowObservable" in mobx) {
+    return 4
   } else {
     return 5
   }

@@ -4,28 +4,27 @@ import { modelIdKey, modelTypeKey } from "../model/metadata"
 import { getSnapshotModelType, isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName } from "../modelShared/modelInfo"
-import { dataObjectParent } from "../parent/core"
+import { dataToModelNode } from "../parent/core"
 import {
   getDeepObjectChildren,
   registerDeepObjectChildrenExtension,
 } from "../parent/coreObjectChildren"
 
-function byModelTypeAndIdKey(modelType: string, modelId: string) {
-  return JSON.stringify([modelType, modelId])
-}
+type ModelsById = Map<string, AnyModel>
+type ModelsByTypeAndId = Map<string, ModelsById>
 
 export class ModelPool {
-  private pool: ReadonlyMap<string, AnyModel>
+  private pool: ReadonlyMap<string, ReadonlyMap<string, AnyModel>>
 
   constructor(root: object) {
     // make sure we don't use the sub-data $ object
-    root = dataObjectParent.get(root) ?? root
+    root = dataToModelNode(root)
 
     this.pool = getDeepChildrenModels(getDeepObjectChildren(root))
   }
 
   findModelByTypeAndId(modelType: string, modelId: string | undefined): AnyModel | undefined {
-    return modelId ? this.pool.get(byModelTypeAndIdKey(modelType, modelId)) : undefined
+    return modelId ? this.pool.get(modelType)?.get(modelId) : undefined
   }
 
   findModelForSnapshot(sn: any): AnyModel | undefined {
@@ -43,17 +42,33 @@ export class ModelPool {
   }
 }
 
-const getDeepChildrenModels = registerDeepObjectChildrenExtension<Map<string, AnyModel>>({
-  initData() {
-    return new Map()
-  },
+type GetDeepChildrenModels = (data: ReturnType<typeof getDeepObjectChildren>) => ModelsByTypeAndId
 
-  addNode(node, data) {
-    if (isModel(node)) {
-      const id = node[modelIdKey]
-      if (id) {
-        data.set(byModelTypeAndIdKey(node[modelTypeKey], id), node)
+let getDeepChildrenModels: GetDeepChildrenModels = (data) => {
+  // Register on first use to keep ModelPool out of the coreObjectChildren
+  // module-initialization cycle. The extension getter backfills its index from
+  // data.deep, so registering after a deep-children set already exists is safe.
+  const getRegisteredDeepChildrenModels = registerDeepObjectChildrenExtension<ModelsByTypeAndId>({
+    initData() {
+      return new Map()
+    },
+
+    addNode(node, extensionData) {
+      if (isModel(node)) {
+        const id = node[modelIdKey]
+        if (id) {
+          const modelType = node[modelTypeKey]
+          let modelsById = extensionData.get(modelType)
+          if (!modelsById) {
+            modelsById = new Map()
+            extensionData.set(modelType, modelsById)
+          }
+          modelsById.set(id, node)
+        }
       }
-    }
-  },
-})
+    },
+  })
+
+  getDeepChildrenModels = getRegisteredDeepChildrenModels
+  return getRegisteredDeepChildrenModels(data)
+}

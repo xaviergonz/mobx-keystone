@@ -1,4 +1,3 @@
-import { identityFn } from "../../utils"
 import type { IdentityType } from "../schemas"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
 
@@ -10,8 +9,8 @@ const unchecked: IdentityType<any> = new TypeChecker(
 
   () => unchecked as any,
 
-  identityFn,
-  identityFn
+  undefined,
+  undefined
 ) as any
 
 /**
