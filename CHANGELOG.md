@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.23.0
 
 - Behavioral change: snapshot processors are now required to be pure and deterministic, and to round-trip canonical output without changing stored data. This applies to model `fromSnapshotProcessor` / `toSnapshotProcessor`, property-level `withSnapshotProcessor(...)`, typed-property processors, and `types.codec(...)` transforms. To make snapshot work faster, the library now treats processors as replaceable by their result: it may skip the input processor when the incoming snapshot already equals the model's current canonical output snapshot, may cache `toSnapshotProcessor` results, and may not compile a processor at all until it is first needed. A processor that relies on running on every invocation — logging, counters, ID generation, reads or writes of external mutable state — will therefore be called fewer times than before, or not at all. This is silent: there is no error, only the missing side effect. Review any processor that does more than convert its input before upgrading.
 - Performance: large-tree work is substantially faster: 58% higher throughput hydrating 2,000 model items, 35% higher throughput reversing 10,000 models, and 3.7x faster deeply nested mutations observed from the root (depth 128).
