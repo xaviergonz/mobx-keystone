@@ -13,7 +13,8 @@
     "titleBar.activeForeground": "#e7e7e7",
     "titleBar.inactiveForeground": "#e7e7e799",
     "sash.hoverBorder": "#8a2ca2",
-    "commandCenter.border": "#e7e7e799"
+    "commandCenter.border": "#e7e7e799",
+    "commandCenter.foreground": "#e7e7e7"
   },
   "search.exclude": {
     "**/.pnpm-store": true
