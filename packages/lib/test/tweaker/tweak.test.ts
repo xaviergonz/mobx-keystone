@@ -1,4 +1,11 @@
-import { getGlobalConfig, runUnprotected, setGlobalConfig, toTreeNode } from "../../src"
+import { observable } from "mobx"
+import {
+  getGlobalConfig,
+  getSnapshot,
+  runUnprotected,
+  setGlobalConfig,
+  toTreeNode,
+} from "../../src"
 
 const undefinedIsNotSupported = /^undefined is not supported inside arrays/
 
@@ -24,4 +31,11 @@ test("array allows undefined element when allowUndefinedArrayElements is true", 
       array.push(undefined)
     })
   }).not.toThrow(undefinedIsNotSupported)
+})
+
+test("observable object values are retained when becoming a tree node", () => {
+  const value = observable.object({ count: 1, label: "ready" })
+
+  expect(toTreeNode(value)).toBe(value)
+  expect(getSnapshot(value)).toEqual({ count: 1, label: "ready" })
 })

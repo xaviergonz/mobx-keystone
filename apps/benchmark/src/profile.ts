@@ -2,6 +2,11 @@ import { writeFileSync } from "node:fs"
 import { Session } from "node:inspector"
 import { type ApplySnapshotProfileScenario, createFreshCopyApplyProfile } from "./applySnapshot.js"
 import {
+  createFlatDataModelCreationProfile,
+  createFlatModelCreationProfile,
+  FLAT_CREATION_PROFILE_BATCH_SIZE,
+} from "./creation.js"
+import {
   createDeepIndexConstructionProfile,
   createEmptyTypeCheckedModelProfile,
   createModelConstructionProfile,
@@ -14,6 +19,8 @@ import {
 interface ProfileScenario {
   readonly name: string
   readonly run: () => void
+  /** Number of measured operations performed by one call to run. */
+  readonly workPerIteration?: number
   readonly metadata?: Readonly<Record<string, unknown>>
 }
 
@@ -43,6 +50,18 @@ function resolveScenario(rawScenario: string): ProfileScenario {
       return { name: rawScenario, run: createDeepIndexConstructionProfile() }
     case "model-construction":
       return { name: rawScenario, run: createModelConstructionProfile() }
+    case "flat-model-creation":
+      return {
+        name: rawScenario,
+        run: createFlatModelCreationProfile(),
+        workPerIteration: FLAT_CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "flat-datamodel-creation":
+      return {
+        name: rawScenario,
+        run: createFlatDataModelCreationProfile(),
+        workPerIteration: FLAT_CREATION_PROFILE_BATCH_SIZE,
+      }
     case "plain-subtree-detach":
       return { name: rawScenario, run: createPlainSubtreeDetachProfile() }
     case "model-hydration":
@@ -154,6 +173,8 @@ for (let i = 0; i < iterations; i++) {
   scenario.run()
 }
 const elapsedMs = performance.now() - start
+const iterationsPerSecond = (iterations / elapsedMs) * 1_000
+const workPerIteration = scenario.workPerIteration ?? 1
 
 if (session) {
   const { profile } = await inspectorPost<{ profile: unknown }>(
@@ -169,7 +190,9 @@ console.log(
     elapsedMs,
     iterations,
     scenario: scenario.name,
-    opsPerSecond: (iterations / elapsedMs) * 1_000,
+    iterationsPerSecond,
+    workPerIteration,
+    opsPerSecond: iterationsPerSecond * workPerIteration,
     heapProfileOutput,
     ...scenario.metadata,
   })

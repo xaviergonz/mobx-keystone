@@ -48,7 +48,8 @@ export function tweakPlainObject<T extends Record<string, any>>(
   isDataObject: boolean
 ): T {
   const originalObj: Record<string, any> = value
-  const tweakedObj = isObservableObject(originalObj)
+  const originalIsObservableObject = isObservableObject(originalObj)
+  const tweakedObj = originalIsObservableObject
     ? originalObj
     : observable.object({}, undefined, observableOptions)
 
@@ -78,7 +79,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
     const v = originalObj[k]
 
     if (isPrimitive(v)) {
-      if (!doNotTweakChildren) {
+      if (!doNotTweakChildren && !originalIsObservableObject) {
         setIfDifferent(tweakedObj, k, v)
       }
       if (k === "__proto__") {
