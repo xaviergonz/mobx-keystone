@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 1.1.0
 
 - Declared compatibility with MobX 7.
