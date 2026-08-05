@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.1.0
 
 - Declared compatibility with MobX 7.
 - Updated the `mobx-keystone` peer requirement to `^1.24.0` to use the public MobX compatibility decorators.
