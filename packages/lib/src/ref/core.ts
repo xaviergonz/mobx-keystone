@@ -9,7 +9,7 @@ import {
 import { fastGetRoot } from "../parent/path"
 import { type ComputedWalkTreeAggregate, computedWalkTreeAggregate } from "../parent/walkTree"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsObject, failure } from "../utils"
+import { assertIsObject, failure, mobxAction } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import { Ref, type RefConstructor } from "./Ref"
 
@@ -103,7 +103,7 @@ export function internalCustomRef<T extends object>(
       return true
     }
 
-    @action
+    @mobxAction
     forceUpdateBackRefs() {
       const currentTarget = this.maybeCurrent
       if (!this.startTracking(currentTarget)) {

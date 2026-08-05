@@ -1,9 +1,10 @@
-import { computed, createAtom, type IAtom, observe, reaction } from "mobx"
+import { createAtom, type IAtom, observe, reaction } from "mobx"
 import {
   type Frozen,
   frozen,
   getParentToChildPath,
   Model,
+  mobxComputed,
   model,
   onSnapshot,
   tProp,
@@ -46,7 +47,7 @@ export class YjsTextModel extends Model({
   /**
    * The Y.js path from the bound object to the YjsTextModel instance.
    */
-  @computed
+  @mobxComputed
   private get _yjsObjectPath() {
     const ctx = yjsBindingContext.get(this)
     if (ctx?.boundObject == null) {
@@ -66,7 +67,7 @@ export class YjsTextModel extends Model({
   /**
    * The Yjs.Text object present at this mobx-keystone node's path.
    */
-  @computed
+  @mobxComputed
   private get _yjsObjectAtPath(): unknown {
     const path = this._yjsObjectPath
 
@@ -78,7 +79,7 @@ export class YjsTextModel extends Model({
   /**
    * The Yjs.Text object represented by this mobx-keystone node.
    */
-  @computed
+  @mobxComputed
   get yjsText(): Y.Text {
     const yjsObject = this._yjsObjectAtPath
 
@@ -98,7 +99,7 @@ export class YjsTextModel extends Model({
    * The text value of the Yjs.Text object.
    * Shortcut for `yjsText.toString()`, but computed.
    */
-  @computed
+  @mobxComputed
   get text(): string {
     this.yjsTextChangedAtom.reportObserved()
 

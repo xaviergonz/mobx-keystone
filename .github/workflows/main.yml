@@ -33,9 +33,13 @@ jobs:
           - babel
           - swc
         mobx-version:
+          - 7
           - 6
           - 5
           - 4
+        exclude:
+          - compiler: tsc-experimental-decorators
+            mobx-version: 7
 
     steps:
       - uses: actions/checkout@v4
@@ -48,30 +52,28 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         name: Upload codecov report
-        if: matrix.compiler == 'tsc' && matrix.mobx-version == '6'
+        if: matrix.compiler == 'tsc' && matrix.mobx-version == '7'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./packages/lib/coverage
           fail_ci_if_error: true
 
   integration-lib-test:
-    name: ${{ matrix.name }}
+    name: ${{ matrix.binding }}-lib-test (mobx7)
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - name: yjs-lib-test
-            script: yjs-lib:test:ci
-          - name: loro-lib-test
-            script: loro-lib:test:ci
+        binding:
+          - yjs
+          - loro
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup-workspace
-      - run: pnpm ${{ matrix.script }}
+      - run: pnpm ${{ matrix.binding }}-lib:test:ci
 
   benchmark:
     runs-on: ubuntu-latest

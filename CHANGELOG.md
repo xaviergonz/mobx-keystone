@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added MobX 7 compatibility with standard-decorator coverage across TypeScript, Babel, and SWC.
 - Performance: reduced fresh model creation overhead by skipping redundant primitive writes when initial data is already observable.
 
 ## 1.23.0

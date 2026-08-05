@@ -1,10 +1,11 @@
 import { type Delta, LoroText } from "loro-crdt"
-import { computed, createAtom } from "mobx"
+import { createAtom } from "mobx"
 import {
   frozen,
   getParentToChildPath,
   getSnapshotModelType,
   Model,
+  mobxComputed,
   model,
   modelAction,
   type SnapshotOutOf,
@@ -62,7 +63,7 @@ export class LoroTextModel extends Model({
    * The LoroText object represented by this mobx-keystone node, if bound.
    * Returns undefined when the model is not part of a bound object tree.
    */
-  @computed
+  @mobxComputed
   get loroText(): LoroText | undefined {
     // Check if we have a binding context first - return undefined if not bound
     const ctx = loroBindingContext.get(this)
@@ -104,7 +105,7 @@ export class LoroTextModel extends Model({
    * Gets the plain text content.
    * This always uses the stored delta, which is kept in sync with Loro.
    */
-  @computed
+  @mobxComputed
   get text(): string {
     this.loroTextChangedAtom.reportObserved()
 
@@ -116,7 +117,7 @@ export class LoroTextModel extends Model({
   /**
    * Gets the current delta (Quill format).
    */
-  @computed
+  @mobxComputed
   get currentDelta(): LoroTextDeltaList {
     this.loroTextChangedAtom.reportObserved()
 

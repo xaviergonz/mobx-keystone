@@ -1,4 +1,3 @@
-import { action, computed } from "mobx"
 import type { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
 import { Model } from "../model/Model"
@@ -10,7 +9,14 @@ import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../types/arrayBased/typesArray"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
-import { failure, getMobxVersion, mobx6, namespace } from "../utils"
+import {
+  failure,
+  getMobxVersion,
+  makeObservableCompat,
+  mobxAction,
+  mobxComputed,
+  namespace,
+} from "../utils"
 import { actionTrackingMiddleware, type SimpleActionContext } from "./actionTrackingMiddleware"
 
 /**
@@ -306,7 +312,7 @@ export class UndoManager {
    * The undo stack, where the first operation to undo will be the last of the array.
    * Do not manipulate this array directly.
    */
-  @computed
+  @mobxComputed
   get undoQueue(): ReadonlyArray<UndoEvent> {
     return this.store.undoEvents
   }
@@ -315,7 +321,7 @@ export class UndoManager {
    * The redo stack, where the first operation to redo will be the last of the array.
    * Do not manipulate this array directly.
    */
-  @computed
+  @mobxComputed
   get redoQueue(): ReadonlyArray<UndoEvent> {
     return this.store.redoEvents
   }
@@ -323,7 +329,7 @@ export class UndoManager {
   /**
    * The number of undo actions available.
    */
-  @computed
+  @mobxComputed
   get undoLevels() {
     return this.undoQueue.length
   }
@@ -331,7 +337,7 @@ export class UndoManager {
   /**
    * If undo can be performed (if there is at least one undo action available).
    */
-  @computed
+  @mobxComputed
   get canUndo() {
     return this.undoLevels > 0
   }
@@ -339,7 +345,7 @@ export class UndoManager {
   /**
    * Clears the undo queue.
    */
-  @action
+  @mobxAction
   clearUndo() {
     this.store._clearUndo()
   }
@@ -347,7 +353,7 @@ export class UndoManager {
   /**
    * The number of redo actions available.
    */
-  @computed
+  @mobxComputed
   get redoLevels() {
     return this.redoQueue.length
   }
@@ -355,7 +361,7 @@ export class UndoManager {
   /**
    * If redo can be performed (if there is at least one redo action available)
    */
-  @computed
+  @mobxComputed
   get canRedo() {
     return this.redoLevels > 0
   }
@@ -363,7 +369,7 @@ export class UndoManager {
   /**
    * Clears the redo queue.
    */
-  @action
+  @mobxAction
   clearRedo() {
     this.store._clearRedo()
   }
@@ -372,7 +378,7 @@ export class UndoManager {
    * Undoes the last action.
    * Will throw if there is no action to undo.
    */
-  @action
+  @mobxAction
   undo() {
     if (!this.canUndo) {
       throw failure("nothing to undo")
@@ -397,7 +403,7 @@ export class UndoManager {
    * Redoes the previous action.
    * Will throw if there is no action to redo.
    */
-  @action
+  @mobxAction
   redo() {
     if (!this.canRedo) {
       throw failure("nothing to redo")
@@ -619,7 +625,7 @@ export class UndoManager {
     this.options = options
 
     if (getMobxVersion() >= 6) {
-      mobx6.makeObservable(this)
+      makeObservableCompat(this)
     }
 
     this.store = store ?? new UndoStore({})

@@ -1,5 +1,6 @@
 import * as mobx from "mobx"
 import {
+  type IComputedValue,
   type IObservableArray,
   isObservableArray,
   isObservableMap,
@@ -420,23 +421,153 @@ export const mobx6 = {
 }
 
 /**
+ * MobX method action decorator compatible with both legacy decorators and
+ * MobX 7's standard decorator API.
+ *
+ * This is a decorator compatibility helper, not a replacement for other
+ * `action` overloads such as `action(fn)`. Field decorators are not supported.
+ *
+ * @hidden
+ */
+export function mobxAction<This, Args extends unknown[], Return>(
+  value: (this: This, ...args: Args) => Return,
+  context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
+): (this: This, ...args: Args) => Return
+export function mobxAction<This, Args extends unknown[], Return>(
+  target: object,
+  propertyKey: string | symbol,
+  descriptor: TypedPropertyDescriptor<(this: This, ...args: Args) => Return>
+): TypedPropertyDescriptor<(this: This, ...args: Args) => Return> | void
+export function mobxAction(...args: any[]): any {
+  if (isStandardDecoratorContext(args[1])) {
+    return (mobx.action as any)(args[0], args[1])
+  }
+
+  if (getMobxVersion() < 7) {
+    return (mobx.action as any)(...args)
+  }
+
+  const descriptor = args[2] as PropertyDescriptor | undefined
+  if (!descriptor?.value) {
+    return descriptor
+  }
+
+  if (mobx.isAction(descriptor.value)) {
+    return descriptor
+  }
+
+  return {
+    ...descriptor,
+    value: mobx.action(String(args[1]), descriptor.value),
+  }
+}
+
+/**
+ * MobX getter computed decorator compatible with both legacy decorators and
+ * MobX 7's standard decorator API.
+ *
+ * This is a decorator compatibility helper, not a replacement for other
+ * `computed` overloads. Field decorators and decorator options are not supported.
+ * Under MobX 7's legacy decorator transform the getter is backed by a computed
+ * value, but is not registered as a computed property for MobX introspection.
+ *
+ * @hidden
+ */
+export function mobxComputed<This, Value>(
+  value: (this: This) => Value,
+  context: ClassGetterDecoratorContext<This, Value>
+): ((this: This) => Value) | void
+export function mobxComputed<Value>(
+  target: object,
+  propertyKey: string | symbol,
+  descriptor: TypedPropertyDescriptor<Value>
+): TypedPropertyDescriptor<Value> | void
+export function mobxComputed(...args: any[]): any {
+  if (isStandardDecoratorContext(args[1])) {
+    return (mobx.computed as any)(args[0], args[1])
+  }
+
+  if (getMobxVersion() < 7) {
+    return (mobx.computed as any)(...args)
+  }
+
+  const descriptor = args[2] as PropertyDescriptor | undefined
+  if (!descriptor?.get) {
+    return descriptor
+  }
+
+  const getter = descriptor.get
+  const computedValues = new WeakMap<object, IComputedValue<unknown>>()
+
+  return {
+    ...descriptor,
+    get(this: object) {
+      let computedValue = computedValues.get(this)
+      if (!computedValue) {
+        const newComputedValue = mobx.computed(() => getter.call(this), {
+          name: String(args[1]),
+        })
+        computedValues.set(this, newComputedValue)
+        computedValue = newComputedValue
+      }
+      return computedValue.get()
+    },
+  }
+}
+
+// Mirrors MobX's standard-decorator call detection. Legacy decorator calls use
+// a string or symbol property key as their second argument, so checking `kind`
+// distinguishes the call shapes without claiming to validate the full context.
+function isStandardDecoratorContext(value: unknown): boolean {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { kind?: unknown }).kind === "string"
+  )
+}
+
+/**
+ * Calls `makeObservable` across MobX versions. MobX 7 requires an annotations
+ * object, while MobX 6 and older versions use decorator metadata when no
+ * annotations are passed.
+ *
+ * @internal
+ */
+export function makeObservableCompat(target: object, annotations?: object): void {
+  if (getMobxVersion() >= 7) {
+    mobx6.makeObservable(target, annotations ?? {})
+  } else {
+    mobx6.makeObservable(target)
+  }
+}
+
+/**
  * @internal
  */
 export function propNameToSetterName(propName: string): string {
   return `set${propName[0].toUpperCase()}${propName.slice(1)}`
 }
 
+let cachedMobxVersion: number | undefined
+
 /**
  * @internal
  */
 export function getMobxVersion(): number {
-  if (mobx6.makeObservable!) {
-    return 6
-  } else if ("extendShallowObservable" in mobx) {
-    return 4
-  } else {
-    return 5
+  if (cachedMobxVersion !== undefined) {
+    return cachedMobxVersion
   }
+
+  if (mobx6.makeObservable!) {
+    const version = (mobx as any)._getGlobalState?.().version
+    cachedMobxVersion = typeof version === "number" && version >= 7 ? version : 6
+  } else if ("extendShallowObservable" in mobx) {
+    cachedMobxVersion = 4
+  } else {
+    cachedMobxVersion = 5
+  }
+
+  return cachedMobxVersion
 }
 
 /**
