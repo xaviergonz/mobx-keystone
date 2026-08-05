@@ -59,7 +59,7 @@ jobs:
           fail_ci_if_error: true
 
   integration-lib-test:
-    name: ${{ matrix.binding }}-lib-test (mobx7)
+    name: ${{ matrix.binding }}-lib-test (mobx6)
     runs-on: ubuntu-latest
 
     strategy:

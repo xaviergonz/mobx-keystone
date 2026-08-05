@@ -237,9 +237,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.1.10
         version: 4.1.10(vitest@4.1.10)
-      mobx:
-        specifier: ^7.0.0
-        version: 7.0.0
       mobx-v4:
         specifier: npm:mobx@^4.15.7
         version: mobx@4.15.7
@@ -249,6 +246,9 @@ importers:
       mobx-v6:
         specifier: npm:mobx@^6.0.0
         version: mobx@6.16.1
+      mobx-v7:
+        specifier: npm:mobx@^7.0.0
+        version: mobx@7.0.0
       shx:
         specifier: ^0.4.0
         version: 0.4.0
@@ -304,9 +304,6 @@ importers:
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
-      mobx:
-        specifier: ^7.0.0
-        version: 7.0.0
       mobx-keystone:
         specifier: workspace:*
         version: link:../lib
@@ -359,9 +356,6 @@ importers:
       '@types/node':
         specifier: ^26.1.1
         version: 26.1.1
-      mobx:
-        specifier: ^7.0.0
-        version: 7.0.0
       mobx-keystone:
         specifier: workspace:*
         version: link:../lib

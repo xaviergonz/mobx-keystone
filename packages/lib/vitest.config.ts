@@ -20,14 +20,14 @@ const swcConfig = require("./swc.config.js") as swc.Options
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
 const tsconfigFiles = {
-  7: "tsconfig.json",
+  7: "tsconfig.mobx7.json",
   6: compiler === "tsc" ? "tsconfig.mobx6.json" : "tsconfig.experimental-decorators.json",
   5: "tsconfig.mobx5.json",
   4: "tsconfig.mobx4.json",
 } as const
 
 const mobxModuleNames = {
-  7: "mobx",
+  7: "mobx-v7",
   6: "mobx-v6",
   5: "mobx-v5",
   4: "mobx-v4",

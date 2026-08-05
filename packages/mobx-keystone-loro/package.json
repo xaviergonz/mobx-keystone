@@ -72,7 +72,6 @@
     "@babel/plugin-transform-typescript": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
     "@types/node": "^26.1.1",
-    "mobx": "^7.0.0",
     "mobx-keystone": "workspace:*",
     "shx": "^0.4.0",
     "spec.ts": "^1.1.3",
