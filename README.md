@@ -126,7 +126,7 @@ Model instances are created from props, protect their own updates, and reconcile
 
 This library requires a more or less modern JavaScript environment to work, namely one with support for:
 
-- MobX 6, 5, or 4 (with its gotchas)
+- MobX 7, 6, 5 (or 4 with its gotchas)
 - Proxies
 - Symbols
 - WeakMap/WeakSet

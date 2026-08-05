@@ -1,10 +1,9 @@
-import { computed } from "mobx"
 import { Model } from "../model/Model"
 import { modelTypeKey } from "../model/metadata"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { typesString } from "../types/primitiveBased/typesPrimitive"
 import { tProp } from "../types/tProp"
-import { failure } from "../utils"
+import { failure, mobxComputed } from "../utils"
 
 /**
  * A reference model base type.
@@ -21,7 +20,7 @@ export abstract class Ref<T extends object> extends Model({
   /**
    * The object this reference points to, or `undefined` if the reference is currently invalid.
    */
-  @computed
+  @mobxComputed
   get maybeCurrent(): T | undefined {
     return this.resolve()
   }
@@ -29,7 +28,7 @@ export abstract class Ref<T extends object> extends Model({
   /**
    * If the reference is currently valid.
    */
-  @computed
+  @mobxComputed
   get isValid(): boolean {
     return !!this.maybeCurrent
   }
@@ -37,7 +36,7 @@ export abstract class Ref<T extends object> extends Model({
   /**
    * The object this reference points to, or throws if invalid.
    */
-  @computed
+  @mobxComputed
   get current(): T {
     const current = this.maybeCurrent
 

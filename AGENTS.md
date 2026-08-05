@@ -34,13 +34,13 @@
 
 ## CI parity and matrix
 
-- CI runs: `pnpm site:build`; core `pnpm lib:test:ci` for `COMPILER={tsc,tsc-experimental-decorators,babel,swc}` x `MOBX_VERSION={6,5,4}`; `pnpm yjs-lib:test:ci`; `pnpm loro-lib:test:ci`; `pnpm lib:build` + benchmark build.
+- CI runs: `pnpm site:build`; core `pnpm lib:test:ci` for `COMPILER={tsc,tsc-experimental-decorators,babel,swc}` x `MOBX_VERSION={7,6,5,4}`; `pnpm yjs-lib:test:ci`; `pnpm loro-lib:test:ci`; `pnpm lib:build` + benchmark build.
 - `pnpm lint` is not in CI; run it before finishing.
 - For compiler-sensitive core changes (decorators/transforms/model/action wrapping), run at least a reduced local matrix; prefer full matrix:
 
 ```bash
 for compiler in tsc tsc-experimental-decorators babel swc; do
-  for mobx in 6 5 4; do
+  for mobx in 7 6 5 4; do
     COMPILER="$compiler" MOBX_VERSION="$mobx" pnpm lib:test:ci
   done
 done
@@ -56,8 +56,8 @@ done
 
 - Core test env vars:
   - `COMPILER` (default `tsc`): `tsc`, `tsc-experimental-decorators`, `babel`, `swc`.
-  - `MOBX_VERSION` (default `6`): `6`, `5`, `4`.
-- Matrix logic lives in `packages/lib/env.js` and `packages/lib/vitest.config.ts` (tsconfig selection, MobX aliasing to `mobx-v4`/`mobx-v5`, compiler plugin).
+  - `MOBX_VERSION` (default `7`): `7`, `6`, `5`, `4`.
+- Matrix logic lives in `packages/lib/env.js` and `packages/lib/vitest.config.ts` (tsconfig selection, MobX aliasing to `mobx-v6`/`mobx-v5`/`mobx-v4`, compiler plugin).
 - Vitest setup file across packages: `test/commonSetup.ts`.
 - For TS type assertions in tests use:
 

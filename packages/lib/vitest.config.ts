@@ -20,13 +20,15 @@ const swcConfig = require("./swc.config.js") as swc.Options
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
 const tsconfigFiles = {
-  6: compiler === "tsc" ? "tsconfig.json" : "tsconfig.experimental-decorators.json",
+  7: "tsconfig.mobx7.json",
+  6: compiler === "tsc" ? "tsconfig.mobx6.json" : "tsconfig.experimental-decorators.json",
   5: "tsconfig.mobx5.json",
   4: "tsconfig.mobx4.json",
 } as const
 
 const mobxModuleNames = {
-  6: "mobx",
+  7: "mobx-v7",
+  6: "mobx-v6",
   5: "mobx-v5",
   4: "mobx-v4",
 } as const
@@ -39,7 +41,7 @@ const tsconfigFile = tsconfigFiles[mobxVersion as keyof typeof tsconfigFiles]
 const mobxModuleName = mobxModuleNames[mobxVersion as keyof typeof mobxModuleNames]
 
 if (!tsconfigFile || !mobxModuleName) {
-  throw new Error("$MOBX_VERSION must be one of {4,5,6}")
+  throw new Error("$MOBX_VERSION must be one of {4,5,6,7}")
 }
 
 const createTscOutputReader = () => {
@@ -185,7 +187,8 @@ const compilerPlugin = () => {
                 ...((swcConfig.jsc?.parser as object | undefined) ?? {}),
               },
               transform: {
-                legacyDecorator: true,
+                legacyDecorator: mobxVersion < 7,
+                decoratorVersion: mobxVersion >= 7 ? "2022-03" : undefined,
                 useDefineForClassFields: mobxVersion !== 4,
                 ...((swcConfig.jsc?.transform as object | undefined) ?? {}),
               },

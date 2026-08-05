@@ -1,4 +1,3 @@
-import { action, computed } from "mobx"
 import { pathToTargetPathIds } from "../actionMiddlewares/utils"
 import { resolvePath, resolvePathCheckingIds, skipIdChecking } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
@@ -7,7 +6,7 @@ import { applySnapshot } from "../snapshot/applySnapshot"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure } from "../utils"
+import { failure, mobxAction, mobxComputed } from "../utils"
 import { deepEquals } from "./deepEquals"
 
 /**
@@ -25,7 +24,7 @@ export class Draft<T extends object> {
   /**
    * Commits current draft changes to the original object.
    */
-  @action
+  @mobxAction
   commit(): void {
     applySnapshot(this.originalData, getSnapshot(this.data))
   }
@@ -37,7 +36,7 @@ export class Draft<T extends object> {
    *
    * @param path Path to commit.
    */
-  @action
+  @mobxAction
   commitByPath(path: Path): void {
     const draftTarget = resolvePath(this.data, path)
     if (!draftTarget.resolved) {
@@ -63,7 +62,7 @@ export class Draft<T extends object> {
   /**
    * Resets the draft to be an exact copy of the current state of the original object.
    */
-  @action
+  @mobxAction
   reset(): void {
     applySnapshot(this.data, this.originalSnapshot)
   }
@@ -75,7 +74,7 @@ export class Draft<T extends object> {
    *
    * @param path Path to reset.
    */
-  @action
+  @mobxAction
   resetByPath(path: Path): void {
     const originalTarget = resolvePath(this.originalData, path)
     if (!originalTarget.resolved) {
@@ -101,7 +100,7 @@ export class Draft<T extends object> {
   /**
    * Returns `true` if the draft has changed compared to the original object, `false` otherwise.
    */
-  @computed
+  @mobxComputed
   get isDirty(): boolean {
     return !deepEquals(getSnapshot(this.data), this.originalSnapshot)
   }
@@ -135,7 +134,7 @@ export class Draft<T extends object> {
    */
   readonly originalData: T
 
-  @computed
+  @mobxComputed
   private get originalSnapshot() {
     return getSnapshot(this.originalData)
   }
