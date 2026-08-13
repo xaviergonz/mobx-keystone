@@ -64,7 +64,7 @@ npm install --save mobx-react-lite
 
 This library requires a more or less modern JavaScript environment to work, namely one with support for:
 
-- MobX 6, 5, or 4 (with its gotchas)
+- MobX 7, 6, 5 (or 4 with its gotchas)
 - Proxies
 - Symbols
 - WeakMap/WeakSet
@@ -74,7 +74,11 @@ In other words, it should work on mostly anything except _it won't work in Inter
 If you are using TypeScript:
 
 - Version 5.0+ is recommended (standard decorators).
-- Legacy decorators are also supported (`experimentalDecorators: true`).
+- `mobx-keystone` decorators also support the legacy transform (`experimentalDecorators: true`).
+
+MobX 7 itself no longer supports legacy decorators. When using MobX 7, choose the standard
+decorator transform for code that uses MobX decorators such as `@computed`, `@action`, or
+`@observable`.
 
 ## Setup checklist
 
@@ -147,6 +151,9 @@ For Babel, ensure class static blocks are transformed (for example via `@babel/p
 ### Legacy decorators
 
 Use this mode if your project is on legacy decorators (`experimentalDecorators: true`).
+This mode remains supported by `mobx-keystone` decorators. MobX 7's own decorators cannot
+be used in this mode; choose the standard decorator configuration above if your code uses
+them.
 
 <Tabs>
 <TabItem value="legacy-tsc" label="TypeScript">

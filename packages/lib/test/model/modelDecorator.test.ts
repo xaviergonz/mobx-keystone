@@ -26,6 +26,26 @@ test("model decorator preserves static properties", () => {
   expect(Bar.foo).toBe("foo")
 })
 
+test("model decorator uses a proxy when called with a standard decorator context", () => {
+  class StandardContextModel extends Model({}) {}
+
+  let initializerAdded = false
+  const result = model("modelDecorator/StandardContext")(StandardContextModel, {
+    kind: "class",
+    name: "StandardContextModel",
+    addInitializer() {
+      initializerAdded = true
+    },
+    metadata: {},
+  } as ClassDecoratorContext<typeof StandardContextModel>)
+
+  expect(initializerAdded).toBe(false)
+  expect(result).not.toBe(StandardContextModel)
+  expect(result.name).toBe(StandardContextModel.name)
+  expect(result.prototype).toBe(StandardContextModel.prototype)
+  expect(() => new result({})).not.toThrow()
+})
+
 test("model decorator preserves static property getters", () => {
   @testModel("BarWithGetter")
   class Bar extends Model({}) {
@@ -250,4 +270,25 @@ test("decoratedModel", () => {
       }
     )
   }
+})
+
+test("decoratedModel does not mistake a custom decorator for a MobX annotation", () => {
+  class CustomDecoratorModel extends Model({}) {
+    method() {}
+  }
+
+  let decoratorCalled = false
+  const customDecorator = Object.assign(
+    (_target: object, _key: string | symbol, descriptor: PropertyDescriptor) => {
+      decoratorCalled = true
+      return descriptor
+    },
+    { annotationType_: "custom" }
+  )
+
+  decoratedModel("decoratedModel/CustomDecorator", CustomDecoratorModel, {
+    method: customDecorator,
+  })
+
+  expect(decoratorCalled).toBe(true)
 })

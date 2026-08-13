@@ -15,10 +15,11 @@ import {
 } from "../modelShared/modelSymbols"
 import { refreshInternalSnapshot } from "../snapshot/internal"
 import {
+  addLateInitializationFunction,
   failure,
   getMobxVersion,
   logWarning,
-  mobx6,
+  makeObservableCompat,
   runAfterNewSymbol,
   runBeforeOnInitSymbol,
   runLateInitializationFunctions,
@@ -34,11 +35,11 @@ import type { AnyFunction } from "../utils/AnyFunction"
  */
 export const model =
   (name: string) =>
-  <MC extends ModelClass<AnyModel | AnyDataModel>>(clazz: MC, ...args: any[]): MC => {
-    const ctx = typeof args[1] === "object" ? (args[1] as ClassDecoratorContext) : undefined
-
-    return internalModel(name, clazz, ctx?.addInitializer) as any
-  }
+  <MC extends ModelClass<AnyModel | AnyDataModel>>(
+    clazz: MC,
+    _context?: ClassDecoratorContext<MC>
+  ): MC =>
+    internalModel(name, clazz) as any
 
 const afterClassInitializationData = new WeakMap<
   ModelClass<AnyModel | AnyDataModel>,
@@ -56,14 +57,14 @@ const runAfterClassInitialization = (
 
   const tag = afterClassInitializationData.get(target)!
 
-  // compatibility with mobx 6
+  // compatibility with mobx 6 and 7
   if (tag.needsMakeObservable) {
     // we know it can be done and shouldn't fail
-    mobx6.makeObservable(instance)
+    makeObservableCompat(instance)
   } else if (tag.needsMakeObservable === undefined) {
     if (getMobxVersion() >= 6) {
       try {
-        mobx6.makeObservable(instance)
+        makeObservableCompat(instance)
         tag.needsMakeObservable = true
       } catch (e) {
         const err = e as Error
@@ -121,8 +122,7 @@ const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
 
 const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
   name: string,
-  clazz: MC,
-  addInitializer: ((initializer: (this: any) => void) => void) | undefined
+  clazz: MC
 ): MC | void => {
   const type = isModelClass(clazz) ? "class" : isDataModelClass(clazz) ? "data" : undefined
   if (!type) {
@@ -151,48 +151,24 @@ const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
   // track if we fail so we only try it once per class
   afterClassInitializationData.set(clazz, { needsMakeObservable: undefined, type })
 
-  if (addInitializer) {
-    // standard decorator API, avoid proxies
-    addInitializer(function (this: any) {
-      runAfterClassInitialization(clazz, this)
-    })
+  const decoratedClass = new Proxy<MC>(clazz, proxyClassHandler)
+  ;(decoratedClass as any)[modelUnwrappedClassSymbol] = clazz
 
-    const modelInfo = {
-      name,
-      class: clazz,
-    }
+  decoratedClass.prototype.constructor = decoratedClass
 
-    modelInfoByName[name] = modelInfo
-
-    modelInfoByClass.set(clazz, modelInfo)
-
-    runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
-
-    return undefined // use same class
-  } else {
-    // non-standard decorator API, use proxies
-
-    // trick so plain new works
-    const proxyClass = new Proxy<MC>(clazz, proxyClassHandler)
-
-    // set or else it points to the undecorated class
-    proxyClass.prototype.constructor = proxyClass
-    ;(proxyClass as any)[modelUnwrappedClassSymbol] = clazz
-
-    const modelInfo = {
-      name,
-      class: proxyClass,
-    }
-
-    modelInfoByName[name] = modelInfo
-
-    modelInfoByClass.set(proxyClass, modelInfo)
-    modelInfoByClass.set(clazz, modelInfo)
-
-    runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
-
-    return proxyClass
+  const modelInfo = {
+    name,
+    class: decoratedClass,
   }
+
+  modelInfoByName[name] = modelInfo
+
+  modelInfoByClass.set(decoratedClass, modelInfo)
+  modelInfoByClass.set(clazz, modelInfo)
+
+  runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
+
+  return decoratedClass
 }
 
 // basically taken from TS
@@ -243,18 +219,53 @@ export function decoratedModel<M, MC extends abstract new (...ags: any) => M>(
     [k in keyof M]?: AnyFunction | ReadonlyArray<AnyFunction>
   }
 ): MC {
+  const mobx7Annotations: Record<string, unknown> = {}
+
   // decorate class members
   for (const [k, decorator] of Object.entries(decorators)) {
+    const decoratorList = Array.isArray(decorator) ? decorator : [decorator]
+    const mobx7Annotation = decoratorList.find(isMobxAnnotation)
+    if (getMobxVersion() >= 7 && mobx7Annotation) {
+      if (decoratorList.length !== 1) {
+        throw failure("MobX 7 decorators cannot be combined in decoratedModel")
+      }
+      mobx7Annotations[k] = mobx7Annotation
+      continue
+    }
+
     const prototypeValueDesc = Object.getOwnPropertyDescriptor(clazz.prototype, k)
     // TS seems to send null for methods in the prototype
     // (which we substitute for the descriptor to avoid a double look-up) and void 0 (undefined) for props
-    tsDecorate(
-      Array.isArray(decorator) ? decorator : [decorator],
-      clazz.prototype,
-      k,
-      prototypeValueDesc ? prototypeValueDesc : void 0
-    )
+    tsDecorate(decoratorList, clazz.prototype, k, prototypeValueDesc ? prototypeValueDesc : void 0)
+  }
+
+  if (getMobxVersion() >= 7 && Object.keys(mobx7Annotations).length > 0) {
+    addLateInitializationFunction(clazz.prototype, runAfterNewSymbol, (instance) => {
+      makeObservableCompat(instance, mobx7Annotations)
+    })
   }
 
   return (name ? model(name)(clazz as unknown as ModelClass<AnyModel>) : clazz) as MC
+}
+
+type MobxAnnotation = {
+  annotationType_: string
+  make_: AnyFunction
+  extend_: AnyFunction
+}
+
+// MobX uses this same structural check in its internal `isAnnotation` helper.
+// That helper is not part of MobX's public root API, so mirror it here instead
+// of depending on a private deep import that may not exist in every supported version.
+function isMobxAnnotation(value: unknown): value is MobxAnnotation {
+  if ((typeof value !== "object" || value === null) && typeof value !== "function") {
+    return false
+  }
+
+  const annotation = value as Partial<MobxAnnotation>
+  return (
+    typeof annotation.annotationType_ === "string" &&
+    typeof annotation.make_ === "function" &&
+    typeof annotation.extend_ === "function"
+  )
 }

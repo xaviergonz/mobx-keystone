@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone-loro",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Loro CRDT bindings for mobx-keystone",
   "keywords": [
     "mobx",
@@ -62,8 +62,8 @@
   },
   "peerDependencies": {
     "loro-crdt": "^1.10.3",
-    "mobx": "^6.0.0 || ^5.0.0 || ^4.0.0",
-    "mobx-keystone": "^1.12.0"
+    "mobx": "^7.0.0 || ^6.0.0 || ^5.0.0 || ^4.0.0",
+    "mobx-keystone": "^1.24.0"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
@@ -71,13 +71,13 @@
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@babel/plugin-transform-typescript": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.2.0",
     "mobx-keystone": "workspace:*",
     "shx": "^0.4.0",
     "spec.ts": "^1.1.3",
     "ts-node": "^10.9.2",
     "typescript": "^7.0.2",
-    "vite": "^8.1.4",
+    "vite": "^8.2.1",
     "vite-plugin-dts": "^5.0.3",
     "vitest": "^4.1.10"
   },

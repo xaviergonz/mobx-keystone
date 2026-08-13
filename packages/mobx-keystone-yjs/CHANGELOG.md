@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.7.0
+
+- Declared compatibility with MobX 7.
+- Updated the `mobx-keystone` peer requirement to `^1.24.0` to use the public MobX compatibility decorators.
+
 ## 1.6.0
 
 - Refactored internal synchronization to use deep change observation instead of JSON patches. This provides proper array splice detection, avoiding the previous behavior where array operations were converted to individual element patches. The result is more efficient array synchronization and better alignment with how Y.js handles array modifications.

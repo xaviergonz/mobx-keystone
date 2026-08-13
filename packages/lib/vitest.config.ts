@@ -1,11 +1,7 @@
-import { spawnSync } from "node:child_process"
-import { mkdtempSync, readFileSync, rmSync } from "node:fs"
 import { createRequire } from "node:module"
-import os from "node:os"
-import path from "node:path"
-import { fileURLToPath } from "node:url"
 import * as babel from "@babel/core"
 import * as swc from "@swc/core"
+import * as ts from "@typescript/typescript6"
 import { defineConfig } from "vitest/config"
 import { env } from "./env.js"
 
@@ -17,16 +13,15 @@ const require = createRequire(import.meta.url)
 const babelConfig = require("./babel.config.js") as babel.InputOptions
 const swcConfig = require("./swc.config.js") as swc.Options
 
-const rootDir = path.dirname(fileURLToPath(import.meta.url))
-
-const tsconfigFiles = {
-  6: compiler === "tsc" ? "tsconfig.json" : "tsconfig.experimental-decorators.json",
-  5: "tsconfig.mobx5.json",
-  4: "tsconfig.mobx4.json",
-} as const
+const diagnosticHost: ts.FormatDiagnosticsHost = {
+  getCanonicalFileName: (fileName) => fileName,
+  getCurrentDirectory: () => process.cwd(),
+  getNewLine: () => "\n",
+}
 
 const mobxModuleNames = {
-  6: "mobx",
+  7: "mobx-v7",
+  6: "mobx-v6",
   5: "mobx-v5",
   4: "mobx-v4",
 } as const
@@ -35,93 +30,28 @@ if (!["tsc", "tsc-experimental-decorators", "babel", "swc"].includes(compiler)) 
   throw new Error("$COMPILER must be one of {tsc,tsc-experimental-decorators,babel,swc}")
 }
 
-const tsconfigFile = tsconfigFiles[mobxVersion as keyof typeof tsconfigFiles]
 const mobxModuleName = mobxModuleNames[mobxVersion as keyof typeof mobxModuleNames]
 
-if (!tsconfigFile || !mobxModuleName) {
-  throw new Error("$MOBX_VERSION must be one of {4,5,6}")
+if (!mobxModuleName) {
+  throw new Error("$MOBX_VERSION must be one of {4,5,6,7}")
 }
 
-const createTscOutputReader = () => {
-  let tempDir: string | undefined
+// This is the source of truth for the TypeScript transform matrix. Vitest only
+// transpiles each module, so the deleted test tsconfig variants' `paths` and
+// type-checking options do not apply here; `resolve.alias` selects the MobX runtime.
+// `tsc-experimental-decorators` and MobX 4/5 use legacy decorators; the remaining
+// TypeScript configurations use standard decorators. MobX 4 alone needs assignment
+// semantics for class fields.
+const tsCompilerOptions = {
+  target: ts.ScriptTarget.ES2020,
+  module: ts.ModuleKind.ESNext,
+  sourceMap: true,
+  inlineSources: true,
+  importHelpers: true,
+  experimentalDecorators: compiler === "tsc-experimental-decorators" || mobxVersion < 6,
+  useDefineForClassFields: mobxVersion !== 4,
+} satisfies ts.CompilerOptions
 
-  const reset = () => {
-    if (tempDir) {
-      rmSync(tempDir, { force: true, recursive: true })
-      tempDir = undefined
-    }
-  }
-
-  const read = (filePath: string) => {
-    if (!tempDir) {
-      const newTempDir = mkdtempSync(path.join(os.tmpdir(), `mobx-keystone-vitest-${compiler}-`))
-      const outDir = path.join(newTempDir, "js")
-      const declarationDir = path.join(newTempDir, "types")
-      const typescriptDir = path.dirname(require.resolve("typescript/package.json"))
-      const tscBin = path.join(typescriptDir, "bin", "tsc")
-      const result = spawnSync(
-        process.execPath,
-        [
-          tscBin,
-          "-p",
-          path.resolve(rootDir, "test", tsconfigFile),
-          "--noEmit",
-          "false",
-          "--outDir",
-          outDir,
-          "--declarationDir",
-          declarationDir,
-          "--sourceMap",
-          "true",
-          "--inlineSources",
-          "true",
-          "--module",
-          "ESNext",
-          "--pretty",
-          "false",
-        ],
-        {
-          cwd: rootDir,
-          encoding: "utf8",
-        }
-      )
-
-      if (result.error || result.status !== 0) {
-        // Compilation failed: clean up the temp dir and leave tempDir unset so a
-        // later read retries the compilation and surfaces the same error, rather
-        // than skipping recompilation and crashing on the missing emitted files.
-        rmSync(newTempDir, { force: true, recursive: true })
-        const details = [
-          result.error ? `Failed to spawn tsc: ${result.error.message}` : undefined,
-          result.stdout,
-          result.stderr,
-        ]
-          .filter(Boolean)
-          .join("\n")
-        throw new Error(details || `tsc exited with status ${result.status}`)
-      }
-
-      tempDir = newTempDir
-    }
-
-    const outDir = path.join(tempDir, "js")
-    const relativePath = path.relative(rootDir, filePath)
-    const emittedPath = path.join(outDir, relativePath).replace(/\.tsx?$/, ".js")
-    const code = readFileSync(emittedPath, "utf8")
-    const mapPath = `${emittedPath}.map`
-
-    return {
-      code,
-      map: JSON.parse(readFileSync(mapPath, "utf8")),
-    }
-  }
-
-  process.once("exit", reset)
-
-  return { read, reset }
-}
-
-const tscOutputReader = createTscOutputReader()
 const babelPresets: babel.PresetItem[] | undefined = babelConfig.presets?.map((preset) => {
   if (Array.isArray(preset) && preset[0] === "@babel/preset-env") {
     const presetOptions =
@@ -147,8 +77,25 @@ const compilerPlugin = () => {
 
       switch (compiler) {
         case "tsc":
-        case "tsc-experimental-decorators":
-          return tscOutputReader.read(filePath)
+        case "tsc-experimental-decorators": {
+          const transformed = ts.transpileModule(code, {
+            compilerOptions: tsCompilerOptions,
+            fileName: filePath,
+            reportDiagnostics: true,
+          })
+
+          const diagnostics = transformed.diagnostics?.filter(
+            (d) => d.category === ts.DiagnosticCategory.Error
+          )
+          if (diagnostics && diagnostics.length > 0) {
+            throw new Error(ts.formatDiagnosticsWithColorAndContext(diagnostics, diagnosticHost))
+          }
+
+          return {
+            code: transformed.outputText,
+            map: transformed.sourceMapText ? JSON.parse(transformed.sourceMapText) : null,
+          }
+        }
 
         case "babel": {
           const transformed = await babel.transformAsync(code, {
@@ -185,7 +132,8 @@ const compilerPlugin = () => {
                 ...((swcConfig.jsc?.parser as object | undefined) ?? {}),
               },
               transform: {
-                legacyDecorator: true,
+                legacyDecorator: mobxVersion < 7,
+                decoratorVersion: mobxVersion >= 7 ? "2022-03" : undefined,
                 useDefineForClassFields: mobxVersion !== 4,
                 ...((swcConfig.jsc?.transform as object | undefined) ?? {}),
               },
@@ -206,9 +154,6 @@ const compilerPlugin = () => {
           throw new Error("$COMPILER must be one of {tsc,tsc-experimental-decorators,babel,swc}")
       }
     },
-    handleHotUpdate() {
-      tscOutputReader.reset()
-    },
   }
 }
 
@@ -224,5 +169,4 @@ export default defineConfig({
     environment: "node",
     globals: true,
   },
-  oxc: false,
 })

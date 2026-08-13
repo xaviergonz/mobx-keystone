@@ -4,18 +4,18 @@
   "files": {
     "includes": [
       "**",
-      "!**/node_modules",
-      "!**/dist",
-      "!packages/lib/coverage",
-      "!packages/lib/api-docs",
-      "!packages/mobx-keystone-yjs/coverage",
-      "!packages/mobx-keystone-yjs/api-docs",
-      "!packages/mobx-keystone-loro/coverage",
-      "!packages/mobx-keystone-loro/api-docs",
-      "!apps/site/.docusaurus",
-      "!apps/site/build",
-      "!apps/site/generated-static",
-      "!apps/site/static/api"
+      "!!**/node_modules",
+      "!!**/dist",
+      "!!packages/lib/coverage",
+      "!!packages/lib/api-docs",
+      "!!packages/mobx-keystone-yjs/coverage",
+      "!!packages/mobx-keystone-yjs/api-docs",
+      "!!packages/mobx-keystone-loro/coverage",
+      "!!packages/mobx-keystone-loro/api-docs",
+      "!!apps/site/.docusaurus",
+      "!!apps/site/build",
+      "!!apps/site/generated-static",
+      "!!apps/site/static/api"
     ]
   },
   "formatter": {
