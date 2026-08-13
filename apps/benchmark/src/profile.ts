@@ -2,9 +2,20 @@ import { writeFileSync } from "node:fs"
 import { Session } from "node:inspector"
 import { type ApplySnapshotProfileScenario, createFreshCopyApplyProfile } from "./applySnapshot.js"
 import {
+  CREATION_PROFILE_BATCH_SIZE,
+  createDataModelCacheHitProfile,
   createFlatDataModelCreationProfile,
   createFlatModelCreationProfile,
-  FLAT_CREATION_PROFILE_BATCH_SIZE,
+  createNestedDataModelCreationProfile,
+  createNestedModelCreationProfile,
+  createTypedDataModelCreationOffProfile,
+  createTypedDataModelCreationProfile,
+  createTypedDataModelManualTypeCheckProfile,
+  createTypedDataModelTypeCheckProfile,
+  createTypedModelCreationOffProfile,
+  createTypedModelCreationProfile,
+  createTypedModelManualTypeCheckProfile,
+  createTypedModelTypeCheckProfile,
 } from "./creation.js"
 import {
   createDeepIndexConstructionProfile,
@@ -54,13 +65,79 @@ function resolveScenario(rawScenario: string): ProfileScenario {
       return {
         name: rawScenario,
         run: createFlatModelCreationProfile(),
-        workPerIteration: FLAT_CREATION_PROFILE_BATCH_SIZE,
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
       }
     case "flat-datamodel-creation":
       return {
         name: rawScenario,
         run: createFlatDataModelCreationProfile(),
-        workPerIteration: FLAT_CREATION_PROFILE_BATCH_SIZE,
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "nested-model-creation":
+      return {
+        name: rawScenario,
+        run: createNestedModelCreationProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "nested-datamodel-creation":
+      return {
+        name: rawScenario,
+        run: createNestedDataModelCreationProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-model-creation":
+      return {
+        name: rawScenario,
+        run: createTypedModelCreationProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-model-creation-off":
+      return {
+        name: rawScenario,
+        run: createTypedModelCreationOffProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-datamodel-creation":
+      return {
+        name: rawScenario,
+        run: createTypedDataModelCreationProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-datamodel-creation-off":
+      return {
+        name: rawScenario,
+        run: createTypedDataModelCreationOffProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-model-manual-typecheck":
+      return {
+        name: rawScenario,
+        run: createTypedModelManualTypeCheckProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-datamodel-manual-typecheck":
+      return {
+        name: rawScenario,
+        run: createTypedDataModelManualTypeCheckProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-model-typecheck-only":
+      return {
+        name: rawScenario,
+        run: createTypedModelTypeCheckProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "typed-datamodel-typecheck-only":
+      return {
+        name: rawScenario,
+        run: createTypedDataModelTypeCheckProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
+      }
+    case "datamodel-cache-hit":
+      return {
+        name: rawScenario,
+        run: createDataModelCacheHitProfile(),
+        workPerIteration: CREATION_PROFILE_BATCH_SIZE,
       }
     case "plain-subtree-detach":
       return { name: rawScenario, run: createPlainSubtreeDetachProfile() }

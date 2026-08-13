@@ -14,7 +14,7 @@ import {
   type KeystoneBenchmarkSetup,
 } from "./bench.js"
 
-export const FLAT_CREATION_PROFILE_BATCH_SIZE = 1_000
+export const CREATION_PROFILE_BATCH_SIZE = 1_000
 
 const providedData = {
   a: 1,
@@ -28,6 +28,12 @@ const providedData = {
 }
 
 const emptyData = {}
+
+function consumeTypeCheckResult(result: unknown): void {
+  const globalState = globalThis as { __mobxKeystoneBenchmarkTypeCheckSink?: number }
+  globalState.__mobxKeystoneBenchmarkTypeCheckSink =
+    (globalState.__mobxKeystoneBenchmarkTypeCheckSink ?? 0) + (result === null ? 1 : -1)
+}
 
 interface NestedData {
   groups: {
@@ -222,24 +228,163 @@ export function runCreationBenchmarks(onCycle: (result: KeystoneBenchmarkResult)
   )
 }
 
-export function createFlatModelCreationProfile(
-  batchSize = FLAT_CREATION_PROFILE_BATCH_SIZE
+function createCreationProfile(
+  modelAutoTypeChecking: ModelAutoTypeCheckingMode,
+  create: () => void,
+  batchSize = CREATION_PROFILE_BATCH_SIZE
 ): () => void {
-  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  setGlobalConfig({ modelAutoTypeChecking })
   return () => {
     for (let i = 0; i < batchSize; i++) {
-      new CreationProvidedModel(providedData)
+      create()
     }
   }
 }
 
+export function createFlatModelCreationProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => new CreationProvidedModel(providedData),
+    batchSize
+  )
+}
+
 export function createFlatDataModelCreationProfile(
-  batchSize = FLAT_CREATION_PROFILE_BATCH_SIZE
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => new CreationProvidedDataModel(providedData),
+    batchSize
+  )
+}
+
+export function createNestedModelCreationProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => new CreationNestedModel({ value: createNestedData() }),
+    batchSize
+  )
+}
+
+export function createNestedDataModelCreationProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => new CreationNestedDataModel({ value: createNestedData() }),
+    batchSize
+  )
+}
+
+export function createTypedModelCreationProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOn,
+    () => new CreationTypedModel(providedData),
+    batchSize
+  )
+}
+
+export function createTypedModelCreationOffProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => new CreationTypedModel(providedData),
+    batchSize
+  )
+}
+
+export function createTypedDataModelCreationProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOn,
+    () => new CreationTypedDataModel(providedData),
+    batchSize
+  )
+}
+
+export function createTypedDataModelCreationOffProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => new CreationTypedDataModel(providedData),
+    batchSize
+  )
+}
+
+export function createTypedModelManualTypeCheckProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => {
+      const instance = new CreationTypedModel(providedData)
+      consumeTypeCheckResult(instance.typeCheck())
+    },
+    batchSize
+  )
+}
+
+export function createTypedDataModelManualTypeCheckProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => {
+      const instance = new CreationTypedDataModel(providedData)
+      consumeTypeCheckResult(instance.typeCheck())
+    },
+    batchSize
+  )
+}
+
+export function createTypedModelTypeCheckProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
 ): () => void {
   setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  const instances = Array.from(
+    { length: batchSize },
+    (_, index) => new CreationTypedModel({ ...providedData, a: index })
+  )
   return () => {
     for (let i = 0; i < batchSize; i++) {
-      new CreationProvidedDataModel(providedData)
+      consumeTypeCheckResult(instances[i].typeCheck())
     }
   }
+}
+
+export function createTypedDataModelTypeCheckProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  const instances = Array.from(
+    { length: batchSize },
+    (_, index) => new CreationTypedDataModel({ ...providedData, a: index })
+  )
+  return () => {
+    for (let i = 0; i < batchSize; i++) {
+      consumeTypeCheckResult(instances[i].typeCheck())
+    }
+  }
+}
+
+export function createDataModelCacheHitProfile(
+  batchSize = CREATION_PROFILE_BATCH_SIZE
+): () => void {
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  const existing = new CreationProvidedDataModel(providedData)
+  return createCreationProfile(
+    ModelAutoTypeCheckingMode.AlwaysOff,
+    () => new CreationProvidedDataModel(existing.$),
+    batchSize
+  )
 }
