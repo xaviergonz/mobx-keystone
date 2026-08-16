@@ -72,7 +72,7 @@
     "@babel/plugin-transform-class-static-block": "^8.0.1",
     "@babel/plugin-transform-typescript": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
-    "@swc/core": "^1.15.47",
+    "@swc/core": "^1.16.0",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^26.2.0",
     "@typescript/typescript6": "^6.0.2",
