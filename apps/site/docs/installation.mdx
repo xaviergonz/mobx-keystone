@@ -28,7 +28,7 @@ pnpm add mobx mobx-keystone
 <TabItem value="npm" label="npm">
 
 ```bash
-npm install --save mobx mobx-keystone
+npm install mobx mobx-keystone
 ```
 
 </TabItem>
@@ -56,20 +56,20 @@ pnpm add mobx-react-lite
 <TabItem value="react-npm" label="npm">
 
 ```bash
-npm install --save mobx-react-lite
+npm install mobx-react-lite
 ```
 
 </TabItem>
 </Tabs>
 
-This library requires a more or less modern JavaScript environment to work, namely one with support for:
+This library requires a modern JavaScript environment with support for:
 
 - MobX 7, 6, 5 (or 4 with its gotchas)
 - Proxies
 - Symbols
 - WeakMap/WeakSet
 
-In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
+In practice, this covers current browsers and Node.js releases, but not Internet Explorer.
 
 If you are using TypeScript:
 

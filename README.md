@@ -3,7 +3,7 @@
   <h1 align="center">mobx-keystone</h1>
 </p>
 <p align="center">
-  <i>A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more</i>
+  <i>A MobX-powered state management solution based on data trees, with first-class support for TypeScript, snapshots, patches, and much more</i>
 </p>
 
 <p align="center">
@@ -32,9 +32,7 @@
 >
 > ## [mobx-keystone.js.org](https://mobx-keystone.js.org)
 
-#### New! Y.js bindings for `mobx-keystone` are now available in the `mobx-keystone-yjs` package as well as a working example in the examples section of the online docs.
-
-#### New! Loro CRDT bindings for `mobx-keystone` are now available in the `mobx-keystone-loro` package with native move operation support for arrays, as well as a working example in the examples section of the online docs.
+Collaborative editing is available through the [`mobx-keystone-yjs`](https://mobx-keystone.js.org/integrations/yjs-binding) and [`mobx-keystone-loro`](https://mobx-keystone.js.org/integrations/loro-binding) CRDT bindings, with complete examples in the online docs.
 
 ## Introduction
 
@@ -46,6 +44,7 @@ You can think of it as a TypeScript-first model layer on top of MobX that scales
 ### Quick links
 
 - [Installation](https://mobx-keystone.js.org/installation)
+- [Getting Started](https://mobx-keystone.js.org/getting-started)
 - [Class Models](https://mobx-keystone.js.org/class-models)
 - [Todo List Example](https://mobx-keystone.js.org/examples/todo-list)
 - [MST Migration Guide](https://mobx-keystone.js.org/mst-migration-guide)
@@ -124,21 +123,23 @@ Model instances are created from props, protect their own updates, and reconcile
 
 ## Requirements
 
-This library requires a more or less modern JavaScript environment to work, namely one with support for:
+This library requires a modern JavaScript environment with support for:
 
 - MobX 7, 6, 5 (or 4 with its gotchas)
 - Proxies
 - Symbols
 - WeakMap/WeakSet
 
-In other words, it should work on mostly anything except _it won't work in Internet Explorer_.
+In practice, this covers current browsers and Node.js releases, but not Internet Explorer.
 
-If you are using TypeScript, then version >= 4.2.0 is recommended, though it _might_ work with older versions.
+TypeScript 5.0 or newer is recommended so you can use standard decorators. Legacy decorators remain supported by `mobx-keystone`; see the [installation guide](https://mobx-keystone.js.org/installation) for the required compiler configuration and the MobX 7 compatibility note.
 
 ## Installation
 
-> `npm install mobx-keystone`
+> `npm install mobx mobx-keystone`
 
-> `yarn add mobx-keystone`
+> `yarn add mobx mobx-keystone`
 
-> `pnpm add mobx-keystone`
+> `pnpm add mobx mobx-keystone`
+
+`mobx` is a peer dependency and must be installed alongside `mobx-keystone`.

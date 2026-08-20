@@ -25,9 +25,9 @@ class Todo extends Model({
 // }
 ```
 
-In this case whenever the model is created / changed it will be automatically type-checked in development mode and will throw an exception if the change results in a model that does not pass the checking.
+In this example, the model is automatically type-checked in development whenever it is created or changed. An invalid value causes the mutation to throw.
 
-If you want to enforce checks no matter if `process.env.NODE_ENV` is set to "production" or not you can do so like this:
+To enforce automatic checks in production as well, configure them explicitly:
 
 ```ts
 setGlobalConfig({
@@ -37,9 +37,9 @@ setGlobalConfig({
 
 The possible values are:
 
-- `ModelAutoTypeCheckingMode.DevModeOnly` - Auto type-check models only in dev mode
-- `ModelAutoTypeCheckingMode.AlwaysOn` - Auto type-check models no matter the current environment
-- `ModelAutoTypeCheckingMode.AlwaysOff` - Do not auto type-check models no matter the current environment
+- `ModelAutoTypeCheckingMode.DevModeOnly` - Automatically check models only in development (the default).
+- `ModelAutoTypeCheckingMode.AlwaysOn` - Automatically check models in every environment.
+- `ModelAutoTypeCheckingMode.AlwaysOff` - Disable automatic model checks in every environment.
 
 It is also possible to trigger type checking manually:
 
@@ -140,7 +140,7 @@ A type that represents any string value other than "".
 
 ### `types.enum<E>(enumObject)`
 
-An enum type, based on a TypeScript alike enum object.
+A type based on a TypeScript-style enum object.
 
 ```ts
 enum Color {
@@ -219,7 +219,7 @@ const stringNumberTupleType = types.tuple(types.string, types.number)
 
 ### `types.record(valuesType)`
 
-A type that represents an object-like map, an object with string keys and values all of a same given type.
+A type that represents an object-like map with string keys whose values all have the same type.
 
 ```ts
 // `{ [k: string]: number }`
@@ -277,7 +277,7 @@ const numberSetType = types.setFromArray(types.number)
 ### `types.model<M>(modelClass)`
 
 A type that represents a model. The type referenced in the model decorator will be used for type checking.
-If you use recursive / cross referencing models and get TypeScript errors then consider using the lambda parameter instead.
+For recursive or cross-referencing models, use the lazy callback form if the direct form causes TypeScript errors.
 
 ```ts
 const someModelType = types.model(SomeModel)
@@ -285,12 +285,12 @@ const someModelType = types.model(SomeModel)
 const someModelType = types.model<SomeModel>(() => SomeModel)
 ```
 
-Note that most times just passing the model as type works (for example, `tProp(SomeModel)` and `tProp(types.model(SomeModel))` are equivalent).
+Usually you can pass the model class directly: `tProp(SomeModel)` and `tProp(types.model(SomeModel))` are equivalent.
 
 ### `types.dataModelData<M>(dataModelClass)`
 
 A type that represents the data of a data model. The type referenced in the model decorator will be used for type checking.
-If you use recursive / cross-referencing models and get TypeScript errors then consider using the lambda parameter instead.
+For recursive or cross-referencing models, use the lazy callback form if the direct form causes TypeScript errors.
 
 ```ts
 const someModelDataType = types.dataModelData(SomeModel)
@@ -300,8 +300,7 @@ const someModelDataType = types.dataModelData<SomeModel>(() => SomeModel)
 
 ### `types.unchecked<T>()`
 
-A type that represents a given value that won't be type-checked.
-This is basically a way to bail out of the runtime type checking system.
+An escape hatch for values that should not be checked at runtime.
 
 ```ts
 const uncheckedSomeModel = types.unchecked<SomeModel>()
@@ -377,8 +376,7 @@ const numberSetType = types.arraySet(types.number)
 
 ### `types.refinement(baseType, checkFn: (data) => boolean | TypeCheckError | null)`
 
-A refinement over a given type. This allows you to do extra checks
-over models, ensure numbers are integers, etc.
+A refinement adds a custom constraint to an existing type, such as a model invariant or a numeric range.
 
 ```ts
 const integerType = types.refinement(

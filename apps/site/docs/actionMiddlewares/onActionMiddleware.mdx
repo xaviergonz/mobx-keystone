@@ -3,18 +3,16 @@ name: onActionMiddleware
 slug: /action-middlewares/on-action-middleware
 ---
 
-This action middleware invokes a listener for all actions of a given tree.
-Note that the listener will only be invoked for the topmost level actions, so it won't run for child actions or intermediary flow steps.
-Also it won't trigger the listener for calls to hooks such as `onAttachedToRootStore` or its returned disposer.
+This middleware observes actions in a given tree. It invokes listeners only for top-level actions, not for nested child actions or intermediate flow steps. Life-cycle hooks such as `onAttachedToRootStore` and its returned disposer are also excluded.
 
 Its main use is to keep track of top-level actions that can be later replicated via `applyAction` somewhere else (another machine, etc.).
 
 There are two kinds of possible listeners, `onStart` and `onFinish` listeners.
 
-- `onStart` listeners are called before the action executes and allow cancelation by returning a new return value (which might be a return or a throw).
+- `onStart` listeners are called before the action executes and allow cancellation by returning a new result (either a return or a throw).
 - `onFinish` listeners are called after the action executes, have access to the action's actual return value and allow overriding by returning a new return value (which might be a return or a throw).
 
-The actions passed as arguments to the listener are not in a serializable format. If you want to ensure that the actual action calls are serializable you should use `serializeActionCall` over the whole action before sending the action call over the wire / storing them and likewise use `applySerializedActionAndTrackNewModelIds` (for the server) / `applySerializedActionAndSyncNewModelIds` (for the clients) before applying it (as seen in the [Client/Server Example](../examples/clientServer/clientServer.mdx)).
+The `ActionCall` passed to a listener is not directly serializable. Before storing or sending it, use `serializeActionCall`. Apply the serialized call with `applySerializedActionAndTrackNewModelIds` on the server or `applySerializedActionAndSyncNewModelIds` on clients, as shown in the [Client/Server Example](../examples/clientServer/clientServer.mdx).
 
 It will return a disposer, which only needs to be called if you plan to early dispose of the middleware.
 

@@ -55,8 +55,10 @@ Why register the root store?
 
 - It enables `onAttachedToRootStore`.
 - It makes `getRootStore(...)` work.
-- It marks this tree as your live application state.
-- Later guides build on this for middleware, persistence, and app-wide side effects.
+- It establishes this tree as the live boundary of your application state.
+- It gives models a reliable place to start and dispose app-wide side effects.
+
+Registration is recommended for a long-lived application store, but it is not required to create models, take snapshots, or attach middleware to a tree.
 
 ## 2. Render the store in React
 

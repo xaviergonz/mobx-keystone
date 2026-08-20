@@ -3,7 +3,15 @@ title: Loro Binding (mobx-keystone-loro)
 slug: /integrations/loro-binding
 ---
 
-The [`mobx-keystone-loro`](https://www.npmjs.com/package/mobx-keystone-loro) package keeps a [`Loro`](https://loro.dev/) document in sync with a `mobx-keystone` store and vice versa. This is useful when multiple clients need to stay in sync through peer-to-peer networking, an intermediate server, or another transport. Since `Loro` is a CRDT, concurrent edits remain conflict-free, which makes optimistic updates practical even when clients go offline temporarily.
+The [`mobx-keystone-loro`](https://www.npmjs.com/package/mobx-keystone-loro) package keeps a [`Loro`](https://loro.dev/) document and a `mobx-keystone` store synchronized in both directions. Loro is a CRDT, so replicas can accept local changes while offline and merge concurrent edits when they reconnect. You supply the networking and persistence layer appropriate for your application.
+
+## Installation
+
+Install the binding and its peer dependencies:
+
+```bash
+npm install mobx mobx-keystone loro-crdt mobx-keystone-loro
+```
 
 ## Binding `Loro` data to a model instance
 
@@ -25,13 +33,13 @@ const {
 })
 ```
 
-Note that the `loroObject` must be a `LoroMap`, `LoroMovableList` or a `LoroText` and its structure must be compatible with the provided `mobx-keystone` type (or, to be more precise, its snapshot form).
+The `loroObject` must be a `LoroMap`, `LoroMovableList`, or `LoroText` attached to `loroDoc`. Its current JSON representation must be a valid input snapshot for `mobxKeystoneType`. The returned `boundObject` is created from that CRDT data, and later changes flow in both directions until `dispose()` is called.
 
 ## First migration - converting JSON to `Loro` data
 
-If you already have a model instance snapshot stored somewhere and want to start binding it to a `Loro` data structure you can use the `convertJsonToLoroData` function to make this first migration.
+If you already have a stored model snapshot, use `convertJsonToLoroData` to create the initial Loro structure before binding it.
 
-`convertJsonToLoroData` takes a single argument, a JSON value (usually a snapshot of the model you want to bind) and returns a `Loro` data structure (`LoroMap`, `LoroMovableList`, etc.) ready to be bound to that model. Frozen values are a special case and they are kept as immutable plain values.
+`convertJsonToLoroData` accepts a JSON value (usually the model snapshot) and returns the corresponding Loro structure (`LoroMap`, `LoroMovableList`, and so on). Frozen values remain immutable plain values.
 
 If you already have an existing `LoroMap` or `LoroMovableList` and want to copy JSON data into it, use the helper functions:
 

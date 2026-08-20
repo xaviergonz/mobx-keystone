@@ -5,15 +5,13 @@ slug: /action-middlewares/custom-middlewares
 
 ## Overview
 
-Besides the very specific `onActionMiddleware` (which only tracks top-level actions and is usually used to record actions to be later replicated via `applyAction`), there are two additional ways to create your own custom middleware, the low-level `addActionMiddleware`, which should be rarely needed, and the more high-level but friendlier `actionTrackingMiddleware`.
+Use `onActionMiddleware` when you only need top-level, replayable action calls. For custom interception and instrumentation, `mobx-keystone` exposes two more APIs: the higher-level `actionTrackingMiddleware` and the rarely needed low-level `addActionMiddleware`.
 
 ## `actionTrackingMiddleware`
 
-Creates an action tracking middleware, which is a simplified version of the standard action middleware.
+`actionTrackingMiddleware(subtreeRoot, hooks)` creates a middleware that treats every synchronous action or complete async flow as one logical action.
 
-It takes two parameters, being the first one the root target model object and the second one the hooks in the form of an `ActionTrackingMiddleware` object.
-
-It returns a disposer function.
+The first argument is the root of the subtree to observe. The second is an `ActionTrackingMiddleware` hooks object. The function returns a disposer.
 
 The `ActionTrackingMiddleware` object has the following structure:
 
@@ -29,26 +27,23 @@ The `ActionTrackingMiddleware` object has the following structure:
 
 - `onStart?(ctx: SimpleActionContext): void | ActionTrackingReturn`
 
-  Called when an action just started.
+  Called when an action starts.
   Takes as parameter a simplified action context (more on that later).
   Can optionally return a result that will cancel the original action and finish it with the returned value / error to be thrown. In either case, resume / suspend / finish will still be called normally.
 
 - `onResume?(ctx: SimpleActionContext): void`
 
-  Called when an action just resumed a synchronous piece of code execution.
-  Gets called once for sync actions and multiple times for flows.
+  Called when an action resumes a synchronous segment of execution. It runs once for synchronous actions and multiple times for flows.
   Takes as parameter a simplified action context (more on that later).
 
 - `onSuspend?(ctx: SimpleActionContext): void`
 
-  Called when an action just finished a synchronous piece of code execution.
-  Note that this doesn't necessarily mean the action is finished.
-  Gets called once for sync actions and multiple times for flows.
+  Called when an action suspends after a synchronous segment of execution. This does not necessarily mean the action has finished. It runs once for synchronous actions and multiple times for flows.
   Takes as parameter a simplified action context (more on that later).
 
 - `onFinish?(ctx: SimpleActionContext, ret: ActionTrackingReturn): void | ActionTrackingReturn`
 
-  Called when an action just finished, either by returning normally or by throwing an error.
+  Called when an action finishes, either by returning normally or by throwing an error.
 
   Takes as parameters:
 
@@ -67,13 +62,13 @@ Simplified version of action context, which includes the following readonly data
 - `args: ReadonlyArray<any>` - Array of action arguments.
 - `parentContext?: SimpleActionContext` - Parent action context, if any.
 - `rootContext: SimpleActionContext` - Root action context, or itself if the root.
-- `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.
+- `data: Record<symbol, any>` - Custom data shared by middlewares for this action context. Use symbol keys to avoid collisions between middlewares.
 
 It is simplified in the sense that it treats all synchronous steps of an asynchronous action as part of the same context, which removes most of the differences between sync actions and flows.
 
 ## `addActionMiddleware`
 
-`addActionMiddleware` adds a global action middleware to be run when an action is performed.
+`addActionMiddleware` attaches a low-level middleware to a subtree. Prefer `actionTrackingMiddleware` unless you need to work with individual async flow steps or control the `next()` chain directly.
 
 It takes a single parameter, an `ActionMiddleware` object and returns a disposer function.
 
@@ -97,11 +92,11 @@ Low-level action context, which includes the following readonly data:
 
 - `actionName: string` - Action name.
 - `type: ActionContextActionType` - Action type, sync or async.
-- `target: AnyModel` - Action target model instance.
+- `target: object` - Action target object.
 - `args: ReadonlyArray<any>` - Array of action arguments.
-- `parentContext?: SimpleActionContext` - Parent action context, if any.
-- `rootContext: SimpleActionContext` - Root action context, or itself if the root.
+- `parentContext?: ActionContext` - Parent action context, if any.
+- `rootContext: ActionContext` - Root action context, or itself if the root.
 - `previousAsyncStepContext?: ActionContext` - Previous async step context, `undefined` for sync actions or the first action of a flow.
 - `spawnAsyncStepContext?: ActionContext` - Spawn async step context, or `undefined` for sync actions.
 - `asyncStepType?: ActionContextAsyncStepType` - Async step type, or `undefined` for sync actions.
-- `data: any` - Custom data for the action context to be set by middlewares, an object. It is advised to use symbols as keys whenever possible to avoid name clashing between middlewares.
+- `data: Record<symbol, any>` - Custom data shared by middlewares for this action context. Use symbol keys to avoid collisions between middlewares.

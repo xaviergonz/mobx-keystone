@@ -5,7 +5,7 @@ slug: /standard-and-standalone-actions
 
 ## Standalone Actions
 
-Sometimes you might need to define a "model" action but without an associated model. Say for example that you need an array swap method that needs to be processed by middlewares (e.g. [`undoMiddleware`](./actionMiddlewares/undoMiddleware.mdx)). One way to achieve this is to use standalone actions like this:
+Sometimes reusable state-changing logic does not belong to a particular model class but still needs action protection and middleware support. For example, an array-swap helper should be visible to [`undoMiddleware`](./actionMiddlewares/undoMiddleware.mdx). Define that logic as a standalone action:
 
 ```ts
 const arraySwap = standaloneAction(
@@ -48,7 +48,7 @@ This is useful when you want middleware support for reusable async logic without
 
 ## Standard Actions
 
-In order to work over objects and arrays without requiring declaring custom actions you can use the already predefined `objectActions` and `arrayActions` (note these also work over class models).
+Use the predefined `objectActions` and `arrayActions` to update objects and arrays without declaring custom actions. These helpers also work on class-model properties.
 
 `objectActions` work over any kind of object (including models themselves) and offer:
 
@@ -64,4 +64,4 @@ In order to work over objects and arrays without requiring declaring custom acti
 - `setLength(array, length)` to set a new length.
 - `swap(array, index1, index2)` to swap two array elements.
 
-Plus the usual array mutation methods (`pop`, `push`, etc.).
+It also exposes the usual mutating array methods, including `pop`, `push`, `shift`, `unshift`, `splice`, `reverse`, and `sort`.

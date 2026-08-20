@@ -6,7 +6,7 @@ const docsRouteBasePath = "/"
 const config: Config = {
   title: "mobx-keystone",
   tagline:
-    "A MobX powered state management solution based on data trees with first-class support for TypeScript, snapshots, patches and much more",
+    "A MobX-powered state management solution based on data trees, with first-class support for TypeScript, snapshots, patches, and much more",
   url: "https://mobx-keystone.js.org",
   baseUrl: "/",
   staticDirectories: ["static", "generated-static"],

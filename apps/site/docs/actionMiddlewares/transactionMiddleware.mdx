@@ -5,9 +5,9 @@ slug: /action-middlewares/transaction-middleware
 
 ## Overview
 
-The transaction middleware allows you to mark model actions/flows as transactions, meaning that if such an action/flow throws, any changes performed during it will be reverted before the exception is rethrown.
+The transaction middleware makes a model action or flow atomic: if it throws, changes made during that action and its child actions are reverted before the error is rethrown.
 
-There are two ways to mark an action/flow as a transaction. As a decorator and programmatically.
+Mark an action or flow as a transaction either with the `@transaction` decorator or by attaching `transactionMiddleware` programmatically.
 
 As a decorator:
 

@@ -7,9 +7,9 @@ slug: /class-models
 
 `mobx-keystone` supports the following kinds of data:
 
-- Class models, which are like objects but enhanced with local behaviors (actions/views) and life-cycle events (hooks).
-- Data models, which only define behaviors (actions/views) over "untainted" data and have a _very_ limited number of life-cycle events (hooks).
-- Objects, which serve as basic storages of data (kind of like class models, except without actions and life-cycle events), as well as key-value maps of other data.
+- Class models, which combine observable data with local behavior (actions/views) and life-cycle hooks.
+- Data models, which define behavior over plain, untagged data and have only a limited life-cycle hook.
+- Plain objects, which store structured data or act as key-value maps without model behavior or hooks.
 - Arrays.
 - Primitive values (`string`, `boolean`, `number`, `null`, `undefined`).
 
@@ -73,13 +73,13 @@ With runtime type checking (check the relevant section for more info):
 
 ## Class model rules
 
-The rules that need to be followed to declare a class model are:
+Class models follow these rules:
 
-- Class models have to be decorated with `@model` and require a unique across-application ID for the model type.
-- They have to extend `Model`, which in TypeScript requires the type of the data that will become observable / snapshotable / patchable.
-- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
-- Model actions need to be used in order to be able to change such data.
-- Never declare your own constructor, there are life-cycle events for that (more on that later).
+- Decorate the class with `@model` and give the model type a unique application-wide name.
+- Extend `Model` with the properties that should be observable, snapshotable, and patchable.
+- Access model data through either `this` or `this.$`.
+- Change model data inside model actions.
+- Do not declare a constructor; use the life-cycle hooks described below instead.
 
 Of course primitives are not the only kinds of data that a class model can hold. Arrays, plain objects and other objects can be used as well.
 
@@ -111,7 +111,7 @@ myTodo.setText("buy some milk")
 myTodo.setDone(true)
 ```
 
-If for some reason you still require to change these without using a `modelAction`, consider using `objectActions.set`, `objectActions.delete`, `objectActions.call`, `arrayActions.push`, etc. if needed.
+If you need to change data without declaring a custom `modelAction`, use the predefined `objectActions` or `arrayActions` helpers.
 
 `withSetter` also accepts a value transform function. For example `withSetter(cloneTreeValue)` clones incoming non-primitive values before setting them, which is useful when the same object instance may be reused across different places in the tree. If you need clone options, wrap it (for example `withSetter((x) => cloneTreeValue(x, { generateNewIds: false }))`).
 
@@ -128,7 +128,7 @@ Class models can optionally include an implementation for each of the life-cycle
 
 ## Runtime data
 
-Runtime data (data that doesn't need to be snapshotable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
+Runtime data that does not need to be snapshotted can be declared as a regular class property. Use MobX decorators when that runtime data also needs to be observable.
 
 ```ts
 @model("myApp/SomeModel")
@@ -155,7 +155,7 @@ class SomeModel extends Model({
 
 ## Accessing the type and ID of a class model
 
-It is interesting to observe that class models include a property named `$modelType`:
+Every class model includes a `$modelType` property:
 
 ```ts
 myTodo1.$modelType // "myCoolApp/Todo"
@@ -163,7 +163,7 @@ myTodo1.$modelType // "myCoolApp/Todo"
 
 This property ends up in the snapshot representation of the model and allows `fromSnapshot` to reconstruct the correct model class, so it is usually required.
 
-That being said, there are actually two ways to skip this requirement (having `$modelType` in input snapshots):
+There are two ways to omit `$modelType` from an input snapshot:
 
 - If a property is typed using `tProp` then the model(s) in that property won't need `$modelType`.
 - If a model is constructed using the `fromSnapshot` overload that takes a type as first parameter then that snapshot won't need `$modelType`.
@@ -207,8 +207,8 @@ class ModelWithCustomId extends Model({
 }
 ```
 
-In this case either `customId` (both in snapshots and instances) or `$modelId` (only in instances) can be used to read / write the ID property.
-Just make sure that ID is unique for every model object (no matter its type).
+In this case, use either `customId` (in snapshots and instances) or `$modelId` (in instances only) to read or write the ID.
+The ID must be unique across all model objects in the same tree, regardless of model type.
 
 Note that when using the `new` operator to create a new instance you can either not specify the property so it will be auto-generated, or you can specify it directly:
 
@@ -504,7 +504,7 @@ class Point3d extends ExtendedModel(Point, {
 
 Also, remember that if your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` in the extended model.
 
-If you want to extend a generic class, then you may want to use `modelClass` in order to specify the exact generic like this:
+When extending a generic class, use `modelClass` to specify the concrete generic type:
 
 ```ts
 class X extends ExtendedModel(modelClass<SomeGenericClass<string>>(SomeGenericClass), { ... }) { ... }

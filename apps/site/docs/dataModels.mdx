@@ -5,17 +5,17 @@ slug: /data-models
 
 ## Overview
 
-Data models, like class models, define the behaviors (actions/views) that can be performed over data, but without tainting the data itself with `$modelType`. This comes with some disadvantages as well:
+Like class models, data models define behavior (actions/views) over observable data. Unlike class models, they keep the underlying data plain: snapshots do not gain a `$modelType` field. This tradeoff has a few consequences:
 
 - The model instances are created lazily and when needed rather than eagerly.
-- The only life-cycle event hook available, `onLazyInit`, runs lazily, meaning the first time the data model wrapper is created rather than eagerly.
+- The only life-cycle hook, `onLazyInit`, runs the first time the wrapper for a data node is created.
 - Reconciliation is somewhat worse due to the lack of an ID property to uniquely identify the instances.
 
-That being said, they have some use cases (for example to represent a backend response that does not include `$modelType` yet needs to be modified locally and eventually sent back).
+Data models are therefore a good fit for backend-shaped payloads that must remain free of library metadata while being edited locally and eventually sent back.
 
 ## Your first data model
 
-Data models are defined in a similar way to class models, except that they use `DataModel` instead of `Model`. One thing to note though is that default values for properties are only applied when using `new` over plain objects (i.e. not tree nodes):
+Data models are defined much like class models, except that they extend `DataModel` instead of `Model`. Property defaults are applied only when wrapping a plain object with `new`, not when wrapping an existing tree node:
 
 ```ts
 // the model decorator marks this class as a model, an object with actions, etc.
@@ -71,13 +71,13 @@ With runtime type checking (check the relevant section for more info):
 
 ## Data model rules
 
-The rules that need to be followed to declare a data model are:
+Data models follow these rules:
 
-- Data models have to be decorated with `@model` and require a unique across-application ID for the model type.
-- They have to extend `DataModel`, which in TypeScript requires the type of the data that will become observable / snapshotable / patchable.
-- This data (that is observable and part of the snapshot) can be accessed / changed through `this` as well as `this.$`.
-- Model actions need to be used in order to be able to change such data.
-- Never declare your own constructor, there are life-cycle events for that (more on that later).
+- Decorate the class with `@model` and give the model type a unique application-wide name.
+- Extend `DataModel` with the properties that should be observable, snapshotable, and patchable.
+- Access model data through either `this` or `this.$`.
+- Change model data inside model actions.
+- Do not declare a constructor; use `onLazyInit` when initialization logic is needed.
 
 Of course primitives are not the only kinds of data that a data model can hold. Arrays, plain objects, and other objects can be used as well.
 
@@ -98,7 +98,7 @@ Note that if the input data is a tree node then `myTodo1.$` will be exactly that
 If it is not a tree node then `myTodo1.$` will be the `toTreeNode` version of the passed data object.
 Also, multiple calls to `new` over a same data tree node will return the same model instance every time.
 
-All this means that usually you will just pass the data around and only do a `new` over the data whenever you need to modify it.
+In practice, you usually pass the data node around and create its wrapper with `new` only when you need the model's behavior.
 
 Some examples:
 
@@ -140,7 +140,7 @@ myTodo.setText("buy some milk")
 myTodo.setDone(true)
 ```
 
-If for some reason you still require to change these without using a `modelAction` consider using `objectActions.set`, `objectActions.delete`, `objectActions.call`, `arrayActions.push`, etc. if needed.
+If you need to change data without declaring a custom `modelAction`, use the predefined `objectActions` or `arrayActions` helpers.
 
 `withSetter` also accepts a value transform function. For example `withSetter(cloneTreeValue)` clones incoming non-primitive values before setting them, which is useful when the same object instance may be reused across different places in the tree. If you need clone options, wrap it (for example `withSetter((x) => cloneTreeValue(x, { generateNewIds: false }))`).
 
@@ -156,7 +156,7 @@ If you need something that runs more consistently consider using `onChildAttache
 
 ## Runtime data
 
-Runtime data (data that doesn't need to be snapshotable, or that needs to be tracked in any way) can be declared as a usual property. Nothing special is needed.
+Runtime data that does not need to be snapshotted can be declared as a regular class property. Use MobX decorators when that runtime data also needs to be observable.
 
 ```ts
 @model("myApp/SomeModel")
@@ -352,7 +352,7 @@ class Point3d extends ExtendedDataModel(Point, {
 
 Also, remember that if your base model has `onLazyInit` and you redeclare it in your extended model you will need to call `super.onLazyInit(...)` in the extended model.
 
-If you want to extend a generic class, then you may want to use `modelClass` in order to specify the exact generic like this:
+When extending a generic class, use `modelClass` to specify the concrete generic type:
 
 ```ts
 class X extends ExtendedDataModel(modelClass<SomeGenericClass<string>>(SomeGenericClass), { ... }) { ... }

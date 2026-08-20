@@ -5,12 +5,11 @@ slug: /contexts
 
 ## Overview
 
-Contexts let you share contextual or environment data deeply across a tree without having to know the exact structure of that tree.
-Think of it as a dependency injection system.
+Contexts let you share environment or dependency data across a tree without coupling a model to the tree's exact shape. You can think of them as dependency injection for tree nodes.
 
-For example, imagine a state where some children need to know the current username to perform certain operations. We could make the children use `getRoot` to access the username, but that would force every unit test to provide a suitable root store. In other words, it would create an unnecessary dependency from a child to one of its parents.
+For example, imagine that some children need the current username. They could call `getRoot`, but that would couple them to a specific parent structure and force every unit test to construct a suitable root store.
 
-With contexts we could make it like this:
+With a context, the parent can provide the value without the child knowing where it came from:
 
 ```ts
 const usernameCtx = createContext<string>()
@@ -39,8 +38,7 @@ class SomeDeepChild extends Model({}) {
 }
 ```
 
-With this code, whenever the child is attached to the parent the username will be fetched from the parent.
-The fact that we can set the context value at any point of the tree also makes it easier to unit test the child model in isolation:
+Whenever the child is attached below this parent, it resolves the username from the nearest provider. Because a value can be provided at any node, the child is also easy to test in isolation:
 
 ```ts
 const child = new SomeDeepChild({})
@@ -48,7 +46,7 @@ usernameCtx.set(child, "RandomUsername")
 expect(child.someComputedThatRequiresUsername).toBe("RandomUsername is awesome!")
 ```
 
-When using `createContext` a default value can be also provided (e.g. `const userCtx = createContext("defaultUsername")`), which will be used when no node higher in the tree provides a value.
+You can pass a default value to `createContext` (for example, `const userCtx = createContext("defaultUsername")`). The context uses it when neither the node nor any ancestor provides a value.
 
 The returned context object has the following methods:
 
@@ -59,11 +57,11 @@ The returned context object has the following methods:
 - `set(node, value)` - Sets the (static) value a node will provide for itself and its children. Usually called in `onInit`.
 - `setComputed(node, () => value)` - Sets the (computed) value a node will provide for itself and its children. Usually called in `onInit`.
 - `unset(node)` - Make the node no longer provide a context value.
-- `getProviderNode(node)` - Gets the node that will provide the value, or undefined if it will come from the default value.
+- `getProviderNode(node)` - Gets the node that provides the value, or `undefined` when the default value is used.
 - `apply(fn, value)` - Applies a value override while the given function is running and, if a node is returned, sets the node as a provider of the value.
 - `applyComputed(fn, () => value)` - Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the computed value.
 
-In particular, `apply` is useful because it lets you pass volatile (non-property) data to your nodes at construction time, whether that happens through `new`, `fromSnapshot`, `clone`, `toTreeNode`, and so on.
+In particular, `apply` lets you provide volatile (non-property) data while constructing nodes through `new`, `fromSnapshot`, `clone`, `toTreeNode`, and similar APIs.
 For example:
 
 ```ts

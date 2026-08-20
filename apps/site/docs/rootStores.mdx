@@ -5,16 +5,17 @@ slug: /root-stores
 
 ## Overview
 
-Usually an application has one or more store objects which are meant to represent the actual current state of such application. These objects are usually known as "root stores".
+An application usually has one or more store objects that represent its current live state. These objects are commonly called root stores.
 
-In the case of `mobx-keystone`, root stores are tree nodes (model instances or arrays / plain objects turned into tree nodes with `toTreeNode`) from where the rest of the application state will be stored in a tree-like structure.
-While it is not strictly necessary to mark these instances as root stores, doing so opens up some benefits:
+In `mobx-keystone`, a root store is a registered tree node: either a model instance or a plain object/array converted with `toTreeNode`. Registering a root store is optional, but it provides a clear boundary for your live application state:
 
-- Root stores allow the usage of the `onAttachedToRootStore(rootStore)` hook inside models.
+- Models can use `onAttachedToRootStore(rootStore)` to start and dispose side effects as they enter or leave the live tree.
+- `getRootStore(node)` can resolve the registered application root from any descendant.
+- `isRootStore(node)` can distinguish a registered root from an ordinary detached tree.
 
 You can think of a tree node marked as a root store as the "live tree" of your application state, meaning that any nodes attached to a root store are actually part of your running application, rather than a transient instance that might or might not end up as part of your actual application state.
 
-Registering/unregistering a model instance as a root store is as simple as:
+Register and unregister a tree node as follows:
 
 ```ts
 // given `myTodoList` is a model instance of a todo list ...
@@ -28,10 +29,9 @@ If you need to check whether a node is currently registered as a root store, use
 
 ## `onAttachedToRootStore`
 
-By registering the instance above the first thing that will happen is that the `onAttachedToRootStore` hook will be invoked for the todo list model as well as any submodels that it might contain. Additionally, any models that eventually get added to the tree will invoke such hook too.
-This life-cycle hook also supports optionally returning a disposer function, which will execute when the model instance has just left the root store tree or when the root store itself is unregistered.
+When a root is registered, `onAttachedToRootStore` runs for the root model and each descendant model. It also runs for models attached later. The hook may return a disposer, which runs when that model leaves the root-store tree or when the root itself is unregistered.
 
-This hook is a great place to actually register effects (e.g. MobX `reaction`, `when`, etc.), and its disposer is a great place to dispose of them.
+This makes the hook a natural place to register effects such as MobX `reaction` or `when`, and its disposer the matching place to clean them up.
 
 ### Practical example
 

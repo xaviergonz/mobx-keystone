@@ -42,7 +42,7 @@ The callback passed to `withSandbox` supports two return types:
 - `boolean` - When `true` any changes made to the sandbox copy are applied to the original subtree. When `false` any changes made to the copy are rejected, i.e. rolled back.
 - `{ commit: boolean; return: R }` - The `commit` property is equivalent to the boolean return value described above. The value of the `return` property is also returned by `withSandbox`.
 
-`withSandbox` can be called with a tuple of nodes in order to retrieve sandbox copies of multiple nodes at the same time:
+Call `withSandbox` with a tuple to retrieve sandbox copies of several nodes at once:
 
 ```ts
 @model("NumberStore")

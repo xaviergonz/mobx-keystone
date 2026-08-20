@@ -62,6 +62,7 @@ registerRootStore(store)
 - Mutable action code with protected updates, so state changes stay explicit and safe.
 - Runtime snapshots and JSON patches for persistence, sync, replay, and debugging.
 - Built-in primitives for references, transactions, action middlewares, and undo/redo.
+- Optional Y.js and Loro bindings for collaborative, offline-friendly state.
 - Strong TypeScript inference for models, snapshots, and actions.
 - Composable domain models that stay maintainable as app complexity grows.
 - Seamless integration with MobX and `mobx-react-lite`.
@@ -77,6 +78,7 @@ Different readers usually want different first docs. These are the fastest paths
 | Work with backend-shaped data that should not gain `$modelType` | [Data Models](./dataModels.mdx) |
 | Understand app lifecycle and where side effects belong | [Root Stores](./rootStores.mdx) |
 | Explore from a complete example instead of an API guide | [Todo List Example](./examples/todoList/todoList.mdx) |
+| Synchronize state through a CRDT | [Y.js Binding](./integrations/yjsBinding.mdx) or [Loro Binding](./integrations/loroBinding.mdx) |
 | Compare with MST concepts and terminology | [MST Migration Guide](./mstMigrationGuide.mdx) |
 
 ## What users are saying

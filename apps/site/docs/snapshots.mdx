@@ -5,14 +5,14 @@ slug: /snapshots
 
 ## Overview
 
-Snapshots are immutable, structurally shared, representations of tree nodes (models and their children).
+Snapshots are immutable, structurally shared representations of tree nodes (models and their children).
 
 Snapshots in `mobx-keystone` mainly serve these two purposes:
 
-- As a serialization / deserialization mechanism (be it to store it or send it over the wire).
-- As a way to bridge data to non-`mobx-react-lite`-enabled React components.
+- Serializing data for persistence or transport and restoring it later.
+- Passing immutable views of state to code that should not depend directly on MobX observables.
 
-When a change is performed over a tree node, a new immutable snapshot of that node is generated. New immutable snapshots are also generated for all of its parents. Unchanged objects, however, keep their previous snapshot references.
+When a tree node changes, a new immutable snapshot is generated for that node and each of its parents. Unchanged objects keep their previous snapshot references.
 
 For example, imagine a model `A` with two children (`B` and `C`), and let's call their initial snapshots `sA[0]`, `sB[0]` and `sC[0]`.
 
@@ -30,9 +30,11 @@ B -> sB[1] = getSnapshot(B)
 C -> sC[0] = getSnapshot(C)
 ```
 
-This means, as mentioned before, that snapshots generation is automatically optimized to only change their references when the objects they represent (and their children) actually change.
+Snapshot generation is therefore optimized: references change only for values whose represented node or descendants actually changed.
 
-Note: never change the contents of a snapshot object returned by `getSnapshot` directly. Clone it first.
+:::caution
+Do not mutate a snapshot returned by `getSnapshot`. Clone it before making changes.
+:::
 
 ## Snapshot utilities
 
@@ -120,7 +122,7 @@ fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T
 fromSnapshot<TType>(type: TType, sn: TypeToSnapshotIn<TType>, options?: FromSnapshotOptions): TypeToData<TType>
 ```
 
-Restoring a snapshot is pretty easy as well:
+Use `fromSnapshot` to restore a snapshot:
 
 ```ts
 const todo = fromSnapshot<Todo>(todoSnapshot)

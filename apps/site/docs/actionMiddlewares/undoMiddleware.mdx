@@ -39,26 +39,38 @@ The returned `undoManager` offers the following data:
 - `redoLevels: number` - The number of redo actions available.
 - `canRedo: boolean` - If redo can be performed (if there is at least one redo action available).
 
-And the following actions:
+And the following methods:
 
 - `clearUndo()` - Clears the undo queue.
 - `clearRedo()` - Clears the redo queue.
 - `undo()` - Undoes the last action. Will throw if there is no action to undo.
 - `redo()` - Redoes the previous action. Will throw if there is no action to redo.
+- `withoutUndo(fn)` - Runs a synchronous block without recording its changes in this manager.
+- `withGroup(...)` / `withGroupFlow(...)` - Groups several operations into one undo step.
+- `createGroup(name?)` - Creates a group that can span separate synchronous blocks.
 - `dispose()` - Disposes of the undo middleware.
 
 ## `UndoEvent`
 
-Each change is stored as an `UndoEvent`, which is a readonly structure like:
+Each undo step is stored as an `UndoEvent`. A single action records an `UndoSingleEvent` with:
 
+- `type: UndoEventType.Single` - Identifies a single-action event.
 - `targetPath: Path` - Path to the object that invoked the action from its root.
 - `actionName: string` - Name of the action that was invoked.
 - `patches: ReadonlyArray<Patch>` - Patches with changes done inside the action. Use `redo()` in the `UndoManager` to apply them.
 - `inversePatches: ReadonlyArray<Patch>` - Patches to undo the changes done inside the action. Use `undo()` in the `UndoManager` to apply them.
 
+A grouped step records an `UndoEventGroup` instead:
+
+- `type: UndoEventType.Group` - Identifies a grouped event.
+- `groupName?: string` - Optional name passed to the grouping API.
+- `events: ReadonlyArray<UndoEventWithoutAttachedState>` - The single or nested grouped events in this step.
+
+Both forms include `attachedState`, with optional `beforeEvent` and `afterEvent` values when the middleware is configured to save attached state. Treat events and queues as read-only; use the `UndoManager` methods to manipulate history.
+
 ## Storing the undo store inside your models
 
-`undoMiddleware` accepts a second optional parameter. When this parameter is omitted the event store will be just stored on some random model in memory, but if you want it to be stored inside one of your models (for example to persist it), you can do so by passing as second argument where it should be located.
+`undoMiddleware` accepts an optional `UndoStore` as its second argument. When omitted, it creates an in-memory store owned by the undo manager. Pass an `UndoStore` from your model tree when the queues themselves need to be snapshotted or persisted.
 
 ```ts
 @model("MyApp/MyRootStore")
@@ -74,7 +86,7 @@ const undoManager = undoMiddleware(myRootStore, myRootStore.undoData)
 
 ## Making some changes skip undo/redo
 
-Sometimes you might want some changes / part of changes skip the undo/redo mechanism. To do so you can use the `withoutUndo` method like this:
+To exclude some changes from undo recording, use the manager's `withoutUndo` method or the global `withoutUndo` helper:
 
 ```ts
 @modelAction
@@ -128,7 +140,7 @@ someUndoManager.withGroupFlow("optional group name", function* () {
 })
 ```
 
-Another possibility is to use `createGroup` to group sync actions in separated code blocks:
+Another possibility is to use `createGroup` to group synchronous actions across separate code blocks:
 
 ```ts
 const group = someUndoManager.createGroup("optional group name")
