@@ -14,7 +14,7 @@ type SetterMode = boolean | "assign"
 
 export type ModelPropSetterValueTransform<T> = (value: T) => T
 
-/** @internal */
+/** @ignore */
 export interface FullModelPropTransform {
   transform: (
     original: unknown,

@@ -6,7 +6,7 @@ import type { TypeCheckError } from "./TypeCheckError"
 
 type CheckFunction = (value: any, path: Path, typeCheckedValue: any) => TypeCheckError | null
 
-/** @internal */
+/** @ignore */
 export type SnapshotProcessor = (snapshot: any) => unknown
 
 /**
@@ -14,7 +14,7 @@ export type SnapshotProcessor = (snapshot: any) => unknown
  * TypeCheckers rather than processors so recursive graphs can be discovered
  * before any processor body is compiled.
  *
- * @internal
+ * @ignore
  */
 export interface SnapshotProcessorPlan {
   readonly intrinsic?: boolean
@@ -36,7 +36,7 @@ export function snapshotProcessorPlan(
 type SnapshotProcessorSource = SnapshotProcessor | SnapshotProcessorPlan | undefined
 type SnapshotProcessorDirection = "from" | "to"
 
-/** @internal */
+/** @ignore */
 export class SnapshotProcessorPlanNode {
   private readonly owner: TypeChecker | undefined
   private readonly direction: SnapshotProcessorDirection
@@ -196,7 +196,7 @@ export class SnapshotProcessorPlanNode {
 const absentSnapshotProcessorPlanNode = new SnapshotProcessorPlanNode(undefined, "from", undefined)
 
 /**
- * @internal
+ * @ignore
  */
 export enum TypeCheckerBaseType {
   Object = "object",
@@ -243,7 +243,7 @@ export function invalidateCachedToSnapshotProcessorResult(obj: object) {
 }
 
 /**
- * @internal
+ * @ignore
  */
 export class TypeChecker {
   unchecked: boolean
@@ -443,6 +443,6 @@ export class TypeInfo {
 }
 
 /**
- * @internal
+ * @ignore
  */
 export type TypeInfoGen = (t: AnyStandardType) => TypeInfo

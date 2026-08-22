@@ -64,7 +64,7 @@ export interface ObjectOfTypes {
 
 /**
  * Name of the properties of an object that can be set to undefined, any or unknown.
- * @internal
+ * @ignore
  */
 export type UndefinablePropsNames<T> = {
   [K in keyof T]: IsOptionalValue<T[K], K, never>
@@ -72,7 +72,7 @@ export type UndefinablePropsNames<T> = {
 
 /**
  * Computes the optional keys for an object type schema.
- * @internal
+ * @ignore
  */
 export type ObjectOptionalKeys<S> = UndefinablePropsNames<{
   [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never

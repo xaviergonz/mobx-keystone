@@ -49,7 +49,7 @@ export type AbstractModelClass<M extends AnyModel | AnyDataModel> = abstract new
 ) => M
 
 /**
- * @internal
+ * @ignore
  */
 export interface ModelWithProps {
   [propsTypeSymbol]: ModelProps

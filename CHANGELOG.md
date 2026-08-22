@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed a serious type-safety regression in the declarations published with versions 1.20.0 through 1.24.0, where `types.object(...)` data, snapshot, and stored-data types could collapse to `{ [x: string]: any }`. This allowed incorrect property values, unknown properties, and arbitrary property access to pass TypeScript checks. The missing declaration dependencies are now retained, restoring the exact object shape and optional-property inference, and package builds now fully type-check every generated declaration to prevent this from recurring.
+
 ## 1.24.0
 
 - Added MobX 7 compatibility with standard-decorator coverage across TypeScript, Babel, and SWC.
