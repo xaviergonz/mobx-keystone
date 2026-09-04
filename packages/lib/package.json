@@ -73,11 +73,11 @@
     "@babel/plugin-transform-class-static-block": "^8.0.1",
     "@babel/plugin-transform-typescript": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
-    "@swc/core": "^1.16.0",
+    "@swc/core": "^1.16.2",
     "@types/babel__core": "^7.20.5",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.4.1",
     "@typescript/typescript6": "^6.0.2",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^5.0.0",
     "mobx-v4": "npm:mobx@^4.15.7",
     "mobx-v5": "npm:mobx@^5.15.7",
     "mobx-v6": "npm:mobx@^6.0.0",
@@ -87,9 +87,9 @@
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.20",
     "typescript": "^7.0.2",
-    "vite": "^8.2.1",
-    "vite-plugin-dts": "^5.0.3",
-    "vitest": "^4.1.10"
+    "vite": "^8.2.2",
+    "vite-plugin-dts": "^5.1.0",
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "fast-deep-equal": "^3.1.3",
