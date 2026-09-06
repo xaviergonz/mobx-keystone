@@ -3,25 +3,15 @@
 ## Unreleased
 
 - Performance: reduced scalar mutation overhead by returning primitive values before entering internal MobX actions used for tree bookkeeping.
-
 - Performance: applying the current snapshot by reference skips model-pool construction, avoiding a tree traversal on first use. Pending child changes are still flushed before treating the snapshot as unchanged.
-
 - Performance: reduced automatic type-checking overhead for nested model mutations by traversing logical parents directly.
-
 - Performance: reduce reconciliation work for non-null primitive model fields during snapshot updates, skipping unchanged fields and directly assigning changed scalar values.
-
 - Performance: reduced construction work for models created from empty data with primitive defaults, reusing their initialization snapshot instead of rereading observable fields. Structured defaults retain the general initialization path.
-
 - Performance: `findParent` no longer constructs a discarded path array while searching ancestors. `findParentPath` shares the same traversal and retains its existing path output.
-
 - Performance: reduced child-set copying overhead in `onChildAttachedTo`, improving attachment tracking for large collections.
-
 - Performance: path construction now scales linearly with tree depth, avoiding repeated array front insertions in `getRootPath`, `getParentToChildPath`, and `findParentPath`.
-
 - Performance: reduced `applySnapshot` traversal overhead by using internal snapshots for reconciliation comparisons, avoiding unnecessary snapshot freezing and observation metadata. Fresh 10,000-item editor snapshot refreshes take about 9–17% less time in local benchmarks.
-
 - Performance: reduced snapshot hydration work for models with primitive defaults or regenerated IDs by updating the existing initialization snapshot instead of rebuilding it from observable data. Initialization bookkeeping also allocates fewer temporary objects.
-
 - Performance: reduced large-array insertion and removal overhead by batching parent-path reindexing for unchanged children. Moving the first model to the end of a 10k–50k-item editor list is about 30% faster with undo and snapshot observation enabled.
 
 ## 1.24.1
