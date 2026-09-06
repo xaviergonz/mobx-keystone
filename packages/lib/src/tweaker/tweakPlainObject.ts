@@ -59,7 +59,6 @@ export function tweakPlainObject<T extends Record<string, any>>(
   setParent(
     tweakedObj, // value
     parentPath,
-    false, // indexChangeAllowed
     isDataObject,
     // an object shouldn't be cloned
     false // cloneIfApplicable
@@ -67,12 +66,10 @@ export function tweakPlainObject<T extends Record<string, any>>(
 
   const initialDataSnapshot =
     isDataObject && snapshotModelType ? takeModelInitialDataSnapshot(tweakedObj) : undefined
-  const reuseInitialDataSnapshot =
-    !!initialDataSnapshot?.reusable && initialDataSnapshot.allValuesPrimitive
-  const untransformedSn: any = reuseInitialDataSnapshot ? initialDataSnapshot.snapshot : {}
+  const untransformedSn: any = initialDataSnapshot ?? {}
 
   // substitute initial values by tweaked values
-  const originalObjKeys = reuseInitialDataSnapshot ? [] : Object.keys(originalObj)
+  const originalObjKeys = initialDataSnapshot ? [] : Object.keys(originalObj)
   const originalObjKeysLen = originalObjKeys.length
   for (let i = 0; i < originalObjKeysLen; i++) {
     const k = originalObjKeys[i]
@@ -96,7 +93,6 @@ export function tweakPlainObject<T extends Record<string, any>>(
         setParent(
           tweakedValue, // value
           path, // parentPath
-          false, // indexChangeAllowed
           false, // isDataObject
           // the value is already a new value (the result of a fromSnapshot)
           false // cloneIfApplicable

@@ -175,10 +175,12 @@ export function fastGetRootPath<T extends object = any>(
   let parentPath: ParentPath<any> | undefined
   while ((parentPath = fastGetParentPath(root, useAtom))) {
     root = parentPath.parent
-    path.unshift(parentPath.path)
-    pathObjects.unshift(parentPath.parent)
+    path.push(parentPath.path)
+    pathObjects.push(parentPath.parent)
   }
 
+  path.reverse()
+  pathObjects.reverse()
   return { root, path, pathObjects } as RootPath<any>
 }
 
@@ -376,11 +378,11 @@ export function fastGetParentToChildPath(
   let current = toChild
   let parentPath: ParentPath<any> | undefined
   while ((parentPath = fastGetParentPath(current, useAtom))) {
-    path.unshift(parentPath.path)
+    path.push(parentPath.path)
 
     current = parentPath.parent
     if (current === fromParent) {
-      return path
+      return path.reverse()
     }
   }
   return undefined

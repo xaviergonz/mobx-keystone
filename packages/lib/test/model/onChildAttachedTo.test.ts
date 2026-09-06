@@ -6,6 +6,8 @@ import {
   onChildAttachedTo,
   type Path,
   prop,
+  runUnprotected,
+  toTreeNode,
 } from "../../src"
 import { isArray, isObject } from "../../src/utils"
 import { testModel } from "../utils"
@@ -34,6 +36,33 @@ const log = (type: "attached" | "detached", self: object, child: object, path: P
 
 beforeEach(() => {
   events.length = 0
+})
+
+test("skipping current children still tracks additions and reverse-order detachments", () => {
+  const root = toTreeNode([{ value: 1 }, { value: 2 }])
+  const changes: number[] = []
+  const dispose = onChildAttachedTo(
+    () => root,
+    (child) => {
+      const value = (child as { value: number }).value
+      changes.push(value)
+      return () => {
+        changes.push(-value)
+      }
+    },
+    { fireForCurrentChildren: false }
+  )
+  expect(changes).toEqual([])
+
+  runUnprotected(() => root.push({ value: 3 }, { value: 4 }, { value: 5 }))
+  expect(changes).toEqual([3, 4, 5])
+  runUnprotected(() => root.splice(2, 2))
+  expect(changes).toEqual([3, 4, 5, -4, -3])
+
+  dispose(true)
+  expect(changes).toEqual([3, 4, 5, -4, -3, -5])
+  runUnprotected(() => root.push({ value: 6 }))
+  expect(changes).toEqual([3, 4, 5, -4, -3, -5])
 })
 ;[true, false].forEach((deep) => {
   test(`onChildAttachedTo (deep: ${deep})`, () => {

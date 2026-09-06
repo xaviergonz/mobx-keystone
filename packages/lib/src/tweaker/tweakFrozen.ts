@@ -17,7 +17,6 @@ export function tweakFrozen<T extends Frozen<any>>(
   setParent(
     frozenObj, // value
     parentPath,
-    false, // indexChangeAllowed
     false, // isDataObject
     // a frozen is not a value-type
     false // cloneIfApplicable

@@ -20,6 +20,31 @@ import { addObjectChild, removeObjectChild } from "./coreObjectChildren"
 import { fastGetParentPath, fastGetRoot, type ParentPath } from "./path"
 
 /**
+ * Updates the unchanged tail of an array before a splice is applied. These
+ * children keep their parent, so neither attachment nor child-index work is
+ * needed. One action batches path notifications for the entire tail.
+ * @internal
+ */
+export const reindexArrayChildren = action(
+  "reindexArrayChildren",
+  (array: readonly unknown[], oldStart: number, newStart: number): void => {
+    for (let i = oldStart, j = newStart; i < array.length; i++, j++) {
+      const value = array[i]
+      if (isPrimitive(value)) {
+        continue
+      }
+      const metadata = treeNodeMetadata.get(value as object)!
+      if (inDevMode && metadata.parentPath?.parent !== array) {
+        throw failure("assertion failed: reindexed child must already belong to the array")
+      }
+      // Replace the path object: callers may have retained the previous path.
+      metadata.parentPath = { parent: array, path: j }
+      reportParentPathChanged(value as object)
+    }
+  }
+)
+
+/**
  * @internal
  */
 export const setParent = action(
@@ -27,7 +52,6 @@ export const setParent = action(
   (
     value: any,
     parentPath: ParentPath<any> | undefined,
-    indexChangeAllowed: boolean,
     isDataObject: boolean,
     cloneIfApplicable: boolean
   ): any => {
@@ -36,11 +60,6 @@ export const setParent = action(
     }
 
     if (inDevMode) {
-      if (indexChangeAllowed && cloneIfApplicable) {
-        throw failure(
-          "assertion failed: 'indexChangeAllowed' and 'cloneIfApplicable' cannot be set at the same time"
-        )
-      }
       if (typeof value === "function" || typeof value === "symbol") {
         throw failure(`assertion failed: value cannot be a function or a symbol`)
       }
@@ -92,14 +111,7 @@ export const setParent = action(
     }
 
     if (oldParentPath && parentPath) {
-      if (oldParentPath.parent === parentPath.parent && indexChangeAllowed) {
-        // just changing the index
-        treeNodeMetadata.get(value)!.parentPath = parentPath
-        reportParentPathChanged(value)
-        return value
-      } else {
-        throw failure("an object cannot be assigned a new parent when it already has one")
-      }
+      throw failure("an object cannot be assigned a new parent when it already has one")
     }
 
     const postUntweaker = parentPath ? undefined : tryUntweak(value)

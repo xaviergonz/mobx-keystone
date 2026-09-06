@@ -5,6 +5,7 @@ import { fastGetParentPathIncludingDataObjects } from "../parent"
 import { isMap, isPrimitive, isSet } from "../utils"
 import type { ModelPool } from "../utils/ModelPool"
 import { getSnapshot } from "./getSnapshot"
+import { flushInternalSnapshot, getInternalSnapshot } from "./internal"
 import { registerDefaultReconcilers } from "./registerDefaultReconcilers"
 import { SnapshotProcessingError } from "./SnapshotProcessingError"
 
@@ -28,10 +29,17 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, par
     return sn
   }
 
-  // if the snapshot passed is exactly the same as the current one
-  // then it is already reconciled
-  if (getSnapshot(value) === sn) {
-    return value
+  // Comparing an existing tree node does not expose its snapshot, so it needs
+  // neither freezing nor observation.
+  const currentSnapshot = getInternalSnapshot(value)
+  if (currentSnapshot) {
+    flushInternalSnapshot(value, false)
+    if (currentSnapshot.transformed === sn) {
+      return value
+    }
+  } else if (!isPrimitive(value)) {
+    // Preserve validation for unsupported values, including inherited properties.
+    getSnapshot(value)
   }
 
   registerDefaultReconcilers()

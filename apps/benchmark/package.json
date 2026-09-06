@@ -13,6 +13,7 @@
     "bench:creation": "cross-env NODE_ENV=production node dist/creationBench.js",
     "bench:mutations": "cross-env NODE_ENV=production node dist/mutationBench.js",
     "bench:apply-snapshot": "cross-env NODE_ENV=production node dist/applySnapshotBench.js",
+    "bench:editor": "cross-env NODE_ENV=production node --expose-gc dist/documentEditorBench.js",
     "profile:empty-creation": "cross-env NODE_ENV=production node dist/profile.js empty-typechecked-model",
     "profile:creation:model": "cross-env NODE_ENV=production node dist/profile.js flat-model-creation",
     "profile:creation:datamodel": "cross-env NODE_ENV=production node dist/profile.js flat-datamodel-creation",

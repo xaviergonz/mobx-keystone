@@ -59,18 +59,7 @@ export function onChildAttachedTo(
     const t = target()
     assertTweakedObject(t, "target()")
 
-    const children = getChildrenObjects(t, getChildrenObjectOpts)
-
-    const set = new Set<object>()
-
-    const iter = children.values()
-    let cur = iter.next()
-    while (!cur.done) {
-      set.add(cur.value)
-      cur = iter.next()
-    }
-
-    return set
+    return new Set(getChildrenObjects(t, getChildrenObjectOpts))
   }
 
   const currentChildren = opts.fireForCurrentChildren ? new Set<object>() : getCurrentChildren()

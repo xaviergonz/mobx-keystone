@@ -1,10 +1,7 @@
-interface ModelInitialDataSnapshot {
-  readonly snapshot: Record<string, unknown>
-  readonly allValuesPrimitive: boolean
-  reusable: boolean
-}
+import { isPrimitive, setProtoProp } from "../utils"
 
-const modelInitialDataSnapshots = new WeakMap<object, ModelInitialDataSnapshot>()
+// Only primitive-only initial data can double as a snapshot without tweaking.
+const modelInitialDataSnapshots = new WeakMap<object, Record<string, unknown>>()
 
 /**
  * @internal
@@ -14,27 +11,31 @@ export function setModelInitialDataSnapshot(
   snapshot: Record<string, unknown>,
   allValuesPrimitive: boolean
 ): void {
-  modelInitialDataSnapshots.set(data, {
-    snapshot,
-    allValuesPrimitive,
-    reusable: true,
-  })
-}
-
-/**
- * @internal
- */
-export function invalidateModelInitialDataSnapshot(data: object): void {
-  const initialDataSnapshot = modelInitialDataSnapshots.get(data)
-  if (initialDataSnapshot) {
-    initialDataSnapshot.reusable = false
+  if (allValuesPrimitive) {
+    modelInitialDataSnapshots.set(data, snapshot)
   }
 }
 
 /**
  * @internal
  */
-export function takeModelInitialDataSnapshot(data: object): ModelInitialDataSnapshot | undefined {
+export function updateModelInitialDataSnapshot(data: object, key: string, value: unknown): void {
+  const initialDataSnapshot = modelInitialDataSnapshots.get(data)
+  if (initialDataSnapshot) {
+    if (!isPrimitive(value)) {
+      modelInitialDataSnapshots.delete(data)
+    } else if (key === "__proto__") {
+      setProtoProp(initialDataSnapshot, value)
+    } else {
+      initialDataSnapshot[key] = value
+    }
+  }
+}
+
+/**
+ * @internal
+ */
+export function takeModelInitialDataSnapshot(data: object): Record<string, unknown> | undefined {
   const initialDataSnapshot = modelInitialDataSnapshots.get(data)
   modelInitialDataSnapshots.delete(data)
   return initialDataSnapshot

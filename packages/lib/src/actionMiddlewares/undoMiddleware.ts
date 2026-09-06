@@ -99,21 +99,16 @@ export interface UndoEventGroup {
 
 function toSingleEvents(
   event: UndoEventWithoutAttachedState,
-  reverse: boolean
-): ReadonlyArray<UndoSingleEvent> {
+  array: UndoSingleEvent[] = []
+): UndoSingleEvent[] {
   if (event.type === UndoEventType.Single) {
-    return [event]
+    array.push(event)
   } else {
-    const array: UndoSingleEvent[] = []
     for (const e of event.events) {
-      if (reverse) {
-        array.unshift(...toSingleEvents(e, true))
-      } else {
-        array.push(...toSingleEvents(e, false))
-      }
+      toSingleEvents(e, array)
     }
-    return array
   }
+  return array
 }
 
 /**
@@ -386,9 +381,11 @@ export class UndoManager {
     const event = this.undoQueue[this.undoQueue.length - 1]
 
     withoutUndo(() => {
-      toSingleEvents(event, true).forEach((e) => {
-        applyPatches(this.subtreeRoot, e.inversePatches, true)
-      })
+      toSingleEvents(event)
+        .reverse()
+        .forEach((e) => {
+          applyPatches(this.subtreeRoot, e.inversePatches, true)
+        })
 
       // restore the attached state before the operation was made
       if (event.attachedState?.beforeEvent) {
@@ -411,7 +408,7 @@ export class UndoManager {
     const event = this.redoQueue[this.redoQueue.length - 1]
 
     withoutUndo(() => {
-      toSingleEvents(event, false).forEach((e) => {
+      toSingleEvents(event).forEach((e) => {
         applyPatches(this.subtreeRoot, e.patches)
       })
 

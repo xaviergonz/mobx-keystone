@@ -51,7 +51,7 @@ function reconcileModelSnapshot(
   // the canonical output snapshot. A successful canonical no-op therefore
   // cannot produce a diagnostic, so keep this hottest path outside the
   // model-trail bookkeeping and defer id metadata until needed. The
-  // positional value was already flushed by the getSnapshot call in
+  // positional value was already flushed by the internal snapshot read in
   // reconcileSnapshot, so its transformed snapshot is current.
   if (isCanonicalSnapshotNoOp(value, type, sn)) {
     return value

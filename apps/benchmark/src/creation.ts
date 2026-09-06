@@ -1,8 +1,12 @@
 import {
   DataModel,
+  fromSnapshot,
+  getSnapshot,
+  idProp,
   Model,
   ModelAutoTypeCheckingMode,
   model,
+  modelSnapshotInWithMetadata,
   prop,
   setGlobalConfig,
   tProp,
@@ -99,6 +103,17 @@ class CreationDefaultedModel extends Model(defaultedProps) {}
 @model("benchmark/CreationDefaultedDataModel")
 class CreationDefaultedDataModel extends DataModel(defaultedProps) {}
 
+@model("benchmark/HydrationDefaultedModel")
+class HydrationDefaultedModel extends Model({ id: idProp, ...defaultedProps }) {}
+
+@model("benchmark/HydrationNestedDefaultsModel")
+class HydrationNestedDefaultsModel extends Model({
+  id: idProp,
+  values: prop(() => [1, 2, 3]),
+  obj: prop(() => ({ value: 1 })),
+  a: prop(1),
+}) {}
+
 @model("benchmark/CreationTypedModel")
 class CreationTypedModel extends Model(typedProps) {}
 
@@ -150,6 +165,24 @@ function benchCreationPair(
 }
 
 export function runCreationBenchmarks(onCycle: (result: KeystoneBenchmarkResult) => void): void {
+  for (const shape of ["defaults", "provided", "nested-defaults"] as const) {
+    const snapshot = Array.from({ length: 2_000 }, (_, i) =>
+      shape === "nested-defaults"
+        ? modelSnapshotInWithMetadata(HydrationNestedDefaultsModel, { id: `item-${i}` })
+        : modelSnapshotInWithMetadata(HydrationDefaultedModel, {
+            id: `item-${i}`,
+            ...(shape === "provided" ? providedData : {}),
+          })
+    )
+    benchKeystone(
+      `model-hydrate-2k-${shape}`,
+      configuredSetup(ModelAutoTypeCheckingMode.AlwaysOff, () => {
+        getSnapshot(fromSnapshot(snapshot))
+      }),
+      onCycle
+    )
+  }
+
   benchCreationPair(
     "provided-p8-typecheck-off",
     ModelAutoTypeCheckingMode.AlwaysOff,

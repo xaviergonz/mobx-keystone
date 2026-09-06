@@ -8,6 +8,7 @@ import {
   modelAction,
   modelFlow,
   modelIdKey,
+  onPatches,
   prop,
   type Ref,
   registerRootStore,
@@ -566,6 +567,42 @@ test("withGroup", () => {
   expectUndoRedoToBe(1, 0)
   expect(p.x).toBe(10)
   expect(manager.undoQueue).toMatchSnapshot()
+})
+
+test("nested groups replay every event in forward and reverse order", () => {
+  const p = new P({})
+  const manager = undoMiddleware(p)
+  autoDispose(() => manager.dispose())
+
+  manager.withGroup(() => {
+    p.incX(1)
+    manager.withGroup(() => {
+      p.incX(2)
+      manager.withGroup(() => {
+        p.incX(4)
+        p.incX(8)
+      })
+      p.incX(16)
+    })
+    p.incX(32)
+  })
+
+  const values: unknown[] = []
+  autoDispose(
+    onPatches(p, (patches) => {
+      for (const patch of patches) {
+        if (patch.op === "replace" && patch.path[0] === "x") {
+          values.push(patch.value)
+        }
+      }
+    })
+  )
+
+  manager.undo()
+  expect(values).toEqual([31, 15, 7, 3, 1, 0])
+  values.length = 0
+  manager.redo()
+  expect(values).toEqual([1, 3, 7, 15, 31, 63])
 })
 
 test("createGroup", () => {

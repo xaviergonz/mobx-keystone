@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Performance: `findParent` no longer constructs a discarded path array while searching ancestors. `findParentPath` shares the same traversal and retains its existing path output.
+
+- Performance: reduced child-set copying overhead in `onChildAttachedTo`, improving attachment tracking for large collections.
+
+- Performance: path construction now scales linearly with tree depth, avoiding repeated array front insertions in `getRootPath`, `getParentToChildPath`, and `findParentPath`.
+
+- Performance: reduced `applySnapshot` traversal overhead by using internal snapshots for reconciliation comparisons, avoiding unnecessary snapshot freezing and observation metadata. Fresh 10,000-item editor snapshot refreshes take about 9–17% less time in local benchmarks.
+
+- Performance: reduced snapshot hydration work for models with primitive defaults or regenerated IDs by updating the existing initialization snapshot instead of rebuilding it from observable data. Initialization bookkeeping also allocates fewer temporary objects.
+
+- Performance: reduced large-array insertion and removal overhead by batching parent-path reindexing for unchanged children. Moving the first model to the end of a 10k–50k-item editor list is about 30% faster with undo and snapshot observation enabled.
+
 ## 1.24.1
 
 - Fixed a serious type-safety regression in the declarations published with versions 1.20.0 through 1.24.0, where `types.object(...)` data, snapshot, and stored-data types could collapse to `{ [x: string]: any }`. This allowed incorrect property values, unknown properties, and arbitrary property access to pass TypeScript checks. The missing declaration dependencies are now retained, restoring the exact object shape and optional-property inference, and package builds now fully type-check every generated declaration to prevent this from recurring.

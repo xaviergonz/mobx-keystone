@@ -1,22 +1,31 @@
+import assert from "node:assert/strict"
 import {
   applyPatches,
   arrayActions,
+  findParent,
+  findParentPath,
   fromSnapshot,
   getChildrenObjects,
+  getParentToChildPath,
+  getRootPath,
   getSnapshot,
   idProp,
   Model,
   ModelAutoTypeCheckingMode,
   model,
   modelAction,
+  objectActions,
+  onChildAttachedTo,
   onDeepChange,
   onPatches,
   onSnapshot,
   prop,
   runUnprotected,
   setGlobalConfig,
+  toTreeNode,
   tProp,
   types,
+  undoMiddleware,
 } from "mobx-keystone"
 import { benchKeystone, type KeystoneBenchmarkResult } from "./bench.js"
 import { TcBigModel } from "./models/ks-typeChecked.js"
@@ -255,6 +264,99 @@ export function createEmptyTypeCheckedModelProfile(): () => void {
 }
 
 export function runMutationBenchmarks(onCycle: (result: KeystoneBenchmarkResult) => void): void {
+  for (const size of [100, 1000, 10000]) {
+    benchKeystone(
+      `child-attachment-${size}`,
+      () => {
+        const root = toTreeNode(Array.from({ length: size }, (_, value) => ({ value })))
+        let attached = 0
+        let detached = 0
+        let rounds = 0
+        const dispose = onChildAttachedTo(
+          () => root,
+          () => {
+            attached++
+            return () => {
+              detached++
+            }
+          },
+          { fireForCurrentChildren: false }
+        )
+        return {
+          run: () => {
+            runUnprotected(() => root.push({ value: -1 }))
+            runUnprotected(() => root.pop())
+            rounds++
+            assert.equal(attached, rounds)
+            assert.equal(detached, rounds)
+            assert.equal(root.length, size)
+          },
+          dispose: () => dispose(false),
+        }
+      },
+      onCycle
+    )
+  }
+
+  for (const depth of [1, 8, 32, 128, 512]) {
+    for (const operation of ["root", "parent", "find", "find-node"]) {
+      benchKeystone(
+        `tree-path-${operation}-d${depth}`,
+        () => {
+          type Node = { child?: Node }
+          let data: Node = {}
+          for (let i = 0; i < depth; i++) data = { child: data }
+          const root = toTreeNode(data)
+          let leaf = root
+          while (leaf.child) leaf = leaf.child
+          const predicate = (parent: object) => parent === root
+          if (operation === "find-node") {
+            const run = () => findParent(leaf, predicate)
+            assert.equal(run(), root)
+            return { run }
+          }
+          const run =
+            operation === "root"
+              ? () => getRootPath(leaf).path
+              : operation === "parent"
+                ? () => getParentToChildPath(root, leaf)!
+                : () => findParentPath(leaf, predicate)!.path
+          assert.equal(run().length, depth)
+          return { run }
+        },
+        onCycle
+      )
+    }
+  }
+
+  for (const size of [100, 1000, 10000]) {
+    benchKeystone(
+      `undo-group-${size}`,
+      () => {
+        setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+        const node = toTreeNode({ value: 0 })
+        const manager = undoMiddleware(node)
+        manager.withGroup(() => {
+          for (let value = 1; value <= size; value++) {
+            objectActions.set(node, "value", value)
+          }
+        })
+        const group = manager.undoQueue[0]
+        assert(group.type === "group" && group.events.length === size)
+        return {
+          run: () => {
+            manager.undo()
+            assert.equal(node.value, 0)
+            manager.redo()
+            assert.equal(node.value, size)
+          },
+          dispose: () => manager.dispose(),
+        }
+      },
+      onCycle
+    )
+  }
+
   const benchTypeCheckAlwaysOn = (name: string, createRun: () => () => void): void => {
     benchKeystone(
       name,

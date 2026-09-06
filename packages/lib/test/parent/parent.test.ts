@@ -1,4 +1,4 @@
-import { computed, remove, set, toJS } from "mobx"
+import { autorun, computed, remove, set, toJS } from "mobx"
 import {
   detach,
   findChildren,
@@ -16,10 +16,54 @@ import {
   modelSnapshotInWithMetadata,
   prop,
   runUnprotected,
+  toTreeNode,
 } from "../../src"
 import { testModel } from "../utils"
 
 const $errorMessage = "must be the model object instance instead of the '$' sub-object"
+
+test("nested paths keep root-to-child order and react to reparenting", () => {
+  const root = toTreeNode({
+    left: { items: [{ nested: { value: 1 } }] },
+    right: { items: [] as { nested: { value: number } }[] },
+  })
+  const leaf = root.left.items[0].nested
+  const paths: unknown[] = []
+  const parents: unknown[] = []
+  const dispose = autorun(() => {
+    parents.push(findParent(leaf, (parent) => parent === root.left || parent === root.right))
+    paths.push([
+      getRootPath(leaf).path,
+      getParentToChildPath(root, leaf),
+      findParentPath(leaf, (parent) => parent === root)?.path,
+    ])
+  })
+  const held = getRootPath(leaf)
+  expect(held.pathObjects).toEqual([root, root.left, root.left.items, root.left.items[0], leaf])
+  expect(findParentPath(leaf, (parent) => parent === root, 3)).toBeUndefined()
+  expect(findParent(leaf, (parent) => parent === root, 3)).toBeUndefined()
+  expect(findParent(leaf, (parent) => parent === root, 4)).toBe(root)
+  expect(findParentPath(leaf, (parent) => parent === root, 4)?.path).toEqual(held.path)
+
+  runUnprotected(() => {
+    root.right.items.push(root.left.items.shift()!)
+  })
+
+  expect(paths).toEqual([
+    Array(3).fill(["left", "items", 0, "nested"]),
+    Array(3).fill(["right", "items", 0, "nested"]),
+  ])
+  expect(held.path).toEqual(["left", "items", 0, "nested"])
+  expect(parents).toEqual([root.left, root.right])
+  expect(getRootPath(leaf).pathObjects).toEqual([
+    root,
+    root.right,
+    root.right.items,
+    root.right.items[0],
+    leaf,
+  ])
+  dispose()
+})
 
 @testModel("P2")
 class P2 extends Model({

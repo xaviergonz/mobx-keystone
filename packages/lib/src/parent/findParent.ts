@@ -19,8 +19,7 @@ export function findParent<T extends object = any>(
   predicate: (parentNode: object) => boolean,
   maxDepth = 0
 ): T | undefined {
-  const foundParentPath = findParentPath(child, predicate, maxDepth)
-  return foundParentPath ? foundParentPath.parent : undefined
+  return findParentInternal<T>(child, predicate, maxDepth)
 }
 
 /**
@@ -56,22 +55,28 @@ export function findParentPath<T extends object = any>(
   predicate: (parentNode: object) => boolean,
   maxDepth = 0
 ): FoundParentPath<T> | undefined {
-  assertTweakedObject(child, "child")
-
   const path: WritablePath = []
+  const parent = findParentInternal<T>(child, predicate, maxDepth, path)
+  return parent ? { parent, path: path.reverse() } : undefined
+}
+
+function findParentInternal<T extends object>(
+  child: object,
+  predicate: (parentNode: object) => boolean,
+  maxDepth: number,
+  path?: WritablePath
+): T | undefined {
+  assertTweakedObject(child, "child")
 
   let current: any = child
   let depth = 0
 
   let parentPath: ParentPath<any> | undefined
   while ((parentPath = fastGetParentPath(current, true))) {
-    path.unshift(parentPath.path)
+    path?.push(parentPath.path)
     current = parentPath.parent
     if (predicate(current)) {
-      return {
-        parent: current,
-        path,
-      }
+      return current
     }
 
     depth++

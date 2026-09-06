@@ -13,7 +13,6 @@ export function tweakModel<T extends object>(value: T, parentPath: ParentPath<an
   setParent(
     value,
     parentPath,
-    false, // indexChangeAllowed
     false, // isDataObject
     true // cloneIfApplicable
   )

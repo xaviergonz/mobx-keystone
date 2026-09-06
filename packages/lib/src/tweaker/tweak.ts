@@ -95,7 +95,6 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
     value = setParent(
       value,
       parentPath,
-      false, // indexChangeAllowed
       false, // isDataObject
       true // cloneIfApplicable
     )
@@ -169,7 +168,6 @@ export function tryUntweak(value: any): (() => void) | undefined {
     setParent(
       children[i], // value
       undefined, // parentPath
-      false, // indexChangeAllowed
       false, // isDataObject
       // no need to clone if unsetting the parent
       false // cloneIfApplicable

@@ -1,4 +1,14 @@
-import { getSnapshot, Model, modelAction, prop, runUnprotected, undoMiddleware } from "../../src"
+import {
+  applySnapshot,
+  getSnapshot,
+  Model,
+  modelAction,
+  onSnapshot,
+  prop,
+  runUnprotected,
+  toTreeNode,
+  undoMiddleware,
+} from "../../src"
 import { freezeInternalSnapshot, getInternalSnapshot } from "../../src/snapshot/internal"
 import { testModel } from "../utils"
 
@@ -67,6 +77,58 @@ test("dirty array children use their reindexed parent path", () => {
   root.mutateThenReindex()
 
   expect(getSnapshot(root).leaves).toMatchObject([{ value: 20 }])
+})
+
+test("reconciliation flushes pending changes and preserves previously exposed snapshots", () => {
+  const root = new Root({ leaves: [new Leaf({ value: 1 }), new Leaf({ value: 2 })] })
+  const before = getSnapshot(root)
+  const undoManager = undoMiddleware(root)
+
+  runUnprotected(() => {
+    root.leaves[0].setValue(10)
+    applySnapshot(root, JSON.parse(JSON.stringify(before)))
+    expect(getSnapshot(root)).toEqual(before)
+    root.leaves[1].setValue(20)
+  })
+
+  const after = getSnapshot(root)
+  expect(before.leaves.map((leaf) => leaf.value)).toEqual([1, 2])
+  expect(after.leaves.map((leaf) => leaf.value)).toEqual([1, 20])
+  undoManager.undo()
+  expect(getSnapshot(root)).toEqual(before)
+  undoManager.redo()
+  expect(getSnapshot(root)).toEqual(after)
+})
+
+test("snapshot observation started after reconciliation tracks subsequent changes", () => {
+  const root = new Root({ leaves: [new Leaf({ value: 1 })] })
+  applySnapshot(root, JSON.parse(JSON.stringify(getSnapshot(root))))
+
+  const leaf = root.leaves[0]
+  const changes: number[][] = []
+  const dispose = onSnapshot(leaf, (next, previous) => {
+    changes.push([previous.value, next.value])
+  })
+  const held = getSnapshot(root)
+
+  leaf.setValue(2)
+  leaf.setValue(3)
+
+  expect(changes).toEqual([
+    [1, 2],
+    [2, 3],
+  ])
+  expect(held.leaves[0].value).toBe(1)
+  expect(getSnapshot(root).leaves[0].value).toBe(3)
+  dispose()
+})
+
+test("reconciliation rejects inherited objects that are not tree nodes", () => {
+  const node = toTreeNode({})
+  const incoming = JSON.parse('{"__proto__":{"reconciliationProbe":true}}')
+
+  expect(() => applySnapshot(node, incoming)).toThrow()
+  expect(Reflect.get(Object.prototype, "reconciliationProbe")).toBeUndefined()
 })
 
 test("rejected array writes do not lose pending ancestor snapshot updates", () => {

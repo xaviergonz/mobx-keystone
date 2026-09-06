@@ -55,6 +55,12 @@ someOtherModel.setPrimitive(somePrimitive)
 
 A way to work around rule 1 is possible thanks to the use of references as shown in the [references](./references.mdx) section.
 
+### Working with large arrays
+
+Inserting or removing array elements updates the parent paths of the following tree nodes. These index updates are batched internally; nodes that only change index keep their identity and root-store attachment. The work still grows with the number of following elements, so inserting near the beginning of a large array costs more than appending to it.
+
+Group related edits in one `modelAction` so MobX reactions and snapshot listeners can process the completed edit together.
+
 ## How objects are transformed into nodes
 
 A model/object/array is turned into a tree node under the following circumstances:

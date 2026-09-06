@@ -12,7 +12,7 @@ import { assertCanWrite } from "../action/protection"
 import { emitArraySpliceDeepChange, emitArrayUpdateDeepChange } from "../deepChange/onDeepChange"
 import { getGlobalConfig } from "../globalConfig"
 import type { ParentPath } from "../parent/path"
-import { setParent } from "../parent/setParent"
+import { reindexArrayChildren, setParent } from "../parent/setParent"
 import { hasPatchListenersFor, InternalPatchRecorder } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
 import {
@@ -62,7 +62,6 @@ export function tweakArray<T extends any[]>(
   setParent(
     tweakedArr, // value
     parentPath,
-    false, // indexChangeAllowed
     false, // isDataObject
     // arrays shouldn't be cloned anyway
     false // cloneIfApplicable
@@ -97,7 +96,6 @@ export function tweakArray<T extends any[]>(
         setParent(
           tweakedValue, // value
           path, // parentPath
-          false, // indexChangeAllowed
           false, // isDataObject
           // the value is already a new value (the result of a fromSnapshot)
           false // cloneIfApplicable
@@ -482,20 +480,8 @@ function interceptArrayMutationSplice(change: IArrayWillSplice) {
   const oldNextIndex = change.index + change.removedCount
   const newNextIndex = change.index + change.added.length
 
-  if (oldNextIndex !== newNextIndex) {
-    for (let i = oldNextIndex, j = newNextIndex; i < change.object.length; i++, j++) {
-      setParent(
-        change.object[i], // value
-        {
-          parent: change.object,
-          path: j,
-        }, // parentPath
-        true, // indexChangeAllowed
-        false, // isDataObject
-        // just re-indexing
-        false // cloneIfApplicable
-      )
-    }
+  if (oldNextIndex !== newNextIndex && oldNextIndex < change.object.length) {
+    reindexArrayChildren(change.object, oldNextIndex, newNextIndex)
   }
 }
 
