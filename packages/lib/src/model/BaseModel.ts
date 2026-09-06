@@ -12,6 +12,7 @@ import type {
   ModelPropsToUntransformedData,
 } from "../modelShared/prop"
 import { getSnapshot } from "../snapshot/getSnapshot"
+import { setModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import type { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot/SnapshotOf"
 import { typesModel } from "../types/objectBased/typesModel"
 import type { TypeCheckError } from "../types/TypeCheckError"
@@ -146,11 +147,16 @@ export abstract class BaseModel<
       // plain new
       assertIsObject(initialData, "initialData")
 
-      internalNewModel(
-        this,
-        observable.object(initialData as any, undefined, { deep: false }),
-        modelClass!
-      )
+      // Empty input is filled by the constructor below. Track its primitive
+      // defaults directly instead of rereading observable fields for the snapshot.
+      const useInitialDataSnapshot = Reflect.ownKeys(initialData).length === 0
+      const observableInitialData = observable.object(initialData as any, undefined, {
+        deep: false,
+      })
+      if (useInitialDataSnapshot) {
+        setModelInitialDataSnapshot(observableInitialData, {}, true)
+      }
+      internalNewModel(this, observableInitialData, modelClass!, useInitialDataSnapshot)
     }
   }
 

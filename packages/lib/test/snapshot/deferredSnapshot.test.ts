@@ -79,14 +79,14 @@ test("dirty array children use their reindexed parent path", () => {
   expect(getSnapshot(root).leaves).toMatchObject([{ value: 20 }])
 })
 
-test("reconciliation flushes pending changes and preserves previously exposed snapshots", () => {
+test.each([false, true])("pending snapshot changes are flushed (shared=%s)", (shared) => {
   const root = new Root({ leaves: [new Leaf({ value: 1 }), new Leaf({ value: 2 })] })
   const before = getSnapshot(root)
   const undoManager = undoMiddleware(root)
 
   runUnprotected(() => {
     root.leaves[0].setValue(10)
-    applySnapshot(root, JSON.parse(JSON.stringify(before)))
+    applySnapshot(root, shared ? before : JSON.parse(JSON.stringify(before)))
     expect(getSnapshot(root)).toEqual(before)
     root.leaves[1].setValue(20)
   })

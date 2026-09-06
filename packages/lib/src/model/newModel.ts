@@ -38,7 +38,8 @@ export const internalNewModel = action(
   <M extends AnyModel>(
     origModelObj: M,
     initialData: ModelCreationData<M>,
-    modelClass: ModelClass<AnyModel>
+    modelClass: ModelClass<AnyModel>,
+    useInitialDataSnapshot: boolean
   ): void => {
     if (inDevMode) {
       assertIsModelClass(modelClass, "modelClass")
@@ -56,6 +57,9 @@ export const internalNewModel = action(
         id = (modelIdPropData._defaultFn as () => string)()
       }
       setIfDifferent(initialData, modelIdPropertyName, id)
+      if (useInitialDataSnapshot) {
+        updateModelInitialDataSnapshot(initialData, modelIdPropertyName, id)
+      }
     }
 
     const modelObj = origModelObj as O.Writable<M>
@@ -99,6 +103,9 @@ export const internalNewModel = action(
       if (changed) {
         // setIfDifferent not required
         set(initialData, k, newValue)
+        if (useInitialDataSnapshot) {
+          updateModelInitialDataSnapshot(initialData, k, newValue)
+        }
       }
     }
 

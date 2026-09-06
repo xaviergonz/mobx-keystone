@@ -17,6 +17,7 @@ import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, inDevMode, isArray, isMap, isPlainObject, isSet, lazy } from "../utils"
 import { runWithErrorDiagnosticsContext } from "../utils/errorDiagnostics"
 import { ModelPool } from "../utils/ModelPool"
+import { flushInternalSnapshot, getInternalSnapshot } from "./internal"
 import { reconcileSnapshot } from "./reconcileSnapshot"
 import type { SnapshotInOf, SnapshotOutOf } from "./SnapshotOf"
 import { SnapshotProcessingError } from "./SnapshotProcessingError"
@@ -52,6 +53,16 @@ export function internalApplySnapshot<T extends object>(
   const obj = this
 
   const reconcile = () => {
+    // Avoid building a model pool for the current snapshot. A matching reference
+    // may still be stale while child updates await propagation within an action.
+    const currentSnapshot = getInternalSnapshot(obj)
+    if (currentSnapshot?.transformed === sn) {
+      flushInternalSnapshot(obj, false)
+      if (currentSnapshot.transformed === sn) {
+        return
+      }
+    }
+
     const modelPool = new ModelPool(obj)
     const ret = reconcileSnapshot(obj, sn, modelPool, undefined)
 

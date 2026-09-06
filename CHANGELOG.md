@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Performance: reduced scalar mutation overhead by returning primitive values before entering internal MobX actions used for tree bookkeeping.
+
+- Performance: applying the current snapshot by reference skips model-pool construction, avoiding a tree traversal on first use. Pending child changes are still flushed before treating the snapshot as unchanged.
+
+- Performance: reduced automatic type-checking overhead for nested model mutations by traversing logical parents directly.
+
+- Performance: reduce reconciliation work for non-null primitive model fields during snapshot updates, skipping unchanged fields and directly assigning changed scalar values.
+
+- Performance: reduced construction work for models created from empty data with primitive defaults, reusing their initialization snapshot instead of rereading observable fields. Structured defaults retain the general initialization path.
+
 - Performance: `findParent` no longer constructs a discarded path array while searching ancestors. `findParentPath` shares the same traversal and retains its existing path output.
 
 - Performance: reduced child-set copying overhead in `onChildAttachedTo`, improving attachment tracking for large collections.

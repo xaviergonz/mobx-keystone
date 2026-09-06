@@ -3,7 +3,6 @@ import { BuiltInAction } from "../action/builtInActions"
 import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { modelToDataNode } from "../parent/core"
-import type { PathElement } from "../parent/pathTypes"
 import type { Patch } from "../patch/Patch"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
@@ -84,7 +83,16 @@ const wrappedInternalApplyPatches = lazy(() =>
 )
 
 function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void {
-  const { target, prop } = pathArrayToObjectAndProp(obj, patch.path)
+  const path = patch.path
+  if (inDevMode && !isArray(path)) {
+    throw failure(`invalid path: ${path}`)
+  }
+
+  let target: any = modelToDataNode(obj)
+  for (let i = 0; i < path.length - 1; i++) {
+    target = modelToDataNode(target[path[i]])
+  }
+  const prop = path.length > 0 ? path[path.length - 1] : undefined
 
   if (isArray(target)) {
     switch (patch.op) {
@@ -156,32 +164,4 @@ function applySinglePatchWithPath(obj: object, patch: Patch, modelPool: ModelPoo
   withErrorPathSegments(patch.path, () => {
     applySinglePatch(obj, patch, modelPool)
   })
-}
-
-function pathArrayToObjectAndProp(
-  obj: object,
-  path: Patch["path"]
-): { target: any; prop?: PathElement } {
-  if (inDevMode) {
-    if (!isArray(path)) {
-      throw failure(`invalid path: ${path}`)
-    }
-  }
-
-  let target: any = modelToDataNode(obj)
-
-  if (path.length === 0) {
-    return {
-      target,
-    }
-  }
-
-  for (let i = 0; i <= path.length - 2; i++) {
-    target = modelToDataNode(target[path[i]])
-  }
-
-  return {
-    target,
-    prop: path[path.length - 1],
-  }
 }

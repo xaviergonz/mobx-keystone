@@ -3,8 +3,7 @@ import type { AnyModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
 import { isModel } from "../model/utils"
 import { dataToModelNode } from "../parent/core"
-import { fastGetParentPathIncludingDataObjects } from "../parent/path"
-import type { PathElement } from "../parent/pathTypes"
+import { fastGetParent } from "../parent/path"
 import { internalApplyPatches } from "../patch/applyPatches"
 import type { InternalPatchRecorder } from "../patch/emitPatch"
 import { internalApplySnapshot } from "../snapshot/applySnapshot"
@@ -40,24 +39,18 @@ function isModelWithTypeChecker(obj: object): obj is AnyModel {
 function forEachTypedModelAncestor(obj: object, callback: (model: AnyModel) => void): void {
   // obj might be a $ data object, so resolve to the model if applicable
   let current: object | undefined = dataToModelNode(obj)
-  let lastAncestor: AnyModel | undefined
 
   // If we started from a $ data object, check the model itself
   if (current !== obj && isModelWithTypeChecker(current)) {
-    lastAncestor = current
     callback(current)
   }
 
-  // Walk up parent chain
+  // Logical parents skip model $ objects, visiting each model only once.
   while (current !== undefined) {
-    const parentPath: { parent: object; path: PathElement } | undefined =
-      fastGetParentPathIncludingDataObjects(current, false)
-    if (!parentPath) break
+    const parent: object | undefined = fastGetParent(current, false)
+    if (!parent) break
 
-    const parent: object = parentPath.parent
-
-    if (isModelWithTypeChecker(parent) && parent !== lastAncestor) {
-      lastAncestor = parent
+    if (isModelWithTypeChecker(parent)) {
       callback(parent)
     }
 

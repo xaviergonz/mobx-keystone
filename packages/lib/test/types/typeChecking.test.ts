@@ -891,6 +891,47 @@ test("auto typechecking on nested model changes enforces parent property refinem
   expect(parent.typeCheck()).toBeNull()
 })
 
+test("auto typechecking crosses untyped models, objects, and arrays and rolls back failures", () => {
+  @testModel("MixedAncestorChild")
+  class Child extends Model({ x: tProp(types.number, 1) }) {
+    @modelAction
+    setX(value: number) {
+      this.x = value
+    }
+  }
+
+  @testModel("MixedAncestorWrapper")
+  class Wrapper extends Model({ child: prop<Child>() }) {}
+
+  @testModel("MixedAncestorRoot")
+  class Root extends Model({
+    entries: tProp(
+      types.refinement(
+        types.array(types.object(() => ({ wrapper: types.model(Wrapper) }))),
+        (entries) => entries.every((entry) => entry.wrapper.child.x > 0),
+        "positiveNestedChildren"
+      )
+    ),
+  }) {}
+
+  const child = new Child({})
+  const root = new Root({ entries: [{ wrapper: new Wrapper({ child }) }] })
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+  try {
+    child.setX(2)
+    const snapshot = getSnapshot(root)
+    expect(() => child.setX(-1)).toThrow(TypeCheckErrorFailure)
+    expect(getSnapshot(root)).toEqual(snapshot)
+    expect(() => child.setX("invalid" as any)).toThrow(TypeCheckErrorFailure)
+    expect(getSnapshot(root)).toEqual(snapshot)
+    child.setX(3)
+    expect(child.x).toBe(3)
+    expect(root.typeCheck()).toBeNull()
+  } finally {
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+  }
+})
+
 test("auto typechecking promotion traverses tagged wrapper types", () => {
   @testModel("TaggedWrapperChild")
   class TaggedWrapperChild extends Model({

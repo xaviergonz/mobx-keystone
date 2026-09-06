@@ -38,6 +38,20 @@ describe("object property", () => {
     expect(p2data.y).toBeUndefined()
   })
 
+  test("nullish patches preserve property presence without applying model defaults", () => {
+    applyPatches(p, [
+      { op: "add", path: ["p2", "extra"], value: undefined },
+      { op: "replace", path: ["p2", "y"], value: null },
+    ])
+    expect(Object.hasOwn(p2data, "extra")).toBe(true)
+    expect(Object.hasOwn(getSnapshot(p.p2!), "extra")).toBe(true)
+    expect(p2data.y).toBeNull()
+
+    applyPatches(p, [{ op: "replace", path: ["p2", "y"], value: undefined }])
+    expect(Object.hasOwn(p2data, "y")).toBe(true)
+    expect(p2data.y).toBeUndefined()
+  })
+
   test("replace", () => {
     runUnprotected(() => {
       applyPatches(p, [

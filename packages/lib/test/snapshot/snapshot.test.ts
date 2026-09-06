@@ -8,6 +8,7 @@ import {
   fromSnapshot,
   getSnapshot,
   idProp,
+  isTreeNode,
   Model,
   modelAction,
   modelIdKey,
@@ -893,6 +894,74 @@ test("applySnapshot should respect default initializers", () => {
 
   expect(m.x).toBe(10)
   expect(m.y).toBe(2)
+})
+
+test("partial scalar changes preserve nullish default handling and emit only changed patches", () => {
+  let defaultValue: number | null | undefined
+  @testModel("ScalarSnapshotDefaults")
+  class M extends Model({
+    value: prop(0),
+    stable: prop("stable"),
+    empty: prop<number | null | undefined>(() => defaultValue),
+  }) {}
+  const m = new M({})
+  const held = getSnapshot(m)
+  const patches: Patch[] = []
+  autoDispose(onPatches(m, (batch) => patches.push(...batch)))
+
+  defaultValue = 10
+  applySnapshot(m, { ...held, value: 1 })
+  expect(m.empty).toBe(10)
+  expect(patches.map((patch) => patch.path)).toEqual([["value"], ["empty"]])
+  expect(held.value).toBe(0)
+  expect(held.empty).toBeUndefined()
+
+  defaultValue = null
+  runUnprotected(() => {
+    m.empty = null
+  })
+  patches.length = 0
+  defaultValue = 20
+  applySnapshot(m, { ...getSnapshot(m), value: 2 })
+  expect(m.empty).toBe(20)
+  expect(patches.map((patch) => patch.path)).toEqual([["value"], ["empty"]])
+  expect(m.stable).toBe("stable")
+})
+
+test("scalar snapshot replacements detach structured values and preserve inverse patches", () => {
+  @testModel("ScalarSnapshotReplacement")
+  class M extends Model({
+    value: prop<object | number>(() => ({ nested: true })),
+    flag: prop(true),
+    text: prop("old"),
+  }) {}
+  const m = new M({})
+  const child = m.value as object
+  const held = getSnapshot(m)
+  const patches: Patch[] = []
+  const inversePatches: Patch[] = []
+  autoDispose(
+    onPatches(m, (batch, inverseBatch) => {
+      patches.push(...batch)
+      inversePatches.push(...inverseBatch)
+    })
+  )
+
+  applySnapshot(m, { ...held, value: 0, flag: false, text: "" })
+
+  expect(isTreeNode(child)).toBe(false)
+  expect(getSnapshot(m)).toEqual({ ...held, value: 0, flag: false, text: "" })
+  expect(held.value).toEqual({ nested: true })
+  expect(patches).toEqual([
+    { op: "replace", path: ["value"], value: 0 },
+    { op: "replace", path: ["flag"], value: false },
+    { op: "replace", path: ["text"], value: "" },
+  ])
+  expect(inversePatches).toEqual([
+    { op: "replace", path: ["value"], value: { nested: true } },
+    { op: "replace", path: ["flag"], value: true },
+    { op: "replace", path: ["text"], value: "old" },
+  ])
 })
 
 test("applySnapshot should be ok with extra snapshot props", () => {

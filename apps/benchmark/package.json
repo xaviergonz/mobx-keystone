@@ -7,6 +7,7 @@
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
+    "bench:common": "cross-env NODE_ENV=production node dist/commonOperationsBench.js",
     "build": "shx rm -rf dist && tsc -p .",
     "bench-only": "cross-env NODE_ENV=production node dist/index.js",
     "bench": "pnpm run build && pnpm run bench-only",

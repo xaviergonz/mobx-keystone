@@ -1,4 +1,4 @@
-import { remove } from "mobx"
+import { remove, set } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { isReservedModelKey, modelIdKey, modelTypeKey } from "../model/metadata"
@@ -17,7 +17,7 @@ import {
   runTypeCheckingAfterChange,
 } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
-import { isArray } from "../utils"
+import { isArray, isPrimitive } from "../utils"
 import { withErrorModelTrailEntry, withErrorPathSegment } from "../utils/errorDiagnostics"
 import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
@@ -157,6 +157,14 @@ function reconcileModelSnapshot(
           const v = processedSn[k]
 
           const oldValue = data[k]
+          // Non-null primitives need neither reconciliation nor detachment.
+          // Nullish values must still pass through default handling below.
+          if (v != null && isPrimitive(v)) {
+            if (v !== oldValue) {
+              set(data, k, v)
+            }
+            continue
+          }
           let newValue = withErrorPathSegment(k, () =>
             reconcileSnapshot(oldValue, v, modelPool, modelObj)
           )
