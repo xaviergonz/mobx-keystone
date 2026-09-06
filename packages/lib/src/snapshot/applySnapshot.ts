@@ -53,14 +53,12 @@ export function internalApplySnapshot<T extends object>(
   const obj = this
 
   const reconcile = () => {
-    // Avoid building a model pool for the current snapshot. A matching reference
-    // may still be stale while child updates await propagation within an action.
-    const currentSnapshot = getInternalSnapshot(obj)
-    if (currentSnapshot?.transformed === sn) {
-      flushInternalSnapshot(obj, false)
-      if (currentSnapshot.transformed === sn) {
-        return
-      }
+    // Avoid building a model pool (and its deep children traversal) when the
+    // node already holds this exact snapshot. Child updates may still await
+    // propagation within an action, so flush before trusting the reference.
+    flushInternalSnapshot(obj, false)
+    if (getInternalSnapshot(obj)?.transformed === sn) {
+      return
     }
 
     const modelPool = new ModelPool(obj)

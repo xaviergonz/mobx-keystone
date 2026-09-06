@@ -154,7 +154,7 @@ export abstract class BaseModel<
         deep: false,
       })
       if (useInitialDataSnapshot) {
-        setModelInitialDataSnapshot(observableInitialData, {}, true)
+        setModelInitialDataSnapshot(observableInitialData, {})
       }
       internalNewModel(this, observableInitialData, modelClass!, useInitialDataSnapshot)
     }

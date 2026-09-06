@@ -132,7 +132,8 @@ export function benchKeystone(
   }
 
   const { run, dispose } = setup()
-  const suite = new Benchmark.Suite(name).add("mobx-keystone", run, benchmarkOptions())
+  // label the case with its suite name so console output identifies each result
+  const suite = new Benchmark.Suite(name).add(name, run, benchmarkOptions())
 
   suite
     .on("error", (event: Benchmark.Event) => {

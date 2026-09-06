@@ -211,7 +211,9 @@ function snapshotToInitialData(
     }
   }
   const observableInitialData = observable.object(initialData, undefined, observableOptions)
-  setModelInitialDataSnapshot(observableInitialData, initialData, allValuesPrimitive)
+  if (allValuesPrimitive) {
+    setModelInitialDataSnapshot(observableInitialData, initialData)
+  }
   return observableInitialData
 }
 

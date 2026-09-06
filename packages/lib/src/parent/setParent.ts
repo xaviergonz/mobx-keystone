@@ -33,12 +33,12 @@ export const reindexArrayChildren = action(
       if (isPrimitive(value)) {
         continue
       }
-      const metadata = treeNodeMetadata.get(value as object)!
-      if (inDevMode && metadata.parentPath?.parent !== array) {
+      const metadata = treeNodeMetadata.get(value as object)
+      if (inDevMode && metadata?.parentPath?.parent !== array) {
         throw failure("assertion failed: reindexed child must already belong to the array")
       }
       // Replace the path object: callers may have retained the previous path.
-      metadata.parentPath = { parent: array, path: j }
+      metadata!.parentPath = { parent: array, path: j }
       reportParentPathChanged(value as object)
     }
   }

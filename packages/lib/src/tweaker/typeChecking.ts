@@ -38,23 +38,20 @@ function isModelWithTypeChecker(obj: object): obj is AnyModel {
  */
 function forEachTypedModelAncestor(obj: object, callback: (model: AnyModel) => void): void {
   // obj might be a $ data object, so resolve to the model if applicable
-  let current: object | undefined = dataToModelNode(obj)
+  const start = dataToModelNode(obj)
 
   // If we started from a $ data object, check the model itself
-  if (current !== obj && isModelWithTypeChecker(current)) {
-    callback(current)
+  if (start !== obj && isModelWithTypeChecker(start)) {
+    callback(start)
   }
 
-  // Logical parents skip model $ objects, visiting each model only once.
-  while (current !== undefined) {
-    const parent: object | undefined = fastGetParent(current, false)
-    if (!parent) break
-
+  // Raw parents never point to model $ objects, so each model is visited once.
+  let parent: object | undefined = fastGetParent(start, false)
+  while (parent) {
     if (isModelWithTypeChecker(parent)) {
       callback(parent)
     }
-
-    current = parent
+    parent = fastGetParent(parent, false)
   }
 }
 

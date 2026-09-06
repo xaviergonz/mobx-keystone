@@ -6,14 +6,8 @@ const modelInitialDataSnapshots = new WeakMap<object, Record<string, unknown>>()
 /**
  * @internal
  */
-export function setModelInitialDataSnapshot(
-  data: object,
-  snapshot: Record<string, unknown>,
-  allValuesPrimitive: boolean
-): void {
-  if (allValuesPrimitive) {
-    modelInitialDataSnapshots.set(data, snapshot)
-  }
+export function setModelInitialDataSnapshot(data: object, snapshot: Record<string, unknown>): void {
+  modelInitialDataSnapshots.set(data, snapshot)
 }
 
 /**

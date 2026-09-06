@@ -29,8 +29,8 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, par
     return sn
   }
 
-  // Comparing an existing tree node does not expose its snapshot, so it needs
-  // neither freezing nor observation.
+  // Unlike getSnapshot, this comparison never exposes the snapshot, so it needs
+  // neither freezing nor observation registration.
   const currentSnapshot = getInternalSnapshot(value)
   if (currentSnapshot) {
     flushInternalSnapshot(value, false)
@@ -38,7 +38,8 @@ export function reconcileSnapshot(value: any, sn: any, modelPool: ModelPool, par
       return value
     }
   } else if (!isPrimitive(value)) {
-    // Preserve validation for unsupported values, including inherited properties.
+    // A non-primitive without an internal snapshot is not a valid reconciliation
+    // target (e.g. a non-node object); let getSnapshot raise the proper error.
     getSnapshot(value)
   }
 

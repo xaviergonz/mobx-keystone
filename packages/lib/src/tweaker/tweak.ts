@@ -130,6 +130,8 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
   )
 }
 
+const tweakNonPrimitive = action("tweak", internalTweak)
+
 /**
  * @internal
  */
@@ -137,8 +139,6 @@ export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   // Primitives need no tree bookkeeping or MobX action boundary.
   return isPrimitive(value) ? value : tweakNonPrimitive(value, parentPath)
 }
-
-const tweakNonPrimitive = action("tweak", internalTweak)
 
 /**
  * @internal
