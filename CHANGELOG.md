@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 1.25.0
 
 - Performance: reduced scalar mutation overhead by returning primitive values before entering internal MobX actions used for tree bookkeeping.
 - Performance: applying the current snapshot by reference skips model-pool construction, avoiding a tree traversal on first use. Pending child changes are still flushed before treating the snapshot as unchanged.
