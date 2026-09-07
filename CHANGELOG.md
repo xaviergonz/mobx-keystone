@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 1.25.0
 
 - Performance: reduced scalar mutation overhead by returning primitive values before entering internal MobX actions used for tree bookkeeping.
