@@ -2,13 +2,34 @@
   --ifm-color-primary: #ff6600;
   --ifm-code-font-size: 85%;
   --ifm-footer-background-color: #f5f6f7;
-  --ifm-navbar-search-input-icon: url('data:image/svg+xml;utf8,<svg fill="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px"><path d="M6.02945,10.20327a4.17382,4.17382,0,1,1,4.17382-4.17382A4.15609,4.15609,0,0,1,6.02945,10.20327Zm9.69195,4.2199L10.8989,9.59979A5.88021,5.88021,0,0,0,12.058,6.02856,6.00467,6.00467,0,1,0,9.59979,10.8989l4.82338,4.82338a.89729.89729,0,0,0,1.29912,0,.89749.89749,0,0,0-.00087-1.29909Z" /></svg>');
   --collapse-button-bg-color-dark: rgba(255, 255, 255, 0.05) !important;
   --search-local-modal-background: #202020;
 }
 
-.navbar--dark {
-  --ifm-navbar-background-color: #2d3539;
+.navbar {
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+}
+
+/* Blur a separate layer so the fixed mobile sidebar stays relative to the viewport. */
+.navbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.navbar::before,
+.navbar-sidebar {
+  background: var(--ifm-navbar-background-color);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .navbar {
+  --ifm-navbar-search-input-icon: url('data:image/svg+xml;utf8,<svg fill="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px"><path d="M6.02945,10.20327a4.17382,4.17382,0,1,1,4.17382-4.17382A4.15609,4.15609,0,0,1,6.02945,10.20327Zm9.69195,4.2199L10.8989,9.59979A5.88021,5.88021,0,0,0,12.058,6.02856,6.00467,6.00467,0,1,0,9.59979,10.8989l4.82338,4.82338a.89729.89729,0,0,0,1.29912,0,.89749.89749,0,0,0-.00087-1.29909Z" /></svg>');
+  --ifm-navbar-background-color: rgba(45, 53, 57, 0.5);
   --ifm-menu-color-background-hover: rgba(255, 255, 255, 0.08);
   --ifm-menu-color-background-active: rgba(255, 255, 255, 0.1);
   --ifm-navbar-search-input-background-color: rgba(255, 255, 255, 0.25);

@@ -41,6 +41,7 @@ const config: Config = {
       "@easyops-cn/docusaurus-search-local",
       {
         hashed: true,
+        searchBarShortcutHint: false,
         indexDocs: true,
         docsRouteBasePath,
         indexBlog: false,
@@ -77,11 +78,11 @@ const config: Config = {
 
   themeConfig: {
     navbar: {
-      style: "dark",
       title: "mobx-keystone",
       logo: {
         alt: "mobx-keystone",
-        src: "img/logo.png",
+        src: "img/logo-light.png",
+        srcDark: "img/logo-dark.png",
       },
       items: [
         {

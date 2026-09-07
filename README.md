@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="./apps/site/static/img/logo.png" height="128" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./apps/site/static/img/logo-dark.png" />
+    <source media="(prefers-color-scheme: light)" srcset="./apps/site/static/img/logo-light.png" />
+    <img src="./apps/site/static/img/logo-light.png" alt="mobx-keystone" height="128" />
+  </picture>
   <h1 align="center">mobx-keystone</h1>
 </p>
 <p align="center">
