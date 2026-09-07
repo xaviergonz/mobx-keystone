@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Fixed stale model contents when a Loro container replacement reuses an existing model ID.
+- Fixed a synchronization issue where a change coming from Loro that assigned a whole submodel or array to a model property could be applied with its array contents duplicated, since the events for the nested containers were replayed on top of the already revived subtree.
+
 ## 1.1.0
 
 - Declared compatibility with MobX 7.

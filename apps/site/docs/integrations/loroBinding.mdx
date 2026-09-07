@@ -35,6 +35,8 @@ const {
 
 The `loroObject` must be a `LoroMap`, `LoroMovableList`, or `LoroText` attached to `loroDoc`. Its current JSON representation must be a valid input snapshot for `mobxKeystoneType`. The returned `boundObject` is created from that CRDT data, and later changes flow in both directions until `dispose()` is called.
 
+When assigning a new container to a Loro map property, populate its complete subtree before committing. The binding applies the subtree as a whole, including nested arrays, and continues synchronizing subsequent edits to those containers. Replacing a submodel with the same model ID also updates its contents.
+
 ## First migration - converting JSON to `Loro` data
 
 If you already have a stored model snapshot, use `convertJsonToLoroData` to create the initial Loro structure before binding it.

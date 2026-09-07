@@ -2,6 +2,7 @@ import type { ContainerID, ListDiff, LoroDoc, LoroEvent, MapDiff } from "loro-cr
 import { isContainer, LoroMap, LoroMovableList, LoroText } from "loro-crdt"
 import { remove } from "mobx"
 import {
+  applySnapshot,
   type Frozen,
   fromSnapshot,
   frozen,
@@ -62,7 +63,14 @@ export function applyLoroEventToMobx(
   runUnprotected(() => {
     const diff = event.diff
     if (diff.type === "map") {
-      applyMapEventToMobx(diff, loroDoc, event.target, target, reconciliationMap)
+      applyMapEventToMobx(
+        diff,
+        loroDoc,
+        event.target,
+        target,
+        reconciliationMap,
+        newlyInsertedContainers
+      )
     } else if (diff.type === "list") {
       applyListEventToMobx(
         diff,
@@ -106,6 +114,9 @@ function reviveValue(jsonValue: unknown, reconciliationMap: ReconciliationMap): 
       const existing = reconciliationMap.get(modelId)
       if (existing) {
         reconciliationMap.delete(modelId)
+        // Reused models must reflect the snapshot too: nested events may be skipped
+        // because this container's complete contents have already been read.
+        applySnapshot(existing, jsonValue)
         return existing
       }
     }
@@ -119,7 +130,8 @@ function applyMapEventToMobx(
   loroDoc: LoroDoc,
   containerTarget: ContainerID,
   target: Record<string, unknown>,
-  reconciliationMap: ReconciliationMap
+  reconciliationMap: ReconciliationMap,
+  newlyInsertedContainers: Set<ContainerID>
 ): void {
   const container = loroDoc.getContainerById(containerTarget)
 
@@ -146,6 +158,12 @@ function applyMapEventToMobx(
       // Key was added or updated
       if (key in target) {
         processDeletedValue(target[key], reconciliationMap)
+      }
+      // Track container IDs to avoid double-processing their events, as the list path below does.
+      // convertLoroDataToJson already inlines the whole subtree of a container set as a value, but
+      // Loro also fires separate events for each nested container, which would then re-apply it.
+      if (isContainer(loroValue)) {
+        collectNestedContainerIds(loroValue, newlyInsertedContainers)
       }
       const jsonValue = convertLoroDataToJson(loroValue as PlainValue)
       target[key] = reviveValue(jsonValue, reconciliationMap)
@@ -195,8 +213,6 @@ function applyListEventToMobx(
         // the container insert and the container's content, but the content
         // is already included in convertLoroDataToJson
         if (isContainer(loroValue)) {
-          newlyInsertedContainers.add(loroValue.id)
-          // Also recursively track any nested containers
           collectNestedContainerIds(loroValue, newlyInsertedContainers)
         }
         const jsonValue = convertLoroDataToJson(loroValue as PlainValue)

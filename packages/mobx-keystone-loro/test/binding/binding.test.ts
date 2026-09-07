@@ -591,3 +591,259 @@ describe("type validation", () => {
     expect(boundObject.items.length).toBe(1)
   })
 })
+
+describe.each(["local", "remote"] as const)("loro container set as a map value (%s)", (source) => {
+  @testModel(`loro-map-value-child-${source}`)
+  class ChildModel extends Model({
+    id: idProp,
+    tags: tProp(types.array(types.string), () => []),
+    nested: tProp(types.array(types.model(() => GrandChildModel)), () => []),
+  }) {}
+
+  @testModel(`loro-map-value-grandchild-${source}`)
+  class GrandChildModel extends Model({
+    id: idProp,
+    values: tProp(types.array(types.number), () => []),
+  }) {}
+
+  @testModel(`loro-map-value-root-${source}`)
+  class RootModel extends Model({
+    name: tProp(types.string, ""),
+    child: tProp(types.maybe(types.model(ChildModel))),
+  }) {}
+
+  test("applies a model subtree set as a map value", () => {
+    const doc = new LoroDoc()
+    const boundMap = doc.getMap("testModel")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: boundMap,
+      mobxKeystoneType: RootModel,
+    })
+    autoDispose(dispose)
+
+    const editingDoc = source === "remote" ? doc.fork() : doc
+    const loroMap = editingDoc.getMap("testModel")
+    const commit = () => {
+      editingDoc.commit()
+      if (source === "remote") {
+        doc.import(editingDoc.export({ mode: "update", from: doc.version() }))
+      }
+    }
+
+    const rootTypeName = getSnapshot(new RootModel({}))[modelTypeKey]
+    const childTypeName = getSnapshot(new ChildModel({}))[modelTypeKey]
+    const grandChildTypeName = getSnapshot(new GrandChildModel({}))[modelTypeKey]
+
+    // set a whole subtree as a single map value
+    const childMap = loroMap.setContainer("child", new LoroMap())
+    childMap.set(modelTypeKey, childTypeName)
+    childMap.set("id", "child-1")
+    const tags = childMap.setContainer("tags", new LoroMovableList())
+    tags.push("a")
+    tags.push("b")
+    const nested = childMap.setContainer("nested", new LoroMovableList())
+    const grandChildMap = nested.insertContainer(0, new LoroMap())
+    grandChildMap.set(modelTypeKey, grandChildTypeName)
+    grandChildMap.set("id", "grandchild-1")
+    const values = grandChildMap.setContainer("values", new LoroMovableList())
+    values.push(1)
+    values.push(2)
+    commit()
+
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual({
+      [modelTypeKey]: rootTypeName,
+      name: "",
+      child: {
+        [modelTypeKey]: childTypeName,
+        id: "child-1",
+        tags: ["a", "b"],
+        nested: [
+          {
+            [modelTypeKey]: grandChildTypeName,
+            id: "grandchild-1",
+            values: [1, 2],
+          },
+        ],
+      },
+    })
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(loroMap.toJSON())
+
+    // Tracking must be limited to the insertion batch.
+    tags.push("c")
+    values.push(3)
+    commit()
+    expect(boundObject.child!.tags).toEqual(["a", "b", "c"])
+    expect(boundObject.child!.nested[0].values).toEqual([1, 2, 3])
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(loroMap.toJSON())
+
+    // Replacing a container with the same model ID must retain its new contents.
+    const previousChild = boundObject.child
+    const replacement = loroMap.setContainer("child", new LoroMap())
+    applyJsonObjectToLoroMap(replacement, {
+      [modelTypeKey]: childTypeName,
+      id: "child-1",
+      tags: ["replacement"],
+      nested: [],
+    })
+    commit()
+    expect(boundObject.child).toBe(previousChild)
+    expect(boundObject.child!.tags).toEqual(["replacement"])
+    expect(boundObject.child!.nested).toEqual([])
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(loroMap.toJSON())
+  })
+
+  test("inserting a map value does not suppress sibling edits in the same batch", () => {
+    const doc = new LoroDoc()
+    const boundMap = doc.getMap("record")
+    const existing = boundMap.setContainer("existing", new LoroMovableList())
+    existing.push(1)
+    doc.commit()
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: boundMap,
+      mobxKeystoneType: types.record(types.array(types.number)),
+    })
+    autoDispose(dispose)
+
+    const editingDoc = source === "remote" ? doc.fork() : doc
+    const loroMap = editingDoc.getMap("record")
+    const commit = () => {
+      editingDoc.commit()
+      if (source === "remote") {
+        doc.import(editingDoc.export({ mode: "update", from: doc.version() }))
+      }
+    }
+
+    const sibling = boundObject.existing
+    const inserted = loroMap.setContainer("inserted", new LoroMovableList())
+    inserted.push(2)
+    const existingList = loroMap.get("existing") as LoroMovableList
+    existingList.push(3)
+    commit()
+    expect(getSnapshot(boundObject)).toEqual({ existing: [1, 3], inserted: [2] })
+    expect(boundObject.existing).toBe(sibling)
+
+    // An empty replacement must clear the old value, then accept later edits.
+    const replacement = loroMap.setContainer("inserted", new LoroMovableList())
+    commit()
+    expect(boundObject.inserted).toEqual([])
+    replacement.push(4)
+    commit()
+    expect(getSnapshot(boundObject)).toEqual({ existing: [1, 3], inserted: [4] })
+
+    loroMap.delete("inserted")
+    commit()
+    expect("inserted" in boundObject).toBe(false)
+    const recreated = loroMap.setContainer("inserted", new LoroMovableList())
+    recreated.push(5)
+    commit()
+    expect(getSnapshot(boundObject)).toEqual({ existing: [1, 3], inserted: [5] })
+    expect(getSnapshot(boundObject)).toEqual(boundMap.toJSON())
+  })
+
+  test("replacing a list model with the same ID updates nested contents", () => {
+    const doc = new LoroDoc()
+    const boundList = doc.getMovableList("children")
+    const childTypeName = getSnapshot(new ChildModel({}))[modelTypeKey]
+    const grandChildTypeName = getSnapshot(new GrandChildModel({}))[modelTypeKey]
+    const childSnapshot = {
+      [modelTypeKey]: childTypeName,
+      id: "child-1",
+      tags: ["old"],
+      nested: [{ [modelTypeKey]: grandChildTypeName, id: "grandchild-1", values: [1] }],
+    }
+    applyJsonObjectToLoroMap(boundList.pushContainer(new LoroMap()), childSnapshot)
+    doc.commit()
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: boundList,
+      mobxKeystoneType: types.array(types.model(ChildModel)),
+    })
+    autoDispose(dispose)
+    const editingDoc = source === "remote" ? doc.fork() : doc
+    const loroList = editingDoc.getMovableList("children")
+    loroList.delete(0, 1)
+    const replacement = loroList.pushContainer(new LoroMap())
+    applyJsonObjectToLoroMap(replacement, {
+      ...childSnapshot,
+      tags: ["new"],
+      nested: [{ ...childSnapshot.nested[0], values: [2, 3] }],
+    })
+    editingDoc.commit()
+    if (source === "remote") {
+      doc.import(editingDoc.export({ mode: "update", from: doc.version() }))
+    }
+
+    const child = boundObject[0]
+    const grandChild = child.nested[0]
+    expect(child.tags).toEqual(["new"])
+    expect(grandChild.values).toEqual([2, 3])
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(boundList.toJSON())
+
+    // Later model edits must write to the replacement Loro containers.
+    runUnprotected(() => {
+      child.tags.push("later")
+      grandChild.values.push(4)
+    })
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(boundList.toJSON())
+    expect((boundList.get(0) as LoroMap).toJSON()).toMatchObject({
+      tags: ["new", "later"],
+      nested: [{ values: [2, 3, 4] }],
+    })
+  })
+
+  @testModel(`loro-map-value-list-root-${source}`)
+  class ListRootModel extends Model({
+    name: tProp(types.string, ""),
+    list: tProp(types.maybe(types.array(types.number))),
+  }) {}
+
+  test("applies a list set as a map value", () => {
+    const doc = new LoroDoc()
+    const boundMap = doc.getMap("testModel")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: boundMap,
+      mobxKeystoneType: ListRootModel,
+    })
+    autoDispose(dispose)
+
+    const editingDoc = source === "remote" ? doc.fork() : doc
+    const loroMap = editingDoc.getMap("testModel")
+    const commit = () => {
+      editingDoc.commit()
+      if (source === "remote") {
+        doc.import(editingDoc.export({ mode: "update", from: doc.version() }))
+      }
+    }
+
+    const rootTypeName = getSnapshot(new ListRootModel({}))[modelTypeKey]
+
+    const list = loroMap.setContainer("list", new LoroMovableList())
+    list.push(1)
+    list.push(2)
+    commit()
+
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual({
+      [modelTypeKey]: rootTypeName,
+      name: "",
+      list: [1, 2],
+    })
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(loroMap.toJSON())
+
+    list.push(3)
+    commit()
+    expect(boundObject.list).toEqual([1, 2, 3])
+
+    const replacement = loroMap.setContainer("list", new LoroMovableList())
+    replacement.push(4)
+    commit()
+    expect(boundObject.list).toEqual([4])
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(loroMap.toJSON())
+  })
+})
