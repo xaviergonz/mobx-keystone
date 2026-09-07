@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 1.1.1
 
 - Fixed stale model contents when a Loro container replacement reuses an existing model ID.
