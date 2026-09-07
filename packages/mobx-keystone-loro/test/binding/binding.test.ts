@@ -591,3 +591,106 @@ describe("type validation", () => {
     expect(boundObject.items.length).toBe(1)
   })
 })
+
+describe("loro container set as a map value", () => {
+  @testModel("loro-map-value-child")
+  class ChildModel extends Model({
+    id: idProp,
+    tags: tProp(types.array(types.string), () => []),
+    nested: tProp(types.array(types.model(() => GrandChildModel)), () => []),
+  }) {}
+
+  @testModel("loro-map-value-grandchild")
+  class GrandChildModel extends Model({
+    id: idProp,
+    values: tProp(types.array(types.number), () => []),
+  }) {}
+
+  @testModel("loro-map-value-root")
+  class RootModel extends Model({
+    name: tProp(types.string, ""),
+    child: tProp(types.maybe(types.model(ChildModel))),
+  }) {}
+
+  test("applies a model subtree set as a map value", () => {
+    const doc = new LoroDoc()
+    const loroMap = doc.getMap("testModel")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: loroMap,
+      mobxKeystoneType: RootModel,
+    })
+    autoDispose(dispose)
+
+    const rootTypeName = getSnapshot(new RootModel({}))[modelTypeKey]
+    const childTypeName = getSnapshot(new ChildModel({}))[modelTypeKey]
+    const grandChildTypeName = getSnapshot(new GrandChildModel({}))[modelTypeKey]
+
+    // set a whole subtree as a single map value
+    const childMap = loroMap.setContainer("child", new LoroMap())
+    childMap.set(modelTypeKey, childTypeName)
+    childMap.set("id", "child-1")
+    const tags = childMap.setContainer("tags", new LoroMovableList())
+    tags.push("a")
+    tags.push("b")
+    const nested = childMap.setContainer("nested", new LoroMovableList())
+    const grandChildMap = nested.insertContainer(0, new LoroMap())
+    grandChildMap.set(modelTypeKey, grandChildTypeName)
+    grandChildMap.set("id", "grandchild-1")
+    const values = grandChildMap.setContainer("values", new LoroMovableList())
+    values.push(1)
+    values.push(2)
+    doc.commit()
+
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual({
+      [modelTypeKey]: rootTypeName,
+      name: "",
+      child: {
+        [modelTypeKey]: childTypeName,
+        id: "child-1",
+        tags: ["a", "b"],
+        nested: [
+          {
+            [modelTypeKey]: grandChildTypeName,
+            id: "grandchild-1",
+            values: [1, 2],
+          },
+        ],
+      },
+    })
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(loroMap.toJSON())
+  })
+
+  @testModel("loro-map-value-list-root")
+  class ListRootModel extends Model({
+    name: tProp(types.string, ""),
+    list: tProp(types.maybe(types.array(types.number))),
+  }) {}
+
+  test("applies a list set as a map value", () => {
+    const doc = new LoroDoc()
+    const loroMap = doc.getMap("testModel")
+
+    const { boundObject, dispose } = bindLoroToMobxKeystone({
+      loroDoc: doc,
+      loroObject: loroMap,
+      mobxKeystoneType: ListRootModel,
+    })
+    autoDispose(dispose)
+
+    const rootTypeName = getSnapshot(new ListRootModel({}))[modelTypeKey]
+
+    const list = loroMap.setContainer("list", new LoroMovableList())
+    list.push(1)
+    list.push(2)
+    doc.commit()
+
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual({
+      [modelTypeKey]: rootTypeName,
+      name: "",
+      list: [1, 2],
+    })
+    expect(normalizeSnapshot(getSnapshot(boundObject))).toEqual(loroMap.toJSON())
+  })
+})

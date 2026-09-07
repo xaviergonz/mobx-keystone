@@ -62,7 +62,14 @@ export function applyLoroEventToMobx(
   runUnprotected(() => {
     const diff = event.diff
     if (diff.type === "map") {
-      applyMapEventToMobx(diff, loroDoc, event.target, target, reconciliationMap)
+      applyMapEventToMobx(
+        diff,
+        loroDoc,
+        event.target,
+        target,
+        reconciliationMap,
+        newlyInsertedContainers
+      )
     } else if (diff.type === "list") {
       applyListEventToMobx(
         diff,
@@ -119,7 +126,8 @@ function applyMapEventToMobx(
   loroDoc: LoroDoc,
   containerTarget: ContainerID,
   target: Record<string, unknown>,
-  reconciliationMap: ReconciliationMap
+  reconciliationMap: ReconciliationMap,
+  newlyInsertedContainers: Set<ContainerID>
 ): void {
   const container = loroDoc.getContainerById(containerTarget)
 
@@ -146,6 +154,12 @@ function applyMapEventToMobx(
       // Key was added or updated
       if (key in target) {
         processDeletedValue(target[key], reconciliationMap)
+      }
+      // Track container IDs to avoid double-processing their events, as the list path below does.
+      // convertLoroDataToJson already inlines the whole subtree of a container set as a value, but
+      // Loro also fires separate events for each nested container, which would then re-apply it.
+      if (isContainer(loroValue)) {
+        collectNestedContainerIds(loroValue, newlyInsertedContainers)
       }
       const jsonValue = convertLoroDataToJson(loroValue as PlainValue)
       target[key] = reviveValue(jsonValue, reconciliationMap)
