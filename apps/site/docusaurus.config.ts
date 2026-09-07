@@ -12,6 +12,17 @@ const config: Config = {
   staticDirectories: ["static", "generated-static"],
   onBrokenLinks: "ignore", // because of /api/ links
   favicon: "img/favicon.ico",
+  headTags: [
+    ...(["light", "dark"] as const).map((theme) => ({
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        type: "image/png",
+        href: `/img/logo-${theme}.png`,
+        media: `(prefers-color-scheme: ${theme})`,
+      },
+    })),
+  ],
   organizationName: "xaviergonz",
   projectName: "mobx-keystone",
   markdown: {
