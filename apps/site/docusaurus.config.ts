@@ -88,6 +88,30 @@ const config: Config = {
   ],
 
   themeConfig: {
+    prism: {
+      theme: {
+        plain: { color: "#22252b", backgroundColor: "#f6f7f9" },
+        styles: [
+          { types: ["comment", "prolog", "doctype", "cdata"], style: { color: "#606570" } },
+          { types: ["keyword", "boolean", "number"], style: { color: "#8f3ca2" } },
+          { types: ["string", "char", "attr-value", "regex"], style: { color: "#267154" } },
+          { types: ["function", "class-name", "tag"], style: { color: "#b84709" } },
+          { types: ["property", "attr-name", "symbol"], style: { color: "#285e91" } },
+          { types: ["operator", "punctuation"], style: { color: "#606570" } },
+        ],
+      },
+      darkTheme: {
+        plain: { color: "#eeece8", backgroundColor: "#111215" },
+        styles: [
+          { types: ["comment", "prolog", "doctype", "cdata"], style: { color: "#a4a5ad" } },
+          { types: ["keyword", "boolean", "number"], style: { color: "#cb9ce4" } },
+          { types: ["string", "char", "attr-value", "regex"], style: { color: "#8bcaa8" } },
+          { types: ["function", "class-name", "tag"], style: { color: "#ff9a58" } },
+          { types: ["property", "attr-name", "symbol"], style: { color: "#9bc4ed" } },
+          { types: ["operator", "punctuation"], style: { color: "#a4a5ad" } },
+        ],
+      },
+    },
     navbar: {
       title: "mobx-keystone",
       logo: {

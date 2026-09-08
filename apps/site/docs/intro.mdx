@@ -1,29 +1,41 @@
 ---
 title: Introduction
 slug: /
+hide_title: true
 ---
 
-`mobx-keystone` helps you build complex client-side apps with a single source of truth, mutable model code, and immutable traceability built in. You write straightforward actions and computed values, while the library gives you snapshots, patches, undo/redo, and runtime protection on top.
+<div className="docs-intro-hero">
+  <p className="docs-eyebrow">MobX-powered. TypeScript-first.</p>
 
-You can think of it as a TypeScript-first model layer on top of MobX that scales better as your domain grows.
+<div className="docs-project-badges">
 
-- Install and configure: [Installation](./installation.mdx)
-- Start here: [Getting Started](./gettingStarted.mdx)
-- Learn by building: [Class Models](./classModels.mdx)
-- See a full example: [Todo List Example](./examples/todoList/todoList.mdx)
-- Migrating from MST: [Migration Guide](./mstMigrationGuide.mdx)
-- API reference: [API docs](/api/)
+[![npm](https://img.shields.io/npm/v/mobx-keystone.svg?style=flat&logo=npm&labelColor=333)](https://www.npmjs.com/package/mobx-keystone)
+![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=flat&labelColor=333)
+![types](https://img.shields.io/npm/types/mobx-keystone.svg?style=flat&logo=typescript&labelColor=333)
+[![CI](https://img.shields.io/github/actions/workflow/status/xaviergonz/mobx-keystone/main.yml?branch=master&label=CI&logo=github&style=flat&labelColor=333)](https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml)
+[![codecov](https://img.shields.io/codecov/c/github/xaviergonz/mobx-keystone?token=6MLRFUBK8V&label=codecov&logo=codecov&style=flat&labelColor=333)](https://codecov.io/gh/xaviergonz/mobx-keystone)
+[![Netlify Status](https://img.shields.io/netlify/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429?label=netlify&logo=netlify&style=flat&labelColor=333)](https://app.netlify.com/sites/mobx-keystone/deploys)
 
-[![npm](https://img.shields.io/npm/v/mobx-keystone.svg?style=for-the-badge&logo=npm&labelColor=333)](https://www.npmjs.com/package/mobx-keystone)
-![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=for-the-badge&labelColor=333)
-![types](https://img.shields.io/npm/types/mobx-keystone.svg?style=for-the-badge&logo=typescript&labelColor=333)<br />
-[![CI](https://img.shields.io/github/actions/workflow/status/xaviergonz/mobx-keystone/main.yml?branch=master&label=CI&logo=github&style=for-the-badge&labelColor=333)](https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml)
-[![codecov](https://img.shields.io/codecov/c/github/xaviergonz/mobx-keystone?token=6MLRFUBK8V&label=codecov&logo=codecov&style=for-the-badge&labelColor=333)](https://codecov.io/gh/xaviergonz/mobx-keystone)
-[![Netlify Status](https://img.shields.io/netlify/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429?label=netlify&logo=netlify&style=for-the-badge&labelColor=333)](https://app.netlify.com/sites/mobx-keystone/deploys)
+</div>
+
+# Introduction
+
+  <p className="docs-intro-lead">Build complex client-side apps with a single source of truth, mutable model code, and immutable traceability built in.</p>
+  <div className="docs-intro-actions">
+
+[Get started →](./gettingStarted.mdx)
+[Installation ↗](./installation.mdx)
+
+  </div>
+
+  <div className="docs-intro-meta">TypeScript <span aria-hidden="true">/</span> MIT license <span aria-hidden="true">/</span> MobX</div>
+</div>
 
 ## Quick glance
 
-```ts
+Straightforward models. Explicit actions. Reactive state.
+
+```ts title="Todo.ts"
 import { computed } from "mobx"
 import { Model, model, modelAction, prop, registerRootStore } from "mobx-keystone"
 
@@ -57,6 +69,15 @@ const store = new TodoStore({})
 registerRootStore(store)
 ```
 
+<div className="docs-starting-links">
+
+[**Class Models →**<span>Model your application state.</span>](./classModels.mdx)
+[**Snapshots →**<span>Capture and restore your tree.</span>](./snapshots.mdx)
+
+</div>
+
+You write straightforward actions and computed values, while the library gives you snapshots, patches, undo/redo, and runtime protection on top. You can think of it as a TypeScript-first model layer on top of MobX that scales better as your domain grows.
+
 ## Why teams choose mobx-keystone
 
 - Mutable action code with protected updates, so state changes stay explicit and safe.
@@ -84,23 +105,23 @@ Different readers usually want different first docs. These are the fastest paths
 ## What users are saying
 
 > "I've never been so in love with a tool. [...] In my eyes it is the perfect state management tool for TS/React projects. [...] Building complex clientside apps has never been so easy and fun for me."
->  
+>
 > - [@finallyblueskies](https://github.com/finallyblueskies), [#538](https://github.com/xaviergonz/mobx-keystone/issues/538)
 
 > "I'm absolutely loving this project. [...] It's taken all the best bits from mobx and mobx-state-tree and put them into a single package that's a joy to work with. [...] You've literally thought of everything!"
->  
+>
 > - [@robclouth](https://github.com/robclouth), [#146](https://github.com/xaviergonz/mobx-keystone/issues/146)
 
 > "Thank you for this amazing library. [...] After evaluating every state library out there, mobx-keystone stands out [...] a true single source of truth for records, first-class relationships [...] first-class reactivity."
->  
+>
 > - [@lolmaus](https://github.com/lolmaus), [#566](https://github.com/xaviergonz/mobx-keystone/issues/566)
 
 > "First of all thank you for this amazing library, it really is a joy to work with."
->  
+>
 > - [@exception-producer](https://github.com/exception-producer), [#559](https://github.com/xaviergonz/mobx-keystone/issues/559)
 
 > "mobx-keystone is awesome and way easier to use for typesafe domain modeling than MST."
->  
+>
 > - [@krnsk0](https://github.com/krnsk0), [#467](https://github.com/xaviergonz/mobx-keystone/issues/467)
 
 ## How it works
@@ -118,3 +139,9 @@ Because `mobx-keystone` uses MobX behind the scenes, it integrates naturally wit
 ## Resources for LLM workflows
 
 Need markdown exports for AI/LLM tools? See [llms.txt](/llms.txt), [llms-full.txt](/llms-full.txt), or the <a href="/md/intro.md">MD docs intro</a>.
+
+## Project resources
+
+- [API reference](/api/)
+- [Todo List Example](./examples/todoList/todoList.mdx)
+- [MST Migration Guide](./mstMigrationGuide.mdx)

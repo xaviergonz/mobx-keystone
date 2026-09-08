@@ -2,10 +2,12 @@ import type { SidebarsConfig } from "@docusaurus/plugin-content-docs"
 
 const sidebars: SidebarsConfig = {
   docs: [
+    { type: "html", value: "Start here", className: "sidebar-section-label" },
     "intro",
     "installation",
     "gettingStarted",
     "mstComparison",
+    { type: "html", value: "Core concepts", className: "sidebar-section-label" },
     "classModels",
     "dataModels",
     "standardAndStandaloneActions",
@@ -14,6 +16,7 @@ const sidebars: SidebarsConfig = {
     "snapshots",
     "patches",
     "mapsSetsDates",
+    { type: "html", value: "Go further", className: "sidebar-section-label" },
     {
       type: "category",
       label: "Action Middlewares",
