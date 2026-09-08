@@ -46,9 +46,9 @@ class Server {
           this.msgListeners.forEach((listener) => {
             listener(serializedActionCallToReplicate)
           })
-        }, 500)
+        }, 250)
       }
-    }, 500)
+    }, 250)
   }
 }
 
