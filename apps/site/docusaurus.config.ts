@@ -95,7 +95,7 @@ const config: Config = {
           { types: ["comment", "prolog", "doctype", "cdata"], style: { color: "#606570" } },
           { types: ["keyword", "boolean", "number"], style: { color: "#8f3ca2" } },
           { types: ["string", "char", "attr-value", "regex"], style: { color: "#267154" } },
-          { types: ["function", "class-name", "tag"], style: { color: "#b84709" } },
+          { types: ["function", "class-name", "tag"], style: { color: "#c44e00" } },
           { types: ["property", "attr-name", "symbol"], style: { color: "#285e91" } },
           { types: ["operator", "punctuation"], style: { color: "#606570" } },
         ],
@@ -135,6 +135,11 @@ const config: Config = {
         {
           href: "https://github.com/xaviergonz/mobx-keystone",
           label: "GitHub",
+          position: "right",
+        },
+        {
+          href: "https://www.npmjs.com/package/mobx-keystone",
+          label: "npm",
           position: "right",
         },
       ],

@@ -1,11 +1,11 @@
 html:root {
-  --ifm-color-primary: #b84709;
-  --ifm-color-primary-dark: #a64008;
-  --ifm-color-primary-darker: #9c3c08;
-  --ifm-color-primary-darkest: #813206;
-  --ifm-color-primary-light: #ca4e0a;
-  --ifm-color-primary-lighter: #d4520a;
-  --ifm-color-primary-lightest: #ef5c0c;
+  --ifm-color-primary: #c44e00;
+  --ifm-color-primary-dark: #b04600;
+  --ifm-color-primary-darker: #a74200;
+  --ifm-color-primary-darkest: #893700;
+  --ifm-color-primary-light: #d85600;
+  --ifm-color-primary-lighter: #e25a00;
+  --ifm-color-primary-lightest: #ff6600;
   --ifm-background-color: #fff;
   --ifm-background-surface-color: #faf9f7;
   --ifm-font-color-base: #22252b;
@@ -23,7 +23,7 @@ html:root {
   --ifm-hr-background-color: #e9e6e2;
   --ifm-toc-border-color: #e9e6e2;
   --ifm-menu-color: #606570;
-  --ifm-menu-color-background-hover: #f1efec;
+  --ifm-menu-color-background-hover: #e5e1dc;
   --ifm-menu-color-background-active: #fff0e5;
   --ifm-menu-link-padding-horizontal: 0.75rem;
   --ifm-menu-link-padding-vertical: 0.5rem;
@@ -85,7 +85,9 @@ html:root {
 }
 
 .navbar {
-  --ifm-navbar-background-color: rgba(255, 255, 255, 0.9);
+  --ifm-navbar-sidebar-width: min(22rem, calc(100vw - 1rem));
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.8);
+  --docs-navbar-sidebar-background-color: rgba(255, 255, 255, 0.9);
   background: transparent;
   border-bottom: 1px solid var(--docs-border);
   padding-inline: 1.5rem;
@@ -102,13 +104,81 @@ html:root {
 
 .navbar::before,
 .navbar-sidebar {
-  background: var(--ifm-navbar-background-color);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
+.navbar::before {
+  background: var(--ifm-navbar-background-color);
+}
+
+.navbar-sidebar {
+  background: var(--docs-navbar-sidebar-background-color);
+  z-index: 2;
+}
+
+/* Contain the search icon's z-index below the drawer and its backdrop. */
+.navbar__inner {
+  isolation: isolate;
+}
+
+.navbar-sidebar__backdrop {
+  z-index: 1;
+}
+
+.navbar-sidebar__brand {
+  gap: 0.375rem;
+  padding-inline: 0.75rem;
+  border-bottom: 1px solid var(--docs-border);
+}
+
+.navbar-sidebar__brand .navbar__brand {
+  min-width: 0;
+  margin-right: auto;
+}
+
+.navbar-sidebar__brand > div:has(> button) {
+  flex: 0 0 2.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  /* Override the margin-right--md utility on Docusaurus's theme toggle. */
+  margin-right: 0 !important;
+}
+
+.navbar-sidebar__brand button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-left: 0;
+  border: 1px solid var(--docs-border);
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--ifm-color-content-secondary);
+}
+
+.navbar-sidebar__brand button:hover {
+  background: var(--ifm-menu-color-background-hover);
+}
+
+.navbar-sidebar__brand button svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.navbar .navbar-sidebar__back {
+  background: transparent;
+  border-bottom: 1px solid var(--docs-border);
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
 [data-theme="dark"] .navbar {
   --ifm-navbar-background-color: rgba(25, 26, 29, 0.6);
+  --docs-navbar-sidebar-background-color: var(--ifm-navbar-background-color);
   --ifm-navbar-search-input-icon: url('data:image/svg+xml;utf8,<svg fill="%23a4a5ad" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16px" width="16px"><path d="M6.02945,10.20327a4.17382,4.17382,0,1,1,4.17382-4.17382A4.15609,4.15609,0,0,1,6.02945,10.20327Zm9.69195,4.2199L10.8989,9.59979A5.88021,5.88021,0,0,0,12.058,6.02856,6.00467,6.00467,0,1,0,9.59979,10.8989l4.82338,4.82338a.89729.89729,0,0,0,1.29912,0,.89749.89749,0,0,0-.00087-1.29909Z" /></svg>');
 }
 
@@ -120,6 +190,14 @@ html:root {
 .navbar__link {
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+.navbar__link:hover,
+[data-theme="light"] .navbar__toggle:hover,
+[data-theme="light"] .navbar__items--right > div > button:hover,
+.navbar .navbar-sidebar__back:hover {
+  background: var(--ifm-menu-color-background-hover);
+  border-radius: 0.5rem;
 }
 
 .navbar__search-input {
@@ -162,6 +240,15 @@ html:root {
 
 .menu__link--active {
   font-weight: 600;
+}
+
+[data-theme="light"] .menu__link--active:not(.menu__link--sublist) {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+[data-theme="light"] .menu__link--active:not(.menu__link--sublist):hover {
+  background: var(--ifm-color-primary-dark);
 }
 
 .theme-doc-breadcrumbs {
@@ -401,6 +488,61 @@ svg.icon {
 }
 
 @media (min-width: 997px) {
+  .navbar__items--right {
+    gap: 0.375rem;
+    flex-wrap: nowrap;
+  }
+
+  .navbar__items--right > .navbar__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .navbar__items--right > .navbar__link svg {
+    width: 0.6875rem;
+    height: 0.6875rem;
+    margin-left: 0;
+    color: var(--ifm-color-content-secondary);
+  }
+
+  /* The theme toggle is the direct button container after the navigation links. */
+  .navbar__items--right > div:has(> button) {
+    width: auto;
+    height: 2.25rem;
+    margin-left: 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--docs-border);
+  }
+
+  .navbar__items--right > div > button {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    color: var(--ifm-color-content-secondary);
+  }
+
+  .navbar__items--right > div > button svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .navbar__items--right .navbar__search {
+    margin-left: 0.25rem;
+  }
+
+  .navbar__items--right .navbar__search-input {
+    width: 11.25rem;
+    height: 2.25rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
   .docs-wrapper main > .container {
     /* Docusaurus applies vertical spacing through !important utility classes. */
     padding: 2.25rem 2.5rem 3rem !important;
