@@ -24,7 +24,7 @@ html:root {
   --ifm-toc-border-color: #e9e6e2;
   --ifm-menu-color: #606570;
   --ifm-menu-color-background-hover: #e5e1dc;
-  --ifm-menu-color-background-active: #fff0e5;
+  --ifm-menu-color-background-active: #f4e5d9;
   --ifm-menu-link-padding-horizontal: 0.75rem;
   --ifm-menu-link-padding-vertical: 0.5rem;
   --ifm-navbar-height: 4.5rem;
@@ -243,12 +243,12 @@ html:root {
 }
 
 [data-theme="light"] .menu__link--active:not(.menu__link--sublist) {
-  background: var(--ifm-color-primary);
-  color: #fff;
+  background: var(--ifm-menu-color-background-active);
+  color: var(--ifm-color-primary-dark);
 }
 
 [data-theme="light"] .menu__link--active:not(.menu__link--sublist):hover {
-  background: var(--ifm-color-primary-dark);
+  background: #eed9c8;
 }
 
 .theme-doc-breadcrumbs {
