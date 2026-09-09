@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- Keep deep-change listener delivery stable when subscriptions change inside callbacks. Self-unsubscription no longer skips later listeners, listeners disposed while a change is being delivered no longer receive it, and duplicate callback registrations have independent, idempotent disposers.
+- Continue deep-change delivery after a listener throws, so later global, subtree, and ancestor listeners observe the applied mutation. Rethrow the first listener error after delivery completes.
+- Preserve snapshot immutability when union types or custom output processors wrap shared child snapshots, including snapshots captured after earlier edits.
+- Expose `DeepChange.isReentrant` for notifications that overlap listener-triggered mutations, allowing bindings to recover their final local state.
+- Preserve chronological patch delivery and mutation-time paths when deep-change or patch listeners make reentrant edits. Patch recorders capture changes synchronously, preserving transaction rollback, recording scopes, and `withoutUndo` during listener-triggered edits.
+- Fixed type-check error formatting for model data objects, allowing record-or-model unions to continue to a valid model alternative.
+- Emit deep-change notifications after individual mutations pass automatic type checking and update their snapshots. Rejected mutations and their quiet rollbacks no longer reach deep-change listeners or CRDT bindings.
+- Validate object key additions and removals without stale cached checks, including MobX 4 removal notifications, while preserving cached checks for unrelated subtrees.
+- Fixed automatic type checking skipping a snapshot reconciliation target’s own model type. The target and its typed ancestors now validate the completed snapshot.
+- Fixed stale snapshots after automatic type checking rejects snapshot reconciliation. Rollback now restores cached snapshots and emits compensating patches for already-published changes.
+- Fixed argument-limit errors when large array splices update snapshots or emit forward/inverse patches; large snapshot splices now move the tail once without spreading inserted values into function arguments.
+- Fixed snapshot reconciliation when replacing a nested model with a plain object, preserving the detached model instead of modifying its instance state.
+- Improved `deepEquals` performance for primitive and shallow comparisons by avoiding redundant tree metadata and observable checks.
+- Fixed stale parent snapshots when attaching a detached subtree with pending descendant changes, including model moves during snapshot reconciliation.
+
 ## 1.25.0
 
 - Performance: reduced scalar mutation overhead by returning primitive values before entering internal MobX actions used for tree bookkeeping.

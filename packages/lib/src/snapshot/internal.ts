@@ -31,10 +31,13 @@ interface DirtyChild {
   readonly path: PathElement
 }
 
-// `false` means the generic freezer must traverse this raw value; `true` means
-// it is frozen; a SnapshotData value means it is mutable and its frozen state
-// must be reflected back into that owner. `undefined` is either external /
-// untracked data or a fused frozen clone, whose owner tracks its state directly.
+// `false` means the generic freezer must traverse this raw value; `true` means it
+// is frozen; a SnapshotData value means it is mutable and owned by that snapshot,
+// which is where its frozen state must be reflected back. Both the untransformed
+// and the transformed value of a snapshot point to their owner, so freezing can
+// reach descendants that are only shared through processor wrappers. `undefined`
+// is either external / untracked data or a fused frozen clone, whose owner tracks
+// its state directly.
 const snapshotStates = new WeakMap<object, boolean | SnapshotData>()
 
 /**
@@ -101,7 +104,7 @@ export const setNewInternalSnapshot = action(
     snapshotStates.set(untransformed, markAsFrozen ? true : sn)
 
     if (transformed !== undefined && transformed !== untransformed) {
-      snapshotStates.set(transformed, markAsFrozen)
+      snapshotStates.set(transformed, markAsFrozen ? true : sn)
     }
 
     getOrCreateTreeNodeMetadata(value).snapshot = sn
@@ -143,7 +146,7 @@ function setSnapshotData(sn: SnapshotData, untransformed: any, freezeIfCloned = 
     transformed !== undefined &&
     (!wasFrozen || transformed !== untransformed)
   ) {
-    snapshotStates.set(transformed, false)
+    snapshotStates.set(transformed, sn)
   }
 }
 
@@ -335,7 +338,7 @@ export const refreshInternalSnapshot = action("refreshInternalSnapshot", (value:
   // transformed snapshots created by internal transforms must be tracked as mutable
   // until they are exposed through getSnapshot / freezeInternalSnapshot.
   if (snapshotStates.get(newTransformed) === undefined) {
-    snapshotStates.set(newTransformed, false)
+    snapshotStates.set(newTransformed, sn)
   }
 
   sn.atom?.reportChanged()
@@ -370,6 +373,16 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
     return data
   }
 
+  const owner = state === false ? undefined : state
+
+  // Processors can create untracked wrappers around tracked descendants, and the
+  // freezer stops at those (their state is `undefined`). Freeze the source of the
+  // transformed value as well, so shared descendants that the transformed
+  // traversal cannot reach still switch to copy-on-write.
+  if (owner !== undefined && owner.untransformed !== data) {
+    freezeInternalSnapshot(owner.untransformed)
+  }
+
   if (Array.isArray(data)) {
     for (let i = 0; i < data.length; i++) {
       freezeInternalSnapshot(data[i])
@@ -383,8 +396,8 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
 
   snapshotStates.set(data, true)
 
-  if (typeof state === "object" && state.untransformed === data) {
-    state.untransformedFrozen = true
+  if (owner !== undefined && owner.untransformed === data) {
+    owner.untransformedFrozen = true
   }
 
   return data

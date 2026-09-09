@@ -1,4 +1,5 @@
 import { isObservableObject, remove } from "mobx"
+import { isModel } from "../model/utils"
 import {
   isTypeCheckingAfterChangeEnabled,
   runTypeCheckingAfterChange,
@@ -19,8 +20,8 @@ function reconcilePlainObjectSnapshot(
   sn: SnapshotInOfObject<any>,
   modelPool: ModelPool
 ): object {
-  // plain obj
-  if (!(isPlainObject(value) || isObservableObject(value))) {
+  // Observable models carry instance state and must be replaced, not edited as plain objects.
+  if (isModel(value) || !(isPlainObject(value) || isObservableObject(value))) {
     // no reconciliation possible
     return fromSnapshot(sn)
   }

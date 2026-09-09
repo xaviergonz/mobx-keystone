@@ -12,7 +12,7 @@ import {
   tProp,
   types,
 } from "mobx-keystone"
-import { getOrCreateLoroCollectionAtom } from "../utils/getOrCreateLoroCollectionAtom"
+import { applyDeltaToLoroText } from "./convertJsonToLoroData"
 import { loroBindingContext } from "./loroBindingContext"
 import { resolveLoroPath } from "./resolveLoroPath"
 
@@ -40,8 +40,10 @@ export class LoroTextModel extends Model({
    * Creates a LoroTextModel with initial text content.
    */
   static withText(text: string): LoroTextModel {
+    // Loro stores no span for empty text, so an empty insert would never
+    // round-trip and would keep the model and the document out of sync.
     return new LoroTextModel({
-      deltaList: frozen([{ insert: text }]),
+      deltaList: frozen(text.length > 0 ? [{ insert: text }] : []),
     })
   }
 
@@ -81,7 +83,6 @@ export class LoroTextModel extends Model({
       if (path.length === 0) {
         const loroObject = ctx.loroObject
         if (loroObject instanceof LoroText) {
-          getOrCreateLoroCollectionAtom(loroObject).reportObserved()
           return loroObject
         }
         return undefined
@@ -91,7 +92,6 @@ export class LoroTextModel extends Model({
       const loroObject = resolveLoroPath(ctx.loroObject, path)
 
       if (loroObject instanceof LoroText) {
-        getOrCreateLoroCollectionAtom(loroObject).reportObserved()
         return loroObject
       }
     } catch {
@@ -120,16 +120,6 @@ export class LoroTextModel extends Model({
   @mobxComputed
   get currentDelta(): LoroTextDeltaList {
     this.loroTextChangedAtom.reportObserved()
-
-    // Try to get from bound LoroText first
-    const loroText = this.loroText
-    if (loroText) {
-      try {
-        return loroText.toDelta()
-      } catch {
-        // fall back to stored delta
-      }
-    }
 
     return this.deltaList.data
   }
@@ -160,15 +150,18 @@ export class LoroTextModel extends Model({
    */
   @modelAction
   insertText(index: number, text: string): void {
+    const context = loroBindingContext.get(this)
+    context?.flushPendingChanges?.()
     const loroText = this.loroText
     if (loroText) {
       loroText.insert(index, text)
-      // The binding will handle syncing back
+      // Commit without the binding origin so its subscriber updates the model.
+      context!.loroDoc.commit()
     } else {
-      // Fallback: modify delta directly
-      const currentText = this.text
-      const newText = currentText.slice(0, index) + text + currentText.slice(index)
-      this.deltaList = frozen([{ insert: newText }])
+      const detachedText = new LoroText()
+      applyDeltaToLoroText(detachedText, this.deltaList.data)
+      detachedText.insert(index, text)
+      this.deltaList = frozen(detachedText.toDelta())
     }
   }
 
@@ -177,15 +170,18 @@ export class LoroTextModel extends Model({
    */
   @modelAction
   deleteText(index: number, length: number): void {
+    const context = loroBindingContext.get(this)
+    context?.flushPendingChanges?.()
     const loroText = this.loroText
     if (loroText) {
       loroText.delete(index, length)
-      // The binding will handle syncing back
+      // Commit without the binding origin so its subscriber updates the model.
+      context!.loroDoc.commit()
     } else {
-      // Fallback: modify delta directly
-      const currentText = this.text
-      const newText = currentText.slice(0, index) + currentText.slice(index + length)
-      this.deltaList = frozen([{ insert: newText }])
+      const detachedText = new LoroText()
+      applyDeltaToLoroText(detachedText, this.deltaList.data)
+      detachedText.delete(index, length)
+      this.deltaList = frozen(detachedText.toDelta())
     }
   }
 

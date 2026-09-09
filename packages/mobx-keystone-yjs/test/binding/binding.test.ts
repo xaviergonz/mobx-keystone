@@ -17,10 +17,6 @@ import {
   bindYjsToMobxKeystone,
   yjsBindingContext,
 } from "../../src"
-import {
-  isYjsContainerUpToDate,
-  setYjsContainerSnapshot,
-} from "../../src/binding/yjsSnapshotTracking"
 import { autoDispose, testModel } from "../utils"
 
 @testModel("yjs-test-submodel")
@@ -659,8 +655,8 @@ describe("init sync optimization", () => {
   })
 })
 
-describe("snapshot tracking optimization", () => {
-  test("merge skips unchanged containers (reference equality)", () => {
+describe("snapshot merging", () => {
+  test("merge preserves unchanged values", () => {
     const doc = new Y.Doc()
     const yMap = doc.getMap("test")
     const snapshot = { a: 1, b: "hello", $modelType: "test" }
@@ -702,45 +698,5 @@ describe("snapshot tracking optimization", () => {
     // Changed value
     doc.transact(() => applyJsonArrayToYArray(yArray, [1, 99, 3], { mode: "merge" }))
     expect(yArray.toArray()).toEqual([1, 99, 3])
-  })
-
-  test("isYjsContainerUpToDate uses reference equality", () => {
-    const doc = new Y.Doc()
-    const yMap = doc.getMap("test")
-    const snapshot = { a: 1, b: 2 }
-
-    expect(isYjsContainerUpToDate(yMap, snapshot)).toBe(false)
-
-    setYjsContainerSnapshot(yMap, snapshot)
-    expect(isYjsContainerUpToDate(yMap, snapshot)).toBe(true)
-    expect(isYjsContainerUpToDate(yMap, { a: 1, b: 2 })).toBe(false) // different ref
-  })
-
-  test("snapshot tracking updates after each sync", () => {
-    @testModel("yjs-snapshot-tracking-multi-sync")
-    class SimpleModel extends Model({
-      value: tProp(types.number, 0),
-    }) {}
-
-    const doc = new Y.Doc()
-    const yRootMap = doc.getMap("testModel")
-
-    const { boundObject, dispose } = bindYjsToMobxKeystone({
-      yjsDoc: doc,
-      yjsObject: yRootMap,
-      mobxKeystoneType: SimpleModel,
-    })
-    autoDispose(dispose)
-
-    const snapshot1 = getSnapshot(boundObject)
-    expect(isYjsContainerUpToDate(yRootMap, snapshot1)).toBe(true)
-
-    runUnprotected(() => {
-      boundObject.value = 10
-    })
-
-    const snapshot2 = getSnapshot(boundObject)
-    expect(isYjsContainerUpToDate(yRootMap, snapshot2)).toBe(true)
-    expect(isYjsContainerUpToDate(yRootMap, snapshot1)).toBe(false)
   })
 })

@@ -34,14 +34,15 @@ function isModelWithTypeChecker(obj: object): obj is AnyModel {
  * @internal
  *
  * Walks up parent chain from `obj`, calling `callback` for each typed model
- * ancestor (nearest-first / bottom-up). Stops early if the callback throws.
+ * including the target itself (nearest-first / bottom-up). Stops if the callback throws.
  */
 function forEachTypedModelAncestor(obj: object, callback: (model: AnyModel) => void): void {
   // obj might be a $ data object, so resolve to the model if applicable
   const start = dataToModelNode(obj)
 
-  // If we started from a $ data object, check the model itself
-  if (start !== obj && isModelWithTypeChecker(start)) {
+  // Both model-data mutations and whole-model reconciliation must validate
+  // the model itself before checking its ancestors.
+  if (isModelWithTypeChecker(start)) {
     callback(start)
   }
 
@@ -76,20 +77,19 @@ export function runTypeCheckingAfterChange(
     forEachTypedModelAncestor(obj, (model) => {
       const err = model.typeCheck()
       if (err) {
-        // quietly apply inverse patches (do not generate patches, snapshots, actions, etc)
-        // The re-entrancy guard prevents auto type checking during rollback:
-        // rollback mutations trigger observe callbacks which call this function,
-        // and with "all" scope those re-entrant checks could see partially-restored
-        // intermediate state and attempt another rollback, causing infinite recursion.
+        // A rejected individual mutation has not updated its snapshot yet,
+        // so inverse patches must stay quiet. Snapshot reconciliation has
+        // already published changes: its rollback must update snapshots and
+        // emit compensating patches as well.
         isRollingBackTypeCheckFailure = true
         try {
-          runWithoutSnapshotOrPatches(() => {
-            if (patchRecorder) {
+          if (patchRecorder) {
+            runWithoutSnapshotOrPatches(() => {
               internalApplyPatches.call(obj, patchRecorder.invPatches, true)
-            } else if (snapshotBeforeChanges) {
-              internalApplySnapshot.call(obj, snapshotBeforeChanges)
-            }
-          })
+            })
+          } else if (snapshotBeforeChanges) {
+            internalApplySnapshot.call(obj, snapshotBeforeChanges)
+          }
         } finally {
           isRollingBackTypeCheckFailure = false
         }

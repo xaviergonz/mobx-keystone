@@ -1,13 +1,14 @@
+import { jsonEquals } from "@mobx-keystone/crdt-binding-common"
 import type { Delta } from "loro-crdt"
 import { LoroMap, LoroMovableList, LoroText } from "loro-crdt"
 import { frozenKey, isFrozenSnapshot } from "mobx-keystone"
 import type { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
+import { failure } from "../utils/error"
 import {
   type BindableLoroContainer,
   isBindableLoroContainer,
 } from "../utils/isBindableLoroContainer"
 import { isLoroTextModelSnapshot } from "./LoroTextModel"
-import { isLoroContainerUpToDate, setLoroContainerSnapshot } from "./loroSnapshotTracking"
 
 type LoroValue = BindableLoroContainer | PlainValue
 
@@ -34,6 +35,35 @@ function isPlainArray(v: PlainValue): v is PlainArray {
 
 function isPlainObject(v: PlainValue): v is PlainObject {
   return typeof v === "object" && v !== null && !Array.isArray(v)
+}
+
+/** Merges compatible values without replacing their containers. */
+function mergeLoroValue(
+  dest: unknown,
+  source: PlainValue,
+  options: ApplyJsonToLoroOptions
+): boolean {
+  if (isFrozenSnapshot(source)) {
+    return isFrozenSnapshot(dest) && jsonEquals(dest, source)
+  }
+
+  if (isPlainObject(source)) {
+    if (isLoroTextModelSnapshot(source)) {
+      if (dest instanceof LoroText) {
+        replaceLoroTextDelta(dest, extractTextDeltaFromSnapshot(source.deltaList))
+        return true
+      }
+    } else if (dest instanceof LoroMap) {
+      applyJsonObjectToLoroMap(dest, source, options)
+      return true
+    }
+  } else if (isPlainArray(source) && dest instanceof LoroMovableList) {
+    applyJsonArrayToLoroMovableList(dest, source, options)
+    return true
+  }
+  return (
+    isPlainPrimitive(source) && (dest === source || (Number.isNaN(dest) && Number.isNaN(source)))
+  )
 }
 
 /**
@@ -67,6 +97,15 @@ export function extractTextDeltaFromSnapshot(delta: unknown): Delta<string>[] {
 export function applyDeltaToLoroText(text: LoroText, deltas: Delta<string>[]): void {
   // Phase 1: Insert all text content
   let position = 0
+  let pendingText: string[] = []
+  const flushText = () => {
+    if (pendingText.length === 0) {
+      return
+    }
+    const content = pendingText.join("")
+    text.insert(position - content.length, content)
+    pendingText = []
+  }
   const markOperations: Array<{
     start: number
     end: number
@@ -76,7 +115,10 @@ export function applyDeltaToLoroText(text: LoroText, deltas: Delta<string>[]): v
   for (const delta of deltas) {
     if (delta.insert !== undefined) {
       const content = delta.insert
-      text.insert(position, content)
+      if (content.length === 0) {
+        continue
+      }
+      pendingText.push(content)
 
       // Collect mark operations to apply later
       if (delta.attributes && Object.keys(delta.attributes).length > 0) {
@@ -88,12 +130,16 @@ export function applyDeltaToLoroText(text: LoroText, deltas: Delta<string>[]): v
       }
 
       position += content.length
-    } else if (delta.retain) {
-      position += delta.retain
-    } else if (delta.delete) {
-      text.delete(position, delta.delete)
+    } else {
+      flushText()
+      if (delta.retain) {
+        position += delta.retain
+      } else if (delta.delete) {
+        text.delete(position, delta.delete)
+      }
     }
   }
+  flushText()
 
   // Phase 2: Apply all marks after text is inserted
   for (const op of markOperations) {
@@ -101,6 +147,31 @@ export function applyDeltaToLoroText(text: LoroText, deltas: Delta<string>[]): v
       text.mark({ start: op.start, end: op.end }, key, value)
     }
   }
+}
+
+/**
+ * Replaces text contents only when the delta has changed.
+ * @internal
+ */
+export function replaceLoroTextDelta(text: LoroText, deltas: Delta<string>[]): void {
+  const current = text.toDelta()
+  if (jsonEquals(current, deltas)) {
+    return
+  }
+  // Equivalent insert spans may be split differently or carry empty attributes.
+  // Normalize only when the text matches; ordinary content edits keep the fast path.
+  if (
+    deltas.every((delta) => delta.insert !== undefined) &&
+    deltas.map((delta) => delta.insert).join("") === text.toString()
+  ) {
+    const normalized = new LoroText()
+    applyDeltaToLoroText(normalized, deltas)
+    if (jsonEquals(current, normalized.toDelta())) return
+  }
+  if (text.length > 0) {
+    text.delete(0, text.length)
+  }
+  applyDeltaToLoroText(text, deltas)
 }
 
 /**
@@ -141,7 +212,7 @@ export function convertJsonToLoroData(v: PlainValue): LoroValue {
     return map
   }
 
-  throw new Error(`unsupported value type: ${v}`)
+  throw failure(`unsupported value type: ${v}`)
 }
 
 /**
@@ -158,6 +229,10 @@ export const applyJsonArrayToLoroMovableList = (
 ) => {
   const { mode = "add" } = options
 
+  if (source.includes(undefined)) {
+    throw failure("undefined values are not supported in Loro lists")
+  }
+
   if (mode === "add") {
     // Add mode: just push all items to the end
     for (const item of source) {
@@ -172,11 +247,6 @@ export const applyJsonArrayToLoroMovableList = (
   }
 
   // Merge mode: recursively merge values, preserving existing container references
-  // In merge mode, check if the container is already up-to-date with this snapshot
-  if (isLoroContainerUpToDate(dest, source)) {
-    return
-  }
-
   // Remove extra items from the end
   const destLen = dest.length
   const srcLen = source.length
@@ -186,34 +256,21 @@ export const applyJsonArrayToLoroMovableList = (
 
   // Update existing items
   const minLen = Math.min(destLen, srcLen)
+  const existingItems = minLen > 0 ? dest.toArray() : []
   for (let i = 0; i < minLen; i++) {
     const srcItem = source[i]
-    const destItem = dest.get(i)
+    const destItem = existingItems[i]
 
-    // If both are objects, merge recursively
-    if (isPlainObject(srcItem) && destItem instanceof LoroMap) {
-      applyJsonObjectToLoroMap(destItem, srcItem, options)
+    if (mergeLoroValue(destItem, srcItem, options)) {
       continue
     }
 
-    // If both are arrays, merge recursively
-    if (isPlainArray(srcItem) && destItem instanceof LoroMovableList) {
-      applyJsonArrayToLoroMovableList(destItem, srcItem, options)
-      continue
-    }
-
-    // Skip if primitive value is unchanged (optimization)
-    if (isPlainPrimitive(srcItem) && destItem === srcItem) {
-      continue
-    }
-
-    // Otherwise, replace the item
-    dest.delete(i, 1)
+    // Replace the value while preserving the list item identity for concurrent moves.
     const converted = convertJsonToLoroData(srcItem)
     if (isBindableLoroContainer(converted)) {
-      dest.insertContainer(i, converted)
+      dest.setContainer(i, converted)
     } else {
-      dest.insert(i, converted)
+      dest.set(i, converted)
     }
   }
 
@@ -226,9 +283,6 @@ export const applyJsonArrayToLoroMovableList = (
       dest.push(converted)
     }
   }
-
-  // Update snapshot tracking after successful merge
-  setLoroContainerSnapshot(dest, source)
 }
 
 /**
@@ -262,15 +316,9 @@ export const applyJsonObjectToLoroMap = (
   }
 
   // Merge mode: recursively merge values, preserving existing container references
-  // In merge mode, check if the container is already up-to-date with this snapshot
-  if (isLoroContainerUpToDate(dest, source)) {
-    return
-  }
-
   // Delete keys that are not present in source (or have undefined value)
-  const sourceKeysWithValues = new Set(Object.keys(source).filter((k) => source[k] !== undefined))
   for (const key of dest.keys()) {
-    if (!sourceKeysWithValues.has(key)) {
+    if (!Object.hasOwn(source, key) || source[key] === undefined) {
       dest.delete(key)
     }
   }
@@ -284,20 +332,7 @@ export const applyJsonObjectToLoroMap = (
 
     const existing = dest.get(k)
 
-    // If source is an object and dest has a LoroMap, merge recursively
-    if (isPlainObject(v) && existing instanceof LoroMap) {
-      applyJsonObjectToLoroMap(existing, v, options)
-      continue
-    }
-
-    // If source is an array and dest has a LoroMovableList, merge recursively
-    if (isPlainArray(v) && existing instanceof LoroMovableList) {
-      applyJsonArrayToLoroMovableList(existing, v, options)
-      continue
-    }
-
-    // Skip if primitive value is unchanged (optimization)
-    if (isPlainPrimitive(v) && existing === v) {
+    if (mergeLoroValue(existing, v, options)) {
       continue
     }
 
@@ -309,7 +344,4 @@ export const applyJsonObjectToLoroMap = (
       dest.set(k, converted)
     }
   }
-
-  // Update snapshot tracking after successful merge
-  setLoroContainerSnapshot(dest, source)
 }

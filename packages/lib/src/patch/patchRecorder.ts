@@ -1,10 +1,10 @@
 import { observable } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import {
+  internalOnGlobalPatches,
+  internalOnPatches,
   type OnPatchesDisposer,
   type OnPatchesListener,
-  onGlobalPatches,
-  onPatches,
 } from "./emitPatch"
 import type { Patch } from "./Patch"
 
@@ -111,18 +111,22 @@ export function internalPatchRecorder(
   let onPatchesDisposer: OnPatchesDisposer
 
   if (subtreeRoot) {
-    onPatchesDisposer = onPatches(subtreeRoot, (p, invP) => {
-      if (recording && filter(p, invP)) {
-        events.push({
-          target: subtreeRoot,
-          patches: p,
-          inversePatches: invP,
-        })
-        opts?.onPatches?.(p, invP)
-      }
-    })
+    onPatchesDisposer = internalOnPatches(
+      subtreeRoot,
+      (p, invP) => {
+        if (recording && filter(p, invP)) {
+          events.push({
+            target: subtreeRoot,
+            patches: p,
+            inversePatches: invP,
+          })
+          opts?.onPatches?.(p, invP)
+        }
+      },
+      true
+    )
   } else {
-    onPatchesDisposer = onGlobalPatches((target, p, invP) => {
+    onPatchesDisposer = internalOnGlobalPatches((target, p, invP) => {
       if (recording && filter(p, invP)) {
         events.push({
           target,
@@ -131,7 +135,7 @@ export function internalPatchRecorder(
         })
         opts?.onPatches?.(p, invP)
       }
-    })
+    }, true)
   }
 
   return {

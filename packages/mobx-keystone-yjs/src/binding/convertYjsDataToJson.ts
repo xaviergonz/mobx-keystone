@@ -1,22 +1,25 @@
 import { action } from "mobx"
 import { modelSnapshotOutWithMetadata } from "mobx-keystone"
 import * as Y from "yjs"
-import type { PlainObject, PlainValue } from "../plainTypes"
+import type { PlainValue } from "../plainTypes"
 import { YjsTextModel } from "./YjsTextModel"
 
 export type YjsData = Y.Array<any> | Y.Map<any> | Y.Text | PlainValue
 
-export const convertYjsDataToJson = action((yjsData: YjsData): PlainValue => {
+/** @internal */
+export const convertYjsDataToJson = action(convertYjsDataToJsonInternal)
+
+// Event handlers already run in a MobX action and can reuse the plain converter.
+/** @internal */
+export function convertYjsDataToJsonInternal(yjsData: YjsData): PlainValue {
   if (yjsData instanceof Y.Array) {
-    return yjsData.map((v) => convertYjsDataToJson(v))
+    return yjsData.map(convertYjsDataToJsonInternal)
   }
 
   if (yjsData instanceof Y.Map) {
-    const obj: PlainObject = {}
-    yjsData.forEach((v, k) => {
-      obj[k] = convertYjsDataToJson(v)
-    })
-    return obj
+    return Object.fromEntries(
+      Array.from(yjsData.entries(), ([key, value]) => [key, convertYjsDataToJsonInternal(value)])
+    )
   }
 
   if (yjsData instanceof Y.Text) {
@@ -29,4 +32,4 @@ export const convertYjsDataToJson = action((yjsData: YjsData): PlainValue => {
 
   // assume it's a primitive
   return yjsData
-})
+}

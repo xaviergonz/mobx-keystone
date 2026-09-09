@@ -28,10 +28,8 @@ export function setTweakedObjectUntweakers(
  * @internal
  */
 export function isTweakedObject(value: unknown, canBeDataObject: boolean): value is object {
-  if (!canBeDataObject && hasDataObjectParent(value as object)) {
-    return false
-  }
-  return treeNodeMetadata.get(value as object)?.tweaked === true
+  const metadata = treeNodeMetadata.get(value as object)
+  return metadata?.tweaked === true && (canBeDataObject || metadata.dataObjectParent === undefined)
 }
 
 /**

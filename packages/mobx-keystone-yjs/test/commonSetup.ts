@@ -1,11 +1,12 @@
 import { configure } from "mobx"
-import { setGlobalConfig } from "mobx-keystone"
+import { ModelAutoTypeCheckingMode, setGlobalConfig } from "mobx-keystone"
 
 configure({ enforceActions: "always" })
 
 let id = 1
 
 setGlobalConfig({
+  modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
   showDuplicateModelNameWarnings: false,
   modelIdGenerator() {
     return `id-${id++}`

@@ -10,16 +10,7 @@ import { resolveYjsPath } from "./resolveYjsPath"
  * Note: All values passed here are already snapshots (captured at change time).
  */
 function convertValue(v: unknown): any {
-  // Handle primitives directly
-  if (v === null || v === undefined || typeof v !== "object") {
-    return v
-  }
-  // Handle plain arrays - used for empty array init
-  if (Array.isArray(v) && v.length === 0) {
-    return new Y.Array()
-  }
-  // Value is already a snapshot, convert to Yjs data
-  return convertJsonToYjsData(v as any)
+  return convertJsonToYjsData(v as Parameters<typeof convertJsonToYjsData>[0])
 }
 
 export function applyMobxChangeToYjsObject(
@@ -40,16 +31,22 @@ export function applyMobxChangeToYjsObject(
 
   if (yjsContainer instanceof Y.Array) {
     if (change.type === DeepChangeType.ArraySplice) {
-      // splice
+      // Convert before deletion so invalid input cannot erase existing values.
+      if (change.addedValues.includes(undefined)) {
+        throw failure("undefined values are not supported in Yjs arrays")
+      }
+      const valuesToInsert = change.addedValues.map(convertValue)
       yjsContainer.delete(change.index, change.removedValues.length)
       if (change.addedValues.length > 0) {
-        const valuesToInsert = change.addedValues.map(convertValue)
         yjsContainer.insert(change.index, valuesToInsert)
       }
     } else if (change.type === DeepChangeType.ArrayUpdate) {
-      // update
+      if (change.newValue === undefined) {
+        throw failure("undefined values are not supported in Yjs arrays")
+      }
+      const converted = convertValue(change.newValue)
       yjsContainer.delete(change.index, 1)
-      yjsContainer.insert(change.index, [convertValue(change.newValue)])
+      yjsContainer.insert(change.index, [converted])
     } else {
       throw failure(`unsupported array change type: ${change.type}`)
     }

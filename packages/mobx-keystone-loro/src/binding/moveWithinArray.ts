@@ -1,4 +1,7 @@
-import type { DeepChange } from "mobx-keystone"
+import { isObservableArray } from "mobx"
+import { type DeepChange, DeepChangeType, isTreeNode } from "mobx-keystone"
+import { failure } from "../utils/error"
+import { loroBindingContext } from "./loroBindingContext"
 
 /**
  * Synthetic change type for array moves.
@@ -12,15 +15,16 @@ export interface ArrayMoveChange {
 
 /**
  * Tracks the currently active move operation.
- * When set, the next two splice operations on this array are intercepted.
+ * When set, the single splice operation on this array is intercepted.
  */
 let activeMoveContext:
   | {
       array: unknown[]
       fromIndex: number
       toIndex: number
-      path: readonly (string | number)[] | undefined // Captured from first splice
-      receivedFirstSplice: boolean
+      removedValues: unknown[]
+      addedValues: unknown[]
+      capture: (() => void) | undefined
     }
   | undefined
 
@@ -38,33 +42,48 @@ let activeMoveContext:
  */
 export function moveWithinArray<T>(array: T[], fromIndex: number, toIndex: number): void {
   // Validate indices
-  if (fromIndex < 0 || fromIndex >= array.length) {
-    throw new Error(`fromIndex ${fromIndex} is out of bounds (array length: ${array.length})`)
+  if (!Number.isInteger(fromIndex) || fromIndex < 0 || fromIndex >= array.length) {
+    throw failure(`fromIndex ${fromIndex} is out of bounds (array length: ${array.length})`)
   }
-  if (toIndex < 0 || toIndex > array.length) {
-    throw new Error(`toIndex ${toIndex} is out of bounds (array length: ${array.length})`)
+  if (!Number.isInteger(toIndex) || toIndex < 0 || toIndex > array.length) {
+    throw failure(`toIndex ${toIndex} is out of bounds (array length: ${array.length})`)
   }
-  if (fromIndex === toIndex) {
+  if (fromIndex === toIndex || fromIndex + 1 === toIndex) {
     return // No-op
   }
 
-  // Set up the move context before mutations
+  const adjustedTarget = toIndex > fromIndex ? toIndex - 1 : toIndex
+  if (!isObservableArray(array)) {
+    const [item] = array.splice(fromIndex, 1)
+    array.splice(adjustedTarget, 0, item)
+    return
+  }
+
+  // Validate the completed move in one mutation, including fixed-length
+  // refinements. The bulk API also avoids argument limits on large moves.
+  const start = Math.min(fromIndex, adjustedTarget)
+  const end = Math.max(fromIndex, adjustedTarget) + 1
+  const removedValues = array.slice(start, end)
+  const addedValues = removedValues.slice()
+  const [item] = addedValues.splice(fromIndex - start, 1)
+  addedValues.splice(adjustedTarget - start, 0, item)
+  const finishCapture = isTreeNode(array)
+    ? loroBindingContext.get(array)?.captureArrayMove?.(array, fromIndex, adjustedTarget)
+    : undefined
+
+  const previousMoveContext = activeMoveContext
   activeMoveContext = {
     array,
     fromIndex,
-    toIndex,
-    path: undefined,
-    receivedFirstSplice: false,
+    toIndex: adjustedTarget,
+    removedValues,
+    addedValues,
+    capture: finishCapture,
   }
-
   try {
-    // Perform the actual splice operations
-    // This will trigger onDeepChange for each splice
-    const [item] = array.splice(fromIndex, 1)
-    const adjustedTarget = toIndex > fromIndex ? toIndex - 1 : toIndex
-    array.splice(adjustedTarget, 0, item)
+    array.spliceWithArray(start, addedValues.length, addedValues)
   } finally {
-    activeMoveContext = undefined
+    activeMoveContext = previousMoveContext
   }
 }
 
@@ -73,40 +92,48 @@ export function moveWithinArray<T>(array: T[], fromIndex: number, toIndex: numbe
  * This is called for ArraySplice changes on the target array.
  *
  * @param change The deep change (must be ArraySplice type)
- * @returns The ArrayMoveChange if the move is complete (second splice),
- *          undefined if intercepted but not complete (first splice)
+ * @returns The corresponding native move.
+ * @internal
  */
-export function processChangeForMove(change: DeepChange): ArrayMoveChange | undefined {
-  // We know we're in a move context and this is an ArraySplice on the target array
+export function processChangeForMove(change: DeepChange): ArrayMoveChange {
   const ctx = activeMoveContext!
-
-  if (!ctx.receivedFirstSplice) {
-    // First splice - capture the path and mark as received
-    ctx.path = change.path
-    ctx.receivedFirstSplice = true
-    return undefined
-  }
-
-  // Second splice - the move is complete.
-  // Note: We adjust toIndex here for Loro's move() semantics, which expects
-  // the target position after removal. This is intentionally separate from
-  // the adjustment on line 64, which is for the splice operation on the MobX array.
-  // Both adjustments are needed because:
-  // - Line 64: splice() inserts at a position in the already-shortened array
-  // - Here: Loro's move(from, to) also expects `to` as the position after removal
-  const adjustedToIndex = ctx.toIndex > ctx.fromIndex ? ctx.toIndex - 1 : ctx.toIndex
+  // The binding receives this validated change even if another listener throws.
+  // Capture before the helper unwinds, including during reentrant reconciliation.
+  ctx.capture?.()
+  ctx.capture = undefined
 
   return {
     type: "ArrayMove",
-    path: ctx.path!,
+    path: change.path,
     fromIndex: ctx.fromIndex,
-    toIndex: adjustedToIndex,
+    toIndex: ctx.toIndex,
   }
 }
 
 /**
- * Check if we're currently in a move context for a specific array.
+ * Distinguish the helper's splice from other edits made by its listeners.
+ * @internal
  */
-export function isInMoveContextForArray(array: unknown[]): boolean {
-  return activeMoveContext !== undefined && activeMoveContext.array === array
+export function isChangeForMove(change: DeepChange): boolean {
+  const ctx = activeMoveContext
+  if (!ctx || change.type !== DeepChangeType.ArraySplice || change.target !== ctx.array)
+    return false
+  return (
+    change.index === Math.min(ctx.fromIndex, ctx.toIndex) &&
+    change.removedValues.length === ctx.removedValues.length &&
+    change.addedValues.length === ctx.addedValues.length &&
+    change.removedValues.every((value, index) => Object.is(value, ctx.removedValues[index])) &&
+    change.addedValues.every((value, index) => {
+      const expected = ctx.addedValues[index]
+      // Plain tree objects can be wrapped again when reattached. The removed
+      // references still identify the operation; primitive additions must match.
+      return (
+        (value !== null &&
+          typeof value === "object" &&
+          expected !== null &&
+          typeof expected === "object") ||
+        Object.is(value, expected)
+      )
+    })
+  )
 }

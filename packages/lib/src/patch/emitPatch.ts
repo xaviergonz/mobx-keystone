@@ -31,12 +31,34 @@ export class InternalPatchRecorder {
     // empty arrays and must not trigger ancestor type checking.
     this.hasChanges = this.patches.length > 0 || this.invPatches.length > 0
   }
+}
 
-  emit(obj: object) {
-    if (this.patches.length > 0) {
-      emitPatches(obj, this.patches, this.invPatches)
+let patchEmissionDepth = 0
+let emittingPendingPatches = false
+const pendingPatchNotifications: (() => void)[] = []
+
+/** @internal */
+export function beginPatchEmission(): void {
+  patchEmissionDepth++
+}
+
+/** @internal */
+export function endPatchEmission(): void {
+  patchEmissionDepth--
+  flushPendingPatches()
+}
+
+function flushPendingPatches(): void {
+  if (patchEmissionDepth > 0 || emittingPendingPatches || pendingPatchNotifications.length === 0)
+    return
+  emittingPendingPatches = true
+  try {
+    for (let i = 0; i < pendingPatchNotifications.length; i++) {
+      pendingPatchNotifications[i]()
     }
-    this.reset()
+  } finally {
+    pendingPatchNotifications.length = 0
+    emittingPendingPatches = false
   }
 }
 
@@ -44,11 +66,19 @@ export class InternalPatchRecorder {
  * @internal
  */
 export function emitPatches(obj: object, patches: Patch[], invPatches: Patch[]): void {
-  if (patches.length > 0) {
-    emitGlobalPatch(obj, patches, invPatches)
-    if (patchListenerCount > 0) {
-      emitPatch(obj, patches, invPatches)
+  if (patches.length > 0 && (globalPatchListeners.length > 0 || patchListenerCount > 0)) {
+    const synchronousNotifications: (() => void)[] = []
+    if (globalPatchListeners.length > 0) {
+      emitGlobalPatch(obj, patches, invPatches, synchronousNotifications)
     }
+    if (patchListenerCount > 0) {
+      emitPatch(obj, patches, invPatches, synchronousNotifications)
+    }
+    // Reserve every public notification and its path before recorder callbacks
+    // can cause further mutations. Recorders must run within the mutation's
+    // action / withoutUndo scope, even while public delivery is deferred.
+    for (const notify of synchronousNotifications) notify()
+    flushPendingPatches()
   }
 }
 
@@ -71,8 +101,14 @@ export type OnGlobalPatchesListener = (
  */
 export type OnPatchesDisposer = () => void
 
-const patchListeners = new WeakMap<object, OnPatchesListener[]>()
-const globalPatchListeners: OnGlobalPatchesListener[] = []
+interface PatchSubscription<Listener> {
+  listener: Listener
+  synchronous: boolean
+  active: boolean
+}
+
+const patchListeners = new WeakMap<object, PatchSubscription<OnPatchesListener>[]>()
+const globalPatchListeners: PatchSubscription<OnGlobalPatchesListener>[] = []
 let patchListenerCount = 0
 
 /**
@@ -113,6 +149,15 @@ export function hasPatchListenersFor(target: object): boolean {
  * @returns A disposer to stop listening to patches.
  */
 export function onPatches(subtreeRoot: object, listener: OnPatchesListener): OnPatchesDisposer {
+  return internalOnPatches(subtreeRoot, listener, false)
+}
+
+/** @internal */
+export function internalOnPatches(
+  subtreeRoot: object,
+  listener: OnPatchesListener,
+  synchronous: boolean
+): OnPatchesDisposer {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
   assertIsFunction(listener, "listener")
 
@@ -126,10 +171,12 @@ export function onPatches(subtreeRoot: object, listener: OnPatchesListener): OnP
     patchListeners.set(subtreeRoot, listenersForObject)
   }
 
-  listenersForObject.push(listener)
+  const subscription = { listener, synchronous, active: true }
+  listenersForObject.push(subscription)
   patchListenerCount++
   return () => {
-    if (deleteFromArray(listenersForObject, listener)) {
+    subscription.active = false
+    if (deleteFromArray(listenersForObject, subscription)) {
       patchListenerCount--
     }
   }
@@ -143,23 +190,80 @@ export function onPatches(subtreeRoot: object, listener: OnPatchesListener): OnP
  * @returns A disposer to stop listening to patches.
  */
 export function onGlobalPatches(listener: OnGlobalPatchesListener): OnPatchesDisposer {
+  return internalOnGlobalPatches(listener, false)
+}
+
+/** @internal */
+export function internalOnGlobalPatches(
+  listener: OnGlobalPatchesListener,
+  synchronous: boolean
+): OnPatchesDisposer {
   assertIsFunction(listener, "listener")
 
   if (!isAction(listener)) {
     listener = action(listener.name || "onGlobalPatchesListener", listener)
   }
 
-  globalPatchListeners.push(listener)
+  const subscription = { listener, synchronous, active: true }
+  globalPatchListeners.push(subscription)
   return () => {
-    deleteFromArray(globalPatchListeners, listener)
+    subscription.active = false
+    deleteFromArray(globalPatchListeners, subscription)
   }
 }
 
-function emitGlobalPatch(obj: object, patches: Patch[], inversePatches: Patch[]): void {
-  for (let i = 0; i < globalPatchListeners.length; i++) {
-    const listener = globalPatchListeners[i]
-    listener(obj, patches, inversePatches)
+function notifyPatchSubscriptions<Args extends unknown[]>(
+  subscriptions: PatchSubscription<(...args: Args) => void>[],
+  args: Args,
+  synchronous: boolean
+): void {
+  for (let i = 0; i < subscriptions.length; i++) {
+    const subscription = subscriptions[i]
+    if (subscription.active && subscription.synchronous === synchronous) {
+      subscription.listener(...args)
+    }
   }
+}
+
+function reservePatchNotifications<Args extends unknown[]>(
+  subscriptions: PatchSubscription<(...args: Args) => void>[],
+  args: Args,
+  synchronousNotifications: (() => void)[]
+): void {
+  let hasSynchronous = false
+  let hasDeferred = false
+  for (let i = 0; i < subscriptions.length; i++) {
+    if (subscriptions[i].synchronous) {
+      hasSynchronous = true
+    } else {
+      hasDeferred = true
+    }
+  }
+  if (!hasSynchronous && !hasDeferred) {
+    return
+  }
+
+  // A listener installed by a reentrant action must not receive earlier patches.
+  const current = subscriptions.slice()
+  if (hasDeferred) {
+    pendingPatchNotifications.push(() => notifyPatchSubscriptions(current, args, false))
+  }
+  if (hasSynchronous) {
+    synchronousNotifications.push(() => notifyPatchSubscriptions(current, args, true))
+  }
+}
+
+function emitGlobalPatch(
+  obj: object,
+  patches: Patch[],
+  inversePatches: Patch[],
+  synchronousNotifications: (() => void)[]
+): void {
+  reservePatchNotifications(
+    globalPatchListeners,
+    [obj, patches, inversePatches],
+    synchronousNotifications
+  )
 }
 
 // `reversedPrefix` holds the path segments from the changed node up to (but not
@@ -171,7 +275,8 @@ function emitPatchForTarget(
   patches: Patch[],
   inversePatches: Patch[],
   reversedPrefix: readonly PathElement[],
-  prefixCount: number
+  prefixCount: number,
+  synchronousNotifications: (() => void)[]
 ): void {
   const listenersForObject = patchListeners.get(obj)
 
@@ -184,19 +289,26 @@ function emitPatchForTarget(
   const invPatchesWithPathPrefix =
     prefixCount > 0 ? prefixPatches(inversePatches, reversedPrefix, prefixCount) : inversePatches
 
-  for (let i = 0; i < listenersForObject.length; i++) {
-    const listener = listenersForObject[i]
-    listener(patchesWithPathPrefix, invPatchesWithPathPrefix)
-  }
+  // Capture mutation-time paths before a deep-change listener can move nodes.
+  reservePatchNotifications(
+    listenersForObject,
+    [patchesWithPathPrefix, invPatchesWithPathPrefix],
+    synchronousNotifications
+  )
 }
 
-function emitPatch(obj: object, patches: Patch[], inversePatches: Patch[]): void {
+function emitPatch(
+  obj: object,
+  patches: Patch[],
+  inversePatches: Patch[],
+  synchronousNotifications: (() => void)[]
+): void {
   // Segments are pushed in child-to-root order (O(1) each) rather than unshifted
   // at the front (O(depth) each), keeping the whole walk O(depth) instead of
   // O(depth^2) on deep trees.
   const reversedPrefix: PathElement[] = []
 
-  emitPatchForTarget(obj, patches, inversePatches, reversedPrefix, 0)
+  emitPatchForTarget(obj, patches, inversePatches, reversedPrefix, 0, synchronousNotifications)
 
   // and also emit subtree listeners all the way to the root
   let parentPath = fastGetParentPath(obj, false)
@@ -207,7 +319,8 @@ function emitPatch(obj: object, patches: Patch[], inversePatches: Patch[]): void
       patches,
       inversePatches,
       reversedPrefix,
-      reversedPrefix.length
+      reversedPrefix.length,
+      synchronousNotifications
     )
 
     parentPath = fastGetParentPath(parentPath.parent, false)

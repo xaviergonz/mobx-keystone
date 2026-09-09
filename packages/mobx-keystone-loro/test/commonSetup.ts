@@ -1,5 +1,5 @@
 import { configure } from "mobx"
-import { setGlobalConfig } from "mobx-keystone"
+import { ModelAutoTypeCheckingMode, setGlobalConfig } from "mobx-keystone"
 
 configure({
   enforceActions: "never",
@@ -7,6 +7,7 @@ configure({
 
 let nextId = 0
 setGlobalConfig({
+  modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
   modelIdGenerator() {
     nextId++
     return `id-${nextId}`

@@ -33,7 +33,21 @@ const {
 })
 ```
 
-The `yjsObject` must be a `Y.Map`, `Y.Array`, or `Y.Text` attached to `yjsDoc`. Its current JSON representation must be a valid input snapshot for `mobxKeystoneType`. The returned `boundObject` is created from that CRDT data, and later changes flow in both directions until `dispose()` is called.
+The `yjsObject` must be a `Y.Map`, `Y.Array`, or `Y.Text` attached to `yjsDoc`. Its current JSON representation must be a valid input snapshot for `mobxKeystoneType`. The returned `boundObject` is created from that data, and changes flow in both directions until you call `dispose()`.
+
+Deleting the bound subtree or destroying its document also disposes the binding. Text models remain readable after disposal.
+
+### Synchronization and validation
+
+Direct Yjs changes reach the model when the transaction ends. Finish the transaction before reading the updated model or making model edits that depend on those changes. Multiple bindings can share a document, and a binding can be created inside a transaction.
+
+When editing the document directly, use the stored snapshot values for model properties, including properties with transforms. Incoming model updates also run snapshot processors. The binding writes inferred model metadata, restored defaults, and normalized property values back to Yjs.
+
+Replacements and moves preserve model instances when their model type and ID match, including custom ID properties. Changing a nested model's type or ID may create a different instance.
+
+If you edit the model while direct document changes are still pending, a local edit can overwrite a conflicting document value or restore an item deleted from the document. Finish direct document updates before editing the same data through the model to avoid these conflicts.
+
+With automatic type checking enabled, refinements on a model or its ancestors validate related changes in a transaction together. If validation or snapshot processing fails, the committed Yjs data is not rolled back. Correct the document data; the binding retries synchronization on subsequent events.
 
 ## First migration - converting JSON to `Y.js` data
 
@@ -46,12 +60,16 @@ If you already have an existing `Y.Map` or `Y.Array` and want to copy JSON data 
 - `applyJsonObjectToYMap(dest, source, options?)`
 - `applyJsonArrayToYArray(dest, source, options?)`
 
-These are useful when seeding or refreshing part of a document without manually building nested `Y.js` containers yourself.
+These are useful when seeding or refreshing part of a document without manually building nested `Y.js` containers yourself. Each helper call on an attached container uses one Yjs transaction, so observers see the completed update. If called inside an existing transaction, the helper participates in it.
+
+Undefined object properties are omitted. Undefined array entries and sparse arrays are rejected with `MobxKeystoneYjsError`.
 
 The optional `options.mode` controls how data is applied:
 
 - `"add"` - Create and insert new `Y.js` containers from the JSON data. This is the default.
 - `"merge"` - Recursively merge into existing `Y.Map` / `Y.Array` containers when possible, preserving existing container references.
+
+Merge mode preserves compatible nested containers, including unchanged text containers. Text and frozen snapshots retain their special representations.
 
 For example:
 
@@ -77,11 +95,23 @@ text.yjsText.insert(0, "Say: ")
 text.text // "Say: Hello world!"
 ```
 
+A Yjs transaction alone does not make reactions that combine ordinary properties and `text` atomic. Wrap native writes or `Y.applyUpdate(...)` in `runInAction` from MobX when a reaction must observe those values together.
+
+You can also append frozen deltas to `deltaList` or replace the list in a model action. Appending preserves existing Yjs text positions; replacing the list or editing earlier deltas rebuilds the text.
+
+The `text` getter remains readable when the model is unbound.
+
+`deltaList` tracks text content and inline formatting. It does not track `Y.Text` type-level attributes.
+
 Note that `yjsText` throws if you access it while the model is not part of a bound tree. This is due to a limitation of `Y.js`, since it only allows limited manipulation of types while they are outside a `Y.Doc` tree.
 
 ## The `YjsBindingContext`
 
-All nodes inside a bound tree have access to a `YjsBindingContext` instance.
+All nodes inside a bound tree have access to a `YjsBindingContext` instance, including models running `onInit`. Defaults and changes made by initialization hooks, including edits to existing bound siblings, are synchronized back to Yjs.
+
+If initialization also edits Yjs directly, those edits take precedence over conflicting model initialization changes. Arrays and frozen values are treated as whole values when resolving conflicts. If the conflict involves replacing a model with a different type or ID, the document value takes precedence for the whole subtree.
+
+The context's `boundObject` becomes available once the initial synchronization is ready. Reactions to it becoming available can make further edits to the document.
 
 The instance can be accessed using:
 

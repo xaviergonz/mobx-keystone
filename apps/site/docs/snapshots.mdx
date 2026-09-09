@@ -203,7 +203,11 @@ applySnapshot(todo, {
 
 In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused (since they have the same model ID).
 
+Replacing a nested model with a plain-object snapshot without `$modelType` creates a plain object and detaches the previous model without changing its contents.
+
 When `fromSnapshot` or `applySnapshot` fails due to snapshot processing issues, it throws `SnapshotProcessingError` (extends `MobxKeystoneError`) and includes diagnostic metadata such as `path`, `actualSnapshot` (when available), and `modelTrail` (when available). Its error message is also enriched with this metadata (plus a safe value preview when available).
+
+With automatic type checking enabled, `applySnapshot` validates the completed state against the target model's type and any type constraints on its ancestors. If validation fails, the tree and its snapshots are restored to their previous state. Patch listeners may receive both the attempted changes and patches that undo them.
 
 ## Cloning via snapshots
 

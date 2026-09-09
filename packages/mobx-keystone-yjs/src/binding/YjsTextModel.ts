@@ -1,12 +1,10 @@
-import { createAtom, type IAtom, observe, reaction } from "mobx"
+import { action, createAtom, type IAtom, reaction } from "mobx"
 import {
-  type Frozen,
   frozen,
   getParentToChildPath,
   Model,
   mobxComputed,
   model,
-  onSnapshot,
   tProp,
   types,
 } from "mobx-keystone"
@@ -14,7 +12,7 @@ import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
 import { resolveYjsPath } from "./resolveYjsPath"
-import { type YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
+import { yjsBindingContext } from "./yjsBindingContext"
 
 // Delta[][], since each single change is a Delta[]
 // we use frozen so that we can reuse each delta change
@@ -106,11 +104,10 @@ export class YjsTextModel extends Model({
     const ctx = yjsBindingContext.get(this)
     if (ctx?.boundObject != null) {
       try {
-        const yjsTextString = this.yjsText.toString()
-        // if the yjsText is detached, toString() returns an empty string
-        // in that case we should use the deltaList as a fallback
-        if (yjsTextString !== "" || this.deltaList.length === 0) {
-          return yjsTextString
+        const yjsText = this.yjsText
+        // Deleted text loses its content; live empty text needs no fallback.
+        if (!isYjsValueDeleted(yjsText)) {
+          return yjsText.toString()
         }
       } catch {
         // fall back
@@ -123,114 +120,21 @@ export class YjsTextModel extends Model({
 
   private deltaListToText(): string {
     const doc = new Y.Doc()
-    const text = doc.getText()
-    this.deltaList.forEach((d) => {
-      text.applyDelta(d.data)
-    })
-    return text.toString()
+    try {
+      const text = doc.getText()
+      doc.transact(() => {
+        for (const delta of this.deltaList) {
+          text.applyDelta(delta.data)
+        }
+      })
+      return text.toString()
+    } finally {
+      doc.destroy()
+    }
   }
 
   protected onInit() {
-    const shouldReplicateToYjs = (ctx: YjsBindingContext | undefined): ctx is YjsBindingContext => {
-      return !!ctx && !!ctx.boundObject && !ctx.isApplyingYjsChangesToMobxKeystone
-    }
-
-    let reapplyDeltasToYjsText = false
-    const newDeltas: Frozen<unknown[]>[] = []
-
-    let disposeObserveDeltaList: (() => void) | undefined
-
-    const disposeReactionToDeltaListRefChange = reaction(
-      () => this.$.deltaList,
-      (deltaList) => {
-        disposeObserveDeltaList?.()
-        disposeObserveDeltaList = undefined
-
-        disposeObserveDeltaList = observe(deltaList, (change) => {
-          if (reapplyDeltasToYjsText) {
-            // already gonna replace them all
-            return
-          }
-          if (!shouldReplicateToYjs(yjsBindingContext.get(this))) {
-            // yjs text is already up to date with these changes
-            return
-          }
-
-          if (
-            change.type === "splice" &&
-            change.removedCount === 0 &&
-            change.addedCount > 0 &&
-            change.index === this.deltaList.length
-          ) {
-            // optimization, just adding new ones to the end
-            newDeltas.push(...change.added)
-          } else {
-            // any other change, we need to reapply all deltas
-            reapplyDeltasToYjsText = true
-          }
-        })
-      },
-      { fireImmediately: true }
-    )
-
-    const disposeOnSnapshot = onSnapshot(this, () => {
-      try {
-        if (reapplyDeltasToYjsText) {
-          const ctx = yjsBindingContext.get(this)
-
-          if (shouldReplicateToYjs(ctx)) {
-            const { yjsText } = this
-            if (isYjsValueDeleted(yjsText)) {
-              throw failure("cannot reapply deltas to deleted Yjs.Text")
-            }
-
-            ctx.yjsDoc.transact(() => {
-              // didn't find a better way than this to reapply all deltas
-              // without having to re-create the Y.Text object
-              if (yjsText.length > 0) {
-                yjsText.delete(0, yjsText.length)
-              }
-
-              this.deltaList.forEach((frozenDeltas) => {
-                yjsText.applyDelta(frozenDeltas.data)
-              })
-            }, ctx.yjsOrigin)
-          }
-        } else if (newDeltas.length > 0) {
-          const ctx = yjsBindingContext.get(this)
-
-          if (shouldReplicateToYjs(ctx)) {
-            const { yjsText } = this
-            if (isYjsValueDeleted(yjsText)) {
-              throw failure("cannot reapply deltas to deleted Yjs.Text")
-            }
-
-            ctx.yjsDoc.transact(() => {
-              newDeltas.forEach((frozenDeltas) => {
-                yjsText.applyDelta(frozenDeltas.data)
-              })
-            }, ctx.yjsOrigin)
-          }
-        }
-      } finally {
-        reapplyDeltasToYjsText = false
-        newDeltas.length = 0
-      }
-    })
-
-    const diposeYjsTextChangedAtom = hookYjsTextChangedAtom(
-      () => this.yjsText,
-      this.yjsTextChangedAtom
-    )
-
-    return () => {
-      disposeOnSnapshot()
-      disposeReactionToDeltaListRefChange()
-      disposeObserveDeltaList?.()
-      disposeObserveDeltaList = undefined
-
-      diposeYjsTextChangedAtom()
-    }
+    return hookYjsTextChangedAtom(() => this.yjsText, this.yjsTextChangedAtom)
   }
 }
 
@@ -241,8 +145,16 @@ const DecoratedYjsTextModel = YjsTextModel
 function hookYjsTextChangedAtom(getYjsText: () => Y.Text, textChangedAtom: IAtom) {
   let disposeObserveYjsText: (() => void) | undefined
 
-  const observeFn = () => {
-    textChangedAtom.reportChanged()
+  let disposePendingNotification: (() => void) | undefined
+  const observeFn = (_event: Y.YTextEvent, transaction: Y.Transaction) => {
+    // Shallow text observers run before the binding's deep observer. Notify
+    // reactions only after incoming deltas have reached the model history and
+    // Yjs has finished cleanup, so reaction edits start a fresh transaction.
+    disposePendingNotification?.()
+    disposePendingNotification = scheduleTextNotification(transaction.doc, () => {
+      disposePendingNotification = undefined
+      textChangedAtom.reportChanged()
+    })
   }
 
   const disposeReactionToYTextChange = reaction(
@@ -255,6 +167,7 @@ function hookYjsTextChangedAtom(getYjsText: () => Y.Text, textChangedAtom: IAtom
       }
     },
     (yjsText) => {
+      disposePendingNotification?.()
       disposeObserveYjsText?.()
       disposeObserveYjsText = undefined
 
@@ -275,7 +188,40 @@ function hookYjsTextChangedAtom(getYjsText: () => Y.Text, textChangedAtom: IAtom
 
   return () => {
     disposeReactionToYTextChange()
+    disposePendingNotification?.()
     disposeObserveYjsText?.()
     disposeObserveYjsText = undefined
+  }
+}
+
+interface PendingTextNotifications {
+  callbacks: Set<() => void>
+  flush: () => void
+}
+
+const pendingTextNotifications = new WeakMap<Y.Doc, PendingTextNotifications>()
+
+function scheduleTextNotification(doc: Y.Doc, callback: () => void): () => void {
+  let pending = pendingTextNotifications.get(doc)
+  if (!pending) {
+    const callbacks = new Set<() => void>()
+    const flush = action("notifyYjsTextChanges", () => {
+      doc.off("afterAllTransactions", flush)
+      pendingTextNotifications.delete(doc)
+      // All changed texts become visible to reactions in one MobX batch.
+      for (const notify of callbacks) notify()
+      callbacks.clear()
+    })
+    pending = { callbacks, flush }
+    pendingTextNotifications.set(doc, pending)
+    doc.on("afterAllTransactions", flush)
+  }
+  pending.callbacks.add(callback)
+  return () => {
+    pending.callbacks.delete(callback)
+    if (pending.callbacks.size === 0 && pendingTextNotifications.get(doc) === pending) {
+      doc.off("afterAllTransactions", pending.flush)
+      pendingTextNotifications.delete(doc)
+    }
   }
 }

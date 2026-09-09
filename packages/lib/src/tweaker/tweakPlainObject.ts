@@ -19,7 +19,13 @@ import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../model
 import { dataToModelNode } from "../parent/core"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
-import { hasPatchListenersFor, InternalPatchRecorder } from "../patch/emitPatch"
+import {
+  beginPatchEmission,
+  emitPatches,
+  endPatchEmission,
+  hasPatchListenersFor,
+  InternalPatchRecorder,
+} from "../patch/emitPatch"
 import {
   flushInternalSnapshot,
   freezeInternalSnapshot,
@@ -29,6 +35,7 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { takeModelInitialDataSnapshot } from "../snapshot/modelInitialData"
+import { withoutCachedTypeChecking } from "../types/createCachedTypeCheck"
 import { failure, isPlainObject, isPrimitive, setProtoProp } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
@@ -167,23 +174,6 @@ function objectDidChange(change: IObjectDidChange): void {
 
   patchRecorder.reset()
 
-  switch (change.type) {
-    case "add":
-      emitObjectAddDeepChange(actualNode, obj, change.name, change.newValue)
-      break
-
-    case "update":
-      emitObjectUpdateDeepChange(actualNode, obj, change.name, change.newValue, change.oldValue)
-      break
-
-    case "remove":
-      emitObjectRemoveDeepChange(actualNode, obj, change.name, change.oldValue)
-      break
-
-    default:
-      throw failure("assertion error: unsupported object change type")
-  }
-
   if (runningWithoutSnapshotOrPatches) {
     return
   }
@@ -215,9 +205,45 @@ function objectDidChange(change: IObjectDidChange): void {
       throw failure("assertion error: unsupported object change type")
   }
 
-  runTypeCheckingAfterChange(obj, patchRecorder)
+  if (change.type !== "update" && isTypeCheckingAfterChangeEnabled()) {
+    // MobX notifies object observers before invalidating dependencies on missing
+    // keys (and removed keys in MobX 4). Cached ancestor checks may still
+    // describe the previous shape.
+    withoutCachedTypeChecking(obj, () => runTypeCheckingAfterChange(obj, patchRecorder))
+  } else {
+    runTypeCheckingAfterChange(obj, patchRecorder)
+  }
   updateInternalSnapshot(actualNode, mutate)
-  patchRecorder.emit(actualNode)
+
+  // Listeners may mutate another node and reuse the shared recorder.
+  // Keep this change's patches before publishing the validated deep change.
+  const { patches, invPatches } = patchRecorder
+  patchRecorder.reset()
+
+  // Reserve chronological patch notifications, then finish deep-change delivery
+  // before publishing them. Reentrant edits append behind this mutation.
+  beginPatchEmission()
+  try {
+    emitPatches(actualNode, patches, invPatches)
+    switch (change.type) {
+      case "add":
+        emitObjectAddDeepChange(actualNode, obj, change.name, change.newValue)
+        break
+
+      case "update":
+        emitObjectUpdateDeepChange(actualNode, obj, change.name, change.newValue, change.oldValue)
+        break
+
+      case "remove":
+        emitObjectRemoveDeepChange(actualNode, obj, change.name, change.oldValue)
+        break
+
+      default:
+        throw failure("assertion error: unsupported object change type")
+    }
+  } finally {
+    endPatchEmission()
+  }
 }
 
 function objectDidChangeRemove(

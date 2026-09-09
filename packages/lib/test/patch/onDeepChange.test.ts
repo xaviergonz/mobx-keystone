@@ -45,7 +45,7 @@ describe("onDeepChange", () => {
     expect(changes).toStrictEqual([])
   })
 
-  test("on a type-check failure, deep-change listeners see the invalid change and its rollback but patch listeners see nothing", () => {
+  test("rejected type checks notify neither deep-change nor patch listeners", () => {
     @testModel("DeepChangeRollbackModel")
     class RollbackModel extends Model({
       x: tProp(types.integer, 1),
@@ -86,29 +86,7 @@ describe("onDeepChange", () => {
     // under runWithoutSnapshotOrPatches
     expect(patchBatches).toStrictEqual([])
 
-    // deep-change listeners, by contrast, observe both the invalid mutation and
-    // the compensating rollback mutation (they are emitted before type checking
-    // and are not suppressed during rollback)
-    expect(deepChanges).toStrictEqual([
-      {
-        type: DeepChangeType.ObjectUpdate,
-        target: m.$,
-        path: [],
-        key: "x",
-        newValue: 1.5,
-        oldValue: 1,
-        isInit: false,
-      },
-      {
-        type: DeepChangeType.ObjectUpdate,
-        target: m.$,
-        path: [],
-        key: "x",
-        newValue: 1,
-        oldValue: 1.5,
-        isInit: false,
-      },
-    ])
+    expect(deepChanges).toStrictEqual([])
   })
 
   test("a listener two levels above a change receives a correctly ordered multi-segment path", () => {

@@ -15,11 +15,21 @@
     },
     "mobx-keystone-yjs#build": {
       "dependsOn": ["mobx-keystone#build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/crdt-binding-common/src/**",
+        "$TURBO_ROOT$/packages/crdt-binding-common/package.json"
+      ]
     },
     "mobx-keystone-loro#build": {
       "dependsOn": ["mobx-keystone#build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/crdt-binding-common/src/**",
+        "$TURBO_ROOT$/packages/crdt-binding-common/package.json"
+      ]
     },
     "site#build": {
       "dependsOn": [
@@ -53,12 +63,22 @@
       "env": ["COMPILER", "MOBX_VERSION"]
     },
     "mobx-keystone-yjs#test": {
-      "dependsOn": ["mobx-keystone#build"],
-      "outputs": []
+      "dependsOn": ["@mobx-keystone/crdt-binding-common#test"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/crdt-binding-common/src/**",
+        "$TURBO_ROOT$/packages/crdt-binding-common/package.json"
+      ]
     },
     "mobx-keystone-loro#test": {
-      "dependsOn": ["mobx-keystone#build"],
-      "outputs": []
+      "dependsOn": ["@mobx-keystone/crdt-binding-common#test"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/crdt-binding-common/src/**",
+        "$TURBO_ROOT$/packages/crdt-binding-common/package.json"
+      ]
     },
     "mobx-keystone#test:ci": {
       "dependsOn": [],
@@ -66,10 +86,28 @@
       "env": ["COMPILER", "MOBX_VERSION"]
     },
     "mobx-keystone-yjs#test:ci": {
+      "dependsOn": ["@mobx-keystone/crdt-binding-common#test:ci"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/crdt-binding-common/src/**",
+        "$TURBO_ROOT$/packages/crdt-binding-common/package.json"
+      ]
+    },
+    "mobx-keystone-loro#test:ci": {
+      "dependsOn": ["@mobx-keystone/crdt-binding-common#test:ci"],
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/crdt-binding-common/src/**",
+        "$TURBO_ROOT$/packages/crdt-binding-common/package.json"
+      ]
+    },
+    "@mobx-keystone/crdt-binding-common#test": {
       "dependsOn": ["mobx-keystone#build"],
       "outputs": []
     },
-    "mobx-keystone-loro#test:ci": {
+    "@mobx-keystone/crdt-binding-common#test:ci": {
       "dependsOn": ["mobx-keystone#build"],
       "outputs": []
     }

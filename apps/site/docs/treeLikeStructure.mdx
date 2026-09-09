@@ -295,8 +295,17 @@ Each change includes:
 - `path` - the path from the listener target to the changed object.
 - `target` - the actual object that changed.
 - `isInit` - whether the change happened while the tree was being initialized from defaults / snapshot data.
+- `isReentrant` - whether a listener made another change while notifications were being delivered. This flag can become `true` during a callback. It is non-enumerable, so object spread and JSON serialization do not copy it.
 
-Note that the listener callback is called _immediately_ after an observable value has changed and before the outermost action has completed. This behavior differs from, e.g., `onSnapshot` or a MobX reaction.
+The listener callback runs after each change passes automatic type checking and its snapshot is updated, before the outermost action has completed. Unlike `onSnapshot` or a MobX reaction, it observes individual changes within an action.
+
+A change rejected by automatic type checking does not notify deep-change listeners. However, `applySnapshot` validates the completed state, so listeners may receive both the attempted changes and changes that undo them if validation fails.
+
+A listener added while callbacks for the same target are running starts with the next change delivered to that target. Disposing a listener takes effect immediately: if its callback has not run yet, it will not receive the current change. Registering the same callback more than once creates separate subscriptions, each with its own disposer.
+
+If a deep-change listener throws, the remaining global, subtree, and ancestor listeners still receive the change. The first listener error is rethrown after delivery completes; the applied mutation is not rolled back.
+
+Patch listeners are notified after deep-change listeners. If a deep-change listener makes further edits, patches retain the order and paths of the original mutations.
 
 ### `onGlobalDeepChange`
 

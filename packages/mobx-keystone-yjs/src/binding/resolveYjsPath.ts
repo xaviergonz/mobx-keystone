@@ -1,6 +1,6 @@
 import * as Y from "yjs"
 import { failure } from "../utils/error"
-import { getOrCreateYjsCollectionAtom } from "../utils/getOrCreateYjsCollectionAtom"
+import { reportYjsCollectionObserved } from "../utils/yjsCollectionAtoms"
 
 /**
  * Resolves a path within a Yjs object structure.
@@ -31,11 +31,11 @@ export function resolveYjsPath(
     }
 
     if (currentYjsObject instanceof Y.Map) {
-      getOrCreateYjsCollectionAtom(currentYjsObject).reportObserved()
       const key = String(pathPart)
+      reportYjsCollectionObserved(currentYjsObject, key)
       currentYjsObject = currentYjsObject.get(key)
     } else if (currentYjsObject instanceof Y.Array) {
-      getOrCreateYjsCollectionAtom(currentYjsObject).reportObserved()
+      reportYjsCollectionObserved(currentYjsObject)
       const key = Number(pathPart)
       currentYjsObject = currentYjsObject.get(key)
     } else {

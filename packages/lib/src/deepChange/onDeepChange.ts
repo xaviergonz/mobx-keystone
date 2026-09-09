@@ -2,7 +2,7 @@ import { action, isAction } from "mobx"
 import { fastGetParentPath, type ParentPath } from "../parent/path"
 import type { Path, PathElement, WritablePath } from "../parent/pathTypes"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsFunction, deleteFromArray, failure } from "../utils"
+import { assertIsFunction, failure } from "../utils"
 
 /**
  * Disposer function to stop listening to deep changes.
@@ -18,6 +18,8 @@ export enum DeepChangeType {
 }
 
 export interface DeepChangeBase {
+  /** Whether this notification overlaps a mutation made by a change listener. */
+  readonly isReentrant?: boolean
   readonly type: DeepChangeType
   readonly path: Path
   /**
@@ -97,8 +99,17 @@ export type DeepChange =
  */
 export type OnDeepChangeListener = (change: DeepChange) => void
 
-const deepChangeListeners = new WeakMap<object, OnDeepChangeListener[]>()
-const globalDeepChangeListeners: ((target: object, change: DeepChange) => void)[] = []
+interface ListenerSubscription<Listener> {
+  readonly listener: Listener
+  active: boolean
+}
+
+const deepChangeListeners = new WeakMap<object, ListenerSubscription<OnDeepChangeListener>[]>()
+
+let globalDeepChangeListeners: ListenerSubscription<
+  (target: object, change: DeepChange) => void
+>[] = []
+
 const emptyPath: Path = Object.freeze([])
 
 let deepChangeListenerCount = 0
@@ -143,6 +154,56 @@ export function exitInitPhase(): void {
   }
 }
 
+interface DeepChangeEmission {
+  reentrant: boolean
+  /** First error thrown by a listener of this emission, boxed so `undefined` can be thrown too. */
+  error: { value: unknown } | undefined
+  parent: DeepChangeEmission | undefined
+  /** Shared by every change of this emission, so they all observe `reentrant` live. */
+  isReentrantDescriptor: PropertyDescriptor | undefined
+}
+
+let currentEmission: DeepChangeEmission | undefined
+
+function rethrowDeepChangeListenerError(emission: DeepChangeEmission): void {
+  const error = emission.error
+  if (error) {
+    // Listeners may keep change objects around, and those keep this emission alive
+    // through their `isReentrant` getter, so don't retain the error with it.
+    emission.error = undefined
+    throw error.value
+  }
+}
+
+function beginDeepChangeEmission(): DeepChangeEmission {
+  for (let parent = currentEmission; parent; parent = parent.parent) parent.reentrant = true
+  const emission: DeepChangeEmission = {
+    reentrant: currentEmission !== undefined,
+    error: undefined,
+    parent: currentEmission,
+    isReentrantDescriptor: undefined,
+  }
+  currentEmission = emission
+  return emission
+}
+
+// `isReentrant` is deliberately non-enumerable so that object spread and JSON
+// serialization of a change do not copy it.
+function attachEmission(change: DeepChange): DeepChange {
+  const emission = currentEmission!
+  emission.isReentrantDescriptor ??= {
+    get: () => emission.reentrant,
+    configurable: true,
+  }
+  Object.defineProperty(change, "isReentrant", emission.isReentrantDescriptor)
+  return change
+}
+
+function changeWithPath(change: DeepChange, path: Path): DeepChange {
+  // The copy belongs to the same (still current) emission as the original.
+  return attachEmission({ ...change, path })
+}
+
 /**
  * @internal
  */
@@ -151,10 +212,17 @@ export function emitDeepChange(obj: object, change: DeepChange): void {
     return
   }
 
-  emitGlobalDeepChange(obj, change)
-  if (deepChangeListenerCount > 0) {
-    emitDeepChangeToListeners(obj, change)
+  const emission = beginDeepChangeEmission()
+  try {
+    attachEmission(change)
+    emitGlobalDeepChange(obj, change)
+    if (deepChangeListenerCount > 0) {
+      emitDeepChangeToListeners(obj, change)
+    }
+  } finally {
+    currentEmission = emission.parent
   }
+  rethrowDeepChangeListenerError(emission)
 }
 
 /**
@@ -239,6 +307,38 @@ function emitDeepChangeFromValues(
   addedValues?: unknown[],
   removedValues?: unknown[]
 ): void {
+  if (!hasAnyDeepChangeListeners()) {
+    return
+  }
+
+  const emission = beginDeepChangeEmission()
+  try {
+    emitDeepChangeFromValuesInEmission(
+      node,
+      type,
+      target,
+      keyOrIndex,
+      newValue,
+      oldValue,
+      addedValues,
+      removedValues
+    )
+  } finally {
+    currentEmission = emission.parent
+  }
+  rethrowDeepChangeListenerError(emission)
+}
+
+function emitDeepChangeFromValuesInEmission(
+  node: object,
+  type: DeepChangeType,
+  target: object | unknown[],
+  keyOrIndex: string | number,
+  newValue: unknown,
+  oldValue: unknown,
+  addedValues?: unknown[],
+  removedValues?: unknown[]
+): void {
   let change: DeepChange | undefined
 
   if (globalDeepChangeListeners.length > 0) {
@@ -288,6 +388,20 @@ function emitDeepChangeFromValues(
 }
 
 function createDeepChange(
+  type: DeepChangeType,
+  target: object | unknown[],
+  keyOrIndex: string | number,
+  newValue: unknown,
+  oldValue: unknown,
+  addedValues: unknown[] | undefined,
+  removedValues: unknown[] | undefined
+): DeepChange {
+  return attachEmission(
+    buildDeepChange(type, target, keyOrIndex, newValue, oldValue, addedValues, removedValues)
+  )
+}
+
+function buildDeepChange(
   type: DeepChangeType,
   target: object | unknown[],
   keyOrIndex: string | number,
@@ -352,10 +466,24 @@ function createDeepChange(
 }
 
 function emitGlobalDeepChange(obj: object, change: DeepChange): void {
-  for (let i = 0; i < globalDeepChangeListeners.length; i++) {
-    const listener = globalDeepChangeListeners[i]
-    listener(obj, change)
+  const listeners = globalDeepChangeListeners
+  for (let i = 0; i < listeners.length; i++) {
+    const subscription = listeners[i]
+    if (subscription.active) {
+      try {
+        subscription.listener(obj, change)
+      } catch (error) {
+        rememberDeepChangeListenerError(error)
+      }
+    }
   }
+}
+
+// The mutation is already applied by the time listeners run, so a failing listener
+// must not keep it from reaching bindings and other observers. The first error of
+// the emission is rethrown once the whole emission has been delivered.
+function rememberDeepChangeListenerError(error: unknown): void {
+  currentEmission!.error ??= { value: error }
 }
 
 function emitDeepChangeToListeners(obj: object, change: DeepChange): void {
@@ -391,14 +519,20 @@ function emitDeepChangeForTarget(
     return
   }
 
-  const changeWithPath =
+  const prefixedChange =
     prefixCount > 0
-      ? { ...change, path: buildPrefixedPath(reversedPrefix, prefixCount, change.path) }
+      ? changeWithPath(change, buildPrefixedPath(reversedPrefix, prefixCount, change.path))
       : change
 
   for (let i = 0; i < listenersForObject.length; i++) {
-    const listener = listenersForObject[i]
-    listener(changeWithPath)
+    const subscription = listenersForObject[i]
+    if (subscription.active) {
+      try {
+        subscription.listener(prefixedChange)
+      } catch (error) {
+        rememberDeepChangeListenerError(error)
+      }
+    }
   }
 }
 
@@ -420,6 +554,12 @@ function buildPrefixedPath(
 /**
  * Adds a listener that will be called every time a deep change is generated for the tree of the given target object.
  * Unlike `onPatches`, this provides raw MobX change information including proper splice detection for arrays.
+ * Individual mutations notify listeners after automatic type checking succeeds and snapshots update;
+ * rejected mutations and their quiet rollbacks do not notify listeners.
+ * Listener errors do not stop delivery to other listeners; the first error is
+ * rethrown after delivery completes.
+ * Listeners added while a change is being delivered start with the next change,
+ * and listeners disposed while a change is being delivered do not receive it.
  *
  * @param subtreeRoot Subtree root object of the deep change listener.
  * @param listener The listener function that will be called every time a change is generated for the object or its children.
@@ -436,18 +576,23 @@ export function onDeepChange(
     listener = action(listener.name || "onDeepChangeListener", listener)
   }
 
-  let listenersForObject = deepChangeListeners.get(subtreeRoot)
-  if (!listenersForObject) {
-    listenersForObject = []
-    deepChangeListeners.set(subtreeRoot, listenersForObject)
-  }
-
-  listenersForObject.push(listener)
+  // Keep the array held by an ongoing delivery unchanged. Subscription changes
+  // are infrequent, so copy here rather than on every mutation notification.
+  const listeners = deepChangeListeners.get(subtreeRoot) ?? []
+  const subscription = { listener, active: true }
+  deepChangeListeners.set(subtreeRoot, [...listeners, subscription])
   deepChangeListenerCount++
+
   return () => {
-    if (deleteFromArray(listenersForObject, listener)) {
-      deepChangeListenerCount--
+    if (!subscription.active) {
+      return
     }
+    subscription.active = false
+    deepChangeListenerCount--
+    deepChangeListeners.set(
+      subtreeRoot,
+      deepChangeListeners.get(subtreeRoot)!.filter((s) => s !== subscription)
+    )
   }
 }
 
@@ -467,8 +612,14 @@ export function onGlobalDeepChange(
     listener = action(listener.name || "onGlobalDeepChangeListener", listener)
   }
 
-  globalDeepChangeListeners.push(listener)
+  const subscription = { listener, active: true }
+  globalDeepChangeListeners = [...globalDeepChangeListeners, subscription]
+
   return () => {
-    deleteFromArray(globalDeepChangeListeners, listener)
+    if (!subscription.active) {
+      return
+    }
+    subscription.active = false
+    globalDeepChangeListeners = globalDeepChangeListeners.filter((s) => s !== subscription)
   }
 }

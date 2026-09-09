@@ -1,3 +1,4 @@
+import { isObservableArray, set } from "mobx"
 import {
   applySnapshot,
   getSnapshot,
@@ -287,3 +288,37 @@ test("model output processors remain eager across deferred plain ancestors", () 
   expect(getSnapshot(root)).toMatchObject({ processedValue: 3 })
   expect(processorCalls).toBe(2)
 })
+
+test.each(["array", "object"])(
+  "attaching a dirty detached model refreshes its %s snapshot",
+  (kind) => {
+    const branch = new Root({ leaves: [new Leaf({ value: 1 })] })
+    const previous = getSnapshot(branch)
+    const parent = kind === "array" ? toTreeNode<Root[]>([]) : toTreeNode<{ child?: Root }>({})
+    runUnprotected(() => {
+      branch.leaves[0].value = 2
+      if (Array.isArray(parent) || isObservableArray(parent)) parent.push(branch)
+      else set(parent, "child", branch)
+      const snapshot = getSnapshot(parent)
+      const childSnapshot = Array.isArray(snapshot) ? snapshot[0] : snapshot.child!
+      expect(childSnapshot.leaves[0].value).toBe(2)
+    })
+    expect(previous.leaves[0].value).toBe(1)
+  }
+)
+
+test.each(["array", "object"])(
+  "new %s snapshots include pending edits in attached models",
+  (kind) => {
+    const branch = new Root({ leaves: [new Leaf({ value: 1 })] })
+    const previous = getSnapshot(branch)
+    runUnprotected(() => {
+      branch.leaves[0].value = 2
+      const parent = kind === "array" ? toTreeNode([branch]) : toTreeNode({ child: branch })
+      const snapshot = getSnapshot(parent)
+      const childSnapshot = Array.isArray(snapshot) ? snapshot[0] : snapshot.child
+      expect(childSnapshot.leaves[0].value).toBe(2)
+    })
+    expect(previous.leaves[0].value).toBe(1)
+  }
+)

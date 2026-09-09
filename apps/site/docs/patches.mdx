@@ -36,7 +36,7 @@ const disposer = onPatches(todo, (patches, inversePatches) => {
 })
 ```
 
-Note that the listener callback is called _immediately_ after an observable value has changed and before the outermost action has completed. This behavior differs from, e.g., `onSnapshot` or a MobX reaction.
+The listener callback runs after [deep-change listeners](./treeLikeStructure.mdx#ondeepchange), before the outermost action has completed. Patches are delivered in mutation order, including when a listener makes further edits. Unlike `onSnapshot` or a MobX reaction, the callback observes individual changes within an action.
 
 ### `onGlobalPatches`
 
@@ -62,7 +62,9 @@ This is mostly useful for global tooling, logging, or diagnostics. In applicatio
 patchRecorder(target: object, opts?: PatchRecorderOptions): PatchRecorder
 ```
 
-`patchRecorder` is an abstraction over `onPatches` that can be used like this:
+`patchRecorder` collects patches and inverse patches for later use, such as undoing or replaying changes. It records each change synchronously, including edits made inside change listeners. The `recording` flag and `filter` are checked when the change occurs.
+
+It can be used like this:
 
 ```ts
 const recorder = patchRecorder(todo, options)

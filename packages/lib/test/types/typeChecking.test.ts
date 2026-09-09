@@ -36,6 +36,7 @@ import {
   objectMap,
   onPatches,
   onSnapshot,
+  type Patch,
   type Path,
   type PathElement,
   prop,
@@ -740,6 +741,9 @@ test("applySnapshot rolls back on auto typecheck errors", () => {
   const m = new AutoTypecheckApplySnapshotRollbackModel({ nested: { x: 1 } })
   const beforeSnapshot = getSnapshot(m.nested)
 
+  const patches: Patch[] = []
+  const stop = onPatches(m.nested, (changes) => patches.push(...changes))
+
   setGlobalConfig({
     modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn,
   })
@@ -756,7 +760,14 @@ test("applySnapshot rolls back on auto typecheck errors", () => {
     })
   }
 
+  stop()
+  expect(patches).toEqual([
+    { op: "replace", path: ["x"], value: "bad" },
+    { op: "replace", path: ["x"], value: 1 },
+  ])
+  expect(getSnapshot(m).nested).toEqual(beforeSnapshot)
   expect(m.nested.x).toBe(1)
+  expect(getSnapshot(m.nested)).toEqual(beforeSnapshot)
 })
 
 test("applySnapshot rolls back model data on auto typecheck errors", () => {
@@ -779,6 +790,9 @@ test("applySnapshot rolls back model data on auto typecheck errors", () => {
   const root = new Root({ child: new Child({}) })
   const beforeSnapshot = getSnapshot(root.child)
 
+  const patches: Patch[] = []
+  const stop = onPatches(root.child, (changes) => patches.push(...changes))
+
   setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
   try {
     expect(() =>
@@ -791,7 +805,14 @@ test("applySnapshot rolls back model data on auto typecheck errors", () => {
     setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
   }
 
+  stop()
+  expect(patches).toEqual([
+    { op: "replace", path: ["value"], value: -1 },
+    { op: "replace", path: ["value"], value: 1 },
+  ])
+  expect(getSnapshot(root).child).toEqual(beforeSnapshot)
   expect(root.child.value).toBe(1)
+  expect(getSnapshot(root.child)).toEqual(beforeSnapshot)
 })
 
 test("applySnapshot rolls back arrays on ancestor refinement errors", () => {
@@ -813,6 +834,9 @@ test("applySnapshot rolls back arrays on ancestor refinement errors", () => {
 
   const root = new Root({ child: new Child({ values: [1] }) })
 
+  const patches: Patch[] = []
+  const stop = onPatches(root.child.values, (changes) => patches.push(...changes))
+
   setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
   try {
     expect(() => applySnapshot(root.child.values, [1, 2])).toThrow(TypeCheckErrorFailure)
@@ -820,7 +844,14 @@ test("applySnapshot rolls back arrays on ancestor refinement errors", () => {
     setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
   }
 
+  stop()
+  expect(patches).toEqual([
+    { op: "add", path: [1], value: 2 },
+    { op: "replace", path: ["length"], value: 1 },
+  ])
+  expect(getSnapshot(root).child.values).toEqual([1])
   expect([...root.child.values]).toStrictEqual([1])
+  expect(getSnapshot(root.child.values)).toEqual([1])
 })
 
 @testModel("AutoTypecheckUntypedOnlyModel")
@@ -3110,3 +3141,28 @@ test("type-check rollback keeps earlier batched snapshots current", () => {
   expect(root.child.value).toBe(1)
   expect(getSnapshot(root)).toMatchObject({ child: { value: 1 } })
 })
+
+test.each([false, true])(
+  "applySnapshot validates the target model itself (attached: %s)",
+  (attached) => {
+    @testModel("snapshot-target-type-check")
+    class Target extends Model({
+      values: tProp(types.refinement(types.array(types.number), (values) => values.length === 2)),
+    }) {}
+    @testModel("snapshot-target-untyped-parent")
+    class Parent extends Model({ child: prop<Target>() }) {}
+    const target = new Target({ values: [1, 2] })
+    if (attached) new Parent({ child: target })
+    const before = getSnapshot(target)
+    setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+    try {
+      expect(() => applySnapshot(target, { ...before, values: [1] })).toThrow(TypeCheckErrorFailure)
+      expect(getSnapshot(target)).toEqual(before)
+      expect([...target.values]).toEqual([1, 2])
+      applySnapshot(target, { ...before, values: [3, 4] })
+      expect(getSnapshot(target).values).toEqual([3, 4])
+    } finally {
+      setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOff })
+    }
+  }
+)

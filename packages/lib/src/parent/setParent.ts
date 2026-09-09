@@ -6,6 +6,7 @@ import { isModel } from "../model/utils"
 import { attachToRootStore, detachFromRootStore } from "../rootStore/attachDetach"
 import { fastIsRootStoreNoAtom } from "../rootStore/rootStore"
 import { clone } from "../snapshot/clone"
+import { flushInternalSnapshot } from "../snapshot/internal"
 import { isTweakedObject } from "../tweaker/core"
 import { treeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { tryUntweak } from "../tweaker/tweak"
@@ -84,6 +85,12 @@ export const setParent = action(
       setDataObjectParent(value, parentPath!.parent)
       // data object will proxy to use the actual parent model for child/parent stuff
       return value
+    }
+
+    // The new parent captures this node's snapshot during attachment. Flush
+    // descendant edits made while detached before that snapshot is copied.
+    if (parentPath && !oldParentPath) {
+      flushInternalSnapshot(value, false)
     }
 
     // make sure the new parent actually points to models when we give model data objs

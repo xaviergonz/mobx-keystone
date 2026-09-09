@@ -38,6 +38,21 @@ export interface LoroBindingContext {
    * Used to prevent infinite loops.
    */
   isApplyingLoroChangesToMobxKeystone: boolean
+
+  /**
+   * Flushes earlier model changes before a native text edit.
+   * @internal
+   */
+  flushPendingChanges?: () => void
+
+  /** Records an explicit move for reentrant reconciliation after it succeeds.
+   * @internal
+   */
+  captureArrayMove?: (
+    array: unknown[],
+    fromIndex: number,
+    toIndex: number
+  ) => (() => void) | undefined
 }
 
 /**

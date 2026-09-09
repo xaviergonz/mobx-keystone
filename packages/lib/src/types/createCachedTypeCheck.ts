@@ -1,7 +1,31 @@
 import { computed, type IComputedValue, type IObjectDidChange, observe } from "mobx"
+import { dataToModelNode, modelToDataNode } from "../parent/core"
+import { fastGetParent } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { isTweakedObject } from "../tweaker/core"
 import { TypeCheckError } from "./TypeCheckError"
+
+let uncachedTypeCheckObjects: Set<object> | undefined
+
+/** @internal */
+export function withoutCachedTypeChecking(obj: object, fn: () => void): void {
+  const previous = uncachedTypeCheckObjects
+  const affected = new Set(previous)
+  // Only these containers can retain a cached result for the old shape.
+  // Model schema checks run on $ data, while refinements can check the model.
+  let current: object | undefined = dataToModelNode(obj)
+  while (current) {
+    affected.add(current)
+    affected.add(modelToDataNode(current))
+    current = fastGetParent(current, false)
+  }
+  uncachedTypeCheckObjects = affected
+  try {
+    fn()
+  } finally {
+    uncachedTypeCheckObjects = previous
+  }
+}
 
 const emptyPath: Path = []
 
@@ -52,7 +76,7 @@ function createAdaptivePerEntryCachedCheck<K>(
     iterateEntries(value, (key) => checkEntry(value, key, path, typeCheckedValue))
 
   return (value, path, typeCheckedValue) => {
-    if (!isTweakedObject(value, true)) {
+    if (uncachedTypeCheckObjects?.has(value) || !isTweakedObject(value, true)) {
       return checkAllEntries(value, path, typeCheckedValue)
     }
 
@@ -142,7 +166,7 @@ export function createWholeContainerCachedCheck(
   const cache = new WeakMap<object, IComputedValue<TypeCheckError | null>>()
 
   return (value, path, typeCheckedValue) => {
-    if (!isTweakedObject(value, true)) {
+    if (uncachedTypeCheckObjects?.has(value) || !isTweakedObject(value, true)) {
       return check(value, path, typeCheckedValue)
     }
 

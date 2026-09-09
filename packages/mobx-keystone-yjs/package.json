@@ -70,6 +70,7 @@
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@babel/plugin-transform-typescript": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
+    "@mobx-keystone/crdt-binding-common": "workspace:*",
     "@types/node": "^26.4.1",
     "mobx-keystone": "workspace:*",
     "shx": "^0.4.0",

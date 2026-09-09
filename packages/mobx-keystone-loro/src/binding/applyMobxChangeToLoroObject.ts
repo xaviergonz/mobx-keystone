@@ -4,11 +4,10 @@ import type { PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 import {
-  applyDeltaToLoroText,
   convertJsonToLoroData,
   extractTextDeltaFromSnapshot,
+  replaceLoroTextDelta,
 } from "./convertJsonToLoroData"
-import { isLoroTextModelSnapshot } from "./LoroTextModel"
 import type { ArrayMoveChange } from "./moveWithinArray"
 import { resolveLoroPath } from "./resolveLoroPath"
 
@@ -17,20 +16,6 @@ import { resolveLoroPath } from "./resolveLoroPath"
  * Note: All values passed here are already snapshots (captured at change time).
  */
 function convertValue(v: unknown): unknown {
-  // Handle primitives directly
-  if (v === null || v === undefined || typeof v !== "object") {
-    return v
-  }
-  // Handle plain arrays - used for empty array init
-  if (Array.isArray(v) && v.length === 0) {
-    return new LoroMovableList()
-  }
-  // Handle LoroTextModel snapshot specially - we need to return it as-is
-  // so the caller can handle creating the LoroText container properly
-  if (isLoroTextModelSnapshot(v)) {
-    return v
-  }
-  // Value is already a snapshot, convert to Loro data
   return convertJsonToLoroData(v as PlainValue)
 }
 
@@ -40,12 +25,6 @@ function convertValue(v: unknown): unknown {
 function insertIntoList(list: LoroMovableList, index: number, value: unknown): void {
   if (value instanceof LoroMap || value instanceof LoroMovableList || value instanceof LoroText) {
     list.insertContainer(index, value)
-  } else if (isLoroTextModelSnapshot(value)) {
-    const attachedText = list.insertContainer(index, new LoroText())
-    const deltas = extractTextDeltaFromSnapshot((value as any).deltaList)
-    if (deltas.length > 0) {
-      applyDeltaToLoroText(attachedText, deltas)
-    }
   } else {
     list.insert(index, value)
   }
@@ -63,12 +42,6 @@ function setInMap(map: LoroMap, key: string, value: unknown): void {
     value instanceof LoroText
   ) {
     map.setContainer(key, value)
-  } else if (isLoroTextModelSnapshot(value)) {
-    const attachedText = map.setContainer(key, new LoroText())
-    const deltas = extractTextDeltaFromSnapshot((value as any).deltaList)
-    if (deltas.length > 0) {
-      applyDeltaToLoroText(attachedText, deltas)
-    }
   } else {
     map.set(key, value)
   }
@@ -103,11 +76,14 @@ export function applyMobxChangeToLoroObject(
       if (!(loroContainer instanceof LoroMovableList)) {
         throw failure(`ArraySplice change requires a LoroMovableList container`)
       }
+      if (change.addedValues.includes(undefined)) {
+        throw failure("undefined values are not supported in Loro lists")
+      }
+      const valuesToInsert = change.addedValues.map(convertValue)
       if (change.removedValues.length > 0) {
         loroContainer.delete(change.index, change.removedValues.length)
       }
       if (change.addedValues.length > 0) {
-        const valuesToInsert = change.addedValues.map(convertValue)
         for (let i = 0; i < valuesToInsert.length; i++) {
           insertIntoList(loroContainer, change.index + i, valuesToInsert[i])
         }
@@ -119,6 +95,9 @@ export function applyMobxChangeToLoroObject(
       if (!(loroContainer instanceof LoroMovableList)) {
         throw failure(`ArrayUpdate change requires a LoroMovableList container`)
       }
+      if (change.newValue === undefined) {
+        throw failure("undefined values are not supported in Loro lists")
+      }
       const converted = convertValue(change.newValue)
       if (
         converted instanceof LoroMap ||
@@ -126,12 +105,6 @@ export function applyMobxChangeToLoroObject(
         converted instanceof LoroText
       ) {
         loroContainer.setContainer(change.index, converted)
-      } else if (isLoroTextModelSnapshot(converted)) {
-        const attachedText = loroContainer.setContainer(change.index, new LoroText())
-        const deltas = extractTextDeltaFromSnapshot((converted as any).deltaList)
-        if (deltas.length > 0) {
-          applyDeltaToLoroText(attachedText, deltas)
-        }
       } else {
         loroContainer.set(change.index, converted)
       }
@@ -144,13 +117,7 @@ export function applyMobxChangeToLoroObject(
         // Handle changes to LoroText properties (mainly deltaList)
         if (change.key === "deltaList") {
           // change.newValue is already a snapshot (captured at change time)
-          const deltas = extractTextDeltaFromSnapshot(change.newValue)
-          if (loroContainer.length > 0) {
-            loroContainer.delete(0, loroContainer.length)
-          }
-          if (deltas.length > 0) {
-            applyDeltaToLoroText(loroContainer, deltas)
-          }
+          replaceLoroTextDelta(loroContainer, extractTextDeltaFromSnapshot(change.newValue))
         }
         // ignore other property changes on LoroText as they're not synced
       } else if (loroContainer instanceof LoroMap) {

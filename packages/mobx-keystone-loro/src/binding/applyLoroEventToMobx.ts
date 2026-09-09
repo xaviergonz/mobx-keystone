@@ -1,26 +1,185 @@
+import { jsonEquals } from "@mobx-keystone/crdt-binding-common"
 import type { ContainerID, ListDiff, LoroDoc, LoroEvent, MapDiff } from "loro-crdt"
-import { isContainer, LoroMap, LoroMovableList, LoroText } from "loro-crdt"
-import { remove } from "mobx"
+import { LoroMap, LoroMovableList, LoroText } from "loro-crdt"
+import { isObservableArray, remove, set } from "mobx"
 import {
+  type AnyModel,
   applySnapshot,
-  type Frozen,
+  Frozen,
+  findParent,
   fromSnapshot,
   frozen,
-  getSnapshotModelId,
-  isDataModel,
+  getGlobalConfig,
+  getModelIdPropertyName,
+  getModelInfoForName,
+  getModelMetadata,
+  getSnapshot,
   isFrozenSnapshot,
   isModel,
-  modelIdKey,
+  isTreeNode,
+  ModelAutoTypeCheckingMode,
+  type ModelClass,
+  modelTypeKey,
   type Path,
   resolvePath,
   runUnprotected,
 } from "mobx-keystone"
 import type { PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
+import { applyLoroEventsToSnapshot } from "./applyLoroEventsToSnapshot"
 import { convertLoroDataToJson } from "./convertLoroDataToJson"
 
-// Represents the map of potential objects to reconcile (ID -> Object)
-export type ReconciliationMap = Map<string, object>
+/**
+ * Reconcile structural changes together so identities can move between paths.
+ * @internal
+ */
+export function applyLoroEventsToMobx(
+  events: readonly LoroEvent[],
+  doc: LoroDoc,
+  boundObject: object,
+  rootPath: Path,
+  converted: Set<ContainerID>
+): { target: object; snapshot: unknown } | undefined {
+  // Events outside this binding, and empty diffs, cannot shift any path.
+  const candidates = events.flatMap((event) => {
+    const absolutePath = doc.getPathToContainer(event.target)
+    const path = absolutePath && resolveEventPath(absolutePath, rootPath)
+    if (!path) return []
+    const diff = event.diff
+    if (diff.type === "map" && Object.keys(diff.updated).length === 0) return []
+    if (diff.type === "list" && !diff.diff.some((part) => part.delete || part.insert?.length))
+      return []
+    if (diff.type === "text" && diff.diff.length === 0) return []
+    return [{ event, path }]
+  })
+  const relevant = candidates.filter(({ event, path }) => {
+    const diff = event.diff
+    if (diff.type !== "map") return true
+    // Loro diffs do not contain old values. Compare against MobX only when
+    // another event cannot have shifted/replaced this path.
+    if (path.length > 0 && candidates.length > 1) return true
+    const target = resolvePath(boundObject, path).value
+    if (target === undefined) return true
+    const data = isModel(target) ? target.$ : target
+    const container = doc.getContainerById(event.target) as LoroMap
+    return !Object.keys(diff.updated).every((key) => {
+      const value = container.get(key)
+      const previous = key === modelTypeKey && isModel(target) ? target[modelTypeKey] : data[key]
+      if (value === undefined) return previous === undefined && !Object.hasOwn(data, key)
+      return (
+        Object.is(previous, value) ||
+        (isFrozenSnapshot(value) && jsonEquals(getSnapshotValue(previous), value))
+      )
+    })
+  })
+  let reconcile = false
+  const paths = relevant.map(({ event, path }) => {
+    const target = resolvePath(boundObject, path).value
+    const diff = event.diff
+    if (diff.type === "map") {
+      const data = isModel(target) ? target.$ : target
+      const container = doc.getContainerById(event.target) as LoroMap
+      const modelType = container.get(modelTypeKey)
+      const modelClass =
+        typeof modelType === "string" ? getModelInfoForName(modelType)?.class : undefined
+      // Before parent diffs run, nested event paths may point at another model.
+      const stablePath = path.length === 0 || relevant.length === 1
+      if (modelClass?.fromSnapshotProcessor) {
+        if (stablePath && isModel(target)) {
+          // Identity processors (including typed-property processors) do not
+          // require full reconciliation for an ordinary scalar update.
+          const incoming = applyLoroEventsToSnapshot(
+            getSnapshot(target),
+            [{ event, path }],
+            path.length,
+            doc,
+            new Set()
+          ) as Record<string, unknown>
+          if (!jsonEquals(modelClass.fromSnapshotProcessor(incoming), incoming)) reconcile = true
+        } else {
+          reconcile = true
+        }
+      }
+      const updatedKeys = Object.keys(diff.updated)
+      if (updatedKeys.length > 1 && mayRequireTypeChecking(target)) {
+        let changedKeys = 0
+        for (const key of updatedKeys) {
+          if (!Object.is(data?.[key], container.get(key)) && ++changedKeys === 2) {
+            reconcile = true
+            break
+          }
+        }
+      }
+      let changesIdentity = false
+      if (Object.hasOwn(diff.updated, modelTypeKey)) {
+        const oldType = isModel(target) ? target[modelTypeKey] : undefined
+        changesIdentity = target !== undefined && oldType !== modelType
+      }
+      if (path.length > 0 && modelClass && isModel(modelClass.prototype)) {
+        const idKey = getModelIdPropertyName(modelClass as ModelClass<AnyModel>)
+        if (idKey !== undefined && Object.hasOwn(diff.updated, idKey)) {
+          changesIdentity ||=
+            !stablePath || !isModel(target) || !Object.is(target.$[idKey], container.get(idKey))
+        }
+      }
+      if (changesIdentity) {
+        if (path.length === 0) throw failure("cannot change the model type of the bound root")
+        reconcile = true
+        return path.slice(0, -1)
+      }
+      // Native paths use final list indices. A shifted model may not yet be
+      // at that index in MobX, so use its source metadata for default semantics.
+      const isModelContainer =
+        isModel(target) || (modelClass !== undefined && isModel(modelClass.prototype))
+      for (const [key, value] of Object.entries(diff.updated)) {
+        const previous = data?.[key]
+        if (
+          (previous !== null && typeof previous === "object" && !(previous instanceof Frozen)) ||
+          (isModelContainer &&
+            (value == null || (typeof value === "object" && !isFrozenSnapshot(value))))
+        ) {
+          reconcile = true
+        }
+      }
+    } else if (diff.type === "list" && (Array.isArray(target) || isObservableArray(target))) {
+      let index = 0
+      for (const change of diff.diff) {
+        index += change.retain ?? 0
+        const end = index + (change.delete ?? 0)
+        for (; index < end; index++) {
+          const value = target[index]
+          if (value !== null && typeof value === "object" && !(value instanceof Frozen))
+            reconcile = true
+        }
+      }
+    }
+    return path
+  })
+  if (reconcile || relevant.length > 1) {
+    const path = [...paths[0]]
+    for (const other of paths.slice(1)) {
+      let length = 0
+      while (length < path.length && path[length] === other[length]) length++
+      path.length = length
+    }
+    const target = resolvePath(boundObject, path).value
+    if (reconcile || mayRequireTypeChecking(target)) {
+      const snapshot = applyLoroEventsToSnapshot(
+        getSnapshot(target),
+        relevant,
+        path.length,
+        doc,
+        converted
+      )
+      applySnapshot(target, snapshot)
+      return { target, snapshot }
+    }
+  }
+  for (const { event } of relevant) {
+    applyLoroEventToMobx(event, doc, boundObject, rootPath, converted)
+  }
+  return undefined
+}
 
 /**
  * Applies a Loro event directly to the MobX model tree using proper mutations
@@ -32,7 +191,6 @@ export function applyLoroEventToMobx(
   loroDoc: LoroDoc,
   boundObject: object,
   rootPath: Path,
-  reconciliationMap: ReconciliationMap,
   newlyInsertedContainers: Set<ContainerID>
 ): void {
   // Skip events for containers that were just inserted as part of another container
@@ -63,66 +221,44 @@ export function applyLoroEventToMobx(
   runUnprotected(() => {
     const diff = event.diff
     if (diff.type === "map") {
-      applyMapEventToMobx(
-        diff,
-        loroDoc,
-        event.target,
-        target,
-        reconciliationMap,
-        newlyInsertedContainers
-      )
+      if (Object.hasOwn(diff.updated, modelTypeKey)) {
+        const container = loroDoc.getContainerById(event.target)
+        if (!(container instanceof LoroMap)) {
+          throw failure(`${event.target} was not a Loro map`)
+        }
+        const currentType = isModel(target) ? target[modelTypeKey] : undefined
+        if (currentType !== container.get(modelTypeKey)) {
+          if (relativePath.length === 0) {
+            throw failure("cannot change the model type of the bound root")
+          }
+          // Assigning metadata cannot change a model's class. Revive a new
+          // subtree rather than applying a plain-object snapshot to an old model.
+          const { value: parent } = resolvePath(boundObject, relativePath.slice(0, -1))
+          const snapshot = convertLoroDataToJson(container, newlyInsertedContainers)
+          set(
+            isModel(parent) ? parent.$ : parent,
+            relativePath[relativePath.length - 1],
+            fromSnapshot<unknown>(snapshot)
+          )
+          return
+        }
+      }
+      applyMapEventToMobx(diff, loroDoc, event.target, target, newlyInsertedContainers)
     } else if (diff.type === "list") {
-      applyListEventToMobx(
-        diff,
-        loroDoc,
-        event.target,
-        target,
-        reconciliationMap,
-        newlyInsertedContainers
-      )
+      applyListEventToMobx(diff, loroDoc, event.target, target, newlyInsertedContainers)
     } else if (diff.type === "text") {
       applyTextEventToMobx(loroDoc, event.target, target)
     }
   })
 }
 
-function processDeletedValue(val: unknown, reconciliationMap: ReconciliationMap) {
-  // Handle both Model and DataModel instances
-  if (isModel(val) || isDataModel(val)) {
-    const id = modelIdKey in val ? val[modelIdKey] : undefined
-    if (id) {
-      reconciliationMap.set(id, val)
-    }
-  }
+function getSnapshotValue(value: unknown): unknown {
+  return isTreeNode(value) ? getSnapshot(value) : value
 }
 
-function reviveValue(jsonValue: unknown, reconciliationMap: ReconciliationMap): unknown {
-  // Handle primitives
-  if (jsonValue === null || typeof jsonValue !== "object") {
-    return jsonValue
-  }
-
-  // Handle frozen
-  if (isFrozenSnapshot(jsonValue)) {
-    return frozen(jsonValue.data)
-  }
-
-  // If we have a reconciliation map and the value looks like a model with an ID, check if we have it
-  if (reconciliationMap) {
-    const modelId = getSnapshotModelId(jsonValue)
-    if (modelId) {
-      const existing = reconciliationMap.get(modelId)
-      if (existing) {
-        reconciliationMap.delete(modelId)
-        // Reused models must reflect the snapshot too: nested events may be skipped
-        // because this container's complete contents have already been read.
-        applySnapshot(existing, jsonValue)
-        return existing
-      }
-    }
-  }
-
-  return fromSnapshot(jsonValue)
+function reviveValue(value: unknown): unknown {
+  if (value === null || typeof value !== "object") return value
+  return isFrozenSnapshot(value) ? frozen(value.data) : fromSnapshot(value)
 }
 
 function applyMapEventToMobx(
@@ -130,45 +266,37 @@ function applyMapEventToMobx(
   loroDoc: LoroDoc,
   containerTarget: ContainerID,
   target: Record<string, unknown>,
-  reconciliationMap: ReconciliationMap,
   newlyInsertedContainers: Set<ContainerID>
 ): void {
   const container = loroDoc.getContainerById(containerTarget)
-
-  if (!container || !(container instanceof LoroMap)) {
-    throw failure(`${containerTarget} was not a Loro map`)
-  }
-
-  // Process additions and updates from diff.updated
+  if (!(container instanceof LoroMap)) throw failure(`${containerTarget} was not a Loro map`)
+  const data = isModel(target) ? target.$ : target
   for (const key of Object.keys(diff.updated)) {
-    const loroValue = container.get(key)
-
-    if (loroValue === undefined) {
-      // Key was deleted (Loro returns undefined for deleted keys)
-      if (key in target) {
-        processDeletedValue(target[key], reconciliationMap)
-        // Use MobX's remove to properly delete the key from the observable object
-        if (isModel(target)) {
-          remove(target.$, key)
-        } else {
-          remove(target, key)
-        }
-      }
+    // Model discriminators are metadata, not assignable data properties.
+    if (key === modelTypeKey && isModel(target)) continue
+    const value = container.get(key)
+    if (value === undefined) {
+      remove(data, key)
     } else {
-      // Key was added or updated
-      if (key in target) {
-        processDeletedValue(target[key], reconciliationMap)
-      }
-      // Track container IDs to avoid double-processing their events, as the list path below does.
-      // convertLoroDataToJson already inlines the whole subtree of a container set as a value, but
-      // Loro also fires separate events for each nested container, which would then re-apply it.
-      if (isContainer(loroValue)) {
-        collectNestedContainerIds(loroValue, newlyInsertedContainers)
-      }
-      const jsonValue = convertLoroDataToJson(loroValue as PlainValue)
-      target[key] = reviveValue(jsonValue, reconciliationMap)
+      const snapshot = convertLoroDataToJson(value as PlainValue, newlyInsertedContainers)
+      if (jsonEquals(getSnapshotValue(data[key]), snapshot)) continue
+      // Stored values bypass property transforms; set also makes new keys
+      // observable when MobX proxies are disabled.
+      set(data, key, reviveValue(snapshot))
     }
   }
+}
+
+function mayRequireTypeChecking(target: object): boolean {
+  if (
+    getGlobalConfig().modelAutoTypeChecking === ModelAutoTypeCheckingMode.AlwaysOff ||
+    !isTreeNode(target)
+  )
+    return false
+  return (
+    (isModel(target) && !!getModelMetadata(target).dataType) ||
+    !!findParent(target, (parent) => isModel(parent) && !!getModelMetadata(parent).dataType)
+  )
 }
 
 function applyListEventToMobx(
@@ -176,53 +304,67 @@ function applyListEventToMobx(
   loroDoc: LoroDoc,
   containerTarget: ContainerID,
   target: unknown[],
-  reconciliationMap: ReconciliationMap,
   newlyInsertedContainers: Set<ContainerID>
 ): void {
-  const container = loroDoc.getContainerById(containerTarget)
-
-  if (!container || !(container instanceof LoroMovableList)) {
+  if (!(loroDoc.getContainerById(containerTarget) instanceof LoroMovableList)) {
     throw failure(`${containerTarget} was not a Loro movable list`)
   }
-
-  // Process delta operations in order
-  let currentIndex = 0
-
+  // Structural deletions are reconciled by applyLoroEventsToMobx. Combine
+  // adjacent primitive replacements so refinements never see a temporary length.
+  let combineSplices = false
+  let hasEdit = false
+  let retainedAfterEdit = false
   for (const change of diff.diff) {
-    if (change.retain) {
-      currentIndex += change.retain
-    }
-
-    if (change.delete) {
-      // Capture deleted items for reconciliation
-      const deletedItems = target.slice(currentIndex, currentIndex + change.delete)
-      deletedItems.forEach((item) => {
-        processDeletedValue(item, reconciliationMap)
-      })
-
-      // Delete items at current position
-      target.splice(currentIndex, change.delete)
-    }
-
-    if (change.insert) {
-      // Insert items at current position
-      const insertedItems = change.insert
-      const values = insertedItems.map((loroValue) => {
-        // Track container IDs to avoid double-processing their events
-        // When a container with data is inserted, Loro fires events for both
-        // the container insert and the container's content, but the content
-        // is already included in convertLoroDataToJson
-        if (isContainer(loroValue)) {
-          collectNestedContainerIds(loroValue, newlyInsertedContainers)
-        }
-        const jsonValue = convertLoroDataToJson(loroValue as PlainValue)
-        return reviveValue(jsonValue, reconciliationMap)
-      })
-
-      target.splice(currentIndex, 0, ...values)
-      currentIndex += values.length
+    if (change.retain && hasEdit) retainedAfterEdit = true
+    if (change.insert?.length || change.delete) {
+      if (retainedAfterEdit) {
+        combineSplices = mayRequireTypeChecking(target)
+        break
+      }
+      hasEdit = true
     }
   }
+  let index = 0
+  let deleteCount = 0
+  let values: unknown[] = []
+  const flush = () => {
+    if (values.length === 0) {
+      if (deleteCount) target.splice(index, deleteCount)
+    } else if (isObservableArray(target)) {
+      // One mutation lets automatic checks see the complete replacement.
+      target.spliceWithArray(index, deleteCount, values)
+      index += values.length
+    } else {
+      // Plain arrays have no automatic checks; avoid native argument limits.
+      const batchSize = 8192
+      for (let i = 0; i < values.length; i += batchSize) {
+        const batch = values.slice(i, i + batchSize)
+        const removed =
+          i + batch.length === values.length ? deleteCount : Math.min(deleteCount, batch.length)
+        target.splice(index, removed, ...batch)
+        deleteCount -= removed
+        index += batch.length
+      }
+    }
+    deleteCount = 0
+    values = []
+  }
+  for (const change of diff.diff) {
+    if (change.retain) {
+      if (combineSplices && (deleteCount > 0 || values.length > 0)) {
+        for (let i = 0; i < change.retain; i++) values.push(target[index + deleteCount + i])
+        deleteCount += change.retain
+      } else {
+        flush()
+        index += change.retain
+      }
+    }
+    deleteCount += change.delete ?? 0
+    for (const value of change.insert ?? []) {
+      values.push(reviveValue(convertLoroDataToJson(value as PlainValue, newlyInsertedContainers)))
+    }
+  }
+  flush()
 }
 
 function applyTextEventToMobx(
@@ -242,38 +384,6 @@ function applyTextEventToMobx(
     throw failure("target does not have a deltaList property - expected LoroTextModel")
   }
   target.deltaList = frozen(container.toDelta())
-}
-
-/**
- * Recursively collects all container IDs from a Loro container.
- * This is used to track containers that have been inserted and should not
- * have their events processed again (since their content was already included
- * in the parent's convertLoroDataToJson call).
- */
-function collectNestedContainerIds(container: unknown, containerIds: Set<ContainerID>): void {
-  if (!isContainer(container)) {
-    return
-  }
-
-  // Add this container's ID
-  containerIds.add(container.id)
-
-  // Handle LoroMap - iterate over values
-  if (container instanceof LoroMap) {
-    for (const key of Object.keys(container.toJSON())) {
-      const value = container.get(key)
-      collectNestedContainerIds(value, containerIds)
-    }
-  }
-
-  // Handle LoroMovableList - iterate over items
-  if (container instanceof LoroMovableList) {
-    for (let i = 0; i < container.length; i++) {
-      collectNestedContainerIds(container.get(i), containerIds)
-    }
-  }
-
-  // LoroText doesn't contain nested containers
 }
 
 /**

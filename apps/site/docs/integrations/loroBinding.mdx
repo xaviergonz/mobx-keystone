@@ -33,15 +33,29 @@ const {
 })
 ```
 
-The `loroObject` must be a `LoroMap`, `LoroMovableList`, or `LoroText` attached to `loroDoc`. Its current JSON representation must be a valid input snapshot for `mobxKeystoneType`. The returned `boundObject` is created from that CRDT data, and later changes flow in both directions until `dispose()` is called.
+The `loroObject` must be a `LoroMap`, `LoroMovableList`, or `LoroText` attached to `loroDoc`. Its current JSON representation must be a valid input snapshot for `mobxKeystoneType`. The returned `boundObject` is created from that data, and changes flow in both directions until you call `dispose()`.
 
-When assigning a new container to a Loro map property, populate its complete subtree before committing. The binding applies the subtree as a whole, including nested arrays, and continues synchronizing subsequent edits to those containers. Replacing a submodel with the same model ID also updates its contents.
+A binding follows its original container when an ancestor movable list is reordered. Deleting that container automatically disposes the binding; a replacement at the same path does not take over the binding. After disposal, text models remain usable locally, but their editing methods no longer modify the document.
+
+### Synchronization and validation
+
+When editing Loro directly, populate new containers completely before committing. Commit those edits before reading the updated model or making model edits that depend on their results, especially array indices.
+
+When editing the document directly, use the stored snapshot values for model properties, including properties with transforms. Incoming model updates also run snapshot processors. The binding writes inferred model metadata, restored defaults, and normalized property values back to Loro.
+
+Replacements, moves between collections, and swaps within one commit preserve model instances when their model type and ID match. Changing a nested model's type or ID may create a different instance. The bound root model's class cannot change in place.
+
+If you edit the model while direct document changes are still pending, a local edit can overwrite a conflicting document value or restore an item deleted from the document. Finish direct document updates before editing the same data through the model to avoid these conflicts.
+
+With automatic type checking enabled, refinements on a model or its ancestors validate related changes in a commit together. If validation or snapshot processing fails, the committed Loro data is not rolled back. Correct the document data; the binding retries synchronization on later related events.
 
 ## First migration - converting JSON to `Loro` data
 
 If you already have a stored model snapshot, use `convertJsonToLoroData` to create the initial Loro structure before binding it.
 
-`convertJsonToLoroData` accepts a JSON value (usually the model snapshot) and returns the corresponding Loro structure (`LoroMap`, `LoroMovableList`, and so on). Frozen values remain immutable plain values.
+`convertJsonToLoroData` accepts a JSON value (usually a model snapshot) and returns the corresponding Loro structure. Objects become `LoroMap` containers, arrays become `LoroMovableList` containers, and text model snapshots become `LoroText`. Frozen values remain immutable plain values.
+
+Undefined object properties are omitted. Undefined array entries and sparse arrays are rejected with `MobxKeystoneLoroError`.
 
 If you already have an existing `LoroMap` or `LoroMovableList` and want to copy JSON data into it, use the helper functions:
 
@@ -52,8 +66,10 @@ These are useful when seeding or refreshing part of a document without rebuildin
 
 The optional `options.mode` controls how data is applied:
 
-- `"add"` - Create and insert new Loro containers from the JSON data. This is the default.
-- `"merge"` - Recursively merge into existing `LoroMap` / `LoroMovableList` containers when possible, preserving existing container references.
+- `"add"` - Append array items or set the supplied map keys, creating new containers for nested objects and arrays. This is the default.
+- `"merge"` - Update the destination to match the supplied snapshot, preserving compatible nested containers, including text containers.
+
+In merge mode, replacing a list value preserves its list item identity, so a concurrent move carries the replacement value.
 
 For example:
 
@@ -79,6 +95,10 @@ text.insertText(0, "Say: ")
 text.text // "Say: Hello world!"
 ```
 
+On a bound model, `insertText` and `deleteText` commit immediately. This also commits any other pending edits in the Loro document. The `text`, `currentDelta`, and snapshot values are synchronized before the methods return and update reactively after committed Loro changes.
+
+These editing methods preserve formatting on both bound and unbound models. Positions use UTF-16 indices, matching JavaScript string offsets. Use `setDelta()` to replace the text and formatting; assigning an equivalent delta leaves the existing text unchanged.
+
 Note that `loroText` returns `undefined` while the model is not part of a bound tree.
 
 If you want to use `LoroTextModel` in a runtime type-checked property, `loroTextModelType` is the exported `types.model(...)` helper for that:
@@ -100,22 +120,29 @@ Unlike Y.js, Loro's `LoroMovableList` supports native move operations. To take a
 import { moveWithinArray } from "mobx-keystone-loro"
 
 runUnprotected(() => {
-  // Move item from index 0 to index 3
+  // Move the first item before the item originally at index 3
   moveWithinArray(boundObject.items, 0, 3)
 })
 ```
 
 `moveWithinArray(array, fromIndex, toIndex)` moves an item within an array:
-- **fromIndex**: The current index of the item to move
-- **toIndex**: The target index (position before the move happens)
+
+- **fromIndex**: The current integer index of the item to move
+- **toIndex**: The target integer index (position before the move happens); `array.length` moves to the end. Moving to `fromIndex` or `fromIndex + 1` leaves the item in place.
 
 When used on a mobx-keystone array bound to Loro, this translates to a native `loroList.move()` operation, preserving the identity and history of the moved item across all clients.
 
-For unbound arrays, it performs a standard splice-based move.
+For arrays in a mobx-keystone tree, automatic type checking validates the completed move. If validation rejects it, the original array remains unchanged.
+
+For plain JavaScript arrays, it performs a standard splice-based move.
 
 ## The `LoroBindingContext`
 
-All nodes inside a bound tree have access to a `LoroBindingContext` instance.
+All nodes inside a bound tree have access to a `LoroBindingContext` instance, including models running `onInit`. Changes made by initialization hooks to the bound tree are synchronized back to Loro.
+
+If initialization also edits Loro directly, those edits take precedence over conflicting model initialization changes. Arrays and frozen values are treated as whole values when resolving conflicts. If the conflict involves replacing a model with a different type or ID, the document value takes precedence for the whole subtree.
+
+The context's `boundObject` becomes available once the initial synchronization is ready. Reactions to it becoming available can make further edits to the document.
 
 The instance can be accessed using:
 

@@ -1,3 +1,4 @@
+import { dataToModelNode } from "../parent/core"
 import { fastGetRootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { getSnapshot } from "../snapshot/getSnapshot"
@@ -146,7 +147,7 @@ function resolveTypeCheckErrorData(data: TypeCheckErrorData): {
   const modelTrail = data.modelTrail ?? getErrorModelTrailSnapshot()
   const fullPath = resolveFullPath(data.path, data.typeCheckedValue)
   const actualValueSnapshot = isTweakedObject(data.actualValue, true)
-    ? getSnapshot(data.actualValue)
+    ? getSnapshot(dataToModelNode(data.actualValue))
     : data.actualValue
 
   return {
@@ -164,7 +165,7 @@ function resolveTypeCheckErrorData(data: TypeCheckErrorData): {
 function resolveFullPath(path: Path, typeCheckedValue: any): Path {
   let rootPath: Path = []
   if (typeCheckedValue && isTweakedObject(typeCheckedValue, true)) {
-    rootPath = fastGetRootPath(typeCheckedValue, false).path
+    rootPath = fastGetRootPath(dataToModelNode(typeCheckedValue), false).path
   }
   return rootPath.length > 0 && !pathStartsWith(path, rootPath) ? [...rootPath, ...path] : path
 }

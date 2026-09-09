@@ -16,7 +16,6 @@ import {
   bindLoroToMobxKeystone,
   loroBindingContext,
 } from "../../src"
-import * as loroSnapshotTracking from "../../src/binding/loroSnapshotTracking"
 import { autoDispose, normalizeSnapshot, testModel } from "../utils"
 
 @testModel("loro-test-submodel")
@@ -286,8 +285,8 @@ describe("init sync during remote event handling", () => {
   })
 })
 
-describe("snapshot tracking optimization", () => {
-  test("merge skips unchanged containers (reference equality)", () => {
+describe("repeated merges", () => {
+  test("map merge preserves unchanged values", () => {
     const doc = new LoroDoc()
     const loroMap = doc.getMap("test")
     const snapshot = { a: 1, b: "hello", $modelType: "test" }
@@ -313,7 +312,7 @@ describe("snapshot tracking optimization", () => {
     expect(loroMap.get("a")).toBe(2)
   })
 
-  test("array merge skips unchanged containers", () => {
+  test("array merge preserves unchanged values", () => {
     const doc = new LoroDoc()
     const loroList = doc.getMovableList("list")
     const snapshot = [1, 2, 3]
@@ -331,46 +330,6 @@ describe("snapshot tracking optimization", () => {
     applyJsonArrayToLoroMovableList(loroList, [1, 99, 3], { mode: "merge" })
     doc.commit()
     expect(loroList.toArray()).toEqual([1, 99, 3])
-  })
-
-  test("isLoroContainerUpToDate uses reference equality", () => {
-    const doc = new LoroDoc()
-    const loroMap = doc.getMap("test")
-    const snapshot = { a: 1, b: 2 }
-
-    expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, snapshot)).toBe(false)
-
-    loroSnapshotTracking.setLoroContainerSnapshot(loroMap, snapshot)
-    expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, snapshot)).toBe(true)
-    expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, { a: 1, b: 2 })).toBe(false) // different ref
-  })
-
-  test("snapshot tracking updates after each sync", () => {
-    @testModel("loro-snapshot-tracking-multi-sync")
-    class SimpleModel extends Model({
-      value: tProp(types.number, 0),
-    }) {}
-
-    const doc = new LoroDoc()
-    const loroMap = doc.getMap("testModel")
-
-    const { boundObject, dispose } = bindLoroToMobxKeystone({
-      loroDoc: doc,
-      loroObject: loroMap,
-      mobxKeystoneType: SimpleModel,
-    })
-    autoDispose(dispose)
-
-    const snapshot1 = getSnapshot(boundObject)
-    expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, snapshot1)).toBe(true)
-
-    runUnprotected(() => {
-      boundObject.value = 10
-    })
-
-    const snapshot2 = getSnapshot(boundObject)
-    expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, snapshot2)).toBe(true)
-    expect(loroSnapshotTracking.isLoroContainerUpToDate(loroMap, snapshot1)).toBe(false)
   })
 })
 

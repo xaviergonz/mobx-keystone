@@ -1,8 +1,8 @@
 import { LoroMap, LoroMovableList } from "loro-crdt"
 import type { Path } from "mobx-keystone"
 import { failure } from "../utils/error"
-import { getOrCreateLoroCollectionAtom } from "../utils/getOrCreateLoroCollectionAtom"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
+import { reportLoroCollectionObserved } from "../utils/loroCollectionAtoms"
 
 /**
  * Resolves a path within a Loro object structure.
@@ -15,15 +15,15 @@ import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 export function resolveLoroPath(loroObject: BindableLoroContainer, path: Path): unknown {
   let currentLoroObject: unknown = loroObject
 
-  path.forEach((pathPart, i) => {
+  // Every applied change resolves its path, so avoid a callback per traversal.
+  for (let i = 0; i < path.length; i++) {
     if (currentLoroObject instanceof LoroMap) {
-      getOrCreateLoroCollectionAtom(currentLoroObject).reportObserved()
-      const key = String(pathPart)
+      const key = String(path[i])
+      reportLoroCollectionObserved(loroObject, currentLoroObject, key)
       currentLoroObject = currentLoroObject.get(key)
     } else if (currentLoroObject instanceof LoroMovableList) {
-      getOrCreateLoroCollectionAtom(currentLoroObject).reportObserved()
-      const key = Number(pathPart)
-      currentLoroObject = currentLoroObject.get(key)
+      reportLoroCollectionObserved(loroObject, currentLoroObject)
+      currentLoroObject = currentLoroObject.get(Number(path[i]))
     } else {
       throw failure(
         `LoroMap or LoroMovableList was expected at path ${JSON.stringify(
@@ -31,7 +31,7 @@ export function resolveLoroPath(loroObject: BindableLoroContainer, path: Path): 
         )} in order to resolve path ${JSON.stringify(path)}, but got ${currentLoroObject} instead`
       )
     }
-  })
+  }
 
   return currentLoroObject
 }

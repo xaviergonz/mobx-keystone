@@ -1,6 +1,19 @@
 import { action, observable } from "mobx"
-import { clone, deepEquals, runUnprotected } from "../../src"
-import { createP } from "../testbed"
+import { clone, deepEquals, idProp, Model, model, prop, runUnprotected } from "../../src"
+
+@model("deepEquals/Nested")
+class Nested extends Model({ id: idProp, value: prop(12) }) {}
+
+@model("deepEquals/Node")
+class Node extends Model({
+  id: idProp,
+  arr: prop<number[]>(() => [1, 2, 3]),
+  nested: prop<Nested>(),
+}) {}
+
+function createNode() {
+  return new Node({ nested: new Nested({}) })
+}
 
 test("plain values", () => {
   // no need to check these too much since it uses fast-deep-equals for this
@@ -63,8 +76,8 @@ test(
 )
 
 test("nodes", () => {
-  const p1 = createP(true)
-  const p2 = createP(true)
+  const p1 = createNode()
+  const p2 = createNode()
   const p1Clone = clone(p1, { generateNewIds: false })
 
   expect(p1.$modelId).not.toBe(p2.$modelId)
@@ -82,4 +95,40 @@ test("nodes", () => {
     p1Clone.arr.pop()
   })
   expect(deepEquals(p1, p1Clone)).toBe(true)
+})
+
+test("primitive fast paths preserve equality and observable unboxing", () => {
+  const symbol = Symbol("value")
+  for (const value of [undefined, null, true, 1, "value", 1n, symbol, Number.NaN]) {
+    expect(deepEquals(value, value)).toBe(true)
+    expect(deepEquals(observable.box(value), value)).toBe(true)
+    expect(deepEquals(value, observable.box(value))).toBe(true)
+  }
+  expect(deepEquals(0, -0)).toBe(true)
+  expect(deepEquals(Number.NaN, 0)).toBe(false)
+  expect(deepEquals(null, undefined)).toBe(false)
+  expect(deepEquals(1n, 1)).toBe(false)
+  expect(deepEquals(Symbol("value"), Symbol("value"))).toBe(false)
+})
+
+test("model data objects retain observable-object comparison semantics", () => {
+  const model = createNode()
+  const copy = clone(model, { generateNewIds: false })
+  expect(deepEquals(model.$, copy.$)).toBe(true)
+  runUnprotected(() => {
+    copy.arr.push(42)
+  })
+  expect(deepEquals(model.$, copy.$)).toBe(false)
+})
+
+test("non-JSON values retain their existing comparison behavior", () => {
+  expect(deepEquals(new Date(1), new Date(1))).toBe(true)
+  expect(deepEquals(new Date(1), new Date(2))).toBe(false)
+  expect(deepEquals(/value/gi, /value/gi)).toBe(true)
+  expect(deepEquals(/value/g, /value/i)).toBe(false)
+  expect(deepEquals(new Uint8Array([1, 2]), new Uint8Array([1, 2]))).toBe(true)
+  expect(deepEquals(new Uint8Array([1, 2]), new Uint8Array([1, 3]))).toBe(false)
+  const fn = () => 1
+  expect(deepEquals(fn, fn)).toBe(true)
+  expect(deepEquals(fn, () => 1)).toBe(false)
 })

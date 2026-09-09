@@ -904,3 +904,29 @@ describe("primitive and mixed array operations", () => {
     expect(loroItems.get(4)).toBe(3)
   })
 })
+
+test.each([
+  [0, 2],
+  [2, 0],
+])("remote move %i -> %i preserves the model instance", (from, to) => {
+  const { doc, items, boundObject } = setupMoveTest([
+    { id: "item-0", name: "A", value: 0 },
+    { id: "item-1", name: "B", value: 1 },
+    { id: "item-2", name: "C", value: 2 },
+  ])
+  const moved = boundObject.items[from]
+  items.move(from, to)
+  doc.commit()
+  expect(boundObject.items[to]).toBe(moved)
+})
+
+test.each([Number.NaN, 0.5, Number.POSITIVE_INFINITY])(
+  "move rejects invalid index %s without changing the array",
+  (index) => {
+    const array = [1, 2, 3]
+    expect(() => moveWithinArray(array, index, 2)).toThrow()
+    expect(array).toEqual([1, 2, 3])
+    expect(() => moveWithinArray(array, 0, index)).toThrow()
+    expect(array).toEqual([1, 2, 3])
+  }
+)

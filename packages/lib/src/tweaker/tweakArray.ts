@@ -13,7 +13,13 @@ import { emitArraySpliceDeepChange, emitArrayUpdateDeepChange } from "../deepCha
 import { getGlobalConfig } from "../globalConfig"
 import type { ParentPath } from "../parent/path"
 import { reindexArrayChildren, setParent } from "../parent/setParent"
-import { hasPatchListenersFor, InternalPatchRecorder } from "../patch/emitPatch"
+import {
+  beginPatchEmission,
+  emitPatches,
+  endPatchEmission,
+  hasPatchListenersFor,
+  InternalPatchRecorder,
+} from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
 import {
   flushInternalSnapshot,
@@ -138,8 +144,23 @@ function mutateSet(k: number, v: unknown, sn: unknown[]) {
   sn[k] = v
 }
 
+// Conservative bound below every engine's argument-count limit for spread calls.
+const maxSpreadableItems = 8192
+
 function mutateSplice(index: number, removedCount: number, addedItems: any[], sn: any[]) {
-  sn.splice(index, removedCount, ...addedItems)
+  if (addedItems.length < maxSpreadableItems) {
+    sn.splice(index, removedCount, ...addedItems)
+    return
+  }
+
+  // Splice the tail in a single pass instead of spreading the added items as
+  // arguments, which would overflow the engine's limit. copyWithin handles overlap.
+  const oldLength = sn.length
+  const newLength = oldLength - removedCount + addedItems.length
+  if (newLength > oldLength) sn.length = newLength
+  sn.copyWithin(index + addedItems.length, index + removedCount, oldLength)
+  for (let i = 0; i < addedItems.length; i++) sn[index + i] = addedItems[i]
+  sn.length = newLength
 }
 
 const patchRecorder = new InternalPatchRecorder()
@@ -148,20 +169,6 @@ function arrayDidChange(change: IArrayDidChange) {
   const arr = change.object
 
   patchRecorder.reset()
-
-  switch (change.type) {
-    case "splice":
-      emitArraySpliceDeepChange(arr, arr, change.index as number, change.added, change.removed)
-      break
-
-    case "update":
-      emitArrayUpdateDeepChange(arr, arr, change.index as number, change.newValue, change.oldValue)
-
-      break
-
-    default:
-      break
-  }
 
   if (runningWithoutSnapshotOrPatches) {
     return
@@ -196,7 +203,38 @@ function arrayDidChange(change: IArrayDidChange) {
   runTypeCheckingAfterChange(arr, patchRecorder)
   if (mutate) {
     updateInternalSnapshot(arr, mutate)
-    patchRecorder.emit(arr)
+  }
+  // Listeners may mutate another node and reuse the shared recorder.
+  // Keep this change's patches before publishing the validated deep change.
+  const { patches, invPatches } = patchRecorder
+  patchRecorder.reset()
+
+  // Reserve chronological patch notifications, then finish deep-change delivery
+  // before publishing them. Reentrant edits append behind this mutation.
+  beginPatchEmission()
+  try {
+    emitPatches(arr, patches, invPatches)
+    switch (change.type) {
+      case "splice":
+        emitArraySpliceDeepChange(arr, arr, change.index as number, change.added, change.removed)
+        break
+
+      case "update":
+        emitArrayUpdateDeepChange(
+          arr,
+          arr,
+          change.index as number,
+          change.newValue,
+          change.oldValue
+        )
+
+        break
+
+      default:
+        break
+    }
+  } finally {
+    endPatchEmission()
   }
 }
 
@@ -317,10 +355,10 @@ function arrayDidChangeSplice(
     }
 
     if (patches && readdPatches && readdPatches.length > 0) {
-      patches.push(...readdPatches)
+      for (const patch of readdPatches) patches.push(patch)
     }
     if (invPatches && readdInvPatches && readdInvPatches.length > 0) {
-      invPatches.push(...readdInvPatches)
+      for (const patch of readdInvPatches) invPatches.push(patch)
     }
     // We need to reverse once since inverse patches are applied in reverse.
     // Repeated unshift calls here would make a large splice quadratic.

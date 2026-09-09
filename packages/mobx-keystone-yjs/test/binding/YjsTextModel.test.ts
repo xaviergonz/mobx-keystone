@@ -440,3 +440,19 @@ test("detach/reattach different YJsText", () => {
   `)
   textChanges.length = 0
 })
+
+test("text metadata changes do not append empty content deltas", () => {
+  const doc = new Y.Doc()
+  const text = doc.getText("text")
+  text.insert(0, "abc")
+  const { boundObject, dispose } = bindYjsToMobxKeystone({
+    yjsDoc: doc,
+    yjsObject: text,
+    mobxKeystoneType: YjsTextModel,
+  })
+  autoDispose(dispose)
+  const snapshot = getSnapshot(boundObject)
+  text.setAttribute("metadata", "value")
+  expect(getSnapshot(boundObject)).toBe(snapshot)
+  expect(boundObject.text).toBe("abc")
+})

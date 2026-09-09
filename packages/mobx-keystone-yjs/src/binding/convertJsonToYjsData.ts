@@ -1,9 +1,11 @@
+import { jsonEquals } from "@mobx-keystone/crdt-binding-common"
 import { frozenKey, modelTypeKey, type SnapshotOutOf } from "mobx-keystone"
 import * as Y from "yjs"
 import type { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
+import { failure } from "../utils/error"
 import type { YjsData } from "./convertYjsDataToJson"
+import { replaceYjsText, type TextDeltaHistory } from "./textDelta"
 import { type YjsTextModel, yjsTextModelId } from "./YjsTextModel"
-import { isYjsContainerUpToDate, setYjsContainerSnapshot } from "./yjsSnapshotTracking"
 
 /**
  * Options for applying JSON data to Y.js data structures.
@@ -12,7 +14,8 @@ export interface ApplyJsonToYjsOptions {
   /**
    * The mode to use when applying JSON data to Y.js data structures.
    * - `add`: Creates new Y.js containers for objects/arrays (default, backwards compatible)
-   * - `merge`: Recursively merges values, preserving existing container references where possible
+   * - `merge`: Recursively merges values, preserving existing container references where possible.
+   *   The destination must be attached to a Y.Doc so its contents can be read.
    */
   mode?: "add" | "merge"
 }
@@ -28,6 +31,34 @@ function isPlainArray(v: PlainValue): v is PlainArray {
 
 function isPlainObject(v: PlainValue): v is PlainObject {
   return typeof v === "object" && v !== null && !Array.isArray(v)
+}
+
+function isMapSnapshot(v: PlainValue): v is PlainObject {
+  return isPlainObject(v) && v[frozenKey] !== true && v[modelTypeKey] !== yjsTextModelId
+}
+
+function isTextSnapshot(v: PlainValue): v is PlainObject {
+  return isPlainObject(v) && v[frozenKey] !== true && v[modelTypeKey] === yjsTextModelId
+}
+
+/** Y.Text is edited in place: replacing it would invalidate relative positions. */
+function mergeTextSnapshot(existing: unknown, source: PlainValue): boolean {
+  if (!isTextSnapshot(source) || !(existing instanceof Y.Text)) {
+    return false
+  }
+  replaceYjsText(existing, (source as unknown as SnapshotOutOf<YjsTextModel>).deltaList)
+  return true
+}
+
+// Frozen snapshots are atomic values, not maps. Avoid replacing unchanged values.
+function isUnchangedAtomicValue(existing: unknown, source: PlainValue): boolean {
+  if (!isPlainObject(source)) {
+    return Object.is(existing, source)
+  }
+  if (source[frozenKey] === true) {
+    return jsonEquals(existing, source)
+  }
+  return false
 }
 
 /**
@@ -66,7 +97,16 @@ export function convertJsonToYjsData(v: PlainValue): YjsData {
     return map
   }
 
-  throw new Error(`unsupported value type: ${v}`)
+  throw failure(`unsupported value type: ${v}`)
+}
+
+function appendJsonItems(dest: Y.Array<any>, source: PlainArray, start: number) {
+  // Detached Y.Arrays spread their input into a native array. Bound each batch
+  // to avoid the engine's argument limit while keeping insertion work bulked.
+  const batchSize = 8192
+  for (let i = start; i < source.length; i += batchSize) {
+    dest.push(source.slice(i, i + batchSize).map(convertJsonToYjsData))
+  }
 }
 
 /**
@@ -81,20 +121,32 @@ export const applyJsonArrayToYArray = (
   source: PlainArray,
   options: ApplyJsonToYjsOptions = {}
 ) => {
+  const apply = () => applyJsonArrayToYArrayInternal(dest, source, options)
+  if (dest.doc) {
+    dest.doc.transact(apply)
+  } else {
+    if (options.mode === "merge") {
+      throw failure("the merge destination must be attached to a document")
+    }
+    apply()
+  }
+}
+
+function applyJsonArrayToYArrayInternal(
+  dest: Y.Array<any>,
+  source: PlainArray,
+  options: ApplyJsonToYjsOptions
+) {
   const { mode = "add" } = options
 
-  // In merge mode, check if the container is already up-to-date with this snapshot
-  if (mode === "merge" && isYjsContainerUpToDate(dest, source)) {
-    return
+  if (source.includes(undefined)) {
+    throw failure("undefined values are not supported in Yjs arrays")
   }
-
   const srcLen = source.length
 
   if (mode === "add") {
     // Add mode: just push all items to the end
-    for (let i = 0; i < srcLen; i++) {
-      dest.push([convertJsonToYjsData(source[i])])
-    }
+    appendJsonItems(dest, source, 0)
     return
   }
 
@@ -108,39 +160,54 @@ export const applyJsonArrayToYArray = (
 
   // Update existing items
   const minLen = Math.min(destLen, srcLen)
+  // Indexed Y.Array reads can repeatedly scan contiguous shared items, even
+  // with search markers. Capture retained values in one linear traversal.
+  const existingItems = minLen > 0 ? dest.toArray() : []
+  let replacements: YjsData[] = []
+  const flushReplacements = (end: number) => {
+    if (replacements.length === 0) return
+    const start = end - replacements.length
+    dest.delete(start, replacements.length)
+    dest.insert(start, replacements)
+    replacements = []
+  }
   for (let i = 0; i < minLen; i++) {
     const srcItem = source[i]
-    const destItem = dest.get(i)
+    const destItem = existingItems[i]
 
-    // If both are objects, merge recursively
-    if (isPlainObject(srcItem) && destItem instanceof Y.Map) {
-      applyJsonObjectToYMap(destItem, srcItem, options)
+    // Retained containers and unchanged values separate replacement runs.
+    if (isMapSnapshot(srcItem) && destItem instanceof Y.Map) {
+      flushReplacements(i)
+      applyJsonObjectToYMapInternal(destItem, srcItem, options)
       continue
     }
 
-    // If both are arrays, merge recursively
     if (isPlainArray(srcItem) && destItem instanceof Y.Array) {
-      applyJsonArrayToYArray(destItem, srcItem, options)
+      flushReplacements(i)
+      applyJsonArrayToYArrayInternal(destItem, srcItem, options)
       continue
     }
 
-    // Skip if primitive value is unchanged (optimization)
-    if (isPlainPrimitive(srcItem) && destItem === srcItem) {
+    if (isTextSnapshot(srcItem) && destItem instanceof Y.Text) {
+      flushReplacements(i)
+      mergeTextSnapshot(destItem, srcItem)
       continue
     }
 
-    // Otherwise, replace the item
-    dest.delete(i, 1)
-    dest.insert(i, [convertJsonToYjsData(srcItem)])
+    if (isUnchangedAtomicValue(destItem, srcItem)) {
+      flushReplacements(i)
+      continue
+    }
+
+    // Bound the buffer while replacing adjacent values in bulk, avoiding
+    // repeated Yjs searches and item splitting for every replaced element.
+    replacements.push(convertJsonToYjsData(srcItem))
+    if (replacements.length === 8192) flushReplacements(i + 1)
   }
+  flushReplacements(minLen)
 
   // Add new items at the end
-  for (let i = destLen; i < srcLen; i++) {
-    dest.push([convertJsonToYjsData(source[i])])
-  }
-
-  // Update snapshot tracking after successful merge
-  setYjsContainerSnapshot(dest, source)
+  appendJsonItems(dest, source, destLen)
 }
 
 /**
@@ -155,16 +222,28 @@ export const applyJsonObjectToYMap = (
   source: PlainObject,
   options: ApplyJsonToYjsOptions = {}
 ) => {
-  const { mode = "add" } = options
-
-  // In merge mode, check if the container is already up-to-date with this snapshot
-  if (mode === "merge" && isYjsContainerUpToDate(dest, source)) {
-    return
+  const apply = () => applyJsonObjectToYMapInternal(dest, source, options)
+  if (dest.doc) {
+    dest.doc.transact(apply)
+  } else {
+    if (options.mode === "merge") {
+      throw failure("the merge destination must be attached to a document")
+    }
+    apply()
   }
+}
+
+function applyJsonObjectToYMapInternal(
+  dest: Y.Map<any>,
+  source: PlainObject,
+  options: ApplyJsonToYjsOptions
+) {
+  const { mode = "add" } = options
+  const sourceKeys = Object.keys(source)
 
   if (mode === "add") {
     // Add mode: just set all values
-    for (const k of Object.keys(source)) {
+    for (const k of sourceKeys) {
       const v = source[k]
       if (v !== undefined) {
         dest.set(k, convertJsonToYjsData(v))
@@ -176,16 +255,15 @@ export const applyJsonObjectToYMap = (
   // Merge mode: recursively merge values, preserving existing container references
 
   // Delete keys that are not present in source (or have undefined value)
-  const sourceKeysWithValues = new Set(Object.keys(source).filter((k) => source[k] !== undefined))
   for (const key of dest.keys()) {
-    if (!sourceKeysWithValues.has(key)) {
+    if (!Object.hasOwn(source, key) || source[key] === undefined) {
       dest.delete(key)
     }
   }
 
-  for (const k of Object.keys(source)) {
+  for (const k of sourceKeys) {
     const v = source[k]
-    // Skip undefined values - Y.js maps cannot store undefined
+    // Omit undefined values to match JSON object serialization.
     if (v === undefined) {
       continue
     }
@@ -193,26 +271,43 @@ export const applyJsonObjectToYMap = (
     const existing = dest.get(k)
 
     // If source is an object and dest has a Y.Map, merge recursively
-    if (isPlainObject(v) && existing instanceof Y.Map) {
-      applyJsonObjectToYMap(existing, v, options)
+    if (isMapSnapshot(v) && existing instanceof Y.Map) {
+      applyJsonObjectToYMapInternal(existing, v, options)
       continue
     }
 
     // If source is an array and dest has a Y.Array, merge recursively
     if (isPlainArray(v) && existing instanceof Y.Array) {
-      applyJsonArrayToYArray(existing, v, options)
+      applyJsonArrayToYArrayInternal(existing, v, options)
       continue
     }
 
-    // Skip if primitive value is unchanged (optimization)
-    if (isPlainPrimitive(v) && existing === v) {
+    // Edit an existing Y.Text in place rather than replacing the container
+    if (mergeTextSnapshot(existing, v)) {
+      continue
+    }
+
+    // Skip unchanged primitive and frozen values
+    if (isUnchangedAtomicValue(existing, v)) {
       continue
     }
 
     // Otherwise, convert and set the value (this creates new containers if needed)
     dest.set(k, convertJsonToYjsData(v))
   }
+}
 
-  // Update snapshot tracking after successful merge
-  setYjsContainerSnapshot(dest, source)
+/**
+ * Merges a snapshot into the Yjs container that represents it, preserving
+ * existing container references where possible.
+ * @internal
+ */
+export function applySnapshotToYjsContainer(container: unknown, snapshot: unknown): void {
+  if (container instanceof Y.Map) {
+    applyJsonObjectToYMap(container, snapshot as PlainObject, { mode: "merge" })
+  } else if (container instanceof Y.Array) {
+    applyJsonArrayToYArray(container, snapshot as PlainArray, { mode: "merge" })
+  } else if (container instanceof Y.Text) {
+    replaceYjsText(container, (snapshot as { deltaList: TextDeltaHistory }).deltaList)
+  }
 }

@@ -58,6 +58,7 @@
     "copy-root-files": "shx cp ../../LICENSE .",
     "build": "pnpm run quick-build && pnpm run copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone-loro.esm.mjs dist/mobx-keystone-loro.esm.js",
     "test": "vitest run",
+    "bench": "vitest bench --run",
     "test:ci": "vitest run"
   },
   "peerDependencies": {
@@ -71,6 +72,7 @@
     "@babel/plugin-transform-class-properties": "^8.0.1",
     "@babel/plugin-transform-typescript": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
+    "@mobx-keystone/crdt-binding-common": "workspace:*",
     "@types/node": "^26.4.1",
     "mobx-keystone": "workspace:*",
     "shx": "^0.4.0",

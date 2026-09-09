@@ -29,21 +29,23 @@ export function deepEquals(a: any, b: any): boolean {
     return true
   }
 
-  // use snapshots to compare if possible
-  // since snapshots use structural sharing it is more likely
-  // to speed up comparisons
-  if (isTreeNode(a)) {
-    a = getSnapshot(a)
-  } else if (isObservable(a)) {
-    a = toJS(a, toJSOptions)
-  }
-  if (isTreeNode(b)) {
-    b = getSnapshot(b)
-  } else if (isObservable(b)) {
-    b = toJS(b, toJSOptions)
+  const aIsObject = a !== null && typeof a === "object"
+  const bIsObject = b !== null && typeof b === "object"
+  if (!aIsObject && !bIsObject) {
+    // Strict equality already handled all equal primitives except NaN.
+    return Number.isNaN(a) && Number.isNaN(b)
   }
 
-  return fastDeepEqual(a, b)
+  return fastDeepEqual(aIsObject ? comparisonValue(a) : a, bIsObject ? comparisonValue(b) : b)
+}
+
+function comparisonValue(value: object): unknown {
+  if (isTreeNode(value)) {
+    // Snapshots preserve structural sharing. Model $ objects are deliberately
+    // handled as observable objects rather than standalone tree nodes.
+    return getSnapshot(value)
+  }
+  return isObservable(value) ? toJS(value, toJSOptions) : value
 }
 
 const toJSOptions =

@@ -140,7 +140,7 @@ test("binding to a nested Yjs object that gets detached", () => {
   })
   expect(boundObject.primitive).toBe(2)
 
-  // Yjs ignores the update because it's detached
+  // The disposed binding does not write to the deleted Yjs object.
   expect(ySubMap.get("primitive")).toBeUndefined()
 })
 
@@ -212,14 +212,13 @@ test("binding to a Yjs object that gets deleted from Yjs side", () => {
   // Delete from Yjs side
   yMap.delete("sub")
 
-  // The binding is still active.
-  // If we modify boundObject, it will try to update ySubMap.
+  // The binding is disposed; the local object can still be edited.
   runUnprotected(() => {
     boundObject.primitive = 1
   })
   expect(boundObject.primitive).toBe(1)
 
-  // ySubMap is dead, so it shouldn't have the update (or it might, but it's detached)
+  // The deleted Yjs object does not receive the local update.
   expect(ySubMap.get("primitive")).toBeUndefined()
 })
 
