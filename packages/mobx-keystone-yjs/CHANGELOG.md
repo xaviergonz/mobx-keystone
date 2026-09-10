@@ -79,6 +79,7 @@
 - Fixed model reconciliation for array replacements and updated reused models from incoming snapshots.
 - Fixed JSON merges after direct Yjs edits or mutations to reused input objects. Special text/frozen snapshots now use their correct representation, and unchanged text retains its Y.Text instance.
 - Reject binding objects that are not attached to the supplied Y.Doc.
+- Skip subtrees that snapshot reconciliation left untouched when writing back to Yjs, instead of reading the whole document back and comparing it key by key. Reentrant changes and commits that mix local and native edits no longer scan unrelated maps and arrays.
 
 ## 1.7.0
 

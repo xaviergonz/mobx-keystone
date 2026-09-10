@@ -69,6 +69,7 @@
 - Preserve existing text containers when merging snapshots or applying model defaults.
 - Fixed model identity preservation for remote list moves in both directions and model replacement with the same ID but a different type.
 - Reject non-integer move indices before mutating the array and consistently use `MobxKeystoneLoroError` for conversion and move validation errors.
+- Skip subtrees that snapshot reconciliation left untouched when writing back to Loro, instead of reading the whole document back and comparing it key by key. Reentrant changes and commits that mix local and native edits no longer scan unrelated maps and lists.
 
 ## 1.1.1
 

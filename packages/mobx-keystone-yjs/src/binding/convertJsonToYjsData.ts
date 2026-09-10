@@ -1,4 +1,10 @@
-import { jsonEquals } from "@mobx-keystone/crdt-binding-common"
+import {
+  isUnchangedSubtree,
+  jsonEquals,
+  noPreviousValue,
+  type PreviousValue,
+  previousObjectValue,
+} from "@mobx-keystone/crdt-binding-common"
 import { frozenKey, modelTypeKey, type SnapshotOutOf } from "mobx-keystone"
 import * as Y from "yjs"
 import type { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
@@ -121,7 +127,7 @@ export const applyJsonArrayToYArray = (
   source: PlainArray,
   options: ApplyJsonToYjsOptions = {}
 ) => {
-  const apply = () => applyJsonArrayToYArrayInternal(dest, source, options)
+  const apply = () => applyJsonArrayToYArrayInternal(dest, source, options, noPreviousValue)
   if (dest.doc) {
     dest.doc.transact(apply)
   } else {
@@ -135,9 +141,14 @@ export const applyJsonArrayToYArray = (
 function applyJsonArrayToYArrayInternal(
   dest: Y.Array<any>,
   source: PlainArray,
-  options: ApplyJsonToYjsOptions
+  options: ApplyJsonToYjsOptions,
+  previous: PreviousValue
 ) {
   const { mode = "add" } = options
+
+  if (mode === "merge" && isUnchangedSubtree(previous, source)) {
+    return
+  }
 
   if (source.includes(undefined)) {
     throw failure("undefined values are not supported in Yjs arrays")
@@ -158,7 +169,10 @@ function applyJsonArrayToYArrayInternal(
     dest.delete(srcLen, destLen - srcLen)
   }
 
-  // Update existing items
+  // Update existing items. Positions inside a list may already have been
+  // realigned before this walk (see reconcileYjsContainerPositions), so an
+  // element's previous snapshot is no longer addressable by index: children of
+  // a list are always re-walked.
   const minLen = Math.min(destLen, srcLen)
   // Indexed Y.Array reads can repeatedly scan contiguous shared items, even
   // with search markers. Capture retained values in one linear traversal.
@@ -178,13 +192,13 @@ function applyJsonArrayToYArrayInternal(
     // Retained containers and unchanged values separate replacement runs.
     if (isMapSnapshot(srcItem) && destItem instanceof Y.Map) {
       flushReplacements(i)
-      applyJsonObjectToYMapInternal(destItem, srcItem, options)
+      applyJsonObjectToYMapInternal(destItem, srcItem, options, noPreviousValue)
       continue
     }
 
     if (isPlainArray(srcItem) && destItem instanceof Y.Array) {
       flushReplacements(i)
-      applyJsonArrayToYArrayInternal(destItem, srcItem, options)
+      applyJsonArrayToYArrayInternal(destItem, srcItem, options, noPreviousValue)
       continue
     }
 
@@ -222,7 +236,7 @@ export const applyJsonObjectToYMap = (
   source: PlainObject,
   options: ApplyJsonToYjsOptions = {}
 ) => {
-  const apply = () => applyJsonObjectToYMapInternal(dest, source, options)
+  const apply = () => applyJsonObjectToYMapInternal(dest, source, options, noPreviousValue)
   if (dest.doc) {
     dest.doc.transact(apply)
   } else {
@@ -236,9 +250,15 @@ export const applyJsonObjectToYMap = (
 function applyJsonObjectToYMapInternal(
   dest: Y.Map<any>,
   source: PlainObject,
-  options: ApplyJsonToYjsOptions
+  options: ApplyJsonToYjsOptions,
+  previous: PreviousValue
 ) {
   const { mode = "add" } = options
+
+  if (mode === "merge" && isUnchangedSubtree(previous, source)) {
+    return
+  }
+
   const sourceKeys = Object.keys(source)
 
   if (mode === "add") {
@@ -261,6 +281,8 @@ function applyJsonObjectToYMapInternal(
     }
   }
 
+  const previousObject = previousObjectValue(previous)
+
   for (const k of sourceKeys) {
     const v = source[k]
     // Omit undefined values to match JSON object serialization.
@@ -268,17 +290,25 @@ function applyJsonObjectToYMapInternal(
       continue
     }
 
+    const previousValue: PreviousValue =
+      previousObject && Object.hasOwn(previousObject, k) ? previousObject[k] : noPreviousValue
+
+    // An unchanged subtree is already in place, whatever its kind.
+    if (isUnchangedSubtree(previousValue, v)) {
+      continue
+    }
+
     const existing = dest.get(k)
 
     // If source is an object and dest has a Y.Map, merge recursively
     if (isMapSnapshot(v) && existing instanceof Y.Map) {
-      applyJsonObjectToYMapInternal(existing, v, options)
+      applyJsonObjectToYMapInternal(existing, v, options, previousValue)
       continue
     }
 
     // If source is an array and dest has a Y.Array, merge recursively
     if (isPlainArray(v) && existing instanceof Y.Array) {
-      applyJsonArrayToYArrayInternal(existing, v, options)
+      applyJsonArrayToYArrayInternal(existing, v, options, previousValue)
       continue
     }
 
@@ -300,14 +330,39 @@ function applyJsonObjectToYMapInternal(
 /**
  * Merges a snapshot into the Yjs container that represents it, preserving
  * existing container references where possible.
+ *
+ * `previousSnapshot` is the snapshot the container currently holds, when it is
+ * known. Subtrees that `snapshot` shares with it by reference are already in
+ * place and are skipped instead of being read back and compared key by key.
  * @internal
  */
-export function applySnapshotToYjsContainer(container: unknown, snapshot: unknown): void {
-  if (container instanceof Y.Map) {
-    applyJsonObjectToYMap(container, snapshot as PlainObject, { mode: "merge" })
-  } else if (container instanceof Y.Array) {
-    applyJsonArrayToYArray(container, snapshot as PlainArray, { mode: "merge" })
-  } else if (container instanceof Y.Text) {
+export function applySnapshotToYjsContainer(
+  container: unknown,
+  snapshot: unknown,
+  previousSnapshot: PreviousValue = noPreviousValue
+): void {
+  if (container instanceof Y.Text) {
     replaceYjsText(container, (snapshot as { deltaList: TextDeltaHistory }).deltaList)
+    return
   }
+
+  const options: ApplyJsonToYjsOptions = { mode: "merge" }
+  let target: Y.Map<any> | Y.Array<any>
+  let apply: () => void
+  if (container instanceof Y.Map) {
+    target = container
+    apply = () =>
+      applyJsonObjectToYMapInternal(container, snapshot as PlainObject, options, previousSnapshot)
+  } else if (container instanceof Y.Array) {
+    target = container
+    apply = () =>
+      applyJsonArrayToYArrayInternal(container, snapshot as PlainArray, options, previousSnapshot)
+  } else {
+    return
+  }
+
+  if (!target.doc) {
+    throw failure("the merge destination must be attached to a document")
+  }
+  target.doc.transact(apply)
 }

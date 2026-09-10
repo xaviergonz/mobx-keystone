@@ -1,5 +1,11 @@
 import { LoroDoc, LoroMap, LoroMovableList } from "loro-crdt"
-import { applyJsonArrayToLoroMovableList, applyJsonObjectToLoroMap } from "../../src"
+import { DeepChangeType, Model, onDeepChange, runUnprotected, tProp, types } from "mobx-keystone"
+import {
+  applyJsonArrayToLoroMovableList,
+  applyJsonObjectToLoroMap,
+  bindLoroToMobxKeystone,
+} from "../../src"
+import { autoDispose, testModel } from "../utils"
 
 test("list merge reads existing contents in bulk and observes later mutations", () => {
   const list = new LoroDoc().getMovableList("items")
@@ -75,4 +81,39 @@ test("detached maps and lists support merging their readable contents", () => {
   applyJsonArrayToLoroMovableList(list, [1, { value: 2 }, 3])
   applyJsonArrayToLoroMovableList(list, [4, { value: 5 }], { mode: "merge" })
   expect(list.toJSON()).toEqual([4, { value: 5 }])
+})
+
+test("reentrant reconciliation skips subtrees the merge left untouched", () => {
+  @testModel("reentrant-untouched-root")
+  class Root extends Model({
+    flag: tProp(0),
+    untouched: tProp(types.array(types.number), () => Array(5000).fill(0)),
+    nested: tProp(
+      types.object(() => ({ deep: types.array(types.number) })),
+      () => ({ deep: Array(5000).fill(0) })
+    ),
+  }) {}
+  const doc = new LoroDoc()
+  const root = doc.getMap("root")
+  const binding = bindLoroToMobxKeystone({ loroDoc: doc, loroObject: root, mobxKeystoneType: Root })
+  autoDispose(binding.dispose)
+  // A reentrant change forces the whole-snapshot reconciliation fallback.
+  autoDispose(
+    onDeepChange(binding.boundObject, (change) => {
+      if (change.type === DeepChangeType.ObjectUpdate && change.newValue === 1) {
+        binding.boundObject.flag = 2
+      }
+    })
+  )
+  const reads = vi.spyOn(LoroMovableList.prototype, "toArray")
+  autoDispose(() => reads.mockRestore())
+  runUnprotected(() => {
+    binding.boundObject.flag = 1
+  })
+  // Reading the native snapshot visits each list once. Neither list changed, so
+  // the merged snapshot shares both with it by reference and the write-back must
+  // not read either one a second time.
+  expect(reads).toHaveBeenCalledTimes(2)
+  expect(binding.boundObject.flag).toBe(2)
+  expect(root.get("flag")).toBe(2)
 })

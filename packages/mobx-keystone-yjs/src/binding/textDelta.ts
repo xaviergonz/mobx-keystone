@@ -9,24 +9,35 @@ import * as Y from "yjs"
 export type TextDeltaHistory = readonly { readonly data: readonly unknown[] }[]
 
 /**
- * Replay history once to obtain its current content and formatting.
- * @internal
+ * Replay a delta history in a scratch document and read back the result.
  */
-export const __replayStats = { calls: 0, deltas: 0 }
-
-export function textDeltaFromHistory(deltaList: TextDeltaHistory): unknown[] {
-  __replayStats.calls++
-  __replayStats.deltas += deltaList.length
+function replayHistory<T>(deltaList: TextDeltaHistory, read: (text: Y.Text) => T): T {
   const doc = new Y.Doc()
   try {
     const text = doc.getText()
     doc.transact(() => {
       for (const delta of deltaList) text.applyDelta(delta.data as unknown[])
     })
-    return text.toDelta()
+    return read(text)
   } finally {
     doc.destroy()
   }
+}
+
+/**
+ * Replay history once to obtain its current content and formatting.
+ * @internal
+ */
+export function textDeltaFromHistory(deltaList: TextDeltaHistory): unknown[] {
+  return replayHistory(deltaList, (text) => text.toDelta())
+}
+
+/**
+ * Replay history once to obtain its current plain text.
+ * @internal
+ */
+export function textFromHistory(deltaList: TextDeltaHistory): string {
+  return replayHistory(deltaList, (text) => text.toString())
 }
 
 /**

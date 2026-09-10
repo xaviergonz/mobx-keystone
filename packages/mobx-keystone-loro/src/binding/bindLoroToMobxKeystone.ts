@@ -3,14 +3,7 @@ import {
   jsonEquals,
   mergeSnapshotChanges,
 } from "@mobx-keystone/crdt-binding-common"
-import {
-  type ContainerID,
-  type LoroDoc,
-  type LoroEventBatch,
-  LoroMap,
-  LoroMovableList,
-  LoroText,
-} from "loro-crdt"
+import type { ContainerID, LoroDoc, LoroEventBatch } from "loro-crdt"
 import { action } from "mobx"
 import {
   type AnyDataModel,
@@ -33,22 +26,16 @@ import {
   type TypeToSnapshotIn,
 } from "mobx-keystone"
 import { nanoid } from "nanoid"
-import type { PlainArray, PlainObject } from "../plainTypes"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 import { reportLoroEventsChanged } from "../utils/loroCollectionAtoms"
 import { applyArrayMoveToSnapshot } from "./applyArrayMoveToSnapshot"
 import { applyLoroEventsToMobx } from "./applyLoroEventToMobx"
 import { applyMobxChangeToLoroObject } from "./applyMobxChangeToLoroObject"
-import {
-  applyJsonArrayToLoroMovableList,
-  applyJsonObjectToLoroMap,
-  extractTextDeltaFromSnapshot,
-  replaceLoroTextDelta,
-} from "./convertJsonToLoroData"
+import { applySnapshotToLoroContainer } from "./convertJsonToLoroData"
 import { convertLoroDataToJson } from "./convertLoroDataToJson"
 import { hasPendingLoroConflict, type PendingLoroConflictCache } from "./hasPendingLoroConflict"
-import { LoroTextModel, loroTextModelId } from "./LoroTextModel"
+import { LoroTextModel } from "./LoroTextModel"
 import { type LoroBindingContext, loroBindingContext } from "./loroBindingContext"
 import { type ArrayMoveChange, isChangeForMove, processChangeForMove } from "./moveWithinArray"
 import { reconcileLoroModelOrder } from "./reconcileLoroModelOrder"
@@ -136,17 +123,7 @@ export function bindLoroToMobxKeystone<
     }
     const finalSnapshot = getSnapshot(boundObject)
     if (!jsonEquals(lastNativeSnapshot, finalSnapshot)) {
-      if (loroObject instanceof LoroMap) {
-        applyJsonObjectToLoroMap(loroObject, finalSnapshot as PlainObject, { mode: "merge" })
-      } else if (loroObject instanceof LoroMovableList) {
-        applyJsonArrayToLoroMovableList(loroObject, finalSnapshot as PlainArray, { mode: "merge" })
-      } else if (loroObject instanceof LoroText) {
-        // For LoroText, we need to handle LoroTextModel snapshot
-        const snapshot = finalSnapshot as Record<string, unknown>
-        if (snapshot.$modelType === loroTextModelId) {
-          replaceLoroTextDelta(loroObject, extractTextDeltaFromSnapshot(snapshot.deltaList))
-        }
-      }
+      applySnapshotToLoroContainer(loroObject, finalSnapshot)
 
       loroDoc.commit({ origin: loroOrigin })
     }
@@ -296,12 +273,7 @@ export function bindLoroToMobxKeystone<
         const path = getParentToChildPath(boundObject, reconciled.target)
         if (path !== undefined) {
           const container = resolveLoroPath(loroObject, path)
-          const snapshot = getSnapshot(reconciled.target)
-          if (container instanceof LoroMap) {
-            applyJsonObjectToLoroMap(container, snapshot as PlainObject, { mode: "merge" })
-          } else if (container instanceof LoroMovableList) {
-            applyJsonArrayToLoroMovableList(container, snapshot as PlainArray, { mode: "merge" })
-          }
+          applySnapshotToLoroContainer(container, getSnapshot(reconciled.target))
           wroteChanges = true
         }
       }
@@ -469,16 +441,10 @@ export function bindLoroToMobxKeystone<
           const nativeSnapshot = convertLoroDataToJson(loroObject)
           const snapshot = mergeSnapshotChanges(baseline, target, nativeSnapshot, "merge")
           reconcileLoroModelOrder(loroObject, nativeSnapshot, snapshot)
-          if (loroObject instanceof LoroMap) {
-            applyJsonObjectToLoroMap(loroObject, snapshot as PlainObject, { mode: "merge" })
-          } else if (loroObject instanceof LoroMovableList) {
-            applyJsonArrayToLoroMovableList(loroObject, snapshot as PlainArray, { mode: "merge" })
-          } else if (loroObject instanceof LoroText) {
-            replaceLoroTextDelta(
-              loroObject,
-              extractTextDeltaFromSnapshot((snapshot as Record<string, unknown>).deltaList)
-            )
-          }
+          // `snapshot` was merged onto `nativeSnapshot`, so it shares every
+          // untouched subtree with it by reference. Pass it along so the merge
+          // skips those instead of re-reading the whole document.
+          applySnapshotToLoroContainer(loroObject, snapshot, nativeSnapshot)
           baseline = target
         }
         // A nested move finishes first, but its outer move mutated the array first.

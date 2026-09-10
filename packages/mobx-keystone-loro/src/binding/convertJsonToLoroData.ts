@@ -1,4 +1,10 @@
-import { jsonEquals } from "@mobx-keystone/crdt-binding-common"
+import {
+  isUnchangedSubtree,
+  jsonEquals,
+  noPreviousValue,
+  type PreviousValue,
+  previousObjectValue,
+} from "@mobx-keystone/crdt-binding-common"
 import type { Delta } from "loro-crdt"
 import { LoroMap, LoroMovableList, LoroText } from "loro-crdt"
 import { frozenKey, isFrozenSnapshot } from "mobx-keystone"
@@ -41,7 +47,8 @@ function isPlainObject(v: PlainValue): v is PlainObject {
 function mergeLoroValue(
   dest: unknown,
   source: PlainValue,
-  options: ApplyJsonToLoroOptions
+  options: ApplyJsonToLoroOptions,
+  previous: PreviousValue
 ): boolean {
   if (isFrozenSnapshot(source)) {
     return isFrozenSnapshot(dest) && jsonEquals(dest, source)
@@ -54,11 +61,11 @@ function mergeLoroValue(
         return true
       }
     } else if (dest instanceof LoroMap) {
-      applyJsonObjectToLoroMap(dest, source, options)
+      applyJsonObjectToLoroMapInternal(dest, source, options, previous)
       return true
     }
   } else if (isPlainArray(source) && dest instanceof LoroMovableList) {
-    applyJsonArrayToLoroMovableList(dest, source, options)
+    applyJsonArrayToLoroMovableListInternal(dest, source, options, previous)
     return true
   }
   return (
@@ -227,7 +234,20 @@ export const applyJsonArrayToLoroMovableList = (
   source: PlainArray,
   options: ApplyJsonToLoroOptions = {}
 ) => {
+  applyJsonArrayToLoroMovableListInternal(dest, source, options, noPreviousValue)
+}
+
+function applyJsonArrayToLoroMovableListInternal(
+  dest: LoroMovableList,
+  source: PlainArray,
+  options: ApplyJsonToLoroOptions,
+  previous: PreviousValue
+) {
   const { mode = "add" } = options
+
+  if (mode === "merge" && isUnchangedSubtree(previous, source)) {
+    return
+  }
 
   if (source.includes(undefined)) {
     throw failure("undefined values are not supported in Loro lists")
@@ -261,7 +281,10 @@ export const applyJsonArrayToLoroMovableList = (
     const srcItem = source[i]
     const destItem = existingItems[i]
 
-    if (mergeLoroValue(destItem, srcItem, options)) {
+    // Positions inside a list may already have been realigned before this walk
+    // (see reconcileLoroModelOrder), so an element's previous snapshot is no
+    // longer addressable by index. Children of a list are always re-walked.
+    if (mergeLoroValue(destItem, srcItem, options, noPreviousValue)) {
       continue
     }
 
@@ -297,7 +320,20 @@ export const applyJsonObjectToLoroMap = (
   source: PlainObject,
   options: ApplyJsonToLoroOptions = {}
 ) => {
+  applyJsonObjectToLoroMapInternal(dest, source, options, noPreviousValue)
+}
+
+function applyJsonObjectToLoroMapInternal(
+  dest: LoroMap,
+  source: PlainObject,
+  options: ApplyJsonToLoroOptions,
+  previous: PreviousValue
+) {
   const { mode = "add" } = options
+
+  if (mode === "merge" && isUnchangedSubtree(previous, source)) {
+    return
+  }
 
   if (mode === "add") {
     // Add mode: just set all values
@@ -323,6 +359,8 @@ export const applyJsonObjectToLoroMap = (
     }
   }
 
+  const previousObject = previousObjectValue(previous)
+
   for (const k of Object.keys(source)) {
     const v = source[k]
     // Skip undefined values - Loro maps cannot store undefined
@@ -330,9 +368,17 @@ export const applyJsonObjectToLoroMap = (
       continue
     }
 
+    const previousValue: PreviousValue =
+      previousObject && Object.hasOwn(previousObject, k) ? previousObject[k] : noPreviousValue
+
+    // An unchanged subtree is already in place, whatever its kind.
+    if (isUnchangedSubtree(previousValue, v)) {
+      continue
+    }
+
     const existing = dest.get(k)
 
-    if (mergeLoroValue(existing, v, options)) {
+    if (mergeLoroValue(existing, v, options, previousValue)) {
       continue
     }
 
@@ -342,6 +388,38 @@ export const applyJsonObjectToLoroMap = (
       dest.setContainer(k, converted)
     } else {
       dest.set(k, converted)
+    }
+  }
+}
+
+/**
+ * Merges a snapshot into the Loro container that represents it, preserving
+ * existing container references where possible.
+ *
+ * `previousSnapshot` is the snapshot the container currently holds, when it is
+ * known. Subtrees that `snapshot` shares with it by reference are already in
+ * place and are skipped instead of being read back and compared key by key.
+ * @internal
+ */
+export function applySnapshotToLoroContainer(
+  container: unknown,
+  snapshot: unknown,
+  previousSnapshot: PreviousValue = noPreviousValue
+): void {
+  const options: ApplyJsonToLoroOptions = { mode: "merge" }
+  if (container instanceof LoroMap) {
+    applyJsonObjectToLoroMapInternal(container, snapshot as PlainObject, options, previousSnapshot)
+  } else if (container instanceof LoroMovableList) {
+    applyJsonArrayToLoroMovableListInternal(
+      container,
+      snapshot as PlainArray,
+      options,
+      previousSnapshot
+    )
+  } else if (container instanceof LoroText) {
+    const textSnapshot = snapshot as Record<string, unknown>
+    if (isLoroTextModelSnapshot(textSnapshot as PlainObject)) {
+      replaceLoroTextDelta(container, extractTextDeltaFromSnapshot(textSnapshot.deltaList))
     }
   }
 }

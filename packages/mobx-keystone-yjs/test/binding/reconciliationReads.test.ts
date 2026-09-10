@@ -176,3 +176,38 @@ test("reentrant primitive arrays avoid container-position scans", () => {
   expect(binding.boundObject.values[0]).toBe(2)
   expect((root.get("values") as Y.Array<number>).get(0)).toBe(2)
 })
+
+test("reentrant reconciliation skips subtrees the merge left untouched", () => {
+  @testModel("reentrant-untouched-root")
+  class Root extends Model({
+    flag: tProp(0),
+    untouched: tProp(types.array(types.number), () => Array(5000).fill(0)),
+    nested: tProp(
+      types.object(() => ({ deep: types.array(types.number) })),
+      () => ({ deep: Array(5000).fill(0) })
+    ),
+  }) {}
+  const doc = new Y.Doc()
+  const root = doc.getMap("root")
+  const binding = bindYjsToMobxKeystone({ yjsDoc: doc, yjsObject: root, mobxKeystoneType: Root })
+  autoDispose(binding.dispose)
+  // A reentrant change forces the whole-snapshot reconciliation fallback.
+  autoDispose(
+    onDeepChange(binding.boundObject, (change) => {
+      if (change.type === DeepChangeType.ObjectUpdate && change.newValue === 1) {
+        binding.boundObject.flag = 2
+      }
+    })
+  )
+  const reads = vi.spyOn(Y.Array.prototype, "toArray")
+  autoDispose(() => reads.mockRestore())
+  runUnprotected(() => {
+    binding.boundObject.flag = 1
+  })
+  // Neither array changed, so the merge shares them with the native snapshot by
+  // reference and must not read either one back.
+  expect(reads).not.toHaveBeenCalled()
+  expect(binding.boundObject.flag).toBe(2)
+  expect(root.get("flag")).toBe(2)
+  expect(root.toJSON()).toEqual(getSnapshot(binding.boundObject))
+})

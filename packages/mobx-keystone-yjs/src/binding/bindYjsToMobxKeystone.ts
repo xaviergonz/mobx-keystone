@@ -418,7 +418,10 @@ export function bindYjsToMobxKeystone<
           "merge"
         )
         reconcileYjsContainerPositions(yjsObject, nativeSnapshot, snapshot)
-        applySnapshotToYjsContainer(yjsObject, snapshot)
+        // `snapshot` was merged onto `nativeSnapshot`, so it shares every
+        // untouched subtree with it by reference. Pass it along so the merge
+        // skips those instead of re-reading the whole document.
+        applySnapshotToYjsContainer(yjsObject, snapshot, nativeSnapshot)
       } else {
         changesToApply.forEach((change) => {
           if ("textPath" in change) {

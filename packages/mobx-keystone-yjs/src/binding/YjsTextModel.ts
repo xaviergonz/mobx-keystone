@@ -12,6 +12,7 @@ import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { isYjsValueDeleted } from "../utils/isYjsValueDeleted"
 import { resolveYjsPath } from "./resolveYjsPath"
+import { textFromHistory } from "./textDelta"
 import { yjsBindingContext } from "./yjsBindingContext"
 
 // Delta[][], since each single change is a Delta[]
@@ -115,22 +116,7 @@ export class YjsTextModel extends Model({
     }
 
     // fall back to deltaList
-    return this.deltaListToText()
-  }
-
-  private deltaListToText(): string {
-    const doc = new Y.Doc()
-    try {
-      const text = doc.getText()
-      doc.transact(() => {
-        for (const delta of this.deltaList) {
-          text.applyDelta(delta.data)
-        }
-      })
-      return text.toString()
-    } finally {
-      doc.destroy()
-    }
+    return textFromHistory(this.deltaList)
   }
 
   protected onInit() {
