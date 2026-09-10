@@ -22,6 +22,7 @@ import type { Patch } from "../patch/Patch"
 import { updateModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
+import { typeCheckAfterCreation } from "../tweaker/typeChecking"
 import { failure, inDevMode, makePropReadonly } from "../utils"
 import { setIfDifferent, setIfDifferentWithReturn } from "../utils/setIfDifferent"
 import type { AnyModel } from "./BaseModel"
@@ -113,10 +114,7 @@ export const internalNewModel = action(
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled()) {
-      const err = modelObj.typeCheck()
-      if (err) {
-        err.throw()
-      }
+      typeCheckAfterCreation(modelObj)
     }
   }
 )
@@ -292,10 +290,7 @@ export const internalFromSnapshotModel = action(
 
     // type check it if needed
     if (isModelAutoTypeCheckingEnabled()) {
-      const err = modelObj.typeCheck()
-      if (err) {
-        err.throw()
-      }
+      typeCheckAfterCreation(modelObj)
     }
   }
 )

@@ -6,6 +6,7 @@ import { modelToDataNode } from "../parent/core"
 import type { Patch } from "../patch/Patch"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
+import { withTypeCheckingBatch } from "../tweaker/typeChecking"
 import { failure, inDevMode, isArray, lazy } from "../utils"
 import { runWithErrorDiagnosticsContext, withErrorPathSegments } from "../utils/errorDiagnostics"
 import { ModelPool } from "../utils/ModelPool"
@@ -13,6 +14,8 @@ import { setIfDifferent } from "../utils/setIfDifferent"
 
 /**
  * Applies the given patches to the given target object.
+ * Automatic type checking validates the completed batch, including nested lists.
+ * A rejected batch is rolled back with compensating patches.
  *
  * @param node Target object.
  * @param patches List of patches to apply.
@@ -44,33 +47,35 @@ export function internalApplyPatches(
     const obj = this
     const modelPool = new ModelPool(obj)
 
-    if (reverse) {
-      let i = patches.length
-      while (i--) {
-        const p = patches[i]
-        if (isArray(p)) {
-          let j = p.length
-          while (j--) {
-            applySinglePatchWithPath(obj, p[j], modelPool)
+    withTypeCheckingBatch(() => {
+      if (reverse) {
+        let i = patches.length
+        while (i--) {
+          const p = patches[i]
+          if (isArray(p)) {
+            let j = p.length
+            while (j--) {
+              applySinglePatchWithPath(obj, p[j], modelPool)
+            }
+          } else {
+            applySinglePatchWithPath(obj, p as Patch, modelPool)
           }
-        } else {
-          applySinglePatchWithPath(obj, p as Patch, modelPool)
+        }
+      } else {
+        const len = patches.length
+        for (let i = 0; i < len; i++) {
+          const p = patches[i]
+          if (isArray(p)) {
+            const len2 = p.length
+            for (let j = 0; j < len2; j++) {
+              applySinglePatchWithPath(obj, p[j], modelPool)
+            }
+          } else {
+            applySinglePatchWithPath(obj, p as Patch, modelPool)
+          }
         }
       }
-    } else {
-      const len = patches.length
-      for (let i = 0; i < len; i++) {
-        const p = patches[i]
-        if (isArray(p)) {
-          const len2 = p.length
-          for (let j = 0; j < len2; j++) {
-            applySinglePatchWithPath(obj, p[j], modelPool)
-          }
-        } else {
-          applySinglePatchWithPath(obj, p as Patch, modelPool)
-        }
-      }
-    }
+    })
   })
 }
 

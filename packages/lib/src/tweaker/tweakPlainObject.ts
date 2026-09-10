@@ -42,7 +42,11 @@ import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./c
 import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker, tweak } from "./tweak"
-import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
+import {
+  isTypeCheckingAfterChangeEnabled,
+  recordTypeCheckingBatchChange,
+  runTypeCheckingAfterChange,
+} from "./typeChecking"
 
 /**
  * @internal
@@ -177,6 +181,8 @@ function objectDidChange(change: IObjectDidChange): void {
   if (runningWithoutSnapshotOrPatches) {
     return
   }
+
+  recordTypeCheckingBatchChange(change)
 
   const oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
   const shouldEmitPatches = hasPatchListenersFor(actualNode)

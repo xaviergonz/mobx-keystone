@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Validate `applyPatches` against the completed batch, including nested/reversed patch lists, newly created models, and synchronous listener-triggered edits. Rejected batches roll back with compensating patches instead of leaving earlier patches applied. Literal property deletion and field-update semantics remain unchanged.
 - Keep deep-change listener delivery stable when subscriptions change inside callbacks. Self-unsubscription no longer skips later listeners, listeners disposed while a change is being delivered no longer receive it, and duplicate callback registrations have independent, idempotent disposers.
 - Continue deep-change delivery after a listener throws, so later global, subtree, and ancestor listeners observe the applied mutation. Rethrow the first listener error after delivery completes.
 - Preserve snapshot immutability when union types or custom output processors wrap shared child snapshots, including snapshots captured after earlier edits.

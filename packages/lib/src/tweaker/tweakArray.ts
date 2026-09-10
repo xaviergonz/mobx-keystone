@@ -33,7 +33,11 @@ import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./c
 import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker, tweak } from "./tweak"
-import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
+import {
+  isTypeCheckingAfterChangeEnabled,
+  recordTypeCheckingBatchChange,
+  runTypeCheckingAfterChange,
+} from "./typeChecking"
 
 /**
  * @internal
@@ -173,6 +177,8 @@ function arrayDidChange(change: IArrayDidChange) {
   if (runningWithoutSnapshotOrPatches) {
     return
   }
+
+  recordTypeCheckingBatchChange(change)
 
   const oldSnapshot = getInternalSnapshot(arr as Array<unknown>)!.untransformed
   const shouldEmitPatches = hasPatchListenersFor(arr)
