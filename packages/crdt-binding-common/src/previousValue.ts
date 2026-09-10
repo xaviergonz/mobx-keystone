@@ -13,7 +13,7 @@ export const noPreviousValue = Symbol.for("mobx-keystone/crdt-binding/noPrevious
  * A previously known native snapshot value, or {@link noPreviousValue}.
  * @internal
  */
-export type PreviousValue = unknown | typeof noPreviousValue
+export type PreviousValue = unknown
 
 /**
  * Whether a destination already holds `source`.
@@ -33,7 +33,7 @@ export function isUnchangedSubtree(previous: PreviousValue, source: unknown): bo
  * @internal
  */
 export function previousObjectValue(previous: PreviousValue): Record<string, unknown> | undefined {
-  return previous !== noPreviousValue && previous !== null && typeof previous === "object"
+  return previous !== null && typeof previous === "object"
     ? (previous as Record<string, unknown>)
     : undefined
 }

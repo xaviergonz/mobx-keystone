@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Keep published JSON converter type declarations self-contained, avoiding an unresolved dependency on the private CRDT helper package.
 - Avoided reading native container ids and allocating throwaway reactive atoms while resolving Loro paths outside a MobX derivation, such as when writing local changes back to the document.
 - Keep local array writes synchronized when a commit also carries pending native list edits. Insertions, deletions, updates and moves whose indices the native side has shifted, reordered or replaced now reconcile instead of failing and leaving the model and document diverged. Unaffected paths keep their incremental updates and native moves.
 - Flush queued reentrant moves when a native commit lands before the surrounding model action finishes, instead of replaying them against a document that has already moved on.

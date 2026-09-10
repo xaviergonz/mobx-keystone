@@ -346,23 +346,21 @@ export function applySnapshotToYjsContainer(
     return
   }
 
-  const options: ApplyJsonToYjsOptions = { mode: "merge" }
-  let target: Y.Map<any> | Y.Array<any>
-  let apply: () => void
-  if (container instanceof Y.Map) {
-    target = container
-    apply = () =>
-      applyJsonObjectToYMapInternal(container, snapshot as PlainObject, options, previousSnapshot)
-  } else if (container instanceof Y.Array) {
-    target = container
-    apply = () =>
-      applyJsonArrayToYArrayInternal(container, snapshot as PlainArray, options, previousSnapshot)
-  } else {
+  if (!(container instanceof Y.Map || container instanceof Y.Array)) {
     return
   }
-
-  if (!target.doc) {
+  if (!container.doc) {
     throw failure("the merge destination must be attached to a document")
   }
-  target.doc.transact(apply)
+
+  const options: ApplyJsonToYjsOptions = { mode: "merge" }
+  let apply: () => void
+  if (container instanceof Y.Map) {
+    apply = () =>
+      applyJsonObjectToYMapInternal(container, snapshot as PlainObject, options, previousSnapshot)
+  } else {
+    apply = () =>
+      applyJsonArrayToYArrayInternal(container, snapshot as PlainArray, options, previousSnapshot)
+  }
+  container.doc.transact(apply)
 }

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Keep published JSON converter type declarations self-contained, avoiding an unresolved dependency on the private CRDT helper package.
 - Remove stale native copies of locally written models during conflicting array reconciliation, preventing duplicate model IDs after positional edits or insertion/reordering spans.
 - Restore locally edited primitive array entries after pending native deletions without creating sparse arrays or failing synchronization.
 - With the updated core, keep synchronizing when an earlier model listener unsubscribes itself during change delivery.
