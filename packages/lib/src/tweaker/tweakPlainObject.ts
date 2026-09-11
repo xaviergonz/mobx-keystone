@@ -37,6 +37,11 @@ import {
 import { takeModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import { withoutCachedTypeChecking } from "../types/createCachedTypeCheck"
 import { failure, isPlainObject, isPrimitive, setProtoProp } from "../utils"
+import {
+  addDelayedError,
+  type DelayedError,
+  throwDelayedError,
+} from "../utils/forEachWithDelayedThrow"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
@@ -228,9 +233,17 @@ function objectDidChange(change: IObjectDidChange): void {
 
   // Reserve chronological patch notifications, then finish deep-change delivery
   // before publishing them. Reentrant edits append behind this mutation.
+  // Every step below runs even when an earlier one throws, so a failing patch recorder
+  // cannot keep the mutation from reaching the deep change and public patch listeners,
+  // and no failure is lost to a later one.
   beginPatchEmission()
+  let delayedError: DelayedError
   try {
     emitPatches(actualNode, patches, invPatches)
+  } catch (error) {
+    delayedError = addDelayedError(delayedError, error)
+  }
+  try {
     switch (change.type) {
       case "add":
         emitObjectAddDeepChange(actualNode, obj, change.name, change.newValue)
@@ -247,9 +260,15 @@ function objectDidChange(change: IObjectDidChange): void {
       default:
         throw failure("assertion error: unsupported object change type")
     }
-  } finally {
-    endPatchEmission()
+  } catch (error) {
+    delayedError = addDelayedError(delayedError, error)
   }
+  try {
+    endPatchEmission()
+  } catch (error) {
+    delayedError = addDelayedError(delayedError, error)
+  }
+  throwDelayedError(delayedError)
 }
 
 function objectDidChangeRemove(

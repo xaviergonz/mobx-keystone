@@ -1,5 +1,5 @@
 import { autorun, type ObservableMap, observable, runInAction } from "mobx"
-import { type AnyModel, detach, Model, prop, WalkTreeMode, walkTree } from "../../src"
+import { type AnyModel, detach, Model, prop, toTreeNode, WalkTreeMode, walkTree } from "../../src"
 import { testModel } from "../utils"
 
 test("walktree should be reactive", () => {
@@ -74,4 +74,38 @@ test("walktree should be reactive", () => {
     ["1", c1],
     ["3", c3],
   ])
+})
+
+test("children-first traversal preserves sibling order", () => {
+  const root = toTreeNode({ a: { child: {} }, b: {} })
+  const visited: object[] = []
+  walkTree(
+    root,
+    (node) => {
+      visited.push(node)
+    },
+    WalkTreeMode.ChildrenFirst
+  )
+  expect(visited).toEqual([root.a.child, root.a, root.b, root])
+})
+
+test("children-first traversal supports deep trees and stops at the first result", () => {
+  const leaf = toTreeNode({})
+  const nodes: object[] = [leaf]
+  for (let i = 0; i < 15000; i++) {
+    nodes.push(toTreeNode({ child: nodes[nodes.length - 1] }))
+  }
+  const root = nodes[nodes.length - 1]
+  const visited: object[] = []
+  walkTree(
+    root,
+    (node) => {
+      visited.push(node)
+    },
+    WalkTreeMode.ChildrenFirst
+  )
+  expect(visited).toEqual(nodes)
+  const stop = vi.fn((node: object) => (node === leaf ? false : undefined))
+  expect(walkTree(root, stop, WalkTreeMode.ChildrenFirst)).toBe(false)
+  expect(stop).toHaveBeenCalledTimes(1)
 })

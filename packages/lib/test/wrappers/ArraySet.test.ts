@@ -5,6 +5,17 @@ import { autoDispose } from "../utils"
 let arr!: ArraySet<number>["items"]
 let set!: ArraySet<number>
 
+test.each(["keys", "values"] as const)(
+  "%s iterators visit values added during iteration",
+  (method) => {
+    const set = arraySet([1, 2])
+    const iterator = set[method]()
+    expect(iterator.next()).toEqual({ value: 1, done: false })
+    set.add(3)
+    expect([...iterator]).toEqual([2, 3])
+  }
+)
+
 beforeEach(() => {
   set = arraySet([2, 3, 5])
   arr = set.items
@@ -28,6 +39,26 @@ test("add", () => {
 
   set.add(1)
   expectSetValues([2, 3, 5, 1])
+})
+
+test("initial values are unique and preserve insertion order", () => {
+  const input = [3, 2, 3, Number.NaN, Number.NaN, 0, -0]
+  const result = arraySet(input)
+  expect([...result]).toEqual([...new Set(input)])
+  expect(result.size).toBe(4)
+  expect(result.delete(3)).toBe(true)
+  expect(result.has(3)).toBe(false)
+  expect(input).toEqual([3, 2, 3, Number.NaN, Number.NaN, 0, -0])
+})
+
+test("delete NaN uses the same equality as add and has", () => {
+  set.add(Number.NaN)
+  set.add(Number.NaN)
+  expectSetValues([2, 3, 5, Number.NaN])
+  expect(set.delete(Number.NaN)).toBe(true)
+  expect(set.has(Number.NaN)).toBe(false)
+  expect(set.delete(Number.NaN)).toBe(false)
+  expectSetValues([2, 3, 5])
 })
 
 test("clear", () => {

@@ -4,6 +4,7 @@ import { HookAction } from "../action/hookActions"
 import { wrapInAction, wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import { type AnyModel, BaseModel } from "../model/BaseModel"
 import { WalkTreeMode, walkTree } from "../parent/walkTree"
+import { forEachWithDelayedThrow } from "../utils/forEachWithDelayedThrow"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
 const attachedToRootStore = new WeakSet<object>()
@@ -40,15 +41,12 @@ export const attachToRootStore = action(
       WalkTreeMode.ParentFirst
     )
 
-    const childrenToCallLen = childrenToCall.length
-    for (let i = 0; i < childrenToCallLen; i++) {
-      const ch = childrenToCall[i]
-
+    forEachWithDelayedThrow(childrenToCall, (ch) => {
       const disposer = (ch as any).onAttachedToRootStore(rootStore)
       if (disposer) {
         onAttachedDisposers.set(ch, disposer)
       }
-    }
+    })
   }
 )
 
@@ -82,8 +80,5 @@ export const detachFromRootStore = action("detachFromRootStore", (child: object)
     WalkTreeMode.ChildrenFirst
   )
 
-  const disposersToCallLen = disposersToCall.length
-  for (let i = 0; i < disposersToCallLen; i++) {
-    disposersToCall[i]()
-  }
+  forEachWithDelayedThrow(disposersToCall, (dispose) => dispose())
 })

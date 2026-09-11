@@ -1,6 +1,14 @@
 import { observable, reaction, runInAction } from "mobx"
 import { _, assert } from "spec.ts"
-import { createContext, fromSnapshot, getSnapshot, Model, prop, runUnprotected } from "../../src"
+import {
+  createContext,
+  fromSnapshot,
+  getSnapshot,
+  Model,
+  prop,
+  runUnprotected,
+  toTreeNode,
+} from "../../src"
 import { createP } from "../testbed"
 import { autoDispose, testModel } from "../utils"
 
@@ -352,3 +360,18 @@ test("context is back to default when the parent providing the context is no lon
   // now that p is no longer providing the context, it should be back to the default
   expect(ctx.get(p2)).toBe(1)
 })
+
+test.each(["get", "getProviderNode"] as const)(
+  "context %s supports deep parent chains",
+  (method) => {
+    const leaf = fromSnapshot({})
+    let root: object = leaf
+    for (let i = 0; i < 15000; i++) {
+      root = toTreeNode({ child: root })
+    }
+    const ctx = createContext("default")
+    expect(ctx[method](leaf)).toBe(method === "get" ? "default" : undefined)
+    ctx.set(root, "provided")
+    expect(ctx[method](leaf)).toBe(method === "get" ? "provided" : root)
+  }
+)

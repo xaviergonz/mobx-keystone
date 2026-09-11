@@ -95,44 +95,55 @@ export function toFrozenSnapshot<T>(data: T): FrozenData<T> {
   }
 }
 
-function checkDataIsSerializableAndFreeze(data: any) {
-  // TODO: detect cycles and throw if present?
+function checkDataIsSerializableAndFreeze(data: unknown) {
+  const ancestors = new Set<object>()
+  const stack: {
+    data: object
+    keys: string[] | undefined
+    length: number
+    nextIndex: number
+  }[] = []
 
-  // primitives are ok
-  if (isPrimitive(data)) {
-    return
-  }
+  const visit = (value: unknown) => {
+    if (isPrimitive(value)) return
 
-  if (Array.isArray(data)) {
-    const arrLen = data.length
-    for (let i = 0; i < arrLen; i++) {
-      const v = data[i]
-      if (v === undefined && !getGlobalConfig().allowUndefinedArrayElements) {
-        throw failure(
-          "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
-        )
-      }
-      checkDataIsSerializableAndFreeze(v)
+    if (!Array.isArray(value) && !isPlainObject(value)) {
+      throw failure(`frozen data must be plainly serializable to JSON, but ${value} is not`)
     }
-    Object.freeze(data)
-    return
-  }
-
-  if (isPlainObject(data)) {
-    const dataKeys = Object.keys(data)
-    const dataKeysLen = dataKeys.length
-    for (let i = 0; i < dataKeysLen; i++) {
-      const k = dataKeys[i]
-      const v = data[k]
-
-      checkDataIsSerializableAndFreeze(k)
-      checkDataIsSerializableAndFreeze(v)
+    if (ancestors.has(value)) {
+      throw failure("frozen data must not contain cycles")
     }
-    Object.freeze(data)
-    return
+    ancestors.add(value)
+    const keys = Array.isArray(value) ? undefined : Object.keys(value)
+    stack.push({
+      data: value,
+      keys,
+      length: keys ? keys.length : (value as unknown[]).length,
+      nextIndex: 0,
+    })
   }
 
-  throw failure(`frozen data must be plainly serializable to JSON, but ${data} is not`)
+  visit(data)
+  while (stack.length > 0) {
+    const frame = stack[stack.length - 1]
+    if (frame.nextIndex === frame.length) {
+      Object.freeze(frame.data)
+      ancestors.delete(frame.data)
+      stack.pop()
+      continue
+    }
+
+    const index = frame.nextIndex++
+    const value = frame.keys
+      ? (frame.data as Record<string, unknown>)[frame.keys[index]]
+      : (frame.data as unknown[])[index]
+    if (!frame.keys && value === undefined && !getGlobalConfig().allowUndefinedArrayElements) {
+      throw failure(
+        "undefined is not supported inside arrays since it is not serializable in JSON, consider using null instead"
+      )
+    }
+    visit(value)
+  }
 }
 
 /**

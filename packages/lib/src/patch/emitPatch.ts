@@ -5,6 +5,7 @@ import type { PathElement } from "../parent/pathTypes"
 import { freezeInternalSnapshot, getInternalSnapshot } from "../snapshot/internal"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, deleteFromArray, isPrimitive } from "../utils"
+import { forEachWithDelayedThrow } from "../utils/forEachWithDelayedThrow"
 import type { Patch } from "./Patch"
 
 const emptyPatchArray: Patch[] = []
@@ -33,6 +34,8 @@ export class InternalPatchRecorder {
   }
 }
 
+const runNotification = (notify: () => void) => notify()
+
 let patchEmissionDepth = 0
 let emittingPendingPatches = false
 const pendingPatchNotifications: (() => void)[] = []
@@ -53,9 +56,7 @@ function flushPendingPatches(): void {
     return
   emittingPendingPatches = true
   try {
-    for (let i = 0; i < pendingPatchNotifications.length; i++) {
-      pendingPatchNotifications[i]()
-    }
+    forEachWithDelayedThrow(pendingPatchNotifications, (notify) => notify())
   } finally {
     pendingPatchNotifications.length = 0
     emittingPendingPatches = false
@@ -77,8 +78,11 @@ export function emitPatches(obj: object, patches: Patch[], invPatches: Patch[]):
     // Reserve every public notification and its path before recorder callbacks
     // can cause further mutations. Recorders must run within the mutation's
     // action / withoutUndo scope, even while public delivery is deferred.
-    for (const notify of synchronousNotifications) notify()
-    flushPendingPatches()
+    // A throwing recorder must not stop the ones registered on ancestor nodes,
+    // nor swallow the deferred public delivery, so the flush is just one more
+    // step of the same delayed-throw delivery.
+    synchronousNotifications.push(flushPendingPatches)
+    forEachWithDelayedThrow(synchronousNotifications, runNotification)
   }
 }
 
@@ -217,12 +221,11 @@ function notifyPatchSubscriptions<Args extends unknown[]>(
   args: Args,
   synchronous: boolean
 ): void {
-  for (let i = 0; i < subscriptions.length; i++) {
-    const subscription = subscriptions[i]
+  forEachWithDelayedThrow(subscriptions, (subscription) => {
     if (subscription.active && subscription.synchronous === synchronous) {
       subscription.listener(...args)
     }
-  }
+  })
 }
 
 function reservePatchNotifications<Args extends unknown[]>(

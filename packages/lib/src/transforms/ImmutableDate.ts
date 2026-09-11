@@ -31,6 +31,10 @@ const errMessage = "this Date object is immutable"
 export class ImmutableDate extends Date {
   // disable mutable methods
 
+  setYear(): never {
+    throw failure(errMessage)
+  }
+
   setTime(): any {
     throw failure(errMessage)
   }

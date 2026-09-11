@@ -9,6 +9,8 @@ import {
   modelFlow,
   prop,
   type SimpleActionContext,
+  standaloneFlow,
+  toTreeNode,
 } from "../../src"
 import { autoDispose, delay, testModel } from "../utils"
 
@@ -313,4 +315,32 @@ test("actionTrackingMiddleware - flow", async () => {
   expect(ret3 < 1000).toBeTruthy() // the return value override should be gone by now
   expect(events.map(eventToString)).toMatchInlineSnapshot(`[]`)
   expect(events).toMatchSnapshot("disposing")
+})
+
+test("a throwing child finish hook balances the resumed parent", async () => {
+  const root = toTreeNode({})
+  const child = standaloneFlow("tracking/throwingFinishChild", function* (_root: object) {
+    yield Promise.resolve()
+  })
+  const parent = standaloneFlow("tracking/throwingFinishParent", function* (root: object) {
+    yield child(root)
+  })
+  const counts = new Map<string, number>()
+  const dispose = actionTrackingMiddleware(root, {
+    onResume(ctx) {
+      counts.set(ctx.actionName, (counts.get(ctx.actionName) ?? 0) + 1)
+    },
+    onSuspend(ctx) {
+      counts.set(ctx.actionName, (counts.get(ctx.actionName) ?? 0) - 1)
+    },
+    onFinish(ctx) {
+      if (ctx.actionName === "tracking/throwingFinishChild") throw new Error("finish failed")
+    },
+  })
+  try {
+    await expect(parent(root)).rejects.toThrow("finish failed")
+    expect([...counts.values()]).toEqual([0, 0])
+  } finally {
+    dispose()
+  }
 })

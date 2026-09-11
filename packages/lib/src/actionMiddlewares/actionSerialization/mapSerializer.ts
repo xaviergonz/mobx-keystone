@@ -15,13 +15,8 @@ export const mapSerializer: ActionCallArgumentSerializer<
 
     const arr: [any, any][] = []
 
-    const iter = map.keys()
-    let cur = iter.next()
-    while (!cur.done) {
-      const k = cur.value
-      const v = map.get(k)
-      arr.push([serialize(k), serialize(v)])
-      cur = iter.next()
+    for (const [key, value] of map.entries()) {
+      arr.push([serialize(key), serialize(value)])
     }
 
     return arr
@@ -30,11 +25,8 @@ export const mapSerializer: ActionCallArgumentSerializer<
   deserialize(arr, deserialize) {
     const map = new Map()
 
-    const len = arr.length
-    for (let i = 0; i < len; i++) {
-      const k = arr[i][0]
-      const v = arr[i][1]
-      map.set(deserialize(k), deserialize(v))
+    for (const [key, value] of arr) {
+      map.set(deserialize(key), deserialize(value))
     }
 
     return map

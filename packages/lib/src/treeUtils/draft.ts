@@ -38,6 +38,10 @@ export class Draft<T extends object> {
    */
   @mobxAction
   commitByPath(path: Path): void {
+    if (path.length === 0) {
+      this.commit()
+      return
+    }
     const draftTarget = resolvePath(this.data, path)
     if (!draftTarget.resolved) {
       throw failure(`path ${JSON.stringify(path)} could not be resolved in draft object`)
@@ -76,6 +80,10 @@ export class Draft<T extends object> {
    */
   @mobxAction
   resetByPath(path: Path): void {
+    if (path.length === 0) {
+      this.reset()
+      return
+    }
     const originalTarget = resolvePath(this.originalData, path)
     if (!originalTarget.resolved) {
       throw failure(`path ${JSON.stringify(path)} could not be resolved in original object`)

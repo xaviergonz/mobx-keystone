@@ -57,7 +57,8 @@ export function connectReduxDevTools(
     }
   })
 
-  const initialState = getSnapshot(target)
+  let initialState = getSnapshot(target)
+  let lastLoggedSnapshot = initialState
   remotedevConnection.init(initialState)
 
   let currentActionId = 0
@@ -96,7 +97,8 @@ export function connectReduxDevTools(
         }
 
         case "COMMIT":
-          return remotedev2.init(getSnapshot(target2))
+          initialState = getSnapshot(target2)
+          return remotedev2.init(initialState)
 
         case "ROLLBACK": {
           const state = remotedevPackage.extractState(message)
@@ -122,10 +124,9 @@ export function connectReduxDevTools(
       }
     } finally {
       handlingMonitorAction--
+      lastLoggedSnapshot = getSnapshot(target2)
     }
   }
-
-  let lastLoggedSnapshot = initialState
 
   function log(ctx: SimpleActionContext, result: ActionTrackingResult | undefined) {
     if (handlingMonitorAction) {

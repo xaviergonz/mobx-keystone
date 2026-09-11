@@ -19,6 +19,16 @@ import {
 } from "../utils"
 import { actionTrackingMiddleware, type SimpleActionContext } from "./actionTrackingMiddleware"
 
+function checkMaxLevels(value: number | undefined, name: string): void {
+  if (
+    value !== undefined &&
+    value !== Number.POSITIVE_INFINITY &&
+    (!Number.isInteger(value) || value < 0)
+  ) {
+    throw failure(`${name} must be a non-negative integer or Infinity`)
+  }
+}
+
 /**
  * An undo/redo event without attached state.
  */
@@ -151,6 +161,8 @@ export class UndoStore extends Model({
     maxUndoLevels?: number
     maxRedoLevels?: number
   }) {
+    checkMaxLevels(maxUndoLevels, "maxUndoLevels")
+    checkMaxLevels(maxRedoLevels, "maxRedoLevels")
     if (maxUndoLevels !== undefined) {
       while (this.undoEvents.length > maxUndoLevels) {
         this.undoEvents.shift()
@@ -261,10 +273,16 @@ export class UndoStore extends Model({
         running = true
       },
       end: () => {
+        if (ended) {
+          throw failure("cannot end a group when it is already ended")
+        }
         if (running) {
           api.pause()
         }
         ended = true
+        if (group.events.length === 0) {
+          return
+        }
         if (parentGroup) {
           this._addUndoToParentGroup(parentGroup, group)
         } else {
@@ -388,7 +406,7 @@ export class UndoManager {
         })
 
       // restore the attached state before the operation was made
-      if (event.attachedState?.beforeEvent) {
+      if (event.attachedState) {
         this.options?.attachedState?.restore(event.attachedState.beforeEvent)
       }
     })
@@ -413,7 +431,7 @@ export class UndoManager {
       })
 
       // restore the attached state after the operation was made
-      if (event.attachedState?.afterEvent) {
+      if (event.attachedState) {
         this.options?.attachedState?.restore(event.attachedState.afterEvent)
       }
     })
@@ -586,14 +604,14 @@ export class UndoManager {
       function next(ret: any): void {
         if (ret && typeof ret.then === "function") {
           // an async iterator
-          ret.then(next, reject)
+          Promise.resolve(ret).then(next, reject).catch(reject)
         } else if (ret.done) {
           // done
           group.end()
           resolve(ret.value)
         } else {
           // continue
-          Promise.resolve(ret.value).then(onFulfilled, onRejected)
+          Promise.resolve(ret.value).then(onFulfilled, onRejected).catch(reject)
         }
       }
 
@@ -675,6 +693,8 @@ export function undoMiddleware<S>(
   options?: UndoMiddlewareOptions<S>
 ): UndoManager {
   assertTweakedObject(subtreeRoot, "subtreeRoot")
+  checkMaxLevels(options?.maxUndoLevels, "maxUndoLevels")
+  checkMaxLevels(options?.maxRedoLevels, "maxRedoLevels")
 
   let manager: UndoManager
 
@@ -691,6 +711,7 @@ export function undoMiddleware<S>(
   function initPatchRecorder(ctx: SimpleActionContext) {
     const group = manager.store._currentGroup
 
+    const attachedStateBeforeEvent = options?.attachedState?.save()
     const patchRecorderData: PatchRecorderData = {
       recorder: patchRecorder(subtreeRoot, {
         recording: false,
@@ -702,7 +723,7 @@ export function undoMiddleware<S>(
       undoRootContext: ctx,
       group,
 
-      attachedStateBeforeEvent: options?.attachedState?.save(),
+      attachedStateBeforeEvent,
     }
 
     ctx.rootContext.data[patchRecorderSymbol] = patchRecorderData
@@ -733,42 +754,44 @@ export function undoMiddleware<S>(
       if (patchRecorderData && patchRecorderData.undoRootContext === ctx) {
         const patchRecorder = patchRecorderData.recorder
 
-        if (patchRecorder.events.length > 0) {
-          const patches: Patch[] = []
-          const inversePatches: Patch[] = []
+        try {
+          if (patchRecorder.events.length > 0) {
+            const patches: Patch[] = []
+            const inversePatches: Patch[] = []
 
-          for (const event of patchRecorder.events) {
-            patches.push(...event.patches)
-            inversePatches.push(...event.inversePatches)
-          }
+            for (const event of patchRecorder.events) {
+              for (const patch of event.patches) patches.push(patch)
+              for (const patch of event.inversePatches) inversePatches.push(patch)
+            }
 
-          const event = {
-            type: UndoEventType.Single,
-            targetPath: fastGetRootPath(ctx.target, false).path,
-            actionName: ctx.actionName,
-            patches,
-            inversePatches,
-          } as const
+            const event = {
+              type: UndoEventType.Single,
+              targetPath: fastGetRootPath(ctx.target, false).path,
+              actionName: ctx.actionName,
+              patches,
+              inversePatches,
+            } as const
 
-          const parentGroup = patchRecorderData.group
+            const parentGroup = patchRecorderData.group
 
-          if (parentGroup) {
-            manager.store._addUndoToParentGroup(parentGroup, event)
-          } else {
-            manager.store._addUndo({
-              event: {
-                ...event,
-                attachedState: {
-                  beforeEvent: patchRecorderData.attachedStateBeforeEvent,
-                  afterEvent: options?.attachedState?.save(),
+            if (parentGroup) {
+              manager.store._addUndoToParentGroup(parentGroup, event)
+            } else {
+              manager.store._addUndo({
+                event: {
+                  ...event,
+                  attachedState: {
+                    beforeEvent: patchRecorderData.attachedStateBeforeEvent,
+                    afterEvent: options?.attachedState?.save(),
+                  },
                 },
-              },
-              maxUndoLevels: options?.maxUndoLevels,
-            })
+                maxUndoLevels: options?.maxUndoLevels,
+              })
+            }
           }
+        } finally {
+          patchRecorder.dispose()
         }
-
-        patchRecorder.dispose()
       }
     },
   })

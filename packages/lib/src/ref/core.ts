@@ -88,10 +88,25 @@ export function internalCustomRef<T extends object>(
       trackedRefs.add(this as Ref<object>)
       this.internalForceUpdateBackRefs(initialTarget)
 
+      // MobX 4/5 do not pass the previous value to reaction effects.
+      // The reaction is usually created inside an action, so its first tracking run is deferred
+      // to the end of the batch and `initialTarget` may be stale by then; capture the value of
+      // that first run instead, since that is the one the effect will be compared against.
+      let previousTarget = initialTarget
+      let firstTrackingRun = true
       // according to mwestrate this won't leak as long as we don't keep the disposer around
       reaction(
-        () => this.maybeCurrent,
-        (newTarget, oldTarget) => {
+        () => {
+          const target = this.maybeCurrent
+          if (firstTrackingRun) {
+            firstTrackingRun = false
+            previousTarget = target
+          }
+          return target
+        },
+        (newTarget) => {
+          const oldTarget = previousTarget
+          previousTarget = newTarget
           this.internalForceUpdateBackRefs(newTarget)
 
           if (onResolvedValueChange && newTarget !== oldTarget) {

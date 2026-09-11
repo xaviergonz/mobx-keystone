@@ -29,6 +29,11 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
+import {
+  addDelayedError,
+  type DelayedError,
+  throwDelayedError,
+} from "../utils/forEachWithDelayedThrow"
 import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject } from "./treeNodeMetadata"
@@ -217,9 +222,17 @@ function arrayDidChange(change: IArrayDidChange) {
 
   // Reserve chronological patch notifications, then finish deep-change delivery
   // before publishing them. Reentrant edits append behind this mutation.
+  // Every step below runs even when an earlier one throws, so a failing patch recorder
+  // cannot keep the mutation from reaching the deep change and public patch listeners,
+  // and no failure is lost to a later one.
   beginPatchEmission()
+  let delayedError: DelayedError
   try {
     emitPatches(arr, patches, invPatches)
+  } catch (error) {
+    delayedError = addDelayedError(delayedError, error)
+  }
+  try {
     switch (change.type) {
       case "splice":
         emitArraySpliceDeepChange(arr, arr, change.index as number, change.added, change.removed)
@@ -239,9 +252,15 @@ function arrayDidChange(change: IArrayDidChange) {
       default:
         break
     }
-  } finally {
-    endPatchEmission()
+  } catch (error) {
+    delayedError = addDelayedError(delayedError, error)
   }
+  try {
+    endPatchEmission()
+  } catch (error) {
+    delayedError = addDelayedError(delayedError, error)
+  }
+  throwDelayedError(delayedError)
 }
 
 const undefinedInsideArrayErrorMsg =

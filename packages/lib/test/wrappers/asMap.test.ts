@@ -1,6 +1,43 @@
-import { computed, reaction, set, toJS } from "mobx"
+import { computed, observable, reaction, runInAction, set, toJS } from "mobx"
 import { asMap, Model, mapToArray, mapToObject, modelAction, prop, runUnprotected } from "../../src"
 import { testModel } from "../utils"
+
+test("mapToObject preserves a literal __proto__ key", () => {
+  const value = { name: "value" }
+  const object = mapToObject(new Map([["__proto__", value]]))
+  expect(Object.getPrototypeOf(object)).toBe(Object.prototype)
+  expect(Object.keys(object)).toEqual(["__proto__"])
+  expect(Object.getOwnPropertyDescriptor(object, "__proto__")?.value).toBe(value)
+  expect(JSON.parse(JSON.stringify(object))).toEqual({ ["__proto__"]: value })
+})
+
+test.each(["update", "delete"])("NaN key %s keeps the backing array synchronized", (operation) => {
+  const array = observable.array<[number, string]>([
+    [1, "one"],
+    [Number.NaN, "old"],
+    [2, "two"],
+  ])
+  const map = asMap(array)
+  runInAction(() => {
+    if (operation === "update") {
+      map.set(Number.NaN, "new")
+      expect(map.get(Number.NaN)).toBe("new")
+      expect(toJS(array)).toEqual([
+        [1, "one"],
+        [Number.NaN, "new"],
+        [2, "two"],
+      ])
+    } else {
+      expect(map.delete(Number.NaN)).toBe(true)
+      expect(map.has(Number.NaN)).toBe(false)
+      expect(toJS(array)).toEqual([
+        [1, "one"],
+        [2, "two"],
+      ])
+      expect(map.delete(Number.NaN)).toBe(false)
+    }
+  })
+})
 
 test("asMap - object", () => {
   @testModel("M")

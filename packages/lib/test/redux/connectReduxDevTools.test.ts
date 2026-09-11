@@ -9,7 +9,9 @@ import {
   modelFlow,
   modelIdKey,
   modelSnapshotOutWithMetadata,
+  objectActions,
   prop,
+  toTreeNode,
 } from "../../src"
 import { testModel } from "../utils"
 
@@ -346,4 +348,40 @@ test("subtree action called from untracked parent with logChildActions false", (
     x: "setXY ends",
     y: "setY",
   })
+})
+
+test("devtools reset returns to the most recently committed state", () => {
+  const root = toTreeNode({ value: 0 })
+  let receive!: (message: unknown) => void
+  const connection = {
+    subscribe(callback: typeof receive) {
+      receive = callback
+    },
+    init: vi.fn(),
+    send: vi.fn(),
+  }
+  connectReduxDevTools({}, connection, root)
+  objectActions.set(root, "value", 1)
+  receive({ type: "DISPATCH", payload: { type: "COMMIT" } })
+  objectActions.set(root, "value", 2)
+  receive({ type: "DISPATCH", payload: { type: "RESET" } })
+  expect(root.value).toBe(1)
+})
+
+test("devtools does not log a no-op action after time travel", () => {
+  const root = toTreeNode({ value: 0 })
+  let receive!: (message: unknown) => void
+  const connection = {
+    subscribe(callback: typeof receive) {
+      receive = callback
+    },
+    init: vi.fn(),
+    send: vi.fn(),
+  }
+  connectReduxDevTools({ extractState: () => ({ value: 0 }) }, connection, root)
+  objectActions.set(root, "value", 1)
+  receive({ type: "DISPATCH", payload: { type: "JUMP_TO_STATE" } })
+  connection.send.mockClear()
+  objectActions.set(root, "value", 0)
+  expect(connection.send).not.toHaveBeenCalled()
 })

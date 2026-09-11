@@ -5,8 +5,10 @@ import {
   Model,
   modelAction,
   modelIdKey,
+  objectActions,
   prop,
   type SimpleActionContext,
+  toTreeNode,
 } from "../../src"
 import { autoDispose, testModel } from "../utils"
 
@@ -230,4 +232,19 @@ test("actionTrackingMiddleware - sync", () => {
   expect(p2.addXY(5, 6) < 1000).toBeTruthy()
   expect(events.map(eventToString)).toMatchInlineSnapshot(`[]`)
   expect(events).toMatchSnapshot("disposing")
+})
+
+test("a throwing onFinish hook is not invoked a second time", () => {
+  const root = toTreeNode({ value: 0 })
+  const error = new Error("finish failed")
+  const onFinish = vi.fn(() => {
+    throw error
+  })
+  const dispose = actionTrackingMiddleware(root, { onFinish })
+  try {
+    expect(() => objectActions.set(root, "value", 1)).toThrow(error)
+    expect(onFinish).toHaveBeenCalledOnce()
+  } finally {
+    dispose()
+  }
 })

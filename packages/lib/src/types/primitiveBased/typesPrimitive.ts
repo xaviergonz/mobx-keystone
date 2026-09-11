@@ -1,4 +1,4 @@
-import { assertIsPrimitive } from "../../utils"
+import { assertIsPrimitive, isEqualOrBothNaN } from "../../utils"
 import type { PrimitiveValue } from "../../utils/types"
 import { registerStandardTypeResolver, type StandardTypeResolverFn } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
@@ -31,7 +31,12 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
       typeName = "null"
       break
     default:
-      typeName = JSON.stringify(literal)
+      typeName =
+        typeof literal === "bigint"
+          ? `${literal}n`
+          : typeof literal === "number" && !Number.isFinite(literal)
+            ? String(literal)
+            : JSON.stringify(literal)
       break
   }
 
@@ -41,7 +46,7 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
     TypeCheckerBaseType.Primitive,
 
     (value, path, typeCheckedValue) =>
-      value === literal
+      isEqualOrBothNaN(value, literal)
         ? null
         : new TypeCheckError({
             path,
@@ -53,7 +58,7 @@ export function typesLiteral<T extends PrimitiveValue>(literal: T): IdentityType
     () => typeName,
     typeInfoGen,
 
-    (value) => (value === literal ? thisTc : null),
+    (value) => (isEqualOrBothNaN(value, literal) ? thisTc : null),
     undefined,
     undefined
   )

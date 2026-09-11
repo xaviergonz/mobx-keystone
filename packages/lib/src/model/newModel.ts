@@ -52,7 +52,7 @@ export const internalNewModel = action(
     // use symbol if provided
     if (modelIdPropertyName && modelIdPropData) {
       let id: string | undefined
-      if (initialData[modelIdPropertyName]) {
+      if (initialData[modelIdPropertyName] != null) {
         id = initialData[modelIdPropertyName]
       } else {
         id = (modelIdPropData._defaultFn as () => string)()

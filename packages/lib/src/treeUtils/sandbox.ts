@@ -7,7 +7,6 @@ import { createContext } from "../context"
 import { getParentToChildPath, resolvePath } from "../parent/path"
 import { applyPatches } from "../patch/applyPatches"
 import { onPatches } from "../patch/emitPatch"
-import type { Patch } from "../patch/Patch"
 import { type PatchRecorder, patchRecorder } from "../patch/patchRecorder"
 import {
   fastIsRootStoreNoAtom,
@@ -78,11 +77,6 @@ export class SandboxManager {
    */
   private allowWrite: ReadonlyMiddlewareReturn["allowWrite"]
 
-  /**
-   * Whether changes made in the sandbox are currently being committed to the original subtree.
-   */
-  private isCommitting = false
-
   private readonly subtreeRoot: object
 
   /**
@@ -127,11 +121,9 @@ export class SandboxManager {
       if (this.withSandboxPatchRecorder) {
         throw failure("original subtree must not change while 'withSandbox' executes")
       }
-      if (!this.isCommitting) {
-        this.allowWrite(() => {
-          applyPatches(this.subtreeRootClone, patches)
-        })
-      }
+      this.allowWrite(() => {
+        applyPatches(this.subtreeRootClone, patches)
+      })
     })
 
     const { allowWrite, dispose: disposeReadonlyMW } = readonlyMiddleware(this.subtreeRootClone)
@@ -232,26 +224,38 @@ export class SandboxManager {
       }
       if (commit) {
         if (!isNestedWithSandboxCall) {
-          const patches: Patch[] = []
-          const len = recorder.events.length
-          for (let i = 0; i < len; i++) {
-            patches.push(...recorder.events[i].patches)
-          }
-
-          const isCommitting = this.isCommitting
-          this.isCommitting = true
-          try {
-            applyPatches(this.subtreeRoot, patches)
-          } finally {
-            this.isCommitting = isCommitting
-          }
+          const events = recorder.events
+          // The clone already holds these changes, so revert them and let the regular
+          // patch sync mirror the original's final state back in. That way anything a
+          // listener changes on the original during the commit reaches the clone too,
+          // at a cost proportional to the changes rather than to the tree size.
+          // Both halves run in a single action so that observers of the sandbox never
+          // see the reverted intermediate state.
+          runInAction(() => {
+            this.allowWrite(() => {
+              for (let i = events.length - 1; i >= 0; i--) {
+                applyPatches(this.subtreeRootClone, events[i].inversePatches, true)
+              }
+            })
+            applyPatches(
+              this.subtreeRoot,
+              events.map((event) => event.patches)
+            )
+          })
         }
       } else {
         this.allowWrite(() => {
           runInAction(() => {
-            let i = recorder.events.length
-            while (i-- > numRecorderEvents) {
-              applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)
+            const wasRecording = recorder.recording
+            recorder.recording = false
+            try {
+              let i = recorder.events.length
+              while (i-- > numRecorderEvents) {
+                applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)
+              }
+              recorder.events.splice(numRecorderEvents)
+            } finally {
+              recorder.recording = wasRecording
             }
           })
         })

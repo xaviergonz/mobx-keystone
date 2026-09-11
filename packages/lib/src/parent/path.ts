@@ -267,9 +267,11 @@ export function resolvePath<T = any>(
       const dataNode = modelToDataNode(current)
       if (p in dataNode) {
         current = dataNode
-      } else if (!(p in current)) {
-        return unresolved
       }
+    }
+
+    if (!(p in current)) {
+      return unresolved
     }
 
     current = current[p]
@@ -323,7 +325,7 @@ export function resolvePathCheckingIds<T = any>(
 
     // check just to avoid mobx warnings about trying to access out of bounds index
     if (isArray(current)) {
-      if (+p >= current.length) {
+      if (+p >= current.length || !(p in current)) {
         return { resolved: false }
       }
     } else if (!hasOwnProp(current, p)) {

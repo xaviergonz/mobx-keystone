@@ -1,4 +1,3 @@
-import { values } from "mobx"
 import { modelAction } from "../action/modelAction"
 import type { AnyModel } from "../model/BaseModel"
 import { Model } from "../model/Model"
@@ -48,7 +47,7 @@ export class ArraySet<V> extends arraySetBase implements Set<V> {
   delete(value: V): boolean {
     const items = this.items
 
-    const index = items.indexOf(value)
+    const index = Number.isNaN(value) ? items.findIndex(Number.isNaN) : items.indexOf(value)
     if (index >= 0) {
       items.splice(index, 1)
       return true
@@ -75,15 +74,12 @@ export class ArraySet<V> extends arraySetBase implements Set<V> {
     return this.items.length
   }
 
-  *keys(): ReturnType<Set<V>["keys"]> {
-    // yes, values
-    for (const value of values(this.items)) {
-      yield value as V
-    }
+  keys(): ReturnType<Set<V>["keys"]> {
+    return this.values()
   }
 
   *values(): ReturnType<Set<V>["values"]> {
-    for (const value of values(this.items)) {
+    for (const value of this.items) {
       yield value as V
     }
   }
@@ -150,7 +146,7 @@ export interface ArraySet<V> {
  * @param [values] Optional initial values.
  */
 export function arraySet<V>(values?: ReadonlyArray<V> | null): ArraySet<V> {
-  const initialArr: V[] = values ? values.slice() : []
+  const initialArr: V[] = values ? Array.from(new Set(values)) : []
 
   return new ArraySet({ items: initialArr })
 }

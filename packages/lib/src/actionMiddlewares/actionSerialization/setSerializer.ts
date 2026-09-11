@@ -1,4 +1,4 @@
-import type { ObservableSet } from "mobx"
+import { isObservableSet, type ObservableSet } from "mobx"
 import { namespace } from "../../utils"
 import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
 
@@ -6,7 +6,7 @@ export const setSerializer: ActionCallArgumentSerializer<Set<any> | ObservableSe
   id: `${namespace}/setAsArray`,
 
   serialize(set, serialize) {
-    if (!(set instanceof Set)) {
+    if (!(set instanceof Set || isObservableSet(set))) {
       return cannotSerialize
     }
 

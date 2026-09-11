@@ -39,7 +39,12 @@ export function registerActionCallArgumentSerializer(
   serializersArray.unshift(serializer)
   serializersMap.set(serializer.id, serializer)
 
+  let disposed = false
   return () => {
+    if (disposed) {
+      return
+    }
+    disposed = true
     const index = serializersArray.indexOf(serializer)
     if (index >= 0) {
       serializersArray.splice(index, 1)

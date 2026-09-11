@@ -33,6 +33,8 @@ When a root is registered, `onAttachedToRootStore` runs for the root model and e
 
 This makes the hook a natural place to register effects such as MobX `reaction` or `when`, and its disposer the matching place to clean them up.
 
+If an attachment hook or its disposer throws, remaining hooks in that operation still run. A lone failure is then rethrown as is; several failures are grouped in a `MobxKeystoneAggregateError` (a `MobxKeystoneError` subclass) whose `.errors` holds the thrown values in order, flattened.
+
 ### Practical example
 
 As a practical example, say that you have some kind of application user preferences that have to be saved to / loaded from local storage, but we also want to use the same model in a form to edit them.

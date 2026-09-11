@@ -41,6 +41,18 @@ let p!: M
 let pSn!: () => SnapshotOutOf<M>
 let d!: Draft<M>
 
+test("commitByPath with an empty path commits the whole draft", () => {
+  d.data.setX(42)
+  d.commitByPath([])
+  expect(getSnapshot(p)).toEqual(getSnapshot(d.data))
+})
+
+test("resetByPath with an empty path resets the whole draft", () => {
+  d.data.setX(42)
+  d.resetByPath([])
+  expect(getSnapshot(d.data)).toEqual(getSnapshot(p))
+})
+
 function expectDirty() {
   expect(d.isDirty).toBe(true)
   expect(getSnapshot(d.data)).not.toEqual(pSn())

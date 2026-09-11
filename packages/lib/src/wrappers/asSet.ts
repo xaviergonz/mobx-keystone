@@ -11,7 +11,14 @@ import {
   transaction,
   untracked,
 } from "mobx"
-import { assertIsObservableArray, assertIsSet, failure, getMobxVersion, inDevMode } from "../utils"
+import {
+  assertIsObservableArray,
+  assertIsSet,
+  failure,
+  getMobxVersion,
+  inDevMode,
+  isEqualOrBothNaN,
+} from "../utils"
 import { tag } from "../utils/tag"
 
 const observableSetBackedByObservableArray = <T>(
@@ -26,9 +33,9 @@ const observableSetBackedByObservableArray = <T>(
   const set = transaction(() =>
     untracked(() => {
       if (getMobxVersion() >= 6) {
-        return observable.set(array)
+        return observable.set(array, { deep: false })
       } else {
-        const set = observable.set()
+        const set = observable.set<T>(undefined, { deep: false })
         runInAction(() => {
           array.forEach((item) => {
             set.add(item)
@@ -98,12 +105,12 @@ const observableSetBackedByObservableArray = <T>(
   intercept(
     set,
     action((change: ISetWillChange<T>) => {
-      if (setAlreadyChanged) {
-        return null
-      }
-
       if (arrayAlreadyChanged) {
         return change
+      }
+
+      if (setAlreadyChanged) {
+        return null
       }
 
       setAlreadyChanged = true
@@ -111,12 +118,29 @@ const observableSetBackedByObservableArray = <T>(
       try {
         switch (change.type) {
           case "add": {
-            array.push(change.newValue)
+            if (!set.has(change.newValue)) {
+              array.push(change.newValue)
+              const storedValue = array[array.length - 1]
+              if (getMobxVersion() >= 6) {
+                change.newValue = storedValue
+              } else if (!isEqualOrBothNaN(storedValue, change.newValue)) {
+                // MobX 4/5 ignore replacement values returned by set interceptors.
+                arrayAlreadyChanged = true
+                try {
+                  set.add(storedValue)
+                } finally {
+                  arrayAlreadyChanged = false
+                }
+                return null
+              }
+            }
             break
           }
 
           case "delete": {
-            const i = array.indexOf(change.oldValue)
+            const i = Number.isNaN(change.oldValue)
+              ? array.findIndex(Number.isNaN)
+              : array.indexOf(change.oldValue)
             if (i >= 0) {
               array.splice(i, 1)
             }

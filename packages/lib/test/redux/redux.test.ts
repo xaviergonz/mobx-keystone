@@ -147,3 +147,51 @@ describe("asReduxStore", () => {
     `)
   })
 })
+
+@testModel("ReduxLifecycleModel")
+class Counter extends Model({ value: prop(0) }) {
+  @modelAction
+  increment() {
+    this.value++
+  }
+}
+
+const increment = actionCallToReduxAction({
+  actionName: "increment",
+  args: [],
+  targetPath: [],
+  targetPathIds: [],
+})
+
+test("redux middleware handlers are built once and retain their state", () => {
+  const counter = new Counter({})
+  const counts: number[] = []
+  const middleware: ReduxMiddleware<Counter> = () => (next) => {
+    let count = 0
+    return (action) => {
+      counts.push(++count)
+      return next(action)
+    }
+  }
+  const store = asReduxStore(counter, middleware)
+  store.dispatch(increment)
+  store.dispatch(increment)
+  expect(counts).toEqual([1, 2])
+  expect(counter.value).toBe(2)
+})
+
+test("calling next twice runs the full downstream middleware chain twice", () => {
+  const counter = new Counter({})
+  const seen = vi.fn()
+  const twice: ReduxMiddleware<Counter> = () => (next) => (action) => {
+    next(action)
+    return next(action)
+  }
+  const downstream: ReduxMiddleware<Counter> = () => (next) => (action) => {
+    seen()
+    return next(action)
+  }
+  asReduxStore(counter, twice, downstream).dispatch(increment)
+  expect(seen).toHaveBeenCalledTimes(2)
+  expect(counter.value).toBe(2)
+})

@@ -5,7 +5,12 @@ import { isDataModelClass } from "../dataModel/utils"
 import { isModelClass } from "../model/utils"
 import { isTreeNode } from "../tweaker/core"
 import { tweak } from "../tweaker/tweak"
-import { addLateInitializationFunction, failure, runBeforeOnInitSymbol } from "../utils"
+import {
+  addLateInitializationFunction,
+  failure,
+  isEqualOrBothNaN,
+  runBeforeOnInitSymbol,
+} from "../utils"
 import { checkDecoratorContext, copyFunctionMetadata } from "../utils/decorators"
 import { getOrCreate } from "../utils/mapUtils"
 
@@ -54,14 +59,20 @@ export function computedTree(...args: any[]): any {
       const oldValue = entry.value
       const newValue = entry.computed.get()
 
-      if (oldValue === newValue) {
+      if (isEqualOrBothNaN(oldValue, newValue)) {
         return entry.tweakedValue
       }
 
       const oldTweakedValue = entry.tweakedValue
       tweak(oldTweakedValue, undefined)
 
-      const tweakedValue = tweakComputedTreeNode(newValue, this, propertyKey)
+      let tweakedValue: unknown
+      try {
+        tweakedValue = tweakComputedTreeNode(newValue, this, propertyKey)
+      } catch (error) {
+        entry.tweakedValue = tweakComputedTreeNode(oldTweakedValue, this, propertyKey)
+        throw error
+      }
       entry.value = newValue
       entry.tweakedValue = tweakedValue
       return tweakedValue

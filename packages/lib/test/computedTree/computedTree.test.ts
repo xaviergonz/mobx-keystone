@@ -30,6 +30,7 @@ import {
   registerRootStore,
   resolvePath,
   rootRef,
+  toTreeNode,
   unregisterRootStore,
   WalkTreeMode,
   walkTree,
@@ -528,4 +529,41 @@ test("computed tree works with an array of models", () => {
   expect(r.arrayOfModels.slice()).toEqual(
     [1, 2].map((i) => new M({ id: `${r.id}.model${i}`, value: 20 }))
   )
+})
+
+test("computed tree getters track value changes and keep NaN stable", () => {
+  @testModel("ComputedNumber")
+  class Root extends Model({ value: prop(0).withSetter() }) {
+    @computedTree
+    get derived() {
+      return this.value
+    }
+  }
+  const root = new Root({})
+  expect(root.derived).toBe(0)
+  root.setValue(1)
+  expect(root.derived).toBe(1)
+  root.setValue(Number.NaN)
+  expect(root.derived).toBeNaN()
+  root.setValue(Number.NaN)
+  expect(root.derived).toBeNaN()
+})
+
+test("a failed computed-tree replacement leaves the previous tree attached", () => {
+  const child = toTreeNode({ value: 0 })
+  @testModel("ComputedFailure")
+  class Root extends Model({ invalid: prop(false).withSetter() }) {
+    @computedTree
+    get derived() {
+      return this.invalid ? new Map() : child
+    }
+  }
+  const root = new Root({})
+  expect(getParent(child)).toBe(root)
+  root.setInvalid(true)
+  expect(root.invalid).toBe(true)
+  expect(() => root.derived).toThrow()
+  root.setInvalid(false)
+  expect(root.derived).toBe(child)
+  expect(getParent(child)).toBe(root)
 })

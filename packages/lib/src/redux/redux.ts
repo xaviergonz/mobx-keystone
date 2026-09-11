@@ -83,7 +83,7 @@ export function asReduxStore<T extends object>(
       return getSnapshot(target)
     },
     dispatch(action) {
-      return runMiddlewares(action, runners, defaultDispatch)
+      return dispatch(action)
     },
     subscribe(listener) {
       return onSnapshot(target, listener)
@@ -91,25 +91,9 @@ export function asReduxStore<T extends object>(
   }
 
   const runners = middlewares.map((mw) => mw(store))
-
-  return store
-}
-
-function runMiddlewares<T>(
-  initialAction: ReduxAction,
-  runners: ReadonlyArray<ReduxRunner<T>>,
-  next: ReduxStore<T>["dispatch"]
-): ReduxAction {
-  let i = 0
-
-  function runNextMiddleware(action: ReduxAction): ReduxAction {
-    if (i < runners.length) {
-      const runner = runners[i]
-      i++
-      return runner(runNextMiddleware)(action)
-    }
-    return next(action)
+  let dispatch = defaultDispatch
+  for (let i = runners.length - 1; i >= 0; i--) {
+    dispatch = runners[i](dispatch)
   }
-
-  return runNextMiddleware(initialAction)
+  return store
 }

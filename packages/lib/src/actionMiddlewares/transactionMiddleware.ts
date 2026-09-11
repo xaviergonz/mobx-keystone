@@ -36,11 +36,15 @@ export function transactionMiddleware<M extends AnyModel>(target: {
 
   const patchRecorderSymbol = Symbol("patchRecorder")
   function initPatchRecorder(ctx: SimpleActionContext) {
-    ctx.rootContext.data[patchRecorderSymbol] = internalPatchRecorder(undefined, {
-      recording: false,
-    })
+    ctx.rootContext.data[patchRecorderSymbol] = {
+      recorder: internalPatchRecorder(undefined, { recording: false }),
+      activeCount: 0,
+    }
   }
-  function getPatchRecorder(ctx: SimpleActionContext): PatchRecorder {
+  function getPatchRecorderData(ctx: SimpleActionContext): {
+    recorder: PatchRecorder
+    activeCount: number
+  } {
     return ctx.rootContext.data[patchRecorderSymbol]
   }
 
@@ -55,15 +59,21 @@ export function transactionMiddleware<M extends AnyModel>(target: {
         initPatchRecorder(ctx)
       }
     },
+    // Actions nest, so recording must only stop once every action of the transaction
+    // has been suspended, not as soon as the innermost one returns.
     onResume(ctx) {
-      getPatchRecorder(ctx).recording = true
+      const data = getPatchRecorderData(ctx)
+      data.activeCount++
+      data.recorder.recording = true
     },
     onSuspend(ctx) {
-      getPatchRecorder(ctx).recording = false
+      const data = getPatchRecorderData(ctx)
+      data.activeCount--
+      data.recorder.recording = data.activeCount > 0
     },
     onFinish(ctx, ret) {
       if (ctx === ctx.rootContext) {
-        const patchRecorder = getPatchRecorder(ctx)
+        const patchRecorder = getPatchRecorderData(ctx).recorder
 
         try {
           if (ret.result === ActionTrackingResult.Throw) {

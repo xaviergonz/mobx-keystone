@@ -1,25 +1,31 @@
-import { computed, type IObservableArray, reaction, toJS } from "mobx"
+import { type IObservableArray, reaction, toJS } from "mobx"
 import {
   _async,
   _await,
+  arrayActions,
   getSnapshot,
   idProp,
   Model,
   modelAction,
   modelFlow,
   modelIdKey,
+  objectActions,
   onPatches,
   prop,
   type Ref,
   registerRootStore,
   rootRef,
   type SnapshotOutOfModel,
+  toTreeNode,
   type UndoEvent,
+  UndoEventType,
   UndoManager,
   UndoStore,
   undoMiddleware,
   withoutUndo,
 } from "../../src"
+import * as emitPatch from "../../src/patch/emitPatch"
+import { mobxComputed } from "../../src/utils"
 import { autoDispose, testModel, timeMock } from "../utils"
 
 let attachedState = "initial"
@@ -390,7 +396,7 @@ test("issue #115", () => {
       }
     }
 
-    @computed
+    @mobxComputed
     get selectedElement() {
       return this.selectedElementRef ? this.selectedElementRef.current : undefined
     }
@@ -1065,4 +1071,157 @@ test("limit undo/redo steps", () => {
 
   manager.undo()
   expectUndoRedoToBe(0, 1)
+})
+
+test("ending a custom group twice does not duplicate history", () => {
+  const node = toTreeNode({ value: 0 })
+  const manager = undoMiddleware(node)
+  const group = manager.createGroup()
+  group.continue(() => objectActions.set(node, "value", 1))
+  group.end()
+  expect(() => group.end()).toThrow("already ended")
+  expect(manager.undoLevels).toBe(1)
+  manager.undo()
+  expect(node.value).toBe(0)
+  manager.dispose()
+})
+
+test("empty groups preserve redo history", () => {
+  const node = toTreeNode({ value: 0 })
+  const manager = undoMiddleware(node)
+  objectActions.set(node, "value", 1)
+  manager.undo()
+  manager.withGroup(() => manager.withGroup(() => {}))
+  expect(manager.undoLevels).toBe(0)
+  expect(manager.redoLevels).toBe(1)
+  manager.redo()
+  expect(node.value).toBe(1)
+  manager.dispose()
+})
+
+test.each(["maxUndoLevels", "maxRedoLevels"] as const)("rejects invalid %s", (option) => {
+  const node = toTreeNode({ value: 0 })
+  for (const value of [-1, Number.NEGATIVE_INFINITY, Number.NaN, 1.5]) {
+    expect(() => undoMiddleware(node, undefined, { [option]: value })).toThrow(option)
+  }
+})
+
+test.each([0, 1, Number.POSITIVE_INFINITY, undefined])(
+  "supports a history limit of %s",
+  (limit) => {
+    const node = toTreeNode({ value: 0 })
+    const manager = undoMiddleware(node, undefined, {
+      maxUndoLevels: limit,
+      maxRedoLevels: limit,
+    })
+    try {
+      objectActions.set(node, "value", 1)
+      objectActions.set(node, "value", 2)
+      expect(manager.undoLevels).toBe(Math.min(limit ?? Number.POSITIVE_INFINITY, 2))
+      if (manager.canUndo) {
+        manager.undo()
+        expect(node.value).toBe(1)
+        manager.redo()
+        expect(node.value).toBe(2)
+      }
+    } finally {
+      manager.dispose()
+    }
+  }
+)
+
+test("undo recording accepts a large batch of inverse patches", () => {
+  const root = toTreeNode(Array.from({ length: 150000 }, (_, i) => i))
+  const manager = undoMiddleware(root)
+  try {
+    arrayActions.splice(root, 0, root.length)
+    expect(root).toHaveLength(0)
+    const event = manager.undoQueue[0]
+    expect(event.type).toBe(UndoEventType.Single)
+    if (event.type !== UndoEventType.Single) throw new Error("expected a single undo event")
+    expect(event.inversePatches).toHaveLength(150000)
+    expect(getSnapshot(event.inversePatches[0])).toEqual({
+      op: "add",
+      path: [149999],
+      value: 149999,
+    })
+    expect(getSnapshot(event.inversePatches[149999])).toEqual({ op: "add", path: [0], value: 0 })
+  } finally {
+    manager.dispose()
+  }
+}, 30000)
+
+test("undo recording releases its patch subscription if attached-state saving throws", () => {
+  const subscribe = emitPatch.internalOnPatches
+  const disposers: (() => void)[] = []
+  const spy = vi.spyOn(emitPatch, "internalOnPatches").mockImplementation((...args) => {
+    const dispose = vi.fn(subscribe(...args))
+    disposers.push(dispose)
+    return dispose
+  })
+  const root = toTreeNode({ value: 0 })
+  let saves = 0
+  const manager = undoMiddleware(root, undefined, {
+    attachedState: {
+      save() {
+        if (++saves >= 2) throw new Error("save failed")
+      },
+      restore() {},
+    },
+  })
+  try {
+    expect(() => objectActions.set(root, "value", 1)).toThrow("save failed")
+    expect(disposers).toHaveLength(1)
+    expect(disposers[0]).toHaveBeenCalledOnce()
+  } finally {
+    manager.dispose()
+    for (const dispose of disposers) dispose()
+    spy.mockRestore()
+  }
+})
+
+test.each([0, false, "", null, undefined])("restores falsy attached state %s", (state) => {
+  const root = toTreeNode({ value: 0 })
+  const restore = vi.fn()
+  const manager = undoMiddleware(root, undefined, {
+    attachedState: { save: () => state, restore },
+  })
+  try {
+    objectActions.set(root, "value", 1)
+    manager.undo()
+    expect(restore).toHaveBeenLastCalledWith(state)
+    restore.mockClear()
+    manager.redo()
+    expect(restore).toHaveBeenLastCalledWith(state)
+  } finally {
+    manager.dispose()
+  }
+})
+
+test("failed initial attached-state saving does not leak a patch recorder", () => {
+  const subscribe = emitPatch.internalOnPatches
+  const disposers: (() => void)[] = []
+  const spy = vi.spyOn(emitPatch, "internalOnPatches").mockImplementation((...args) => {
+    const dispose = vi.fn(subscribe(...args))
+    disposers.push(dispose)
+    return dispose
+  })
+  const root = toTreeNode({ value: 0 })
+  const manager = undoMiddleware(root, undefined, {
+    attachedState: {
+      save() {
+        throw new Error("initial save failed")
+      },
+      restore() {},
+    },
+  })
+  try {
+    expect(() => objectActions.set(root, "value", 1)).toThrow("initial save failed")
+    expect(root.value).toBe(0)
+    for (const dispose of disposers) expect(dispose).toHaveBeenCalledOnce()
+  } finally {
+    manager.dispose()
+    for (const dispose of disposers) dispose()
+    spy.mockRestore()
+  }
 })

@@ -75,19 +75,19 @@ function walkTreeChildrenFirst<T = void>(
   root: object,
   visit: (node: object) => T | undefined
 ): T | undefined {
-  const childrenIter = getObjectChildren(root).values()
-  let ch = childrenIter.next()
-  while (!ch.done) {
-    const ret = walkTreeChildrenFirst(ch.value, visit)
-    if (ret !== undefined) {
-      return ret
+  const stack = [{ node: root, children: getObjectChildren(root).values() }]
+  while (stack.length > 0) {
+    const frame = stack[stack.length - 1]
+    const child = frame.children.next()
+    if (!child.done) {
+      stack.push({ node: child.value, children: getObjectChildren(child.value).values() })
+    } else {
+      stack.pop()
+      const ret = visit(frame.node)
+      if (ret !== undefined) {
+        return ret
+      }
     }
-    ch = childrenIter.next()
-  }
-
-  const ret = visit(root)
-  if (ret !== undefined) {
-    return ret
   }
 
   return undefined

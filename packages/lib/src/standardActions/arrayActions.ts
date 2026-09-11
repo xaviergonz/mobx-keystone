@@ -26,7 +26,7 @@ export const arrayActions = {
 
   concat: standaloneAction(
     `${namespace}::concat`,
-    <T>(array: T[], ...items: ConcatArray<T>[]): T[] => {
+    <T>(array: T[], ...items: (T | ConcatArray<T>)[]): T[] => {
       return array.concat(...items)
     }
   ),
@@ -89,8 +89,18 @@ export const arrayActions = {
   swap: standaloneAction(
     `${namespace}::swap`,
     <T>(array: T[], index1: number, index2: number): boolean => {
-      if (index1 < 0 || index2 < 0 || index1 >= array.length || index2 >= array.length) {
+      if (
+        !Number.isInteger(index1) ||
+        !Number.isInteger(index2) ||
+        index1 < 0 ||
+        index2 < 0 ||
+        index1 >= array.length ||
+        index2 >= array.length
+      ) {
         return false
+      }
+      if (index1 === index2) {
+        return true
       }
       if (index2 < index1) {
         ;[index1, index2] = [index2, index1]

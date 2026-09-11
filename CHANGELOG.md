@@ -2,9 +2,60 @@
 
 ## Unreleased
 
+- Restore falsy undo/redo attached state, and avoid leaking a recorder when the initial attached-state callback throws.
+- Keep transaction rollback recording active after nested actions return.
+- Discard rejected nested sandbox edits instead of replaying them on commit, and synchronize the sandbox with changes triggered during commit. Commits now cost time proportional to the changes being committed rather than to the size of the tree.
+- Balance parent action-tracking resume/suspend hooks when a child completion hook throws.
+- Honor child-hook disposal during attachment callbacks, including whether pending cleanup should run.
+- Continue patch delivery to remaining listeners after a listener throws, then report the failures once delivery has finished. This also covers `patchRecorder` callbacks, so a failing recorder no longer silently stops the recorders registered on ancestor nodes, nor the deep-change listeners and the deferred patch listeners of the same mutation. Failures from all three are reported together.
+- Added `MobxKeystoneAggregateError`, a `MobxKeystoneError` subclass with an `errors` array. Patch listeners, patch recorders, deep-change listeners and root store attachment hooks now share one failure rule: every callback runs, a lone failure is rethrown as is, and several failures are grouped in a `MobxKeystoneAggregateError` whose `errors` is a flat list, even across nested delivery.
+- Preserve `__proto__` entries in `objectMap`, and return the stored value from its insertion helpers.
+- Keep nested transforms' cache decisions independent, and retain cached transform values for `NaN`.
+- Match native array argument handling for codec-backed `splice` and `at`, and support large codec-backed reversals and other whole-array mutations without argument-limit errors.
+- Re-encode reused mutable codec inputs instead of returning stale encoded values, and preserve special property names in object, record, and map codecs.
+- Pass the actual previous reference target to resolution-change callbacks on MobX 4/5.
+- Support observable sets in JSON action-argument serialization.
+- Restore sandbox state after a rejected commit so subsequent operations start from the actual original tree.
+- Handle large undo patch batches without argument-limit errors, and avoid leaked undo recorders when attached-state saving fails.
+- Invoke action-tracking completion hooks only once when a completion hook throws.
+- Preserve explicitly supplied empty-string model IDs and reuse those models when snapshot reconciliation moves them.
+- Restore the previous computed tree if its replacement cannot be attached.
+- Ensure `objectActions.set` and `assign` update stored data and snapshots when used on observable models.
+- Validate that `types.ref` values belong to the specified reference constructor.
+- Preserve Redux middleware handler state across dispatches and invoke the full downstream chain on repeated `next` calls.
+- Make Redux DevTools reset use the latest committed state, and avoid logging no-op actions after time travel.
+- Accept scalar values alongside arrays in `arrayActions.concat` TypeScript arguments.
+- Prevent repeated undo-group completion from duplicating history, and keep empty groups from discarding redo history.
+- Reject invalid undo/redo history limits instead of allowing negative limits to hang history trimming.
+- Reject asynchronous flow promises when completion middleware or an undo group's final attached-state callback throws, instead of leaving them pending.
+- Run child-hook disposal callbacks in reverse attachment order, including explicit disposal. Continue remaining detachments and attachments when a callback throws, then report the first error.
+- Support deeply nested frozen data without overflowing the call stack.
+- Preserve literal `__proto__` properties when processing typed object and record snapshots.
+- Preserve object identity between `asMap`/`asSet` and their backing collections, both when wrapping shallow observables and when writes convert values into observable objects or tree nodes.
+- Object property setters now use `SameValueZero` equality, so re-setting a `NaN` property is a no-op. `0` and `-0` are treated as the same value throughout, matching `deepEquals`, literal type checks and JSON.
+- ID-checked path resolution now rejects missing array properties instead of resolving them as `undefined`.
+- `ArraySet.keys()` and `ArraySet.values()` iterators now visit values appended during iteration, matching the existing entries iterator.
+- Keep root-store registration status reactive when attachment or disposal hooks throw, and continue remaining hooks before reporting the failures.
+- Prevent subclass model initializers from running on base or sibling model instances.
+- Exclude reverse-mapping names from numeric enums whose values include `NaN`.
+- Make action-argument serializer disposers idempotent, so an old disposer cannot remove a later registration.
+- Preserve invalid dates across JSON action-argument round trips.
+- Prevent inherited property names and `__proto__` registrations from creating unintended model registry entries.
+- Fixed `arrayActions.swap` reordering other items when both indexes are equal; non-integer indexes now return `false` without modifying the array.
+- Empty paths in `Draft.commitByPath` and `Draft.resetByPath` now commit or reset the whole draft.
+- Prevent the legacy `setYear` method from mutating immutable dates.
+- `resolvePath` now distinguishes missing properties from properties whose value is `undefined`.
+- Fixed stack overflows during children-first `walkTree` traversal of deeply nested trees.
+- Fixed bigint literal type construction and `NaN` literal validation, including their type names in errors.
+- Frozen-data validation now rejects cycles with a descriptive library error while continuing to allow shared descendants.
+- Deduplicate `arraySet` initial values while preserving insertion order, so size and deletion behave consistently with a set.
+- Fixed stack overflows in context value and provider lookups on deeply nested trees.
+- Fixed `asSet.add` appending duplicate backing entries when the value is already present, which could leave stale entries after deletion or clearing.
+- Fixed deletion of `NaN` in `ArraySet` and `asSet`, and updates/deletions of `NaN` keys in array-backed `asMap`, keeping backing arrays synchronized.
+- Preserve literal `__proto__` entries in `mapToObject` conversions without changing the object prototype.
 - Validate `applyPatches` against the completed batch, including nested/reversed patch lists, newly created models, and synchronous listener-triggered edits. Rejected batches roll back with compensating patches instead of leaving earlier patches applied. Literal property deletion and field-update semantics remain unchanged.
 - Keep deep-change listener delivery stable when subscriptions change inside callbacks. Self-unsubscription no longer skips later listeners, listeners disposed while a change is being delivered no longer receive it, and duplicate callback registrations have independent, idempotent disposers.
-- Continue deep-change delivery after a listener throws, so later global, subtree, and ancestor listeners observe the applied mutation. Rethrow the first listener error after delivery completes.
+- Continue deep-change delivery after a listener throws, so later global, subtree, and ancestor listeners observe the applied mutation, then report the failures once delivery completes.
 - Preserve snapshot immutability when union types or custom output processors wrap shared child snapshots, including snapshots captured after earlier edits.
 - Expose `DeepChange.isReentrant` for notifications that overlap listener-triggered mutations, allowing bindings to recover their final local state.
 - Preserve chronological patch delivery and mutation-time paths when deep-change or patch listeners make reentrant edits. Patch recorders capture changes synchronously, preserving transaction rollback, recording scopes, and `withoutUndo` during listener-triggered edits.

@@ -1,4 +1,13 @@
-import { Model, onDeepChange, onGlobalDeepChange, prop, runUnprotected } from "../../src"
+import {
+  MobxKeystoneAggregateError,
+  Model,
+  onDeepChange,
+  onGlobalDeepChange,
+  onPatches,
+  patchRecorder,
+  prop,
+  runUnprotected,
+} from "../../src"
 import { autoDispose, testModel } from "../utils"
 
 @testModel("listener-errors-root")
@@ -36,11 +45,21 @@ test("listener errors do not prevent later global, subtree, and ancestor deliver
       seen.push("root")
     })
   )
-  expect(() =>
+  let caught: unknown
+  try {
     runUnprotected(() => {
       root.child.value = 1
     })
-  ).toThrow(first)
+  } catch (error) {
+    caught = error
+  }
+  expect(caught).toBeInstanceOf(MobxKeystoneAggregateError)
+  expect((caught as MobxKeystoneAggregateError).errors[0]).toBe(first)
+  expect((caught as MobxKeystoneAggregateError).errors.map((e) => (e as Error).message)).toEqual([
+    "first",
+    "second",
+    "third",
+  ])
   expect(seen).toEqual(["global1", "global2", "child1", "child2", "root"])
   expect(root.child.value).toBe(1)
 })
@@ -70,4 +89,53 @@ test("nested listener errors finish both emissions and leave later edits usable"
     root.child.value = 3
   })
   expect(seen).toEqual([2, 2, 3])
+})
+
+test("a throwing patch recorder still lets the deep change and the public patches through", () => {
+  const root = new Root({})
+  const seen: string[] = []
+  const recorderError = new Error("recorder")
+  const deepChangeError = new Error("deepChange")
+  const patchesError = new Error("patches")
+
+  const recorder = patchRecorder(root, {
+    filter: () => {
+      seen.push("recorder")
+      throw recorderError
+    },
+  })
+  autoDispose(() => {
+    recorder.dispose()
+  })
+  autoDispose(
+    onDeepChange(root, () => {
+      seen.push("deepChange")
+      throw deepChangeError
+    })
+  )
+  autoDispose(
+    onPatches(root, () => {
+      seen.push("patches")
+      throw patchesError
+    })
+  )
+
+  let caught: unknown
+  try {
+    runUnprotected(() => {
+      root.child.value = 1
+    })
+  } catch (error) {
+    caught = error
+  }
+
+  // the recorder runs first, then the deep change, and the public patches are delivered last
+  expect(seen).toEqual(["recorder", "deepChange", "patches"])
+  expect(caught).toBeInstanceOf(MobxKeystoneAggregateError)
+  expect((caught as MobxKeystoneAggregateError).errors).toEqual([
+    recorderError,
+    deepChangeError,
+    patchesError,
+  ])
+  expect(root.child.value).toBe(1)
 })

@@ -2,7 +2,15 @@ import { isObservableObject, keys } from "mobx"
 import type { O } from "ts-toolbelt"
 import { Frozen } from "../../frozen/Frozen"
 import type { Path } from "../../parent/pathTypes"
-import { assertIsFunction, assertIsObject, getMobxVersion, isObject, lazy } from "../../utils"
+import {
+  assertIsFunction,
+  assertIsObject,
+  copyOwnEnumerableProps,
+  getMobxVersion,
+  isObject,
+  lazy,
+  setProtoProp,
+} from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { createIndexedPerEntryCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
@@ -106,23 +114,16 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       obj: Record<string, unknown>,
       processors: ReadonlyArray<SnapshotProcessor | undefined>
     ) => {
-      const newObj: typeof obj = {}
-
       // note: we allow excess properties when checking objects
-      const keys = Object.keys(obj)
-      for (let i = 0; i < keys.length; i++) {
-        const k = keys[i]
+      return copyOwnEnumerableProps({}, obj, (value, k) => {
         const schemaEntry = schemaEntryByPropName[k]
         if (schemaEntry) {
           const processor = processors[schemaEntry.processorIndex]
-          newObj[k] = processor ? withErrorPathSegment(k, () => processor(obj[k])) : obj[k]
-        } else {
-          // unknown prop, copy as is
-          newObj[k] = obj[k]
+          return processor ? withErrorPathSegment(k, () => processor(value)) : value
         }
-      }
-
-      return newObj
+        // unknown prop, copy as is
+        return value
+      })
     }
 
     const checkObjectType = (obj: any, path: Path, typeCheckedValue: any) => {
@@ -278,7 +279,9 @@ export class ObjectTypeInfo extends TypeInfo {
     const propTypes: O.Writable<ObjectTypeInfoProps> = {}
     Object.keys(objSchema).forEach((propName) => {
       const type = resolveStandardType(objSchema[propName])
-      propTypes[propName] = { type, typeInfo: getTypeInfo(type) }
+      const propInfo = { type, typeInfo: getTypeInfo(type) }
+      if (propName === "__proto__") setProtoProp(propTypes, propInfo)
+      else propTypes[propName] = propInfo
     })
     return propTypes
   })

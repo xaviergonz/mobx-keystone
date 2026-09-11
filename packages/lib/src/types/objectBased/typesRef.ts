@@ -1,6 +1,6 @@
 import { modelTypeKey } from "../../model/metadata"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
-import { Ref, type RefConstructor } from "../../ref/Ref"
+import type { Ref, RefConstructor } from "../../ref/Ref"
 import { isObject } from "../../utils"
 import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"
@@ -36,7 +36,7 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
     TypeCheckerBaseType.Object,
 
     (value, path, typeCheckedValue) => {
-      if (!(value instanceof Ref)) {
+      if (!(value instanceof refConstructor.refClass)) {
         return new TypeCheckError({
           path,
           expectedTypeName: typeName,

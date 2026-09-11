@@ -24,7 +24,7 @@ export class ModelPool {
   }
 
   findModelByTypeAndId(modelType: string, modelId: string | undefined): AnyModel | undefined {
-    return modelId ? this.pool.get(modelType)?.get(modelId) : undefined
+    return modelId !== undefined ? this.pool.get(modelType)?.get(modelId) : undefined
   }
 
   findModelForSnapshot(sn: any): AnyModel | undefined {
@@ -56,7 +56,7 @@ let getDeepChildrenModels: GetDeepChildrenModels = (data) => {
     addNode(node, extensionData) {
       if (isModel(node)) {
         const id = node[modelIdKey]
-        if (id) {
+        if (id !== undefined) {
           const modelType = node[modelTypeKey]
           let modelsById = extensionData.get(modelType)
           if (!modelsById) {

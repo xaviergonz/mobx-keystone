@@ -1,6 +1,6 @@
 import { isObservableArray, isObservableObject, remove } from "mobx"
 import type { ModelPropTransform } from "../../modelShared/prop"
-import { isArray, isObject, lazy } from "../../utils"
+import { copyOwnEnumerableProps, isArray, isObject, lazy } from "../../utils"
 import { setIfDifferent } from "../../utils/setIfDifferent"
 import { ArrayTypeInfo, typesArray } from "../arrayBased/typesArray"
 import { TupleTypeInfo, typesTuple } from "../arrayBased/typesTuple"
@@ -36,6 +36,7 @@ function getArrayIndex(prop: PropertyKey): number | undefined {
 }
 
 function normalizeArrayIndex(index: number, length: number): number {
+  index = Math.trunc(index) || 0
   if (index < 0) {
     return Math.max(length + index, 0)
   }
@@ -44,6 +45,7 @@ function normalizeArrayIndex(index: number, length: number): number {
 }
 
 function resolveArrayAtIndex(index: number, length: number): number | undefined {
+  index = Math.trunc(index) || 0
   const resolvedIndex = index < 0 ? length + index : index
 
   if (resolvedIndex < 0 || resolvedIndex >= length) {
@@ -90,11 +92,7 @@ function objectLikeToStored(
     return runtime as never
   }
 
-  const stored: Record<string, unknown> = {}
-  for (const key of Object.keys(runtime)) {
-    stored[key] = convertValue(key, runtime[key])
-  }
-  return stored
+  return copyOwnEnumerableProps({}, runtime, (value, key) => convertValue(key, value))
 }
 
 /**
@@ -250,7 +248,9 @@ function createArrayLikeRuntimeAdapter(
   const storedByRuntime = new WeakMap<unknown[], unknown[]>()
 
   const decodeIndex = (target: unknown[], index: number) =>
-    index < 0 || index >= target.length || !Reflect.has(target, index)
+    index < 0 ||
+    index >= target.length ||
+    (!isObservableArray(target) && !Reflect.has(target, index))
       ? undefined
       : getItemAdapter(index).toRuntime(target[index], (newStoredValue) => {
           target[index] = newStoredValue
@@ -267,11 +267,13 @@ function createArrayLikeRuntimeAdapter(
   const materializeRuntimeValues = (target: unknown[]) =>
     Array.from({ length: target.length }, (_, index) => decodeIndex(target, index))
   const replaceStoredValues = (target: unknown[], runtimeValues: unknown[]) => {
-    target.splice(
-      0,
-      target.length,
-      ...runtimeValues.map((value, index) => getItemAdapter(index).toStored(value))
-    )
+    const storedValues = runtimeValues.map((value, index) => getItemAdapter(index).toStored(value))
+    if (isObservableArray(target)) {
+      target.replace(storedValues)
+    } else {
+      target.length = storedValues.length
+      for (let i = 0; i < storedValues.length; i++) target[i] = storedValues[i]
+    }
   }
   const mutateViaRuntime = (
     target: unknown[],
@@ -296,6 +298,11 @@ function createArrayLikeRuntimeAdapter(
       }
 
       const proxy: unknown[] = new Proxy(stored, {
+        has(target, prop) {
+          const index = getArrayIndex(prop)
+          if (index !== undefined && isObservableArray(target)) return index < target.length
+          return Reflect.has(target, prop)
+        },
         get(target, prop, receiver) {
           const index = getArrayIndex(prop)
           if (index !== undefined) {
@@ -350,12 +357,21 @@ function createArrayLikeRuntimeAdapter(
                   ...items.map((item, indexValue) => getItemAdapter(indexValue).toStored(item))
                 )
             case "splice":
-              return (start: number, deleteCount?: number, ...items: unknown[]) => {
+              return (...args: [start?: number, deleteCount?: number, ...items: unknown[]]) => {
+                const [start = 0, deleteCount, ...items] = args
                 const normalizedStart = normalizeArrayIndex(start, target.length)
                 const actualDeleteCount =
-                  deleteCount === undefined
-                    ? target.length - normalizedStart
-                    : Math.max(0, Math.min(deleteCount, target.length - normalizedStart))
+                  args.length === 0
+                    ? 0
+                    : args.length === 1
+                      ? target.length - normalizedStart
+                      : Math.max(
+                          0,
+                          Math.min(
+                            Math.trunc(deleteCount ?? 0) || 0,
+                            target.length - normalizedStart
+                          )
+                        )
 
                 const removedValues = target
                   .slice(normalizedStart, normalizedStart + actualDeleteCount)
@@ -517,17 +533,17 @@ function createCodecLeafRuntimeAdapter(
         return cachedStored
       }
 
+      let cacheResult = false
       const stored = transform.untransform({
         transformedValue: runtime,
-        cacheTransformedValue: () => {},
+        cacheTransformedValue: () => {
+          cacheResult = true
+        },
       })
 
-      if (isObject(runtime)) {
-        storedByRuntime.set(runtime, stored)
-      }
-
-      if (isObject(stored)) {
-        runtimeByStored.set(stored, runtime)
+      if (cacheResult) {
+        if (isObject(runtime)) storedByRuntime.set(runtime, stored)
+        if (isObject(stored)) runtimeByStored.set(stored, runtime)
       }
 
       return stored
@@ -675,7 +691,7 @@ function resolveCodecSupportForStandardType(type: AnyStandardType): ResolvedCode
           }
     } else if (typeInfo instanceof ObjectTypeInfo) {
       const childSupports = lazy(() => {
-        const supports: Record<string, ResolvedCodecSupport> = {}
+        const supports: Record<string, ResolvedCodecSupport> = Object.create(null)
         const props = typeInfo.props
         for (const propName of Object.keys(props)) {
           supports[propName] = resolveCodecSupportForStandardType(props[propName].type)
@@ -690,7 +706,7 @@ function resolveCodecSupportForStandardType(type: AnyStandardType): ResolvedCode
         : {
             hasCodec: true,
             storedType: typesObject(() => {
-              const storedProps: Record<string, AnyStandardType> = {}
+              const storedProps: Record<string, AnyStandardType> = Object.create(null)
               const props = typeInfo.props
               for (const propName of Object.keys(props)) {
                 storedProps[propName] = childSupports()[propName].storedType

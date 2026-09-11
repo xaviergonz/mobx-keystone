@@ -2,7 +2,6 @@ import type { O } from "ts-toolbelt"
 import { failure } from "../utils"
 import { copyFunctionMetadata, decorateWrapMethodOrField } from "../utils/decorators"
 import { type ActionContext, ActionContextActionType, ActionContextAsyncStepType } from "./context"
-import { promiseGenerator } from "./modelFlowPromiseGenerator"
 import { type WrapInActionOverrideContextFn, wrapInAction } from "./wrapInAction"
 
 const modelFlowSymbol = Symbol("modelFlow")
@@ -133,7 +132,7 @@ export function flow<R, Args extends any[]>({
       function next(ret: any): void {
         if (ret && typeof ret.then === "function") {
           // an async iterator
-          ret.then(next, reject)
+          Promise.resolve(ret).then(next, reject).catch(reject)
         } else if (ret.done) {
           // done
           wrapInAction({
@@ -154,7 +153,7 @@ export function flow<R, Args extends any[]>({
           }).call(target, ret.value)
         } else {
           // continue
-          Promise.resolve(ret.value).then(onFulfilled, onRejected)
+          Promise.resolve(ret.value).then(onFulfilled, onRejected).catch(reject)
         }
       }
 
@@ -235,6 +234,6 @@ export function _async<A extends any[], R>(
  * @param promise Promise.
  * @returns
  */
-export function _await<T>(promise: Promise<T>): Generator<Promise<T>, T, unknown> {
-  return promiseGenerator.call(promise)
+export function* _await<T>(promise: Promise<T>): Generator<Promise<T>, T, unknown> {
+  return (yield promise) as T
 }

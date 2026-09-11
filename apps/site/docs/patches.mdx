@@ -56,6 +56,8 @@ const disposer = onGlobalPatches((target, patches, inversePatches) => {
 
 This is mostly useful for global tooling, logging, or diagnostics. In application code, prefer `onPatches` when you already know which subtree you want to observe.
 
+If an `onPatches`, `onGlobalPatches` or `patchRecorder` callback throws, remaining listeners and recorders still run. A lone failure is then rethrown as is; several failures are grouped in a `MobxKeystoneAggregateError` (a `MobxKeystoneError` subclass) whose `.errors` holds the thrown values in order, flattened.
+
 ### `patchRecorder`
 
 ```ts

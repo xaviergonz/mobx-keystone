@@ -57,16 +57,16 @@ export function finishMutationBatch(): void {
   if (typeof finishers === "function") {
     finishers()
   } else if (finishers) {
-    runFinishers(finishers, finishers.length - 1)
-  }
-}
-
-function runFinishers(finishers: (() => void)[], index: number): void {
-  try {
-    finishers[index]()
-  } finally {
-    if (index > 0) {
-      runFinishers(finishers, index - 1)
+    let lastError: { value: unknown } | undefined
+    for (let i = finishers.length - 1; i >= 0; i--) {
+      try {
+        finishers[i]()
+      } catch (value) {
+        lastError = { value }
+      }
+    }
+    if (lastError) {
+      throw lastError.value
     }
   }
 }

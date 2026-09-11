@@ -1,5 +1,5 @@
 import type { ModelPropTransform } from "../../modelShared/prop"
-import { isMap } from "../../utils"
+import { isMap, setProtoProp } from "../../utils"
 import { asMap } from "../../wrappers/asMap"
 import { typesArray } from "../arrayBased/typesArray"
 import { typesTuple } from "../arrayBased/typesTuple"
@@ -158,7 +158,9 @@ function makeObjectBackedMapTransform<TStoredValue, TRuntimeValue>(
 
       const result: Record<string, TStoredValue> = {}
       transformedValue.forEach((value, key) => {
-        result[key] = valueAdapter.toStored(value)
+        const storedValue = valueAdapter.toStored(value)
+        if (key === "__proto__") setProtoProp(result, storedValue)
+        else result[key] = storedValue
       })
       return result
     },

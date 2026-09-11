@@ -1,4 +1,5 @@
 import { isObservable, remove } from "mobx"
+import { isModel } from "../model/utils"
 import { toTreeNode } from "../tweaker/tweak"
 import { assertIsObject, namespace as ns } from "../utils"
 import type { AnyFunction } from "../utils/AnyFunction"
@@ -11,7 +12,7 @@ export const objectActions = {
   set: standaloneAction(
     `${namespace}::set`,
     <T extends object, K extends keyof T>(target: T, key: K, value: T[K]): void => {
-      if (isObservable(target)) {
+      if (isObservable(target) && !isModel(target)) {
         setIfDifferent(target, key, value)
       } else {
         target[key] = value
@@ -25,7 +26,7 @@ export const objectActions = {
       assertIsObject(partialObject, "partialObject")
       const keys = Object.keys(partialObject)
 
-      if (isObservable(target)) {
+      if (isObservable(target) && !isModel(target)) {
         for (const key of keys) {
           const newValue = (partialObject as any)[key]
           setIfDifferent(target, key, newValue)

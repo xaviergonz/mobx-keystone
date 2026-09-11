@@ -2,12 +2,14 @@ import { observable } from "mobx"
 import {
   applySnapshot,
   Frozen,
+  FrozenCheckMode,
   fromSnapshot,
   frozen,
   getParent,
   getRoot,
   getSnapshot,
   isFrozenSnapshot,
+  MobxKeystoneError,
   Model,
   prop,
   runUnprotected,
@@ -142,4 +144,34 @@ test("toFrozenSnapshot and isFrozenSnapshot", () => {
   const fr = fromSnapshot(types.frozen(types.unchecked<typeof data>()), sn)
   expect(fr instanceof Frozen).toBe(true)
   expect(fr.data).toBe(data)
+})
+
+test("frozen rejects cycles with a library error", () => {
+  const cycle: { child?: object } = {}
+  cycle.child = cycle
+  expect(() => frozen(cycle, FrozenCheckMode.On)).toThrow(MobxKeystoneError)
+  expect(() => frozen(cycle, FrozenCheckMode.On)).toThrow(/cycle/i)
+})
+
+test("frozen permits shared descendants without cycles", () => {
+  const shared = { value: 1 }
+  const data = { a: shared, b: shared }
+  expect(frozen(data, FrozenCheckMode.On).data).toBe(data)
+  expect(Object.isFrozen(shared)).toBe(true)
+})
+
+test("frozen rejects cycles through arrays", () => {
+  const array: unknown[] = []
+  array.push({ array })
+  expect(() => frozen(array, FrozenCheckMode.On)).toThrow(/cycle/i)
+})
+
+test("freezing deeply nested data does not overflow the call stack", () => {
+  const nodes: { child?: object }[] = [{}]
+  for (let i = 0; i < 15000; i++) {
+    nodes.push({ child: nodes[nodes.length - 1] })
+  }
+  const data = nodes[nodes.length - 1]
+  expect(frozen(data, FrozenCheckMode.On).data).toBe(data)
+  expect(nodes.every(Object.isFrozen)).toBe(true)
 })

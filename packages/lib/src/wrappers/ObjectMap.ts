@@ -8,7 +8,7 @@ import { idProp } from "../modelShared/prop"
 import { typesRecord } from "../types/objectBased/typesRecord"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
-import { namespace } from "../utils"
+import { namespace, setProtoProp } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 
 const objectMapBase = Model({
@@ -75,7 +75,7 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
     }
 
     this.set(key, defaultValue)
-    return defaultValue
+    return this.get(key) as V
   }
 
   getOrInsertComputed(key: string, callback: (key: string) => V): V {
@@ -85,7 +85,7 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
 
     const value = callback(key)
     this.set(key, value)
-    return value
+    return this.get(key) as V
   }
 
   has(key: string): boolean {
@@ -147,7 +147,11 @@ export function objectMap<V>(entries?: ReadonlyArray<readonly [string, V]> | nul
     const len = entries.length
     for (let i = 0; i < len; i++) {
       const entry = entries[i]
-      initialObj[entry[0]] = entry[1]
+      if (entry[0] === "__proto__") {
+        setProtoProp(initialObj, entry[1])
+      } else {
+        initialObj[entry[0]] = entry[1]
+      }
     }
   }
 

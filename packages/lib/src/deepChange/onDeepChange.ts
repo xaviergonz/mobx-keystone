@@ -3,6 +3,7 @@ import { fastGetParentPath, type ParentPath } from "../parent/path"
 import type { Path, PathElement, WritablePath } from "../parent/pathTypes"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsFunction, failure } from "../utils"
+import { addDelayedError, type DelayedError } from "../utils/forEachWithDelayedThrow"
 
 /**
  * Disposer function to stop listening to deep changes.
@@ -156,8 +157,8 @@ export function exitInitPhase(): void {
 
 interface DeepChangeEmission {
   reentrant: boolean
-  /** First error thrown by a listener of this emission, boxed so `undefined` can be thrown too. */
-  error: { value: unknown } | undefined
+  /** Failures thrown by the listeners of this emission, reported once it has been delivered. */
+  error: DelayedError
   parent: DeepChangeEmission | undefined
   /** Shared by every change of this emission, so they all observe `reentrant` live. */
   isReentrantDescriptor: PropertyDescriptor | undefined
@@ -169,7 +170,7 @@ function rethrowDeepChangeListenerError(emission: DeepChangeEmission): void {
   const error = emission.error
   if (error) {
     // Listeners may keep change objects around, and those keep this emission alive
-    // through their `isReentrant` getter, so don't retain the error with it.
+    // through their `isReentrant` getter, so don't retain the errors with it.
     emission.error = undefined
     throw error.value
   }
@@ -480,10 +481,12 @@ function emitGlobalDeepChange(obj: object, change: DeepChange): void {
 }
 
 // The mutation is already applied by the time listeners run, so a failing listener
-// must not keep it from reaching bindings and other observers. The first error of
-// the emission is rethrown once the whole emission has been delivered.
+// must not keep it from reaching bindings and other observers. Once the whole emission
+// has been delivered a lone failure is rethrown as is, and several failures are grouped
+// in a MobxKeystoneAggregateError.
 function rememberDeepChangeListenerError(error: unknown): void {
-  currentEmission!.error ??= { value: error }
+  const emission = currentEmission!
+  emission.error = addDelayedError(emission.error, error, "multiple deep change listeners failed")
 }
 
 function emitDeepChangeToListeners(obj: object, change: DeepChange): void {

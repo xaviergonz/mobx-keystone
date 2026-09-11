@@ -24,6 +24,24 @@ export class MobxKeystoneError extends Error {
 }
 
 /**
+ * A mobx-keystone error that groups several failures that happened while delivering
+ * a single notification, such as multiple patch listeners or root store hooks throwing.
+ *
+ * It is only used when more than one callback failed; a lone failure is rethrown as is.
+ */
+export class MobxKeystoneAggregateError extends MobxKeystoneError {
+  /**
+   * The values thrown by the failing callbacks, in the order they were thrown.
+   */
+  readonly errors: readonly unknown[]
+
+  constructor(errors: readonly unknown[], msg: string) {
+    super(msg)
+    this.errors = errors
+  }
+}
+
+/**
  * @internal
  */
 export function failure(msg: string) {
@@ -105,6 +123,18 @@ export let hasOwnProp: (object: object, propName: PropertyKey) => boolean = (
 
   hasOwnProp = impl
   return impl(object, propName)
+}
+
+/**
+ * Like `===`, except that `NaN` equals `NaN`.
+ * This is the `SameValueZero` equality used by `Map`/`Set` keys and by
+ * `Array.prototype.includes`, so `0` and `-0` are the same value.
+ *
+ * @internal
+ */
+export function isEqualOrBothNaN(a: unknown, b: unknown): boolean {
+  // biome-ignore lint/suspicious/noSelfCompare: NaN check
+  return a === b || (a !== a && b !== b)
 }
 
 /**

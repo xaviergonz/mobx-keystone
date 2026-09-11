@@ -45,9 +45,11 @@ export const registerRootStore: <T extends object>(node: T) => T = action(
 
     entry.is = true
 
-    attachToRootStore(node, node)
-
-    entry.atom?.reportChanged()
+    try {
+      attachToRootStore(node, node)
+    } finally {
+      entry.atom?.reportChanged()
+    }
     return node
   }
 )
@@ -65,9 +67,11 @@ export const unregisterRootStore: (node: object) => void = action("unregisterRoo
   const entry = getOrCreateRootStoreEntry(node)
   entry.is = false
 
-  detachFromRootStore(node)
-
-  entry.atom?.reportChanged()
+  try {
+    detachFromRootStore(node)
+  } finally {
+    entry.atom?.reportChanged()
+  }
 })
 
 /**

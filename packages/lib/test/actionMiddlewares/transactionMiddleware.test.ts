@@ -284,3 +284,25 @@ describe("transactionMiddleware - async", () => {
     expect(p.x).toBe(10)
   })
 })
+
+test("transaction records writes after nested actions return", () => {
+  @testModel("NestedTransactionRecording")
+  class Store extends Model({ a: prop(0), b: prop(0) }) {
+    @modelAction
+    child() {
+      this.a++
+    }
+
+    @transaction
+    @modelAction
+    parent() {
+      this.child()
+      this.b++
+      throw new Error("rollback")
+    }
+  }
+  const root = new Store({})
+  expect(() => root.parent()).toThrow("rollback")
+  expect(root.a).toBe(0)
+  expect(root.b).toBe(0)
+})

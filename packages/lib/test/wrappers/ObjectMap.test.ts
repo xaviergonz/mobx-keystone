@@ -1,5 +1,6 @@
 import { entries, reaction } from "mobx"
 import { detach, type ObjectMap, objectMap } from "../../src"
+import { getMobxVersion } from "../../src/utils"
 import { autoDispose } from "../utils"
 
 let map!: ObjectMap<number>
@@ -131,4 +132,21 @@ test("detach", () => {
   ])
   detach(map.get("3")!)
   expect(Array.from(map.keys())).toEqual(["2", "5"])
+})
+
+test.skipIf(getMobxVersion() === 4)("objectMap preserves an own __proto__ entry", () => {
+  const value = { count: 1 }
+  const map = objectMap([["__proto__", value]])
+  expect(map.has("__proto__")).toBe(true)
+  expect(map.get("__proto__")).toEqual(value)
+  expect(map.size).toBe(1)
+})
+
+test.each([false, true])("getOrInsert returns the stored object (computed=%s)", (computed) => {
+  const map = objectMap<{ count: number }>()
+  const value = { count: 1 }
+  const result = computed
+    ? map.getOrInsertComputed("key", () => value)
+    : map.getOrInsert("key", value)
+  expect(result).toBe(map.get("key"))
 })

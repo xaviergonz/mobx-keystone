@@ -253,15 +253,13 @@ export function actionTrackingMiddleware(
       state: State.Finished,
     })
 
-    if (hooks.onFinish) {
-      ret = hooks.onFinish(simpleCtx, ret) || ret
+    try {
+      return hooks.onFinish?.(simpleCtx, ret) || ret
+    } finally {
+      if (parentResumed) {
+        suspend(parentCtx!)
+      }
     }
-
-    if (parentResumed) {
-      suspend(parentCtx!)
-    }
-
-    return ret
   }
 
   const resume = (simpleCtx: SimpleActionContext, real: boolean) => {
@@ -323,10 +321,11 @@ export function actionTrackingMiddleware(
         retObj = finish(simpleCtx, retObj)
       } else {
         try {
-          retObj = finish(simpleCtx, { result: ActionTrackingResult.Return, value: next() })
+          retObj = { result: ActionTrackingResult.Return, value: next() }
         } catch (err) {
-          retObj = finish(simpleCtx, { result: ActionTrackingResult.Throw, value: err })
+          retObj = { result: ActionTrackingResult.Throw, value: err }
         }
+        retObj = finish(simpleCtx, retObj)
       }
 
       return returnOrThrowActionTrackingReturn(retObj)

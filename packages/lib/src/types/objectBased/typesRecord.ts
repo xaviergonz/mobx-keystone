@@ -1,6 +1,6 @@
 import { isObservableObject, keys } from "mobx"
 import type { Path } from "../../parent/pathTypes"
-import { failure, isObject } from "../../utils"
+import { copyOwnEnumerableProps, failure, isObject } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { createAdaptiveRecordCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
@@ -48,16 +48,9 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
         return obj
       }
 
-      const newObj: typeof obj = {}
-
-      const keys = Object.keys(obj)
-      for (let i = 0; i < keys.length; i++) {
-        const k = keys[i]
-        const v = withErrorPathSegment(k, () => processor(obj[k]))
-        newObj[k] = v
-      }
-
-      return newObj
+      return copyOwnEnumerableProps({}, obj, (value, key) =>
+        withErrorPathSegment(key, () => processor(value))
+      )
     }
 
     const iterateRecordEntries = (

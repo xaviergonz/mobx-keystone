@@ -1,5 +1,6 @@
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
+import { hasOwnProp } from "../utils"
 import type { ModelClass } from "./BaseModelShared"
 
 /**
@@ -20,8 +21,8 @@ export function addModelClassInitializer(
   init: ModelClassInitializer
 ) {
   let initializers: ModelClassInitializer[] = (modelClass as any)[modelInitializersSymbol]
-  if (!initializers) {
-    initializers = []
+  if (!hasOwnProp(modelClass, modelInitializersSymbol)) {
+    initializers = initializers ? initializers.slice() : []
     ;(modelClass as any)[modelInitializersSymbol] = initializers
   }
   initializers.push(init)

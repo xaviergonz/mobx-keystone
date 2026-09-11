@@ -22,6 +22,8 @@ import {
   getMobxVersion,
   inDevMode,
   isArray,
+  isEqualOrBothNaN,
+  setProtoProp,
 } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { tag } from "../utils/tag"
@@ -75,7 +77,7 @@ const observableMapBackedByObservableObject = action(
 
     const map = transaction(() =>
       untracked(() => {
-        const map = observable.map<string, T>()
+        const map = observable.map<string, T>(undefined, { deep: false })
 
         const keys = Object.keys(obj)
         for (let i = 0; i < keys.length; i++) {
@@ -143,6 +145,7 @@ const observableMapBackedByObservableObject = action(
             case "add":
             case "update": {
               setIfDifferent(obj, change.name, change.newValue)
+              change.newValue = (obj as Record<string, T>)[change.name]
               break
             }
 
@@ -166,20 +169,20 @@ const observableMapBackedByObservableObject = action(
   }
 )
 
-const observableMapBackedByObservableArray = <T>(
-  array: IObservableArray<[string, T]>
-): ObservableMapWithDataObject<string, T, typeof array> => {
+const observableMapBackedByObservableArray = <K, T>(
+  array: IObservableArray<[K, T]>
+): ObservableMapWithDataObject<K, T, typeof array> => {
   if (inDevMode) {
     if (!isObservableArray(array)) {
       throw failure("assertion failed: expected an observable array")
     }
   }
 
-  const map: ObservableMap<string, T> = untracked(() => {
+  const map: ObservableMap<K, T> = untracked(() => {
     if (getMobxVersion() >= 6) {
-      return observable.map<string, T>(array)
+      return observable.map<K, T>(array, { deep: false })
     } else {
-      const map = observable.map<string, T>()
+      const map = observable.map<K, T>(undefined, { deep: false })
       runInAction(() => {
         array.forEach(([k, v]) => {
           map.set(k, v)
@@ -204,7 +207,7 @@ const observableMapBackedByObservableArray = <T>(
   // when the array changes the map changes
   observe(
     array,
-    action((change: any /*IArrayDidChange<[string, T]>*/) => {
+    action((change: any /*IArrayDidChange<[K, T]>*/) => {
       if (mapAlreadyChanged) {
         return
       }
@@ -248,7 +251,7 @@ const observableMapBackedByObservableArray = <T>(
   // when the map changes also change the array
   intercept(
     map,
-    action((change: IMapWillChange<string, T>) => {
+    action((change: IMapWillChange<K, T>) => {
       if (mapAlreadyChanged) {
         return null
       }
@@ -263,18 +266,20 @@ const observableMapBackedByObservableArray = <T>(
         switch (change.type) {
           case "update": {
             // replace the whole tuple to keep tuple immutability
-            const i = array.findIndex((i) => i[0] === change.name)
+            const i = array.findIndex((entry) => isEqualOrBothNaN(entry[0], change.name))
             array[i] = [change.name, change.newValue!]
+            change.newValue = array[i][1]
             break
           }
 
           case "add": {
             array.push([change.name, change.newValue!])
+            change.newValue = array[array.length - 1][1]
             break
           }
 
           case "delete": {
-            const i = array.findIndex((i) => i[0] === change.name)
+            const i = array.findIndex((entry) => isEqualOrBothNaN(entry[0], change.name))
             if (i >= 0) {
               array.splice(i, 1)
             }
@@ -295,7 +300,7 @@ const observableMapBackedByObservableArray = <T>(
   return mapWithExtras as any
 }
 
-const asMapTag = tag((objOrArray: Record<string, any> | Array<[string, any]>) => {
+const asMapTag = tag((objOrArray: Record<string, unknown> | Array<[unknown, unknown]>) => {
   if (isArray(objOrArray)) {
     assertIsObservableArray(objOrArray, "objOrArray")
     return observableMapBackedByObservableArray(objOrArray)
@@ -347,7 +352,11 @@ export function mapToObject<T>(map: Pick<Map<string, T>, "forEach">): Record<str
 
   const obj: Record<string, T> = {}
   map.forEach((v, k) => {
-    obj[k] = v
+    if (k === "__proto__") {
+      setProtoProp(obj, v)
+    } else {
+      obj[k] = v
+    }
   })
 
   return obj

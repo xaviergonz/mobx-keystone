@@ -1,6 +1,7 @@
-import { computed, toJS } from "mobx"
+import { reaction, toJS } from "mobx"
 import { _, assert } from "spec.ts"
 import {
+  applySnapshot,
   customRef,
   getNodeSandboxManager,
   getParent,
@@ -11,15 +12,20 @@ import {
   Model,
   modelAction,
   modelIdKey,
+  objectActions,
+  onPatches,
   prop,
   type Ref,
+  readonlyMiddleware,
   registerRootStore,
   runUnprotected,
   SandboxManager,
   sandbox,
+  toTreeNode,
   undoMiddleware,
   unregisterRootStore,
 } from "../../src"
+import { mobxComputed } from "../../src/utils"
 import { autoDispose, testModel } from "../utils"
 
 @testModel("A")
@@ -455,7 +461,7 @@ test("sanboxed nodes can check if they are sandboxed", () => {
       initEvents.push(`A2 attached: ${isSandboxedNode(this)}`)
     }
 
-    @computed
+    @mobxComputed
     get isSandboxed() {
       return isSandboxedNode(this)
     }
@@ -478,7 +484,7 @@ test("sanboxed nodes can check if they are sandboxed", () => {
       initEvents.push(`B2 attached: ${isSandboxedNode(this)}`)
     }
 
-    @computed
+    @mobxComputed
     get isSandboxed() {
       return isSandboxedNode(this)
     }
@@ -648,4 +654,119 @@ test("sandbox commit patches are grouped in a single undo item", () => {
       },
     ]
   `)
+})
+
+test("a rejected sandbox commit restores the sandbox to the original tree", () => {
+  const root = toTreeNode({ value: 0 })
+  const manager = sandbox(root)
+  const readonly = readonlyMiddleware(root)
+  try {
+    expect(() =>
+      manager.withSandbox([root], (copy) => {
+        objectActions.set(copy, "value", 1)
+        return true
+      })
+    ).toThrow("readonly")
+    expect(root.value).toBe(0)
+    manager.withSandbox([root], (copy) => {
+      expect(copy.value).toBe(0)
+      return false
+    })
+  } finally {
+    readonly.dispose()
+    manager.dispose()
+  }
+})
+
+test("sandbox commits can contain large patch batches", () => {
+  const root = toTreeNode<number[]>([])
+  const manager = sandbox(root)
+  try {
+    manager.withSandbox([root], (copy) => {
+      applySnapshot(
+        copy,
+        Array.from({ length: 150000 }, (_, i) => i)
+      )
+      return true
+    })
+    expect(root).toHaveLength(150000)
+    expect(root[149999]).toBe(149999)
+  } finally {
+    manager.dispose()
+  }
+}, 30000)
+
+test("rejected nested sandbox changes are not replayed on commit", () => {
+  const root = toTreeNode({ value: 0 })
+  const manager = sandbox(root)
+  const listener = vi.fn()
+  const dispose = onPatches(root, listener)
+  try {
+    manager.withSandbox([root], (copy) => {
+      manager.withSandbox([copy], (inner) => {
+        objectActions.set(inner, "value", 1)
+        return false
+      })
+      expect(copy.value).toBe(0)
+      return true
+    })
+    expect(root.value).toBe(0)
+    expect(listener).not.toHaveBeenCalled()
+  } finally {
+    dispose()
+    manager.dispose()
+  }
+})
+
+test("sandbox stays synchronized with changes triggered during commit", () => {
+  const root = toTreeNode({ value: 0, derived: 0 })
+  const manager = sandbox(root)
+  const dispose = onPatches(root, (patches) => {
+    if (patches.some((patch) => patch.path[0] === "value")) {
+      objectActions.set(root, "derived", root.value * 2)
+    }
+  })
+  try {
+    manager.withSandbox([root], (copy) => {
+      objectActions.set(copy, "value", 2)
+      return true
+    })
+    expect(root.derived).toBe(4)
+    manager.withSandbox([root], (copy) => {
+      expect(copy.derived).toBe(4)
+      return false
+    })
+  } finally {
+    dispose()
+    manager.dispose()
+  }
+})
+
+test("mobx observers of the sandbox do not see intermediate state during a commit", () => {
+  const root = toTreeNode({ value: 0 })
+  const manager = sandbox(root)
+  const seen: number[] = []
+  let disposeReaction: (() => void) | undefined
+  try {
+    manager.withSandbox([root], (copy) => {
+      disposeReaction = reaction(
+        () => copy.value,
+        (value) => seen.push(value)
+      )
+      return false
+    })
+    manager.withSandbox([root], (copy) => {
+      objectActions.set(copy, "value", 1)
+      return true
+    })
+    manager.withSandbox([root], (copy) => {
+      objectActions.set(copy, "value", 2)
+      return true
+    })
+    expect(seen).toEqual([1, 2])
+    expect(root.value).toBe(2)
+  } finally {
+    disposeReaction?.()
+    manager.dispose()
+  }
 })

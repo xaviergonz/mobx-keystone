@@ -38,6 +38,9 @@ export function onChildAttachedTo(
     ...options,
   }
 
+  let disposed = false
+  let runCleanupAfterDispose = false
+
   const detachDisposers = new WeakMap<object, () => void>()
 
   const runDetachDisposer = (n: object) => {
@@ -48,9 +51,26 @@ export function onChildAttachedTo(
     }
   }
 
+  const runDetachDisposers = (nodes: object[]) => {
+    let firstError: { value: unknown } | undefined
+    for (let i = nodes.length - 1; i >= 0; i--) {
+      try {
+        runDetachDisposer(nodes[i])
+      } catch (value) {
+        firstError ??= { value }
+      }
+    }
+    return firstError
+  }
+
   const addDetachDisposer = (n: object, disposer: (() => void) | void) => {
     if (disposer) {
-      detachDisposers.set(n, action(disposer))
+      const detach = action(disposer)
+      if (disposed) {
+        if (runCleanupAfterDispose) detach()
+      } else {
+        detachDisposers.set(n, detach)
+      }
     }
   }
 
@@ -84,25 +104,28 @@ export function onChildAttachedTo(
         currentChildrenCur = currentChildrenIter.next()
       }
 
-      if (disposersToRun.length > 0) {
-        for (let i = disposersToRun.length - 1; i >= 0; i--) {
-          runDetachDisposer(disposersToRun[i])
-        }
-      }
+      let firstError = runDetachDisposers(disposersToRun)
 
       // find new
       const newChildrenIter = newChildren.values()
       let newChildrenCur = newChildrenIter.next()
-      while (!newChildrenCur.done) {
+      while (!disposed && !newChildrenCur.done) {
         const n = newChildrenCur.value
         if (!currentChildren.has(n)) {
           currentChildren.add(n)
 
-          const detachAction = runInAction(() => fn(n))
-          addDetachDisposer(n, detachAction)
+          try {
+            const detachAction = runInAction(() => fn(n))
+            addDetachDisposer(n, detachAction)
+          } catch (value) {
+            firstError ??= { value }
+          }
         }
 
         newChildrenCur = newChildrenIter.next()
+      }
+      if (firstError) {
+        throw firstError.value
       }
     },
     {
@@ -110,19 +133,16 @@ export function onChildAttachedTo(
     }
   )
 
-  return (runDetachDisposers: boolean) => {
+  return (runPendingDetachDisposers: boolean) => {
+    if (disposed) return
+    disposed = true
+    runCleanupAfterDispose = runPendingDetachDisposers
     disposer()
-
-    if (runDetachDisposers) {
-      const currentChildrenIter = currentChildren.values()
-      let currentChildrenCur = currentChildrenIter.next()
-      while (!currentChildrenCur.done) {
-        const n = currentChildrenCur.value
-        runDetachDisposer(n)
-
-        currentChildrenCur = currentChildrenIter.next()
-      }
-    }
+    const pendingChildren = runPendingDetachDisposers ? Array.from(currentChildren) : []
     currentChildren.clear()
+    const firstError = runDetachDisposers(pendingChildren)
+    if (firstError) {
+      throw firstError.value
+    }
   }
 }

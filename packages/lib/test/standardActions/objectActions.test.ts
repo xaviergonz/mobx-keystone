@@ -1,4 +1,4 @@
-import { Model, modelAction, objectActions, prop } from "../../src"
+import { computedTree, getSnapshot, Model, modelAction, objectActions, prop } from "../../src"
 import { testModel } from "../utils"
 
 test("typed object", () => {
@@ -56,3 +56,25 @@ test("over a model", () => {
   objectActions.set(m, "x", 40)
   expect(m.x).toBe(40)
 })
+
+@testModel("ObjectActionComputedModel")
+class Root extends Model({ value: prop(0) }) {
+  @computedTree
+  get derived() {
+    return this.value
+  }
+}
+
+test.each(["set", "assign"] as const)(
+  "objectActions.%s updates model data and computed values",
+  (operation) => {
+    const root = new Root({})
+    expect(root.derived).toBe(0)
+    if (operation === "set") objectActions.set(root, "value", 1)
+    else objectActions.assign(root, { value: 1 })
+    expect(root.value).toBe(1)
+    expect(root.$.value).toBe(1)
+    expect(getSnapshot(root).value).toBe(1)
+    expect(root.derived).toBe(1)
+  }
+)

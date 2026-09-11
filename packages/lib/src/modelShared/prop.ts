@@ -1,6 +1,6 @@
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
 import type { AnyStandardType } from "../types/schemas"
-import { lazy } from "../utils"
+import { isEqualOrBothNaN, lazy } from "../utils"
 import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
 import { getOrCreate } from "../utils/mapUtils"
 import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
@@ -618,11 +618,6 @@ function parseSetterConfig(
 
 const propCache = new Map<unknown, AnyModelProp>()
 
-let cacheTransformResult = false
-const cacheTransformedValueFn = () => {
-  cacheTransformResult = true
-}
-
 /** @internal */
 export function toFullModelPropTransform(
   transformObject: ModelPropTransform<unknown, unknown>
@@ -651,7 +646,7 @@ export function toFullModelPropTransform(
       const modelCache = getOrCreate(cache, model, () => new Map())
 
       let propCache = modelCache.get(propName)
-      if (propCache?.originalValue !== originalValue) {
+      if (!propCache || !isEqualOrBothNaN(propCache.originalValue, originalValue)) {
         // original changed, invalidate cache
         modelCache.delete(propName)
         propCache = undefined
@@ -674,10 +669,12 @@ export function toFullModelPropTransform(
     untransform(transformedValue: unknown, model: object, propName: PropertyKey) {
       const modelCache = getOrCreate(cache, model, () => new Map())
 
-      cacheTransformResult = false
+      let cacheTransformResult = false
       const originalValue = untransform({
         transformedValue,
-        cacheTransformedValue: cacheTransformedValueFn,
+        cacheTransformedValue: () => {
+          cacheTransformResult = true
+        },
       })
       if (cacheTransformResult) {
         modelCache.set(propName, { originalValue, transformedValue })

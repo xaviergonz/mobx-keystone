@@ -15,7 +15,7 @@ export interface ModelInfo {
  */
 export const modelInfoByName: {
   [name: string]: ModelInfo
-} = {}
+} = Object.create(null)
 
 /**
  * @internal
