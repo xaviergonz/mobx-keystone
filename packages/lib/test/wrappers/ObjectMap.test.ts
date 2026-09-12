@@ -150,3 +150,25 @@ test.each([false, true])("getOrInsert returns the stored object (computed=%s)", 
     : map.getOrInsert("key", value)
   expect(result).toBe(map.get("key"))
 })
+
+test("forEach tracks additions and removals in reactions", () => {
+  const map = objectMap<number>()
+  const observed: number[][] = []
+  autoDispose(
+    reaction(
+      () => {
+        const values: number[] = []
+        map.forEach((value) => {
+          values.push(value)
+        })
+        return values
+      },
+      (values) => observed.push(values)
+    )
+  )
+  map.set("a", 1)
+  map.set("b", 2)
+  map.delete("a")
+  map.clear()
+  expect(observed).toEqual([[1], [1, 2], [2], []])
+})

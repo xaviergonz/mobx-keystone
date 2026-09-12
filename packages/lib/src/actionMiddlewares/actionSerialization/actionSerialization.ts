@@ -13,7 +13,7 @@ import { plainObjectSerializer } from "./plainObjectSerializer"
 import { primitiveSerializer } from "./primitiveSerializer"
 import { setSerializer } from "./setSerializer"
 
-const serializersArray: ActionCallArgumentSerializer<any, any>[] = []
+let serializersArray: ActionCallArgumentSerializer<any, any>[] = []
 const serializersMap = new Map<string, ActionCallArgumentSerializer<any, any>>()
 
 /**
@@ -36,7 +36,7 @@ export function registerActionCallArgumentSerializer(
     throw failure(`action call argument serializer with id '${serializer.id}' already registered`)
   }
 
-  serializersArray.unshift(serializer)
+  serializersArray = [serializer, ...serializersArray]
   serializersMap.set(serializer.id, serializer)
 
   let disposed = false
@@ -45,10 +45,7 @@ export function registerActionCallArgumentSerializer(
       return
     }
     disposed = true
-    const index = serializersArray.indexOf(serializer)
-    if (index >= 0) {
-      serializersArray.splice(index, 1)
-    }
+    serializersArray = serializersArray.filter((entry) => entry !== serializer)
     serializersMap.delete(serializer.id)
   }
 }
@@ -111,13 +108,12 @@ export function serializeActionCallArgument(
     return argValue
   }
 
-  const origValue = argValue
-
   const serialize = (v: any) => serializeActionCallArgument(v, targetRoot)
 
   // try serializers
-  for (let i = 0; i < serializersArray.length; i++) {
-    const serializer = serializersArray[i]
+  const serializers = serializersArray
+  for (let i = 0; i < serializers.length; i++) {
+    const serializer = serializers[i]
     const serializedValue = serializer.serialize(argValue, serialize, targetRoot)
     if (serializedValue !== cannotSerialize) {
       return {
@@ -127,7 +123,9 @@ export function serializeActionCallArgument(
     }
   }
 
-  throw failure(`serializeActionCallArgument could not serialize the given value: ${origValue}`)
+  throw failure(
+    `serializeActionCallArgument could not serialize the given value: ${String(argValue)}`
+  )
 }
 
 /**

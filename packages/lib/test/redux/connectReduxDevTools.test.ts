@@ -385,3 +385,23 @@ test("devtools does not log a no-op action after time travel", () => {
   objectActions.set(root, "value", 0)
   expect(connection.send).not.toHaveBeenCalled()
 })
+
+test("devtools connections can be disposed without leaving subscriptions", () => {
+  const root = toTreeNode({ value: 1 })
+  const unsubscribe = vi.fn()
+  const send = vi.fn()
+  const dispose = connectReduxDevTools(
+    {},
+    { subscribe: () => unsubscribe, init: vi.fn(), send },
+    root
+  )
+  objectActions.set(root, "value", 2)
+  expect(send).toHaveBeenCalled()
+  send.mockClear()
+  expect(dispose).toBeTypeOf("function")
+  dispose()
+  dispose()
+  objectActions.set(root, "value", 3)
+  expect(send).not.toHaveBeenCalled()
+  expect(unsubscribe).toHaveBeenCalledOnce()
+})

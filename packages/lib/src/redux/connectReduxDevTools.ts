@@ -33,6 +33,7 @@ export interface ConnectReduxDevToolsOptions {
  * @param remotedevConnection The result of a connect method from the remotedev package (usually the result of `remoteDev.connectViaExtension(...)`).
  * @param target Object to use as root.
  * @param [options] Optional options object.
+ * @returns An idempotent disposer that stops logging and unsubscribes from monitor messages.
  */
 export function connectReduxDevTools(
   remotedevPackage: any,
@@ -51,7 +52,7 @@ export function connectReduxDevTools(
   let handlingMonitorAction = 0
 
   // subscribe to change state (if need more than just logging)
-  remotedevConnection.subscribe((message: any) => {
+  const unsubscribe = remotedevConnection.subscribe((message: any) => {
     if (message.type === "DISPATCH") {
       handleMonitorActions(remotedevConnection, target, message)
     }
@@ -64,7 +65,7 @@ export function connectReduxDevTools(
   let currentActionId = 0
   const actionIdSymbol = Symbol("actionId")
 
-  actionTrackingMiddleware(target, {
+  const disposeMiddleware = actionTrackingMiddleware(target, {
     filter(ctx) {
       return opts.logChildActions || !hasDevToolsTrackedParentContext(ctx)
     },
@@ -85,6 +86,14 @@ export function connectReduxDevTools(
       log(ctx, ret.result)
     },
   })
+
+  let disposed = false
+  return () => {
+    if (disposed) return
+    disposed = true
+    disposeMiddleware()
+    if (typeof unsubscribe === "function") unsubscribe()
+  }
 
   function handleMonitorActions(remotedev2: any, target2: any, message: any) {
     try {

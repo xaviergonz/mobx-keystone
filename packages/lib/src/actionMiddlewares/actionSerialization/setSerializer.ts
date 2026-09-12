@@ -10,17 +10,8 @@ export const setSerializer: ActionCallArgumentSerializer<Set<any> | ObservableSe
       return cannotSerialize
     }
 
-    const arr: any[] = []
-
-    const iter = set.keys()
-    let cur = iter.next()
-    while (!cur.done) {
-      const k = cur.value
-      arr.push(serialize(k))
-      cur = iter.next()
-    }
-
-    return arr
+    // Array.from closes the iterator if an element cannot be serialized.
+    return Array.from(set.keys(), serialize)
   },
 
   deserialize(arr, deserialize) {

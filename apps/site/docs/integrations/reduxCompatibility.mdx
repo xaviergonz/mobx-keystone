@@ -34,8 +34,10 @@ const connection = remotedev.connectViaExtension({
   name: "my cool store",
 })
 
-connectReduxDevTools(remotedev, connection, todoList)
+const disconnect = connectReduxDevTools(remotedev, connection, todoList)
 ```
+
+Call `disconnect()` when the integration is no longer needed. It stops action logging and invokes the connection's unsubscribe callback, when provided. Calling it more than once is safe.
 
 This function also accepts an optional options object with the following properties:
 

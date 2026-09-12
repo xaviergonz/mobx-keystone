@@ -4,6 +4,7 @@ import { ActionContextActionType } from "../action/context"
 import { wrapInAction } from "../action/wrapInAction"
 import { modelToDataNode } from "../parent/core"
 import type { Patch } from "../patch/Patch"
+import { internalApplySnapshot } from "../snapshot/applySnapshot"
 import { reconcileSnapshot } from "../snapshot/reconcileSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { withTypeCheckingBatch } from "../tweaker/typeChecking"
@@ -93,20 +94,33 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
     throw failure(`invalid path: ${path}`)
   }
 
+  if (path.length === 0) {
+    if (patch.op === "add" || patch.op === "replace") {
+      internalApplySnapshot.call(obj, patch.value)
+      return
+    }
+    throw failure("a patch cannot remove the root node")
+  }
+
   let target: any = modelToDataNode(obj)
   for (let i = 0; i < path.length - 1; i++) {
     target = modelToDataNode(target[path[i]])
   }
-  const prop = path.length > 0 ? path[path.length - 1] : undefined
+  const prop = path[path.length - 1]
 
   if (isArray(target)) {
+    if (patch.op === "replace" && prop === "length") {
+      target.length = patch.value
+      return
+    }
+
+    const index = getPatchArrayIndex(prop, target.length, patch.op)
     switch (patch.op) {
       case "add": {
-        const index = +prop!
         // reconcile from the pool if possible
         const newValue = reconcileSnapshot(undefined, patch.value, modelPool, target)
         if (index < 0) {
-          // extension needed by mobx-keystone-yjs
+          // non-standard extension: a negative index appends, just like "-"
           target.push(newValue)
         } else {
           target.splice(index, 0, newValue)
@@ -115,21 +129,15 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
       }
 
       case "remove": {
-        const index = +prop!
         // no reconciliation, removing
         target.splice(index, 1)
         break
       }
 
       case "replace": {
-        if (prop === "length") {
-          target.length = patch.value
-        } else {
-          const index = +prop!
-          // try to reconcile
-          const newValue = reconcileSnapshot(target[index], patch.value, modelPool, target)
-          setIfDifferent(target, index as any, newValue)
-        }
+        // try to reconcile
+        const newValue = reconcileSnapshot(target[index], patch.value, modelPool, target)
+        setIfDifferent(target, index as any, newValue)
         break
       }
 
@@ -163,6 +171,28 @@ function applySinglePatch(obj: object, patch: Patch, modelPool: ModelPool): void
         throw failure(`unsupported patch operation: ${(patch as any).op}`)
     }
   }
+}
+
+// canonical decimal integers only, so "01", "1.0" or "1e0" are not mistaken for indexes
+const patchArrayIndexPattern = /^(?:0|-?[1-9]\d*)$/
+
+function getPatchArrayIndex(prop: string | number, length: number, op: Patch["op"]): number {
+  // JSON Patch spells "at the end of the array" as "-", which only makes sense when adding
+  if (prop === "-" && op === "add") {
+    return length
+  }
+
+  const index =
+    typeof prop === "string" && !patchArrayIndexPattern.test(prop) ? Number.NaN : Number(prop)
+
+  // additions may also target the end of the array, plus negative indexes as an append extension
+  const valid =
+    Number.isInteger(index) && (op === "add" ? index <= length : index >= 0 && index < length)
+  if (!valid) {
+    throw failure(`invalid array index '${String(prop)}' for '${op}' patch`)
+  }
+
+  return index
 }
 
 function applySinglePatchWithPath(obj: object, patch: Patch, modelPool: ModelPool): void {

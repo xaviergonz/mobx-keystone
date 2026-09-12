@@ -1,4 +1,4 @@
-import { Model, runUnprotected, tProp, types } from "../../../src"
+import { Model, runUnprotected, TypeCheckErrorFailure, tProp, types } from "../../../src"
 import { resolveCodecSupport } from "../../../src/types/utility/typesCodecSupport"
 import { getMobxVersion } from "../../../src/utils"
 import { testModel } from "../../utils"
@@ -67,4 +67,123 @@ test.each(["object", "record"] as const)("%s codecs preserve special own keys", 
   expect(root.values.constructor).toBe(2n)
   expect(Object.hasOwn(root.$.values, "__proto__")).toBe(true)
   expect(Reflect.get(root.$.values, "__proto__")).toBe("1")
+})
+
+const positiveBigint = types.refinement(types.bigint, (value) => value > 0n, "positiveBigint")
+
+@testModel("CodecRefinement")
+class RefinedStore extends Model({ value: tProp(positiveBigint) }) {}
+
+test("codec refinements reject invalid initial values", () => {
+  expect(() => new RefinedStore({ value: -1n })).toThrow(TypeCheckErrorFailure)
+})
+
+test("codec refinements reject and roll back invalid writes", () => {
+  const root = new RefinedStore({ value: 1n })
+  expect(() =>
+    runUnprotected(() => {
+      root.value = -1n
+    })
+  ).toThrow(TypeCheckErrorFailure)
+  expect(root.value).toBe(1n)
+})
+
+test("custom codec writes do not leave stale reverse-cache entries", () => {
+  const counterType = types.codec({
+    typeName: "counter",
+    encodedType: types.number,
+    is(value): value is { value: number } {
+      return typeof value === "object" && value !== null && "value" in value
+    },
+    transform({ originalValue, setOriginalValue }) {
+      let current = originalValue
+      return {
+        get value() {
+          return current
+        },
+        set value(value: number) {
+          setOriginalValue(value)
+          current = value
+        },
+      }
+    },
+    untransform({ transformedValue }) {
+      return transformedValue.value
+    },
+  })
+  @testModel("WritableCodecCache")
+  class Counters extends Model({ values: tProp(types.array(counterType)) }) {}
+  const root = new Counters({ values: [{ value: 1 }] })
+  runUnprotected(() => {
+    const counter = root.values[0]
+    counter.value = 2
+    root.values.push(counter)
+  })
+  expect(Array.from(root.$.values)).toEqual([2, 2])
+})
+
+test("codec arrays leave non-index numeric property names unconverted", () => {
+  const adapter = resolveCodecSupport(types.array(types.bigint)).adapter
+  const stored = ["1"]
+  const keys = [
+    "",
+    "01",
+    "1.0",
+    "1e0",
+    "0x1",
+    " 1",
+    "1 ",
+    "-0",
+    "-1",
+    "Infinity",
+    "NaN",
+    "4294967295",
+    "9007199254740992",
+    Symbol("metadata"),
+  ]
+  for (const key of keys) Reflect.set(stored, key, "metadata")
+  const runtime = adapter.toRuntime(stored)
+  for (const key of keys) {
+    expect(Reflect.get(runtime, key)).toBe("metadata")
+    Reflect.set(runtime, key, "changed")
+    expect(Reflect.get(stored, key)).toBe("changed")
+  }
+  expect(stored).toHaveLength(1)
+})
+
+test.each(["array", "object", "record"] as const)(
+  "%s codec proxies report failed property writes",
+  (kind) => {
+    const type =
+      kind === "array"
+        ? types.array(types.bigint)
+        : kind === "object"
+          ? types.object(() => ({ value: types.bigint }))
+          : types.record(types.bigint)
+    const stored = kind === "array" ? ["1"] : { value: "1" }
+    Object.preventExtensions(stored)
+    const runtime = resolveCodecSupport(type).adapter.toRuntime(stored)
+    expect(Reflect.set(runtime, Symbol("extra"), 1)).toBe(false)
+  }
+)
+
+test("codec array reversal preserves holes in plain stored arrays", () => {
+  const stored = new Array(3)
+  stored[0] = "1"
+  const runtime = resolveCodecSupport(types.array(types.bigint)).adapter.toRuntime(stored)
+  runtime.reverse()
+  expect(stored).toHaveLength(3)
+  expect(0 in stored).toBe(false)
+  expect(1 in stored).toBe(false)
+  expect(stored[2]).toBe("1")
+})
+
+test("encoding a plain sparse codec array preserves holes", () => {
+  const runtime = new Array(3)
+  runtime[1] = 2n
+  const stored = resolveCodecSupport(types.array(types.bigint)).adapter.toStored(runtime)
+  expect(stored).toHaveLength(3)
+  expect(0 in stored).toBe(false)
+  expect(stored[1]).toBe("2")
+  expect(2 in stored).toBe(false)
 })

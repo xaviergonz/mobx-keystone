@@ -36,3 +36,10 @@ test("JSON patch conversion", () => {
     })
   ).toEqual({ path: "/abc", op: "remove" })
 })
+
+test.each(["/~", "/~2", "/a~x/b", "/~~0"])("rejects malformed pointer escape %s", (pointer) => {
+  expect(() => jsonPointerToPath(pointer)).toThrow()
+})
+test("pointer escape decoding is not recursive", () => {
+  expect(jsonPointerToPath("/~01/~10")).toEqual(["~1", "/0"])
+})

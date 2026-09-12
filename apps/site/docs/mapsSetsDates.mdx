@@ -53,7 +53,13 @@ m.tags // Set<string>
 getSnapshot(m) // { id: "1", createdAt: 1234567890, totals: { a: 1 }, tags: ["x"], ... }
 ```
 
+For codec-backed maps, `getOrInsert` and `getOrInsertComputed` return the stored runtime value, just like `get`. When that value is a collection, mutations through the returned value update the map's stored data.
+
+Codec-backed sets support `union`, `intersection`, `difference`, and `symmetricDifference` with native set results and iteration order. Intersection checks membership using each collection’s own `has` method, including codec conversions. The boolean predicates `isSubsetOf`, `isSupersetOf`, and `isDisjointFrom` use each collection’s own membership rules, including codec conversions, and all seven operations work without native set-method support.
+
 ### Nested / composed codecs
+
+A `types.refinement` wrapped around a codec checks the decoded runtime value during model construction and writes; invalid writes are rejected and rolled back.
 
 Codecs compose naturally with each other and with other `types.*` combinators:
 
@@ -291,6 +297,8 @@ tProp(types.skipCheck(types.dateAsTimestamp))
 `ObjectMap` and `ArraySet` are special model wrappers that provide `Map`-like and `Set`-like interfaces. They produce snapshots that include `$modelType` and `$modelId` metadata, whereas codecs produce clean plain objects/arrays.
 
 #### `ObjectMap` collection model
+
+Reading entries through `forEach` inside a MobX reaction tracks entry additions, removals, and value changes, including on MobX 4.
 
 ```ts
 // ❌ Deprecated

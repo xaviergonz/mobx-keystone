@@ -19,20 +19,22 @@ import {
   type RuntimeAdapter,
 } from "./typesCodecCore"
 import { OrTypeInfo, typesOr } from "./typesOr"
-import { RefinementTypeInfo } from "./typesRefinement"
+import { RefinementTypeInfo, typesRefinement } from "./typesRefinement"
 import { SkipCheckTypeInfo, typesSkipCheck } from "./typesSkipCheck"
 import { TagTypeInfo, typesTag } from "./typesTag"
 
 const codecSupportCache = new WeakMap<AnyStandardType, ResolvedCodecSupport>()
 
 function getArrayIndex(prop: PropertyKey): number | undefined {
-  // Proxy get/set traps always receive string|symbol keys (ECMAScript ToPropertyKey),
-  // so we only need to check for string numeric indices.
-  if (typeof prop === "string" && /^(0|[1-9]\d*)$/.test(prop)) {
-    return Number(prop)
-  }
+  // Proxy traps receive string or symbol keys, including strings for numeric indices.
+  if (typeof prop !== "string") return undefined
+  const first = prop.charCodeAt(0)
+  if (first < 48 || first > 57) return undefined
 
-  return undefined
+  const index = Number(prop)
+  return Number.isInteger(index) && index >= 0 && index < 0xffffffff && String(index) === prop
+    ? index
+    : undefined
 }
 
 function normalizeArrayIndex(index: number, length: number): number {
@@ -153,8 +155,7 @@ function createObjectRuntimeAdapter(
             }
           }
 
-          Reflect.set(target, prop, value)
-          return true
+          return Reflect.set(target, prop, value)
         },
 
         ...objectRecordProxyTraps,
@@ -215,8 +216,7 @@ function createRecordRuntimeAdapter(
             return true
           }
 
-          Reflect.set(target, prop, value)
-          return true
+          return Reflect.set(target, prop, value)
         },
 
         ...objectRecordProxyTraps,
@@ -265,14 +265,17 @@ function createArrayLikeRuntimeAdapter(
     return Reflect.apply(method, receiver, args)
   }
   const materializeRuntimeValues = (target: unknown[]) =>
-    Array.from({ length: target.length }, (_, index) => decodeIndex(target, index))
+    target.map((_value, index) => decodeIndex(target, index))
   const replaceStoredValues = (target: unknown[], runtimeValues: unknown[]) => {
     const storedValues = runtimeValues.map((value, index) => getItemAdapter(index).toStored(value))
     if (isObservableArray(target)) {
       target.replace(storedValues)
     } else {
       target.length = storedValues.length
-      for (let i = 0; i < storedValues.length; i++) target[i] = storedValues[i]
+      for (let i = 0; i < storedValues.length; i++) {
+        if (i in storedValues) target[i] = storedValues[i]
+        else delete target[i]
+      }
     }
   }
   const mutateViaRuntime = (
@@ -459,8 +462,7 @@ function createArrayLikeRuntimeAdapter(
             return true
           }
 
-          Reflect.set(target, prop, value)
-          return true
+          return Reflect.set(target, prop, value)
         },
       })
 
@@ -477,7 +479,7 @@ function createArrayLikeRuntimeAdapter(
           return cachedStored
         }
 
-        return Array.from(runtime, (value, index) => getItemAdapter(index).toStored(value))
+        return runtime.map((value, index) => getItemAdapter(index).toStored(value))
       }
 
       return runtime as never
@@ -506,22 +508,31 @@ function createCodecLeafRuntimeAdapter(
     toRuntime(stored, setStored) {
       const cachedRuntime = isObject(stored) ? runtimeByStored.get(stored) : undefined
 
-      const runtime = transform.transform({
+      // Declared up front (rather than initialized from the call) so that a setter invoked
+      // while decoding can read it without hitting the temporal dead zone.
+      let runtime: unknown
+      let storedChanged = false
+      runtime = transform.transform({
         originalValue: stored,
         cachedTransformedValue: cachedRuntime,
         setOriginalValue(newStoredValue) {
           if (setStored) {
-            setStored(newStoredValue)
+            try {
+              setStored(newStoredValue)
+            } finally {
+              // A retained codec setter can replace the value after decoding. Neither
+              // direction of the cache may keep associating it with the old stored value.
+              storedChanged = true
+              if (isObject(runtime)) storedByRuntime.delete(runtime)
+              if (isObject(stored)) runtimeByStored.delete(stored)
+            }
           }
         },
       })
 
-      if (isObject(runtime)) {
-        storedByRuntime.set(runtime, stored)
-      }
-
-      if (isObject(stored)) {
-        runtimeByStored.set(stored, runtime)
+      if (!storedChanged) {
+        if (isObject(runtime)) storedByRuntime.set(runtime, stored)
+        if (isObject(stored)) runtimeByStored.set(stored, runtime)
       }
 
       return runtime
@@ -738,7 +749,17 @@ function resolveCodecSupportForStandardType(type: AnyStandardType): ResolvedCode
     } else if (typeInfo instanceof RefinementTypeInfo) {
       const baseSupport = resolveCodecSupportForStandardType(typeInfo.baseType)
 
-      resolvedSupport = baseSupport.hasCodec ? baseSupport : noCodecSupport(type)
+      resolvedSupport = !baseSupport.hasCodec
+        ? noCodecSupport(type)
+        : {
+            hasCodec: true,
+            storedType: typesRefinement(
+              baseSupport.storedType,
+              (stored) => typeInfo.checkFunction(baseSupport.adapter.toRuntime(stored)),
+              typeInfo.typeName
+            ),
+            adapter: baseSupport.adapter,
+          }
     } else if (typeInfo instanceof SkipCheckTypeInfo) {
       const baseSupport = resolveCodecSupportForStandardType(typeInfo.baseType)
 

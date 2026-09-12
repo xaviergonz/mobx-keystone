@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- Return an idempotent disposer from `connectReduxDevTools` to stop logging and unsubscribe from monitor messages.
+- Reject malformed JSON Pointer escapes instead of interpreting them as literal property names.
+- Preserve undefined entries in sparse action arrays through JSON serialization.
+- Keep action serializer traversal stable when a serializer registers or unregisters handlers during serialization.
+- Report unsupported symbol action arguments as `MobxKeystoneError`, and close set iterators when element serialization fails.
+- Implement codec-backed set union, intersection, difference, and symmetric difference without requiring native set methods; intersection avoids decoding the larger operand.
+- Avoid copying codec-backed sets for subset, superset, and disjoint checks; use size checks and early exits while honoring codec-set membership.
+- Enforce refinements around codec-backed values during model construction and writes, including rollback of invalid writes.
+- Preserve current values when reusing writable custom codec views after they replace their stored data.
+- Make codec-backed set operations match native set results and iteration order across supported MobX versions.
+- Support JSON Patch `"-"` array appends and root-content replacement at an empty path; reject root removal and malformed or out-of-range array indexes instead of silently changing unrelated data.
+- Accumulate callback failures in linear time rather than repeatedly copying all preceding failures.
+- Return the stored runtime view from codec-backed map insertion helpers, so mutations through returned collections update the map.
+- Track entry additions and removals when observing `ObjectMap.forEach` on MobX 4.
+- Preserve large nested callback failure batches without argument-limit errors interrupting delivery.
 - Restore falsy undo/redo attached state, and avoid leaking a recorder when the initial attached-state callback throws.
 - Keep transaction rollback recording active after nested actions return.
 - Discard rejected nested sandbox edits instead of replaying them on commit, and synchronize the sandbox with changes triggered during commit. Commits now cost time proportional to the changes being committed rather than to the size of the tree.

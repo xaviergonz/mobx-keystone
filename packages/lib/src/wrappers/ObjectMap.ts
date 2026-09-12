@@ -34,11 +34,11 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
   clear(): void {
     const items = this.items
 
-    const keys = Object.keys(items)
-    const len = keys.length
+    // Object.keys is enough here: this is a write, so there is nothing to observe.
+    const itemKeys = Object.keys(items)
+    const len = itemKeys.length
     for (let i = 0; i < len; i++) {
-      const k = keys[i]
-      remove(items, k)
+      remove(items, itemKeys[i])
     }
   }
 
@@ -57,10 +57,10 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
     // we cannot use the map implementation since we need to pass this as map
     const items = this.items
 
-    const keys = Object.keys(items)
-    const len = keys.length
+    const itemKeys = keys(items)
+    const len = itemKeys.length
     for (let i = 0; i < len; i++) {
-      const k = keys[i]
+      const k = itemKeys[i] as string
       callbackfn.call(thisArg, items[k], k, this)
     }
   }

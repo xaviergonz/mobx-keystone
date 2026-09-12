@@ -63,6 +63,8 @@ Action serialization (via `serializeActionCall` and `deserializeActionCall`) sup
 - Sets and observable sets.
 - Plain objects, observable or not.
 
+Sparse array arguments round-trip through JSON with missing entries represented as `undefined`, rather than `null`.
+
 However, you might want to serialize an action that passes your custom type as an argument. In this case you can register a custom action serializer:
 
 ```ts
@@ -95,3 +97,5 @@ In this case, whenever an instance of `MyType` is found as an action argument, t
 ```
 
 Likewise, using `deserializeActionCall` will transform it back to an instance of `MyType`.
+
+Serializer registration changes made inside a serializer take effect on subsequent serialization attempts. The current attempt continues with the serializers registered when it started.

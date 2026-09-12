@@ -41,6 +41,8 @@ function escapePathComponent(path: string | number): string {
   return path.replace(/~/g, "~0").replace(/\//g, "~1")
 }
 
+const invalidPointerEscape = /~(?:[^01]|$)/
+
 /**
  * Unescapes a json pointer path.
  *
@@ -48,6 +50,9 @@ function escapePathComponent(path: string | number): string {
  * @return The unescaped path
  */
 function unescapePathComponent(path: string): string {
+  if (invalidPointerEscape.test(path)) {
+    throw failure("invalid JSON pointer escape: expected ~0 or ~1")
+  }
   return path.replace(/~1/g, "/").replace(/~0/g, "~")
 }
 

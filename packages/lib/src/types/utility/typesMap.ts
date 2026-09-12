@@ -19,6 +19,15 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
   keyAdapter: RuntimeAdapter<TKeyStored, TKeyRuntime>,
   valueAdapter: RuntimeAdapter<TValueStored, TValueRuntime>
 ): Map<TKeyRuntime, TValueRuntime> {
+  // Writes through the decoded value must land back on the entry it came from.
+  const toRuntimeValue = (storedKey: TKeyStored, storedValue: TValueStored): TValueRuntime =>
+    valueAdapter.toRuntime(storedValue, (newStoredValue) => {
+      storedMap.set(storedKey, newStoredValue)
+    })
+
+  const getValue = (storedKey: TKeyStored): TValueRuntime =>
+    toRuntimeValue(storedKey, storedMap.get(storedKey) as TValueStored)
+
   return new Proxy(storedMap, {
     get(target, prop, receiver) {
       switch (prop) {
@@ -29,43 +38,24 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
               return undefined
             }
 
-            return valueAdapter.toRuntime(
-              target.get(storedKey) as TValueStored,
-              (newStoredValue) => {
-                target.set(storedKey, newStoredValue)
-              }
-            )
+            return getValue(storedKey)
           }
         case "getOrInsert":
           return (key: TKeyRuntime, defaultValue: TValueRuntime) => {
             const storedKey = keyAdapter.toStored(key)
-            if (target.has(storedKey)) {
-              return valueAdapter.toRuntime(
-                target.get(storedKey) as TValueStored,
-                (newStoredValue) => {
-                  target.set(storedKey, newStoredValue)
-                }
-              )
+            if (!target.has(storedKey)) {
+              target.set(storedKey, valueAdapter.toStored(defaultValue))
             }
-
-            target.set(storedKey, valueAdapter.toStored(defaultValue))
-            return defaultValue
+            return getValue(storedKey)
           }
         case "getOrInsertComputed":
           return (key: TKeyRuntime, callback: (key: TKeyRuntime) => TValueRuntime) => {
             const storedKey = keyAdapter.toStored(key)
-            if (target.has(storedKey)) {
-              return valueAdapter.toRuntime(
-                target.get(storedKey) as TValueStored,
-                (newStoredValue) => {
-                  target.set(storedKey, newStoredValue)
-                }
-              )
+            if (!target.has(storedKey)) {
+              const value = callback(key)
+              target.set(storedKey, valueAdapter.toStored(value))
             }
-
-            const value = callback(key)
-            target.set(storedKey, valueAdapter.toStored(value))
-            return value
+            return getValue(storedKey)
           }
         case "set":
           return (key: TKeyRuntime, value: TValueRuntime) => {
@@ -92,9 +82,7 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
             target.forEach((value, key) => {
               callback.call(
                 thisArg,
-                valueAdapter.toRuntime(value, (newStoredValue) => {
-                  target.set(key, newStoredValue)
-                }),
+                toRuntimeValue(key, value),
                 keyAdapter.toRuntime(key),
                 receiver
               )
@@ -104,12 +92,7 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
         case Symbol.iterator:
           return function* () {
             for (const [key, value] of target.entries()) {
-              yield [
-                keyAdapter.toRuntime(key),
-                valueAdapter.toRuntime(value, (newStoredValue) => {
-                  target.set(key, newStoredValue)
-                }),
-              ] as const
+              yield [keyAdapter.toRuntime(key), toRuntimeValue(key, value)] as const
             }
           }
         case "keys":
@@ -121,9 +104,7 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
         case "values":
           return function* () {
             for (const [key, value] of target.entries()) {
-              yield valueAdapter.toRuntime(value, (newStoredValue) => {
-                target.set(key, newStoredValue)
-              })
+              yield toRuntimeValue(key, value)
             }
           }
         default:

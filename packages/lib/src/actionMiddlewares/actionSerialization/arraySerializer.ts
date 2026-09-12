@@ -11,7 +11,7 @@ export const arraySerializer: ActionCallArgumentSerializer<any[] | IObservableAr
     }
 
     // this will also transform observable arrays into non-observable ones
-    return value.map(serialize)
+    return Array.from(value, serialize)
   },
 
   deserialize(arr, deserialize) {

@@ -1,6 +1,15 @@
 import type { ObservableSet } from "mobx"
 import type { ModelPropTransform } from "../../modelShared/prop"
 import { isSet } from "../../utils"
+import {
+  isSetLikeDisjointFrom,
+  isSetLikeSubsetOf,
+  isSetLikeSupersetOf,
+  setLikeDifference,
+  setLikeIntersection,
+  setLikeSymmetricDifference,
+  setLikeUnion,
+} from "../../utils/setLike"
 import { asSet } from "../../wrappers/asSet"
 import { typesArray } from "../arrayBased/typesArray"
 import type { AnyType, ArrayType, TypeToData } from "../schemas"
@@ -52,6 +61,21 @@ function makeArrayBackedSetTransform<TStored, TRuntime>(
                   callback.call(thisArg, runtimeValue, runtimeValue, receiver)
                 })
               }
+            case "union":
+              return (other: ReadonlySetLike<unknown>) => setLikeUnion(receiver, other)
+            case "intersection":
+              return (other: ReadonlySetLike<unknown>) => setLikeIntersection(receiver, other)
+            case "difference":
+              return (other: ReadonlySetLike<unknown>) => setLikeDifference(receiver, other)
+            case "symmetricDifference":
+              return (other: ReadonlySetLike<unknown>) =>
+                setLikeSymmetricDifference(receiver, other)
+            case "isSubsetOf":
+              return (other: ReadonlySetLike<unknown>) => isSetLikeSubsetOf(receiver, other)
+            case "isSupersetOf":
+              return (other: ReadonlySetLike<unknown>) => isSetLikeSupersetOf(receiver, other)
+            case "isDisjointFrom":
+              return (other: ReadonlySetLike<unknown>) => isSetLikeDisjointFrom(receiver, other)
             case "entries":
               return function* () {
                 for (const value of target.values()) {

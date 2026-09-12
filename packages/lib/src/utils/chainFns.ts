@@ -4,6 +4,10 @@ export function chainFns<F extends Function>(...fns: (F | undefined)[]): F | und
     return undefined
   }
 
+  if (definedFns.length === 1) {
+    return definedFns[0]
+  }
+
   const chainedFn = (v: any, ...args: any[]) => {
     let ret = v
 

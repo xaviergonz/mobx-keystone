@@ -8,3 +8,18 @@ test("observable sets survive JSON action-argument serialization", () => {
   expect(restored).toBeInstanceOf(Set)
   expect([...restored]).toEqual([1, 2, Number.NaN])
 })
+
+test("serialization closes a set iterator when an element cannot be serialized", () => {
+  let closed = false
+  const set = new Set([Symbol("unsupported")])
+  set.keys = function* () {
+    try {
+      yield* this.values()
+    } finally {
+      closed = true
+    }
+    return undefined
+  }
+  expect(() => serializeActionCallArgument(set)).toThrow()
+  expect(closed).toBe(true)
+})

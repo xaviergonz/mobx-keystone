@@ -118,3 +118,45 @@ test("nested aggregates are flattened into one flat error list", () => {
   expect(caught).toBeInstanceOf(MobxKeystoneAggregateError)
   expect((caught as MobxKeystoneAggregateError).errors).toEqual([a, b, c])
 })
+
+test("large nested failure batches preserve errors and continue delivery", () => {
+  const first = new Error("first")
+  const failures = Array.from({ length: 150000 }, (_, i) => i)
+  const nested = new MobxKeystoneAggregateError(failures, "nested")
+  const visited: number[] = []
+  let caught: unknown
+  try {
+    forEachWithDelayedThrow([1, 2, 3], (item) => {
+      visited.push(item)
+      if (item === 1) throw first
+      if (item === 2) throw nested
+    })
+  } catch (error) {
+    caught = error
+  }
+  expect(visited).toEqual([1, 2, 3])
+  expect(caught).toBeInstanceOf(MobxKeystoneAggregateError)
+  expect((caught as MobxKeystoneAggregateError).errors).toEqual([first, ...failures])
+  expect(nested.errors).toBe(failures)
+})
+
+test("accumulation never mutates aggregates supplied by callbacks", () => {
+  const originalErrors = Object.freeze([new Error("nested")])
+  const original = new MobxKeystoneAggregateError(originalErrors, "original")
+  const last = new Error("last")
+  let caught: unknown
+  try {
+    forEachWithDelayedThrow([original, original, last], (error) => {
+      throw error
+    })
+  } catch (error) {
+    caught = error
+  }
+  expect((caught as MobxKeystoneAggregateError).errors).toEqual([
+    originalErrors[0],
+    originalErrors[0],
+    last,
+  ])
+  expect(original.errors).toBe(originalErrors)
+  expect(original.message).toBe("original")
+})
