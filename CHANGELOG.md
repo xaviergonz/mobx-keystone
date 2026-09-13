@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.0.0
 
 - [BREAKING CHANGE] Preserve repeated property names and array indexes in type-check error paths when validating an attached subtree. Paths supplied to `TypeCheckError` and `TypeCheckErrorFailure` are now consistently treated as relative to the checked value; manually supplied rooted paths are no longer detected automatically.
