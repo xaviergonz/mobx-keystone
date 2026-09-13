@@ -1,12 +1,18 @@
 # Change Log
 
-## Unreleased
+## 2.0.0
 
+- [BREAKING CHANGE] Require `mobx-keystone ^2.0.0` (previously `^1.24.0`). Upgrade the core library together with this binding.
+- [BREAKING CHANGE] `LoroTextModel.withText("")` now stores an empty delta list, matching what Loro stores for empty text, so its snapshot no longer differs from the document forever.
+- [BREAKING CHANGE] Automatically disposed bindings whose containers were deleted, ignored callbacks after disposal, and prevented disposal reactions from writing to Loro.
+- [BREAKING CHANGE] Reject detached or unreachable containers before binding, and install binding listeners only after initialization succeeds.
+- [BREAKING CHANGE] Reject undefined and sparse list entries instead of silently converting them to null.
+- [BREAKING CHANGE] Fixed stale `LoroTextModel.currentDelta` observations and synchronization of `insertText` / `deleteText`; these methods now commit their Loro edits immediately.
+- [BREAKING CHANGE] Reject non-integer move indices before mutating the array and consistently use `MobxKeystoneLoroError` for conversion and move validation errors.
 - Keep published JSON converter type declarations self-contained, avoiding an unresolved dependency on the private CRDT helper package.
 - Avoided reading native container ids and allocating throwaway reactive atoms while resolving Loro paths outside a MobX derivation, such as when writing local changes back to the document.
 - Keep local array writes synchronized when a commit also carries pending native list edits. Insertions, deletions, updates and moves whose indices the native side has shifted, reordered or replaced now reconcile instead of failing and leaving the model and document diverged. Unaffected paths keep their incremental updates and native moves.
 - Flush queued reentrant moves when a native commit lands before the surrounding model action finishes, instead of replaying them against a document that has already moved on.
-- `LoroTextModel.withText("")` now stores an empty delta list, matching what Loro stores for empty text, so its snapshot no longer differs from the document forever.
 - Track list positions locally while reconciling model order, replacing a document-wide container search per item.
 - Skip incoming map events that only restate what the model already holds even when the commit also touches other bindings or carries empty diffs.
 - Remove stale native copies of locally written models during conflicting array reconciliation, preventing duplicate model IDs after positional edits or insertion/reordering spans.
@@ -37,7 +43,6 @@
 - Preserved identities during nested model ID changes, moves between collections, and replacement of wrappers containing identified models. Structural synchronization retains unchanged snapshot branches.
 - Synchronized missing model metadata during initialization and avoided replaying list edits already loaded before their first commit.
 - Made incoming plain-object additions observable without MobX proxies, and preserved references for unchanged frozen values.
-- Automatically disposed bindings whose containers were deleted, ignored callbacks after disposal, and prevented disposal reactions from writing to Loro.
 - Applied contiguous native list replacements in one mutation and combined separated edits under typed models, preserving whole-list refinements. Multi-key map updates and commits spanning containers under a shared typed ancestor validate their completed state.
 - Avoided redundant NaN merge writes and text rewrites for equivalent spans or consecutive replacements reverted within one action.
 - Ignore initialization changes in unrelated helper models, avoiding unnecessary merges and accidental commits of pending document edits.
@@ -52,8 +57,6 @@
 - Skip unchanged frozen values during snapshot merges, avoiding redundant list writes that can overwrite concurrent edits.
 - Preserve list item identity when merging replacement values, so concurrent moves do not resurrect the old value beside its replacement.
 - Skip array mutations for moves that leave an item in its current position.
-- Reject detached or unreachable containers before binding, and install binding listeners only after initialization succeeds.
-- Reject undefined and sparse list entries instead of silently converting them to null.
 - Avoid redundant model path traversal when detecting local array moves.
 - Serialize inserted Loro subtrees in one traversal and read list contents in bulk, reducing container access overhead.
 - Avoid re-resolving unchanged `loroText` references after scalar property and array-element updates.
@@ -64,12 +67,10 @@
 - Keep queued model changes and direct Loro edits synchronized when their commits overlap.
 - Preserve own `__proto__` properties when converting Loro data to snapshots.
 - Fixed nested bindings following the wrong container after a parent list move or container replacement.
-- Fixed stale `LoroTextModel.currentDelta` observations and synchronization of `insertText` / `deleteText`; these methods now commit their Loro edits immediately.
 - Fixed disposed text bindings continuing to modify the Loro document, and made the binding context synchronization flag reflect its current state.
 - Fixed merges ignoring changes when a source object is reused, and incorrectly converting frozen values or text snapshots into maps. Removed the unsafe snapshot-reference cache.
 - Preserve existing text containers when merging snapshots or applying model defaults.
 - Fixed model identity preservation for remote list moves in both directions and model replacement with the same ID but a different type.
-- Reject non-integer move indices before mutating the array and consistently use `MobxKeystoneLoroError` for conversion and move validation errors.
 - Skip subtrees that snapshot reconciliation left untouched when writing back to Loro, instead of reading the whole document back and comparing it key by key. Reentrant changes and commits that mix local and native edits no longer scan unrelated maps and lists.
 
 ## 1.1.1
