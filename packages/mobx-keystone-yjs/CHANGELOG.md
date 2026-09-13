@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.0.0
 
 - [BREAKING CHANGE] Require `mobx-keystone ^2.0.0` (previously `^1.24.0`). Upgrade the core library together with this binding.
