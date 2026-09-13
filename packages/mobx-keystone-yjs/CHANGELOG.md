@@ -1,7 +1,16 @@
 # Change Log
 
-## Unreleased
+## 2.0.0
 
+- [BREAKING CHANGE] Require `mobx-keystone ^2.0.0` (previously `^1.24.0`). Upgrade the core library together with this binding.
+- [BREAKING CHANGE] Rejected undefined and sparse array entries with `MobxKeystoneYjsError` before writes, and converted outgoing replacement values before deleting existing array items.
+- [BREAKING CHANGE] Rejected merge mode on detached Yjs maps and arrays before mutation, preventing incorrect results from unsupported reads of detached contents. Add mode remains supported for detached containers.
+- [BREAKING CHANGE] Deferred text reactions until Yjs transaction cleanup completes, preventing reaction edits from being lost in another binding’s saved text history. Pending notifications are shared per document.
+- [BREAKING CHANGE] Batched reactive notifications for all text changes in a Yjs transaction, preventing intermediate multi-text states and redundant reaction runs.
+- [BREAKING CHANGE] Delayed reactive text notifications until incoming deltas are synchronized, preventing local edits from text reactions from corrupting the saved delta history.
+- [BREAKING CHANGE] Automatically disposed bindings when their bound Yjs subtree is deleted, releasing document subscriptions and binding context while preserving the local model.
+- [BREAKING CHANGE] Batched JSON array/map helper writes into a single Yjs transaction, avoiding intermediate observer updates and per-item transaction overhead.
+- [BREAKING CHANGE] Reject binding objects that are not attached to the supplied Y.Doc.
 - Keep published JSON converter type declarations self-contained, avoiding an unresolved dependency on the private CRDT helper package.
 - Remove stale native copies of locally written models during conflicting array reconciliation, preventing duplicate model IDs after positional edits or insertion/reordering spans.
 - Restore locally edited primitive array entries after pending native deletions without creating sparse arrays or failing synchronization.
@@ -18,7 +27,6 @@
 - With the updated core, rejected individual local mutations no longer write CRDT operations or compete with concurrent native edits.
 - Preserved native startup edits that overlap a value replaced with a frozen value during model initialization. The conflicting native value now replaces the initialized frozen value atomically.
 - Preserved initialization edits to existing siblings regardless of incoming event order, including array appends applied exactly once. Initialization confined to a new model now writes back only the affected subtree.
-- Rejected undefined and sparse array entries with `MobxKeystoneYjsError` before writes, and converted outgoing replacement values before deleting existing array items.
 - Avoided unnecessary empty-array reads and source-key set allocation during JSON merges.
 - Avoided allocating throwaway reactive atoms while resolving Yjs paths outside a MobX derivation, such as when writing local changes back to Yjs.
 - Fixed recovery after a native transaction fails model validation or reconciliation. Subsequent events reconcile the current native snapshot until successful, then resume incremental updates.
@@ -36,7 +44,6 @@
 - Ignored empty incoming array, map, and text changes when choosing reconciliation scope, keeping unrelated structural changes within their affected subtree. Bindings created or locally edited during the transaction still reconcile to its final state.
 - Avoided invalidating reactive text paths for native array transactions with an empty net delta, such as inserting and removing a temporary item in the same transaction.
 - Canceled captured outgoing edits and default writeback when a Yjs `beforeTransaction` listener disposes the binding, preventing writes after disposal.
-- Rejected merge mode on detached Yjs maps and arrays before mutation, preventing incorrect results from unsupported reads of detached contents. Add mode remains supported for detached containers.
 - Coalesced consecutive pending edits when a full text-history replacement supersedes the previous edit to the same text, avoiding intermediate replay and preserving relative positions for reverted edits.
 - Preserved Yjs relative positions and avoided document updates when local text-history replacement produces unchanged content and formatting. Changed histories are replayed once before applying their resulting delta.
 - Fixed merge-mode writes replacing an existing `Y.Text` when its content changed, which orphaned the container and left observers, `YjsTextModel.yjsText`, and any other reference pointing at empty detached text. Changed text is now edited in place in both maps and arrays.
@@ -45,16 +52,12 @@
 - Fixed merge comparisons for frozen JSON and text attributes: object method names are treated as data keys, and signed zero is preserved recursively. Unchanged values still retain their references.
 - Avoided full-tree writeback when incoming initialization hooks create or modify helper models outside the bound tree.
 - Batched adjacent array-merge replacements, reducing Yjs searches and item splitting while preserving intervening container identities and unchanged values.
-- Deferred text reactions until Yjs transaction cleanup completes, preventing reaction edits from being lost in another binding’s saved text history. Pending notifications are shared per document.
-- Batched reactive notifications for all text changes in a Yjs transaction, preventing intermediate multi-text states and redundant reaction runs.
-- Delayed reactive text notifications until incoming deltas are synchronized, preventing local edits from text reactions from corrupting the saved delta history.
 - Avoided quadratic indexed reads when merging arrays of shared Yjs containers by collecting existing values in one traversal.
 - Avoided full snapshot reconciliation when native edits repeat an unchanged model type discriminator, including transactions that also update ordinary properties.
 - Fixed text loss during Yjs redo of a combined text edit and model move by correcting pending snapshot propagation in the core attachment path.
 - Reconciled native changes to nested model IDs through their parents, preserving model identity during ID swaps and replacing instances for new IDs. Custom ID properties are supported, and unchanged IDs avoid parent reconciliation.
 - Synchronized missing root and nested model metadata during initial binding even when no defaults or initialization edits occur. Initial synchronization now compares the completed snapshot instead of relying on initialization events.
 - Stopped disposal-triggered reactions from writing back to Yjs and ignored queued Yjs callbacks that start after the binding has been disposed.
-- Automatically disposed bindings when their bound Yjs subtree is deleted, releasing document subscriptions and binding context while preserving the local model.
 - Combined adjacent native array insertions and deletions into replacement splices, avoiding invalid intermediate lengths for fixed-length refinements and reducing MobX notifications.
 - Avoided replaying delta history when reading live empty text, and batched history replay for detached text reads and text merge comparisons into one transaction.
 - Fixed numeric merge comparisons to preserve signed zero and avoid redundant updates for unchanged `NaN` values.
@@ -65,7 +68,6 @@
 - Reduced reactive text-path invalidation to changed map keys, and released unused key dependencies instead of retaining them for the lifetime of a map.
 - Removed per-value MobX action overhead from recursive Yjs-to-JSON conversion.
 - Stopped appending empty content deltas for Y.Text metadata-only changes.
-- Batched JSON array/map helper writes into a single Yjs transaction, avoiding intermediate observer updates and per-item transaction overhead.
 - Reduced structural synchronization work by constructing snapshots from event deltas and retaining unchanged snapshot branches. Primitive array deletions now use direct splices instead of per-element reconciliation.
 - Fixed argument-limit failures when converting or synchronizing large arrays by bounding insertion batches.
 - Fixed duplicated initial array/text content when binding inside an open Yjs transaction, and synchronization between multiple bindings with queued edits on the same document.
@@ -79,7 +81,6 @@
 - Fixed the binding context's `isApplyingYjsChangesToMobxKeystone` flag and made disposal clear the binding context and stop text synchronization.
 - Fixed model reconciliation for array replacements and updated reused models from incoming snapshots.
 - Fixed JSON merges after direct Yjs edits or mutations to reused input objects. Special text/frozen snapshots now use their correct representation, and unchanged text retains its Y.Text instance.
-- Reject binding objects that are not attached to the supplied Y.Doc.
 - Skip subtrees that snapshot reconciliation left untouched when writing back to Yjs, instead of reading the whole document back and comparing it key by key. Reentrant changes and commits that mix local and native edits no longer scan unrelated maps and arrays.
 
 ## 1.7.0

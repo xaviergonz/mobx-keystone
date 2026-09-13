@@ -1,6 +1,6 @@
 {
   "name": "mobx-keystone-yjs",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "Yjs bindings for mobx-keystone",
   "keywords": [
     "mobx",
@@ -61,7 +61,7 @@
   },
   "peerDependencies": {
     "mobx": "^7.0.0 || ^6.0.0 || ^5.0.0 || ^4.0.0",
-    "mobx-keystone": "^1.24.0",
+    "mobx-keystone": "^2.0.0",
     "yjs": "^13.0.0"
   },
   "devDependencies": {
