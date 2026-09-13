@@ -1,7 +1,25 @@
 # Change Log
 
-## Unreleased
+## 2.0.0
 
+- [BREAKING CHANGE] Preserve repeated property names and array indexes in type-check error paths when validating an attached subtree. Paths supplied to `TypeCheckError` and `TypeCheckErrorFailure` are now consistently treated as relative to the checked value; manually supplied rooted paths are no longer detected automatically.
+- [BREAKING CHANGE] Continue transaction rollback after patch listeners or patch recorders throw, including all inverse patches of an array edit; if any fail, throw a `MobxKeystoneAggregateError` whose first error is the original action error, followed by the callback failures.
+- [BREAKING CHANGE] Prevent replacement or deletion of checked frozen data and avoid repeated validation of shared frozen subtrees.
+- [BREAKING CHANGE] Reject arrays consistently in `types.object` and `types.record`, including snapshot matching.
+- [BREAKING CHANGE] Reject malformed JSON Pointer escapes instead of interpreting them as literal property names.
+- [BREAKING CHANGE] Enforce refinements around codec-backed values during model construction and writes, including rollback of invalid writes.
+- [BREAKING CHANGE] Support JSON Patch `"-"` array appends and root-content replacement at an empty path; reject root removal and malformed or out-of-range array indexes instead of silently changing unrelated data.
+- [BREAKING CHANGE] Continue patch delivery to remaining listeners after a listener throws, then report the failures once delivery has finished. This also covers `patchRecorder` callbacks, so a failing recorder no longer silently stops the recorders registered on ancestor nodes, nor the deep-change listeners and the deferred patch listeners of the same mutation. Failures from all three are reported together.
+- [BREAKING CHANGE] Added `MobxKeystoneAggregateError`, a `MobxKeystoneError` subclass with an `errors` array. Patch listeners, patch recorders, deep-change listeners and root store attachment hooks now share one failure rule: every callback runs, a lone failure is rethrown as is, and several failures are grouped in a `MobxKeystoneAggregateError` whose `errors` is a flat list, even across nested delivery.
+- [BREAKING CHANGE] Validate that `types.ref` values belong to the specified reference constructor.
+- [BREAKING CHANGE] Reject invalid undo/redo history limits instead of allowing negative limits to hang history trimming.
+- [BREAKING CHANGE] Run child-hook disposal callbacks in reverse attachment order, including explicit disposal. Continue remaining detachments and attachments when a callback throws, then report the first error.
+- [BREAKING CHANGE] Object property setters now use `SameValueZero` equality, so re-setting a `NaN` property is a no-op. `0` and `-0` are treated as the same value throughout, matching `deepEquals`, literal type checks and JSON.
+- [BREAKING CHANGE] ID-checked path resolution now rejects missing array properties instead of resolving them as `undefined`.
+- [BREAKING CHANGE] `resolvePath` now distinguishes missing properties from properties whose value is `undefined`.
+- [BREAKING CHANGE] Validate `applyPatches` against the completed batch, including nested/reversed patch lists, newly created models, and synchronous listener-triggered edits. Rejected batches roll back with compensating patches instead of leaving earlier patches applied. Literal property deletion and field-update semantics remain unchanged.
+- [BREAKING CHANGE] Continue deep-change delivery after a listener throws, so later global, subtree, and ancestor listeners observe the applied mutation, then report the failures once delivery completes.
+- [BREAKING CHANGE] Emit deep-change notifications after individual mutations pass automatic type checking and update their snapshots. Rejected mutations and their quiet rollbacks no longer reach deep-change listeners or CRDT bindings.
 - Keep `asMap` and `asSet` synchronized when an interceptor cancels additions or deletions on their backing data.
 - Remove omitted prototype-named properties and restore their model defaults correctly when applying snapshots.
 - Synchronize final model IDs and paths when serialized actions move, replace, or remove models before finishing.
@@ -10,12 +28,10 @@
 - Fix partial draft operations through codec-backed model properties by checking model IDs along stored data paths.
 - Synchronize back-references when a reference's resolved target changes before its first tracking run.
 - Preserve default options when explicitly set to `undefined` in Redux DevTools logging and model/data-model `toString`.
-- Preserve repeated property names and array indexes in type-check error paths when validating an attached subtree. Paths supplied to `TypeCheckError` and `TypeCheckErrorFailure` are now consistently treated as relative to the checked value; manually supplied rooted paths are no longer detected automatically.
 - Report the previous tracked snapshot correctly when `onSnapshot` is registered inside an action that changes the observed node before the action finishes.
 - Preserve empty-string model type names in registration, snapshots, restoration, and cloning.
 - Keep default ID regeneration in `clone` and `cloneTreeValue` when `generateNewIds` is explicitly `undefined`.
 - Keep immediate child attachment callbacks enabled when `fireForCurrentChildren` is explicitly `undefined`.
-- Continue transaction rollback after patch listeners or patch recorders throw, including all inverse patches of an array edit; if any fail, throw a `MobxKeystoneAggregateError` whose first error is the original action error, followed by the callback failures.
 - Make data-model `toString()` include its backing data without throwing.
 - Retry data-model initialization after construction fails, and preserve fields and run `onLazyInit` only once when reusing a successfully initialized wrapper.
 - Support empty-string ID property names throughout construction, cloning, ID lookup, and snapshot reconciliation.
@@ -26,7 +42,6 @@
 - Avoid stringifying action targets during replay; preserve sparse top-level action arguments through JSON serialization.
 - Preserve custom model trails in cached type-check errors and own `__proto__` properties in model and data-model type information.
 - Report unsupported symbol and unprintable values with library errors, and name the correct action decorator in legacy symbol diagnostics.
-- Prevent replacement or deletion of checked frozen data and avoid repeated validation of shared frozen subtrees.
 - Trim excess undo and redo history in one operation instead of repeatedly shifting entries.
 - Preserve custom refinement error model trails through nested type checks.
 - Allow context `apply` and `applyComputed` callbacks to return model data objects without trying to register them as providers.
@@ -37,21 +52,17 @@
 - Ignore retained Redux DevTools monitor callbacks after disposal.
 - Return the stored observable value from `asMap` insertion helpers on MobX 4/5.
 - Support generated setters for empty-string property names.
-- Reject arrays consistently in `types.object` and `types.record`, including snapshot matching.
 - Keep published patch paths unchanged while tracking model ID overrides in serialized actions.
 - Dispose serializers using their original registered ID, avoiding removal of another serializer after an ID edit.
 - Deduplicate large enum definitions in linear time.
 - Return an idempotent disposer from `connectReduxDevTools` to stop logging and unsubscribe from monitor messages.
-- Reject malformed JSON Pointer escapes instead of interpreting them as literal property names.
 - Preserve undefined entries in sparse action arrays through JSON serialization.
 - Keep action serializer traversal stable when a serializer registers or unregisters handlers during serialization.
 - Report unsupported symbol action arguments as `MobxKeystoneError`, and close set iterators when element serialization fails.
 - Implement codec-backed set union, intersection, difference, and symmetric difference without requiring native set methods; intersection avoids decoding the larger operand.
 - Avoid copying codec-backed sets for subset, superset, and disjoint checks; use size checks and early exits while honoring codec-set membership.
-- Enforce refinements around codec-backed values during model construction and writes, including rollback of invalid writes.
 - Preserve current values when reusing writable custom codec views after they replace their stored data.
 - Make codec-backed set operations match native set results and iteration order across supported MobX versions.
-- Support JSON Patch `"-"` array appends and root-content replacement at an empty path; reject root removal and malformed or out-of-range array indexes instead of silently changing unrelated data.
 - Accumulate callback failures in linear time rather than repeatedly copying all preceding failures.
 - Return the stored runtime view from codec-backed map insertion helpers, so mutations through returned collections update the map.
 - Track entry additions and removals when observing `ObjectMap.forEach` on MobX 4.
@@ -61,8 +72,6 @@
 - Discard rejected nested sandbox edits instead of replaying them on commit, and synchronize the sandbox with changes triggered during commit. Commits now cost time proportional to the changes being committed rather than to the size of the tree.
 - Balance parent action-tracking resume/suspend hooks when a child completion hook throws.
 - Honor child-hook disposal during attachment callbacks, including whether pending cleanup should run.
-- Continue patch delivery to remaining listeners after a listener throws, then report the failures once delivery has finished. This also covers `patchRecorder` callbacks, so a failing recorder no longer silently stops the recorders registered on ancestor nodes, nor the deep-change listeners and the deferred patch listeners of the same mutation. Failures from all three are reported together.
-- Added `MobxKeystoneAggregateError`, a `MobxKeystoneError` subclass with an `errors` array. Patch listeners, patch recorders, deep-change listeners and root store attachment hooks now share one failure rule: every callback runs, a lone failure is rethrown as is, and several failures are grouped in a `MobxKeystoneAggregateError` whose `errors` is a flat list, even across nested delivery.
 - Preserve `__proto__` entries in `objectMap`, and return the stored value from its insertion helpers.
 - Keep nested transforms' cache decisions independent, and retain cached transform values for `NaN`.
 - Match native array argument handling for codec-backed `splice` and `at`, and support large codec-backed reversals and other whole-array mutations without argument-limit errors.
@@ -75,19 +84,14 @@
 - Preserve explicitly supplied empty-string model IDs and reuse those models when snapshot reconciliation moves them.
 - Restore the previous computed tree if its replacement cannot be attached.
 - Ensure `objectActions.set` and `assign` update stored data and snapshots when used on observable models.
-- Validate that `types.ref` values belong to the specified reference constructor.
 - Preserve Redux middleware handler state across dispatches and invoke the full downstream chain on repeated `next` calls.
 - Make Redux DevTools reset use the latest committed state, and avoid logging no-op actions after time travel.
 - Accept scalar values alongside arrays in `arrayActions.concat` TypeScript arguments.
 - Prevent repeated undo-group completion from duplicating history, and keep empty groups from discarding redo history.
-- Reject invalid undo/redo history limits instead of allowing negative limits to hang history trimming.
 - Reject asynchronous flow promises when completion middleware or an undo group's final attached-state callback throws, instead of leaving them pending.
-- Run child-hook disposal callbacks in reverse attachment order, including explicit disposal. Continue remaining detachments and attachments when a callback throws, then report the first error.
 - Support deeply nested frozen data without overflowing the call stack.
 - Preserve literal `__proto__` properties when processing typed object and record snapshots.
 - Preserve object identity between `asMap`/`asSet` and their backing collections, both when wrapping shallow observables and when writes convert values into observable objects or tree nodes.
-- Object property setters now use `SameValueZero` equality, so re-setting a `NaN` property is a no-op. `0` and `-0` are treated as the same value throughout, matching `deepEquals`, literal type checks and JSON.
-- ID-checked path resolution now rejects missing array properties instead of resolving them as `undefined`.
 - `ArraySet.keys()` and `ArraySet.values()` iterators now visit values appended during iteration, matching the existing entries iterator.
 - Keep root-store registration status reactive when attachment or disposal hooks throw, and continue remaining hooks before reporting the failures.
 - Prevent subclass model initializers from running on base or sibling model instances.
@@ -98,7 +102,6 @@
 - Fixed `arrayActions.swap` reordering other items when both indexes are equal; non-integer indexes now return `false` without modifying the array.
 - Empty paths in `Draft.commitByPath` and `Draft.resetByPath` now commit or reset the whole draft.
 - Prevent the legacy `setYear` method from mutating immutable dates.
-- `resolvePath` now distinguishes missing properties from properties whose value is `undefined`.
 - Fixed stack overflows during children-first `walkTree` traversal of deeply nested trees.
 - Fixed bigint literal type construction and `NaN` literal validation, including their type names in errors.
 - Frozen-data validation now rejects cycles with a descriptive library error while continuing to allow shared descendants.
@@ -107,14 +110,11 @@
 - Fixed `asSet.add` appending duplicate backing entries when the value is already present, which could leave stale entries after deletion or clearing.
 - Fixed deletion of `NaN` in `ArraySet` and `asSet`, and updates/deletions of `NaN` keys in array-backed `asMap`, keeping backing arrays synchronized.
 - Preserve literal `__proto__` entries in `mapToObject` conversions without changing the object prototype.
-- Validate `applyPatches` against the completed batch, including nested/reversed patch lists, newly created models, and synchronous listener-triggered edits. Rejected batches roll back with compensating patches instead of leaving earlier patches applied. Literal property deletion and field-update semantics remain unchanged.
 - Keep deep-change listener delivery stable when subscriptions change inside callbacks. Self-unsubscription no longer skips later listeners, listeners disposed while a change is being delivered no longer receive it, and duplicate callback registrations have independent, idempotent disposers.
-- Continue deep-change delivery after a listener throws, so later global, subtree, and ancestor listeners observe the applied mutation, then report the failures once delivery completes.
 - Preserve snapshot immutability when union types or custom output processors wrap shared child snapshots, including snapshots captured after earlier edits.
 - Expose `DeepChange.isReentrant` for notifications that overlap listener-triggered mutations, allowing bindings to recover their final local state.
 - Preserve chronological patch delivery and mutation-time paths when deep-change or patch listeners make reentrant edits. Patch recorders capture changes synchronously, preserving transaction rollback, recording scopes, and `withoutUndo` during listener-triggered edits.
 - Fixed type-check error formatting for model data objects, allowing record-or-model unions to continue to a valid model alternative.
-- Emit deep-change notifications after individual mutations pass automatic type checking and update their snapshots. Rejected mutations and their quiet rollbacks no longer reach deep-change listeners or CRDT bindings.
 - Validate object key additions and removals without stale cached checks, including MobX 4 removal notifications, while preserving cached checks for unrelated subtrees.
 - Fixed automatic type checking skipping a snapshot reconciliation target’s own model type. The target and its typed ancestors now validate the completed snapshot.
 - Fixed stale snapshots after automatic type checking rejects snapshot reconciliation. Rollback now restores cached snapshots and emits compensating patches for already-published changes.
