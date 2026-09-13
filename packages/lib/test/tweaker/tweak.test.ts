@@ -2,6 +2,7 @@ import { observable } from "mobx"
 import {
   getGlobalConfig,
   getSnapshot,
+  MobxKeystoneError,
   runUnprotected,
   setGlobalConfig,
   toTreeNode,
@@ -38,4 +39,8 @@ test("observable object values are retained when becoming a tree node", () => {
 
   expect(toTreeNode(value)).toBe(value)
   expect(getSnapshot(value)).toEqual({ count: 1, label: "ready" })
+})
+
+test("unsupported symbol tree values report a library error", () => {
+  expect(() => toTreeNode({ value: Symbol("unsupported") })).toThrow(MobxKeystoneError)
 })

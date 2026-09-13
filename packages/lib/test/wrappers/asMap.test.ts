@@ -1,4 +1,4 @@
-import { computed, observable, reaction, runInAction, set, toJS } from "mobx"
+import { computed, intercept, observable, observe, reaction, runInAction, set, toJS } from "mobx"
 import { asMap, Model, mapToArray, mapToObject, modelAction, prop, runUnprotected } from "../../src"
 import { testModel } from "../utils"
 
@@ -203,4 +203,95 @@ test("asMap - getOrInsert / getOrInsertComputed", () => {
   const existingArrayValue = vi.fn(() => 999)
   expect(m.arrayMap.getOrInsertComputed("a", existingArrayValue)).toBe(1)
   expect(existingArrayValue).not.toHaveBeenCalled()
+})
+
+test.each([false, true])(
+  "map insertion helpers return the converted stored value (computed: %s)",
+  (useComputed) => {
+    const backing = observable.object<Record<string, { value: number }>>({})
+    const map = asMap(backing)
+    const input = { value: 1 }
+    const inserted = runInAction(() =>
+      useComputed ? map.getOrInsertComputed("key", () => input) : map.getOrInsert("key", input)
+    )
+    expect(inserted).toBe(map.get("key"))
+    expect(inserted).toBe(backing.key)
+  }
+)
+
+test.each(["add", "update", "delete"])(
+  "object-backed maps respect canceled %s changes",
+  (operation) => {
+    const backing = observable.object({ kept: 1 })
+    const map = asMap(backing)
+    const onChange = vi.fn()
+    const stopObserving = observe(map, onChange)
+    const stop = intercept(backing, () => null)
+    try {
+      runInAction(() => {
+        if (operation === "delete") expect(map.delete("kept")).toBe(false)
+        else map.set(operation === "add" ? "new" : "kept", 2)
+      })
+      expect(Array.from(map)).toEqual([["kept", 1]])
+      expect(toJS(backing)).toEqual({ kept: 1 })
+      expect(onChange).not.toHaveBeenCalled()
+    } finally {
+      stop()
+      stopObserving()
+    }
+    runInAction(() => {
+      map.set("new", 2)
+      map.set("kept", 3)
+      expect(map.delete("kept")).toBe(true)
+    })
+    expect(Array.from(map)).toEqual([["new", 2]])
+    expect(toJS(backing)).toEqual({ new: 2 })
+  }
+)
+
+test.each(["add", "update", "delete"])(
+  "array-backed maps respect canceled %s changes",
+  (operation) => {
+    const backing = observable.array<[string, number]>([["kept", 1]])
+    const map = asMap(backing)
+    const onChange = vi.fn()
+    const stopObserving = observe(map, onChange)
+    const stop = intercept(backing, () => null)
+    try {
+      runInAction(() => {
+        if (operation === "delete") expect(map.delete("kept")).toBe(false)
+        else map.set(operation === "add" ? "new" : "kept", 2)
+      })
+      expect(Array.from(map)).toEqual([["kept", 1]])
+      expect(toJS(backing)).toEqual([["kept", 1]])
+      expect(onChange).not.toHaveBeenCalled()
+    } finally {
+      stop()
+      stopObserving()
+    }
+    runInAction(() => {
+      map.set("new", 2)
+      map.set("kept", 3)
+      expect(map.delete("kept")).toBe(true)
+    })
+    expect(Array.from(map)).toEqual([["new", 2]])
+    expect(toJS(backing)).toEqual([["new", 2]])
+  }
+)
+
+test("array-backed maps respect canceled additions to an empty array", () => {
+  const backing = observable.array<[string, number]>([])
+  const map = asMap(backing)
+  const onChange = vi.fn()
+  const stopObserving = observe(map, onChange)
+  const stop = intercept(backing, () => null)
+  try {
+    runInAction(() => map.set("new", 2))
+    expect(Array.from(map)).toEqual([])
+    expect(backing.slice()).toEqual([])
+    expect(onChange).not.toHaveBeenCalled()
+  } finally {
+    stop()
+    stopObserving()
+  }
 })

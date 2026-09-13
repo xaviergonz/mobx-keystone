@@ -559,10 +559,11 @@ function buildPrefixedPath(
  * Unlike `onPatches`, this provides raw MobX change information including proper splice detection for arrays.
  * Individual mutations notify listeners after automatic type checking succeeds and snapshots update;
  * rejected mutations and their quiet rollbacks do not notify listeners.
- * Listener errors do not stop delivery to other listeners; the first error is
- * rethrown after delivery completes.
- * Listeners added while a change is being delivered start with the next change,
- * and listeners disposed while a change is being delivered do not receive it.
+ * Listener errors do not stop delivery to other listeners. After delivery completes,
+ * a single error is rethrown unchanged and multiple errors are grouped in a MobxKeystoneAggregateError.
+ * Listeners added while callbacks for the same target are running start with the next
+ * change delivered to that target. Listeners disposed during delivery do not receive
+ * the current change if their callback has not run yet.
  *
  * @param subtreeRoot Subtree root object of the deep change listener.
  * @param listener The listener function that will be called every time a change is generated for the object or its children.

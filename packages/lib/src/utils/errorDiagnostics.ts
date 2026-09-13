@@ -190,7 +190,7 @@ function formatErrorPathForMessage(path: Path | undefined = getErrorPathSnapshot
 /**
  * @internal
  */
-function getSafeErrorValuePreview(value: unknown, maxLen = 200): string {
+export function getSafeErrorValuePreview(value: unknown, maxLen = 200): string {
   let str: string | undefined
   try {
     str = JSON.stringify(value)
@@ -203,7 +203,11 @@ function getSafeErrorValuePreview(value: unknown, maxLen = 200): string {
     try {
       str = String(value)
     } catch {
-      str = Object.prototype.toString.call(value)
+      try {
+        str = Object.prototype.toString.call(value)
+      } catch {
+        str = "<unprintable value>"
+      }
     }
   }
 

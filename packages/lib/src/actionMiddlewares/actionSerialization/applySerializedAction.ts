@@ -1,9 +1,10 @@
 import { runInAction } from "mobx"
 import { applyAction } from "../../action/applyAction"
 import { frozenKey } from "../../frozen/Frozen"
+import type { AnyModel } from "../../model/BaseModel"
 import { getModelIdPropertyName } from "../../model/getModelMetadata"
 import { isModel } from "../../model/utils"
-import { resolvePath } from "../../parent/path"
+import { fastGetParentToChildPath, resolvePath } from "../../parent/path"
 import type { WritablePath } from "../../parent/pathTypes"
 import { applyPatches } from "../../patch/applyPatches"
 import { onPatches } from "../../patch/emitPatch"
@@ -53,15 +54,27 @@ export function applySerializedActionAndTrackNewModelIds<TRet = any>(
 
   const deserializedCall = deserializeActionCall(call, subtreeRoot)
 
-  const modelIdOverrides: Patch[] = []
+  const modelsWithChangedIds = new Map<AnyModel, string>()
 
   // set a patch listener to track changes to model ids
   const patchDisposer = onPatches(subtreeRoot, (patches) => {
-    scanPatchesForModelIdChanges(subtreeRoot, modelIdOverrides, patches)
+    scanPatchesForModelIdChanges(subtreeRoot, modelsWithChangedIds, patches)
   })
 
   try {
     const returnValue = applyAction(subtreeRoot, deserializedCall)
+
+    const modelIdOverrides: Patch[] = []
+    for (const [model, idProperty] of modelsWithChangedIds) {
+      const path = fastGetParentToChildPath(subtreeRoot, model, false)
+      if (path) {
+        modelIdOverrides.push({
+          op: "replace",
+          path: [...path, idProperty],
+          value: model.$[idProperty],
+        })
+      }
+    }
 
     return {
       returnValue,
@@ -75,24 +88,23 @@ export function applySerializedActionAndTrackNewModelIds<TRet = any>(
   }
 }
 
-function scanPatchesForModelIdChanges(root: object, modelIdOverrides: Patch[], patches: Patch[]) {
+function scanPatchesForModelIdChanges(
+  root: object,
+  modelsWithChangedIds: Map<AnyModel, string>,
+  patches: Patch[]
+) {
   const len = patches.length
   for (let i = 0; i < len; i++) {
     const patch = patches[i]
     if (patch.op === "replace" || patch.op === "add") {
-      deepScanValueForModelIdChanges(
-        root,
-        modelIdOverrides,
-        patch.value,
-        patch.path as WritablePath
-      )
+      deepScanValueForModelIdChanges(root, modelsWithChangedIds, patch.value, patch.path.slice())
     }
   }
 }
 
 function deepScanValueForModelIdChanges(
   root: object,
-  modelIdOverrides: Patch[],
+  modelsWithChangedIds: Map<AnyModel, string>,
   value: any,
   path: WritablePath
 ) {
@@ -102,20 +114,17 @@ function deepScanValueForModelIdChanges(
 
     if (isModel(parent)) {
       const propertyName = path[path.length - 1]
-      if (propertyName === getModelIdPropertyName(parent.constructor as any)) {
-        // found one
-        modelIdOverrides.push({
-          op: "replace",
-          path: path.slice(),
-          value: value,
-        })
+      const idProperty = getModelIdPropertyName(parent.constructor as any)
+      if (idProperty !== undefined && propertyName === idProperty) {
+        // Resolve the final path and ID after the action, since this model may move or detach.
+        modelsWithChangedIds.set(parent, idProperty)
       }
     }
   } else if (Array.isArray(value)) {
     const len = value.length
     for (let i = 0; i < len; i++) {
       path.push(i)
-      deepScanValueForModelIdChanges(root, modelIdOverrides, value[i], path)
+      deepScanValueForModelIdChanges(root, modelsWithChangedIds, value[i], path)
       path.pop()
     }
   } else if (isObject(value)) {
@@ -128,7 +137,7 @@ function deepScanValueForModelIdChanges(
         const propValue = value[propName]
 
         path.push(propName)
-        deepScanValueForModelIdChanges(root, modelIdOverrides, propValue, path)
+        deepScanValueForModelIdChanges(root, modelsWithChangedIds, propValue, path)
         path.pop()
       }
     }

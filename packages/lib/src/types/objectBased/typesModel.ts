@@ -7,7 +7,7 @@ import type { ModelClass } from "../../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
-import { isObject, lazy } from "../../utils"
+import { isObject, lazy, setProtoProp } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, ModelType } from "../schemas"
@@ -178,12 +178,14 @@ export class ModelTypeInfo extends TypeInfo {
         hasDefault = true
       }
 
-      propTypes[propName] = {
+      const propInfo = {
         type,
         typeInfo,
         hasDefault,
         default: defaultValue,
       }
+      if (propName === "__proto__") setProtoProp(propTypes, propInfo)
+      else propTypes[propName] = propInfo
     })
     return propTypes
   })

@@ -7,6 +7,7 @@ import {
   assertIsObject,
   copyOwnEnumerableProps,
   getMobxVersion,
+  isArray,
   isObject,
   lazy,
   setProtoProp,
@@ -127,7 +128,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
     }
 
     const checkObjectType = (obj: any, path: Path, typeCheckedValue: any) => {
-      if (!isObject(obj) || (frozen && !(obj instanceof Frozen))) {
+      if (!isObject(obj) || isArray(obj) || (frozen && !(obj instanceof Frozen))) {
         return new TypeCheckError({
           path,
           expectedTypeName: getTypeName(thisTc),
@@ -188,7 +189,7 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       typeInfoGen,
 
       (obj) => {
-        if (!isObject(obj)) {
+        if (!isObject(obj) || isArray(obj)) {
           return null
         }
 

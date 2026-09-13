@@ -1,4 +1,4 @@
-import { computed, observable, reaction, runInAction, toJS } from "mobx"
+import { computed, intercept, observable, observe, reaction, runInAction, toJS } from "mobx"
 import { asSet, Model, modelAction, prop, runUnprotected, setToArray } from "../../src"
 import { testModel } from "../utils"
 
@@ -80,4 +80,47 @@ test("asSet", () => {
     m.arr.push(8)
     expect(m.set.has(8)).toBe(true)
   })
+})
+
+test.each(["add", "delete"])("array-backed sets respect canceled %s changes", (operation) => {
+  const backing = observable.array([1])
+  const set = asSet(backing)
+  const onChange = vi.fn()
+  const stopObserving = observe(set, onChange)
+  const stop = intercept(backing, () => null)
+  try {
+    runInAction(() => {
+      if (operation === "delete") expect(set.delete(1)).toBe(false)
+      else set.add(2)
+    })
+    expect(Array.from(set)).toEqual([1])
+    expect(backing.slice()).toEqual([1])
+    expect(onChange).not.toHaveBeenCalled()
+  } finally {
+    stop()
+    stopObserving()
+  }
+  runInAction(() => {
+    set.add(2)
+    expect(set.delete(1)).toBe(true)
+  })
+  expect(Array.from(set)).toEqual([2])
+  expect(backing.slice()).toEqual([2])
+})
+
+test("array-backed sets respect canceled additions to an empty array", () => {
+  const backing = observable.array<number>([])
+  const set = asSet(backing)
+  const onChange = vi.fn()
+  const stopObserving = observe(set, onChange)
+  const stop = intercept(backing, () => null)
+  try {
+    runInAction(() => set.add(2))
+    expect(Array.from(set)).toEqual([])
+    expect(backing.slice()).toEqual([])
+    expect(onChange).not.toHaveBeenCalled()
+  } finally {
+    stop()
+    stopObserving()
+  }
 })

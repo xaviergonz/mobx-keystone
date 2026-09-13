@@ -1,5 +1,5 @@
 import { dataToModelNode } from "../parent/core"
-import { fastGetRootPath } from "../parent/path"
+import { fastGetParent, fastGetRootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTweakedObject } from "../tweaker/core"
@@ -11,6 +11,7 @@ import {
 } from "../utils/errorDiagnostics"
 
 export interface TypeCheckErrorData {
+  /** Path relative to the value being type checked. */
   path: Path
   expectedTypeName: string
   actualValue: any
@@ -72,8 +73,15 @@ export class TypeCheckError {
    */
   throw(): never {
     const diagnosticsPath = getErrorPathSnapshot()
+    const hasTreeParent =
+      isTweakedObject(this.typeCheckedValue, true) &&
+      fastGetParent(dataToModelNode(this.typeCheckedValue), false) !== undefined
+    // Attached values supply their location through the tree. Context supplies
+    // the location for detached values, such as models being hydrated.
     const path =
-      diagnosticsPath && diagnosticsPath.length > 0 ? [...diagnosticsPath, ...this.path] : this.path
+      diagnosticsPath && diagnosticsPath.length > 0 && !hasTreeParent
+        ? [...diagnosticsPath, ...this.path]
+        : this.path
 
     throw new TypeCheckErrorFailure({
       path,
@@ -163,22 +171,11 @@ function resolveTypeCheckErrorData(data: TypeCheckErrorData): {
 }
 
 function resolveFullPath(path: Path, typeCheckedValue: any): Path {
-  let rootPath: Path = []
-  if (typeCheckedValue && isTweakedObject(typeCheckedValue, true)) {
-    rootPath = fastGetRootPath(dataToModelNode(typeCheckedValue), false).path
-  }
-  return rootPath.length > 0 && !pathStartsWith(path, rootPath) ? [...rootPath, ...path] : path
-}
-
-function pathStartsWith(path: Path, prefix: Path): boolean {
-  if (prefix.length > path.length) {
-    return false
-  }
-
-  for (let i = 0; i < prefix.length; i++) {
-    if (path[i] !== prefix[i]) {
-      return false
+  if (isTweakedObject(typeCheckedValue, true)) {
+    const rootPath = fastGetRootPath(dataToModelNode(typeCheckedValue), false).path
+    if (rootPath.length > 0) {
+      return [...rootPath, ...path]
     }
   }
-  return true
+  return path
 }

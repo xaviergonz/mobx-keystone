@@ -193,12 +193,12 @@ test("applySnapshot model mismatch and target mismatch errors are path-aware", (
 })
 
 test("fromSnapshot model-snapshot structural errors include path and value", () => {
-  const missingTypeSnapshot = {
+  const emptyTypeSnapshot = {
     [modelTypeKey]: "",
   }
-  expect(() => fromSnapshot(missingTypeSnapshot as any)).toThrow(
-    `a model snapshot must contain a type key (${modelTypeKey}), but none was found - Path: / - Value: ${JSON.stringify(
-      missingTypeSnapshot
+  expect(() => fromSnapshot(emptyTypeSnapshot as any)).toThrow(
+    `${getModelNotRegisteredErrorMessage("")} - Path: / - Value: ${JSON.stringify(
+      emptyTypeSnapshot
     )}`
   )
 

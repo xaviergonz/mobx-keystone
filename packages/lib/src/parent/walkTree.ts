@@ -136,37 +136,21 @@ function walkTreeAggregate<R>(
   let map: Map<R, object> | undefined
   const rootVal = visit(target)
 
-  const childrenMap = getObjectChildren(target)
-  const childrenIter = childrenMap.values()
-  let ch = childrenIter.next()
+  const children = getObjectChildren(target)
 
-  // small optimization, if there is only one child and this
-  // object provides no value we can just reuse the child ones
-  if (rootVal === undefined && childrenMap.size === 1) {
-    return recurse(ch.value!)
+  // With one child and no local value, the child's map can be reused.
+  if (rootVal === undefined && children.size === 1) {
+    return recurse(children.values().next().value!)
   }
 
-  while (!ch.done) {
-    const childMap = recurse(ch.value)
-
+  for (const child of children) {
+    const childMap = recurse(child)
     if (childMap) {
-      if (!map) {
-        map = new Map()
-      }
-
-      // add child map keys/values to own map
-      const mapIter = childMap.keys()
-
-      let mapCur = mapIter.next()
-      while (!mapCur.done) {
-        const key = mapCur.value
-        const val = childMap.get(key)!
-        map.set(key, val)
-        mapCur = mapIter.next()
+      map ??= new Map()
+      for (const [key, value] of childMap) {
+        map.set(key, value)
       }
     }
-
-    ch = childrenIter.next()
   }
 
   // add it at the end so parent resolutions have higher

@@ -405,3 +405,75 @@ test("devtools connections can be disposed without leaving subscriptions", () =>
   expect(send).not.toHaveBeenCalled()
   expect(unsubscribe).toHaveBeenCalledOnce()
 })
+
+test("disposed devtools ignores retained monitor callbacks", () => {
+  const root = toTreeNode({ value: 1 })
+  let receive!: (message: unknown) => void
+  const dispose = connectReduxDevTools(
+    {},
+    {
+      subscribe(callback: typeof receive) {
+        receive = callback
+      },
+      init: vi.fn(),
+      send: vi.fn(),
+    },
+    root
+  )
+  objectActions.set(root, "value", 2)
+  dispose()
+  receive({ type: "DISPATCH", payload: { type: "RESET" } })
+  expect(root.value).toBe(2)
+})
+
+test("disposed devtools stops logging flows already in progress", async () => {
+  const root = new M({})
+  const send = vi.fn()
+  const dispose = connectReduxDevTools({}, { subscribe: vi.fn(), init: vi.fn(), send }, root)
+  const pending = root.setXAsync()
+  dispose()
+  send.mockClear()
+  await pending
+  expect(send).not.toHaveBeenCalled()
+})
+
+test("DevTools accepts synchronous monitor messages while subscribing", () => {
+  const root = toTreeNode({ value: 1 })
+  const connection = {
+    subscribe(listener: (message: unknown) => void) {
+      listener({ type: "DISPATCH", payload: { type: "RESET" } })
+      return () => {}
+    },
+    init: vi.fn(),
+    send: vi.fn(),
+  }
+  const dispose = connectReduxDevTools({}, connection, root)
+  expect(root.value).toBe(1)
+  dispose()
+})
+
+test("DevTools does not subscribe if initialization fails", () => {
+  const error = new Error("init failed")
+  const connection = {
+    subscribe: vi.fn(() => () => {}),
+    init() {
+      throw error
+    },
+  }
+  expect(() => connectReduxDevTools({}, connection, toTreeNode({}))).toThrow(error)
+  expect(connection.subscribe).not.toHaveBeenCalled()
+})
+
+test.each(["logArgsNearName", "logChildActions"] as const)(
+  "undefined %s retains the default logging behavior",
+  (option) => {
+    m.setXY()
+    const defaultActionNames = devTools.send.mock.calls.map((call) => call[0].type)
+    expect(defaultActionNames.length).toBeGreaterThan(1)
+    expect(defaultActionNames.some((name: string) => name.includes("setX()"))).toBe(true)
+
+    initTest({ [option]: undefined })
+    m.setXY()
+    expect(devTools.send.mock.calls.map((call) => call[0].type)).toEqual(defaultActionNames)
+  }
+)

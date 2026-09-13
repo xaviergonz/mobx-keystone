@@ -1,4 +1,5 @@
 import type { ModelPropTransform } from "../modelShared/prop"
+import { setProtoProp } from "../utils"
 import { asMap } from "../wrappers/asMap"
 
 const _objectToMapTransform: ModelPropTransform<Record<string, unknown>, Map<string, unknown>> = {
@@ -11,7 +12,8 @@ const _objectToMapTransform: ModelPropTransform<Record<string, unknown>, Map<str
 
     const obj: Record<string, unknown> = {}
     map.forEach((v, k) => {
-      obj[k] = v
+      if (k === "__proto__") setProtoProp(obj, v)
+      else obj[k] = v
     })
 
     return obj

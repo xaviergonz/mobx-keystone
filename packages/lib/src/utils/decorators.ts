@@ -110,7 +110,7 @@ export function decorateWrapMethodOrField(
     const baseDescriptor: PropertyDescriptor | undefined = args[2]
 
     checkModelDecoratorTaget(decoratorName, target)
-    checkDecoratorContext("transaction", propertyKey, false)
+    checkDecoratorContext(decoratorName, propertyKey, false)
 
     const data = getActionNameAndContextOverride(target, propertyKey, true)
 

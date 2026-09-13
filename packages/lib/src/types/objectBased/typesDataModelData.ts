@@ -10,7 +10,7 @@ import type {
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
-import { failure, lazy } from "../../utils"
+import { failure, lazy, setProtoProp } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import {
   registerStandardTypeResolver,
@@ -168,12 +168,14 @@ export class DataModelDataTypeInfo extends TypeInfo {
         hasDefault = true
       }
 
-      propTypes[propName] = {
+      const propInfo = {
         type,
         typeInfo,
         hasDefault,
         default: defaultValue,
       }
+      if (propName === "__proto__") setProtoProp(propTypes, propInfo)
+      else propTypes[propName] = propInfo
     })
     return propTypes
   })

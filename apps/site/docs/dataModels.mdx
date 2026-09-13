@@ -8,7 +8,7 @@ slug: /data-models
 Like class models, data models define behavior (actions/views) over observable data. Unlike class models, they keep the underlying data plain: snapshots do not gain a `$modelType` field. This tradeoff has a few consequences:
 
 - The model instances are created lazily and when needed rather than eagerly.
-- The only life-cycle hook, `onLazyInit`, runs the first time the wrapper for a data node is created.
+- The only life-cycle hook, `onLazyInit`, runs the first time the wrapper for a data node is created. Reusing that wrapper preserves its instance fields and does not rerun the hook. If initialization throws, a later construction attempt retries initialization.
 - Reconciliation is somewhat worse due to the lack of an ID property to uniquely identify the instances.
 
 Data models are therefore a good fit for backend-shaped payloads that must remain free of library metadata while being edited locally and eventually sent back.

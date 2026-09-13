@@ -180,7 +180,7 @@ test("TypeCheckError.throw() throws TypeCheckErrorFailure", () => {
   }
 })
 
-test("TypeCheckError full path resolution handles relative, empty and rooted paths", () => {
+test("TypeCheckError full path resolution treats every supplied path as relative", () => {
   @testModel("issue #570/TypeCheckPathInner")
   class TypeCheckPathInner extends Model({
     value: tProp(types.string),
@@ -216,7 +216,7 @@ test("TypeCheckError full path resolution handles relative, empty and rooted pat
 
   check([], ["child"])
   check(["value"], ["child", "value"])
-  check(["child", "value"], ["child", "value"])
+  check(["child", "value"], ["child", "child", "value"])
 })
 
 test("TypeInfo default traversal methods", () => {

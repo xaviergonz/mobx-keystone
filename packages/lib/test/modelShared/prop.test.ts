@@ -48,3 +48,11 @@ test.each([true, false])(
     expect(outer.transform(1, root, "outer", () => {})).toBe(cacheOuter ? value : undefined)
   }
 )
+
+test("empty property names support generated setters", () => {
+  @testModel("EmptyNameSetter")
+  class Empty extends Model({ "": prop(0).withSetter() }) {}
+  const root = new Empty({})
+  root.set(5)
+  expect(root[""]).toBe(5)
+})

@@ -163,15 +163,11 @@ export class UndoStore extends Model({
   }) {
     checkMaxLevels(maxUndoLevels, "maxUndoLevels")
     checkMaxLevels(maxRedoLevels, "maxRedoLevels")
-    if (maxUndoLevels !== undefined) {
-      while (this.undoEvents.length > maxUndoLevels) {
-        this.undoEvents.shift()
-      }
+    if (maxUndoLevels !== undefined && this.undoEvents.length > maxUndoLevels) {
+      this.undoEvents.splice(0, this.undoEvents.length - maxUndoLevels)
     }
-    if (maxRedoLevels !== undefined) {
-      while (this.redoEvents.length > maxRedoLevels) {
-        this.redoEvents.shift()
-      }
+    if (maxRedoLevels !== undefined && this.redoEvents.length > maxRedoLevels) {
+      this.redoEvents.splice(0, this.redoEvents.length - maxRedoLevels)
     }
   }
 

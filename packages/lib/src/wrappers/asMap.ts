@@ -20,6 +20,7 @@ import {
   assertIsObservableObject,
   failure,
   getMobxVersion,
+  hasOwnProp,
   inDevMode,
   isArray,
   isEqualOrBothNaN,
@@ -48,7 +49,7 @@ function addTs6MapExtras<K, V>(map: ObservableMap<K, V>): ObservableMap<K, V> & 
       }
 
       this.set(key, defaultValue)
-      return defaultValue
+      return this.get(key) as V
     }
   }
 
@@ -60,7 +61,7 @@ function addTs6MapExtras<K, V>(map: ObservableMap<K, V>): ObservableMap<K, V> & 
 
       const value = callback(key)
       this.set(key, value)
-      return value
+      return this.get(key) as V
     }
   }
 
@@ -145,12 +146,14 @@ const observableMapBackedByObservableObject = action(
             case "add":
             case "update": {
               setIfDifferent(obj, change.name, change.newValue)
+              if (!hasOwnProp(obj, change.name)) return null
               change.newValue = (obj as Record<string, T>)[change.name]
               break
             }
 
             case "delete": {
               remove(obj, change.name)
+              if (hasOwnProp(obj, change.name)) return null
               break
             }
 
@@ -273,16 +276,16 @@ const observableMapBackedByObservableArray = <K, T>(
           }
 
           case "add": {
+            const oldLength = array.length
             array.push([change.name, change.newValue!])
+            if (array.length === oldLength) return null
             change.newValue = array[array.length - 1][1]
             break
           }
 
           case "delete": {
             const i = array.findIndex((entry) => isEqualOrBothNaN(entry[0], change.name))
-            if (i >= 0) {
-              array.splice(i, 1)
-            }
+            if (i >= 0 && array.splice(i, 1).length === 0) return null
             break
           }
 

@@ -408,9 +408,8 @@ const simpleDataContextSymbol = Symbol("simpleDataContext")
  * @returns Simplified action context.
  */
 export function simplifyActionContext(ctx: ActionContext): SimpleActionContext {
-  while (ctx.previousAsyncStepContext) {
-    ctx = ctx.previousAsyncStepContext
-  }
+  // every async step points to the step that spawned its flow (the spawn step points to itself)
+  ctx = ctx.spawnAsyncStepContext ?? ctx
 
   let simpleCtx = ctx.data[simpleDataContextSymbol]
   if (!simpleCtx) {

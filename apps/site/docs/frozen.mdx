@@ -38,6 +38,8 @@ const firstPoint = myFrozenPolygon.data[0]
 - `FrozenCheckMode.On` - always validate and freeze.
 - `FrozenCheckMode.Off` - skip validation and freezing.
 
+When checks are enabled, the wrapper's `data` property also cannot be replaced or deleted. Shared descendants are supported; cycles are rejected.
+
 Most applications should keep the default. The other modes are mainly useful when you want stricter checks everywhere or you are deliberately trading safety for speed in a hot path.
 
 ## Snapshot helpers

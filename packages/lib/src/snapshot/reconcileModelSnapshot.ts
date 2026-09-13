@@ -17,7 +17,7 @@ import {
   runTypeCheckingAfterChange,
 } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
-import { isArray, isPrimitive } from "../utils"
+import { hasOwnProp, isArray, isPrimitive } from "../utils"
 import { withErrorModelTrailEntry, withErrorPathSegment } from "../utils/errorDiagnostics"
 import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
@@ -58,15 +58,15 @@ function reconcileModelSnapshot(
   }
 
   const modelIdPropertyName = getModelIdPropertyName(modelClass)
-  const incomingModelId = modelIdPropertyName ? sn[modelIdPropertyName] : undefined
+  const incomingModelId = modelIdPropertyName !== undefined ? sn[modelIdPropertyName] : undefined
   const positionalModelMatches =
     isModel(value) &&
     value[modelTypeKey] === type &&
-    (!modelIdPropertyName || value[modelIdKey] === incomingModelId)
+    (modelIdPropertyName === undefined || value[modelIdKey] === incomingModelId)
 
   // The positional model is already the desired instance in the common
   // stable-update case. Only moved identified models need a pool lookup.
-  if (!positionalModelMatches && modelIdPropertyName) {
+  if (!positionalModelMatches && modelIdPropertyName !== undefined) {
     const modelInPool = modelPool.findModelByTypeAndId(type, incomingModelId)
     if (modelInPool) {
       value = modelInPool
@@ -92,7 +92,7 @@ function reconcileModelSnapshot(
     }
 
     const modelProps = getInternalModelClassPropsInfo(modelClass)
-    if (modelIdPropertyName) {
+    if (modelIdPropertyName !== undefined) {
       if (value[modelIdKey] !== incomingModelId) {
         // different id, no reconciliation possible
         return fromSnapshot<AnyModel>(sn)
@@ -134,7 +134,7 @@ function reconcileModelSnapshot(
       const dataKeysLen = dataKeys.length
       for (let i = 0; i < dataKeysLen; i++) {
         const k = dataKeys[i]
-        if (!(k in processedSn)) {
+        if (!hasOwnProp(processedSn, k)) {
           // use default value if applicable
           const modelProp = modelProps[k] as AnyModelProp | undefined
           const defaultValue = modelProp

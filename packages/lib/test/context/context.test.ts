@@ -375,3 +375,19 @@ test.each(["get", "getProviderNode"] as const)(
     expect(ctx[method](leaf)).toBe(method === "get" ? "provided" : root)
   }
 )
+
+test.each([false, true])("context apply can return model data (computed: %s)", (computed) => {
+  @testModel(`ContextReturnData/${computed}`)
+  class Item extends Model({ value: prop(1) }) {}
+  const item = new Item({})
+  const context = createContext(0)
+  const result = computed
+    ? context.applyComputed(
+        () => item.$,
+        () => 2
+      )
+    : context.apply(() => item.$, 2)
+  expect(result).toBe(item.$)
+  expect(context.get(item)).toBe(0)
+  expect(context.getDefault()).toBe(0)
+})

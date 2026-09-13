@@ -81,7 +81,9 @@ export function tweakPlainObject<T extends Record<string, any>>(
   )
 
   const initialDataSnapshot =
-    isDataObject && snapshotModelType ? takeModelInitialDataSnapshot(tweakedObj) : undefined
+    isDataObject && snapshotModelType !== undefined
+      ? takeModelInitialDataSnapshot(tweakedObj)
+      : undefined
   const untransformedSn: any = initialDataSnapshot ?? {}
 
   // substitute initial values by tweaked values
@@ -128,7 +130,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
   }
 
   let transformFn: SnapshotTransformFn | undefined
-  if (snapshotModelType) {
+  if (snapshotModelType !== undefined) {
     untransformedSn[modelTypeKey] = snapshotModelType
 
     const modelInfo = getModelInfoForName(snapshotModelType)

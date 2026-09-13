@@ -61,6 +61,8 @@ The returned context object has the following methods:
 - `apply(fn, value)` - Applies a value override while the given function is running and, if a node is returned, sets the node as a provider of the value.
 - `applyComputed(fn, () => value)` - Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the computed value.
 
+Both methods return the callback result unchanged. Returning a model's `$` data object does not make its model a context provider.
+
 In particular, `apply` lets you provide volatile (non-property) data while constructing nodes through `new`, `fromSnapshot`, `clone`, `toTreeNode`, and similar APIs.
 For example:
 

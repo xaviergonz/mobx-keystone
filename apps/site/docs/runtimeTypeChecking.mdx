@@ -66,6 +66,8 @@ In all cases the returned value will be `null` if there are no errors or an inst
 
 `TypeCheckErrorFailure` extends `MobxKeystoneError`, so `instanceof MobxKeystoneError` checks work on thrown failures.
 
+The `path` supplied to `TypeCheckError` or `TypeCheckErrorFailure`, and the `path` returned by type checking, is always relative to the checked value. Manually constructed errors must also use relative paths, even when a path starts with the same segments as the checked value's location. Diagnostic messages and thrown failures include its location in the tree. For example, an invalid `value` field in a child at `/value` is reported at `/value/value`.
+
 While models are usually automatically type-checked, it is worth noting that other values (primitives, plain objects, arrays) are not until they become attached to some model. If you need to type-check those before they become attached to a model it is always possible to use `typeCheck(type, value)` as shown previously to trigger a manual validation.
 
 ## Types
@@ -190,7 +192,7 @@ const numberOrNullType = types.maybeNull(types.number)
 
 ### `types.object(() => ({ ... }))`
 
-A type that represents a plain object.
+A type that represents a plain object. Arrays are rejected; use `types.array` or `types.tuple` for array values.
 Note that the parameter must be a function that returns an object. This is done so objects can support self / cross types.
 
 ```ts
@@ -219,7 +221,7 @@ const stringNumberTupleType = types.tuple(types.string, types.number)
 
 ### `types.record(valuesType)`
 
-A type that represents an object-like map with string keys whose values all have the same type.
+A type that represents an object-like map with string keys whose values all have the same type. Arrays are rejected.
 
 ```ts
 // `{ [k: string]: number }`
@@ -376,7 +378,7 @@ const numberSetType = types.arraySet(types.number)
 
 ### `types.refinement(baseType, checkFn: (data) => boolean | TypeCheckError | null)`
 
-A refinement adds a custom constraint to an existing type, such as a model invariant or a numeric range.
+A refinement adds a custom constraint to an existing type, such as a model invariant or a numeric range. Return `true` or `null` to accept a value, and `false` or a `TypeCheckError` to reject it. A custom error's `modelTrail` is retained when the refinement is nested in another type.
 
 ```ts
 const integerType = types.refinement(

@@ -54,6 +54,8 @@ If the path cannot be resolved in the draft it will throw.
 If the path cannot be resolved in the original object it will return `true`.
 Note that model IDs are checked to be the same when resolving the paths.
 
+Paths passed to these methods follow stored tree data. For example, if an `entries` property uses `types.mapFromObject`, the path to an item's `value` is `["entries", "itemKey", "value"]`. Model IDs along that stored path are still checked.
+
 ## Example
 
 Going back to the settings-form use case, imagine a preferences model in your app state like this:

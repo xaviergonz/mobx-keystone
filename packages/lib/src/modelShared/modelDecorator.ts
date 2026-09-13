@@ -1,6 +1,7 @@
 import { HookAction } from "../action/hookActions"
 import { wrapModelMethodInActionIfNeeded } from "../action/wrapInAction"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
+import { dataModelInstanceCache } from "../dataModel/dataModelInstanceCache"
 import { isDataModelClass } from "../dataModel/utils"
 import { enterInitPhase, exitInitPhase } from "../deepChange/onDeepChange"
 import { getGlobalConfig } from "../globalConfig"
@@ -41,21 +42,18 @@ export const model =
   ): MC =>
     internalModel(name, clazz) as any
 
+interface AfterClassInitializationData {
+  needsMakeObservable: boolean | undefined
+  type: "class" | "data"
+}
+
 const afterClassInitializationData = new WeakMap<
   ModelClass<AnyModel | AnyDataModel>,
-  {
-    needsMakeObservable: boolean | undefined
-    type: "class" | "data"
-  }
+  AfterClassInitializationData
 >()
 
-const runAfterClassInitialization = (
-  target: ModelClass<AnyModel | AnyDataModel>,
-  instance: any
-) => {
+const runAfterClassInitialization = (tag: AfterClassInitializationData, instance: any) => {
   runLateInitializationFunctions(instance, runAfterNewSymbol)
-
-  const tag = afterClassInitializationData.get(target)!
 
   // compatibility with mobx 6 and 7
   if (tag.needsMakeObservable) {
@@ -112,11 +110,33 @@ const runAfterClassInitialization = (
 
 const proxyClassHandler: ProxyHandler<ModelClass<AnyModel | AnyDataModel>> = {
   construct(clazz, args) {
-    const instance = new (clazz as any)(...args)
+    const tag = afterClassInitializationData.get(clazz)!
 
-    runAfterClassInitialization(clazz, instance)
+    if (tag.type !== "data") {
+      const instance = new (clazz as any)(...args)
+      runAfterClassInitialization(tag, instance)
+      return instance
+    }
 
-    return instance
+    // Data models are cached by their backing data, so constructing one over data that
+    // already has an instance must not rerun its class fields nor its lazy initializer.
+    const modelClass = args[1]?.modelClass ?? modelInfoByClass.get(clazz)!.class
+    const cached = dataModelInstanceCache.get(modelClass)?.get(args[0])
+    if (cached) {
+      return cached
+    }
+
+    let instance: any
+    try {
+      instance = new (clazz as any)(...args)
+      runAfterClassInitialization(tag, instance)
+      return instance
+    } catch (error) {
+      // The base constructor cleans up after itself, but class fields and late
+      // initialization run after it returns, so discard those instances too.
+      dataModelInstanceCache.get(modelClass)?.delete(instance ? instance.$ : args[0])
+      throw error
+    }
   },
 }
 
@@ -245,7 +265,7 @@ export function decoratedModel<M, MC extends abstract new (...ags: any) => M>(
     })
   }
 
-  return (name ? model(name)(clazz as unknown as ModelClass<AnyModel>) : clazz) as MC
+  return (name !== undefined ? model(name)(clazz as unknown as ModelClass<AnyModel>) : clazz) as MC
 }
 
 type MobxAnnotation = {

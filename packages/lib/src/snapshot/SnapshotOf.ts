@@ -69,13 +69,13 @@ export type SnapshotInOfModel<M extends AnyModel> = ModelFromSnapshot<M>
 export interface SnapshotInOfFrozen<F extends Frozen<any>> extends FrozenData<F["data"]> {}
 
 export interface SnapshotInOfObjectMap<V> {
-  items?: { [k: string]: SnapshotOutOf<V> }
+  items?: { [k: string]: SnapshotInOf<V> }
   [modelTypeKey]?: string
   [modelIdKey]: string
 }
 
 export interface SnapshotInOfArraySet<V> {
-  items?: SnapshotOutOf<V>[]
+  items?: SnapshotInOf<V>[]
   [modelTypeKey]?: string
   [modelIdKey]: string
 }

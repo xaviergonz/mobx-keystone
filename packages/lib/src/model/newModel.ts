@@ -23,7 +23,7 @@ import { updateModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import { tweakModel } from "../tweaker/tweakModel"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
 import { typeCheckAfterCreation } from "../tweaker/typeChecking"
-import { failure, inDevMode, makePropReadonly } from "../utils"
+import { failure, hasOwnProp, inDevMode, makePropReadonly } from "../utils"
 import { setIfDifferent, setIfDifferentWithReturn } from "../utils/setIfDifferent"
 import type { AnyModel } from "./BaseModel"
 import { getModelIdPropertyName } from "./getModelMetadata"
@@ -50,13 +50,12 @@ export const internalNewModel = action(
       getModelDetails(modelClass)
 
     // use symbol if provided
-    if (modelIdPropertyName && modelIdPropData) {
-      let id: string | undefined
-      if (initialData[modelIdPropertyName] != null) {
-        id = initialData[modelIdPropertyName]
-      } else {
-        id = (modelIdPropData._defaultFn as () => string)()
-      }
+    if (modelIdPropertyName !== undefined && modelIdPropData) {
+      const providedId = hasOwnProp(initialData, modelIdPropertyName)
+        ? initialData[modelIdPropertyName]
+        : undefined
+      const id: string =
+        providedId != null ? providedId : (modelIdPropData._defaultFn as () => string)()
       setIfDifferent(initialData, modelIdPropertyName, id)
       if (useInitialDataSnapshot) {
         updateModelInitialDataSnapshot(initialData, modelIdPropertyName, id)
@@ -78,7 +77,8 @@ export const internalNewModel = action(
 
       const propData = modelProps[k]
 
-      const initialValue = initialData[k]
+      const hasInitialValue = hasOwnProp(initialData, k)
+      const initialValue = hasInitialValue ? initialData[k] : undefined
       let newValue = initialValue
       let changed = false
 
@@ -95,7 +95,7 @@ export const internalNewModel = action(
         if (defaultValue !== noDefaultValue) {
           changed = true
           newValue = defaultValue
-        } else if (!(k in initialData)) {
+        } else if (!hasInitialValue) {
           // for mobx4, we need to set up properties even if they are undefined
           changed = true
         }
@@ -140,10 +140,10 @@ export const internalFromSnapshotModel = action(
     let id: string | undefined
     let sn = snapshotInitialData.unprocessedSnapshot
 
-    if (modelIdPropData && modelIdPropertyName) {
+    if (modelIdPropData && modelIdPropertyName !== undefined) {
       if (generateNewIds) {
         id = (modelIdPropData._defaultFn as () => string)()
-      } else {
+      } else if (hasOwnProp(sn, modelIdPropertyName)) {
         id = sn[modelIdPropertyName]
       }
     }
@@ -166,7 +166,7 @@ export const internalFromSnapshotModel = action(
     let inversePatches: Patch[] | undefined
     let defaultsApplied: { key: string; oldValue: unknown; newValue: unknown }[] | undefined
 
-    if (modelIdPropertyName) {
+    if (modelIdPropertyName !== undefined) {
       const initialValue = initialData[modelIdPropertyName]
       const valueChanged = setIfDifferentWithReturn(initialData, modelIdPropertyName, id)
 
@@ -196,7 +196,8 @@ export const internalFromSnapshotModel = action(
 
       const propData = modelProps[k]
 
-      const initialValue = initialData[k]
+      const hasInitialValue = hasOwnProp(initialData, k)
+      const initialValue = hasInitialValue ? initialData[k] : undefined
       let newValue = initialValue
       let changed = false
 
@@ -206,7 +207,7 @@ export const internalFromSnapshotModel = action(
         if (defaultValue !== noDefaultValue) {
           changed = true
           newValue = defaultValue
-        } else if (!(k in initialData!)) {
+        } else if (!hasInitialValue) {
           // for mobx4, we need to set up properties even if they are undefined
           changed = true
         }
@@ -305,7 +306,8 @@ function getModelDetails(modelClass: ModelClass<AnyModel>) {
 
   const modelIdPropertyName = getModelIdPropertyName(modelClass)
   const modelProps = getInternalModelClassPropsInfo(modelClass)
-  const modelIdPropData = modelIdPropertyName ? modelProps[modelIdPropertyName] : undefined
+  const modelIdPropData =
+    modelIdPropertyName !== undefined ? modelProps[modelIdPropertyName] : undefined
 
   return { modelInfo, modelIdPropertyName, modelProps, modelIdPropData }
 }

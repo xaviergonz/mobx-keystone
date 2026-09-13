@@ -43,38 +43,35 @@ export function connectReduxDevTools(
 ) {
   assertTweakedObject(target, "target")
 
-  const opts = {
-    logArgsNearName: true,
-    logChildActions: true,
-    ...options,
-  }
+  const { logArgsNearName = true, logChildActions = true } = options ?? {}
 
+  let disposed = false
   let handlingMonitorAction = 0
-
-  // subscribe to change state (if need more than just logging)
-  const unsubscribe = remotedevConnection.subscribe((message: any) => {
-    if (message.type === "DISPATCH") {
-      handleMonitorActions(remotedevConnection, target, message)
-    }
-  })
 
   let initialState = getSnapshot(target)
   let lastLoggedSnapshot = initialState
   remotedevConnection.init(initialState)
+
+  // subscribe to change state (if need more than just logging)
+  const unsubscribe = remotedevConnection.subscribe((message: any) => {
+    if (!disposed && message.type === "DISPATCH") {
+      handleMonitorActions(remotedevConnection, target, message)
+    }
+  })
 
   let currentActionId = 0
   const actionIdSymbol = Symbol("actionId")
 
   const disposeMiddleware = actionTrackingMiddleware(target, {
     filter(ctx) {
-      return opts.logChildActions || !hasDevToolsTrackedParentContext(ctx)
+      return logChildActions || !hasDevToolsTrackedParentContext(ctx)
     },
     onStart(ctx) {
       ctx.data[actionIdSymbol] = currentActionId++
     },
     onResume(ctx) {
       // give a chance to the parent to log its own changes before the child starts
-      if (opts.logChildActions && ctx.parentContext) {
+      if (logChildActions && ctx.parentContext) {
         log(ctx.parentContext, undefined)
       }
       log(ctx, undefined)
@@ -87,7 +84,6 @@ export function connectReduxDevTools(
     },
   })
 
-  let disposed = false
   return () => {
     if (disposed) return
     disposed = true
@@ -138,7 +134,7 @@ export function connectReduxDevTools(
   }
 
   function log(ctx: SimpleActionContext, result: ActionTrackingResult | undefined) {
-    if (handlingMonitorAction) {
+    if (disposed || handlingMonitorAction) {
       return
     }
 
@@ -170,7 +166,7 @@ export function connectReduxDevTools(
     const pathStr = "[/" + rootPath.path.join("/") + "] "
     let name = pathStr + ctx.actionName
 
-    if (opts.logArgsNearName) {
+    if (logArgsNearName) {
       let args = ctx.args
         .map((a) => {
           try {

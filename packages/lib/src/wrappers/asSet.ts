@@ -119,7 +119,9 @@ const observableSetBackedByObservableArray = <T>(
         switch (change.type) {
           case "add": {
             if (!set.has(change.newValue)) {
+              const oldLength = array.length
               array.push(change.newValue)
+              if (array.length === oldLength) return null
               const storedValue = array[array.length - 1]
               if (getMobxVersion() >= 6) {
                 change.newValue = storedValue
@@ -141,9 +143,7 @@ const observableSetBackedByObservableArray = <T>(
             const i = Number.isNaN(change.oldValue)
               ? array.findIndex(Number.isNaN)
               : array.indexOf(change.oldValue)
-            if (i >= 0) {
-              array.splice(i, 1)
-            }
+            if (i >= 0 && array.splice(i, 1).length === 0) return null
             break
           }
 

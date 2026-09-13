@@ -1,5 +1,6 @@
 import { modelIdKey } from "../model/metadata"
 import { isModel } from "../model/utils"
+import { modelToDataNode } from "../parent/core"
 import type { RootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 
@@ -26,7 +27,7 @@ export function pathToTargetPathIds(root: any, path: Path): (string | null)[] {
   let current = root // we don't care about the root ID
 
   for (let i = 0; i < path.length; i++) {
-    current = current[path[i]]
+    current = modelToDataNode(current)[path[i]]
     const targetObjId = isModel(current) ? (current[modelIdKey] ?? null) : null
     targetPathIds.push(targetObjId)
   }

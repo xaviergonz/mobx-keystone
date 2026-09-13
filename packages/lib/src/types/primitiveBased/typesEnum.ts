@@ -17,6 +17,7 @@ export interface EnumLike {
  */
 export function enumValues(e: EnumLike): (string | number)[] {
   const vals: (string | number)[] = []
+  const seen = new Set<string | number>()
   for (const k of Object.keys(e)) {
     const v = e[k]
     // we have to do this since TS does something weird
@@ -24,7 +25,8 @@ export function enumValues(e: EnumLike): (string | number)[] {
     // Hi = 0 -> { Hi: 0, 0: "Hi" }
     // and SWC currently generates enum code inconsistent with TS/Babel
     // https://github.com/swc-project/swc/issues/3711
-    if (!vals.includes(v) && ((typeof v !== "string" && v !== +k) || !isEqualOrBothNaN(e[v], +k))) {
+    if (!seen.has(v) && ((typeof v !== "string" && v !== +k) || !isEqualOrBothNaN(e[v], +k))) {
+      seen.add(v)
       vals.push(v)
     }
   }

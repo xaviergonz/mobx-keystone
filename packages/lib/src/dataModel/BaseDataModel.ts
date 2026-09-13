@@ -1,4 +1,4 @@
-import { type ModelClass, propsTypeSymbol } from "../modelShared/BaseModelShared"
+import { propsTypeSymbol } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import {
@@ -15,13 +15,12 @@ import { toTreeNode } from "../tweaker/tweak"
 import { typesDataModelData } from "../types/objectBased/typesDataModelData"
 import type { TypeCheckError } from "../types/TypeCheckError"
 import { typeCheck } from "../types/typeCheck"
-import { clonePlainObject, failure, isObject } from "../utils"
+import { clonePlainObject, failure, hasOwnProp, isObject, setProtoProp } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
+import { dataModelInstanceCache } from "./dataModelInstanceCache"
 import { getDataModelMetadata } from "./getDataModelMetadata"
 import { internalNewDataModel } from "./newDataModel"
-
-const dataModelInstanceCache = new WeakMap<ModelClass<AnyDataModel>, WeakMap<any, AnyDataModel>>()
 
 /**
  * Base abstract class for data models. Use `DataModel` instead when extending.
@@ -101,7 +100,8 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
         const k = modelPropsKeys[i]
         const propData = modelProps[k]
 
-        let newValue = initialData[k]
+        const hasInitialValue = hasOwnProp(initialData, k)
+        let newValue = hasInitialValue ? initialData[k] : undefined
         let changed = false
 
         // apply untransform (if any)
@@ -117,11 +117,15 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
           if (defaultValue !== noDefaultValue) {
             changed = true
             newValue = defaultValue
+          } else if (!hasInitialValue) {
+            // for mobx4, we need to set up properties even if they are undefined
+            changed = true
           }
         }
 
         if (changed) {
-          initialData[k] = newValue
+          if (k === "__proto__") setProtoProp(initialData, newValue)
+          else initialData[k] = newValue
         }
       }
 
@@ -144,24 +148,24 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
 
     Object.setPrototypeOf(this, modelClass.prototype)
 
-    internalNewDataModel(this, tweakedData as any, {
-      modelClass,
-    })
+    try {
+      internalNewDataModel(this, tweakedData as any, {
+        modelClass,
+      })
+    } catch (error) {
+      instancesForModelClass.delete(tweakedData)
+      throw error
+    }
   }
 
   toString(options?: { withData?: boolean }) {
-    const finalOptions = {
-      withData: true,
-      ...options,
-    }
+    const { withData = true } = options ?? {}
 
     const modelInfo = modelInfoByClass.get(this.constructor as any)
 
     const firstPart = `${this.constructor.name}#${modelInfo!.name}`
 
-    return finalOptions.withData
-      ? `[${firstPart} ${JSON.stringify(getSnapshot(this))}]`
-      : `[${firstPart}]`
+    return withData ? `[${firstPart} ${JSON.stringify(getSnapshot(this.$))}]` : `[${firstPart}]`
   }
 }
 

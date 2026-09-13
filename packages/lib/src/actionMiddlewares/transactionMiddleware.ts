@@ -4,8 +4,10 @@ import { assertIsModel } from "../model/utils"
 import { addModelClassInitializer } from "../modelShared/modelClassInitializer"
 import { applyPatches } from "../patch"
 import { internalPatchRecorder, type PatchRecorder } from "../patch/patchRecorder"
-import { assertIsObject, failure } from "../utils"
+import { withTypeCheckingBatch } from "../tweaker/typeChecking"
+import { assertIsObject, failure, MobxKeystoneAggregateError } from "../utils"
 import { checkDecoratorContext } from "../utils/decorators"
+import { pushDelayedError } from "../utils/forEachWithDelayedThrow"
 import {
   ActionTrackingResult,
   actionTrackingMiddleware,
@@ -79,9 +81,28 @@ export function transactionMiddleware<M extends AnyModel>(target: {
           if (ret.result === ActionTrackingResult.Throw) {
             // undo changes (backwards for inverse patches)
             const { events } = patchRecorder
-            for (let i = events.length - 1; i >= 0; i--) {
-              const event = events[i]
-              applyPatches(event.target, event.inversePatches, true)
+            const rollbackErrors: unknown[] = []
+            withTypeCheckingBatch(() => {
+              for (let i = events.length - 1; i >= 0; i--) {
+                const event = events[i]
+                // A listener may throw after a patch has already been applied.
+                // Continue at patch granularity so one failure cannot skip the
+                // remaining restoration, including patches from the same edit.
+                for (let j = event.inversePatches.length - 1; j >= 0; j--) {
+                  try {
+                    applyPatches(event.target, [event.inversePatches[j]])
+                  } catch (error) {
+                    pushDelayedError(rollbackErrors, error)
+                  }
+                }
+              }
+            })
+            if (rollbackErrors.length > 0) {
+              // Keep the action error first so the reason for the rollback is not lost.
+              throw new MobxKeystoneAggregateError(
+                [ret.value, ...rollbackErrors],
+                "transaction rollback callbacks failed"
+              )
             }
           }
         } finally {

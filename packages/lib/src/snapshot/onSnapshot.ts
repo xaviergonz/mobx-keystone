@@ -31,9 +31,20 @@ export function onSnapshot<T extends object>(
   assertTweakedObject(node, "node")
 
   let currentSnapshot = getSnapshot(node)
+  let firstTrackingRun = true
 
   return reaction(
-    () => getSnapshot(nodeFn()),
+    () => {
+      const snapshot = getSnapshot(nodeFn())
+      // Registration inside an action defers the first tracking run until the
+      // action ends. Its snapshot, rather than the earlier registration state,
+      // is the baseline for the first notification.
+      if (firstTrackingRun) {
+        firstTrackingRun = false
+        currentSnapshot = snapshot
+      }
+      return snapshot
+    },
     (newSnapshot) => {
       const prevSn = currentSnapshot
       currentSnapshot = newSnapshot

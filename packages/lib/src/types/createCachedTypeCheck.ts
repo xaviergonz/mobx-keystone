@@ -40,6 +40,7 @@ function contextualizeCachedError(
 
   return new TypeCheckError({
     path: [...path, ...error.path],
+    modelTrail: error.modelTrail,
     expectedTypeName: error.expectedTypeName,
     actualValue: error.actualValue,
     typeCheckedValue,

@@ -10,7 +10,7 @@ import { fastGetParentPathIncludingDataObjects } from "./path"
  * Detaches a given object from a tree.
  * If the parent is an object / model, detaching will delete the property.
  * If the parent is an array detaching will remove the node by splicing it.
- * If there's no parent it will throw.
+ * If there's no parent it does nothing.
  *
  * @param node Object to be detached.
  */

@@ -1,5 +1,15 @@
 import { autorun, type ObservableMap, observable, runInAction } from "mobx"
-import { type AnyModel, detach, Model, prop, toTreeNode, WalkTreeMode, walkTree } from "../../src"
+import {
+  type AnyModel,
+  detach,
+  Model,
+  objectActions,
+  prop,
+  toTreeNode,
+  WalkTreeMode,
+  walkTree,
+} from "../../src"
+import { computedWalkTreeAggregate } from "../../src/parent/walkTree"
 import { testModel } from "../utils"
 
 test("walktree should be reactive", () => {
@@ -108,4 +118,23 @@ test("children-first traversal supports deep trees and stops at the first result
   const stop = vi.fn((node: object) => (node === leaf ? false : undefined))
   expect(walkTree(root, stop, WalkTreeMode.ChildrenFirst)).toBe(false)
   expect(stop).toHaveBeenCalledTimes(1)
+})
+
+test("computed tree aggregation preserves collision precedence and updates", () => {
+  const root = toTreeNode({ key: "same", first: { key: "same" }, second: { key: "same" } })
+  const aggregate = computedWalkTreeAggregate<string>((node) => Reflect.get(node, "key"))
+  let result: Map<string, object> | undefined
+  const dispose = autorun(() => {
+    result = aggregate.walk(root)
+  })
+  try {
+    expect(result!.get("same")).toBe(root)
+    objectActions.set(root, "key", "root")
+    expect(result!.get("same")).toBe(root.second)
+    objectActions.set(root.second, "key", "second")
+    expect(result!.get("same")).toBe(root.first)
+    expect([...result!.keys()]).toEqual(["same", "second", "root"])
+  } finally {
+    dispose()
+  }
 })

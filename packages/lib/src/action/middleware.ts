@@ -1,6 +1,6 @@
 import { fastGetParent } from "../parent/path"
 import { assertTweakedObject } from "../tweaker/core"
-import { assertIsFunction, assertIsObject, deleteFromArray, failure } from "../utils"
+import { assertIsFunction, assertIsObject, failure } from "../utils"
 import type { ActionContext } from "./context"
 
 /**
@@ -37,33 +37,9 @@ const perObjectActionMiddlewares = new WeakMap<object, PartialActionMiddleware[]
 /**
  * @internal
  *
- * Runs a callback for each action middlewares to be run over a given object.
- *
- * @returns
- */
-export function forEachActionMiddleware(
-  obj: object,
-  callback: (middleware: PartialActionMiddleware) => void
-): void {
-  // when we call a middleware we will call the middlewares of that object plus all parent objects
-  // the parent object middlewares are run last
-
-  // since an array like [a, b, c] will be called like c(b(a())) this means that we need to call
-  // the parent object ones at the end of the array
-
-  let current: unknown = obj
-  while (current) {
-    const objMwares = perObjectActionMiddlewares.get(current)
-    if (objMwares && objMwares.length > 0) {
-      objMwares.forEach(callback)
-    }
-    current = fastGetParent(current, false)
-  }
-}
-/**
- * @internal
- *
- * Returns the action middlewares to be run over a given object.
+ * Returns the action middlewares to be run over a given object, from the object itself to the
+ * topmost parent. Since an array like [a, b, c] will be called like c(b(a())) the caller runs
+ * them in reverse, so the parent object ones run last.
  *
  * @returns
  */
@@ -111,14 +87,19 @@ export function addActionMiddleware(mware: ActionMiddleware): ActionMiddlewareDi
 
   const actualMware = { middleware, subtreeRoot, filter }
 
-  let objMwares = perObjectActionMiddlewares.get(subtreeRoot)
-  if (objMwares) {
-    objMwares.push(actualMware)
-  } else {
-    objMwares = [actualMware]
-    perObjectActionMiddlewares.set(subtreeRoot, objMwares)
-  }
+  // Each action keeps the middleware arrays it collected. Update registrations by
+  // replacement so user code cannot shift or extend an in-progress chain.
+  const objMwares = perObjectActionMiddlewares.get(subtreeRoot) ?? []
+  perObjectActionMiddlewares.set(subtreeRoot, [...objMwares, actualMware])
+
+  let disposed = false
   return () => {
-    deleteFromArray(objMwares, actualMware)
+    if (disposed) return
+    disposed = true
+    const current = perObjectActionMiddlewares.get(subtreeRoot)!
+    perObjectActionMiddlewares.set(
+      subtreeRoot,
+      current.filter((entry) => entry !== actualMware)
+    )
   }
 }

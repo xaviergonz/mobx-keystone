@@ -292,3 +292,10 @@ test("decoratedModel does not mistake a custom decorator for a MobX annotation",
 
   expect(decoratorCalled).toBe(true)
 })
+
+test("decoratedModel accepts an empty string as an explicit model type name", () => {
+  class Item extends Model({ value: prop(1) }) {}
+  const DecoratedItem = decoratedModel("", Item, {})
+  const item = new DecoratedItem({ value: 2 })
+  expect(getSnapshot(item).$modelType).toBe("")
+})

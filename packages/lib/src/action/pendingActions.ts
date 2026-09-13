@@ -1,3 +1,4 @@
+import { forEachWithDelayedThrow } from "../utils/forEachWithDelayedThrow"
 import { getCurrentActionContext } from "./context"
 import { getActionProtection } from "./protection"
 
@@ -32,11 +33,9 @@ export function tryRunPendingActions(): void {
   pendingActionsRunning = true
 
   try {
-    while (pendingActions.length > 0) {
-      const nextAction = pendingActions.shift()!
-      nextAction()
-    }
+    forEachWithDelayedThrow(pendingActions, (nextAction) => nextAction())
   } finally {
+    pendingActions.length = 0
     pendingActionsRunning = false
   }
 }

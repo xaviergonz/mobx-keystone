@@ -8,6 +8,7 @@ import { unsetInternalSnapshot } from "../snapshot/internal"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { typeCheck } from "../types/typeCheck"
 import { failure, inDevMode, isMap, isObject, isPrimitive, isSet } from "../utils"
+import { getSafeErrorValuePreview } from "../utils/errorDiagnostics"
 import { isTweakedObject, runTweakedObjectUntweakers } from "./core"
 import { registerDefaultTweakers } from "./registerDefaultTweakers"
 import { treeNodeMetadata } from "./treeNodeMetadata"
@@ -126,7 +127,7 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
   }
 
   throw failure(
-    `tweak can only work over models, observable objects/arrays, or primitives, but got ${value} instead`
+    `tweak can only work over models, observable objects/arrays, or primitives, but got ${getSafeErrorValuePreview(value)} instead`
   )
 }
 

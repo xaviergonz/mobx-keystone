@@ -1,6 +1,6 @@
 import { isObservableObject, keys } from "mobx"
 import type { Path } from "../../parent/pathTypes"
-import { copyOwnEnumerableProps, failure, isObject } from "../../utils"
+import { copyOwnEnumerableProps, failure, isArray, isObject } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
 import { createAdaptiveRecordCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
@@ -90,7 +90,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       TypeCheckerBaseType.Object,
 
       (obj, path, typeCheckedValue) => {
-        if (!isObject(obj)) {
+        if (!isObject(obj) || isArray(obj)) {
           return new TypeCheckError({
             path,
             expectedTypeName: getTypeName(thisTc),
@@ -110,7 +110,7 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
       typeInfoGen,
 
       (obj) => {
-        if (!isObject(obj)) {
+        if (!isObject(obj) || isArray(obj)) {
           return null
         }
 

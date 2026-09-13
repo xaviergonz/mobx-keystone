@@ -24,8 +24,7 @@ export function clone<T extends object>(node: T, options?: Partial<CloneOptions>
   assertTweakedObject(node, "node")
 
   const opts = {
-    generateNewIds: true,
-    ...options,
+    generateNewIds: options?.generateNewIds ?? true,
   }
 
   const sn = getSnapshot(node)

@@ -10,8 +10,7 @@ import { fromSnapshot } from "./fromSnapshot"
  */
 export function cloneTreeValue<T>(value: T, options?: Partial<CloneOptions>): T {
   const cloneOptions: CloneOptions = {
-    generateNewIds: true,
-    ...options,
+    generateNewIds: options?.generateNewIds ?? true,
   }
 
   if (isPrimitive(value)) {

@@ -129,6 +129,8 @@ There are also `types.dateTimestamp` (equivalent to `types.integer`) and `types.
 
 `asMap` and `asSet` are low-level utility functions that wrap plain observable objects/arrays into `Map`/`Set`-like interfaces. They are useful when you need direct control over the underlying data. Unlike codecs, they do **not** convert values. They only provide a different interface over the same underlying data.
 
+When a MobX interceptor cancels an addition, update, or deletion on the backing data, the wrapper keeps its existing contents. A canceled deletion returns `false`.
+
 **Note: collection wrappers return the same wrapper instance for the same backing object.**
 
 ### `asMap` collection wrapper
@@ -177,6 +179,8 @@ class Scoreboard extends Model({
 
 // `entriesMap` can now be used like a standard `Map`
 ```
+
+`getOrInsert` and `getOrInsertComputed` on an `asMap` wrapper return the stored value, including any observable conversion, consistently across supported MobX versions.
 
 To convert it back to an object/array you can use `mapToObject(map)` or `mapToArray(map)`. When the map is already a collection wrapper, these return the backing object/array rather than doing a fresh conversion.
 
@@ -295,6 +299,8 @@ tProp(types.skipCheck(types.dateAsTimestamp))
 **Alternative:** Use `tProp(types.mapFromObject(...))`, `tProp(types.mapFromArray(...))`, or `tProp(types.setFromArray(...))`.
 
 `ObjectMap` and `ArraySet` are special model wrappers that provide `Map`-like and `Set`-like interfaces. They produce snapshots that include `$modelType` and `$modelId` metadata, whereas codecs produce clean plain objects/arrays.
+
+Input snapshot types for these collections use `SnapshotInOf` for their items, so defaulted model fields may be omitted. Output snapshots use `SnapshotOutOf` for their items. Collection snapshots still require their `$modelId`.
 
 #### `ObjectMap` collection model
 

@@ -129,7 +129,7 @@ export function internalApplySnapshot<T extends object>(
     }
 
     const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-    if (modelIdPropertyName) {
+    if (modelIdPropertyName !== undefined) {
       const id = (sn as any)[modelIdPropertyName]
       if (obj[modelIdKey] !== id) {
         // different id, no reconciliation possible

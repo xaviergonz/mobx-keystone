@@ -342,8 +342,9 @@ function createArrayLikeRuntimeAdapter(
                 }
 
                 const indexValue = target.length - 1
+                const present = isObservableArray(target) || indexValue in target
                 const value = target.pop()
-                return getItemAdapter(indexValue).toRuntime(value)
+                return present ? getItemAdapter(indexValue).toRuntime(value) : undefined
               }
             case "shift":
               return () => {
@@ -351,8 +352,9 @@ function createArrayLikeRuntimeAdapter(
                   return undefined
                 }
 
+                const present = isObservableArray(target) || 0 in target
                 const value = target.shift()
-                return getItemAdapter(0).toRuntime(value)
+                return present ? getItemAdapter(0).toRuntime(value) : undefined
               }
             case "unshift":
               return (...items: unknown[]) =>
@@ -539,9 +541,11 @@ function createCodecLeafRuntimeAdapter(
     },
 
     toStored(runtime) {
-      const cachedStored = isObject(runtime) ? storedByRuntime.get(runtime) : undefined
-      if (cachedStored !== undefined) {
-        return cachedStored
+      if (isObject(runtime)) {
+        const cachedStored = storedByRuntime.get(runtime)
+        if (cachedStored !== undefined || storedByRuntime.has(runtime)) {
+          return cachedStored
+        }
       }
 
       let cacheResult = false
@@ -563,7 +567,7 @@ function createCodecLeafRuntimeAdapter(
     toStoredIfCached(runtime) {
       if (isObject(runtime)) {
         const cachedStored = storedByRuntime.get(runtime)
-        if (cachedStored !== undefined) {
+        if (cachedStored !== undefined || storedByRuntime.has(runtime)) {
           return { found: true, value: cachedStored }
         }
       }

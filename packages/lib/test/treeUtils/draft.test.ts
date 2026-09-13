@@ -2,10 +2,14 @@ import {
   type Draft,
   draft,
   getSnapshot,
+  idProp,
   Model,
   modelAction,
   prop,
+  runUnprotected,
   type SnapshotOutOf,
+  tProp,
+  types,
 } from "../../src"
 import { testModel } from "../utils"
 
@@ -279,4 +283,52 @@ test("drafts of drafts (2)", () => {
   expect(dd.data.x).toBe(100)
   expect(d.isDirty).toBe(true)
   expect(dd.isDirty).toBe(false)
+})
+
+test("partial draft operations follow stored paths through codec properties", () => {
+  @testModel("DraftCodecItem")
+  class Item extends Model({ id: idProp, value: prop(1) }) {}
+
+  @testModel("DraftCodecRoot")
+  class Root extends Model({ entries: tProp(types.mapFromObject(Item)) }) {}
+
+  const original = new Root({ entries: new Map([["item", new Item({ id: "item-id" })]]) })
+  const copy = draft(original)
+  const path = ["entries", "item", "value"]
+
+  expect(copy.isDirtyByPath(path)).toBe(false)
+  runUnprotected(() => {
+    copy.data.entries.get("item")!.value = 2
+  })
+  expect(copy.isDirtyByPath(path)).toBe(true)
+  copy.commitByPath(path)
+  expect(original.entries.get("item")!.value).toBe(2)
+  expect(copy.isDirtyByPath(path)).toBe(false)
+
+  runUnprotected(() => {
+    copy.data.entries.get("item")!.value = 3
+  })
+  copy.resetByPath(path)
+  expect(copy.data.entries.get("item")!.value).toBe(2)
+  expect(copy.isDirtyByPath(path)).toBe(false)
+})
+
+test("partial draft operations still reject different model IDs inside codec properties", () => {
+  @testModel("DraftCodecIdItem")
+  class Item extends Model({ id: idProp, value: prop(1) }) {}
+
+  @testModel("DraftCodecIdRoot")
+  class Root extends Model({ entries: tProp(types.mapFromObject(Item)) }) {}
+
+  const original = new Root({ entries: new Map([["item", new Item({ id: "original" })]]) })
+  const copy = draft(original)
+  runUnprotected(() => {
+    copy.data.entries.set("item", new Item({ id: "replacement" }))
+  })
+  const path = ["entries", "item", "value"]
+  expect(copy.isDirtyByPath(path)).toBe(true)
+  expect(() => copy.commitByPath(path)).toThrow("could not be resolved in original object")
+  expect(() => copy.resetByPath(path)).toThrow("could not be resolved in draft object")
+  expect(original.entries.get("item")!.id).toBe("original")
+  expect(copy.data.entries.get("item")!.id).toBe("replacement")
 })

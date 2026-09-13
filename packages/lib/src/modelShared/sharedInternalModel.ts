@@ -19,7 +19,14 @@ import type { AnyType } from "../types/schemas"
 import { tProp } from "../types/tProp"
 import { resolveStoredType } from "../types/utility/typesCodec"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
-import { addHiddenProp, assertIsObject, failure, propNameToSetterName } from "../utils"
+import {
+  addHiddenProp,
+  assertIsObject,
+  failure,
+  hasOwnProp,
+  propNameToSetterName,
+  setProtoProp,
+} from "../utils"
 import { chainFns } from "../utils/chainFns"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
 import { type ModelClass, modelInitializedSymbol } from "./BaseModelShared"
@@ -275,7 +282,9 @@ export function sharedInternalModel<
     dataTypeChecker = typesObject(() => {
       const typeCheckerObj: Record<string, AnyType> = {}
       for (const [k, mp] of Object.entries(composedModelProps)) {
-        typeCheckerObj[k] = mp._typeChecker ? resolveStoredType(mp._typeChecker) : typesUnchecked()
+        const typeChecker = mp._typeChecker ? resolveStoredType(mp._typeChecker) : typesUnchecked()
+        if (k === "__proto__") setProtoProp(typeCheckerObj, typeChecker)
+        else typeCheckerObj[k] = typeChecker
       }
       return typeCheckerObj
     })
@@ -451,7 +460,11 @@ function getModelPropsSnapshotProcessor(
   return (sn) => {
     const newSn = { ...sn }
     for (const [propName, processor] of propsWithProcessor) {
-      newSn[propName] = withErrorPathSegment(propName, () => processor(sn[propName]))
+      const value = withErrorPathSegment(propName, () =>
+        processor(hasOwnProp(sn, propName) ? sn[propName] : undefined)
+      )
+      if (propName === "__proto__") setProtoProp(newSn, value)
+      else newSn[propName] = value
     }
     return newSn
   }

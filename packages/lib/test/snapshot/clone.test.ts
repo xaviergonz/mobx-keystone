@@ -38,3 +38,17 @@ test("clone", () => {
 
   expect(origSn).toStrictEqual(cloneSn)
 })
+
+test("an undefined generateNewIds option keeps the default ID regeneration", () => {
+  const original = createP()
+  const copied = clone(original, { generateNewIds: undefined })
+  expect(copied.$modelId).not.toBe(original.$modelId)
+  expect(copied.p2!.$modelId).not.toBe(original.p2!.$modelId)
+})
+
+test("an explicit false generateNewIds option preserves IDs", () => {
+  const original = createP()
+  const copied = clone(original, { generateNewIds: false })
+  expect(copied.$modelId).toBe(original.$modelId)
+  expect(copied.p2!.$modelId).toBe(original.p2!.$modelId)
+})

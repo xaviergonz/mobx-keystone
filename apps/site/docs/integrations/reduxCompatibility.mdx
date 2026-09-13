@@ -37,11 +37,13 @@ const connection = remotedev.connectViaExtension({
 const disconnect = connectReduxDevTools(remotedev, connection, todoList)
 ```
 
-Call `disconnect()` when the integration is no longer needed. It stops action logging and invokes the connection's unsubscribe callback, when provided. Calling it more than once is safe.
+Call `disconnect()` when the integration is no longer needed. It stops action logging and invokes the connection's unsubscribe callback, when provided. Calling it more than once is safe. Any retained monitor callbacks are ignored after disposal.
 
 This function also accepts an optional options object with the following properties:
 
 - `logArgsNearName` - if it should show the arguments near the action name (default is `true`).
 - `logChildActions` - if it should log child actions when they run inside another action tracked by the same target tree (default is `true`). Set it to `false` to keep nested action calls grouped under the outermost tracked action.
+
+Passing `undefined` for either option retains its default value; pass `false` to disable it.
 
 If you want to see it in action feel free to check the [Todo List Example](../examples/todoList/todoList.mdx), open the Redux DevTools and perform some actions.

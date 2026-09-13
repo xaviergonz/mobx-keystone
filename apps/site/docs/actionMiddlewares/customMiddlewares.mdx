@@ -100,3 +100,6 @@ Low-level action context, which includes the following readonly data:
 - `spawnAsyncStepContext?: ActionContext` - Spawn async step context, or `undefined` for sync actions.
 - `asyncStepType?: ActionContextAsyncStepType` - Async step type, or `undefined` for sync actions.
 - `data: Record<symbol, any>` - Custom data shared by middlewares for this action context. Use symbol keys to avoid collisions between middlewares.
+
+
+Middleware registration changes take effect when the next action or flow step collects its middleware chain. Registering or disposing middleware during a call does not change the chain already executing that call.

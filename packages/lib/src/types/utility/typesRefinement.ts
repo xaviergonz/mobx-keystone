@@ -41,8 +41,8 @@ import {
  * @template T Base type.
  * @param baseType Base type.
  * @param checkFn Function that will receive the data (if it passes the base type
- * check) and return null or false if there were no errors or either a TypeCheckError instance or
- * true if there were.
+ * check) and return null or true if there were no errors or either a TypeCheckError instance or
+ * false if there were.
  * @returns
  */
 export function typesRefinement<T extends AnyType>(
@@ -89,6 +89,7 @@ export function typesRefinement<T extends AnyType>(
           // override typeCheckedValue
           return new TypeCheckError({
             path: refinementErr.path,
+            modelTrail: refinementErr.modelTrail,
             expectedTypeName: refinementErr.expectedTypeName,
             actualValue: refinementErr.actualValue,
             typeCheckedValue,

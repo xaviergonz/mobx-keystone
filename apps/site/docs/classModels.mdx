@@ -15,6 +15,8 @@ slug: /class-models
 
 In this section we will focus on class models, since the other types can be used as children in the usual way.
 
+Class models and data models provide `toString({ withData? })` for a string representation. Data is included by default, including when `withData` is `undefined`; pass `false` to omit it.
+
 ## Your first class model
 
 A class model for a todo can be defined as follows:
@@ -75,7 +77,7 @@ With runtime type checking (check the relevant section for more info):
 
 Class models follow these rules:
 
-- Decorate the class with `@model` and give the model type a unique application-wide name.
+- Decorate the class with `@model` and give the model type a unique application-wide name. An empty string is a valid name; in `decoratedModel`, only `undefined` means to omit registration.
 - Extend `Model` with the properties that should be observable, snapshotable, and patchable.
 - Access model data through either `this` or `this.$`.
 - Change model data inside model actions.
@@ -110,6 +112,8 @@ const myTodo = new Todo({ text: "buy some coffee" })
 myTodo.setText("buy some milk")
 myTodo.setDone(true)
 ```
+
+An empty-string property name generates a setter named `set`.
 
 If you need to change data without declaring a custom `modelAction`, use the predefined `objectActions` or `arrayActions` helpers.
 
@@ -209,6 +213,7 @@ class ModelWithCustomId extends Model({
 
 In this case, use either `customId` (in snapshots and instances) or `$modelId` (in instances only) to read or write the ID.
 The ID must be unique across all model objects in the same tree, regardless of model type.
+An empty-string property name (`"": idProp`) also works as an ID field, including when cloning or reconciling snapshots.
 
 Note that when using the `new` operator to create a new instance you can either not specify the property so it will be auto-generated, or you can specify it directly:
 

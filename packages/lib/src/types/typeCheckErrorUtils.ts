@@ -16,6 +16,7 @@ export function prependPathElementToTypeCheckError(
 
   return new TypeCheckError({
     path: fullPath,
+    modelTrail: valueError.modelTrail,
     expectedTypeName: valueError.expectedTypeName,
     actualValue: valueError.actualValue,
     typeCheckedValue,

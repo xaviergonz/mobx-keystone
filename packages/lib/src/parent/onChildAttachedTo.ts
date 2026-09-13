@@ -32,11 +32,7 @@ export function onChildAttachedTo(
   assertIsFunction(target, "target")
   assertIsFunction(fn, "fn")
 
-  const opts = {
-    deep: false,
-    fireForCurrentChildren: true,
-    ...options,
-  }
+  const { deep = false, fireForCurrentChildren = true } = options ?? {}
 
   let disposed = false
   let runCleanupAfterDispose = false
@@ -74,7 +70,7 @@ export function onChildAttachedTo(
     }
   }
 
-  const getChildrenObjectOpts = { deep: opts.deep }
+  const getChildrenObjectOpts = { deep }
   const getCurrentChildren = () => {
     const t = target()
     assertTweakedObject(t, "target()")
@@ -82,7 +78,7 @@ export function onChildAttachedTo(
     return new Set(getChildrenObjects(t, getChildrenObjectOpts))
   }
 
-  const currentChildren = opts.fireForCurrentChildren ? new Set<object>() : getCurrentChildren()
+  const currentChildren = fireForCurrentChildren ? new Set<object>() : getCurrentChildren()
 
   const disposer = reaction(
     () => getCurrentChildren(),

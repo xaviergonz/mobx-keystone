@@ -9,3 +9,17 @@ test("numeric enums with NaN do not expose reverse mapping names as values", () 
   expect(typeCheck(type, "Value")).not.toBeNull()
   expect(enumValues({ Zero: -0, 0: "Zero" })).toEqual([-0])
 })
+
+test("enum aliases retain their first value order", () => {
+  expect(
+    enumValues({
+      0: "Alias",
+      1: "Next",
+      Zero: 0,
+      Alias: 0,
+      Next: 1,
+      Text: "text",
+      OtherText: "text",
+    })
+  ).toEqual([0, 1, "text"])
+})

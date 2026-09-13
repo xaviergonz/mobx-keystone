@@ -31,6 +31,8 @@ If you need to check whether a node is currently registered as a root store, use
 
 When a root is registered, `onAttachedToRootStore` runs for the root model and each descendant model. It also runs for models attached later. The hook may return a disposer, which runs when that model leaves the root-store tree or when the root itself is unregistered.
 
+If a model detaches or moves to another root during its own attachment hook, the disposer returned by that hook still cleans up the original attachment. Any new attachment keeps its own disposer. If a hook detaches or moves another model whose hook has not run yet, that model's hook is skipped for the original attachment.
+
 This makes the hook a natural place to register effects such as MobX `reaction` or `when`, and its disposer the matching place to clean them up.
 
 If an attachment hook or its disposer throws, remaining hooks in that operation still run. A lone failure is then rethrown as is; several failures are grouped in a `MobxKeystoneAggregateError` (a `MobxKeystoneError` subclass) whose `.errors` holds the thrown values in order, flattened.

@@ -173,6 +173,8 @@ onSnapshot<T extends object>(obj: T | (() => T), listener: (sn: SnapshotOutOf<T>
 
 Since that is a very common pattern, `mobx-keystone` offers an `onSnapshot` function that will call a listener with the new snapshot and the previous snapshot every time it changes.
 
+If you subscribe inside an action, changes in that action are batched. The first notification's previous snapshot is the state at the end of that batch.
+
 ```ts
 const disposer = onSnapshot(todo, (newSnapshot, previousSnapshot) => {
   // do something
@@ -202,6 +204,8 @@ applySnapshot(todo, {
 ```
 
 In the case above, only a single patch will be generated (for the `done` property), and the same todo instance will be reused (since they have the same model ID).
+
+Properties omitted from a snapshot are removed from plain objects or reset to their model defaults when available. This also applies to names such as `toString`, `constructor`, and `__proto__`; inherited properties do not count as supplied snapshot fields.
 
 Replacing a nested model with a plain-object snapshot without `$modelType` creates a plain object and detaches the previous model without changing its contents.
 
@@ -235,7 +239,7 @@ cloneTreeValue<T>(value: T, options?: Partial<CloneOptions>): T
 - If `value` is a plain object / array, it clones it via snapshots.
 - If `value` is a primitive (or not tree/snapshot-like), it returns it unchanged.
 
-Like `clone`, `generateNewIds` defaults to `true`.
+Like `clone`, `generateNewIds` defaults to `true`. In both helpers, passing `undefined` keeps this default; pass `false` explicitly to preserve model IDs.
 
 ```ts
 @model("myApp/Store")

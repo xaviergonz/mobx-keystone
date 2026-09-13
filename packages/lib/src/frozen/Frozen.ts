@@ -3,6 +3,7 @@ import { getGlobalConfig } from "../globalConfig"
 import type { FrozenData } from "../snapshot"
 import { tweak } from "../tweaker/tweak"
 import { failure, inDevMode, isPlainObject, isPrimitive } from "../utils"
+import { getSafeErrorValuePreview } from "../utils/errorDiagnostics"
 
 /**
  * Should freeze and plain json checks be done when creating the frozen object?
@@ -54,7 +55,7 @@ export class Frozen<T> {
     this.data = dataToFreeze
 
     if (check) {
-      Object.freeze(this.data)
+      Object.defineProperty(this, "data", { writable: false, configurable: false })
     }
 
     tweak(this, undefined)
@@ -96,7 +97,8 @@ export function toFrozenSnapshot<T>(data: T): FrozenData<T> {
 }
 
 function checkDataIsSerializableAndFreeze(data: unknown) {
-  const ancestors = new Set<object>()
+  // false means the object is still on the traversal stack; true means fully checked.
+  const checked = new Map<object, boolean>()
   const stack: {
     data: object
     keys: string[] | undefined
@@ -108,12 +110,16 @@ function checkDataIsSerializableAndFreeze(data: unknown) {
     if (isPrimitive(value)) return
 
     if (!Array.isArray(value) && !isPlainObject(value)) {
-      throw failure(`frozen data must be plainly serializable to JSON, but ${value} is not`)
+      throw failure(
+        `frozen data must be plainly serializable to JSON, but ${getSafeErrorValuePreview(value)} is not`
+      )
     }
-    if (ancestors.has(value)) {
+    const state = checked.get(value)
+    if (state === true) return
+    if (state === false) {
       throw failure("frozen data must not contain cycles")
     }
-    ancestors.add(value)
+    checked.set(value, false)
     const keys = Array.isArray(value) ? undefined : Object.keys(value)
     stack.push({
       data: value,
@@ -128,7 +134,7 @@ function checkDataIsSerializableAndFreeze(data: unknown) {
     const frame = stack[stack.length - 1]
     if (frame.nextIndex === frame.length) {
       Object.freeze(frame.data)
-      ancestors.delete(frame.data)
+      checked.set(frame.data, true)
       stack.pop()
       continue
     }

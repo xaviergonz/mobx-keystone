@@ -70,7 +70,7 @@ export abstract class BaseModel<
    */
   get [modelIdKey](): ModelIdPropertyType<TProps, ModelIdPropertyName> {
     const idProp = getModelIdPropertyName(this.constructor as any)
-    return (idProp ? (this.$ as any)[idProp] : undefined) as ModelIdPropertyType<
+    return (idProp !== undefined ? (this.$ as any)[idProp] : undefined) as ModelIdPropertyType<
       TProps,
       ModelIdPropertyName
     >
@@ -78,7 +78,7 @@ export abstract class BaseModel<
 
   set [modelIdKey](newId: ModelIdPropertyType<TProps, ModelIdPropertyName>) {
     const idProp = getModelIdPropertyName(this.constructor as any)
-    if (!idProp) {
+    if (idProp === undefined) {
       throw failure("$modelId cannot be set when there is no idProp set in the model")
     }
     ;(this.$ as any)[idProp] = newId
@@ -161,16 +161,11 @@ export abstract class BaseModel<
   }
 
   toString(options?: { withData?: boolean }) {
-    const finalOptions = {
-      withData: true,
-      ...options,
-    }
+    const { withData = true } = options ?? {}
 
     const firstPart = `${this.constructor.name}#${this[modelTypeKey]}`
 
-    return finalOptions.withData
-      ? `[${firstPart} ${JSON.stringify(getSnapshot(this))}]`
-      : `[${firstPart}]`
+    return withData ? `[${firstPart} ${JSON.stringify(getSnapshot(this))}]` : `[${firstPart}]`
   }
 }
 

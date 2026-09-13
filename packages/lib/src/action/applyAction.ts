@@ -86,7 +86,7 @@ export function applyAction<TRet = any>(subtreeRoot: object, call: ActionCall): 
       )} could not be resolved`
     )
   }
-  assertTweakedObject(current, `resolved ${current}`, true)
+  assertTweakedObject(current, "resolved target", true)
 
   if (isBuiltInAction(call.actionName)) {
     const fnToCall = builtInActionToFunction[call.actionName] as AnyFunction | undefined

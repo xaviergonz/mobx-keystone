@@ -7,6 +7,8 @@ slug: /action-middlewares/transaction-middleware
 
 The transaction middleware makes a model action or flow atomic: if it throws, changes made during that action and its child actions are reverted before the error is rethrown.
 
+If a patch listener or patch recorder throws during rollback, the remaining restoration is still attempted. If rollback succeeds, the original action error is rethrown unchanged. If any rollback callback fails, a `MobxKeystoneAggregateError` is thrown instead: its first error is the original action error, followed by the rollback callback failures.
+
 Mark an action or flow as a transaction either with the `@transaction` decorator or by attaching `transactionMiddleware` programmatically.
 
 As a decorator:

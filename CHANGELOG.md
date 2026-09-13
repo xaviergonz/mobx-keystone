@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+- Keep `asMap` and `asSet` synchronized when an interceptor cancels additions or deletions on their backing data.
+- Remove omitted prototype-named properties and restore their model defaults correctly when applying snapshots.
+- Synchronize final model IDs and paths when serialized actions move, replace, or remove models before finishing.
+- Improve action-tracking performance for flows with many yield steps.
+- Correct `ObjectMap` and `ArraySet` input snapshot item types so defaulted model fields can be omitted.
+- Fix partial draft operations through codec-backed model properties by checking model IDs along stored data paths.
+- Synchronize back-references when a reference's resolved target changes before its first tracking run.
+- Preserve default options when explicitly set to `undefined` in Redux DevTools logging and model/data-model `toString`.
+- Preserve repeated property names and array indexes in type-check error paths when validating an attached subtree. Paths supplied to `TypeCheckError` and `TypeCheckErrorFailure` are now consistently treated as relative to the checked value; manually supplied rooted paths are no longer detected automatically.
+- Report the previous tracked snapshot correctly when `onSnapshot` is registered inside an action that changes the observed node before the action finishes.
+- Preserve empty-string model type names in registration, snapshots, restoration, and cloning.
+- Keep default ID regeneration in `clone` and `cloneTreeValue` when `generateNewIds` is explicitly `undefined`.
+- Keep immediate child attachment callbacks enabled when `fireForCurrentChildren` is explicitly `undefined`.
+- Continue transaction rollback after patch listeners or patch recorders throw, including all inverse patches of an array edit; if any fail, throw a `MobxKeystoneAggregateError` whose first error is the original action error, followed by the callback failures.
+- Make data-model `toString()` include its backing data without throwing.
+- Retry data-model initialization after construction fails, and preserve fields and run `onLazyInit` only once when reusing a successfully initialized wrapper.
+- Support empty-string ID property names throughout construction, cloning, ID lookup, and snapshot reconciliation.
+- Validate model and data-model `__proto__` properties and apply their defaults during construction, including model snapshot construction.
+- Preserve `__proto__` entries when converting a map back through the deprecated `objectToMapTransform`.
+- Keep action middleware chains stable when middleware registers or disposes during an action.
+- Finish pending root attachment callbacks even if an earlier callback throws, and retain the correct cleanup when a model moves during its attachment hook. Skip attachment hooks for models already detached or moved by an earlier hook of the same attachment.
+- Avoid stringifying action targets during replay; preserve sparse top-level action arguments through JSON serialization.
+- Preserve custom model trails in cached type-check errors and own `__proto__` properties in model and data-model type information.
+- Report unsupported symbol and unprintable values with library errors, and name the correct action decorator in legacy symbol diagnostics.
+- Prevent replacement or deletion of checked frozen data and avoid repeated validation of shared frozen subtrees.
+- Trim excess undo and redo history in one operation instead of repeatedly shifting entries.
+- Preserve custom refinement error model trails through nested type checks.
+- Allow context `apply` and `applyComputed` callbacks to return model data objects without trying to register them as providers.
+- Initialize Redux DevTools state before subscribing, supporting synchronous monitor messages and avoiding subscriptions when initialization fails.
+- Honor cached `undefined` values in custom codecs, and return `undefined` when codec-array `pop` or `shift` removes a hole.
+- Load safely in environments without a global Node `process` object.
+- Preserve diagnostic errors when the rejected value throws during string conversion.
+- Ignore retained Redux DevTools monitor callbacks after disposal.
+- Return the stored observable value from `asMap` insertion helpers on MobX 4/5.
+- Support generated setters for empty-string property names.
+- Reject arrays consistently in `types.object` and `types.record`, including snapshot matching.
+- Keep published patch paths unchanged while tracking model ID overrides in serialized actions.
+- Dispose serializers using their original registered ID, avoiding removal of another serializer after an ID edit.
+- Deduplicate large enum definitions in linear time.
 - Return an idempotent disposer from `connectReduxDevTools` to stop logging and unsubscribe from monitor messages.
 - Reject malformed JSON Pointer escapes instead of interpreting them as literal property names.
 - Preserve undefined entries in sparse action arrays through JSON serialization.

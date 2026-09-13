@@ -15,6 +15,7 @@ import {
   type Ref,
   registerRootStore,
   rootRef,
+  runUnprotected,
   type SnapshotOutOfModel,
   toTreeNode,
   type UndoEvent,
@@ -1224,4 +1225,27 @@ test("failed initial attached-state saving does not leak a patch recorder", () =
     for (const dispose of disposers) dispose()
     spy.mockRestore()
   }
+})
+
+test("trimming preloaded undo and redo queues keeps the newest entries in order", () => {
+  const events = () =>
+    Array.from(
+      { length: 20 },
+      (_, index): UndoEvent => ({
+        type: UndoEventType.Single,
+        actionName: String(index),
+        targetPath: [],
+        patches: [],
+        inversePatches: [],
+        attachedState: {},
+      })
+    )
+  const store = new UndoStore({ undoEvents: events(), redoEvents: events() })
+  const newestUndo = store.undoEvents.slice(-2)
+  const newestRedo = store.redoEvents.slice(-3)
+  runUnprotected(() => store.enforceMaxLevels({ maxUndoLevels: 2, maxRedoLevels: 3 }))
+  expect(store.undoEvents.slice()).toEqual(newestUndo)
+  expect(store.redoEvents.slice()).toEqual(newestRedo)
+  expect(store.undoEvents[0]).toBe(newestUndo[0])
+  expect(store.redoEvents[0]).toBe(newestRedo[0])
 })

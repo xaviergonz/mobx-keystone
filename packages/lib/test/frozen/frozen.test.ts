@@ -175,3 +175,15 @@ test("freezing deeply nested data does not overflow the call stack", () => {
   expect(frozen(data, FrozenCheckMode.On).data).toBe(data)
   expect(nodes.every(Object.isFrozen)).toBe(true)
 })
+
+test("unsupported frozen symbols report a library error", () => {
+  expect(() => frozen(Symbol("unsupported"), FrozenCheckMode.On)).toThrow(MobxKeystoneError)
+})
+
+test("checked frozen data cannot be replaced or deleted", () => {
+  const value = frozen({ count: 1 }, FrozenCheckMode.On)
+  const snapshot = getSnapshot(value)
+  expect(Reflect.set(value, "data", { count: 2 })).toBe(false)
+  expect(Reflect.deleteProperty(value, "data")).toBe(false)
+  expect(value.data).toBe(snapshot.data)
+})

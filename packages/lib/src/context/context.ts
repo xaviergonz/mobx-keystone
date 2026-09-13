@@ -199,7 +199,7 @@ class ContextClass<T> implements Context<T> {
 
     try {
       const ret = fn()
-      if (isTweakedObject(ret, true)) {
+      if (isTweakedObject(ret, false)) {
         this.set(ret, value)
       }
       return ret
@@ -219,7 +219,7 @@ class ContextClass<T> implements Context<T> {
 
     try {
       const ret = fn()
-      if (isTweakedObject(ret, true)) {
+      if (isTweakedObject(ret, false)) {
         this._setComputed(ret, computedValueFn)
       }
       return ret

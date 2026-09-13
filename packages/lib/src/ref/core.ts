@@ -101,6 +101,7 @@ export function internalCustomRef<T extends object>(
           if (firstTrackingRun) {
             firstTrackingRun = false
             previousTarget = target
+            this.internalForceUpdateBackRefs(target)
           }
           return target
         },

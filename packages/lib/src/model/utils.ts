@@ -175,7 +175,7 @@ export function getSnapshotModelTypeAndId(snapshot: unknown): ModelTypeAndId | u
   const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
 
   let modelId: string | undefined
-  if (modelIdPropertyName) {
+  if (modelIdPropertyName !== undefined) {
     const id = (snapshot as Record<string, unknown>)[modelIdPropertyName]
     modelId = typeof id === "string" ? id : undefined
   }
@@ -214,7 +214,7 @@ export function getModelTypeAndId(model: AnyModel | AnyDataModel): ModelTypeAndI
   const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
 
   let modelId: string | undefined
-  if (modelIdPropertyName) {
+  if (modelIdPropertyName !== undefined) {
     const id = (model as any)[modelIdKey] as string | undefined
     modelId = typeof id === "string" ? id : undefined
   }

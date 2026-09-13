@@ -103,3 +103,25 @@ test.each([true, false])("disposal inside attachment honors cleanup=%s", (cleanu
   dispose(true)
   expect(detach).toHaveBeenCalledTimes(cleanup ? 1 : 0)
 })
+
+test("an undefined fireForCurrentChildren option keeps immediate attachment callbacks", () => {
+  const root = toTreeNode([{ value: 1 }])
+  const attached: object[] = []
+  const detached: object[] = []
+  const dispose = onChildAttachedTo(
+    () => root,
+    (child) => {
+      attached.push(child)
+      return () => {
+        detached.push(child)
+      }
+    },
+    { fireForCurrentChildren: undefined }
+  )
+  try {
+    expect(attached).toEqual([root[0]])
+  } finally {
+    dispose(true)
+  }
+  expect(detached).toEqual([root[0]])
+})

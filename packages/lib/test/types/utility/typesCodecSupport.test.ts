@@ -187,3 +187,36 @@ test("encoding a plain sparse codec array preserves holes", () => {
   expect(stored[1]).toBe("2")
   expect(2 in stored).toBe(false)
 })
+
+test.each(["decode", "encode"])("codec caches stored undefined after %s", (direction) => {
+  let encodes = 0
+  const value = {}
+  const codec = types.codec({
+    typeName: "UndefinedObject",
+    encodedType: types.undefined,
+    is: (v): v is object => typeof v === "object" && v !== null,
+    transform: () => value,
+    untransform: ({ cacheTransformedValue }) => {
+      encodes++
+      cacheTransformedValue()
+      return undefined
+    },
+  })
+  const { adapter } = resolveCodecSupport(codec)
+  if (direction === "decode") {
+    expect(adapter.toRuntime(undefined)).toBe(value)
+  } else {
+    expect(adapter.toStored(value)).toBeUndefined()
+  }
+  const previousEncodes = encodes
+  expect(adapter.toStoredIfCached(value)).toEqual({ found: true, value: undefined })
+  expect(adapter.toStored(value)).toBeUndefined()
+  expect(encodes).toBe(previousEncodes)
+})
+
+test.each(["pop", "shift"] as const)("codec %s returns undefined for a hole", (method) => {
+  const stored = new Array<string>(1)
+  const runtime = resolveCodecSupport(types.array(types.bigint)).adapter.toRuntime(stored)
+  expect(runtime[method]()).toBeUndefined()
+  expect(stored).toEqual([])
+})

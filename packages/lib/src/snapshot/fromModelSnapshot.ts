@@ -5,6 +5,7 @@ import { modelTypeKey } from "../model/metadata"
 import { getModelOrSnapshotTypeAndId, getSnapshotModelType } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
+import { hasOwnProp } from "../utils"
 import { getCurrentErrorDiagnosticsContext } from "../utils/errorDiagnostics"
 import { type FromSnapshotContext, registerSnapshotter } from "./fromSnapshot"
 import type { SnapshotInOfModel } from "./SnapshotOf"
@@ -14,7 +15,7 @@ import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPrio
 function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotContext): AnyModel {
   const type = sn[modelTypeKey]
 
-  if (!type) {
+  if (type === undefined) {
     throw new SnapshotProcessingError({
       message: `a model snapshot must contain a type key (${modelTypeKey}), but none was found`,
       actualSnapshot: sn,
@@ -30,7 +31,10 @@ function fromModelSnapshot(sn: SnapshotInOfModel<AnyModel>, ctx: FromSnapshotCon
   }
 
   const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-  if (modelIdPropertyName && sn[modelIdPropertyName] === undefined) {
+  if (
+    modelIdPropertyName !== undefined &&
+    (!hasOwnProp(sn, modelIdPropertyName) || sn[modelIdPropertyName] === undefined)
+  ) {
     throw new SnapshotProcessingError({
       message: `a model snapshot of type '${type}' must contain an id key (${modelIdPropertyName}), but none was found`,
       actualSnapshot: sn,

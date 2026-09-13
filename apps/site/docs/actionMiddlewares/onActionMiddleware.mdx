@@ -50,6 +50,8 @@ const disposer = onActionMiddleware(myTodoList, {
 })
 ```
 
+Model ID synchronization uses the final positions and IDs of models after the action finishes. Models removed during that action do not receive ID overrides.
+
 ## Action serialization with custom types as arguments
 
 Action serialization (via `serializeActionCall` and `deserializeActionCall`) supports many cases by default:
@@ -99,3 +101,5 @@ In this case, whenever an instance of `MyType` is found as an action argument, t
 Likewise, using `deserializeActionCall` will transform it back to an instance of `MyType`.
 
 Serializer registration changes made inside a serializer take effect on subsequent serialization attempts. The current attempt continues with the serializers registered when it started.
+
+To change a custom serializer's ID, dispose its existing registration and register it again. A disposer always removes the registration it originally created.

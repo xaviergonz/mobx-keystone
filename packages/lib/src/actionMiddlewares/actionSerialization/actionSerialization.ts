@@ -2,6 +2,7 @@ import type { O } from "ts-toolbelt"
 import type { ActionCall } from "../../action/applyAction"
 import { assertTweakedObject } from "../../tweaker/core"
 import { failure, isJSONPrimitive, isPlainObject } from "../../utils"
+import { getSafeErrorValuePreview } from "../../utils/errorDiagnostics"
 import type { JSONPrimitiveValue } from "../../utils/types"
 import { arraySerializer } from "./arraySerializer"
 import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
@@ -32,12 +33,13 @@ export function registerActionCallArgumentSerializer(
   if (serializersArray.includes(serializer)) {
     throw failure("action call argument serializer already registered")
   }
-  if (serializersMap.has(serializer.id)) {
+  const id = serializer.id
+  if (serializersMap.has(id)) {
     throw failure(`action call argument serializer with id '${serializer.id}' already registered`)
   }
 
   serializersArray = [serializer, ...serializersArray]
-  serializersMap.set(serializer.id, serializer)
+  serializersMap.set(id, serializer)
 
   let disposed = false
   return () => {
@@ -46,7 +48,7 @@ export function registerActionCallArgumentSerializer(
     }
     disposed = true
     serializersArray = serializersArray.filter((entry) => entry !== serializer)
-    serializersMap.delete(serializer.id)
+    serializersMap.delete(id)
   }
 }
 
@@ -124,7 +126,7 @@ export function serializeActionCallArgument(
   }
 
   throw failure(
-    `serializeActionCallArgument could not serialize the given value: ${String(argValue)}`
+    `serializeActionCallArgument could not serialize the given value: ${getSafeErrorValuePreview(argValue)}`
   )
 }
 
@@ -153,7 +155,7 @@ export function serializeActionCall(
   return {
     ...actionCall,
     serialized: true,
-    args: actionCall.args.map(serialize),
+    args: Array.from(actionCall.args, serialize),
   }
 }
 

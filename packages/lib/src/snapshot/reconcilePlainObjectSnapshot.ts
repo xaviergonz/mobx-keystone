@@ -5,7 +5,7 @@ import {
   runTypeCheckingAfterChange,
 } from "../tweaker/typeChecking"
 import { withoutTypeChecking } from "../tweaker/withoutTypeChecking"
-import { isPlainObject } from "../utils"
+import { hasOwnProp, isPlainObject } from "../utils"
 import { withErrorPathSegment } from "../utils/errorDiagnostics"
 import type { ModelPool } from "../utils/ModelPool"
 import { setIfDifferent } from "../utils/setIfDifferent"
@@ -36,7 +36,7 @@ function reconcilePlainObjectSnapshot(
     const plainObjKeysLen = plainObjKeys.length
     for (let i = 0; i < plainObjKeysLen; i++) {
       const k = plainObjKeys[i]
-      if (!(k in sn)) {
+      if (!hasOwnProp(sn, k)) {
         remove(plainObj, k)
       }
     }

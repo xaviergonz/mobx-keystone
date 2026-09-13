@@ -254,7 +254,9 @@ declare const process:
  * @internal
  */
 export const inDevMode =
-  process?.env?.NODE_ENV !== undefined && process.env.NODE_ENV !== "production"
+  typeof process !== "undefined" &&
+  process?.env?.NODE_ENV !== undefined &&
+  process.env.NODE_ENV !== "production"
 
 /**
  * @internal
@@ -575,7 +577,7 @@ export function makeObservableCompat(target: object, annotations?: object): void
  * @internal
  */
 export function propNameToSetterName(propName: string): string {
-  return `set${propName[0].toUpperCase()}${propName.slice(1)}`
+  return `set${propName.charAt(0).toUpperCase()}${propName.slice(1)}`
 }
 
 let cachedMobxVersion: number | undefined

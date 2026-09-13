@@ -3,10 +3,14 @@ import {
   _await,
   findParent,
   getGlobalConfig,
+  MobxKeystoneAggregateError,
   Model,
   ModelAutoTypeCheckingMode,
   modelAction,
   modelFlow,
+  type OnPatchesListener,
+  onPatches,
+  patchRecorder,
   prop,
   setGlobalConfig,
   TypeCheckErrorFailure,
@@ -306,3 +310,83 @@ test("transaction records writes after nested actions return", () => {
   expect(root.a).toBe(0)
   expect(root.b).toBe(0)
 })
+
+test.each(["listener", "recorder"] as const)(
+  "rollback continues after a patch %s throws during an inverse patch",
+  (kind) => {
+    @testModel("TransactionRollbackListenerFailure")
+    class Root extends Model({ a: prop(0), b: prop(0) }) {
+      @transaction
+      @modelAction
+      fail() {
+        this.a = 1
+        this.b = 2
+        throw new Error("action failed")
+      }
+    }
+    const root = new Root({})
+    const dispose = observeRollbackPatches(kind, root, (patches) => {
+      if (patches.some((patch) => patch.op === "replace" && patch.value === 0)) {
+        throw new Error("rollback listener failed")
+      }
+    })
+    try {
+      expectActionAndRollbackErrors(() => root.fail())
+      expect(root.a).toBe(0)
+      expect(root.b).toBe(0)
+    } finally {
+      dispose()
+    }
+  }
+)
+
+test.each(["listener", "recorder"] as const)(
+  "rollback attempts every inverse patch within an array edit after a %s throws",
+  (kind) => {
+    @testModel("TransactionArrayRollbackListenerFailure")
+    class Root extends Model({ items: prop(() => [1, 2, 3]) }) {
+      @transaction
+      @modelAction
+      fail() {
+        this.items.splice(0, 2)
+        throw new Error("action failed")
+      }
+    }
+    const root = new Root({})
+    const dispose = observeRollbackPatches(kind, root, (patches) => {
+      if (patches.some((patch) => patch.op === "add")) throw new Error("rollback listener failed")
+    })
+    try {
+      expectActionAndRollbackErrors(() => root.fail())
+      expect([...root.items]).toEqual([1, 2, 3])
+    } finally {
+      dispose()
+    }
+  }
+)
+
+function expectActionAndRollbackErrors(fn: () => void) {
+  let thrown: unknown
+  try {
+    fn()
+  } catch (error) {
+    thrown = error
+  }
+  expect(thrown).toBeInstanceOf(MobxKeystoneAggregateError)
+  const [actionError, ...rollbackErrors] = (thrown as MobxKeystoneAggregateError).errors
+  expect((actionError as Error).message).toBe("action failed")
+  expect(rollbackErrors.length).toBeGreaterThan(0)
+  for (const error of rollbackErrors) {
+    expect((error as Error).message).toBe("rollback listener failed")
+  }
+}
+
+function observeRollbackPatches(
+  kind: "listener" | "recorder",
+  root: object,
+  listener: OnPatchesListener
+) {
+  if (kind === "listener") return onPatches(root, listener)
+  const recorder = patchRecorder(root, { onPatches: listener })
+  return () => recorder.dispose()
+}

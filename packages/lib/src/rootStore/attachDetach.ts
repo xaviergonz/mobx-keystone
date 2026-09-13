@@ -7,7 +7,7 @@ import { WalkTreeMode, walkTree } from "../parent/walkTree"
 import { forEachWithDelayedThrow } from "../utils/forEachWithDelayedThrow"
 
 const onAttachedDisposers = new WeakMap<object, () => void>()
-const attachedToRootStore = new WeakSet<object>()
+const attachedToRootStore = new WeakMap<object, object>()
 
 /**
  * @internal
@@ -17,6 +17,7 @@ export const attachToRootStore = action(
   (rootStore: object, child: object): void => {
     // we use an array to ensure they will get called even if the actual hook modifies the tree
     const childrenToCall: AnyModel[] = []
+    const attachment = {}
 
     walkTree(
       child,
@@ -26,7 +27,7 @@ export const attachToRootStore = action(
         if (attachedToRootStore.has(ch)) {
           return
         }
-        attachedToRootStore.add(ch)
+        attachedToRootStore.set(ch, attachment)
 
         if (ch instanceof BaseModel && (ch as any).onAttachedToRootStore) {
           wrapModelMethodInActionIfNeeded(
@@ -42,9 +43,20 @@ export const attachToRootStore = action(
     )
 
     forEachWithDelayedThrow(childrenToCall, (ch) => {
+      // An earlier hook may have detached or reattached this node already.
+      if (attachedToRootStore.get(ch) !== attachment) {
+        return
+      }
+
       const disposer = (ch as any).onAttachedToRootStore(rootStore)
       if (disposer) {
-        onAttachedDisposers.set(ch, disposer)
+        if (attachedToRootStore.get(ch) === attachment) {
+          onAttachedDisposers.set(ch, disposer)
+        } else {
+          // The hook detached or reattached this node before returning its cleanup.
+          // Dispose this attachment without overwriting a newer attachment's cleanup.
+          wrapDisposer(ch, disposer)()
+        }
       }
     })
   }
@@ -67,11 +79,7 @@ export const detachFromRootStore = action("detachFromRootStore", (child: object)
       const disposer = onAttachedDisposers.get(ch)
       if (disposer) {
         // wrap disposer in action
-        const disposerAction = wrapInAction({
-          nameOrNameFn: HookAction.OnAttachedToRootStoreDisposer,
-          fn: disposer,
-          actionType: ActionContextActionType.Sync,
-        }).bind(ch)
+        const disposerAction = wrapDisposer(ch, disposer)
         onAttachedDisposers.delete(ch)
 
         disposersToCall.push(disposerAction)
@@ -82,3 +90,11 @@ export const detachFromRootStore = action("detachFromRootStore", (child: object)
 
   forEachWithDelayedThrow(disposersToCall, (dispose) => dispose())
 })
+
+function wrapDisposer(node: object, disposer: () => void): () => void {
+  return wrapInAction({
+    nameOrNameFn: HookAction.OnAttachedToRootStoreDisposer,
+    fn: disposer,
+    actionType: ActionContextActionType.Sync,
+  }).bind(node)
+}
