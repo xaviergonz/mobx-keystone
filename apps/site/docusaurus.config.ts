@@ -35,7 +35,7 @@ const config: Config = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          sidebarPath: "./sidebars.ts",
+          sidebarPath: "./sidebars.mts",
           editUrl: "https://github.com/xaviergonz/mobx-keystone/edit/master/apps/site/",
           routeBasePath: docsRouteBasePath,
         },

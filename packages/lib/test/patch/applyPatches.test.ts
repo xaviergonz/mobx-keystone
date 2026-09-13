@@ -1,6 +1,7 @@
-import { toJS } from "mobx"
+import { type IObservableArray, toJS } from "mobx"
 import {
   applyPatches,
+  getMobxVersion,
   getSnapshot,
   jsonPatchToPatch,
   MobxKeystoneError,
@@ -334,8 +335,29 @@ const arrayMutations: ReadonlyArray<readonly [string, (list: number[]) => void]>
   ["splice replacing", (l) => l.splice(0, 2, 7, 8)],
   ["splice removing all", (l) => l.splice(0, 5)],
   ["splice removing the tail", (l) => l.splice(3, 2)],
-  ["sort", (l) => l.sort((a, b) => b - a)],
-  ["reverse", (l) => l.reverse()],
+  [
+    "sort",
+    (l) => {
+      if (getMobxVersion() < 6) {
+        // MobX 4/5 sort returns a copy instead of mutating the observable array.
+        const observableList = l as IObservableArray<number>
+        observableList.replace(l.slice().sort((a, b) => b - a))
+      } else {
+        l.sort((a, b) => b - a)
+      }
+    },
+  ],
+  [
+    "reverse",
+    (l) => {
+      if (getMobxVersion() < 6) {
+        const observableList = l as IObservableArray<number>
+        observableList.replace(l.slice().reverse())
+      } else {
+        l.reverse()
+      }
+    },
+  ],
   [
     "length truncation",
     (l) => {
@@ -360,6 +382,7 @@ test.each(arrayMutations)(
     })
     disposePatches()
 
+    expect(patches.length).toBeGreaterThan(0)
     const mutated = getSnapshot(source)
     const target = toTreeNode<number[]>([...initial])
     applyPatches(target, patches)

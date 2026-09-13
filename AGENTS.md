@@ -59,7 +59,7 @@ done
 - Core test env vars:
   - `COMPILER` (default `tsc`): `tsc`, `tsc-experimental-decorators`, `babel`, `swc`.
   - `MOBX_VERSION` (default `7`): `7`, `6`, `5`, `4`.
-- Matrix logic lives in `packages/lib/env.js` and `packages/lib/vitest.config.ts` (tsconfig selection, MobX aliasing to `mobx-v6`/`mobx-v5`/`mobx-v4`, compiler plugin).
+- Matrix logic lives in `packages/lib/env.js` and `packages/lib/vitest.config.mts` (tsconfig selection, MobX aliasing to `mobx-v6`/`mobx-v5`/`mobx-v4`, compiler plugin).
 - Vitest setup file across packages: `test/commonSetup.ts`.
 - For TS type assertions in tests use:
 

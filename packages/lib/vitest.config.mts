@@ -165,6 +165,10 @@ export default defineConfig({
     },
   },
   test: {
+    deps: {
+      // MobX 4 exposes a warning-only default getter, not a default export.
+      interopDefault: mobxVersion !== 4,
+    },
     setupFiles: ["./test/commonSetup.ts"],
     environment: "node",
     globals: true,

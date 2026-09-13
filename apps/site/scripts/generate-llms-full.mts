@@ -2,7 +2,7 @@
 import fs from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
-import sidebars from "../sidebars.ts"
+import sidebars from "../sidebars.mts"
 
 type SidebarNode = string | { type?: string; id?: string; items?: SidebarNode[] } | SidebarNode[]
 
@@ -48,7 +48,7 @@ function uniqueInOrder(items: string[]) {
 
 async function main() {
   const docsSidebar = (sidebars as { docs?: SidebarNode }).docs
-  if (!docsSidebar) throw new Error("Could not find `docs` sidebar in sidebars.ts.")
+  if (!docsSidebar) throw new Error("Could not find `docs` sidebar in sidebars.mts.")
 
   const orderedDocIds: string[] = []
   collectDocIds(docsSidebar, orderedDocIds)

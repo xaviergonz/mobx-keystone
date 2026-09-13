@@ -2,7 +2,7 @@ import path from "node:path"
 import { defineConfig } from "vite"
 import dts from "vite-plugin-dts"
 
-const resolvePath = (str: string) => path.resolve(__dirname, str)
+const resolvePath = (str: string) => path.resolve(import.meta.dirname, str)
 
 export default defineConfig({
   build: {

@@ -161,7 +161,7 @@
       }
     },
     {
-      "includes": ["**/vite.config.mts", "**/vitest.config.ts"],
+      "includes": ["**/vite.config.mts", "**/vitest.config.mts"],
       "linter": {
         "rules": {
           "style": {
