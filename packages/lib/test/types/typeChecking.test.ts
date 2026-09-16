@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { reaction, remove, set, toJS } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   type AnyModel,
   type AnyType,
@@ -227,7 +227,7 @@ test("TypeInfo default traversal methods", () => {
 
 test("literal", () => {
   const type = types.literal("hi")
-  assert(_ as TypeToData<typeof type>, "hi")
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<"hi">()
 
   expectTypeCheckOk(type, "hi")
   expectTypeCheckFail(type, "ho", [], JSON.stringify("hi"))
@@ -241,7 +241,7 @@ test("literal", () => {
 
 test("undefined", () => {
   const type = types.undefined
-  assert(_ as TypeToData<typeof type>, undefined)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<undefined>()
 
   expectTypeCheckOk(type, undefined)
   expectTypeCheckFail(type, "ho", [], "undefined")
@@ -252,7 +252,7 @@ test("undefined", () => {
 
 test("simple undefined", () => {
   const type = undefined
-  assert(_ as TypeToData<typeof type>, undefined)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<undefined>()
 
   expectTypeCheckOk(type, undefined)
   expectTypeCheckFail(type, "ho", [], "undefined")
@@ -263,7 +263,7 @@ test("simple undefined", () => {
 
 test("null", () => {
   const type = types.null
-  assert(_ as TypeToData<typeof type>, null)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<null>()
 
   expectTypeCheckOk(type, null)
   expectTypeCheckFail(type, "ho", [], "null")
@@ -274,7 +274,7 @@ test("null", () => {
 
 test("simple null", () => {
   const type = null
-  assert(_ as TypeToData<typeof type>, null)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<null>()
 
   expectTypeCheckOk(type, null)
   expectTypeCheckFail(type, "ho", [], "null")
@@ -285,7 +285,7 @@ test("simple null", () => {
 
 test("boolean", () => {
   const type = types.boolean
-  assert(_ as TypeToData<typeof type>, _ as boolean)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<boolean>()
 
   expectTypeCheckOk(type, false)
   expectTypeCheckFail(type, "ho", [], "boolean")
@@ -295,7 +295,7 @@ test("boolean", () => {
 
 test("simple boolean", () => {
   const type = Boolean
-  assert(_ as TypeToData<typeof type>, _ as boolean)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<boolean>()
 
   expectTypeCheckOk(type, false)
   expectTypeCheckFail(type, "ho", [], "boolean")
@@ -305,7 +305,7 @@ test("simple boolean", () => {
 
 test("number", () => {
   const type = types.number
-  assert(_ as TypeToData<typeof type>, _ as number)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckFail(type, "ho", [], "number")
@@ -315,7 +315,7 @@ test("number", () => {
 
 test("simple number", () => {
   const type = Number
-  assert(_ as TypeToData<typeof type>, _ as number)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckFail(type, "ho", [], "number")
@@ -325,7 +325,7 @@ test("simple number", () => {
 
 test("string", () => {
   const type = types.string
-  assert(_ as TypeToData<typeof type>, _ as string)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<string>()
 
   expectTypeCheckOk(type, "hello")
   expectTypeCheckFail(type, 5, [], "string")
@@ -335,7 +335,7 @@ test("string", () => {
 
 test("simple string", () => {
   const type = String
-  assert(_ as TypeToData<typeof type>, _ as string)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<string>()
 
   expectTypeCheckOk(type, "hello")
   expectTypeCheckFail(type, 5, [], "string")
@@ -345,7 +345,7 @@ test("simple string", () => {
 
 test("or - simple types", () => {
   const type = types.or(types.number, types.boolean)
-  assert(_ as TypeToData<typeof type>, _ as number | boolean)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number | boolean>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
@@ -359,7 +359,7 @@ test("or - simple types", () => {
 
 test("or - simple simple types", () => {
   const type = types.or(Number, Boolean)
-  assert(_ as TypeToData<typeof type>, _ as number | boolean)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number | boolean>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
@@ -372,7 +372,7 @@ test("or - simple simple types", () => {
 
 test("maybe", () => {
   const type = types.maybe(types.number)
-  assert(_ as TypeToData<typeof type>, _ as number | undefined)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number | undefined>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, undefined)
@@ -385,7 +385,7 @@ test("maybe", () => {
 
 test("maybeNull", () => {
   const type = types.maybeNull(types.number)
-  assert(_ as TypeToData<typeof type>, _ as number | null)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number | null>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, null)
@@ -410,7 +410,7 @@ test("or - dispatcher (public api)", () => {
 
 test("array - simple types", () => {
   const type = types.array(types.number)
-  assert(_ as TypeToData<typeof type>, _ as number[])
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number[]>()
 
   expectTypeCheckOk(type, [])
   expectTypeCheckOk(type, [1, 2, 3])
@@ -425,7 +425,7 @@ test("array - simple types", () => {
 
 test("tuple - simple types", () => {
   const type = types.tuple(types.number, types.string)
-  assert(_ as TypeToData<typeof type>, _ as [number, string])
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<[number, string]>()
 
   expectTypeCheckOk(type, [1, "str1"])
   expectTypeCheckOk(type, [2, "str2"])
@@ -441,7 +441,7 @@ test("tuple - simple types", () => {
 test("record - simple types", () => {
   const type = types.record(types.number)
   type T = TypeToData<typeof type>
-  assert(_ as T, _ as Record<string, number>)
+  expectTypeOf<T>().toEqualTypeOf<Record<string, number>>()
 
   expectTypeCheckOk(type, {})
   expectTypeCheckOk(type, { x: 5, y: 6 })
@@ -457,7 +457,7 @@ test("record - simple types", () => {
 
 test("unchecked", () => {
   const type = types.unchecked<number>()
-  assert(_ as TypeToData<typeof type>, _ as number)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, { x: 5, y: 6 } as any)
@@ -471,7 +471,7 @@ test("object - simple types", () => {
     x: types.number,
     y: types.string,
   }))
-  assert(_ as TypeToData<typeof type>, _ as { x: number; y: string })
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<{ x: number; y: string }>()
 
   expectTypeCheckOk(type, { x: 5, y: "6" })
 
@@ -504,7 +504,7 @@ test("object - all optional simple types", () => {
     x: xType,
     y: yType,
   }))
-  assert(_ as TypeToData<typeof type>, _ as { x?: number; y?: string })
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<{ x?: number; y?: string }>()
 
   expectTypeCheckOk(type, { x: 5, y: "6" })
   expectTypeCheckOk(type, { x: undefined })
@@ -563,7 +563,7 @@ class M extends Model({
 test("model", () => {
   const m = new M({ y: "6" })
   const type = types.model(M)
-  assert(_ as TypeToData<typeof type>, _ as M)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<M>()
 
   expectTypeCheckOk(type, m)
   expect(m.typeCheck()).toBeNull()
@@ -623,7 +623,7 @@ test("model", () => {
 test("model typechecking", () => {
   const m = new M({ y: "6" })
   const type = types.model(M)
-  assert(_ as TypeToData<typeof type>, _ as M)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<M>()
 
   expectTypeCheckOk(type, m)
 
@@ -1565,7 +1565,7 @@ test("array - complex types", () => {
     x: types.number,
   }))
   const type = types.array(itemType)
-  assert(_ as TypeToData<typeof type>, _ as { x: number }[])
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<{ x: number }[]>()
 
   expectTypeCheckOk(type, [{ x: 5 }])
 
@@ -1581,7 +1581,7 @@ test("array - complex types", () => {
 
 test("array - unchecked", () => {
   const type = types.array(types.unchecked<number>())
-  assert(_ as TypeToData<typeof type>, _ as number[])
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number[]>()
 
   expectTypeCheckOk(type, [1, 2, 3])
 
@@ -1596,7 +1596,7 @@ test("array - unchecked", () => {
 
 test("array - undefined", () => {
   const type = types.array(types.undefined)
-  assert(_ as TypeToData<typeof type>, _ as undefined[])
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<undefined[]>()
 
   expectTypeCheckOk(type, [undefined])
 
@@ -1618,15 +1618,12 @@ test("object - complex types", () => {
     x: xType,
     o: oType,
   }))
-  assert(
-    _ as TypeToData<typeof type>,
-    _ as {
-      x?: number
-      o: {
-        y: string
-      }
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<{
+    x?: number
+    o: {
+      y: string
     }
-  )
+  }>()
 
   expectTypeCheckOk(type, { x: 5, o: { y: "6" } })
 
@@ -1657,7 +1654,7 @@ test("record - complex types", () => {
   }))
 
   const type = types.record(valueType)
-  assert(_ as TypeToData<typeof type>, _ as Record<string, { y: string }>)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<Record<string, { y: string }>>()
 
   expectTypeCheckOk(type, { o: { y: "6" } })
 
@@ -1678,7 +1675,7 @@ test("or - complex types", () => {
   const typeB = types.number
 
   const type = types.or(typeA, typeB)
-  assert(_ as TypeToData<typeof type>, _ as number | { y: string })
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number | { y: string }>()
 
   expectTypeCheckOk(type, { y: "6" })
   expectTypeCheckOk(type, 6)
@@ -1698,7 +1695,7 @@ test("or - one type unchecked", () => {
   const typeC = types.unchecked<string>()
 
   const type = types.or(typeA, typeB, typeC)
-  assert(_ as TypeToData<typeof type>, _ as string | number | boolean)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<string | number | boolean>()
 
   expectTypeCheckOk(type, 6)
   expectTypeCheckOk(type, false)
@@ -1813,7 +1810,7 @@ test("recursive model", () => {
   const type = types.model(MR)
 
   const mr = new MR({ rec: new MR({}) })
-  assert(_ as TypeToData<typeof type>, _ as MR)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<MR>()
 
   expectTypeCheckOk(type, mr)
 
@@ -1863,7 +1860,7 @@ test("cross referenced model", () => {
   const type = types.model(MA)
 
   const ma = new MA({ b: new MB({ a: new MA({}) }) })
-  assert(_ as TypeToData<typeof type>, _ as MA)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<MA>()
 
   expectTypeCheckOk(type, ma)
 
@@ -1899,7 +1896,7 @@ test("ref", () => {
   })
   const r = customR(m)
   const type = types.ref(customR)
-  assert(_ as TypeToData<typeof type>, _ as Ref<M>)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<Ref<M>>()
 
   expectTypeCheckOk(type, r)
   expectTypeCheckFail(type, m, [], "Ref")
@@ -1910,7 +1907,7 @@ test("ref", () => {
 test("frozen - simple type", () => {
   const type = types.frozen(types.number)
   type T = TypeToData<typeof type>
-  assert(_ as T, _ as Frozen<number>)
+  expectTypeOf<T>().toEqualTypeOf<Frozen<number>>()
 
   const fr = frozen<number>(5)
 
@@ -1930,7 +1927,7 @@ test("frozen - complex type", () => {
 
   const type = types.frozen(dataType)
   type T = TypeToData<typeof type>
-  assert(_ as T, _ as Frozen<{ x: number }>)
+  expectTypeOf<T>().toEqualTypeOf<Frozen<{ x: number }>>()
 
   const fr = frozen<{ x: number }>({ x: 5 })
 
@@ -1959,7 +1956,7 @@ test("enum (string)", () => {
 
   const type = types.enum(A)
 
-  assert(_ as TypeToData<typeof type>, _ as A)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<A>()
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `"x1" | "x2"`)
@@ -1991,7 +1988,7 @@ test("enum (number)", () => {
 
   const type = types.enum(A)
 
-  assert(_ as TypeToData<typeof type>, _ as A)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<A>()
 
   expectTypeCheckOk(type, A.X2)
   expectTypeCheckFail(type, "X1", [], `0 | 1`)
@@ -2025,7 +2022,7 @@ test("enum (mixed)", () => {
 
   const type = types.enum(A)
 
-  assert(_ as TypeToData<typeof type>, _ as A)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<A>()
 
   expectTypeCheckOk(type, A.X15)
   expectTypeCheckOk(type, A.X2)
@@ -2046,7 +2043,7 @@ test("enum (mixed)", () => {
 
 test("integer", () => {
   const type = types.integer
-  assert(_ as TypeToData<typeof type>, _ as number)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number>()
 
   expectTypeCheckOk(type, 5)
   expectTypeCheckFail(type, 5.5, [], "integer<number>")
@@ -2056,7 +2053,7 @@ test("integer", () => {
 
 test("nonEmptyString", () => {
   const type = types.nonEmptyString
-  assert(_ as TypeToData<typeof type>, _ as string)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<string>()
 
   expectTypeCheckOk(type, " ")
   expectTypeCheckFail(type, "", [], "nonEmpty<string>")
@@ -2070,7 +2067,7 @@ test("refinement (simple)", () => {
   }
 
   const type = types.refinement(types.number, checkFn, "integer")
-  assert(_ as TypeToData<typeof type>, _ as number)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<number>()
 
   expectTypeCheckOk(type, 5)
   expectTypeCheckFail(type, 5.5, [], "integer<number>")
@@ -2113,7 +2110,7 @@ test("refinement (complex)", () => {
           typeCheckedValue: sum,
         })
   })
-  assert(_ as TypeToData<typeof type>, _ as { b: number; a: number; result: number })
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<{ b: number; a: number; result: number }>()
 
   expectTypeCheckOk(type, { a: 2, b: 3, result: 5 })
   expectTypeCheckFail(type, { a: 2, b: 3, result: 6 }, ["result"], "a+b")
@@ -2125,7 +2122,7 @@ test("refinement (complex)", () => {
 test("objectMap", () => {
   const type = types.objectMap(types.number)
 
-  assert(_ as TypeToData<typeof type>, _ as ObjectMap<number>)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<ObjectMap<number>>()
 
   expectTypeCheckOk(type, objectMap<number>([["1", 10]]))
   expectTypeCheckFail(type, {} as any, [], "ObjectMap<number>")
@@ -2182,7 +2179,7 @@ test("objectMap", () => {
 test("arraySet", () => {
   const type = types.arraySet(types.number)
 
-  assert(_ as TypeToData<typeof type>, _ as ArraySet<number>)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<ArraySet<number>>()
 
   expectTypeCheckOk(type, arraySet<number>([1, 2, 3]))
   expectTypeCheckFail(type, {} as any, [], "ArraySet<number>")
@@ -2234,16 +2231,13 @@ test("typing of optional values", () => {
 
   type T1 = TypeToData<typeof t1>
 
-  assert(
-    _ as T1,
-    _ as {
-      n: number
-      ns: string | number
-      nsu1?: string | number | undefined
-      nsu2?: string | number | undefined
-      nsu3?: string | number | undefined
-    }
-  )
+  expectTypeOf<T1>().toEqualTypeOf<{
+    n: number
+    ns: string | number
+    nsu1?: string | number | undefined
+    nsu2?: string | number | undefined
+    nsu3?: string | number | undefined
+  }>()
 
   const a = types.array(types.number)
   const t2 = types.object(() => ({
@@ -2256,16 +2250,13 @@ test("typing of optional values", () => {
 
   type T2 = TypeToData<typeof t2>
 
-  assert(
-    _ as T2,
-    _ as {
-      n: number[]
-      ns: string | number[]
-      nsu1?: string | number[] | undefined
-      nsu2?: string | number[] | undefined
-      nsu3?: string | number[] | undefined
-    }
-  )
+  expectTypeOf<T2>().toEqualTypeOf<{
+    n: number[]
+    ns: string | number[]
+    nsu1?: string | number[] | undefined
+    nsu2?: string | number[] | undefined
+    nsu3?: string | number[] | undefined
+  }>()
 })
 
 test("syntax sugar for primitives in tProp", () => {
@@ -2330,18 +2321,18 @@ test("syntax sugar for primitives in tProp", () => {
 
   const ss = new SS({ nul: null, undef: undefined, or: 5, arr: [1, "2", 3] })
   const type = types.model(SS)
-  assert(_ as TypeToData<typeof type>, _ as SS)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<SS>()
 
-  assert(ss.n, _ as number)
-  assert(ss.s, _ as string)
-  assert(ss.b, _ as boolean)
-  assert(ss.n2, _ as number)
-  assert(ss.s2, _ as string)
-  assert(ss.b2, _ as boolean)
-  assert(ss.nul, _ as null)
-  assert(ss.undef, _ as undefined)
-  assert(ss.or, _ as string | number | boolean)
-  assert(ss.arr, _ as (string | number)[])
+  expectTypeOf(ss.n).toEqualTypeOf<number>()
+  expectTypeOf(ss.s).toEqualTypeOf<string>()
+  expectTypeOf(ss.b).toEqualTypeOf<boolean>()
+  expectTypeOf(ss.n2).toEqualTypeOf<number>()
+  expectTypeOf(ss.s2).toEqualTypeOf<string>()
+  expectTypeOf(ss.b2).toEqualTypeOf<boolean>()
+  expectTypeOf(ss.nul).toEqualTypeOf<null>()
+  expectTypeOf(ss.undef).toEqualTypeOf<undefined>()
+  expectTypeOf(ss.or).toEqualTypeOf<string | number | boolean>()
+  expectTypeOf(ss.arr).toEqualTypeOf<(string | number)[]>()
 
   expect(ss.n).toBe(42)
   expect(ss.s).toBe("foo")
@@ -2428,12 +2419,12 @@ test("syntax sugar for union types in tProp", () => {
 
   const ss = new SS({ or: 5, orDefault: undefined, orDefaultFn: null, maybeString: undefined })
   const type = types.model(SS)
-  assert(_ as TypeToData<typeof type>, _ as SS)
+  expectTypeOf<TypeToData<typeof type>>().toEqualTypeOf<SS>()
 
-  assert(ss.or, _ as string | number | boolean)
-  assert(ss.orDefault, _ as string | number)
-  assert(ss.orDefaultFn, _ as string | number)
-  assert(ss.maybeString, _ as string | undefined)
+  expectTypeOf(ss.or).toEqualTypeOf<string | number | boolean>()
+  expectTypeOf(ss.orDefault).toEqualTypeOf<string | number>()
+  expectTypeOf(ss.orDefaultFn).toEqualTypeOf<string | number>()
+  expectTypeOf(ss.maybeString).toEqualTypeOf<string | undefined>()
 
   expect(ss.or).toBe(5)
   expect(ss.orDefault).toBe("foo")

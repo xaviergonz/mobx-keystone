@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   _async,
   _await,
@@ -692,7 +692,7 @@ test("standaloneFlow", async () => {
     fetchX = _async(function* (this: DataModel, y: number) {
       const data = this.x + y
       const flowResult = yield* _await(fetchData(this, y))
-      assert(flowResult, _ as number)
+      expectTypeOf(flowResult).toEqualTypeOf<number>()
       expect(flowResult).toBe(data)
       return flowResult
     })
@@ -702,24 +702,24 @@ test("standaloneFlow", async () => {
     const data = target.x + y
 
     const promiseResult = yield* _await(Promise.resolve(data))
-    assert(promiseResult, _ as number)
+    expectTypeOf(promiseResult).toEqualTypeOf<number>()
     expect(promiseResult).toBe(data)
     return promiseResult
   })
 
-  assert(fetchData, _ as (target: DataModel, y: number) => Promise<number>)
+  expectTypeOf(fetchData).toEqualTypeOf<(target: DataModel, y: number) => Promise<number>>()
 
   const root = new DataModel({})
 
   const pr = fetchData(root, 3)
-  void assert(pr, _ as Promise<number>)
+  expectTypeOf(pr).toEqualTypeOf<Promise<number>>()
   const r = await pr
-  assert(r, _ as number)
+  expectTypeOf(r).toEqualTypeOf<number>()
   expect(r).toBe(3)
 
   const pr2 = root.fetchX(4)
-  void assert(pr2, _ as Promise<number>)
+  expectTypeOf(pr2).toEqualTypeOf<Promise<number>>()
   const r2 = await pr2
-  assert(r2, _ as number)
+  expectTypeOf(r2).toEqualTypeOf<number>()
   expect(r2).toBe(4)
 })

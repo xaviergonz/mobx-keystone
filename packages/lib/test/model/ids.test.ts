@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   ExtendedModel,
   fromSnapshot,
@@ -102,12 +102,12 @@ test("extended class from base with custom id", () => {
     id: idProp,
   }) {}
 
-  assert(_ as ModelIdPropertyName<IdOnBase>, _ as "id")
+  expectTypeOf<ModelIdPropertyName<IdOnBase>>().toEqualTypeOf<"id">()
 
   @testModel("ExtendedIdOnBase")
   class ExtendedIdOnBase extends ExtendedModel(IdOnBase, {}) {}
 
-  assert(_ as ModelIdPropertyName<ExtendedIdOnBase>, _ as "id")
+  expectTypeOf<ModelIdPropertyName<ExtendedIdOnBase>>().toEqualTypeOf<"id">()
 
   const m1 = new ExtendedIdOnBase({ id: "MY_ID" })
   expect(m1.$modelId).toBe("MY_ID")
@@ -157,8 +157,8 @@ test("idProp.withGenerator with chaining and typedAs", () => {
   const m = new ModelWithTypedIdGenerator({})
   expect(m.id).toBe("typed-1")
   m.setId("typed-2")
-  assert(m.id, _ as Id)
-  assert(m.$modelId, _ as Id)
+  expectTypeOf(m.id).toEqualTypeOf<Id>()
+  expectTypeOf(m.$modelId).toEqualTypeOf<Id>()
 })
 
 test("idProp.withSetter(fn) transforms assigned value", () => {
@@ -254,8 +254,8 @@ test("idProp.typedAs", () => {
   }) {}
 
   const m = new M({ id: "custom-1" })
-  assert(m.id, _ as Id)
-  assert(_ as SnapshotInOf<M>["id"], _ as Id | undefined)
-  assert(_ as SnapshotOutOf<M>["id"], _ as Id)
-  assert(m.$modelId, _ as Id)
+  expectTypeOf(m.id).toEqualTypeOf<Id>()
+  expectTypeOf<SnapshotInOf<M>["id"]>().toEqualTypeOf<Id | undefined>()
+  expectTypeOf<SnapshotOutOf<M>["id"]>().toEqualTypeOf<Id>()
+  expectTypeOf(m.$modelId).toEqualTypeOf<Id>()
 })

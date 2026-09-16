@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { computed, reaction, remove, runInAction, set } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   applyPatches,
   applySnapshot,
@@ -998,7 +998,7 @@ test("generic typings", () => {
   const genericRef = rootRef<GenericModel<any, any>>("genericRef")
 
   const ref = genericRef(new GenericModel({ v1: 1, v2: "2" }))
-  assert(ref, _ as Ref<GenericModel<number, string>>)
+  expectTypeOf(ref).toEqualTypeOf<Ref<GenericModel<number, string>>>()
 
   const genericRef2 = rootRef<GenericModel<string, number>>("genericRef2")
 

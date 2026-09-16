@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import type { ObservableSet } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   fromSnapshot,
   getSnapshot,
@@ -21,38 +21,29 @@ test("typed snapshot APIs round-trip nested codec schemas", () => {
     tags: types.setFromArray(types.number),
   }))
 
-  assert(
-    _ as TypeToData<typeof infoType>,
-    _ as {
-      createdAt: Date
-      counts: Map<string, bigint>
-      keyed: Map<Date, bigint>
-      ids: bigint[]
-      tags: Set<number> | ObservableSet<number>
-    }
-  )
+  expectTypeOf<TypeToData<typeof infoType>>().toEqualTypeOf<{
+    createdAt: Date
+    counts: Map<string, bigint>
+    keyed: Map<Date, bigint>
+    ids: bigint[]
+    tags: Set<number> | ObservableSet<number>
+  }>()
 
-  assert(
-    _ as TypeToSnapshotIn<typeof infoType>,
-    _ as {
-      createdAt: number
-      counts: Record<string, string>
-      keyed: Array<[string, string]>
-      ids: string[]
-      tags: number[]
-    }
-  )
+  expectTypeOf<TypeToSnapshotIn<typeof infoType>>().toEqualTypeOf<{
+    createdAt: number
+    counts: Record<string, string>
+    keyed: Array<[string, string]>
+    ids: string[]
+    tags: number[]
+  }>()
 
-  assert(
-    _ as TypeToSnapshotOut<typeof infoType>,
-    _ as {
-      createdAt: number
-      counts: Record<string, string>
-      keyed: Array<[string, string]>
-      ids: string[]
-      tags: number[]
-    }
-  )
+  expectTypeOf<TypeToSnapshotOut<typeof infoType>>().toEqualTypeOf<{
+    createdAt: number
+    counts: Record<string, string>
+    keyed: Array<[string, string]>
+    ids: string[]
+    tags: number[]
+  }>()
 
   const info = fromSnapshot(infoType, {
     createdAt: 1000,
@@ -100,7 +91,7 @@ test("typed snapshot APIs support array and record runtime views", () => {
   const recordType = types.record(types.bigint)
 
   const ids = fromSnapshot(idsType, ["1", "2"])
-  assert(ids, _ as bigint[])
+  expectTypeOf(ids).toEqualTypeOf<bigint[]>()
 
   expect(isArray(ids)).toBe(true)
   expect(ids[0]).toBe(1n)
@@ -116,7 +107,7 @@ test("typed snapshot APIs support array and record runtime views", () => {
   const record = fromSnapshot(recordType, {
     a: "3",
   })
-  assert(record, _ as Record<string, bigint>)
+  expectTypeOf(record).toEqualTypeOf<Record<string, bigint>>()
 
   expect(record.a).toBe(3n)
   runUnprotected(() => {
@@ -134,20 +125,20 @@ test("typed snapshot APIs support tuple, maybe, and or codec schemas", () => {
   const maybeType = types.maybe(types.bigint)
   const orType = types.or(types.number, types.bigint)
 
-  assert(_ as TypeToData<typeof tupleType>, _ as [bigint, Date])
-  assert(_ as TypeToSnapshotIn<typeof tupleType>, _ as [string, string])
-  assert(_ as TypeToSnapshotOut<typeof tupleType>, _ as [string, string])
+  expectTypeOf<TypeToData<typeof tupleType>>().toEqualTypeOf<[bigint, Date]>()
+  expectTypeOf<TypeToSnapshotIn<typeof tupleType>>().toEqualTypeOf<[string, string]>()
+  expectTypeOf<TypeToSnapshotOut<typeof tupleType>>().toEqualTypeOf<[string, string]>()
 
-  assert(_ as TypeToData<typeof maybeType>, _ as bigint | undefined)
-  assert(_ as TypeToSnapshotIn<typeof maybeType>, _ as string | undefined)
-  assert(_ as TypeToSnapshotOut<typeof maybeType>, _ as string | undefined)
+  expectTypeOf<TypeToData<typeof maybeType>>().toEqualTypeOf<bigint | undefined>()
+  expectTypeOf<TypeToSnapshotIn<typeof maybeType>>().toEqualTypeOf<string | undefined>()
+  expectTypeOf<TypeToSnapshotOut<typeof maybeType>>().toEqualTypeOf<string | undefined>()
 
-  assert(_ as TypeToData<typeof orType>, _ as number | bigint)
-  assert(_ as TypeToSnapshotIn<typeof orType>, _ as number | string)
-  assert(_ as TypeToSnapshotOut<typeof orType>, _ as number | string)
+  expectTypeOf<TypeToData<typeof orType>>().toEqualTypeOf<number | bigint>()
+  expectTypeOf<TypeToSnapshotIn<typeof orType>>().toEqualTypeOf<number | string>()
+  expectTypeOf<TypeToSnapshotOut<typeof orType>>().toEqualTypeOf<number | string>()
 
   const tuple = fromSnapshot(tupleType, ["1", "2026-01-01T00:00:00.000Z"])
-  assert(tuple, _ as [bigint, Date])
+  expectTypeOf(tuple).toEqualTypeOf<[bigint, Date]>()
   expect(tuple[0]).toBe(1n)
   expect(tuple[1].toISOString()).toBe("2026-01-01T00:00:00.000Z")
   expect(getSnapshot(tupleType, tuple)).toEqual(["1", "2026-01-01T00:00:00.000Z"])

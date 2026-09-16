@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { toJS } from "mobx"
-import { _, assert } from "spec.ts"
 import { arrayActions, isTreeNode, patchRecorder, toTreeNode } from "../../src"
 
 test.each([0, 1, 2])("swapping index %s with itself leaves the array unchanged", (index) => {
@@ -64,7 +64,7 @@ test("swap", () => {
 test("arrayActions.concat accepts scalar items mixed with arrays", () => {
   const source = toTreeNode([1])
   const result = arrayActions.concat(source, 2, [3, 4])
-  assert(result, _ as number[])
+  expectTypeOf(result).toEqualTypeOf<number[]>()
   expect(result).toEqual([1, 2, 3, 4])
   expect(Array.from(source)).toEqual([1])
 })

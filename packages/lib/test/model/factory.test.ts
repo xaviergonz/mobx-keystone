@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   idProp,
   Model,
@@ -44,28 +44,26 @@ test("factory pattern", () => {
   type StringMyModel = InstanceType<typeof StringMyModel>
 
   type SInStr = SnapshotInOf<StringMyModel>
-  assert(
-    _ as SInStr,
-    _ as {
+  expectTypeOf<SInStr>().toEqualTypeOf<
+    {
       [modelIdKey]?: string
       x?: string | null
       y?: string | null
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
   type SOutStr = SnapshotOutOf<StringMyModel>
-  assert(
-    _ as SOutStr,
-    _ as {
+  expectTypeOf<SOutStr>().toEqualTypeOf<
+    {
       [modelIdKey]: string
       x: string
       y: string
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
   const stringMyModelInstance = new StringMyModel({}) // this will be of type StringMyModel
   expect(stringMyModelInstance.$modelType).toBe("factory pattern/myApp/StringMyModel")
@@ -76,26 +74,24 @@ test("factory pattern", () => {
   expect(stringMyModelInstance.y).toBe("60")
 
   type SInNum = SnapshotInOf<NumberMyModel>
-  assert(
-    _ as SInNum,
-    _ as {
+  expectTypeOf<SInNum>().toEqualTypeOf<
+    {
       [modelIdKey]?: string
       x?: number | null
       y?: number | null
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
   type SOutNum = SnapshotOutOf<NumberMyModel>
-  assert(
-    _ as SOutNum,
-    _ as {
+  expectTypeOf<SOutNum>().toEqualTypeOf<
+    {
       [modelIdKey]: string
       x: number
       y: number
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 })

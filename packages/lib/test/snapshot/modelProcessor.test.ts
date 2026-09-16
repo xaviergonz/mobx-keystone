@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { computed, toJS } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   applyPatches,
   applySnapshot,
@@ -33,23 +33,21 @@ test("input snapshot processor", () => {
     }
   ) {}
 
-  assert(
-    _ as SnapshotInOf<P3>,
-    _ as {
+  expectTypeOf<SnapshotInOf<P3>>().toEqualTypeOf<
+    {
       y: string
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
-  assert(
-    _ as SnapshotOutOf<P3>,
-    _ as {
+  expectTypeOf<SnapshotOutOf<P3>>().toEqualTypeOf<
+    {
       arr: number[]
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
   const p = fromSnapshot<P3>(
     modelSnapshotInWithMetadata(P3, {
@@ -97,9 +95,8 @@ test("input snapshot processor with original type", () => {
     },
   }) {}
 
-  assert(
-    _ as SnapshotInOf<P3>,
-    _ as (
+  expectTypeOf<SnapshotInOf<P3>>().toEqualTypeOf<
+    (
       | {
           arr?: number[] | null | undefined
         }
@@ -109,16 +106,15 @@ test("input snapshot processor with original type", () => {
     ) & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
-  assert(
-    _ as SnapshotOutOf<P3>,
-    _ as {
+  expectTypeOf<SnapshotOutOf<P3>>().toEqualTypeOf<
+    {
       arr: number[]
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
   const p = fromSnapshot<P3>(
     modelSnapshotInWithMetadata(P3, {
@@ -195,25 +191,23 @@ test("output snapshot processor", () => {
     }
   }
 
-  assert(
-    _ as SnapshotInOf<P4>,
-    _ as {
+  expectTypeOf<SnapshotInOf<P4>>().toEqualTypeOf<
+    {
       arr?: number[] | null
       child?: SnapshotInOf<IP4>
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
-  assert(
-    _ as SnapshotOutOf<P4>,
-    _ as {
+  expectTypeOf<SnapshotOutOf<P4>>().toEqualTypeOf<
+    {
       y: string
       child: SnapshotOutOf<IP4> | undefined
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
   const p = new P4({
     arr: [30, 40, 50],

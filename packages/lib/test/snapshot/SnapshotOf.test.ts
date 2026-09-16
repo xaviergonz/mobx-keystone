@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   type ArraySet,
   fromSnapshot,
@@ -16,8 +16,12 @@ import { testModel } from "../utils"
 class Item extends Model({ value: prop(1) }) {}
 
 test("ObjectMap input snapshots allow item defaults", () => {
-  assert(_ as NonNullable<SnapshotInOf<ObjectMap<Item>>["items"]>[string], _ as SnapshotInOf<Item>)
-  assert(_ as SnapshotOutOf<ObjectMap<Item>>["items"][string], _ as SnapshotOutOf<Item>)
+  expectTypeOf<NonNullable<SnapshotInOf<ObjectMap<Item>>["items"]>[string]>().toEqualTypeOf<
+    SnapshotInOf<Item>
+  >()
+  expectTypeOf<SnapshotOutOf<ObjectMap<Item>>["items"][string]>().toEqualTypeOf<
+    SnapshotOutOf<Item>
+  >()
 
   const input: SnapshotInOf<ObjectMap<Item>> = {
     [modelTypeKey]: "mobx-keystone/ObjectMap",
@@ -30,8 +34,12 @@ test("ObjectMap input snapshots allow item defaults", () => {
 })
 
 test("ArraySet input snapshots allow item defaults", () => {
-  assert(_ as NonNullable<SnapshotInOf<ArraySet<Item>>["items"]>[number], _ as SnapshotInOf<Item>)
-  assert(_ as SnapshotOutOf<ArraySet<Item>>["items"][number], _ as SnapshotOutOf<Item>)
+  expectTypeOf<NonNullable<SnapshotInOf<ArraySet<Item>>["items"]>[number]>().toEqualTypeOf<
+    SnapshotInOf<Item>
+  >()
+  expectTypeOf<SnapshotOutOf<ArraySet<Item>>["items"][number]>().toEqualTypeOf<
+    SnapshotOutOf<Item>
+  >()
 
   const input: SnapshotInOf<ArraySet<Item>> = {
     [modelTypeKey]: "mobx-keystone/ArraySet",

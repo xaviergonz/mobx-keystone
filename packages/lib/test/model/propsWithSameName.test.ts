@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import { idProp, Model, modelIdKey, prop, runUnprotected } from "../../src"
 import { testModel } from "../utils"
 
@@ -37,13 +37,13 @@ test("props with same name", () => {
   expect(m.x).toBe(140)
   expect(m.$.x).toBe(140)
 
-  assert(m.$modelType, _ as string)
+  expectTypeOf(m.$modelType).toEqualTypeOf<string>()
   expect(typeof m.$modelType).toBe("string")
-  assert(m.$.$modelType, _ as number)
+  expectTypeOf(m.$.$modelType).toEqualTypeOf<number>()
   expect(m.$.$modelType).toBe(5)
 
-  assert(m.onInit, _ as () => void)
+  expectTypeOf(m.onInit).toEqualTypeOf<() => void>()
   expect(typeof m.onInit).toBe("function")
-  assert(m.$.onInit, _ as number)
+  expectTypeOf(m.$.onInit).toEqualTypeOf<number>()
   expect(m.$.onInit).toBe(10)
 })

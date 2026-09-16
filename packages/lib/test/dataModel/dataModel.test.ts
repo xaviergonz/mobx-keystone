@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { computed, reaction } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   _async,
   _await,
@@ -75,13 +75,10 @@ test("without type", async () => {
     asyncAction = _async(this._asyncAction)
   }
 
-  assert(
-    _ as ModelData<Todo>,
-    _ as {
-      done: boolean
-      text: string
-    }
-  )
+  expectTypeOf<ModelData<Todo>>().toEqualTypeOf<{
+    done: boolean
+    text: string
+  }>()
 
   const todo = new Todo({ done: true, text: "1" })
   registerRootStore(todo.$)
@@ -423,13 +420,10 @@ test("with type", async () => {
     asyncAction = _async(this._asyncAction)
   }
 
-  assert(
-    _ as ModelData<Todo>,
-    _ as {
-      done: boolean
-      text: string
-    }
-  )
+  expectTypeOf<ModelData<Todo>>().toEqualTypeOf<{
+    done: boolean
+    text: string
+  }>()
 
   const todo = new Todo({ done: true, text: "1" })
   expect(todo.typeCheck()).toBe(null)
@@ -961,8 +955,16 @@ test("new pattern for generics", () => {
     v3: prop<number>(),
   }))<T1, T2> {}
 
-  assert(_ as ModelData<GenericModel<string, number>>, _ as { v1: string; v2: number; v3: number })
-  assert(_ as ModelData<GenericModel<number, string>>, _ as { v1: number; v2: string; v3: number })
+  expectTypeOf<ModelData<GenericModel<string, number>>>().toEqualTypeOf<{
+    v1: string
+    v2: number
+    v3: number
+  }>()
+  expectTypeOf<ModelData<GenericModel<number, string>>>().toEqualTypeOf<{
+    v1: number
+    v2: string
+    v3: number
+  }>()
 
   const s = new GenericModel<string, number>({ v1: "1", v2: 2, v3: 3 })
   expect(s.v1).toBe("1")
@@ -1004,12 +1006,13 @@ test("data model codec props accept encoded untransformed creation data", () => 
     ids: tProp(types.array(types.bigint), () => []),
   }) {}
 
-  assert(_ as ModelUntransformedCreationData<CodecDataModel>["id"], _ as string)
-  assert(_ as ModelUntransformedCreationData<CodecDataModel>["createdAt"], _ as number)
-  assert(
-    _ as ModelUntransformedCreationData<CodecDataModel>["ids"],
-    _ as string[] | null | undefined
-  )
+  expectTypeOf<ModelUntransformedCreationData<CodecDataModel>["id"]>().toEqualTypeOf<string>()
+  expectTypeOf<
+    ModelUntransformedCreationData<CodecDataModel>["createdAt"]
+  >().toEqualTypeOf<number>()
+  expectTypeOf<ModelUntransformedCreationData<CodecDataModel>["ids"]>().toEqualTypeOf<
+    string[] | null | undefined
+  >()
 
   const fromEncoded = new CodecDataModel({
     id: "1",

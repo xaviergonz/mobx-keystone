@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { computed, get, reaction, remove, set } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   clone,
   customRef,
@@ -474,7 +474,7 @@ test("generic typings", () => {
   })
 
   const ref = genericRef(new GenericModel({ v1: 1, v2: "2" }))
-  assert(ref, _ as Ref<GenericModel<number, string>>)
+  expectTypeOf(ref).toEqualTypeOf<Ref<GenericModel<number, string>>>()
 
   const genericRef2 = customRef<GenericModel<string, number>>("genericRef2", {
     resolve() {

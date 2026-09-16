@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   _async,
   _await,
@@ -38,11 +38,11 @@ class P extends Model({
   addX = _async(function* (this: P, n: number) {
     this.x += n / 2
     const r = yield* _await(delay(50))
-    assert(r, _ as number)
+    expectTypeOf(r).toEqualTypeOf<number>()
     expect(r).toBe(50) // just to see yields return the right result
     this.addXSync(n / 4)
     const r2 = yield* _await(delay(40))
-    assert(r2, _ as number)
+    expectTypeOf(r2).toEqualTypeOf<number>()
     expect(r2).toBe(40) // just to see yields return the right result
     this.x += n / 4
     return this.x
@@ -59,7 +59,7 @@ class P extends Model({
 
   private *_addXY(n1: number, n2: number) {
     const r = yield* _await(this.addX(n1))
-    assert(r, _ as number)
+    expectTypeOf(r).toEqualTypeOf<number>()
     expect(typeof r).toBe("number")
     yield* _await(delay(50))
     yield* _await(this.p2.addY(n2))
@@ -101,7 +101,7 @@ test("flow", async () => {
 
   reset()
   const ret = await p.addX(2)
-  assert(ret, _ as number)
+  expectTypeOf(ret).toEqualTypeOf<number>()
   expect(ret).toBe(2)
   expect(p.x).toBe(2)
   expect(getSnapshot(p).x).toBe(2)
@@ -155,7 +155,7 @@ test("flow", async () => {
 
   reset()
   const ret2 = await p.addXY(4, 4)
-  assert(ret2, _ as number)
+  expectTypeOf(ret2).toEqualTypeOf<number>()
   expect(ret2).toBe(8)
   expect(p.x).toBe(6)
   expect(p.p2.y).toBe(4)

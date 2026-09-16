@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { toJS } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   type ArraySet,
   applySnapshot,
@@ -465,29 +465,26 @@ test("undefined should not be allowed in arrays, but null should", () => {
 })
 
 test("types", () => {
-  assert(
-    _ as SnapshotInOf<P2>,
-    _ as {
+  expectTypeOf<SnapshotInOf<P2>>().toEqualTypeOf<
+    {
       [modelIdKey]?: string
       y?: number | null
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
-  assert(
-    _ as SnapshotOutOf<P2>,
-    _ as {
+  expectTypeOf<SnapshotOutOf<P2>>().toEqualTypeOf<
+    {
       [modelIdKey]: string
       y: number
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
-  assert(
-    _ as SnapshotInOf<P>,
-    _ as {
+  expectTypeOf<SnapshotInOf<P>>().toEqualTypeOf<
+    {
       [modelIdKey]?: string
       x?: number | null
       arr?: number[] | null
@@ -495,11 +492,10 @@ test("types", () => {
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
-  assert(
-    _ as SnapshotOutOf<P>,
-    _ as {
+  expectTypeOf<SnapshotOutOf<P>>().toEqualTypeOf<
+    {
       [modelIdKey]: string
       x: number
       arr: number[]
@@ -507,43 +503,31 @@ test("types", () => {
     } & {
       [modelTypeKey]?: string
     }
-  )
+  >()
 
-  assert(
-    _ as SnapshotInOf<ObjectMap<number>>,
-    _ as {
-      items?: Record<string, number>
-      [modelTypeKey]?: string
-      [modelIdKey]: string
-    }
-  )
+  expectTypeOf<SnapshotInOf<ObjectMap<number>>>().toEqualTypeOf<{
+    items?: Record<string, number>
+    [modelTypeKey]?: string
+    [modelIdKey]: string
+  }>()
 
-  assert(
-    _ as SnapshotOutOf<ObjectMap<number>>,
-    _ as {
-      items: Record<string, number>
-      [modelTypeKey]?: string
-      [modelIdKey]: string
-    }
-  )
+  expectTypeOf<SnapshotOutOf<ObjectMap<number>>>().toEqualTypeOf<{
+    items: Record<string, number>
+    [modelTypeKey]?: string
+    [modelIdKey]: string
+  }>()
 
-  assert(
-    _ as SnapshotInOf<ArraySet<number>>,
-    _ as {
-      items?: number[]
-      [modelTypeKey]?: string
-      [modelIdKey]: string
-    }
-  )
+  expectTypeOf<SnapshotInOf<ArraySet<number>>>().toEqualTypeOf<{
+    items?: number[]
+    [modelTypeKey]?: string
+    [modelIdKey]: string
+  }>()
 
-  assert(
-    _ as SnapshotOutOf<ArraySet<number>>,
-    _ as {
-      items: number[]
-      [modelTypeKey]?: string
-      [modelIdKey]: string
-    }
-  )
+  expectTypeOf<SnapshotOutOf<ArraySet<number>>>().toEqualTypeOf<{
+    items: number[]
+    [modelTypeKey]?: string
+    [modelIdKey]: string
+  }>()
 })
 
 test("snapshot with reserved property names", () => {

@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   type AnyModel,
   type ComposedModelClass,
@@ -57,22 +57,24 @@ test("defineModelMixin + composeMixins type-level composition", () => {
   type ProductData = ModelData<Product>
   type ProductCreationData = ModelCreationData<Product>
 
-  assert(_ as Product["quantity"], _ as number)
-  assert(_ as Product["produced"], _ as number)
-  assert(_ as Product["incrementBy"], _ as (delta: number) => number)
-  assert(_ as Product["produceTotal"], _ as () => number)
-  assert(_ as ProductData["quantity"], _ as number)
-  assert(_ as ProductData["produced"], _ as number)
-  assert(_ as ProductCreationData["quantity"], _ as number | null | undefined)
-  assert(_ as ProductCreationData["produced"], _ as number | null | undefined)
-  assert(_ as ProductFromUtility["quantity"], _ as number)
-  assert(_ as ProductFromUtility["produced"], _ as number)
-  assert(_ as ProductFromUtility["incrementBy"], _ as (delta: number) => number)
-  assert(_ as ProductFromUtility["produceTotal"], _ as () => number)
-  assert(_ as ProductInstanceFromUtility["quantity"], _ as number)
-  assert(_ as ProductInstanceFromUtility["produced"], _ as number)
-  assert(_ as ProductInstanceFromUtility["incrementBy"], _ as (delta: number) => number)
-  assert(_ as ProductInstanceFromUtility["produceTotal"], _ as () => number)
+  expectTypeOf<Product["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<Product["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<Product["incrementBy"]>().toEqualTypeOf<(delta: number) => number>()
+  expectTypeOf<Product["produceTotal"]>().toEqualTypeOf<() => number>()
+  expectTypeOf<ProductData["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductData["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductCreationData["quantity"]>().toEqualTypeOf<number | null | undefined>()
+  expectTypeOf<ProductCreationData["produced"]>().toEqualTypeOf<number | null | undefined>()
+  expectTypeOf<ProductFromUtility["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductFromUtility["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductFromUtility["incrementBy"]>().toEqualTypeOf<(delta: number) => number>()
+  expectTypeOf<ProductFromUtility["produceTotal"]>().toEqualTypeOf<() => number>()
+  expectTypeOf<ProductInstanceFromUtility["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductInstanceFromUtility["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductInstanceFromUtility["incrementBy"]>().toEqualTypeOf<
+    (delta: number) => number
+  >()
+  expectTypeOf<ProductInstanceFromUtility["produceTotal"]>().toEqualTypeOf<() => number>()
 
   expect(true).toBe(true)
 })
@@ -186,8 +188,8 @@ test("issue #494 legacy factory pattern with explicit return types", () => {
 
   type CountableEntityClass = ReturnType<typeof makeCountable<typeof Entity>>
   type CountableEntityInstance = InstanceType<CountableEntityClass>
-  assert(_ as CountableEntityInstance["quantity"], _ as number)
-  assert(_ as CountableEntityInstance["incrementBy"], _ as (delta: number) => number)
+  expectTypeOf<CountableEntityInstance["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<CountableEntityInstance["incrementBy"]>().toEqualTypeOf<(delta: number) => number>()
 
   const makeProducerUsingFactoryType: <TBase extends ModelClass<CountableEntityInstance>>(
     Base: TBase
@@ -196,8 +198,8 @@ test("issue #494 legacy factory pattern with explicit return types", () => {
   const CountableEntity = makeCountable(Entity)
   const ProducerEntity = makeProducerUsingFactoryType(CountableEntity)
   type ProducerEntityInstance = InstanceType<typeof ProducerEntity>
-  assert(_ as ProducerEntityInstance["produced"], _ as number)
-  assert(_ as ProducerEntityInstance["produceTotal"], _ as () => number)
+  expectTypeOf<ProducerEntityInstance["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProducerEntityInstance["produceTotal"]>().toEqualTypeOf<() => number>()
 
   expect(true).toBe(true)
 })
@@ -219,8 +221,8 @@ test("composeMixins enforces requirements", () => {
 
   const Valid = composeMixins(Entity, countableMixin, requiresCountable)
   type ValidInstance = InstanceType<typeof Valid>
-  assert(_ as ValidInstance["quantity"], _ as number)
-  assert(_ as ValidInstance["produced"], _ as number)
+  expectTypeOf<ValidInstance["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ValidInstance["produced"]>().toEqualTypeOf<number>()
 })
 
 test("composeMixins supports 6+ mixins", () => {
@@ -238,13 +240,13 @@ test("composeMixins supports 6+ mixins", () => {
   const ManyBase = composeMixins(Entity, m1, m2, m3, m4, m5, m6, m7)
   type Many = InstanceType<typeof ManyBase>
 
-  assert(_ as Many["p1"], _ as number)
-  assert(_ as Many["p2"], _ as number)
-  assert(_ as Many["p3"], _ as number)
-  assert(_ as Many["p4"], _ as number)
-  assert(_ as Many["p5"], _ as number)
-  assert(_ as Many["p6"], _ as number)
-  assert(_ as Many["p7"], _ as number)
+  expectTypeOf<Many["p1"]>().toEqualTypeOf<number>()
+  expectTypeOf<Many["p2"]>().toEqualTypeOf<number>()
+  expectTypeOf<Many["p3"]>().toEqualTypeOf<number>()
+  expectTypeOf<Many["p4"]>().toEqualTypeOf<number>()
+  expectTypeOf<Many["p5"]>().toEqualTypeOf<number>()
+  expectTypeOf<Many["p6"]>().toEqualTypeOf<number>()
+  expectTypeOf<Many["p7"]>().toEqualTypeOf<number>()
 })
 
 test("composeMixins requirement failure in middle of chain", () => {
@@ -266,8 +268,8 @@ test("composeMixins requirement failure in middle of chain", () => {
 
   const Valid = composeMixins(Entity, addProduced, requiresProduced)
   type ValidInstance = InstanceType<typeof Valid>
-  assert(_ as ValidInstance["produced"], _ as number)
-  assert(_ as ValidInstance["seen"], _ as boolean)
+  expectTypeOf<ValidInstance["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ValidInstance["seen"]>().toEqualTypeOf<boolean>()
 })
 
 test("composeMixins without a base uses implicit empty base", () => {
@@ -291,13 +293,13 @@ test("composeMixins without a base uses implicit empty base", () => {
   type ProductData = ModelData<ProductInstance>
   type ProductCreationData = ModelCreationData<ProductInstance>
 
-  assert(_ as ProductInstance["quantity"], _ as number)
-  assert(_ as ProductInstance["produced"], _ as number)
-  assert(_ as ProductInstance["incrementBy"], _ as (delta: number) => number)
-  assert(_ as ProductData["quantity"], _ as number)
-  assert(_ as ProductData["produced"], _ as number)
-  assert(_ as ProductCreationData["quantity"], _ as number | null | undefined)
-  assert(_ as ProductCreationData["produced"], _ as number | null | undefined)
+  expectTypeOf<ProductInstance["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductInstance["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductInstance["incrementBy"]>().toEqualTypeOf<(delta: number) => number>()
+  expectTypeOf<ProductData["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductData["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductCreationData["quantity"]>().toEqualTypeOf<number | null | undefined>()
+  expectTypeOf<ProductCreationData["produced"]>().toEqualTypeOf<number | null | undefined>()
 
   @testModel("mixins/NoBase/Product")
   class Product extends ExtendedModel(ProductBase, {}) {}
@@ -332,12 +334,12 @@ test("defineModelMixin props-first: accurate ModelData and ModelCreationData (ty
   type ProductData = ModelData<Product>
   type ProductCreationData = ModelCreationData<Product>
 
-  assert(_ as Product["quantity"], _ as number)
-  assert(_ as Product["produced"], _ as number)
-  assert(_ as ProductData["quantity"], _ as number)
-  assert(_ as ProductData["produced"], _ as number)
-  assert(_ as ProductCreationData["quantity"], _ as number | null | undefined)
-  assert(_ as ProductCreationData["produced"], _ as number | null | undefined)
+  expectTypeOf<Product["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<Product["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductData["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductData["produced"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductCreationData["quantity"]>().toEqualTypeOf<number | null | undefined>()
+  expectTypeOf<ProductCreationData["produced"]>().toEqualTypeOf<number | null | undefined>()
 
   @testModel("mixins/PropsFirst/Product")
   class ProductModel extends ExtendedModel(ProductBase, {}) {}
@@ -374,10 +376,12 @@ test("defineModelMixin props-first: accurate ModelData and ModelCreationData (ty
   type ProductWithMethodsData = ModelData<ProductWithMethods>
   type ProductWithMethodsCreationData = ModelCreationData<ProductWithMethods>
 
-  assert(_ as ProductWithMethods["quantity"], _ as number)
-  assert(_ as ProductWithMethods["incrementBy"], _ as (delta: number) => number)
-  assert(_ as ProductWithMethodsData["quantity"], _ as number)
-  assert(_ as ProductWithMethodsCreationData["quantity"], _ as number | null | undefined)
+  expectTypeOf<ProductWithMethods["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductWithMethods["incrementBy"]>().toEqualTypeOf<(delta: number) => number>()
+  expectTypeOf<ProductWithMethodsData["quantity"]>().toEqualTypeOf<number>()
+  expectTypeOf<ProductWithMethodsCreationData["quantity"]>().toEqualTypeOf<
+    number | null | undefined
+  >()
 
   @testModel("mixins/PropsFirstBuilder/Product")
   class ProductWithMethodsModel extends ExtendedModel(ProductWithMethodsBase, {}) {}
@@ -443,11 +447,11 @@ test("req<Req> is checked against the transformed instance type, not the snapsho
   type ProductCreationData = ModelCreationData<ProductInstance>
 
   // instance type: transformed number
-  assert(_ as ProductInstance["count"], _ as number)
+  expectTypeOf<ProductInstance["count"]>().toEqualTypeOf<number>()
   // ModelData: transformed type
-  assert(_ as ProductData["count"], _ as number)
+  expectTypeOf<ProductData["count"]>().toEqualTypeOf<number>()
   // ModelCreationData: withTransform also changes the creation type to the transformed type
-  assert(_ as ProductCreationData["count"], _ as number | null | undefined)
+  expectTypeOf<ProductCreationData["count"]>().toEqualTypeOf<number | null | undefined>()
 
   // applying doublerMixin (requires number) after countMixin (provides number) is valid
   const Valid = composeMixins(countMixin, doublerMixin)
@@ -473,6 +477,6 @@ test("req<Req> is checked against the transformed instance type, not the snapsho
 
   // snapshot stores the *original* (string) type
   const sn = getSnapshot(p2)
-  assert(_ as (typeof sn)["count"], _ as string)
+  expectTypeOf<(typeof sn)["count"]>().toEqualTypeOf<string>()
   expect(sn.count).toBe("42")
 })

@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { type ObservableSet, set, toJS } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   arrayToMapTransform,
   arrayToSetTransform,
@@ -35,12 +35,12 @@ test("prop with transform and required value", () => {
     date: d,
   })
 
-  assert(t.date, _ as Date)
+  expectTypeOf(t.date).toEqualTypeOf<Date>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date).toBe(1000)
   expect(t.date).toBe(t.date) // should be cached
 
-  assert(t.$.date, _ as number)
+  expectTypeOf(t.$.date).toEqualTypeOf<number>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(d2)
@@ -51,9 +51,9 @@ test("prop with transform and required value", () => {
   expect(t.date).toBe(t.date) // should be cached
 
   const tsn = getSnapshot(t)
-  assert(tsn.date, _ as number)
+  expectTypeOf(tsn.date).toEqualTypeOf<number>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.date, _ as Date)
+  expectTypeOf(tfsn.date).toEqualTypeOf<Date>()
   expect(tfsn.date instanceof Date).toBe(true)
   expect(+tfsn.date).toBe(2000)
 
@@ -74,11 +74,11 @@ test("prop with transform and default value", () => {
 
   const t = new T({})
 
-  assert(t.date, _ as Date)
+  expectTypeOf(t.date).toEqualTypeOf<Date>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date).toBe(1000)
 
-  assert(t.$.date, _ as number)
+  expectTypeOf(t.$.date).toEqualTypeOf<number>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(d2)
@@ -88,9 +88,9 @@ test("prop with transform and default value", () => {
   expect(t.$.date).toBe(2000)
 
   const tsn = getSnapshot(t)
-  assert(tsn.date, _ as number)
+  expectTypeOf(tsn.date).toEqualTypeOf<number>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.date, _ as Date)
+  expectTypeOf(tfsn.date).toEqualTypeOf<Date>()
   expect(tfsn.date instanceof Date).toBe(true)
   expect(+tfsn.date).toBe(2000)
 })
@@ -107,11 +107,11 @@ test("prop with transform and can be null | undefined", () => {
     date: d,
   })
 
-  assert(t.date, _ as Date | undefined | null)
+  expectTypeOf(t.date).toEqualTypeOf<Date | undefined | null>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date!).toBe(1000)
 
-  assert(t.$.date, _ as number | undefined | null)
+  expectTypeOf(t.$.date).toEqualTypeOf<number | undefined | null>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(null)
@@ -125,9 +125,9 @@ test("prop with transform and can be null | undefined", () => {
   expect(t.$.date).toBe(undefined)
 
   const tsn = getSnapshot(t)
-  assert(tsn.date, _ as number | null | undefined)
+  expectTypeOf(tsn.date).toEqualTypeOf<number | null | undefined>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.date, _ as Date | null | undefined)
+  expectTypeOf(tfsn.date).toEqualTypeOf<Date | null | undefined>()
   expect(tfsn.date).toBe(undefined)
 })
 
@@ -145,11 +145,11 @@ test("prop with transform and can be null", () => {
     date: d,
   })
 
-  assert(t.date, _ as Date | null)
+  expectTypeOf(t.date).toEqualTypeOf<Date | null>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date!).toBe(1000)
 
-  assert(t.$.date, _ as number | null)
+  expectTypeOf(t.$.date).toEqualTypeOf<number | null>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(null)
@@ -158,9 +158,9 @@ test("prop with transform and can be null", () => {
   expect(t.$.date).toBe(null)
 
   const tsn = getSnapshot(t)
-  assert(tsn.date, _ as number | null)
+  expectTypeOf(tsn.date).toEqualTypeOf<number | null>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.date, _ as Date | null)
+  expectTypeOf(tfsn.date).toEqualTypeOf<Date | null>()
   expect(tfsn.date).toBe(null)
 })
 
@@ -182,12 +182,12 @@ test("prop with obj->map transform", () => {
     map: map1,
   })
 
-  assert(t.map, _ as Map<string, number>)
+  expectTypeOf(t.map).toEqualTypeOf<Map<string, number>>()
   expect(t.map.get("a")).toBe(1)
   expect(t.map).not.toBe(map1) // should not be cached
   expect(t.map).toBe(t.map) // should be cached
 
-  assert(t.$.map, _ as Record<string, number>)
+  expectTypeOf(t.$.map).toEqualTypeOf<Record<string, number>>()
   expect(t.$.map).toEqual({ a: 1 })
 
   runUnprotected(() => {
@@ -206,16 +206,16 @@ test("prop with obj->map transform", () => {
 
   t.setMap(map2)
 
-  assert(t.map, _ as Map<string, number>)
+  expectTypeOf(t.map).toEqualTypeOf<Map<string, number>>()
   expect(t.map.get("b")).toBe(2)
   expect(t.map).not.toBe(map2) // should not be cached
   expect(t.map).toBe(t.map) // should be cached
   expect(t.$.map).toEqual({ b: 2 })
 
   const tsn = getSnapshot(t)
-  assert(tsn.map, _ as Record<string, number>)
+  expectTypeOf(tsn.map).toEqualTypeOf<Record<string, number>>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.map, _ as Map<string, number>)
+  expectTypeOf(tfsn.map).toEqualTypeOf<Map<string, number>>()
   expect(t.$.map).toEqual({ b: 2 })
 
   t.setNumberObj({ d: 4 })
@@ -244,12 +244,12 @@ test("prop with arr->map transform", () => {
     map: map1,
   })
 
-  assert(t.map, _ as Map<string, number>)
+  expectTypeOf(t.map).toEqualTypeOf<Map<string, number>>()
   expect(t.map.get("a")).toBe(1)
   expect(t.map).not.toBe(map1) // should not be cached
   expect(t.map).toBe(t.map) // should be cached
 
-  assert(t.$.map, _ as Array<[string, number]>)
+  expectTypeOf(t.$.map).toEqualTypeOf<Array<[string, number]>>()
   expect(toJS(t.$.map)).toEqual([["a", 1]])
 
   runUnprotected(() => {
@@ -273,16 +273,16 @@ test("prop with arr->map transform", () => {
 
   t.setMap(map2)
 
-  assert(t.map, _ as Map<string, number>)
+  expectTypeOf(t.map).toEqualTypeOf<Map<string, number>>()
   expect(t.map.get("b")).toBe(2)
   expect(t.map).not.toBe(map2) // should not be cached
   expect(t.map).toBe(t.map) // should be cached
   expect(toJS(t.$.map)).toEqual([["b", 2]])
 
   const tsn = getSnapshot(t)
-  assert(tsn.map, _ as Array<[string, number]>)
+  expectTypeOf(tsn.map).toEqualTypeOf<Array<[string, number]>>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.map, _ as Map<string, number>)
+  expectTypeOf(tfsn.map).toEqualTypeOf<Map<string, number>>()
   expect(toJS(t.$.map)).toEqual([["b", 2]])
 
   t.setNumberArr([["d", 4]])
@@ -309,12 +309,12 @@ test("prop with arr->set transform", () => {
     set: set1,
   })
 
-  assert(t.set, _ as Set<number> | ObservableSet<number>)
+  expectTypeOf(t.set).toEqualTypeOf<Set<number> | ObservableSet<number>>()
   expect(t.set.has(1)).toBe(true)
   expect(t.set).not.toBe(set1) // should not be cached
   expect(t.set).toBe(t.set) // should be cached
 
-  assert(t.$.set, _ as Array<number>)
+  expectTypeOf(t.$.set).toEqualTypeOf<Array<number>>()
   expect(toJS(t.$.set)).toEqual([1])
 
   runUnprotected(() => {
@@ -331,16 +331,16 @@ test("prop with arr->set transform", () => {
 
   t.setSet(set2)
 
-  assert(t.set, _ as Set<number> | ObservableSet<number>)
+  expectTypeOf(t.set).toEqualTypeOf<Set<number> | ObservableSet<number>>()
   expect(t.set.has(2)).toBe(true)
   expect(t.set).not.toBe(set2) // should not be cached
   expect(t.set).toBe(t.set) // should be cached
   expect(toJS(t.$.set)).toEqual([2])
 
   const tsn = getSnapshot(t)
-  assert(tsn.set, _ as Array<number>)
+  expectTypeOf(tsn.set).toEqualTypeOf<Array<number>>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.set, _ as Set<number> | ObservableSet<number>)
+  expectTypeOf(tfsn.set).toEqualTypeOf<Set<number> | ObservableSet<number>>()
   expect(toJS(t.$.set)).toEqual([2])
 
   t.setNumberArr([4])
@@ -367,22 +367,22 @@ test("prop with string->bigint transform", () => {
     int: int1,
   })
 
-  assert(t.int, _ as bigint)
+  expectTypeOf(t.int).toEqualTypeOf<bigint>()
   expect(t.int).toBe(1n)
 
-  assert(t.$.int, _ as string)
+  expectTypeOf(t.$.int).toEqualTypeOf<string>()
   expect(t.$.int).toBe("1")
 
   t.setInt(int2)
 
-  assert(t.int, _ as bigint)
+  expectTypeOf(t.int).toEqualTypeOf<bigint>()
   expect(t.int).toBe(2n)
   expect(t.$.int).toBe("2")
 
   const tsn = getSnapshot(t)
-  assert(tsn.int, _ as string)
+  expectTypeOf(tsn.int).toEqualTypeOf<string>()
   const tfsn = fromSnapshot(T, tsn)
-  assert(tfsn.int, _ as bigint)
+  expectTypeOf(tfsn.int).toEqualTypeOf<bigint>()
   expect(t.$.int).toBe("2")
 
   t.setIntString("3")

@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { computed } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   _async,
   _await,
@@ -67,34 +67,28 @@ test("subclassing with additional props", () => {
 
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
-  assert(
-    _ as D,
-    _ as {
-      x: number
-      y: number
-      z: number
-      a: number
-      b: number
-    }
-  )
-  assert(
-    _ as Flatten<CD>,
-    _ as {
-      x?: number | null | undefined
-      y?: number | null | undefined
-      z?: number | null | undefined
-      a?: number | null | undefined
-      b: number
-    }
-  )
+  expectTypeOf<D>().toEqualTypeOf<{
+    x: number
+    y: number
+    z: number
+    a: number
+    b: number
+  }>()
+  expectTypeOf<Flatten<CD>>().toEqualTypeOf<{
+    x?: number | null | undefined
+    y?: number | null | undefined
+    z?: number | null | undefined
+    a?: number | null | undefined
+    b: number
+  }>()
 
   const p2 = new P2({ x: 20, b: 70 })
 
-  assert(p2.a, _ as number)
-  assert(p2.b, _ as number)
-  assert(p2.x, _ as number)
-  assert(p2.y, _ as number)
-  assert(p2.z, _ as number)
+  expectTypeOf(p2.a).toEqualTypeOf<number>()
+  expectTypeOf(p2.b).toEqualTypeOf<number>()
+  expectTypeOf(p2.x).toEqualTypeOf<number>()
+  expectTypeOf(p2.y).toEqualTypeOf<number>()
+  expectTypeOf(p2.z).toEqualTypeOf<number>()
 
   expect(p2.a).toBe(50)
   expect(p2.b).toBe(70)
@@ -138,28 +132,22 @@ test("subclassing without additional props", () => {
 
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
-  assert(
-    _ as D,
-    _ as {
-      x: number
-      y: number
-      z: number
-    }
-  )
-  assert(
-    _ as Flatten<CD>,
-    _ as {
-      x?: number | null | undefined
-      y?: number | null | undefined
-      z?: number | null | undefined
-    }
-  )
+  expectTypeOf<D>().toEqualTypeOf<{
+    x: number
+    y: number
+    z: number
+  }>()
+  expectTypeOf<Flatten<CD>>().toEqualTypeOf<{
+    x?: number | null | undefined
+    y?: number | null | undefined
+    z?: number | null | undefined
+  }>()
 
   const p2 = new P2({ x: 20 })
 
-  assert(p2.x, _ as number)
-  assert(p2.y, _ as number)
-  assert(p2.z, _ as number)
+  expectTypeOf(p2.x).toEqualTypeOf<number>()
+  expectTypeOf(p2.y).toEqualTypeOf<number>()
+  expectTypeOf(p2.z).toEqualTypeOf<number>()
 
   expect(p2.x).toBe(20)
   expect(p2.y).toBe(10)
@@ -190,28 +178,22 @@ test("subclassing without anything new", () => {
 
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
-  assert(
-    _ as D,
-    _ as {
-      x: number
-      y: number
-      z: number
-    }
-  )
-  assert(
-    _ as Flatten<CD>,
-    _ as {
-      x?: number | null
-      y?: number | null
-      z?: number | null
-    }
-  )
+  expectTypeOf<D>().toEqualTypeOf<{
+    x: number
+    y: number
+    z: number
+  }>()
+  expectTypeOf<Flatten<CD>>().toEqualTypeOf<{
+    x?: number | null
+    y?: number | null
+    z?: number | null
+  }>()
 
   const p2 = new P2({ x: 20 })
 
-  assert(p2.x, _ as number)
-  assert(p2.y, _ as number)
-  assert(p2.z, _ as number)
+  expectTypeOf(p2.x).toEqualTypeOf<number>()
+  expectTypeOf(p2.y).toEqualTypeOf<number>()
+  expectTypeOf(p2.z).toEqualTypeOf<number>()
 
   expect(p2.x).toBe(20)
   expect(p2.y).toBe(10)
@@ -268,34 +250,28 @@ test("three level subclassing", () => {
 
   type D = ModelData<P2>
   type CD = ModelCreationData<P2>
-  assert(
-    _ as D,
-    _ as {
-      x: number
-      y: number
-      z: number
-      a: number
-      b: number
-    }
-  )
-  assert(
-    _ as Flatten<CD>,
-    _ as {
-      x?: number | null | undefined
-      y?: number | null | undefined
-      z?: number | null | undefined
-      a?: number | null | undefined
-      b: number
-    }
-  )
+  expectTypeOf<D>().toEqualTypeOf<{
+    x: number
+    y: number
+    z: number
+    a: number
+    b: number
+  }>()
+  expectTypeOf<Flatten<CD>>().toEqualTypeOf<{
+    x?: number | null | undefined
+    y?: number | null | undefined
+    z?: number | null | undefined
+    a?: number | null | undefined
+    b: number
+  }>()
 
   const p2 = new P2({ x: 20, b: 70 })
 
-  assert(p2.a, _ as number)
-  assert(p2.b, _ as number)
-  assert(p2.x, _ as number)
-  assert(p2.y, _ as number)
-  assert(p2.z, _ as number)
+  expectTypeOf(p2.a).toEqualTypeOf<number>()
+  expectTypeOf(p2.b).toEqualTypeOf<number>()
+  expectTypeOf(p2.x).toEqualTypeOf<number>()
+  expectTypeOf(p2.y).toEqualTypeOf<number>()
+  expectTypeOf(p2.z).toEqualTypeOf<number>()
 
   expect(p2.a).toBe(50)
   expect(p2.b).toBe(70)
@@ -411,17 +387,17 @@ test("abstract-ish model classes with factory", () => {
   const b = new B({ value: "hi" })
 
   expect(b.value).toBe("hi")
-  assert(b.value, _ as string)
+  expectTypeOf(b.value).toEqualTypeOf<string>()
 
   expect(b.validate("ho")).toBe("too short")
   expect(b.validate("long")).toBe(undefined)
-  assert(b.validate, _ as (value: string) => string | undefined)
+  expectTypeOf(b.validate).toEqualTypeOf<(value: string) => string | undefined>()
 
   expect(b.error).toBe("too short")
-  assert(b.error, _ as string | undefined)
+  expectTypeOf(b.error).toEqualTypeOf<string | undefined>()
 
   expect(b instanceof StringA).toBe(true)
-  assert(b, _ as B)
+  expectTypeOf(b).toEqualTypeOf<B>()
 })
 
 test("abstract-ish model classes without factory", () => {
@@ -452,21 +428,21 @@ test("abstract-ish model classes without factory", () => {
   const b = new B({ value: "hi", anotherValue: 4 })
 
   expect(b.value).toBe("hi")
-  assert(b.value, _ as string)
+  expectTypeOf(b.value).toEqualTypeOf<string>()
 
   expect(b.anotherValue).toBe(4)
-  assert(b.anotherValue, _ as number)
+  expectTypeOf(b.anotherValue).toEqualTypeOf<number>()
 
   expect(b.validate("ho")).toBe("too short")
 
   expect(b.validate("long")).toBe(undefined)
-  assert(b.validate, _ as (value: string) => string | undefined)
+  expectTypeOf(b.validate).toEqualTypeOf<(value: string) => string | undefined>()
 
   expect(b.error).toBe("too short")
-  assert(b.error, _ as string | undefined)
+  expectTypeOf(b.error).toEqualTypeOf<string | undefined>()
 
   expect(b instanceof StringA).toBe(true)
-  assert(b, _ as B)
+  expectTypeOf(b).toEqualTypeOf<B>()
 })
 
 test("abstract model classes with factory", () => {
@@ -498,20 +474,20 @@ test("abstract model classes with factory", () => {
   const b = new B({ value: "hi", anotherValue: 4 })
 
   expect(b.value).toBe("hi")
-  assert(b.value, _ as string)
+  expectTypeOf(b.value).toEqualTypeOf<string>()
 
   expect(b.anotherValue).toBe(4)
-  assert(b.anotherValue, _ as number)
+  expectTypeOf(b.anotherValue).toEqualTypeOf<number>()
 
   expect(b.validate("ho")).toBe("too short")
   expect(b.validate("long")).toBe(undefined)
-  assert(b.validate, _ as (value: string) => string | undefined)
+  expectTypeOf(b.validate).toEqualTypeOf<(value: string) => string | undefined>()
 
   expect(b.error).toBe("too short")
-  assert(b.error, _ as string | undefined)
+  expectTypeOf(b.error).toEqualTypeOf<string | undefined>()
 
   expect(b instanceof StringA).toBe(true)
-  assert(b, _ as B)
+  expectTypeOf(b).toEqualTypeOf<B>()
 })
 
 test("abstract model classes without factory", () => {
@@ -542,21 +518,21 @@ test("abstract model classes without factory", () => {
   const b = new B({ value: "hi", anotherValue: 4 })
 
   expect(b.value).toBe("hi")
-  assert(b.value, _ as string)
+  expectTypeOf(b.value).toEqualTypeOf<string>()
 
   expect(b.anotherValue).toBe(4)
-  assert(b.anotherValue, _ as number)
+  expectTypeOf(b.anotherValue).toEqualTypeOf<number>()
 
   expect(b.validate("ho")).toBe("too short")
 
   expect(b.validate("long")).toBe(undefined)
-  assert(b.validate, _ as (value: string) => string | undefined)
+  expectTypeOf(b.validate).toEqualTypeOf<(value: string) => string | undefined>()
 
   expect(b.error).toBe("too short")
-  assert(b.error, _ as string | undefined)
+  expectTypeOf(b.error).toEqualTypeOf<string | undefined>()
 
   expect(b instanceof StringA).toBe(true)
-  assert(b, _ as B)
+  expectTypeOf(b).toEqualTypeOf<B>()
 })
 
 test("issue #18", () => {
@@ -592,7 +568,7 @@ test("issue #2", () => {
 
   const m = new MyModel({})
 
-  assert(m.value, _ as string)
+  expectTypeOf(m.value).toEqualTypeOf<string>()
 })
 
 test("classes using model decorator can be extended", () => {
@@ -669,9 +645,9 @@ test("issue #109", () => {
   @testModel("my/ChildModel")
   class ChildModel extends ExtendedModel(modelClass<BaseModel<number>>(BaseModel), {}) {
     foo() {
-      assert(this.items, _ as string[])
+      expectTypeOf(this.items).toEqualTypeOf<string[]>()
       this.items.push("hi")
-      assert(this.superFoo, _ as (x: number) => void)
+      expectTypeOf(this.superFoo).toEqualTypeOf<(x: number) => void>()
       this.superFoo(5)
     }
   }
@@ -727,17 +703,19 @@ test("new pattern for generics", () => {
     v3: prop<number>(0),
   }))<T1, T2> {}
 
-  assert(
-    _ as ModelData<GenericModel<string, number>>,
-    _ as { v1: string | undefined; v2: number; v3: number }
-  )
-  assert(
-    _ as ModelData<GenericModel<number, string>>,
-    _ as { v1: number | undefined; v2: string; v3: number }
-  )
+  expectTypeOf<ModelData<GenericModel<string, number>>>().toEqualTypeOf<{
+    v1: string | undefined
+    v2: number
+    v3: number
+  }>()
+  expectTypeOf<ModelData<GenericModel<number, string>>>().toEqualTypeOf<{
+    v1: number | undefined
+    v2: string
+    v3: number
+  }>()
 
   const s = new GenericModel({ v1: "1", v2: 2, v3: 3 })
-  assert(s, _ as GenericModel<string, number>)
+  expectTypeOf(s).toEqualTypeOf<GenericModel<string, number>>()
   expect(s.v1).toBe("1")
   expect(s.v2).toBe(2)
   expect(s.v3).toBe(3)
@@ -751,7 +729,7 @@ test("new pattern for generics", () => {
   }))<T1, T2> {}
 
   const e = new ExtendedGenericModel({ v1: "1", v2: 2, v3: 3, v4: 4 })
-  assert(e, _ as ExtendedGenericModel<string, number>)
+  expectTypeOf(e).toEqualTypeOf<ExtendedGenericModel<string, number>>()
   expect(e.v1).toBe("1")
   expect(e.v2).toBe(2)
   expect(e.v3).toBe(3)
@@ -797,8 +775,8 @@ test("issue #358", () => {
     }),
   })
 
-  assert(c.value, _ as Value<number>)
-  assert(c.value.data, _ as number)
+  expectTypeOf(c.value).toEqualTypeOf<Value<number>>()
+  expectTypeOf(c.value.data).toEqualTypeOf<number>()
 })
 
 test("issue #358/2", () => {
@@ -820,8 +798,8 @@ test("issue #358/2", () => {
     }),
   })
 
-  assert(c.value, _ as Value<number>)
-  assert(c.value.data, _ as number)
+  expectTypeOf(c.value).toEqualTypeOf<Value<number>>()
+  expectTypeOf(c.value.data).toEqualTypeOf<number>()
 })
 
 test("generic model instance factory", () => {
@@ -841,12 +819,12 @@ test("generic model instance factory", () => {
 
   function createParent<T>(a: T) {
     const parent = new Parent({ a })
-    assert(_ as typeof parent, _ as Parent<T>)
+    expectTypeOf<typeof parent>().toEqualTypeOf<Parent<T>>()
   }
 
   function createChild<T>(a: T, b: T) {
     const child = new Child({ a, b })
-    assert(_ as typeof child, _ as Child<T>)
+    expectTypeOf<typeof child>().toEqualTypeOf<Child<T>>()
   }
 
   createParent(10)
@@ -872,9 +850,9 @@ test("statics get inherited", () => {
   expect((StaticA.prototype as any).foo).toBe("foo")
   expect((StaticB.prototype as any).foo).toBe("bar")
 
-  assert(StaticA.foo, _ as "foo")
-  assert(StaticB.foo, _ as "foo")
-  assert(StaticB.bar, _ as "bar")
+  expectTypeOf(StaticA.foo).toEqualTypeOf<"foo">()
+  expectTypeOf(StaticB.foo).toEqualTypeOf<"foo">()
+  expectTypeOf(StaticB.bar).toEqualTypeOf<"bar">()
 
   expect(StaticA.foo).toBe("foo")
   expect(StaticB.foo).toBe("foo")
@@ -987,7 +965,7 @@ test("it is possible to override defaults", () => {
   {
     const p2d = new P2d({})
     expect(p2d.x).toBe(15)
-    assert(p2d.y, _ as number)
+    expectTypeOf(p2d.y).toEqualTypeOf<number>()
     expect(p2d.y).toBe(10)
     expect(p2d.setY).toBeDefined()
     expect((p2d as any).z).toBe(undefined)
@@ -999,7 +977,7 @@ test("it is possible to override defaults", () => {
   {
     const p3d = new P3d({})
     expect(p3d.x).toBe(15)
-    assert(p3d.y, _ as number)
+    expectTypeOf(p3d.y).toEqualTypeOf<number>()
     expect(p3d.y).toBe(40)
     expect(p3d.setY).toBeDefined()
     expect(p3d.z).toBe(20)

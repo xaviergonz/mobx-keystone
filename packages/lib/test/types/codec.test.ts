@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import type { ObservableSet } from "mobx"
-import { _, assert } from "spec.ts"
 
 // @ts-expect-error TypeToStoredData is internal-only.
 type _InternalTypeToStoredData = import("../../src").TypeToStoredData
@@ -72,29 +72,35 @@ test("types.codec helper types and built-ins", () => {
   const mapFromArrayType = types.mapFromArray(types.dateAsIsoString, types.bigint)
   const setFromArrayType = types.setFromArray(types.number)
 
-  assert(_ as TypeToData<typeof types.bigint>, _ as bigint)
-  assert(_ as TypeToSnapshotIn<typeof types.bigint>, _ as string)
-  assert(_ as TypeToSnapshotOut<typeof types.bigint>, _ as string)
+  expectTypeOf<TypeToData<typeof types.bigint>>().toEqualTypeOf<bigint>()
+  expectTypeOf<TypeToSnapshotIn<typeof types.bigint>>().toEqualTypeOf<string>()
+  expectTypeOf<TypeToSnapshotOut<typeof types.bigint>>().toEqualTypeOf<string>()
 
-  assert(_ as TypeToData<typeof types.dateAsTimestamp>, _ as Date)
-  assert(_ as TypeToSnapshotIn<typeof types.dateAsTimestamp>, _ as number)
-  assert(_ as TypeToSnapshotOut<typeof types.dateAsTimestamp>, _ as number)
+  expectTypeOf<TypeToData<typeof types.dateAsTimestamp>>().toEqualTypeOf<Date>()
+  expectTypeOf<TypeToSnapshotIn<typeof types.dateAsTimestamp>>().toEqualTypeOf<number>()
+  expectTypeOf<TypeToSnapshotOut<typeof types.dateAsTimestamp>>().toEqualTypeOf<number>()
 
-  assert(_ as TypeToData<typeof types.dateAsIsoString>, _ as Date)
-  assert(_ as TypeToSnapshotIn<typeof types.dateAsIsoString>, _ as string)
-  assert(_ as TypeToSnapshotOut<typeof types.dateAsIsoString>, _ as string)
+  expectTypeOf<TypeToData<typeof types.dateAsIsoString>>().toEqualTypeOf<Date>()
+  expectTypeOf<TypeToSnapshotIn<typeof types.dateAsIsoString>>().toEqualTypeOf<string>()
+  expectTypeOf<TypeToSnapshotOut<typeof types.dateAsIsoString>>().toEqualTypeOf<string>()
 
-  assert(_ as TypeToData<typeof mapFromObjectType>, _ as Map<string, bigint>)
-  assert(_ as TypeToSnapshotIn<typeof mapFromObjectType>, _ as Record<string, string>)
-  assert(_ as TypeToSnapshotOut<typeof mapFromObjectType>, _ as Record<string, string>)
+  expectTypeOf<TypeToData<typeof mapFromObjectType>>().toEqualTypeOf<Map<string, bigint>>()
+  expectTypeOf<TypeToSnapshotIn<typeof mapFromObjectType>>().toEqualTypeOf<Record<string, string>>()
+  expectTypeOf<TypeToSnapshotOut<typeof mapFromObjectType>>().toEqualTypeOf<
+    Record<string, string>
+  >()
 
-  assert(_ as TypeToData<typeof mapFromArrayType>, _ as Map<Date, bigint>)
-  assert(_ as TypeToSnapshotIn<typeof mapFromArrayType>, _ as Array<[string, string]>)
-  assert(_ as TypeToSnapshotOut<typeof mapFromArrayType>, _ as Array<[string, string]>)
+  expectTypeOf<TypeToData<typeof mapFromArrayType>>().toEqualTypeOf<Map<Date, bigint>>()
+  expectTypeOf<TypeToSnapshotIn<typeof mapFromArrayType>>().toEqualTypeOf<Array<[string, string]>>()
+  expectTypeOf<TypeToSnapshotOut<typeof mapFromArrayType>>().toEqualTypeOf<
+    Array<[string, string]>
+  >()
 
-  assert(_ as TypeToData<typeof setFromArrayType>, _ as Set<number> | ObservableSet<number>)
-  assert(_ as TypeToSnapshotIn<typeof setFromArrayType>, _ as number[])
-  assert(_ as TypeToSnapshotOut<typeof setFromArrayType>, _ as number[])
+  expectTypeOf<TypeToData<typeof setFromArrayType>>().toEqualTypeOf<
+    Set<number> | ObservableSet<number>
+  >()
+  expectTypeOf<TypeToSnapshotIn<typeof setFromArrayType>>().toEqualTypeOf<number[]>()
+  expectTypeOf<TypeToSnapshotOut<typeof setFromArrayType>>().toEqualTypeOf<number[]>()
 
   void (() => {
     // @ts-expect-error codec snapshots must use encoded values, not runtime bigint values
@@ -107,7 +113,7 @@ test("types.codec helper types and built-ins", () => {
 
 test("types.codec supports custom scalar and object-valued codecs", () => {
   const parsedUrl = fromSnapshot(urlType, "https://example.com/")
-  assert(parsedUrl, _ as URL)
+  expectTypeOf(parsedUrl).toEqualTypeOf<URL>()
   expect(parsedUrl.href).toBe("https://example.com/")
   expect(getSnapshot(urlType, parsedUrl)).toBe("https://example.com/")
   expect(typeCheck(urlType, parsedUrl)).toBeNull()
@@ -117,7 +123,7 @@ test("types.codec supports custom scalar and object-valued codecs", () => {
     x: 10,
     y: 20,
   })
-  assert(point, _ as Point)
+  expectTypeOf(point).toEqualTypeOf<Point>()
   expect(point).toBeInstanceOf(Point)
   expect(point.x).toBe(10)
   expect(point.y).toBe(20)
@@ -131,7 +137,7 @@ test("types.codec supports custom scalar and object-valued codecs", () => {
 
 test("bigint codec is available through the BigInt constructor alias", () => {
   const value = fromSnapshot(BigInt, "123")
-  assert(value, _ as bigint)
+  expectTypeOf(value).toEqualTypeOf<bigint>()
 
   expect(value).toBe(123n)
   expect(getSnapshot(BigInt, 456n)).toBe("456")

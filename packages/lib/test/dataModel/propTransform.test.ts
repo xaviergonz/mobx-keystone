@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   DataModel,
   getSnapshot,
@@ -28,12 +28,12 @@ test("prop with transform and required value", () => {
     date: d,
   })
 
-  assert(t.date, _ as Date)
+  expectTypeOf(t.date).toEqualTypeOf<Date>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date).toBe(1000)
   expect(t.date).toBe(t.date) // should be cached
 
-  assert(t.$.date, _ as number)
+  expectTypeOf(t.$.date).toEqualTypeOf<number>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(d2)
@@ -44,7 +44,7 @@ test("prop with transform and required value", () => {
   expect(t.date).toBe(t.date) // should be cached
 
   const tsn = getSnapshot(t.$)
-  assert(tsn.date, _ as number)
+  expectTypeOf(tsn.date).toEqualTypeOf<number>()
 
   t.setTimestamp(500)
   expect(t.date instanceof Date).toBe(true)
@@ -63,11 +63,11 @@ test("prop with transform and default value", () => {
 
   const t = new T({})
 
-  assert(t.date, _ as Date)
+  expectTypeOf(t.date).toEqualTypeOf<Date>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date).toBe(1000)
 
-  assert(t.$.date, _ as number)
+  expectTypeOf(t.$.date).toEqualTypeOf<number>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(d2)
@@ -77,7 +77,7 @@ test("prop with transform and default value", () => {
   expect(t.$.date).toBe(2000)
 
   const tsn = getSnapshot(t.$)
-  assert(tsn.date, _ as number)
+  expectTypeOf(tsn.date).toEqualTypeOf<number>()
 })
 
 test("prop with transform and can be null | undefined", () => {
@@ -92,11 +92,11 @@ test("prop with transform and can be null | undefined", () => {
     date: d,
   })
 
-  assert(t.date, _ as Date | undefined | null)
+  expectTypeOf(t.date).toEqualTypeOf<Date | undefined | null>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date!).toBe(1000)
 
-  assert(t.$.date, _ as number | undefined | null)
+  expectTypeOf(t.$.date).toEqualTypeOf<number | undefined | null>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(null)
@@ -110,7 +110,7 @@ test("prop with transform and can be null | undefined", () => {
   expect(t.$.date).toBe(undefined)
 
   const tsn = getSnapshot(t.$)
-  assert(tsn.date, _ as number | undefined | null)
+  expectTypeOf(tsn.date).toEqualTypeOf<number | undefined | null>()
 })
 
 test("prop with transform and can be null", () => {
@@ -127,11 +127,11 @@ test("prop with transform and can be null", () => {
     date: d,
   })
 
-  assert(t.date, _ as Date | null)
+  expectTypeOf(t.date).toEqualTypeOf<Date | null>()
   expect(t.date instanceof Date).toBe(true)
   expect(+t.date!).toBe(1000)
 
-  assert(t.$.date, _ as number | null)
+  expectTypeOf(t.$.date).toEqualTypeOf<number | null>()
   expect(t.$.date).toBe(1000)
 
   t.setDate(null)
@@ -140,5 +140,5 @@ test("prop with transform and can be null", () => {
   expect(t.$.date).toBe(null)
 
   const tsn = getSnapshot(t.$)
-  assert(tsn.date, _ as number | null)
+  expectTypeOf(tsn.date).toEqualTypeOf<number | null>()
 })

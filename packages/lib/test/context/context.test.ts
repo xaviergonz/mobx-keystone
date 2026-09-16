@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { observable, reaction, runInAction } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   createContext,
   fromSnapshot,
@@ -255,23 +255,25 @@ test("context with computed values", () => {
 
 test("context typings", () => {
   const ctx1 = createContext<number>()
-  assert(_ as ReturnType<typeof ctx1.getDefault>, _ as number | undefined)
-  assert(_ as ReturnType<typeof ctx1.get>, _ as number | undefined)
-  assert(_ as typeof ctx1.setDefault, _ as (v: number | undefined) => void)
-  assert(_ as typeof ctx1.set, _ as (n: object, v: number | undefined) => void)
-  assert(_ as typeof ctx1.setComputed, _ as (n: object, v: () => number | undefined) => void)
+  expectTypeOf<ReturnType<typeof ctx1.getDefault>>().toEqualTypeOf<number | undefined>()
+  expectTypeOf<ReturnType<typeof ctx1.get>>().toEqualTypeOf<number | undefined>()
+  expectTypeOf<typeof ctx1.setDefault>().toEqualTypeOf<(v: number | undefined) => void>()
+  expectTypeOf<typeof ctx1.set>().toEqualTypeOf<(n: object, v: number | undefined) => void>()
+  expectTypeOf<typeof ctx1.setComputed>().toEqualTypeOf<
+    (n: object, v: () => number | undefined) => void
+  >()
   const ctx2 = createContext(5)
-  assert(_ as ReturnType<typeof ctx2.getDefault>, _ as number)
-  assert(_ as ReturnType<typeof ctx2.get>, _ as number)
-  assert(_ as typeof ctx2.setDefault, _ as (v: number) => void)
-  assert(_ as typeof ctx2.set, _ as (n: object, v: number) => void)
-  assert(_ as typeof ctx2.setComputed, _ as (n: object, v: () => number) => void)
+  expectTypeOf<ReturnType<typeof ctx2.getDefault>>().toEqualTypeOf<number>()
+  expectTypeOf<ReturnType<typeof ctx2.get>>().toEqualTypeOf<number>()
+  expectTypeOf<typeof ctx2.setDefault>().toEqualTypeOf<(v: number) => void>()
+  expectTypeOf<typeof ctx2.set>().toEqualTypeOf<(n: object, v: number) => void>()
+  expectTypeOf<typeof ctx2.setComputed>().toEqualTypeOf<(n: object, v: () => number) => void>()
   const ctx3 = createContext<number>(5)
-  assert(_ as ReturnType<typeof ctx3.getDefault>, _ as number)
-  assert(_ as ReturnType<typeof ctx3.get>, _ as number)
-  assert(_ as typeof ctx3.setDefault, _ as (v: number) => void)
-  assert(_ as typeof ctx3.set, _ as (n: object, v: number) => void)
-  assert(_ as typeof ctx3.setComputed, _ as (n: object, v: () => number) => void)
+  expectTypeOf<ReturnType<typeof ctx3.getDefault>>().toEqualTypeOf<number>()
+  expectTypeOf<ReturnType<typeof ctx3.get>>().toEqualTypeOf<number>()
+  expectTypeOf<typeof ctx3.setDefault>().toEqualTypeOf<(v: number) => void>()
+  expectTypeOf<typeof ctx3.set>().toEqualTypeOf<(n: object, v: number) => void>()
+  expectTypeOf<typeof ctx3.setComputed>().toEqualTypeOf<(n: object, v: () => number) => void>()
 })
 
 test("context apply", () => {

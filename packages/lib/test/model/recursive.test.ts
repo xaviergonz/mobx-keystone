@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   Model,
   ModelAutoTypeCheckingMode,
@@ -22,12 +22,12 @@ test("self recursive", () => {
 
   const tn = new TreeNode({ children: [new TreeNode({})] })
 
-  assert(tn, _ as TreeNode)
-  assert(tn.x, _ as number)
-  assert(tn.children, _ as TreeNode[])
-  assert(tn.children[0], _ as TreeNode)
-  assert(tn.children[0].x, _ as number)
-  assert(tn.children[0].children, _ as TreeNode[])
+  expectTypeOf(tn).toEqualTypeOf<TreeNode>()
+  expectTypeOf(tn.x).toEqualTypeOf<number>()
+  expectTypeOf(tn.children).toEqualTypeOf<TreeNode[]>()
+  expectTypeOf(tn.children[0]).toEqualTypeOf<TreeNode>()
+  expectTypeOf(tn.children[0].x).toEqualTypeOf<number>()
+  expectTypeOf(tn.children[0].children).toEqualTypeOf<TreeNode[]>()
 
   expect(tn.children[0] instanceof TreeNode).toBeTruthy()
 })
@@ -41,12 +41,12 @@ test("self recursive type checked", () => {
 
   const tn = new TreeNode({ children: [new TreeNode({})] })
 
-  assert(tn, _ as TreeNode)
-  assert(tn.x, _ as number)
-  assert(tn.children, _ as TreeNode[])
-  assert(tn.children[0], _ as TreeNode)
-  assert(tn.children[0].x, _ as number)
-  assert(tn.children[0].children, _ as TreeNode[])
+  expectTypeOf(tn).toEqualTypeOf<TreeNode>()
+  expectTypeOf(tn.x).toEqualTypeOf<number>()
+  expectTypeOf(tn.children).toEqualTypeOf<TreeNode[]>()
+  expectTypeOf(tn.children[0]).toEqualTypeOf<TreeNode>()
+  expectTypeOf(tn.children[0].x).toEqualTypeOf<number>()
+  expectTypeOf(tn.children[0].children).toEqualTypeOf<TreeNode[]>()
 
   expect(tn.children[0] instanceof TreeNode).toBeTruthy()
 })
@@ -64,12 +64,12 @@ test("cross-referenced", () => {
     }),
   })
 
-  assert(a, _ as A)
-  assert(a.x, _ as number)
-  assert(a.b, _ as B | undefined)
-  assert(a.b!.y, _ as string)
-  assert(a.b!.a, _ as A | undefined)
-  assert(a.b!.a!.x, _ as number)
+  expectTypeOf(a).toEqualTypeOf<A>()
+  expectTypeOf(a.x).toEqualTypeOf<number>()
+  expectTypeOf(a.b).toEqualTypeOf<B | undefined>()
+  expectTypeOf(a.b!.y).toEqualTypeOf<string>()
+  expectTypeOf(a.b!.a).toEqualTypeOf<A | undefined>()
+  expectTypeOf(a.b!.a!.x).toEqualTypeOf<number>()
 
   expect(a.b!.a instanceof A).toBeTruthy()
 })
@@ -93,12 +93,12 @@ test("cross-referenced type checked", () => {
     }),
   })
 
-  assert(a, _ as A)
-  assert(a.x, _ as number)
-  assert(a.b, _ as B | undefined)
-  assert(a.b!.y, _ as string)
-  assert(a.b!.a, _ as A | undefined)
-  assert(a.b!.a!.x, _ as number)
+  expectTypeOf(a).toEqualTypeOf<A>()
+  expectTypeOf(a.x).toEqualTypeOf<number>()
+  expectTypeOf(a.b).toEqualTypeOf<B | undefined>()
+  expectTypeOf(a.b!.y).toEqualTypeOf<string>()
+  expectTypeOf(a.b!.a).toEqualTypeOf<A | undefined>()
+  expectTypeOf(a.b!.a!.x).toEqualTypeOf<number>()
 
   expect(a.b!.a instanceof A).toBeTruthy()
 })
@@ -121,11 +121,11 @@ test("recursive with object", () => {
     },
   })
 
-  assert(aa, _ as AA)
-  assert(aa.obj, _ as Obj | undefined)
-  assert(aa.obj!.aa, _ as AA | undefined)
-  assert(aa.obj!.meObj, _ as Obj | undefined)
-  assert(aa.obj!.meObj!.aa, _ as AA | undefined)
+  expectTypeOf(aa).toEqualTypeOf<AA>()
+  expectTypeOf(aa.obj).toEqualTypeOf<Obj | undefined>()
+  expectTypeOf(aa.obj!.aa).toEqualTypeOf<AA | undefined>()
+  expectTypeOf(aa.obj!.meObj).toEqualTypeOf<Obj | undefined>()
+  expectTypeOf(aa.obj!.meObj!.aa).toEqualTypeOf<AA | undefined>()
 
   expect(aa.obj!.meObj!.aa instanceof AA).toBeTruthy()
 })
@@ -151,11 +151,11 @@ test("recursive with object type checked", () => {
     },
   })
 
-  assert(aa, _ as AA)
-  assert(aa.obj, _ as Obj2 | undefined)
-  assert(aa.obj!.aa, _ as AA | undefined)
-  assert(aa.obj!.meObj, _ as Obj2 | undefined)
-  assert(aa.obj!.meObj!.aa, _ as AA | undefined)
+  expectTypeOf(aa).toEqualTypeOf<AA>()
+  expectTypeOf(aa.obj).toEqualTypeOf<Obj2 | undefined>()
+  expectTypeOf(aa.obj!.aa).toEqualTypeOf<AA | undefined>()
+  expectTypeOf(aa.obj!.meObj).toEqualTypeOf<Obj2 | undefined>()
+  expectTypeOf(aa.obj!.meObj!.aa).toEqualTypeOf<AA | undefined>()
 
   expect(aa.obj!.meObj!.aa instanceof AA).toBeTruthy()
 })

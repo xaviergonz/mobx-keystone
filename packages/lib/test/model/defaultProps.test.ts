@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   ExtendedModel,
   idProp,
@@ -41,56 +41,50 @@ class M extends Model({
 }) {}
 
 test("default props", () => {
-  assert(
-    _ as Flatten<ModelCreationData<M>>,
-    _ as {
-      [modelIdKey]?: string
+  expectTypeOf<Flatten<ModelCreationData<M>>>().toEqualTypeOf<{
+    [modelIdKey]?: string
 
-      x?: number | null
-      xx?: number | null
-      xxx?: number | null
+    x?: number | null
+    xx?: number | null
+    xxx?: number | null
 
-      y?: number | null
-      yy?: number | null
-      yyy?: number | null
+    y?: number | null
+    yy?: number | null
+    yyy?: number | null
 
-      aa?: number
-      aaaa?: number | null
+    aa?: number
+    aaaa?: number | null
 
-      bb?: number
-      bbbb?: number | null
+    bb?: number
+    bbbb?: number | null
 
-      a: number
-      aaa: number | null
-      b: number
-      bbb: number | null
-    }
-  )
+    a: number
+    aaa: number | null
+    b: number
+    bbb: number | null
+  }>()
 
-  assert(
-    _ as ModelData<M>,
-    _ as {
-      [modelIdKey]: string
+  expectTypeOf<ModelData<M>>().toEqualTypeOf<{
+    [modelIdKey]: string
 
-      x: number
-      xx: number | undefined
-      xxx: number | null
+    x: number
+    xx: number | undefined
+    xxx: number | null
 
-      y: number
-      yy: number | undefined
-      yyy: number | null
+    y: number
+    yy: number | undefined
+    yyy: number | null
 
-      a: number
-      aa: number | undefined
-      aaa: number | null
-      aaaa: number | null | undefined
+    a: number
+    aa: number | undefined
+    aaa: number | null
+    aaaa: number | null | undefined
 
-      b: number
-      bb: number | undefined
-      bbb: number | null
-      bbbb: number | null | undefined
-    }
-  )
+    b: number
+    bb: number | undefined
+    bbb: number | null
+    bbbb: number | null | undefined
+  }>()
 
   const m0 = new M({ a: 7, aaa: 7, b: 7, bbb: 7 })
 

@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { computed, isComputedProp } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   decoratedModel,
   ExtendedModel,
@@ -157,7 +157,7 @@ test("decoratedModel", () => {
     expect(p.y).toBe(20)
     expect(p.length).toBe(30)
     expect(p.volatile).toBe("volatile")
-    assert(p.volatile2, _ as number)
+    expectTypeOf(p.volatile2).toEqualTypeOf<number>()
 
     p.setXY(20, 30)
     expect(p.x).toBe(20)
@@ -165,28 +165,26 @@ test("decoratedModel", () => {
     expect(p.length).toBe(50)
 
     type SIPn = SnapshotInOf<Point<number>>
-    assert(
-      _ as SIPn,
-      _ as {
+    expectTypeOf<SIPn>().toEqualTypeOf<
+      {
         $modelId?: string | undefined
         x?: number | null | undefined
         y: number
       } & {
         [modelTypeKey]?: string
       }
-    )
+    >()
 
     type SOPn = SnapshotOutOf<Point<number>>
-    assert(
-      _ as SOPn,
-      _ as {
+    expectTypeOf<SOPn>().toEqualTypeOf<
+      {
         $modelId: string
         x: number
         y: number
       } & {
         [modelTypeKey]?: string
       }
-    )
+    >()
   }
 
   // extension
@@ -236,7 +234,7 @@ test("decoratedModel", () => {
     expect(p2.z).toBe(30)
     expect(p2.length3d).toBe(60)
     expect(p2.volatile).toBe("volatile")
-    assert(p2.volatile2, _ as unknown) // known issue, no way to specify generic for base class
+    expectTypeOf(p2.volatile2).toEqualTypeOf<unknown>() // known issue, no way to specify generic for base class
 
     p2.setXYZ(20, 30, 40)
     expect(p2.x).toBe(20)
@@ -245,9 +243,8 @@ test("decoratedModel", () => {
     expect(p2.length3d).toBe(90)
 
     type SIP3d = SnapshotInOf<Point3d>
-    assert(
-      _ as SIP3d,
-      _ as {
+    expectTypeOf<SIP3d>().toEqualTypeOf<
+      {
         $modelId?: string | undefined
         x?: number | null | undefined
         y: number
@@ -255,12 +252,11 @@ test("decoratedModel", () => {
       } & {
         [modelTypeKey]?: string
       }
-    )
+    >()
 
     type SOP3d = SnapshotOutOf<Point3d>
-    assert(
-      _ as SOP3d,
-      _ as {
+    expectTypeOf<SOP3d>().toEqualTypeOf<
+      {
         $modelId: string
         x: number
         y: number
@@ -268,7 +264,7 @@ test("decoratedModel", () => {
       } & {
         [modelTypeKey]?: string
       }
-    )
+    >()
   }
 })
 

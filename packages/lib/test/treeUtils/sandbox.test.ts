@@ -1,5 +1,5 @@
+import { expectTypeOf } from "expect-type"
 import { reaction, toJS } from "mobx"
-import { _, assert } from "spec.ts"
 import {
   applySnapshot,
   customRef,
@@ -68,33 +68,33 @@ test("withSandbox can be called with one node or a tuple of nodes", () => {
   })
 
   manager.withSandbox([a], (node) => {
-    assert(node, _ as A)
+    expectTypeOf(node).toEqualTypeOf<A>()
     expect(node.$modelType).toBe("A")
     return false
   })
 
   manager.withSandbox([a], (...nodes) => {
-    assert(nodes, _ as [A])
+    expectTypeOf(nodes).toEqualTypeOf<[A]>()
     expect(nodes[0].$modelType).toBe("A")
     return false
   })
 
   manager.withSandbox([a, a], (...nodes) => {
-    assert(nodes, _ as [A, A])
+    expectTypeOf(nodes).toEqualTypeOf<[A, A]>()
     expect(nodes[0].$modelType).toBe("A")
     expect(nodes[1].$modelType).toBe("A")
     return false
   })
 
   manager.withSandbox([a, a.b], (...nodes) => {
-    assert(nodes, _ as [A, B])
+    expectTypeOf(nodes).toEqualTypeOf<[A, B]>()
     expect(nodes[0].$modelType).toBe("A")
     expect(nodes[1].$modelType).toBe("B")
     return false
   })
 
   manager.withSandbox([a.b, a], (...nodes) => {
-    assert(nodes, _ as [B, A])
+    expectTypeOf(nodes).toEqualTypeOf<[B, A]>()
     expect(nodes[0].$modelType).toBe("B")
     expect(nodes[1].$modelType).toBe("A")
     return false
@@ -113,7 +113,7 @@ test("withSandbox can be called with an array node", () => {
   })
 
   manager.withSandbox([r.a], (node) => {
-    assert(node, _ as A[])
+    expectTypeOf(node).toEqualTypeOf<A[]>()
     expect(node).toHaveLength(2)
     expect(isTweakedObject(node, false)).toBeTruthy()
     return false
@@ -415,7 +415,7 @@ test("withSandbox can return value from fn", () => {
     node.setValue(1)
     return { commit: false, return: 123 }
   })
-  assert(returnValue1, _ as number)
+  expectTypeOf(returnValue1).toEqualTypeOf<number>()
   expect(returnValue1).toBe(123)
   expect(a.b.value).toBe(0)
 
@@ -423,7 +423,7 @@ test("withSandbox can return value from fn", () => {
     node.setValue(1)
     return { commit: true, return: { x: "x" } }
   })
-  assert(returnValue2, _ as { x: string })
+  expectTypeOf(returnValue2).toEqualTypeOf<{ x: string }>()
   expect(returnValue2).toEqual({ x: "x" })
   expect(a.b.value).toBe(1)
 })

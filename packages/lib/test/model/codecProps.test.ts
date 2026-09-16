@@ -1,4 +1,4 @@
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
 import {
   applySnapshot,
   clone,
@@ -64,51 +64,56 @@ test("codec props keep runtime values while storing encoded data", () => {
     },
   })
 
-  assert(
-    model.$,
-    _ as {
-      id: string
+  expectTypeOf(model.$).toEqualTypeOf<{
+    id: string
+    createdAt: number
+    settledAt: string
+    totals: Record<string, string>
+    keyed: Array<[string, string]>
+    flags: number[]
+    ids: string[]
+    info: {
       createdAt: number
-      settledAt: string
-      totals: Record<string, string>
-      keyed: Array<[string, string]>
-      flags: number[]
+      counts: Record<string, string>
       ids: string[]
-      info: {
-        createdAt: number
-        counts: Record<string, string>
-        ids: string[]
-      }
     }
-  )
+  }>()
 
-  assert(_ as SnapshotInOf<M>["id"], _ as string)
-  assert(_ as SnapshotInOf<M>["createdAt"], _ as number)
-  assert(_ as SnapshotInOf<M>["settledAt"], _ as string)
-  assert(_ as SnapshotInOf<M>["totals"], _ as Record<string, string> | null | undefined)
-  assert(_ as SnapshotInOf<M>["keyed"], _ as Array<[string, string]> | null | undefined)
-  assert(_ as SnapshotInOf<M>["flags"], _ as number[] | null | undefined)
-  assert(_ as SnapshotInOf<M>["ids"], _ as string[] | null | undefined)
-  assert(_ as SnapshotInOf<M>["info"]["createdAt"], _ as number)
-  assert(_ as SnapshotInOf<M>["info"]["counts"], _ as Record<string, string>)
-  assert(_ as SnapshotInOf<M>["info"]["ids"], _ as string[])
+  expectTypeOf<SnapshotInOf<M>["id"]>().toEqualTypeOf<string>()
+  expectTypeOf<SnapshotInOf<M>["createdAt"]>().toEqualTypeOf<number>()
+  expectTypeOf<SnapshotInOf<M>["settledAt"]>().toEqualTypeOf<string>()
+  expectTypeOf<SnapshotInOf<M>["totals"]>().toEqualTypeOf<
+    Record<string, string> | null | undefined
+  >()
+  expectTypeOf<SnapshotInOf<M>["keyed"]>().toEqualTypeOf<
+    Array<[string, string]> | null | undefined
+  >()
+  expectTypeOf<SnapshotInOf<M>["flags"]>().toEqualTypeOf<number[] | null | undefined>()
+  expectTypeOf<SnapshotInOf<M>["ids"]>().toEqualTypeOf<string[] | null | undefined>()
+  expectTypeOf<SnapshotInOf<M>["info"]["createdAt"]>().toEqualTypeOf<number>()
+  expectTypeOf<SnapshotInOf<M>["info"]["counts"]>().toEqualTypeOf<Record<string, string>>()
+  expectTypeOf<SnapshotInOf<M>["info"]["ids"]>().toEqualTypeOf<string[]>()
 
-  assert(_ as SnapshotOutOf<M>["id"], _ as string)
-  assert(_ as SnapshotOutOf<M>["createdAt"], _ as number)
-  assert(_ as SnapshotOutOf<M>["settledAt"], _ as string)
-  assert(_ as SnapshotOutOf<M>["totals"], _ as Record<string, string>)
-  assert(_ as SnapshotOutOf<M>["keyed"], _ as Array<[string, string]>)
-  assert(_ as SnapshotOutOf<M>["flags"], _ as number[])
-  assert(_ as SnapshotOutOf<M>["ids"], _ as string[])
-  assert(_ as SnapshotOutOf<M>["info"]["createdAt"], _ as number)
-  assert(_ as SnapshotOutOf<M>["info"]["counts"], _ as Record<string, string>)
-  assert(_ as SnapshotOutOf<M>["info"]["ids"], _ as string[])
+  expectTypeOf<SnapshotOutOf<M>["id"]>().toEqualTypeOf<string>()
+  expectTypeOf<SnapshotOutOf<M>["createdAt"]>().toEqualTypeOf<number>()
+  expectTypeOf<SnapshotOutOf<M>["settledAt"]>().toEqualTypeOf<string>()
+  expectTypeOf<SnapshotOutOf<M>["totals"]>().toEqualTypeOf<Record<string, string>>()
+  expectTypeOf<SnapshotOutOf<M>["keyed"]>().toEqualTypeOf<Array<[string, string]>>()
+  expectTypeOf<SnapshotOutOf<M>["flags"]>().toEqualTypeOf<number[]>()
+  expectTypeOf<SnapshotOutOf<M>["ids"]>().toEqualTypeOf<string[]>()
+  expectTypeOf<SnapshotOutOf<M>["info"]["createdAt"]>().toEqualTypeOf<number>()
+  expectTypeOf<SnapshotOutOf<M>["info"]["counts"]>().toEqualTypeOf<Record<string, string>>()
+  expectTypeOf<SnapshotOutOf<M>["info"]["ids"]>().toEqualTypeOf<string[]>()
 
-  assert(model.id, _ as bigint)
-  assert(model.createdAt, _ as Date)
-  assert(model.totals, _ as Map<string, bigint>)
-  assert(model.ids, _ as bigint[])
-  assert(model.info, _ as { createdAt: Date; counts: Map<string, bigint>; ids: bigint[] })
+  expectTypeOf(model.id).toEqualTypeOf<bigint>()
+  expectTypeOf(model.createdAt).toEqualTypeOf<Date>()
+  expectTypeOf(model.totals).toEqualTypeOf<Map<string, bigint>>()
+  expectTypeOf(model.ids).toEqualTypeOf<bigint[]>()
+  expectTypeOf(model.info).toEqualTypeOf<{
+    createdAt: Date
+    counts: Map<string, bigint>
+    ids: bigint[]
+  }>()
   expect(model.id).toBe(1n)
   expect(+model.createdAt).toBe(1000)
   expect(model.settledAt.toISOString()).toBe("2026-01-01T00:00:00.000Z")
@@ -170,7 +175,7 @@ test("codec props keep runtime values while storing encoded data", () => {
   })
 
   const snapshot = getSnapshot(model)
-  assert(snapshot, _ as SnapshotOutOf<M>)
+  expectTypeOf(snapshot).toEqualTypeOf<SnapshotOutOf<M>>()
 
   expect(snapshot).toEqual({
     id: "1",
@@ -198,7 +203,7 @@ test("codec props keep runtime values while storing encoded data", () => {
   })
 
   const restored = fromSnapshot(M, snapshot)
-  assert(restored, _ as M)
+  expectTypeOf(restored).toEqualTypeOf<M>()
 
   expect(restored.id).toBe(1n)
   expect(+restored.createdAt).toBe(1000)

@@ -256,6 +256,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^5.0.0
         version: 5.0.0(vitest@5.0.0)
+      expect-type:
+        specifier: ^1.4.0
+        version: 1.4.0
       mobx-v4:
         specifier: npm:mobx@^4.15.7
         version: mobx@4.15.7
@@ -271,9 +274,6 @@ importers:
       shx:
         specifier: ^0.4.0
         version: 0.4.0
-      spec.ts:
-        specifier: ^1.1.3
-        version: 1.1.3
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.16.2)(@types/node@26.4.1)(typescript@7.0.2)
@@ -329,15 +329,15 @@ importers:
       '@types/node':
         specifier: ^26.4.1
         version: 26.4.1
+      expect-type:
+        specifier: ^1.4.0
+        version: 1.4.0
       mobx-keystone:
         specifier: workspace:*
         version: link:../lib
       shx:
         specifier: ^0.4.0
         version: 0.4.0
-      spec.ts:
-        specifier: ^1.1.3
-        version: 1.1.3
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.16.2)(@types/node@26.4.1)(typescript@7.0.2)
@@ -387,15 +387,15 @@ importers:
       '@types/node':
         specifier: ^26.4.1
         version: 26.4.1
+      expect-type:
+        specifier: ^1.4.0
+        version: 1.4.0
       mobx-keystone:
         specifier: workspace:*
         version: link:../lib
       shx:
         specifier: ^0.4.0
         version: 0.4.0
-      spec.ts:
-        specifier: ^1.1.3
-        version: 1.1.3
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.16.2)(@types/node@26.4.1)(typescript@7.0.2)
@@ -9867,9 +9867,6 @@ packages:
   spdy@4.0.2:
     resolution: {integrity: sha512-r46gZQZQV+Kl9oItvl1JZZqJKGr+oEkB08A6BzkiR7593/7IbtuncXHd2YoYeTsG4157ZssMu9KYvUHLcjcDoA==}
     engines: {node: '>=6.0.0'}
-
-  spec.ts@1.1.3:
-    resolution: {integrity: sha512-xDzHAwbHqe9OIHT1c+pnVpVuYSHNC5vk51aFKKoql2aH1RCzHplkd7MoSV7uLfzgm3GmlfpAfwLtfH2T3lQMmw==}
 
   split2@1.1.1:
     resolution: {integrity: sha512-cfurE2q8LamExY+lJ9Ex3ZfBwqAPduzOKVscPDXNCLLMvyaeD3DTz1yk7fVIs6Chco+12XeD0BB6HEoYzPYbXA==}
@@ -22751,8 +22748,6 @@ snapshots:
       spdy-transport: 3.0.0
     transitivePeerDependencies:
       - supports-color
-
-  spec.ts@1.1.3: {}
 
   split2@1.1.1:
     dependencies:

@@ -64,7 +64,9 @@ done
 - For TS type assertions in tests use:
 
 ```ts
-import { _, assert } from "spec.ts"
+import { expectTypeOf } from "expect-type"
+
+expectTypeOf(actual).toEqualTypeOf<Expected>()
 ```
 
 ## Standards and safety
