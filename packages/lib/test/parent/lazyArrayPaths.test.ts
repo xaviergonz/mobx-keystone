@@ -34,15 +34,20 @@ function createRandom() {
 
 function expectIndexes(array: readonly unknown[]) {
   const items = array.slice()
+  // collect mismatches and assert once: an expect per item is too slow under CI coverage
+  const mismatches: { index: number; path: unknown; sameParent: boolean }[] = []
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
     if (typeof item === "object" && item !== null) {
       // compare the parent by identity: deep-equality on large MobX 4 arrays is very slow
       const parentPath = getParentPath(item)
-      expect(parentPath?.parent).toBe(array)
-      expect(parentPath?.path).toBe(i)
+      const sameParent = parentPath?.parent === array
+      if (!sameParent || parentPath?.path !== i) {
+        mismatches.push({ index: i, path: parentPath?.path, sameParent })
+      }
     }
   }
+  expect(mismatches).toStrictEqual([])
 }
 
 test("indexes follow random splices", () => {
