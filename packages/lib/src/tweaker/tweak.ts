@@ -1,15 +1,28 @@
-import { action } from "mobx"
+import { action, isObservableArray, isObservableObject } from "mobx"
 import { isDataModel } from "../dataModel/utils"
+import { Frozen } from "../frozen/Frozen"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
+import { getModelMetadata } from "../model/getModelMetadata"
+import { isModel } from "../model/utils"
 import { getObjectChildren } from "../parent/coreObjectChildren"
 import { fastGetParent, type ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
+import { fastIsRootStoreNoAtom } from "../rootStore/rootStore"
 import { unsetInternalSnapshot } from "../snapshot/internal"
 import type { AnyStandardType, TypeToData } from "../types/schemas"
 import { typeCheck } from "../types/typeCheck"
-import { failure, inDevMode, isMap, isObject, isPrimitive, isSet } from "../utils"
+import {
+  failure,
+  inDevMode,
+  isArray,
+  isMap,
+  isObject,
+  isPlainObject,
+  isPrimitive,
+  isSet,
+} from "../utils"
 import { getSafeErrorValuePreview } from "../utils/errorDiagnostics"
-import { isTweakedObject, runTweakedObjectUntweakers } from "./core"
+import { deactivateHandlers, isTweakedObject } from "./core"
 import { registerDefaultTweakers } from "./registerDefaultTweakers"
 import { treeNodeMetadata } from "./treeNodeMetadata"
 
@@ -100,9 +113,7 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
 
   // unsupported (must go before plain object tweaker)
   if (isDataModel(value)) {
-    throw failure(
-      "data models are not directly supported. you may insert the data in the tree instead ('$' property)."
-    )
+    throw dataModelsNotSupportedError()
   }
 
   registerDefaultTweakers()
@@ -116,17 +127,23 @@ function internalTweak<T>(value: T, parentPath: ParentPath<any> | undefined): T 
     }
   }
 
-  // unsupported
+  throw unsupportedValueError(value)
+}
+
+function dataModelsNotSupportedError() {
+  return failure(
+    "data models are not directly supported. you may insert the data in the tree instead ('$' property)."
+  )
+}
+
+function unsupportedValueError(value: unknown) {
   if (isMap(value)) {
-    throw failure("maps are not directly supported. consider using 'ObjectMap' / 'asMap' instead.")
+    return failure("maps are not directly supported. consider using 'ObjectMap' / 'asMap' instead.")
   }
-
-  // unsupported
   if (isSet(value)) {
-    throw failure("sets are not directly supported. consider using 'ArraySet' / 'asSet' instead.")
+    return failure("sets are not directly supported. consider using 'ArraySet' / 'asSet' instead.")
   }
-
-  throw failure(
+  return failure(
     `tweak can only work over models, observable objects/arrays, or primitives, but got ${getSafeErrorValuePreview(value)} instead`
   )
 }
@@ -139,6 +156,154 @@ const tweakNonPrimitive = action("tweak", internalTweak)
 export function tweak<T>(value: T, parentPath: ParentPath<any> | undefined): T {
   // Primitives need no tree bookkeeping or MobX action boundary.
   return isPrimitive(value) ? value : tweakNonPrimitive(value, parentPath)
+}
+
+/**
+ * Tells whether a node that has a parent gets detached by the change being
+ * intercepted before the new values are attached.
+ * @internal
+ */
+export type IsDetachedByChange = (node: object, parentPath: ParentPath<any>) => boolean
+
+// nodes to be attached by the change being checked, since a node cannot be
+// attached twice
+const seenNodes = new Set<object>()
+
+/**
+ * Throws the error `tweak` or `setParent` would throw when attaching `values`
+ * (and whatever they contain) after the change being intercepted detaches its
+ * values, without changing anything. Interceptors call it before detaching, so
+ * a rejected change leaves the tree as it was.
+ * `prepareValue`, when given, replaces each value before it is checked.
+ * @internal
+ */
+export function assertCanAttach(
+  values: unknown[],
+  isDetachedByChange: IsDetachedByChange,
+  prepareValue?: (value: unknown) => unknown
+): void {
+  try {
+    for (let i = 0; i < values.length; i++) {
+      if (prepareValue) {
+        values[i] = prepareValue(values[i])
+      }
+      checkAttach(values[i], isDetachedByChange)
+    }
+  } finally {
+    seenNodes.clear()
+  }
+}
+
+/**
+ * `assertCanAttach` for a single value.
+ * @internal
+ */
+export function assertCanAttachValue(value: unknown, isDetachedByChange: IsDetachedByChange): void {
+  if (isPrimitive(value)) {
+    return
+  }
+  try {
+    checkAttach(value, isDetachedByChange)
+  } finally {
+    seenNodes.clear()
+  }
+}
+
+function checkAttach(value: unknown, isDetachedByChange: IsDetachedByChange): void {
+  if (isPrimitive(value)) {
+    return
+  }
+
+  // (one metadata lookup instead of one per helper)
+  const metadata = treeNodeMetadata.get(value)
+  if (metadata?.tweaked) {
+    if (metadata.dataObjectParent !== undefined) {
+      throw failure("value must be the model object instance instead of the '$' sub-object")
+    }
+    if (fastIsRootStoreNoAtom(value)) {
+      throw failure("root stores cannot be attached to any parents")
+    }
+    if (isModel(value) && getModelMetadata(value).valueType) {
+      // setParent clones it when it has a parent
+      return
+    }
+    const parentPath = metadata.parentPath
+    if (
+      parentPath &&
+      !isDetachedByChange(value, parentPath) &&
+      !isUntweakedByChange(parentPath.parent, isDetachedByChange)
+    ) {
+      throw failure("an object cannot be assigned a new parent when it already has one")
+    }
+    assertNotSeen(value)
+    return
+  }
+
+  // the values internalTweak accepts, most common first
+  if (isPlainObject(value)) {
+    if (isObservableObject(value)) {
+      // (it becomes the tree node itself)
+      assertNotSeen(value)
+    }
+    checkAttachProps(value, isDetachedByChange)
+    return
+  }
+  if (isArray(value)) {
+    if (isObservableArray(value)) {
+      assertNotSeen(value)
+    }
+    for (let i = 0; i < value.length; i++) {
+      checkAttach(value[i], isDetachedByChange)
+    }
+    return
+  }
+  // (data models, frozen values and models can be observable objects too)
+  if (isDataModel(value)) {
+    throw dataModelsNotSupportedError()
+  }
+  if (value instanceof Frozen || isModel(value)) {
+    return
+  }
+  if (isObservableObject(value)) {
+    assertNotSeen(value)
+    checkAttachProps(value as Record<string, unknown>, isDetachedByChange)
+    return
+  }
+  throw unsupportedValueError(value)
+}
+
+function checkAttachProps(obj: Record<string, unknown>, isDetachedByChange: IsDetachedByChange) {
+  const keys = Object.keys(obj)
+  for (let i = 0; i < keys.length; i++) {
+    checkAttach(obj[keys[i]], isDetachedByChange)
+  }
+}
+
+function assertNotSeen(value: object) {
+  if (seenNodes.has(value)) {
+    throw failure("an object cannot be assigned a new parent when it already has one")
+  }
+  seenNodes.add(value)
+}
+
+/**
+ * Detaching a plain object or array untweaks it, which detaches its children.
+ */
+function isUntweakedByChange(node: object, isDetachedByChange: IsDetachedByChange): boolean {
+  for (;;) {
+    const metadata = treeNodeMetadata.get(node)
+    if (!metadata?.handlersActive) {
+      return false
+    }
+    const parentPath = metadata.parentPath
+    if (!parentPath) {
+      return false
+    }
+    if (isDetachedByChange(node, parentPath)) {
+      return true
+    }
+    node = parentPath.parent
+  }
 }
 
 /**
@@ -156,8 +321,7 @@ export function tryUntweak(value: any): (() => void) | undefined {
   }
 
   const metadata = treeNodeMetadata.get(value)
-  const untweaker = metadata?.untweaker
-  if (!untweaker) {
+  if (!metadata?.handlersActive) {
     return undefined
   }
 
@@ -177,14 +341,13 @@ export function tryUntweak(value: any): (() => void) | undefined {
   }
 
   return () => {
-    // post-untweaking, call the untweaker
-    runTweakedObjectUntweakers(untweaker)
+    // post-untweaking
+    deactivateHandlers(value, metadata)
 
     // Match the former independent-map ordering: the node stops being tweaked
     // before its snapshot is unset, but the shared record must stay alive until
     // snapshot cleanup has consumed it.
     metadata.tweaked = false
-    metadata.untweaker = undefined
     unsetInternalSnapshot(value)
     // These associations previously lived in independent WeakMaps and remain
     // valid across untweak/retweak, so keep their shared record when present.

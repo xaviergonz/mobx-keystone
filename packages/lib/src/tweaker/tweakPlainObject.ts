@@ -13,10 +13,12 @@ import {
   emitObjectUpdateDeepChange,
 } from "../deepChange/onDeepChange"
 import type { AnyModel } from "../model/BaseModel"
+import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelTypeKey } from "../model/metadata"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"
 import { dataToModelNode } from "../parent/core"
+import { onModelIdChanged } from "../parent/coreObjectChildren"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import {
@@ -36,22 +38,16 @@ import {
 } from "../snapshot/internal"
 import { takeModelInitialDataSnapshot } from "../snapshot/modelInitialData"
 import { withoutCachedTypeChecking } from "../types/createCachedTypeCheck"
-import { failure, isPlainObject, isPrimitive, setProtoProp } from "../utils"
-import {
-  addDelayedError,
-  type DelayedError,
-  throwDelayedError,
-} from "../utils/forEachWithDelayedThrow"
+import { failure, isPlainObject, isPrimitive, nodeObservableOptions, setProtoProp } from "../utils"
+import { addDelayedError, type DelayedError } from "../utils/forEachWithDelayedThrow"
 import { setIfDifferent } from "../utils/setIfDifferent"
-import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
+import { recordChangeForRollback, throwDelayedListenerError } from "./changeRollback"
+import { activateHandlers, runningWithoutSnapshotOrPatches } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
-import { markAsTweakedObject } from "./treeNodeMetadata"
-import { registerTweaker, tweak } from "./tweak"
-import {
-  isTypeCheckingAfterChangeEnabled,
-  recordTypeCheckingBatchChange,
-  runTypeCheckingAfterChange,
-} from "./typeChecking"
+import { markAsTweakedObject, treeNodeMetadata } from "./treeNodeMetadata"
+import { assertCanAttachValue, registerTweaker, tweak } from "./tweak"
+import { notifyTweakedChangeListeners } from "./tweakedChangeListeners"
+import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
  * @internal
@@ -67,7 +63,7 @@ export function tweakPlainObject<T extends Record<string, any>>(
   const originalIsObservableObject = isObservableObject(originalObj)
   const tweakedObj = originalIsObservableObject
     ? originalObj
-    : observable.object({}, undefined, observableOptions)
+    : observable.object({}, undefined, nodeObservableOptions)
 
   // Mark it as tweaked before processing children. The cleanup functions are
   // installed after the MobX handlers have been registered.
@@ -150,38 +146,57 @@ export function tweakPlainObject<T extends Record<string, any>>(
     transformFn
   )
 
-  const interceptDisposer = intercept(tweakedObj, interceptObjectMutation)
-  const observeDisposer = observe(tweakedObj, objectDidChange)
-  setTweakedObjectUntweakers(tweakedObj, interceptDisposer, observeDisposer)
+  if (activateHandlers(tweakedObj)) {
+    intercept(tweakedObj, interceptObjectMutation)
+    observe(tweakedObj, objectDidChange)
+  }
 
   return tweakedObj as any
 }
 
-const observableOptions = {
-  deep: false,
-}
-
-function mutateSet(k: PropertyKey, v: unknown, sn: Record<PropertyKey, unknown>) {
+function mutateSet(
+  k: PropertyKey,
+  v: unknown,
+  sn: Record<PropertyKey, unknown>
+): readonly unknown[] {
   if (k === "__proto__") {
     setProtoProp(sn, v)
   } else {
     sn[k] = v
   }
+  return [v]
 }
 
-function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>) {
+const noValues: readonly unknown[] = []
+
+function mutateDelete(k: PropertyKey, sn: Record<PropertyKey, unknown>): readonly unknown[] {
   delete sn[k]
+  return noValues
 }
 
 const patchRecorder = new InternalPatchRecorder()
 
 function objectDidChange(change: IObjectDidChange): void {
+  const obj = change.object
+  const metadata = treeNodeMetadata.get(obj)
+  if (!metadata?.handlersActive) {
+    // idle handler of an untweaked object
+    return
+  }
   if (typeof change.name !== "string") {
     throw failure("change.name is not a string")
   }
 
-  const obj = change.object
-  const actualNode = dataToModelNode(obj)
+  notifyTweakedChangeListeners(change)
+
+  const actualNode = metadata.dataObjectParent ?? obj
+
+  if (
+    actualNode !== obj &&
+    change.name === getModelIdPropertyName(actualNode.constructor as ModelClass<AnyModel>)
+  ) {
+    onModelIdChanged(actualNode)
+  }
 
   patchRecorder.reset()
 
@@ -189,13 +204,11 @@ function objectDidChange(change: IObjectDidChange): void {
     return
   }
 
-  recordTypeCheckingBatchChange(change)
-
   const oldUntransformedSn = getInternalSnapshot(actualNode)!.untransformed
   const shouldEmitPatches = hasPatchListenersFor(actualNode)
   const shouldBuildInversePatches = shouldEmitPatches || isTypeCheckingAfterChangeEnabled()
 
-  let mutate: ((sn: any) => void) | undefined
+  let mutate: ((sn: any) => readonly unknown[]) | undefined
   switch (change.type) {
     case "add":
     case "update":
@@ -226,6 +239,8 @@ function objectDidChange(change: IObjectDidChange): void {
   } else {
     runTypeCheckingAfterChange(obj, patchRecorder)
   }
+  // (after type checking, which undoes a rejected change, but before listeners)
+  recordChangeForRollback(change)
   updateInternalSnapshot(actualNode, mutate)
 
   // Listeners may mutate another node and reuse the shared recorder.
@@ -270,7 +285,7 @@ function objectDidChange(change: IObjectDidChange): void {
   } catch (error) {
     delayedError = addDelayedError(delayedError, error)
   }
-  throwDelayedError(delayedError)
+  throwDelayedListenerError(delayedError)
 }
 
 function objectDidChangeRemove(
@@ -337,7 +352,14 @@ function objectDidChangeAddOrUpdate(
   return mutate
 }
 
+const noneDetached = () => false
+
 function interceptObjectMutation(change: IObjectWillChange) {
+  const metadata = treeNodeMetadata.get(change.object)
+  if (!metadata?.handlersActive) {
+    // idle handler of an untweaked object
+    return change
+  }
   assertCanWrite()
 
   if (typeof change.name === "symbol") {
@@ -347,10 +369,11 @@ function interceptObjectMutation(change: IObjectWillChange) {
   // This must happen before detach/reparent work below. It keeps the old value
   // available for inverse patches and folds a departing dirty child into its
   // parent snapshot while its parent path still exists.
-  flushInternalSnapshot(dataToModelNode(change.object), false)
+  flushInternalSnapshot(metadata.dataObjectParent ?? change.object, false)
 
   switch (change.type) {
     case "add":
+      assertCanAttachValue(change.newValue, noneDetached)
       change.newValue = tweak(change.newValue, {
         parent: change.object,
         path: String(change.name),
@@ -366,6 +389,8 @@ function interceptObjectMutation(change: IObjectWillChange) {
       const oldVal = change.object[change.name]
       const newVal = change.newValue
       if (newVal !== oldVal) {
+        // (first, so a value that cannot be attached leaves the old one in place)
+        assertCanAttachValue(newVal, (node) => node === oldVal)
         tweak(oldVal, undefined)
 
         change.newValue = tweak(newVal, {

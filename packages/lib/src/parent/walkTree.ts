@@ -1,4 +1,3 @@
-import { computed, type IComputedValue } from "mobx"
 import { assertTweakedObject } from "../tweaker/core"
 import { getObjectChildren } from "./coreObjectChildren"
 
@@ -91,76 +90,4 @@ function walkTreeChildrenFirst<T = void>(
   }
 
   return undefined
-}
-
-/**
- * @internal
- */
-export interface ComputedWalkTreeAggregate<R> {
-  walk(target: object): Map<R, object> | undefined
-}
-
-function getComputedTreeResult<R>(
-  computedFns: WeakMap<object, IComputedValue<Map<R, object> | undefined>>,
-  visit: (node: object) => R | undefined,
-  tree: object
-): Map<R, object> | undefined {
-  let cmpted = computedFns.get(tree)
-  if (!cmpted) {
-    cmpted = computed(() => {
-      return walkTreeAggregate(tree, visit, (ch) => getComputedTreeResult(computedFns, visit, ch))
-    })
-    computedFns.set(tree, cmpted)
-  }
-  return cmpted.get()
-}
-
-/**
- * @internal
- */
-export function computedWalkTreeAggregate<R>(
-  visit: (node: object) => R | undefined
-): ComputedWalkTreeAggregate<R> {
-  const computedFns = new WeakMap<object, IComputedValue<Map<R, object> | undefined>>()
-
-  return {
-    walk: (n) => getComputedTreeResult(computedFns, visit, n),
-  }
-}
-
-function walkTreeAggregate<R>(
-  target: object,
-  visit: (node: object) => R | undefined,
-  recurse: (node: object) => Map<R, object> | undefined
-): Map<R, object> | undefined {
-  let map: Map<R, object> | undefined
-  const rootVal = visit(target)
-
-  const children = getObjectChildren(target)
-
-  // With one child and no local value, the child's map can be reused.
-  if (rootVal === undefined && children.size === 1) {
-    return recurse(children.values().next().value!)
-  }
-
-  for (const child of children) {
-    const childMap = recurse(child)
-    if (childMap) {
-      map ??= new Map()
-      for (const [key, value] of childMap) {
-        map.set(key, value)
-      }
-    }
-  }
-
-  // add it at the end so parent resolutions have higher
-  // priority than child ones
-  if (rootVal !== undefined) {
-    if (!map) {
-      map = new Map()
-    }
-    map.set(rootVal, target)
-  }
-
-  return map
 }

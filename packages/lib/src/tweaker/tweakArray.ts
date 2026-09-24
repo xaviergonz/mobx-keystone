@@ -11,7 +11,10 @@ import {
 import { assertCanWrite } from "../action/protection"
 import { emitArraySpliceDeepChange, emitArrayUpdateDeepChange } from "../deepChange/onDeepChange"
 import { getGlobalConfig } from "../globalConfig"
-import type { ParentPath } from "../parent/path"
+import { getModelMetadata } from "../model/getModelMetadata"
+import { isModel } from "../model/utils"
+import { getArrayPaths, setLazyArrayParentPath } from "../parent/arrayPaths"
+import { fastGetParentPath, type ParentPath } from "../parent/path"
 import { reindexArrayChildren, setParent } from "../parent/setParent"
 import {
   beginPatchEmission,
@@ -21,6 +24,7 @@ import {
   InternalPatchRecorder,
 } from "../patch/emitPatch"
 import type { Patch } from "../patch/Patch"
+import { clone } from "../snapshot/clone"
 import {
   flushInternalSnapshot,
   freezeInternalSnapshot,
@@ -29,20 +33,20 @@ import {
   updateInternalSnapshot,
 } from "../snapshot/internal"
 import { failure, inDevMode, isArray, isPrimitive } from "../utils"
-import {
-  addDelayedError,
-  type DelayedError,
-  throwDelayedError,
-} from "../utils/forEachWithDelayedThrow"
-import { runningWithoutSnapshotOrPatches, setTweakedObjectUntweakers } from "./core"
+import { addDelayedError, type DelayedError } from "../utils/forEachWithDelayedThrow"
+import { recordChangeForRollback, throwDelayedListenerError } from "./changeRollback"
+import { activateHandlers, areHandlersActive, runningWithoutSnapshotOrPatches } from "./core"
 import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject } from "./treeNodeMetadata"
-import { registerTweaker, tweak } from "./tweak"
 import {
-  isTypeCheckingAfterChangeEnabled,
-  recordTypeCheckingBatchChange,
-  runTypeCheckingAfterChange,
-} from "./typeChecking"
+  assertCanAttach,
+  assertCanAttachValue,
+  type IsDetachedByChange,
+  registerTweaker,
+  tweak,
+} from "./tweak"
+import { notifyTweakedChangeListeners } from "./tweakedChangeListeners"
+import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
 /**
  * @internal
@@ -139,27 +143,31 @@ export function tweakArray<T extends any[]>(
   }
   setNewInternalSnapshot(tweakedArr, untransformedSn, undefined)
 
-  const interceptDisposer = intercept(
-    tweakedArr,
-    interceptArrayMutation.bind(undefined, tweakedArr)
-  )
-  const observeDisposer = observe(tweakedArr, arrayDidChange)
-  setTweakedObjectUntweakers(tweakedArr, interceptDisposer, observeDisposer)
+  if (activateHandlers(tweakedArr)) {
+    intercept(tweakedArr, interceptArrayMutation.bind(undefined, tweakedArr))
+    observe(tweakedArr, arrayDidChange)
+  }
 
   return tweakedArr as any
 }
 
-function mutateSet(k: number, v: unknown, sn: unknown[]) {
+function mutateSet(k: number, v: unknown, sn: unknown[]): readonly unknown[] {
   sn[k] = v
+  return [v]
 }
 
 // Conservative bound below every engine's argument-count limit for spread calls.
 const maxSpreadableItems = 8192
 
-function mutateSplice(index: number, removedCount: number, addedItems: any[], sn: any[]) {
+function mutateSplice(
+  index: number,
+  removedCount: number,
+  addedItems: any[],
+  sn: any[]
+): readonly unknown[] {
   if (addedItems.length < maxSpreadableItems) {
     sn.splice(index, removedCount, ...addedItems)
-    return
+    return addedItems
   }
 
   // Splice the tail in a single pass instead of spreading the added items as
@@ -170,11 +178,18 @@ function mutateSplice(index: number, removedCount: number, addedItems: any[], sn
   sn.copyWithin(index + addedItems.length, index + removedCount, oldLength)
   for (let i = 0; i < addedItems.length; i++) sn[index + i] = addedItems[i]
   sn.length = newLength
+  return addedItems
 }
 
 const patchRecorder = new InternalPatchRecorder()
 
 function arrayDidChange(change: IArrayDidChange) {
+  if (!areHandlersActive(change.object)) {
+    // idle handler of an untweaked array
+    return
+  }
+  notifyTweakedChangeListeners(change)
+
   const arr = change.object
 
   patchRecorder.reset()
@@ -183,13 +198,11 @@ function arrayDidChange(change: IArrayDidChange) {
     return
   }
 
-  recordTypeCheckingBatchChange(change)
-
   const oldSnapshot = getInternalSnapshot(arr as Array<unknown>)!.untransformed
   const shouldEmitPatches = hasPatchListenersFor(arr)
   const shouldBuildInversePatches = shouldEmitPatches || isTypeCheckingAfterChangeEnabled()
 
-  let mutate: ((sn: any[]) => void) | undefined
+  let mutate: ((sn: any[]) => readonly unknown[]) | undefined
   switch (change.type) {
     case "splice":
       mutate = arrayDidChangeSplice(
@@ -212,6 +225,8 @@ function arrayDidChange(change: IArrayDidChange) {
   }
 
   runTypeCheckingAfterChange(arr, patchRecorder)
+  // (after type checking, which undoes a rejected change, but before listeners)
+  recordChangeForRollback(change)
   if (mutate) {
     updateInternalSnapshot(arr, mutate)
   }
@@ -260,7 +275,7 @@ function arrayDidChange(change: IArrayDidChange) {
   } catch (error) {
     delayedError = addDelayedError(delayedError, error)
   }
-  throwDelayedError(delayedError)
+  throwDelayedListenerError(delayedError)
 }
 
 const undefinedInsideArrayErrorMsg =
@@ -473,6 +488,10 @@ function interceptArrayMutation(
   array: IObservableArray,
   change: IArrayWillChange | IArrayWillSplice
 ) {
+  if (!areHandlersActive(array)) {
+    // idle handler of an untweaked array
+    return change
+  }
   assertCanWrite()
 
   switch (change.type) {
@@ -509,9 +528,18 @@ function validateArrayMutationUpdate(change: IArrayWillChange) {
 function interceptArrayMutationUpdate(change: IArrayWillChange, array: IObservableArray) {
   // TODO: should be change.object, but mobx is bugged and doesn't send the proxy
   const oldVal = array[change.index]
+  if (change.newValue === oldVal) {
+    return
+  }
+  assertCanAttachValue(change.newValue, (node) => node === oldVal)
   tweak(oldVal, undefined) // set old prop obj parent to undefined
 
-  change.newValue = tweak(change.newValue, { parent: array, path: change.index })
+  const paths = getArrayPaths(array, 0)
+  const entry = paths?.set(change.index, change.newValue)
+  change.newValue = tweak(change.newValue, entry ?? { parent: array, path: change.index })
+  if (entry) {
+    setLazyArrayParentPath(entry, change.newValue)
+  }
 }
 
 function validateArrayMutationSplice(change: IArrayWillSplice) {
@@ -526,10 +554,63 @@ function validateArrayMutationSplice(change: IArrayWillSplice) {
   }
 }
 
+/**
+ * Checks the added items can be attached before the splice detaches anything,
+ * so a rejected splice leaves every item as it was. Value types that are added
+ * to the array at the index they already have get cloned here, since
+ * `setParent` cannot tell they are being added again (it clones them when they
+ * are added anywhere else).
+ */
+function checkAddedItems(change: IArrayWillSplice) {
+  const array = change.object
+  const added = change.added
+  const removedEnd = change.index + change.removedCount
+  const isDetachedByChange: IsDetachedByChange = (_node, parentPath) =>
+    parentPath.parent === array &&
+    (parentPath.path as number) >= change.index &&
+    (parentPath.path as number) < removedEnd
+
+  assertCanAttach(added, isDetachedByChange, (value) => {
+    if (!isPrimitive(value) && isModel(value) && getModelMetadata(value).valueType) {
+      const parentPath = fastGetParentPath(value, false)
+      if (parentPath?.parent === array && !isDetachedByChange(value, parentPath)) {
+        return clone(value, { generateNewIds: true })
+      }
+    }
+    return value
+  })
+}
+
 function interceptArrayMutationSplice(change: IArrayWillSplice) {
+  checkAddedItems(change)
+
+  const array = change.object
+  const oldNextIndex = change.index + change.removedCount
+  const paths =
+    change.removedCount !== change.added.length
+      ? getArrayPaths(array, array.length - oldNextIndex)
+      : getArrayPaths(array, 0)
+
   for (let i = 0; i < change.removedCount; i++) {
     const removedValue = change.object[change.index + i]
     tweak(removedValue, undefined)
+  }
+
+  if (paths) {
+    const addedPaths = paths.createPaths(change.index, change.added)
+    for (let i = 0; i < change.added.length; i++) {
+      const addedPath = addedPaths[i]
+      change.added[i] = tweak(
+        change.added[i],
+        addedPath ?? { parent: array, path: change.index + i }
+      )
+      if (addedPath) {
+        setLazyArrayParentPath(addedPath, change.added[i])
+      }
+    }
+    // no reindexing: the items after the splice follow their chunks
+    paths.applySplice(change.index, change.removedCount, addedPaths)
+    return
   }
 
   for (let i = 0; i < change.added.length; i++) {
@@ -540,7 +621,6 @@ function interceptArrayMutationSplice(change: IArrayWillSplice) {
   }
 
   // we might also need to update the parent of the next indexes
-  const oldNextIndex = change.index + change.removedCount
   const newNextIndex = change.index + change.added.length
 
   if (oldNextIndex !== newNextIndex && oldNextIndex < change.object.length) {

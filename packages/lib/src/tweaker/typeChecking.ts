@@ -1,4 +1,3 @@
-import { type IArrayDidChange, type IObjectDidChange, remove, set } from "mobx"
 import { isModelAutoTypeCheckingEnabled } from "../globalConfig/globalConfig"
 import type { AnyModel } from "../model/BaseModel"
 import { getModelMetadata } from "../model/getModelMetadata"
@@ -8,8 +7,9 @@ import { fastGetParent } from "../parent/path"
 import { internalApplyPatches } from "../patch/applyPatches"
 import type { InternalPatchRecorder } from "../patch/emitPatch"
 import { internalApplySnapshot } from "../snapshot/applySnapshot"
+import { deferModelTypeCheckToBatch } from "./changeRollback"
 import { runWithoutSnapshotOrPatches } from "./core"
-import { isTypeCheckingAllowed, withoutTypeChecking } from "./withoutTypeChecking"
+import { isTypeCheckingAllowed } from "./withoutTypeChecking"
 
 // Re-entrancy guard: when true, we are inside a type-check rollback.
 // During rollback, observe callbacks still fire, but we skip the auto
@@ -37,7 +37,7 @@ function isModelWithTypeChecker(obj: object): obj is AnyModel {
  * Walks up parent chain from `obj`, calling `callback` for each typed model
  * including the target itself (nearest-first / bottom-up). Stops if the callback throws.
  */
-function forEachTypedModelAncestor(obj: object, callback: (model: AnyModel) => void): void {
+export function forEachTypedModelAncestor(obj: object, callback: (model: AnyModel) => void): void {
   // obj might be a $ data object, so resolve to the model if applicable
   const start = dataToModelNode(obj)
 
@@ -100,110 +100,11 @@ export function runTypeCheckingAfterChange(
   }
 }
 
-interface TypeCheckingBatch {
-  models: Set<AnyModel>
-  undo: (() => void)[]
-  recording: boolean
-  /** Last recorded change target, so a run of changes to it walks ancestors once. */
-  previousTarget?: object
-}
-
-let typeCheckingBatch: TypeCheckingBatch | undefined
-
 /** @internal Called only when automatic type checking is enabled. */
 export function typeCheckAfterCreation(model: AnyModel): void {
-  if (typeCheckingBatch?.recording) {
-    typeCheckingBatch.models.add(model)
-  } else {
+  // a change batch validates it once it completes
+  if (!deferModelTypeCheckToBatch(model)) {
     const error = model.typeCheck()
     if (error) error.throw()
-  }
-}
-
-/**
- * @internal
- * Capture stored values before any listener can mutate them again. Restoring
- * live values preserves identity and literal data, without snapshot processors
- * or model defaults changing the state being restored.
- */
-export function recordTypeCheckingBatchChange(change: IObjectDidChange | IArrayDidChange): void {
-  const batch = typeCheckingBatch
-  if (!batch?.recording) return
-  if (
-    change.type === "splice" &&
-    change.addedCount === change.removedCount &&
-    change.added.every((value, index) => value === change.removed[index])
-  )
-    return
-
-  const target = change.object
-  if (target !== batch.previousTarget) {
-    forEachTypedModelAncestor(target, (model) => batch.models.add(model))
-    batch.previousTarget = target
-  }
-
-  if (change.type === "splice") {
-    const { object, index, addedCount } = change
-    const removed = change.removed.slice()
-    batch.undo.push(() => object.spliceWithArray(index, addedCount, removed))
-  } else if ("index" in change) {
-    const { object, index, oldValue } = change
-    batch.undo.push(() => {
-      object[index] = oldValue
-    })
-  } else {
-    const { object } = change
-    const key = change.name as string
-    if (change.type === "add") {
-      batch.undo.push(() => remove(object, key))
-    } else {
-      const { oldValue } = change
-      batch.undo.push(() => set(object, key, oldValue))
-    }
-  }
-}
-
-/**
- * @internal
- * Nested calls and synchronous listener edits join the same validation batch.
- * Rollback publishes compensating changes, just like snapshot reconciliation.
- */
-export function withTypeCheckingBatch(fn: () => void): void {
-  if (typeCheckingBatch || !isTypeCheckingAfterChangeEnabled()) {
-    fn()
-    return
-  }
-
-  const batch: TypeCheckingBatch = { models: new Set(), undo: [], recording: true }
-  typeCheckingBatch = batch
-  let validating = false
-  try {
-    withoutTypeChecking(fn)
-    // MobX has now invalidated dependencies, including added/removed keys.
-    validating = true
-    for (const model of batch.models) {
-      const error = model.typeCheck()
-      if (error) error.throw()
-    }
-  } catch (error) {
-    // Only a rejected validation rolls back. Errors thrown by the batch body
-    // itself (an invalid patch, a throwing listener) keep the same partial
-    // application they produce while automatic type checking is disabled.
-    if (validating) {
-      batch.recording = false
-      withoutTypeChecking(() => {
-        for (let i = batch.undo.length - 1; i >= 0; i--) {
-          try {
-            batch.undo[i]()
-          } catch {
-            // Keep restoring after a rollback listener throws. The original
-            // failure takes precedence over errors from compensating changes.
-          }
-        }
-      })
-    }
-    throw error
-  } finally {
-    typeCheckingBatch = undefined
   }
 }

@@ -17,8 +17,10 @@ import {
   reportParentPathChanged,
   setDataObjectParent,
 } from "./core"
-import { addObjectChild, removeObjectChild } from "./coreObjectChildren"
+import { addObjectChild, hasObjectChildren, removeObjectChild } from "./coreObjectChildren"
 import { fastGetParentPath, fastGetRoot, type ParentPath } from "./path"
+
+const reindexChunkSize = 4096
 
 /**
  * Updates the unchanged tail of an array before a splice is applied. These
@@ -29,18 +31,24 @@ import { fastGetParentPath, fastGetRoot, type ParentPath } from "./path"
 export const reindexArrayChildren = action(
   "reindexArrayChildren",
   (array: readonly unknown[], oldStart: number, newStart: number): void => {
-    for (let i = oldStart, j = newStart; i < array.length; i++, j++) {
-      const value = array[i]
-      if (isPrimitive(value)) {
-        continue
+    // Copy the tail in chunks: indexed reads through an observable array are
+    // much slower than a slice, and chunking bounds the temporary copy size.
+    const length = array.length
+    for (let chunkStart = oldStart; chunkStart < length; chunkStart += reindexChunkSize) {
+      const chunk = array.slice(chunkStart, chunkStart + reindexChunkSize)
+      for (let i = 0, j = newStart + chunkStart - oldStart; i < chunk.length; i++, j++) {
+        const value = chunk[i]
+        if (isPrimitive(value)) {
+          continue
+        }
+        const metadata = treeNodeMetadata.get(value as object)
+        if (inDevMode && metadata?.parentPath?.parent !== array) {
+          throw failure("assertion failed: reindexed child must already belong to the array")
+        }
+        // Replace the path object: callers may have retained the previous path.
+        metadata!.parentPath = { parent: array, path: j }
+        reportParentPathChanged(value as object)
       }
-      const metadata = treeNodeMetadata.get(value as object)
-      if (inDevMode && metadata?.parentPath?.parent !== array) {
-        throw failure("assertion failed: reindexed child must already belong to the array")
-      }
-      // Replace the path object: callers may have retained the previous path.
-      metadata!.parentPath = { parent: array, path: j }
-      reportParentPathChanged(value as object)
     }
   }
 )
@@ -123,11 +131,15 @@ export const setParent = action(
 
     const postUntweaker = parentPath ? undefined : tryUntweak(value)
 
-    const valueIsModel = value instanceof BaseModel
+    // A model's root store hooks run when its own root changes. A plain node
+    // has none of its own, but one attached with children may bring models
+    // into a root store. (When detached, its children get detached one by one.)
+    const checkRootStore =
+      value instanceof BaseModel || (!oldParentPath && !!parentPath && hasObjectChildren(value))
 
     let oldRoot: any
     let oldRootStore: any
-    if (valueIsModel) {
+    if (checkRootStore) {
       oldRoot = fastGetRoot(value, false)
       oldRootStore = fastIsRootStoreNoAtom(oldRoot) ? oldRoot : undefined
     }
@@ -144,7 +156,7 @@ export const setParent = action(
     }
     reportParentPathChanged(value)
 
-    if (valueIsModel) {
+    if (checkRootStore) {
       const newRoot = fastGetRoot(value, false)
       const newRootStore = fastIsRootStoreNoAtom(newRoot) ? newRoot : undefined
 

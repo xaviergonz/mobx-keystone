@@ -2,16 +2,14 @@ import { action, type ObservableSet, observable, reaction, when } from "mobx"
 import { isModel } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { model } from "../modelShared/modelDecorator"
-import {
-  getDeepObjectChildren,
-  registerDeepObjectChildrenExtension,
-} from "../parent/coreObjectChildren"
+import { registerDeepObjectChildrenExtension } from "../parent/coreObjectChildren"
 import { fastGetRoot } from "../parent/path"
-import { type ComputedWalkTreeAggregate, computedWalkTreeAggregate } from "../parent/walkTree"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, failure, mobxAction } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
+import { modelRefIdNotIndexed, resolveModelRefId } from "./modelRefIdIndex"
 import { Ref, type RefConstructor } from "./Ref"
+import { resolveRefIdByIndex } from "./refIdIndex"
 
 interface BackRefs<T extends object> {
   all: ObservableSet<Ref<T>>
@@ -192,12 +190,6 @@ export function getModelRefId(target: object): string | undefined {
   return undefined
 }
 
-// one computed id tree per id function
-const computedIdTrees = new WeakMap<
-  (node: object) => string | undefined,
-  ComputedWalkTreeAggregate<string>
->()
-
 /**
  * Resolves a node given its ID.
  *
@@ -212,13 +204,20 @@ export function resolveId<T extends object>(
   id: string,
   getId: RefIdResolver = getModelRefId
 ): T | undefined {
-  // cache/reuse computedIdTrees for same getId function
-  const computedIdTree = getOrCreate(computedIdTrees, getId, () =>
-    computedWalkTreeAggregate<string>((node) => getId(node))
-  )
+  // parent resolutions have priority over child ones
+  if (getId(root) === id) {
+    return root as T
+  }
 
-  const idMap = computedIdTree.walk(root)
-  return idMap ? (idMap.get(id) as T | undefined) : undefined
+  if (getId === getModelRefId) {
+    const found = resolveModelRefId(root, id)
+    if (found !== modelRefIdNotIndexed) {
+      return found as T | undefined
+    }
+  }
+
+  // custom ids (or models with a custom `getRefId`)
+  return resolveRefIdByIndex(root, id, getId) as T | undefined
 }
 
 function getBackRefs<T extends object>(
@@ -285,14 +284,25 @@ export function getRefsResolvingTo<T extends object>(
     oldBackRefs.forEach(updateRef)
   }
 
-  const refsChildrenOfRoot = getDeepChildrenRefs(getDeepObjectChildren(fastGetRoot(target, true)))
-  let refs: Set<Ref<object>> | undefined
-  if (refType) {
-    refs = refsChildrenOfRoot.byType.get(refType.refClass)
+  const refsChildrenOfRoot = getDeepChildrenRefs.get(fastGetRoot(target, true))
+  if (shouldForceUpdateTrackedRefs) {
+    const refs = refType ? refsChildrenOfRoot.byType.get(refType.refClass) : refsChildrenOfRoot.all
+    refs?.forEach(updateRef)
   } else {
-    refs = refsChildrenOfRoot.all
+    // tracked refs keep their back-references up to date by themselves
+    const untrackedRefs = refType
+      ? refsChildrenOfRoot.untrackedByType.get(refType.refClass)
+      : refsChildrenOfRoot.untracked
+    if (untrackedRefs && untrackedRefs.size > 0) {
+      // copy, since updating back-references might change the tree
+      for (const ref of Array.from(untrackedRefs)) {
+        updateRef(ref)
+        if (trackedRefs.has(ref)) {
+          deleteRef(refsChildrenOfRoot.untracked, refsChildrenOfRoot.untrackedByType, ref)
+        }
+      }
+    }
   }
-  refs?.forEach(updateRef)
 
   return getBackRefs(target, refType)
 }
@@ -332,9 +342,24 @@ function isReactionDelayed() {
   return reactionDelayed
 }
 
+type RefsByType = WeakMap<ModelClass<Ref<any>>, Set<Ref<any>>>
+
 interface DeepChildrenRefs {
   all: Set<Ref<any>>
-  byType: WeakMap<ModelClass<Ref<any>>, Set<Ref<any>>>
+  byType: RefsByType
+  /** Refs whose back-references might not be tracked yet. */
+  untracked: Set<Ref<any>>
+  untrackedByType: RefsByType
+}
+
+function addRef(all: Set<Ref<any>>, byType: RefsByType, ref: Ref<any>) {
+  all.add(ref)
+  getOrCreate(byType, ref.constructor as ModelClass<Ref<any>>, () => new Set()).add(ref)
+}
+
+function deleteRef(all: Set<Ref<any>>, byType: RefsByType, ref: Ref<any>) {
+  all.delete(ref)
+  byType.get(ref.constructor as ModelClass<Ref<any>>)?.delete(ref)
 }
 
 const getDeepChildrenRefs = registerDeepObjectChildrenExtension<DeepChildrenRefs>({
@@ -342,14 +367,25 @@ const getDeepChildrenRefs = registerDeepObjectChildrenExtension<DeepChildrenRefs
     return {
       all: new Set(),
       byType: new WeakMap(),
+      untracked: new Set(),
+      untrackedByType: new WeakMap(),
     }
   },
 
   addNode(node, data) {
     if (node instanceof Ref) {
-      data.all.add(node)
-      const refsByThisType = getOrCreate(data.byType, node.constructor, () => new Set())
-      refsByThisType.add(node)
+      addRef(data.all, data.byType, node)
+      if (!trackedRefs.has(node)) {
+        addRef(data.untracked, data.untrackedByType, node)
+      }
     }
+  },
+
+  removeNode(node, data) {
+    if (node instanceof Ref) {
+      deleteRef(data.all, data.byType, node)
+      deleteRef(data.untracked, data.untrackedByType, node)
+    }
+    return true
   },
 })

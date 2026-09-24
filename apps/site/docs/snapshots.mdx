@@ -211,7 +211,7 @@ Replacing a nested model with a plain-object snapshot without `$modelType` creat
 
 When `fromSnapshot` or `applySnapshot` fails due to snapshot processing issues, it throws `SnapshotProcessingError` (extends `MobxKeystoneError`) and includes diagnostic metadata such as `path`, `actualSnapshot` (when available), and `modelTrail` (when available). Its error message is also enriched with this metadata (plus a safe value preview when available).
 
-With automatic type checking enabled, `applySnapshot` validates the completed state against the target model's type and any type constraints on its ancestors. If validation fails, the tree and its snapshots are restored to their previous state. Patch listeners may receive both the attempted changes and patches that undo them.
+`applySnapshot` either applies the whole snapshot or nothing: if it throws partway (for example because of a snapshot processing error or an unregistered model type), the changes it already made are undone before the error is rethrown, keeping the same node instances. With automatic type checking enabled, it also validates the completed state against the target model's type and any type constraints on its ancestors, and a failed validation is undone the same way. Patch listeners may receive both the attempted changes and patches that undo them. Errors thrown by listeners do not undo anything, since the changes themselves were valid.
 
 ## Cloning via snapshots
 

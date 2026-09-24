@@ -18,6 +18,7 @@ import {
   getDeepObjectChildren,
   registerDeepObjectChildrenExtension,
 } from "../../src/parent/coreObjectChildren"
+import { treeNodeMetadata } from "../../src/tweaker/treeNodeMetadata"
 import { ModelPool } from "../../src/utils/ModelPool"
 import { testModel } from "../utils"
 
@@ -61,15 +62,25 @@ class LazyExtensionNode extends Model({
   })
 }
 
-const getDeepNodeIds = registerDeepObjectChildrenExtension<string[]>({
+let deepNodeIdsBuilds = 0
+
+const getDeepNodeIds = registerDeepObjectChildrenExtension<Set<string>>({
   initData() {
-    return []
+    deepNodeIdsBuilds++
+    return new Set()
   },
 
   addNode(node, data) {
     if (node instanceof LazyExtensionNode) {
-      data.push(node.id)
+      data.add(node.id)
     }
+  },
+
+  removeNode(node, data) {
+    if (node instanceof LazyExtensionNode) {
+      data.delete(node.id)
+    }
+    return true
   },
 })
 
@@ -84,7 +95,7 @@ class ModelPoolRoot extends Model({
   items: prop<ModelPoolItem[]>(() => []),
 }) {}
 
-test("lazy deep children extensions initialize from current deep cache and rebuild after changes", () => {
+test("lazy deep children extensions initialize from current deep cache and follow later changes", () => {
   const leafA = new LazyExtensionNode({})
   const leafB = new LazyExtensionNode({})
   const mid = new LazyExtensionNode({
@@ -101,17 +112,26 @@ test("lazy deep children extensions initialize from current deep cache and rebui
     mid.children.push(leafB)
   })
 
-  const firstIds = getDeepNodeIds(getDeepObjectChildren(root))
-  expect(firstIds).toEqual([mid.id, leafA.id, leafB.id])
-  expect(getDeepNodeIds(getDeepObjectChildren(root))).toBe(firstIds)
+  const buildsBefore = deepNodeIdsBuilds
+  const ids = getDeepNodeIds.get(root)
+  expect([...ids]).toEqual([mid.id, leafA.id, leafB.id])
+  expect(getDeepNodeIds.get(root)).toBe(ids)
 
   runUnprotected(() => {
     root.children.pop()
   })
+  expect(getDeepNodeIds.get(root)).toBe(ids)
+  expect([...ids]).toEqual([])
 
-  const secondIds = getDeepNodeIds(getDeepObjectChildren(root))
-  expect(secondIds).toEqual([])
-  expect(secondIds).not.toBe(firstIds)
+  runUnprotected(() => {
+    root.children.push(mid)
+    leafA.children.push(new LazyExtensionNode({ id: "late" }))
+  })
+  expect(getDeepNodeIds.get(root)).toBe(ids)
+  expect([...ids].sort()).toEqual([mid.id, leafA.id, leafB.id, "late"].sort())
+
+  // incremental updates only, no rebuilds
+  expect(deepNodeIdsBuilds).toBe(buildsBefore + 1)
 })
 
 test("ModelPool sees current tree for first use after invalidation and after later rebuilds", () => {
@@ -135,6 +155,7 @@ test("ModelPool sees current tree for first use after invalidation and after lat
   expect(firstPool.findModelForSnapshot(getSnapshot(removed))).toBeUndefined()
   expect(firstPool.findModelForSnapshot(getSnapshot(kept))).toBe(kept)
   expect(firstPool.findModelForSnapshot(getSnapshot(added))).toBe(added)
+  firstPool.release()
 
   runUnprotected(() => {
     root.items.splice(1, 1, replacement)
@@ -144,6 +165,7 @@ test("ModelPool sees current tree for first use after invalidation and after lat
   expect(secondPool.findModelForSnapshot(getSnapshot(kept))).toBe(kept)
   expect(secondPool.findModelForSnapshot(getSnapshot(added))).toBeUndefined()
   expect(secondPool.findModelForSnapshot(getSnapshot(replacement))).toBe(replacement)
+  secondPool.release()
 })
 
 test("applySnapshot reorders reuse deep children and extension indexes when membership is unchanged", () => {
@@ -154,7 +176,7 @@ test("applySnapshot reorders reuse deep children and extension indexes when memb
 
   const deepBefore = getDeepObjectChildren(root)
   const deepSetBefore = deepBefore.deep
-  const idsBefore = getDeepNodeIds(deepBefore)
+  const idsBefore = getDeepNodeIds.get(root)
 
   applySnapshot(root, {
     ...snapshot,
@@ -167,12 +189,12 @@ test("applySnapshot reorders reuse deep children and extension indexes when memb
 
   const deepAfter = getDeepObjectChildren(root)
   expect(deepAfter.deep).toBe(deepSetBefore)
-  expect(getDeepNodeIds(deepAfter)).toBe(idsBefore)
+  expect(getDeepNodeIds.get(root)).toBe(idsBefore)
   expect(deepAfter.deep.has(first)).toBe(true)
   expect(deepAfter.deep.has(second)).toBe(true)
 })
 
-test("applySnapshot membership changes still rebuild deep children and extension indexes", () => {
+test("applySnapshot membership changes still rebuild deep children and update extension indexes", () => {
   const kept = new LazyExtensionNode({})
   const removed = new LazyExtensionNode({})
   const added = new LazyExtensionNode({})
@@ -181,7 +203,7 @@ test("applySnapshot membership changes still rebuild deep children and extension
 
   const deepBefore = getDeepObjectChildren(root)
   const deepSetBefore = deepBefore.deep
-  const idsBefore = getDeepNodeIds(deepBefore)
+  const idsBefore = getDeepNodeIds.get(root)
 
   applySnapshot(root, {
     ...snapshot,
@@ -190,7 +212,8 @@ test("applySnapshot membership changes still rebuild deep children and extension
 
   const deepAfter = getDeepObjectChildren(root)
   expect(deepAfter.deep).not.toBe(deepSetBefore)
-  expect(getDeepNodeIds(deepAfter)).not.toBe(idsBefore)
+  expect(getDeepNodeIds.get(root)).toBe(idsBefore)
+  expect([...idsBefore]).toEqual([kept.id, root.children[1].id])
   expect(deepAfter.deep.has(kept)).toBe(true)
   expect(deepAfter.deep.has(removed)).toBe(false)
   expect(deepAfter.deep.has(root.children[1])).toBe(true)
@@ -203,7 +226,7 @@ test("a subtree mutated while detached and re-attached in the same action keeps 
   // build the deep index before the action
   const deepBefore = getDeepObjectChildren(root)
   expect(deepBefore.deep.has(child)).toBe(true)
-  const idsBefore = getDeepNodeIds(deepBefore)
+  const idsBefore = getDeepNodeIds.get(root)
 
   root.detachMutateReattachFirstChild()
 
@@ -211,8 +234,8 @@ test("a subtree mutated while detached and re-attached in the same action keeps 
   const deepAfter = getDeepObjectChildren(root)
   expect(deepAfter.deep.has(child)).toBe(true)
   expect(deepAfter.deep.has(grandChild)).toBe(true)
-  expect(getDeepNodeIds(deepAfter)).not.toBe(idsBefore)
-  expect(getDeepNodeIds(deepAfter)).toContain(grandChild.id)
+  expect(getDeepNodeIds.get(root)).toBe(idsBefore)
+  expect([...idsBefore]).toEqual([child.id, grandChild.id])
 })
 
 test("array actions coalesce inverse membership changes at the root action boundary", () => {
@@ -246,7 +269,7 @@ test("standalone runUnprotected coalesces inverse membership changes", () => {
   const second = new LazyExtensionNode({})
   const root = new LazyExtensionNode({ children: [first, second] })
   const deepBefore = getDeepObjectChildren(root)
-  const idsBefore = getDeepNodeIds(deepBefore)
+  const idsBefore = getDeepNodeIds.get(root)
 
   runUnprotected(() => {
     const child = root.children.shift()!
@@ -256,7 +279,7 @@ test("standalone runUnprotected coalesces inverse membership changes", () => {
 
   const deepAfter = getDeepObjectChildren(root)
   expect(deepAfter.deep).toBe(deepBefore.deep)
-  expect(getDeepNodeIds(deepAfter)).toBe(idsBefore)
+  expect(getDeepNodeIds.get(root)).toBe(idsBefore)
 })
 
 test("nested runUnprotected calls share the outer mutation batch", () => {
@@ -320,7 +343,7 @@ test("standalone runUnprotected membership changes still rebuild deep children",
 test("a subtree mutated while detached in runUnprotected remains correct after reattachment", () => {
   const child = new LazyExtensionNode({})
   const root = new LazyExtensionNode({ children: [child] })
-  const idsBefore = getDeepNodeIds(getDeepObjectChildren(root))
+  const idsBefore = getDeepNodeIds.get(root)
 
   runUnprotected(() => {
     root.children.pop()
@@ -332,7 +355,8 @@ test("a subtree mutated while detached in runUnprotected remains correct after r
   const deepAfter = getDeepObjectChildren(root)
   expect(deepAfter.deep.has(child)).toBe(true)
   expect(deepAfter.deep.has(grandChild)).toBe(true)
-  expect(getDeepNodeIds(deepAfter)).not.toBe(idsBefore)
+  expect(getDeepNodeIds.get(root)).toBe(idsBefore)
+  expect([...idsBefore]).toEqual([child.id, grandChild.id])
 })
 
 test("runUnprotected finishes its mutation batch after an exception", () => {
@@ -465,4 +489,163 @@ test("applyPatches coalesces a remove/add move within one patch action", () => {
   expect(root.children[0]).toBe(second)
   expect(root.children[1]).toBe(first)
   expect(getDeepObjectChildren(root).deep).toBe(deepSetBefore)
+})
+
+@testModel("ModelPoolIdItem")
+class ModelPoolIdItem extends Model({
+  id: idProp,
+  label: prop<string>(),
+}) {
+  @modelAction
+  setId(id: string) {
+    this.id = id
+  }
+}
+
+@testModel("ModelPoolIdRoot")
+class ModelPoolIdRoot extends Model({
+  items: prop<ModelPoolIdItem[]>(() => []),
+  other: prop<ModelPoolIdItem[]>(() => []),
+}) {}
+
+@testModel("LazyExtensionNodeHolder")
+class LazyExtensionNodeHolder extends Model({
+  holder: prop<ModelPoolIdRoot | undefined>(),
+}) {}
+
+const isDeepDirty = (node: object) => treeNodeMetadata.get(node)!.objectChildren!.deepDirty
+
+test("structural applyPatches keeps the ModelPool index without rebuilding deep children", () => {
+  const root = new ModelPoolIdRoot({
+    items: [new ModelPoolIdItem({ id: "a", label: "a" })],
+  })
+  applySnapshot(root, { ...getSnapshot(root), items: [...getSnapshot(root).items] })
+  new ModelPool(root).release()
+
+  for (let i = 0; i < 3; i++) {
+    const item = new ModelPoolIdItem({ id: `n${i}`, label: "n" })
+    applyPatches(root, [
+      { op: "add", path: ["items", root.items.length], value: getSnapshot(item) },
+    ])
+    expect(isDeepDirty(root)).toBe(true)
+  }
+  expect(root.items.map((i) => i.id)).toEqual(["a", "n0", "n1", "n2"])
+
+  const n1 = root.items[2]
+  const pool = new ModelPool(root)
+  expect(pool.findModelByTypeAndId(n1.$modelType, "n1")).toBe(n1)
+  pool.release()
+  expect(isDeepDirty(root)).toBe(true)
+
+  // moving a model through patches reuses the instance
+  applyPatches(root, [
+    { op: "remove", path: ["items", 2] },
+    { op: "add", path: ["other", 0], value: getSnapshot(n1) },
+  ])
+  expect(root.other[0]).toBe(n1)
+  expect(isDeepDirty(root)).toBe(true)
+})
+
+test("ModelPool keeps the view it was created with until released", () => {
+  const a = new ModelPoolIdItem({ id: "a", label: "a" })
+  const root = new ModelPoolIdRoot({ items: [a] })
+  new ModelPool(root).release()
+
+  const pool = new ModelPool(root)
+  const b = new ModelPoolIdItem({ id: "b", label: "b" })
+  runUnprotected(() => {
+    root.items.splice(0, 1, b)
+  })
+  expect(pool.findModelByTypeAndId(a.$modelType, "a")).toBe(a)
+  expect(pool.findModelByTypeAndId(b.$modelType, "b")).toBeUndefined()
+
+  // a pool created meanwhile sees the current tree
+  const pool2 = new ModelPool(root)
+  expect(pool2.findModelByTypeAndId(a.$modelType, "a")).toBeUndefined()
+  expect(pool2.findModelByTypeAndId(b.$modelType, "b")).toBe(b)
+  pool2.release()
+
+  pool.release()
+  const pool3 = new ModelPool(root)
+  expect(pool3.findModelByTypeAndId(a.$modelType, "a")).toBeUndefined()
+  expect(pool3.findModelByTypeAndId(b.$modelType, "b")).toBe(b)
+  pool3.release()
+})
+
+test("ModelPool follows model id changes", () => {
+  const a = new ModelPoolIdItem({ id: "a", label: "a" })
+  const root = new ModelPoolIdRoot({ items: [a] })
+  new ModelPool(root).release()
+
+  a.setId("z")
+
+  const pool = new ModelPool(root)
+  expect(pool.findModelByTypeAndId(a.$modelType, "a")).toBeUndefined()
+  expect(pool.findModelByTypeAndId(a.$modelType, "z")).toBe(a)
+  pool.release()
+
+  // the model is reused when a snapshot moves it
+  applySnapshot(root, { ...getSnapshot(root), items: [], other: [getSnapshot(a)] })
+  expect(root.other[0]).toBe(a)
+})
+
+test("ModelPool handles duplicated model ids", () => {
+  const first = new ModelPoolIdItem({ id: "dup", label: "first" })
+  const second = new ModelPoolIdItem({ id: "dup", label: "second" })
+  const root = new ModelPoolIdRoot({ items: [first] })
+  new ModelPool(root).release()
+
+  runUnprotected(() => {
+    root.other.push(second)
+  })
+  let pool = new ModelPool(root)
+  // last one in deep children order wins
+  expect(pool.findModelByTypeAndId(first.$modelType, "dup")).toBe(second)
+  pool.release()
+
+  runUnprotected(() => {
+    root.other.pop()
+  })
+  pool = new ModelPool(root)
+  expect(pool.findModelByTypeAndId(first.$modelType, "dup")).toBe(first)
+  pool.release()
+
+  runUnprotected(() => {
+    root.items.pop()
+  })
+  pool = new ModelPool(root)
+  expect(pool.findModelByTypeAndId(first.$modelType, "dup")).toBeUndefined()
+  pool.release()
+})
+
+test("ModelPool index of a subtree follows changes deep inside it", () => {
+  const leaf = new ModelPoolIdItem({ id: "leaf", label: "leaf" })
+  const inner = new ModelPoolIdRoot({ items: [leaf] })
+  const outer = new LazyExtensionNodeHolder({ holder: inner })
+  new ModelPool(outer).release()
+  new ModelPool(inner).release()
+
+  const other = new ModelPoolIdItem({ id: "other", label: "other" })
+  runUnprotected(() => {
+    inner.other.push(other)
+    inner.items.pop()
+  })
+
+  for (const node of [outer, inner]) {
+    const pool = new ModelPool(node)
+    expect(pool.findModelByTypeAndId(leaf.$modelType, "leaf")).toBeUndefined()
+    expect(pool.findModelByTypeAndId(other.$modelType, "other")).toBe(other)
+    pool.release()
+  }
+
+  // detached subtrees keep their own index
+  runUnprotected(() => {
+    outer.holder = undefined
+  })
+  let pool = new ModelPool(outer)
+  expect(pool.findModelByTypeAndId(other.$modelType, "other")).toBeUndefined()
+  pool.release()
+  pool = new ModelPool(inner)
+  expect(pool.findModelByTypeAndId(other.$modelType, "other")).toBe(other)
+  pool.release()
 })

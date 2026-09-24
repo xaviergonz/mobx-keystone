@@ -2,9 +2,13 @@ import { type IObservableArray, reaction, toJS } from "mobx"
 import {
   _async,
   _await,
+  applySnapshot,
   arrayActions,
+  fromSnapshot,
+  frozen,
   getSnapshot,
   idProp,
+  isTreeNode,
   Model,
   modelAction,
   modelFlow,
@@ -206,7 +210,7 @@ test("undoMiddleware - sync", () => {
   p.pushArr(1)
   p.pushArr(2)
   expect(r.undoData.redoEvents).toHaveLength(0)
-  expect(r.undoData.undoEvents).toMatchSnapshot()
+  expect(r.undoData.undoEvents.map((e) => e.data)).toMatchSnapshot()
   expectUndoRedoToBe(2, 0)
 
   expect(toJS(p.arr)).toEqual([-9, 1, -8, 2])
@@ -1141,12 +1145,12 @@ test("undo recording accepts a large batch of inverse patches", () => {
     expect(event.type).toBe(UndoEventType.Single)
     if (event.type !== UndoEventType.Single) throw new Error("expected a single undo event")
     expect(event.inversePatches).toHaveLength(150000)
-    expect(getSnapshot(event.inversePatches[0])).toEqual({
+    expect(event.inversePatches[0]).toEqual({
       op: "add",
       path: [149999],
       value: 149999,
     })
-    expect(getSnapshot(event.inversePatches[149999])).toEqual({ op: "add", path: [0], value: 0 })
+    expect(event.inversePatches[149999]).toEqual({ op: "add", path: [0], value: 0 })
   } finally {
     manager.dispose()
   }
@@ -1240,7 +1244,10 @@ test("trimming preloaded undo and redo queues keeps the newest entries in order"
         attachedState: {},
       })
     )
-  const store = new UndoStore({ undoEvents: events(), redoEvents: events() })
+  const store = new UndoStore({
+    undoEvents: events().map((e) => frozen(e)),
+    redoEvents: events().map((e) => frozen(e)),
+  })
   const newestUndo = store.undoEvents.slice(-2)
   const newestRedo = store.redoEvents.slice(-3)
   runUnprotected(() => store.enforceMaxLevels({ maxUndoLevels: 2, maxRedoLevels: 3 }))
@@ -1248,4 +1255,76 @@ test("trimming preloaded undo and redo queues keeps the newest entries in order"
   expect(store.redoEvents.slice()).toEqual(newestRedo)
   expect(store.undoEvents[0]).toBe(newestUndo[0])
   expect(store.redoEvents[0]).toBe(newestRedo[0])
+})
+
+describe("undo store events", () => {
+  @testModel("undoStoreEvents/Root")
+  class Root extends Model({
+    value: prop(0),
+    undoData: prop(() => new UndoStore({})),
+  }) {
+    @modelAction
+    setValue(value: number) {
+      this.value = value
+    }
+  }
+
+  const recordTwo = () => {
+    const root = new Root({})
+    const saved = { selection: [1] }
+    const manager = undoMiddleware(root, root.undoData, {
+      attachedState: { save: () => saved, restore: () => {} },
+    })
+    autoDispose(() => manager.dispose())
+    root.setValue(1)
+    root.setValue(2)
+    manager.undo()
+    return { root, manager, saved }
+  }
+
+  test("are frozen data rather than tree nodes", () => {
+    const { root, manager, saved } = recordTwo()
+    const [event] = manager.undoQueue
+    expect(isTreeNode(event)).toBe(false)
+    expect(event).toBe(root.undoData.undoEvents[0].data)
+    expect(manager.redoQueue[0]).toBe(root.undoData.redoEvents[0].data)
+    // attached states are kept as saved, without being frozen
+    expect(event.attachedState.beforeEvent).toBe(saved)
+    expect(Object.isFrozen(saved)).toBe(false)
+
+    expect(getSnapshot(root.undoData)).toEqual({
+      $modelType: expect.any(String),
+      undoEvents: [{ $frozen: true, data: event }],
+      redoEvents: [{ $frozen: true, data: manager.redoQueue[0] }],
+    })
+  })
+
+  test("snapshots with events saved as plain objects still load", () => {
+    const { root, manager } = recordTwo()
+    const newSnapshot = getSnapshot(root)
+    const oldSnapshot = {
+      ...newSnapshot,
+      undoData: {
+        ...newSnapshot.undoData,
+        undoEvents: newSnapshot.undoData.undoEvents.map((e) => e.data),
+        redoEvents: newSnapshot.undoData.redoEvents.map((e) => e.data),
+      },
+    }
+
+    const loaded = fromSnapshot(Root, oldSnapshot)
+    expect(getSnapshot(loaded)).toEqual(newSnapshot)
+    const loadedManager = undoMiddleware(loaded, loaded.undoData)
+    autoDispose(() => loadedManager.dispose())
+    loadedManager.redo()
+    expect(loaded.value).toBe(2)
+    loadedManager.undo()
+    loadedManager.undo()
+    expect(loaded.value).toBe(0)
+
+    manager.dispose()
+    runUnprotected(() => {
+      applySnapshot(root, oldSnapshot)
+    })
+    expect(getSnapshot(root)).toEqual(newSnapshot)
+  })
 })

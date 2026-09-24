@@ -19,6 +19,7 @@ import {
   addLateInitializationFunction,
   failure,
   getMobxVersion,
+  hasStoredMobxAnnotations,
   logWarning,
   makeObservableCompat,
   runAfterNewSymbol,
@@ -55,33 +56,12 @@ const afterClassInitializationData = new WeakMap<
 const runAfterClassInitialization = (tag: AfterClassInitializationData, instance: any) => {
   runLateInitializationFunctions(instance, runAfterNewSymbol)
 
-  // compatibility with mobx 6 and 7
+  // MobX 6 legacy decorators need makeObservable, while MobX 7 annotations (see
+  // decoratedModel) and 2022.3 decorators initialize themselves. Otherwise it
+  // would only add an empty observable administration to every instance.
+  tag.needsMakeObservable ??= getMobxVersion() === 6 && hasStoredMobxAnnotations(instance)
   if (tag.needsMakeObservable) {
-    // we know it can be done and shouldn't fail
     makeObservableCompat(instance)
-  } else if (tag.needsMakeObservable === undefined) {
-    if (getMobxVersion() >= 6) {
-      try {
-        makeObservableCompat(instance)
-        tag.needsMakeObservable = true
-      } catch (e) {
-        const err = e as Error
-        if (
-          err.message !==
-            "[MobX] No annotations were passed to makeObservable, but no decorator members have been found either" &&
-          err.message !==
-            "[MobX] No annotations were passed to makeObservable, but no decorated members have been found either"
-        ) {
-          throw err
-        }
-
-        // sadly we need to use this hack since the PR to do this the proper way
-        // was rejected on the mobx side
-        tag.needsMakeObservable = false
-      }
-    } else {
-      tag.needsMakeObservable = false
-    }
   }
 
   // the object is ready

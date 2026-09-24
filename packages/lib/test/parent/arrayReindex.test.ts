@@ -90,3 +90,27 @@ test("reindexed models retain references and root-store attachment", () => {
     unregisterRootStore(root)
   }
 })
+
+test("splices reindex tails spanning more than one chunk", () => {
+  // Just over one 4096-item reindex chunk.
+  const size = 4200
+  const array = toTreeNode(Array.from({ length: size }, (_, i) => (i % 3 === 0 ? i : { i })))
+  const expectPaths = () => {
+    array.forEach((value, index) => {
+      if (typeof value === "object") {
+        // Compare the parent by identity: deep-equality on large MobX 4 arrays is very slow.
+        const parentPath = getParentPath(value)
+        expect(parentPath?.parent).toBe(array)
+        expect(parentPath?.path).toBe(index)
+      }
+    })
+  }
+
+  runUnprotected(() => array.splice(1, 2))
+  expect(array).toHaveLength(size - 2)
+  expectPaths()
+
+  runUnprotected(() => array.splice(5, 0, { i: -1 }, { i: -2 }, { i: -3 }))
+  expect(array).toHaveLength(size + 1)
+  expectPaths()
+})

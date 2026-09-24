@@ -617,3 +617,33 @@ test("issue #522 part 2", () => {
   `)
   events.length = 0
 })
+
+test("models inside a plain tree node attached to a root store get attached to it", () => {
+  const events: string[] = []
+
+  @testModel("issue plain node/M")
+  class M extends Model({ n: prop(0) }) {
+    onAttachedToRootStore() {
+      events.push(`attach ${this.n}`)
+      return () => {
+        events.push(`detach ${this.n}`)
+      }
+    }
+  }
+
+  @testModel("issue plain node/R")
+  class R extends Model({ arr: prop<any[]>(() => []) }) {}
+
+  const r = registerRootStore(new R({}))
+  const node = toTreeNode({ m: new M({ n: 1 }), deeper: [{ m: new M({ n: 2 }) }] })
+  runUnprotected(() => {
+    r.arr.push(node)
+  })
+  expect(events).toEqual(["attach 1", "attach 2"])
+  events.length = 0
+
+  runUnprotected(() => {
+    r.arr.pop()
+  })
+  expect(events).toEqual(["detach 1", "detach 2"])
+})

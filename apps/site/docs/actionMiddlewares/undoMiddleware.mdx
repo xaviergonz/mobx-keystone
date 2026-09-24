@@ -66,7 +66,7 @@ A grouped step records an `UndoEventGroup` instead:
 - `groupName?: string` - Optional name passed to the grouping API.
 - `events: ReadonlyArray<UndoEventWithoutAttachedState>` - The single or nested grouped events in this step.
 
-Both forms include `attachedState`, with optional `beforeEvent` and `afterEvent` values when the middleware is configured to save attached state. Treat events and queues as read-only; use the `UndoManager` methods to manipulate history.
+Both forms include `attachedState`, with optional `beforeEvent` and `afterEvent` values when the middleware is configured to save attached state. Treat events and queues as read-only; use the `UndoManager` methods to manipulate history. Events are plain objects rather than tree nodes, and attached states are kept as returned by `save()` (they are not copied), so `save()` should return a new value each time rather than one that is later mutated.
 
 ## Storing the undo store inside your models
 
@@ -83,6 +83,8 @@ const myRootStore = new MyRootStore({})
 
 const undoManager = undoMiddleware(myRootStore, myRootStore.undoData)
 ```
+
+The store keeps each event as [frozen data](../frozen.mdx), so in its snapshot every event is saved as `{ $frozen: true, data: event }`. Snapshots saved by earlier versions, where events were saved as plain objects, can still be loaded.
 
 ## Making some changes skip undo/redo
 

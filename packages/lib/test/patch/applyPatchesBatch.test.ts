@@ -303,7 +303,7 @@ test("rollback continues when a listener throws during compensating changes", ()
   }
 })
 
-test("errors thrown by the batch body do not roll back applied patches", () => {
+test("errors thrown by listeners do not roll back applied patches", () => {
   const range = new Range({})
   const dispose = onPatches(range, () => {
     throw new Error("listener failed")
@@ -317,16 +317,20 @@ test("errors thrown by the batch body do not roll back applied patches", () => {
   expect(range.values.slice()).toEqual([20, 10])
 })
 
-test("an invalid patch does not roll back the patches before it", () => {
-  const root = fromSnapshot<{ a: number; b: number }>({ a: 1, b: 2 })
-  expect(() =>
-    applyPatches(root, [
-      { op: "replace", path: ["a"], value: 5 },
-      { op: "replace", path: ["missing", "deep"], value: 5 },
-    ])
-  ).toThrow()
-  expect(getSnapshot(root)).toEqual({ a: 5, b: 2 })
-})
+test.each([ModelAutoTypeCheckingMode.AlwaysOn, ModelAutoTypeCheckingMode.AlwaysOff])(
+  "an invalid patch rolls back the patches before it (%s)",
+  (mode) => {
+    setGlobalConfig({ modelAutoTypeChecking: mode })
+    const root = fromSnapshot<{ a: number; b: number }>({ a: 1, b: 2 })
+    expect(() =>
+      applyPatches(root, [
+        { op: "replace", path: ["a"], value: 5 },
+        { op: "replace", path: ["missing", "deep"], value: 5 },
+      ])
+    ).toThrow()
+    expect(getSnapshot(root)).toEqual({ a: 1, b: 2 })
+  }
+)
 
 test("no-op listener splices do not validate an unrelated model", () => {
   const range = new Range({})

@@ -1,12 +1,10 @@
-import { action, createAtom, type IAtom } from "mobx"
+import { action, createAtom, type IAtom, untracked } from "mobx"
 import { addMutationBatchFinisher, isMutationBatchActive } from "../action/mutationBatch"
-import { getOrCreateTreeNodeMetadata } from "../tweaker/treeNodeMetadata"
+import { getOrCreateTreeNodeMetadata, treeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { fastGetParent } from "./path"
 
 interface DeepObjectChildren {
   deep: Set<object>
-
-  extensionsData: Map<object, unknown> | undefined
 }
 
 /** @internal */
@@ -16,6 +14,22 @@ export interface ObjectChildrenData extends DeepObjectChildren {
 
   deepDirty: boolean
   deepAtom: IAtom | undefined // will be created when first observed
+
+  extensions: Map<DeepObjectChildrenExtension<any>, ExtensionState<any>> | undefined
+
+  listeners: Set<ObjectChildrenListener> | undefined
+}
+
+/**
+ * Told about the nodes that may have been attached to or detached from the
+ * children of a node: its direct children, or all of its descendants when
+ * `deep`. Called inside the action making the change.
+ *
+ * @internal
+ */
+export interface ObjectChildrenListener {
+  readonly deep: boolean
+  onChildrenChanged(nodes: readonly object[]): void
 }
 
 interface DeepChildrenInvalidationEntry {
@@ -64,6 +78,10 @@ function getOrCreateDeepChildrenMutationTransaction(): DeepChildrenMutationTrans
   return transaction
 }
 
+// shared by all nodes whose deep children were never built (it is never mutated,
+// but replaced when they are built), so each node does not allocate an empty set
+const unbuiltDeepChildren = new Set<object>()
+
 function getObjectChildrenObject(node: object) {
   const metadata = getOrCreateTreeNodeMetadata(node)
   let obj = metadata.objectChildren
@@ -73,11 +91,13 @@ function getObjectChildrenObject(node: object) {
       shallow: new Set(),
       shallowAtom: undefined, // will be created when first observed
 
-      deep: new Set(),
+      deep: unbuiltDeepChildren,
       deepDirty: true,
       deepAtom: undefined, // will be created when first observed
 
-      extensionsData: initExtensionsData(),
+      extensions: undefined,
+
+      listeners: undefined,
     }
     metadata.objectChildren = obj
   }
@@ -98,6 +118,14 @@ export function getObjectChildren(node: object): ObjectChildrenData["shallow"] {
 }
 
 /**
+ * Like `getObjectChildren(node).size > 0`, but without observing or allocating anything.
+ * @internal
+ */
+export function hasObjectChildren(node: object): boolean {
+  return (treeNodeMetadata.get(node)?.objectChildren?.shallow.size ?? 0) > 0
+}
+
+/**
  * @internal
  */
 export function getDeepObjectChildren(node: object): DeepObjectChildren {
@@ -107,19 +135,16 @@ export function getDeepObjectChildren(node: object): DeepObjectChildren {
     updateDeepObjectChildren(node)
   }
 
-  if (!obj.deepAtom) {
-    obj.deepAtom = createAtom("deepChildrenAtom")
-  }
-  obj.deepAtom.reportObserved()
+  reportDeepObserved(obj)
 
   return obj
 }
 
-function addNodeToDeepLists(node: any, data: DeepObjectChildren) {
-  data.deep.add(node)
-  data.extensionsData?.forEach((extensionData, dataSymbol) => {
-    extensions.get(dataSymbol)!.addNode(node, extensionData)
-  })
+function reportDeepObserved(obj: ObjectChildrenData) {
+  if (!obj.deepAtom) {
+    obj.deepAtom = createAtom("deepChildrenAtom")
+  }
+  obj.deepAtom.reportObserved()
 }
 
 const updateDeepObjectChildren = action((node: object): DeepObjectChildren => {
@@ -147,19 +172,19 @@ function updateDeepObjectChildrenRecursive(node: object): DeepObjectChildren {
     }
   }
 
-  obj.deep = new Set()
-  obj.extensionsData = initExtensionsData(obj.extensionsData)
+  const deep = new Set<object>()
+  obj.deep = deep
 
   const childrenIterator = obj.shallow.values()
   let childrenIteratorResult = childrenIterator.next()
   while (!childrenIteratorResult.done) {
-    addNodeToDeepLists(childrenIteratorResult.value, obj)
+    deep.add(childrenIteratorResult.value)
 
     const childDeepChildren = updateDeepObjectChildrenRecursive(childrenIteratorResult.value).deep
     const childDeepChildrenIterator = childDeepChildren.values()
     let childDeepChildrenIteratorResult = childDeepChildrenIterator.next()
     while (!childDeepChildrenIteratorResult.done) {
-      addNodeToDeepLists(childDeepChildrenIteratorResult.value, obj)
+      deep.add(childDeepChildrenIteratorResult.value)
       childDeepChildrenIteratorResult = childDeepChildrenIterator.next()
     }
 
@@ -171,6 +196,8 @@ function updateDeepObjectChildrenRecursive(node: object): DeepObjectChildren {
 
   return obj
 }
+
+let lastAttachOrder = 0
 
 /**
  * Must run inside the action-wrapped `setParent`, its only source caller.
@@ -185,6 +212,7 @@ export function addObjectChild(node: object, child: object): void {
   if (shallow.size === previousShallowSize) {
     return
   }
+  getOrCreateTreeNodeMetadata(child).attachOrder = ++lastAttachOrder
 
   onShallowChildrenChanged(node, obj, child, true)
 }
@@ -218,7 +246,9 @@ function onShallowChildrenChanged(
     node,
     obj,
     transaction,
-    recordDirectChildrenMutation(transaction, node, child, added)
+    recordDirectChildrenMutation(transaction, node, child, added),
+    child,
+    added
   )
 }
 
@@ -258,12 +288,35 @@ function invalidateDeepChildren(
   node: object,
   obj: ObjectChildrenData,
   transaction: DeepChildrenMutationTransaction | undefined,
-  mutation: DirectChildrenMutationEntry | undefined
+  mutation: DirectChildrenMutationEntry | undefined,
+  child: object,
+  added: boolean
 ) {
   let currentNode: object | undefined = node
   let currentObj = obj
+  let extensionChange: ExtensionChange | undefined
+  let subtree: readonly object[] | undefined
 
   while (currentNode) {
+    if (currentObj.extensions) {
+      extensionChange ??= new ExtensionChange(
+        () => (subtree ??= collectSubtree(child)),
+        added,
+        false
+      )
+      extensionChange.applyTo(currentObj.extensions)
+    }
+
+    if (currentObj.listeners) {
+      for (const listener of currentObj.listeners) {
+        if (listener.deep) {
+          listener.onChildrenChanged((subtree ??= collectSubtree(child)))
+        } else if (currentNode === node) {
+          listener.onChildrenChanged([child])
+        }
+      }
+    }
+
     if (transaction) {
       let entry = transaction.invalidatedNodes?.get(currentNode)
       if (!entry && !currentObj.deepDirty) {
@@ -334,45 +387,244 @@ function finishDeepChildrenMutationTransaction(transaction: DeepChildrenMutation
   })
 }
 
-const extensions = new Map<object, DeepObjectChildrenExtension<any>>()
-
-interface DeepObjectChildrenExtension<D> {
+/**
+ * Derived data kept per node about its deep children (e.g. an index of them).
+ * It is built from the deep children the first time it is needed and then kept
+ * up to date as descendants are attached and detached.
+ *
+ * @internal
+ */
+export interface DeepObjectChildrenExtension<D> {
   initData(): D
-  addNode(node: any, data: D): void
+  /** Adds a node while building the data from scratch, in deep children order. */
+  addNode(node: object, data: D): void
+  /**
+   * Adds a node attached after the data was built. Returns false when the data
+   * must be rebuilt instead. Defaults to `addNode`.
+   */
+  addNodeIncrementally?(node: object, data: D): boolean
+  /** Removes a detached node. Returns false when the data must be rebuilt instead. */
+  removeNode(node: object, data: D): boolean
+  /** Whether the data must be updated when a descendant model's id changes. */
+  dependsOnModelIds?: boolean
+}
+
+interface PendingExtensionChange {
+  readonly nodes: readonly object[]
+  readonly added: boolean
+}
+
+interface ExtensionState<D> {
+  readonly data: D
+  /** Data that could not be updated and must be rebuilt. */
+  dirty: boolean
+  /** Readers that need the data frozen; changes are queued meanwhile. */
+  pins: number
+  pending: PendingExtensionChange[] | undefined
+}
+
+/**
+ * Data of an extension frozen until released; changes made meanwhile are
+ * applied on release.
+ *
+ * @internal
+ */
+export interface PinnedDeepObjectChildrenExtensionData<D> {
+  readonly data: D
+  release(): void
 }
 
 /**
  * @internal
  */
-export function registerDeepObjectChildrenExtension<D>(extension: DeepObjectChildrenExtension<D>) {
-  const dataSymbol = {}
-  extensions.set(dataSymbol, extension)
+export interface DeepObjectChildrenExtensionAccessor<D> {
+  /**
+   * Gets the data. By default any change of the deep children is observed as a
+   * change of the data; pass `observeDeepChildren` false when the extension
+   * reports its own finer-grained changes.
+   */
+  get(node: object, observeDeepChildren?: boolean): D
+  pin(node: object): PinnedDeepObjectChildrenExtensionData<D>
+}
 
-  return (data: DeepObjectChildren): D => {
-    let extensionsData = data.extensionsData
-    let extensionData = extensionsData?.get(dataSymbol) as D | undefined
-    if (!extensionsData?.has(dataSymbol)) {
-      extensionsData = data.extensionsData ??= new Map()
-      extensionData = extension.initData()
-      extensionsData.set(dataSymbol, extensionData)
-      data.deep.forEach((node) => {
-        extension.addNode(node, extensionData!)
-      })
+/**
+ * @internal
+ */
+export function registerDeepObjectChildrenExtension<D>(
+  extension: DeepObjectChildrenExtension<D>
+): DeepObjectChildrenExtensionAccessor<D> {
+  const getState = (node: object, observeDeepChildren: boolean): ExtensionState<D> => {
+    const obj = getObjectChildrenObject(node)
+    let state = obj.extensions?.get(extension) as ExtensionState<D> | undefined
+    // changes queued while pinned make the data stale for anybody else
+    if (!state || state.dirty || state.pending) {
+      // building reads the nodes, which must not become dependencies
+      state = untracked(() => buildExtensionState(extension, node))
     }
-    return extensionData!
+    if (observeDeepChildren) {
+      reportDeepObserved(obj)
+    }
+    return state
+  }
+
+  return {
+    get(node, observeDeepChildren = true) {
+      return getState(node, observeDeepChildren).data
+    },
+
+    pin(node) {
+      const state = getState(node, false)
+      state.pins++
+      let released = false
+      return {
+        data: state.data,
+        release() {
+          if (released) return
+          released = true
+          state.pins--
+          if (state.pins === 0 && state.pending) {
+            const pending = state.pending
+            state.pending = undefined
+            for (const change of pending) {
+              applyExtensionChange(extension, state, change.nodes, change.added)
+            }
+          }
+        },
+      }
+    },
   }
 }
 
-function initExtensionsData(previousData?: ReadonlyMap<object, unknown>) {
-  if (previousData === undefined || previousData.size === 0) {
-    return undefined
-  }
-
-  const extensionsData = new Map<object, unknown>()
-
-  previousData?.forEach((_, dataSymbol) => {
-    extensionsData.set(dataSymbol, extensions.get(dataSymbol)!.initData())
+function buildExtensionState<D>(
+  extension: DeepObjectChildrenExtension<D>,
+  node: object
+): ExtensionState<D> {
+  const data = extension.initData()
+  getDeepObjectChildren(node).deep.forEach((n) => {
+    extension.addNode(n, data)
   })
 
-  return extensionsData
+  const state: ExtensionState<D> = {
+    data,
+    dirty: false,
+    pins: 0,
+    pending: undefined,
+  }
+  const obj = getObjectChildrenObject(node)
+  ;(obj.extensions ??= new Map()).set(extension, state)
+  return state
+}
+
+function applyExtensionChange(
+  extension: DeepObjectChildrenExtension<any>,
+  state: ExtensionState<any>,
+  nodes: readonly object[],
+  added: boolean
+) {
+  if (state.dirty) {
+    return
+  }
+  for (const n of nodes) {
+    let ok: boolean
+    if (!added) {
+      ok = extension.removeNode(n, state.data)
+    } else if (extension.addNodeIncrementally) {
+      ok = extension.addNodeIncrementally(n, state.data)
+    } else {
+      extension.addNode(n, state.data)
+      ok = true
+    }
+    if (!ok) {
+      state.dirty = true
+      return
+    }
+  }
+}
+
+/**
+ * A membership change of some deep children, applied to the extension data of
+ * each ancestor of the changed parent.
+ */
+class ExtensionChange {
+  private nodes: readonly object[] | undefined
+  private readonly getNodes: () => readonly object[]
+  private readonly added: boolean
+  private readonly onlyModelIdDependent: boolean
+
+  constructor(getNodes: () => readonly object[], added: boolean, onlyModelIdDependent: boolean) {
+    this.getNodes = getNodes
+    this.added = added
+    this.onlyModelIdDependent = onlyModelIdDependent
+  }
+
+  applyTo(extensions: NonNullable<ObjectChildrenData["extensions"]>) {
+    extensions.forEach((state, extension) => {
+      if (state.dirty || (this.onlyModelIdDependent && !extension.dependsOnModelIds)) {
+        return
+      }
+      this.nodes ??= this.getNodes()
+      if (state.pins > 0) {
+        ;(state.pending ??= []).push({ nodes: this.nodes, added: this.added })
+      } else {
+        applyExtensionChange(extension, state, this.nodes, this.added)
+      }
+    })
+  }
+}
+
+/** The node and its descendants, parents first. */
+function collectSubtree(root: object): object[] {
+  const nodes: object[] = []
+  const stack = [root]
+  while (stack.length > 0) {
+    const node = stack.pop()!
+    nodes.push(node)
+    const shallow = treeNodeMetadata.get(node)?.objectChildren?.shallow
+    shallow?.forEach((child) => {
+      stack.push(child)
+    })
+  }
+  return nodes
+}
+
+/**
+ * @internal
+ */
+export function addObjectChildrenListener(node: object, listener: ObjectChildrenListener): void {
+  ;(getObjectChildrenObject(node).listeners ??= new Set()).add(listener)
+}
+
+/**
+ * @internal
+ */
+export function removeObjectChildrenListener(node: object, listener: ObjectChildrenListener): void {
+  const obj = treeNodeMetadata.get(node)?.objectChildren
+  if (obj?.listeners?.delete(listener) && obj.listeners.size === 0) {
+    obj.listeners = undefined
+  }
+}
+
+/**
+ * Must be called after the id of a model changes.
+ *
+ * @internal
+ */
+export function onModelIdChanged(model: object): void {
+  const parent = fastGetParent(model, false)
+  if (!parent) {
+    return
+  }
+  // re-index the model under its new id
+  const nodes = [model]
+  const removal = new ExtensionChange(() => nodes, false, true)
+  const addition = new ExtensionChange(() => nodes, true, true)
+  let currentNode: object | undefined = parent
+  while (currentNode) {
+    const extensions = treeNodeMetadata.get(currentNode)?.objectChildren?.extensions
+    if (extensions) {
+      removal.applyTo(extensions)
+      addition.applyTo(extensions)
+    }
+    currentNode = fastGetParent(currentNode, false)
+  }
 }

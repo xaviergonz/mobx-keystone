@@ -1,27 +1,48 @@
 import { runInAction } from "mobx"
 import { hasDataObjectParent } from "../parent/core"
 import { failure, isPrimitive } from "../utils"
-import { treeNodeMetadata } from "./treeNodeMetadata"
+import { type TreeNodeMetadata, treeNodeMetadata } from "./treeNodeMetadata"
+import { resyncTweakedChangeListeners } from "./tweakedChangeListeners"
 
-type Untweaker = (() => void) & {
-  [secondaryUntweakerSymbol]?: () => void
-}
-
-const secondaryUntweakerSymbol = Symbol("secondaryUntweaker")
+// untweaked objects that keep the MobX handlers they got when tweaked, which
+// do nothing until they are tweaked again
+const objectsWithIdleHandlers = new WeakSet<object>()
 
 /**
- * Stores two existing cleanup functions without allocating a third function to
- * close over them. The primary function is internal and never exposed.
+ * Activates the MobX handlers of a fully tweaked plain object or array, and
+ * returns whether they still have to be installed. Untweaking keeps them idle
+ * rather than disposing them, so no disposers are kept for every node. When
+ * idle handlers are reused, the tweaked change listeners are resynced, since
+ * they missed the changes made while the handlers were idle.
  *
  * @internal
  */
-export function setTweakedObjectUntweakers(
-  value: object,
-  primaryUntweaker: Untweaker,
-  secondaryUntweaker: () => void
-): void {
-  primaryUntweaker[secondaryUntweakerSymbol] = secondaryUntweaker
-  treeNodeMetadata.get(value)!.untweaker = primaryUntweaker
+export function activateHandlers(value: object): boolean {
+  treeNodeMetadata.get(value)!.handlersActive = true
+  if (!objectsWithIdleHandlers.delete(value)) {
+    return true
+  }
+  resyncTweakedChangeListeners(value)
+  return false
+}
+
+/**
+ * Makes the MobX handlers of an untweaked plain object or array idle.
+ *
+ * @internal
+ */
+export function deactivateHandlers(value: object, metadata: TreeNodeMetadata): void {
+  metadata.handlersActive = false
+  objectsWithIdleHandlers.add(value)
+}
+
+/**
+ * Whether the MobX handlers of a plain object or array are active.
+ *
+ * @internal
+ */
+export function areHandlersActive(value: object): boolean {
+  return treeNodeMetadata.get(value)?.handlersActive === true
 }
 
 /**
@@ -30,14 +51,6 @@ export function setTweakedObjectUntweakers(
 export function isTweakedObject(value: unknown, canBeDataObject: boolean): value is object {
   const metadata = treeNodeMetadata.get(value as object)
   return metadata?.tweaked === true && (canBeDataObject || metadata.dataObjectParent === undefined)
-}
-
-/**
- * @internal
- */
-export function runTweakedObjectUntweakers(untweaker: Untweaker): void {
-  untweaker()
-  untweaker[secondaryUntweakerSymbol]?.()
 }
 
 /**

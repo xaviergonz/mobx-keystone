@@ -3,6 +3,7 @@ import {
   _await,
   findParent,
   getGlobalConfig,
+  getSnapshot,
   MobxKeystoneAggregateError,
   Model,
   ModelAutoTypeCheckingMode,
@@ -309,6 +310,31 @@ test("transaction records writes after nested actions return", () => {
   expect(() => root.parent()).toThrow("rollback")
   expect(root.a).toBe(0)
   expect(root.b).toBe(0)
+})
+
+test("rollback restores models that were detached, changed and attached again", () => {
+  @testModel("TransactionRollbackMove/Item")
+  class Item extends Model({ id: prop<string>(), n: prop(0) }) {}
+
+  @testModel("TransactionRollbackMove/Store")
+  class Store extends Model({ items: prop<Item[]>(() => []) }) {
+    @transaction
+    @modelAction
+    move() {
+      const b = this.items.pop()!
+      b.n = 20
+      this.items.unshift(b)
+      throw new Error("rollback")
+    }
+  }
+  const store = new Store({ items: [new Item({ id: "a", n: 1 }), new Item({ id: "b", n: 2 })] })
+  const [a, b] = store.items
+  expect(() => store.move()).toThrow("rollback")
+  expect(store.items).toHaveLength(2)
+  expect(store.items[0]).toBe(a)
+  expect(store.items[1]).toBe(b)
+  expect(b.n).toBe(2)
+  expect(getSnapshot(store).items.map((i) => `${i.id}:${i.n}`)).toEqual(["a:1", "b:2"])
 })
 
 test.each(["listener", "recorder"] as const)(

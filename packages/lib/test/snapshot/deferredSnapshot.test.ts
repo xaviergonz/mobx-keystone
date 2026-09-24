@@ -1,7 +1,8 @@
-import { isObservableArray, set } from "mobx"
+import { isObservableArray, remove, set } from "mobx"
 import {
   applySnapshot,
   getSnapshot,
+  idProp,
   Model,
   modelAction,
   onSnapshot,
@@ -322,3 +323,130 @@ test.each(["array", "object"])(
     expect(previous.leaves[0].value).toBe(1)
   }
 )
+
+@testModel("deferredSnapshot/WrittenItem")
+class WrittenItem extends Model({
+  id: idProp,
+  value: prop(0),
+  tags: prop<string[]>(() => []),
+}) {
+  @modelAction
+  setValue(value: number) {
+    this.value = value
+  }
+}
+
+@testModel("deferredSnapshot/WrittenStore")
+class WrittenStore extends Model({
+  items: prop<WrittenItem[]>(() => []),
+  record: prop<Record<string, { n: number }>>(() => ({})),
+}) {
+  @modelAction
+  push(...items: WrittenItem[]) {
+    this.items.push(...items)
+  }
+}
+
+const deepCopy = <T>(v: T): T => JSON.parse(JSON.stringify(v))
+
+test("snapshots taken after splices stay immutable", () => {
+  const store = new WrittenStore({
+    items: [new WrittenItem({ value: 1 }), new WrittenItem({ value: 2 })],
+  })
+  const snapshots: { sn: unknown; copy: unknown }[] = []
+  const take = () => {
+    const sn = getSnapshot(store)
+    snapshots.push({ sn, copy: deepCopy(sn) })
+  }
+
+  take()
+  const added = new WrittenItem({ value: 3 })
+  store.push(added)
+  take()
+
+  // an item added after the container was frozen
+  added.setValue(30)
+  runUnprotected(() => added.tags.push("a"))
+  take()
+
+  // an item added and then mutated before the next freeze
+  const added2 = new WrittenItem({ value: 4 })
+  store.push(added2)
+  added2.setValue(40)
+  take()
+  added2.setValue(41)
+  store.items[0].setValue(10)
+  take()
+
+  // replaced, removed and re-added items
+  runUnprotected(() => {
+    const [first] = store.items.splice(0, 1)
+    store.items.splice(1, 1, first)
+  })
+  take()
+  store.items[1].setValue(100)
+  take()
+
+  // many mutations before a freeze
+  for (let i = 0; i < 20; i++) {
+    store.push(new WrittenItem({ value: i }))
+    store.items[store.items.length - 1].setValue(i * 2)
+  }
+  take()
+  store.items.forEach((item, i) => {
+    item.setValue(-i - 1)
+  })
+  take()
+
+  for (const { sn, copy } of snapshots) {
+    expect(sn).toEqual(copy)
+  }
+  expect(getSnapshot(store).items.map((i) => i.value)).toEqual(store.items.map((i) => i.value))
+})
+
+test("plain object snapshots stay immutable after key additions", () => {
+  const store = new WrittenStore({})
+  const sn1 = getSnapshot(store)
+  runUnprotected(() => {
+    set(store.record, "a", { n: 1 })
+  })
+  const sn2 = getSnapshot(store)
+  runUnprotected(() => {
+    store.record.a.n = 2
+    set(store.record, "b", { n: 3 })
+  })
+  const sn3 = getSnapshot(store)
+  runUnprotected(() => {
+    store.record.b.n = 4
+    remove(store.record, "a")
+  })
+
+  expect(sn1.record).toEqual({})
+  expect(sn2.record).toEqual({ a: { n: 1 } })
+  expect(sn3.record).toEqual({ a: { n: 2 }, b: { n: 3 } })
+  expect(getSnapshot(store).record).toEqual({ b: { n: 4 } })
+})
+
+test("plain array snapshots stay immutable after splices", () => {
+  const arr = toTreeNode<{ n: number }[]>([{ n: 0 }])
+  const sn1 = getSnapshot(arr)
+  runUnprotected(() => {
+    arr.push({ n: 1 }, { n: 2 })
+  })
+  const sn2 = getSnapshot(arr)
+  runUnprotected(() => {
+    arr[1].n = 10
+    arr.splice(0, 1)
+    arr.push({ n: 3 })
+  })
+  const sn3 = getSnapshot(arr)
+  runUnprotected(() => {
+    arr[2].n = 30
+    arr[0].n = 100
+  })
+
+  expect(sn1).toEqual([{ n: 0 }])
+  expect(sn2).toEqual([{ n: 0 }, { n: 1 }, { n: 2 }])
+  expect(sn3).toEqual([{ n: 10 }, { n: 2 }, { n: 3 }])
+  expect(getSnapshot(arr)).toEqual([{ n: 100 }, { n: 2 }, { n: 30 }])
+})

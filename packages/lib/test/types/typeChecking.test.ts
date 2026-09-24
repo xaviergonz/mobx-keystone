@@ -1477,8 +1477,8 @@ test("cached type-check errors use the current path after a container moves", ()
 })
 
 test("adaptive record cached errors use the current path after a container moves", () => {
-  @testModel("MovedAdaptiveRecordCachedTypeCheckError")
-  class MovedAdaptiveRecordCachedTypeCheckError extends Model({
+  @testModel("MovedChunkedRecordCachedTypeCheckError")
+  class MovedChunkedRecordCachedTypeCheckError extends Model({
     a: tProp(types.record(types.number), () => ({ value: 0 })),
     b: tProp(types.record(types.number), () => ({})),
   }) {
@@ -1495,7 +1495,7 @@ test("adaptive record cached errors use the current path after a container moves
     }
   }
 
-  const m = new MovedAdaptiveRecordCachedTypeCheckError({})
+  const m = new MovedChunkedRecordCachedTypeCheckError({})
   expect(m.typeCheck()).toBeNull()
 
   m.makeAInvalid()
@@ -3157,3 +3157,90 @@ test.each([false, true])(
     }
   }
 )
+
+test("typed ancestors check the path to an added or removed key only once", () => {
+  let refinementChecks = 0
+
+  @testModel("UncachedPathOnce_Node")
+  class Node extends Model({
+    rec: tProp(types.record(types.number), () => ({})),
+    child: tProp(
+      types.maybe(
+        types.refinement(
+          types.model<Node>(() => Node),
+          () => {
+            refinementChecks++
+            return true
+          }
+        )
+      )
+    ),
+  }) {
+    @modelAction
+    setChild(child: Node) {
+      this.child = child
+    }
+
+    @modelAction
+    addKey(key: string, value: unknown) {
+      set(this.rec, key, value)
+    }
+
+    @modelAction
+    removeKey(key: string) {
+      remove(this.rec, key)
+    }
+  }
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+
+  const depth = 6
+  const root = new Node({})
+  let leaf = root
+  for (let i = 1; i < depth; i++) {
+    const child = new Node({})
+    leaf.setChild(child)
+    leaf = child
+  }
+
+  // each model on the path checks its child once, not once per typed ancestor
+  refinementChecks = 0
+  leaf.addKey("a", 1)
+  expect(refinementChecks).toBe(depth - 1)
+
+  refinementChecks = 0
+  leaf.removeKey("a")
+  expect(refinementChecks).toBe(depth - 1)
+
+  expect(() => leaf.addKey("b", "x")).toThrow(
+    'TypeCheckError: Expected a value of type <number> but got an incompatible value - Path: /child/child/child/child/child/rec/b - Value: "x"'
+  )
+  expect(leaf.rec).toEqual({})
+  expect(root.typeCheck()).toBeNull()
+})
+
+test("typed models below untyped props are still checked when a key is added", () => {
+  @testModel("UncachedPathOnce_Child")
+  class Child extends Model({
+    rec: tProp(types.record(types.number), () => ({})),
+  }) {
+    @modelAction
+    addKey(key: string, value: unknown) {
+      set(this.rec, key, value)
+    }
+  }
+
+  @testModel("UncachedPathOnce_Parent")
+  class Parent extends Model({
+    value: tProp(types.number, 0),
+    child: prop<Child>(() => new Child({})),
+  }) {}
+
+  setGlobalConfig({ modelAutoTypeChecking: ModelAutoTypeCheckingMode.AlwaysOn })
+
+  const parent = new Parent({})
+  expect(() => parent.child.addKey("a", "x")).toThrow(
+    'TypeCheckError: Expected a value of type <number> but got an incompatible value - Path: /child/rec/a - Value: "x"'
+  )
+  expect(parent.child.rec).toEqual({})
+})

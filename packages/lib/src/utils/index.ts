@@ -559,6 +559,43 @@ function isStandardDecoratorContext(value: unknown): boolean {
 }
 
 /**
+ * Options for the observable objects of tree nodes. Their values are never
+ * functions nor getters, so the shared `observable.ref` annotation (MobX 7
+ * `observableRef`) is equivalent to `deep: false` alone, which MobX 6+ would
+ * allocate an annotation for on every object.
+ *
+ * @internal
+ */
+export const nodeObservableOptions = {
+  deep: false,
+  defaultDecorator:
+    // (computed so bundlers do not warn about the export missing in MobX < 7)
+    (mobx as any)[["observable", "Ref"].join("")] ?? (mobx.observable as any).ref,
+}
+
+// the key MobX 6 stores legacy decorator annotations under (null if unknown)
+let storedMobxAnnotationsKey: symbol | null | undefined
+
+/**
+ * Whether an instance has legacy decorator annotations for MobX 6
+ * `makeObservable` to apply. When their key cannot be found it answers true,
+ * so `makeObservable` is still called.
+ *
+ * @internal
+ */
+export function hasStoredMobxAnnotations(instance: object): boolean {
+  if (storedMobxAnnotationsKey === undefined) {
+    // a legacy decorator call stores its annotation under that key
+    const probe = {}
+    ;(mobx.observable as any)(probe, "probe")
+    storedMobxAnnotationsKey = Object.getOwnPropertySymbols(probe)[0] ?? null
+  }
+  return (
+    storedMobxAnnotationsKey === null || (instance as any)[storedMobxAnnotationsKey] !== undefined
+  )
+}
+
+/**
  * Calls `makeObservable` across MobX versions. MobX 7 requires an annotations
  * object, while MobX 6 and older versions use decorator metadata when no
  * annotations are passed.

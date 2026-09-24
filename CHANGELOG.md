@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+- [BREAKING CHANGE] `UndoStore` keeps undo/redo events as frozen data, making recording ~4x faster and undo/redo ~3x faster:
+  - Snapshots and patches store events as `{ $frozen: true, data: event }`. Older snapshots still load, but earlier versions cannot load newer ones.
+  - Events passed when creating an `UndoStore` must be wrapped with `frozen(event)`.
+  - `undoQueue` / `redoQueue` events are plain objects, and attached states are no longer copied.
+- Performance on large trees: operations that used to rescan or rebuild state for the whole tree now only update what changed (e.g. at 16,000 items, from milliseconds to microseconds):
+  - array splices (`shift`, `unshift`, `splice`, `detach`);
+  - `rootRef` / `resolveId` and `getRefsResolvingTo`;
+  - structural `applyPatches` / `applySnapshot`, which also makes undo/redo no longer quadratic when the `UndoStore` is inside the tracked tree;
+  - `getSnapshot` / `onSnapshot` after splices and key changes;
+  - `onChildAttachedTo`;
+  - runtime type checking of large arrays, records and `ObjectMap`s, and of key changes in deep trees;
+  - transactions, which no longer build patches to roll back.
+- Tree nodes use ~30% less memory and are ~15% faster to create. Models without MobX decorators no longer get a MobX observable administration, so `isObservableObject(model)` is now `false` for them.
+- Rejected tree changes (e.g. assigning a `Map`, a node that already has a parent, or the same node twice) now leave the tree unchanged instead of half-changed.
+- Inserting an array item at its own index (e.g. `arr.unshift(arr[0])`) now throws instead of putting the same node in the array twice.
+- `applySnapshot` / `applyPatches` now undo their changes when they throw partway.
+- Fixed `transactionMiddleware` / `@transaction` not fully restoring the state when the failed action detached, changed and reattached a model.
+- Fixed `applySnapshot` / `applyPatches` not reusing a model whose id had changed.
+- Fixed `onAttachedToRootStore` not being called for models inside a plain tree node attached to a root store.
+
 ## 2.0.0
 
 - [BREAKING CHANGE] Preserve repeated property names and array indexes in type-check error paths when validating an attached subtree. Paths supplied to `TypeCheckError` and `TypeCheckErrorFailure` are now consistently treated as relative to the checked value; manually supplied rooted paths are no longer detected automatically.

@@ -1,13 +1,8 @@
 import { observable } from "mobx"
 import { tweakPlainObject } from "../tweaker/tweakPlainObject"
-import { isPlainObject, setProtoProp } from "../utils"
+import { isPlainObject, nodeObservableOptions, setProtoProp } from "../utils"
 import { getCurrentErrorDiagnosticsContext } from "../utils/errorDiagnostics"
-import {
-  type FromSnapshotContext,
-  internalFromSnapshot,
-  observableOptions,
-  registerSnapshotter,
-} from "./fromSnapshot"
+import { type FromSnapshotContext, internalFromSnapshot, registerSnapshotter } from "./fromSnapshot"
 import type { SnapshotInOfObject } from "./SnapshotOf"
 import { SnapshotterAndReconcilerPriority } from "./SnapshotterAndReconcilerPriority"
 
@@ -37,7 +32,7 @@ function fromPlainObjectSnapshot(sn: SnapshotInOfObject<any>, ctx: FromSnapshotC
     }
   }
   return tweakPlainObject(
-    observable.object(plainObj, undefined, observableOptions),
+    observable.object(plainObj, undefined, nodeObservableOptions),
     undefined,
     undefined,
     true,

@@ -3,6 +3,7 @@ import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
 import { treeNodeMetadata } from "../tweaker/treeNodeMetadata"
 import { hasOwnProp, isArray, isObject } from "../utils"
+import { LazyArrayParentPath } from "./arrayPaths"
 import {
   dataToModelNode,
   getDataObjectParent,
@@ -61,7 +62,10 @@ export interface RootPath<T extends object> {
 export function getParentPath<T extends object = any>(value: object): ParentPath<T> | undefined {
   assertTweakedObject(value, "value")
 
-  return fastGetParentPath(value, true)
+  const parentPath = fastGetParentPath<T>(value, true)
+  return parentPath instanceof LazyArrayParentPath
+    ? (parentPath.toParentPath() as ParentPath<T>)
+    : parentPath
 }
 
 /**
@@ -71,10 +75,14 @@ export function fastGetParentPath<T extends object = any>(
   value: object,
   useAtom: boolean
 ): ParentPath<T> | undefined {
+  const parentPath = treeNodeMetadata.get(value)?.parentPath
   if (useAtom) {
     reportParentPathObserved(value)
+    if (parentPath instanceof LazyArrayParentPath) {
+      parentPath.reportObserved()
+    }
   }
-  return treeNodeMetadata.get(value)?.parentPath as ParentPath<T> | undefined
+  return parentPath as ParentPath<T> | undefined
 }
 
 /**

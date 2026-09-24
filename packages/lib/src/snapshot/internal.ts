@@ -19,6 +19,10 @@ export interface SnapshotData {
   atom: IAtom | undefined
   // Source of truth for copy-on-write of this snapshot's untransformed data.
   untransformedFrozen: boolean
+  // When defined while `untransformed` is not frozen, every value in it except
+  // (possibly) these is already frozen, so freezing it only needs to visit them.
+  // Values listed here may no longer be in `untransformed`.
+  unfrozenValues: object[] | undefined
   dirtyChild: object | undefined
   dirtyChildSnapshot: SnapshotData | undefined
   dirtyChildPath: PathElement | undefined
@@ -94,6 +98,7 @@ export const setNewInternalSnapshot = action(
       transformed,
       atom: undefined, // will be created when first observed
       untransformedFrozen: markAsFrozen,
+      unfrozenValues: undefined,
       dirtyChild: undefined,
       dirtyChildSnapshot: undefined,
       dirtyChildPath: undefined,
@@ -113,7 +118,10 @@ export const setNewInternalSnapshot = action(
   }
 )
 
-type MutateInternalSnapshotFn<T> = (prevSn: T) => void
+/**
+ * Mutates a snapshot container in place and returns the values it wrote.
+ */
+type MutateInternalSnapshotFn<T> = (prevSn: T) => readonly unknown[]
 
 function makeSnapshotMutable(sn: SnapshotData): any {
   let untransformed = sn.untransformed
@@ -127,7 +135,39 @@ function makeSnapshotMutable(sn: SnapshotData): any {
   return untransformed
 }
 
-function setSnapshotData(sn: SnapshotData, untransformed: any, freezeIfCloned = false): void {
+function trackUnfrozenValues(
+  sn: SnapshotData,
+  untransformed: any,
+  wasFrozen: boolean,
+  writtenValues: readonly unknown[]
+): void {
+  // a cloned frozen container starts with only frozen values
+  let unfrozenValues = wasFrozen ? [] : sn.unfrozenValues
+  if (unfrozenValues === undefined) {
+    return
+  }
+  for (let i = 0; i < writtenValues.length; i++) {
+    const value = writtenValues[i]
+    if (!isPrimitive(value)) {
+      unfrozenValues.push(value)
+    }
+  }
+  const size = Array.isArray(untransformed)
+    ? untransformed.length
+    : Object.keys(untransformed).length
+  if (unfrozenValues.length > size) {
+    // cheaper to visit the whole container again
+    unfrozenValues = undefined
+  }
+  sn.unfrozenValues = unfrozenValues
+}
+
+function setSnapshotData(
+  sn: SnapshotData,
+  untransformed: any,
+  writtenValues: readonly unknown[],
+  freezeIfCloned = false
+): void {
   // `makeSnapshotMutable` returns a new container exactly when this snapshot
   // was frozen. All callers obtain `untransformed` through that helper.
   const wasFrozen = untransformed !== sn.untransformed
@@ -138,6 +178,11 @@ function setSnapshotData(sn: SnapshotData, untransformed: any, freezeIfCloned = 
 
   const keepFrozen = freezeIfCloned && wasFrozen && !sn.transformFn
   sn.untransformedFrozen = keepFrozen
+  if (keepFrozen) {
+    sn.unfrozenValues = undefined
+  } else {
+    trackUnfrozenValues(sn, untransformed, wasFrozen, writtenValues)
+  }
   if (wasFrozen && !keepFrozen) {
     snapshotStates.set(untransformed, sn)
   }
@@ -152,8 +197,8 @@ function setSnapshotData(sn: SnapshotData, untransformed: any, freezeIfCloned = 
 
 function updateOwnSnapshot<T>(sn: SnapshotData, mutate: MutateInternalSnapshotFn<T>): void {
   const untransformed = makeSnapshotMutable(sn)
-  mutate(untransformed)
-  setSnapshotData(sn, untransformed)
+  const writtenValues = mutate(untransformed)
+  setSnapshotData(sn, untransformed, writtenValues)
   sn.atom?.reportChanged()
 }
 
@@ -164,7 +209,7 @@ function updateParentSlot(parentSn: SnapshotData, path: PathElement, value: any)
   } else {
     untransformed[path] = value
   }
-  setSnapshotData(parentSn, untransformed)
+  setSnapshotData(parentSn, untransformed, [value])
   parentSn.atom?.reportChanged()
 }
 
@@ -175,7 +220,8 @@ function flushDirtyChild(
   childSn: SnapshotData,
   childPath: PathElement,
   freezeAfterFlush: boolean,
-  freezeClonedContainer: boolean
+  freezeClonedContainer: boolean,
+  writtenValues: unknown[]
 ): void {
   if (childSn.isUnset) {
     return
@@ -200,6 +246,7 @@ function flushDirtyChild(
   } else {
     untransformed[childPath] = childSn.transformed
   }
+  writtenValues.push(childSn.transformed)
 }
 
 function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: boolean): boolean {
@@ -218,6 +265,7 @@ function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: bo
   const untransformed = makeSnapshotMutable(sn)
   const freezeClonedContainer =
     freezeAfterFlush && untransformed !== sn.untransformed && !sn.transformFn
+  const writtenValues: unknown[] = []
 
   flushDirtyChild(
     node,
@@ -226,7 +274,8 @@ function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: bo
     dirtyChildSnapshot,
     dirtyChildPath,
     freezeAfterFlush,
-    freezeClonedContainer
+    freezeClonedContainer,
+    writtenValues
   )
   additionalDirtyChildren?.forEach((dirtyChild, child) => {
     flushDirtyChild(
@@ -236,11 +285,12 @@ function flushDirtyChildren(node: object, sn: SnapshotData, freezeAfterFlush: bo
       dirtyChild.snapshot,
       dirtyChild.path,
       freezeAfterFlush,
-      freezeClonedContainer
+      freezeClonedContainer,
+      writtenValues
     )
   })
 
-  setSnapshotData(sn, untransformed, freezeClonedContainer)
+  setSnapshotData(sn, untransformed, writtenValues, freezeClonedContainer)
   return freezeClonedContainer
 }
 
@@ -383,7 +433,13 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
     freezeInternalSnapshot(owner.untransformed)
   }
 
-  if (Array.isArray(data)) {
+  const unfrozenValues =
+    owner !== undefined && owner.untransformed === data ? owner.unfrozenValues : undefined
+  if (unfrozenValues !== undefined) {
+    for (let i = 0; i < unfrozenValues.length; i++) {
+      freezeInternalSnapshot(unfrozenValues[i])
+    }
+  } else if (Array.isArray(data)) {
     for (let i = 0; i < data.length; i++) {
       freezeInternalSnapshot(data[i])
     }
@@ -398,6 +454,7 @@ export function freezeInternalSnapshot<T extends PrimitiveValue | object>(data: 
 
   if (owner !== undefined && owner.untransformed === data) {
     owner.untransformedFrozen = true
+    owner.unfrozenValues = undefined
   }
 
   return data

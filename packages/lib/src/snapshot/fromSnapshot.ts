@@ -5,7 +5,7 @@ import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolve
 import type { AnyType, TypeToData, TypeToSnapshotIn } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { resolveCodecSupport } from "../types/utility/typesCodec"
-import { isMap, isPrimitive, isSet, setProtoProp } from "../utils"
+import { isMap, isPrimitive, isSet, nodeObservableOptions, setProtoProp } from "../utils"
 import {
   getCurrentErrorDiagnosticsContext,
   runWithErrorDiagnosticsContext,
@@ -210,13 +210,9 @@ function snapshotToInitialData(
       }
     }
   }
-  const observableInitialData = observable.object(initialData, undefined, observableOptions)
+  const observableInitialData = observable.object(initialData, undefined, nodeObservableOptions)
   if (allValuesPrimitive) {
     setModelInitialDataSnapshot(observableInitialData, initialData)
   }
   return observableInitialData
-}
-
-export const observableOptions = {
-  deep: false,
 }

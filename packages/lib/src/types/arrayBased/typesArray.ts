@@ -1,7 +1,7 @@
 import type { Path } from "../../parent/pathTypes"
 import { isArray } from "../../utils"
 import { withErrorPathSegment } from "../../utils/errorDiagnostics"
-import { createWholeContainerCachedCheck } from "../createCachedTypeCheck"
+import { createChunkedArrayCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
@@ -38,18 +38,17 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
     const getTypeName = (...recursiveTypeCheckers: TypeChecker[]) =>
       `Array<${itemChecker.getTypeName(...recursiveTypeCheckers, itemChecker)}>`
 
-    // MobX observable arrays invalidate reads at collection granularity. Per-index
-    // computeds would therefore all be invalidated by the same mutation while adding
-    // a computed and cache entry per item.
-    const checkArrayItems = createWholeContainerCachedCheck((array, path, typeCheckedValue) => {
-      for (let index = 0; index < array.length; index++) {
-        const error = itemChecker.check(array[index], emptyChildPath, typeCheckedValue)
-        if (error) {
-          return prependPathElementToTypeCheckError(error, path, index, typeCheckedValue)
+    const checkArrayItems = createChunkedArrayCachedCheck(
+      (items, firstIndex, path, typeCheckedValue) => {
+        for (let i = 0; i < items.length; i++) {
+          const error = itemChecker.check(items[i], emptyChildPath, typeCheckedValue)
+          if (error) {
+            return prependPathElementToTypeCheckError(error, path, firstIndex + i, typeCheckedValue)
+          }
         }
+        return null
       }
-      return null
-    })
+    )
 
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,

@@ -1,12 +1,15 @@
 import type { ActionMiddlewareDisposer } from "../action/middleware"
 import { modelAction } from "../action/modelAction"
+import { type Frozen, FrozenCheckMode, frozen, isFrozenSnapshot, toFrozenSnapshot } from "../frozen"
 import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { fastGetRootPath } from "../parent/path"
 import type { Path } from "../parent/pathTypes"
 import { applyPatches, type Patch, type PatchRecorder, patchRecorder } from "../patch"
+import type { FrozenData } from "../snapshot"
 import { assertTweakedObject } from "../tweaker/core"
 import { typesArray } from "../types/arrayBased/typesArray"
+import { typesFrozen } from "../types/objectBased/typesObject"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import {
@@ -121,16 +124,45 @@ function toSingleEvents(
   return array
 }
 
+// snapshots from before events were frozen have them as plain objects
+function toFrozenEventSnapshots(
+  events: ReadonlyArray<UndoEvent | FrozenData<UndoEvent>> | undefined
+): FrozenData<UndoEvent>[] | undefined {
+  return events?.map((e) => (isFrozenSnapshot<UndoEvent>(e) ? e : toFrozenSnapshot(e)))
+}
+
+function freezeEvent(event: UndoEvent): Frozen<UndoEvent> {
+  // events are only read once recorded, so they are not checked or deeply
+  // frozen (that would also freeze the attached states given by the user)
+  return frozen(event, FrozenCheckMode.Off)
+}
+
 /**
  * Store model instance for undo/redo actions.
- * Do not manipulate directly, other that creating it.
+ * Do not manipulate directly, other than creating it.
+ *
+ * Events are stored as frozen data, since they never change once recorded.
  */
 @model(`${namespace}/UndoStore`)
-export class UndoStore extends Model({
-  // TODO: add proper type checking to undo store
-  undoEvents: tProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
-  redoEvents: tProp(typesArray(typesUnchecked<UndoEvent>()), () => []),
-}) {
+export class UndoStore extends Model(
+  {
+    // TODO: add proper type checking to undo store
+    undoEvents: tProp(typesArray(typesFrozen(typesUnchecked<UndoEvent>())), () => []),
+    redoEvents: tProp(typesArray(typesFrozen(typesUnchecked<UndoEvent>())), () => []),
+  },
+  {
+    fromSnapshotProcessor(sn: {
+      undoEvents?: ReadonlyArray<UndoEvent | FrozenData<UndoEvent>>
+      redoEvents?: ReadonlyArray<UndoEvent | FrozenData<UndoEvent>>
+    }) {
+      return {
+        ...sn,
+        undoEvents: toFrozenEventSnapshots(sn.undoEvents),
+        redoEvents: toFrozenEventSnapshots(sn.redoEvents),
+      }
+    },
+  }
+) {
   /**
    * @ignore
    */
@@ -201,7 +233,7 @@ export class UndoStore extends Model({
   @modelAction
   _addUndo({ event, maxUndoLevels }: { event: UndoEvent; maxUndoLevels: number | undefined }) {
     withoutUndo(() => {
-      this.undoEvents.push(event)
+      this.undoEvents.push(freezeEvent(event))
       // once an undo event is added redo queue is no longer valid
       this.redoEvents.length = 0
       this.enforceMaxLevels({ maxUndoLevels })
@@ -323,7 +355,7 @@ export class UndoManager {
    */
   @mobxComputed
   get undoQueue(): ReadonlyArray<UndoEvent> {
-    return this.store.undoEvents
+    return this.store.undoEvents.map((e) => e.data)
   }
 
   /**
@@ -332,7 +364,7 @@ export class UndoManager {
    */
   @mobxComputed
   get redoQueue(): ReadonlyArray<UndoEvent> {
-    return this.store.redoEvents
+    return this.store.redoEvents.map((e) => e.data)
   }
 
   /**
@@ -340,7 +372,7 @@ export class UndoManager {
    */
   @mobxComputed
   get undoLevels() {
-    return this.undoQueue.length
+    return this.store.undoEvents.length
   }
 
   /**
@@ -364,7 +396,7 @@ export class UndoManager {
    */
   @mobxComputed
   get redoLevels() {
-    return this.redoQueue.length
+    return this.store.redoEvents.length
   }
 
   /**
@@ -392,7 +424,8 @@ export class UndoManager {
     if (!this.canUndo) {
       throw failure("nothing to undo")
     }
-    const event = this.undoQueue[this.undoQueue.length - 1]
+    const events = this.store.undoEvents
+    const event = events[events.length - 1].data
 
     withoutUndo(() => {
       toSingleEvents(event)
@@ -419,7 +452,8 @@ export class UndoManager {
     if (!this.canRedo) {
       throw failure("nothing to redo")
     }
-    const event = this.redoQueue[this.redoQueue.length - 1]
+    const events = this.store.redoEvents
+    const event = events[events.length - 1].data
 
     withoutUndo(() => {
       toSingleEvents(event).forEach((e) => {

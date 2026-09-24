@@ -17,7 +17,7 @@ import type { SnapshotInOfModel, SnapshotOutOfModel } from "../snapshot/Snapshot
 import { typesModel } from "../types/objectBased/typesModel"
 import type { TypeCheckError } from "../types/TypeCheckError"
 import { typeCheck } from "../types/typeCheck"
-import { assertIsObject, failure } from "../utils"
+import { assertIsObject, failure, nodeObservableOptions } from "../utils"
 import { getModelIdPropertyName } from "./getModelMetadata"
 import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelIdKey, modelTypeKey } from "./metadata"
@@ -150,9 +150,11 @@ export abstract class BaseModel<
       // Empty input is filled by the constructor below. Track its primitive
       // defaults directly instead of rereading observable fields for the snapshot.
       const useInitialDataSnapshot = Reflect.ownKeys(initialData).length === 0
-      const observableInitialData = observable.object(initialData as any, undefined, {
-        deep: false,
-      })
+      const observableInitialData = observable.object(
+        initialData as any,
+        undefined,
+        nodeObservableOptions
+      )
       if (useInitialDataSnapshot) {
         setModelInitialDataSnapshot(observableInitialData, {})
       }

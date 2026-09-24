@@ -13,6 +13,7 @@ import {
   getModelNotRegisteredErrorMessage,
   modelInfoByClass,
 } from "../modelShared/modelInfo"
+import { withChangeBatch } from "../tweaker/changeRollback"
 import { assertTweakedObject } from "../tweaker/core"
 import { assertIsObject, inDevMode, isArray, isMap, isPlainObject, isSet, lazy } from "../utils"
 import { runWithErrorDiagnosticsContext } from "../utils/errorDiagnostics"
@@ -24,6 +25,7 @@ import { SnapshotProcessingError } from "./SnapshotProcessingError"
 
 /**
  * Applies a full snapshot over an object, reconciling it with the current contents of the object.
+ * If it throws, the changes it made are rolled back (errors thrown by listeners do not roll them back).
  *
  * @template T Object type.
  * @param node Target object (model object, object or array).
@@ -52,27 +54,33 @@ export function internalApplySnapshot<T extends object>(
 ): void {
   const obj = this
 
-  const reconcile = () => {
-    // Avoid building a model pool (and its deep children traversal) when the
-    // node already holds this exact snapshot. Child updates may still await
-    // propagation within an action, so flush before trusting the reference.
-    flushInternalSnapshot(obj, false)
-    if (getInternalSnapshot(obj)?.transformed === sn) {
-      return
-    }
-
-    const modelPool = new ModelPool(obj)
-    const ret = reconcileSnapshot(obj, sn, modelPool, undefined)
-
-    if (inDevMode) {
-      if (ret !== obj) {
-        throw new SnapshotProcessingError({
-          message: "assertion failed: reconciled object has to be the same",
-          actualSnapshot: sn,
-        })
+  const reconcile = () =>
+    withChangeBatch(() => {
+      // Avoid building a model pool (and its deep children traversal) when the
+      // node already holds this exact snapshot. Child updates may still await
+      // propagation within an action, so flush before trusting the reference.
+      flushInternalSnapshot(obj, false)
+      if (getInternalSnapshot(obj)?.transformed === sn) {
+        return
       }
-    }
-  }
+
+      const modelPool = new ModelPool(obj)
+      let ret: unknown
+      try {
+        ret = reconcileSnapshot(obj, sn, modelPool, undefined)
+      } finally {
+        modelPool.release()
+      }
+
+      if (inDevMode) {
+        if (ret !== obj) {
+          throw new SnapshotProcessingError({
+            message: "assertion failed: reconciled object has to be the same",
+            actualSnapshot: sn,
+          })
+        }
+      }
+    })
 
   if (isArray(sn)) {
     if (!isArray(obj)) {

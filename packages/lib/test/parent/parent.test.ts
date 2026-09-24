@@ -1,5 +1,6 @@
 import { autorun, computed, remove, set, toJS } from "mobx"
 import {
+  applyPatches,
   detach,
   findChildren,
   findParent,
@@ -10,10 +11,13 @@ import {
   getParentPath,
   getParentToChildPath,
   getRootPath,
+  idProp,
   isChildOfParent,
   isParentOfChild,
   Model,
   modelSnapshotInWithMetadata,
+  onPatches,
+  type Patch,
   prop,
   runUnprotected,
   toTreeNode,
@@ -389,6 +393,83 @@ test("parent", () => {
   }).toThrow("an object cannot be assigned a new parent when it already has one")
   expect((p.$ as any).z).toBe(undefined)
   expect("z" in p.$).toBeFalsy()
+})
+
+// small arrays keep eager indexes, large ones switch to lazy ones on front splices
+test.each([3, 2000])("adding an array child again at its own index fails (%i items)", (size) => {
+  @testModel("Item")
+  class Item extends Model({ id: idProp }) {}
+
+  @testModel("Store")
+  class Store extends Model({ items: prop<Item[]>(() => []) }) {}
+
+  const store = new Store({
+    items: Array.from({ length: size }, (_, i) => new Item({ id: `i${i}` })),
+  })
+  const ids = () => store.items.map((item) => item.id)
+  const expectedIds = ids()
+
+  const tries: (() => void)[] = [
+    () => store.items.splice(1, 0, store.items[1]),
+    () => store.items.unshift(store.items[0]),
+    () => store.items.push(store.items[size - 1]),
+    // twice in the same splice, once detached
+    () => store.items.splice(1, 1, store.items[1], store.items[1]),
+    // twice in a splice that also removes items, which must stay attached
+    () => {
+      const item = new Item({ id: "twice" })
+      store.items.splice(1, 1, item, item)
+    },
+    // rejected by setParent, also after items were to be removed
+    () => store.items.splice(0, 1, new Store({ items: [new Item({ id: "other" })] }).items[0]),
+  ]
+  for (const t of tries) {
+    expect(() => {
+      runUnprotected(t)
+    }).toThrow("an object cannot be assigned a new parent when it already has one")
+    expect(ids()).toEqual(expectedIds)
+    store.items.forEach((item, i) => {
+      // compared by identity: deep-equality on large MobX 4 arrays is very slow
+      const parentPath = getParentPath(item)
+      expect(parentPath?.parent).toBe(store.items)
+      expect(parentPath?.path).toBe(i)
+    })
+  }
+
+  // replaying an add patch of a model still in the array
+  let lastPatches: Patch[] = []
+  onPatches(store, (patches) => {
+    lastPatches = patches
+  })
+  runUnprotected(() => {
+    store.items.splice(1, 0, new Item({ id: "new" }))
+  })
+  const idsAfterAdd = ids()
+  expect(() => {
+    applyPatches(store, lastPatches)
+  }).toThrow("an object cannot be assigned a new parent when it already has one")
+  expect(ids()).toEqual(idsAfterAdd)
+})
+
+test("adding a value type array child again at its own index clones it", () => {
+  @testModel("Value")
+  class Value extends Model({ n: prop(0) }, { valueType: true }) {}
+
+  @testModel("Store")
+  class Store extends Model({ values: prop<Value[]>(() => []) }) {}
+
+  const store = new Store({ values: [0, 1, 2].map((n) => new Value({ n })) })
+  const original = store.values[1]
+  runUnprotected(() => {
+    store.values.splice(1, 0, store.values[1])
+  })
+
+  expect(store.values.map((v) => v.n)).toEqual([0, 1, 1, 2])
+  expect(new Set(store.values).size).toBe(4)
+  expect(store.values[2]).toBe(original)
+  store.values.forEach((value, i) => {
+    expect(getParentPath(value)).toEqual({ parent: store.values, path: i })
+  })
 })
 
 test("issue #446", () => {

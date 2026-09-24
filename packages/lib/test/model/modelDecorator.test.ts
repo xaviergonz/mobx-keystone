@@ -151,7 +151,7 @@ test("decoratedModel", () => {
     expect(isModelAction(p.setX)).toBeTruthy()
     expect(isModelAction(p.setY)).toBeTruthy()
     expect(isModelAction(p.setXY)).toBeTruthy()
-    expect(isComputedProp(p, "length"))
+    expect(isComputedProp(p, "length")).toBe(true)
 
     expect(p.x).toBe(10)
     expect(p.y).toBe(20)
