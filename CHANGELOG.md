@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.1.0
 
 - [BREAKING CHANGE] `UndoStore` keeps undo/redo events as frozen data, making recording ~4x faster and undo/redo ~3x faster:
