@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 2.1.0
 
 - [BREAKING CHANGE] `UndoStore` keeps undo/redo events as frozen data, making recording ~4x faster and undo/redo ~3x faster:
   - Snapshots and patches store events as `{ $frozen: true, data: event }`. Older snapshots still load, but earlier versions cannot load newer ones.
