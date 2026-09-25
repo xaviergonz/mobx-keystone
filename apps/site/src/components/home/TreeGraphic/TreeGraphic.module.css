@@ -220,8 +220,8 @@
 }
 
 .snapshotPanel pre {
-  /* Seven lines: the store with three todos. */
-  min-height: 11.2em;
+  /* Eight lines: the store with three todos. */
+  min-height: 12.8em;
   margin: 0;
   padding: 0;
   overflow-x: auto;
