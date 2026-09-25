@@ -1,0 +1,22 @@
+.apiTag {
+  position: relative;
+  /* Centers the pill on the title's lowercase letters rather than on the navbar row. */
+  top: 1px;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 1rem;
+  margin-left: -0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--mk-accent-soft);
+  color: var(--mk-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+.apiTag:hover {
+  color: var(--mk-accent);
+  text-decoration: none;
+}

@@ -31,24 +31,28 @@ const undoManager = undoMiddleware(counter)
 
 The returned `undoManager` offers the following data:
 
-- `store: UndoStore` - The store currently being used to store undo/redo action events.
-- `undoQueue: ReadonlyArray<UndoEvent>` - The undo stack, where the first operation to undo will be the last of the array.
-- `redoQueue: ReadonlyArray<UndoEvent>` - The redo stack, where the first operation to redo will be the last of the array.
-- `undoLevels: number` - The number of undo actions available.
-- `canUndo: boolean` - If undo can be performed (if there is at least one undo action available).
-- `redoLevels: number` - The number of redo actions available.
-- `canRedo: boolean` - If redo can be performed (if there is at least one redo action available).
+| Property | Type | Description |
+| --- | --- | --- |
+| `store` | `UndoStore` | The store currently being used to store undo/redo action events. |
+| `undoQueue` | `ReadonlyArray<UndoEvent>` | The undo stack. The first operation to undo is the last one in the array. |
+| `redoQueue` | `ReadonlyArray<UndoEvent>` | The redo stack. The first operation to redo is the last one in the array. |
+| `undoLevels` | `number` | The number of undo actions available. |
+| `canUndo` | `boolean` | Whether there is at least one action to undo. |
+| `redoLevels` | `number` | The number of redo actions available. |
+| `canRedo` | `boolean` | Whether there is at least one action to redo. |
 
 And the following methods:
 
-- `clearUndo()` - Clears the undo queue.
-- `clearRedo()` - Clears the redo queue.
-- `undo()` - Undoes the last action. Will throw if there is no action to undo.
-- `redo()` - Redoes the previous action. Will throw if there is no action to redo.
-- `withoutUndo(fn)` - Runs a synchronous block without recording its changes in this manager.
-- `withGroup(...)` / `withGroupFlow(...)` - Groups several operations into one undo step.
-- `createGroup(name?)` - Creates a group that can span separate synchronous blocks.
-- `dispose()` - Disposes of the undo middleware.
+| Method | Description |
+| --- | --- |
+| `undo()` | Undoes the last action. Throws if there is no action to undo. |
+| `redo()` | Redoes the previous action. Throws if there is no action to redo. |
+| `clearUndo()` | Clears the undo queue. |
+| `clearRedo()` | Clears the redo queue. |
+| `withoutUndo(fn)` | Runs a synchronous block without recording its changes in this manager. |
+| `withGroup(...)` / `withGroupFlow(...)` | Groups several operations into one undo step. |
+| `createGroup(name?)` | Creates a group that can span separate synchronous blocks. |
+| `dispose()` | Disposes of the undo middleware. |
 
 ## `UndoEvent`
 

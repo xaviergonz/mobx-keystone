@@ -50,16 +50,22 @@ You can pass a default value to `createContext` (for example, `const userCtx = c
 
 The returned context object has the following methods:
 
-- `getDefault()` - Gets the default context value.
-- `setDefault(value)` - Sets the (static) default context value.
-- `setDefaultComputed(() => value)` - Sets the (computed) default context value.
-- `get(node)` - Gets the context value for a given node (recursing up in the tree until a node has a set value or the default if none is set). Usually called in actions and computed getters. This value is reactive/observable, so never cache this value since it might get stale.
-- `set(node, value)` - Sets the (static) value a node will provide for itself and its children. Usually called in `onInit`.
-- `setComputed(node, () => value)` - Sets the (computed) value a node will provide for itself and its children. Usually called in `onInit`.
-- `unset(node)` - Make the node no longer provide a context value.
-- `getProviderNode(node)` - Gets the node that provides the value, or `undefined` when the default value is used.
-- `apply(fn, value)` - Applies a value override while the given function is running and, if a node is returned, sets the node as a provider of the value.
-- `applyComputed(fn, () => value)` - Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the computed value.
+| Method | Description |
+| --- | --- |
+| `getDefault()` | Gets the default context value. |
+| `setDefault(value)` | Sets the (static) default context value. |
+| `setDefaultComputed(() => value)` | Sets the (computed) default context value. |
+| `get(node)` | Gets the context value for a given node, recursing up the tree until a node has a set value, or the default if none is set. Usually called in actions and computed getters. |
+| `set(node, value)` | Sets the (static) value a node will provide for itself and its children. Usually called in `onInit`. |
+| `setComputed(node, () => value)` | Sets the (computed) value a node will provide for itself and its children. Usually called in `onInit`. |
+| `unset(node)` | Makes the node no longer provide a context value. |
+| `getProviderNode(node)` | Gets the node that provides the value, or `undefined` when the default value is used. |
+| `apply(fn, value)` | Applies a value override while the given function is running and, if a node is returned, sets the node as a provider of the value. |
+| `applyComputed(fn, () => value)` | Applies a computed value override while the given function is running and, if a node is returned, sets the node as a provider of the computed value. |
+
+:::caution Don't cache `get(node)`
+The value returned by `get(node)` is observable and can change, so read it where you need it instead of storing it.
+:::
 
 Both methods return the callback result unchanged. Returning a model's `$` data object does not make its model a context provider.
 

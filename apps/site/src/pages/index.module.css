@@ -1,0 +1,578 @@
+.layout {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  width: 100%;
+  /* Clip sideways only, so the glows still reach up under the frosted navbar. */
+  overflow-x: clip;
+}
+
+.home {
+  flex-grow: 1;
+  min-width: 0;
+  padding: 6.5rem 3.5rem 5.5rem;
+}
+
+.home > section {
+  max-width: 1312px;
+  margin-inline: auto;
+}
+
+/* Ambient glow clouds: several wide, flat, blurred lobes that overlap into one haze. */
+.glow {
+  --glow-main: var(--mk-glow-a);
+  --glow-other: var(--mk-glow-b);
+  position: absolute;
+  z-index: -1;
+  opacity: 0.74;
+  pointer-events: none;
+}
+
+.glowB {
+  --glow-main: var(--mk-glow-b);
+  --glow-other: var(--mk-glow-a);
+}
+
+.glow > span {
+  position: absolute;
+  background: radial-gradient(ellipse farthest-side, var(--glow-main) 0%, transparent 72%);
+}
+
+.glow > span:nth-child(1) {
+  left: -18%;
+  top: 26%;
+  width: 62%;
+  height: 48%;
+  transform: rotate(-3deg);
+  filter: blur(70px);
+}
+
+.glow > span:nth-child(2) {
+  left: 14%;
+  top: 12%;
+  width: 62%;
+  height: 56%;
+  transform: rotate(3deg);
+  filter: blur(76px);
+  opacity: 0.9;
+}
+
+.glow > span:nth-child(3) {
+  left: 42%;
+  top: 24%;
+  width: 64%;
+  height: 50%;
+  transform: rotate(-2deg);
+  filter: blur(72px);
+  opacity: 0.85;
+}
+
+.glow > span:nth-child(4) {
+  left: 66%;
+  top: 6%;
+  width: 52%;
+  height: 44%;
+  transform: rotate(6deg);
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.glow > span:nth-child(5) {
+  left: 4%;
+  top: 50%;
+  width: 64%;
+  height: 36%;
+  background: radial-gradient(ellipse farthest-side, var(--glow-other) 0%, transparent 72%);
+  transform: rotate(2deg);
+  filter: blur(84px);
+  opacity: 0.4;
+}
+
+/* Hero */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.75rem;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0.875rem 0.375rem 0.5rem;
+  border: 1px solid var(--mk-border-2);
+  border-radius: 999px;
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.8125rem;
+}
+
+.pill:hover {
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+}
+
+.pill > span {
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background: var(--mk-accent-soft);
+  color: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(3rem, 5vw, 4.75rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.lead {
+  margin: 0;
+  color: var(--ifm-color-content-secondary);
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  min-height: 20px;
+}
+
+.badges img {
+  display: block;
+  height: 20px;
+}
+
+.primary,
+.install {
+  display: inline-flex;
+  align-items: center;
+  height: 3.125rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+}
+
+.primary {
+  padding: 0 1.5rem;
+  background: var(--mk-accent);
+  color: var(--mk-on-accent);
+  font-weight: 600;
+}
+
+.primary:hover {
+  background: var(--ifm-color-primary-dark);
+  color: var(--mk-on-accent);
+  text-decoration: none;
+}
+
+.install {
+  overflow: hidden;
+  border: 1px solid var(--mk-border-3);
+  background: var(--mk-surface-2);
+  color: var(--ifm-font-color-base);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.875rem;
+}
+
+.install:focus-within,
+.install:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.installPrompt {
+  padding-left: 1.125rem;
+  color: var(--mk-dim);
+}
+
+.installSelect {
+  align-self: stretch;
+  margin-left: 0.25rem;
+  padding: 0 1.5rem 0 0.5rem;
+  border: 0;
+  border-radius: 0.5rem;
+  /* Custom chevron, since the native one ignores the theme colors. */
+  background: transparent
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" fill="none" stroke="%238e919b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+    no-repeat right 0.5rem center;
+  color: var(--ifm-color-primary);
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
+}
+
+.installSelect:hover {
+  background-color: var(--mk-accent-soft);
+}
+
+.installSelect option {
+  background: var(--mk-raised);
+  color: var(--ifm-font-color-base);
+}
+
+.installCopy {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  gap: 0.75rem;
+  padding: 0 1.125rem 0 0.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Show focus on the dropdown as a lighter version of its hover tint instead of an outline. */
+.installSelect:focus-visible {
+  outline: none;
+  background-color: color-mix(in srgb, var(--mk-accent-soft) 60%, transparent);
+}
+
+.installSelect:hover:focus-visible {
+  background-color: var(--mk-accent-soft);
+}
+
+.installCopy:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--ifm-color-primary) 20%, transparent);
+  outline-offset: -1px;
+}
+
+.installHint {
+  color: var(--mk-faint);
+  font-size: 0.75rem;
+}
+
+/* Sections */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding-top: 5.5rem;
+}
+
+.section h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sectionHead h2 {
+  max-width: 52rem;
+}
+
+.sectionHead a {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.writeGet {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.writeCard,
+.getCard,
+.feature,
+.quotes figure {
+  border-radius: 1.125rem;
+}
+
+.writeCard {
+  overflow: hidden;
+}
+
+.writeGet pre {
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ifm-font-color-base);
+  font-family: var(--ifm-font-family-monospace);
+}
+
+.writeCard pre {
+  padding: 1.5rem 1.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+
+.cardHead {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  color: var(--mk-faint);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.cardHead > span:first-child {
+  white-space: nowrap;
+}
+
+.cardHead > span:last-child {
+  letter-spacing: 0;
+}
+
+.cardHeadBar {
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--mk-border);
+}
+
+.getGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.getCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.125rem 1.375rem;
+}
+
+.getCard pre {
+  padding: 0;
+  white-space: pre-wrap;
+  color: var(--mk-text-soft);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 1.75rem;
+  color: var(--ifm-font-color-base);
+  transition: border-color 150ms ease;
+}
+
+.feature:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+}
+
+.featureWide {
+  grid-column: span 2;
+}
+
+.featureWide > div:first-child {
+  flex: 0 0 21rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.625rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.feature h3 {
+  margin: 0 0 0.625rem;
+  font-size: 1.625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.feature p {
+  margin: 0;
+  color: var(--ifm-color-content-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.timeline {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline > span {
+  flex-shrink: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--mk-border-3);
+}
+
+.timeline > i {
+  flex-grow: 1;
+  height: 2px;
+  background: var(--mk-border-3);
+}
+
+.timeline > .timelineNow {
+  width: 1.125rem;
+  height: 1.125rem;
+  background: var(--mk-accent);
+}
+
+.timeline > .timelineFuture {
+  background: var(--mk-border);
+}
+
+.timeline > .timelineRedo {
+  border: 2px solid var(--mk-border-3);
+  background: transparent;
+}
+
+.quotes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.quotes figure {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 1.5rem;
+}
+
+.quotes blockquote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ifm-font-color-base);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.quotes figcaption,
+.quotes figcaption a {
+  color: var(--mk-faint);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 1279px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heroText {
+    max-width: 44rem;
+  }
+
+  /* Next to the docs sidebar there is only room for two features per row. */
+  .features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quotes figure {
+    padding: 1.25rem;
+  }
+
+  .quotes blockquote {
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 996px) {
+  .home {
+    padding: 3.5rem 1rem 4rem;
+  }
+
+  .getGrid,
+  .features,
+  .quotes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .featureWide {
+    grid-column: auto;
+  }
+
+  .section {
+    padding-top: 4rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .lead {
+    font-size: 1.0625rem;
+  }
+
+  .install {
+    width: 100%;
+  }
+
+  .installPrompt {
+    padding-left: 0.75rem;
+  }
+
+  .installCopy {
+    flex-grow: 1;
+    min-width: 0;
+    gap: 0.5rem;
+    padding: 0 0.75rem 0 0.25rem;
+  }
+
+  .installHint {
+    display: none;
+  }
+
+  .featureWide {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .featureWide > div:first-child {
+    flex-basis: auto;
+  }
+
+  .writeGet pre {
+    overflow-x: auto;
+  }
+
+  .writeCard pre {
+    padding: 1.25rem;
+    font-size: 0.8125rem;
+  }
+
+  .getCard pre {
+    font-size: 0.75rem;
+  }
+}

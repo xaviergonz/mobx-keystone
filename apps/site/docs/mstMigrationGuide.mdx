@@ -3,6 +3,9 @@ title: "Migration Guide: mobx-state-tree -> mobx-keystone"
 slug: /mst-migration-guide
 ---
 
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
 This is a practical, code-first guide for migrating an existing `mobx-state-tree` (MST) codebase to `mobx-keystone`.
 It is written for humans first (from basics to advanced), with an LLM prompt/template at the end.
 
@@ -126,7 +129,10 @@ If you relied on immutability, treat IDs as write-once by convention or add guar
 
 ## End-to-end example
 
-### MST version
+The same store written with both libraries:
+
+<Tabs groupId="mst-or-keystone">
+<TabItem value="mst" label="mobx-state-tree">
 
 ```ts
 import { cast, destroy, flow, getEnv, Instance, types } from "mobx-state-tree"
@@ -183,7 +189,8 @@ const RootStore = types
   }))
 ```
 
-### mobx-keystone version
+</TabItem>
+<TabItem value="keystone" label="mobx-keystone">
 
 ```ts
 import { action, computed, observable } from "mobx"
@@ -285,6 +292,9 @@ const env: Env = { api: { fetchTodo: (id) => fetch(`/api/todos/${id}`).then((r) 
 const rootStore = envCtx.apply(() => new RootStore({}), env)
 registerRootStore(rootStore)
 ```
+
+</TabItem>
+</Tabs>
 
 ## Topic guides
 
@@ -397,7 +407,9 @@ class Named extends Model({ name: prop<string>() }) {}
 class Person extends ExtendedModel(Named, { age: prop<number>() }) {}
 ```
 
-Note: `ExtendedModel` extends a single base class. If you need to merge more than two MST models, flatten the props or chain multiple `ExtendedModel` calls.
+:::note
+`ExtendedModel` extends a single base class. If you need to merge more than two MST models, flatten the props or chain multiple `ExtendedModel` calls.
+:::
 
 ### Action replay, serialization, patches
 

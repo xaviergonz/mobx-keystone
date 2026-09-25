@@ -1,34 +1,9 @@
 ---
 title: Introduction
-slug: /
-hide_title: true
+slug: /intro
 ---
 
-<div className="docs-intro-hero">
-  <p className="docs-eyebrow">MobX-powered. TypeScript-first.</p>
-
-<div className="docs-project-badges">
-
-![license](https://img.shields.io/npm/l/mobx-keystone.svg?style=flat&labelColor=333)
-![types](https://img.shields.io/npm/types/mobx-keystone.svg?style=flat&logo=typescript&labelColor=333)
-[![CI](https://img.shields.io/github/actions/workflow/status/xaviergonz/mobx-keystone/main.yml?branch=master&label=CI&logo=github&style=flat&labelColor=333)](https://github.com/xaviergonz/mobx-keystone/actions/workflows/main.yml)
-[![codecov](https://img.shields.io/codecov/c/github/xaviergonz/mobx-keystone?token=6MLRFUBK8V&label=codecov&logo=codecov&style=flat&labelColor=333)](https://codecov.io/gh/xaviergonz/mobx-keystone)
-[![Netlify Status](https://img.shields.io/netlify/c5f60bcb-c1ff-4d04-ad14-1fc34ddbb429?label=netlify&logo=netlify&style=flat&labelColor=333)](https://app.netlify.com/sites/mobx-keystone/deploys)
-
-</div>
-
-# Introduction
-
-  <p className="docs-intro-lead">Build complex client-side apps with a single source of truth, mutable model code, and immutable traceability built in.</p>
-  <div className="docs-intro-actions">
-
-[Get started →](./gettingStarted.mdx)
-[Installation ↗](./installation.mdx)
-
-  </div>
-
-  <div className="docs-intro-meta">TypeScript <span aria-hidden="true">/</span> MIT license <span aria-hidden="true">/</span> MobX</div>
-</div>
+<p className="docs-intro-lead">`mobx-keystone` gives you MobX-powered, TypeScript-first state trees: a single source of truth, mutable model code, and immutable traceability built in.</p>
 
 ## Quick glance
 
@@ -68,13 +43,6 @@ const store = new TodoStore({})
 registerRootStore(store)
 ```
 
-<div className="docs-starting-links">
-
-[**Class Models →**<span>Model your application state.</span>](./classModels.mdx)
-[**Snapshots →**<span>Capture and restore your tree.</span>](./snapshots.mdx)
-
-</div>
-
 You write straightforward actions and computed values, while the library gives you snapshots, patches, undo/redo, and runtime protection on top. You can think of it as a TypeScript-first model layer on top of MobX that scales better as your domain grows.
 
 ## Why teams choose mobx-keystone
@@ -82,46 +50,36 @@ You write straightforward actions and computed values, while the library gives y
 - Mutable action code with protected updates, so state changes stay explicit and safe.
 - Runtime snapshots and JSON patches for persistence, sync, replay, and debugging.
 - Built-in primitives for references, transactions, action middlewares, and undo/redo.
-- Optional Y.js and Loro bindings for collaborative, offline-friendly state.
+- Optional [Y.js](./integrations/yjsBinding.mdx) and [Loro](./integrations/loroBinding.mdx) bindings for collaborative, offline-friendly state.
 - Strong TypeScript inference for models, snapshots, and actions.
 - Composable domain models that stay maintainable as app complexity grows.
 - Seamless integration with MobX and `mobx-react-lite`.
 
 ## Choose your starting point
 
-Different readers usually want different first docs. These are the fastest paths through the site:
+<div className="docs-starting-links docs-starting-links--grid">
 
-| If you want to... | Start here |
-| --- | --- |
-| Set up a first store in a real app | [Getting Started](./gettingStarted.mdx) |
-| Learn the main model style used for app state | [Class Models](./classModels.mdx) |
-| Work with backend-shaped data that should not gain `$modelType` | [Data Models](./dataModels.mdx) |
-| Understand app lifecycle and where side effects belong | [Root Stores](./rootStores.mdx) |
-| Explore from a complete example instead of an API guide | [Todo List Example](./examples/todoList/todoList.mdx) |
-| Synchronize state through a CRDT | [Y.js Binding](./integrations/yjsBinding.mdx) or [Loro Binding](./integrations/loroBinding.mdx) |
-| Compare with MST concepts and terminology | [MST Migration Guide](./mstMigrationGuide.mdx) |
+[**Getting Started →**<span>Set up a first store in a real app.</span>](./gettingStarted.mdx)
+[**Class Models →**<span>The main model style for app state.</span>](./classModels.mdx)
+[**Data Models →**<span>Backend-shaped data without `$modelType`.</span>](./dataModels.mdx)
+[**Root Stores →**<span>App life-cycle and where side effects belong.</span>](./rootStores.mdx)
+[**Snapshots →**<span>Immutable, serializable views of any part of the tree.</span>](./snapshots.mdx)
+[**Coming from MST? →**<span>Concepts, terminology and a step-by-step migration.</span>](./mstMigrationGuide.mdx)
 
-## What users are saying
+</div>
 
-> "I've never been so in love with a tool. [...] In my eyes it is the perfect state management tool for TS/React projects. [...] Building complex clientside apps has never been so easy and fun for me."
->
-> - [@finallyblueskies](https://github.com/finallyblueskies), [#538](https://github.com/xaviergonz/mobx-keystone/issues/538)
+## See it running
 
-> "I'm absolutely loving this project. [...] It's taken all the best bits from mobx and mobx-state-tree and put them into a single package that's a joy to work with. [...] You've literally thought of everything!"
->
-> - [@robclouth](https://github.com/robclouth), [#146](https://github.com/xaviergonz/mobx-keystone/issues/146)
+Each example is a working app running right in the page, with its full source below it.
 
-> "Thank you for this amazing library. [...] After evaluating every state library out there, mobx-keystone stands out [...] a true single source of truth for records, first-class relationships [...] first-class reactivity."
->
-> - [@lolmaus](https://github.com/lolmaus), [#566](https://github.com/xaviergonz/mobx-keystone/issues/566)
+<div className="docs-starting-links docs-starting-links--grid">
 
-> "First of all thank you for this amazing library, it really is a joy to work with."
->
-> - [@exception-producer](https://github.com/exception-producer), [#559](https://github.com/xaviergonz/mobx-keystone/issues/559)
+[**Todo List →**<span>A complete app with live logs of its actions, patches and snapshots.</span>](./examples/todoList/todoList.mdx)
+[**Client/Server →**<span>Two clients kept in sync through a server by replaying actions.</span>](./examples/clientServer/clientServer.mdx)
+[**Y.js Binding →**<span>Two replicas of the same store, synced as a Y.js CRDT over WebRTC.</span>](./examples/yjsBinding/yjsBinding.mdx)
+[**Loro Binding →**<span>Two replicas of the same store, synced as a Loro CRDT in the browser.</span>](./examples/loroBinding/loroBinding.mdx)
 
-> "mobx-keystone is awesome and way easier to use for typesafe domain modeling than MST."
->
-> - [@krnsk0](https://github.com/krnsk0), [#467](https://github.com/xaviergonz/mobx-keystone/issues/467)
+</div>
 
 ## How it works
 
@@ -134,13 +92,3 @@ Trees can only be modified by actions that belong to the same subtree. Actions a
 Because `mobx-keystone` uses MobX behind the scenes, it integrates naturally with [`mobx`](https://mobx.js.org) and [`mobx-react-lite`](https://github.com/mobxjs/mobx/tree/main/packages/mobx-react-lite). The snapshot and middleware system also makes it possible to replace a Redux reducer/store pair with model-driven state and connect Redux devtools.
 
 `mobx-keystone` consists of composable _models_ that capture domain state and behavior together. Model instances are created from props, protect their own updates, and reconcile efficiently when applying snapshots.
-
-## Resources for LLM workflows
-
-Need markdown exports for AI/LLM tools? See [llms.txt](/llms.txt), [llms-full.txt](/llms-full.txt), or the <a href="/md/intro.md">MD docs intro</a>.
-
-## Project resources
-
-- [API reference](/api/)
-- [Todo List Example](./examples/todoList/todoList.mdx)
-- [MST Migration Guide](./mstMigrationGuide.mdx)

@@ -1,0 +1,39 @@
+.glass {
+  border: 1px solid var(--mk-glass-border);
+  background: var(--mk-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: var(--mk-glass-shadow);
+}
+
+.accentText {
+  color: var(--ifm-color-primary);
+}
+
+.blueText {
+  color: var(--mk-blue);
+}
+
+.muted {
+  color: var(--ifm-color-content-secondary);
+}
+
+.tokKeyword {
+  color: var(--mk-code-keyword);
+}
+
+.tokString {
+  color: var(--mk-code-string);
+}
+
+.tokDecorator {
+  color: var(--mk-code-decorator);
+}
+
+.tokType {
+  color: var(--mk-code-type);
+}
+
+.tokComment {
+  color: var(--mk-code-comment);
+}

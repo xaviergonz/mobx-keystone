@@ -3,6 +3,9 @@ title: Data Models
 slug: /data-models
 ---
 
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
 ## Overview
 
 Like class models, data models define behavior (actions/views) over observable data. Unlike class models, they keep the underlying data plain: snapshots do not gain a `$modelType` field. This tradeoff has a few consequences:
@@ -15,29 +18,18 @@ Data models are therefore a good fit for backend-shaped payloads that must remai
 
 ## Your first data model
 
-Data models are defined much like class models, except that they extend `DataModel` instead of `Model`. Property defaults are applied only when wrapping a plain object with `new`, not when wrapping an existing tree node:
+Data models are defined much like [class models](./classModels.mdx), except that they extend `DataModel` instead of `Model`:
 
-```ts
-// the model decorator marks this class as a model, an object with actions, etc.
-// the string identifies this model type and must be unique across your whole application
+<Tabs groupId="prop-kind">
+<TabItem value="prop" label="prop">
+
+```ts title="Todo.ts"
 @model("myCoolApp/Todo")
+// highlight-next-line
 export class Todo extends DataModel({
-  // here we define the type of the model data, which is observable and snapshotable
-  // and also part of the required initialization data of the model
-
-  // in this case we don't use runtime type checking
-  text: prop<string>(), // a required string
-  done: prop(false), // an optional boolean that will default to `false` when the input is `null` or `undefined`
-  // if you want to make a property truly optional then use `x: prop<TYPE | undefined>()`
-
-  // if we required runtime type checking we could do this
-  // text: tProp(types.string),
-  // done: tProp(types.boolean, false),
-  // if you want to make an optional property then use `x: tProp(types.maybe(TYPE))`
+  text: prop<string>(), // required
+  done: prop(false), // defaults to `false`
 }) {
-  // the `modelAction` decorator marks the method as a model action, giving it access
-  // to modify any model data and other superpowers such as action
-  // middlewares, replication, etc.
   @modelAction
   setDone(done: boolean) {
     this.done = done
@@ -55,35 +47,58 @@ export class Todo extends DataModel({
 }
 ```
 
-Note that there are several ways to define properties.
+</TabItem>
+<TabItem value="tProp" label="tProp">
 
-Without runtime type checking:
+```ts title="Todo.ts"
+@model("myCoolApp/Todo")
+// highlight-next-line
+export class Todo extends DataModel({
+  text: tProp(types.string), // required
+  done: tProp(types.boolean, false), // defaults to `false`
+}) {
+  @modelAction
+  setDone(done: boolean) {
+    this.done = done
+  }
 
-- `prop<T>(options?: ModelOptions)` - A property of a given type, with no default set if it is `null` or `undefined` in the initial data passed to `new`.
-- `prop<T>(defaultValue: T, options?: ModelOptions)` - A property of a given type, with a default set if it is `null` or `undefined` in the initial data passed to `new`. Use this only for default primitives.
-- `prop<T>(defaultFn: () => T, options?: ModelOptions)` - A property of a given type, with a default value generator if it is `null` or `undefined` in the initial data passed to `new`. Usually used for default objects / arrays / models.
+  @modelAction
+  setText(text: string) {
+    this.text = text
+  }
 
-With runtime type checking (check the relevant section for more info):
+  @computed
+  get asString() {
+    return `${!this.done ? "TODO" : "DONE"} ${this.text}`
+  }
+}
+```
 
-- `tProp(type, options?: ModelOptions)` - A property of a given runtime checked type, with no default set if it is `null` or `undefined` in the initial data passed to `new`.
-- `tProp<T>(type, defaultValue: T, options?: ModelOptions)` - A property of a given runtime checked type, with a default set if it is `null` or `undefined` in the initial data passed to `new`. Use this only for default primitives.
-- `tProp<T>(type, defaultFn: () => T, options?: ModelOptions)` - A property of a given runtime checked type, with a default value generator if it is `null` or `undefined` in the initial data passed to `new`. Usually used for default objects / arrays / models.
+</TabItem>
+</Tabs>
+
+Properties are declared with `prop` / `tProp` in the same way as in class models; see [property declarations](./classModels.mdx#property-declarations).
+
+:::note
+Property defaults are applied only when wrapping a plain object with `new`, not when wrapping an existing tree node.
+:::
 
 ## Data model rules
-
-Data models follow these rules:
 
 - Decorate the class with `@model` and give the model type a unique application-wide name.
 - Extend `DataModel` with the properties that should be observable, snapshotable, and patchable.
 - Access model data through either `this` or `this.$`.
 - Change model data inside model actions.
-- Do not declare a constructor; use `onLazyInit` when initialization logic is needed.
+
+:::warning No constructors
+Do not declare a constructor in a data model. Use [`onLazyInit`](#life-cycle-event-hooks) when initialization logic is needed.
+:::
 
 Of course primitives are not the only kinds of data that a data model can hold. Arrays, plain objects, and other objects can be used as well.
 
-Note that there is one more rule that really sets it apart from class models.
-
-Data models are conceptually wrappers around actual data object nodes. This means that when creating an instance via `new` you are really creating a wrapper over the data node (or a new data node if it was not one). Also this means that you can't insert the model itself into a tree, but that you must insert the data being wrapped instead (accessible through `model.$`).
+:::warning Insert the data, not the model
+Data models are wrappers around actual data object nodes. Creating an instance with `new` creates a wrapper over the data node (or over a new data node if the input was not one). That means the model itself can't be inserted into a tree; insert the wrapped data instead, which is available as `model.$`.
+:::
 
 ## Creating a data model instance
 
@@ -144,7 +159,9 @@ If you need to change data without declaring a custom `modelAction`, use the pre
 
 `withSetter` also accepts a value transform function. For example `withSetter(cloneTreeValue)` clones incoming non-primitive values before setting them, which is useful when the same object instance may be reused across different places in the tree. If you need clone options, wrap it (for example `withSetter((x) => cloneTreeValue(x, { generateNewIds: false }))`).
 
-Note that the transform function is only applied when using the generated setter method (for example, `model.setX(3)`); it is **not** applied during model construction (`new Model({ x: 3 })`) or snapshot deserialization, where the value is assigned as provided.
+:::note
+The transform function only runs in the generated setter (for example `model.setX(3)`). It does **not** run during model construction (`new Model({ x: 3 })`) or snapshot deserialization, where the value is assigned as provided.
+:::
 
 ## Life-cycle event hooks
 
@@ -191,7 +208,10 @@ For example `ModelData<Todo>` would return `{ text: string; done: boolean; }`.
 
 ## Flows (async actions)
 
-While `@modelAction` defines sync model actions, async model actions are possible as well with the use of `@modelFlow`:
+While `@modelAction` defines sync model actions, async model actions are possible as well with the use of `@modelFlow`. A flow is a generator function where `yield* _await(x)` takes the place of `await x`:
+
+<Tabs groupId="language">
+<TabItem value="ts" label="TypeScript">
 
 ```ts
 interface Book {
@@ -203,37 +223,49 @@ interface Book {
 class BookStore extends DataModel({
   books: prop<Book[]>(() => []),
 }) {
-  // TypeScript version
-
   @modelFlow
-  // note: `_async` is a function that has to be imported, we have to use `this: THISCLASS`
+  // highlight-next-line
   fetchMyBooksAsync = _async(function* (this: BookStore, token: string) {
-    // we use `yield* _await(X)` where we would use `await X`
-    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
-
+    // highlight-next-line
     const myBooks = yield* _await(myBackendClient.getBooks(token))
-
     this.books = myBooks
-  });
+  })
+}
+```
 
-  // JavaScript version
+In TypeScript, wrap the generator in `_async` and type `this` as the class, so the flow is typed as returning a promise.
 
+</TabItem>
+<TabItem value="js" label="JavaScript">
+
+```js
+@model("myApp/BookStore")
+class BookStore extends DataModel({
+  books: prop(() => []),
+}) {
   @modelFlow
-  // we use `function*` (a function generator) where we would use `async`
+  // highlight-next-line
   *fetchMyBooksAsync(token) {
-    // we use `yield* _await(X)` where we would use `await X`
-    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
-
+    // highlight-next-line
     const myBooks = yield* _await(myBackendClient.getBooks(token))
-
     this.books = myBooks
   }
 }
+```
 
-// in either case it can be used like this
+</TabItem>
+</Tabs>
+
+In either case it is called like any async function:
+
+```ts
 const myBookStore = new BookStore({})
 await myBookStore.fetchMyBooksAsync("someToken")
 ```
+
+:::warning `yield*`, not `yield`
+Always use `yield* _await(...)`. `_await` only works when delegated to with `yield*`, and a plain `yield` does not work.
+:::
 
 ## Factory pattern / Generics
 

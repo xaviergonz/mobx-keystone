@@ -3,5 +3,6 @@
 .docusaurus
 /build
 /node_modules
-/static/api
 /generated-static
+/generated-api
+/.llms-docs

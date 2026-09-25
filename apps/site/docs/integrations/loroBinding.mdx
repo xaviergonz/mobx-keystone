@@ -3,15 +3,44 @@ title: Loro Binding (mobx-keystone-loro)
 slug: /integrations/loro-binding
 ---
 
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
 The [`mobx-keystone-loro`](https://www.npmjs.com/package/mobx-keystone-loro) package keeps a [`Loro`](https://loro.dev/) document and a `mobx-keystone` store synchronized in both directions. Loro is a CRDT, so replicas can accept local changes while offline and merge concurrent edits when they reconnect. You supply the networking and persistence layer appropriate for your application.
+
+<div className="docs-starting-links">
+
+[**Try the live demo →**<span>Two instances of a todo app, bound to the same Loro document and synced through a `BroadcastChannel`. Edit either one and watch the other update.</span>](../examples/loroBinding/loroBinding.mdx)
+
+</div>
 
 ## Installation
 
 Install the binding and its peer dependencies:
 
+<Tabs groupId="package-manager">
+<TabItem value="npm" label="npm">
+
 ```bash
 npm install mobx mobx-keystone loro-crdt mobx-keystone-loro
 ```
+
+</TabItem>
+<TabItem value="pnpm" label="pnpm">
+
+```bash
+pnpm add mobx mobx-keystone loro-crdt mobx-keystone-loro
+```
+
+</TabItem>
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add mobx mobx-keystone loro-crdt mobx-keystone-loro
+```
+
+</TabItem>
+</Tabs>
 
 ## Binding `Loro` data to a model instance
 
@@ -99,7 +128,9 @@ On a bound model, `insertText` and `deleteText` commit immediately. This also co
 
 These editing methods preserve formatting on both bound and unbound models. Positions use UTF-16 indices, matching JavaScript string offsets. Use `setDelta()` to replace the text and formatting; assigning an equivalent delta leaves the existing text unchanged.
 
-Note that `loroText` returns `undefined` while the model is not part of a bound tree.
+:::note
+`loroText` returns `undefined` while the model is not part of a bound tree.
+:::
 
 If you want to use `LoroTextModel` in a runtime type-checked property, `loroTextModelType` is the exported `types.model(...)` helper for that:
 
@@ -161,4 +192,4 @@ And this instance provides access to the following data:
 
 ## Example
 
-A full example is available [here](../examples/loroBinding/loroBinding.mdx).
+The [Loro binding example](../examples/loroBinding/loroBinding.mdx) runs two synced instances side by side, with their full source.

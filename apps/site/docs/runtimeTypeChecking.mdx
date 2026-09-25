@@ -57,12 +57,14 @@ const checkError = typeCheck(numberArrayType, [1, 2, 3])
 
 In all cases the returned value will be `null` if there are no errors or an instance of `TypeCheckError`, which will include:
 
-- `path: Path` - Sub-path where the type-check failed, or an empty array if the actual object/value failed the type-check.
-- `expectedTypeName: string` - String representation of the expected type.
-- `actualValue: any` - The actual value/sub-value that failed the type-check
-- `typeCheckedValue?: any` - The value/object where the type-check was invoked.
-- `modelTrail?: readonly string[]` - Optional model/type trail (for example during snapshot processing of nested models).
-- `throw()` - Throws a `TypeCheckErrorFailure` as an exception.
+| Member | Type | Description |
+| --- | --- | --- |
+| `path` | `Path` | Sub-path where the type-check failed, or an empty array if the checked value itself failed. |
+| `expectedTypeName` | `string` | String representation of the expected type. |
+| `actualValue` | `any` | The value or sub-value that failed the type-check. |
+| `typeCheckedValue` | `any` (optional) | The value where the type-check was invoked. |
+| `modelTrail` | `readonly string[]` (optional) | Model/type trail, for example during snapshot processing of nested models. |
+| `throw()` | method | Throws a `TypeCheckErrorFailure` as an exception. |
 
 `TypeCheckErrorFailure` extends `MobxKeystoneError`, so `instanceof MobxKeystoneError` checks work on thrown failures.
 
@@ -111,10 +113,12 @@ A type that represents any string value.
 
 Creates a reusable typed codec whose runtime value differs from its encoded snapshot value.
 
+:::warning Codecs must be pure
 Codec transforms must be pure and deterministic, and `transform`/`untransform`
 must round-trip canonical values. The library may skip or reuse conversions for
 an already-current canonical value, so transforms must not rely on side effects
 or external mutable state.
+:::
 
 ```ts
 const urlType = types.codec({

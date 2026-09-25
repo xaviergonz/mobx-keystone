@@ -131,7 +131,9 @@ There are also `types.dateTimestamp` (equivalent to `types.integer`) and `types.
 
 When a MobX interceptor cancels an addition, update, or deletion on the backing data, the wrapper keeps its existing contents. A canceled deletion returns `false`.
 
-**Note: collection wrappers return the same wrapper instance for the same backing object.**
+:::note
+Collection wrappers return the same wrapper instance for the same backing object.
+:::
 
 ### `asMap` collection wrapper
 

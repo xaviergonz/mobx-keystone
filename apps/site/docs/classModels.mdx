@@ -3,6 +3,9 @@ title: Class Models
 slug: /class-models
 ---
 
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
 ## Overview
 
 `mobx-keystone` supports the following kinds of data:
@@ -19,29 +22,27 @@ Class models and data models provide `toString({ withData? })` for a string repr
 
 ## Your first class model
 
-A class model for a todo can be defined as follows:
+A class model is a class decorated with `@model(...)` that extends `Model({ ... })`:
 
-```ts
-// the model decorator marks this class as a model, an object with actions, etc.
-// the string identifies this model type and must be unique across your whole application
+- The string passed to `@model` identifies the model type in snapshots, so it must be unique across your whole application.
+- The properties passed to `Model` are the model data: observable, part of snapshots and patches, and required when creating an instance unless they have a default.
+- Methods decorated with `@modelAction` are the only place where model data can change. Being actions also gives them middlewares, replication, and the other action features.
+- Views are regular getters, usually decorated with MobX's `@computed`.
+
+Properties can be declared with `prop` (TypeScript types only) or with `tProp` (TypeScript types plus runtime type checking):
+
+<Tabs groupId="prop-kind">
+<TabItem value="prop" label="prop">
+
+```ts title="Todo.ts"
+// highlight-next-line
 @model("myCoolApp/Todo")
 export class Todo extends Model({
-  // here we define the type of the model data, which is observable and snapshotable
-  // and also part of the required initialization data of the model
-
-  // in this case we don't use runtime type checking
-  text: prop<string>(), // a required string
-  done: prop(false), // an optional boolean that will default to `false` when the input is `null` or `undefined`
-  // if you want to make a property truly optional then use `x: prop<TYPE | undefined>()`
-
-  // if we required runtime type checking we could do this
-  // text: tProp(types.string),
-  // done: tProp(types.boolean, false),
-  // if you want to make a property truly optional then use `x: tProp(types.maybe(TYPE))`
+  // highlight-start
+  text: prop<string>(), // required
+  done: prop(false), // defaults to `false`
+  // highlight-end
 }) {
-  // the `modelAction` decorator marks the method as a model action, giving it access
-  // to modify any model data and other superpowers such as action
-  // middlewares, replication, etc.
   @modelAction
   setDone(done: boolean) {
     this.done = done
@@ -59,29 +60,64 @@ export class Todo extends Model({
 }
 ```
 
-Note that there are several ways to define properties.
+To make a property truly optional, include `undefined` in its type: `x: prop<string | undefined>()`.
 
-Without runtime type checking:
+</TabItem>
+<TabItem value="tProp" label="tProp">
 
-- `prop<T>(options?: ModelOptions)` - A property of a given type, with no default set if it is `null` or `undefined` in the initial data.
-- `prop<T>(defaultValue: T, options?: ModelOptions)` - A property of a given type, with a default set if it is `null` or `undefined` in the initial data. Use this only for default primitives.
-- `prop<T>(defaultFn: () => T, options?: ModelOptions)` - A property of a given type, with a default value generator if it is `null` or `undefined` in the initial data. Usually used for default objects / arrays / models.
+```ts title="Todo.ts"
+// highlight-next-line
+@model("myCoolApp/Todo")
+export class Todo extends Model({
+  // highlight-start
+  text: tProp(types.string), // required
+  done: tProp(types.boolean, false), // defaults to `false`
+  // highlight-end
+}) {
+  @modelAction
+  setDone(done: boolean) {
+    this.done = done
+  }
 
-With runtime type checking (check the relevant section for more info):
+  @modelAction
+  setText(text: string) {
+    this.text = text
+  }
 
-- `tProp(type, options?: ModelOptions)` - A property of a given runtime checked type, with no default set if it is `null` or `undefined` in the initial data.
-- `tProp<T>(type, defaultValue: T, options?: ModelOptions)` - A property of a given runtime checked type, with a default set if it is `null` or `undefined` in the initial data. Use this only for default primitives.
-- `tProp<T>(type, defaultFn: () => T, options?: ModelOptions)` - A property of a given runtime checked type, with a default value generator if it is `null` or `undefined` in the initial data. Usually used for default objects / arrays / models.
+  @computed
+  get asString() {
+    return `${!this.done ? "TODO" : "DONE"} ${this.text}`
+  }
+}
+```
+
+To make a property truly optional, use `types.maybe`: `x: tProp(types.maybe(types.string))`. See [runtime type checking](./runtimeTypeChecking.mdx) for all the available types.
+
+</TabItem>
+</Tabs>
+
+### Property declarations
+
+A default is used whenever the property is `null` or `undefined` in the creation data or the input snapshot.
+
+| Without runtime type checking | With runtime type checking | Default |
+| --- | --- | --- |
+| `prop<T>()` | `tProp(type)` | None. |
+| `prop<T>(defaultValue)` | `tProp(type, defaultValue)` | `defaultValue`. Use it for primitives only. |
+| `prop<T>(() => defaultValue)` | `tProp(type, () => defaultValue)` | The result of calling the function. Use it for objects, arrays, and models, so every instance gets its own copy. |
+
+`tProp` also has two shorthands: `tProp("text")`, `tProp(0)`, and `tProp(false)` are the same as `tProp(types.string, "text")` and so on, and `tProp([typeA, typeB])` is the same as `tProp(types.or(typeA, typeB))`.
 
 ## Class model rules
-
-Class models follow these rules:
 
 - Decorate the class with `@model` and give the model type a unique application-wide name. An empty string is a valid name; in `decoratedModel`, only `undefined` means to omit registration.
 - Extend `Model` with the properties that should be observable, snapshotable, and patchable.
 - Access model data through either `this` or `this.$`.
 - Change model data inside model actions.
-- Do not declare a constructor; use the life-cycle hooks described below instead.
+
+:::warning No constructors
+Do not declare a constructor in a class model. Use the [life-cycle hooks](#life-cycle-event-hooks) instead.
+:::
 
 Of course primitives are not the only kinds of data that a class model can hold. Arrays, plain objects and other objects can be used as well.
 
@@ -119,7 +155,9 @@ If you need to change data without declaring a custom `modelAction`, use the pre
 
 `withSetter` also accepts a value transform function. For example `withSetter(cloneTreeValue)` clones incoming non-primitive values before setting them, which is useful when the same object instance may be reused across different places in the tree. If you need clone options, wrap it (for example `withSetter((x) => cloneTreeValue(x, { generateNewIds: false }))`).
 
-Note that the transform function is only applied when using the generated setter method (for example, `model.setX(3)`); it is **not** applied during model construction (`new Model({ x: 3 })`) or snapshot deserialization, where the value is assigned as provided.
+:::note
+The transform function only runs in the generated setter (for example `model.setX(3)`). It does **not** run during model construction (`new Model({ x: 3 })`) or snapshot deserialization, where the value is assigned as provided.
+:::
 
 ## Life-cycle event hooks
 
@@ -311,7 +349,10 @@ and `ModelData<Todo>` would be:
 
 ## Flows (async actions)
 
-While `@modelAction` defines sync model actions, async model actions are possible as well with the use of `@modelFlow`:
+While `@modelAction` defines sync model actions, async model actions are possible as well with the use of `@modelFlow`. A flow is a generator function where `yield* _await(x)` takes the place of `await x`:
+
+<Tabs groupId="language">
+<TabItem value="ts" label="TypeScript">
 
 ```ts
 interface Book {
@@ -323,37 +364,49 @@ interface Book {
 class BookStore extends Model({
   books: prop<Book[]>(() => []),
 }) {
-  // TypeScript version
-
   @modelFlow
-  // note: `_async` is a function that has to be imported, we have to use `this: THISCLASS`
+  // highlight-next-line
   fetchMyBooksAsync = _async(function* (this: BookStore, token: string) {
-    // we use `yield* _await(X)` where we would use `await X`
-    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
-
+    // highlight-next-line
     const myBooks = yield* _await(myBackendClient.getBooks(token))
-
     this.books = myBooks
-  });
+  })
+}
+```
 
-  // JavaScript version
+In TypeScript, wrap the generator in `_async` and type `this` as the class, so the flow is typed as returning a promise.
 
+</TabItem>
+<TabItem value="js" label="JavaScript">
+
+```js
+@model("myApp/BookStore")
+class BookStore extends Model({
+  books: prop(() => []),
+}) {
   @modelFlow
-  // we use `function*` (a function generator) where we would use `async`
+  // highlight-next-line
   *fetchMyBooksAsync(token) {
-    // we use `yield* _await(X)` where we would use `await X`
-    // note: it is `yield*`, NOT just `yield`; `_await` is a function that has to be imported
-
+    // highlight-next-line
     const myBooks = yield* _await(myBackendClient.getBooks(token))
-
     this.books = myBooks
   }
 }
+```
 
-// in either case it can be used like this
+</TabItem>
+</Tabs>
+
+In either case it is called like any async function:
+
+```ts
 const myBookStore = new BookStore({})
 await myBookStore.fetchMyBooksAsync("someToken")
 ```
+
+:::warning `yield*`, not `yield`
+Always use `yield* _await(...)`. `_await` only works when delegated to with `yield*`, and a plain `yield` does not work. Both `_async` and `_await` are imported from `mobx-keystone`.
+:::
 
 ## Value-type class models
 
@@ -507,7 +560,9 @@ class Point3d extends ExtendedModel(Point, {
 }
 ```
 
-Also, remember that if your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model you will need to call `super.onInit(...)` / `super.onAttachedToRootStore(...)` in the extended model.
+:::warning Call `super` in life-cycle hooks
+If your base model has `onInit` / `onAttachedToRootStore` and you redeclare them in your extended model, call `super.onInit(...)` / `super.onAttachedToRootStore(...)` from the extended model.
+:::
 
 When extending a generic class, use `modelClass` to specify the concrete generic type:
 
@@ -598,6 +653,7 @@ class Product extends ExtendedModel(
 
 ## Snapshot pre/post-processors: `fromSnapshotProcessor` / `toSnapshotProcessor`
 
+:::warning Processors must be pure
 Snapshot processors must be **pure and deterministic**: they must not have
 observable side effects, and the same input must always produce the same output.
 They must also preserve the canonical snapshot round trip: passing the current
@@ -609,6 +665,7 @@ observable.
 
 This contract also applies to property snapshot processors, typed-property
 processors, and codecs.
+:::
 
 `fromSnapshotProcessor` might be used to transform an input snapshot into the model's expected input snapshot.
 This is useful, for example, for versioning.

@@ -79,6 +79,9 @@ importers:
       '@docusaurus/preset-classic':
         specifier: ^3.10.2
         version: 3.10.2(@algolia/client-search@5.56.0)(@mdx-js/react@3.1.1(@types/react@19.2.18)(react@19.2.8))(@swc/core@1.16.2)(@types/react@19.2.18)(bufferutil@4.1.0)(postcss@8.5.26)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(search-insights@2.17.3)(typescript@7.0.2)(utf-8-validate@5.0.10)
+      '@docusaurus/theme-common':
+        specifier: ^3.10.2
+        version: 3.10.2(@docusaurus/plugin-content-docs@3.10.2(@mdx-js/react@3.1.1(@types/react@19.2.18)(react@19.2.8))(@swc/core@1.16.2)(bufferutil@4.1.0)(postcss@8.5.26)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@7.0.2)(utf-8-validate@5.0.10))(@swc/core@1.16.2)(postcss@8.5.26)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@easyops-cn/docusaurus-search-local':
         specifier: ^0.55.3
         version: 0.55.3(@docusaurus/theme-common@3.10.2(@docusaurus/plugin-content-docs@3.10.2(@mdx-js/react@3.1.1(@types/react@19.2.18)(react@19.2.8))(@swc/core@1.16.2)(bufferutil@4.1.0)(postcss@8.5.26)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@7.0.2)(utf-8-validate@5.0.10))(@swc/core@1.16.2)(postcss@8.5.26)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@mdx-js/react@3.1.1(@types/react@19.2.18)(react@19.2.8))(@swc/core@1.16.2)(bufferutil@4.1.0)(open-ask-ai@0.7.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(postcss@8.5.26)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@11.0.0)(typescript@7.0.2)(utf-8-validate@5.0.10)
@@ -88,9 +91,6 @@ importers:
       '@iframe-resizer/react':
         specifier: ^5.5.9
         version: 5.5.9(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      bootstrap-icons:
-        specifier: ^1.13.1
-        version: 1.13.1
       bufferutil:
         specifier: ^4.1.0
         version: 4.1.0
@@ -280,6 +280,12 @@ importers:
       typedoc:
         specifier: ^0.28.20
         version: 0.28.20(typescript@7.0.2)
+      typedoc-docusaurus-theme:
+        specifier: ^1.4.3
+        version: 1.4.3(typedoc-plugin-markdown@4.13.1(typedoc@0.28.20(typescript@7.0.2)))(typedoc@0.28.20(typescript@7.0.2))
+      typedoc-plugin-markdown:
+        specifier: ^4.13.1
+        version: 4.13.1(typedoc@0.28.20(typescript@7.0.2))
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -5055,9 +5061,6 @@ packages:
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
-
-  bootstrap-icons@1.13.1:
-    resolution: {integrity: sha512-ijombt4v6bv5CLeXvRWKy7CuM3TRTuPEuGaGKvTV5cz65rQSY8RQ2JcHt6b90cBBAC7s8fsf2EkQDldzCoXUjw==}
 
   boxen@6.2.1:
     resolution: {integrity: sha512-H4PEsJXfFI/Pt8sjDWbHlQPx4zL/bvSQjcilJmaulGt5mLDorHOHpmdXAJcBcmru7PhYSp/cDMWRko4ZUMFkSw==}
@@ -10323,6 +10326,19 @@ packages:
 
   typedarray-to-buffer@3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
+
+  typedoc-docusaurus-theme@1.4.3:
+    resolution: {integrity: sha512-CAvSCfmrl3kF+5qiiZts4WSNNJbWejnu0qYkkyHlBGsu8Lc1TIUdzcehNivUk/EehA/brAhlyGPOHlYPsLpn/A==}
+    engines: {node: '>= 18'}
+    peerDependencies:
+      typedoc: 0.28.x
+      typedoc-plugin-markdown: '>=4.11.0'
+
+  typedoc-plugin-markdown@4.13.1:
+    resolution: {integrity: sha512-d3jchJ4CyIrV9w9uozTSkfMYG8IEM1RvvGOaybJ/3rRporzoX7p0lprffo95GOGUviQqP0phjHJE3bY8PQbilA==}
+    engines: {node: '>= 18'}
+    peerDependencies:
+      typedoc: 0.28.x
 
   typedoc@0.28.20:
     resolution: {integrity: sha512-uSKqkh8Cr48vllnEy+jdaAgOeR6Y+QCBW7usgUsKj7gJEfR7stw9U/fE49LBnj2tPRKPY0c0EBJSWe9Appmplg==}
@@ -16963,8 +16979,6 @@ snapshots:
 
   boolbase@1.0.0: {}
 
-  bootstrap-icons@1.13.1: {}
-
   boxen@6.2.1:
     dependencies:
       ansi-align: 3.0.1
@@ -23212,6 +23226,15 @@ snapshots:
   typedarray-to-buffer@3.1.5:
     dependencies:
       is-typedarray: 1.0.0
+
+  typedoc-docusaurus-theme@1.4.3(typedoc-plugin-markdown@4.13.1(typedoc@0.28.20(typescript@7.0.2)))(typedoc@0.28.20(typescript@7.0.2)):
+    dependencies:
+      typedoc: 0.28.20(typescript@7.0.2)
+      typedoc-plugin-markdown: 4.13.1(typedoc@0.28.20(typescript@7.0.2))
+
+  typedoc-plugin-markdown@4.13.1(typedoc@0.28.20(typescript@7.0.2)):
+    dependencies:
+      typedoc: 0.28.20(typescript@7.0.2)
 
   typedoc@0.28.20(typescript@7.0.2):
     dependencies:

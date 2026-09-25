@@ -101,12 +101,16 @@ export function createRootStore(): TodoList {
   registerRootStore(rootStore)
 
   // we can also connect the store to the redux dev tools
-  const remotedev = require("remotedev")
-  const connection = remotedev.connectViaExtension({
-    name: "Todo List Example",
-  })
+  // (only when the browser extension is installed, since otherwise remotedev
+  // falls back to connecting to a remote server)
+  if (typeof window !== "undefined" && "__REDUX_DEVTOOLS_EXTENSION__" in window) {
+    const remotedev = require("remotedev")
+    const connection = remotedev.connectViaExtension({
+      name: "Todo List Example",
+    })
 
-  connectReduxDevTools(remotedev, connection, rootStore)
+    connectReduxDevTools(remotedev, connection, rootStore)
+  }
 
   return rootStore
 }

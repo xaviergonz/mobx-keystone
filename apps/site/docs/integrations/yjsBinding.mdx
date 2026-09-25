@@ -3,15 +3,44 @@ title: Y.js Binding (mobx-keystone-yjs)
 slug: /integrations/yjs-binding
 ---
 
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
 The [`mobx-keystone-yjs`](https://www.npmjs.com/package/mobx-keystone-yjs) package keeps a [Yjs](https://docs.yjs.dev/) document and a `mobx-keystone` store synchronized in both directions. Yjs is a CRDT, so replicas can accept local changes while offline and merge concurrent edits when they reconnect. You supply the networking and persistence layer appropriate for your application.
+
+<div className="docs-starting-links">
+
+[**Try the live demo →**<span>Two instances of a todo app, bound to the same Y.js document and synced over WebRTC. Edit either one and watch the other update.</span>](../examples/yjsBinding/yjsBinding.mdx)
+
+</div>
 
 ## Installation
 
 Install the binding and its peer dependencies:
 
+<Tabs groupId="package-manager">
+<TabItem value="npm" label="npm">
+
 ```bash
 npm install mobx mobx-keystone yjs mobx-keystone-yjs
 ```
+
+</TabItem>
+<TabItem value="pnpm" label="pnpm">
+
+```bash
+pnpm add mobx mobx-keystone yjs mobx-keystone-yjs
+```
+
+</TabItem>
+<TabItem value="yarn" label="yarn">
+
+```bash
+yarn add mobx mobx-keystone yjs mobx-keystone-yjs
+```
+
+</TabItem>
+</Tabs>
 
 ## Binding `Y.js` data to a model instance
 
@@ -103,7 +132,9 @@ The `text` getter remains readable when the model is unbound.
 
 `deltaList` tracks text content and inline formatting. It does not track `Y.Text` type-level attributes.
 
-Note that `yjsText` throws if you access it while the model is not part of a bound tree. This is due to a limitation of `Y.js`, since it only allows limited manipulation of types while they are outside a `Y.Doc` tree.
+:::warning
+`yjsText` throws if you access it while the model is not part of a bound tree. This is due to a limitation of `Y.js`, which only allows limited manipulation of types while they are outside a `Y.Doc` tree.
+:::
 
 ## The `YjsBindingContext`
 
@@ -130,4 +161,4 @@ And this instance provides access to the following data:
 
 ## Example
 
-A full example is available [here](../examples/yjsBinding/yjsBinding.mdx).
+The [Y.js binding example](../examples/yjsBinding/yjsBinding.mdx) runs two synced instances side by side, with their full source.

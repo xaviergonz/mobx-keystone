@@ -1,0 +1,280 @@
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 1.25rem;
+}
+
+.tree svg {
+  width: 100%;
+  height: auto;
+  padding: 0.5rem 0.5rem 0;
+  font-family: var(--ifm-font-family-monospace);
+}
+
+.treeEdge {
+  fill: none;
+  stroke: var(--mk-border-3);
+  stroke-width: 1.5;
+  transition: stroke 400ms ease;
+}
+
+.treeEdgeActive {
+  stroke: var(--mk-accent);
+  stroke-width: 2;
+}
+
+.treeNode {
+  fill: var(--mk-raised);
+  stroke: var(--mk-border-3);
+  transition:
+    fill 400ms ease,
+    stroke 400ms ease;
+}
+
+.treeNodeActive {
+  fill: var(--mk-accent-soft);
+  stroke: var(--mk-accent);
+  stroke-width: 1.5;
+}
+
+.treeText,
+.treeTextMuted {
+  font-size: 14px;
+}
+
+.treeText {
+  fill: var(--ifm-font-color-base);
+}
+
+.treeTextMuted {
+  fill: var(--ifm-color-content-secondary);
+}
+
+.treeTextFaint,
+.treeTextAccent {
+  font-size: 12px;
+  transition: fill 400ms ease;
+}
+
+.treeTextFaint {
+  fill: var(--mk-faint);
+}
+
+.treeTextAccent {
+  fill: var(--ifm-color-primary);
+}
+
+.check {
+  fill: var(--mk-faint);
+  font-size: 13px;
+}
+
+.checkDone {
+  fill: var(--mk-green);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.checkPop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: checkPop 1000ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes checkPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scale(3);
+  }
+
+  70% {
+    transform: scale(0.85);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.caret {
+  fill: var(--ifm-color-primary);
+  animation: caretBlink 700ms steps(1) infinite;
+}
+
+@keyframes caretBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.nodeEnter {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nodeEnter 600ms cubic-bezier(0.2, 0.8, 0.2, 1) 250ms both;
+}
+
+.edgeEnter {
+  stroke-dasharray: 1;
+  animation: edgeEnter 450ms ease-out both;
+}
+
+@keyframes nodeEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.92);
+  }
+}
+
+@keyframes edgeEnter {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.treePanels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.panel {
+  min-width: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--mk-border-2);
+  border-radius: 0.75rem;
+  background: var(--mk-surface-2);
+  color: var(--mk-text-soft);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.6875rem;
+  line-height: 1.6;
+}
+
+.snapshotPanel {
+  grid-column: 1 / -1;
+}
+
+.panelHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--mk-faint);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+}
+
+.panelHead > span:last-child {
+  overflow: hidden;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  /* Room for three two-line entries, so the card doesn't jump as the log fills. */
+  height: 9.5em;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+.logList li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  animation: logEnter 500ms ease both;
+  transition: opacity 400ms ease;
+}
+
+.logList li:not(:first-child) {
+  opacity: 0.5;
+}
+
+.patchValue {
+  display: block;
+  overflow: hidden;
+  color: var(--mk-faint);
+  text-overflow: ellipsis;
+}
+
+@keyframes logEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.snapshotPanel pre {
+  /* Seven lines: the store with three todos. */
+  min-height: 11.2em;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  line-height: 1.6;
+}
+
+.flash {
+  border-radius: 3px;
+  animation: flash 1600ms ease-out both;
+}
+
+@keyframes flash {
+  from {
+    background: var(--mk-accent-soft);
+    box-shadow: 0 0 0 2px var(--mk-accent-soft);
+  }
+
+  to {
+    background: transparent;
+    box-shadow: 0 0 0 2px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nodeEnter,
+  .edgeEnter,
+  .logList li,
+  .checkPop,
+  .caret,
+  .flash {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .tree {
+    padding: 0.75rem;
+  }
+
+  .treePanels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Stacked, the actions log only needs room for three one-line entries. */
+  .actionsLog {
+    height: 5.6em;
+  }
+
+  .snapshotPanel pre {
+    font-size: 0.625rem;
+  }
+}

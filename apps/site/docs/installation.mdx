@@ -10,11 +10,11 @@ This page is only about setup: install the packages, choose your decorator mode,
 
 If you want to build a first working store after setup, continue with [Getting Started](./gettingStarted.mdx).
 
-<Tabs>
-<TabItem value="yarn" label="yarn">
+<Tabs groupId="package-manager">
+<TabItem value="npm" label="npm">
 
 ```bash
-yarn add mobx mobx-keystone
+npm install mobx mobx-keystone
 ```
 
 </TabItem>
@@ -25,10 +25,10 @@ pnpm add mobx mobx-keystone
 ```
 
 </TabItem>
-<TabItem value="npm" label="npm">
+<TabItem value="yarn" label="yarn">
 
 ```bash
-npm install mobx mobx-keystone
+yarn add mobx mobx-keystone
 ```
 
 </TabItem>
@@ -38,25 +38,25 @@ npm install mobx mobx-keystone
 
 If you are using React, add `mobx-react-lite` too:
 
-<Tabs>
-<TabItem value="react-yarn" label="yarn">
+<Tabs groupId="package-manager">
+<TabItem value="npm" label="npm">
 
 ```bash
-yarn add mobx-react-lite
+npm install mobx-react-lite
 ```
 
 </TabItem>
-<TabItem value="react-pnpm" label="pnpm">
+<TabItem value="pnpm" label="pnpm">
 
 ```bash
 pnpm add mobx-react-lite
 ```
 
 </TabItem>
-<TabItem value="react-npm" label="npm">
+<TabItem value="yarn" label="yarn">
 
 ```bash
-npm install mobx-react-lite
+yarn add mobx-react-lite
 ```
 
 </TabItem>
@@ -98,8 +98,8 @@ This library uses JavaScript decorators and class properties.
 Use this mode if you are on TypeScript 5+ and want standard decorators.
 For Babel, ensure class static blocks are transformed (for example via `@babel/preset-env` targets, or by adding `@babel/plugin-transform-class-static-block`).
 
-<Tabs>
-<TabItem value="standard-tsc" label="TypeScript">
+<Tabs groupId="transpiler">
+<TabItem value="tsc" label="TypeScript">
 
 ```jsonc title="tsconfig.json"
 {
@@ -111,7 +111,7 @@ For Babel, ensure class static blocks are transformed (for example via `@babel/p
 ```
 
 </TabItem>
-<TabItem value="standard-babel" label="Babel">
+<TabItem value="babel" label="Babel">
 
 ```jsonc title="babel.config.json"
 {
@@ -127,7 +127,7 @@ For Babel, ensure class static blocks are transformed (for example via `@babel/p
 ```
 
 </TabItem>
-<TabItem value="standard-swc" label="SWC">
+<TabItem value="swc" label="SWC">
 
 ```jsonc title=".swcrc"
 {
@@ -155,8 +155,8 @@ This mode remains supported by `mobx-keystone` decorators. MobX 7's own decorato
 be used in this mode; choose the standard decorator configuration above if your code uses
 them.
 
-<Tabs>
-<TabItem value="legacy-tsc" label="TypeScript">
+<Tabs groupId="transpiler">
+<TabItem value="tsc" label="TypeScript">
 
 ```jsonc title="tsconfig.json"
 {
@@ -168,7 +168,7 @@ them.
 ```
 
 </TabItem>
-<TabItem value="legacy-babel" label="Babel">
+<TabItem value="babel" label="Babel">
 
 ```jsonc title="babel.config.json"
 {
@@ -183,7 +183,7 @@ them.
 ```
 
 </TabItem>
-<TabItem value="legacy-swc" label="SWC">
+<TabItem value="swc" label="SWC">
 
 ```jsonc title=".swcrc"
 {

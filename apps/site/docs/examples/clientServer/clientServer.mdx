@@ -12,7 +12,9 @@ import appInstanceSource from "!!raw-loader!./appInstance.tsx"
 
 This example synchronizes two separate root stores via action capture and replay to simulate how two instances of an app talk to a server to stay in sync. It uses pessimistic updates: the local action is cancelled first, then run for real when the server tells the client to do so.
 
-Note: This example has an artificial delay to simulate network latency.
+:::info
+This example has an artificial delay to simulate network latency.
+:::
 
 <BrowserOnly>
   {() => {

@@ -7,7 +7,6 @@
       "!!**/node_modules",
       "!!**/dist",
       "!!packages/lib/coverage",
-      "!!packages/lib/api-docs",
       "!!packages/mobx-keystone-yjs/coverage",
       "!!packages/mobx-keystone-yjs/api-docs",
       "!!packages/mobx-keystone-loro/coverage",
@@ -15,7 +14,7 @@
       "!!apps/site/.docusaurus",
       "!!apps/site/build",
       "!!apps/site/generated-static",
-      "!!apps/site/static/api"
+      "!!apps/site/generated-api"
     ]
   },
   "formatter": {
@@ -148,7 +147,7 @@
       }
     },
     {
-      "includes": ["apps/site/src/pages/example-apps/**/*.tsx"],
+      "includes": ["apps/site/src/pages/**/*.tsx", "apps/site/src/theme/**/*.tsx"],
       "linter": {
         "rules": {
           "correctness": {
