@@ -1,3 +1,4 @@
+import { isAction, isComputedProp } from "mobx"
 import {
   type Draft,
   draft,
@@ -331,4 +332,10 @@ test("partial draft operations still reject different model IDs inside codec pro
   expect(() => copy.resetByPath(path)).toThrow("could not be resolved in draft object")
   expect(original.entries.get("item")!.id).toBe("original")
   expect(copy.data.entries.get("item")!.id).toBe("replacement")
+})
+
+test("draft computeds and actions are applied", () => {
+  const d = draft(new M({}))
+  expect(isComputedProp(d, "isDirty")).toBe(true)
+  expect(isAction(d.commit)).toBe(true)
 })

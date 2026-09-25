@@ -241,7 +241,7 @@ export function sharedInternalModel<
     const idPropGenerator = idProp._idGenerator
     const baseIdProp = baseModelProps?.[idKey]
     const baseIdPropGenerator = baseIdProp?._idGenerator
-    const isOverridingBaseIdProp = !!baseIdProp?._isId && Object.hasOwn(modelProps, idKey)
+    const isOverridingBaseIdProp = !!baseIdProp?._isId && hasOwnProp(modelProps, idKey)
     if (isOverridingBaseIdProp && baseIdPropGenerator !== idPropGenerator) {
       throw failure(
         `expected same idProp.withGenerator function when overriding a base idProp, but got different references`
@@ -315,7 +315,7 @@ export function sharedInternalModel<
     // make sure abstract classes do not override prototype props
     if (!propsToDeleteFromBase) {
       propsToDeleteFromBase = Object.keys(modelProps).filter(
-        (p) => !basePropNames.has(p as any) && Object.hasOwn(baseModel, p)
+        (p) => !basePropNames.has(p as any) && hasOwnProp(baseModel, p)
       )
     }
 

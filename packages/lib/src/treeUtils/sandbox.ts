@@ -233,9 +233,11 @@ export class SandboxManager {
           // see the reverted intermediate state.
           runInAction(() => {
             this.allowWrite(() => {
-              for (let i = events.length - 1; i >= 0; i--) {
-                applyPatches(this.subtreeRootClone, events[i].inversePatches, true)
-              }
+              applyPatches(
+                this.subtreeRootClone,
+                events.map((event) => event.inversePatches),
+                true
+              )
             })
             applyPatches(
               this.subtreeRoot,
@@ -249,10 +251,11 @@ export class SandboxManager {
             const wasRecording = recorder.recording
             recorder.recording = false
             try {
-              let i = recorder.events.length
-              while (i-- > numRecorderEvents) {
-                applyPatches(this.subtreeRootClone, recorder.events[i].inversePatches, true)
-              }
+              applyPatches(
+                this.subtreeRootClone,
+                recorder.events.slice(numRecorderEvents).map((event) => event.inversePatches),
+                true
+              )
               recorder.events.splice(numRecorderEvents)
             } finally {
               recorder.recording = wasRecording

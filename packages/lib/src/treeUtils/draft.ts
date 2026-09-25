@@ -6,7 +6,7 @@ import { applySnapshot } from "../snapshot/applySnapshot"
 import { fromSnapshot } from "../snapshot/fromSnapshot"
 import { getSnapshot } from "../snapshot/getSnapshot"
 import { assertTweakedObject } from "../tweaker/core"
-import { failure, mobxAction, mobxComputed } from "../utils"
+import { failure, getMobxVersion, makeObservableCompat, mobxAction, mobxComputed } from "../utils"
 import { deepEquals } from "./deepEquals"
 
 /**
@@ -157,6 +157,11 @@ export class Draft<T extends object> {
     assertTweakedObject(original, "original")
 
     this.originalData = original
+
+    if (getMobxVersion() >= 6) {
+      makeObservableCompat(this)
+    }
+
     this.data = fromSnapshot(this.originalSnapshot, { generateNewIds: false })
   }
 }

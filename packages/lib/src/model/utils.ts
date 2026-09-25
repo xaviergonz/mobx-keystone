@@ -39,15 +39,10 @@ export function assertIsModel(
  * @internal
  */
 export function isModelClass(modelClass: unknown): modelClass is ModelClass<AnyModel> {
-  if (typeof modelClass !== "function") {
-    return false
-  }
-
-  if (modelClass !== BaseModel && !(modelClass.prototype instanceof BaseModel)) {
-    return false
-  }
-
-  return true
+  return (
+    typeof modelClass === "function" &&
+    (modelClass === BaseModel || modelClass.prototype instanceof BaseModel)
+  )
 }
 
 /**
@@ -61,7 +56,7 @@ export function assertIsModelClass(
     throw failure(`${argName} must be a class`)
   }
 
-  if (modelClass !== BaseModel && !(modelClass.prototype instanceof BaseModel)) {
+  if (!isModelClass(modelClass)) {
     throw failure(`${argName} must extend Model`)
   }
 }

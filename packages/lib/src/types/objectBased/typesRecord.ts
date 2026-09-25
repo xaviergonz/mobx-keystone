@@ -83,6 +83,14 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
 
     const checkRecordValues = createChunkedRecordCachedCheck(iterateRecordEntries, checkRecordEntry)
 
+    const processorPlan = snapshotProcessorPlan(
+      () => [valueChecker],
+      ([processor]) =>
+        processor
+          ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processor)
+          : undefined
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
@@ -126,21 +134,9 @@ export function typesRecord<T extends AnyType>(valueType: T): RecordType<T> {
         return thisTc
       },
 
-      snapshotProcessorPlan(
-        () => [valueChecker],
-        ([processor]) =>
-          processor
-            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processor)
-            : undefined
-      ),
+      processorPlan,
 
-      snapshotProcessorPlan(
-        () => [valueChecker],
-        ([processor]) =>
-          processor
-            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processor)
-            : undefined
-      )
+      processorPlan
     )
 
     return thisTc

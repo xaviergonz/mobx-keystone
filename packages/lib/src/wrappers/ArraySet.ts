@@ -8,6 +8,15 @@ import { typesArray } from "../types/arrayBased/typesArray"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
 import { namespace } from "../utils"
+import {
+  isSetLikeDisjointFrom,
+  isSetLikeSubsetOf,
+  isSetLikeSupersetOf,
+  setLikeDifference,
+  setLikeIntersection,
+  setLikeSymmetricDifference,
+  setLikeUnion,
+} from "../utils/setLike"
 
 const arraySetBase = Model({
   [modelIdKey]: idProp,
@@ -96,39 +105,43 @@ export class ArraySet<V> extends arraySetBase implements Set<V> {
 
   readonly [Symbol.toStringTag] = "ArraySet"
 
+  // `has` scans the items, so the set operations look values up in a set built
+  // on the first lookup instead (not before, since many of them never look up)
+  private toSetLike(): ReadonlySetLike<V> {
+    let lookup: Set<V> | undefined
+    return {
+      size: this.items.length,
+      has: (value) => (lookup ??= new Set(this.items)).has(value),
+      keys: () => this.values(),
+    }
+  }
+
   union<U>(other: ReadonlySetLike<U>): Set<V | U> {
-    const s = new Set(this)
-    return s.union(other)
+    return setLikeUnion(this.toSetLike(), other)
   }
 
   intersection<U>(other: ReadonlySetLike<U>): Set<V & U> {
-    const s = new Set(this)
-    return s.intersection(other)
+    return setLikeIntersection(this.toSetLike(), other)
   }
 
   difference<U>(other: ReadonlySetLike<U>): Set<V> {
-    const s = new Set(this)
-    return s.difference(other)
+    return setLikeDifference(this.toSetLike(), other)
   }
 
   symmetricDifference<U>(other: ReadonlySetLike<U>): Set<V | U> {
-    const s = new Set(this)
-    return s.symmetricDifference(other)
+    return setLikeSymmetricDifference(this.toSetLike(), other)
   }
 
   isSubsetOf(other: ReadonlySetLike<unknown>): boolean {
-    const s = new Set(this)
-    return s.isSubsetOf(other)
+    return isSetLikeSubsetOf(this.toSetLike(), other)
   }
 
   isSupersetOf(other: ReadonlySetLike<unknown>): boolean {
-    const s = new Set(this)
-    return s.isSupersetOf(other)
+    return isSetLikeSupersetOf(this.toSetLike(), other)
   }
 
   isDisjointFrom(other: ReadonlySetLike<unknown>): boolean {
-    const s = new Set(this)
-    return s.isDisjointFrom(other)
+    return isSetLikeDisjointFrom(this.toSetLike(), other)
   }
 }
 

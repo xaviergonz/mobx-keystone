@@ -52,20 +52,19 @@ export function typesTag<T extends AnyType, A>(baseType: T, tag: A, typeName?: s
       return `${taggedName}<${baseTypeName}>`
     }
 
+    const processorPlan = snapshotProcessorPlan(
+      () => [baseChecker],
+      ([processor]) => processor
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       baseChecker.baseType,
       (data, path, typeCheckedValue) => baseChecker.check(data, path, typeCheckedValue),
       getTypeName,
       typeInfoGen,
       (sn) => baseChecker.snapshotType(sn),
-      snapshotProcessorPlan(
-        () => [baseChecker],
-        ([processor]) => processor
-      ),
-      snapshotProcessorPlan(
-        () => [baseChecker],
-        ([processor]) => processor
-      )
+      processorPlan,
+      processorPlan
     )
 
     return thisTc

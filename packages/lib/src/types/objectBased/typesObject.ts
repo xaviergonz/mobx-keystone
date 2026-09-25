@@ -173,6 +173,14 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
       }
     )
 
+    const processorPlan = snapshotProcessorPlan(
+      () => schemaEntries.map((entry) => entry.getResolvedChecker()),
+      (processors) =>
+        processors.some(Boolean)
+          ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processors)
+          : undefined
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Object,
 
@@ -208,21 +216,9 @@ function typesObjectHelper<S>(objFn: S, frozen: boolean, typeInfoGen: TypeInfoGe
         return thisTc
       },
 
-      snapshotProcessorPlan(
-        () => schemaEntries.map((entry) => entry.getResolvedChecker()),
-        (processors) =>
-          processors.some(Boolean)
-            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processors)
-            : undefined
-      ),
+      processorPlan,
 
-      snapshotProcessorPlan(
-        () => schemaEntries.map((entry) => entry.getResolvedChecker()),
-        (processors) =>
-          processors.some(Boolean)
-            ? (obj: Record<string, unknown>) => applySnapshotProcessor(obj, processors)
-            : undefined
-      )
+      processorPlan
     )
 
     return thisTc

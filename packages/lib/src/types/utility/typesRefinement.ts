@@ -62,6 +62,11 @@ export function typesRefinement<T extends AnyType>(
       return `${refinementName}<${baseTypeName}>`
     }
 
+    const processorPlan = snapshotProcessorPlan(
+      () => [baseChecker],
+      ([processor]) => processor
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       baseChecker.baseType,
 
@@ -103,14 +108,8 @@ export function typesRefinement<T extends AnyType>(
       // we cannot check refinement here since it checks data instances, not snapshots
       (sn) => baseChecker.snapshotType(sn),
 
-      snapshotProcessorPlan(
-        () => [baseChecker],
-        ([processor]) => processor
-      ),
-      snapshotProcessorPlan(
-        () => [baseChecker],
-        ([processor]) => processor
-      )
+      processorPlan,
+      processorPlan
     )
 
     return thisTc

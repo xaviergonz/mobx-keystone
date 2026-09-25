@@ -90,6 +90,11 @@ export function typesDataModelData<M = never, K = M>(
 
       const resolvedDataTypeChecker = resolveTypeChecker(standardDataType)
 
+      const processorPlan = snapshotProcessorPlan(
+        () => [resolvedDataTypeChecker],
+        ([processor]) => processor
+      )
+
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
 
@@ -104,15 +109,9 @@ export function typesDataModelData<M = never, K = M>(
           return resolvedDataTypeChecker.snapshotType(value) ? thisTc : null
         },
 
-        snapshotProcessorPlan(
-          () => [resolvedDataTypeChecker],
-          ([processor]) => processor
-        ),
+        processorPlan,
 
-        snapshotProcessorPlan(
-          () => [resolvedDataTypeChecker],
-          ([processor]) => processor
-        )
+        processorPlan
       )
 
       return thisTc

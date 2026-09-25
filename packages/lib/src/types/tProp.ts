@@ -6,6 +6,7 @@ import {
   toFullModelPropTransform,
 } from "../modelShared/prop"
 import { lazy } from "../utils"
+import { getOrCreate } from "../utils/mapUtils"
 import {
   typesBoolean,
   typesNull,
@@ -24,26 +25,16 @@ const noDefaultValueSymbol = Symbol("noDefaultValue")
 
 const tPropCache = new WeakMap<AnyStandardType, Map<unknown, AnyModelProp>>()
 
-function createFromSnapshotProcessorGetter(
+function createSnapshotProcessorGetter(
   getType: () => AnyStandardType,
-  eagerType: AnyStandardType | undefined
+  eagerType: AnyStandardType | undefined,
+  getProcessor: (typeChecker: TypeChecker) => SnapshotProcessor | undefined
 ): (() => SnapshotProcessor | undefined) | undefined {
   if (eagerType instanceof TypeChecker) {
-    const processor = eagerType.getFromSnapshotProcessor()
+    const processor = getProcessor(eagerType)
     return processor ? () => processor : undefined
   }
-  return lazy(() => resolveTypeChecker(getType()).getFromSnapshotProcessor())
-}
-
-function createToSnapshotProcessorGetter(
-  getType: () => AnyStandardType,
-  eagerType: AnyStandardType | undefined
-): (() => SnapshotProcessor | undefined) | undefined {
-  if (eagerType instanceof TypeChecker) {
-    const processor = eagerType.getToSnapshotProcessor()
-    return processor ? () => processor : undefined
-  }
-  return lazy(() => resolveTypeChecker(getType()).getToSnapshotProcessor())
+  return lazy(() => getProcessor(resolveTypeChecker(getType())))
 }
 
 type AnyTypeOrArray = AnyType | ReadonlyArray<AnyType>
@@ -250,11 +241,7 @@ export function tProp(
   const typeChecker = resolveStandardType(resolvedType)
   const defKey = hasDefaultValue ? def : noDefaultValueSymbol
 
-  let defValueCache = tPropCache.get(typeChecker)
-  if (!defValueCache) {
-    defValueCache = new Map()
-    tPropCache.set(typeChecker, defValueCache)
-  }
+  const defValueCache = getOrCreate(tPropCache, typeChecker, () => new Map())
 
   const cachedProp = defValueCache.get(defKey)
   if (cachedProp) {
@@ -301,11 +288,14 @@ export function tProp(
             ? toFullModelPropTransform(createCodecPropTransform(typeChecker))
             : undefined
         ),
-    _getFromSnapshotProcessor: createFromSnapshotProcessorGetter(
+    _getFromSnapshotProcessor: createSnapshotProcessorGetter(
       getFromSnapshotType,
-      eagerFromSnapshotType
+      eagerFromSnapshotType,
+      (tc) => tc.getFromSnapshotProcessor()
     ),
-    _getToSnapshotProcessor: createToSnapshotProcessorGetter(getStoredType, eagerStoredType),
+    _getToSnapshotProcessor: createSnapshotProcessorGetter(getStoredType, eagerStoredType, (tc) =>
+      tc.getToSnapshotProcessor()
+    ),
   } satisfies Partial<AnyModelProp>)
 
   defValueCache.set(defKey, newProp)

@@ -209,21 +209,9 @@ function changeWithPath(change: DeepChange, path: Path): DeepChange {
  * @internal
  */
 export function emitDeepChange(obj: object, change: DeepChange): void {
-  if (!hasAnyDeepChangeListeners()) {
-    return
+  if (hasAnyDeepChangeListeners()) {
+    emitLazyDeepChange(obj, () => change)
   }
-
-  const emission = beginDeepChangeEmission()
-  try {
-    attachEmission(change)
-    emitGlobalDeepChange(obj, change)
-    if (deepChangeListenerCount > 0) {
-      emitDeepChangeToListeners(obj, change)
-    }
-  } finally {
-    currentEmission = emission.parent
-  }
-  rethrowDeepChangeListenerError(emission)
 }
 
 /**
@@ -308,98 +296,52 @@ function emitDeepChangeFromValues(
   addedValues?: unknown[],
   removedValues?: unknown[]
 ): void {
-  if (!hasAnyDeepChangeListeners()) {
-    return
+  if (hasAnyDeepChangeListeners()) {
+    emitLazyDeepChange(node, () =>
+      buildDeepChange(type, target, keyOrIndex, newValue, oldValue, addedValues, removedValues)
+    )
   }
+}
 
+/**
+ * Delivers a change to the global listeners and to the listeners of the node
+ * and its ancestors. The change is only created if some listener gets it.
+ */
+function emitLazyDeepChange(node: object, createChange: () => DeepChange): void {
   const emission = beginDeepChangeEmission()
   try {
-    emitDeepChangeFromValuesInEmission(
-      node,
-      type,
-      target,
-      keyOrIndex,
-      newValue,
-      oldValue,
-      addedValues,
-      removedValues
-    )
+    let change: DeepChange | undefined
+
+    if (globalDeepChangeListeners.length > 0) {
+      change = attachEmission(createChange())
+      emitGlobalDeepChange(node, change)
+    }
+
+    if (deepChangeListenerCount > 0) {
+      // Segments are pushed in child-to-root order (O(1) each) rather than unshifted
+      // at the front (O(depth) each), keeping the whole walk O(depth) instead of
+      // O(depth^2) on deep trees.
+      const reversedPrefix: WritablePath = []
+      let current: object | undefined = node
+      while (current) {
+        const listenersForObject = deepChangeListeners.get(current)
+        if (listenersForObject && listenersForObject.length > 0) {
+          change ??= attachEmission(createChange())
+          emitDeepChangeForTarget(listenersForObject, change, reversedPrefix)
+        }
+
+        const parentPath: ParentPath<object> | undefined = fastGetParentPath(current, false)
+        if (!parentPath) {
+          break
+        }
+        reversedPrefix.push(parentPath.path)
+        current = parentPath.parent
+      }
+    }
   } finally {
     currentEmission = emission.parent
   }
   rethrowDeepChangeListenerError(emission)
-}
-
-function emitDeepChangeFromValuesInEmission(
-  node: object,
-  type: DeepChangeType,
-  target: object | unknown[],
-  keyOrIndex: string | number,
-  newValue: unknown,
-  oldValue: unknown,
-  addedValues?: unknown[],
-  removedValues?: unknown[]
-): void {
-  let change: DeepChange | undefined
-
-  if (globalDeepChangeListeners.length > 0) {
-    change = createDeepChange(
-      type,
-      target,
-      keyOrIndex,
-      newValue,
-      oldValue,
-      addedValues,
-      removedValues
-    )
-    emitGlobalDeepChange(node, change)
-  }
-
-  if (deepChangeListenerCount === 0) {
-    return
-  }
-
-  // Segments are pushed in child-to-root order (O(1) each) rather than unshifted
-  // at the front (O(depth) each), keeping the whole walk O(depth) instead of
-  // O(depth^2) on deep trees.
-  const reversedPrefix: WritablePath = []
-  let current: object | undefined = node
-  while (current) {
-    const listenersForObject = deepChangeListeners.get(current)
-    if (listenersForObject && listenersForObject.length > 0) {
-      change ??= createDeepChange(
-        type,
-        target,
-        keyOrIndex,
-        newValue,
-        oldValue,
-        addedValues,
-        removedValues
-      )
-      emitDeepChangeForTarget(current, change, reversedPrefix, reversedPrefix.length)
-    }
-
-    const parentPath: ParentPath<object> | undefined = fastGetParentPath(current, false)
-    if (!parentPath) {
-      break
-    }
-    reversedPrefix.push(parentPath.path)
-    current = parentPath.parent
-  }
-}
-
-function createDeepChange(
-  type: DeepChangeType,
-  target: object | unknown[],
-  keyOrIndex: string | number,
-  newValue: unknown,
-  oldValue: unknown,
-  addedValues: unknown[] | undefined,
-  removedValues: unknown[] | undefined
-): DeepChange {
-  return attachEmission(
-    buildDeepChange(type, target, keyOrIndex, newValue, oldValue, addedValues, removedValues)
-  )
 }
 
 function buildDeepChange(
@@ -489,39 +431,15 @@ function rememberDeepChangeListenerError(error: unknown): void {
   emission.error = addDelayedError(emission.error, error, "multiple deep change listeners failed")
 }
 
-function emitDeepChangeToListeners(obj: object, change: DeepChange): void {
-  // Segments are pushed in child-to-root order (O(1) each) rather than unshifted
-  // at the front (O(depth) each), keeping the whole walk O(depth) instead of
-  // O(depth^2) on deep trees.
-  const reversedPrefix: WritablePath = []
-
-  emitDeepChangeForTarget(obj, change, reversedPrefix, 0)
-
-  // and also emit subtree listeners all the way to the root
-  let parentPath = fastGetParentPath(obj, false)
-  while (parentPath) {
-    reversedPrefix.push(parentPath.path)
-    emitDeepChangeForTarget(parentPath.parent, change, reversedPrefix, reversedPrefix.length)
-
-    parentPath = fastGetParentPath(parentPath.parent, false)
-  }
-}
-
 // `reversedPrefix` holds the path segments from the changed node up to (but not
-// including) `obj`, in child-to-root order; the emitted path prepends that slice
-// reversed (root-to-child). `prefixCount` is how many leading entries apply.
+// including) the listened node, in child-to-root order; the emitted path
+// prepends it reversed (root-to-child).
 function emitDeepChangeForTarget(
-  obj: object,
+  listenersForObject: readonly ListenerSubscription<OnDeepChangeListener>[],
   change: DeepChange,
-  reversedPrefix: readonly PathElement[],
-  prefixCount: number
+  reversedPrefix: readonly PathElement[]
 ): void {
-  const listenersForObject = deepChangeListeners.get(obj)
-
-  if (!listenersForObject || listenersForObject.length === 0) {
-    return
-  }
-
+  const prefixCount = reversedPrefix.length
   const prefixedChange =
     prefixCount > 0
       ? changeWithPath(change, buildPrefixedPath(reversedPrefix, prefixCount, change.path))

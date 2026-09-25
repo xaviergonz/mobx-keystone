@@ -428,11 +428,11 @@ export class UndoManager {
     const event = events[events.length - 1].data
 
     withoutUndo(() => {
-      toSingleEvents(event)
-        .reverse()
-        .forEach((e) => {
-          applyPatches(this.subtreeRoot, e.inversePatches, true)
-        })
+      applyPatches(
+        this.subtreeRoot,
+        toSingleEvents(event).map((e) => e.inversePatches),
+        true
+      )
 
       // restore the attached state before the operation was made
       if (event.attachedState) {
@@ -456,9 +456,10 @@ export class UndoManager {
     const event = events[events.length - 1].data
 
     withoutUndo(() => {
-      toSingleEvents(event).forEach((e) => {
-        applyPatches(this.subtreeRoot, e.patches)
-      })
+      applyPatches(
+        this.subtreeRoot,
+        toSingleEvents(event).map((e) => e.patches)
+      )
 
       // restore the attached state after the operation was made
       if (event.attachedState) {
@@ -601,11 +602,11 @@ export class UndoManager {
     const genThrow = gen.throw.bind(gen)
 
     const promise = new Promise<R>((resolve, reject) => {
-      function onFulfilled(res: any): void {
+      function resume(genFn: (value: any) => IteratorResult<any>, value: unknown): void {
         group.resume()
         let ret: unknown
         try {
-          ret = genNext(res)
+          ret = genFn(value)
         } catch (e) {
           group.end()
           reject(e as Error)
@@ -616,19 +617,12 @@ export class UndoManager {
         next(ret)
       }
 
-      function onRejected(err: unknown): void {
-        group.resume()
-        let ret: unknown
-        try {
-          ret = genThrow(err)
-        } catch (e) {
-          group.end()
-          reject(e as Error)
-          return
-        }
+      function onFulfilled(res: unknown): void {
+        resume(genNext, res)
+      }
 
-        group.pause()
-        next(ret)
+      function onRejected(err: unknown): void {
+        resume(genThrow, err)
       }
 
       function next(ret: any): void {

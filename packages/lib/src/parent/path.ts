@@ -128,16 +128,6 @@ export function fastGetParent<T extends object = any>(
 }
 
 /**
- * @internal
- */
-export function fastGetParentIncludingDataObjects<T extends object = any>(
-  value: object,
-  useAtom: boolean
-): T | undefined {
-  return fastGetParentPathIncludingDataObjects(value, useAtom)?.parent
-}
-
-/**
  * Returns if a given object is a model interim data object (`$`).
  *
  * @param value Object to check.

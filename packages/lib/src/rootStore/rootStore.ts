@@ -84,9 +84,7 @@ export function isRootStore(node: object): boolean {
   assertTweakedObject(node, "node")
 
   const entry = getOrCreateRootStoreEntry(node)
-  if (!entry.atom) {
-    entry.atom = createAtom("rootStore")
-  }
+  entry.atom ??= createAtom("rootStore")
   entry.atom.reportObserved()
   return entry.is
 }

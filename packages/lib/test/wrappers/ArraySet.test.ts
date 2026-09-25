@@ -153,3 +153,35 @@ test("detach", () => {
   detach(three)
   expect(Array.from(arr.values()).map((i) => i.x)).toEqual([2, 5])
 })
+
+test("set operations do not need native Set methods", () => {
+  const methods = [
+    "union",
+    "intersection",
+    "difference",
+    "symmetricDifference",
+    "isSubsetOf",
+    "isSupersetOf",
+    "isDisjointFrom",
+  ] as const
+  const proto = Set.prototype as any
+  const saved = methods.map((m) => Object.getOwnPropertyDescriptor(proto, m))
+  for (const m of methods) {
+    delete proto[m]
+  }
+  try {
+    const set = arraySet([1, 2, 3])
+    const other = new Set([2, 3, 4])
+    expect([...set.union(other)]).toEqual([1, 2, 3, 4])
+    expect([...set.intersection(other)]).toEqual([2, 3])
+    expect([...set.difference(other)]).toEqual([1])
+    expect([...set.symmetricDifference(other)]).toEqual([1, 4])
+    expect(set.isSubsetOf(other)).toBe(false)
+    expect(set.isSupersetOf(new Set([1, 2]))).toBe(true)
+    expect(set.isDisjointFrom(new Set([5]))).toBe(true)
+  } finally {
+    methods.forEach((m, i) => {
+      if (saved[i]) Object.defineProperty(proto, m, saved[i]!)
+    })
+  }
+})

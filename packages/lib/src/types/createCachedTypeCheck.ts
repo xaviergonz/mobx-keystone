@@ -19,6 +19,7 @@ import {
 } from "../tweaker/tweakedChangeListeners"
 import { getMobxVersion } from "../utils"
 import { ChunkedSequence, ChunkedSet, chunkSize, type SequenceChunk } from "../utils/chunks"
+import { getOrCreate } from "../utils/mapUtils"
 import { TypeCheckError } from "./TypeCheckError"
 
 /**
@@ -79,11 +80,7 @@ function checkUncached(
   typeCheckedValue: any,
   check: () => TypeCheckError | null
 ): TypeCheckError | null {
-  let results = uncachedResults!.get(checker)
-  if (!results) {
-    results = new Map()
-    uncachedResults!.set(checker, results)
-  }
+  const results = getOrCreate(uncachedResults!, checker, () => new Map())
   let error = results.get(value)
   if (error === undefined) {
     error = check()
@@ -152,11 +149,9 @@ export function createWholeContainerCachedCheck(
       )
     }
 
-    let cached = cache.get(value)
-    if (!cached) {
-      cached = computed(() => check(value, emptyPath, undefined), { keepAlive: true })
-      cache.set(value, cached)
-    }
+    const cached = getOrCreate(cache, value, () =>
+      computed(() => check(value, emptyPath, undefined), { keepAlive: true })
+    )
     const error = cached.get()
     return contextualizeCachedError(error, path, typeCheckedValue)
   }
@@ -166,6 +161,10 @@ export function createWholeContainerCachedCheck(
 // unobserved computeds read outside a batch without caching them, which would
 // check new chunks twice.
 const needsBatchToCacheChunks = getMobxVersion() < 6
+
+function checkChunks<T>(fn: () => T): T {
+  return needsBatchToCacheChunks ? transaction(fn) : fn()
+}
 
 /**
  * Checks the items of an array, starting at `firstIndex`, and returns the first
@@ -328,14 +327,8 @@ class RecordChunks
   readonly atom = createAtom("recordTypeCheckChunks")
   private readonly record: object
   private readonly checkKey: (key: string) => TypeCheckError | null
-  private readonly getEntry = (key: string): CachedEntry => {
-    let entry = this.entries.get(key)
-    if (!entry) {
-      entry = computed(() => this.checkKey(key))
-      this.entries.set(key, entry)
-    }
-    return entry
-  }
+  private readonly getEntry = (key: string): CachedEntry =>
+    getOrCreate(this.entries, key, () => computed(() => this.checkKey(key)))
 
   constructor(record: object, checkKey: (key: string) => TypeCheckError | null) {
     super()
@@ -458,10 +451,7 @@ export function createChunkedRecordCachedCheck(
       const chunks = cached?.chunks
       return checkUncached(cache, value, path, typeCheckedValue, () => {
         if (chunks && typeof key === "string") {
-          const hasError = needsBatchToCacheChunks
-            ? transaction(() => chunks.hasError(key))
-            : chunks.hasError(key)
-          if (!hasError) {
+          if (!checkChunks(() => chunks.hasError(key))) {
             return null
           }
         }
@@ -475,11 +465,10 @@ export function createChunkedRecordCachedCheck(
       addTweakedChangeListener<object>(value, chunks)
       const check = computed(
         () => {
-          const hasError = needsBatchToCacheChunks
-            ? transaction(() => chunks.hasError())
-            : chunks.hasError()
           // any added or removed key changes a chunk, so this runs again then
-          return hasError ? checkAllEntries(value, emptyPath, undefined) : null
+          return checkChunks(() => chunks.hasError())
+            ? checkAllEntries(value, emptyPath, undefined)
+            : null
         },
         { keepAlive: true }
       )
@@ -535,9 +524,7 @@ export function createChunkedArrayCachedCheck(
         if (!chunks || typeof index !== "number") {
           return checkItems(array, 0, emptyPath, undefined)
         }
-        return needsBatchToCacheChunks
-          ? transaction(() => chunks.check(index))
-          : chunks.check(index)
+        return checkChunks(() => chunks.check(index))
       })
     }
 
@@ -561,7 +548,7 @@ export function createChunkedArrayCachedCheck(
             }
 
             const chunks = state.chunks
-            return needsBatchToCacheChunks ? transaction(() => chunks.check()) : chunks.check()
+            return checkChunks(() => chunks.check())
           },
           { keepAlive: true }
         ),

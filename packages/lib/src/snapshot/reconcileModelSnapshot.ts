@@ -156,7 +156,9 @@ function reconcileModelSnapshot(
         if (!isReservedModelKey(k)) {
           const v = processedSn[k]
 
-          const oldValue = data[k]
+          // an inherited member such as `toString` is no old value (but `__proto__`
+          // still reads the prototype, which is rejected as it is no tree node)
+          const oldValue = k === "__proto__" || hasOwnProp(data, k) ? data[k] : undefined
           // Non-null primitives need neither reconciliation nor detachment.
           // Nullish values must still pass through default handling below.
           if (v != null && isPrimitive(v)) {
@@ -216,10 +218,10 @@ function snapshotSlotsAreEqual(
   for (let i = 0; i < currentKeys.length; i++) {
     const key = currentKeys[i]
     // a matching key at the same index proves the key is an own property of
-    // the incoming snapshot without an Object.hasOwn call; canonical snapshots
+    // the incoming snapshot without an own-property check; canonical snapshots
     // keep key order, so the fallback is rare (never trust inherited values,
     // e.g. a crafted __proto__ chain, without an own-property proof)
-    if (incomingKeys[i] !== key && !Object.hasOwn(incomingSnapshot, key)) {
+    if (incomingKeys[i] !== key && !hasOwnProp(incomingSnapshot, key)) {
       return false
     }
     if (currentSnapshot[key] !== incomingSnapshot[key]) {

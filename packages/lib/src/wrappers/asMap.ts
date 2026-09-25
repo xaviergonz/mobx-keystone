@@ -4,8 +4,6 @@ import {
   type IObjectDidChange,
   type IObservableArray,
   intercept,
-  isObservableArray,
-  isObservableObject,
   type ObservableMap,
   observable,
   observe,
@@ -21,7 +19,6 @@ import {
   failure,
   getMobxVersion,
   hasOwnProp,
-  inDevMode,
   isArray,
   isEqualOrBothNaN,
   setProtoProp,
@@ -44,12 +41,7 @@ function addTs6MapExtras<K, V>(map: ObservableMap<K, V>): ObservableMap<K, V> & 
 
   if (!mapWithExtras.getOrInsert) {
     mapWithExtras.getOrInsert = function (key: K, defaultValue: V): V {
-      if (this.has(key)) {
-        return this.get(key) as V
-      }
-
-      this.set(key, defaultValue)
-      return this.get(key) as V
+      return this.getOrInsertComputed(key, () => defaultValue)
     }
   }
 
@@ -70,12 +62,6 @@ function addTs6MapExtras<K, V>(map: ObservableMap<K, V>): ObservableMap<K, V> & 
 
 const observableMapBackedByObservableObject = action(
   <T>(obj: object): ObservableMapWithDataObject<string, T, typeof obj> => {
-    if (inDevMode) {
-      if (!isObservableObject(obj)) {
-        throw failure("assertion failed: expected an observable object")
-      }
-    }
-
     const map = transaction(() =>
       untracked(() => {
         const map = observable.map<string, T>(undefined, { deep: false })
@@ -175,12 +161,6 @@ const observableMapBackedByObservableObject = action(
 const observableMapBackedByObservableArray = <K, T>(
   array: IObservableArray<[K, T]>
 ): ObservableMapWithDataObject<K, T, typeof array> => {
-  if (inDevMode) {
-    if (!isObservableArray(array)) {
-      throw failure("assertion failed: expected an observable array")
-    }
-  }
-
   const map: ObservableMap<K, T> = untracked(() => {
     if (getMobxVersion() >= 6) {
       return observable.map<K, T>(array, { deep: false })

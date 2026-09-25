@@ -68,6 +68,19 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
     // computeds cannot isolate tuple-item changes and only add allocation overhead.
     const checkTupleItems = createWholeContainerCachedCheck(checkTupleItemsImperatively)
 
+    const processorPlan = snapshotProcessorPlan(
+      () => checkers,
+      (processors) =>
+        processors.some(Boolean)
+          ? (array: unknown[]) => {
+              return array.map((item, i) => {
+                const processor = processors[i]
+                return processor ? withErrorPathSegment(i, () => processor(item)) : item
+              })
+            }
+          : undefined
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
@@ -102,31 +115,9 @@ export function typesTuple<T extends AnyType[]>(...itemTypes: T): ArrayType<T> {
         return thisTc
       },
 
-      snapshotProcessorPlan(
-        () => checkers,
-        (processors) =>
-          processors.some(Boolean)
-            ? (array: unknown[]) => {
-                return array.map((item, i) => {
-                  const processor = processors[i]
-                  return processor ? withErrorPathSegment(i, () => processor(item)) : item
-                })
-              }
-            : undefined
-      ),
+      processorPlan,
 
-      snapshotProcessorPlan(
-        () => checkers,
-        (processors) =>
-          processors.some(Boolean)
-            ? (array: unknown[]) => {
-                return array.map((item, i) => {
-                  const processor = processors[i]
-                  return processor ? withErrorPathSegment(i, () => processor(item)) : item
-                })
-              }
-            : undefined
-      )
+      processorPlan
     )
 
     return thisTc

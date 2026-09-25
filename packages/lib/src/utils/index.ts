@@ -270,15 +270,6 @@ export function assertIsObject(value: unknown, argName: string): asserts value i
 /**
  * @internal
  */
-export function assertIsPlainObject(value: unknown, argName: string): asserts value is object {
-  if (!isPlainObject(value)) {
-    throw failure(`${argName} must be a plain object`)
-  }
-}
-
-/**
- * @internal
- */
 export function assertIsObservableObject(value: unknown, argName: string): asserts value is object {
   if (!isObservableObject(value)) {
     throw failure(`${argName} must be an observable object`)
@@ -345,15 +336,6 @@ export function assertIsPrimitive(
 /**
  * @internal
  */
-export function assertIsString(value: unknown, argName: string): asserts value is string {
-  if (typeof value !== "string") {
-    throw failure(`${argName} must be a string`)
-  }
-}
-
-/**
- * @internal
- */
 export const runAfterNewSymbol = Symbol("runAfterNew")
 
 /**
@@ -372,8 +354,7 @@ export function addLateInitializationFunction(
   fn: (instance: any) => void
 ) {
   let array: LateInitializationFunctionsArray | undefined = target[symbol]
-  // biome-ignore lint/suspicious/noPrototypeBuiltins: support old browsers
-  if (!(array && Object.prototype.hasOwnProperty.call(target, symbol))) {
+  if (!(array && hasOwnProp(target, symbol))) {
     // leave base array unmodified, create new array in the derived class
     array = array ? array.slice() : []
     addHiddenProp(target, symbol, array)

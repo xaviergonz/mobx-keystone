@@ -1,6 +1,7 @@
 import {
   applyPatches,
   applySnapshot,
+  cloneTreeValue,
   fromSnapshot,
   frozen,
   getModelNotRegisteredErrorMessage,
@@ -220,4 +221,12 @@ test("fromSnapshot model-snapshot structural errors include path and value", () 
       missingIdSnapshot
     )}`
   )
+})
+
+test("snapshots containing tree nodes report them", () => {
+  const node = new ApplyErrorModel({})
+  const message =
+    "a snapshot must not contain tree nodes (use getSnapshot to get their snapshots) - Path: /0"
+  expect(() => fromSnapshot([node] as any)).toThrow(message)
+  expect(() => cloneTreeValue([node])).toThrow(message)
 })

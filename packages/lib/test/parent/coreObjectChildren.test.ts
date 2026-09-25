@@ -152,9 +152,9 @@ test("ModelPool sees current tree for first use after invalidation and after lat
   })
 
   const firstPool = new ModelPool(root)
-  expect(firstPool.findModelForSnapshot(getSnapshot(removed))).toBeUndefined()
-  expect(firstPool.findModelForSnapshot(getSnapshot(kept))).toBe(kept)
-  expect(firstPool.findModelForSnapshot(getSnapshot(added))).toBe(added)
+  expect(firstPool.findModelByTypeAndId(removed.$modelType, removed.$modelId)).toBeUndefined()
+  expect(firstPool.findModelByTypeAndId(kept.$modelType, kept.$modelId)).toBe(kept)
+  expect(firstPool.findModelByTypeAndId(added.$modelType, added.$modelId)).toBe(added)
   firstPool.release()
 
   runUnprotected(() => {
@@ -162,9 +162,11 @@ test("ModelPool sees current tree for first use after invalidation and after lat
   })
 
   const secondPool = new ModelPool(root)
-  expect(secondPool.findModelForSnapshot(getSnapshot(kept))).toBe(kept)
-  expect(secondPool.findModelForSnapshot(getSnapshot(added))).toBeUndefined()
-  expect(secondPool.findModelForSnapshot(getSnapshot(replacement))).toBe(replacement)
+  expect(secondPool.findModelByTypeAndId(kept.$modelType, kept.$modelId)).toBe(kept)
+  expect(secondPool.findModelByTypeAndId(added.$modelType, added.$modelId)).toBeUndefined()
+  expect(secondPool.findModelByTypeAndId(replacement.$modelType, replacement.$modelId)).toBe(
+    replacement
+  )
   secondPool.release()
 })
 

@@ -220,29 +220,16 @@ export function resolveId<T extends object>(
   return resolveRefIdByIndex(root, id, getId) as T | undefined
 }
 
+const createRefSet = () => observable.set<Ref<any>>(undefined, { deep: false })
+
+const createBackRefs = (): BackRefs<any> => ({ all: createRefSet(), byType: new WeakMap() })
+
 function getBackRefs<T extends object>(
   target: T,
   refType?: RefConstructor<T>
 ): ObservableSet<Ref<T>> {
-  let backRefs = objectBackRefs.get(target) as BackRefs<T> | undefined
-  if (!backRefs) {
-    backRefs = {
-      all: observable.set(undefined, { deep: false }),
-      byType: new WeakMap(),
-    }
-    objectBackRefs.set(target, backRefs)
-  }
-
-  if (refType) {
-    let byType = backRefs.byType.get(refType)
-    if (!byType) {
-      byType = observable.set(undefined, { deep: false })
-      backRefs.byType.set(refType, byType)
-    }
-    return byType
-  } else {
-    return backRefs.all
-  }
+  const backRefs: BackRefs<T> = getOrCreate(objectBackRefs, target, createBackRefs)
+  return refType ? getOrCreate(backRefs.byType, refType, createRefSet) : backRefs.all
 }
 
 /**

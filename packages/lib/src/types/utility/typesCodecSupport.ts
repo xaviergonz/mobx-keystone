@@ -1,6 +1,6 @@
 import { isObservableArray, isObservableObject, remove } from "mobx"
 import type { ModelPropTransform } from "../../modelShared/prop"
-import { copyOwnEnumerableProps, isArray, isObject, lazy } from "../../utils"
+import { copyOwnEnumerableProps, hasOwnProp, isArray, isObject, lazy } from "../../utils"
 import { setIfDifferent } from "../../utils/setIfDifferent"
 import { ArrayTypeInfo, typesArray } from "../arrayBased/typesArray"
 import { TupleTypeInfo, typesTuple } from "../arrayBased/typesTuple"
@@ -136,7 +136,7 @@ function createObjectRuntimeAdapter(
         get(target, prop, receiver) {
           if (typeof prop === "string") {
             const childSupport = getChildSupports()[prop]
-            if (childSupport && Object.hasOwn(target, prop)) {
+            if (childSupport && hasOwnProp(target, prop)) {
               return childSupport.adapter.toRuntime(target[prop], (newStoredValue) => {
                 target[prop] = newStoredValue
               })
@@ -200,7 +200,7 @@ function createRecordRuntimeAdapter(
 
       const proxy = new Proxy(stored, {
         get(target, prop, receiver) {
-          if (typeof prop === "string" && Object.hasOwn(target, prop)) {
+          if (typeof prop === "string" && hasOwnProp(target, prop)) {
             const valueSupport = getValueSupport()
             return valueSupport.adapter.toRuntime(target[prop], (newStoredValue) => {
               target[prop] = newStoredValue

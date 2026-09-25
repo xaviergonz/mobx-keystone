@@ -41,18 +41,14 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
             return getValue(storedKey)
           }
         case "getOrInsert":
-          return (key: TKeyRuntime, defaultValue: TValueRuntime) => {
-            const storedKey = keyAdapter.toStored(key)
-            if (!target.has(storedKey)) {
-              target.set(storedKey, valueAdapter.toStored(defaultValue))
-            }
-            return getValue(storedKey)
-          }
         case "getOrInsertComputed":
-          return (key: TKeyRuntime, callback: (key: TKeyRuntime) => TValueRuntime) => {
+          return (key: TKeyRuntime, valueOrCallback: unknown) => {
             const storedKey = keyAdapter.toStored(key)
             if (!target.has(storedKey)) {
-              const value = callback(key)
+              const value =
+                prop === "getOrInsert"
+                  ? (valueOrCallback as TValueRuntime)
+                  : (valueOrCallback as (key: TKeyRuntime) => TValueRuntime)(key)
               target.set(storedKey, valueAdapter.toStored(value))
             }
             return getValue(storedKey)
@@ -114,10 +110,18 @@ function makeMapProxy<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
   }) as unknown as Map<TKeyRuntime, TValueRuntime>
 }
 
-function makeObjectBackedMapTransform<TStoredValue, TRuntimeValue>(
-  valueAdapter: RuntimeAdapter<TStoredValue, TRuntimeValue>
-): ModelPropTransform<Record<string, TStoredValue>, Map<string, TRuntimeValue>> {
-  const storedByRuntime = new WeakMap<Map<string, TRuntimeValue>, Record<string, TStoredValue>>()
+function makeMapTransform<
+  TStored extends object,
+  TKeyStored,
+  TKeyRuntime,
+  TValueStored,
+  TValueRuntime,
+>(
+  keyAdapter: RuntimeAdapter<TKeyStored, TKeyRuntime>,
+  valueAdapter: RuntimeAdapter<TValueStored, TValueRuntime>,
+  toStored: (runtimeMap: Map<TKeyRuntime, TValueRuntime>) => TStored
+): ModelPropTransform<TStored, Map<TKeyRuntime, TValueRuntime>> {
+  const storedByRuntime = new WeakMap<Map<TKeyRuntime, TValueRuntime>, TStored>()
 
   return {
     transform({ originalValue, cachedTransformedValue }) {
@@ -125,63 +129,51 @@ function makeObjectBackedMapTransform<TStoredValue, TRuntimeValue>(
         return cachedTransformedValue
       }
 
-      const runtimeMap = makeMapProxy(asMap(originalValue), identityRuntimeAdapter, valueAdapter)
+      const runtimeMap = makeMapProxy(
+        asMap(originalValue as any) as Map<TKeyStored, TValueStored>,
+        keyAdapter,
+        valueAdapter
+      )
 
       storedByRuntime.set(runtimeMap, originalValue)
       return runtimeMap
     },
 
     untransform({ transformedValue }) {
-      const cachedStored = storedByRuntime.get(transformedValue)
-      if (cachedStored) {
-        return cachedStored
-      }
+      return storedByRuntime.get(transformedValue) ?? toStored(transformedValue)
+    },
+  }
+}
 
+function makeObjectBackedMapTransform<TStoredValue, TRuntimeValue>(
+  valueAdapter: RuntimeAdapter<TStoredValue, TRuntimeValue>
+): ModelPropTransform<Record<string, TStoredValue>, Map<string, TRuntimeValue>> {
+  return makeMapTransform(
+    identityRuntimeAdapter as RuntimeAdapter<string, string>,
+    valueAdapter,
+    (runtimeMap) => {
       const result: Record<string, TStoredValue> = {}
-      transformedValue.forEach((value, key) => {
+      runtimeMap.forEach((value, key) => {
         const storedValue = valueAdapter.toStored(value)
         if (key === "__proto__") setProtoProp(result, storedValue)
         else result[key] = storedValue
       })
       return result
-    },
-  }
+    }
+  )
 }
 
 function makeArrayBackedMapTransform<TKeyStored, TKeyRuntime, TValueStored, TValueRuntime>(
   keyAdapter: RuntimeAdapter<TKeyStored, TKeyRuntime>,
   valueAdapter: RuntimeAdapter<TValueStored, TValueRuntime>
 ): ModelPropTransform<Array<[TKeyStored, TValueStored]>, Map<TKeyRuntime, TValueRuntime>> {
-  const storedByRuntime = new WeakMap<
-    Map<TKeyRuntime, TValueRuntime>,
-    Array<[TKeyStored, TValueStored]>
-  >()
-
-  return {
-    transform({ originalValue, cachedTransformedValue }) {
-      if (cachedTransformedValue) {
-        return cachedTransformedValue
-      }
-
-      const runtimeMap = makeMapProxy(asMap(originalValue), keyAdapter, valueAdapter)
-
-      storedByRuntime.set(runtimeMap, originalValue)
-      return runtimeMap
-    },
-
-    untransform({ transformedValue }) {
-      const cachedStored = storedByRuntime.get(transformedValue)
-      if (cachedStored) {
-        return cachedStored
-      }
-
-      const result: Array<[TKeyStored, TValueStored]> = []
-      transformedValue.forEach((value, key) => {
-        result.push([keyAdapter.toStored(key), valueAdapter.toStored(value)])
-      })
-      return result
-    },
-  }
+  return makeMapTransform(keyAdapter, valueAdapter, (runtimeMap) => {
+    const result: Array<[TKeyStored, TValueStored]> = []
+    runtimeMap.forEach((value, key) => {
+      result.push([keyAdapter.toStored(key), valueAdapter.toStored(value)])
+    })
+    return result
+  })
 }
 
 export function typesMapFromObject<TValueType extends AnyType>(

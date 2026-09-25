@@ -108,35 +108,20 @@ export function internalPatchRecorder(
     deep: false,
   })
 
-  let onPatchesDisposer: OnPatchesDisposer
-
-  if (subtreeRoot) {
-    onPatchesDisposer = internalOnPatches(
-      subtreeRoot,
-      (p, invP) => {
-        if (recording && filter(p, invP)) {
-          events.push({
-            target: subtreeRoot,
-            patches: p,
-            inversePatches: invP,
-          })
-          opts?.onPatches?.(p, invP)
-        }
-      },
-      true
-    )
-  } else {
-    onPatchesDisposer = internalOnGlobalPatches((target, p, invP) => {
-      if (recording && filter(p, invP)) {
-        events.push({
-          target,
-          patches: p,
-          inversePatches: invP,
-        })
-        opts?.onPatches?.(p, invP)
-      }
-    }, true)
+  const record = (target: object, p: Patch[], invP: Patch[]) => {
+    if (recording && filter(p, invP)) {
+      events.push({
+        target,
+        patches: p,
+        inversePatches: invP,
+      })
+      opts?.onPatches?.(p, invP)
+    }
   }
+
+  const onPatchesDisposer: OnPatchesDisposer = subtreeRoot
+    ? internalOnPatches(subtreeRoot, (p, invP) => record(subtreeRoot, p, invP), true)
+    : internalOnGlobalPatches(record, true)
 
   return {
     get recording() {

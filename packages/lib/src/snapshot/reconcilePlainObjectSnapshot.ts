@@ -48,7 +48,9 @@ function reconcilePlainObjectSnapshot(
       const k = snKeys[i]
       const v = sn[k]
 
-      const oldValue = plainObj[k]
+      // an inherited member such as `toString` is no old value (but `__proto__`
+      // still reads the prototype, which is rejected as it is no tree node)
+      const oldValue = k === "__proto__" || hasOwnProp(plainObj, k) ? plainObj[k] : undefined
       const newValue = withErrorPathSegment(k, () =>
         reconcileSnapshot(oldValue, v, modelPool, plainObj)
       )

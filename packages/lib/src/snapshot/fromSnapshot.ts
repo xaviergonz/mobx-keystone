@@ -1,6 +1,7 @@
 import { action, observable } from "mobx"
 import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
+import { isTweakedObject } from "../tweaker/core"
 import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolveTypeChecker"
 import type { AnyType, TypeToData, TypeToSnapshotIn } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
@@ -122,7 +123,6 @@ const fromSnapshotAction = action(
   ): T => {
     const opts = {
       generateNewIds: false,
-      overrideRootModelId: undefined,
       ...options,
     }
 
@@ -168,6 +168,13 @@ export function internalFromSnapshot<T>(
   if (isSet(sn)) {
     throw new SnapshotProcessingError({
       message: "a snapshot must not contain sets",
+      actualSnapshot: sn,
+    })
+  }
+
+  if (isTweakedObject(sn, true)) {
+    throw new SnapshotProcessingError({
+      message: "a snapshot must not contain tree nodes (use getSnapshot to get their snapshots)",
       actualSnapshot: sn,
     })
   }

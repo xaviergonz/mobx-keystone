@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Fixed `applySnapshot` throwing when the snapshot adds an object under a key named like an `Object.prototype` member (e.g. `toString` or `constructor`).
+- Fixed `Draft`'s `isDirty` not being cached and `commit` / `reset` not running as MobX actions with MobX 6.
+- `fromSnapshot` (and `cloneTreeValue` for plain objects / arrays) now reports a clear error when the snapshot contains tree nodes, instead of a generic "unsupported snapshot".
+- Fixed `ArraySet` set operations (`union`, `intersection`, `isSubsetOf`, etc.) throwing on runtimes without the native ES2025 `Set` methods.
+
 ## 2.1.0
 
 - [BREAKING CHANGE] `UndoStore` keeps undo/redo events as frozen data, making recording ~4x faster and undo/redo ~3x faster:

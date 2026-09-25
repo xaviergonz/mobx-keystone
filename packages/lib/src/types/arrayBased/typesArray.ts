@@ -50,6 +50,16 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
       }
     )
 
+    const processorPlan = snapshotProcessorPlan(
+      () => [itemChecker],
+      ([itemProcessor]) =>
+        itemProcessor
+          ? (sn: unknown[]) => {
+              return sn.map((item, i) => withErrorPathSegment(i, () => itemProcessor(item)))
+            }
+          : undefined
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       TypeCheckerBaseType.Array,
 
@@ -89,25 +99,9 @@ export function typesArray<T extends AnyType>(itemType: T): ArrayType<T[]> {
         return thisTc
       },
 
-      snapshotProcessorPlan(
-        () => [itemChecker],
-        ([itemProcessor]) =>
-          itemProcessor
-            ? (sn: unknown[]) => {
-                return sn.map((item, i) => withErrorPathSegment(i, () => itemProcessor(item)))
-              }
-            : undefined
-      ),
+      processorPlan,
 
-      snapshotProcessorPlan(
-        () => [itemChecker],
-        ([itemProcessor]) =>
-          itemProcessor
-            ? (sn: unknown[]) => {
-                return sn.map((item, i) => withErrorPathSegment(i, () => itemProcessor(item)))
-              }
-            : undefined
-      )
+      processorPlan
     )
 
     return thisTc

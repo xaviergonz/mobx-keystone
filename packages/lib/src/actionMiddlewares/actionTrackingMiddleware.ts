@@ -178,8 +178,11 @@ export function actionTrackingMiddleware(
   const resumeSuspendSupport = !!hooks.onResume || !!hooks.onSuspend
 
   const filter: ActionMiddleware["filter"] = (ctx) => {
-    if (ctx.type === ActionContextActionType.Sync) {
-      // start and finish is on the same context
+    if (
+      ctx.type === ActionContextActionType.Sync ||
+      ctx.asyncStepType === ActionContextAsyncStepType.Spawn
+    ) {
+      // (for sync actions start and finish are on the same context)
       const accepted = userFilter(ctx)
       if (accepted) {
         setCtxData(ctx, {
@@ -188,39 +191,21 @@ export function actionTrackingMiddleware(
         })
       }
       return accepted
-    } else {
-      switch (ctx.asyncStepType) {
-        case ActionContextAsyncStepType.Spawn: {
-          const accepted = userFilter(ctx)
-          if (accepted) {
-            setCtxData(ctx, {
-              startAccepted: true,
-              state: State.Idle,
-            })
-          }
-          return accepted
-        }
+    }
 
-        case ActionContextAsyncStepType.Return:
-        case ActionContextAsyncStepType.Throw: {
-          // depends if the spawn one was accepted or not
-          const data = getCtxData(ctx.spawnAsyncStepContext!)
-          return data ? data.startAccepted : false
-        }
+    // the other steps depend on whether the spawn one was accepted or not
+    const spawnAccepted = () => !!getCtxData(ctx.spawnAsyncStepContext!)?.startAccepted
+    switch (ctx.asyncStepType) {
+      case ActionContextAsyncStepType.Return:
+      case ActionContextAsyncStepType.Throw:
+        return spawnAccepted()
 
-        case ActionContextAsyncStepType.Resume:
-        case ActionContextAsyncStepType.ResumeError:
-          if (resumeSuspendSupport) {
-            // depends if the spawn one was accepted or not
-            const data = getCtxData(ctx.spawnAsyncStepContext!)
-            return data ? data.startAccepted : false
-          } else {
-            return false
-          }
+      case ActionContextAsyncStepType.Resume:
+      case ActionContextAsyncStepType.ResumeError:
+        return resumeSuspendSupport && spawnAccepted()
 
-        default:
-          return false
-      }
+      default:
+        return false
     }
   }
 
@@ -311,57 +296,42 @@ export function actionTrackingMiddleware(
       }
     }
 
-    if (ctx.type === ActionContextActionType.Sync) {
-      let retObj = start(simpleCtx)
-
-      if (retObj) {
+    if (
+      ctx.type === ActionContextActionType.Sync ||
+      ctx.asyncStepType === ActionContextAsyncStepType.Spawn
+    ) {
+      const overriddenRetObj = start(simpleCtx)
+      if (overriddenRetObj) {
         // action canceled / overridden by onStart
         resume(simpleCtx, true)
         suspend(simpleCtx)
-        retObj = finish(simpleCtx, retObj)
-      } else {
-        try {
-          retObj = { result: ActionTrackingResult.Return, value: next() }
-        } catch (err) {
-          retObj = { result: ActionTrackingResult.Throw, value: err }
-        }
-        retObj = finish(simpleCtx, retObj)
+        return returnOrThrowActionTrackingReturn(finish(simpleCtx, overriddenRetObj))
       }
 
-      return returnOrThrowActionTrackingReturn(retObj)
+      if (ctx.type !== ActionContextActionType.Sync) {
+        // a flow finishes in its return / throw step
+        return next()
+      }
+
+      let retObj: ActionTrackingReturn
+      try {
+        retObj = { result: ActionTrackingResult.Return, value: next() }
+      } catch (err) {
+        retObj = { result: ActionTrackingResult.Throw, value: err }
+      }
+      return returnOrThrowActionTrackingReturn(finish(simpleCtx, retObj))
     } else {
       // async
 
       switch (ctx.asyncStepType) {
-        case ActionContextAsyncStepType.Spawn: {
-          let retObj = start(simpleCtx)
-          if (retObj) {
-            // action canceled / overridden by onStart
-            resume(simpleCtx, true)
-            suspend(simpleCtx)
-            retObj = finish(simpleCtx, retObj)
-            return returnOrThrowActionTrackingReturn(retObj)
-          } else {
-            return next()
-          }
-        }
-
-        case ActionContextAsyncStepType.Return: {
-          const flowFinisher: FlowFinisher = next()
-          const retObj = finish(simpleCtx, {
-            result: ActionTrackingResult.Return,
-            value: flowFinisher.value,
-          })
-          flowFinisher.resolution =
-            retObj.result === ActionTrackingResult.Return ? "accept" : "reject"
-          flowFinisher.value = retObj.value
-          return flowFinisher
-        }
-
+        case ActionContextAsyncStepType.Return:
         case ActionContextAsyncStepType.Throw: {
           const flowFinisher: FlowFinisher = next()
           const retObj = finish(simpleCtx, {
-            result: ActionTrackingResult.Throw,
+            result:
+              ctx.asyncStepType === ActionContextAsyncStepType.Return
+                ? ActionTrackingResult.Return
+                : ActionTrackingResult.Throw,
             value: flowFinisher.value,
           })
           flowFinisher.resolution =

@@ -113,8 +113,6 @@ export const setNewInternalSnapshot = action(
     }
 
     getOrCreateTreeNodeMetadata(value).snapshot = sn
-
-    sn.atom?.reportChanged()
   }
 )
 

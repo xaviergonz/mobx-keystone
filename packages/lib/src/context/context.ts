@@ -162,25 +162,19 @@ class ContextClass<T> implements Context<T> {
     })
   })
 
-  set = action((node: object, value: T) => {
+  private setNodeContextValue(node: object, contextValue: ContextValue<T>) {
     assertTweakedObject(node, "node")
 
-    this.nodeContextValue.set(node, {
-      type: "value",
-      value,
-    })
-    this.reportNodeAtomChanged(node)
-  })
-
-  private _setComputed(node: object, computedValueFn: IComputedValue<T>) {
-    assertTweakedObject(node, "node")
-
-    this.nodeContextValue.set(node, { type: "computed", value: computedValueFn })
+    this.nodeContextValue.set(node, contextValue)
     this.reportNodeAtomChanged(node)
   }
 
+  set = action((node: object, value: T) => {
+    this.setNodeContextValue(node, { type: "value", value })
+  })
+
   setComputed = action((node: object, valueFn: () => T) => {
-    this._setComputed(node, computed(valueFn))
+    this.setNodeContextValue(node, { type: "computed", value: computed(valueFn) })
   })
 
   unset = action((node: object) => {
@@ -190,42 +184,27 @@ class ContextClass<T> implements Context<T> {
     this.reportNodeAtomChanged(node)
   })
 
-  apply = action(<R>(fn: () => R, value: T): R => {
+  private applyOverride<R>(fn: () => R, contextValue: ContextValue<T>): R {
     const old = this.overrideContextValue.get()
-    this.overrideContextValue.set({
-      type: "value",
-      value,
-    })
+    this.overrideContextValue.set(contextValue)
 
     try {
       const ret = fn()
       if (isTweakedObject(ret, false)) {
-        this.set(ret, value)
+        this.setNodeContextValue(ret, contextValue)
       }
       return ret
     } finally {
       this.overrideContextValue.set(old)
     }
+  }
+
+  apply = action(<R>(fn: () => R, value: T): R => {
+    return this.applyOverride(fn, { type: "value", value })
   })
 
   applyComputed = action(<R>(fn: () => R, valueFn: () => T): R => {
-    const computedValueFn = computed(valueFn)
-
-    const old = this.overrideContextValue.get()
-    this.overrideContextValue.set({
-      type: "computed",
-      value: computedValueFn,
-    })
-
-    try {
-      const ret = fn()
-      if (isTweakedObject(ret, false)) {
-        this._setComputed(ret, computedValueFn)
-      }
-      return ret
-    } finally {
-      this.overrideContextValue.set(old)
-    }
+    return this.applyOverride(fn, { type: "computed", value: computed(valueFn) })
   })
 
   constructor(defaultValue?: T) {

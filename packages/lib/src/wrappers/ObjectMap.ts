@@ -70,12 +70,7 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
   }
 
   getOrInsert(key: string, defaultValue: V): V {
-    if (this.has(key)) {
-      return this.get(key) as V
-    }
-
-    this.set(key, defaultValue)
-    return this.get(key) as V
+    return this.getOrInsertComputed(key, () => defaultValue)
   }
 
   getOrInsertComputed(key: string, callback: (key: string) => V): V {

@@ -42,20 +42,19 @@ export function typesSkipCheck<T extends AnyType>(baseType: T): T {
       return `skipCheck<${baseTypeName}>`
     }
 
+    const processorPlan = snapshotProcessorPlan(
+      () => [baseChecker],
+      ([processor]) => processor
+    )
+
     const thisTc: TypeChecker = new TypeChecker(
       baseChecker.baseType,
       (_data, _path, _typeCheckedValue) => null, // always passes validation
       getTypeName,
       typeInfoGen,
       (sn) => baseChecker.snapshotType(sn),
-      snapshotProcessorPlan(
-        () => [baseChecker],
-        ([processor]) => processor
-      ),
-      snapshotProcessorPlan(
-        () => [baseChecker],
-        ([processor]) => processor
-      )
+      processorPlan,
+      processorPlan
     )
     thisTc.skipCheck = true
 

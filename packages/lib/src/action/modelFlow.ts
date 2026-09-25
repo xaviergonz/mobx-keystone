@@ -65,68 +65,53 @@ export function flow<R, Args extends any[]>({
     const genThrow = gen.throw!.bind(gen)
 
     const promise = new Promise<R>((resolve, reject) => {
-      function onFulfilled(res: any): void {
+      function finish(
+        stepType: ActionContextAsyncStepType,
+        resolution: FlowFinisher["resolution"],
+        value: unknown
+      ): void {
+        wrapInAction({
+          nameOrNameFn: name,
+          // we use a flow finisher to allow middlewares to tweak the return value before resolution
+          fn: (val: any): FlowFinisher => ({
+            value: val,
+            resolution,
+            accepter: resolve,
+            rejecter: reject,
+          }),
+          actionType: ActionContextActionType.Async,
+          overrideContext: ctxOverride(stepType),
+          isFlowFinisher: true,
+        }).call(target, value)
+      }
+
+      function resume(
+        genFn: (value: any) => IteratorResult<any>,
+        stepType: ActionContextAsyncStepType,
+        value: unknown
+      ): void {
         let ret: unknown
         try {
           ret = wrapInAction({
             nameOrNameFn: name,
-            fn: genNext,
+            fn: genFn,
             actionType: ActionContextActionType.Async,
-            overrideContext: ctxOverride(ActionContextAsyncStepType.Resume),
-          }).call(target, res)
+            overrideContext: ctxOverride(stepType),
+          }).call(target, value)
         } catch (e) {
-          wrapInAction({
-            nameOrNameFn: name,
-            fn: (err: any) => {
-              // we use a flow finisher to allow middlewares to tweak the return value before resolution
-              return {
-                value: err,
-                resolution: "reject",
-
-                accepter: resolve,
-                rejecter: reject,
-              } as FlowFinisher
-            },
-            actionType: ActionContextActionType.Async,
-            overrideContext: ctxOverride(ActionContextAsyncStepType.Throw),
-            isFlowFinisher: true,
-          }).call(target, e)
+          finish(ActionContextAsyncStepType.Throw, "reject", e)
           return
         }
 
         next(ret)
       }
 
+      function onFulfilled(res: unknown): void {
+        resume(genNext, ActionContextAsyncStepType.Resume, res)
+      }
+
       function onRejected(err: unknown): void {
-        let ret: unknown
-        try {
-          ret = wrapInAction({
-            nameOrNameFn: name,
-            fn: genThrow,
-            actionType: ActionContextActionType.Async,
-            overrideContext: ctxOverride(ActionContextAsyncStepType.ResumeError),
-          }).call(target, err)
-        } catch (e) {
-          wrapInAction({
-            nameOrNameFn: name,
-            fn: (err: any) => {
-              // we use a flow finisher to allow middlewares to tweak the return value before resolution
-              return {
-                value: err,
-                resolution: "reject",
-
-                accepter: resolve,
-                rejecter: reject,
-              } as FlowFinisher
-            },
-            actionType: ActionContextActionType.Async,
-            overrideContext: ctxOverride(ActionContextAsyncStepType.Throw),
-            isFlowFinisher: true,
-          }).call(target, e)
-          return
-        }
-
-        next(ret)
+        resume(genThrow, ActionContextAsyncStepType.ResumeError, err)
       }
 
       function next(ret: any): void {
@@ -134,23 +119,7 @@ export function flow<R, Args extends any[]>({
           // an async iterator
           Promise.resolve(ret).then(next, reject).catch(reject)
         } else if (ret.done) {
-          // done
-          wrapInAction({
-            nameOrNameFn: name,
-            fn: (val: any) => {
-              // we use a flow finisher to allow middlewares to tweak the return value before resolution
-              return {
-                value: val,
-                resolution: "accept",
-
-                accepter: resolve,
-                rejecter: reject,
-              } as FlowFinisher
-            },
-            actionType: ActionContextActionType.Async,
-            overrideContext: ctxOverride(ActionContextAsyncStepType.Return),
-            isFlowFinisher: true,
-          }).call(target, ret.value)
+          finish(ActionContextAsyncStepType.Return, "accept", ret.value)
         } else {
           // continue
           Promise.resolve(ret.value).then(onFulfilled, onRejected).catch(reject)

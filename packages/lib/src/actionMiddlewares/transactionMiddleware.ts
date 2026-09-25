@@ -122,7 +122,7 @@ export function transaction(...args: any[]): void {
 
     checkDecoratorContext("transaction", ctx.name, ctx.static)
     if (ctx.kind !== "method" && ctx.kind !== "field") {
-      throw failure(`@transaction can only be used on fields or methods}`)
+      throw failure(`@transaction can only be used on fields or methods`)
     }
 
     ctx.addInitializer(function (this: any) {

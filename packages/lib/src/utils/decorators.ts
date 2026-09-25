@@ -109,7 +109,7 @@ export function decorateWrapMethodOrField(
     const propertyKey: string = args[1]
     const baseDescriptor: PropertyDescriptor | undefined = args[2]
 
-    checkModelDecoratorTaget(decoratorName, target)
+    checkModelDecoratorTarget(decoratorName, target)
     checkDecoratorContext(decoratorName, propertyKey, false)
 
     const data = getActionNameAndContextOverride(target, propertyKey, true)
@@ -166,7 +166,7 @@ export function decorateWrapMethodOrField(
           inited = true
 
           const target = this
-          checkModelDecoratorTaget(decoratorName, target)
+          checkModelDecoratorTarget(decoratorName, target)
 
           // find the deepest proto that matches the value
           let proto = this
@@ -195,7 +195,7 @@ export function decorateWrapMethodOrField(
           const instance = this
 
           if (!data) {
-            checkModelDecoratorTaget(decoratorName, instance)
+            checkModelDecoratorTarget(decoratorName, instance)
             data = getActionNameAndContextOverride(instance, propertyKey, false)
           }
 
@@ -207,7 +207,7 @@ export function decorateWrapMethodOrField(
       }
 
       default:
-        throw failure(`@${decoratorName} can only be used on fields or methods}`)
+        throw failure(`@${decoratorName} can only be used on fields or methods`)
     }
   }
 }
@@ -270,7 +270,7 @@ function getActionNameAndContextOverride(
   }
 }
 
-function checkModelDecoratorTaget(decoratorName: string, target: any) {
+function checkModelDecoratorTarget(decoratorName: string, target: any) {
   if (!inDevMode) {
     return
   }

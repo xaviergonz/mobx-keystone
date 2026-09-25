@@ -15,35 +15,12 @@ export function isDataModel(model: unknown): model is AnyDataModel {
 
 /**
  * @internal
- *
- * Asserts something is actually a data model.
- *
- * @param model
- * @param argName
- */
-export function assertIsDataModel(
-  model: unknown,
-  argName: string,
-  customErrMsg = "must be a data model instance"
-): asserts model is AnyDataModel {
-  if (!isDataModel(model)) {
-    throw failure(`${argName} ${customErrMsg}`)
-  }
-}
-
-/**
- * @internal
  */
 export function isDataModelClass(modelClass: unknown): modelClass is ModelClass<AnyDataModel> {
-  if (typeof modelClass !== "function") {
-    return false
-  }
-
-  if (modelClass !== BaseDataModel && !(modelClass.prototype instanceof BaseDataModel)) {
-    return false
-  }
-
-  return true
+  return (
+    typeof modelClass === "function" &&
+    (modelClass === BaseDataModel || modelClass.prototype instanceof BaseDataModel)
+  )
 }
 
 /**
@@ -57,7 +34,7 @@ export function assertIsDataModelClass(
     throw failure(`${argName} must be a class`)
   }
 
-  if (modelClass !== BaseDataModel && !(modelClass.prototype instanceof BaseDataModel)) {
+  if (!isDataModelClass(modelClass)) {
     throw failure(`${argName} must extend DataModel`)
   }
 }

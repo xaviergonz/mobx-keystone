@@ -289,7 +289,6 @@ function arrayDidChangeUpdate(
 ) {
   const k = change.index
   const val = change.newValue
-  const oldVal = oldSnapshot[k]
   let newVal: any
   if (isPrimitive(val)) {
     newVal = val
@@ -299,15 +298,14 @@ function arrayDidChangeUpdate(
   }
   const mutate = mutateSet.bind(undefined, k, newVal)
 
-  if (shouldEmitPatches || shouldBuildInversePatches) {
+  if (shouldBuildInversePatches) {
     const path = [k]
     const patches = shouldEmitPatches
       ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(newVal) }]
       : undefined
-    const invPatches = shouldBuildInversePatches
-      ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(oldVal) }]
-      : undefined
-    patchRecorder.record(patches, invPatches)
+    patchRecorder.record(patches, [
+      { op: "replace" as const, path, value: freezeInternalSnapshot(oldSnapshot[k]) },
+    ])
   }
   return mutate
 }
@@ -335,17 +333,16 @@ function arrayDidChangeSplice(
 
   const mutate = mutateSplice.bind(undefined, index, removedCount, addedItems)
 
-  // With neither patch listeners nor type checking, there is no inverse-patch
-  // data to build. The snapshot mutation above is all the post-change work we
-  // need to retain.
-  if (!shouldEmitPatches && !shouldBuildInversePatches) {
+  // With neither patch listeners nor type checking, there is no patch data to
+  // build. The snapshot mutation above is all the post-change work we need.
+  if (!shouldBuildInversePatches) {
     return mutate
   }
 
   const oldLen = oldSnapshot.length
 
   const patches: Patch[] | undefined = shouldEmitPatches ? [] : undefined
-  const invPatches: Patch[] | undefined = shouldBuildInversePatches ? [] : undefined
+  const invPatches: Patch[] = []
 
   // optimization: if we add as many as we remove then remove/readd instead
 
@@ -357,13 +354,13 @@ function arrayDidChangeSplice(
 
   if (addedCount === removedCount) {
     const readdPatches: Patch[] | undefined = shouldEmitPatches ? [] : undefined
-    const readdInvPatches: Patch[] | undefined = shouldBuildInversePatches ? [] : undefined
+    const readdInvPatches: Patch[] = []
     let removed = 0
 
     for (let i = 0; i < addedCount; i++) {
       const realIndex = index + i
 
-      const newVal = getValueAfterSplice(oldSnapshot, realIndex, index, removedCount, addedItems)
+      const newVal = addedItems[i]
       const oldVal = oldSnapshot[realIndex]
 
       if (newVal !== oldVal) {
@@ -372,7 +369,7 @@ function arrayDidChangeSplice(
           op: "remove",
           path: removePath,
         })
-        invPatches?.push({
+        invPatches.push({
           op: "remove",
           path: removePath,
         })
@@ -386,7 +383,7 @@ function arrayDidChangeSplice(
           value: freezeInternalSnapshot(newVal),
         })
 
-        readdInvPatches?.push({
+        readdInvPatches.push({
           op: "add",
           path: readdPath,
           value: freezeInternalSnapshot(oldVal),
@@ -394,17 +391,13 @@ function arrayDidChangeSplice(
       }
     }
 
-    if (patches && readdPatches && readdPatches.length > 0) {
+    if (patches && readdPatches) {
       for (const patch of readdPatches) patches.push(patch)
     }
-    if (invPatches && readdInvPatches && readdInvPatches.length > 0) {
-      for (const patch of readdInvPatches) invPatches.push(patch)
-    }
+    for (const patch of readdInvPatches) invPatches.push(patch)
     // We need to reverse once since inverse patches are applied in reverse.
     // Repeated unshift calls here would make a large splice quadratic.
-    if (invPatches && invPatches.length > 0) {
-      invPatches.reverse()
-    }
+    invPatches.reverse()
   } else {
     const interimLen = oldLen - removedCount
 
@@ -433,7 +426,7 @@ function arrayDidChangeSplice(
         }
 
         // add 0, 1, 2... since inverse patches are applied in reverse
-        invPatches?.push({
+        invPatches.push({
           op: "add",
           path,
           value: freezeInternalSnapshot(oldSnapshot[realIndex]),
@@ -446,7 +439,7 @@ function arrayDidChangeSplice(
       // optimization, for inverse patches, when adding from the end set the length to restore instead
       const restoreUsingSetLength = index >= interimLen
       if (restoreUsingSetLength) {
-        invPatches?.push({
+        invPatches.push({
           op: "replace",
           path: ["length"],
           value: interimLen,
@@ -461,14 +454,12 @@ function arrayDidChangeSplice(
         patches?.push({
           op: "add",
           path,
-          value: freezeInternalSnapshot(
-            getValueAfterSplice(oldSnapshot, realIndex, index, removedCount, addedItems)
-          ),
+          value: freezeInternalSnapshot(addedItems[i]),
         })
 
         // remove ...2, 1, 0 since inverse patches are applied in reverse
         if (!restoreUsingSetLength) {
-          invPatches?.push({
+          invPatches.push({
             op: "remove",
             path,
           })
@@ -477,9 +468,7 @@ function arrayDidChangeSplice(
     }
   }
 
-  if (patches || invPatches) {
-    patchRecorder.record(patches, invPatches)
-  }
+  patchRecorder.record(patches, invPatches)
   return mutate
 }
 
@@ -675,23 +664,4 @@ class ObservableArrayReplacementQueue {
       this.rangeItems = undefined
     }
   }
-}
-
-function getValueAfterSplice<T>(
-  array: readonly T[],
-  i: number,
-  index: number,
-  remove: number,
-  addedItems: readonly T[]
-) {
-  const base = i - index
-  if (base < 0) {
-    return array[i]
-  }
-
-  if (base < addedItems.length) {
-    return addedItems[base]
-  }
-
-  return array[i - addedItems.length + remove]
 }

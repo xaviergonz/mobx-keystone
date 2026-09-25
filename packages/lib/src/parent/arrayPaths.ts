@@ -235,8 +235,5 @@ export function getArrayPaths(
  * @internal
  */
 export function setLazyArrayParentPath(entry: LazyArrayParentPath, node: object): void {
-  const metadata = treeNodeMetadata.get(node)!
-  if (metadata.parentPath !== entry) {
-    metadata.parentPath = entry
-  }
+  treeNodeMetadata.get(node)!.parentPath = entry
 }

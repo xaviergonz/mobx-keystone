@@ -569,21 +569,17 @@ export function prop(...args: [] | [def: any]): AnyModelProp {
 
   const [def] = args
 
-  let p = propCache.get(def)
-
-  if (!p) {
-    p = Object.create(baseProp)
+  return getOrCreate(propCache, def, () => {
+    const p: AnyModelProp = Object.create(baseProp)
 
     if (typeof def === "function") {
-      p!._defaultFn = def
+      p._defaultFn = def
     } else {
-      p!._defaultValue = def
+      p._defaultValue = def
     }
 
-    propCache.set(def, p!)
-  }
-
-  return p!
+    return p
+  })
 }
 
 function parseSetterConfig(
@@ -599,19 +595,11 @@ function parseSetterConfig(
     }
   }
 
-  if (
-    modeOrValueTransform === undefined ||
-    typeof modeOrValueTransform === "boolean" ||
-    modeOrValueTransform === "assign"
-  ) {
-    return {
-      mode: modeOrValueTransform ?? true,
-      valueTransform: undefined,
-    }
-  }
-
   return {
-    mode: true,
+    mode:
+      typeof modeOrValueTransform === "boolean" || modeOrValueTransform === "assign"
+        ? modeOrValueTransform
+        : true,
     valueTransform: undefined,
   }
 }

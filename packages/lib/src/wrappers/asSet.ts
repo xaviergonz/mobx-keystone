@@ -3,7 +3,6 @@ import {
   type IObservableArray,
   type ISetWillChange,
   intercept,
-  isObservableArray,
   type ObservableSet,
   observable,
   observe,
@@ -16,7 +15,6 @@ import {
   assertIsSet,
   failure,
   getMobxVersion,
-  inDevMode,
   isEqualOrBothNaN,
 } from "../utils"
 import { tag } from "../utils/tag"
@@ -24,12 +22,6 @@ import { tag } from "../utils/tag"
 const observableSetBackedByObservableArray = <T>(
   array: IObservableArray<T>
 ): ObservableSet<T> & { dataObject: typeof array } => {
-  if (inDevMode) {
-    if (!isObservableArray(array)) {
-      throw failure("assertion failed: expected an observable array")
-    }
-  }
-
   const set = transaction(() =>
     untracked(() => {
       if (getMobxVersion() >= 6) {

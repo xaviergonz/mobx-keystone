@@ -1,9 +1,6 @@
 import type { AnyModel } from "../model/BaseModel"
-import { getModelIdPropertyName } from "../model/getModelMetadata"
 import { modelIdKey, modelTypeKey } from "../model/metadata"
-import { getSnapshotModelType, isModel } from "../model/utils"
-import type { ModelClass } from "../modelShared/BaseModelShared"
-import { getModelInfoForName } from "../modelShared/modelInfo"
+import { isModel } from "../model/utils"
 import { dataToModelNode } from "../parent/core"
 import {
   type DeepObjectChildrenExtensionAccessor,
@@ -45,20 +42,6 @@ export class ModelPool {
 
   findModelByTypeAndId(modelType: string, modelId: string | undefined): AnyModel | undefined {
     return modelId !== undefined ? this.pool.get(modelType)?.get(modelId) : undefined
-  }
-
-  findModelForSnapshot(sn: any): AnyModel | undefined {
-    const modelType = getSnapshotModelType(sn)
-    if (modelType === undefined) {
-      return undefined
-    }
-
-    const modelInfo = getModelInfoForName(modelType)!
-    const modelIdPropertyName = getModelIdPropertyName(modelInfo.class as ModelClass<AnyModel>)
-
-    return modelIdPropertyName !== undefined
-      ? this.findModelByTypeAndId(modelType, (sn as any)[modelIdPropertyName])
-      : undefined
   }
 }
 

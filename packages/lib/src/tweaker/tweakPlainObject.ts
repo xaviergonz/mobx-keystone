@@ -295,16 +295,14 @@ function objectDidChangeRemove(
   shouldBuildInversePatches: boolean
 ) {
   const k = change.name
-  const oldVal = oldUntransformedSn[k]
   const mutate = mutateDelete.bind(undefined, k)
 
-  if (shouldEmitPatches || shouldBuildInversePatches) {
+  if (shouldBuildInversePatches) {
     const path = [k as string]
     const patches = shouldEmitPatches ? [{ op: "remove" as const, path }] : undefined
-    const invPatches = shouldBuildInversePatches
-      ? [{ op: "add" as const, path, value: freezeInternalSnapshot(oldVal) }]
-      : undefined
-    patchRecorder.record(patches, invPatches)
+    patchRecorder.record(patches, [
+      { op: "add" as const, path, value: freezeInternalSnapshot(oldUntransformedSn[k]) },
+    ])
   }
   return mutate
 }
@@ -318,8 +316,6 @@ function objectDidChangeAddOrUpdate(
   const k = change.name
   const val = change.newValue
 
-  const oldVal = oldUntransformedSn[k]
-
   let newVal: any
   if (isPrimitive(val)) {
     newVal = val
@@ -330,22 +326,20 @@ function objectDidChangeAddOrUpdate(
 
   const mutate = mutateSet.bind(undefined, k, newVal)
 
-  if (shouldEmitPatches || shouldBuildInversePatches) {
+  if (shouldBuildInversePatches) {
     const path = [k as string]
     if (change.type === "add") {
       const patches = shouldEmitPatches
         ? [{ op: "add" as const, path, value: freezeInternalSnapshot(newVal) }]
         : undefined
-      const invPatches = shouldBuildInversePatches ? [{ op: "remove" as const, path }] : undefined
-      patchRecorder.record(patches, invPatches)
+      patchRecorder.record(patches, [{ op: "remove" as const, path }])
     } else {
       const patches = shouldEmitPatches
         ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(newVal) }]
         : undefined
-      const invPatches = shouldBuildInversePatches
-        ? [{ op: "replace" as const, path, value: freezeInternalSnapshot(oldVal) }]
-        : undefined
-      patchRecorder.record(patches, invPatches)
+      patchRecorder.record(patches, [
+        { op: "replace" as const, path, value: freezeInternalSnapshot(oldUntransformedSn[k]) },
+      ])
     }
   }
 
