@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.2.0
 
 - Now requires TypeScript 5.4 or newer (the types use the built-in `NoInfer`).
