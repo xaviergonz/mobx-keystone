@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.0.1
 
 - Internal simplifications to the binding code, sharing more logic with the other CRDT binding and slightly reducing work when applying incoming changes. No behavior changes.
