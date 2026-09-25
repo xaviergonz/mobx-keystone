@@ -67,7 +67,7 @@ The returned context object has the following methods:
 The value returned by `get(node)` is observable and can change, so read it where you need it instead of storing it.
 :::
 
-Both methods return the callback result unchanged. Returning a model's `$` data object does not make its model a context provider.
+`apply` and `applyComputed` return the callback result unchanged. Returning a model's `$` data object does not make its model a context provider.
 
 In particular, `apply` lets you provide volatile (non-property) data while constructing nodes through `new`, `fromSnapshot`, `clone`, `toTreeNode`, and similar APIs.
 For example:

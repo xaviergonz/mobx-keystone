@@ -18,5 +18,7 @@ module.exports = {
   useCodeBlocks: true,
   parametersFormat: "table",
   enumMembersFormat: "table",
+  // Explicit heading ids, so anchors like `#_` (for a member named `$`) match what Docusaurus renders.
+  useCustomAnchors: true,
   sidebar: { pretty: true },
 }

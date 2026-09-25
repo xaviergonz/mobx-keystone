@@ -24,7 +24,7 @@ export default function NavbarMobileSidebarLayout({ header, primaryMenu }: Props
         >
           {secondaryMenu}
           {secondaryMenu && <hr className={styles.divider} />}
-          {primaryMenu}
+          <div className={styles.primaryMenu}>{primaryMenu}</div>
         </div>
       </div>
     </div>

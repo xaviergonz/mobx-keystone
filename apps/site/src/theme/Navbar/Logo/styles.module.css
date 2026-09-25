@@ -20,3 +20,9 @@
   color: var(--mk-accent);
   text-decoration: none;
 }
+
+/* The mobile drawer header reuses the navbar logo, but its brand is pushed apart from the
+   following items, so the tag would end up detached next to the close button. */
+:global(.navbar-sidebar__brand) .apiTag {
+  display: none;
+}

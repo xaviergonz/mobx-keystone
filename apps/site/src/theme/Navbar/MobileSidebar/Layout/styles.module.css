@@ -3,3 +3,8 @@
   border: 0;
   border-top: 1px solid var(--docs-border);
 }
+
+/* Lines the navbar links up with the docs sidebar items, which get side padding from `.theme-doc-sidebar-menu`. */
+.primaryMenu {
+  padding-inline: 0.25rem;
+}

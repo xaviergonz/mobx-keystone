@@ -264,7 +264,7 @@ await myBookStore.fetchMyBooksAsync("someToken")
 ```
 
 :::warning `yield*`, not `yield`
-Always use `yield* _await(...)`. `_await` only works when delegated to with `yield*`, and a plain `yield` does not work.
+Always use `yield* _await(...)`. `_await` only works when delegated to with `yield*`, and a plain `yield` does not work. Both `_async` and `_await` are imported from `mobx-keystone`.
 :::
 
 ## Factory pattern / Generics

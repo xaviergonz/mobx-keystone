@@ -391,6 +391,22 @@ html.plugin-docs #__docusaurus::before {
   font-size: 0.875rem;
 }
 
+/* Signatures such as `prop<T>(defaultValue)` are hard to read when split across lines; narrow screens
+   scroll the table instead. */
+.theme-doc-markdown table code {
+  white-space: nowrap;
+}
+
+/* Keeps the last (usually descriptive) column readable on narrow screens. Comparison tables size
+   their own columns. */
+.theme-doc-markdown td:last-child {
+  min-width: 14rem;
+}
+
+.theme-doc-markdown .docs-compare-table td:last-child {
+  min-width: 0;
+}
+
 .table-of-contents {
   font-size: 0.75rem;
   line-height: 1.7;
