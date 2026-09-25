@@ -3,7 +3,7 @@ import type { AnyStandardType } from "../types/schemas"
 import { isEqualOrBothNaN, lazy } from "../utils"
 import { runWithErrorDiagnosticsContext, withErrorPathSegment } from "../utils/errorDiagnostics"
 import { getOrCreate } from "../utils/mapUtils"
-import type { Flatten, IsNeverType, IsOptionalValue } from "../utils/types"
+import type { IsNeverType, IsOptionalValue, SimplifyObject } from "../utils/types"
 
 /**
  * @ignore
@@ -71,50 +71,18 @@ export interface ModelProp<
    * Adds a setter to the property. The setter will be named `set${CapitalizedPropName}`
    * and will be available in the model instance.
    */
-  withSetter(): ModelProp<
-    TPropValue,
-    TPropCreationValue,
-    TTransformedValue,
-    TTransformedCreationValue,
-    TIsRequired,
-    TIsId,
-    string,
-    TFromSnapshotOverride,
-    TToSnapshotOverride
-  >
+  withSetter(): ModelPropWithSetter<this>
   /**
    * Adds a setter with a transform to the property. The setter will be named `set${CapitalizedPropName}`
    * and will be available in the model instance.
    */
   withSetter(
     valueTransform: ModelPropSetterValueTransform<TTransformedValue>
-  ): ModelProp<
-    TPropValue,
-    TPropCreationValue,
-    TTransformedValue,
-    TTransformedCreationValue,
-    TIsRequired,
-    TIsId,
-    string,
-    TFromSnapshotOverride,
-    TToSnapshotOverride
-  >
+  ): ModelPropWithSetter<this>
   /**
    * @deprecated Setter methods are preferred.
    */
-  withSetter(
-    mode: "assign"
-  ): ModelProp<
-    TPropValue,
-    TPropCreationValue,
-    TTransformedValue,
-    TTransformedCreationValue,
-    TIsRequired,
-    TIsId,
-    string,
-    TFromSnapshotOverride,
-    TToSnapshotOverride
-  >
+  withSetter(mode: "assign"): ModelPropWithSetter<this>
 
   /**
    * Sets a transform for the property instance value.
@@ -130,17 +98,7 @@ export interface ModelProp<
    */
   withTransform<TTV>(
     transform: ModelPropTransform<NonNullable<TPropValue>, TTV>
-  ): ModelProp<
-    TPropValue,
-    TPropCreationValue,
-    TTV | Extract<TPropValue, null | undefined>,
-    TTV | Extract<TPropCreationValue, null | undefined>,
-    TIsRequired,
-    TIsId,
-    THasSetter,
-    TFromSnapshotOverride,
-    TToSnapshotOverride
-  >
+  ): ModelPropWithTransform<this, TTV>
 
   /**
    * Sets snapshot processors for this property.
@@ -158,18 +116,69 @@ export interface ModelProp<
   >(processor: {
     fromSnapshot?: (sn: FS) => ModelPropFromSnapshot<This>
     toSnapshot?: (sn: ModelPropToSnapshot<This>) => TS
-  }): ModelProp<
-    TPropValue,
-    TPropCreationValue,
-    TTransformedValue,
-    TTransformedCreationValue,
-    TIsRequired,
-    TIsId,
-    THasSetter,
-    FS,
-    TS
-  >
+  }): ModelPropWithSnapshotProcessor<this, FS, TS>
 }
+
+type ModelPropStoredMetadataKey = "$storedValueType" | "$storedCreationValueType"
+
+// keeps the stored value metadata that `tProp` adds (e.g. the encoded type of a codec)
+// when a model prop is derived through one of its modifiers
+type ModelPropStoredMetadata<MP, K extends PropertyKey> = MP extends {
+  $storedValueType: unknown
+}
+  ? Pick<MP, Extract<keyof MP, K>>
+  : {}
+
+// the modifier result types are exported so emitted declaration files can reference them by name
+// instead of expanding them inline in every exported model class
+
+/**
+ * The model property returned by `withSetter`.
+ */
+export type ModelPropWithSetter<MP extends AnyModelProp> = ModelProp<
+  MP["$valueType"],
+  MP["$creationValueType"],
+  MP["$transformedValueType"],
+  MP["$transformedCreationValueType"],
+  MP["$isRequired"],
+  MP["$isId"],
+  string,
+  MP["$fromSnapshotOverride"],
+  MP["$toSnapshotOverride"]
+> &
+  ModelPropStoredMetadata<MP, ModelPropStoredMetadataKey | "$typedFromSnapshotOverride">
+
+/**
+ * The model property returned by `withTransform`.
+ */
+export type ModelPropWithTransform<MP extends AnyModelProp, TTV> = ModelProp<
+  MP["$valueType"],
+  MP["$creationValueType"],
+  TTV | Extract<MP["$valueType"], null | undefined>,
+  TTV | Extract<MP["$creationValueType"], null | undefined>,
+  MP["$isRequired"],
+  MP["$isId"],
+  MP["$hasSetter"],
+  MP["$fromSnapshotOverride"],
+  MP["$toSnapshotOverride"]
+> &
+  ModelPropStoredMetadata<MP, ModelPropStoredMetadataKey | "$typedFromSnapshotOverride">
+
+/**
+ * The model property returned by `withSnapshotProcessor`.
+ */
+export type ModelPropWithSnapshotProcessor<MP extends AnyModelProp, FS, TS> = ModelProp<
+  MP["$valueType"],
+  MP["$creationValueType"],
+  MP["$transformedValueType"],
+  MP["$transformedCreationValueType"],
+  MP["$isRequired"],
+  MP["$isId"],
+  MP["$hasSetter"],
+  FS,
+  TS
+> &
+  ModelPropStoredMetadata<MP, ModelPropStoredMetadataKey>
 
 /**
  * The snapshot in type of a model property.
@@ -189,23 +198,19 @@ export type ModelPropToSnapshot<MP extends AnyModelProp> = IsNeverType<
   MP["$toSnapshotOverride"]
 >
 
-export type ModelPropStoredValue<MP extends AnyModelProp> = MP extends {
-  $storedValueType: infer TStoredValue
-}
-  ? TStoredValue
+export type ModelPropStoredValue<MP extends AnyModelProp> = "$storedValueType" extends keyof MP
+  ? MP["$storedValueType" & keyof MP]
   : MP["$valueType"]
 
-export type ModelPropStoredCreationValue<MP extends AnyModelProp> = MP extends {
-  $storedCreationValueType: infer TStoredCreationValue
-}
-  ? TStoredCreationValue
-  : MP["$creationValueType"]
+export type ModelPropStoredCreationValue<MP extends AnyModelProp> =
+  "$storedCreationValueType" extends keyof MP
+    ? MP["$storedCreationValueType" & keyof MP]
+    : MP["$creationValueType"]
 
-export type ModelPropFromSnapshotOverride<MP extends AnyModelProp> = MP extends {
-  $typedFromSnapshotOverride: infer TFromSnapshotOverride
-}
-  ? TFromSnapshotOverride
-  : MP["$fromSnapshotOverride"]
+export type ModelPropFromSnapshotOverride<MP extends AnyModelProp> =
+  "$typedFromSnapshotOverride" extends keyof MP
+    ? MP["$typedFromSnapshotOverride" & keyof MP]
+    : MP["$fromSnapshotOverride"]
 
 /**
  * A model prop transform.
@@ -245,13 +250,13 @@ export type RequiredModelProps<MP extends ModelProps> = {
   [K in keyof MP]: MP[K]["$isRequired"] & K
 }[keyof MP]
 
-export type ModelPropsToUntransformedData<MP extends ModelProps> = Flatten<{
+export type ModelPropsToUntransformedData<MP extends ModelProps> = {
   [k in keyof MP]: ModelPropStoredValue<MP[k]>
-}>
+} & {}
 
-export type ModelPropsToSnapshotData<MP extends ModelProps> = Flatten<{
+export type ModelPropsToSnapshotData<MP extends ModelProps> = {
   [k in keyof MP]: ModelPropToSnapshot<MP[k]> extends infer R ? R : never
-}>
+} & {}
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use Pick over the optional props we will loose the ability to infer generics
@@ -264,23 +269,29 @@ export type ModelPropsToUntransformedCreationData<MP extends ModelProps> = {
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use Pick over the optional props we will loose the ability to infer generics
-export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = Flatten<
+export type ModelPropsToSnapshotCreationData<MP extends ModelProps> = SimplifyObject<
   {
     [k in keyof MP]?: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
   } & {
-    [k in {
-      [K in keyof MP]: IsNeverType<
-        ModelPropFromSnapshotOverride<MP[K]>,
-        MP[K]["$isRequired"] & K, // no override
-        IsOptionalValue<ModelPropFromSnapshotOverride<MP[K]>, never, K> // with override
-      >
-    }[keyof MP]]: ModelPropFromSnapshot<MP[k]> extends infer R ? R : never
+    [k in SnapshotCreationRequiredKeys<MP>]: ModelPropFromSnapshot<MP[k]> extends infer R
+      ? R
+      : never
   }
 >
 
-export type ModelPropsToTransformedData<MP extends ModelProps> = Flatten<{
+// without a snapshot processor a key is required when the prop is required,
+// with one when the processor input does not accept undefined
+type SnapshotCreationRequiredKeys<MP extends ModelProps> = {
+  [K in keyof MP]: IsNeverType<
+    ModelPropFromSnapshotOverride<MP[K]>,
+    MP[K]["$isRequired"] & K,
+    IsOptionalValue<ModelPropFromSnapshotOverride<MP[K]>, never, K>
+  >
+}[keyof MP]
+
+export type ModelPropsToTransformedData<MP extends ModelProps> = {
   [k in keyof MP]: MP[k]["$transformedValueType"]
-}>
+} & {}
 
 // we don't use O.Optional anymore since it generates unions too heavy
 // also if we use Pick over the optional props we will loose the ability to infer generics
@@ -292,11 +303,11 @@ export type ModelPropsToTransformedCreationData<MP extends ModelProps> = {
   [k in RequiredModelProps<MP>]: MP[k]["$transformedCreationValueType"]
 }
 
-export type ModelPropsToSetter<MP extends ModelProps> = Flatten<{
+export type ModelPropsToSetter<MP extends ModelProps> = {
   [k in keyof MP as MP[k]["$hasSetter"] & `set${Capitalize<k & string>}`]: (
     value: MP[k]["$transformedValueType"]
   ) => void
-}>
+} & {}
 
 export type ModelIdProp<T extends string = string> = ModelProp<
   T,
@@ -307,7 +318,12 @@ export type ModelIdProp<T extends string = string> = ModelProp<
   true
 >
 
-type TypedModelIdProp<T extends string = string, THasSetter = never> = Omit<
+// exported (and publicly re-exported) so emitted declaration files can reference it by name
+// instead of expanding it inline in every exported model class, which is much slower and larger
+/**
+ * The type of `idProp`.
+ */
+export type TypedModelIdProp<T extends string = string, THasSetter = never> = Omit<
   ModelProp<T, T | undefined, T, T | undefined, never, true, THasSetter>,
   "withSetter"
 > & {

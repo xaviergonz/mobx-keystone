@@ -33,7 +33,7 @@ import { SnapshotProcessingError } from "./SnapshotProcessingError"
  */
 export function applySnapshot<T extends object>(
   node: T,
-  snapshot: SnapshotInOf<T> | SnapshotOutOf<T>
+  snapshot: NoInfer<SnapshotInOf<T> | SnapshotOutOf<T>>
 ): void
 
 export function applySnapshot(node: object, snapshot: unknown): void {

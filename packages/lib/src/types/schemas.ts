@@ -1,13 +1,10 @@
-import type { O } from "ts-toolbelt"
 import type { AnyDataModel } from "../dataModel/BaseDataModel"
 import type { AnyModel } from "../model/BaseModel"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import type { SnapshotInOf, SnapshotOutOf } from "../snapshot/SnapshotOf"
-import type { IsOptionalValue } from "../utils/types"
+import type { IsOptionalValue, SimplifyObject } from "../utils/types"
 
 // type schemas
-
-// infer is there just to cache type generation
 
 export interface Type<Name, Data> {
   /** @ignore */
@@ -38,21 +35,21 @@ export interface CodecType<
 }
 
 type ArrayData<S extends readonly unknown[]> = number extends S["length"]
-  ? Array<TypeToData<S[number]> extends infer R ? R : never>
+  ? Array<TypeToData<S[number]>>
   : {
-      [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never
+      [k in keyof S]: TypeToData<S[k]>
     }
 
 type ArraySnapshotInData<S extends readonly unknown[]> = number extends S["length"]
-  ? Array<TypeToSnapshotIn<S[number]> extends infer R ? R : never>
+  ? Array<TypeToSnapshotIn<S[number]>>
   : {
-      [k in keyof S]: TypeToSnapshotIn<S[k]> extends infer R ? R : never
+      [k in keyof S]: TypeToSnapshotIn<S[k]>
     }
 
 type ArraySnapshotOutData<S extends readonly unknown[]> = number extends S["length"]
-  ? Array<TypeToSnapshotOut<S[number]> extends infer R ? R : never>
+  ? Array<TypeToSnapshotOut<S[number]>>
   : {
-      [k in keyof S]: TypeToSnapshotOut<S[k]> extends infer R ? R : never
+      [k in keyof S]: TypeToSnapshotOut<S[k]>
     }
 
 export interface ArrayType<S extends readonly unknown[]> extends Type<"array", ArrayData<S>> {}
@@ -74,36 +71,27 @@ export type UndefinablePropsNames<T> = {
  * Computes the optional keys for an object type schema.
  * @ignore
  */
-export type ObjectOptionalKeys<S> = UndefinablePropsNames<{
-  [k in keyof S]: TypeToDataOpt<S[k]> extends infer R ? R : never
-}>
+export type ObjectOptionalKeys<S> = {
+  [K in keyof S]: IsOptionalValue<TypeToDataOpt<S[K]>, K, never>
+}[keyof S]
 
-type ObjectData<S> = O.Optional<
-  { [k in keyof S]: TypeToData<S[k]> extends infer R ? R : never },
-  ObjectOptionalKeys<S>
+type ObjectData<S, OK = ObjectOptionalKeys<S>> = SimplifyObject<
+  { [k in keyof S as k extends OK ? never : k]: TypeToData<S[k]> } & {
+    [k in keyof S as k extends OK ? k : never]?: TypeToData<S[k]>
+  }
 >
 
-type ObjectSnapshotInData<S> = O.Optional<
-  { [k in keyof S]: TypeToSnapshotIn<S[k]> extends infer R ? R : never },
-  ObjectOptionalKeys<S>
+type ObjectSnapshotInData<S, OK = ObjectOptionalKeys<S>> = SimplifyObject<
+  { [k in keyof S as k extends OK ? never : k]: TypeToSnapshotIn<S[k]> } & {
+    [k in keyof S as k extends OK ? k : never]?: TypeToSnapshotIn<S[k]>
+  }
 >
 
-type ObjectSnapshotOutData<S> = O.Optional<
-  { [k in keyof S]: TypeToSnapshotOut<S[k]> extends infer R ? R : never },
-  ObjectOptionalKeys<S>
+type ObjectSnapshotOutData<S, OK = ObjectOptionalKeys<S>> = SimplifyObject<
+  { [k in keyof S as k extends OK ? never : k]: TypeToSnapshotOut<S[k]> } & {
+    [k in keyof S as k extends OK ? k : never]?: TypeToSnapshotOut<S[k]>
+  }
 >
-
-type RecordData<S> = {
-  [k: string]: TypeToData<S> extends infer R ? R : never
-}
-
-type RecordSnapshotInData<S> = {
-  [k: string]: TypeToSnapshotIn<S> extends infer D ? D : never
-}
-
-type RecordSnapshotOutData<S> = {
-  [k: string]: TypeToSnapshotOut<S> extends infer D ? D : never
-}
 
 export interface ObjectType<S> extends Type<"object", ObjectData<S>> {}
 
@@ -112,7 +100,9 @@ export interface ObjectTypeFunction {
   (): ObjectOfTypes
 }
 
-export interface RecordType<S> extends Type<"record", RecordData<S>> {}
+// the record data types are written inline (instead of through an alias) so they are displayed as
+// plain index signatures (e.g. `{ [k: string]: number }`)
+export interface RecordType<S> extends Type<"record", { [k: string]: TypeToData<S> }> {}
 
 export type AnyStandardType =
   | IdentityType<any>
@@ -162,47 +152,45 @@ type TypeToSnapshotLeaf<S, Dir extends "in" | "out"> =
     ? Dir extends "in"
       ? SnapshotInOf<M>
       : SnapshotOutOf<M>
-    : S extends { $$data: infer D }
-      ? D
-      : ConstructorToSnapshotData<S>
+    : ConstructorToSnapshotData<S>
 
 export type TypeToData<S> = S extends ObjectTypeFunction
-  ? ObjectType<ReturnType<S>>["$$data"] extends infer R
-    ? R
-    : never
+  ? ObjectType<ReturnType<S>>["$$data"]
   : TypeToDataLeaf<S>
 
+// standard types are dispatched through their `$$type` discriminant (and codec / identity types
+// through indexed accesses), which is cheaper than checking them against each type interface
 export type TypeToSnapshotIn<S> = S extends ObjectTypeFunction
-  ? ObjectSnapshotInData<ReturnType<S>> extends infer R
-    ? R
-    : never
-  : S extends CodecType<any, infer D, any>
-    ? D
-    : S extends ArrayType<infer A>
-      ? ArraySnapshotInData<A>
-      : S extends ObjectType<infer O>
-        ? ObjectSnapshotInData<O>
-        : S extends RecordType<infer R>
-          ? RecordSnapshotInData<R>
-          : S extends ModelType<infer M>
-            ? SnapshotInOf<M>
-            : TypeToSnapshotLeaf<S, "in">
+  ? ObjectSnapshotInData<ReturnType<S>>
+  : S extends { $$type: infer K }
+    ? K extends "codec"
+      ? S["$$snapshotIn" & keyof S]
+      : S extends ArrayType<infer A>
+        ? ArraySnapshotInData<A>
+        : S extends ObjectType<infer O>
+          ? ObjectSnapshotInData<O>
+          : S extends RecordType<infer R>
+            ? { [k: string]: TypeToSnapshotIn<R> }
+            : S extends ModelType<infer M>
+              ? SnapshotInOf<M>
+              : S["$$data" & keyof S]
+    : TypeToSnapshotLeaf<S, "in">
 
 export type TypeToSnapshotOut<S> = S extends ObjectTypeFunction
-  ? ObjectSnapshotOutData<ReturnType<S>> extends infer R
-    ? R
-    : never
-  : S extends CodecType<any, any, infer D>
-    ? D
-    : S extends ArrayType<infer A>
-      ? ArraySnapshotOutData<A>
-      : S extends ObjectType<infer O>
-        ? ObjectSnapshotOutData<O>
-        : S extends RecordType<infer R>
-          ? RecordSnapshotOutData<R>
-          : S extends ModelType<infer M>
-            ? SnapshotOutOf<M>
-            : TypeToSnapshotLeaf<S, "out">
+  ? ObjectSnapshotOutData<ReturnType<S>>
+  : S extends { $$type: infer K }
+    ? K extends "codec"
+      ? S["$$snapshotOut" & keyof S]
+      : S extends ArrayType<infer A>
+        ? ArraySnapshotOutData<A>
+        : S extends ObjectType<infer O>
+          ? ObjectSnapshotOutData<O>
+          : S extends RecordType<infer R>
+            ? { [k: string]: TypeToSnapshotOut<R> }
+            : S extends ModelType<infer M>
+              ? SnapshotOutOf<M>
+              : S["$$data" & keyof S]
+    : TypeToSnapshotLeaf<S, "out">
 
 /** @ignore */
-export type TypeToDataOpt<S> = S extends { $$data: infer D } ? D & undefined : never
+export type TypeToDataOpt<S> = S extends { $$data: unknown } ? S["$$data"] & undefined : never

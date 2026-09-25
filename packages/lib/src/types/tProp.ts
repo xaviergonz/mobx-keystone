@@ -44,12 +44,22 @@ type StoredRequiredPropMetadata<TType extends AnyType> = {
   $storedCreationValueType: TypeToStoredData<TType>
 }
 
-type TypedMaybeOptionalModelProp<TType extends AnyType> = MaybeOptionalModelProp<
+// exported (and publicly re-exported) so emitted declaration files can reference it by name
+// instead of expanding it inline in every exported model class, which is much slower and larger
+/**
+ * A model property created by `tProp` without a default value.
+ */
+export type TypedMaybeOptionalModelProp<TType extends AnyType> = MaybeOptionalModelProp<
   TypeToData<TType>
 > &
   StoredRequiredPropMetadata<TType>
 
-type TypedOptionalModelProp<TType extends AnyType> = OptionalModelProp<TypeToData<TType>> & {
+// exported (and publicly re-exported) so emitted declaration files can reference it by name
+// instead of expanding it inline in every exported model class, which is much slower and larger
+/**
+ * A model property created by `tProp` with a default value.
+ */
+export type TypedOptionalModelProp<TType extends AnyType> = OptionalModelProp<TypeToData<TType>> & {
   $storedValueType: TypeToStoredData<TType>
   $storedCreationValueType: TypeToStoredData<TType> | null | undefined
   $typedFromSnapshotOverride: TypeToSnapshotIn<TType> | null | undefined
@@ -115,7 +125,7 @@ export function tProp(defaultValue: boolean): TypedOptionalModelProp<typeof type
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  defaultFn: () => TypeToData<TType>
+  defaultFn: () => NoInfer<TypeToData<TType>>
 ): TypedOptionalModelProp<TType>
 
 /**
@@ -136,7 +146,7 @@ export function tProp<TType extends AnyType>(
  */
 export function tProp<TType extends ReadonlyArray<AnyType>>(
   type: TType,
-  defaultFn: () => TypeToData<TType[number]>
+  defaultFn: () => NoInfer<TypeToData<TType[number]>>
 ): TypedOptionalModelProp<TType[number]>
 
 /**
@@ -158,7 +168,7 @@ export function tProp<TType extends ReadonlyArray<AnyType>>(
  */
 export function tProp<TType extends AnyType>(
   type: TType,
-  defaultValue: TypeToData<TType>
+  defaultValue: NoInfer<TypeToData<TType>>
 ): TypedOptionalModelProp<TType>
 
 /**
@@ -179,7 +189,7 @@ export function tProp<TType extends AnyType>(
  */
 export function tProp<TType extends ReadonlyArray<AnyType>>(
   type: TType,
-  defaultValue: TypeToData<TType[number]>
+  defaultValue: NoInfer<TypeToData<TType[number]>>
 ): TypedOptionalModelProp<TType[number]>
 
 /**

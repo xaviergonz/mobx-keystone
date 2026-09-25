@@ -23,7 +23,7 @@ import type { SnapshotOutOf } from "./SnapshotOf"
  */
 export function getSnapshot<T extends AnyType>(
   type: T,
-  nodeOrPrimitive: TypeToData<T>
+  nodeOrPrimitive: NoInfer<TypeToData<T>>
 ): TypeToSnapshotOut<T>
 
 /**

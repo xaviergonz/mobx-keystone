@@ -37,11 +37,17 @@ import type { AnyFunction } from "../utils/AnyFunction"
  */
 export const model =
   (name: string) =>
-  <MC extends ModelClass<AnyModel | AnyDataModel>>(
-    clazz: MC,
-    _context?: ClassDecoratorContext<MC>
-  ): MC =>
-    internalModel(name, clazz) as any
+  <MC extends ModelDecoratorTarget>(clazz: MC, _context?: ClassDecoratorContext<MC>): MC =>
+    internalModel(name, clazz as unknown as ModelClass<AnyModel | AnyDataModel>) as any
+
+// the model instance type is checked through `prototype` rather than through a typed constructor
+// signature, since comparing constructor signatures would compute the (expensive) model creation data
+// type of every decorated class
+type ModelDecoratorTarget = (new (
+  ...args: any
+) => any) & {
+  prototype: AnyModel | AnyDataModel
+}
 
 interface AfterClassInitializationData {
   needsMakeObservable: boolean | undefined

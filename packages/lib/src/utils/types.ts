@@ -46,3 +46,8 @@ export type IsNeverType<T, IfNever, IfNotNever> = [T] extends [never] ? IfNever 
  * @ignore
  */
 export type Flatten<T> = T extends Record<any, any> ? { [P in keyof T]: T[P] } : T
+
+/**
+ * @ignore
+ */
+export type SimplifyObject<T> = { [P in keyof T]: T[P] } & {}

@@ -36,6 +36,8 @@ yarn add mobx mobx-keystone
 
 `mobx-keystone` requires `mobx` as a peer dependency, so both packages need to be installed.
 
+When using TypeScript, version 5.4 or newer is required.
+
 If you are using React, add `mobx-react-lite` too:
 
 <Tabs groupId="package-manager">
@@ -95,7 +97,7 @@ This library uses JavaScript decorators and class properties.
 
 ### Standard decorators
 
-Use this mode if you are on TypeScript 5+ and want standard decorators.
+Use this mode if you want standard decorators.
 For Babel, ensure class static blocks are transformed (for example via `@babel/preset-env` targets, or by adding `@babel/plugin-transform-class-static-block`).
 
 <Tabs groupId="transpiler">

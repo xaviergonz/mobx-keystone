@@ -89,7 +89,7 @@ export abstract class BaseModel<
    * By default it will use the `idProp` if available or return `undefined` otherwise.
    */
   getRefId(): string | undefined {
-    return this[modelIdKey]
+    return this[modelIdKey] as string | undefined
   }
 
   /**

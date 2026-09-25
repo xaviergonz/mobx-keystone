@@ -3,7 +3,7 @@ import type { AnyModel } from "../model/BaseModel"
 import { isReservedModelKey } from "../model/metadata"
 import { isTweakedObject } from "../tweaker/core"
 import { resolveStandardTypeNoThrow, resolveTypeChecker } from "../types/resolveTypeChecker"
-import type { AnyType, TypeToData, TypeToSnapshotIn } from "../types/schemas"
+import type { AnyType, TypeToData, TypeToSnapshotIn, TypeToSnapshotOut } from "../types/schemas"
 import { isLateTypeChecker, TypeChecker } from "../types/TypeChecker"
 import { resolveCodecSupport } from "../types/utility/typesCodec"
 import { isMap, isPrimitive, isSet, nodeObservableOptions, setProtoProp } from "../utils"
@@ -61,7 +61,7 @@ export interface FromSnapshotContext {
  */
 export function fromSnapshot<TType extends AnyType>(
   type: TType,
-  snapshot: TypeToSnapshotIn<TType>,
+  snapshot: NoInfer<TypeToSnapshotIn<TType> | TypeToSnapshotOut<TType>>,
   options?: Partial<FromSnapshotOptions>
 ): TypeToData<TType>
 

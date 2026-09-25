@@ -117,10 +117,16 @@ type SnapshotOutOf<Todo> = {
 ### `fromSnapshot`
 
 ```ts
-fromSnapshot<T>(sn: SnapshotInOf<T>, options?: FromSnapshotOptions): T
+fromSnapshot<T>(sn: SnapshotInOf<T> | SnapshotOutOf<T>, options?: FromSnapshotOptions): T
 // or typed
-fromSnapshot<TType>(type: TType, sn: TypeToSnapshotIn<TType>, options?: FromSnapshotOptions): TypeToData<TType>
+fromSnapshot<TType>(
+  type: TType,
+  sn: TypeToSnapshotIn<TType> | TypeToSnapshotOut<TType>,
+  options?: FromSnapshotOptions
+): TypeToData<TType>
 ```
+
+Output snapshots (e.g. the result of `getSnapshot`) are accepted as well, since they always round-trip.
 
 Use `fromSnapshot` to restore a snapshot:
 

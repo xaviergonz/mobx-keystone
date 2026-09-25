@@ -136,7 +136,7 @@ This library requires a modern JavaScript environment with support for:
 
 In practice, this covers current browsers and Node.js releases, but not Internet Explorer.
 
-TypeScript 5.0 or newer is recommended so you can use standard decorators. Legacy decorators remain supported by `mobx-keystone`; see the [installation guide](https://mobx-keystone.js.org/installation) for the required compiler configuration and the MobX 7 compatibility note.
+When using TypeScript, version 5.4 or newer is required. Legacy decorators remain supported by `mobx-keystone`; see the [installation guide](https://mobx-keystone.js.org/installation) for the required compiler configuration and the MobX 7 compatibility note.
 
 ## Installation
 

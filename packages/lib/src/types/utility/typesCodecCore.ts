@@ -45,6 +45,11 @@ type CodecConfig<TEncodedType extends AnyType, TRuntime> = {
   is(value: unknown): value is TRuntime
 } & ModelPropTransform<TypeToData<TEncodedType>, TRuntime>
 
+// exported (and publicly re-exported) so emitted declaration files can reference it by name
+// instead of expanding it inline in every exported model class, which is much slower and larger
+/**
+ * A codec type whose snapshot and stored forms are those of its encoded type.
+ */
 export type CodecFromEncoded<TEncodedType extends AnyType, TRuntime> = CodecType<
   TRuntime,
   TypeToSnapshotIn<TEncodedType>,
