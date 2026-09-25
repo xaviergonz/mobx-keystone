@@ -37,6 +37,42 @@
   fill: var(--mk-accent-soft);
   stroke: var(--mk-accent);
   stroke-width: 1.5;
+  filter: drop-shadow(0 0 6px var(--mk-accent-soft));
+}
+
+.ripple {
+  fill: none;
+  stroke: var(--mk-accent);
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+  animation: ripple 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes ripple {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.18, 1.35);
+  }
+}
+
+.pulse {
+  pointer-events: none;
+}
+
+.pulseHalo {
+  fill: var(--mk-accent);
+  opacity: 0.25;
+}
+
+.pulseCore {
+  fill: var(--mk-accent);
 }
 
 .treeText,
@@ -257,6 +293,10 @@
   .caret,
   .flash {
     animation: none;
+  }
+
+  .ripple {
+    display: none;
   }
 }
 

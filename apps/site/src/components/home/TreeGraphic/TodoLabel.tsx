@@ -3,6 +3,9 @@ import styles from "./TreeGraphic.module.css"
 
 const typingDelay = 90
 
+/** How long erasing `from` and typing `to` takes. */
+export const typingDuration = (from: string, to: string) => (from.length + to.length) * typingDelay
+
 /** A todo's text; when `typeFrom` is given, it erases that text and types the new one letter by letter. */
 export function TodoLabel({
   className,
