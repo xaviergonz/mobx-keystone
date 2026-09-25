@@ -1,3 +1,4 @@
+import { applyListDeltaToSnapshot, setOwnProperty } from "@mobx-keystone/crdt-binding-common"
 import type { ContainerID, LoroDoc, LoroEvent } from "loro-crdt"
 import type { Path } from "mobx-keystone"
 import type { PlainValue } from "../plainTypes"
@@ -21,42 +22,27 @@ export function applyLoroEventsToSnapshot(
     owned.add(result)
     return result as Record<string | number, unknown>
   }
-  const assign = (target: object, key: string | number, value: unknown) => {
-    Object.defineProperty(target, key, {
-      value,
-      enumerable: true,
-      configurable: true,
-      writable: true,
-    })
-  }
   const update = (value: unknown, event: LoroEvent, path: Path, index: number): unknown => {
     if (index < path.length) {
       const key = path[index]
       const result = copy(value as object)
-      assign(result, key, update(result[key], event, path, index + 1))
+      setOwnProperty(result, key, update(result[key], event, path, index + 1))
       return result
     }
     if (event.diff.type === "map") {
       const result = copy(value as object)
       for (const [key, newValue] of Object.entries(event.diff.updated)) {
         if (newValue === undefined) delete result[key]
-        else assign(result, key, convertLoroDataToJson(newValue as PlainValue, converted))
+        else setOwnProperty(result, key, convertLoroDataToJson(newValue as PlainValue, converted))
       }
       return result
     }
     if (event.diff.type === "list") {
-      const previous = value as readonly unknown[]
-      const result: unknown[] = []
-      let oldIndex = 0
-      for (const change of event.diff.diff) {
-        const end = oldIndex + (change.retain ?? 0)
-        while (oldIndex < end) result.push(previous[oldIndex++])
-        oldIndex += change.delete ?? 0
-        for (const item of change.insert ?? []) {
-          result.push(convertLoroDataToJson(item as PlainValue, converted))
-        }
-      }
-      while (oldIndex < previous.length) result.push(previous[oldIndex++])
+      const result = applyListDeltaToSnapshot(
+        value as readonly unknown[],
+        event.diff.diff,
+        (item) => convertLoroDataToJson(item as PlainValue, converted)
+      )
       owned.add(result)
       return result
     }

@@ -88,42 +88,21 @@ export function moveWithinArray<T>(array: T[], fromIndex: number, toIndex: numbe
 }
 
 /**
- * Check if a change is part of an active move operation and process it.
- * This is called for ArraySplice changes on the target array.
- *
- * @param change The deep change (must be ArraySplice type)
- * @returns The corresponding native move.
+ * Converts the helper's own splice into a native move. Other edits, including
+ * those made by its listeners, return `undefined`.
  * @internal
  */
-export function processChangeForMove(change: DeepChange): ArrayMoveChange {
-  const ctx = activeMoveContext!
-  // The binding receives this validated change even if another listener throws.
-  // Capture before the helper unwinds, including during reentrant reconciliation.
-  ctx.capture?.()
-  ctx.capture = undefined
-
-  return {
-    type: "ArrayMove",
-    path: change.path,
-    fromIndex: ctx.fromIndex,
-    toIndex: ctx.toIndex,
-  }
-}
-
-/**
- * Distinguish the helper's splice from other edits made by its listeners.
- * @internal
- */
-export function isChangeForMove(change: DeepChange): boolean {
+export function processChangeForMove(change: DeepChange): ArrayMoveChange | undefined {
   const ctx = activeMoveContext
-  if (!ctx || change.type !== DeepChangeType.ArraySplice || change.target !== ctx.array)
-    return false
-  return (
-    change.index === Math.min(ctx.fromIndex, ctx.toIndex) &&
-    change.removedValues.length === ctx.removedValues.length &&
-    change.addedValues.length === ctx.addedValues.length &&
-    change.removedValues.every((value, index) => Object.is(value, ctx.removedValues[index])) &&
-    change.addedValues.every((value, index) => {
+  if (
+    !ctx ||
+    change.type !== DeepChangeType.ArraySplice ||
+    change.target !== ctx.array ||
+    change.index !== Math.min(ctx.fromIndex, ctx.toIndex) ||
+    change.removedValues.length !== ctx.removedValues.length ||
+    change.addedValues.length !== ctx.addedValues.length ||
+    !change.removedValues.every((value, index) => Object.is(value, ctx.removedValues[index])) ||
+    !change.addedValues.every((value, index) => {
       const expected = ctx.addedValues[index]
       // Plain tree objects can be wrapped again when reattached. The removed
       // references still identify the operation; primitive additions must match.
@@ -136,4 +115,17 @@ export function isChangeForMove(change: DeepChange): boolean {
       )
     })
   )
+    return undefined
+
+  // The binding receives this validated change even if another listener throws.
+  // Capture before the helper unwinds, including during reentrant reconciliation.
+  ctx.capture?.()
+  ctx.capture = undefined
+
+  return {
+    type: "ArrayMove",
+    path: change.path,
+    fromIndex: ctx.fromIndex,
+    toIndex: ctx.toIndex,
+  }
 }

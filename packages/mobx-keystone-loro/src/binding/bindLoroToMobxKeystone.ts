@@ -1,7 +1,9 @@
 import {
   captureChangeSnapshots,
+  getSnapshotValue,
   jsonEquals,
   mergeSnapshotChanges,
+  setOwnProperty,
 } from "@mobx-keystone/crdt-binding-common"
 import type { ContainerID, LoroDoc, LoroEventBatch } from "loro-crdt"
 import { action } from "mobx"
@@ -15,7 +17,6 @@ import {
   fromSnapshot,
   getParentToChildPath,
   getSnapshot,
-  isTreeNode,
   type ModelClass,
   onDeepChange,
   onGlobalDeepChange,
@@ -37,7 +38,7 @@ import { convertLoroDataToJson } from "./convertLoroDataToJson"
 import { hasPendingLoroConflict, type PendingLoroConflictCache } from "./hasPendingLoroConflict"
 import { LoroTextModel } from "./LoroTextModel"
 import { type LoroBindingContext, loroBindingContext } from "./loroBindingContext"
-import { type ArrayMoveChange, isChangeForMove, processChangeForMove } from "./moveWithinArray"
+import { type ArrayMoveChange, processChangeForMove } from "./moveWithinArray"
 import { reconcileLoroModelOrder } from "./reconcileLoroModelOrder"
 import { resolveLoroPath } from "./resolveLoroPath"
 
@@ -191,7 +192,6 @@ export function bindLoroToMobxKeystone<
     // We store both target and change so we can compute the correct path later
     // Snapshots are captured immediately to preserve values at init time
     const initChanges: { target: object; change: DeepChange; attached: boolean }[] = []
-    let hasAttachedInitChanges = false
     const attachedInitSnapshots = new Map<object, unknown>()
     const disposeGlobalListener = onGlobalDeepChange((target, change) => {
       if (change.isInit) {
@@ -209,24 +209,15 @@ export function bindLoroToMobxKeystone<
           ) {
             attachedInitSnapshots.set(
               target,
-              Array.from(change.target as unknown[], (value) =>
-                isTreeNode(value) ? getSnapshot(value) : value
-              )
+              Array.from(change.target as unknown[], getSnapshotValue)
             )
           } else {
             const snapshot = { ...getSnapshot(target) } as Record<string, unknown>
             if (captured.type === DeepChangeType.ObjectRemove) delete snapshot[captured.key]
-            else
-              Object.defineProperty(snapshot, captured.key, {
-                value: captured.newValue,
-                enumerable: true,
-                configurable: true,
-                writable: true,
-              })
+            else setOwnProperty(snapshot, captured.key, captured.newValue)
             attachedInitSnapshots.set(target, snapshot)
           }
         }
-        hasAttachedInitChanges ||= attached
       }
     })
 
@@ -299,7 +290,8 @@ export function bindLoroToMobxKeystone<
         }
       }
       if (wroteChanges && !disposed) {
-        reconcileBindingCommit ||= hasAttachedInitChanges && loroDoc.getPendingTxnLength() > 0
+        reconcileBindingCommit ||=
+          attachedInitSnapshots.size > 0 && loroDoc.getPendingTxnLength() > 0
         loroDoc.commit({ origin: loroOrigin })
       }
       needsSnapshotRecovery = false
@@ -356,7 +348,7 @@ export function bindLoroToMobxKeystone<
       return
     }
 
-    const moveChange = isChangeForMove(change) ? processChangeForMove(change) : undefined
+    const moveChange = processChangeForMove(change)
     if (!moveChange) nonMoveChangeVersion++
 
     if (change.isReentrant) {

@@ -1,5 +1,6 @@
 import { LoroDoc, type LoroEvent, LoroMovableList } from "loro-crdt"
-import { Model, tProp, types } from "mobx-keystone"
+import { observable } from "mobx"
+import { Model, type Path, tProp, types } from "mobx-keystone"
 import { bindLoroToMobxKeystone } from "../../src"
 import { applyLoroEventToMobx } from "../../src/binding/applyLoroEventToMobx"
 import { autoDispose, testModel } from "../utils"
@@ -27,7 +28,7 @@ test("list replacements preserve fixed-length refinements", () => {
   doc.commit()
   expect(() => {
     for (const event of events)
-      applyLoroEventToMobx(event, doc, binding.boundObject, ["root"], new Set())
+      applyLoroEventToMobx(event, event.path.slice(1) as Path, doc, binding.boundObject, new Set())
   }).not.toThrow()
   expect(binding.boundObject.values.slice()).toEqual([2])
 })
@@ -43,9 +44,10 @@ test("large native list insertions avoid argument limits", () => {
   )
   for (let i = 0; i < 150_000; i++) list.push(i)
   doc.commit()
-  const target: number[] = []
+  const target = observable.array<number>([], { deep: false })
   expect(() => {
-    for (const event of events) applyLoroEventToMobx(event, doc, target, ["root"], new Set())
+    for (const event of events)
+      applyLoroEventToMobx(event, event.path.slice(1) as Path, doc, target, new Set())
   }).not.toThrow()
   expect(target.length).toBe(150_000)
 })

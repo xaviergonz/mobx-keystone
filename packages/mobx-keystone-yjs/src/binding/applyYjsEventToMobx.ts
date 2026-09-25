@@ -1,20 +1,21 @@
-import { jsonEquals } from "@mobx-keystone/crdt-binding-common"
+import {
+  applyListDeltaToArray,
+  commonPathPrefix,
+  jsonEquals,
+  type ListDeltaPart,
+  mayRequireTypeChecking,
+  reviveValue,
+} from "@mobx-keystone/crdt-binding-common"
 import { type IObservableArray, remove, set } from "mobx"
 import {
   type AnyModel,
   applySnapshot,
   type Frozen,
-  findParent,
-  fromSnapshot,
   frozen,
-  getGlobalConfig,
   getModelIdPropertyName,
   getModelInfoForName,
-  getModelMetadata,
   getSnapshot,
-  isFrozenSnapshot,
   isModel,
-  ModelAutoTypeCheckingMode,
   type ModelClass,
   modelTypeKey,
   type Path,
@@ -24,7 +25,7 @@ import {
 import * as Y from "yjs"
 import { failure } from "../utils/error"
 import { applyYjsEventsToSnapshot } from "./applyYjsEventsToSnapshot"
-import { convertYjsDataToJsonInternal } from "./convertYjsDataToJson"
+import { convertYjsDataToJsonInternal, type YjsData } from "./convertYjsDataToJson"
 
 function changesModelIdentity(event: Y.YMapEvent<unknown>): boolean {
   const typeChange = event.changes.keys.get(modelTypeKey)
@@ -92,17 +93,9 @@ export function applyYjsEventsToMobx(events: Y.YEvent<any>[], boundObject: objec
   if (needsReconciliation || events.length > 1) {
     // Identity changes must be reconciled by the parent, which can replace
     // the instance or find the matching model elsewhere in the affected tree.
-    const paths = events.map((event, index) =>
-      identityChanges[index] ? event.path.slice(0, -1) : event.path
-    )
-    const path = [...paths[0]]
-    for (const eventPath of paths.slice(1)) {
-      let length = 0
-      while (length < path.length && path[length] === eventPath[length]) {
-        length++
-      }
-      path.length = length
-    }
+    const path = commonPathPrefix(
+      events.map((event, index) => (identityChanges[index] ? event.path.slice(0, -1) : event.path))
+    )!
     const { value: target } = resolvePath(boundObject, path)
     // Separate events can jointly satisfy a refinement on their shared ancestor.
     // Validate the completed transaction there, rather than each intermediate
@@ -125,23 +118,18 @@ export function applyYjsEventsToMobx(events: Y.YEvent<any>[], boundObject: objec
       if (event instanceof Y.YMapEvent) {
         normalizedSnapshot = applyYMapEventToMobx(event, target) || normalizedSnapshot
       } else if (event instanceof Y.YArrayEvent) {
-        applyYArrayEventToMobx(event, target)
+        // Array events never contain text inserts.
+        applyListDeltaToArray(
+          target as IObservableArray<unknown>,
+          event.changes.delta as ListDeltaPart[],
+          (value) => reviveValue(convertYjsDataToJsonInternal(value as YjsData))
+        )
       } else if (event instanceof Y.YTextEvent) {
         applyYTextEventToMobx(event, target)
       }
     }
   })
   return normalizedSnapshot
-}
-
-function reviveValue(jsonValue: any): any {
-  if (jsonValue === null || typeof jsonValue !== "object") {
-    return jsonValue
-  }
-  if (isFrozenSnapshot(jsonValue)) {
-    return frozen(jsonValue.data)
-  }
-  return fromSnapshot(jsonValue)
 }
 
 function applyYMapEventToMobx(event: Y.YMapEvent<any>, target: Record<string, any>): boolean {
@@ -224,77 +212,12 @@ function applyYMapEventToMobx(event: Y.YMapEvent<any>, target: Record<string, an
   return false
 }
 
-function mayRequireTypeChecking(target: object): boolean {
-  if (getGlobalConfig().modelAutoTypeChecking === ModelAutoTypeCheckingMode.AlwaysOff) return false
-  return (
-    (isModel(target) && !!getModelMetadata(target).dataType) ||
-    !!findParent(target, (parent) => isModel(parent) && !!getModelMetadata(parent).dataType)
-  )
-}
-
-function applyYArrayEventToMobx(event: Y.YArrayEvent<any>, target: IObservableArray<any>): void {
-  let combineSplices = false
-  let hasEdit = false
-  let retainedAfterEdit = false
-  for (const change of event.changes.delta) {
-    if (change.retain && hasEdit) retainedAfterEdit = true
-    if (change.insert || change.delete) {
-      if (retainedAfterEdit) {
-        combineSplices = mayRequireTypeChecking(target)
-        break
-      }
-      hasEdit = true
-    }
-  }
-
-  let currentIndex = 0
-  let deleteCount = 0
-  let values: unknown[] = []
-
-  const flushSplice = () => {
-    if (values.length === 0) {
-      if (deleteCount > 0) target.splice(currentIndex, deleteCount)
-    } else {
-      // Apply a replacement in one mutation so refinements see its final
-      // contents, including when the inserted range is very large.
-      target.spliceWithArray(currentIndex, deleteCount, values)
-      currentIndex += values.length
-    }
-    deleteCount = 0
-    values = []
-  }
-
-  for (const change of event.changes.delta) {
-    if (change.retain) {
-      if (combineSplices && (deleteCount > 0 || values.length > 0)) {
-        // Include retained values between edits in one splice. This preserves
-        // their identities and validates only the completed changed range.
-        for (let i = 0; i < change.retain; i++) {
-          values.push(target[currentIndex + deleteCount + i])
-        }
-        deleteCount += change.retain
-      } else {
-        flushSplice()
-        currentIndex += change.retain
-      }
-    }
-    deleteCount += change.delete ?? 0
-    if (change.insert) {
-      const insertedItems = Array.isArray(change.insert) ? change.insert : [change.insert]
-      for (const value of insertedItems) {
-        values.push(reviveValue(convertYjsDataToJsonInternal(value)))
-      }
-    }
-  }
-  flushSplice()
-}
-
 function applyYTextEventToMobx(
   event: Y.YTextEvent,
   target: { deltaList?: Frozen<unknown[]>[] }
 ): void {
   // YjsTextModel handles text events by appending delta to deltaList
-  if (target?.deltaList && event.delta.length > 0) {
+  if (target.deltaList && event.delta.length > 0) {
     target.deltaList.push(frozen(event.delta))
   }
 }

@@ -10,10 +10,12 @@ import { LoroMap, LoroMovableList, LoroText } from "loro-crdt"
 import { frozenKey, isFrozenSnapshot } from "mobx-keystone"
 import type { PlainArray, PlainObject, PlainPrimitive, PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
+import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 import {
-  type BindableLoroContainer,
-  isBindableLoroContainer,
-} from "../utils/isBindableLoroContainer"
+  insertLoroListValue,
+  setLoroListValue,
+  setLoroMapValue,
+} from "../utils/loroContainerWrites"
 import { isLoroTextModelSnapshot } from "./LoroTextModel"
 
 type LoroValue = BindableLoroContainer | PlainValue
@@ -199,7 +201,7 @@ export function convertJsonToLoroData(v: PlainValue): LoroValue {
 
   if (isPlainObject(v)) {
     if (v[frozenKey] === true) {
-      // frozen value with explicit $frozen marker (shouldn't reach here after above check)
+      // frozen value, save as immutable object
       return v
     }
 
@@ -207,10 +209,7 @@ export function convertJsonToLoroData(v: PlainValue): LoroValue {
       const text = new LoroText()
       // Extract delta from the snapshot and apply using insert/mark APIs
       // (applyDelta doesn't work on detached containers, but insert/mark do)
-      const deltas = extractTextDeltaFromSnapshot(v.deltaList)
-      if (deltas.length > 0) {
-        applyDeltaToLoroText(text, deltas)
-      }
+      applyDeltaToLoroText(text, extractTextDeltaFromSnapshot(v.deltaList))
       return text
     }
 
@@ -256,12 +255,7 @@ function applyJsonArrayToLoroMovableListInternal(
   if (mode === "add") {
     // Add mode: just push all items to the end
     for (const item of source) {
-      const converted = convertJsonToLoroData(item)
-      if (isBindableLoroContainer(converted)) {
-        dest.pushContainer(converted)
-      } else {
-        dest.push(converted)
-      }
+      insertLoroListValue(dest, dest.length, convertJsonToLoroData(item))
     }
     return
   }
@@ -289,22 +283,12 @@ function applyJsonArrayToLoroMovableListInternal(
     }
 
     // Replace the value while preserving the list item identity for concurrent moves.
-    const converted = convertJsonToLoroData(srcItem)
-    if (isBindableLoroContainer(converted)) {
-      dest.setContainer(i, converted)
-    } else {
-      dest.set(i, converted)
-    }
+    setLoroListValue(dest, i, convertJsonToLoroData(srcItem))
   }
 
   // Add new items at the end
   for (let i = destLen; i < srcLen; i++) {
-    const converted = convertJsonToLoroData(source[i])
-    if (isBindableLoroContainer(converted)) {
-      dest.pushContainer(converted)
-    } else {
-      dest.push(converted)
-    }
+    insertLoroListValue(dest, i, convertJsonToLoroData(source[i]))
   }
 }
 
@@ -340,12 +324,7 @@ function applyJsonObjectToLoroMapInternal(
     for (const k of Object.keys(source)) {
       const v = source[k]
       if (v !== undefined) {
-        const converted = convertJsonToLoroData(v)
-        if (isBindableLoroContainer(converted)) {
-          dest.setContainer(k, converted)
-        } else {
-          dest.set(k, converted)
-        }
+        setLoroMapValue(dest, k, convertJsonToLoroData(v))
       }
     }
     return
@@ -383,12 +362,7 @@ function applyJsonObjectToLoroMapInternal(
     }
 
     // Otherwise, convert and set the value (this creates new containers if needed)
-    const converted = convertJsonToLoroData(v)
-    if (isBindableLoroContainer(converted)) {
-      dest.setContainer(k, converted)
-    } else {
-      dest.set(k, converted)
-    }
+    setLoroMapValue(dest, k, convertJsonToLoroData(v))
   }
 }
 

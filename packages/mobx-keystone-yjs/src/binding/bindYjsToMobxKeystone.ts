@@ -1,5 +1,6 @@
 import {
   captureChangeSnapshots,
+  commonPathPrefix,
   jsonEquals,
   mergeSnapshotChanges,
 } from "@mobx-keystone/crdt-binding-common"
@@ -169,6 +170,16 @@ export function bindYjsToMobxKeystone<
 
   let disposed = false
   const transactionsWithLocalChanges = new WeakSet<Y.Transaction>()
+  // Runs a binding-origin transaction that writes to the bound Yjs value.
+  const transactLocally = (fn: (transaction: Y.Transaction) => void) => {
+    yjsDoc.transact((transaction) => {
+      // beforeTransaction listeners can dispose the binding after capture.
+      if (disposed || isYjsValueDeleted(yjsObject)) return
+      registerTransactionWriter(transaction, yjsOrigin, yjsObject)
+      transactionsWithLocalChanges.add(transaction)
+      fn(transaction)
+    }, yjsOrigin)
+  }
   let needsSnapshotRecovery = false
 
   // bind any changes from yjs to mobx-keystone
@@ -182,15 +193,15 @@ export function bindYjsToMobxKeystone<
         (event instanceof Y.YArrayEvent && event.changes.delta.length === 0) ||
         (event instanceof Y.YMapEvent && event.changes.keys.size === 0)
       if (
-        (needsSnapshotRecovery ||
-          event.transaction.origin !== yjsOrigin ||
+        needsSnapshotRecovery ||
+        ((event.transaction.origin !== yjsOrigin ||
           (transactionWriters.get(event.transaction)?.size ?? 0) > 1) &&
-        // Locally edited/new bindings may differ from a transaction's starting
-        // state even when its final changes are empty. Only read lazy text
-        // deltas for incoming events that might be applied.
-        (needsSnapshotRecovery ||
-          transactionsWithLocalChanges.has(event.transaction) ||
-          (!emptyCollectionEvent && (!(event instanceof Y.YTextEvent) || event.delta.length > 0)))
+          // Locally edited/new bindings may differ from a transaction's starting
+          // state even when its final changes are empty. Only read lazy text
+          // deltas for incoming events that might be applied.
+          (transactionsWithLocalChanges.has(event.transaction) ||
+            (!emptyCollectionEvent &&
+              (!(event instanceof Y.YTextEvent) || event.delta.length > 0))))
       ) {
         eventsToApply.push(event)
       }
@@ -231,10 +242,9 @@ export function bindYjsToMobxKeystone<
               // Reconcile the final native snapshot before resuming increments.
               const snapshot = convertYjsDataToJson(yjsObject) as object
               applySnapshot(boundObject as object, snapshot)
-              hasIncomingInitChanges ||= !jsonEquals(getSnapshot(boundObject), snapshot)
+              hasIncomingInitChanges = !jsonEquals(getSnapshot(boundObject), snapshot)
             } else {
-              const normalizedSnapshot = applyYjsEventsToMobx(eventsToApply, boundObject)
-              hasIncomingInitChanges ||= normalizedSnapshot
+              hasIncomingInitChanges = applyYjsEventsToMobx(eventsToApply, boundObject)
             }
           }, yjsBindingContext.get(boundObject))
         } finally {
@@ -245,19 +255,14 @@ export function bindYjsToMobxKeystone<
         // ancestry, after initialized descendants have been attached.
         let initSyncTarget: object = boundObject
         if (!hasIncomingInitChanges && initTargets) {
-          let commonPath: (string | number)[] | undefined
-          for (const target of initTargets) {
-            const parent = getParent(target)
-            const node = parent instanceof YjsTextModel ? parent : target
-            const path = getParentToChildPath(boundObject, node)
-            if (path === undefined) continue
-            if (commonPath === undefined) commonPath = [...path]
-            else {
-              let length = 0
-              while (length < commonPath.length && commonPath[length] === path[length]) length++
-              commonPath.length = length
-            }
-          }
+          const commonPath = commonPathPrefix(
+            Array.from(initTargets).flatMap((target) => {
+              const parent = getParent(target)
+              const node = parent instanceof YjsTextModel ? parent : target
+              const path = getParentToChildPath(boundObject, node)
+              return path === undefined ? [] : [path]
+            })
+          )
           if (commonPath !== undefined) {
             hasIncomingInitChanges = true
             initSyncTarget = resolvePath(boundObject, commonPath).value
@@ -296,6 +301,7 @@ export function bindYjsToMobxKeystone<
   type PendingChange =
     | DeepChange
     | {
+        textModel: YjsTextModel
         textPath: Path
         deltas: readonly { readonly data: readonly unknown[] }[]
         replace: boolean
@@ -320,11 +326,15 @@ export function bindYjsToMobxKeystone<
       reconcileReentrantChanges = true
       pendingChanges = []
     }
-    if (reconcileReentrantChanges) {
-      if (nativeTransaction) flushPendingChanges()
-      return
+    if (!reconcileReentrantChanges) {
+      queueChange(change)
     }
+    if (nativeTransaction) {
+      flushPendingChanges()
+    }
+  })
 
+  const queueChange = (change: DeepChange) => {
     // Array changes already carry the tree node. Only delta-list property
     // changes need path resolution to recover a model from its data object.
     const textModel =
@@ -338,29 +348,20 @@ export function bindYjsToMobxKeystone<
         change.type === DeepChangeType.ArraySplice &&
         change.removedValues.length === 0 &&
         change.index + change.addedValues.length === change.target.length
-      const textPath = getParentToChildPath(boundObject, textModel)!
       const previous = pendingChanges.at(-1)
       // A complete replacement supersedes the immediately preceding edit to
       // this text. Intervening structural edits keep their original ordering.
-      if (
-        !append &&
-        previous &&
-        "textPath" in previous &&
-        previous.textPath.length === textPath.length &&
-        previous.textPath.every((part, index) => part === textPath[index])
-      ) {
+      if (!append && previous && "textModel" in previous && previous.textModel === textModel) {
         pendingChanges.pop()
       }
       // Copy the current list: the enclosing model snapshot may not yet be
       // invalidated while this deep-change listener is running.
       pendingChanges.push({
-        textPath,
+        textModel,
+        textPath: getParentToChildPath(boundObject, textModel)!,
         deltas: textModel.deltaList.slice(append ? change.index : 0),
         replace: !append,
       })
-      if (nativeTransaction) {
-        flushPendingChanges()
-      }
       return
     }
 
@@ -370,10 +371,7 @@ export function bindYjsToMobxKeystone<
     // Example: `obj.items = [a, b]; obj.items.splice(0, 1)` - without early capture,
     // the ObjectUpdate for `items` would get the post-splice array state.
     pendingChanges.push(captureChangeSnapshots(change))
-    if (nativeTransaction) {
-      flushPendingChanges()
-    }
-  })
+  }
 
   // this is only used so we can transact all changes to the snapshot boundary
   const flushPendingChanges = () => {
@@ -394,11 +392,7 @@ export function bindYjsToMobxKeystone<
       return
     }
 
-    yjsDoc.transact((transaction) => {
-      // beforeTransaction listeners can dispose the binding after capture.
-      if (disposed || isYjsValueDeleted(yjsObject)) return
-      registerTransactionWriter(transaction, yjsOrigin, yjsObject)
-      transactionsWithLocalChanges.add(transaction)
+    transactLocally((transaction) => {
       const reconcileSnapshot =
         reconcile ||
         (transaction.changed.size > 0 &&
@@ -441,7 +435,7 @@ export function bindYjsToMobxKeystone<
           }
         })
       }
-    }, yjsOrigin)
+    })
   }
 
   const disposeOnSnapshot = onSnapshot(boundObject, () => {
@@ -473,11 +467,7 @@ export function bindYjsToMobxKeystone<
     initChangesToReplay: DeepChange[] = [],
     target: object = boundObject
   ) {
-    yjsDoc.transact((transaction) => {
-      // beforeTransaction listeners can dispose the binding after capture.
-      if (disposed || isYjsValueDeleted(yjsObject)) return
-      registerTransactionWriter(transaction, yjsOrigin, yjsObject)
-      transactionsWithLocalChanges.add(transaction)
+    transactLocally(() => {
       if (initChangesToReplay.length > 0) {
         // Native data contains the completed incoming transaction but none of
         // these model-only initialization edits. Replay them once before model
@@ -493,7 +483,7 @@ export function bindYjsToMobxKeystone<
       }
       const container = resolveYjsPath(yjsObject, getParentToChildPath(boundObject, target)!)
       applySnapshotToYjsContainer(container, getSnapshot(target))
-    }, yjsOrigin)
+    })
   }
 
   const dispose = () => {
@@ -517,15 +507,11 @@ export function bindYjsToMobxKeystone<
   try {
     // If binding began inside an existing transaction, its eventual event also
     // includes edits already loaded by fromSnapshot. Reconcile that first event.
-    yjsDoc.transact((transaction) => {
-      // beforeTransaction listeners can dispose the binding after capture.
-      if (disposed || isYjsValueDeleted(yjsObject)) return
-      registerTransactionWriter(transaction, yjsOrigin, yjsObject)
-      transactionsWithLocalChanges.add(transaction)
+    transactLocally((transaction) => {
       if (transaction.origin !== yjsOrigin) {
         nativeTransaction = transaction
       }
-    }, yjsOrigin)
+    })
 
     if (hasInitChanges) {
       syncInitialSnapshot()
@@ -534,13 +520,8 @@ export function bindYjsToMobxKeystone<
     // initial synchronization first, so it cannot overwrite those edits even
     // when binding inside an open native transaction.
     if (!disposed) {
-      yjsBindingContext.set(boundObject, {
-        ...bindingContext,
-        boundObject,
-        get isApplyingYjsChangesToMobxKeystone() {
-          return applyingYjsChangesToMobxKeystone > 0
-        },
-      })
+      bindingContext.boundObject = boundObject
+      yjsBindingContext.set(boundObject, bindingContext)
     }
   } catch (error) {
     dispose()

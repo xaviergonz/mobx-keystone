@@ -68,6 +68,27 @@ function isUnchangedAtomicValue(existing: unknown, source: PlainValue): boolean 
 }
 
 /**
+ * Merges compatible values without replacing their containers, returning
+ * whether the destination now holds the source.
+ */
+function mergeYjsValue(
+  dest: unknown,
+  source: PlainValue,
+  options: ApplyJsonToYjsOptions,
+  previous: PreviousValue
+): boolean {
+  if (isMapSnapshot(source) && dest instanceof Y.Map) {
+    applyJsonObjectToYMapInternal(dest, source, options, previous)
+    return true
+  }
+  if (isPlainArray(source) && dest instanceof Y.Array) {
+    applyJsonArrayToYArrayInternal(dest, source, options, previous)
+    return true
+  }
+  return mergeTextSnapshot(dest, source) || isUnchangedAtomicValue(dest, source)
+}
+
+/**
  * Converts a plain value to a Y.js data structure.
  * Objects are converted to Y.Maps, arrays to Y.Arrays, primitives are untouched.
  * Frozen values are a special case and they are kept as immutable plain values.
@@ -127,13 +148,22 @@ export const applyJsonArrayToYArray = (
   source: PlainArray,
   options: ApplyJsonToYjsOptions = {}
 ) => {
-  const apply = () => applyJsonArrayToYArrayInternal(dest, source, options, noPreviousValue)
+  transactIfAttached(dest, options, () =>
+    applyJsonArrayToYArrayInternal(dest, source, options, noPreviousValue)
+  )
+}
+
+/** Merging reads the destination, so it requires an attached document. */
+function transactIfAttached(
+  dest: Y.AbstractType<any>,
+  options: ApplyJsonToYjsOptions,
+  apply: () => void
+) {
   if (dest.doc) {
     dest.doc.transact(apply)
+  } else if (options.mode === "merge") {
+    throw failure("the merge destination must be attached to a document")
   } else {
-    if (options.mode === "merge") {
-      throw failure("the merge destination must be attached to a document")
-    }
     apply()
   }
 }
@@ -190,25 +220,7 @@ function applyJsonArrayToYArrayInternal(
     const destItem = existingItems[i]
 
     // Retained containers and unchanged values separate replacement runs.
-    if (isMapSnapshot(srcItem) && destItem instanceof Y.Map) {
-      flushReplacements(i)
-      applyJsonObjectToYMapInternal(destItem, srcItem, options, noPreviousValue)
-      continue
-    }
-
-    if (isPlainArray(srcItem) && destItem instanceof Y.Array) {
-      flushReplacements(i)
-      applyJsonArrayToYArrayInternal(destItem, srcItem, options, noPreviousValue)
-      continue
-    }
-
-    if (isTextSnapshot(srcItem) && destItem instanceof Y.Text) {
-      flushReplacements(i)
-      mergeTextSnapshot(destItem, srcItem)
-      continue
-    }
-
-    if (isUnchangedAtomicValue(destItem, srcItem)) {
+    if (mergeYjsValue(destItem, srcItem, options, noPreviousValue)) {
       flushReplacements(i)
       continue
     }
@@ -236,15 +248,9 @@ export const applyJsonObjectToYMap = (
   source: PlainObject,
   options: ApplyJsonToYjsOptions = {}
 ) => {
-  const apply = () => applyJsonObjectToYMapInternal(dest, source, options, noPreviousValue)
-  if (dest.doc) {
-    dest.doc.transact(apply)
-  } else {
-    if (options.mode === "merge") {
-      throw failure("the merge destination must be attached to a document")
-    }
-    apply()
-  }
+  transactIfAttached(dest, options, () =>
+    applyJsonObjectToYMapInternal(dest, source, options, noPreviousValue)
+  )
 }
 
 function applyJsonObjectToYMapInternal(
@@ -298,27 +304,7 @@ function applyJsonObjectToYMapInternal(
       continue
     }
 
-    const existing = dest.get(k)
-
-    // If source is an object and dest has a Y.Map, merge recursively
-    if (isMapSnapshot(v) && existing instanceof Y.Map) {
-      applyJsonObjectToYMapInternal(existing, v, options, previousValue)
-      continue
-    }
-
-    // If source is an array and dest has a Y.Array, merge recursively
-    if (isPlainArray(v) && existing instanceof Y.Array) {
-      applyJsonArrayToYArrayInternal(existing, v, options, previousValue)
-      continue
-    }
-
-    // Edit an existing Y.Text in place rather than replacing the container
-    if (mergeTextSnapshot(existing, v)) {
-      continue
-    }
-
-    // Skip unchanged primitive and frozen values
-    if (isUnchangedAtomicValue(existing, v)) {
+    if (mergeYjsValue(dest.get(k), v, options, previousValue)) {
       continue
     }
 
@@ -346,21 +332,14 @@ export function applySnapshotToYjsContainer(
     return
   }
 
-  if (!(container instanceof Y.Map || container instanceof Y.Array)) {
-    return
-  }
-  if (!container.doc) {
-    throw failure("the merge destination must be attached to a document")
-  }
-
   const options: ApplyJsonToYjsOptions = { mode: "merge" }
-  let apply: () => void
   if (container instanceof Y.Map) {
-    apply = () =>
+    transactIfAttached(container, options, () =>
       applyJsonObjectToYMapInternal(container, snapshot as PlainObject, options, previousSnapshot)
-  } else {
-    apply = () =>
+    )
+  } else if (container instanceof Y.Array) {
+    transactIfAttached(container, options, () =>
       applyJsonArrayToYArrayInternal(container, snapshot as PlainArray, options, previousSnapshot)
+    )
   }
-  container.doc.transact(apply)
 }

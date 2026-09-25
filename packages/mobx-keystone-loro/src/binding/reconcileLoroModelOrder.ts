@@ -3,6 +3,7 @@ import { type ContainerID, LoroMap, LoroMovableList } from "loro-crdt"
 import { getSnapshotModelTypeAndId, isFrozenSnapshot } from "mobx-keystone"
 import type { PlainValue } from "../plainTypes"
 import { isBindableLoroContainer } from "../utils/isBindableLoroContainer"
+import { insertLoroListValue } from "../utils/loroContainerWrites"
 import { convertJsonToLoroData } from "./convertJsonToLoroData"
 
 /**
@@ -62,10 +63,11 @@ export function reconcileLoroModelOrder(container: unknown, before: unknown, aft
           i >= currentItems.length ||
           (isBindableLoroContainer(current) && retainedIds.has(current.id))
         ) {
-          const converted = convertJsonToLoroData(after[i] as PlainValue)
-          let inserted: unknown = converted
-          if (isBindableLoroContainer(converted)) inserted = container.insertContainer(i, converted)
-          else container.insert(i, converted)
+          const inserted = insertLoroListValue(
+            container,
+            i,
+            convertJsonToLoroData(after[i] as PlainValue)
+          )
           currentItems.splice(i, 0, inserted)
           reindexFrom(i)
         } else {

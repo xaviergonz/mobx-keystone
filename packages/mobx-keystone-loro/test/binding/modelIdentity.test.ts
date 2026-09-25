@@ -1,5 +1,5 @@
 import { LoroDoc, LoroMap } from "loro-crdt"
-import { getSnapshot, idProp, Model, prop, tProp, types } from "mobx-keystone"
+import { getSnapshot, idProp, Model, type Path, prop, tProp, types } from "mobx-keystone"
 import {
   applyJsonArrayToLoroMovableList,
   applyJsonObjectToLoroMap,
@@ -123,9 +123,9 @@ test("a bound root model cannot change class in place", async () => {
   )
   applyJsonObjectToLoroMap(root, getSnapshot(new B({ value: 2 })))
   doc.commit()
-  expect(() => applyLoroEventToMobx(event!, doc, boundObject, ["root"], new Set())).toThrow(
-    "cannot change the model type of the bound root"
-  )
+  expect(() =>
+    applyLoroEventToMobx(event!, event!.path.slice(1) as Path, doc, boundObject, new Set())
+  ).toThrow("cannot change the model type of the bound root")
   expect(getSnapshot(boundObject)).toBe(before)
 })
 

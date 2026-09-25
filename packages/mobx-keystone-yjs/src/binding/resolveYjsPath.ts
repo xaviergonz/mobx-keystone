@@ -20,9 +20,8 @@ export function resolveYjsPath(
 ): unknown {
   let currentYjsObject: unknown = yjsObject
 
-  let i = -1
-  for (const pathPart of path) {
-    i++
+  for (let i = 0; i < path.length; i++) {
+    const pathPart = path[i]
     // If we encounter a Y.Text during path resolution, return it immediately.
     // Y.Text objects don't support nested path traversal, and their updates
     // are handled separately by YjsTextModel's own synchronization mechanism.

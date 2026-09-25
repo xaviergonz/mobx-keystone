@@ -64,26 +64,16 @@ export class YjsTextModel extends Model({
   }
 
   /**
-   * The Yjs.Text object present at this mobx-keystone node's path.
-   */
-  @mobxComputed
-  private get _yjsObjectAtPath(): unknown {
-    const path = this._yjsObjectPath
-
-    const ctx = yjsBindingContext.get(this)!
-
-    return resolveYjsPath(ctx.yjsObject, path)
-  }
-
-  /**
    * The Yjs.Text object represented by this mobx-keystone node.
    */
   @mobxComputed
   get yjsText(): Y.Text {
-    const yjsObject = this._yjsObjectAtPath
+    // Resolve the path first: it reports a missing binding.
+    const path = this._yjsObjectPath
+    const yjsObject = resolveYjsPath(yjsBindingContext.get(this)!.yjsObject, path)
 
     if (!(yjsObject instanceof Y.Text)) {
-      throw failure(`Y.Text was expected at path ${JSON.stringify(this._yjsObjectPath)}`)
+      throw failure(`Y.Text was expected at path ${JSON.stringify(path)}`)
     }
 
     return yjsObject

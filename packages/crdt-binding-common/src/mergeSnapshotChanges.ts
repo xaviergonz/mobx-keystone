@@ -1,5 +1,6 @@
 import { getSnapshotModelTypeAndId } from "mobx-keystone"
 import { jsonEquals } from "./jsonEquals"
+import { setOwnProperty } from "./treeUtils"
 
 function isObject(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) return false
@@ -301,12 +302,7 @@ export function mergeSnapshotChanges(
       : changed[key]
     if (!Object.hasOwn(result, key) || !Object.is(result[key], value)) {
       if (result === destination) result = { ...destination }
-      Object.defineProperty(result, key, {
-        value,
-        enumerable: true,
-        configurable: true,
-        writable: true,
-      })
+      setOwnProperty(result, key, value)
     }
   }
   return result

@@ -4,6 +4,11 @@ import type { PlainValue } from "../plainTypes"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 import {
+  insertLoroListValue,
+  setLoroListValue,
+  setLoroMapValue,
+} from "../utils/loroContainerWrites"
+import {
   convertJsonToLoroData,
   extractTextDeltaFromSnapshot,
   replaceLoroTextDelta,
@@ -17,34 +22,6 @@ import { resolveLoroPath } from "./resolveLoroPath"
  */
 function convertValue(v: unknown): unknown {
   return convertJsonToLoroData(v as PlainValue)
-}
-
-/**
- * Inserts a value into a LoroMovableList at the given index.
- */
-function insertIntoList(list: LoroMovableList, index: number, value: unknown): void {
-  if (value instanceof LoroMap || value instanceof LoroMovableList || value instanceof LoroText) {
-    list.insertContainer(index, value)
-  } else {
-    list.insert(index, value)
-  }
-}
-
-/**
- * Sets a value in a LoroMap at the given key.
- */
-function setInMap(map: LoroMap, key: string, value: unknown): void {
-  if (value === undefined) {
-    map.delete(key)
-  } else if (
-    value instanceof LoroMap ||
-    value instanceof LoroMovableList ||
-    value instanceof LoroText
-  ) {
-    map.setContainer(key, value)
-  } else {
-    map.set(key, value)
-  }
 }
 
 /**
@@ -83,10 +60,8 @@ export function applyMobxChangeToLoroObject(
       if (change.removedValues.length > 0) {
         loroContainer.delete(change.index, change.removedValues.length)
       }
-      if (change.addedValues.length > 0) {
-        for (let i = 0; i < valuesToInsert.length; i++) {
-          insertIntoList(loroContainer, change.index + i, valuesToInsert[i])
-        }
+      for (let i = 0; i < valuesToInsert.length; i++) {
+        insertLoroListValue(loroContainer, change.index + i, valuesToInsert[i])
       }
       break
     }
@@ -98,16 +73,7 @@ export function applyMobxChangeToLoroObject(
       if (change.newValue === undefined) {
         throw failure("undefined values are not supported in Loro lists")
       }
-      const converted = convertValue(change.newValue)
-      if (
-        converted instanceof LoroMap ||
-        converted instanceof LoroMovableList ||
-        converted instanceof LoroText
-      ) {
-        loroContainer.setContainer(change.index, converted)
-      } else {
-        loroContainer.set(change.index, converted)
-      }
+      setLoroListValue(loroContainer, change.index, convertValue(change.newValue))
       break
     }
 
@@ -121,8 +87,8 @@ export function applyMobxChangeToLoroObject(
         }
         // ignore other property changes on LoroText as they're not synced
       } else if (loroContainer instanceof LoroMap) {
-        const converted = convertValue(change.newValue)
-        setInMap(loroContainer, change.key, converted)
+        if (change.newValue === undefined) loroContainer.delete(change.key)
+        else setLoroMapValue(loroContainer, change.key, convertValue(change.newValue))
       } else {
         throw failure(`ObjectAdd/ObjectUpdate change requires a LoroMap or LoroText container`)
       }

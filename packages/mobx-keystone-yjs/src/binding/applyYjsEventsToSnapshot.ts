@@ -1,6 +1,11 @@
+import {
+  applyListDeltaToSnapshot,
+  type ListDeltaPart,
+  setOwnProperty,
+} from "@mobx-keystone/crdt-binding-common"
 import type { SnapshotOutOf } from "mobx-keystone"
 import * as Y from "yjs"
-import { convertYjsDataToJsonInternal } from "./convertYjsDataToJson"
+import { convertYjsDataToJsonInternal, type YjsData } from "./convertYjsDataToJson"
 import type { YjsTextModel } from "./YjsTextModel"
 
 /**
@@ -37,18 +42,16 @@ function updateSnapshot(
   if (pathIndex < event.path.length) {
     const key = event.path[pathIndex]
     const copy = copyForWrite(snapshot as object, owned)
-    // Define an own property so keys such as __proto__ remain ordinary data.
-    Object.defineProperty(copy, key, {
-      value: updateSnapshot(
+    setOwnProperty(
+      copy,
+      key,
+      updateSnapshot(
         (snapshot as Record<string | number, unknown>)[key],
         event,
         pathIndex + 1,
         owned
-      ),
-      enumerable: true,
-      configurable: true,
-      writable: true,
-    })
+      )
+    )
     return copy
   }
 
@@ -58,36 +61,19 @@ function updateSnapshot(
       if (change.action === "delete") {
         delete copy[key]
       } else {
-        Object.defineProperty(copy, key, {
-          value: convertYjsDataToJsonInternal(event.target.get(key)),
-          enumerable: true,
-          configurable: true,
-          writable: true,
-        })
+        setOwnProperty(copy, key, convertYjsDataToJsonInternal(event.target.get(key)))
       }
     }
     return copy
   }
 
   if (event instanceof Y.YArrayEvent) {
-    const oldArray = snapshot as readonly unknown[]
-    const result: unknown[] = []
-    let oldIndex = 0
-    for (const change of event.changes.delta) {
-      const retainEnd = oldIndex + (change.retain ?? 0)
-      while (oldIndex < retainEnd) {
-        result.push(oldArray[oldIndex++])
-      }
-      oldIndex += change.delete ?? 0
-      if (change.insert) {
-        for (const value of change.insert) {
-          result.push(convertYjsDataToJsonInternal(value))
-        }
-      }
-    }
-    while (oldIndex < oldArray.length) {
-      result.push(oldArray[oldIndex++])
-    }
+    const result = applyListDeltaToSnapshot(
+      snapshot as readonly unknown[],
+      // Array events never contain text inserts.
+      event.changes.delta as ListDeltaPart[],
+      (value) => convertYjsDataToJsonInternal(value as YjsData)
+    )
     owned.add(result)
     return result
   }

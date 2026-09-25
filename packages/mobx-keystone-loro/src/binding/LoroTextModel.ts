@@ -79,18 +79,7 @@ export class LoroTextModel extends Model({
         return undefined
       }
 
-      // If this model IS the bound object, the loroObject is the LoroText
-      if (path.length === 0) {
-        const loroObject = ctx.loroObject
-        if (loroObject instanceof LoroText) {
-          return loroObject
-        }
-        return undefined
-      }
-
-      // Otherwise resolve the path
       const loroObject = resolveLoroPath(ctx.loroObject, path)
-
       if (loroObject instanceof LoroText) {
         return loroObject
       }
@@ -150,19 +139,7 @@ export class LoroTextModel extends Model({
    */
   @modelAction
   insertText(index: number, text: string): void {
-    const context = loroBindingContext.get(this)
-    context?.flushPendingChanges?.()
-    const loroText = this.loroText
-    if (loroText) {
-      loroText.insert(index, text)
-      // Commit without the binding origin so its subscriber updates the model.
-      context!.loroDoc.commit()
-    } else {
-      const detachedText = new LoroText()
-      applyDeltaToLoroText(detachedText, this.deltaList.data)
-      detachedText.insert(index, text)
-      this.deltaList = frozen(detachedText.toDelta())
-    }
+    this.editText((loroText) => loroText.insert(index, text))
   }
 
   /**
@@ -170,28 +147,23 @@ export class LoroTextModel extends Model({
    */
   @modelAction
   deleteText(index: number, length: number): void {
+    this.editText((loroText) => loroText.delete(index, length))
+  }
+
+  private editText(edit: (loroText: LoroText) => void): void {
     const context = loroBindingContext.get(this)
     context?.flushPendingChanges?.()
     const loroText = this.loroText
     if (loroText) {
-      loroText.delete(index, length)
+      edit(loroText)
       // Commit without the binding origin so its subscriber updates the model.
       context!.loroDoc.commit()
     } else {
       const detachedText = new LoroText()
       applyDeltaToLoroText(detachedText, this.deltaList.data)
-      detachedText.delete(index, length)
+      edit(detachedText)
       this.deltaList = frozen(detachedText.toDelta())
     }
-  }
-
-  /**
-   * Internal action to update delta from Loro sync.
-   * @internal
-   */
-  @modelAction
-  _updateDeltaFromLoro(delta: LoroTextDeltaList): void {
-    this.deltaList = frozen(delta)
   }
 }
 
