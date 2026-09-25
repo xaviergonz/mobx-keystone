@@ -281,7 +281,7 @@ function Features() {
   )
 }
 
-const hl = (s: string) => <strong className={shared.accentText}>{s}</strong>
+const hl = (s: string) => <mark className={styles.quoteMark}>{s}</mark>
 
 const quotes = [
   {
@@ -318,12 +318,25 @@ function Quotes() {
       <div className={styles.quotes}>
         {quotes.map((q) => (
           <figure key={q.issue} className={shared.glass}>
-            <blockquote>“{q.text}”</blockquote>
+            <span className={styles.quoteGlyph} aria-hidden="true">
+              “
+            </span>
+            <blockquote>{q.text}</blockquote>
             <figcaption>
-              <a href={`https://github.com/${q.user}`}>@{q.user}</a> ·{" "}
-              <a href={`https://github.com/xaviergonz/mobx-keystone/issues/${q.issue}`}>
-                #{q.issue}
-              </a>
+              <img
+                className={styles.quoteAvatar}
+                src={`https://github.com/${q.user}.png?size=80`}
+                alt=""
+                width={36}
+                height={36}
+                loading="lazy"
+              />
+              <span className={styles.quoteWho}>
+                <a href={`https://github.com/${q.user}`}>@{q.user}</a>
+                <a href={`https://github.com/xaviergonz/mobx-keystone/issues/${q.issue}`}>
+                  on issue #{q.issue}
+                </a>
+              </span>
             </figcaption>
           </figure>
         ))}

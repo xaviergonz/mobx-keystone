@@ -464,26 +464,90 @@
 .quotes figure {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 1.25rem;
   margin: 0;
-  padding: 1.5rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  transition:
+    transform 250ms ease,
+    border-color 250ms ease;
+}
+
+.quotes figure:hover {
+  transform: translateY(-3px);
+  border-color: var(--mk-accent-soft);
+}
+
+/* A large opening quote mark above the text; the box is shorter than the font size because the
+   mark's ink only fills the top half of the line. */
+.quoteGlyph {
+  height: 2rem;
+  margin-bottom: -0.75rem;
+  color: var(--mk-accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 4rem;
+  line-height: 1;
+  opacity: 0.45;
+  user-select: none;
 }
 
 .quotes blockquote {
+  flex: 1;
   margin: 0;
   padding: 0;
   border: 0;
   color: var(--ifm-font-color-base);
   font-size: 1.0625rem;
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
-.quotes figcaption,
-.quotes figcaption a {
+/* A highlighter stroke under the key phrases. */
+.quoteMark {
+  padding: 0 0.1em;
+  background: linear-gradient(transparent 58%, var(--mk-accent-soft) 58%);
+  color: inherit;
+  font-weight: 600;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.quotes figcaption {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--mk-border);
+}
+
+.quoteAvatar {
+  flex: none;
+  border-radius: 50%;
+  background: var(--mk-border);
+  box-shadow: 0 0 0 2px var(--mk-accent-soft);
+}
+
+.quoteWho {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.quoteWho a:first-child {
+  color: var(--ifm-font-color-base);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.quoteWho a:last-child {
   color: var(--mk-faint);
   font-family: var(--ifm-font-family-monospace);
   font-size: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quotes figure:hover {
+    transform: none;
+  }
 }
 
 @media (max-width: 1279px) {
