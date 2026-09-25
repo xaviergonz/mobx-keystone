@@ -1,8 +1,8 @@
 # Change Log
 
-## Unreleased
+## 2.2.0
 
-- [BREAKING CHANGE] Now requires TypeScript 5.4 or newer (the types use the built-in `NoInfer`).
+- Now requires TypeScript 5.4 or newer (the types use the built-in `NoInfer`).
 - Faster TypeScript type-checking of models and runtime types: the snapshot, model data and `types.object` type mappings now create far fewer type instantiations (about 35% fewer in a typical model-heavy project), with no change to the resulting types. `tProp` defaults, `fromSnapshot(type, snapshot)`, `getSnapshot(type, value)` and `applySnapshot` no longer infer their type parameter from the data / snapshot argument, which makes those calls much cheaper to type-check (e.g. about 40% fewer instantiations for a typed `fromSnapshot` call). The `@model` decorator also no longer computes the creation data type of the decorated class. A typed `fromSnapshot(type, snapshot)` call now also accepts the output snapshot type of `type` (which must always round-trip, as with `applySnapshot` and the untyped `fromSnapshot(snapshot)`), so round trips such as `fromSnapshot(M, getSnapshot(m))` no longer compare the output and input snapshot types (about 65% cheaper to type-check).
 - Smaller and faster declaration (`.d.ts`) emit for exported model classes: the types of `idProp` and `tProp` properties (`TypedModelIdProp`, `TypedMaybeOptionalModelProp`, `TypedOptionalModelProp`) and `CodecFromEncoded` are now exported, so emitted declarations reference them by name instead of expanding them inline.
 - Fixed the types of `tProp` codec props (e.g. `tProp(types.dateAsTimestamp)`) after `.withSetter()`, `.withSnapshotProcessor()` or `.withTransform()`: `$` and snapshots now use the encoded type (e.g. `number`) instead of the runtime type (e.g. `Date`). The new `ModelPropWithSetter`, `ModelPropWithSnapshotProcessor` and `ModelPropWithTransform` types describe the props these modifiers return.
