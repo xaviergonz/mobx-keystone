@@ -291,13 +291,19 @@ html.plugin-docs #__docusaurus::before {
 }
 
 .sidebar-section-label {
-  color: var(--mk-faint);
+  color: var(--ifm-font-color-base);
   font-family: var(--ifm-font-family-monospace);
-  font-size: 0.6875rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 1.5rem 0.75rem 0.625rem;
+}
+
+/* A hairline between sections; the first one sits at the top of the sidebar. */
+.sidebar-section-label:not(:first-child) {
+  margin-top: 1rem;
+  border-top: 1px solid var(--mk-border);
 }
 
 .menu__link {
