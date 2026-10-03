@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.3.0
 
 - Fixed typed `fromSnapshot(Type, snapshot)` silently creating an unrelated model when a model snapshot's `$modelType` names a model that is neither the expected one nor a subclass of it (#590). It now throws `SnapshotTypeMismatchError` (whatever `modelAutoTypeChecking` is set to), also for models nested in typed props/containers, `types.ref` snapshots and `applySnapshot` into typed props. With `modelAutoTypeChecking` on, such a mismatch in a typed prop now throws `SnapshotTypeMismatchError` instead of a `TypeCheckError`.
