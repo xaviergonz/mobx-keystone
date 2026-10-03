@@ -34,10 +34,12 @@ class Parent extends Model({ child: tProp(types.model(A)) }) {}
 
 const bSn = () => getSnapshot(new B({ b: "hi" })) as any
 
-const expectMismatch = (fn: () => unknown) => {
+const expectMismatchFor = (modelName: string, fn: () => unknown) => {
   expect(fn).toThrow(SnapshotTypeMismatchError)
-  expect(fn).toThrow("<Model(issue590/A)>")
+  expect(fn).toThrow(`<Model(${modelName})>`)
 }
+
+const expectMismatch = (fn: () => unknown) => expectMismatchFor("issue590/A", fn)
 
 describe.each([ModelAutoTypeCheckingMode.AlwaysOn, ModelAutoTypeCheckingMode.AlwaysOff])(
   "modelAutoTypeChecking %s",
@@ -117,3 +119,34 @@ describe.each([ModelAutoTypeCheckingMode.AlwaysOn, ModelAutoTypeCheckingMode.Alw
     })
   }
 )
+
+test("subclasses are accepted across hot-reloaded model registrations", () => {
+  setGlobalConfig({ showDuplicateModelNameWarnings: false })
+  try {
+    @model("issue590/hmr/Base")
+    class OldBase extends Model({ a: tProp(types.number, 0) }) {}
+
+    // still extends the previous registration of the base model
+    @model("issue590/hmr/OldSub")
+    class OldSub extends ExtendedModel(OldBase, { x: tProp(types.number, 0) }) {}
+
+    // hot reload re-registers the base model under the same name
+    @model("issue590/hmr/Base")
+    class NewBase extends Model({ a: tProp(types.number, 0) }) {}
+
+    @model("issue590/hmr/NewSub")
+    class NewSub extends ExtendedModel(NewBase, { y: tProp(types.number, 0) }) {}
+
+    expect(fromSnapshot(NewBase, getSnapshot(new OldSub({})))).toBeInstanceOf(OldSub)
+    expect(fromSnapshot(OldBase, getSnapshot(new NewSub({})))).toBeInstanceOf(NewSub)
+    expect(
+      fromSnapshot(types.array(types.model(NewBase)), [getSnapshot(new OldSub({}))])[0]
+    ).toBeInstanceOf(OldSub)
+    expect(
+      fromSnapshot(types.or(types.model(NewBase), types.model(B)), getSnapshot(new OldSub({})))
+    ).toBeInstanceOf(OldSub)
+    expectMismatchFor("issue590/hmr/Base", () => fromSnapshot(NewBase, bSn()))
+  } finally {
+    setGlobalConfig({ showDuplicateModelNameWarnings: true })
+  }
+})

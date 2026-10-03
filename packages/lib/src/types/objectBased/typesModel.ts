@@ -77,7 +77,21 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
           return true
         }
         const snModelClass = getModelInfoForName(name)?.class
-        return snModelClass ? snModelClass.prototype instanceof modelClazz : undefined
+        if (!snModelClass) {
+          return undefined
+        }
+        // compare registered names rather than class identity, since with hot reloading
+        // a subclass might still extend a previous registration of this model
+        for (
+          let proto = Object.getPrototypeOf(snModelClass.prototype);
+          proto;
+          proto = Object.getPrototypeOf(proto)
+        ) {
+          if (modelInfoByClass.get(proto.constructor)?.name === modelInfo.name) {
+            return true
+          }
+        }
+        return false
       }
 
       const thisTc: TypeChecker = new TypeChecker(
