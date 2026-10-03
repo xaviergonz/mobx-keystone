@@ -1,4 +1,9 @@
 import { modelTypeKey } from "../model/metadata"
+import {
+  findModelInfoForPrototype,
+  getModelSubclassDistance,
+  getModelSubclassDistanceForName,
+} from "../modelShared/modelInfo"
 import { isObject } from "../utils"
 
 /**
@@ -70,6 +75,59 @@ export function matchUnlessModelSnapshotRejected<A, B>(
     // let outer matches know too
     rejectedModelSnapshot ||= prevRejectedModelSnapshot
   }
+}
+
+/**
+ * Whether a snapshot `$modelType` matches a model (`modelName`): its own model or, outside the
+ * exact pass, a subclass of it. Registered names are compared rather than classes, since with
+ * hot reloading a subclass might still extend a previous registration of the model.
+ *
+ * @internal
+ */
+export function snapshotModelTypeMatches(snModelType: unknown, modelName: string): boolean {
+  if (typeof snModelType !== "string") {
+    return false
+  }
+  if (snModelType === modelName) {
+    return true
+  }
+  const distance = getModelSubclassDistanceForName(snModelType, modelName)
+  if (distance === undefined) {
+    return false
+  }
+  if (distance < 0 || currentPass === "exact") {
+    rejectModelSnapshot()
+    return false
+  }
+  addModelSubclassDistance(distance)
+  return true
+}
+
+/**
+ * Whether a snapshot `$modelType` names a registered model that is neither a model
+ * (`modelName`) nor a subclass of it, so processing the snapshot as that model would silently
+ * create an unrelated model (unregistered names are reported later by the model snapshotter).
+ *
+ * @internal
+ */
+export function isUnrelatedSnapshotModelType(snModelType: unknown, modelName: string): boolean {
+  return (
+    typeof snModelType === "string" &&
+    snModelType !== modelName &&
+    (getModelSubclassDistanceForName(snModelType, modelName) ?? 0) < 0
+  )
+}
+
+/**
+ * Whether a model instance is of a model (`modelName`) or of a subclass of it, comparing
+ * registered names, since with hot reloading the instance model might still extend a previous
+ * registration of the model.
+ *
+ * @internal
+ */
+export function isModelInstanceOfModelName(value: object, modelName: string): boolean {
+  const valueModelInfo = findModelInfoForPrototype(Object.getPrototypeOf(value))
+  return !!valueModelInfo && getModelSubclassDistance(valueModelInfo, modelName) >= 0
 }
 
 /**

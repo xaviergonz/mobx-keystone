@@ -1,9 +1,13 @@
 import { modelTypeKey } from "../../model/metadata"
 import { isModel } from "../../model/utils"
-import { getModelInfoForName, modelInfoByClass } from "../../modelShared/modelInfo"
+import { modelInfoByClass } from "../../modelShared/modelInfo"
 import type { Ref, RefConstructor } from "../../ref/Ref"
 import { isObject } from "../../utils"
-import { rejectModelSnapshot } from "../modelTypeMatching"
+import {
+  isModelInstanceOfModelName,
+  isUnrelatedSnapshotModelType,
+  snapshotModelTypeMatches,
+} from "../modelTypeMatching"
 import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"
 import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
@@ -39,11 +43,9 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
     TypeCheckerBaseType.Object,
 
     (value, path, typeCheckedValue) => {
-      // registered names are compared too, since with hot reloading the ref class might be a
-      // previous registration of this one
       if (
         !(value instanceof refConstructor.refClass) &&
-        !(isModel(value) && value[modelTypeKey] === modelInfo.name)
+        !(isModel(value) && isModelInstanceOfModelName(value, modelInfo.name))
       ) {
         return new TypeCheckError({
           path,
@@ -66,14 +68,8 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
 
       const snModelType = obj[modelTypeKey]
       if (snModelType !== undefined) {
-        // fast check (unlike models, refs have no subclasses, so only the exact name matches)
-        if (snModelType === modelInfo.name) {
-          return thisTc
-        }
-        if (typeof snModelType === "string" && getModelInfoForName(snModelType)) {
-          rejectModelSnapshot()
-        }
-        return null
+        // fast check
+        return snapshotModelTypeMatches(snModelType, modelInfo.name) ? thisTc : null
       }
 
       return refDataTypeChecker.snapshotType(obj) ? thisTc : null
@@ -82,14 +78,8 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
     (sn: Record<string, unknown>) => {
       const snModelType = sn[modelTypeKey]
       if (snModelType) {
-        // the snapshot names its own model; make sure it is this ref, else fromSnapshot would
-        // silently create an unrelated model
-        // (unregistered names are reported later by the model snapshotter)
-        if (
-          snModelType !== modelInfo.name &&
-          typeof snModelType === "string" &&
-          getModelInfoForName(snModelType)
-        ) {
+        // the snapshot names its own model; make sure it is this ref or a subclass of it
+        if (isUnrelatedSnapshotModelType(snModelType, modelInfo.name)) {
           throw new SnapshotTypeMismatchError({
             expectedTypeName: typeName,
             actualValue: sn,

@@ -9,6 +9,7 @@ import {
   Model,
   ModelAutoTypeCheckingMode,
   model,
+  type Ref,
   SnapshotTypeMismatchError,
   setGlobalConfig,
   tProp,
@@ -411,5 +412,31 @@ test("refs with an unrelated $modelType throw", () => {
     const reloadedARef = customRef<A>("issue590/aRef", { resolve: () => undefined })
     expect(typeCheck(refType, reloadedARef("y"))).toBeNull()
     expect(typeCheck(refType, new B({}) as any)).not.toBeNull()
+  })
+})
+
+test("refs accept subclasses of their ref class", () => {
+  const aRef = customRef<A>("issue590/baseRef", { resolve: () => undefined })
+  const refType = types.ref(aRef)
+
+  // (ref classes are typed as abstract, but they are concrete)
+  const SubRef: new (data: { id: string }) => Ref<A> = model("issue590/SubRef")(
+    class extends ExtendedModel(aRef.refClass as any, {}) {} as any
+  )
+
+  const subRef = new SubRef({ id: "x" })
+  const subRefSn = getSnapshot(subRef)
+  expect(typeCheck(refType, subRef)).toBeNull()
+  expect(fromSnapshot(refType, subRefSn)).toBeInstanceOf(SubRef)
+  expect(fromSnapshot(types.or(refType, types.model(A)), subRefSn)).toBeInstanceOf(SubRef)
+  expect(() => fromSnapshot(refType, bSn())).toThrow(SnapshotTypeMismatchError)
+
+  // also after the ref class is hot reloaded
+  withGlobalConfig({ showDuplicateModelNameWarnings: false }, () => {
+    const reloadedRefType = types.ref(
+      customRef<A>("issue590/baseRef", { resolve: () => undefined })
+    )
+    expect(typeCheck(reloadedRefType, subRef)).toBeNull()
+    expect(fromSnapshot(reloadedRefType, subRefSn)).toBeInstanceOf(SubRef)
   })
 })

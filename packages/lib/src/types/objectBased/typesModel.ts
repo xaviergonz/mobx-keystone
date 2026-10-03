@@ -4,20 +4,15 @@ import { getModelMetadata } from "../../model/getModelMetadata"
 import { modelTypeKey } from "../../model/metadata"
 import { isModel, isModelClass } from "../../model/utils"
 import type { ModelClass } from "../../modelShared/BaseModelShared"
-import {
-  findModelInfoForPrototype,
-  getModelSubclassDistance,
-  getModelSubclassDistanceForName,
-  modelInfoByClass,
-} from "../../modelShared/modelInfo"
+import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
 import { isObject, lazy, setProtoProp } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import {
-  addModelSubclassDistance,
-  getModelTypeMatchingPass,
-  rejectModelSnapshot,
+  isModelInstanceOfModelName,
+  isUnrelatedSnapshotModelType,
+  snapshotModelTypeMatches,
 } from "../modelTypeMatching"
 import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
 import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
@@ -80,23 +75,14 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
         ? resolveTypeChecker(dataTypeChecker)
         : undefined
 
-      // how many registered models a snapshot `$modelType` is below this model, -1 if it is
-      // not this model or a subclass of it, undefined if the name is not registered
-      const getSnapshotSubclassDistance = (name: string): number | undefined =>
-        name === modelInfo.name ? 0 : getModelSubclassDistanceForName(name, modelInfo.name)
-
-      // registered names are compared rather than classes, since with hot reloading a model
-      // might still extend a previous registration of this model
-      const isInstanceOfThisModel = (value: AnyModel) => {
-        const valueModelInfo = findModelInfoForPrototype(Object.getPrototypeOf(value))
-        return !!valueModelInfo && getModelSubclassDistance(valueModelInfo, modelInfo.name) >= 0
-      }
-
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
 
         (value, path, typeCheckedValue) => {
-          if (!(value instanceof modelClazz) && !(isModel(value) && isInstanceOfThisModel(value))) {
+          if (
+            !(value instanceof modelClazz) &&
+            !(isModel(value) && isModelInstanceOfModelName(value, modelInfo.name))
+          ) {
             return new TypeCheckError({
               path,
               expectedTypeName: typeName,
@@ -121,22 +107,7 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
 
           const snModelType = value[modelTypeKey]
           if (snModelType !== undefined) {
-            if (typeof snModelType !== "string") {
-              return null
-            }
-            if (snModelType === modelInfo.name) {
-              return thisTc
-            }
-            const distance = getSnapshotSubclassDistance(snModelType)
-            if (distance === undefined) {
-              return null
-            }
-            if (distance < 0 || getModelTypeMatchingPass() === "exact") {
-              rejectModelSnapshot()
-              return null
-            }
-            addModelSubclassDistance(distance)
-            return thisTc
+            return snapshotModelTypeMatches(snModelType, modelInfo.name) ? thisTc : null
           }
 
           if (resolvedDataTypeChecker) {
@@ -152,11 +123,8 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
         (sn) => {
           const snModelType = sn[modelTypeKey]
           if (snModelType) {
-            // the snapshot names its own model; make sure it is this model or a subclass
-            // of it, else fromSnapshot would silently create an unrelated model
-            // (unregistered names are reported later by the model snapshotter)
-            const distance = getSnapshotSubclassDistance(snModelType)
-            if (distance !== undefined && distance < 0) {
+            // the snapshot names its own model; make sure it is this model or a subclass of it
+            if (isUnrelatedSnapshotModelType(snModelType, modelInfo.name)) {
               throw new SnapshotTypeMismatchError({
                 expectedTypeName: typeName,
                 actualValue: sn,
