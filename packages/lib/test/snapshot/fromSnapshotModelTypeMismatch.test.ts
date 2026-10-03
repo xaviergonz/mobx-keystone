@@ -302,6 +302,29 @@ describe("unions prefer the branches of the closest models", () => {
     expect(() => fromSnapshot(t, bSn())).toThrow(SnapshotTypeMismatchError)
   })
 
+  test("single option unions with nested models of other registered models let other branches match", () => {
+    const oA = types.object(() => ({ x: aType }))
+    const oB = types.object(() => ({ x: bType }))
+    const t = types.or(types.maybe(oA), oB)
+    expect(fromSnapshot(t, { x: bSn() })!.x).toBeInstanceOf(B)
+    expect(fromSnapshot(t, { x: aSubSn })!.x).toBeInstanceOf(ASub)
+    expect(() => fromSnapshot(t, { x: getSnapshot(new C({})) } as any)).toThrow(
+      SnapshotTypeMismatchError
+    )
+
+    const arrays = types.or(types.maybe(types.array(oA)), types.array(oB))
+    expect(fromSnapshot(arrays, [{ x: bSn() }])![0].x).toBeInstanceOf(B)
+
+    const aRef = customRef<A>("issue590/nestedARef", { resolve: () => undefined })
+    const bRef = customRef<B>("issue590/nestedBRef", { resolve: () => undefined })
+    const refs = types.or(
+      types.maybe(types.object(() => ({ r: types.ref(aRef) }))),
+      types.object(() => ({ r: types.ref(bRef) }))
+    )
+    expect(fromSnapshot(refs, { r: getSnapshot(bRef("x")) })!.r).toBeInstanceOf(bRef.refClass)
+    expect(fromSnapshot(refs, { r: getSnapshot(aRef("x")) })!.r).toBeInstanceOf(aRef.refClass)
+  })
+
   test("dispatcher unions", () => {
     const t = types.or(() => aType, aType, bType)
     expect(fromSnapshot(t, aSubSn)).toBeInstanceOf(ASub)

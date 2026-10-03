@@ -17,7 +17,7 @@ export type ModelTypeMatchingPass = "none" | "exact" | "closest"
 
 let currentPass: ModelTypeMatchingPass = "none"
 let subclassDistance = 0
-let rejectedSubclass = false
+let rejectedModelSnapshot = false
 
 /**
  * @internal
@@ -38,34 +38,37 @@ export function addModelSubclassDistance(distance: number): void {
 }
 
 /**
- * Records that a model type rejected a snapshot of a subclass in the exact pass (so it would
- * match it in the closest pass).
+ * Records, while unions match their branches, that a model type (or ref) rejected a model
+ * snapshot that some other branch could accept: one of a subclass in the exact pass (it would
+ * match it in the closest pass), or one of another registered model.
  *
  * @internal
  */
-export function rejectSubclassInExactPass(): void {
-  rejectedSubclass = true
+export function rejectModelSnapshot(): void {
+  if (currentPass !== "none") {
+    rejectedModelSnapshot = true
+  }
 }
 
 /**
  * Runs a value match, returning whether it matched, or `undefined` if it did not because a model
- * type rejected a snapshot of a subclass in the exact pass.
+ * type (or ref) rejected a model snapshot (see `rejectModelSnapshot`).
  *
  * @internal
  */
-export function matchUnlessSubclassRejected<A, B>(
+export function matchUnlessModelSnapshotRejected<A, B>(
   fn: (a: A, b: B) => unknown,
   a: A,
   b: B
 ): boolean | undefined {
-  const prevRejectedSubclass = rejectedSubclass
-  rejectedSubclass = false
+  const prevRejectedModelSnapshot = rejectedModelSnapshot
+  rejectedModelSnapshot = false
   try {
     const matched = !!fn(a, b)
-    return matched || !rejectedSubclass ? matched : undefined
+    return matched || !rejectedModelSnapshot ? matched : undefined
   } finally {
     // let outer matches know too
-    rejectedSubclass ||= prevRejectedSubclass
+    rejectedModelSnapshot ||= prevRejectedModelSnapshot
   }
 }
 
@@ -95,16 +98,16 @@ export function runInModelTypeMatchingPass<A, B, R>(
 
   const prevPass = currentPass
   const prevDistance = subclassDistance
-  const prevRejectedSubclass = rejectedSubclass
+  const prevRejectedModelSnapshot = rejectedModelSnapshot
   currentPass = pass
   subclassDistance = 0
-  rejectedSubclass = false
+  rejectedModelSnapshot = false
   try {
     return fn(a, b)
   } finally {
     currentPass = prevPass
     subclassDistance = prevDistance
-    rejectedSubclass = prevRejectedSubclass
+    rejectedModelSnapshot = prevRejectedModelSnapshot
   }
 }
 
@@ -122,19 +125,12 @@ export function findClosestModelTypeMatch<T, R>(
   value: unknown
 ): R | undefined {
   switch (currentPass) {
-    case "exact": {
+    case "exact":
       // nested inside an exact pass
-      const prevRejectedSubclass = rejectedSubclass
-      const exactMatch = findFirstMatch(candidates, match, value)
-      if (exactMatch != null) {
-        // subclasses rejected by other branches do not matter then
-        rejectedSubclass = prevRejectedSubclass
-      }
-      return exactMatch
-    }
+      return findNestedMatch(findFirstMatch, candidates, match, value, 0)
     case "closest":
       // nested inside a closest pass
-      return findClosestMatch(candidates, match, value, 0)
+      return findNestedMatch(findClosestMatch, candidates, match, value, 0)
     default:
       try {
         currentPass = "exact"
@@ -150,9 +146,30 @@ export function findClosestModelTypeMatch<T, R>(
       } finally {
         currentPass = "none"
         subclassDistance = 0
-        rejectedSubclass = false
+        rejectedModelSnapshot = false
       }
   }
+}
+
+function findNestedMatch<T, R>(
+  find: (
+    candidates: ReadonlyArray<T>,
+    match: (candidate: T, value: unknown) => R | null | undefined,
+    value: unknown,
+    minPossibleDistance: number
+  ) => R | undefined,
+  candidates: ReadonlyArray<T>,
+  match: (candidate: T, value: unknown) => R | null | undefined,
+  value: unknown,
+  minPossibleDistance: number
+): R | undefined {
+  const prevRejectedModelSnapshot = rejectedModelSnapshot
+  const result = find(candidates, match, value, minPossibleDistance)
+  if (result != null) {
+    // model snapshots rejected by other branches do not matter then
+    rejectedModelSnapshot = prevRejectedModelSnapshot
+  }
+  return result
 }
 
 /**

@@ -7,7 +7,7 @@ import {
   findFirstMatch,
   getModelTypeMatchingPass,
   hasSnapshotModelType,
-  matchUnlessSubclassRejected,
+  matchUnlessModelSnapshotRejected,
 } from "../modelTypeMatching"
 import {
   resolveStandardType,
@@ -210,11 +210,12 @@ export function typesOr(
             valueBaseType !== TypeCheckerBaseType.Primitive
           ) {
             // an outer union is matching its branches, so let it know whether this one matches
-            // the (possibly nested) snapshot models; if it does not only because, in the exact
-            // pass, it would match them as subclasses, or if the snapshot names a registered
-            // model this branch does not accept, the outer union has to try other branches
-            // first, else it might pick a farther branch or one that rejects the snapshot
-            const matched = matchUnlessSubclassRejected(matchSnapshotType, candidate, value)
+            // the (possibly nested) snapshot models; if it does not because a (possibly nested)
+            // model type rejected a model snapshot (in the exact pass, also one of a subclass),
+            // or because the snapshot names a registered model this branch does not accept, the
+            // outer union has to try other branches first, else it might pick a farther branch
+            // or one that rejects the snapshot
+            const matched = matchUnlessModelSnapshotRejected(matchSnapshotType, candidate, value)
             if (
               matched === undefined ||
               (!matched &&

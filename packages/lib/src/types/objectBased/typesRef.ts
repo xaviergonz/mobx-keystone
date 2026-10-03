@@ -3,6 +3,7 @@ import { isModel } from "../../model/utils"
 import { getModelInfoForName, modelInfoByClass } from "../../modelShared/modelInfo"
 import type { Ref, RefConstructor } from "../../ref/Ref"
 import { isObject } from "../../utils"
+import { rejectModelSnapshot } from "../modelTypeMatching"
 import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"
 import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
@@ -63,9 +64,16 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
         return null
       }
 
-      if (obj[modelTypeKey] !== undefined) {
+      const snModelType = obj[modelTypeKey]
+      if (snModelType !== undefined) {
         // fast check (unlike models, refs have no subclasses, so only the exact name matches)
-        return obj[modelTypeKey] === modelInfo.name ? thisTc : null
+        if (snModelType === modelInfo.name) {
+          return thisTc
+        }
+        if (typeof snModelType === "string" && getModelInfoForName(snModelType)) {
+          rejectModelSnapshot()
+        }
+        return null
       }
 
       return refDataTypeChecker.snapshotType(obj) ? thisTc : null

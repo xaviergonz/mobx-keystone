@@ -17,7 +17,7 @@ import { getTypeInfo } from "../getTypeInfo"
 import {
   addModelSubclassDistance,
   getModelTypeMatchingPass,
-  rejectSubclassInExactPass,
+  rejectModelSnapshot,
 } from "../modelTypeMatching"
 import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
 import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
@@ -128,11 +128,11 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
               return thisTc
             }
             const distance = getSnapshotSubclassDistance(snModelType)
-            if (distance === undefined || distance < 0) {
+            if (distance === undefined) {
               return null
             }
-            if (getModelTypeMatchingPass() === "exact") {
-              rejectSubclassInExactPass()
+            if (distance < 0 || getModelTypeMatchingPass() === "exact") {
+              rejectModelSnapshot()
               return null
             }
             addModelSubclassDistance(distance)
