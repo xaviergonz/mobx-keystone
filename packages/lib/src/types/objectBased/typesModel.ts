@@ -70,6 +70,16 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
         ? resolveTypeChecker(dataTypeChecker)
         : undefined
 
+      // whether a snapshot `$modelType` names this model or a subclass of it,
+      // undefined if the name is not registered
+      const isThisModelOrSubclassName = (name: string): boolean | undefined => {
+        if (name === modelInfo.name) {
+          return true
+        }
+        const snModelClass = getModelInfoForName(name)?.class
+        return snModelClass ? snModelClass.prototype instanceof modelClazz : undefined
+      }
+
       const thisTc: TypeChecker = new TypeChecker(
         TypeCheckerBaseType.Object,
 
@@ -97,9 +107,11 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
             return null
           }
 
-          if (value[modelTypeKey] !== undefined) {
-            // fast check
-            return value[modelTypeKey] === modelInfo.name ? thisTc : null
+          const snModelType = value[modelTypeKey]
+          if (snModelType !== undefined) {
+            return typeof snModelType === "string" && isThisModelOrSubclassName(snModelType)
+              ? thisTc
+              : null
           }
 
           if (resolvedDataTypeChecker) {
@@ -117,15 +129,12 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
           if (snModelType) {
             // the snapshot names its own model; make sure it is this model or a subclass
             // of it, else fromSnapshot would silently create an unrelated model
-            if (snModelType !== modelInfo.name) {
-              const snModelClass = getModelInfoForName(snModelType)?.class
-              // unregistered names are reported later by the model snapshotter
-              if (snModelClass && !(snModelClass.prototype instanceof modelClazz)) {
-                throw new SnapshotTypeMismatchError({
-                  expectedTypeName: typeName,
-                  actualValue: sn,
-                })
-              }
+            // (unregistered names are reported later by the model snapshotter)
+            if (isThisModelOrSubclassName(snModelType) === false) {
+              throw new SnapshotTypeMismatchError({
+                expectedTypeName: typeName,
+                actualValue: sn,
+              })
             }
             return sn
           } else {
