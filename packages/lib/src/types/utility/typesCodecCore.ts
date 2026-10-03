@@ -1,6 +1,7 @@
 import type { ModelPropTransform } from "../../modelShared/prop"
 import { lazy } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
+import { runInModelTypeMatchingPass } from "../modelTypeMatching"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type {
   AnyStandardType,
@@ -145,7 +146,8 @@ export function createCodecType<TEncodedType extends AnyType, TRuntime>(
       () => typeName,
       typeInfoGen,
 
-      (value) => (is(value) ? thisTc : null),
+      // user code, so it must not see the model type matching pass of an outer union
+      (value) => (runInModelTypeMatchingPass("none", is, value, undefined) ? thisTc : null),
 
       (snapshot) => {
         const processedSnapshot = encodedTypeChecker.fromSnapshotProcessor(snapshot)

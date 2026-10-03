@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Fixed typed `fromSnapshot(Type, snapshot)` silently creating an unrelated model when a model snapshot's `$modelType` names a model that is neither the expected one nor a subclass of it (#590). It now throws a `SnapshotTypeMismatchError`, whatever `modelAutoTypeChecking` is set to. The check also applies to models nested in typed props and in containers (arrays, records, objects, maybe, etc.), and to `applySnapshot` (and therefore to snapshots applied by the Yjs/Loro bindings), which throws before changing the tree. Subclass snapshots still load as before, and unions of model types now also accept a subclass snapshot for a base model branch instead of throwing `SnapshotTypeMismatchError`. Note: when `modelAutoTypeChecking` is on, a mismatched model in a typed prop now throws `SnapshotTypeMismatchError` while the snapshot is processed, instead of a `TypeCheckError` after the model is created.
+- Fixed typed `fromSnapshot(Type, snapshot)` silently creating an unrelated model when a model snapshot's `$modelType` names a model that is neither the expected one nor a subclass of it (#590). It now throws `SnapshotTypeMismatchError` (whatever `modelAutoTypeChecking` is set to), also for models nested in typed props/containers, `types.ref` snapshots and `applySnapshot` into typed props. With `modelAutoTypeChecking` on, such a mismatch in a typed prop now throws `SnapshotTypeMismatchError` instead of a `TypeCheckError`.
+- Unions of model types now accept subclass snapshots for a base model branch, preferring the branch of the snapshot's own model when there is one.
+- Fixed `types.model(...)` and `types.ref(...)` type checking rejecting valid instances after hot reloading re-registered a model.
 
 ## 2.2.0
 

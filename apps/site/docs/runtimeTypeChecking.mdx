@@ -176,9 +176,7 @@ const shapeType = types.or(
 ```
 
 The dispatcher receives the snapshot and must return one of the provided union types.
-When no union branch matches during snapshot conversion, `types.or` throws `SnapshotTypeMismatchError` (a `MobxKeystoneError`) with path/type/value metadata. A `types.model(SomeModel)` branch matches snapshots of `SomeModel` and of its subclasses.
-
-`types.model(SomeModel)` also throws `SnapshotTypeMismatchError` during snapshot conversion when a snapshot's `$modelType` names a model that is neither `SomeModel` nor a subclass of it, regardless of the `modelAutoTypeChecking` setting (see [`fromSnapshot`](./snapshots.mdx#fromsnapshot)).
+When no union branch matches during snapshot conversion, `types.or` throws `SnapshotTypeMismatchError` (a `MobxKeystoneError`) with path/type/value metadata. A `types.model(SomeModel)` branch also matches snapshots of subclasses of `SomeModel`, but a branch for the snapshot's own model is preferred: with `types.or(types.model(Base), types.model(Sub))`, a `Sub` snapshot uses the `Sub` branch.
 
 ### `types.maybe(type)`
 

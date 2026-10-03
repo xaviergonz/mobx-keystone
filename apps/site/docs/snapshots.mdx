@@ -141,11 +141,11 @@ const createdAtSnapshot = getSnapshot(types.dateAsTimestamp, new Date(1000))
 
 If a snapshot includes `$modelType` and deserialization says the model is not in the registry, it usually means that model module was not imported at runtime (for example, import elision). In such cases either keep a runtime import (or side-effect import) or call `registerModels(...)` at startup. See [Class Models](./classModels.mdx#runtime-model-registration-registermodels).
 
-When using the typed overload, a model snapshot whose `$modelType` names a registered model must be either the expected model or a subclass of it (a model created with `ExtendedModel`). Subclass snapshots are restored as instances of the subclass, while a snapshot of an unrelated model (or of a superclass) throws `SnapshotTypeMismatchError` instead of silently creating a model of the wrong type. This also applies to models nested in typed props and containers, and to `applySnapshot`, which throws before changing the tree. The check is part of snapshot processing, so it runs no matter what `modelAutoTypeChecking` is set to. The untyped overload (`fromSnapshot<T>(sn)`) still trusts `$modelType`.
+With the typed overload, a model snapshot must be of the expected model or of a subclass of it; otherwise `SnapshotTypeMismatchError` is thrown (whatever `modelAutoTypeChecking` is set to). The untyped overload trusts `$modelType`.
 
 ```ts
-fromSnapshot(Todo, getSnapshot(new SpecialTodo({ text: "hi" }))) // a SpecialTodo
-fromSnapshot(Todo, getSnapshot(new User({ name: "John" }))) // throws SnapshotTypeMismatchError
+fromSnapshot(Todo, getSnapshot(new SpecialTodo({ text: "hi" }))) // a SpecialTodo (extends Todo)
+fromSnapshot(Todo, getSnapshot(new User({ name: "John" })) as any) // throws SnapshotTypeMismatchError
 ```
 
 The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:

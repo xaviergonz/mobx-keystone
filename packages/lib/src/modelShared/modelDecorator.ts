@@ -9,7 +9,7 @@ import type { AnyModel } from "../model/BaseModel"
 import { modelTypeKey } from "../model/metadata"
 import { isModelClass } from "../model/utils"
 import { type ModelClass, modelInitializedSymbol } from "../modelShared/BaseModelShared"
-import { modelInfoByClass, modelInfoByName } from "../modelShared/modelInfo"
+import { modelInfoByClass, modelInfoByName, setModelInfo } from "../modelShared/modelInfo"
 import {
   modelUnwrappedClassSymbol,
   runAfterModelDecoratorSymbol,
@@ -167,10 +167,7 @@ const internalModel = <MC extends ModelClass<AnyModel | AnyDataModel>>(
     class: decoratedClass,
   }
 
-  modelInfoByName[name] = modelInfo
-
-  modelInfoByClass.set(decoratedClass, modelInfo)
-  modelInfoByClass.set(clazz, modelInfo)
+  setModelInfo(modelInfo, clazz)
 
   runLateInitializationFunctions(clazz, runAfterModelDecoratorSymbol)
 
