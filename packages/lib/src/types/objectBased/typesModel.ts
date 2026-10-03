@@ -122,7 +122,7 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
         // delegate to the data type checker, which handles path segments at the property level.
         (sn) => {
           const snModelType = sn[modelTypeKey]
-          if (snModelType) {
+          if (typeof snModelType === "string") {
             // the snapshot names its own model; make sure it is this model or a subclass of it
             if (isUnrelatedSnapshotModelType(snModelType, modelInfo.name)) {
               throw new SnapshotTypeMismatchError({

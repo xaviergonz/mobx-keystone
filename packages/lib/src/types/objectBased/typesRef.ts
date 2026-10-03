@@ -77,7 +77,7 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
 
     (sn: Record<string, unknown>) => {
       const snModelType = sn[modelTypeKey]
-      if (snModelType) {
+      if (typeof snModelType === "string") {
         // the snapshot names its own model; make sure it is this ref or a subclass of it
         if (isUnrelatedSnapshotModelType(snModelType, modelInfo.name)) {
           throw new SnapshotTypeMismatchError({

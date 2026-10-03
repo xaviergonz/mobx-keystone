@@ -440,3 +440,15 @@ test("refs accept subclasses of their ref class", () => {
     expect(fromSnapshot(reloadedRefType, subRefSn)).toBeInstanceOf(SubRef)
   })
 })
+
+@model("")
+class EmptyName extends Model({ value: tProp(types.number, 1) }) {}
+
+test("an empty $modelType is a model name too", () => {
+  const emptyNameSn = getSnapshot(new EmptyName({}))
+  expect(fromSnapshot(types.model(EmptyName), emptyNameSn)).toBeInstanceOf(EmptyName)
+  expectMismatch(() => fromSnapshot(types.model(A), emptyNameSn as any))
+
+  const aRef = customRef<A>("issue590/emptyNameRef", { resolve: () => undefined })
+  expect(() => fromSnapshot(types.ref(aRef), emptyNameSn as any)).toThrow(SnapshotTypeMismatchError)
+})
