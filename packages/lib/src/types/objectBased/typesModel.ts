@@ -4,12 +4,13 @@ import { getModelMetadata } from "../../model/getModelMetadata"
 import { modelTypeKey } from "../../model/metadata"
 import { isModelClass } from "../../model/utils"
 import type { ModelClass } from "../../modelShared/BaseModelShared"
-import { modelInfoByClass } from "../../modelShared/modelInfo"
+import { getModelInfoForName, modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
 import { isObject, lazy, setProtoProp } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
 import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
+import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import type { AnyStandardType, ModelType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
@@ -112,7 +113,20 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
         // No withErrorPathSegment wrapping needed here — model snapshot processors
         // delegate to the data type checker, which handles path segments at the property level.
         (sn) => {
-          if (sn[modelTypeKey]) {
+          const snModelType = sn[modelTypeKey]
+          if (snModelType) {
+            // the snapshot names its own model; make sure it is this model or a subclass
+            // of it, else fromSnapshot would silently create an unrelated model
+            if (snModelType !== modelInfo.name) {
+              const snModelClass = getModelInfoForName(snModelType)?.class
+              // unregistered names are reported later by the model snapshotter
+              if (snModelClass && !(snModelClass.prototype instanceof modelClazz)) {
+                throw new SnapshotTypeMismatchError({
+                  expectedTypeName: typeName,
+                  actualValue: sn,
+                })
+              }
+            }
             return sn
           } else {
             return {

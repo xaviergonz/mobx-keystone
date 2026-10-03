@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed typed `fromSnapshot(Type, snapshot)` silently creating an unrelated model when a model snapshot's `$modelType` names a model that is neither the expected one nor a subclass of it (#590). It now throws a `SnapshotTypeMismatchError`, whatever `modelAutoTypeChecking` is set to. The check also applies to models nested in typed props and in containers (arrays, records, objects, maybe, etc.). Subclass snapshots still load as before. Note: when `modelAutoTypeChecking` is on, a mismatched model in a typed prop now throws `SnapshotTypeMismatchError` while the snapshot is processed, instead of a `TypeCheckError` after the model is created.
+
 ## 2.2.0
 
 - Now requires TypeScript 5.4 or newer (the types use the built-in `NoInfer`).
