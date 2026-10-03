@@ -8,9 +8,8 @@
 
 ## Skills
 
-- Source of truth is `skills/**`.
-- Never edit mirrored skill folders directly.
-- After skill edits run `pnpm skills:sync` (repo root).
+- Skills live in `.agents/skills/<name>/SKILL.md` (read by Codex, Copilot and Antigravity); edit them there.
+- Claude Code only reads `.claude/skills`, so each skill also needs a symlink there: `ln -s ../../.agents/skills/<name> .claude/skills/<name>`.
 
 ## Monorepo map
 

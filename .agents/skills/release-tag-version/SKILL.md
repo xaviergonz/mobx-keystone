@@ -1,6 +1,6 @@
 ---
 name: release-tag-version
-description: Release workflow for this repository. Ask the user to choose lib, yjs, or loro first, analyze unreleased changelog entries, recommend a semver bump, then update changelog and version, create package-specific commit and tag names, push, then hand off manual publish to the user.
+description: Release workflow for this repository. Analyze the unreleased changelog entries of lib, yjs and loro, ask once which packages to release and the semver bump of each, then update changelogs and versions, build, test, commit, tag, push, publish to npm (the user only logs in through the browser) and prepare the next release, without further confirmations.
 ---
 
 # Release Tag Version
@@ -9,191 +9,108 @@ Follow this workflow only for this repository.
 
 ## Package Targets
 
-Select one package at the start of each run:
+| Key | Package name | package.json | Changelog | Publish dir | Build | Test |
+| --- | --- | --- | --- | --- | --- | --- |
+| `lib` | `mobx-keystone` | `packages/lib/package.json` | `CHANGELOG.md` | `packages/lib` | `pnpm lib:build` | `pnpm lib:test` |
+| `yjs` | `mobx-keystone-yjs` | `packages/mobx-keystone-yjs/package.json` | `packages/mobx-keystone-yjs/CHANGELOG.md` | `packages/mobx-keystone-yjs` | `pnpm yjs-lib:build` | `pnpm yjs-lib:test` |
+| `loro` | `mobx-keystone-loro` | `packages/mobx-keystone-loro/package.json` | `packages/mobx-keystone-loro/CHANGELOG.md` | `packages/mobx-keystone-loro` | `pnpm loro-lib:build` | `pnpm loro-lib:test` |
 
-- `lib`:
-  - package name: `mobx-keystone`
-  - package.json: `packages/lib/package.json`
-  - changelog: `CHANGELOG.md`
-  - publish dir: `packages/lib`
-  - build command: `pnpm lib:build`
-  - test command: `pnpm lib:test`
-  - unreleased format: `## Unreleased`
-- `yjs`:
-  - package name: `mobx-keystone-yjs`
-  - package.json: `packages/mobx-keystone-yjs/package.json`
-  - changelog: `packages/mobx-keystone-yjs/CHANGELOG.md`
-  - publish dir: `packages/mobx-keystone-yjs`
-  - build command: `pnpm yjs-lib:build`
-  - test command: `pnpm yjs-lib:test`
-  - unreleased format: `## Unreleased`
-- `loro`:
-  - package name: `mobx-keystone-loro`
-  - package.json: `packages/mobx-keystone-loro/package.json`
-  - changelog: `packages/mobx-keystone-loro/CHANGELOG.md`
-  - publish dir: `packages/mobx-keystone-loro`
-  - build command: `pnpm loro-lib:build`
-  - test command: `pnpm loro-lib:test`
-  - unreleased format: `## Unreleased`
-
-Global release branch: `master`
-
-Release commit message format: `<package-name>@v<version>` (example: `mobx-keystone@v1.2.3`)
-
-Release tag format: `<package-name>@v<version>` (example: `mobx-keystone@v1.2.3`)
-
-Post-publish prep commit format: `chore(<package-name>): prepare next release`
-
-## Repository Guard
-
-- After branch sync checks pass, verify this is the `mobx-keystone` repository by checking:
-  - `packages/lib/package.json` exists and `"name": "mobx-keystone"`,
-  - `packages/mobx-keystone-yjs/package.json` exists and `"name": "mobx-keystone-yjs"`,
-  - `packages/mobx-keystone-loro/package.json` exists and `"name": "mobx-keystone-loro"`.
-- If checks fail, stop and tell the user this skill is project-specific and cannot run in the current repository.
+- Release branch: `master`.
+- Unreleased section heading: `## Unreleased`.
+- Release commit message and tag: `<package-name>@v<version>` (e.g. `mobx-keystone@v1.2.3`).
+- Post-publish prep commit message: `chore(<package-name>): prepare next release`.
+- When several packages are released, always process them in the order `lib`, `yjs`, `loro` (`yjs` and `loro` depend on `mobx-keystone`).
 
 ## Interaction Contract
 
-- Always ask the user which package to release first (`lib`, `yjs`, `loro`).
-- Always inspect the selected package changelog unreleased entries first.
-- Always compute and explain a semver recommendation (`major`, `minor`, or `patch`).
-- Always present all three bump options and the resulting versions.
-- Always ask the user to choose bump type, even if one option is recommended.
-- Never perform writes (file edits, commit, tag, push) before explicit user confirmation.
-- The release/tag commit must not keep `## Unreleased` in the changelog.
-- After successful publish, re-add `## Unreleased` as the top changelog section and commit it as next-release preparation.
-- Ask for a final confirmation before push.
-- Never run `npm publish` directly; always hand off publish to the user with exact commands and wait for user confirmation before continuing.
+- Ask the user exactly once: which packages to release and the bump of each. Their answer authorizes the whole release (file edits, commits, tags, pushes, `npm publish` and the prep commits); do not ask for any other confirmation afterwards.
+- Skip the question entirely when the skill arguments already name the packages and bumps (e.g. `lib minor`, `lib patch yjs minor`).
+- The only other user action is logging in to npm in the browser when publishing.
+- Only stop and ask when a stop condition below is hit.
+- The release/tag commit must not keep `## Unreleased` in the changelog; after publishing, re-add an empty `## Unreleased` as the top changelog section.
 
 ## Semver Recommendation Rules
 
-- Recommend `major` for breaking changes (API removals, incompatible behavior changes, migration-required changes).
-- Recommend `minor` for backward-compatible features.
-- Recommend `patch` for bug fixes, docs, tests, refactors, and performance-only changes.
-- If multiple categories appear, recommend the highest impact bump.
+- `major` for breaking changes (API removals, incompatible behavior changes, migration-required changes).
+- `minor` for backward-compatible features.
+- `patch` for bug fixes, docs, tests, refactors and performance-only changes.
+- If several categories appear, recommend the highest impact bump.
 
-## Required Workflow
+## Workflow
 
-1. Verify current branch is `master`:
-   - `git branch --show-current`
-   - If branch is not `master`, stop and ask user to switch to `master` before running release.
-2. Ensure local `master` is synced with `origin/master`:
-   - `git fetch origin`
-   - `git pull --ff-only origin master`
-3. Run repository guard checks.
-4. Ask which package to release (`lib`, `yjs`, `loro`).
-5. Resolve selected package paths (`package.json`, changelog, publish dir).
-6. Read current version from selected package `package.json`.
-7. Check for an `## Unreleased` section in the selected package changelog.
-   - If the section is absent or present but has no bullet entries, stop: tell the user there is nothing to release and ask them to add changelog entries under `## Unreleased` first.
-8. Parse the unreleased changelog bullets.
-9. Propose `major`, `minor`, and `patch` next versions from current version.
-10. Tell the user:
-   - current version,
-   - unreleased summary,
-   - recommended bump with rationale,
-   - all three selectable bump options.
-11. Ask the user to select bump type.
-12. After selection, compute target version and draft the exact edits to apply (do not write files yet):
-    - Update selected package `package.json` version to `<target-version>`.
-    - Remove `## Unreleased` from the release/tag commit so it is not part of the published changelog version.
-    - Insert a new section `## <target-version>` at the top of the changelog.
-    - Move unreleased bullets into the new version section.
-13. Show planned diff summary and ask for confirmation to apply edits and execute pre-push steps.
-14. If confirmed, run release commands in order:
-   - Ensure working tree is clean or only has intended release files.
-   - Apply/verify release edits.
-   - Run pre-publish checks:
-     - `pnpm lint`
-     - `pnpm <selected-package-build-command>`
-     - `pnpm <selected-package-test-command>`
-   - Compute:
-     - `release-tag = <selected-package-name>@v<target-version>`
-     - `release-commit-message = <selected-package-name>@v<target-version>`
-     - `prep-commit-message = chore(<selected-package-name>): prepare next release`
-   - Verify tag `<selected-package-name>@v<target-version>` does not already exist locally or on `origin`.
-   - Commit: `git commit -m "<selected-package-name>@v<target-version>"`.
-   - Tag: `git tag "<selected-package-name>@v<target-version>"`.
-15. Ask for final confirmation before push+manual-publish handoff+post-publish changelog prep.
-16. If confirmed, finish release agent-side:
-   - Push commit and tag to `origin master`.
-17. Hand off publish to the user:
-   - Tell the user to run:
-     - `cd <selected-publish-dir>`
-     - `npm publish`
-   - Ask the user to share the publish result and explicitly confirm when done.
-18. After the user confirms publish succeeded:
-   - Re-add `## Unreleased` as the top changelog section and leave it empty.
-   - Commit the changelog-only prep commit using `chore(<selected-package-name>): prepare next release`.
-   - Push the prep commit to `origin master`.
-19. Report exact outputs for release commit SHA, tag, user-provided publish result, and post-publish prep commit SHA.
+### 1. Preflight (no questions)
 
-## Command Template
+1. `git branch --show-current` must be `master`.
+2. Tracked files must have no changes (`git status --porcelain --untracked-files=no` is empty); untracked files are fine and must never be committed.
+3. `git fetch origin && git pull --ff-only origin master`.
+4. Repository guard: the three package.json files exist with the names in the table above. If not, stop: this skill is project-specific.
 
-```bash
-# first, verify current branch is master
-if [ "$(git branch --show-current)" != "master" ]; then
-  echo "Not on master; aborting release."
-  exit 1
-fi
+### 2. Analyze and ask once
 
-# then sync local master with origin/master
-git fetch origin
-git pull --ff-only origin master
+1. For each package read the current version and the bullets under `## Unreleased` in its changelog.
+2. Packages without an `## Unreleased` section or without bullets in it cannot be released; mention them as "nothing to release".
+3. If no package has unreleased bullets, stop and tell the user to add changelog entries first.
+4. Show the user, for each releasable package: current version, a short summary of the unreleased bullets and the recommended bump with its rationale.
+5. Unless the arguments already answered it, ask with a single `AskUserQuestion` call containing one question per releasable package, with these options (recommended one first, labelled `(Recommended)`):
+   - `<bump> → <version>` for `patch`, `minor` and `major` (three options),
+   - `Skip` (do not release this package).
+6. If every package is skipped, stop.
+7. If `lib` gets a `major` bump and a released or unreleased `yjs`/`loro` package declares a `mobx-keystone` peer dependency range that excludes the new version, stop and ask how to proceed.
 
-# choose PACKAGE=lib|yjs|loro
+### 3. Release commits and tags
 
-# inspect selected package
-# lib
-cat packages/lib/package.json
-rg -n "^## Unreleased|^## [0-9]" CHANGELOG.md
+For each selected package, in order:
 
-# yjs
-cat packages/mobx-keystone-yjs/package.json
-rg -n "^## Unreleased|^## [0-9]" packages/mobx-keystone-yjs/CHANGELOG.md
+1. Verify the tag `<package-name>@v<version>` does not exist locally (`git rev-parse -q --verify refs/tags/<tag>`) or on origin (`git ls-remote --exit-code --tags origin refs/tags/<tag>`).
+2. Set `version` in its package.json.
+3. In its changelog, replace the `## Unreleased` heading with `## <version>` (the bullets stay under it).
 
-# loro
-cat packages/mobx-keystone-loro/package.json
-rg -n "^## Unreleased|^## [0-9]" packages/mobx-keystone-loro/CHANGELOG.md
+Then run the checks once for all selected packages (builds must run after the edits, since they copy the changelog into the package):
 
-# after user selects bump and confirms writes
-# edit selected changelog + selected package.json
-# remove `## Unreleased` from changelog in the release commit
-# create `## X.Y.Z` at top and move unreleased bullets there
+1. `pnpm lint`
+2. The build command of each selected package, in order.
+3. The test command of each selected package, in order.
 
-# package checks (choose based on PACKAGE)
-# lib: pnpm lib:build && pnpm lib:test
-# yjs: pnpm yjs-lib:build && pnpm yjs-lib:test
-# loro: pnpm loro-lib:build && pnpm loro-lib:test
-pnpm lint
-if git rev-parse -q --verify "refs/tags/<package-name>@vX.Y.Z" >/dev/null; then echo "tag exists locally"; fi
-if git ls-remote --exit-code --tags origin "refs/tags/<package-name>@vX.Y.Z" >/dev/null 2>&1; then echo "tag exists on origin"; fi
-git add <selected-changelog> <selected-package-json>
-git commit -m "<package-name>@vX.Y.Z"
-git tag "<package-name>@vX.Y.Z"
+If everything passes, for each selected package in order:
 
-# ask for final confirmation before running push and manual publish handoff
-git push origin master
-git push origin "<package-name>@vX.Y.Z"
+1. `git add <changelog> <package.json>`
+2. `git commit -m "<package-name>@v<version>"`
+3. `git tag "<package-name>@v<version>"`
 
-# then instruct the user to run publish manually:
-# cd <selected-publish-dir>
-# npm publish
-# wait for user confirmation that publish succeeded
+Finally push: `git push origin master` and `git push origin <each tag>`.
 
-# after successful publish, re-add top `## Unreleased` and commit prep
-git add <selected-changelog>
-git commit -m "chore(<package-name>): prepare next release"
-git push origin master
-```
+### 4. Publish
+
+For each selected package in order:
+
+1. Run `npm publish` in its publish dir with `run_in_background: true` (Bash tool). Without a TTY, npm does not wait for ENTER: it prints an authentication URL and waits until the user logs in.
+2. Read the background task output until the line after `Authenticate your account at:` shows the URL (poll the output file with a short `until grep -q "https://www.npmjs.com/auth/" <output-file>; do sleep 1; done` loop, or a Monitor).
+3. Open it with `open "<url>"` and tell the user, in one line, to log in in the browser to publish `<package-name>@<version>`.
+4. Wait for the background task to finish, then check its output contains `+ <package-name>@<version>`. If it does not (or it exits with an error), stop and report the output; do not retry or undo anything automatically.
+5. If no authentication URL appears and npm fails asking for an OTP or login, stop and give the user the exact commands to publish manually (`cd <publish-dir>` and `npm publish`), then continue with step 5 below once they confirm it succeeded.
+
+### 5. Prepare the next release
+
+For each published package, in order:
+
+1. Insert an empty `## Unreleased` section as the top section of its changelog (right after `# Change Log`, followed by a blank line).
+2. `git add <changelog>` and `git commit -m "chore(<package-name>): prepare next release"`.
+
+Then `git push origin master`.
+
+### 6. Report
+
+Report for each released package: release commit SHA, tag, the `npm publish` result line and the prep commit SHA.
+
+A `+ <package-name>@<version>` line from `npm publish` already confirms the publish succeeded. Do not wait or poll for the new version to show up in the registry (`npm view`, registry requests, background loops): npm may take a few minutes to make it visible, and that delay is not a failure. Finish the workflow and the report right away; at most mention that the version may take a few minutes to appear on npm.
 
 ## Stop Conditions
 
-- If selected package is not one of `lib`/`yjs`/`loro`, stop and ask again.
-- If current branch is not `master`, stop and ask user to switch to `master` before releasing.
-- If the selected changelog has no `## Unreleased` section, or the section exists but has no bullet entries, stop and tell the user there is nothing unreleased to publish; ask them to add entries under `## Unreleased` first.
-- If `master` cannot be fast-forwarded, stop and ask user how to proceed.
-- If tag `<selected-package-name>@v<target-version>` already exists, stop and ask user for tag strategy.
-- If publish fails, do not retry destructive changes automatically; report error and ask.
-- If the user has not yet confirmed manual `npm publish` success, do not continue to post-publish changelog prep.
-- If post-publish re-add/commit/push of `## Unreleased` fails, report the exact state and ask before taking follow-up actions.
+- Not on `master`, tracked changes present, or `master` cannot be fast-forwarded: stop and ask.
+- Repository guard fails: stop.
+- No releasable package, or every package skipped: stop.
+- A release tag already exists: stop and ask for a tag strategy.
+- Lint, build or tests fail: stop before committing and report the failure (the edited package.json/changelog files are left uncommitted; tell the user).
+- A push fails: stop and report the exact state.
+- `npm publish` fails: stop and report; never retry or revert automatically.
+- Prep commit or its push fails: report the exact state and ask before any follow-up action.
