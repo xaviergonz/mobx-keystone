@@ -14,7 +14,9 @@ export interface SnapshotTypeMismatchErrorData {
 }
 
 /**
- * Thrown when a snapshot value does not match any of the expected types in a union (extends `MobxKeystoneError`).
+ * Thrown when a snapshot value does not match any of the expected types in a union, or when a
+ * model snapshot names a model (`$modelType`) that is not the expected model or a subclass of it
+ * (extends `MobxKeystoneError`).
  *
  * Use `instanceof SnapshotTypeMismatchError` to distinguish snapshot type-mismatch errors
  * from other `MobxKeystoneError` instances.

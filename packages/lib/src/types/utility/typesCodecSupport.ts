@@ -5,6 +5,7 @@ import { setIfDifferent } from "../../utils/setIfDifferent"
 import { ArrayTypeInfo, typesArray } from "../arrayBased/typesArray"
 import { TupleTypeInfo, typesTuple } from "../arrayBased/typesTuple"
 import { getTypeInfo } from "../getTypeInfo"
+import { findClosestModelTypeMatch, findFirstMatch } from "../modelTypeMatching"
 import { isDataModelDataStandardType } from "../objectBased/typesDataModelData"
 import { isModelStandardType } from "../objectBased/typesModel"
 import { ObjectTypeInfo, typesObject } from "../objectBased/typesObject"
@@ -577,6 +578,13 @@ function createCodecLeafRuntimeAdapter(
   }
 }
 
+function matchCodecSupport(
+  support: ResolvedCodecSupport,
+  value: unknown
+): ResolvedCodecSupport | undefined {
+  return resolveTypeChecker(support.storedType).snapshotType(value) ? support : undefined
+}
+
 function createOrRuntimeAdapter(
   childTypes: ReadonlyArray<AnyStandardType>,
   getChildSupports: () => ReadonlyArray<ResolvedCodecSupport>,
@@ -607,14 +615,12 @@ function createOrRuntimeAdapter(
     }
 
     const supports = getChildSupports()
-    for (let i = 0; i < supports.length; i++) {
-      const storedTypeChecker = resolveTypeChecker(supports[i].storedType)
-      if (storedTypeChecker.snapshotType(value)) {
-        return supports[i]
-      }
-    }
+    // prefer branches whose (possibly nested) models are the closest to the snapshot ones
+    const matchingSupport = isObject(value)
+      ? findClosestModelTypeMatch(supports, matchCodecSupport, value)
+      : findFirstMatch(supports, matchCodecSupport, value)
 
-    return supports[0]
+    return matchingSupport ?? supports[0]
   }
 
   return {

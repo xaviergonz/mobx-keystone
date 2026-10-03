@@ -1,9 +1,16 @@
 import { modelTypeKey } from "../../model/metadata"
+import { isModel } from "../../model/utils"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import type { Ref, RefConstructor } from "../../ref/Ref"
 import { isObject } from "../../utils"
+import {
+  isModelInstanceOfModelName,
+  isUnrelatedSnapshotModelType,
+  snapshotModelTypeMatches,
+} from "../modelTypeMatching"
 import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"
+import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import type { ModelType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
@@ -36,7 +43,10 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
     TypeCheckerBaseType.Object,
 
     (value, path, typeCheckedValue) => {
-      if (!(value instanceof refConstructor.refClass)) {
+      if (
+        !(value instanceof refConstructor.refClass) &&
+        !(isModel(value) && isModelInstanceOfModelName(value, modelInfo.name))
+      ) {
         return new TypeCheckError({
           path,
           expectedTypeName: typeName,
@@ -56,16 +66,25 @@ export function typesRef<O extends object>(refConstructor: RefConstructor<O>): M
         return null
       }
 
-      if (obj[modelTypeKey] !== undefined) {
+      const snModelType = obj[modelTypeKey]
+      if (snModelType !== undefined) {
         // fast check
-        return obj[modelTypeKey] === modelInfo.name ? thisTc : null
+        return snapshotModelTypeMatches(snModelType, modelInfo.name) ? thisTc : null
       }
 
       return refDataTypeChecker.snapshotType(obj) ? thisTc : null
     },
 
     (sn: Record<string, unknown>) => {
-      if (sn[modelTypeKey]) {
+      const snModelType = sn[modelTypeKey]
+      if (typeof snModelType === "string") {
+        // the snapshot names its own model; make sure it is this ref or a subclass of it
+        if (isUnrelatedSnapshotModelType(snModelType, modelInfo.name)) {
+          throw new SnapshotTypeMismatchError({
+            expectedTypeName: typeName,
+            actualValue: sn,
+          })
+        }
         return sn
       } else {
         return {

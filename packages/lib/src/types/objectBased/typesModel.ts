@@ -2,14 +2,20 @@ import type { O } from "ts-toolbelt"
 import type { AnyModel } from "../../model/BaseModel"
 import { getModelMetadata } from "../../model/getModelMetadata"
 import { modelTypeKey } from "../../model/metadata"
-import { isModelClass } from "../../model/utils"
+import { isModel, isModelClass } from "../../model/utils"
 import type { ModelClass } from "../../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../../modelShared/modelPropsInfo"
 import { noDefaultValue } from "../../modelShared/prop"
 import { isObject, lazy, setProtoProp } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
+import {
+  isModelInstanceOfModelName,
+  isUnrelatedSnapshotModelType,
+  snapshotModelTypeMatches,
+} from "../modelTypeMatching"
 import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
+import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import type { AnyStandardType, ModelType } from "../schemas"
 import { TypeCheckError } from "../TypeCheckError"
 import {
@@ -73,7 +79,10 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
         TypeCheckerBaseType.Object,
 
         (value, path, typeCheckedValue) => {
-          if (!(value instanceof modelClazz)) {
+          if (
+            !(value instanceof modelClazz) &&
+            !(isModel(value) && isModelInstanceOfModelName(value, modelInfo.name))
+          ) {
             return new TypeCheckError({
               path,
               expectedTypeName: typeName,
@@ -96,9 +105,9 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
             return null
           }
 
-          if (value[modelTypeKey] !== undefined) {
-            // fast check
-            return value[modelTypeKey] === modelInfo.name ? thisTc : null
+          const snModelType = value[modelTypeKey]
+          if (snModelType !== undefined) {
+            return snapshotModelTypeMatches(snModelType, modelInfo.name) ? thisTc : null
           }
 
           if (resolvedDataTypeChecker) {
@@ -112,7 +121,15 @@ export function typesModel<M = never, K = M>(modelClass: _ClassOrObject<M, K>): 
         // No withErrorPathSegment wrapping needed here — model snapshot processors
         // delegate to the data type checker, which handles path segments at the property level.
         (sn) => {
-          if (sn[modelTypeKey]) {
+          const snModelType = sn[modelTypeKey]
+          if (typeof snModelType === "string") {
+            // the snapshot names its own model; make sure it is this model or a subclass of it
+            if (isUnrelatedSnapshotModelType(snModelType, modelInfo.name)) {
+              throw new SnapshotTypeMismatchError({
+                expectedTypeName: typeName,
+                actualValue: sn,
+              })
+            }
             return sn
           } else {
             return {

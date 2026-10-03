@@ -1,5 +1,14 @@
+import { modelTypeKey } from "../../model/metadata"
+import { getModelInfoForName } from "../../modelShared/modelInfo"
 import { failure, lazy } from "../../utils"
 import { getTypeInfo } from "../getTypeInfo"
+import {
+  findClosestModelTypeMatch,
+  findFirstMatch,
+  getModelTypeMatchingPass,
+  hasSnapshotModelType,
+  matchUnlessModelSnapshotRejected,
+} from "../modelTypeMatching"
 import {
   resolveStandardType,
   resolveStandardTypeNoThrow,
@@ -195,17 +204,34 @@ export function typesOr(
           // this is done because:
           // 1) performance (avoid checking structure if not needed)
           // 2) so we can accept untyped models when paired with undefined | null
-          return checkerForBaseType[0]
-        }
-
-        for (let i = 0; i < checkerForBaseType.length; i++) {
-          const matchingType = checkerForBaseType[i].snapshotType(value)
-          if (matchingType) {
-            return matchingType
+          const candidate = checkerForBaseType[0]
+          if (
+            getModelTypeMatchingPass() !== "none" &&
+            valueBaseType !== TypeCheckerBaseType.Primitive
+          ) {
+            // an outer union is matching its branches, so let it know whether this one matches
+            // the (possibly nested) snapshot models; if it does not because a (possibly nested)
+            // model type rejected a model snapshot (in the exact pass, also one of a subclass),
+            // or because the snapshot names a registered model this branch does not accept, the
+            // outer union has to try other branches first, else it might pick a farther branch
+            // or one that rejects the snapshot
+            const matched = matchUnlessModelSnapshotRejected(matchSnapshotType, candidate, value)
+            if (
+              matched === undefined ||
+              (!matched &&
+                hasSnapshotModelType(value) &&
+                getModelInfoForName((value as any)[modelTypeKey]))
+            ) {
+              return null
+            }
           }
+          return candidate
         }
 
-        return null
+        // prefer branches whose (possibly nested) models are the closest to the snapshot ones
+        return valueBaseType === TypeCheckerBaseType.Primitive
+          ? (findFirstMatch(checkerForBaseType, matchSnapshotType, value) ?? null)
+          : (findClosestModelTypeMatch(checkerForBaseType, matchSnapshotType, value) ?? null)
       },
 
       snapshotProcessorPlan(
@@ -271,4 +297,8 @@ export class OrTypeInfo extends TypeInfo {
     this.orTypes = orTypes
     this.dispatcher = dispatcher
   }
+}
+
+function matchSnapshotType(checker: TypeChecker, value: unknown): TypeChecker | null {
+  return checker.snapshotType(value)
 }

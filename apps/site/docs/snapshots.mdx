@@ -141,6 +141,13 @@ const createdAtSnapshot = getSnapshot(types.dateAsTimestamp, new Date(1000))
 
 If a snapshot includes `$modelType` and deserialization says the model is not in the registry, it usually means that model module was not imported at runtime (for example, import elision). In such cases either keep a runtime import (or side-effect import) or call `registerModels(...)` at startup. See [Class Models](./classModels.mdx#runtime-model-registration-registermodels).
 
+With the typed overload, a model snapshot must be of the expected model or of a subclass of it; otherwise `SnapshotTypeMismatchError` is thrown (whatever `modelAutoTypeChecking` is set to). The untyped overload trusts `$modelType`.
+
+```ts
+fromSnapshot(Todo, getSnapshot(new SpecialTodo({ text: "hi" }))) // a SpecialTodo (extends Todo)
+fromSnapshot(Todo, getSnapshot(new User({ name: "John" })) as any) // throws SnapshotTypeMismatchError
+```
+
 The type accepted by `fromSnapshot` is strongly typed as well, and is `SnapshotInOf<Todo>` in this case, which in this particular case evaluates as:
 
 ```ts
