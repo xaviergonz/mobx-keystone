@@ -335,6 +335,16 @@ describe("unions prefer the branches of the closest models", () => {
 
     expect(snapshotTypeOf(types.or(probe, aType), aSubSn)).toBe(resolveTypeChecker(aType))
     expect(innerResult).toBeInstanceOf(ASub)
+
+    // subclasses rejected by that user code do not make the outer match reject a single option
+    // union that is otherwise accepted
+    const oProbe = types.object(() => ({ p: probe }))
+    const oOther = types.object(() => ({ q: types.number }))
+    innerResult = undefined
+    expect(snapshotTypeOf(types.or(types.maybe(oProbe), oOther), { p: { probe: 1 } })).toBe(
+      resolveTypeChecker(oProbe)
+    )
+    expect(innerResult).toBeInstanceOf(ASub)
   })
 })
 

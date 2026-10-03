@@ -95,13 +95,16 @@ export function runInModelTypeMatchingPass<A, B, R>(
 
   const prevPass = currentPass
   const prevDistance = subclassDistance
+  const prevRejectedSubclass = rejectedSubclass
   currentPass = pass
   subclassDistance = 0
+  rejectedSubclass = false
   try {
     return fn(a, b)
   } finally {
     currentPass = prevPass
     subclassDistance = prevDistance
+    rejectedSubclass = prevRejectedSubclass
   }
 }
 
@@ -147,6 +150,7 @@ export function findClosestModelTypeMatch<T, R>(
       } finally {
         currentPass = "none"
         subclassDistance = 0
+        rejectedSubclass = false
       }
   }
 }
