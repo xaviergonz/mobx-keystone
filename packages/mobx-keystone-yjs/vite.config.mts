@@ -1,8 +1,4 @@
-import path from "node:path"
-import dts from "vite-plugin-dts"
-import { defineConfig, lazyPlugins } from "vite-plus"
-
-const resolvePath = (str: string) => path.resolve(import.meta.dirname, str)
+import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   run: {
@@ -25,9 +21,25 @@ export default defineConfig({
         command: "shx cp ../../LICENSE .",
         cache: false,
       },
+      // Not cached: a cached run would be replayed without deleting anything.
+      "clean-dist": {
+        command: "shx rm -rf dist",
+        cache: false,
+      },
+      "build-types": {
+        command:
+          "tsc --noEmit false --noEmitOnError --emitDeclarationOnly --declarationDir dist/types",
+        cache: false, // restore: remove this line (default caching)
+      },
+      // Not cached: its only input is in dist/, which the build task excludes from its inputs,
+      // so a cached copy would replay a stale file.
+      "copy-esm-js": {
+        command: "shx cp dist/mobx-keystone-yjs.esm.mjs dist/mobx-keystone-yjs.esm.js",
+        cache: false,
+      },
       build: {
         command:
-          "vp run quick-build && vp run copy-root-files && shx rm -rf dist && vp build && shx cp dist/mobx-keystone-yjs.esm.mjs dist/mobx-keystone-yjs.esm.js",
+          "vp run copy-root-files && vp run clean-dist && vp run build-types && vp pack && vp run copy-esm-js",
         dependsOn: ["mobx-keystone#build"],
         cache: { input: [{ auto: true }, "!dist/**"] },
       },
@@ -41,40 +53,33 @@ export default defineConfig({
       },
     },
   },
-  build: {
+  // Declarations are emitted by the build-types task (one .d.ts per source file, like tsc does)
+  // rather than by tsdown, which would merge them. That task runs before packing, so a type error
+  // stops the build before anything is bundled.
+  pack: {
+    entry: "src/index.ts",
+    format: ["esm", "umd"],
+    globalName: "mobx-keystone-yjs",
     target: "node10",
-    lib: {
-      entry: resolvePath("./src/index.ts"),
-      name: "mobx-keystone-yjs",
-    },
+    // Not "browser": that platform also replaces process.env.NODE_ENV.
+    platform: "neutral",
     sourcemap: "inline",
-    minify: false,
-
-    rollupOptions: {
-      external: ["mobx", "mobx-keystone", "yjs"],
-
-      output: [
-        {
-          format: "esm",
-          entryFileNames: "mobx-keystone-yjs.esm.mjs",
-        },
-        {
-          name: "mobx-keystone-yjs",
-          format: "umd",
-          globals: {
-            mobx: "mobx",
-            "mobx-keystone": "mobx-keystone",
-            yjs: "yjs",
-          },
-        },
-      ],
+    minify: "dce-only",
+    dts: false,
+    // dist/ is cleared by the build task before build-types writes into it.
+    clean: false,
+    // Everything but the peer dependencies is bundled.
+    deps: {
+      neverBundle: ["mobx", "mobx-keystone", "yjs"],
+      alwaysBundle: [/.*/],
+      onlyBundle: false,
     },
-  },
-  plugins: lazyPlugins(() => [
-    dts({
-      tsconfigPath: resolvePath("./tsconfig.json"),
-      outDirs: resolvePath("./dist/types"),
-      entryRoot: resolvePath("./src"),
+    outputOptions: (options, format) => ({
+      ...options,
+      entryFileNames: format === "es" ? "mobx-keystone-yjs.esm.mjs" : "mobx-keystone-yjs.umd.js",
+      globals: { mobx: "mobx", "mobx-keystone": "mobx-keystone", yjs: "yjs" },
+      // Keeps top-level declarations as `var`, so circular imports never hit a TDZ error.
+      topLevelVar: true,
     }),
-  ]),
+  },
 })

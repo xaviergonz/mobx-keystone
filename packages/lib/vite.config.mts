@@ -1,8 +1,4 @@
-import path from "node:path"
-import dts from "vite-plugin-dts"
-import { defineConfig, lazyPlugins } from "vite-plus"
-
-const resolvePath = (str: string) => path.resolve(import.meta.dirname, str)
+import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   run: {
@@ -21,6 +17,16 @@ export default defineConfig({
         command: "tsc -p test",
         cache: false, // restore: remove this line (default caching; tsc runs with noEmit)
       },
+      // Not cached: a cached run would be replayed without deleting anything.
+      "clean-dist": {
+        command: "shx rm -rf dist",
+        cache: false,
+      },
+      "build-types": {
+        command:
+          "tsc --noEmit false --noEmitOnError --emitDeclarationOnly --declarationDir dist/types",
+        cache: false, // restore: remove this line (default caching)
+      },
       "check-declarations": {
         command: "tsc -p scripts/tsconfig.check-declarations.json",
         cache: false, // restore: remove this line (default caching; tsc runs with noEmit)
@@ -30,9 +36,15 @@ export default defineConfig({
           "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
         cache: false,
       },
+      // Not cached: its only input is in dist/, which the build task excludes from its inputs,
+      // so a cached copy would replay a stale file.
+      "copy-esm-js": {
+        command: "shx cp dist/mobx-keystone.esm.mjs dist/mobx-keystone.esm.js",
+        cache: false,
+      },
       build: {
         command:
-          "vp run quick-build && vp run copy-root-files && shx rm -rf dist && vp build && vp run check-declarations && shx cp dist/mobx-keystone.esm.mjs dist/mobx-keystone.esm.js",
+          "vp run copy-root-files && vp run clean-dist && vp run build-types && vp pack && vp run check-declarations && vp run copy-esm-js",
         cache: { input: [{ auto: true }, "!dist/**"] },
       },
       "build-docs": {
@@ -66,38 +78,29 @@ export default defineConfig({
       },
     },
   },
-  build: {
+  // Declarations are emitted by the build-types task (one .d.ts per source file, like tsc does)
+  // rather than by tsdown, which would merge them. That task runs before packing, so a type error
+  // stops the build before anything is bundled.
+  pack: {
+    entry: "src/index.ts",
+    format: ["esm", "umd"],
+    globalName: "mobx-keystone",
     target: "node10",
-    lib: {
-      entry: resolvePath("./src/index.ts"),
-      name: "mobx-keystone",
-    },
+    // Not "browser": that platform also replaces process.env.NODE_ENV.
+    platform: "neutral",
     sourcemap: "inline",
-    minify: false,
-
-    rollupOptions: {
-      external: ["mobx"],
-
-      output: [
-        {
-          format: "esm",
-          entryFileNames: "mobx-keystone.esm.mjs",
-        },
-        {
-          name: "mobx-keystone",
-          format: "umd",
-          globals: {
-            mobx: "mobx",
-          },
-        },
-      ],
-    },
-  },
-  plugins: lazyPlugins(() => [
-    dts({
-      tsconfigPath: resolvePath("./tsconfig.json"),
-      outDirs: resolvePath("./dist/types"),
-      entryRoot: resolvePath("./src"),
+    minify: "dce-only",
+    dts: false,
+    // dist/ is cleared by the build task before build-types writes into it.
+    clean: false,
+    // Everything but the peer dependencies is bundled.
+    deps: { neverBundle: ["mobx"], alwaysBundle: [/.*/], onlyBundle: false },
+    outputOptions: (options, format) => ({
+      ...options,
+      entryFileNames: format === "es" ? "mobx-keystone.esm.mjs" : "mobx-keystone.umd.js",
+      globals: { mobx: "mobx" },
+      // Keeps top-level declarations as `var`, so circular imports never hit a TDZ error.
+      topLevelVar: true,
     }),
-  ]),
+  },
 })

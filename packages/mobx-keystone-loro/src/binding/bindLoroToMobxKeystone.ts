@@ -26,7 +26,7 @@ import {
   type TypeToData,
   type TypeToSnapshotIn,
 } from "mobx-keystone"
-import { nanoid } from "nanoid"
+import { nanoid } from "nanoid/non-secure"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 import { reportLoroEventsChanged } from "../utils/loroCollectionAtoms"
