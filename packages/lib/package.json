@@ -50,19 +50,6 @@
     "CHANGELOG.md",
     "README.md"
   ],
-  "scripts": {
-    "quick-build": "tsc",
-    "quick-build-tests": "tsc -p test",
-    "copy-root-files": "shx cp ../../README.md . && shx cp ../../LICENSE . && shx cp ../../CHANGELOG.md .",
-    "build": "pnpm run quick-build && pnpm run copy-root-files && shx rm -rf dist && vite build && pnpm run check-declarations && shx cp dist/mobx-keystone.esm.mjs dist/mobx-keystone.esm.js",
-    "check-declarations": "tsc -p scripts/tsconfig.check-declarations.json",
-    "test": "vitest run",
-    "test:ci": "vitest run --coverage",
-    "test:perf": "pnpm run build && pnpm run test:perf:run",
-    "test:perf:run": "cd perf_bench && NODE_ENV=production TS_NODE_COMPILER=@typescript/typescript6 /usr/bin/time node --expose-gc --require ts-node/register ./report.ts",
-    "memtest": "cd perf_bench && NODE_ENV=production TS_NODE_COMPILER=@typescript/typescript6 node --expose-gc --require ts-node/register ./memtest.ts",
-    "build-docs": "shx rm -rf ../../apps/site/generated-api && node --import ./scripts/typedoc-typescript6-register.mjs ./node_modules/typedoc/dist/cli.js --options ./typedocconfig.js src/index.ts"
-  },
   "peerDependencies": {
     "mobx": "^7.0.0 || ^6.0.0 || ^5.0.0 || ^4.0.0"
   },
@@ -77,7 +64,7 @@
     "@types/babel__core": "^7.20.5",
     "@types/node": "^26.6.2",
     "@typescript/typescript6": "^6.0.2",
-    "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/coverage-v8": "catalog:",
     "expect-type": "^1.4.0",
     "mobx-v4": "npm:mobx@^4.15.7",
     "mobx-v5": "npm:mobx@^5.15.7",
@@ -89,9 +76,10 @@
     "typedoc-docusaurus-theme": "^1.4.3",
     "typedoc-plugin-markdown": "^4.13.1",
     "typescript": "^7.0.2",
-    "vite": "^8.3.1",
+    "vite": "catalog:",
     "vite-plugin-dts": "^5.1.1",
-    "vitest": "^5.0.1"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
     "fast-deep-equal": "^3.1.3",

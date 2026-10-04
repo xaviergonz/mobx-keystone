@@ -7,3 +7,4 @@
 /CHANGELOG.md
 /*.local
 /.swc
+.vitest/

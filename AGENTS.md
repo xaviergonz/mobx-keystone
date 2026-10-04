@@ -3,7 +3,7 @@
 ## Scope and stack
 
 - Monorepo packages: `mobx-keystone` (core), `mobx-keystone-yjs`, `mobx-keystone-loro`, docs site, benchmark app.
-- Tooling: `pnpm`, `turbo`, Vite + `tsc`, TypeScript strict mode, Vitest, Biome.
+- Tooling: `pnpm`, Vite+ (`vp`: Vite, Vitest and the `vp run` task runner), `tsc`, TypeScript strict mode, Biome.
 - CI runtime: Node.
 
 ## Skills
@@ -29,7 +29,7 @@
 ## Commands (run from repo root)
 
 - Primary: `pnpm lib:build`, `pnpm lib:build-docs`, `pnpm lib:test`, `pnpm lib:test:ci`, `pnpm yjs-lib:build`, `pnpm yjs-lib:test`, `pnpm yjs-lib:test:ci`, `pnpm loro-lib:build`, `pnpm loro-lib:test`, `pnpm loro-lib:test:ci`, `pnpm site:start`, `pnpm site:build`, `pnpm site:serve`, `pnpm build-netlify`, `pnpm netlify-dev`, `pnpm lint`.
-- Targeted: `pnpm --dir packages/lib quick-build`, `pnpm --dir packages/lib quick-build-tests`, `pnpm --dir packages/lib test test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-yjs test test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-loro test test/<file>.test.ts`, `pnpm --dir apps/benchmark bench`.
+- Targeted: `pnpm --dir packages/lib exec vp run quick-build`, `pnpm --dir packages/lib exec vp run quick-build-tests`, `pnpm --dir packages/lib exec vp test run test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-yjs exec vp test run test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-loro exec vp test run test/<file>.test.ts`, `pnpm --dir apps/benchmark bench`.
 
 ## CI parity and matrix
 
@@ -47,11 +47,12 @@ for compiler in tsc tsc-experimental-decorators babel swc; do
 done
 ```
 
-## Turbo dependency reminders
+## Task dependency reminders
 
 - `mobx-keystone-yjs#build` and `mobx-keystone-loro#build` depend on `mobx-keystone#build`.
 - `site#build` depends on `mobx-keystone#build`, `mobx-keystone-yjs#build`, `mobx-keystone-loro#build`, `mobx-keystone#build-docs`.
-- Prefer root turbo commands so ordering is handled automatically.
+- Package tasks (`build`, `test`, `quick-build`, etc.) live in `run.tasks` of each package's `vite.config.mts`, not in `package.json` scripts; run them with `vp run <task>` (inside the package) or `vp run <package>#<task>`. `package.json` scripts are only kept for `apps/benchmark` commands, which read arbitrary `BENCH_*` env vars from the caller; cached `vp run` tasks only see env vars declared in `cache.env`.
+- Prefer root `pnpm <task>` commands (they call `vp run <package>#<task>`) so ordering and caching are handled automatically.
 
 ## Test configuration details
 
@@ -111,7 +112,7 @@ expectTypeOf(actual).toEqualTypeOf<Expected>()
 2. Public exports updated when API surface changes.
 3. Relevant tests pass (`lib` / `yjs` / `loro` as applicable).
 4. Compiler/MobX compatibility checks run when relevant.
-5. For core changes: `pnpm --dir packages/lib quick-build` and `pnpm --dir packages/lib quick-build-tests` pass.
+5. For core changes: `pnpm --dir packages/lib exec vp run quick-build` and `pnpm --dir packages/lib exec vp run quick-build-tests` pass.
 6. `pnpm lint` passes.
 7. Public-facing changes have docs/changelog updates (unless explicitly skipped).
 8. No generated artifact was manually edited.

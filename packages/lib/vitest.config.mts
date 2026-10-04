@@ -2,7 +2,7 @@ import { createRequire } from "node:module"
 import * as babel from "@babel/core"
 import * as swc from "@swc/core"
 import * as ts from "@typescript/typescript6"
-import { defineConfig } from "vitest/config"
+import { defineConfig } from "vite-plus"
 import { env } from "./env.js"
 
 const { mobxVersion, compiler } = env

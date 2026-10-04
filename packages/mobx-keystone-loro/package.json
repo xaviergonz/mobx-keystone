@@ -52,15 +52,6 @@
     "LICENSE",
     "README.md"
   ],
-  "scripts": {
-    "quick-build": "tsc",
-    "quick-build-tests": "tsc -p test",
-    "copy-root-files": "shx cp ../../LICENSE .",
-    "build": "pnpm run quick-build && pnpm run copy-root-files && shx rm -rf dist && vite build && shx cp dist/mobx-keystone-loro.esm.mjs dist/mobx-keystone-loro.esm.js",
-    "test": "vitest run",
-    "bench": "vitest bench --run",
-    "test:ci": "vitest run"
-  },
   "peerDependencies": {
     "loro-crdt": "^1.10.3",
     "mobx": "^7.0.0 || ^6.0.0 || ^5.0.0 || ^4.0.0",
@@ -79,9 +70,10 @@
     "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^7.0.2",
-    "vite": "^8.3.1",
+    "vite": "catalog:",
     "vite-plugin-dts": "^5.1.1",
-    "vitest": "^5.0.1"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
     "nanoid": "^3.3.11",

@@ -4,15 +4,9 @@ description: Configure toolchain and install workspace dependencies
 runs:
   using: composite
   steps:
-    - uses: pnpm/action-setup@v4
+    - uses: voidzero-dev/setup-vp@v1.21.1
       with:
-        version: 11.10.0
-        run_install: false
-
-    - uses: actions/setup-node@v4
-      with:
-        node-version: "25.6.1"
-        cache: "pnpm"
-
-    - run: pnpm install --frozen-lockfile
-      shell: bash
+        node-version: "26.10.0"
+        cache: true
+        run-install: |
+          args: ["--frozen-lockfile"]
