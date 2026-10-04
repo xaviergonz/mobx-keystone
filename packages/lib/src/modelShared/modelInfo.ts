@@ -58,10 +58,11 @@ export function setModelInfo(modelInfo: ModelInfo, unwrappedClass: ModelClass<an
   // registration of a model
   const baseModelInfo = findModelInfoForPrototype(Object.getPrototypeOf(unwrappedClass.prototype))
   const ancestorDistances = new Map<string, number>()
-  baseModelInfo &&
+  if (baseModelInfo) {
     ancestorDistancesByModelInfo.get(baseModelInfo)?.forEach((distance, name) => {
       ancestorDistances.set(name, distance + 1)
     })
+  }
   ancestorDistances.set(modelInfo.name, 0)
   ancestorDistancesByModelInfo.set(modelInfo, ancestorDistances)
   ancestorDistancesByModelName.set(modelInfo.name, ancestorDistances)

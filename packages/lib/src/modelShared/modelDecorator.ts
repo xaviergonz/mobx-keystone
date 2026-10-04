@@ -191,7 +191,7 @@ function tsDecorate(
     r = (Reflect as any).decorate(decorators, target, key, desc)
   } else {
     for (
-      // biome-ignore lint/correctness/noInnerDeclarations: minified file
+      // oxlint-disable-next-line eslint/no-inner-declarations, eslint/no-var -- minified file
       var i = decorators.length - 1;
       i >= 0;
       i--
@@ -201,7 +201,7 @@ function tsDecorate(
       }
     }
   }
-  // biome-ignore lint/complexity/noCommaOperator: minified file
+  // oxlint-disable-next-line eslint/no-sequences -- minified file
   return c > 3 && r && Object.defineProperty(target, key, r), r
 }
 

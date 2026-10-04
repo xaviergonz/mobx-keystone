@@ -3,7 +3,7 @@
 ## Scope and stack
 
 - Monorepo packages: `mobx-keystone` (core), `mobx-keystone-yjs`, `mobx-keystone-loro`, docs site, benchmark app.
-- Tooling: `pnpm`, Vite+ (`vp`: Vite, Vitest and the `vp run` task runner), `tsc`, TypeScript strict mode, Biome.
+- Tooling: `pnpm`, Vite+ (`vp`: Vite, Vitest, Oxlint, Oxfmt and the `vp run` task runner), `tsc`, TypeScript strict mode.
 - CI runtime: Node.
 
 ## Skills
@@ -35,7 +35,7 @@
 
 - CI runs: `pnpm site:build`; core `pnpm lib:test:ci` for `COMPILER={tsc,tsc-experimental-decorators,babel,swc}` x `MOBX_VERSION={7,6,5,4}`; `pnpm yjs-lib:test:ci`; `pnpm loro-lib:test:ci`; `pnpm lib:build` + benchmark build.
 - `COMPILER=tsc-experimental-decorators` x `MOBX_VERSION=7` is excluded (MobX 7 dropped legacy decorator support), so that combination is expected to fail locally. 15 combinations, not 16.
-- `pnpm lint` is not in CI; run it before finishing.
+- `pnpm lint` (`vp check`: Oxfmt format check, Oxlint with type-aware rules, and TypeScript type checking) is not in CI; run it before finishing.
 - For compiler-sensitive core changes (decorators/transforms/model/action wrapping), run at least a reduced local matrix; prefer full matrix:
 
 ```bash
@@ -72,7 +72,9 @@ expectTypeOf(actual).toEqualTypeOf<Expected>()
 ## Standards and safety
 
 - TypeScript strict style; avoid `any` unless necessary.
-- Use Biome (`pnpm lint`; autofix: `pnpm exec biome check --write .`).
+- Lint/format config lives in the `lint` and `fmt` blocks of the root `vite.config.ts` (`pnpm lint`; autofix: `pnpm lint:fix`).
+- Suppress lint rules with `// oxlint-disable-next-line <plugin>/<rule> -- <reason>`; always give a reason.
+- Tasks that run `tsc` must use `cache: false`: on macOS the TypeScript 7 native binary is signed with Hardened Runtime, which blocks the `DYLD_INSERT_LIBRARIES` file tracking of the `vp run` cache, so cached `tsc` tasks replay stale results (https://github.com/voidzero-dev/vite-task/issues/587). Fixed by https://github.com/microsoft/typescript-go/pull/4868 (not in TypeScript 7.0.2). Once a stable TypeScript release includes it (`codesign -d --entitlements - <native tsc>` lists `com.apple.security.cs.allow-dyld-environment-variables`), caching can be re-enabled by following the `// restore:` comment next to each `cache: false`.
 - Keep imports/exports idiomatic; use `index.ts` barrels for public API.
 - Avoid new dependencies unless necessary.
 - Git safety: do not run git write/mutation commands without explicit user permission  (for example: staging/unstaging files, creating/amending commits, checking out/switching branches, rebasing, merging, or resetting). Use `gh` for GitHub operations.

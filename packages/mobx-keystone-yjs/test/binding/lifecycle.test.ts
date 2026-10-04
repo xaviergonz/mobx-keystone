@@ -78,7 +78,7 @@ test("two bindings to the same array stay synchronized when both have pending ed
   })
   expect(first.slice()).toEqual(array.toArray())
   expect(second.slice()).toEqual(array.toArray())
-  expect([...array.toArray()].sort()).toEqual([1, 2])
+  expect([...array.toArray()].sort((a, b) => a - b)).toEqual([1, 2])
 })
 
 test("remote initialization changes to an existing sibling are synchronized", () => {

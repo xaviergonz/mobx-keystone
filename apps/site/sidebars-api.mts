@@ -15,5 +15,5 @@ const sidebars: SidebarsConfig = {
   ],
 }
 
-// biome-ignore lint/style/noDefaultExport: Docusaurus loads sidebars via a default export.
+// oxlint-disable-next-line import/no-default-export -- Docusaurus loads sidebars via a default export.
 export default sidebars

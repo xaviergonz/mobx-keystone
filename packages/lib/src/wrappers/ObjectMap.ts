@@ -28,7 +28,7 @@ const objectMapBase = Model({
  * Use `objectMap` to create it.
  */
 @model(`${namespace}/ObjectMap`)
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: model base defines these properties at runtime.
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- model base defines these properties at runtime.
 export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
   @modelAction
   clear(): void {

@@ -1,9 +1,9 @@
 import { observable } from "mobx"
 import {
-  fromSnapshotOverrideTypeSymbol,
+  type fromSnapshotOverrideTypeSymbol,
   type ModelClass,
-  propsTypeSymbol,
-  toSnapshotOverrideTypeSymbol,
+  type propsTypeSymbol,
+  type toSnapshotOverrideTypeSymbol,
 } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import type {
@@ -134,7 +134,7 @@ export abstract class BaseModel<
   constructor(data: ModelPropsToTransformedCreationData<TProps>) {
     const initialData = data as any
     const constructorOptions =
-      // biome-ignore lint/complexity/noArguments: internal factory code passes hidden constructor options through super().
+      // oxlint-disable-next-line eslint/prefer-rest-params -- internal factory code passes hidden constructor options through super().
       arguments[1] as ModelConstructorOptions
     const { snapshotInitialData, modelClass, generateNewIds } = constructorOptions
 
@@ -205,6 +205,7 @@ export interface AnyModel extends BaseModel<any, any, any, any> {}
  * @param type Abstract model class.
  * @returns
  */
+// oxlint-disable-next-line typescript/no-wrapper-object-types -- part of the public signature
 export function abstractModelClass<T>(type: T): T & Object {
   return type as any
 }

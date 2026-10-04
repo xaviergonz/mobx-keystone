@@ -85,7 +85,7 @@ class ProtoItem extends DataModel({ ["__proto__"]: tProp(123) }) {}
 
 test.skipIf(getMobxVersion() === 4)("defaults apply to data properties named __proto__", () => {
   const item = new ProtoItem({})
-  // biome-ignore lint/suspicious/noProto: test an own data property with this name.
+  // oxlint-disable-next-line eslint/no-proto -- test an own data property with this name.
   expect(item.$.__proto__).toBe(123)
   expect(Object.hasOwn(getSnapshot(item.$), "__proto__")).toBe(true)
 })

@@ -20,7 +20,8 @@
     "site:serve": "vp run site#serve",
     "build-netlify": "pnpm run site:build",
     "netlify-dev": "pnpm run build-netlify && netlify dev",
-    "lint": "biome check",
+    "lint": "vp check",
+    "lint:fix": "vp check --fix",
     "upgrade-interactive": "pnpm -r up -i --latest && pnpm dedupe"
   },
   "workspaces": [
@@ -33,7 +34,6 @@
     "yjs": "^13.6.33"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.14",
     "globals": "^17.12.0",
     "netlify-cli": "^27.9.0",
     "typescript": "^7.0.2",

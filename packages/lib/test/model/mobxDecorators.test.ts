@@ -53,8 +53,10 @@ function expectCachedDouble(obj: { double: number }) {
 
   computeCalls.count = 0
   const dispose = autorun(() => {
+    /* oxlint-disable eslint/no-unused-expressions -- reading the computed twice is the point */
     obj.double
     obj.double
+    /* oxlint-enable eslint/no-unused-expressions */
   })
   dispose()
   expect(computeCalls.count).toBe(1)

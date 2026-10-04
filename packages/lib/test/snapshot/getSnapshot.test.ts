@@ -161,8 +161,9 @@ test("reactive snapshots", () => {
 
   // no op
   runUnprotected(() => {
-    // biome-ignore lint/correctness/noSelfAssign: this is intentional
+    // oxlint-disable-next-line eslint/no-self-assign -- this is intentional
     p.x = p.x
+    // oxlint-disable-next-line eslint/no-self-assign -- this is intentional
     p.p2!.y = p.p2!.y
   })
   expect(pResult.length).toBe(3)

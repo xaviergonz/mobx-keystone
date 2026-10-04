@@ -4,7 +4,7 @@ import {
   Model,
   modelAction,
   modelIdKey,
-  modelTypeKey,
+  type modelTypeKey,
   prop,
   type SnapshotInOf,
   type SnapshotOutOf,

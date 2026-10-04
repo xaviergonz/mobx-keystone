@@ -116,7 +116,7 @@ test("two bindings with pending edits converge on the same list", () => {
   })
   expect(first.slice()).toEqual(list.toArray())
   expect(second.slice()).toEqual(list.toArray())
-  expect(first.slice().sort()).toEqual([1, 2])
+  expect(first.slice().sort((a, b) => a - b)).toEqual([1, 2])
 })
 
 test("binding during a net-zero pending list edit observes the final empty list", () => {

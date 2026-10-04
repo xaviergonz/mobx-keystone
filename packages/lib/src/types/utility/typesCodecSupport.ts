@@ -275,6 +275,7 @@ function createArrayLikeRuntimeAdapter(
       target.length = storedValues.length
       for (let i = 0; i < storedValues.length; i++) {
         if (i in storedValues) target[i] = storedValues[i]
+        // oxlint-disable-next-line typescript/no-array-delete -- keep the holes of sparse arrays
         else delete target[i]
       }
     }
@@ -513,6 +514,7 @@ function createCodecLeafRuntimeAdapter(
 
       // Declared up front (rather than initialized from the call) so that a setter invoked
       // while decoding can read it without hitting the temporal dead zone.
+      // oxlint-disable-next-line eslint/prefer-const -- see above
       let runtime: unknown
       let storedChanged = false
       runtime = transform.transform({

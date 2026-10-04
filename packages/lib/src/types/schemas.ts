@@ -96,7 +96,7 @@ type ObjectSnapshotOutData<S, OK = ObjectOptionalKeys<S>> = SimplifyObject<
 export interface ObjectType<S> extends Type<"object", ObjectData<S>> {}
 
 export interface ObjectTypeFunction {
-  // biome-ignore lint/style/useShorthandFunctionType: make the type recursive
+  // oxlint-disable-next-line typescript/prefer-function-type -- make the type recursive
   (): ObjectOfTypes
 }
 

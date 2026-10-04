@@ -23,17 +23,15 @@ const config: Config = {
   stylesheets: [
     "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap",
   ],
-  headTags: [
-    ...(["light", "dark"] as const).map((theme) => ({
-      tagName: "link",
-      attributes: {
-        rel: "icon",
-        type: "image/png",
-        href: `/img/logo-${theme}.png`,
-        media: `(prefers-color-scheme: ${theme})`,
-      },
-    })),
-  ],
+  headTags: (["light", "dark"] as const).map((theme) => ({
+    tagName: "link",
+    attributes: {
+      rel: "icon",
+      type: "image/png",
+      href: `/img/logo-${theme}.png`,
+      media: `(prefers-color-scheme: ${theme})`,
+    },
+  })),
   organizationName: "xaviergonz",
   projectName: "mobx-keystone",
   markdown: {
@@ -228,5 +226,5 @@ const config: Config = {
   } satisfies Preset.ThemeConfig,
 }
 
-// biome-ignore lint/style/noDefaultExport: Docusaurus loads this config via a default export.
+// oxlint-disable-next-line import/no-default-export -- Docusaurus loads this config via a default export.
 export default config

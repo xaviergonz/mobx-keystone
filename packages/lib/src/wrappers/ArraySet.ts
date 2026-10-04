@@ -35,7 +35,7 @@ const arraySetBase = Model({
  * Use `arraySet` to create it.
  */
 @model(`${namespace}/ArraySet`)
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: model base defines these properties at runtime.
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- model base defines these properties at runtime.
 export class ArraySet<V> extends arraySetBase implements Set<V> {
   @modelAction
   add(value: V): this {

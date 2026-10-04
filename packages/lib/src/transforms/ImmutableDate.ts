@@ -3,6 +3,7 @@ import { failure } from "../utils"
 /**
  * @internal
  */
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- the class implements this narrowed Date API.
 export interface ImmutableDate
   extends Omit<
     Date,

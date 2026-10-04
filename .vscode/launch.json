@@ -1,15 +1,13 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
       "type": "node",
       "request": "launch",
-      "name": "lib - Jest debug current file",
-      "program": "${workspaceFolder}/packages/lib/node_modules/jest/bin/jest.js",
-      "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
+      "name": "lib - Vitest debug current file",
+      "program": "${workspaceFolder}/packages/lib/node_modules/vite-plus/bin/vp",
+      "args": ["test", "run", "${file}"],
+      "autoAttachChildProcesses": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
@@ -18,9 +16,10 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "mobx-keystone-yjs - Jest debug current file",
-      "program": "${workspaceFolder}/packages/mobx-keystone-yjs/node_modules/jest/bin/jest.js",
-      "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
+      "name": "mobx-keystone-yjs - Vitest debug current file",
+      "program": "${workspaceFolder}/packages/mobx-keystone-yjs/node_modules/vite-plus/bin/vp",
+      "args": ["test", "run", "${file}"],
+      "autoAttachChildProcesses": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": ["**/node_modules/**", "<node_internals>/**"],
@@ -29,9 +28,10 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "mobx-keystone-loro - Jest debug current file",
-      "program": "${workspaceFolder}/packages/mobx-keystone-loro/node_modules/jest/bin/jest.js",
-      "args": ["--verbose", "-i", "--no-cache", "--testPathPattern", "${fileBasename}"],
+      "name": "mobx-keystone-loro - Vitest debug current file",
+      "program": "${workspaceFolder}/packages/mobx-keystone-loro/node_modules/vite-plus/bin/vp",
+      "args": ["test", "run", "${file}"],
+      "autoAttachChildProcesses": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": ["**/node_modules/**", "<node_internals>/**"],

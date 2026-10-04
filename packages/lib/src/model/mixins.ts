@@ -2,7 +2,7 @@ import {
   type AbstractModelClass,
   type ModelClass,
   modelClass,
-  propsTypeSymbol,
+  type propsTypeSymbol,
 } from "../modelShared/BaseModelShared"
 import type { ModelProps, ModelPropsToTransformedData } from "../modelShared/prop"
 import type { AnyModel, BaseModelKeys } from "./BaseModel"
