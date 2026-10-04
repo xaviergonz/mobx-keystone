@@ -19,6 +19,7 @@
     "nanoid": "^3.3.11",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "react-markdown": "^10.1.0",
     "remotedev": "^0.2.9",
     "utf-8-validate": "^5.0.10",
     "y-webrtc": "^10.3.0"

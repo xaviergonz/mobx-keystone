@@ -6,6 +6,7 @@ import { usePluginData } from "@docusaurus/useGlobalData"
 import DocRootLayoutSidebar from "@theme/DocRoot/Layout/Sidebar"
 import Layout from "@theme/Layout"
 import { Fragment, type ReactNode, useEffect, useState } from "react"
+import { ChangelogLink } from "../components/home/ChangelogModal/ChangelogModal"
 import { comment, deco, k, str, type } from "../components/home/codeTokens"
 import shared from "../components/home/shared.module.css"
 import { TreeGraphic } from "../components/home/TreeGraphic/TreeGraphic"
@@ -20,7 +21,6 @@ const installArgs = {
 }
 
 type PackageManager = keyof typeof installArgs
-const changelogUrl = "https://github.com/xaviergonz/mobx-keystone/blob/master/CHANGELOG.md"
 
 const badges = [
   {
@@ -369,10 +369,10 @@ export default function Home() {
           <main className={styles.home}>
             <section className={styles.hero}>
               <div className={styles.heroText}>
-                <a className={styles.pill} href={changelogUrl}>
+                <ChangelogLink className={styles.pill}>
                   {shortVersion && <span>v{shortVersion}</span>}
                   What's new in the changelog →
-                </a>
+                </ChangelogLink>
                 <h1>
                   Your state is a <span className={shared.accentText}>living tree.</span>
                 </h1>

@@ -1,0 +1,123 @@
+.dialog {
+  width: min(48rem, calc(100vw - 2rem));
+  max-width: none;
+  max-height: min(85vh, 60rem);
+  padding: 0;
+  border: 1px solid var(--mk-border-3);
+  border-radius: 1.125rem;
+  background: var(--mk-raised);
+  color: var(--ifm-font-color-base);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Only lay out the dialog while open, so the closed one stays hidden. */
+.dialog[open] {
+  display: flex;
+}
+
+.dialog::backdrop {
+  background: var(--mk-scrim);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* Stops the page behind the open dialog from scrolling, keeping the space of its scrollbar
+   so the page does not shift sideways. */
+:global(html):has(.dialog[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--mk-border);
+}
+
+.header h2 {
+  margin: 0 auto 0 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.header a {
+  font-size: 0.875rem;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--ifm-color-content-secondary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--mk-accent-soft);
+  color: var(--ifm-font-color-base);
+}
+
+.body {
+  min-height: 0;
+  padding: 0.5rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  font-size: 0.9375rem;
+}
+
+.status {
+  margin: 1rem 0 0;
+  color: var(--ifm-color-content-secondary);
+}
+
+.markdown h3 {
+  margin: 1.5rem 0 0.75rem;
+  color: var(--ifm-color-primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.markdown ul {
+  margin-bottom: 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.markdown ul ul {
+  margin: 0.25rem 0 0;
+}
+
+.markdown li + li {
+  margin-top: 0.375rem;
+}
+
+.markdown p {
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding-left: 1rem;
+  }
+
+  .body {
+    padding-inline: 1rem;
+  }
+}

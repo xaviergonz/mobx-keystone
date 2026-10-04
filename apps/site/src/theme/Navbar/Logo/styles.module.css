@@ -26,3 +26,8 @@
 :global(.navbar-sidebar__brand) .apiTag {
   display: none;
 }
+
+:global(html[data-theme="dark"]) .logoLight,
+:global(html:not([data-theme="dark"])) .logoDark {
+  display: none;
+}

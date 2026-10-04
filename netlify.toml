@@ -10,3 +10,16 @@ redirects = [
 [dev]
   publish = "apps/site/build"
   port = 3333
+
+# Static images keep their names across deploys, so they are cached for a while and then
+# revalidated in the background, instead of being revalidated on every use.
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# Bundled assets have content hashes in their names.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
