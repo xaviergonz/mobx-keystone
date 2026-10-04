@@ -5,7 +5,6 @@ import { createChunkedArrayCachedCheck } from "../createCachedTypeCheck"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ArrayType } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   snapshotProcessorPlan,
@@ -14,6 +13,7 @@ import {
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 /**

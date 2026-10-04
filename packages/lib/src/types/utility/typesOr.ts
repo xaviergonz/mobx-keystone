@@ -14,9 +14,8 @@ import {
   resolveStandardTypeNoThrow,
   resolveTypeChecker,
 } from "../resolveTypeChecker"
-import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import type { AnyStandardType, AnyType } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
+import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import {
   getTypeCheckerBaseTypeFromValue,
   lateTypeChecker,
@@ -26,6 +25,7 @@ import {
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 import { typesUnchecked } from "./typesUnchecked"
 
 /**

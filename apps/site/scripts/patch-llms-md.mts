@@ -101,14 +101,10 @@ async function patchExampleCodeBlocks(mdxPath: string) {
 
   const sourceMap = new Map<string, string>(
     await Promise.all(
-      specs.map(
-        async (s): Promise<[string, string]> => [
-          s.relFile,
-          (await fs.readFile(path.join(mdxDir, s.relFile), "utf8"))
-            .replace(/\r\n/g, "\n")
-            .trimEnd(),
-        ]
-      )
+      specs.map(async (s): Promise<[string, string]> => [
+        s.relFile,
+        (await fs.readFile(path.join(mdxDir, s.relFile), "utf8")).replace(/\r\n/g, "\n").trimEnd(),
+      ])
     )
   )
 

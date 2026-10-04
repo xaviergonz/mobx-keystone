@@ -1,9 +1,9 @@
 import { isModel } from "../model/utils"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
-import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker } from "./tweak"
+import { TweakerPriority } from "./TweakerPriority"
 
 /**
  * @internal

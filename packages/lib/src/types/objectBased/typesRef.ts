@@ -10,10 +10,10 @@ import {
 } from "../modelTypeMatching"
 import { typesString } from "../primitiveBased/typesPrimitive"
 import { resolveTypeChecker } from "../resolveTypeChecker"
-import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import type { ModelType } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
+import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 import { typesObject } from "./typesObject"
 
 /**

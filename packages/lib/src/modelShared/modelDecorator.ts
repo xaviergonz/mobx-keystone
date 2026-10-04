@@ -43,9 +43,7 @@ export const model =
 // the model instance type is checked through `prototype` rather than through a typed constructor
 // signature, since comparing constructor signatures would compute the (expensive) model creation data
 // type of every decorated class
-type ModelDecoratorTarget = (new (
-  ...args: any
-) => any) & {
+type ModelDecoratorTarget = (new (...args: any) => any) & {
   prototype: AnyModel | AnyDataModel
 }
 
@@ -202,7 +200,7 @@ function tsDecorate(
     }
   }
   // oxlint-disable-next-line eslint/no-sequences -- minified file
-  return c > 3 && r && Object.defineProperty(target, key, r), r
+  return (c > 3 && r && Object.defineProperty(target, key, r), r)
 }
 
 /**

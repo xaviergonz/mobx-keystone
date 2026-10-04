@@ -80,7 +80,7 @@ class M extends Model({
   }
 
   @modelFlow
-  setXAsync = _async(this._setXAsync)
+  setXAsync = _async(this._setXAsync);
 
   private *_setXAsyncWithEmptyFirstPart() {
     yield* _await(waitAsync(20))
@@ -88,7 +88,7 @@ class M extends Model({
   }
 
   @modelFlow
-  setXAsyncWithEmptyFirstPart = _async(this._setXAsyncWithEmptyFirstPart)
+  setXAsyncWithEmptyFirstPart = _async(this._setXAsyncWithEmptyFirstPart);
 
   private *_setXAsyncThrowSync() {
     this.x = "setXAsyncThrowSync +0"
@@ -97,7 +97,7 @@ class M extends Model({
   }
 
   @modelFlow
-  setXAsyncThrowSync = _async(this._setXAsyncThrowSync)
+  setXAsyncThrowSync = _async(this._setXAsyncThrowSync);
 
   private *_setXAsyncThrowAsync() {
     this.x = "setXAsyncThrowAsync +0"
@@ -125,7 +125,7 @@ class M extends Model({
   }
 
   @modelFlow
-  setYAsync = _async(this._setYAsync)
+  setYAsync = _async(this._setYAsync);
 
   private *_setYAsyncThrowSync() {
     this.y = "setYAsyncThrowSync +0"
@@ -134,7 +134,7 @@ class M extends Model({
   }
 
   @modelFlow
-  setYAsyncThrowSync = _async(this._setYAsyncThrowSync)
+  setYAsyncThrowSync = _async(this._setYAsyncThrowSync);
 
   private *_setYAsyncThrowAsync() {
     this.y = "setYAsyncThrowAsync +0"
@@ -160,14 +160,14 @@ class M extends Model({
   }
 
   @modelFlow
-  setXYAsync = _async(this._setXYAsync)
+  setXYAsync = _async(this._setXYAsync);
 
   private *_setXYAsyncThrowSync() {
     yield* _await(this.setXAsyncThrowSync())
   }
 
   @modelFlow
-  setXYAsyncThrowSync = _async(this._setXYAsyncThrowSync)
+  setXYAsyncThrowSync = _async(this._setXYAsyncThrowSync);
 
   private *_setXYAsyncThrowAsync() {
     yield* _await(this.setXAsyncThrowAsync())

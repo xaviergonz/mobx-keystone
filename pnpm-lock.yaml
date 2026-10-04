@@ -37,9 +37,6 @@ importers:
         specifier: ^13.6.33
         version: 13.6.33
     devDependencies:
-      globals:
-        specifier: ^17.12.0
-        version: 17.12.0
       netlify-cli:
         specifier: ^27.9.0
         version: 27.9.0(@parcel/watcher@2.5.6)(@swc/core@1.16.2)(@types/node@26.6.2)(bufferutil@4.1.0)(picomatch@4.0.7)(rollup@4.57.1)(supports-color@11.0.0)(utf-8-validate@6.0.6)
@@ -7166,10 +7163,6 @@ packages:
   global-dirs@3.0.1:
     resolution: {integrity: sha512-NBcGGFbBA9s1VzD41QXDG+3++t9Mn5t1FpLdhESY6oKY4gYTFpX4wO3sqGUa0Srjtbfj3szX0RnemmrVRUdULA==}
     engines: {node: '>=10'}
-
-  globals@17.12.0:
-    resolution: {integrity: sha512-cezEd/DTyyht9cvSSURyygXPfy04GtWO/5e6ZPvH7fCtjKz9PYOmuawphw1Ctd1f6C+5JypXfGD7ahNMXvevBA==}
-    engines: {node: '>=18'}
 
   globalthis@1.0.4:
     resolution: {integrity: sha512-DpLKbNU4WylpxJykQujfCcwYWiV/Jhm50Goo0wrVILAv5jOr9d+H+UR3PhSCD2rCCEIg0uc+G+muBTwD54JhDQ==}
@@ -19725,8 +19718,6 @@ snapshots:
   global-dirs@3.0.1:
     dependencies:
       ini: 2.0.0
-
-  globals@17.12.0: {}
 
   globalthis@1.0.4:
     dependencies:

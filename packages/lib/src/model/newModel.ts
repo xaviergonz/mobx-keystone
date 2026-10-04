@@ -27,8 +27,8 @@ import { failure, hasOwnProp, inDevMode, makePropReadonly } from "../utils"
 import { setIfDifferent, setIfDifferentWithReturn } from "../utils/setIfDifferent"
 import type { AnyModel } from "./BaseModel"
 import { getModelIdPropertyName } from "./getModelMetadata"
-import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { modelTypeKey } from "./metadata"
+import type { ModelConstructorOptions } from "./ModelConstructorOptions"
 import { assertIsModelClass } from "./utils"
 
 /**

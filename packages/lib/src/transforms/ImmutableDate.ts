@@ -4,25 +4,24 @@ import { failure } from "../utils"
  * @internal
  */
 // oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- the class implements this narrowed Date API.
-export interface ImmutableDate
-  extends Omit<
-    Date,
-    | "setTime"
-    | "setMilliseconds"
-    | "setUTCMilliseconds"
-    | "setSeconds"
-    | "setUTCSeconds"
-    | "setMinutes"
-    | "setUTCMinutes"
-    | "setHours"
-    | "setUTCHours"
-    | "setDate"
-    | "setUTCDate"
-    | "setMonth"
-    | "setUTCMonth"
-    | "setFullYear"
-    | "setUTCFullYear"
-  > {}
+export interface ImmutableDate extends Omit<
+  Date,
+  | "setTime"
+  | "setMilliseconds"
+  | "setUTCMilliseconds"
+  | "setSeconds"
+  | "setUTCSeconds"
+  | "setMinutes"
+  | "setUTCMinutes"
+  | "setHours"
+  | "setUTCHours"
+  | "setDate"
+  | "setUTCDate"
+  | "setMonth"
+  | "setUTCMonth"
+  | "setFullYear"
+  | "setUTCFullYear"
+> {}
 
 const errMessage = "this Date object is immutable"
 

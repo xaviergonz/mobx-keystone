@@ -261,7 +261,7 @@ class PFlow extends Model({
   }
 
   @modelFlow
-  incX = _async(this._incX)
+  incX = _async(this._incX);
 
   private *_incXY(x: number, y: number) {
     yield* _await(Promise.resolve())
@@ -870,7 +870,7 @@ test("concurrent async actions", async () => {
     }
 
     @modelFlow
-    incX = _async(this._incX)
+    incX = _async(this._incX);
 
     private *_incY(y: number) {
       this.y += y
@@ -1233,17 +1233,14 @@ test("failed initial attached-state saving does not leak a patch recorder", () =
 
 test("trimming preloaded undo and redo queues keeps the newest entries in order", () => {
   const events = () =>
-    Array.from(
-      { length: 20 },
-      (_, index): UndoEvent => ({
-        type: UndoEventType.Single,
-        actionName: String(index),
-        targetPath: [],
-        patches: [],
-        inversePatches: [],
-        attachedState: {},
-      })
-    )
+    Array.from({ length: 20 }, (_, index): UndoEvent => ({
+      type: UndoEventType.Single,
+      actionName: String(index),
+      targetPath: [],
+      patches: [],
+      inversePatches: [],
+      attachedState: {},
+    }))
   const store = new UndoStore({
     undoEvents: events().map((e) => frozen(e)),
     redoEvents: events().map((e) => frozen(e)),

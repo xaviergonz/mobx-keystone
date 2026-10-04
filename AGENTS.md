@@ -35,7 +35,7 @@
 
 - CI runs: `pnpm site:build`; core `pnpm lib:test:ci` for `COMPILER={tsc,tsc-experimental-decorators,babel,swc}` x `MOBX_VERSION={7,6,5,4}`; `pnpm yjs-lib:test:ci`; `pnpm loro-lib:test:ci`; `pnpm lib:build` + benchmark build.
 - `COMPILER=tsc-experimental-decorators` x `MOBX_VERSION=7` is excluded (MobX 7 dropped legacy decorator support), so that combination is expected to fail locally. 15 combinations, not 16.
-- `pnpm lint` (`vp check`: Oxfmt format check, Oxlint with type-aware rules, and TypeScript type checking) is not in CI; run it before finishing.
+- `pnpm lint` (`vp check`: Oxfmt format check, Oxlint with type-aware rules, and TypeScript type checking) runs in CI after `pnpm site:build`; run it before finishing.
 - For compiler-sensitive core changes (decorators/transforms/model/action wrapping), run at least a reduced local matrix; prefer full matrix:
 
 ```bash

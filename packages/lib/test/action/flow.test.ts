@@ -55,7 +55,7 @@ class P extends Model({
   }
 
   @modelFlow
-  addXY = _async(this._addXY)
+  addXY = _async(this._addXY);
 
   private *_addXY(n1: number, n2: number) {
     const r = yield* _await(this.addX(n1))
@@ -67,7 +67,7 @@ class P extends Model({
   }
 
   @modelFlow
-  throwFlow = _async(this._throwFlow)
+  throwFlow = _async(this._throwFlow);
 
   private *_throwFlow(n: number) {
     this.x += n
