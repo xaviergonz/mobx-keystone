@@ -2,8 +2,8 @@ import { assertIsPrimitive, isEqualOrBothNaN } from "../../utils"
 import type { PrimitiveValue } from "../../utils/types"
 import { registerStandardTypeResolver, type StandardTypeResolverFn } from "../resolveTypeChecker"
 import type { AnyStandardType, IdentityType } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
 import { TypeChecker, TypeCheckerBaseType, TypeInfo, type TypeInfoGen } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 const standardTypeResolvers: StandardTypeResolverFn[] = []
 

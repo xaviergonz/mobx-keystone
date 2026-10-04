@@ -105,13 +105,11 @@ runBenchSuiteToJson((onCycle) => {
             },
           ]
           const patches = [0, 1].map((value) =>
-            ["value", "count", "x", "y"].map(
-              (key): Patch => ({
-                op: "replace",
-                path: [key],
-                value,
-              })
-            )
+            ["value", "count", "x", "y"].map((key): Patch => ({
+              op: "replace",
+              path: [key],
+              value,
+            }))
           )
           const singlePatches = patches.map((batch) => batch.slice(0, 1))
           let next = 0

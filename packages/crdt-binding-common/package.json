@@ -11,14 +11,10 @@
   "dependencies": {
     "mobx-keystone": "workspace:*"
   },
-  "scripts": {
-    "quick-build-tests": "tsc -p test",
-    "test": "vitest run",
-    "test:ci": "pnpm run quick-build-tests && vitest run"
-  },
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
     "mobx": "^7.0.0 || ^6.0.0 || ^5.0.0 || ^4.0.0"

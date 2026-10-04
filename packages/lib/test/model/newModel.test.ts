@@ -7,14 +7,14 @@ class Item extends Model({ ["__proto__"]: tProp(123) }) {}
 
 test.skipIf(getMobxVersion() === 4)("defaults apply to model properties named __proto__", () => {
   const item = new Item({})
-  // biome-ignore lint/suspicious/noProto: test an own data property with this name.
+  // oxlint-disable-next-line eslint/no-proto -- test an own data property with this name.
   expect(item.$.__proto__).toBe(123)
   expect(Object.hasOwn(getSnapshot(item), "__proto__")).toBe(true)
 })
 
 test.skipIf(getMobxVersion() === 4)("snapshot construction applies __proto__ defaults", () => {
   const item = fromSnapshot(Item, { $modelType: "ModelProtoDefault" })
-  // biome-ignore lint/suspicious/noProto: test an own data property with this name.
+  // oxlint-disable-next-line eslint/no-proto -- test an own data property with this name.
   expect(item.$.__proto__).toBe(123)
   expect(Object.hasOwn(getSnapshot(item), "__proto__")).toBe(true)
 })

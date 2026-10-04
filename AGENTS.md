@@ -3,7 +3,7 @@
 ## Scope and stack
 
 - Monorepo packages: `mobx-keystone` (core), `mobx-keystone-yjs`, `mobx-keystone-loro`, docs site, benchmark app.
-- Tooling: `pnpm`, `turbo`, Vite + `tsc`, TypeScript strict mode, Vitest, Biome.
+- Tooling: `pnpm`, Vite+ (`vp`: Vite, Vitest, Oxlint, Oxfmt and the `vp run` task runner), `tsc`, TypeScript strict mode.
 - CI runtime: Node.
 
 ## Skills
@@ -29,13 +29,13 @@
 ## Commands (run from repo root)
 
 - Primary: `pnpm lib:build`, `pnpm lib:build-docs`, `pnpm lib:test`, `pnpm lib:test:ci`, `pnpm yjs-lib:build`, `pnpm yjs-lib:test`, `pnpm yjs-lib:test:ci`, `pnpm loro-lib:build`, `pnpm loro-lib:test`, `pnpm loro-lib:test:ci`, `pnpm site:start`, `pnpm site:build`, `pnpm site:serve`, `pnpm build-netlify`, `pnpm netlify-dev`, `pnpm lint`.
-- Targeted: `pnpm --dir packages/lib quick-build`, `pnpm --dir packages/lib quick-build-tests`, `pnpm --dir packages/lib test test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-yjs test test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-loro test test/<file>.test.ts`, `pnpm --dir apps/benchmark bench`.
+- Targeted: `pnpm --dir packages/lib exec vp run quick-build`, `pnpm --dir packages/lib exec vp run quick-build-tests`, `pnpm --dir packages/lib exec vp test run test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-yjs exec vp test run test/<file>.test.ts`, `pnpm --dir packages/mobx-keystone-loro exec vp test run test/<file>.test.ts`, `pnpm --dir apps/benchmark bench`.
 
 ## CI parity and matrix
 
 - CI runs: `pnpm site:build`; core `pnpm lib:test:ci` for `COMPILER={tsc,tsc-experimental-decorators,babel,swc}` x `MOBX_VERSION={7,6,5,4}`; `pnpm yjs-lib:test:ci`; `pnpm loro-lib:test:ci`; `pnpm lib:build` + benchmark build.
 - `COMPILER=tsc-experimental-decorators` x `MOBX_VERSION=7` is excluded (MobX 7 dropped legacy decorator support), so that combination is expected to fail locally. 15 combinations, not 16.
-- `pnpm lint` is not in CI; run it before finishing.
+- `pnpm lint` (`vp check`: Oxfmt format check, Oxlint with type-aware rules, and TypeScript type checking) runs in CI after `pnpm site:build`; run it before finishing.
 - For compiler-sensitive core changes (decorators/transforms/model/action wrapping), run at least a reduced local matrix; prefer full matrix:
 
 ```bash
@@ -47,11 +47,12 @@ for compiler in tsc tsc-experimental-decorators babel swc; do
 done
 ```
 
-## Turbo dependency reminders
+## Task dependency reminders
 
 - `mobx-keystone-yjs#build` and `mobx-keystone-loro#build` depend on `mobx-keystone#build`.
 - `site#build` depends on `mobx-keystone#build`, `mobx-keystone-yjs#build`, `mobx-keystone-loro#build`, `mobx-keystone#build-docs`.
-- Prefer root turbo commands so ordering is handled automatically.
+- Package tasks (`build`, `test`, `quick-build`, etc.) live in `run.tasks` of each package's `vite.config.mts`, not in `package.json` scripts; run them with `vp run <task>` (inside the package) or `vp run <package>#<task>`. `package.json` scripts are only kept for `apps/benchmark` commands, which read arbitrary `BENCH_*` env vars from the caller; cached `vp run` tasks only see env vars declared in `cache.env`.
+- Prefer root `pnpm <task>` commands (they call `vp run <package>#<task>`) so ordering and caching are handled automatically.
 
 ## Test configuration details
 
@@ -71,7 +72,9 @@ expectTypeOf(actual).toEqualTypeOf<Expected>()
 ## Standards and safety
 
 - TypeScript strict style; avoid `any` unless necessary.
-- Use Biome (`pnpm lint`; autofix: `pnpm exec biome check --write .`).
+- Lint/format config lives in the `lint` and `fmt` blocks of the root `vite.config.ts` (`pnpm lint`; autofix: `pnpm lint:fix`).
+- Suppress lint rules with `// oxlint-disable-next-line <plugin>/<rule> -- <reason>`; always give a reason.
+- Tasks that run `tsc` must use `cache: false`: on macOS the TypeScript 7 native binary is signed with Hardened Runtime, which blocks the `DYLD_INSERT_LIBRARIES` file tracking of the `vp run` cache, so cached `tsc` tasks replay stale results (https://github.com/voidzero-dev/vite-task/issues/587). Fixed by https://github.com/microsoft/typescript-go/pull/4868 (not in TypeScript 7.0.2). Once a stable TypeScript release includes it (`codesign -d --entitlements - <native tsc>` lists `com.apple.security.cs.allow-dyld-environment-variables`), caching can be re-enabled by following the `// restore:` comment next to each `cache: false`.
 - Keep imports/exports idiomatic; use `index.ts` barrels for public API.
 - Avoid new dependencies unless necessary.
 - Git safety: do not run git write/mutation commands without explicit user permission  (for example: staging/unstaging files, creating/amending commits, checking out/switching branches, rebasing, merging, or resetting). Use `gh` for GitHub operations.
@@ -111,7 +114,7 @@ expectTypeOf(actual).toEqualTypeOf<Expected>()
 2. Public exports updated when API surface changes.
 3. Relevant tests pass (`lib` / `yjs` / `loro` as applicable).
 4. Compiler/MobX compatibility checks run when relevant.
-5. For core changes: `pnpm --dir packages/lib quick-build` and `pnpm --dir packages/lib quick-build-tests` pass.
+5. For core changes: `pnpm --dir packages/lib exec vp run quick-build` and `pnpm --dir packages/lib exec vp run quick-build-tests` pass.
 6. `pnpm lint` passes.
 7. Public-facing changes have docs/changelog updates (unless explicitly skipped).
 8. No generated artifact was manually edited.

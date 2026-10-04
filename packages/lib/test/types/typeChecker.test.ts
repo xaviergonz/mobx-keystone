@@ -8,18 +8,11 @@ import {
 } from "../../src/types/TypeChecker"
 
 function createTestChecker(
-  fromSnapshotProcessor:
-    | SnapshotProcessor
-    | ReturnType<typeof snapshotProcessorPlan>
-    | undefined = undefined,
-  toSnapshotProcessor:
-    | SnapshotProcessor
-    | ReturnType<typeof snapshotProcessorPlan>
-    | undefined = undefined,
+  fromSnapshotProcessor?: SnapshotProcessor | ReturnType<typeof snapshotProcessorPlan>,
+  toSnapshotProcessor?: SnapshotProcessor | ReturnType<typeof snapshotProcessorPlan>,
   checked = false
 ): TypeChecker {
-  let checker!: TypeChecker
-  checker = new TypeChecker(
+  const checker: TypeChecker = new TypeChecker(
     TypeCheckerBaseType.Any,
     checked ? () => null : null,
     () => "test",
@@ -33,8 +26,7 @@ function createTestChecker(
 
 test("toSnapshotProcessor caches undefined object results", () => {
   let calls = 0
-  let checker!: TypeChecker
-  checker = new TypeChecker(
+  const checker: TypeChecker = new TypeChecker(
     TypeCheckerBaseType.Object,
     null,
     () => "test",
@@ -59,8 +51,7 @@ test("toSnapshotProcessor caches undefined object results", () => {
 
 test("identity-only recursive object processors resolve to cached undefined", () => {
   let schemaCalls = 0
-  let recursiveType: any
-  recursiveType = types.object(() => {
+  const recursiveType: any = types.object(() => {
     schemaCalls++
     return {
       value: types.string,
@@ -80,9 +71,8 @@ test("identity-only recursive object processors resolve to cached undefined", ()
 })
 
 test("identity-only mutually recursive object processors resolve to undefined", () => {
-  let leftType: any
   let rightType: any
-  leftType = types.object(() => ({ right: rightType }))
+  const leftType: any = types.object(() => ({ right: rightType }))
   rightType = types.object(() => ({ left: leftType }))
 
   const checker = resolveTypeChecker(leftType)
@@ -91,8 +81,7 @@ test("identity-only mutually recursive object processors resolve to undefined", 
 })
 
 test("recursive processor graphs process codecs beyond their back-edge", () => {
-  let recursiveType: any
-  recursiveType = types.object(() => ({
+  const recursiveType: any = types.object(() => ({
     value: types.bigint,
     children: types.array(recursiveType),
   }))
@@ -118,10 +107,9 @@ test("recursive processor graphs process codecs beyond their back-edge", () => {
 
 test("processor presence propagates across mutual recursion regardless of discovery order", () => {
   const codec = createTestChecker((value) => `decoded:${value}`)
-  let left!: TypeChecker
   let right!: TypeChecker
 
-  left = createTestChecker(
+  const left = createTestChecker(
     snapshotProcessorPlan(
       () => [right],
       ([rightProcessor]) => rightProcessor

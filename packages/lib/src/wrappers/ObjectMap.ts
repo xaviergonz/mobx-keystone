@@ -1,8 +1,8 @@
 import { entries, get, has, keys, remove, values } from "mobx"
 import { modelAction } from "../action/modelAction"
 import type { AnyModel } from "../model/BaseModel"
-import { Model } from "../model/Model"
 import { modelIdKey } from "../model/metadata"
+import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { idProp } from "../modelShared/prop"
 import { typesRecord } from "../types/objectBased/typesRecord"
@@ -14,9 +14,7 @@ import { setIfDifferent } from "../utils/setIfDifferent"
 const objectMapBase = Model({
   [modelIdKey]: idProp,
   items: tProp(typesRecord(typesUnchecked<any>()), () => ({})), // will be properly checked by types.objectMap(subType)
-}) as abstract new (
-  data: any
-) => AnyModel & {
+}) as abstract new (data: any) => AnyModel & {
   readonly $: {
     items: Record<string, any>
   }
@@ -28,7 +26,7 @@ const objectMapBase = Model({
  * Use `objectMap` to create it.
  */
 @model(`${namespace}/ObjectMap`)
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: model base defines these properties at runtime.
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- model base defines these properties at runtime.
 export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
   @modelAction
   clear(): void {

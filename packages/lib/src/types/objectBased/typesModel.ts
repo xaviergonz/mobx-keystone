@@ -15,9 +15,8 @@ import {
   snapshotModelTypeMatches,
 } from "../modelTypeMatching"
 import { registerStandardTypeResolver, resolveTypeChecker } from "../resolveTypeChecker"
-import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import type { AnyStandardType, ModelType } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
+import { SnapshotTypeMismatchError } from "../SnapshotTypeMismatchError"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -25,6 +24,7 @@ import {
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 const cachedModelTypeChecker = new WeakMap<ModelClass<AnyModel>, TypeChecker>()
 const modelStandardTypes = new WeakSet<object>()

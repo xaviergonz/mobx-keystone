@@ -1,6 +1,6 @@
 import { LoroDoc, LoroMap, LoroMovableList } from "loro-crdt"
 import { types } from "mobx-keystone"
-import { test } from "vitest"
+import { test } from "vite-plus/test"
 import { bindLoroToMobxKeystone } from "../../src"
 import { convertLoroDataToJson } from "../../src/binding/convertLoroDataToJson"
 import type { PlainValue } from "../../src/plainTypes"

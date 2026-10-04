@@ -2,9 +2,9 @@ import { Frozen, frozenKey } from "../frozen/Frozen"
 import type { ParentPath } from "../parent/path"
 import { setParent } from "../parent/setParent"
 import { setNewInternalSnapshot } from "../snapshot/internal"
-import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject } from "./treeNodeMetadata"
 import { registerTweaker } from "./tweak"
+import { TweakerPriority } from "./TweakerPriority"
 
 /**
  * @internal

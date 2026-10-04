@@ -37,8 +37,8 @@ import { hasYjsModelIdentityConflict } from "./hasYjsModelIdentityConflict"
 import { reconcileYjsContainerPositions } from "./reconcileYjsContainerPositions"
 import { resolveYjsPath } from "./resolveYjsPath"
 import { replaceYjsText } from "./textDelta"
-import { YjsTextModel } from "./YjsTextModel"
 import { type YjsBindingContext, yjsBindingContext } from "./yjsBindingContext"
+import { YjsTextModel } from "./YjsTextModel"
 
 // A transaction may contain writes from more than one binding, even though
 // Yjs assigns it just one origin. Such transactions must reach every writer.

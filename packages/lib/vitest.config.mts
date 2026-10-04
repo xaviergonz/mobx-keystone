@@ -2,11 +2,11 @@ import { createRequire } from "node:module"
 import * as babel from "@babel/core"
 import * as swc from "@swc/core"
 import * as ts from "@typescript/typescript6"
-import { defineConfig } from "vitest/config"
+import { defineConfig } from "vite-plus"
 import { env } from "./env.js"
 
 const { mobxVersion, compiler } = env
-// biome-ignore lint/suspicious/noConsole: this config intentionally prints the active test matrix for local runs.
+// oxlint-disable-next-line eslint/no-console -- this config intentionally prints the active test matrix for local runs.
 console.log(`Using mobxVersion=${mobxVersion}, compiler=${compiler}`)
 
 const require = createRequire(import.meta.url)
@@ -124,22 +124,22 @@ const compilerPlugin = () => {
             filename: filePath,
             sourceMaps: true,
             jsc: {
-              ...(swcConfig.jsc ?? {}),
+              ...swcConfig.jsc,
               target: "es2020",
               parser: {
                 syntax: "typescript",
                 decorators: true,
-                ...((swcConfig.jsc?.parser as object | undefined) ?? {}),
+                ...(swcConfig.jsc?.parser as object | undefined),
               },
               transform: {
                 legacyDecorator: mobxVersion < 7,
                 decoratorVersion: mobxVersion >= 7 ? "2022-03" : undefined,
                 useDefineForClassFields: mobxVersion !== 4,
-                ...((swcConfig.jsc?.transform as object | undefined) ?? {}),
+                ...(swcConfig.jsc?.transform as object | undefined),
               },
             },
             module: {
-              ...(swcConfig.module ?? {}),
+              ...swcConfig.module,
               type: "es6",
             },
           })

@@ -93,14 +93,13 @@ describe("integration with models", () => {
   }) {}
 
   @testModel("ConvertJsonTest/TodoList")
-  // biome-ignore lint/correctness/noUnusedVariables: register model type
   class TodoList extends Model({
     title: tProp(types.string),
     items: tProp(types.array(types.model(TodoItem)), () => []),
     metadata: tProp(types.frozen(types.unchecked<{ created: string }>())),
   }) {}
 
-  TodoList // to avoid unused variable lint error
+  void TodoList // referenced so TypeScript does not flag it as unused
 
   test("converts model snapshot to Loro structure", () => {
     const snapshot = {

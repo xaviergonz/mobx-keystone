@@ -286,8 +286,7 @@ test("tProp only installs input snapshot processing when needed", () => {
 
 test("model processor graphs stay lazy through subclass declaration", () => {
   let schemaCalls = 0
-  let recursiveType: any
-  recursiveType = types.object(() => {
+  const recursiveType: any = types.object(() => {
     schemaCalls++
     return {
       value: types.string,

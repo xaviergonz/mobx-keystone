@@ -123,10 +123,11 @@ describe("onPatches and applyPatches", () => {
     const { p, pPatches, pInvPatches, p2Patches, p2InvPatches } = setup(true)
 
     runUnprotected(() => {
-      // biome-ignore lint/correctness/noSelfAssign: this is intentional
+      // oxlint-disable-next-line eslint/no-self-assign -- this is intentional
       p.x = p.x
-      // biome-ignore lint/correctness/noSelfAssign: this is intentional
+      // oxlint-disable-next-line eslint/no-self-assign -- this is intentional
       p.arr[0] = p.arr[0]
+      // oxlint-disable-next-line eslint/no-self-assign -- this is intentional
       p.p2!.y = p.p2!.y
     })
 

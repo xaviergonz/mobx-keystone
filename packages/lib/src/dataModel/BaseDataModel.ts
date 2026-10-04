@@ -1,4 +1,4 @@
-import { propsTypeSymbol } from "../modelShared/BaseModelShared"
+import { type propsTypeSymbol } from "../modelShared/BaseModelShared"
 import { modelInfoByClass } from "../modelShared/modelInfo"
 import { getInternalModelClassPropsInfo } from "../modelShared/modelPropsInfo"
 import {
@@ -13,8 +13,8 @@ import { getSnapshot } from "../snapshot/getSnapshot"
 import { isTreeNode } from "../tweaker/core"
 import { toTreeNode } from "../tweaker/tweak"
 import { typesDataModelData } from "../types/objectBased/typesDataModelData"
-import type { TypeCheckError } from "../types/TypeCheckError"
 import { typeCheck } from "../types/typeCheck"
+import type { TypeCheckError } from "../types/TypeCheckError"
 import { clonePlainObject, failure, hasOwnProp, isObject, setProtoProp } from "../utils"
 import { getOrCreate } from "../utils/mapUtils"
 import type { DataModelConstructorOptions } from "./DataModelConstructorOptions"
@@ -73,7 +73,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
     }
 
     const constructorOptions =
-      // biome-ignore lint/complexity/noArguments: internal factory code passes hidden constructor options through super().
+      // oxlint-disable-next-line eslint/prefer-rest-params -- internal factory code passes hidden constructor options through super().
       arguments[1] as DataModelConstructorOptions
     const { modelClass: _modelClass } = constructorOptions
     const modelClass = _modelClass!
@@ -140,7 +140,7 @@ export abstract class BaseDataModel<TProps extends ModelProps> {
 
     const instance = instancesForModelClass.get(tweakedData)
     if (instance) {
-      // biome-ignore lint/correctness/noConstructorReturn: no other way to return an instance
+      // oxlint-disable-next-line eslint/no-constructor-return -- no other way to return an instance
       return instance
     }
 
@@ -189,6 +189,6 @@ export interface AnyDataModel extends BaseDataModel<any> {}
  * A data model class declaration, made of a base model and the model interface.
  */
 export type DataModelClassDeclaration<BaseModelClass, ModelInterface> = BaseModelClass & {
-  // biome-ignore lint/style/useShorthandFunctionType: make type recursive
+  // oxlint-disable-next-line typescript/prefer-function-type -- make type recursive
   (...args: any[]): ModelInterface
 }

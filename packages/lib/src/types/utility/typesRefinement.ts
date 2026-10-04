@@ -1,7 +1,6 @@
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, TypeToData } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   snapshotProcessorPlan,
@@ -9,6 +8,7 @@ import {
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 
 /**
  * A refinement over a given type. This allows you to do extra checks

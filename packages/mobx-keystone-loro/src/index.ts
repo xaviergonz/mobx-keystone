@@ -5,11 +5,7 @@ export {
   applyJsonObjectToLoroMap,
   convertJsonToLoroData,
 } from "./binding/convertJsonToLoroData"
-export {
-  isLoroTextModelSnapshot,
-  LoroTextModel,
-  loroTextModelType,
-} from "./binding/LoroTextModel"
+export { isLoroTextModelSnapshot, LoroTextModel, loroTextModelType } from "./binding/LoroTextModel"
 export type { LoroBindingContext } from "./binding/loroBindingContext"
 export { loroBindingContext } from "./binding/loroBindingContext"
 export { moveWithinArray } from "./binding/moveWithinArray"

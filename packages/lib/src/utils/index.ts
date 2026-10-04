@@ -117,7 +117,7 @@ export let hasOwnProp: (object: object, propName: PropertyKey) => boolean = (
     typeof Object.hasOwn === "function"
       ? Object.hasOwn
       : (object, propName) => {
-          // biome-ignore lint/suspicious/noPrototypeBuiltins: legacy fallback for runtimes without Object.hasOwn.
+          // oxlint-disable-next-line eslint/no-prototype-builtins -- legacy fallback for runtimes without Object.hasOwn.
           return Object.prototype.hasOwnProperty.call(object, propName)
         }
 
@@ -133,7 +133,7 @@ export let hasOwnProp: (object: object, propName: PropertyKey) => boolean = (
  * @internal
  */
 export function isEqualOrBothNaN(a: unknown, b: unknown): boolean {
-  // biome-ignore lint/suspicious/noSelfCompare: NaN check
+  // oxlint-disable-next-line eslint/no-self-compare -- NaN check
   return a === b || (a !== a && b !== b)
 }
 
@@ -390,11 +390,11 @@ export function logWarning(type: "warn" | "error", msg: string, uniqueKey?: stri
   msg = "[mobx-keystone] " + msg
   switch (type) {
     case "warn":
-      // biome-ignore lint/suspicious/noConsole: this internal helper intentionally emits user-facing warnings.
+      // oxlint-disable-next-line eslint/no-console -- this internal helper intentionally emits user-facing warnings.
       console.warn(msg)
       break
     case "error":
-      // biome-ignore lint/suspicious/noConsole: this internal helper intentionally emits user-facing errors.
+      // oxlint-disable-next-line eslint/no-console -- this internal helper intentionally emits user-facing errors.
       console.error(msg)
       break
     default:

@@ -43,9 +43,7 @@ export const model =
 // the model instance type is checked through `prototype` rather than through a typed constructor
 // signature, since comparing constructor signatures would compute the (expensive) model creation data
 // type of every decorated class
-type ModelDecoratorTarget = (new (
-  ...args: any
-) => any) & {
+type ModelDecoratorTarget = (new (...args: any) => any) & {
   prototype: AnyModel | AnyDataModel
 }
 
@@ -191,7 +189,7 @@ function tsDecorate(
     r = (Reflect as any).decorate(decorators, target, key, desc)
   } else {
     for (
-      // biome-ignore lint/correctness/noInnerDeclarations: minified file
+      // oxlint-disable-next-line eslint/no-inner-declarations, eslint/no-var -- minified file
       var i = decorators.length - 1;
       i >= 0;
       i--
@@ -201,8 +199,8 @@ function tsDecorate(
       }
     }
   }
-  // biome-ignore lint/complexity/noCommaOperator: minified file
-  return c > 3 && r && Object.defineProperty(target, key, r), r
+  // oxlint-disable-next-line eslint/no-sequences -- minified file
+  return (c > 3 && r && Object.defineProperty(target, key, r), r)
 }
 
 /**

@@ -64,12 +64,11 @@ describe("getSnapshotModelId", () => {
 
   test("returns undefined if id property is missing in snapshot (e.g. partial snapshot)", () => {
     @testModel("getSnapshotModelId/MissingIdInSnapshot")
-    // biome-ignore lint/correctness/noUnusedVariables: we need to register the model
     class MissingIdInSnapshot extends Model({
       id: idProp,
     }) {}
 
-    MissingIdInSnapshot // to avoid unused variable lint error
+    void MissingIdInSnapshot // referenced so TypeScript does not flag it as unused
 
     // Manually create a partial snapshot that looks like a model snapshot but misses the ID
     const sn = {

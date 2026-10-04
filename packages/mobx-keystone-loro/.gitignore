@@ -4,3 +4,4 @@
 /LICENSE
 /*.local
 /coverage/
+.vitest/

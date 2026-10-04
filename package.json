@@ -4,23 +4,24 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "lib:build": "turbo run mobx-keystone#build",
-    "lib:build-docs": "turbo run mobx-keystone#build-docs",
-    "benchmark:build": "turbo run benchmark#build",
-    "lib:test": "turbo run mobx-keystone#test",
-    "lib:test:ci": "turbo run mobx-keystone#test:ci",
-    "yjs-lib:build": "turbo run mobx-keystone-yjs#build",
-    "yjs-lib:test": "turbo run mobx-keystone-yjs#test",
-    "yjs-lib:test:ci": "turbo run mobx-keystone-yjs#test:ci",
-    "loro-lib:build": "turbo run mobx-keystone-loro#build",
-    "loro-lib:test": "turbo run mobx-keystone-loro#test",
-    "loro-lib:test:ci": "turbo run mobx-keystone-loro#test:ci",
-    "site:start": "turbo run site#start",
-    "site:build": "turbo run site#build",
-    "site:serve": "turbo run site#serve",
+    "lib:build": "vp run mobx-keystone#build",
+    "lib:build-docs": "vp run mobx-keystone#build-docs",
+    "benchmark:build": "vp run benchmark#build",
+    "lib:test": "vp run mobx-keystone#test",
+    "lib:test:ci": "vp run mobx-keystone#test:ci",
+    "yjs-lib:build": "vp run mobx-keystone-yjs#build",
+    "yjs-lib:test": "vp run mobx-keystone-yjs#test",
+    "yjs-lib:test:ci": "vp run mobx-keystone-yjs#test:ci",
+    "loro-lib:build": "vp run mobx-keystone-loro#build",
+    "loro-lib:test": "vp run mobx-keystone-loro#test",
+    "loro-lib:test:ci": "vp run mobx-keystone-loro#test:ci",
+    "site:start": "vp run site#start",
+    "site:build": "vp run site#build",
+    "site:serve": "vp run site#serve",
     "build-netlify": "pnpm run site:build",
     "netlify-dev": "pnpm run build-netlify && netlify dev",
-    "lint": "biome check",
+    "lint": "vp check",
+    "lint:fix": "vp check --fix",
     "upgrade-interactive": "pnpm -r up -i --latest && pnpm dedupe"
   },
   "workspaces": [
@@ -33,11 +34,9 @@
     "yjs": "^13.6.33"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.14",
-    "globals": "^17.12.0",
     "netlify-cli": "^27.9.0",
-    "turbo": "^2.11.3",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite-plus": "catalog:"
   },
   "packageManager": "pnpm@11.10.0"
 }

@@ -36,7 +36,6 @@ import { failure, inDevMode, isArray, isPrimitive } from "../utils"
 import { addDelayedError, type DelayedError } from "../utils/forEachWithDelayedThrow"
 import { recordChangeForRollback, throwDelayedListenerError } from "./changeRollback"
 import { activateHandlers, areHandlersActive, runningWithoutSnapshotOrPatches } from "./core"
-import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject } from "./treeNodeMetadata"
 import {
   assertCanAttach,
@@ -46,6 +45,7 @@ import {
   tweak,
 } from "./tweak"
 import { notifyTweakedChangeListeners } from "./tweakedChangeListeners"
+import { TweakerPriority } from "./TweakerPriority"
 import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
 /**

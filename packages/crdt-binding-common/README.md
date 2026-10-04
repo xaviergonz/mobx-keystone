@@ -9,6 +9,6 @@ implementation into their published builds. It must not be externalized or
 exposed in their public declarations. No separate build or publication is needed.
 
 Unit tests live in `test/`; the binding packages retain their integration tests.
-Root Yjs and Loro test commands run the shared suite through Turbo, including CI.
-Run it directly with `pnpm --dir packages/crdt-binding-common test` (build core
-first), and type-check it with `pnpm --dir packages/crdt-binding-common quick-build-tests`.
+Root Yjs and Loro test commands run the shared suite through `vp run`, including CI.
+Run it directly with `pnpm --dir packages/crdt-binding-common exec vp run test` (it builds
+core first), and type-check it with `pnpm --dir packages/crdt-binding-common exec vp run quick-build-tests`.

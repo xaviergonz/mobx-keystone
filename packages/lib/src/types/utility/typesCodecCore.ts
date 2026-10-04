@@ -11,7 +11,6 @@ import type {
   TypeToSnapshotIn,
   TypeToSnapshotOut,
 } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   TypeChecker,
@@ -19,6 +18,7 @@ import {
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 import type { TypeToStoredData } from "./typeToStoredData"
 
 export interface RuntimeAdapter<Stored, Runtime> {

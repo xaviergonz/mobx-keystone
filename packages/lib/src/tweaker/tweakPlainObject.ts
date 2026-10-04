@@ -43,10 +43,10 @@ import { addDelayedError, type DelayedError } from "../utils/forEachWithDelayedT
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { recordChangeForRollback, throwDelayedListenerError } from "./changeRollback"
 import { activateHandlers, runningWithoutSnapshotOrPatches } from "./core"
-import { TweakerPriority } from "./TweakerPriority"
 import { markAsTweakedObject, treeNodeMetadata } from "./treeNodeMetadata"
 import { assertCanAttachValue, registerTweaker, tweak } from "./tweak"
 import { notifyTweakedChangeListeners } from "./tweakedChangeListeners"
+import { TweakerPriority } from "./TweakerPriority"
 import { isTypeCheckingAfterChangeEnabled, runTypeCheckingAfterChange } from "./typeChecking"
 
 /**

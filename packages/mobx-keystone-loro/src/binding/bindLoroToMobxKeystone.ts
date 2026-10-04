@@ -26,7 +26,7 @@ import {
   type TypeToData,
   type TypeToSnapshotIn,
 } from "mobx-keystone"
-import { nanoid } from "nanoid"
+import { nanoid } from "nanoid/non-secure"
 import { failure } from "../utils/error"
 import type { BindableLoroContainer } from "../utils/isBindableLoroContainer"
 import { reportLoroEventsChanged } from "../utils/loroCollectionAtoms"
@@ -36,8 +36,8 @@ import { applyMobxChangeToLoroObject } from "./applyMobxChangeToLoroObject"
 import { applySnapshotToLoroContainer } from "./convertJsonToLoroData"
 import { convertLoroDataToJson } from "./convertLoroDataToJson"
 import { hasPendingLoroConflict, type PendingLoroConflictCache } from "./hasPendingLoroConflict"
-import { LoroTextModel } from "./LoroTextModel"
 import { type LoroBindingContext, loroBindingContext } from "./loroBindingContext"
+import { LoroTextModel } from "./LoroTextModel"
 import { type ArrayMoveChange, processChangeForMove } from "./moveWithinArray"
 import { reconcileLoroModelOrder } from "./reconcileLoroModelOrder"
 import { resolveLoroPath } from "./resolveLoroPath"

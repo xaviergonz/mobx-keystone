@@ -1,7 +1,7 @@
 import { modelAction } from "../action/modelAction"
 import type { AnyModel } from "../model/BaseModel"
-import { Model } from "../model/Model"
 import { modelIdKey } from "../model/metadata"
+import { Model } from "../model/Model"
 import { model } from "../modelShared/modelDecorator"
 import { idProp } from "../modelShared/prop"
 import { typesArray } from "../types/arrayBased/typesArray"
@@ -21,9 +21,7 @@ import {
 const arraySetBase = Model({
   [modelIdKey]: idProp,
   items: tProp(typesArray(typesUnchecked<any>()), () => []), // will be properly checked by types.arraySet(subType)
-}) as abstract new (
-  data: any
-) => AnyModel & {
+}) as abstract new (data: any) => AnyModel & {
   readonly $: {
     items: any[]
   }
@@ -35,7 +33,7 @@ const arraySetBase = Model({
  * Use `arraySet` to create it.
  */
 @model(`${namespace}/ArraySet`)
-// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: model base defines these properties at runtime.
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- model base defines these properties at runtime.
 export class ArraySet<V> extends arraySetBase implements Set<V> {
   @modelAction
   add(value: V): this {

@@ -7,7 +7,6 @@ import { typesArray } from "../arrayBased/typesArray"
 import { getTypeInfo } from "../getTypeInfo"
 import { resolveStandardType, resolveTypeChecker } from "../resolveTypeChecker"
 import type { AnyStandardType, AnyType, ModelType, TypeToData } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
 import {
   lateTypeChecker,
   snapshotProcessorPlan,
@@ -16,6 +15,7 @@ import {
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 import { resolveCodecSupport } from "../utility/typesCodec"
 import { typesObject } from "./typesObject"
 

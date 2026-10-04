@@ -174,7 +174,7 @@ class P2Flow extends Model({
   }
 
   @modelFlow
-  addY = _async(this._addY)
+  addY = _async(this._addY);
 
   private *_addParentX(n: number, error: boolean) {
     const parent = findParent<PFlow>(this, (p) => p instanceof PFlow)!
@@ -209,7 +209,7 @@ class PFlow extends Model({
 
   @transaction
   @modelFlow
-  addX = _async(this._addX)
+  addX = _async(this._addX);
 
   private *_addY(a: number, b: number, error: boolean) {
     this.p2.y += a

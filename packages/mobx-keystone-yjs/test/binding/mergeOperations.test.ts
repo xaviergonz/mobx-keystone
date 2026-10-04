@@ -22,7 +22,7 @@ test("merging unchanged shared arrays traverses their items linearly", () => {
   array.doc!.on("update", update)
   let traversals = 0
   const restore: (() => void)[] = []
-  for (let item = array._start; item; ) {
+  for (let item = array._start; item;) {
     const current = item
     const next = current.right
     const descriptor = Object.getOwnPropertyDescriptor(current, "right")!

@@ -19,6 +19,8 @@ jobs:
 
       - uses: ./.github/actions/setup-workspace
       - run: pnpm site:build
+      # Runs after the build because type checking resolves workspace packages through their dist types.
+      - run: pnpm lint
 
   lib-test:
     name: lib-test (${{ matrix.compiler }} - mobx${{ matrix.mobx-version }})

@@ -1,7 +1,7 @@
 import type { AnyModel } from "../model/BaseModel"
 import { getModelIdPropertyName } from "../model/getModelMetadata"
-import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { modelTypeKey } from "../model/metadata"
+import type { ModelConstructorOptions } from "../model/ModelConstructorOptions"
 import { getModelOrSnapshotTypeAndId, getSnapshotModelType } from "../model/utils"
 import type { ModelClass } from "../modelShared/BaseModelShared"
 import { getModelInfoForName, getModelNotRegisteredErrorMessage } from "../modelShared/modelInfo"

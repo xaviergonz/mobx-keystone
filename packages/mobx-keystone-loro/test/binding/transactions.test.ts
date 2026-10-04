@@ -147,7 +147,7 @@ test("a Loro commit inside a model action preserves queued list changes", () => 
     list.push(1)
     doc.commit()
   })
-  expect([...boundObject].sort()).toEqual([1, 2])
+  expect([...boundObject].sort((a, b) => a - b)).toEqual([1, 2])
   expect(getSnapshot(boundObject)).toEqual(list.toJSON())
 })
 
@@ -164,7 +164,7 @@ test("mixed pending Loro and model list edits are reconciled without duplicate i
   runUnprotected(() => {
     boundObject.push(2)
   })
-  expect([...boundObject].sort()).toEqual([1, 2])
+  expect([...boundObject].sort((a, b) => a - b)).toEqual([1, 2])
   expect(getSnapshot(boundObject)).toEqual(list.toJSON())
 })
 

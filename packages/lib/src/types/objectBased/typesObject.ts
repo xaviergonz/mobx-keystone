@@ -23,7 +23,6 @@ import type {
   ObjectTypeFunction,
   TypeToData,
 } from "../schemas"
-import { TypeCheckError } from "../TypeCheckError"
 import {
   type LateTypeChecker,
   lateTypeChecker,
@@ -34,6 +33,7 @@ import {
   TypeInfo,
   type TypeInfoGen,
 } from "../TypeChecker"
+import { TypeCheckError } from "../TypeCheckError"
 import { prependPathElementToTypeCheckError } from "../typeCheckErrorUtils"
 
 const needsObservableObjectKeyTracking = getMobxVersion() < 5

@@ -26,7 +26,7 @@ class P2 extends Model({
   }
 
   @modelFlow
-  addY = _async(this._addY)
+  addY = _async(this._addY);
 
   private *_addY2(n: number) {
     this.y += n / 2
@@ -73,7 +73,7 @@ class P extends Model({
   }
 
   @modelFlow
-  addXY = _async(this._addXY)
+  addXY = _async(this._addXY);
 
   private *_throwFlow(n: number) {
     this.x += n
