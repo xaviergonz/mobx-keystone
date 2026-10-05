@@ -43,6 +43,12 @@ export default defineConfig({
         cache: false,
       },
       // Not cached: its only input is in dist/, which the build task excludes from its inputs,
+      // so a cached check would replay a stale result.
+      "check-dev-mode-detection": {
+        command: "node scripts/check-dev-mode-detection.mjs",
+        cache: false,
+      },
+      // Not cached: its only input is in dist/, which the build task excludes from its inputs,
       // so a cached copy would replay a stale file.
       "copy-esm-js": {
         command: "shx cp dist/mobx-keystone.esm.mjs dist/mobx-keystone.esm.js",
@@ -50,7 +56,7 @@ export default defineConfig({
       },
       build: {
         command:
-          "vp run copy-root-files && vp run clean-dist && vp run build-types && vp pack && vp run check-declarations && vp run check-bundled-peers && vp run copy-esm-js",
+          "vp run copy-root-files && vp run clean-dist && vp run build-types && vp pack && vp run check-declarations && vp run check-bundled-peers && vp run check-dev-mode-detection && vp run copy-esm-js",
         cache: { input: [{ auto: true }, "!dist/**"] },
       },
       "build-docs": {

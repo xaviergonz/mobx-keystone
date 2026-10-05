@@ -244,19 +244,26 @@ export function isArray(val: unknown): val is any[] | IObservableArray {
   return Array.isArray(val) || isObservableArray(val)
 }
 
-declare const process:
-  | {
-      env?: Record<string, string | undefined>
-    }
-  | undefined
+declare const process: {
+  env: Record<string, string | undefined>
+}
+
+function readInDevMode(): boolean {
+  // Bundlers replace the literal expression `process.env.NODE_ENV` with a string, so it must stay
+  // spelled out in full (no optional chaining, destructuring or `typeof process` guard) for dev
+  // mode to work in browser bundles. The try/catch keeps the library loadable where there is
+  // neither a bundler replacement nor a global `process`.
+  try {
+    return process.env.NODE_ENV !== undefined && process.env.NODE_ENV !== "production"
+  } catch {
+    return false
+  }
+}
 
 /**
  * @internal
  */
-export const inDevMode =
-  typeof process !== "undefined" &&
-  process?.env?.NODE_ENV !== undefined &&
-  process.env.NODE_ENV !== "production"
+export const inDevMode = readInDevMode()
 
 /**
  * @internal
