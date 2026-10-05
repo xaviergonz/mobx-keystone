@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 2.3.1
 
 - Fixed dev mode (and so `ModelAutoTypeCheckingMode.DevModeOnly` type checking, `FrozenCheckMode.DevModeOnly` checks and other dev-only assertions) never turning on in browser development bundles (webpack 5, Vite, esbuild) since 2.0.0 (#593). `process.env.NODE_ENV` is now read in a form bundlers replace, while the library still loads where there is no global `process`.
 
