@@ -1,6 +1,6 @@
 ---
 name: release-tag-version
-description: Release workflow for this repository. Analyze the unreleased changelog entries of lib, yjs and loro, ask once which packages to release and the semver bump of each, then update changelogs and versions, build, test, commit, tag, push, publish to npm (the user only logs in through the browser) and prepare the next release, without further confirmations.
+description: Release workflow for this repository. Analyze the unreleased changelog entries of lib, yjs and loro, ask once which packages to release and the semver bump of each, then update changelogs and versions, build, test, commit, tag, push, hand the user the `npm publish` commands to run in their own terminal, and prepare the next release, without further confirmations.
 ---
 
 # Release Tag Version
@@ -25,7 +25,7 @@ Follow this workflow only for this repository.
 
 - Ask the user exactly once: which packages to release and the bump of each. Their answer authorizes the whole release (file edits, commits, tags, pushes, `npm publish` and the prep commits); do not ask for any other confirmation afterwards.
 - Skip the question entirely when the skill arguments already name the packages and bumps (e.g. `lib minor`, `lib patch yjs minor`).
-- The only other user action is logging in to npm in the browser when publishing.
+- The only other user action is running `npm publish` in their own terminal (see step 4) and telling you when it is done.
 - Only stop and ask when a stop condition below is hit.
 - The release/tag commit must not keep `## Unreleased` in the changelog; after publishing, re-add an empty `## Unreleased` as the top changelog section.
 
@@ -44,6 +44,7 @@ Follow this workflow only for this repository.
 2. Tracked files must have no changes (`git status --porcelain --untracked-files=no` is empty); untracked files are fine and must never be committed.
 3. `git fetch origin && git pull --ff-only origin master`.
 4. Repository guard: the three package.json files exist with the names in the table above. If not, stop: this skill is project-specific.
+5. `npm whoami` must print a username. If it fails, the npm token in `~/.npmrc` is missing or expired: stop and tell the user to run `npm login` (or set a new token with `npm config set //registry.npmjs.org/:_authToken=<token>`) before releasing, so no tag is pushed for a release that cannot be published.
 
 ### 2. Analyze and ask once
 
@@ -81,13 +82,17 @@ Finally push: `git push origin master` and `git push origin <each tag>`.
 
 ### 4. Publish
 
-For each selected package in order:
+Do not run `npm publish` yourself. Publishing needs a 2FA one-time password or browser login, and without a TTY npm does not prompt for it: it fails straight away with `EOTP` (and masks the authentication URL), so the user must run it in their own terminal.
 
-1. Run `npm publish` in its publish dir with `run_in_background: true` (Bash tool). Without a TTY, npm does not wait for ENTER: it prints an authentication URL and waits until the user logs in.
-2. Read the background task output until the line after `Authenticate your account at:` shows the URL (poll the output file with a short `until grep -q "https://www.npmjs.com/auth/" <output-file>; do sleep 1; done` loop, or a Monitor).
-3. Open it with `open "<url>"` and tell the user, in one line, to log in in the browser to publish `<package-name>@<version>`.
-4. Wait for the background task to finish, then check its output contains `+ <package-name>@<version>`. If it does not (or it exits with an error), stop and report the output; do not retry or undo anything automatically.
-5. If no authentication URL appears and npm fails asking for an OTP or login, stop and give the user the exact commands to publish manually (`cd <publish-dir>` and `npm publish`), then continue with step 5 below once they confirm it succeeded.
+1. Give the user, in one block, the commands to publish every selected package in order, run from the repo root, e.g.:
+
+   ```sh
+   (cd packages/lib && npm publish) && (cd packages/mobx-keystone-yjs && npm publish)
+   ```
+
+   Tell them npm will show an `Authenticate your account at:` URL for each package (press ENTER to open it and log in), and to tell you when each prints `+ <package-name>@<version>`.
+2. Wait for the user. If they report that a publish failed, stop and report; do not retry or undo anything automatically.
+3. Once they confirm the `+ <package-name>@<version>` line for a package, continue with step 5 for it.
 
 ### 5. Prepare the next release
 
@@ -100,7 +105,7 @@ Then `git push origin master`.
 
 ### 6. Report
 
-Report for each released package: release commit SHA, tag, the `npm publish` result line and the prep commit SHA.
+Report for each released package: release commit SHA, tag, the `npm publish` result the user confirmed and the prep commit SHA.
 
 A `+ <package-name>@<version>` line from `npm publish` already confirms the publish succeeded. Do not wait or poll for the new version to show up in the registry (`npm view`, registry requests, background loops): npm may take a few minutes to make it visible, and that delay is not a failure. Finish the workflow and the report right away; at most mention that the version may take a few minutes to appear on npm.
 
@@ -112,5 +117,6 @@ A `+ <package-name>@<version>` line from `npm publish` already confirms the publ
 - A release tag already exists: stop and ask for a tag strategy.
 - Lint, build or tests fail: stop before committing and report the failure (the edited package.json/changelog files are left uncommitted; tell the user).
 - A push fails: stop and report the exact state.
-- `npm publish` fails: stop and report; never retry or revert automatically.
+- `npm whoami` fails in preflight: stop and tell the user to log in to npm.
+- The user reports that `npm publish` failed: stop and report; never retry or revert automatically.
 - Prep commit or its push fails: report the exact state and ask before any follow-up action.
