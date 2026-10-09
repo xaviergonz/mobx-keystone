@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed serialized action calls resolving an object path that goes through an array's `length` (e.g. `["items", "length"]`) to a number: `deserializeActionCallArgument`, `deserializeActionCall` and the `applySerializedAction…` functions now throw a "could not be resolved" error for it, as for any path that doesn't lead to a tree node.
+- Fixed `applySet` (and so a serialized `$$applySet` action call) replacing a model's prototype when the field name is `__proto__`. It now throws for models; plain objects keep `__proto__` as a data key, as before.
 
 ## 2.3.1
 
