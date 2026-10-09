@@ -1,7 +1,7 @@
 import { isObservable } from "mobx"
 import { isModel } from "../model/utils"
 import { assertTweakedObject } from "../tweaker/core"
-import { lazy } from "../utils"
+import { failure, lazy } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
 import { BuiltInAction } from "./builtInActions"
 import { ActionContextActionType } from "./context"
@@ -30,6 +30,10 @@ function internalApplySet<O extends object>(this: O, fieldName: string | number,
   if (!isModel(this) && isObservable(this)) {
     setIfDifferent(this, fieldName, value)
   } else {
+    // assigning '__proto__' would replace the prototype of the model instead of setting a field
+    if (fieldName === "__proto__") {
+      throw failure("applySet cannot set '__proto__' on a model")
+    }
     ;(this as any)[fieldName] = value
   }
 }
