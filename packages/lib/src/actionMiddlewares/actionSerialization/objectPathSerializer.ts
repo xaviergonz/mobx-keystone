@@ -1,6 +1,6 @@
 import { fastGetRootPath, resolvePathCheckingIds } from "../../parent/path"
 import type { Path } from "../../parent/pathTypes"
-import { isTweakedObject } from "../../tweaker/core"
+import { isTreeNode, isTweakedObject } from "../../tweaker/core"
 import { failure, namespace } from "../../utils"
 import { rootPathToTargetPathIds } from "../utils"
 import { type ActionCallArgumentSerializer, cannotSerialize } from "./core"
@@ -36,7 +36,8 @@ export const objectPathSerializer: ActionCallArgumentSerializer<object, ObjectPa
     // try to resolve the node back
     if (targetRoot) {
       const result = resolvePathCheckingIds(targetRoot, ref.targetPath, ref.targetPathIds)
-      if (result.resolved) {
+      // only tree nodes can be serialized as paths, so anything else is not a valid target
+      if (result.resolved && isTreeNode(result.value)) {
         return result.value
       }
     }

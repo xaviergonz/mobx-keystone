@@ -268,6 +268,58 @@ test("deserializeActionCallArgument rejects prototype-chain object paths", () =>
   ).toThrow()
 })
 
+test("deserializeActionCallArgument rejects paths to non-node values", () => {
+  @testModel("ActionSerializationNonNodePath")
+  class ActionSerializationNonNodePath extends Model({
+    items: prop<number[]>(() => [1, 2]),
+    name: prop("x"),
+  }) {}
+
+  const root = new ActionSerializationNonNodePath({})
+
+  const deserializePath = (targetPath: string[]) =>
+    deserializeActionCallArgument(
+      {
+        $mobxKeystoneSerializer: `${namespace}/objectPath`,
+        value: {
+          targetPath,
+          targetPathIds: targetPath.map(() => null),
+        },
+      },
+      root
+    )
+
+  expect(() => deserializePath(["items", "length"])).toThrow(
+    'object at path ["items","length"] with ids [null,null] could not be resolved'
+  )
+  expect(() => deserializePath(["items", "0"])).toThrow(
+    'object at path ["items","0"] with ids [null,null] could not be resolved'
+  )
+  expect(() => deserializePath(["name"])).toThrow(
+    'object at path ["name"] with ids [null] could not be resolved'
+  )
+  expect(deserializePath(["items"])).toBe(root.items)
+})
+
+test("applyAction rejects targets through array 'length'", () => {
+  @testModel("ActionSerializationLengthTarget")
+  class ActionSerializationLengthTarget extends Model({
+    items: prop<number[]>(() => [1, 2]),
+  }) {}
+
+  const root = new ActionSerializationLengthTarget({})
+
+  expect(() =>
+    applyAction(root, {
+      actionName: "$$detach",
+      targetPath: ["items", "length"],
+      targetPathIds: [null, null],
+      args: [],
+    })
+  ).toThrow("object at path")
+  expect(getSnapshot(root.items)).toEqual([1, 2])
+})
+
 describe("concurrency", () => {
   @testModel("TodoList")
   class TodoList extends Model({

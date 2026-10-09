@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed serialized action calls resolving an object path that goes through an array's `length` (e.g. `["items", "length"]`) to a number: `deserializeActionCallArgument`, `deserializeActionCall` and the `applySerializedAction…` functions now throw a "could not be resolved" error for it, as for any path that doesn't lead to a tree node.
+
 ## 2.3.1
 
 - Fixed dev mode (and so `ModelAutoTypeCheckingMode.DevModeOnly` type checking, `FrozenCheckMode.DevModeOnly` checks and other dev-only assertions) never turning on in browser development bundles (webpack 5, Vite, esbuild) since 2.0.0 (#593). `process.env.NODE_ENV` is now read in a form bundlers replace, while the library still loads where there is no global `process`.

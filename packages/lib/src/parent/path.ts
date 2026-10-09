@@ -322,8 +322,10 @@ export function resolvePathCheckingIds<T = any>(
     const p = path[i]
 
     // check just to avoid mobx warnings about trying to access out of bounds index
+    // (and only accept indexes, so non-index props such as 'length' never resolve)
     if (isArray(current)) {
-      if (+p >= current.length || !(p in current)) {
+      const index = +p
+      if (!Number.isInteger(index) || index < 0 || index >= current.length || !(p in current)) {
         return { resolved: false }
       }
     } else if (!hasOwnProp(current, p)) {
