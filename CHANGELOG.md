@@ -3,7 +3,8 @@
 ## Unreleased
 
 - Fixed serialized action calls resolving an object path that goes through an array's `length` (e.g. `["items", "length"]`) to a number: `deserializeActionCallArgument`, `deserializeActionCall` and the `applySerializedAction…` functions now throw a "could not be resolved" error for it, as for any path that doesn't lead to a tree node.
-- Fixed `applySet` (and so a serialized `$$applySet` action call) replacing a model's prototype when the field name is `__proto__`. It now throws for models; plain objects keep `__proto__` as a data key, as before.
+- Fixed `applySet` (and so a serialized `$$applySet` action call) replacing a model's prototype when the field name is `__proto__`, or shadowing an inherited method of a model (e.g. one of its actions, or `constructor`) with an own field. It now throws for those on models; props, own fields and new fields can still be set, and plain objects keep `__proto__` as a data key, as before.
+- `resolvePath` no longer resolves inherited members: array steps must be indexes (so `length` doesn't resolve), plain object steps must be own keys (so `constructor`, `__proto__` or `toString` don't resolve), and model steps resolve the model's data, its own fields and the getters its classes define (e.g. computed trees), but not its methods. Paths reach `resolvePath` from remote updates in the Yjs and Loro bindings, among others.
 
 ## 2.3.1
 

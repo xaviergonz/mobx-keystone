@@ -256,19 +256,20 @@ export function resolvePath<T = any>(
 
     const p = path[i]
 
-    // check just to avoid mobx warnings about trying to access out of bounds index
-    if (isArray(current) && +p >= current.length) {
-      return unresolved
-    }
-
-    if (isModel(current)) {
-      const dataNode = modelToDataNode(current)
-      if (p in dataNode) {
-        current = dataNode
+    if (isArray(current)) {
+      if (!isArrayIndexOf(current, p)) {
+        return unresolved
       }
-    }
-
-    if (!(p in current)) {
+    } else if (isModel(current)) {
+      const dataNode = modelToDataNode(current)
+      if (hasOwnProp(dataNode, p)) {
+        current = dataNode
+      } else if (!hasOwnProp(current, p) && !isInheritedGetter(current, p)) {
+        // the model's own fields and getters (e.g. computed trees) resolve,
+        // but not its methods or anything inherited from Object.prototype
+        return unresolved
+      }
+    } else if (!hasOwnProp(current, p)) {
       return unresolved
     }
 
@@ -276,6 +277,30 @@ export function resolvePath<T = any>(
   }
 
   return { resolved: true, value: current }
+}
+
+/**
+ * Whether a path element is an index of the array, so non-index props such as 'length' never
+ * resolve. It also avoids mobx warnings about trying to access out of bounds indexes.
+ */
+function isArrayIndexOf(array: readonly unknown[], p: PathElement): boolean {
+  const index = +p
+  return Number.isInteger(index) && index >= 0 && index < array.length && p in array
+}
+
+/**
+ * Whether a getter is defined for a prop by the prototype chain of an object, below `Object.prototype`.
+ */
+function isInheritedGetter(obj: object, p: PathElement): boolean {
+  let proto = Object.getPrototypeOf(obj)
+  while (proto && proto !== Object.prototype) {
+    const descriptor = Object.getOwnPropertyDescriptor(proto, p)
+    if (descriptor) {
+      return descriptor.get !== undefined
+    }
+    proto = Object.getPrototypeOf(proto)
+  }
+  return false
 }
 
 /**
@@ -321,11 +346,8 @@ export function resolvePathCheckingIds<T = any>(
 
     const p = path[i]
 
-    // check just to avoid mobx warnings about trying to access out of bounds index
-    // (and only accept indexes, so non-index props such as 'length' never resolve)
     if (isArray(current)) {
-      const index = +p
-      if (!Number.isInteger(index) || index < 0 || index >= current.length || !(p in current)) {
+      if (!isArrayIndexOf(current, p)) {
         return { resolved: false }
       }
     } else if (!hasOwnProp(current, p)) {
