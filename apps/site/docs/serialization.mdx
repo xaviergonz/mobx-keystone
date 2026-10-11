@@ -237,7 +237,7 @@ A view runs as calling it in JavaScript would. Actions it calls run normally (mi
 { "target": { "$mobxKeystone": "pathRef", "v": { "path": ["point"] } }, "name": "fn::app/Point::length" }
 ```
 
-The library wraps the data in that class (creating the data model instance, or reusing it, as reading it in JavaScript would) and resolves the member as above, below the base data model class. This happens while the call is resolved, before `canCall`, since function fields only exist on an instance: the first time a data model is created over that data, its type check and `onLazyInit` run then. Data that the data model can't be created over, e.g. data failing the type check of its `tProp`s, fails with `WrongKind`; otherwise nothing checks that the data fits the data model, so a policy that cares checks `call.target`.
+The library wraps the data in that class (creating the data model instance, or reusing it, as reading it in JavaScript would) and resolves the member as above, below the base data model class. This happens while the call is resolved, before `canCall`, since function fields only exist on an instance: the first time a data model is created over that data, its type check and `onLazyInit` run then. The call's name picks the data model, so a caller can have any data model created over any data it can reference; keep `onLazyInit` free of effects a caller shouldn't be able to trigger (writing to the tree, subscribing, calling out). Data that the data model can't be created over, e.g. data failing the type check of its `tProp`s, fails with `WrongKind`; otherwise nothing checks that the data fits the data model, so a policy that cares checks `call.target`.
 
 ## Results
 
