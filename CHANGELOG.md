@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.4.0
 
 - New serialization API for sending values and calls as JSON (see the new "Serialization" docs page):
