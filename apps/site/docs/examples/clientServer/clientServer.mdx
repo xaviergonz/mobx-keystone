@@ -10,7 +10,7 @@ import appSource from "!!raw-loader!./app.tsx"
 import serverSource from "!!raw-loader!./server.ts"
 import appInstanceSource from "!!raw-loader!./appInstance.tsx"
 
-This example synchronizes two separate root stores via action capture and replay to simulate how two instances of an app talk to a server to stay in sync. It uses pessimistic updates: the local action is cancelled first, then run for real when the server tells the client to do so.
+This example synchronizes two separate root stores through a server to simulate how two instances of an app stay in sync: calls in, patches out (see [Serialization](../../serialization.mdx#replication-calls-in-patches-out)). Each client captures its local actions, encodes them with `defaultSerializer.encodeCall` and sends them to the server, which runs them with `applyCallAsync` and broadcasts the patches they produce, which every client applies. It uses pessimistic updates: the local action is cancelled first, and its effects arrive as the server's patches.
 
 :::info
 This example has an artificial delay to simulate network latency.

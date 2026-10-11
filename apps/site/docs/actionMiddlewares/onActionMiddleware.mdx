@@ -12,15 +12,15 @@ There are two kinds of possible listeners, `onStart` and `onFinish` listeners.
 - `onStart` listeners are called before the action executes and allow cancellation by returning a new result (either a return or a throw).
 - `onFinish` listeners are called after the action executes, have access to the action's actual return value and allow overriding by returning a new return value (which might be a return or a throw).
 
-The `ActionCall` passed to a listener is not directly serializable. Before storing or sending it, use `serializeActionCall`. Apply the serialized call with `applySerializedActionAndTrackNewModelIds` on the server or `applySerializedActionAndSyncNewModelIds` on clients, as shown in the [Client/Server Example](../examples/clientServer/clientServer.mdx).
+The `ActionCall` passed to a listener is not directly serializable. To store or send it, encode it with a [serializer](../serialization.mdx) (e.g. `defaultSerializer.encodeCall(root, actionCall)`), and run it on the other side with `decodeCall` and `applyCall` / `applyCallAsync`, as shown in the [Client/Server Example](../examples/clientServer/clientServer.mdx). Encode it in `onStart`, before the action runs, so its arguments are encoded against the tree the receiver has.
 
 It will return a disposer, which only needs to be called if you plan to early dispose of the middleware.
 
 ```ts
 const disposer = onActionMiddleware(myTodoList, {
   onStart(actionCall, actionContext) {
-    // we could serialize the action call and do something with it
-    const serializableActionCall = serializeActionCall(myTodoList, actionCall)
+    // we could encode the action call as JSON and do something with it
+    const encodedCall = defaultSerializer.encodeCall(getRoot(myTodoList), actionCall)
 
     // optionally cancel the action by throwing something
     return {
@@ -49,57 +49,3 @@ const disposer = onActionMiddleware(myTodoList, {
   },
 })
 ```
-
-Model ID synchronization uses the final positions and IDs of models after the action finishes. Models removed during that action do not receive ID overrides.
-
-## Action serialization with custom types as arguments
-
-Action serialization (via `serializeActionCall` and `deserializeActionCall`) supports many cases by default:
-
-- Primitives (including `undefined`, `bigint` and special `number` values `NaN`/`+Infinity`/`-Infinity`, but not `symbol`).
-- Tree nodes as paths if they are under the same root node as the model that holds the action being called.
-- Tree nodes as snapshots if not.
-- Arrays and observable arrays.
-- `Date` objects as timestamps.
-- Maps and observable maps.
-- Sets and observable sets.
-- Plain objects, observable or not.
-
-Sparse array arguments round-trip through JSON with missing entries represented as `undefined`, rather than `null`.
-
-However, you might want to serialize an action that passes your custom type as an argument. In this case you can register a custom action serializer:
-
-```ts
-const myTypeSerializer: ActionCallArgumentSerializer<MyType, JsonCompatibleType> = {
-  id: "someSerializerUniqueId",
-
-  serialize(valueToSerialize, serializeChild, targetRoot) {
-    if (valueToSerialize instanceof MyType) {
-      return someJsonCompatibleValue
-    }
-    // let other serializer handle it
-    return cannotSerialize
-  },
-
-  deserialize(someJsonCompatibleValue, deserializeChild, targetRoot) {
-    // return back `MyType` from the JSON compatible value
-  },
-}
-
-registerActionCallArgumentSerializer(myTypeSerializer)
-```
-
-In this case, whenever an instance of `MyType` is found as an action argument, then (after using `serializeActionCall` on the action call) the action argument will be serialized as a `SerializedActionCallArgument`:
-
-```ts
-{
-  $mobxKeystoneSerializer: "someSerializerUniqueId",
-  value: someJsonCompatibleValue
-}
-```
-
-Likewise, using `deserializeActionCall` will transform it back to an instance of `MyType`.
-
-Serializer registration changes made inside a serializer take effect on subsequent serialization attempts. The current attempt continues with the serializers registered when it started.
-
-To change a custom serializer's ID, dispose its existing registration and register it again. A disposer always removes the registration it originally created.

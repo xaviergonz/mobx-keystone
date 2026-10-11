@@ -12,12 +12,20 @@ import { copyFunctionMetadata } from "../utils/decorators"
  */
 type TargetedAction = AnyFunction
 
-const standaloneActionRegistry = new Map<string, TargetedAction>()
+/**
+ * @internal
+ */
+export interface StandaloneActionEntry {
+  readonly fn: TargetedAction
+  readonly isFlow: boolean
+}
+
+const standaloneActionRegistry = new Map<string, StandaloneActionEntry>()
 
 /**
  * @internal
  */
-export function getStandaloneAction(actionName: string) {
+export function getStandaloneAction(actionName: string): StandaloneActionEntry | undefined {
   return standaloneActionRegistry.get(actionName)
 }
 
@@ -59,6 +67,6 @@ export function addStandaloneAction(fullActionName: string, fn: TargetedAction, 
   // preserve user-provided metadata without leaking internal action/flow markers.
   copyFunctionMetadata(fn, finalAction)
 
-  standaloneActionRegistry.set(fullActionName, finalAction)
+  standaloneActionRegistry.set(fullActionName, { fn: finalAction, isFlow })
   return finalAction
 }

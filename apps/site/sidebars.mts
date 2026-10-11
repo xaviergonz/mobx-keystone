@@ -41,6 +41,7 @@ const sidebars: SidebarsConfig = {
         "actionMiddlewares/customMiddlewares",
       ],
     },
+    "serialization",
     "drafts",
     "sandboxes",
 
@@ -58,6 +59,10 @@ const sidebars: SidebarsConfig = {
     section("Coming from MST"),
     doc("mstComparison", "Comparison"),
     doc("mstMigrationGuide", "Migration Guide"),
+
+    section("Deprecated"),
+    doc("deprecated/actionSerialization", "Action Serialization"),
+    doc("deprecated/transformsAndCollectionModels", "Property Transforms and Collection Models"),
   ],
 }
 

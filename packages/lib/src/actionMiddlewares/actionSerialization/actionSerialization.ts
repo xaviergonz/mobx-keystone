@@ -24,6 +24,8 @@ const serializersMap = new Map<string, ActionCallArgumentSerializer<any, any>>()
  *
  * @param serializer Serializer to register.
  * @returns A disposer to unregister the serializer.
+ *
+ * @deprecated Use a `ValueSerializer` in the list passed to `createSerializer` instead.
  */
 export function registerActionCallArgumentSerializer(
   serializer: ActionCallArgumentSerializer<any, any>
@@ -54,6 +56,8 @@ export function registerActionCallArgumentSerializer(
 
 /**
  * Serialized action call argument.
+ *
+ * @deprecated Replaced by the marked value `{ "$mobxKeystone": tag, "v": payload }` of `createSerializer`.
  */
 export interface SerializedActionCallArgument {
   /**
@@ -68,6 +72,8 @@ export interface SerializedActionCallArgument {
 
 /**
  * A serialized action call.
+ *
+ * @deprecated Use `EncodedCall` instead.
  */
 export interface SerializedActionCall extends Omit<ActionCall, "serialized"> {
   /**
@@ -99,6 +105,8 @@ export interface SerializedActionCall extends Omit<ActionCall, "serialized"> {
  * @param argValue Argument value to be transformed into its serializable form.
  * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The serializable form of the passed value.
+ *
+ * @deprecated Use `serializer.encodeValue(root, value)` instead (e.g. with `defaultSerializer`).
  */
 export function serializeActionCallArgument(
   argValue: any,
@@ -137,6 +145,8 @@ export function serializeActionCallArgument(
  * @param actionCall Action call to convert.
  * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The serializable action call.
+ *
+ * @deprecated Use `serializer.encodeCall(root, call)` instead (e.g. with `defaultSerializer`).
  */
 export function serializeActionCall(
   actionCall: ActionCall,
@@ -165,6 +175,8 @@ export function serializeActionCall(
  * @param argValue Argument value to be transformed into its deserialized form.
  * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The deserialized form of the passed value.
+ *
+ * @deprecated Use `serializer.decodeValue(root, json)` instead (e.g. with `defaultSerializer`).
  */
 export function deserializeActionCallArgument(
   argValue: SerializedActionCallArgument | JSONPrimitiveValue,
@@ -200,6 +212,8 @@ export function deserializeActionCallArgument(
  * @param actionCall Action call to convert.
  * @param [targetRoot] Target root node of the model where this action is being performed.
  * @returns The deserialized action call.
+ *
+ * @deprecated Use `serializer.decodeCall(root, json)` instead (e.g. with `defaultSerializer`), then `applyCall`.
  */
 export function deserializeActionCall(
   actionCall: SerializedActionCall,

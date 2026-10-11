@@ -415,7 +415,7 @@ class Person extends ExtendedModel(Named, { age: prop<number>() }) {}
 
 - `onPatch`/`applyPatch` becomes `onPatches`/`applyPatches`.
 - `onAction` becomes `onActionMiddleware`.
-- If you serialize actions over the wire, use `serializeActionCall`/`deserializeActionCall` and `applySerializedActionAndTrackNewModelIds`/`applySerializedActionAndSyncNewModelIds` as documented in [onActionMiddleware](./actionMiddlewares/onActionMiddleware.mdx).
+- If you send actions over the wire, encode them with a [serializer](./serialization.mdx) (`defaultSerializer.encodeCall` / `decodeCall`) and run them with `applyCall` / `applyCallAsync`; to keep replicas in sync, broadcast the patches the server produces and apply them with `applyPatches`.
 
 ## Appendix: API mapping cheat sheet
 
@@ -442,7 +442,7 @@ class Person extends ExtendedModel(Named, { age: prop<number>() }) {}
 | `types.map(T)` | `tProp(types.mapFromObject(T))`, `ObjectMap`, `asMap`, or `prop<Record<string, T>>(() => ({}))` | Prefer codecs when you want a typed `Map` runtime view over JSON-safe snapshots. Wrap with `types.skipCheck(...)` to disable runtime validation. |
 | `types.Date` | `tProp(types.dateAsTimestamp)` or `tProp(types.dateAsIsoString)` | Codec types include runtime validation. Use `types.skipCheck(...)` to opt out of validation while keeping conversions. |
 | `types.frozen(...)` | `frozen(data)` and/or `tProp(types.frozen(...))` | Preserve immutability + JSON-compat behavior. |
-| `types.custom(...)` | `types.codec(...)` | Prefer codecs for reusable typed runtime/snapshot conversions. Use `types.skipCheck(...)` to disable validation. Use `.withTransform(...)` for prop-local transforms. |
+| `types.custom(...)` | `types.codec(...)` | Prefer codecs for reusable typed runtime/snapshot conversions. Use `types.skipCheck(...)` to disable validation. |
 
 ### Runtime type checking (only needed if using `tProp`)
 

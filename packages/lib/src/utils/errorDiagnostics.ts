@@ -63,11 +63,16 @@ export function getCurrentErrorDiagnosticsContext(): ErrorDiagnosticsContext | u
  * @internal
  */
 export function runWithErrorDiagnosticsContext<T>(fn: () => T): T {
-  const existing = getCurrentErrorDiagnosticsContext()
-  if (existing) {
-    return fn()
-  }
+  return getCurrentErrorDiagnosticsContext() ? fn() : runWithNewErrorDiagnosticsContext(fn)
+}
 
+/**
+ * @internal
+ *
+ * Like `runWithErrorDiagnosticsContext`, but always with a new context, so paths start empty
+ * even when called while another context is active.
+ */
+export function runWithNewErrorDiagnosticsContext<T>(fn: () => T): T {
   const ctx = new ErrorDiagnosticsContext()
   errorDiagnosticsContextStack.push(ctx)
   try {

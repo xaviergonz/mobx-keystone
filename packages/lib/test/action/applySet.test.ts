@@ -1,4 +1,16 @@
-import { addActionMiddleware, applyAction, applySet, BuiltInAction, Model, prop } from "../../src"
+import {
+  addActionMiddleware,
+  applyAction,
+  applySerializedActionAndTrackNewModelIds,
+  applySet,
+  BuiltInAction,
+  getSnapshot,
+  Model,
+  modelAction,
+  prop,
+  serializeActionCallArgument,
+} from "../../src"
+import { getMobxVersion } from "../../src/utils"
 import { autoDispose, testModel } from "../utils"
 
 @testModel("P")
@@ -198,4 +210,70 @@ test("applySet", () => {
 
   applySet(p.obj!, "b", 3)
   expect(p.obj!.b).toBe(3)
+})
+
+test("applySet refuses '__proto__' on models", () => {
+  const p = new P({})
+
+  expect(() => applySet(p, "__proto__" as any, { y: 1 })).toThrow(
+    "applySet cannot set '__proto__' on a model"
+  )
+  expect(p).toBeInstanceOf(P)
+
+  // also through a serialized call
+  expect(() =>
+    applySerializedActionAndTrackNewModelIds(p, {
+      serialized: true,
+      actionName: BuiltInAction.ApplySet,
+      targetPath: [],
+      targetPathIds: [],
+      args: ["__proto__", serializeActionCallArgument({ evil: 1 }, p) as any],
+    })
+  ).toThrow("applySet cannot set '__proto__' on a model")
+  expect(p).toBeInstanceOf(P)
+  expect((p as any).evil).toBeUndefined()
+})
+
+// MobX 4 cannot set a '__proto__' key on observable objects
+test.skipIf(getMobxVersion() === 4)(
+  "applySet keeps '__proto__' as a data key of plain objects",
+  () => {
+    const p = new P({ obj: {} })
+
+    applySet(p.obj!, "__proto__", 1)
+    expect(Object.hasOwn(p.obj!, "__proto__")).toBe(true)
+    expect(Object.getPrototypeOf(p.obj)).toBe(Object.prototype)
+    expect(getSnapshot(p.obj)).toEqual(JSON.parse('{"__proto__":1}'))
+  }
+)
+
+test("applySet refuses to shadow inherited methods of models", () => {
+  @testModel("ApplySetShadowing")
+  class S extends Model({ y: prop(0) }) {
+    volatile = 0
+
+    @modelAction
+    setY(y: number) {
+      this.y = y
+    }
+  }
+
+  const p = new S({})
+
+  for (const fieldName of ["setY", "constructor", "toString", "hasOwnProperty"]) {
+    expect(() => applySet(p, fieldName as any, 1)).toThrow(
+      `applySet cannot set '${fieldName}' on a model`
+    )
+    expect(Object.hasOwn(p, fieldName)).toBe(false)
+  }
+  p.setY(3)
+  expect(p.y).toBe(3)
+
+  // props, own fields and new fields can still be set
+  applySet(p, "y", 4)
+  expect(p.y).toBe(4)
+  applySet(p, "volatile", 5)
+  expect(p.volatile).toBe(5)
+  applySet(p, "newField" as any, 6)
+  expect((p as any).newField).toBe(6)
 })
