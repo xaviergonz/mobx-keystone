@@ -1,0 +1,313 @@
+---
+title: Serialization
+slug: /serialization
+---
+
+## Overview
+
+Snapshots copy tree data. Sometimes you need something else: a value that _refers_ to nodes of a tree rather than copying them, or a _call_ to an action (or a [view](#views)) that another machine, a worker or an LLM tool layer can send as JSON and have run on its own copy of the tree.
+
+A **serializer** does that. It encodes values and calls as JSON against a tree, and decodes them back against a tree:
+
+```ts
+import { applyCall, defaultSerializer } from "mobx-keystone"
+
+// sending side
+const json = defaultSerializer.encodeCall(rootStore, {
+  target: rootStore.todos[0],
+  name: "setDone",
+  args: [true],
+})
+// {
+//   "target": { "$mobxKeystone": "pathRef", "v": { "path": ["todos", 0], "ids": [null, "t1"] } },
+//   "name": "setDone",
+//   "args": [true]
+// }
+
+// receiving side
+const call = defaultSerializer.decodeCall(rootStore, json) // resolved, nothing run yet
+const result = applyCall(rootStore, call) // runs it
+const reply = defaultSerializer.encodeValue(rootStore, result)
+```
+
+Every operation takes the root of the tree as its first argument (it must be the root itself, as `getRoot(node)` returns it; any other node throws), so one serializer serves many trees.
+
+## The format
+
+Plain JSON goes as is. Anything else is a marked value, `{ "$mobxKeystone": tag, "v": payload }` (`v` is left out when there is nothing to carry):
+
+| Value                                         | Encoded as                                                                               |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| A node of the tree (with a reference serializer) | `{ "$mobxKeystone": "pathRef", "v": { "path": ["todos", 0], "ids": [null, "t1"] } }` |
+| A model or frozen data outside the tree       | Its snapshot (snapshots mark themselves with `$modelType` / `$frozen`)                   |
+| A data model instance                         | `{ "$mobxKeystone": "dataModel", "v": { "type": "app/Point", "data": … } }` (its data encoded, so data of the tree goes as a reference) |
+| `Date`                                        | `{ "$mobxKeystone": "date", "v": "2024-01-02T00:00:00.000Z" }` (an invalid date as `null`; a timestamp is accepted when decoding) |
+| `Map` / `Set` (observable or not)             | `{ "$mobxKeystone": "map", "v": [[key, value], …] }` / `{ "$mobxKeystone": "set", "v": […] }` |
+| `NaN`, `Infinity`, `-Infinity`                | `{ "$mobxKeystone": "number", "v": "NaN" }`                                              |
+| `bigint`                                      | `{ "$mobxKeystone": "bigint", "v": "123456789012345678901234567890" }`                   |
+| `undefined`                                   | `{ "$mobxKeystone": "undefined" }` (object properties keep their key)                    |
+| A plain object with a reserved key            | `{ "$mobxKeystone": "object", "v": { … } }`                                              |
+
+- **Nothing is lost silently.** A function, a symbol, an `Error` or an instance of a class no serializer handles fails with a `CallError` (`CannotEncode`) and the path where it is.
+- **Reserved keys** are `$mobxKeystone`, `$modelType` and `$frozen`; a plain object that has one is escaped, so it comes back unchanged.
+- **Snapshots are opaque.** They are decoded whole with `fromSnapshot`, into new instances; nothing inside them is read as a marker, so frozen data comes back unchanged.
+- **Plain objects, arrays, maps and sets are walked**, so every value inside goes through the serializer too: `{ todo, index: 2 }` becomes `{ "todo": { "$mobxKeystone": "pathRef", … }, "index": 2 }`. Cycles fail with `CannotEncode`.
+- **Decoding is safe for untrusted JSON**: values nested more than 1000 levels deep fail with `BadArgument` rather than overflowing the stack.
+
+## Serializers
+
+A **value serializer** handles one kind of value; `createSerializer` composes a list of them into a serializer:
+
+```ts
+interface ValueSerializer<T, J extends JsonValue | undefined> {
+  readonly tag: string // unique, e.g. "geom/Polygon"
+  is(value: unknown, ctx: EncodeContext): value is T
+  encode(value: T, ctx: EncodeContext): J // ctx.encode(child) for nested values
+  decode(json: J, ctx: DecodeContext): T // ctx.decode(child) for nested values
+  claimsTarget?(value: object, ctx: EncodeContext): boolean // only for reference serializers
+}
+```
+
+```ts
+const polygonSerializer: ValueSerializer<Polygon, JsonValue[]> = {
+  tag: "geom/Polygon",
+  is: (value): value is Polygon => value instanceof Polygon,
+  encode: (polygon, ctx) => polygon.points.map((p, i) => ctx.encode(p, i)),
+  decode: (json, ctx) => new Polygon(json.map((p, i) => ctx.decode(p, i) as Point)),
+}
+
+const serializer = createSerializer({
+  serializers: [...defaultSerializer.serializers, polygonSerializer],
+})
+```
+
+- **One ordered list.** Encoding takes the first serializer whose `is` accepts the value, then the built-ins, then plain JSON; decoding picks the serializer by tag.
+- **The built-ins always come last**, in the order of the `builtinSerializers` record: `snapshot`, `dataModel`, `date`, `map`, `set`, `number`, `bigint` and `undefined`. `builtins: false` leaves them out, for a serializer that must refuse anything unknown; pick the ones you want from the record, e.g. `createSerializer({ serializers: [builtinSerializers.date], builtins: false })`.
+- **`defaultSerializer`** is `createSerializer({ serializers: [pathRefs()] })`.
+- **A serializer exposes its list** (without the built-ins) as `.serializers`, so it can be extended as above.
+- **Tags are unique** within a serializer, and `object` is reserved (it escapes plain objects with reserved keys); `createSerializer` throws otherwise.
+- `ctx.encode(value, key)` / `ctx.decode(json, key)` take an optional key, used for the path of errors.
+- An error thrown by a value serializer is wrapped in a `CallError` (`CannotEncode` when encoding, `BadArgument` when decoding) with the original error as `cause`. A `CallError` it throws (e.g. `new CallError({ code: CallErrorCode.NotFound, message })`) passes through as it is.
+
+## References
+
+How nodes of the tree are referenced is the main choice a serializer makes, so references are never built in: they are serializers in the list. Without one, every model goes as a snapshot. Two come with the library, with different tags, so both can be in one list:
+
+- **`pathRefs()`**, tag `pathRef`, references any node of the tree (including tree arrays and plain objects) by its path from the root, checking the ids of the models along it: `{ "path": ["todos", 0], "ids": [null, "t1"] }`. `ids` is optional when decoding. Untrusted paths are safe: array steps must be in-bounds indexes and object steps own properties, so `length`, `__proto__` or `constructor` never resolve, and only tree nodes are accepted at the end.
+- **`idRefs()`**, tag `idRef`, references models with an id by their type and id: `{ "type": "app/Todo", "id": "t1" }`, resolved like `resolveId` and checked against the type. Use it for anything kept for later, since paths are only valid against the tree they were encoded for.
+
+A node of another tree, or a detached one, isn't referenced: as a value, it falls through like a declined node (see below); as a call target, it fails with `NotFound`. A reference that doesn't resolve fails with `NotFound`.
+
+**Which nodes become references** is each reference serializer's `when` option, asked for every node it could reference. A node it declines falls through the list: a model to its snapshot, a tree array or plain object to being walked.
+
+```ts
+pathRefs() // default: (node, { isValueType }) => !isValueType
+pathRefs({ when: (node, { isModel, isValueType }) => isModel && !isValueType }) // models only
+pathRefs({ when: (node, { isValueType }) => !isValueType || node instanceof BigShape })
+```
+
+- **Value-type models** (`Model({...}, { valueType: true })`) are declined by default: the library already treats them as values, cloning them when attached.
+- **Models only** suits LLMs, for whom a path to an array says nothing about its contents: the array is walked, so each model in it is a reference of its own.
+
+```ts
+const llmSerializer = createSerializer({
+  serializers: [idRefs(), pathRefs({ when: (node, { isModel, isValueType }) => isModel && !isValueType })],
+})
+```
+
+**Your own reference serializer**, e.g. one resolved through an index of your app, is a value serializer that encodes nodes of `ctx.root` and decodes them back from it. To reference call targets too, give it `claimsTarget(node, ctx)`: unlike `is`, it must ignore any `when`-like choice, since the call must run on the node itself. A call's target goes through the first serializer whose `claimsTarget` accepts it, and only serializers with `claimsTarget` decode targets; whatever they decode must be a node of the tree, or the call fails with `NotFound`.
+
+## Calls
+
+```ts
+interface EncodedCall {
+  target: JsonValue // a reference; for a standalone action, its first argument
+  name: string
+  args?: JsonValue[] // left out to read a getter
+}
+
+interface Call {
+  target: object // the node itself
+  name: string
+  args?: unknown[] // for a standalone action, without the target
+}
+
+interface ResolvedCall extends Readonly<Call> {
+  readonly kind: CallKind // what `name` resolved to
+  readonly isFlow: boolean // needs `applyCallAsync`
+  readonly rawArgs?: JsonValue[] // the JSON args, only on calls from `decodeCall`
+}
+```
+
+- **`encodeCall(root, call)`** takes a `Call`, or an `ActionCall` as `onActionMiddleware` gives it. The target always goes as a reference (if no reference serializer in the list claims it, as a full `pathRef`, which every serializer decodes as a target). Standalone actions send their target once: as the target, not again as the first argument.
+- **Encode a call before it runs**, e.g. in `onActionMiddleware`'s `onStart`: arguments must be encoded against the tree the receiver has.
+- **`decodeCall(root, json)`** resolves the target and the name, and runs nothing. The arguments are decoded when `args` is first read (once), so a call refused on its name or target never decodes them.
+- **`applyCall(root, call, options?)`** runs a decoded call, or a `Call` built in process, and returns its result as is. It is synchronous and refuses flows; **`applyCallAsync`** accepts every call and always returns a promise (every error is a rejection):
+
+```ts
+const result = call.isFlow ? await applyCallAsync(root, call) : applyCall(root, call)
+```
+
+`applyAction` keeps working as before for `ActionCall`s: it runs any action, from any node, without a policy.
+
+### What a name resolves to
+
+The caller only names what to call; the library classifies it, in this order, and sets `call.kind`:
+
+1. built-in actions (`$$applySnapshot`, `$$applyPatches`, `$$detach`, `$$applySet`, `$$applyDelete`, `$$applyMethodCall`): `CallKind.BuiltInAction`;
+2. hooks (`$$onInit`, …): never callable;
+3. data model members, named `fn::<data model name>::<member>`: an action is `CallKind.ModelAction`, anything else a `CallKind.View`;
+4. standalone actions: `CallKind.StandardAction` for the library's `arrayActions` / `objectActions`, else `CallKind.StandaloneAction`;
+5. the target's `@modelAction`s and `@modelFlow`s (including `withSetter()` setters): `CallKind.ModelAction`;
+6. a method, getter or function field of the target's own classes: `CallKind.View` (see [Views](#views)).
+
+Anything else fails with `UnknownName`, before `canCall` runs.
+
+### Who may call what
+
+`canCall` gets the resolved call before anything runs, and decides whether it may:
+
+```ts
+applyCall(root, call, {
+  canCall: (call) => call.kind === CallKind.ModelAction && isAllowed(currentUser, call.target, call.name),
+})
+```
+
+- **The default, `allowModelActions`, allows model actions only.** Built-in actions write anything, standard actions edit any array or object, standalone actions take any node as their target, and views run methods; each must be allowed explicitly. `allowAnyCall` allows everything, for calls from a source you trust.
+- **Returning false** throws a `CallError` with code `Forbidden`; an error `canCall` throws passes through.
+- **Cheap checks first**: `kind`, `name`, `target` and `rawArgs` cost nothing; reading `args` decodes the arguments.
+- `canCall` only sees the top-level call; actions that the call runs are ordinary code.
+
+## Views
+
+Besides actions, a [call](#calls) can read a getter or call a method of a model: a **view**. Views let a remote caller, such as an LLM tool layer, query the tree with the same serializer it uses to call actions. No decorator is needed: any method or getter of the model's own classes can be called, once `canCall` allows `CallKind.View` (the default refuses it, since methods may have effects outside the tree).
+
+```ts
+@model("app/Board")
+class Board extends Model({ cards: prop<Card[]>(() => []) }) {
+  findCards(text: string): Card[] {
+    return this.cards.filter((c) => c.text.includes(text))
+  }
+
+  get doneCount(): number {
+    return this.cards.filter((c) => c.done).length
+  }
+}
+
+// the LLM tool layer sends
+const json = llmSerializer.encodeCall(root, { target: board, name: "findCards", args: ["urgent"] })
+// the server runs it
+const call = llmSerializer.decodeCall(root, json)
+const result = applyCall(root, call, {
+  canCall: (call) => call.kind === CallKind.View || call.kind === CallKind.ModelAction,
+})
+llmSerializer.encodeValue(root, result)
+// → [{ "$mobxKeystone": "idRef", "v": { "type": "app/Card", "id": "c4" } }, …]
+```
+
+(`Card` has an `idProp`, so `idRefs()` references it.)
+
+### What resolves as a view
+
+- A method or getter on the target's prototype chain _below_ the library's base model class, so nothing from `Object.prototype` or mobx-keystone (`$`, `typeCheck`, `toString`, …).
+- Model props, which are getters on the model class (`{ "name": "cards" }` reads them).
+- Own string-keyed instance fields holding a function, so arrow-function methods (`findCards = (text) => …`) work, and own getters (such as computeds MobX defines on the instance).
+- Never an action (actions resolve first, so a name is one or the other), `constructor`, a lifecycle hook (`onInit`, `onAttachedToRootStore`, `onLazyInit`, …) or a symbol key.
+
+Since every function stored on an instance matches (e.g. a callback passed in, or a disposer kept from `onAttachedToRootStore`), keep such functions under a symbol key, or leave them out in `canCall`.
+
+### Reads and calls
+
+As in JavaScript: without `args`, a view call reads a getter (`{ "name": "doneCount" }`); with `args`, even `[]`, it calls a method. Reading a method or calling a getter fails with `WrongKind`.
+
+### One batch, synchronous
+
+A view runs in one MobX batch, so a computed it reads stays cached until the batch ends, even if nothing observes it: read many times, it is computed once (unless something it depends on changes in between).
+
+Views are synchronous. A view that returns a promise fails with `WrongKind`, but only once it has returned, so it has already run (and started its async work); async reads belong in a flow.
+
+### No read-only guard
+
+A view runs as calling it in JavaScript would. Actions it calls run normally (middlewares, `onActionMiddleware`, patches) and aren't checked by `canCall`. The tree already refuses changes outside actions, so actions are the only way a view changes it.
+
+### Data models
+
+[Data models](./dataModels.mdx) work the way their actions already do. A data model isn't a tree node, so the call targets the data it wraps and names the member with the data model's registered name:
+
+```json
+{ "target": { "$mobxKeystone": "pathRef", "v": { "path": ["point"] } }, "name": "fn::app/Point::length" }
+```
+
+The library wraps the data in that class (creating the data model instance, or reusing it, as reading it in JavaScript would) and resolves the member as above, below the base data model class. Data that the data model can't be created over, e.g. data failing the type check of its `tProp`s, fails with `WrongKind`; otherwise nothing checks that the data fits the data model, so a policy that cares checks `call.target`.
+
+## Results
+
+`applyCall` returns the result as is; encode it with the serializer that decoded the call, so references in it can go straight back into later calls:
+
+```ts
+reply(serializer.encodeValue(root, result))
+```
+
+A model the action created and attached comes back as a reference; one it didn't attach as a snapshot, id included. A client decodes the result after applying the patches the call produced, so its tree matches the one the result was encoded against.
+
+## Errors
+
+Errors about the call itself are `CallError`s (a `MobxKeystoneError`), with a `code` (`CallErrorCode`), a `path` (e.g. `["args", 1, "todos", 3]`) and, when another error caused it, a `cause`:
+
+| Code           | When                                                                                     |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| `NotFound`     | The target, or a reference in the arguments, doesn't resolve                             |
+| `UnknownName`  | Nothing by that name can be called on the target                                         |
+| `WrongKind`    | The name can't be used as asked: a flow passed to `applyCall`, an action or method without `args`, a getter with them, a view returning a promise, a data model member on data the data model can't be created over |
+| `Forbidden`    | Refused by `canCall`                                                                      |
+| `BadArgument`  | A value failed to decode                                                                 |
+| `CannotEncode` | A value can't be encoded                                                                 |
+
+Errors thrown by the action or view itself pass through unwrapped. A `CallError` describes the caller's own input, so it is safe to send back with `toJSON()`, which leaves out what may hold the server's data: the message of its `cause`, and for `CannotEncode`, the preview of the value. Anything else came from the app:
+
+```ts
+try {
+  const call = serializer.decodeCall(root, json)
+  const opts = { canCall: serverPolicy }
+  const result = call.isFlow ? await applyCallAsync(root, call, opts) : applyCall(root, call, opts)
+  reply({ ok: serializer.encodeValue(root, result) })
+} catch (e) {
+  if (e instanceof CallError) {
+    reply({ error: e.toJSON() })
+  } else {
+    log(e)
+    reply({ error: { message: "the call failed" } })
+  }
+}
+```
+
+## Replication: calls in, patches out
+
+To keep replicas of a tree in sync with a server, send **calls in** and **patches out**:
+
+```ts
+// server: broadcast every change, in order, tagged with the call that made it
+onPatches(root, (patches) => {
+  const action = getCurrentActionContext()?.rootContext.actionName // for display only
+  broadcast({ patches, action })
+})
+
+// server: authorize and run the calls clients send, flows included
+const result = await applyCallAsync(root, defaultSerializer.decodeCall(root, json), {
+  canCall: serverPolicy,
+})
+reply(defaultSerializer.encodeValue(root, result))
+
+// every replica, the sender included
+server.onMessage(({ patches }) => applyPatches(root, patches))
+```
+
+- **Calls in**, because the server must know what a client wants in order to authorize it.
+- **Patches out**, because replicas then end up exactly as the server, whatever the action did: `Math.random()`, `Date.now()`, generated ids and reads from outside the tree need no determinism, and the steps of a flow arrive in the order they interleaved with other calls.
+- Patches must arrive in order and without gaps. Bulk actions send more than a call would.
+
+The [Client/Server example](./examples/clientServer/clientServer.mdx) shows it end to end.
+
+## Beyond calls
+
+Outside a call, a serializer is useful for values that refer to nodes, or hold what a snapshot can't: a selection or other UI state in a URL (`{ selected: [todo1, todo2], since: new Date() }`), or a message to another window or worker about "this todo". Anything kept for later should use `idRefs()`, since paths are only valid against the tree they were encoded for. Tree data itself is saved with snapshots.

@@ -1,7 +1,14 @@
+/**
+ * Returned by an `ActionCallArgumentSerializer` that can't serialize a value.
+ *
+ * @deprecated Use `ValueSerializer.is` returning false instead.
+ */
 export const cannotSerialize = Symbol("cannotSerialize")
 
 /**
  * Serializer of action call arguments.
+ *
+ * @deprecated Use `ValueSerializer` instead.
  */
 export interface ActionCallArgumentSerializer<TOriginal, TSerialized> {
   /**

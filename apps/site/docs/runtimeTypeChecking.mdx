@@ -137,8 +137,7 @@ const urlType = types.codec({
 ```
 
 Codecs are a typed-system feature. Use them with `types.*`, `tProp(...)`, `typeCheck(...)`, typed `fromSnapshot(...)`, and typed `getSnapshot(...)`.
-For plain `prop(...)` or one-off property-local transforms, keep using `.withTransform(...)`.
-See [Maps, Sets, Dates, BigInt](/maps-sets-dates) for guidance on when to use codecs vs. property transforms.
+Property transforms (`.withTransform(...)`) are deprecated; see [Property Transforms and Collection Models (deprecated)](./deprecated/transformsAndCollectionModels.mdx).
 
 ### `types.nonEmptyString`
 

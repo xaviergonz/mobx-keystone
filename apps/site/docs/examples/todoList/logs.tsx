@@ -5,8 +5,11 @@ import { TodoList } from "./store"
 
 // this is just for the client/server demo
 export const cancelledActionSymbol = Symbol("cancelledAction")
+export const serverActionNameSymbol = Symbol("serverActionName")
 interface ExtendedActionCall extends ActionCall {
   cancelled: boolean
+  // for an action that applied patches from the server, the server action that produced them
+  serverActionName: string | undefined
 }
 
 export const LogsView = observer((props: { rootStore: TodoList }) => {
@@ -30,6 +33,7 @@ export const LogsView = observer((props: { rootStore: TodoList }) => {
         const extendedActionCall: ExtendedActionCall = {
           ...actionCall,
           cancelled: !!ctx.data[cancelledActionSymbol],
+          serverActionName: ctx.data[serverActionNameSymbol] as string | undefined,
         }
         data.addAction(extendedActionCall)
       },
@@ -73,6 +77,17 @@ export const LogsView = observer((props: { rootStore: TodoList }) => {
 
 function ActionCallToText(props: { actionCall: ExtendedActionCall }) {
   const actionCall = props.actionCall
+
+  if (actionCall.serverActionName !== undefined) {
+    return (
+      <>
+        <span>{actionCall.serverActionName}</span>{" "}
+        <span>(run on the server, applied as patches)</span>
+        <br />
+        <br />
+      </>
+    )
+  }
 
   const args = actionCall.args.map((arg) => JSON.stringify(arg)).join(", ")
   const path = actionCall.targetPath.join("/")

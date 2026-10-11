@@ -1,0 +1,169 @@
+---
+title: Action Serialization (deprecated)
+slug: /deprecated/action-serialization
+---
+
+:::warning
+The action serialization API (`serializeActionCall`, `applySerializedActionAndTrackNewModelIds` and the rest) is deprecated in favor of [serializers](../serialization.mdx) and will be removed in the next major version. It keeps working unchanged until then (same format, global serializer registry and allow-everything behavior). [Moving over](#moving-over) lists the replacement of each export and how to migrate.
+:::
+
+## Moving over
+
+Each deprecated export and its replacement:
+
+| Deprecated                                                         | Replacement                                                                     |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `serializeActionCall(call, root)`                                  | `serializer.encodeCall(root, call)`                                             |
+| `deserializeActionCall(call, root)`                                | `serializer.decodeCall(root, json)`                                             |
+| `serializeActionCallArgument(value, root)`                         | `serializer.encodeValue(root, value)`                                           |
+| `deserializeActionCallArgument(value, root)`                       | `serializer.decodeValue(root, json)`                                            |
+| `applySerializedActionAndTrackNewModelIds(root, call)`             | `applyCall` / `applyCallAsync` on the server, which broadcasts patches          |
+| `applySerializedActionAndSyncNewModelIds(root, call)`              | `applyPatches` on the patches the server broadcasts                             |
+| `registerActionCallArgumentSerializer(serializer)`                 | A `ValueSerializer` in the list passed to `createSerializer`                    |
+| `ActionCallArgumentSerializer`                                     | `ValueSerializer`                                                               |
+| `cannotSerialize`                                                  | `ValueSerializer.is` returning `false`                                          |
+| `SerializedActionCall`, `SerializedActionCallWithModelIdOverrides` | `EncodedCall`; id overrides aren't needed when replicas apply patches           |
+| `SerializedActionCallArgument`                                     | The marked value `{ "$mobxKeystone": tag, "v": … }`                             |
+| `ActionCall.serialized`                                            | Not needed: a `Call` is never serialized, an `EncodedCall` always is            |
+
+`applyAction` and `ActionCall` are not deprecated.
+
+### Steps
+
+- **Servers:** `applyCall` only allows model actions by default, so a server that accepted built-in, standard or standalone action calls must say so in `canCall` (`allowAnyCall` is the drop-in while it decides).
+- **The root moves to the first argument:** the old functions took it last (`serializeActionCall(call, root)`), the new ones take it first, like the rest of the library.
+- **Replication changes shape:** replicas apply the patches the server broadcasts instead of replaying calls with model id overrides. See [Replication](../serialization.mdx#replication-calls-in-patches-out) and the code below.
+- **Old and new side by side:** a receiver can tell the formats apart by shape (`serialized: true` and `actionName`, or `target` and `name`) while peers upgrade. Stored old calls can be applied with the deprecated functions, or converted once with `serializer.encodeCall(root, deserializeActionCall(old, root))`.
+- **Custom serializers** become `ValueSerializer`s: `id` becomes `tag`, returning `cannotSerialize` becomes `is` returning `false`, and `serializeChild` / `deserializeChild` become `ctx.encode` / `ctx.decode`.
+
+```ts
+// before
+const myTypeSerializer: ActionCallArgumentSerializer<MyType, string> = {
+  id: "myType",
+  serialize: (value) => (value instanceof MyType ? value.toString() : cannotSerialize),
+  deserialize: (json) => MyType.parse(json),
+}
+registerActionCallArgumentSerializer(myTypeSerializer)
+
+// after
+const myTypeSerializer: ValueSerializer<MyType, string> = {
+  tag: "myType",
+  is: (value): value is MyType => value instanceof MyType,
+  encode: (value) => value.toString(),
+  decode: (json) => MyType.parse(json),
+}
+const serializer = createSerializer({
+  serializers: [...defaultSerializer.serializers, myTypeSerializer],
+})
+```
+
+### Client/server, before and after
+
+```ts
+// before: the server replays calls and tracks new model ids, clients replay them too
+// client
+onActionMiddleware(rootStore, {
+  onStart(actionCall) {
+    if (!serverAction) {
+      server.send(serializeActionCall(actionCall, rootStore))
+      return { result: ActionTrackingResult.Return, value: undefined }
+    }
+  },
+})
+server.onMessage((call) => applySerializedActionAndSyncNewModelIds(rootStore, call))
+
+// server
+const { serializedActionCall } = applySerializedActionAndTrackNewModelIds(serverStore, call)
+broadcast(serializedActionCall)
+```
+
+```ts
+// after: calls in, patches out
+// client
+onActionMiddleware(rootStore, {
+  onStart(actionCall) {
+    if (!serverAction) {
+      server.send(defaultSerializer.encodeCall(rootStore, actionCall))
+      return { result: ActionTrackingResult.Return, value: undefined }
+    }
+  },
+})
+server.onMessage(({ patches }) => applyPatches(rootStore, patches)) // with serverAction set
+
+// server
+onPatches(serverStore, (patches) => broadcast({ patches }))
+const call = defaultSerializer.decodeCall(serverStore, json)
+const result = await applyCallAsync(serverStore, call, { canCall: serverPolicy })
+reply(defaultSerializer.encodeValue(serverStore, result))
+```
+
+## Reference
+
+The documentation of the deprecated API, unchanged.
+
+### Serializing action calls
+
+The `ActionCall` passed to an [`onActionMiddleware`](../actionMiddlewares/onActionMiddleware.mdx) listener is not directly serializable. Before storing or sending it, use `serializeActionCall`. Apply the serialized call with `applySerializedActionAndTrackNewModelIds` on the server or `applySerializedActionAndSyncNewModelIds` on clients.
+
+```ts
+onActionMiddleware(myTodoList, {
+  onStart(actionCall) {
+    const serializedActionCall = serializeActionCall(actionCall, myTodoList)
+    // send it somewhere
+  },
+})
+```
+
+Model ID synchronization uses the final positions and IDs of models after the action finishes. Models removed during that action do not receive ID overrides.
+
+### Action serialization with custom types as arguments
+
+Action serialization (via `serializeActionCall` and `deserializeActionCall`) supports many cases by default:
+
+- Primitives (including `undefined`, `bigint` and special `number` values `NaN`/`+Infinity`/`-Infinity`, but not `symbol`).
+- Tree nodes as paths if they are under the same root node as the model that holds the action being called.
+- Tree nodes as snapshots if not.
+- Arrays and observable arrays.
+- `Date` objects as timestamps.
+- Maps and observable maps.
+- Sets and observable sets.
+- Plain objects, observable or not.
+
+Sparse array arguments round-trip through JSON with missing entries represented as `undefined`, rather than `null`.
+
+However, you might want to serialize an action that passes your custom type as an argument. In this case you can register a custom action serializer:
+
+```ts
+const myTypeSerializer: ActionCallArgumentSerializer<MyType, JsonCompatibleType> = {
+  id: "someSerializerUniqueId",
+
+  serialize(valueToSerialize, serializeChild, targetRoot) {
+    if (valueToSerialize instanceof MyType) {
+      return someJsonCompatibleValue
+    }
+    // let other serializer handle it
+    return cannotSerialize
+  },
+
+  deserialize(someJsonCompatibleValue, deserializeChild, targetRoot) {
+    // return back `MyType` from the JSON compatible value
+  },
+}
+
+registerActionCallArgumentSerializer(myTypeSerializer)
+```
+
+In this case, whenever an instance of `MyType` is found as an action argument, then (after using `serializeActionCall` on the action call) the action argument will be serialized as a `SerializedActionCallArgument`:
+
+```ts
+{
+  $mobxKeystoneSerializer: "someSerializerUniqueId",
+  value: someJsonCompatibleValue
+}
+```
+
+Likewise, using `deserializeActionCall` will transform it back to an instance of `MyType`.
+
+Serializer registration changes made inside a serializer take effect on subsequent serialization attempts. The current attempt continues with the serializers registered when it started.
+
+To change a custom serializer's ID, dispose its existing registration and register it again. A disposer always removes the registration it originally created.

@@ -38,6 +38,15 @@ const disposer = onPatches(todo, (patches, inversePatches) => {
 
 The listener callback runs after [deep-change listeners](./treeLikeStructure.mdx#ondeepchange), before the outermost action has completed. Patches are delivered in mutation order, including when a listener makes further edits. Unlike `onSnapshot` or a MobX reaction, the callback observes individual changes within an action.
 
+Since the listener runs inside the action that made the change, `getCurrentActionContext()` returns that action's context, and its `rootContext` is the top-level action (for a step of a flow, the flow). This holds for `onGlobalPatches` too. It is how a server can tag the patches it broadcasts with the call that produced them (see [Serialization](./serialization.mdx#replication-calls-in-patches-out)):
+
+```ts
+onPatches(rootStore, (patches) => {
+  const actionName = getCurrentActionContext()?.rootContext.actionName
+  broadcast({ patches, actionName })
+})
+```
+
 ### `onGlobalPatches`
 
 ```ts

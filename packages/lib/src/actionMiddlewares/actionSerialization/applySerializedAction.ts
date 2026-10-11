@@ -17,6 +17,8 @@ import { deserializeActionCall, type SerializedActionCall } from "./actionSerial
  * Serialized action call with model ID overrides.
  * Can be generated with `applySerializedActionAndTrackNewModelIds`.
  * To be applied with `applySerializedActionAndSyncNewModelIds`.
+ *
+ * @deprecated Use `EncodedCall` instead; model id overrides aren't needed when replicas apply the patches the server broadcasts.
  */
 export interface SerializedActionCallWithModelIdOverrides extends SerializedActionCall {
   /**
@@ -38,6 +40,8 @@ export interface SerializedActionCallWithModelIdOverrides extends SerializedActi
  * @param call The serialized action, usually as coming from the server/client.
  * @returns The return value of the action, if any, plus a new serialized action
  * with model overrides.
+ *
+ * @deprecated Use `applyCall` / `applyCallAsync` on the server instead, broadcasting the patches the call produces.
  */
 export function applySerializedActionAndTrackNewModelIds<TRet = any>(
   subtreeRoot: object,
@@ -156,6 +160,8 @@ function deepScanValueForModelIdChanges(
  * @param subtreeRoot Subtree root target object to run the action over.
  * @param call The serialized action, usually as coming from the server/client.
  * @returns The return value of the action, if any.
+ *
+ * @deprecated Use `applyPatches` on the patches the server broadcasts instead.
  */
 export function applySerializedActionAndSyncNewModelIds<TRet = any>(
   subtreeRoot: object,

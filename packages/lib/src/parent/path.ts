@@ -280,6 +280,15 @@ export function resolvePath<T = any>(
 }
 
 /**
+ * @internal
+ *
+ * Whether a value can be a path element (a property name or an array index).
+ */
+export function isPathElement(value: unknown): value is PathElement {
+  return typeof value === "string" || typeof value === "number"
+}
+
+/**
  * Whether a path element is an index of the array, so non-index props such as 'length' never
  * resolve. It also avoids mobx warnings about trying to access out of bounds indexes.
  */

@@ -148,6 +148,9 @@ export function hasPatchListenersFor(target: object): boolean {
 /**
  * Adds a listener that will be called every time a patch is generated for the tree of the given target object.
  *
+ * The listener runs inside the action that made the change, so `getCurrentActionContext()` returns
+ * that action's context: its `rootContext` is the top-level action (for a flow step, the flow).
+ *
  * @param subtreeRoot Subtree root object of the patch listener.
  * @param listener The listener function that will be called everytime a patch is generated for the object or its children.
  * @returns A disposer to stop listening to patches.
@@ -189,6 +192,9 @@ export function internalOnPatches(
 /**
  * Adds a listener that will be called every time a patch is generated anywhere.
  * Usually prefer using `onPatches`.
+ *
+ * The listener runs inside the action that made the change, so `getCurrentActionContext()` returns
+ * that action's context: its `rootContext` is the top-level action (for a flow step, the flow).
  *
  * @param listener The listener function that will be called everytime a patch is generated anywhere.
  * @returns A disposer to stop listening to patches.
