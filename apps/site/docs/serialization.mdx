@@ -52,7 +52,6 @@ Plain JSON goes as is. Anything else is a marked value, `{ "$mobxKeystone": tag,
 - **Reserved keys** are `$mobxKeystone`, `$modelType` and `$frozen`; a plain object that has one is escaped, so it comes back unchanged.
 - **Snapshots are opaque.** They are decoded whole with `fromSnapshot`, into new instances; nothing inside them is read as a marker, so frozen data comes back unchanged.
 - **Plain objects, arrays, maps and sets are walked**, so every value inside goes through the serializer too: `{ todo, index: 2 }` becomes `{ "todo": { "$mobxKeystone": "pathRef", … }, "index": 2 }`. Cycles fail with `CannotEncode`.
-- **Decoding is safe for untrusted JSON**: values nested more than 1000 levels deep fail with `BadArgument` rather than overflowing the stack.
 
 ## Serializers
 
@@ -238,7 +237,7 @@ A view runs as calling it in JavaScript would. Actions it calls run normally (mi
 { "target": { "$mobxKeystone": "pathRef", "v": { "path": ["point"] } }, "name": "fn::app/Point::length" }
 ```
 
-The library wraps the data in that class (creating the data model instance, or reusing it, as reading it in JavaScript would) and resolves the member as above, below the base data model class. Data that the data model can't be created over, e.g. data failing the type check of its `tProp`s, fails with `WrongKind`; otherwise nothing checks that the data fits the data model, so a policy that cares checks `call.target`.
+The library wraps the data in that class (creating the data model instance, or reusing it, as reading it in JavaScript would) and resolves the member as above, below the base data model class. This happens while the call is resolved, before `canCall`, since function fields only exist on an instance: the first time a data model is created over that data, its type check and `onLazyInit` run then. Data that the data model can't be created over, e.g. data failing the type check of its `tProp`s, fails with `WrongKind`; otherwise nothing checks that the data fits the data model, so a policy that cares checks `call.target`.
 
 ## Results
 
@@ -280,6 +279,8 @@ try {
   }
 }
 ```
+
+Limit the size of the requests you accept before decoding them. Decoding walks the JSON recursively, so JSON nested deeply enough fails with the engine's stack overflow error (a `RangeError`), which lands in the second branch above.
 
 ## Replication: calls in, patches out
 

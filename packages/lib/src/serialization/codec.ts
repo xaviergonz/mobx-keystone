@@ -16,8 +16,6 @@ import { serializationMarkerKey } from "./ValueSerializer"
  */
 export const escapedObjectTag = "object"
 
-const maxDecodeDepth = 1000
-
 const reservedKeys: readonly string[] = [serializationMarkerKey, modelTypeKey, frozenKey]
 
 /**
@@ -128,7 +126,10 @@ export function markValue(tag: string, payload: JsonValue | undefined): JsonValu
     : { [serializationMarkerKey]: tag, v: payload }
 }
 
-function wrapSerializerError(
+/**
+ * @internal
+ */
+export function wrapSerializerError(
   error: unknown,
   code: CallErrorCode,
   tag: string,
@@ -327,25 +328,10 @@ export function createDecodeContext(config: SerializerConfig, root: object): Dec
     })
   }
 
-  // the JSON may come from anyone, so its nesting is limited before it overflows the stack
-  let depth = 0
-
   const ctx: DecodeContext = {
     root,
-    decode(json: JsonValue, key?: PathElement): unknown {
-      if (depth >= maxDecodeDepth) {
-        throw new CallError({
-          code: CallErrorCode.BadArgument,
-          message: `the value is nested more than ${maxDecodeDepth} levels deep`,
-        })
-      }
-      depth++
-      try {
-        return key === undefined ? decodeAny(json) : withPathSegment(key, decodeAny, json)
-      } finally {
-        depth--
-      }
-    },
+    decode: (json: JsonValue, key?: PathElement): unknown =>
+      key === undefined ? decodeAny(json) : withPathSegment(key, decodeAny, json),
   }
 
   return ctx

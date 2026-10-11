@@ -265,6 +265,46 @@ describe("encodeCall / decodeCall / applyCall", () => {
     ).toBe(CallErrorCode.NotFound)
   })
 
+  test("a reference serializer that throws on the target is CannotEncode at the target", () => {
+    const root = createStore()
+    const cause = new Error("boom")
+    const throwing: ValueSerializer[] = [
+      {
+        tag: "test/throwsInClaims",
+        is: (_v: unknown): _v is never => false,
+        encode: () => 0,
+        decode: () => undefined,
+        claimsTarget: () => {
+          throw cause
+        },
+      },
+      {
+        tag: "test/throwsInEncode",
+        is: (_v: unknown): _v is never => false,
+        encode: () => {
+          throw cause
+        },
+        decode: () => undefined,
+        claimsTarget: () => true,
+      },
+    ]
+    for (const reference of throwing) {
+      const err = catchCallError(() =>
+        createSerializer({ serializers: [reference] }).encodeCall(root, {
+          target: root.todos[0],
+          name: "setText",
+          args: ["z"],
+        })
+      )
+      expect({ code: err.code, path: err.path, cause: err.cause }).toEqual({
+        code: CallErrorCode.CannotEncode,
+        path: ["target"],
+        cause,
+      })
+      expect(err.message).toContain(`the '${reference.tag}' serializer failed to encode the value`)
+    }
+  })
+
   test("the target must be a reference to a node of the tree", () => {
     const root = createStore()
     const targets: JsonValue[] = [

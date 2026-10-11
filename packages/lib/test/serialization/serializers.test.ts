@@ -254,16 +254,6 @@ describe("built-ins", () => {
     }
   })
 
-  test("JSON nested too deep is BadArgument", () => {
-    let deep: JsonValue = 1
-    for (let i = 0; i < 2000; i++) {
-      deep = [deep]
-    }
-    expect(catchCallError(() => defaultSerializer.decodeValue(root, deep)).message).toContain(
-      "the value is nested more than 1000 levels deep"
-    )
-  })
-
   test("snapshots that fail to decode are BadArgument, with the error as cause", () => {
     const err = catchCallError(() =>
       defaultSerializer.decodeValue(root, [{ $modelType: "serialization/serializers/Nope" }])

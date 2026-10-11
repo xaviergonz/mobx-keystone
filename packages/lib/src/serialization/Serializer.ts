@@ -14,6 +14,7 @@ import {
   isUnmarkedSerializer,
   markValue,
   type SerializerConfig,
+  wrapSerializerError,
 } from "./codec"
 import type { JsonValue } from "./JsonValue"
 import { decodePathRef, encodePathRef, pathRefs, pathRefTag } from "./references"
@@ -167,9 +168,16 @@ export function createSerializer(options: SerializerOptions = {}): Serializer {
     // only reference serializers are asked, through `claimsTarget`, which ignores `when` since
     // the call must run on the node itself
     for (const serializer of serializers) {
-      if (serializer.claimsTarget?.(target, ctx)) {
-        return markValue(serializer.tag, serializer.encode(target, ctx))
+      let payload: JsonValue | undefined
+      try {
+        if (!serializer.claimsTarget?.(target, ctx)) {
+          continue
+        }
+        payload = serializer.encode(target, ctx)
+      } catch (e) {
+        throw wrapSerializerError(e, CallErrorCode.CannotEncode, serializer.tag, target)
       }
+      return markValue(serializer.tag, payload)
     }
     return markValue(pathRefTag, encodePathRef(target))
   }
