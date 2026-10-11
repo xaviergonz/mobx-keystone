@@ -56,9 +56,10 @@ export interface Serializer {
    *
    * @param root Root of the tree.
    * @param json Value to decode.
+   * @param options Options.
    * @returns The decoded value.
    */
-  decodeValue(root: object, json: JsonValue): unknown
+  decodeValue(root: object, json: JsonValue, options?: DecodeOptions): unknown
 
   /**
    * Encodes a call (an `ActionCall`, e.g. from `onActionMiddleware`'s `onStart`, or a `Call`)
@@ -80,9 +81,23 @@ export interface Serializer {
    *
    * @param root Root of the tree.
    * @param json The encoded call.
+   * @param options Options, applied when the arguments are decoded.
    * @returns The resolved call, to pass to `applyCall` or `applyCallAsync`.
    */
-  decodeCall(root: object, json: EncodedCall | JsonValue): ResolvedCall
+  decodeCall(root: object, json: EncodedCall | JsonValue, options?: DecodeOptions): ResolvedCall
+}
+
+/**
+ * Options of `Serializer.decodeValue` and `Serializer.decodeCall`.
+ */
+export interface DecodeOptions {
+  /**
+   * Pass `true` to give new model ids to the models decoded from snapshots (nested ones
+   * included), as `fromSnapshot(snapshot, { generateNewIds: true })` does, e.g. on a server that
+   * accepts snapshots from clients. References still resolve to the nodes they point to.
+   * Defaults to `false` (the ids in the snapshots are kept).
+   */
+  generateNewIds?: boolean
 }
 
 /**
@@ -94,8 +109,8 @@ export interface SerializerOptions {
    */
   serializers?: readonly ValueSerializer[]
   /**
-   * Whether to append the built-in serializers (`builtinSerializers`) to the list.
-   * Defaults to `true`.
+   * Whether to append the built-in serializers (`builtinSerializers`) to the list, except those
+   * whose tag a serializer in `serializers` takes, which it replaces. Defaults to `true`.
    */
   builtins?: boolean
 }
@@ -137,12 +152,16 @@ export function createSerializer(options: SerializerOptions = {}): Serializer {
   const custom = options.serializers ? [...options.serializers] : []
   custom.forEach(assertIsValueSerializer)
 
+  const customTags = new Set(custom.map((s) => s.tag))
   const serializers: readonly ValueSerializer[] =
     options.builtins === false
       ? custom
       : [
           ...custom,
-          ...Object.values<ValueSerializer>(builtinSerializers).filter((s) => !custom.includes(s)),
+          // a custom serializer replaces the built-in with its tag
+          ...Object.values<ValueSerializer>(builtinSerializers).filter(
+            (s) => !customTags.has(s.tag)
+          ),
         ]
 
   const byTag = new Map<string, ValueSerializer>()
@@ -214,9 +233,11 @@ export function createSerializer(options: SerializerOptions = {}): Serializer {
       )
     },
 
-    decodeValue(root, json) {
+    decodeValue(root, json, options) {
       assertIsTreeRoot(root)
-      return runWithNewErrorDiagnosticsContext(() => createDecodeContext(config, root).decode(json))
+      return runWithNewErrorDiagnosticsContext(() =>
+        createDecodeContext(config, root, !!options?.generateNewIds).decode(json)
+      )
     },
 
     encodeCall(root, call) {
@@ -273,7 +294,7 @@ export function createSerializer(options: SerializerOptions = {}): Serializer {
       })
     },
 
-    decodeCall(root, json) {
+    decodeCall(root, json, options) {
       assertIsTreeRoot(root)
 
       return runWithNewErrorDiagnosticsContext(() => {
@@ -292,7 +313,7 @@ export function createSerializer(options: SerializerOptions = {}): Serializer {
 
         const name = json.name
         const rawArgs = json.args as JsonValue[] | undefined
-        const ctx = createDecodeContext(config, root)
+        const ctx = createDecodeContext(config, root, !!options?.generateNewIds)
 
         const target = withErrorPathSegment("target", () => decodeTarget(json.target, ctx))
         const resolution = resolveCallNameOrThrow(target, name)

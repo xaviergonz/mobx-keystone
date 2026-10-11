@@ -14,13 +14,13 @@ import type { ValueSerializer } from "./ValueSerializer"
 /**
  * @internal
  *
- * Marks a serializer whose encoded value is written as it is, without the marker
- * (snapshots already mark themselves).
+ * The tag of the serializer whose encoded value is written as it is, without the marker
+ * (snapshots already mark themselves), and that decodes every value with `$modelType` / `$frozen`.
  */
-export const unmarkedEncodingSymbol = Symbol("unmarkedEncoding")
+export const snapshotTag = "snapshot"
 
 const snapshotSerializer: ValueSerializer<object, any> = {
-  tag: "snapshot",
+  tag: snapshotTag,
 
   is(value): value is object {
     return isModel(value) || value instanceof Frozen
@@ -30,11 +30,10 @@ const snapshotSerializer: ValueSerializer<object, any> = {
     return getSnapshot(value)
   },
 
-  decode(json) {
-    return fromSnapshot(json)
+  decode(json, ctx) {
+    return fromSnapshot<object>(json, { generateNewIds: ctx.generateNewIds })
   },
 }
-;(snapshotSerializer as unknown as Record<symbol, boolean>)[unmarkedEncodingSymbol] = true
 
 const dataModelSerializer: ValueSerializer<AnyDataModel, { type: string; data: JsonValue }> = {
   tag: "dataModel",
@@ -198,14 +197,18 @@ const undefinedSerializer: ValueSerializer<undefined, undefined> = {
 
 /**
  * The built-in value serializers, appended in this order to every serializer's list (unless it is
- * created with `builtins: false`). Pick some of them to build a list by hand, e.g.
+ * created with `builtins: false`), except those whose tag a serializer of the list takes. Pick some of them to build a list by hand, e.g.
  * `createSerializer({ serializers: [builtinSerializers.date], builtins: false })`.
  */
 export const builtinSerializers = Object.freeze({
   /**
    * Models and frozen data that aren't references, as their snapshots (unmarked, since snapshots
    * mark themselves with `$modelType` / `$frozen`), decoded with `fromSnapshot` into new
-   * instances. Tree arrays and plain objects that aren't references are walked like any other.
+   * instances (with new model ids when decoded with `generateNewIds`). Tree arrays and plain
+   * objects that aren't references are walked like any other.
+   *
+   * A custom serializer tagged `snapshot` replaces it: its encoded value must be a snapshot too,
+   * and it decodes every value with `$modelType` / `$frozen`.
    */
   snapshot: snapshotSerializer,
   /**

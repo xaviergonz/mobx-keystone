@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- `Serializer.decodeCall` and `Serializer.decodeValue` take a `{ generateNewIds }` option (`DecodeOptions`) that gives new model ids to the models decoded from snapshots, nested ones included, e.g. for a server that accepts snapshots from clients, where duplicate ids would break `applyPatches` and `applySnapshot` on replicas. References are unaffected and ids are still kept by default. Value serializers see it as `DecodeContext.generateNewIds`.
+- A custom value serializer with the tag of a built-in now replaces that built-in in `createSerializer` (it used to throw because of the duplicate tag), so a built-in can be swapped without `builtins: false`.
+- A custom value serializer tagged `snapshot` now works like the built-in snapshot serializer it replaces: its encoded value is written unmarked and it decodes every `$modelType` / `$frozen` value. It used to be bypassed silently for those values unless it was a copy of the built-in. Its encoded value must be a snapshot, or encoding fails with `CannotEncode`.
+
 ## 2.4.0
 
 - New serialization API for sending values and calls as JSON (see the new "Serialization" docs page):

@@ -3,7 +3,7 @@ import { modelTypeKey } from "../model/metadata"
 import type { PathElement } from "../parent/pathTypes"
 import { copyOwnEnumerableProps, hasOwnProp, isArray, isObject, isPlainObject } from "../utils"
 import { getCurrentErrorDiagnosticsContext } from "../utils/errorDiagnostics"
-import { builtinEncodedTypeof, unmarkedEncodingSymbol } from "./builtinSerializers"
+import { builtinEncodedTypeof, snapshotTag } from "./builtinSerializers"
 import { badPayloadError, CallError, CallErrorCode } from "./CallError"
 import type { JsonValue } from "./JsonValue"
 import type { DecodeContext, EncodeContext, ValueSerializer } from "./ValueSerializer"
@@ -33,8 +33,8 @@ export interface SerializerConfig {
   readonly byTypeof: ReadonlyMap<SerializerGroup, readonly ValueSerializer[]>
   readonly byTag: ReadonlyMap<string, ValueSerializer>
   /**
-   * The serializer that decodes values with `$modelType` / `$frozen` (the snapshot serializer),
-   * if in the list.
+   * The serializer that decodes values with `$modelType` / `$frozen` (the one tagged
+   * `snapshot`), if in the list.
    */
   readonly unmarked: ValueSerializer | undefined
 }
@@ -114,7 +114,13 @@ function withPathSegment<A, R>(key: PathElement, fn: (arg: A) => R, arg: A): R {
  * @internal
  */
 export function isUnmarkedSerializer(serializer: ValueSerializer): boolean {
-  return unmarkedEncodingSymbol in serializer
+  return serializer.tag === snapshotTag
+}
+
+function isSnapshotJson(payload: unknown): boolean {
+  return (
+    isPlainObject(payload) && (hasOwnProp(payload, modelTypeKey) || hasOwnProp(payload, frozenKey))
+  )
 }
 
 /**
@@ -180,7 +186,18 @@ export function createEncodeContext(config: SerializerConfig, root: object): Enc
     } catch (e) {
       throw wrapSerializerError(e, CallErrorCode.CannotEncode, serializer.tag, value)
     }
-    return isUnmarkedSerializer(serializer) ? payload! : markValue(serializer.tag, payload)
+    if (!isUnmarkedSerializer(serializer)) {
+      return markValue(serializer.tag, payload)
+    }
+    // written unmarked, so it must mark itself to be decoded by the same serializer
+    if (!isSnapshotJson(payload)) {
+      throw new CallError({
+        code: CallErrorCode.CannotEncode,
+        message: `the '${snapshotTag}' serializer must encode a snapshot (with $modelType or $frozen)`,
+        previewValue: value,
+      })
+    }
+    return payload!
   }
 
   const encodePlain = (value: unknown, plainKind: PlainKind): JsonValue => {
@@ -266,7 +283,11 @@ export function createEncodeContext(config: SerializerConfig, root: object): Enc
  * Creates the decoding context for one decoding: `ctx.decode` decodes any JSON value. It must run
  * inside an error diagnostics context.
  */
-export function createDecodeContext(config: SerializerConfig, root: object): DecodeContext {
+export function createDecodeContext(
+  config: SerializerConfig,
+  root: object,
+  generateNewIds: boolean
+): DecodeContext {
   const decodeWithSerializer = (serializer: ValueSerializer, json: unknown): unknown => {
     try {
       return serializer.decode(json, ctx)
@@ -330,6 +351,7 @@ export function createDecodeContext(config: SerializerConfig, root: object): Dec
 
   const ctx: DecodeContext = {
     root,
+    generateNewIds,
     decode: (json: JsonValue, key?: PathElement): unknown =>
       key === undefined ? decodeAny(json) : withPathSegment(key, decodeAny, json),
   }

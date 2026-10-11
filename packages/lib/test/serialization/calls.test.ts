@@ -905,4 +905,37 @@ describe("calls in, patches out", () => {
     // the result is a reference into the tree the client now has
     expect(defaultSerializer.decodeValue(client, created)).toBe(client.todos[1])
   })
+
+  test("generateNewIds lets the server accept the same snapshot twice", () => {
+    const server = createStore()
+    const replica = clone(server, { generateNewIds: false })
+    autoDispose(onPatches(server, (patches) => applyPatches(replica, patches)))
+
+    // e.g. a todo imported from a file, twice
+    const json = JSON.parse(
+      JSON.stringify(
+        defaultSerializer.encodeCall(server, {
+          target: server,
+          name: "add",
+          args: [new Todo({ id: "imported", text: "file" })],
+        })
+      )
+    ) as EncodedCall
+
+    for (let i = 0; i < 2; i++) {
+      applyCall(server, defaultSerializer.decodeCall(server, json, { generateNewIds: true }))
+    }
+
+    const ids = server.todos.map((t) => t.id)
+    expect(ids).toHaveLength(3)
+    expect(ids[0]).toBe("t1")
+    expect(new Set(ids).size).toBe(3)
+    expect(ids).not.toContain("imported")
+    expect(server.todos.map((t) => t.text)).toEqual(["one", "file", "file"])
+    expect(getSnapshot(replica)).toEqual(getSnapshot(server))
+
+    // by default the ids are kept, e.g. for replicas decoding calls the server sends back
+    const kept = defaultSerializer.decodeCall(server, json).args![0] as Todo
+    expect(kept.id).toBe("imported")
+  })
 })

@@ -36,6 +36,12 @@ export interface DecodeContext {
   readonly root: object
 
   /**
+   * Whether models decoded from snapshots must get new model ids (the `generateNewIds` option
+   * of the decoding). A serializer that creates models honors it; references ignore it.
+   */
+  readonly generateNewIds: boolean
+
+  /**
    * Decodes a nested value with the same serializer.
    *
    * @param json Value to decode.

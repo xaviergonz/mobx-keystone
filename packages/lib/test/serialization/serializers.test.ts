@@ -6,9 +6,12 @@ import {
   createSerializer,
   DataModel,
   defaultSerializer,
+  fromSnapshot,
   frozen,
+  type Frozen,
   getSnapshot,
   idProp,
+  idRefs,
   isFrozenSnapshot,
   type JsonValue,
   Model,
@@ -16,6 +19,7 @@ import {
   modelAction,
   pathRefs,
   prop,
+  type Serializer,
   tProp,
   types,
   type ValueSerializer,
@@ -43,6 +47,9 @@ class Size extends DataModel({ w: prop<number>(), h: prop<number>() }) {
 
 @model("serialization/serializers/Label")
 class Label extends DataModel({ a: tProp(types.string) }) {}
+
+@model("serialization/serializers/CardHolder")
+class CardHolder extends DataModel({ card: prop<Card>() }) {}
 
 @model("serialization/serializers/Board")
 class Board extends Model({
@@ -314,6 +321,144 @@ describe("built-ins", () => {
   })
 })
 
+describe("generateNewIds", () => {
+  let root: Board
+  beforeEach(() => {
+    root = createBoard()
+  })
+
+  const ids = (board: Board) => board.cards.map((c) => c.id)
+
+  test("gives new ids to models from snapshots, nested ones included", () => {
+    const detached = new Board({ cards: [new Card({ id: "n1" }), new Card({ id: "n2" })] })
+    const value = {
+      board: detached,
+      list: [new Card({ id: "n3" })],
+      map: new Map([["k", new Card({ id: "n4" })]]),
+      holder: new CardHolder({ card: new Card({ id: "n5" }) }),
+    }
+    const json = defaultSerializer.encodeValue(root, value)
+    const back = defaultSerializer.decodeValue(root, json, {
+      generateNewIds: true,
+    }) as typeof value
+
+    const oldIds = [...ids(detached), "n3", "n4", "n5"]
+    const newIds = [...ids(back.board), back.list[0].id, back.map.get("k")!.id, back.holder.card.id]
+    expect(newIds).toHaveLength(oldIds.length)
+    expect(new Set([...oldIds, ...newIds]).size).toBe(oldIds.length * 2)
+    // everything but the ids is kept
+    expect(back.board.cards.map((c) => c.title)).toEqual(["", ""])
+    expect(back.board).toBeInstanceOf(Board)
+  })
+
+  test("keeps the ids by default", () => {
+    const detached = new Board({ cards: [new Card({ id: "n1" })] })
+    const json = defaultSerializer.encodeValue(root, detached)
+    expect(ids(defaultSerializer.decodeValue(root, json) as Board)).toEqual(ids(detached))
+    expect(
+      ids(defaultSerializer.decodeValue(root, json, { generateNewIds: false }) as Board)
+    ).toEqual(ids(detached))
+  })
+
+  test("references still resolve to the nodes of the tree", () => {
+    const serializer = createSerializer({ serializers: [idRefs(), pathRefs()] })
+    const value = [root.cards[0], root.cards, root.origin, frozen({ a: 1 })]
+    const json = serializer.encodeValue(root, value)
+    const back = serializer.decodeValue(root, json, { generateNewIds: true }) as typeof value
+    expect(back[0]).toBe(root.cards[0])
+    expect(back[1]).toBe(root.cards)
+    // a value-type model goes as a snapshot
+    expect(back[2]).not.toBe(root.origin)
+    expect(getSnapshot(back[2] as Point)).toEqual(getSnapshot(root.origin))
+    expect((back[3] as Frozen<{ a: number }>).data).toEqual({ a: 1 })
+    expect(root.cards.map((c) => c.id)).toEqual(["c1", "c2"])
+  })
+
+  test("value serializers get it in their context", () => {
+    const seen: boolean[] = []
+    const spy: ValueSerializer<never, null> = {
+      tag: "test/spy",
+      is: (_v): _v is never => false,
+      encode: () => null,
+      decode: (_json, ctx) => {
+        seen.push(ctx.generateNewIds)
+        return undefined as never
+      },
+    }
+    const serializer = createSerializer({ serializers: [spy] })
+    const json = { $mobxKeystone: "test/spy", v: null }
+    const call = {
+      target: { $mobxKeystone: "pathRef", v: { path: [] } },
+      name: "$$detach",
+      args: [json],
+    }
+    serializer.decodeValue(root, [json])
+    serializer.decodeValue(root, [json], { generateNewIds: true })
+    expect(serializer.decodeCall(root, call).args).toEqual([undefined])
+    expect(serializer.decodeCall(root, call, { generateNewIds: true }).args).toEqual([undefined])
+    expect(seen).toEqual([false, true, false, true])
+  })
+})
+
+describe("replacing the snapshot serializer", () => {
+  let root: Board
+  beforeEach(() => {
+    root = createBoard()
+  })
+
+  test("a serializer tagged 'snapshot' takes the built-in's place", () => {
+    const decoded: unknown[] = []
+    const renewingSnapshots: ValueSerializer<object, any> = {
+      tag: "snapshot",
+      is: (v): v is object => v instanceof Card || v instanceof Board,
+      encode: (v) => getSnapshot(v),
+      decode: (json) => {
+        decoded.push(json)
+        return fromSnapshot<object>(json, { generateNewIds: true })
+      },
+    }
+    const check = (serializer: Serializer) => {
+      decoded.length = 0
+      const detached = new Card({ id: "n1", title: "x" })
+      const json = serializer.encodeValue(root, [detached, root.cards[0], 1n])
+      // written unmarked, like the built-in
+      expect((json as JsonValue[])[0]).toEqual(getSnapshot(detached))
+
+      const back = serializer.decodeValue(root, json) as [Card, Card, bigint]
+      expect(decoded).toEqual([getSnapshot(detached)])
+      expect(back[0]).toBeInstanceOf(Card)
+      expect(back[0].id).not.toBe("n1")
+      expect(back[0].title).toBe("x")
+      expect(back[1]).toBe(root.cards[0])
+      expect(back[2]).toBe(1n)
+    }
+
+    // with the other built-ins
+    check(createSerializer({ serializers: [pathRefs(), renewingSnapshots] }))
+    // or without them
+    check(
+      createSerializer({
+        serializers: [pathRefs(), renewingSnapshots, builtinSerializers.bigint],
+        builtins: false,
+      })
+    )
+  })
+
+  test("it must encode a snapshot", () => {
+    const notASnapshot: ValueSerializer<Card, JsonValue> = {
+      tag: "snapshot",
+      is: (v): v is Card => v instanceof Card,
+      encode: (v) => ({ title: v.title }),
+      decode: (json) => json as never,
+    }
+    const serializer = createSerializer({ serializers: [notASnapshot], builtins: false })
+    const err = catchCallError(() => serializer.encodeValue(root, [new Card({ title: "x" })]))
+    expect(err.code).toBe(CallErrorCode.CannotEncode)
+    expect(err.message).toContain("must encode a snapshot")
+    expect(err.path).toEqual([0])
+  })
+})
+
 describe("data models", () => {
   test("over data of the tree, they come back over the same node", () => {
     const root = createBoard()
@@ -483,6 +628,21 @@ describe("createSerializer", () => {
     ).toBe(CallErrorCode.BadArgument)
   })
 
+  test("a custom serializer with a built-in's tag replaces it", () => {
+    const root = createBoard()
+    const dateAsNumber: ValueSerializer<Date, number> = {
+      tag: "date",
+      is: (v): v is Date => v instanceof Date,
+      encode: (v) => v.getTime(),
+      decode: (json) => new Date(json),
+    }
+    const serializer = createSerializer({ serializers: [dateAsNumber] })
+    expect(serializer.encodeValue(root, new Date(5))).toEqual({ $mobxKeystone: "date", v: 5 })
+    expect(serializer.decodeValue(root, { $mobxKeystone: "date", v: 5 })).toEqual(new Date(5))
+    // the other built-ins are kept
+    expect(serializer.encodeValue(root, 1n)).toEqual({ $mobxKeystone: "bigint", v: "1" })
+  })
+
   test("a built-in passed explicitly isn't added twice", () => {
     const serializer = createSerializer({ serializers: [builtinSerializers.bigint] })
     expect(serializer.serializers).toEqual([builtinSerializers.bigint])
@@ -555,7 +715,12 @@ describe("createSerializer", () => {
       createSerializer({ serializers: [polygonSerializer, { ...polygonSerializer }] })
     ).toThrow(`there is more than one serializer with tag '${polygonTag}'`)
     expect(() =>
-      createSerializer({ serializers: [{ ...polygonSerializer, tag: "date" }] })
+      createSerializer({
+        serializers: [
+          { ...polygonSerializer, tag: "date" },
+          { ...polygonSerializer, tag: "date" },
+        ],
+      })
     ).toThrow("there is more than one serializer with tag 'date'")
     expect(() => createSerializer({ serializers: [defaultSerializer as any] })).toThrow(
       "spread its '.serializers'"

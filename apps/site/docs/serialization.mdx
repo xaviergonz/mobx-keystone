@@ -50,7 +50,7 @@ Plain JSON goes as is. Anything else is a marked value, `{ "$mobxKeystone": tag,
 
 - **Nothing is lost silently.** A function, a symbol, an `Error` or an instance of a class no serializer handles fails with a `CallError` (`CannotEncode`) and the path where it is.
 - **Reserved keys** are `$mobxKeystone`, `$modelType` and `$frozen`; a plain object that has one is escaped, so it comes back unchanged.
-- **Snapshots are opaque.** They are decoded whole with `fromSnapshot`, into new instances; nothing inside them is read as a marker, so frozen data comes back unchanged.
+- **Snapshots are opaque.** They are decoded whole with `fromSnapshot`, into new instances that keep the model ids in the snapshot (unless decoded with [`generateNewIds`](#new-model-ids-for-snapshots)); nothing inside them is read as a marker, so frozen data comes back unchanged.
 - **Plain objects, arrays, maps and sets are walked**, so every value inside goes through the serializer too: `{ todo, index: 2 }` becomes `{ "todo": { "$mobxKeystone": "pathRef", … }, "index": 2 }`. Cycles fail with `CannotEncode`.
 
 ## Serializers
@@ -81,11 +81,13 @@ const serializer = createSerializer({
 ```
 
 - **One ordered list.** Encoding takes the first serializer whose `is` accepts the value, then the built-ins, then plain JSON; decoding picks the serializer by tag.
-- **The built-ins always come last**, in the order of the `builtinSerializers` record: `snapshot`, `dataModel`, `date`, `map`, `set`, `number`, `bigint` and `undefined`. `builtins: false` leaves them out, for a serializer that must refuse anything unknown; pick the ones you want from the record, e.g. `createSerializer({ serializers: [builtinSerializers.date], builtins: false })`.
+- **The built-ins always come last**, in the order of the `builtinSerializers` record: `snapshot`, `dataModel`, `date`, `map`, `set`, `number`, `bigint` and `undefined`. A serializer of your list with the tag of a built-in replaces it. `builtins: false` leaves them all out, for a serializer that must refuse anything unknown; pick the ones you want from the record, e.g. `createSerializer({ serializers: [builtinSerializers.date], builtins: false })`.
 - **`defaultSerializer`** is `createSerializer({ serializers: [pathRefs()] })`.
 - **A serializer exposes its list** (without the built-ins) as `.serializers`, so it can be extended as above.
 - **Tags are unique** within a serializer, and `object` is reserved (it escapes plain objects with reserved keys); `createSerializer` throws otherwise.
+- **The `snapshot` tag is special**: its serializer writes its encoded value as it is, without the marker, so the value must be a snapshot (anything else fails with `CannotEncode`), and it decodes every value with `$modelType` / `$frozen`, whether it is the built-in one or yours.
 - `ctx.encode(value, key)` / `ctx.decode(json, key)` take an optional key, used for the path of errors.
+- `ctx.generateNewIds` is the [`generateNewIds`](#new-model-ids-for-snapshots) option of the decoding; a value serializer that creates models from snapshots should honor it.
 - An error thrown by a value serializer is wrapped in a `CallError` (`CannotEncode` when encoding, `BadArgument` when decoding) with the original error as `cause`. A `CallError` it throws (e.g. `new CallError({ code: CallErrorCode.NotFound, message })`) passes through as it is.
 
 ## References
@@ -308,6 +310,18 @@ server.onMessage(({ patches }) => applyPatches(root, patches))
 - Patches must arrive in order and without gaps. Bulk actions send more than a call would.
 
 The [Client/Server example](./examples/clientServer/clientServer.mdx) shows it end to end.
+
+### New model ids for snapshots
+
+A model outside the tree goes as its snapshot, model id included, and by default it is decoded keeping that id. When the server accepts snapshots from clients (e.g. `addMap(key, mapSnapshot)` with a map read from a file), the same snapshot can arrive twice, and two models with the same id in one tree break the replicas: `applyPatches` and `applySnapshot` reconcile models by id, so the second one would be mistaken for the first.
+
+Decode the calls clients send with `generateNewIds`, so every model decoded from a snapshot (nested ones included) gets a new id, as `fromSnapshot(snapshot, { generateNewIds: true })` would:
+
+```ts
+const call = serializer.decodeCall(root, json, { generateNewIds: true })
+```
+
+References are unaffected: they still resolve to the nodes they point to. `decodeValue(root, json, { generateNewIds: true })` does the same for a value. Keep the default when the ids must match another tree, e.g. on a replica that decodes calls the server already ran.
 
 ## Beyond calls
 
