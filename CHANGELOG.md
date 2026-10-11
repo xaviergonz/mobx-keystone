@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 2.4.0
 
 - New serialization API for sending values and calls as JSON (see the new "Serialization" docs page):
   - `createSerializer({ serializers, builtins })` composes `ValueSerializer`s into a `Serializer` with `encodeValue` / `decodeValue` / `encodeCall` / `decodeCall`, all taking the tree root first. The format marks special values as `{ "$mobxKeystone": tag, "v": payload }`; dates, maps, sets, non-finite numbers, bigints, `undefined`, data model instances and models outside the tree (as snapshots) are handled by built-in serializers (the `builtinSerializers` record), and anything else that isn't JSON fails instead of being dropped.
