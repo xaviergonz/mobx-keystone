@@ -38,6 +38,7 @@ html:root {
   --ifm-table-border-color: #e9e6e2;
   --ifm-table-stripe-background: rgba(26, 28, 33, 0.025);
   --doc-sidebar-width: 272px;
+  --doc-sidebar-hidden-width: 30px;
   --docs-border: #e9e6e2;
   --docs-sidebar-background: rgba(250, 249, 247, 0.55);
   --docs-accent-foreground: #fff;
@@ -277,13 +278,6 @@ html.plugin-docs #__docusaurus::before {
 .navbar__search-input:focus-visible {
   outline: var(--ifm-color-primary) solid 2px;
   outline-offset: 2px;
-}
-
-.theme-doc-sidebar-container {
-  background: var(--docs-sidebar-background);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-  border-right-color: var(--mk-glass-border) !important;
 }
 
 .theme-doc-sidebar-menu {
