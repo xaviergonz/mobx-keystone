@@ -1,5 +1,7 @@
 # Change Log
 
+## Unreleased
+
 ## 2.4.1
 
 - `Serializer.decodeCall` and `Serializer.decodeValue` take a `{ generateNewIds }` option (`DecodeOptions`) that gives new model ids to the models decoded from snapshots, nested ones included, e.g. for a server that accepts snapshots from clients, where duplicate ids would break `applyPatches` and `applySnapshot` on replicas. References are unaffected and ids are still kept by default. Value serializers see it as `DecodeContext.generateNewIds`.
