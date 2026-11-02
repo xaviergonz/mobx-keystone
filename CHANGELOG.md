@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed `ObjectMap` treating properties inherited from `Object.prototype` as entries: `has("toString")` returned `true`, `get("toString")` the inherited function (`get("__proto__")` returned `Object.prototype`), `delete` returned `true` without removing anything, and `getOrInsert` / `getOrInsertComputed` returned the inherited value without inserting. They now behave like a `Map`: a key is only an entry once it is set, keys such as `toString`, `constructor` or `__proto__` can be stored as entries, and reactions reading `has(key)` / `get(key)` re-run when such an entry is added or removed. Other map wrappers (`asMap`, `types.mapFromObject`, `objectToMapTransform`) already behaved this way. MobX 4 still cannot store entries named like inherited properties, since its `set` fails for them.
+
 ## 2.4.1
 
 - `Serializer.decodeCall` and `Serializer.decodeValue` take a `{ generateNewIds }` option (`DecodeOptions`) that gives new model ids to the models decoded from snapshots, nested ones included, e.g. for a server that accepts snapshots from clients, where duplicate ids would break `applyPatches` and `applySnapshot` on replicas. References are unaffected and ids are still kept by default. Value serializers see it as `DecodeContext.generateNewIds`.

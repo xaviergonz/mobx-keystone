@@ -19,6 +19,30 @@ test("map codecs preserve __proto__ keys", () => {
   expect(Object.hasOwn(root.$.values, "__proto__")).toBe(true)
 })
 
+test.each(["toString", "constructor", "hasOwnProperty", "__proto__"])(
+  "object-backed map codecs do not see the inherited %s property as an entry",
+  (key) => {
+    @testModel(`MapCodecInheritedKeys/${key}`)
+    class Store extends Model({ values: tProp(types.mapFromObject(types.bigint)) }) {}
+    const root = new Store({ values: new Map([["a", 1n]]) })
+    expect(root.values.has(key)).toBe(false)
+    expect(root.values.get(key)).toBe(undefined)
+    expect(root.values.size).toBe(1)
+
+    // MobX 4 cannot add observable properties named like inherited ones.
+    if (getMobxVersion() === 4) return
+    runUnprotected(() => {
+      expect(root.values.getOrInsert(key, 2n)).toBe(2n)
+    })
+    expect(root.values.get(key)).toBe(2n)
+    expect(Object.hasOwn(root.$.values, key)).toBe(true)
+    runUnprotected(() => {
+      expect(root.values.delete(key)).toBe(true)
+    })
+    expect(root.values.has(key)).toBe(false)
+  }
+)
+
 test.each([
   ["object", false],
   ["object", true],

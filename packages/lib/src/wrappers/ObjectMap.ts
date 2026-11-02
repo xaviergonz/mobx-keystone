@@ -1,4 +1,15 @@
-import { entries, get, has, keys, remove, values } from "mobx"
+import {
+  createAtom,
+  entries,
+  get,
+  has,
+  type IAtom,
+  type IObjectDidChange,
+  keys,
+  observe,
+  remove,
+  values,
+} from "mobx"
 import { modelAction } from "../action/modelAction"
 import type { AnyModel } from "../model/BaseModel"
 import { modelIdKey } from "../model/metadata"
@@ -8,8 +19,45 @@ import { idProp } from "../modelShared/prop"
 import { typesRecord } from "../types/objectBased/typesRecord"
 import { tProp } from "../types/tProp"
 import { typesUnchecked } from "../types/utility/typesUnchecked"
-import { namespace, setProtoProp } from "../utils"
+import { hasOwnProp, namespace, setProtoProp } from "../utils"
 import { setIfDifferent } from "../utils/setIfDifferent"
+
+const objectPrototype = Object.prototype
+
+/**
+ * Per items object, an atom per key named like an Object.prototype property
+ * (e.g. `toString` or `__proto__`) that changes when that entry is added or removed.
+ */
+const inheritedNameKeyAtoms = new WeakMap<object, Map<string, IAtom>>()
+
+/**
+ * MobX may resolve keys through the prototype chain, so the key it subscribes to for a name
+ * inherited from Object.prototype counts as present whether the entry exists or not, and adding
+ * or removing the entry does not notify. This subscribes to an atom that does.
+ */
+function reportInheritedNameKeyObserved(items: object, key: string): void {
+  let atoms = inheritedNameKeyAtoms.get(items)
+  if (!atoms) {
+    const newAtoms = new Map<string, IAtom>()
+    // kept for as long as items (there are only so many inherited names): a computed read in
+    // an action can track an atom without MobX reporting it as observed, so there is no
+    // reliable point to dispose them
+    observe(items, (change: IObjectDidChange) => {
+      if (change.type === "add" || change.type === "remove") {
+        newAtoms.get(change.name as string)?.reportChanged()
+      }
+    })
+    inheritedNameKeyAtoms.set(items, newAtoms)
+    atoms = newAtoms
+  }
+
+  let atom = atoms.get(key)
+  if (!atom) {
+    atom = createAtom(`ObjectMap.${key}?`)
+    atoms.set(key, atom)
+  }
+  atom.reportObserved()
+}
 
 const objectMapBase = Model({
   [modelIdKey]: idProp,
@@ -64,7 +112,15 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
   }
 
   get(key: string): V | undefined {
-    return get(this.items, key)
+    const items = this.items
+    const value = get(items, key)
+    // MobX may resolve keys through the prototype chain, so properties inherited from
+    // Object.prototype can show up as values
+    if (value !== undefined && key in objectPrototype && !hasOwnProp(items, key)) {
+      reportInheritedNameKeyObserved(items, key)
+      return undefined
+    }
+    return value
   }
 
   getOrInsert(key: string, defaultValue: V): V {
@@ -82,7 +138,17 @@ export class ObjectMap<V> extends objectMapBase implements Map<string, V> {
   }
 
   has(key: string): boolean {
-    return has(this.items, key)
+    const items = this.items
+    // this read also subscribes to the key while it is missing
+    if (!has(items, key)) {
+      return false
+    }
+    // items inherits from Object.prototype, so any other key MobX reports is an own entry
+    if (key in objectPrototype) {
+      reportInheritedNameKeyObserved(items, key)
+      return hasOwnProp(items, key)
+    }
+    return true
   }
 
   @modelAction

@@ -1,6 +1,7 @@
 import { computed, intercept, observable, observe, reaction, runInAction, set, toJS } from "mobx"
 import { asMap, Model, mapToArray, mapToObject, modelAction, prop, runUnprotected } from "../../src"
-import { testModel } from "../utils"
+import { getMobxVersion } from "../../src/utils"
+import { autoDispose, testModel } from "../utils"
 
 test("mapToObject preserves a literal __proto__ key", () => {
   const value = { name: "value" }
@@ -295,3 +296,36 @@ test("array-backed maps respect canceled additions to an empty array", () => {
     stopObserving()
   }
 })
+
+test.each(["toString", "constructor", "hasOwnProperty", "__proto__"])(
+  "object-backed maps do not see the inherited %s property as an entry",
+  (key) => {
+    const object = observable({ a: 1 } as Record<string, number>)
+    const map = asMap(object)
+    expect(map.has(key)).toBe(false)
+    expect(map.get(key)).toBe(undefined)
+    expect(map.size).toBe(1)
+
+    // MobX 4 cannot add observable properties named like inherited ones.
+    if (getMobxVersion() === 4) return
+
+    const observed: (number | undefined)[] = []
+    autoDispose(
+      reaction(
+        () => map.get(key),
+        (v) => observed.push(v)
+      )
+    )
+    runInAction(() => {
+      expect(map.getOrInsert(key, 2)).toBe(2)
+    })
+    expect(Object.hasOwn(object, key)).toBe(true)
+    expect(Object.getPrototypeOf(object)).toBe(Object.prototype)
+    runInAction(() => {
+      expect(map.delete(key)).toBe(true)
+    })
+    expect(Object.hasOwn(object, key)).toBe(false)
+    expect(map.has(key)).toBe(false)
+    expect(observed).toEqual([2, undefined])
+  }
+)
