@@ -859,6 +859,43 @@ test("statics get inherited", () => {
   expect(StaticB.bar).toBe("bar")
 })
 
+test("issue #598 - statics shadowing non-writable Function.prototype props get inherited", () => {
+  // the decorator metadata proposal (and core-js, which polyfills it) defines
+  // Function.prototype[Symbol.metadata] as a non-writable null, and classes with
+  // standard decorators get an own enumerable Symbol.metadata static
+  const metadataKey = Symbol("Symbol.metadata")
+  Object.defineProperty(Function.prototype, metadataKey, {
+    value: null,
+    writable: false,
+    enumerable: false,
+    configurable: true,
+  })
+
+  try {
+    @testModel("issue #598/A")
+    class A extends Model({ x: prop(1) }) {}
+
+    const metadata = {}
+    Object.defineProperty(A, metadataKey, {
+      value: metadata,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    })
+
+    @testModel("issue #598/B")
+    class B extends ExtendedModel(A, { y: prop(2) }) {}
+
+    expect((B as any)[metadataKey]).toBe(metadata)
+
+    const b = new B({})
+    expect(b.x).toBe(1)
+    expect(b.y).toBe(2)
+  } finally {
+    delete (Function.prototype as any)[metadataKey]
+  }
+})
+
 test("modelAction, modelFlow and subclassing", async () => {
   abstract class BM extends Model({
     id: idProp,

@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- Fixed `ExtendedModel` throwing "Cannot assign to read only property 'Symbol(Symbol.metadata)'" when the base class uses standard decorators and decorator metadata is supported (natively or through a polyfill such as core-js) (#598). In non-strict builds such as the UMD one it didn't throw, but the subclass didn't get the base class's `Symbol.metadata`.
+
 ## 2.4.2
 
 - Fixed `ObjectMap` treating properties inherited from `Object.prototype` as entries: `has("toString")` returned `true`, `get("toString")` the inherited function (`get("__proto__")` returned `Object.prototype`), `delete` returned `true` without removing anything, and `getOrInsert` / `getOrInsertComputed` returned the inherited value without inserting. They now behave like a `Map`: a key is only an entry once it is set, keys such as `toString`, `constructor` or `__proto__` can be stored as entries, and reactions reading `has(key)` / `get(key)` re-run when such an entry is added or removed. Other map wrappers (`asMap`, `types.mapFromObject`, `objectToMapTransform`) already behaved this way. MobX 4 still cannot store entries named like inherited properties, since its `set` fails for them.

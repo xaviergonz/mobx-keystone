@@ -329,12 +329,20 @@ export function sharedInternalModel<
   // Copy static props from the base without reading its lazy snapshot processor
   // accessors. This keeps subclass declaration from compiling the parent model's
   // processor graph before snapshot processing is actually needed.
+  // Props are defined rather than assigned, since assigning fails for keys that are
+  // non-writable on Function.prototype (e.g. Symbol.metadata, added by standard
+  // decorators).
   for (const key of Reflect.ownKeys(base)) {
     if (key === "fromSnapshotProcessor" || key === "toSnapshotProcessor") {
       continue
     }
     if (Object.prototype.propertyIsEnumerable.call(base, key)) {
-      ;(ThisModel as any)[key] = (base as any)[key]
+      Object.defineProperty(ThisModel, key, {
+        value: (base as any)[key],
+        writable: true,
+        enumerable: true,
+        configurable: true,
+      })
     }
   }
   delete (ThisModel as any)[modelUnwrappedClassSymbol]
