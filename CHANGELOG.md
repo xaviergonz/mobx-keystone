@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 2.4.3
 
 - Fixed `ExtendedModel` throwing "Cannot assign to read only property 'Symbol(Symbol.metadata)'" when the base class uses standard decorators and decorator metadata is supported (natively or through a polyfill such as core-js) (#598). In non-strict builds such as the UMD one it didn't throw, but the subclass didn't get the base class's `Symbol.metadata`.
 
